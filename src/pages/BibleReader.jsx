@@ -97,7 +97,7 @@ export default function BibleReader() {
   };
 
   const goPrev = () => {
-    if (pos.chapter > 1) {
+    if (pos.chapter > 0) {
       navigate(pos.abbr, pos.chapter - 1);
     } else {
       const prev = getPrevBook(pos.abbr);
@@ -128,7 +128,7 @@ export default function BibleReader() {
               <div className="absolute top-full left-0 mt-1 z-50">
                 <BookSelector
                   currentAbbr={pos.abbr}
-                  onSelect={(b) => navigate(b.abbr, 1)}
+                  onSelect={(b) => navigate(b.abbr, (b.abbr === 'GEN' || b.abbr === 'MAT') ? 0 : 1)}
                   onClose={() => setShowBookPicker(false)}
                 />
               </div>
