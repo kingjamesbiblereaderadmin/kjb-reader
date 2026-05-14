@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
 import { Copy, Share2, X, Highlighter, ChevronDown } from 'lucide-react';
 
-export default function VerseText({ verse, highlight = false, id, bookName, chapter, isColophon = false }) {
+export default function VerseText({ verse, highlight = false, id, bookName, chapter, isColophon = false, isFirstVerse = false }) {
   const [selected, setSelected] = useState(false);
   const [showHighlight, setShowHighlight] = useState(highlight);
   const [highlightColor, setHighlightColor] = useState('accent');
@@ -25,7 +25,9 @@ export default function VerseText({ verse, highlight = false, id, bookName, chap
     }
   }, [highlight]);
 
-  const html = renderVerseText(verse.text);
+  // Strip subscript markers from first verse text to avoid duplication
+  const displayVerseText = isFirstVerse ? verse.text.replace(/^[A-Z][^:]*:\s*/, '') : verse.text;
+  const html = renderVerseText(displayVerseText);
 
   const verseRef = `${bookName} ${chapter}:${verse.verse}`;
   // Strip [brackets] and ¶ for clean share text, label as KJB

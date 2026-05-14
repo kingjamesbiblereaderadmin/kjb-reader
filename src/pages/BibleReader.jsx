@@ -256,7 +256,7 @@ export default function BibleReader() {
         )}
         {!loading && !error && verses.length > 0 && (
           <div className="text-justify hyphens-auto">
-            {verses.map(v => (
+            {verses.map((v, idx) => (
               <VerseText
                 key={v.verse}
                 verse={v}
@@ -265,6 +265,7 @@ export default function BibleReader() {
                 bookName={book.name}
                 chapter={pos.chapter}
                 isColophon={COLOPHONS[`${book.apiName}:${pos.chapter}`] === v.verse}
+                isFirstVerse={idx === 0}
               />
             ))}
             {pos.abbr === 'MAL' && pos.chapter === 4 && (
