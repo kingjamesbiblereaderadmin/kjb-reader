@@ -42,7 +42,8 @@ export default function BibleReader() {
     setLoading(true);
     setError(null);
     setVerses([]);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Always scroll to top first; verse centering happens after load
+    window.scrollTo({ top: 0 });
     const b = BIBLE_BOOKS.find(bk => bk.abbr === bookAbbr);
     if (!b) { setError('Book not found'); setLoading(false); return; }
     const data = await fetchChapter(b.apiName, chapter);
@@ -58,13 +59,17 @@ export default function BibleReader() {
   }, []);
 
   useEffect(() => {
-    if (highlightVerse && !loading) {
-      setTimeout(() => {
-        const el = document.getElementById(`v${highlightVerse}`);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 100);
-    } else if (!highlightVerse && topRef.current) {
-      topRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (!loading) {
+      if (highlightVerse) {
+        // Center on the specific verse
+        setTimeout(() => {
+          const el = document.getElementById(`v${highlightVerse}`);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      } else {
+        // No verse target — ensure we're at the top
+        window.scrollTo({ top: 0 });
+      }
     }
   }, [verses, loading, highlightVerse]);
 
