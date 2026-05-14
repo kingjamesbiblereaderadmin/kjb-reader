@@ -138,7 +138,10 @@ export default function BibleReader() {
               <div className="absolute top-full left-0 mt-1 z-50">
                 <BookSelector
                   currentAbbr={pos.abbr}
-                  onSelect={(b, isTitlePage) => navigate(b.abbr, isTitlePage ? 0 : 1)}
+                  onSelect={(b, isTitlePage) => {
+                    const chapter = isTitlePage ? 0 : 1;
+                    navigate(b.abbr, chapter);
+                  }}
                   onClose={() => setShowBookPicker(false)}
                 />
               </div>

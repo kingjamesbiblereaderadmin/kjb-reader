@@ -18,7 +18,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
             : 'hover:bg-secondary text-foreground'
         }`}
       >
-        <span>{book.name}</span>
+        <span>{book.shortName}</span>
         <span className="ml-2 text-xs text-muted-foreground">{book.chapters} ch.</span>
       </button>
     );
@@ -44,7 +44,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
               onClick={() => { onSelect({ abbr: 'GEN', name: 'Genesis', chapters: 50, shortName: 'Gen' }, true); onClose(); }}
               className="w-full text-left px-3 py-1.5 rounded text-sm font-sans transition-colors hover:bg-secondary text-foreground"
             >
-              <span>Genesis Title Page</span>
+              <span>Gen Title Page</span>
               <span className="ml-2 text-xs text-muted-foreground">intro</span>
             </button>
             {OLD_TESTAMENT.map(renderBook)}
@@ -65,7 +65,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
               onClick={() => { onSelect({ abbr: 'MAT', name: 'Matthew', chapters: 28, shortName: 'Mat' }, true); onClose(); }}
               className="w-full text-left px-3 py-1.5 rounded text-sm font-sans transition-colors hover:bg-secondary text-foreground"
             >
-              <span>Matthew Title Page</span>
+              <span>Mat Title Page</span>
               <span className="ml-2 text-xs text-muted-foreground">intro</span>
             </button>
             {NEW_TESTAMENT.map(renderBook)}
