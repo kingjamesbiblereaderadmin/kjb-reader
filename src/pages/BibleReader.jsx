@@ -229,6 +229,15 @@ export default function BibleReader() {
                 id={`v${v.verse}`}
               />
             ))}
+            {pos.abbr === 'MAL' && pos.chapter === 4 && (
+              <div className="mt-10 flex flex-col items-center gap-2 text-center select-none">
+                <div className="w-24 h-px bg-accent/50" />
+                <p className="font-serif text-base italic text-muted-foreground tracking-wide">
+                  End of the Prophets
+                </p>
+                <div className="w-24 h-px bg-accent/50" />
+              </div>
+            )}
           </div>
         )}
       </div>
