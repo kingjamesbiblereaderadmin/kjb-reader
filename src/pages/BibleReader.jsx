@@ -88,6 +88,10 @@ export default function BibleReader() {
   }, [verses, loading, highlightVerse]);
 
   const navigate = (newAbbr, newChapter, jumpVerse = null) => {
+    // Prevent chapter 0 for non-GEN/MAT books
+    if (newChapter === 0 && newAbbr !== 'GEN' && newAbbr !== 'MAT') {
+      return;
+    }
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);
     loadChapter(newAbbr, newChapter, jumpVerse);
