@@ -39,6 +39,9 @@ export default function BibleReader() {
   const topRef = useRef(null);
   const book = BIBLE_BOOKS.find(b => b.abbr === pos.abbr) || BIBLE_BOOKS[0];
 
+  // Determine if viewing a title page (chapter 0)
+  const isViewingTitlePage = pos.chapter === 0 && (pos.abbr === 'GEN' || pos.abbr === 'MAT');
+
   const loadChapter = useCallback(async (bookAbbr, chapter, jumpVerse) => {
     setLoading(true);
     setError(null);
@@ -78,25 +81,12 @@ export default function BibleReader() {
     window.scrollTo({ top: 0 });
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);
-    
-    // Show title page before Genesis 1 or Matthew 1
-    if ((newAbbr === 'GEN' && newChapter === 1) || (newAbbr === 'MAT' && newChapter === 1)) {
-      setVerses([]);
-      setLoading(false);
-      setHighlightVerse(null);
-    } else {
-      loadChapter(newAbbr, newChapter, jumpVerse);
-      setHighlightVerse(jumpVerse);
-    }
+    loadChapter(newAbbr, newChapter, jumpVerse);
+    setHighlightVerse(jumpVerse);
   };
 
   const goNext = () => {
-    const isOnTitlePage = verses.length === 0 && (pos.abbr === 'GEN' || pos.abbr === 'MAT') && pos.chapter === 1;
-    
-    if (isOnTitlePage) {
-      // From title page, load chapter 1 content
-      loadChapter(pos.abbr, 1);
-    } else if (pos.chapter < book.chapters) {
+    if (pos.chapter < book.chapters) {
       navigate(pos.abbr, pos.chapter + 1);
     } else {
       const next = getNextBook(pos.abbr);
@@ -116,7 +106,7 @@ export default function BibleReader() {
   };
 
   const isLastChapterLastBook = pos.abbr === 'REV' && pos.chapter === 22;
-  const isFirstChapterFirstBook = pos.abbr === 'GEN' && pos.chapter === 1;
+  const isFirstChapterFirstBook = pos.abbr === 'GEN' && pos.chapter === 0;
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
@@ -151,7 +141,7 @@ export default function BibleReader() {
               onClick={() => { setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); }}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
             >
-              Ch. {pos.chapter}
+              Ch. {isViewingTitlePage ? 'Intro' : pos.chapter}
               <ChevronRight className="w-3 h-3 opacity-70" />
             </button>
             {showChapterPicker && (
@@ -207,7 +197,7 @@ export default function BibleReader() {
             </button>
             <button
               onClick={goNext}
-              disabled={isLastChapterLastBook}
+              disabled={isLastChapterLastBook || isViewingTitlePage}
               className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-colors"
             >
               <ChevronRight className="w-4 h-4" />
@@ -225,7 +215,7 @@ export default function BibleReader() {
       )}
 
       {/* Book title — hidden when showing title page */}
-      {!((verses.length === 0 && (pos.abbr === 'GEN' || pos.abbr === 'MAT') && pos.chapter === 1)) && (
+      {!isViewingTitlePage && (
         <div className="text-center mb-6">
           <p className="font-sans text-xs text-muted-foreground tracking-widest uppercase mb-1">
             {book.testament === 'old' ? 'Old Testament' : 'New Testament'}
@@ -252,7 +242,7 @@ export default function BibleReader() {
         {error && (
           <div className="text-center py-16 text-destructive font-sans">{error}</div>
         )}
-        {!loading && !error && verses.length === 0 && (pos.abbr === 'GEN' || pos.abbr === 'MAT') && pos.chapter === 1 && (
+        {!loading && !error && isViewingTitlePage && (
           <TitlePage type={pos.abbr === 'GEN' ? 'testament-old' : 'testament-new'} />
         )}
         {!loading && !error && verses.length > 0 && (
@@ -293,17 +283,21 @@ export default function BibleReader() {
             <ChevronLeft className="w-4 h-4" />
             {isFirstChapterFirstBook
               ? 'Beginning'
+              : isViewingTitlePage
+              ? `${getPrevBook(pos.abbr)?.shortName} ${getPrevBook(pos.abbr)?.chapters}`
               : pos.chapter > 1
               ? `Chapter ${pos.chapter - 1}`
-              : `${getPrevBook(pos.abbr)?.shortName} ${getPrevBook(pos.abbr)?.chapters}`}
+              : `${book.shortName} Intro`}
           </button>
 
           <button
             onClick={goNext}
-            disabled={isLastChapterLastBook}
+            disabled={isLastChapterLastBook || isViewingTitlePage}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-30 transition-colors"
           >
-            {pos.chapter < book.chapters
+            {isViewingTitlePage
+              ? `Chapter 1`
+              : pos.chapter < book.chapters
               ? `Chapter ${pos.chapter + 1}`
               : `${getNextBook(pos.abbr)?.shortName} 1`}
             <ChevronRight className="w-4 h-4" />
