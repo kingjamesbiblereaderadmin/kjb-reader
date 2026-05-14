@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { path: '/gospel', icon: Heart, label: 'Gospel' },
   { path: '/resources', icon: Library, label: 'Resources' },
   { path: '/about', icon: Info, label: 'About' },
+  { path: '/settings', icon: Settings, label: 'Settings' },
 ];
 
 export default function AppLayout() {
