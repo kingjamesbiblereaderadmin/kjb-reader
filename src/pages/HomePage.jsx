@@ -44,28 +44,31 @@ export default function HomePage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
-      {/* Daily photo hero */}
-      <div className="w-full h-52 md:h-72 overflow-hidden rounded-2xl mb-8 relative shadow-lg">
+      {/* Daily photo hero with verse overlay */}
+      <div className="w-full overflow-hidden rounded-2xl mb-8 relative shadow-lg">
         <img
           src={imgUrl}
           alt="Daily photo"
-          className="w-full h-full object-cover"
+          className="w-full h-64 md:h-96 object-cover"
           onError={(e) => { e.target.parentNode.style.display = 'none'; }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent rounded-2xl" />
-        <div className="absolute bottom-5 left-5 right-5">
-          <p className="font-serif text-white text-2xl md:text-3xl font-bold drop-shadow mb-1">King James Bible</p>
-          <p className="font-sans text-white/80 text-xs md:text-sm">Pure Cambridge Edition</p>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 rounded-2xl" />
+        <div className="absolute inset-0 flex flex-col justify-between p-5 md:p-8">
+          {/* Top label */}
+          <div>
+            <p className="font-sans text-white/60 text-xs tracking-widest uppercase font-semibold">Verse of the Day</p>
+          </div>
+          {/* Verse content */}
+          <div>
+            <blockquote className="font-serif text-white text-lg md:text-2xl font-medium leading-relaxed italic drop-shadow-lg mb-3">
+              "{verse.text}"
+            </blockquote>
+            <p className="font-sans text-white/80 text-sm font-semibold">— {verse.ref} (KJB)</p>
+            <div className="mt-4 pt-4 border-t border-white/20">
+              <p className="font-serif text-white/70 text-sm">King James Bible · Pure Cambridge Edition</p>
+            </div>
+          </div>
         </div>
-      </div>
-
-      {/* Verse of the day */}
-      <div className="bg-card border border-border rounded-2xl p-6 mb-8 shadow-sm">
-        <p className="font-sans text-xs text-accent font-semibold tracking-widest uppercase mb-3">Verse of the Day</p>
-        <blockquote className="font-serif text-lg md:text-xl text-foreground leading-relaxed italic mb-3">
-          "{verse.text}"
-        </blockquote>
-        <p className="font-sans text-sm text-muted-foreground font-medium">— {verse.ref} (KJB)</p>
       </div>
 
       {/* Quick links */}
