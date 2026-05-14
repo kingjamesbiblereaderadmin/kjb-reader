@@ -3,20 +3,26 @@ import { Link } from 'react-router-dom';
 import { BookOpen, Heart, Library, Info, List } from 'lucide-react';
 
 const DAILY_IMAGES = [
-  "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1200&q=80", // sunlit forest
-  "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80", // mountain sunrise
-  "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1200&q=80", // green valley
-  "https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=1200&q=80", // ocean waves
-  "https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=1200&q=80", // misty forest
-  "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1200&q=80", // golden field
-  "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80", // mountain lake
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80", // waterfall
-  "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1200&q=80", // sunrise meadow
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200&q=80", // snowy peaks
-  "https://images.unsplash.com/photo-1476611338391-6f395a0ebc7b?w=1200&q=80", // autumn forest
-  "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=1200&q=80", // wildflowers
-  "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1200&q=80", // calm lake reflection
-  "https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=1200&q=80", // birds in sky
+  "https://images.unsplash.com/photo-1474511320723-9a56873867b5?w=1200&q=80", // fox in snow
+  "https://images.unsplash.com/photo-1504173010664-32509107de41?w=1200&q=80", // deer in forest
+  "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=1200&q=80", // turtle underwater
+  "https://images.unsplash.com/photo-1459262838948-3e2de6c1ec80?w=1200&q=80", // bird on branch
+  "https://images.unsplash.com/photo-1425082661705-1834bfd09dca?w=1200&q=80", // lion in grass
+  "https://images.unsplash.com/photo-1490100667990-4951dc4a5b40?w=1200&q=80", // colourful flowers
+  "https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=1200&q=80", // dog in field
+  "https://images.unsplash.com/photo-1497752531616-c3afd9760a11?w=1200&q=80", // butterfly on flower
+  "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=1200&q=80", // green fern leaves
+  "https://images.unsplash.com/photo-1462275646964-a0e3386b89fa?w=1200&q=80", // elephant walk
+  "https://images.unsplash.com/photo-1516912481808-3406841bd33c?w=1200&q=80", // snowy owl
+  "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=1200&q=80", // sunflower field
+  "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1200&q=80", // whale breaching
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80", // hummingbird
+  "https://images.unsplash.com/photo-1456926631375-92c8ce872def?w=1200&q=80", // cherry blossom
+  "https://images.unsplash.com/photo-1612831455359-970e23a1e4e9?w=1200&q=80", // zebra herd
+  "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=1200&q=80", // golden retriever puppy
+  "https://images.unsplash.com/photo-1552728089-57bdde30beb3?w=1200&q=80", // tropical parrot
+  "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=1200&q=80", // wildflower meadow
+  "https://images.unsplash.com/photo-1520315342629-6ea920342047?w=1200&q=80", // peacock feathers
 ];
 
 const DAILY_VERSES = [
@@ -60,12 +66,12 @@ export default function HomePage() {
           </div>
           {/* Verse content */}
           <div>
-            <blockquote className="font-serif text-white text-lg md:text-2xl font-medium leading-relaxed italic drop-shadow-lg mb-3">
+            <blockquote className="font-serif text-white text-lg md:text-2xl font-medium leading-snug italic drop-shadow-lg mb-3 text-left">
               "{verse.text}"
             </blockquote>
-            <p className="font-sans text-white/80 text-sm font-semibold">— {verse.ref} (KJB)</p>
+            <p className="font-sans text-white/80 text-sm font-semibold text-left">— {verse.ref} (KJB)</p>
             <div className="mt-4 pt-4 border-t border-white/20">
-              <p className="font-serif text-white/70 text-sm">King James Bible · Pure Cambridge Edition</p>
+              <p className="font-serif text-white/70 text-sm text-left">King James Bible · Pure Cambridge Edition</p>
             </div>
           </div>
         </div>
