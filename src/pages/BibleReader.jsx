@@ -126,25 +126,22 @@ export default function BibleReader() {
         {/* Book / Chapter / Verse selectors */}
         <div className="flex flex-wrap items-center gap-2 pt-3">
           {/* Book selector */}
-          <div className="relative">
-            <button
-              onClick={() => { setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
-            >
-              <BookOpen className="w-3.5 h-3.5" />
-              <span>{book.shortName}</span>
-              <ChevronRight className="w-3 h-3 opacity-70" />
-            </button>
-            {showBookPicker && (
-              <div className="absolute top-full left-0 mt-1 z-50">
-                <BookSelector
-                  currentAbbr={pos.abbr}
-                  onSelect={(b) => navigate(b.abbr, (b.abbr === 'GEN' || b.abbr === 'MAT') ? 0 : 1)}
-                  onClose={() => setShowBookPicker(false)}
-                />
-              </div>
-            )}
-          </div>
+          <select
+            value={pos.abbr}
+            onChange={(e) => navigate(e.target.value, (e.target.value === 'GEN' || e.target.value === 'MAT') ? 0 : 1)}
+            className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 cursor-pointer"
+          >
+            <optgroup label="Old Testament">
+              {BIBLE_BOOKS.filter(b => b.testament === 'old').map(b => (
+                <option key={b.abbr} value={b.abbr}>{b.name}</option>
+              ))}
+            </optgroup>
+            <optgroup label="New Testament">
+              {BIBLE_BOOKS.filter(b => b.testament === 'new').map(b => (
+                <option key={b.abbr} value={b.abbr}>{b.name}</option>
+              ))}
+            </optgroup>
+          </select>
 
           {/* Chapter selector */}
           <div className="relative">
@@ -214,10 +211,10 @@ export default function BibleReader() {
       </div>
 
       {/* Click outside to close dropdowns */}
-      {(showBookPicker || showChapterPicker || showVersePicker) && (
+      {(showChapterPicker || showVersePicker) && (
         <div
           className="fixed inset-0 z-30"
-          onClick={() => { setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); }}
+          onClick={() => { setShowChapterPicker(false); setShowVersePicker(false); }}
         />
       )}
 

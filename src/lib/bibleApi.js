@@ -20,8 +20,8 @@ export async function fetchVerseCount(bookApiName, chapter) {
 
 // Render verse text: turn [word] into <em>word</em> for KJB italics
 export function renderVerseText(text) {
-  // Strip <> and >> markers
-  let cleaned = text.replace(/<>|>>/g, '');
+  // Strip <>, >>, and > markers
+  let cleaned = text.replace(/<>|>>|>/g, '');
   const parts = cleaned.split(/\[([^\]]+)\]/g);
   return parts.map((part, i) =>
     i % 2 === 1 ? `<em>${part}</em>` : part
