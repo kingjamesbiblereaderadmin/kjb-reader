@@ -88,11 +88,9 @@ export default function BibleReader() {
   }, [verses, loading, highlightVerse]);
 
   const navigate = (newAbbr, newChapter, jumpVerse = null) => {
-    window.scrollTo({ top: 0 });
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);
     loadChapter(newAbbr, newChapter, jumpVerse);
-    setHighlightVerse(jumpVerse);
   };
 
   const goNext = () => {
