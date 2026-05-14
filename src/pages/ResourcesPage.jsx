@@ -42,7 +42,9 @@ const PREACHERS = [
     name: 'Robert Potthoff',
     desc: 'Big Red Preacher — KJB soul winner.',
     links: [
-      'https://linktr.ee/BigRedPreacher',
+      'https://www.instagram.com/robert.potthoff/',
+      'https://www.facebook.com/potthoff87',
+      'https://www.instagram.com/big_red_preacher',
     ],
   },
   {
@@ -65,7 +67,8 @@ const PREACHERS = [
     name: 'Skyler (AV1611 Ministry)',
     desc: 'AV1611 Ministry — KJB defence and preaching.',
     links: [
-      'https://www.youtube.com/@AV1611Ministry',
+      'https://www.tiktok.com/@av1611ministries',
+      'https://youtube.com/@av1611ministries',
     ],
   },
   {
@@ -73,6 +76,14 @@ const PREACHERS = [
     desc: 'KJB preaching ministry on YouTube.',
     links: [
       'https://www.youtube.com/@CrownOfThorns',
+    ],
+  },
+  {
+    name: 'Paul Johnson',
+    desc: 'Biblical Salvation — KJB preaching and Bible teaching.',
+    links: [
+      'https://www.tiktok.com/@pauljohnson9632',
+      'https://youtube.com/@biblicalsalvation',
     ],
   },
   {
