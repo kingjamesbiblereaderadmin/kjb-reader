@@ -5,29 +5,28 @@ export default function TitlePage({ type }) {
     return (
       <div className="h-screen flex items-center justify-center text-center px-4">
         <div className="max-w-2xl">
-          <div className="mb-8 h-px bg-foreground/20" />
-          <p className="font-sans text-sm tracking-widest uppercase text-muted-foreground mb-6">THE</p>
-          <h1 className="font-serif text-6xl md:text-7xl font-bold text-foreground mb-8 leading-tight">
+          <div className="mb-12 h-px bg-foreground/20" />
+          <p className="font-serif text-xs tracking-[0.25em] text-muted-foreground mb-8 font-light">THE</p>
+          <h1 className="font-serif text-7xl md:text-8xl font-light text-foreground mb-10 leading-tight tracking-tight">
             Holy Bible
           </h1>
-          <p className="font-sans text-sm tracking-widest uppercase text-muted-foreground mb-6">Containing the</p>
-          <p className="font-serif text-2xl font-semibold text-foreground mb-8">Old and New Testaments</p>
+          <p className="font-serif text-sm tracking-[0.2em] text-muted-foreground mb-4 font-light">Containing the</p>
+          <p className="font-serif text-xl font-light text-foreground mb-12 tracking-tight">Old and New Testaments</p>
           
-          <p className="font-sans text-xs tracking-widest uppercase text-muted-foreground mb-8 leading-relaxed">
+          <p className="font-serif text-xs tracking-[0.15em] text-muted-foreground mb-10 leading-relaxed font-light">
             Translated out of the original tongues: and with<br />
             the former translations diligently compared<br />
             and revised, by his majesty's special command
           </p>
-          <p className="font-sans text-xs tracking-widest uppercase text-muted-foreground mb-12">
+          <p className="font-serif text-xs tracking-[0.15em] text-muted-foreground mb-12 font-light">
             Appointed to be read in churches
           </p>
 
-          <div className="mb-8 h-px bg-foreground/20" />
+          <div className="mb-12 h-px bg-foreground/20" />
           
-          <p className="font-sans text-sm tracking-widest uppercase text-muted-foreground">
-            Authorized King James Version<br />
-            Pure Cambridge Edition<br />
-            Made in Australia
+          <p className="font-serif text-sm tracking-[0.1em] text-muted-foreground font-light">
+            Authorized King James Bible<br />
+            Pure Cambridge Edition
           </p>
         </div>
       </div>
@@ -38,22 +37,22 @@ export default function TitlePage({ type }) {
     return (
       <div className="h-screen flex items-center justify-center text-center px-4">
         <div className="max-w-2xl">
-          <div className="mb-8 h-px bg-foreground/20" />
-          <p className="font-sans text-sm tracking-widest uppercase text-muted-foreground mb-6">THE</p>
-          <h1 className="font-serif text-6xl md:text-7xl font-bold text-foreground mb-8 leading-tight">
+          <div className="mb-12 h-px bg-foreground/20" />
+          <p className="font-serif text-xs tracking-[0.25em] text-muted-foreground mb-8 font-light">THE</p>
+          <h1 className="font-serif text-7xl md:text-8xl font-light text-foreground mb-10 leading-tight tracking-tight">
             New Testament
           </h1>
-          <p className="font-sans text-sm tracking-widest uppercase text-muted-foreground mb-8">of</p>
-          <p className="font-serif text-2xl font-semibold text-foreground mb-12">
+          <p className="font-serif text-sm tracking-[0.2em] text-muted-foreground mb-6 font-light">of</p>
+          <p className="font-serif text-lg font-light text-foreground mb-14 tracking-tight">
             Our Lord and Saviour<br />Jesus Christ
           </p>
 
-          <p className="font-sans text-xs tracking-widest uppercase text-muted-foreground mb-8 leading-relaxed">
+          <p className="font-serif text-xs tracking-[0.15em] text-muted-foreground mb-10 leading-relaxed font-light">
             Translated out of the original greek: and with<br />
             the former translations diligently compared<br />
             and revised, by his majesty's special command
           </p>
-          <p className="font-sans text-xs tracking-widest uppercase text-muted-foreground">
+          <p className="font-serif text-xs tracking-[0.15em] text-muted-foreground mb-12 font-light">
             Appointed to be read in churches
           </p>
 
