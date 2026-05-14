@@ -1,7 +1,51 @@
 import React from 'react';
-import { ExternalLink, FileText, BookOpen, ShieldAlert, Globe } from 'lucide-react';
+import { ExternalLink, FileText, BookOpen, ShieldAlert, Globe, CheckCircle, Users } from 'lucide-react';
+
+// TikTok icon
+function TikTokIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.72a4.85 4.85 0 01-1.01-.03z"/>
+    </svg>
+  );
+}
+
+const TIKTOK_PREACHERS = [
+  { handle: '@ryan_sohc', url: 'https://www.tiktok.com/@ryan_sohc' },
+  { handle: '@av1611ministries', url: 'https://www.tiktok.com/@av1611ministries' },
+  { handle: '@mission1611', url: 'https://www.tiktok.com/@mission1611' },
+  { handle: '@pauljohnson9632', url: 'https://www.tiktok.com/@pauljohnson9632' },
+  { handle: '@pastor_donnie.t', url: 'https://www.tiktok.com/@pastor_donnie.t' },
+];
 
 const RESOURCES = [
+  {
+    category: "How to Read the Bible",
+    icon: BookOpen,
+    color: "text-green-600",
+    bg: "bg-green-50 dark:bg-green-900/20",
+    items: [
+      {
+        title: "KJBI.org — Free Online Bible College",
+        desc: "King James Bible Institute — a free online Bible college for those who want to go deeper in God's Word. Courses on rightly dividing, dispensationalism, and more.",
+        url: "https://kjbi.org",
+        label: "Visit KJBI.org",
+        verified: true,
+      },
+      {
+        title: "AV Publications",
+        desc: "Books and resources for King James Bible believers.",
+        url: "https://avpublications.com/",
+        label: "avpublications.com",
+      },
+      {
+        title: "Textus Receptus Bibles",
+        desc: "Research on the Textus Receptus — the Greek text underlying the King James Bible.",
+        url: "https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs",
+        label: "Read comparison",
+      },
+    ],
+  },
   {
     category: "KJB Defence",
     icon: ShieldAlert,
@@ -9,16 +53,10 @@ const RESOURCES = [
     bg: "bg-blue-50 dark:bg-blue-900/20",
     items: [
       {
-        title: "King James Bible: Pure Cambridge Edition",
-        desc: "The definitive electronic text of the Pure Cambridge Edition of the KJB. Free downloads in multiple formats.",
+        title: "King James Bible: Pure Cambridge Edition & Free Download",
+        desc: "The definitive electronic text of the Pure Cambridge Edition of the KJB — bibleprotector.com. Free downloads available in PDF, ePub, and TXT formats.",
         url: "https://www.bibleprotector.com",
         label: "bibleprotector.com",
-      },
-      {
-        title: "Free KJB PDF Download",
-        desc: "Download the Pure Cambridge Edition in PDF, ePub, and TXT formats from bibleprotector.com.",
-        url: "https://godisgracious1031ministriescom.odoo.com/web/content/1052?unique=1340ad78694ce33567d3539f3914efbe34a0ff3c&download=true",
-        label: "Download PDF",
       },
       {
         title: "Why the King James Bible is God's Word",
@@ -103,32 +141,6 @@ const RESOURCES = [
     ],
   },
   {
-    category: "Bible Study Resources",
-    icon: BookOpen,
-    color: "text-green-600",
-    bg: "bg-green-50 dark:bg-green-900/20",
-    items: [
-      {
-        title: "KJBI.org — Free Online Bible College",
-        desc: "King James Bible Institute — a free online Bible college for those who want to go deeper in God's Word.",
-        url: "https://kjbi.org",
-        label: "Visit KJBI.org",
-      },
-      {
-        title: "AV Publications",
-        desc: "Books and resources for King James Bible believers.",
-        url: "https://avpublications.com/",
-        label: "avpublications.com",
-      },
-      {
-        title: "Textus Receptus Bibles",
-        desc: "Research on the Textus Receptus — the Greek text underlying the King James Bible.",
-        url: "https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs",
-        label: "Read comparison",
-      },
-    ],
-  },
-  {
     category: "Ministry Links",
     icon: Globe,
     color: "text-purple-500",
@@ -164,6 +176,53 @@ export default function ResourcesPage() {
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
       </div>
 
+      {/* Verified Preachers section */}
+      <div className="mb-10">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 mb-4">
+          <Users className="w-4 h-4 text-amber-600" />
+          <h2 className="font-sans font-semibold text-sm text-amber-600">Verified KJB Preachers</h2>
+        </div>
+        <p className="font-sans text-xs text-muted-foreground mb-3">
+          KJB-believing, soul-winning preachers worth following on TikTok
+        </p>
+        <div className="space-y-2">
+          {TIKTOK_PREACHERS.map(({ handle, url }) => (
+            <a
+              key={handle}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-4 bg-card border border-border rounded-xl hover:border-accent/50 transition-colors group"
+            >
+              <TikTokIcon className="w-4 h-4 flex-shrink-0 text-foreground" />
+              <span className="font-sans text-sm font-medium text-foreground group-hover:text-accent transition-colors flex-1">
+                {handle}
+              </span>
+              <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+              <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />
+            </a>
+          ))}
+        </div>
+
+        {/* KJBI verified */}
+        <a
+          href="https://kjbi.org"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 p-4 bg-card border border-border rounded-xl hover:border-accent/50 transition-colors group mt-2"
+        >
+          <BookOpen className="w-4 h-4 flex-shrink-0 text-green-600" />
+          <div className="flex-1">
+            <span className="font-sans text-sm font-medium text-foreground group-hover:text-accent transition-colors">
+              KJBI.org — Free Online Bible College
+            </span>
+            <p className="font-sans text-xs text-muted-foreground">kjbi.org</p>
+          </div>
+          <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+          <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />
+        </a>
+      </div>
+
       <div className="space-y-10">
         {RESOURCES.map((section) => {
           const Icon = section.icon;
@@ -184,9 +243,14 @@ export default function ResourcesPage() {
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
-                        <h3 className="font-serif text-lg font-semibold text-foreground group-hover:text-accent transition-colors mb-1">
-                          {item.title}
-                        </h3>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-serif text-lg font-semibold text-foreground group-hover:text-accent transition-colors">
+                            {item.title}
+                          </h3>
+                          {item.verified && (
+                            <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                          )}
+                        </div>
                         <p className="font-sans text-sm text-muted-foreground leading-relaxed">
                           {item.desc}
                         </p>
