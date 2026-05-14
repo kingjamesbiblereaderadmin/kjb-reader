@@ -61,6 +61,7 @@ const PREACHERS = [
     links: [
       'https://www.seedofhopechurch.org/',
       'https://youtube.com/@ryan_poff',
+      'https://www.tiktok.com/@ryan_sohc',
     ],
   },
   {
