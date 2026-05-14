@@ -105,9 +105,13 @@ export default function BibleReader() {
   };
 
   const goPrev = () => {
-    if (pos.chapter > 0) {
+    if (pos.chapter > 1) {
       navigate(pos.abbr, pos.chapter - 1);
+    } else if (pos.chapter === 1 && (pos.abbr === 'GEN' || pos.abbr === 'MAT')) {
+      // For GEN/MAT, allow going to chapter 0 (title page)
+      navigate(pos.abbr, 0);
     } else {
+      // Go to previous book's last chapter
       const prev = getPrevBook(pos.abbr);
       if (prev) navigate(prev.abbr, prev.chapters);
     }
