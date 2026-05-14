@@ -124,13 +124,15 @@ export default function BibleSearchBar({ onClose }) {
           className="w-full pl-8 pr-7 py-1.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors"
         />
         {query && (
-          <button type="button" onClick={() => { setQuery(''); setSuggestions([]); }} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-            <X className="w-3.5 h-3.5" />
-          </button>
+          <>
+            <button type="submit" className="absolute right-8 top-1/2 -translate-y-1/2 text-xs font-medium text-accent hover:text-accent/80 px-2 py-1">
+              Go
+            </button>
+            <button type="button" onClick={() => { setQuery(''); setSuggestions([]); }} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </>
         )}
-        <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-medium text-accent hover:text-accent/80 px-2 py-1">
-          Go
-        </button>
       </form>
 
       {open && suggestions.length > 0 && (
