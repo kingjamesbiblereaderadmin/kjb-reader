@@ -27,6 +27,7 @@ function savePosition(abbr, chapter) {
 export default function BibleReader() {
   const [pos, setPos] = useState(loadPosition);
   const [verses, setVerses] = useState([]);
+  const [colophon, setColophon] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [highlightVerse, setHighlightVerse] = useState(pos.verse || null);
@@ -61,8 +62,9 @@ export default function BibleReader() {
     }
     
     const data = await fetchChapter(b.apiName, chapter);
-    setVerses(data);
-    setVerseCount(data.length);
+    setVerses(data.verses);
+    setColophon(data.colophon || null);
+    setVerseCount(data.verses.length);
     setLoading(false);
     setHighlightVerse(jumpVerse || null);
     savePosition(bookAbbr, chapter);
@@ -268,33 +270,25 @@ export default function BibleReader() {
         {!loading && !error && verses.length > 0 && (
           <>
             <div className="text-justify hyphens-auto">
-              {verses.map((v, idx) => {
-                const isColophon = COLOPHONS[`${book.apiName}:${pos.chapter}`] === v.verse;
-                return !isColophon ? (
-                  <VerseText
-                    key={v.verse}
-                    verse={v}
-                    highlight={highlightVerse === v.verse}
-                    id={`v${v.verse}`}
-                    bookName={book.name}
-                    chapter={pos.chapter}
-                    isColophon={false}
-                    isFirstVerse={idx === 0}
-                  />
-                ) : null;
-              })}
-            </div>
-            {/* Colophon footer — displayed separately at the bottom */}
-            {verses.length > 0 && COLOPHONS[`${book.apiName}:${pos.chapter}`] && (
-              <div className="mt-8 pt-6 border-t border-border">
+              {verses.map((v, idx) => (
                 <VerseText
-                  verse={verses.find(v => v.verse === COLOPHONS[`${book.apiName}:${pos.chapter}`])}
-                  id={`v${COLOPHONS[`${book.apiName}:${pos.chapter}`]}`}
+                  key={v.verse}
+                  verse={v}
+                  highlight={highlightVerse === v.verse}
+                  id={`v${v.verse}`}
                   bookName={book.name}
                   chapter={pos.chapter}
-                  isColophon={true}
-                  isFirstVerse={false}
+                  isColophon={false}
+                  isFirstVerse={idx === 0}
                 />
+              ))}
+            </div>
+            {/* Colophon footer — displayed separately at the bottom */}
+            {colophon && (
+              <div className="mt-8 pt-6 border-t border-border">
+                <span className="inline text-base italic text-muted-foreground">
+                  {colophon}
+                </span>
               </div>
             )}
           </>

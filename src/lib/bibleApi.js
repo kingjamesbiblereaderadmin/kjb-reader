@@ -6,7 +6,7 @@ export async function fetchChapter(bookApiName, chapter) {
     book: bookApiName,
     chapter: Number(chapter),
   });
-  return res.data.verses;
+  return { verses: res.data.verses, colophon: res.data.colophon };
 }
 
 export async function fetchVerseCount(bookApiName, chapter) {

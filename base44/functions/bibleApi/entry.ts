@@ -102,7 +102,7 @@ Deno.serve(async (req) => {
 
       const cacheKey = `${book}:${chapter}`;
       if (chapterCache[cacheKey]) {
-        return Response.json({ verses: chapterCache[cacheKey] });
+        return Response.json(chapterCache[cacheKey]);
       }
 
       const verses = bible[book]?.[chapter];
@@ -110,8 +110,10 @@ Deno.serve(async (req) => {
         return Response.json({ error: `No verses found for ${book} ${chapter}` }, { status: 404 });
       }
 
-      chapterCache[cacheKey] = verses;
-      return Response.json({ verses });
+      const colophon = bible.__colophons?.[`${book}:${chapter}`];
+      const result = { verses, colophon };
+      chapterCache[cacheKey] = result;
+      return Response.json(result);
     }
 
     if (action === 'getVerseCount') {
