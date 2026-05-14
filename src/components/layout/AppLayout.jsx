@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Home, BookOpen, Heart, Library, Info, Moon, Sun, List, Settings, Menu, X } from 'lucide-react';
+import { Home, BookOpen, Heart, Library, Info, Moon, Sun, Settings, Menu, X } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
 
 const NAV_ITEMS = [
   { path: '/', icon: Home, label: 'Home' },
   { path: '/read', icon: BookOpen, label: 'Read' },
-  { path: '/contents', icon: List, label: 'Contents' },
   { path: '/gospel', icon: Heart, label: 'Gospel' },
   { path: '/resources', icon: Library, label: 'Resources' },
   { path: '/about', icon: Info, label: 'About' },

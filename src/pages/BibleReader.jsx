@@ -78,14 +78,15 @@ export default function BibleReader() {
     window.scrollTo({ top: 0 });
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);
-    setHighlightVerse(jumpVerse);
     
     // Show title page before Genesis 1 or Matthew 1
     if ((newAbbr === 'GEN' && newChapter === 1) || (newAbbr === 'MAT' && newChapter === 1)) {
       setVerses([]);
       setLoading(false);
+      setHighlightVerse(null);
     } else {
       loadChapter(newAbbr, newChapter, jumpVerse);
+      setHighlightVerse(jumpVerse);
     }
   };
 
