@@ -32,7 +32,6 @@ export default function BibleReader() {
   const [highlightVerse, setHighlightVerse] = useState(pos.verse || null);
   const [verseCount, setVerseCount] = useState(0);
 
-  const [showTestamentPicker, setShowTestamentPicker] = useState(false);
   const [showBookPicker, setShowBookPicker] = useState(false);
   const [showChapterPicker, setShowChapterPicker] = useState(false);
   const [showVersePicker, setShowVersePicker] = useState(false);
@@ -126,59 +125,23 @@ export default function BibleReader() {
       <div ref={topRef} className="sticky top-14 z-40 bg-background/95 backdrop-blur border-b border-border pb-3 mb-6">
         {/* Book / Chapter / Verse selectors */}
         <div className="flex flex-wrap items-center gap-2 pt-3">
-          {/* Testament selector */}
-          <div className="relative">
-            <button
-              onClick={() => { setShowTestamentPicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-colors"
-            >
-              {book.testament === 'old' ? 'OT' : 'NT'}
-              <ChevronRight className="w-3 h-3 opacity-70" />
-            </button>
-            {showTestamentPicker && (
-              <div className="absolute top-full left-0 mt-1 z-50">
-                <div className="bg-card border border-border rounded-xl shadow-xl overflow-hidden w-56">
-                  <div className="px-4 py-3 border-b border-border">
-                    <p className="font-serif font-semibold text-foreground text-center">Select Testament</p>
-                  </div>
-                  <div className="p-2 space-y-1">
-                    <button
-                      onClick={() => { navigate('GEN', 0); setShowTestamentPicker(false); }}
-                      className={`w-full text-left px-3 py-1.5 rounded text-sm font-sans transition-colors ${book.testament === 'old' ? 'bg-accent text-accent-foreground font-semibold' : 'hover:bg-secondary text-foreground'}`}
-                    >
-                      Old Testament (39 books)
-                    </button>
-                    <button
-                      onClick={() => { navigate('MAT', 0); setShowTestamentPicker(false); }}
-                      className={`w-full text-left px-3 py-1.5 rounded text-sm font-sans transition-colors ${book.testament === 'new' ? 'bg-accent text-accent-foreground font-semibold' : 'hover:bg-secondary text-foreground'}`}
-                    >
-                      New Testament (27 books)
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
           {/* Book selector */}
-          <div className="relative">
-            <button
-              onClick={() => { setShowBookPicker(p => !p); setShowTestamentPicker(false); setShowChapterPicker(false); setShowVersePicker(false); }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-colors"
-            >
-              {book.abbr}
-              <ChevronRight className="w-3 h-3 opacity-70" />
-            </button>
-            {showBookPicker && (
-              <div className="absolute top-full left-0 mt-1 z-50">
-                <BookSelector
-                  currentAbbr={pos.abbr}
-                  onSelect={(b) => navigate(b.abbr, (b.abbr === 'GEN' || b.abbr === 'MAT') ? 0 : 1)}
-                  onClose={() => setShowBookPicker(false)}
-                />
-              </div>
-            )}
-          </div>
+          <select
+            value={pos.abbr}
+            onChange={(e) => navigate(e.target.value, (e.target.value === 'GEN' || e.target.value === 'MAT') ? 0 : 1)}
+            className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 cursor-pointer"
+          >
+            <optgroup label="Old Testament">
+              {BIBLE_BOOKS.filter(b => b.testament === 'old').map(b => (
+                <option key={b.abbr} value={b.abbr}>{b.name}</option>
+              ))}
+            </optgroup>
+            <optgroup label="New Testament">
+              {BIBLE_BOOKS.filter(b => b.testament === 'new').map(b => (
+                <option key={b.abbr} value={b.abbr}>{b.name}</option>
+              ))}
+            </optgroup>
+          </select>
 
           {/* Chapter selector */}
           <div className="relative">
@@ -248,10 +211,10 @@ export default function BibleReader() {
       </div>
 
       {/* Click outside to close dropdowns */}
-      {(showTestamentPicker || showBookPicker || showChapterPicker || showVersePicker) && (
+      {(showChapterPicker || showVersePicker) && (
         <div
           className="fixed inset-0 z-30"
-          onClick={() => { setShowTestamentPicker(false); setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); }}
+          onClick={() => { setShowChapterPicker(false); setShowVersePicker(false); }}
         />
       )}
 
