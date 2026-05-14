@@ -40,14 +40,20 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
         </button>
         {oldOpen && (
           <div className="ml-2 space-y-0.5">
-            <button
-              onClick={() => { onSelect({ abbr: 'GEN', name: 'Genesis', chapters: 50, shortName: 'Gen' }, true); onClose(); }}
-              className="w-full text-left px-3 py-1.5 rounded text-sm font-sans transition-colors hover:bg-secondary text-foreground"
-            >
-              <span>Title Page</span>
-              <span className="ml-2 text-xs text-muted-foreground">intro</span>
-            </button>
-            {OLD_TESTAMENT.map(renderBook)}
+            {OLD_TESTAMENT.map((book) => (
+              book.abbr === 'GEN' ? (
+                <div key="gen-section">
+                  <button
+                    onClick={() => { onSelect({ abbr: 'GEN', name: 'Genesis', chapters: 50, shortName: 'Gen' }, true); onClose(); }}
+                    className="w-full text-left px-3 py-1.5 rounded text-sm font-sans transition-colors hover:bg-secondary text-foreground"
+                  >
+                    <span>Title Page</span>
+                    <span className="ml-2 text-xs text-muted-foreground">intro</span>
+                  </button>
+                  {renderBook(book)}
+                </div>
+              ) : renderBook(book)
+            ))}
           </div>
         )}
 
@@ -61,14 +67,20 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
         </button>
         {newOpen && (
           <div className="ml-2 space-y-0.5">
-            <button
-              onClick={() => { onSelect({ abbr: 'MAT', name: 'Matthew', chapters: 28, shortName: 'Mat' }, true); onClose(); }}
-              className="w-full text-left px-3 py-1.5 rounded text-sm font-sans transition-colors hover:bg-secondary text-foreground"
-            >
-              <span>Title Page</span>
-              <span className="ml-2 text-xs text-muted-foreground">intro</span>
-            </button>
-            {NEW_TESTAMENT.map(renderBook)}
+            {NEW_TESTAMENT.map((book) => (
+              book.abbr === 'MAT' ? (
+                <div key="mat-section">
+                  <button
+                    onClick={() => { onSelect({ abbr: 'MAT', name: 'Matthew', chapters: 28, shortName: 'Mat' }, true); onClose(); }}
+                    className="w-full text-left px-3 py-1.5 rounded text-sm font-sans transition-colors hover:bg-secondary text-foreground"
+                  >
+                    <span>Title Page</span>
+                    <span className="ml-2 text-xs text-muted-foreground">intro</span>
+                  </button>
+                  {renderBook(book)}
+                </div>
+              ) : renderBook(book)
+            ))}
           </div>
         )}
       </div>

@@ -25,11 +25,11 @@ export default function ContentsPage() {
 
   const handleSelectBook = (book) => {
     setSelectedBook(book.abbr);
-    setSelectedChapter(book.abbr === 'GEN' || book.abbr === 'MAT' ? 0 : 1);
+    setSelectedChapter(1);
     setSelectedVerse(null);
-    const key = `${book.abbr}:${book.abbr === 'GEN' || book.abbr === 'MAT' ? 0 : 1}`;
+    const key = `${book.abbr}:1`;
     if (!verseCounts[key]) {
-      fetchVerseCount(book.apiName, book.abbr === 'GEN' || book.abbr === 'MAT' ? 0 : 1).then(count => {
+      fetchVerseCount(book.apiName, 1).then(count => {
         setVerseCounts(prev => ({ ...prev, [key]: count }));
       });
     }
@@ -183,8 +183,8 @@ export default function ContentsPage() {
                 </div>
               )}
 
-              {/* Title Page Selection */}
-              {selectedBook && isViewingTitlePage && (
+              {/* Title Page Selection - Only for Genesis and Matthew */}
+              {selectedBook && isViewingTitlePage && (selectedBook === 'GEN' || selectedBook === 'MAT') && (
                 <div className="p-4">
                   <button
                     onClick={() => { setSelectedBook(null); setSelectedChapter(null); setSelectedVerse(null); }}
