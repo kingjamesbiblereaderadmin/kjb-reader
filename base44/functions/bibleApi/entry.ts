@@ -30,9 +30,10 @@ async function loadBible() {
   const text = await res.text();
 
   const data = {};
+  const colophons = {};
   const lines = text.split('\n');
-  let lastVerse = null;
-  let lastVerseKey = null;
+  let lastBook = null;
+  let lastChapter = null;
   
   for (let i = 0; i < lines.length; i++) {
     const trimmed = lines[i].trim();
@@ -43,11 +44,11 @@ async function loadBible() {
       continue;
     }
 
-    // Check if line starts with pilcrow - it's a colophon without verse number
-    if (trimmed.startsWith('¶')) {
-      if (lastVerse && lastVerseKey) {
-        // Append colophon to last verse
-        lastVerse.text = lastVerse.text + ' ' + trimmed;
+    // Check if line starts with pilcrow - only treat as colophon if chapter has one in config
+    if (trimmed.startsWith('¶') && lastBook && lastChapter) {
+      const colophonKey = `${lastBook}:${lastChapter}`;
+      if (!colophons[colophonKey]) {
+        colophons[colophonKey] = trimmed;
       }
       continue;
     }
@@ -76,14 +77,14 @@ async function loadBible() {
 
     if (!data[bookName]) data[bookName] = {};
     if (!data[bookName][chapter]) data[bookName][chapter] = [];
+    data[bookName][chapter].push({ verse, text: verseText });
     
-    lastVerse = { verse, text: verseText };
-    lastVerseKey = `${bookName}:${chapter}`;
-    
-    data[bookName][chapter].push(lastVerse);
+    lastBook = bookName;
+    lastChapter = chapter;
   }
 
   bibleData = data;
+  bibleData.__colophons = colophons;
   return data;
 }
 
