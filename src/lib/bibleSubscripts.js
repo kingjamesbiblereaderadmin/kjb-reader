@@ -133,7 +133,6 @@ export const COLOPHONS = {
    'Romans:16':         24,
    '1 Corinthians:16':  24,
    '2 Corinthians:13':  14,
-   'Galatians:6':       18,
    'Ephesians:6':       24,
    'Philippians:4':     23,
    'Colossians:4':      18,
