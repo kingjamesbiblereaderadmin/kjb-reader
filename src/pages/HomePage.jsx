@@ -47,8 +47,8 @@ export default function HomePage() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent rounded-2xl" />
         <div className="absolute bottom-5 left-5 right-5">
-          <p className="font-serif text-white text-2xl md:text-3xl font-bold drop-shadow mb-1">KJB Reader</p>
-          <p className="font-sans text-white/80 text-xs md:text-sm">King James Bible — Pure Cambridge Edition</p>
+          <p className="font-serif text-white text-2xl md:text-3xl font-bold drop-shadow mb-1">King James Bible</p>
+          <p className="font-sans text-white/80 text-xs md:text-sm">Pure Cambridge Edition</p>
         </div>
       </div>
 
@@ -87,7 +87,7 @@ export default function HomePage() {
       <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-6 text-center">
         <p className="font-serif text-xl font-bold text-red-700 dark:text-red-400 mb-2">Are you saved?</p>
         <p className="font-sans text-sm text-foreground/80 mb-4">
-          Jesus Christ died for your sins, was buried, and rose again on the third day. Believe the gospel and be saved.
+          Jesus Christ died for your sins, shed his blood, was buried, and rose again on the third day. Trust the blood — believe the gospel and be saved.
         </p>
         <Link
           to="/gospel"

@@ -23,7 +23,7 @@ export default function AppLayout() {
           <Link to="/" className="flex items-center gap-2 group">
             <BookOpen className="w-5 h-5 text-accent" />
             <span className="font-serif text-xl font-bold tracking-wide text-foreground">
-              KJB Reader
+              King James Bible
             </span>
           </Link>
           <div className="flex items-center gap-1">
