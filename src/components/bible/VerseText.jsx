@@ -79,7 +79,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, chap
           {verse.verse}
         </sup>
         <span
-          className={`font-serif leading-loose [&_em]:italic [&_em]:text-foreground/75 [&_.pilcrow]:text-accent [&_.pilcrow]:not-italic [&_.pilcrow]:font-sans [&_.pilcrow]:text-sm [&_.pilcrow]:mr-1 [&_.pilcrow]:inline-block [&_.pilcrow]:min-w-max ${hasPilcrow ? 'block pl-6' : ''} ${isColophon && colophonText ? 'text-base italic text-muted-foreground' : isColophon ? 'text-base text-muted-foreground' : 'text-lg'}`}
+          className={`font-serif leading-loose [&_em]:italic [&_em]:text-foreground/75 [&_.pilcrow]:text-accent [&_.pilcrow]:not-italic [&_.pilcrow]:font-sans [&_.pilcrow]:text-sm [&_.pilcrow]:mr-1 [&_.pilcrow]:inline-block [&_.pilcrow]:min-w-max ${hasPilcrow ? 'block pl-6' : ''} ${isColophon ? 'text-base text-muted-foreground' : 'text-lg'}`}
           dangerouslySetInnerHTML={{ __html: renderWithPilcrow(html) }}
         />
         {' '}
