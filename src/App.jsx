@@ -13,6 +13,7 @@ import BibleReader from '@/pages/BibleReader';
 import GospelPage from '@/pages/GospelPage';
 import ResourcesPage from '@/pages/ResourcesPage';
 import AboutPage from '@/pages/AboutPage';
+import ContentsPage from '@/pages/ContentsPage';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -42,6 +43,7 @@ const AuthenticatedApp = () => {
       <Route path="/gospel" element={<GospelPage />} />
       <Route path="/resources" element={<ResourcesPage />} />
       <Route path="/about" element={<AboutPage />} />
+      <Route path="/contents" element={<ContentsPage />} />
     </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
