@@ -31,6 +31,7 @@ async function loadBible() {
 
   const data = {};
   const lines = text.split('\n');
+  const colophonLines = {};
   
   for (let i = 0; i < lines.length; i++) {
     const trimmed = lines[i].trim();
@@ -65,7 +66,19 @@ async function loadBible() {
 
     if (!data[bookName]) data[bookName] = {};
     if (!data[bookName][chapter]) data[bookName][chapter] = [];
-    data[bookName][chapter].push({ verse, text: verseText });
+    
+    // Check if next line is a colophon (starts with bracketed text, no verse reference)
+    let actualVerseText = verseText;
+    if (i + 1 < lines.length) {
+      const nextLine = lines[i + 1].trim();
+      if (nextLine.startsWith('[') && !nextLine.match(/^[A-Z][a-z]\s+\d+:\d+/)) {
+        // Next line is a colophon for this verse
+        actualVerseText = verseText + ' ' + nextLine;
+        lines[i + 1] = ''; // Mark as consumed
+      }
+    }
+    
+    data[bookName][chapter].push({ verse, text: actualVerseText });
   }
 
   bibleData = data;
