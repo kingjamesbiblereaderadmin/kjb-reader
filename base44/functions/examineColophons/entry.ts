@@ -11,15 +11,13 @@ Deno.serve(async (req) => {
     for (let i = 0; i < lines.length; i++) {
       const trimmed = lines[i].trim();
       
-      // Look for pattern: 2-3 char abbr + pilcrow + bracket (e.g., "Heb ¶[...]")
-      if (trimmed.match(/^[A-Z][a-z0-9]{0,2}\s+¶\s*\[/)) {
+      // Look for colophon markers: lines ending with <<[...written...]>>
+      if (trimmed.includes('<<[') && trimmed.includes('written') && trimmed.includes('>>')) {
         samples.push({
           index: i,
-          line: trimmed,
-          prevLine: lines[i - 1]?.trim().slice(0, 80) || 'START'
+          line: trimmed.slice(0, 200)
         });
-        // Only collect first 10 samples
-        if (samples.length >= 10) break;
+        if (samples.length >= 15) break;
       }
     }
     

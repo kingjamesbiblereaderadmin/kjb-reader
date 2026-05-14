@@ -39,26 +39,6 @@ async function loadBible() {
     const trimmed = lines[i].trim();
     if (!trimmed) continue;
 
-    // Check if this is a standalone pilcrow line (colophon) — no verse number prefix
-    if (trimmed.startsWith('¶') && lastBook && lastChapter) {
-      const colophonKey = `${lastBook}:${lastChapter}`;
-      if (!colophons[colophonKey]) {
-        // Extract bracketed text: ¶[text here]
-        const match = trimmed.match(/¶\s*\[([^\]]+)\]/);
-        if (match) {
-          colophons[colophonKey] = `[${match[1]}]`;
-        } else {
-          colophons[colophonKey] = trimmed.slice(1).trim();
-        }
-      }
-      continue;
-    }
-
-    // Skip subscription/superscription markers (no verse number) - they're stored in SUBSCRIPTS
-    if (trimmed.startsWith('<<') && trimmed.endsWith('>>')) {
-      continue;
-    }
-
     // Format: Ge 1:1 In the beginning...
     const spaceIdx = trimmed.indexOf(' ');
     if (spaceIdx === -1) continue;
@@ -73,13 +53,23 @@ async function loadBible() {
     const verse = parseInt(rest.slice(colonIdx + 1, spaceIdx2), 10);
     let verseText = rest.slice(spaceIdx2 + 1);
 
-    // Remove any embedded subscription markers from verse text
-    verseText = verseText.replace(/^<<[^>]*>>\s*/, '');
-
     if (isNaN(chapter) || isNaN(verse) || !verseText) continue;
 
     const bookName = ABBR_TO_NAME[abbr];
     if (!bookName) continue;
+
+    // Extract embedded colophon from final verse (pattern: ...<<[text]>>)
+    const colophonMatch = verseText.match(/<<\[([^\]]+)\]>>$/);
+    if (colophonMatch) {
+      const colophonKey = `${bookName}:${chapter}`;
+      if (!colophons[colophonKey]) {
+        colophons[colophonKey] = `[${colophonMatch[1]}]`;
+      }
+      // Remove colophon from verse text
+      verseText = verseText.replace(/\s*<<\[[^\]]+\]>>$/, '');
+    }
+
+    if (!verseText.trim()) continue;
 
     if (!data[bookName]) data[bookName] = {};
     if (!data[bookName][chapter]) data[bookName][chapter] = [];
