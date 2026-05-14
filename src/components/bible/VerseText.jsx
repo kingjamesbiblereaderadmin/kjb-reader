@@ -41,6 +41,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, chap
   
   const html = renderVerseText(colophonText || mainText);
   const hasPilcrow = verse.text.includes('¶');
+  const hasItalics = html.includes('<em>');
 
   const verseRef = `${bookName} ${chapter}:${verse.verse}`;
   // Strip [brackets] and ¶ for clean share text, label as KJB
@@ -79,7 +80,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, chap
           {verse.verse}
         </sup>
         <span
-          className={`font-serif leading-loose [&_em]:italic [&_em]:text-foreground/75 [&_.pilcrow]:text-accent [&_.pilcrow]:not-italic [&_.pilcrow]:font-sans [&_.pilcrow]:text-sm [&_.pilcrow]:mr-1 [&_.pilcrow]:inline-block [&_.pilcrow]:min-w-max ${hasPilcrow ? 'block pl-6' : ''} ${isColophon ? 'text-base text-muted-foreground' : 'text-lg'}`}
+          className={`font-serif leading-loose [&_em]:italic [&_em]:text-foreground/75 [&_.pilcrow]:text-accent [&_.pilcrow]:not-italic [&_.pilcrow]:font-sans [&_.pilcrow]:text-sm [&_.pilcrow]:mr-1 [&_.pilcrow]:inline-block [&_.pilcrow]:min-w-max ${hasPilcrow ? 'block pl-6' : ''} ${isColophon && hasItalics ? 'text-base italic text-muted-foreground' : isColophon ? 'text-base text-muted-foreground' : 'text-lg'}`}
           dangerouslySetInnerHTML={{ __html: renderWithPilcrow(html) }}
         />
         {' '}
