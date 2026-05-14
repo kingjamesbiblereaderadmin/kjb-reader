@@ -278,7 +278,7 @@ export default function BibleReader() {
         <div className="flex justify-between mt-12 pt-6 border-t border-border">
           <button
             onClick={goPrev}
-            disabled={isFirstChapterFirstBook || isGenesisChapterOne}
+            disabled={isFirstChapterFirstBook}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-30 transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
