@@ -174,6 +174,7 @@ export default function BibleReader() {
                     }, 50);
                   }}
                   onClose={() => setShowVersePicker(false)}
+                  autoSelect={true}
                 />
               </div>
             )}
