@@ -13,7 +13,7 @@ import BibleReader from '@/pages/BibleReader';
 import GospelPage from '@/pages/GospelPage';
 import ResourcesPage from '@/pages/ResourcesPage';
 import AboutPage from '@/pages/AboutPage';
-import ContentsPage from '@/pages/ContentsPage';
+import ContentsPage from '@/pages/ContentsPage.jsx';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
