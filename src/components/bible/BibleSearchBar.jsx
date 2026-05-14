@@ -74,7 +74,7 @@ export default function BibleSearchBar({ onClose }) {
 
     // Keyword hint
     const kwSuggestions = query.trim().length >= 3 && bookMatches.length === 0 && refSuggestions.length === 0
-      ? [{ type: 'keyword', label: `Search: "${query.trim()}"`, sub: 'Keyword search across the Bible' }]
+      ? [{ type: 'keyword', query: query.trim(), label: `Search: "${query.trim()}"`, sub: 'Keyword search across the Bible' }]
       : [];
 
     setSuggestions([...refSuggestions, ...bookMatches, ...kwSuggestions]);
