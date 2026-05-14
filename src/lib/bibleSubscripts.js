@@ -129,18 +129,5 @@ export const SUBSCRIPTS = {
 // We mark them so they can be rendered in italic/smaller style.
 // Key: "BookApiName:chapter", value: verse number of colophon
 export const COLOPHONS = {
-   'Romans:16':         24,
-   '1 Corinthians:16':  24,
-   '2 Corinthians:13':  14,
-   'Galatians:6':       18,
-   'Ephesians:6':       24,
-   'Philippians:4':     23,
-   'Colossians:4':      18,
-   '1 Thessalonians:5': 28,
-   '2 Thessalonians:3': 18,
-   '1 Timothy:6':       21,
-   '2 Timothy:4':       22,
-   'Titus:3':           15,
-   'Philemon:1':        25,
-   'Hebrews:13':        25,
- };
+   'Malachi:4': 6,
+};
