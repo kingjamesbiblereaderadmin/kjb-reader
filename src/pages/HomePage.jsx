@@ -1,6 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Heart, Library, Info, List } from 'lucide-react';
+import { BIBLE_BOOKS } from '@/lib/bibleData';
 
 const DAILY_IMAGES = [
   { url: "https://images.pexels.com/photos/3861967/pexels-photo-3861967.jpeg?w=1200&h=900&fit=crop", credit: "Fox in snow", author: "Pexels" },
@@ -42,21 +43,35 @@ const QUICK_LINKS = [
 ];
 
 export default function HomePage() {
+  const navigate = useNavigate();
   const imgData = DAILY_IMAGES[Math.floor(Math.random() * DAILY_IMAGES.length)];
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
   const verse = DAILY_VERSES[dayOfYear % DAILY_VERSES.length];
 
+  const handleVerseClick = () => {
+    const [book, chapterVerse] = verse.ref.split(' ');
+    const [chapter, verseNum] = chapterVerse.split(':');
+    const bookData = BIBLE_BOOKS.find(b => b.name.startsWith(book));
+    if (bookData) {
+      try { localStorage.setItem('kjb-position', JSON.stringify({ abbr: bookData.abbr, chapter: parseInt(chapter) })); } catch {}
+      navigate(`/read?v=${verseNum}`);
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
       {/* Daily verse of the day */}
-      <div className="bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 rounded-2xl p-8 md:p-12 mb-8 text-center">
+      <button
+        onClick={handleVerseClick}
+        className="w-full bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 rounded-2xl p-8 md:p-12 mb-8 text-center hover:border-primary/40 hover:from-primary/15 hover:to-accent/15 transition-all cursor-pointer"
+      >
         <p className="font-sans text-xs text-primary tracking-widest uppercase font-semibold mb-4">Verse of the Day</p>
         <blockquote className="font-serif text-2xl md:text-4xl font-bold text-foreground leading-relaxed italic mb-4">
           "{verse.text}"
         </blockquote>
         <p className="font-sans text-base font-semibold text-primary">— {verse.ref} (KJB)</p>
         <div className="mt-6 w-12 h-px bg-accent mx-auto" />
-      </div>
+      </button>
 
       {/* Quick links */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
