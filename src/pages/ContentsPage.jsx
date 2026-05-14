@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { List, ChevronRight, ChevronDown } from 'lucide-react';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
+import { fetchVerseCount } from '@/lib/bibleApi';
 
 export default function ContentsPage() {
   const navigate = useNavigate();
   const [tab, setTab] = useState('old');
   const [expanded, setExpanded] = useState(null); // abbr of expanded book
   const [selectedChapter, setSelectedChapter] = useState({}); // abbr -> chapter
+  const [selectedVerse, setSelectedVerse] = useState({}); // abbr -> verse (null = start)
+  const [verseCounts, setVerseCounts] = useState({}); // "abbr:chapter" -> count
 
   const books = BIBLE_BOOKS.filter(b => b.testament === tab);
 
@@ -20,7 +23,33 @@ export default function ContentsPage() {
   const toggleBook = (abbr) => {
     setExpanded(prev => prev === abbr ? null : abbr);
     setSelectedChapter(prev => ({ ...prev, [abbr]: prev[abbr] || 1 }));
+    setSelectedVerse(prev => ({ ...prev, [abbr]: null }));
   };
+
+  const selectChapter = (abbr, apiName, c) => {
+    setSelectedChapter(prev => ({ ...prev, [abbr]: c }));
+    setSelectedVerse(prev => ({ ...prev, [abbr]: null }));
+    const key = `${abbr}:${c}`;
+    if (!verseCounts[key]) {
+      fetchVerseCount(apiName, c).then(count => {
+        setVerseCounts(prev => ({ ...prev, [key]: count }));
+      });
+    }
+  };
+
+  // Load verse count when a book first expands
+  useEffect(() => {
+    if (!expanded) return;
+    const book = BIBLE_BOOKS.find(b => b.abbr === expanded);
+    if (!book) return;
+    const ch = selectedChapter[expanded] || 1;
+    const key = `${expanded}:${ch}`;
+    if (!verseCounts[key]) {
+      fetchVerseCount(book.apiName, ch).then(count => {
+        setVerseCounts(prev => ({ ...prev, [key]: count }));
+      });
+    }
+  }, [expanded]);
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
@@ -59,6 +88,9 @@ export default function ContentsPage() {
         {books.map((book, idx) => {
           const isOpen = expanded === book.abbr;
           const ch = selectedChapter[book.abbr] || 1;
+          const verse = selectedVerse[book.abbr] || null;
+          const vcKey = `${book.abbr}:${ch}`;
+          const vc = verseCounts[vcKey] || 0;
 
           return (
             <div key={book.abbr} className="bg-card border border-border rounded-xl overflow-hidden transition-all">
@@ -95,7 +127,7 @@ export default function ContentsPage() {
                       {Array.from({ length: book.chapters }, (_, i) => i + 1).map(c => (
                         <button
                           key={c}
-                          onClick={() => setSelectedChapter(prev => ({ ...prev, [book.abbr]: c }))}
+                          onClick={() => selectChapter(book.abbr, book.apiName, c)}
                           className={`w-9 h-9 rounded-lg font-sans text-sm font-medium transition-colors ${
                             ch === c
                               ? 'bg-primary text-primary-foreground'
@@ -108,12 +140,36 @@ export default function ContentsPage() {
                     </div>
                   </div>
 
+                  {/* Verse grid */}
+                  {vc > 0 && (
+                    <div>
+                      <p className="font-sans text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
+                        Verse <span className="normal-case font-normal">(optional)</span>
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {Array.from({ length: vc }, (_, i) => i + 1).map(v => (
+                          <button
+                            key={v}
+                            onClick={() => setSelectedVerse(prev => ({ ...prev, [book.abbr]: prev[book.abbr] === v ? null : v }))}
+                            className={`w-9 h-9 rounded-lg font-sans text-sm font-medium transition-colors ${
+                              verse === v
+                                ? 'bg-accent text-accent-foreground'
+                                : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                            }`}
+                          >
+                            {v}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Read button */}
                   <button
-                    onClick={() => goTo(book.abbr, ch)}
+                    onClick={() => goTo(book.abbr, ch, verse)}
                     className="w-full py-2.5 rounded-xl bg-accent text-accent-foreground font-sans font-semibold text-sm hover:opacity-90 transition-opacity"
                   >
-                    Read {book.shortName} {ch} →
+                    Read {book.shortName} {ch}{verse ? `:${verse}` : ''} →
                   </button>
                 </div>
               )}
