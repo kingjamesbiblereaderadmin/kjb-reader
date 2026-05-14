@@ -6,50 +6,57 @@ import { fetchVerseCount } from '@/lib/bibleApi';
 
 export default function ContentsPage() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState('old');
-  const [expanded, setExpanded] = useState(null); // abbr of expanded book
-  const [selectedChapter, setSelectedChapter] = useState({}); // abbr -> chapter
-  const [selectedVerse, setSelectedVerse] = useState({}); // abbr -> verse (null = start)
-  const [verseCounts, setVerseCounts] = useState({}); // "abbr:chapter" -> count
+  const [showPicker, setShowPicker] = useState(false);
+  const [selectedTestament, setSelectedTestament] = useState('old');
+  const [selectedBook, setSelectedBook] = useState(null);
+  const [selectedChapter, setSelectedChapter] = useState(null);
+  const [selectedVerse, setSelectedVerse] = useState(null);
+  const [verseCounts, setVerseCounts] = useState({});
 
-  const books = BIBLE_BOOKS.filter(b => b.testament === tab);
+  const books = BIBLE_BOOKS.filter(b => b.testament === selectedTestament);
+  const currentBook = selectedBook ? BIBLE_BOOKS.find(b => b.abbr === selectedBook) : null;
 
   const goTo = (abbr, chapter, verse = null) => {
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse })); } catch {}
     window.scrollTo({ top: 0 });
     navigate('/read');
+    setShowPicker(false);
   };
 
-  const toggleBook = (abbr) => {
-    setExpanded(prev => prev === abbr ? null : abbr);
-    setSelectedChapter(prev => ({ ...prev, [abbr]: prev[abbr] || 1 }));
-    setSelectedVerse(prev => ({ ...prev, [abbr]: null }));
-  };
-
-  const selectChapter = (abbr, apiName, c) => {
-    setSelectedChapter(prev => ({ ...prev, [abbr]: c }));
-    setSelectedVerse(prev => ({ ...prev, [abbr]: null }));
-    const key = `${abbr}:${c}`;
+  const handleSelectBook = (book) => {
+    setSelectedBook(book.abbr);
+    setSelectedChapter(book.abbr === 'GEN' || book.abbr === 'MAT' ? 0 : 1);
+    setSelectedVerse(null);
+    const key = `${book.abbr}:${book.abbr === 'GEN' || book.abbr === 'MAT' ? 0 : 1}`;
     if (!verseCounts[key]) {
-      fetchVerseCount(apiName, c).then(count => {
+      fetchVerseCount(book.apiName, book.abbr === 'GEN' || book.abbr === 'MAT' ? 0 : 1).then(count => {
         setVerseCounts(prev => ({ ...prev, [key]: count }));
       });
     }
   };
 
-  // Load verse count when a book first expands
+  const handleSelectChapter = (c) => {
+    setSelectedChapter(c);
+    setSelectedVerse(null);
+    const key = `${selectedBook}:${c}`;
+    if (!verseCounts[key]) {
+      fetchVerseCount(currentBook.apiName, c).then(count => {
+        setVerseCounts(prev => ({ ...prev, [key]: count }));
+      });
+    }
+  };
+
   useEffect(() => {
-    if (!expanded) return;
-    const book = BIBLE_BOOKS.find(b => b.abbr === expanded);
-    if (!book) return;
-    const ch = selectedChapter[expanded] || 1;
-    const key = `${expanded}:${ch}`;
-    if (!verseCounts[key]) {
-      fetchVerseCount(book.apiName, ch).then(count => {
-        setVerseCounts(prev => ({ ...prev, [key]: count }));
+    if (selectedBook && selectedChapter !== null && !verseCounts[`${selectedBook}:${selectedChapter}`]) {
+      fetchVerseCount(currentBook.apiName, selectedChapter).then(count => {
+        setVerseCounts(prev => ({ ...prev, [`${selectedBook}:${selectedChapter}`]: count }));
       });
     }
-  }, [expanded]);
+  }, [selectedBook, selectedChapter]);
+
+  const vcKey = currentBook ? `${currentBook.abbr}:${selectedChapter}` : null;
+  const vc = vcKey ? verseCounts[vcKey] || 0 : 0;
+  const isViewingTitlePage = selectedChapter === 0;
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
@@ -63,96 +70,98 @@ export default function ContentsPage() {
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
       </div>
 
-      {/* Testament tabs */}
-      <div className="flex gap-2 mb-6">
+      {/* Navigation Dropdown */}
+      <div className="mb-8">
         <button
-          onClick={() => { setTab('old'); setExpanded(null); }}
-          className={`flex-1 py-2.5 rounded-xl font-sans font-semibold text-sm transition-colors ${
-            tab === 'old' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-          }`}
+          onClick={() => setShowPicker(!showPicker)}
+          className="w-full py-3 px-4 rounded-xl bg-primary text-primary-foreground font-sans font-semibold text-sm hover:opacity-90 transition-colors flex items-center justify-between"
         >
-          Old Testament
+          <span>
+            {selectedBook ? `${currentBook?.name} ${selectedChapter}${selectedVerse ? `:${selectedVerse}` : ''}` : 'Select a passage'}
+          </span>
+          <ChevronRight className={`w-4 h-4 transition-transform ${showPicker ? 'rotate-90' : ''}`} />
         </button>
-        <button
-          onClick={() => { setTab('new'); setExpanded(null); }}
-          className={`flex-1 py-2.5 rounded-xl font-sans font-semibold text-sm transition-colors ${
-            tab === 'new' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-          }`}
-        >
-          New Testament
-        </button>
-      </div>
 
-      {/* Book list */}
-      <div className="space-y-1.5">
-        {books.map((book, idx) => {
-          const isOpen = expanded === book.abbr;
-          const ch = selectedChapter[book.abbr] || 1;
-          const verse = selectedVerse[book.abbr] || null;
-          const vcKey = `${book.abbr}:${ch}`;
-          const vc = verseCounts[vcKey] || 0;
-
-          return (
-            <div key={book.abbr} className="bg-card border border-border rounded-xl overflow-hidden transition-all">
-              {/* Book row */}
-              <button
-                onClick={() => toggleBook(book.abbr)}
-                className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-accent/5 transition-colors group text-left"
-              >
-                <span className="font-sans text-xs text-muted-foreground w-6 flex-shrink-0 text-right">
-                  {idx + 1}
-                </span>
-                <div className="flex-1">
-                  <p className="font-serif text-base font-semibold text-foreground group-hover:text-accent transition-colors leading-tight">
-                    {book.shortName}
-                  </p>
-                  <p className="font-sans text-xs text-muted-foreground mt-0.5">
-                    {book.chapters} {book.chapters === 1 ? 'chapter' : 'chapters'}
-                  </p>
+        {showPicker && (
+          <>
+            <div className="fixed inset-0 z-30" onClick={() => setShowPicker(false)} />
+            <div className="absolute left-4 right-4 top-32 z-40 bg-card border border-border rounded-xl shadow-xl max-h-96 overflow-y-auto">
+              
+              {/* Testament Selection */}
+              {!selectedBook && (
+                <div className="p-4 space-y-2 border-b border-border">
+                  <p className="font-serif font-semibold text-foreground text-sm mb-3">Select Testament</p>
+                  <button
+                    onClick={() => setSelectedTestament('old')}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm font-sans transition-colors ${
+                      selectedTestament === 'old' ? 'bg-accent text-accent-foreground font-semibold' : 'hover:bg-secondary text-foreground'
+                    }`}
+                  >
+                    Old Testament (39 books)
+                  </button>
+                  <button
+                    onClick={() => setSelectedTestament('new')}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm font-sans transition-colors ${
+                      selectedTestament === 'new' ? 'bg-accent text-accent-foreground font-semibold' : 'hover:bg-secondary text-foreground'
+                    }`}
+                  >
+                    New Testament (27 books)
+                  </button>
                 </div>
-                {isOpen
-                  ? <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                  : <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors" />
-                }
-              </button>
+              )}
 
-              {/* Expanded: chapter + verse pickers */}
-              {isOpen && (
-                <div className="border-t border-border px-5 py-4 bg-background/40 space-y-4">
+              {/* Book Selection */}
+              {!selectedBook && (
+                <div className="p-4 space-y-1">
+                  {books.map(book => (
+                    <button
+                      key={book.abbr}
+                      onClick={() => handleSelectBook(book)}
+                      className="w-full text-left px-3 py-2 rounded-lg text-sm font-sans hover:bg-secondary text-foreground transition-colors"
+                    >
+                      {book.name}
+                    </button>
+                  ))}
+                </div>
+              )}
 
-                  {/* Chapter grid */}
-                  <div>
-                    <p className="font-sans text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">Chapter</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {Array.from({ length: book.chapters }, (_, i) => i + 1).map(c => (
-                        <button
-                          key={c}
-                          onClick={() => selectChapter(book.abbr, book.apiName, c)}
-                          className={`w-9 h-9 rounded-lg font-sans text-sm font-medium transition-colors ${
-                            ch === c
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-                          }`}
-                        >
-                          {c}
-                        </button>
-                      ))}
-                    </div>
+              {/* Chapter Selection */}
+              {selectedBook && !isViewingTitlePage && (
+                <div className="p-4">
+                  <button
+                    onClick={() => { setSelectedBook(null); setSelectedChapter(null); setSelectedVerse(null); }}
+                    className="text-xs text-accent hover:underline mb-3 font-sans"
+                  >
+                    ← Back to books
+                  </button>
+                  <p className="font-serif font-semibold text-foreground text-sm mb-3">Select Chapter</p>
+                  <div className="grid grid-cols-6 gap-1.5">
+                    {Array.from({ length: currentBook.chapters }, (_, i) => i + 1).map(c => (
+                      <button
+                        key={c}
+                        onClick={() => handleSelectChapter(c)}
+                        className={`h-8 rounded-lg font-sans text-xs font-medium transition-colors ${
+                          selectedChapter === c
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                        }`}
+                      >
+                        {c}
+                      </button>
+                    ))}
                   </div>
 
-                  {/* Verse grid */}
+                  {/* Verse Selection */}
                   {vc > 0 && (
-                    <div>
-                      <p className="font-sans text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
-                        Verse <span className="normal-case font-normal">(optional)</span>
-                      </p>
-                      <div className="flex flex-wrap gap-1.5">
+                    <div className="mt-4">
+                      <p className="font-serif font-semibold text-foreground text-sm mb-2">Select Verse (optional)</p>
+                      <div className="grid grid-cols-6 gap-1.5">
                         {Array.from({ length: vc }, (_, i) => i + 1).map(v => (
                           <button
                             key={v}
-                            onClick={() => setSelectedVerse(prev => ({ ...prev, [book.abbr]: prev[book.abbr] === v ? null : v }))}
-                            className={`w-9 h-9 rounded-lg font-sans text-sm font-medium transition-colors ${
-                              verse === v
+                            onClick={() => setSelectedVerse(selectedVerse === v ? null : v)}
+                            className={`h-8 rounded-lg font-sans text-xs font-medium transition-colors ${
+                              selectedVerse === v
                                 ? 'bg-accent text-accent-foreground'
                                 : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
                             }`}
@@ -164,22 +173,47 @@ export default function ContentsPage() {
                     </div>
                   )}
 
-                  {/* Read button */}
+                  {/* Read Button */}
                   <button
-                    onClick={() => goTo(book.abbr, ch, verse)}
+                    onClick={() => goTo(selectedBook, selectedChapter, selectedVerse)}
+                    className="w-full mt-4 py-2.5 rounded-xl bg-accent text-accent-foreground font-sans font-semibold text-sm hover:opacity-90 transition-opacity"
+                  >
+                    Read →
+                  </button>
+                </div>
+              )}
+
+              {/* Title Page Selection */}
+              {selectedBook && isViewingTitlePage && (
+                <div className="p-4">
+                  <button
+                    onClick={() => { setSelectedBook(null); setSelectedChapter(null); setSelectedVerse(null); }}
+                    className="text-xs text-accent hover:underline mb-3 font-sans"
+                  >
+                    ← Back to books
+                  </button>
+                  <p className="font-serif font-semibold text-foreground text-sm mb-3">{currentBook?.name}</p>
+                  <button
+                    onClick={() => goTo(selectedBook, 0, null)}
                     className="w-full py-2.5 rounded-xl bg-accent text-accent-foreground font-sans font-semibold text-sm hover:opacity-90 transition-opacity"
                   >
-                    Read {book.shortName} {ch}{verse ? `:${verse}` : ''} →
+                    View Title Page →
+                  </button>
+                  <button
+                    onClick={() => handleSelectChapter(1)}
+                    className="w-full mt-2 py-2.5 rounded-xl bg-secondary text-secondary-foreground font-sans font-semibold text-sm hover:bg-accent/20 transition-colors"
+                  >
+                    Go to Chapter 1 →
                   </button>
                 </div>
               )}
             </div>
-          );
-        })}
+          </>
+        )}
       </div>
 
-      <p className="text-center font-sans text-xs text-muted-foreground mt-8">
-        {tab === 'old' ? '39 books' : '27 books'} · Tap any book to select a chapter
+      <p className="text-center font-sans text-xs text-muted-foreground">
+        Use the navigation dropdown above to select a book, chapter, and verse
       </p>
     </div>
   );

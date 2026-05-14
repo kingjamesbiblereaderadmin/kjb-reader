@@ -238,7 +238,7 @@ export default function BibleReader() {
             </button>
             <button
               onClick={goNext}
-              disabled={isLastChapterLastBook || isViewingTitlePage}
+              disabled={isLastChapterLastBook}
               className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-colors"
             >
               <ChevronRight className="w-4 h-4" />
@@ -341,7 +341,7 @@ export default function BibleReader() {
 
           <button
             onClick={goNext}
-            disabled={isLastChapterLastBook || isViewingTitlePage}
+            disabled={isLastChapterLastBook}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-30 transition-colors"
           >
             {isViewingTitlePage
