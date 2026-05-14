@@ -310,7 +310,9 @@ export default function BibleReader() {
               ? `${getPrevBook(pos.abbr)?.shortName} ${getPrevBook(pos.abbr)?.chapters}`
               : pos.chapter > 1
               ? `Chapter ${pos.chapter - 1}`
-              : `${book.shortName} Title Page`}
+              : (pos.abbr === 'GEN' || pos.abbr === 'MAT')
+              ? `${book.shortName} Title Page`
+              : `${getPrevBook(pos.abbr)?.shortName} ${getPrevBook(pos.abbr)?.chapters}`}
           </button>
 
           <button
