@@ -30,9 +30,16 @@ async function loadBible() {
   const text = await res.text();
 
   const data = {};
-  for (const line of text.split('\n')) {
-    const trimmed = line.trim();
+  const lines = text.split('\n');
+  
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i].trim();
     if (!trimmed) continue;
+
+    // Skip subscription/superscription markers (no verse number) - they're stored in SUBSCRIPTS
+    if (trimmed.startsWith('<<') && trimmed.endsWith('>>')) {
+      continue;
+    }
 
     // Format: Ge 1:1 In the beginning...
     const spaceIdx = trimmed.indexOf(' ');
@@ -46,7 +53,10 @@ async function loadBible() {
 
     const chapter = parseInt(rest.slice(0, colonIdx), 10);
     const verse = parseInt(rest.slice(colonIdx + 1, spaceIdx2), 10);
-    const verseText = rest.slice(spaceIdx2 + 1);
+    let verseText = rest.slice(spaceIdx2 + 1);
+
+    // Remove any embedded subscription markers from verse text
+    verseText = verseText.replace(/^<<[^>]*>>\s*/, '');
 
     if (isNaN(chapter) || isNaN(verse) || !verseText) continue;
 
