@@ -43,7 +43,13 @@ async function loadBible() {
     if (trimmed.startsWith('¶') && lastBook && lastChapter) {
       const colophonKey = `${lastBook}:${lastChapter}`;
       if (!colophons[colophonKey]) {
-        colophons[colophonKey] = trimmed.slice(1).trim();
+        // Extract bracketed text: ¶[text here]
+        const match = trimmed.match(/¶\s*\[([^\]]+)\]/);
+        if (match) {
+          colophons[colophonKey] = `[${match[1]}]`;
+        } else {
+          colophons[colophonKey] = trimmed.slice(1).trim();
+        }
       }
       continue;
     }
