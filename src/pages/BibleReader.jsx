@@ -41,6 +41,7 @@ export default function BibleReader() {
     setLoading(true);
     setError(null);
     setVerses([]);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     const b = BIBLE_BOOKS.find(bk => bk.abbr === bookAbbr);
     if (!b) { setError('Book not found'); setLoading(false); return; }
     const data = await fetchChapter(b.apiName, chapter);
@@ -227,6 +228,8 @@ export default function BibleReader() {
                 verse={v}
                 highlight={highlightVerse === v.verse}
                 id={`v${v.verse}`}
+                bookName={book.name}
+                chapter={pos.chapter}
               />
             ))}
             {pos.abbr === 'MAL' && pos.chapter === 4 && (
