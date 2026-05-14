@@ -50,6 +50,16 @@ export default function BibleReader() {
     window.scrollTo({ top: 0 });
     const b = BIBLE_BOOKS.find(bk => bk.abbr === bookAbbr);
     if (!b) { setError('Book not found'); setLoading(false); return; }
+    
+    // Skip API fetch for title pages (chapter 0)
+    if (chapter === 0) {
+      setVerseCount(0);
+      setLoading(false);
+      setHighlightVerse(jumpVerse || null);
+      savePosition(bookAbbr, chapter);
+      return;
+    }
+    
     const data = await fetchChapter(b.apiName, chapter);
     setVerses(data);
     setVerseCount(data.length);
