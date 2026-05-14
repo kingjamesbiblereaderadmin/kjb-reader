@@ -42,8 +42,8 @@ const QUICK_LINKS = [
 ];
 
 export default function HomePage() {
+  const imgData = DAILY_IMAGES[Math.floor(Math.random() * DAILY_IMAGES.length)];
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-  const imgData = DAILY_IMAGES[dayOfYear % DAILY_IMAGES.length];
   const verse = DAILY_VERSES[dayOfYear % DAILY_VERSES.length];
 
   return (
@@ -76,16 +76,6 @@ export default function HomePage() {
               "{verse.text}"
             </blockquote>
             <p className="font-sans text-white/80 text-sm font-semibold text-left">— {verse.ref} (KJB)</p>
-            <div className="mt-4 pt-4 border-t border-white/20">
-              <a
-                href={imgData.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-sans text-white/70 text-xs hover:text-white/90 transition-colors block"
-              >
-                📷 {imgData.credit} by {imgData.author} / Unsplash
-              </a>
-            </div>
           </div>
         </div>
       </div>
