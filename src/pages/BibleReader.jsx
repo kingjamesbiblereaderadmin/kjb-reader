@@ -7,6 +7,7 @@ import BookSelector from '@/components/bible/BookSelector';
 import ChapterSelector from '@/components/bible/ChapterSelector';
 import VerseSelector from '@/components/bible/VerseSelector';
 import VerseText from '@/components/bible/VerseText';
+import TitlePage from '@/components/bible/TitlePage';
 
 const STORAGE_KEY = 'kjb-position';
 
@@ -78,7 +79,14 @@ export default function BibleReader() {
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);
     setHighlightVerse(jumpVerse);
-    loadChapter(newAbbr, newChapter, jumpVerse);
+    
+    // Show title page before Genesis 1 or Matthew 1
+    if ((newAbbr === 'GEN' && newChapter === 1) || (newAbbr === 'MAT' && newChapter === 1)) {
+      setVerses([]);
+      setLoading(false);
+    } else {
+      loadChapter(newAbbr, newChapter, jumpVerse);
+    }
   };
 
   const goNext = () => {
@@ -86,7 +94,13 @@ export default function BibleReader() {
       navigate(pos.abbr, pos.chapter + 1);
     } else {
       const next = getNextBook(pos.abbr);
-      if (next) navigate(next.abbr, 1);
+      if (next) {
+        if (next.abbr === 'MAT') {
+          navigate(next.abbr, 1); // Show title page
+        } else {
+          navigate(next.abbr, 1);
+        }
+      }
     }
   };
 
@@ -224,7 +238,7 @@ export default function BibleReader() {
         <div className="mt-3 w-16 h-px bg-accent mx-auto" />
       </div>
 
-      {/* Verses */}
+      {/* Title pages or verses */}
       <div className="font-serif text-lg leading-loose text-foreground/90">
         {loading && (
           <div className="flex justify-center py-16">
@@ -234,7 +248,10 @@ export default function BibleReader() {
         {error && (
           <div className="text-center py-16 text-destructive font-sans">{error}</div>
         )}
-        {!loading && !error && (
+        {!loading && !error && verses.length === 0 && (pos.abbr === 'GEN' || pos.abbr === 'MAT') && pos.chapter === 1 && (
+          <TitlePage type={pos.abbr === 'GEN' ? 'testament-old' : 'testament-new'} />
+        )}
+        {!loading && !error && verses.length > 0 && (
           <div className="text-justify hyphens-auto">
             {verses.map(v => (
               <VerseText
