@@ -48,36 +48,14 @@ export default function HomePage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
-      {/* Daily photo hero with verse overlay */}
-      <div className="w-full overflow-hidden rounded-2xl mb-8 relative shadow-lg">
-        <img
-          src={imgData.url}
-          alt={imgData.credit}
-          className="w-full h-64 md:h-96 object-cover"
-          onError={(e) => { e.target.parentNode.style.display = 'none'; }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 rounded-2xl" />
-        <div className="absolute inset-0 flex flex-col justify-between p-5 md:p-8">
-          {/* Top label + photo credit */}
-          <div className="flex items-center justify-between">
-            <p className="font-sans text-white/60 text-xs tracking-widest uppercase font-semibold">Verse of the Day</p>
-            <a
-              href={imgData.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-sans text-white/50 text-xs hover:text-white/80 transition-colors"
-            >
-              📷 {imgData.credit} · {imgData.author} / Unsplash
-            </a>
-          </div>
-          {/* Verse content */}
-          <div>
-            <blockquote className="font-serif text-white text-lg md:text-2xl font-medium leading-snug italic drop-shadow-lg mb-3 text-left">
-              "{verse.text}"
-            </blockquote>
-            <p className="font-sans text-white/80 text-sm font-semibold text-left">— {verse.ref} (KJB)</p>
-          </div>
-        </div>
+      {/* Daily verse of the day */}
+      <div className="bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 rounded-2xl p-8 md:p-12 mb-8 text-center">
+        <p className="font-sans text-xs text-primary tracking-widest uppercase font-semibold mb-4">Verse of the Day</p>
+        <blockquote className="font-serif text-2xl md:text-4xl font-bold text-foreground leading-relaxed italic mb-4">
+          "{verse.text}"
+        </blockquote>
+        <p className="font-sans text-base font-semibold text-primary">— {verse.ref} (KJB)</p>
+        <div className="mt-6 w-12 h-px bg-accent mx-auto" />
       </div>
 
       {/* Quick links */}
