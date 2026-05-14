@@ -223,21 +223,23 @@ export default function BibleReader() {
         />
       )}
 
-      {/* Book title */}
-      <div className="text-center mb-6">
-        <p className="font-sans text-xs text-muted-foreground tracking-widest uppercase mb-1">
-          {book.testament === 'old' ? 'Old Testament' : 'New Testament'}
-        </p>
-        <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-1 leading-tight">{book.name}</h1>
-        <p className="font-sans text-sm text-muted-foreground tracking-widest uppercase mt-1">Chapter {pos.chapter}</p>
-        {/* Subscript — shown below chapter heading on the relevant final chapter */}
-        {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
-          <p className="font-serif text-sm italic text-muted-foreground mt-3 max-w-md mx-auto leading-relaxed">
-            {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]}
+      {/* Book title — hidden when showing title page */}
+      {!((verses.length === 0 && (pos.abbr === 'GEN' || pos.abbr === 'MAT') && pos.chapter === 1)) && (
+        <div className="text-center mb-6">
+          <p className="font-sans text-xs text-muted-foreground tracking-widest uppercase mb-1">
+            {book.testament === 'old' ? 'Old Testament' : 'New Testament'}
           </p>
-        )}
-        <div className="mt-3 w-16 h-px bg-accent mx-auto" />
-      </div>
+          <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-1 leading-tight">{book.name}</h1>
+          <p className="font-sans text-sm text-muted-foreground tracking-widest uppercase mt-1">Chapter {pos.chapter}</p>
+          {/* Subscript — shown below chapter heading on the relevant final chapter */}
+          {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
+            <p className="font-serif text-sm italic text-muted-foreground mt-3 max-w-md mx-auto leading-relaxed">
+              {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]}
+            </p>
+          )}
+          <div className="mt-3 w-16 h-px bg-accent mx-auto" />
+        </div>
+      )}
 
       {/* Title pages or verses */}
       <div className="font-serif text-lg leading-loose text-foreground/90">
