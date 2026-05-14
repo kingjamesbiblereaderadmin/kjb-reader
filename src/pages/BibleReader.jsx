@@ -107,6 +107,7 @@ export default function BibleReader() {
 
   const isLastChapterLastBook = pos.abbr === 'REV' && pos.chapter === 22;
   const isFirstChapterFirstBook = pos.abbr === 'GEN' && pos.chapter === 0;
+  const isGenesisChapterOne = pos.abbr === 'GEN' && pos.chapter === 1;
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
@@ -277,17 +278,19 @@ export default function BibleReader() {
         <div className="flex justify-between mt-12 pt-6 border-t border-border">
           <button
             onClick={goPrev}
-            disabled={isFirstChapterFirstBook}
+            disabled={isFirstChapterFirstBook || isGenesisChapterOne}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-30 transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
             {isFirstChapterFirstBook
               ? 'Beginning'
+              : isGenesisChapterOne
+              ? 'Title Page'
               : isViewingTitlePage
               ? `${getPrevBook(pos.abbr)?.shortName} ${getPrevBook(pos.abbr)?.chapters}`
               : pos.chapter > 1
               ? `Chapter ${pos.chapter - 1}`
-              : `${book.shortName} Intro`}
+              : `${book.shortName} Title Page`}
           </button>
 
           <button
