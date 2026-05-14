@@ -31,7 +31,8 @@ async function loadBible() {
 
   const data = {};
   const lines = text.split('\n');
-  const colophonLines = {};
+  let lastVerse = null;
+  let lastVerseKey = null;
   
   for (let i = 0; i < lines.length; i++) {
     const trimmed = lines[i].trim();
@@ -39,6 +40,15 @@ async function loadBible() {
 
     // Skip subscription/superscription markers (no verse number) - they're stored in SUBSCRIPTS
     if (trimmed.startsWith('<<') && trimmed.endsWith('>>')) {
+      continue;
+    }
+
+    // Check if line starts with pilcrow - it's a colophon without verse number
+    if (trimmed.startsWith('¶')) {
+      if (lastVerse && lastVerseKey) {
+        // Append colophon to last verse
+        lastVerse.text = lastVerse.text + ' ' + trimmed;
+      }
       continue;
     }
 
@@ -67,18 +77,10 @@ async function loadBible() {
     if (!data[bookName]) data[bookName] = {};
     if (!data[bookName][chapter]) data[bookName][chapter] = [];
     
-    // Check if next line is a colophon (starts with bracketed text, no verse reference)
-    let actualVerseText = verseText;
-    if (i + 1 < lines.length) {
-      const nextLine = lines[i + 1].trim();
-      if (nextLine.startsWith('[') && !nextLine.match(/^[A-Z][a-z]\s+\d+:\d+/)) {
-        // Next line is a colophon for this verse
-        actualVerseText = verseText + ' ' + nextLine;
-        lines[i + 1] = ''; // Mark as consumed
-      }
-    }
+    lastVerse = { verse, text: verseText };
+    lastVerseKey = `${bookName}:${chapter}`;
     
-    data[bookName][chapter].push({ verse, text: actualVerseText });
+    data[bookName][chapter].push(lastVerse);
   }
 
   bibleData = data;
