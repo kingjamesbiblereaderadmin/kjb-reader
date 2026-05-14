@@ -35,7 +35,7 @@ export default function AppLayout() {
           </Link>
 
           {/* Search bar */}
-          <div className="flex-1 max-w-sm">
+          <div className="flex-1 max-w-xs">
             <BibleSearchBar onClose={() => setMenuOpen(false)} />
           </div>
 
@@ -62,7 +62,7 @@ export default function AppLayout() {
         {menuOpen && (
           <>
             <div
-              className="fixed inset-0 top-14 z-40 bg-black/20"
+              className="fixed inset-0 top-14 z-40 bg-background/95"
               onClick={() => setMenuOpen(false)}
             />
             <div className="absolute top-14 right-0 left-0 z-50 bg-card/98 backdrop-blur-md border-b border-border shadow-lg">

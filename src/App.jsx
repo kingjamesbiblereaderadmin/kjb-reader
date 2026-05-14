@@ -15,6 +15,7 @@ import ResourcesPage from '@/pages/ResourcesPage';
 import AboutPage from '@/pages/AboutPage';
 import ContentsPage from '@/pages/ContentsPage.jsx';
 import SettingsPage from '@/pages/SettingsPage.jsx';
+import SearchPage from '@/pages/SearchPage.jsx';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -46,6 +47,7 @@ const AuthenticatedApp = () => {
       <Route path="/about" element={<AboutPage />} />
       <Route path="/contents" element={<ContentsPage />} />
       <Route path="/settings" element={<SettingsPage />} />
+      <Route path="/search" element={<SearchPage />} />
     </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

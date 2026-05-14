@@ -73,8 +73,8 @@ export default function BibleSearchBar({ onClose }) {
     }
 
     // Keyword hint
-    const kwSuggestions = query.trim().length >= 3
-      ? [{ type: 'keyword', label: `Search for "${query.trim()}"`, sub: 'keyword search — coming soon' }]
+    const kwSuggestions = query.trim().length >= 3 && bookMatches.length === 0 && refSuggestions.length === 0
+      ? [{ type: 'keyword', label: `Search: "${query.trim()}"`, sub: 'Keyword search across the Bible' }]
       : [];
 
     setSuggestions([...refSuggestions, ...bookMatches, ...kwSuggestions]);
@@ -89,16 +89,25 @@ export default function BibleSearchBar({ onClose }) {
     navigate('/read');
   };
 
+  const goKeyword = (kw) => {
+    setQuery('');
+    setSuggestions([]);
+    setOpen(false);
+    onClose?.();
+    navigate(`/search?q=${encodeURIComponent(kw)}`);
+  };
+
   const handleSelect = (s) => {
     if (s.type === 'book') goTo(s.book.abbr, 1, null);
     else if (s.type === 'ref') goTo(s.book.abbr, s.chapter, s.verse);
-    // keyword: future feature
+    else if (s.type === 'keyword') goKeyword(s.query || query.trim());
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const parsed = parseReference(query);
     if (parsed?.type === 'reference') goTo(parsed.book.abbr, parsed.chapter, parsed.verse);
+    else if (query.trim().length >= 3) goKeyword(query.trim());
   };
 
   return (
@@ -111,7 +120,7 @@ export default function BibleSearchBar({ onClose }) {
           value={query}
           onChange={e => { setQuery(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
-          placeholder="John 3:16 · Genesis · grace..."
+          placeholder="Romans 3:25 · Genesis · grace..."
           className="w-full pl-8 pr-7 py-1.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors"
         />
         {query && (
