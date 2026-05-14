@@ -3,12 +3,8 @@ import { ChevronDown, ChevronRight } from 'lucide-react';
 import { OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
 
 export default function BookSelector({ currentAbbr, onSelect, onClose }) {
-  const [oldOpen, setOldOpen] = useState(
-    OLD_TESTAMENT.some(b => b.abbr === currentAbbr)
-  );
-  const [newOpen, setNewOpen] = useState(
-    NEW_TESTAMENT.some(b => b.abbr === currentAbbr)
-  );
+  const [oldOpen, setOldOpen] = useState(true);
+  const [newOpen, setNewOpen] = useState(false);
 
   const renderBook = (book) => {
     const active = book.abbr === currentAbbr;
@@ -44,6 +40,13 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
         </button>
         {oldOpen && (
           <div className="ml-2 space-y-0.5">
+            <button
+              onClick={() => { onSelect({ abbr: 'GEN', name: 'Genesis', chapters: 50, shortName: 'Gen' }, true); onClose(); }}
+              className="w-full text-left px-3 py-1.5 rounded text-sm font-sans transition-colors hover:bg-secondary text-foreground"
+            >
+              <span>Genesis Title Page</span>
+              <span className="ml-2 text-xs text-muted-foreground">intro</span>
+            </button>
             {OLD_TESTAMENT.map(renderBook)}
           </div>
         )}
@@ -58,6 +61,13 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
         </button>
         {newOpen && (
           <div className="ml-2 space-y-0.5">
+            <button
+              onClick={() => { onSelect({ abbr: 'MAT', name: 'Matthew', chapters: 28, shortName: 'Mat' }, true); onClose(); }}
+              className="w-full text-left px-3 py-1.5 rounded text-sm font-sans transition-colors hover:bg-secondary text-foreground"
+            >
+              <span>Matthew Title Page</span>
+              <span className="ml-2 text-xs text-muted-foreground">intro</span>
+            </button>
             {NEW_TESTAMENT.map(renderBook)}
           </div>
         )}
