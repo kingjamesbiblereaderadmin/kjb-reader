@@ -11,7 +11,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
     return (
       <button
         key={book.abbr}
-        onClick={() => { onSelect(book); onClose(); }}
+        onClick={() => { onSelect(book, false); onClose(); }}
         className={`w-full text-left px-3 py-1.5 rounded text-sm font-sans transition-colors ${
           active
             ? 'bg-accent text-accent-foreground font-semibold'
