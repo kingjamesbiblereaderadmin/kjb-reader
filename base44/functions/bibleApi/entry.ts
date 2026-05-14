@@ -1,49 +1,69 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import initSqlJs from 'npm:sql.js@1.12.0';
 
-// In-memory cache for the parsed Bible data
-let bibleCache = null;
-let bookChapterCache = {};
+const DB_URL = 'https://www.bibleprotector.com/KJV-PCE.db';
 
-async function loadBible() {
-  if (bibleCache) return bibleCache;
+// In-memory DB and chapter cache — persists across requests in the same isolate
+let sqlDb = null;
+const chapterCache = {};
 
-  const res = await fetch('https://www.bibleprotector.com/TEXT-PCE-127-TAB.txt');
-  if (!res.ok) throw new Error('Failed to fetch Bible text from bibleprotector.com');
-  const text = await res.text();
+const BOOK_NUMS = {
+  'Genesis':1,'Exodus':2,'Leviticus':3,'Numbers':4,'Deuteronomy':5,
+  'Joshua':6,'Judges':7,'Ruth':8,'1 Samuel':9,'2 Samuel':10,
+  '1 Kings':11,'2 Kings':12,'1 Chronicles':13,'2 Chronicles':14,
+  'Ezra':15,'Nehemiah':16,'Esther':17,'Job':18,'Psalms':19,'Proverbs':20,
+  'Ecclesiastes':21,'Song of Solomon':22,'Isaiah':23,'Jeremiah':24,
+  'Lamentations':25,'Ezekiel':26,'Daniel':27,'Hosea':28,'Joel':29,
+  'Amos':30,'Obadiah':31,'Jonah':32,'Micah':33,'Nahum':34,
+  'Habakkuk':35,'Zephaniah':36,'Haggai':37,'Zechariah':38,'Malachi':39,
+  'Matthew':40,'Mark':41,'Luke':42,'John':43,'Acts':44,'Romans':45,
+  '1 Corinthians':46,'2 Corinthians':47,'Galatians':48,'Ephesians':49,
+  'Philippians':50,'Colossians':51,'1 Thessalonians':52,'2 Thessalonians':53,
+  '1 Timothy':54,'2 Timothy':55,'Titus':56,'Philemon':57,'Hebrews':58,
+  'James':59,'1 Peter':60,'2 Peter':61,'1 John':62,'2 John':63,
+  '3 John':64,'Jude':65,'Revelation':66
+};
 
-  const lines = text.split('\n');
-  const data = {};
+async function getDb() {
+  if (sqlDb) return sqlDb;
 
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-    
-    // Format: bookNum TABorSpace Abbr TABorSpace BookName TABorSpace chapter TABorSpace verse TABorSpace text
-    // Example: "1 Ge Genesis 1 1 In the beginning..."
-    const parts = trimmed.split(/\s+/);
-    if (parts.length < 6) continue;
-    
-    // bookNum = parts[0], abbr = parts[1], bookName = parts[2], chapter = parts[3], verse = parts[4], text = parts[5..]
-    const bookName = parts[2];
-    const chapter = parseInt(parts[3], 10);
-    const verse = parseInt(parts[4], 10);
-    const verseText = parts.slice(5).join(' ');
-    
-    if (!bookName || isNaN(chapter) || isNaN(verse)) continue;
-    
-    if (!data[bookName]) data[bookName] = {};
-    if (!data[bookName][chapter]) data[bookName][chapter] = [];
-    data[bookName][chapter].push({ verse, text: verseText });
-  }
+  const res = await fetch(DB_URL);
+  if (!res.ok) throw new Error(`Failed to fetch Bible DB: ${res.status}`);
+  const buf = await res.arrayBuffer();
 
-  bibleCache = data;
-  return data;
+  const SQL = await initSqlJs();
+  sqlDb = new SQL.Database(new Uint8Array(buf));
+  return sqlDb;
 }
 
 Deno.serve(async (req) => {
   try {
     const body = await req.json();
-    const { action, book, chapter, verse } = body;
+    const { action, book, chapter } = body;
+
+    const bookNum = BOOK_NUMS[book];
+    if (!bookNum) {
+      return Response.json({ error: `Book "${book}" not found` }, { status: 404 });
+    }
+
+    const db = await getDb();
+
+    if (action === 'schema') {
+      const stmt = db.prepare("SELECT name, sql FROM sqlite_master WHERE type='table'");
+      const tables = [];
+      while (stmt.step()) {
+        tables.push(stmt.getAsObject());
+      }
+      stmt.free();
+      // Also get first row of first table
+      let sample = [];
+      try {
+        const s2 = db.prepare("SELECT * FROM bible LIMIT 3");
+        while (s2.step()) { sample.push(s2.getAsObject()); }
+        s2.free();
+      } catch {}
+      return Response.json({ tables, sample });
+    }
 
     if (action === 'getChapter') {
       if (!book || !chapter) {
@@ -51,48 +71,38 @@ Deno.serve(async (req) => {
       }
 
       const cacheKey = `${book}:${chapter}`;
-      if (bookChapterCache[cacheKey]) {
-        return Response.json({ verses: bookChapterCache[cacheKey] });
+      if (chapterCache[cacheKey]) {
+        return Response.json({ verses: chapterCache[cacheKey] });
       }
 
-      const bible = await loadBible();
-      if (!bible[book]) {
-        return Response.json({ error: `Book "${book}" not found` }, { status: 404 });
+      const stmt = db.prepare("SELECT v, t FROM bible WHERE b = ? AND c = ? ORDER BY v");
+      stmt.bind([bookNum, chapter]);
+      const verses = [];
+      while (stmt.step()) {
+        const row = stmt.getAsObject();
+        verses.push({ verse: row.v, text: row.t });
       }
-      if (!bible[book][chapter]) {
-        return Response.json({ error: `Chapter ${chapter} not found in ${book}` }, { status: 404 });
+      stmt.free();
+
+      if (!verses.length) {
+        return Response.json({ error: `No verses found for ${book} ${chapter}` }, { status: 404 });
       }
 
-      const verses = bible[book][chapter];
-      bookChapterCache[cacheKey] = verses;
+      chapterCache[cacheKey] = verses;
       return Response.json({ verses });
-    }
-
-    if (action === 'getVerse') {
-      if (!book || !chapter || !verse) {
-        return Response.json({ error: 'book, chapter, and verse required' }, { status: 400 });
-      }
-
-      const bible = await loadBible();
-      if (!bible[book] || !bible[book][chapter]) {
-        return Response.json({ error: 'Not found' }, { status: 404 });
-      }
-
-      const verseData = bible[book][chapter].find(v => v.verse === parseInt(verse, 10));
-      if (!verseData) {
-        return Response.json({ error: 'Verse not found' }, { status: 404 });
-      }
-
-      return Response.json({ verse: verseData });
     }
 
     if (action === 'getVerseCount') {
       if (!book || !chapter) {
         return Response.json({ error: 'book and chapter required' }, { status: 400 });
       }
-      const bible = await loadBible();
-      const count = bible[book]?.[chapter]?.length || 0;
-      return Response.json({ count });
+
+      const stmt = db.prepare("SELECT COUNT(*) as cnt FROM bible WHERE b = ? AND c = ?");
+      stmt.bind([bookNum, chapter]);
+      stmt.step();
+      const row = stmt.getAsObject();
+      stmt.free();
+      return Response.json({ count: row.cnt || 0 });
     }
 
     return Response.json({ error: 'Unknown action' }, { status: 400 });
