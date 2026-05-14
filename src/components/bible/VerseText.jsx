@@ -1,10 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Copy, Share2, X, Highlighter } from 'lucide-react';
+import { Copy, Share2, X, Highlighter, ChevronDown } from 'lucide-react';
 
 export default function VerseText({ verse, highlight = false, id, bookName, chapter, isColophon = false }) {
   const [selected, setSelected] = useState(false);
   const [showHighlight, setShowHighlight] = useState(highlight);
+  const [highlightColor, setHighlightColor] = useState('accent');
+  const [showColorPicker, setShowColorPicker] = useState(false);
+
+  const highlightColors = [
+    { name: 'accent', bg: 'bg-accent/40 dark:bg-accent/30' },
+    { name: 'yellow', bg: 'bg-yellow-300/40' },
+    { name: 'green', bg: 'bg-green-300/40' },
+    { name: 'blue', bg: 'bg-blue-300/40' },
+    { name: 'pink', bg: 'bg-pink-300/40' },
+    { name: 'purple', bg: 'bg-purple-300/40' },
+  ];
 
   useEffect(() => {
     if (highlight) {
@@ -42,9 +53,9 @@ export default function VerseText({ verse, highlight = false, id, bookName, chap
         onClick={() => setSelected(s => !s)}
         className={`inline leading-loose transition-colors duration-200 rounded cursor-pointer px-0.5 py-0.5 ${
           selected
-            ? 'bg-accent/40 dark:bg-accent/30'
+            ? highlightColors.find(c => c.name === highlightColor)?.bg
             : showHighlight
-            ? 'bg-accent/25 dark:bg-accent/20'
+            ? highlightColors.find(c => c.name === highlightColor)?.bg
             : 'hover:bg-secondary/60'
         } ${isColophon ? 'italic text-muted-foreground text-base' : ''}`}
       >
@@ -65,13 +76,40 @@ export default function VerseText({ verse, highlight = false, id, bookName, chap
             className="fixed inset-0 z-40"
             onClick={() => setSelected(false)}
           />
-          <span className="absolute left-0 top-full mt-1 z-50 flex items-center gap-1 bg-card border border-border rounded-xl shadow-lg px-2 py-1.5 whitespace-nowrap">
+          <span className="absolute left-0 top-full mt-1 z-50 flex items-center gap-1 bg-card border border-border rounded-xl shadow-lg px-2 py-1.5">
+            <div className="relative">
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowColorPicker(!showColorPicker); }}
+                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+                title="Highlight color"
+              >
+                <Highlighter className="w-3 h-3" />
+                <ChevronDown className="w-2.5 h-2.5" />
+              </button>
+              {showColorPicker && (
+                <div className="absolute top-full left-0 mt-1 z-50 flex gap-1 bg-card border border-border rounded-lg p-2 shadow-lg">
+                  {highlightColors.map(color => (
+                    <button
+                      key={color.name}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setHighlightColor(color.name);
+                        setShowHighlight(true);
+                        setShowColorPicker(false);
+                      }}
+                      className={`w-4 h-4 rounded border-2 ${color.bg} ${highlightColor === color.name ? 'border-foreground' : 'border-border'}`}
+                      title={color.name}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
             <button
               onClick={(e) => { e.stopPropagation(); setShowHighlight(!showHighlight); }}
               className="flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
               title="Toggle highlight"
             >
-              <Highlighter className="w-3 h-3" />
+              {showHighlight ? 'Clear' : 'Apply'}
             </button>
             <button
               onClick={handleCopy}
