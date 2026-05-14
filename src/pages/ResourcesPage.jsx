@@ -1,5 +1,5 @@
-import React from 'react';
-import { ExternalLink, FileText, BookOpen, ShieldAlert, Globe, CheckCircle, Users } from 'lucide-react';
+import React, { useState } from 'react';
+import { ExternalLink, FileText, BookOpen, ShieldAlert, Globe, CheckCircle, Users, ChevronDown, Youtube, Facebook, Instagram, Link } from 'lucide-react';
 
 // TikTok icon
 function TikTokIcon({ className }) {
@@ -10,12 +10,81 @@ function TikTokIcon({ className }) {
   );
 }
 
-const TIKTOK_PREACHERS = [
-  { handle: '@ryan_sohc', url: 'https://www.tiktok.com/@ryan_sohc' },
-  { handle: '@av1611ministries', url: 'https://www.tiktok.com/@av1611ministries' },
-  { handle: '@mission1611', url: 'https://www.tiktok.com/@mission1611' },
-  { handle: '@pauljohnson9632', url: 'https://www.tiktok.com/@pauljohnson9632' },
-  { handle: '@pastor_donnie.t', url: 'https://www.tiktok.com/@pastor_donnie.t' },
+function getLinkIcon(url) {
+  if (url.includes('youtube.com') || url.includes('youtu.be')) return <Youtube className="w-3.5 h-3.5" />;
+  if (url.includes('tiktok.com')) return <TikTokIcon className="w-3.5 h-3.5" />;
+  if (url.includes('facebook.com')) return <Facebook className="w-3.5 h-3.5" />;
+  if (url.includes('instagram.com')) return <Instagram className="w-3.5 h-3.5" />;
+  if (url.includes('linktr.ee')) return <Link className="w-3.5 h-3.5" />;
+  return <Globe className="w-3.5 h-3.5" />;
+}
+
+function getLinkLabel(url) {
+  if (url.includes('youtube.com') || url.includes('youtu.be')) return 'YouTube';
+  if (url.includes('tiktok.com')) return 'TikTok';
+  if (url.includes('facebook.com')) return 'Facebook';
+  if (url.includes('instagram.com')) return 'Instagram';
+  if (url.includes('linktr.ee')) return 'Linktree';
+  try { return new URL(url).hostname.replace('www.', ''); } catch { return 'Website'; }
+}
+
+const PREACHERS = [
+  {
+    name: 'Robert Breaker',
+    desc: 'KJB missionary evangelist, rightly dividing the word of truth.',
+    links: [
+      'https://www.youtube.com/@Robertbreaker3',
+      'https://www.tiktok.com/@robertbreaker',
+      'https://thecloudchurch.org/',
+    ],
+  },
+  {
+    name: 'Robert Potthoff',
+    desc: 'Big Red Preacher — KJB soul winner.',
+    links: [
+      'https://linktr.ee/BigRedPreacher',
+    ],
+  },
+  {
+    name: 'Joseph Gonzalez',
+    desc: 'KJB Elites — faithful preacher of the word.',
+    links: [
+      'https://youtube.com/@josephgonzalez3',
+      'https://www.tiktok.com/@kjb_elites',
+    ],
+  },
+  {
+    name: 'Ryan Poff',
+    desc: 'Seed of Hope Church — KJB pastor and preacher.',
+    links: [
+      'https://www.seedofhopechurch.org/',
+      'https://youtube.com/@ryan_poff',
+    ],
+  },
+  {
+    name: 'Skyler (AV1611 Ministry)',
+    desc: 'AV1611 Ministry — KJB defence and preaching.',
+    links: [
+      'https://www.youtube.com/@AV1611Ministry',
+    ],
+  },
+  {
+    name: 'Crown of Thorns',
+    desc: 'KJB preaching ministry on YouTube.',
+    links: [
+      'https://www.youtube.com/@CrownOfThorns',
+    ],
+  },
+  {
+    name: 'CPR Missions',
+    desc: 'Church Planting and Revival Missions — soul winning and church planting.',
+    links: [
+      'https://www.youtube.com/channel/UCWBR5DmAi2XPMFRtb-wqHwg',
+      'https://www.tiktok.com/@cprmissions',
+      'https://www.facebook.com/CPRmission/',
+      'https://www.instagram.com/cprmissions/',
+    ],
+  },
 ];
 
 const RESOURCES = [
@@ -162,6 +231,65 @@ const RESOURCES = [
   },
 ];
 
+function PreachersSection() {
+  const [expanded, setExpanded] = useState(null);
+  return (
+    <div className="mb-10">
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 mb-4">
+        <Users className="w-4 h-4 text-amber-600" />
+        <h2 className="font-sans font-semibold text-sm text-amber-600">Verified KJB Preachers</h2>
+      </div>
+      <p className="font-sans text-xs text-muted-foreground mb-3">
+        KJB-believing, soul-winning preachers — tap to see all their links
+      </p>
+      <div className="space-y-2">
+        {PREACHERS.map((preacher) => {
+          const isOpen = expanded === preacher.name;
+          return (
+            <div key={preacher.name} className="bg-card border border-border rounded-xl overflow-hidden transition-all">
+              <button
+                onClick={() => setExpanded(isOpen ? null : preacher.name)}
+                className="w-full flex items-center gap-3 p-4 hover:bg-accent/5 transition-colors text-left"
+              >
+                <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-sans text-sm font-semibold text-foreground">{preacher.name}</p>
+                  {!isOpen && (
+                    <p className="font-sans text-xs text-muted-foreground truncate">{preacher.desc}</p>
+                  )}
+                </div>
+                <ChevronDown className={`w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {isOpen && (
+                <div className="border-t border-border px-4 pb-4 pt-3 bg-background/40 space-y-2">
+                  <p className="font-sans text-xs text-muted-foreground mb-3">{preacher.desc}</p>
+                  {preacher.links.map((url) => (
+                    <a
+                      key={url}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 bg-card border border-border rounded-lg hover:border-accent/50 transition-colors group"
+                    >
+                      <span className="text-muted-foreground group-hover:text-accent transition-colors">
+                        {getLinkIcon(url)}
+                      </span>
+                      <span className="font-sans text-sm font-medium text-foreground group-hover:text-accent transition-colors flex-1">
+                        {getLinkLabel(url)}
+                      </span>
+                      <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function ResourcesPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
@@ -177,51 +305,7 @@ export default function ResourcesPage() {
       </div>
 
       {/* Verified Preachers section */}
-      <div className="mb-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 mb-4">
-          <Users className="w-4 h-4 text-amber-600" />
-          <h2 className="font-sans font-semibold text-sm text-amber-600">Verified KJB Preachers</h2>
-        </div>
-        <p className="font-sans text-xs text-muted-foreground mb-3">
-          KJB-believing, soul-winning preachers worth following on TikTok
-        </p>
-        <div className="space-y-2">
-          {TIKTOK_PREACHERS.map(({ handle, url }) => (
-            <a
-              key={handle}
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 p-4 bg-card border border-border rounded-xl hover:border-accent/50 transition-colors group"
-            >
-              <TikTokIcon className="w-4 h-4 flex-shrink-0 text-foreground" />
-              <span className="font-sans text-sm font-medium text-foreground group-hover:text-accent transition-colors flex-1">
-                {handle}
-              </span>
-              <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-              <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />
-            </a>
-          ))}
-        </div>
-
-        {/* KJBI verified */}
-        <a
-          href="https://kjbi.org"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 p-4 bg-card border border-border rounded-xl hover:border-accent/50 transition-colors group mt-2"
-        >
-          <BookOpen className="w-4 h-4 flex-shrink-0 text-green-600" />
-          <div className="flex-1">
-            <span className="font-sans text-sm font-medium text-foreground group-hover:text-accent transition-colors">
-              KJBI.org — Free Online Bible College
-            </span>
-            <p className="font-sans text-xs text-muted-foreground">kjbi.org</p>
-          </div>
-          <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-          <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />
-        </a>
-      </div>
+      <PreachersSection />
 
       <div className="space-y-10">
         {RESOURCES.map((section) => {
