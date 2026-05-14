@@ -258,21 +258,38 @@ export default function BibleReader() {
           <TitlePage type={pos.abbr === 'GEN' ? 'testament-old' : 'testament-new'} />
         )}
         {!loading && !error && verses.length > 0 && (
-          <div className="text-justify hyphens-auto">
-            {verses.map((v, idx) => (
-              <VerseText
-                key={v.verse}
-                verse={v}
-                highlight={highlightVerse === v.verse}
-                id={`v${v.verse}`}
-                bookName={book.name}
-                chapter={pos.chapter}
-                isColophon={COLOPHONS[`${book.apiName}:${pos.chapter}`] === v.verse}
-                isFirstVerse={idx === 0}
-              />
-            ))}
-
-          </div>
+          <>
+            <div className="text-justify hyphens-auto">
+              {verses.map((v, idx) => {
+                const isColophon = COLOPHONS[`${book.apiName}:${pos.chapter}`] === v.verse;
+                return !isColophon ? (
+                  <VerseText
+                    key={v.verse}
+                    verse={v}
+                    highlight={highlightVerse === v.verse}
+                    id={`v${v.verse}`}
+                    bookName={book.name}
+                    chapter={pos.chapter}
+                    isColophon={false}
+                    isFirstVerse={idx === 0}
+                  />
+                ) : null;
+              })}
+            </div>
+            {/* Colophon footer — displayed separately at the bottom */}
+            {verses.length > 0 && COLOPHONS[`${book.apiName}:${pos.chapter}`] && (
+              <div className="mt-8 pt-6 border-t border-border">
+                <VerseText
+                  verse={verses.find(v => v.verse === COLOPHONS[`${book.apiName}:${pos.chapter}`])}
+                  id={`v${COLOPHONS[`${book.apiName}:${pos.chapter}`]}`}
+                  bookName={book.name}
+                  chapter={pos.chapter}
+                  isColophon={true}
+                  isFirstVerse={false}
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
 
