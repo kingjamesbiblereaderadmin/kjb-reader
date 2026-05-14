@@ -27,7 +27,19 @@ export default function VerseText({ verse, highlight = false, id, bookName, chap
 
   // Strip <<...>> superscription markers embedded in verse text (e.g. Psalm 34:1)
   const displayVerseText = verse.text.replace(/^<<[^>]*>>\s*/, '');
-  const html = renderVerseText(displayVerseText);
+  
+  // For colophons, extract only the bracketed text
+  let colophonText = null;
+  let mainText = displayVerseText;
+  if (isColophon) {
+    const match = displayVerseText.match(/\[([^\]]+)\]/);
+    if (match) {
+      colophonText = match[1];
+      mainText = displayVerseText.replace(/\[[^\]]+\]\s*/, '').trim();
+    }
+  }
+  
+  const html = renderVerseText(colophonText || mainText);
   const hasPilcrow = verse.text.includes('¶');
 
   const verseRef = `${bookName} ${chapter}:${verse.verse}`;
@@ -67,7 +79,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, chap
           {verse.verse}
         </sup>
         <span
-          className={`font-serif leading-loose [&_em]:italic [&_em]:text-foreground/75 [&_.pilcrow]:text-accent [&_.pilcrow]:not-italic [&_.pilcrow]:font-sans [&_.pilcrow]:text-sm [&_.pilcrow]:mr-1 [&_.pilcrow]:inline-block [&_.pilcrow]:min-w-max ${hasPilcrow ? 'block pl-6' : ''} ${isColophon ? 'text-base not-italic text-muted-foreground' : 'text-lg'}`}
+          className={`font-serif leading-loose [&_em]:italic [&_em]:text-foreground/75 [&_.pilcrow]:text-accent [&_.pilcrow]:not-italic [&_.pilcrow]:font-sans [&_.pilcrow]:text-sm [&_.pilcrow]:mr-1 [&_.pilcrow]:inline-block [&_.pilcrow]:min-w-max ${hasPilcrow ? 'block pl-6' : ''} ${isColophon && colophonText ? 'text-base italic text-muted-foreground' : isColophon ? 'text-base text-muted-foreground' : 'text-lg'}`}
           dangerouslySetInnerHTML={{ __html: renderWithPilcrow(html) }}
         />
         {' '}
