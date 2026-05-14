@@ -11,13 +11,12 @@ Deno.serve(async (req) => {
     for (let i = 0; i < lines.length; i++) {
       const trimmed = lines[i].trim();
       
-      // Look for colophon markers: lines ending with <<[...written...]>>
-      if (trimmed.includes('<<[') && trimmed.includes('written') && trimmed.includes('>>')) {
+      // Look for Hebrews 13:25 colophon
+      if (trimmed.includes('Heb 13:25') || trimmed.includes('He 13:25')) {
         samples.push({
           index: i,
-          line: trimmed.slice(0, 200)
+          line: trimmed
         });
-        if (samples.length >= 15) break;
       }
     }
     
