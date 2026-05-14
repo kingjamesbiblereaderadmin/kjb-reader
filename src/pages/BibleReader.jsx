@@ -78,8 +78,16 @@ export default function BibleReader() {
     window.scrollTo({ top: 0 });
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);
-    loadChapter(newAbbr, newChapter, jumpVerse);
-    setHighlightVerse(jumpVerse);
+    
+    // Show title page before Genesis 1 or Matthew 1
+    if ((newAbbr === 'GEN' && newChapter === 1) || (newAbbr === 'MAT' && newChapter === 1)) {
+      setVerses([]);
+      setLoading(false);
+      setHighlightVerse(null);
+    } else {
+      loadChapter(newAbbr, newChapter, jumpVerse);
+      setHighlightVerse(jumpVerse);
+    }
   };
 
   const goNext = () => {
@@ -93,11 +101,7 @@ export default function BibleReader() {
     } else {
       const next = getNextBook(pos.abbr);
       if (next) {
-        if (next.abbr === 'MAT') {
-          navigate(next.abbr, 1); // Show title page
-        } else {
-          navigate(next.abbr, 1);
-        }
+        navigate(next.abbr, 1);
       }
     }
   };
@@ -220,21 +224,23 @@ export default function BibleReader() {
         />
       )}
 
-      {/* Book title */}
-      <div className="text-center mb-6">
-        <p className="font-sans text-xs text-muted-foreground tracking-widest uppercase mb-1">
-          {book.testament === 'old' ? 'Old Testament' : 'New Testament'}
-        </p>
-        <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-1 leading-tight">{book.name}</h1>
-        <p className="font-sans text-sm text-muted-foreground tracking-widest uppercase mt-1">Chapter {pos.chapter}</p>
-        {/* Subscript — shown below chapter heading on the relevant final chapter */}
-        {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
-          <p className="font-serif text-sm italic text-muted-foreground mt-3 max-w-md mx-auto leading-relaxed">
-            {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]}
+      {/* Book title — hidden when showing title page */}
+      {!((verses.length === 0 && (pos.abbr === 'GEN' || pos.abbr === 'MAT') && pos.chapter === 1)) && (
+        <div className="text-center mb-6">
+          <p className="font-sans text-xs text-muted-foreground tracking-widest uppercase mb-1">
+            {book.testament === 'old' ? 'Old Testament' : 'New Testament'}
           </p>
-        )}
-        <div className="mt-3 w-16 h-px bg-accent mx-auto" />
-      </div>
+          <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-1 leading-tight">{book.name}</h1>
+          <p className="font-sans text-sm text-muted-foreground tracking-widest uppercase mt-1">Chapter {pos.chapter}</p>
+          {/* Subscript — shown below chapter heading on the relevant final chapter */}
+          {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
+            <p className="font-serif text-sm italic text-muted-foreground mt-3 max-w-md mx-auto leading-relaxed">
+              {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]}
+            </p>
+          )}
+          <div className="mt-3 w-16 h-px bg-accent mx-auto" />
+        </div>
+      )}
 
       {/* Title pages or verses */}
       <div className="font-serif text-lg leading-loose text-foreground/90">
