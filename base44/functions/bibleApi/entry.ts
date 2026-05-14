@@ -20,7 +20,7 @@ const ABBR_TO_NAME = {
 
 // In-memory cache: { bookName: { chapterNum: [{ verse, text }] } }
 let bibleData = null;
-const chapterCache = {};
+let chapterCache = {};
 
 async function loadBible() {
   if (bibleData) return bibleData;
@@ -38,6 +38,15 @@ async function loadBible() {
   for (let i = 0; i < lines.length; i++) {
     const trimmed = lines[i].trim();
     if (!trimmed) continue;
+
+    // Check if this is a standalone pilcrow line (colophon) — no verse number prefix
+    if (trimmed.startsWith('¶') && lastBook && lastChapter) {
+      const colophonKey = `${lastBook}:${lastChapter}`;
+      if (!colophons[colophonKey]) {
+        colophons[colophonKey] = trimmed.slice(1).trim();
+      }
+      continue;
+    }
 
     // Skip subscription/superscription markers (no verse number) - they're stored in SUBSCRIPTS
     if (trimmed.startsWith('<<') && trimmed.endsWith('>>')) {
@@ -65,18 +74,6 @@ async function loadBible() {
 
     const bookName = ABBR_TO_NAME[abbr];
     if (!bookName) continue;
-
-    // Check if verse text starts with pilcrow — if so, it's a colophon, not a regular verse
-    if (verseText.startsWith('¶')) {
-      const colophonKey = `${bookName}:${chapter}`;
-      if (!colophons[colophonKey]) {
-        // Store the colophon text (without the pilcrow prefix)
-        colophons[colophonKey] = verseText.slice(1).trim();
-      }
-      lastBook = bookName;
-      lastChapter = chapter;
-      continue;
-    }
 
     if (!data[bookName]) data[bookName] = {};
     if (!data[bookName][chapter]) data[bookName][chapter] = [];
@@ -125,6 +122,10 @@ Deno.serve(async (req) => {
       }
       const count = bible[book]?.[chapter]?.length ?? 0;
       return Response.json({ count });
+    }
+
+    if (action === 'getAllColophons') {
+      return Response.json({ colophons: bible.__colophons });
     }
 
     return Response.json({ error: 'Unknown action' }, { status: 400 });
