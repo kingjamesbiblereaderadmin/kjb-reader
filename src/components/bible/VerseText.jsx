@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Copy, Share2, X } from 'lucide-react';
+import { Copy, Share2, X, Highlighter } from 'lucide-react';
 
 export default function VerseText({ verse, highlight = false, id, bookName, chapter, isColophon = false }) {
   const [selected, setSelected] = useState(false);
+  const [showHighlight, setShowHighlight] = useState(highlight);
+
+  useEffect(() => {
+    if (highlight) {
+      const timer = setTimeout(() => setShowHighlight(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [highlight]);
 
   const html = renderVerseText(verse.text);
 
@@ -35,7 +43,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, chap
         className={`inline leading-loose transition-colors duration-200 rounded cursor-pointer px-0.5 py-0.5 ${
           selected
             ? 'bg-accent/40 dark:bg-accent/30'
-            : highlight
+            : showHighlight
             ? 'bg-accent/25 dark:bg-accent/20'
             : 'hover:bg-secondary/60'
         } ${isColophon ? 'italic text-muted-foreground text-base' : ''}`}
@@ -58,7 +66,13 @@ export default function VerseText({ verse, highlight = false, id, bookName, chap
             onClick={() => setSelected(false)}
           />
           <span className="absolute left-0 top-full mt-1 z-50 flex items-center gap-1 bg-card border border-border rounded-xl shadow-lg px-2 py-1.5 whitespace-nowrap">
-            <span className="font-sans text-xs text-muted-foreground mr-1">{verseRef}</span>
+            <button
+              onClick={(e) => { e.stopPropagation(); setShowHighlight(!showHighlight); }}
+              className="flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+              title="Toggle highlight"
+            >
+              <Highlighter className="w-3 h-3" />
+            </button>
             <button
               onClick={handleCopy}
               className="flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
