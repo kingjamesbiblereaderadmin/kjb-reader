@@ -44,15 +44,6 @@ async function loadBible() {
       continue;
     }
 
-    // Check if line starts with pilcrow - only treat as colophon if chapter has one in config
-    if (trimmed.startsWith('¶') && lastBook && lastChapter) {
-      const colophonKey = `${lastBook}:${lastChapter}`;
-      if (!colophons[colophonKey]) {
-        colophons[colophonKey] = trimmed;
-      }
-      continue;
-    }
-
     // Format: Ge 1:1 In the beginning...
     const spaceIdx = trimmed.indexOf(' ');
     if (spaceIdx === -1) continue;
@@ -74,6 +65,18 @@ async function loadBible() {
 
     const bookName = ABBR_TO_NAME[abbr];
     if (!bookName) continue;
+
+    // Check if verse text starts with pilcrow — if so, it's a colophon, not a regular verse
+    if (verseText.startsWith('¶')) {
+      const colophonKey = `${bookName}:${chapter}`;
+      if (!colophons[colophonKey]) {
+        // Store the colophon text (without the pilcrow prefix)
+        colophons[colophonKey] = verseText.slice(1).trim();
+      }
+      lastBook = bookName;
+      lastChapter = chapter;
+      continue;
+    }
 
     if (!data[bookName]) data[bookName] = {};
     if (!data[bookName][chapter]) data[bookName][chapter] = [];
