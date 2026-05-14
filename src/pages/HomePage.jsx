@@ -3,13 +3,20 @@ import { Link } from 'react-router-dom';
 import { BookOpen, Heart, Library, Info, List } from 'lucide-react';
 
 const DAILY_IMAGES = [
-  "https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1200&q=80",
-  "https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=1200&q=80",
-  "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1200&q=80",
-  "https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=1200&q=80",
-  "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1200&q=80",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200&q=80",
-  "https://images.unsplash.com/photo-1502126324834-38f8e02d7160?w=1200&q=80",
+  "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1200&q=80", // sunlit forest
+  "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80", // mountain sunrise
+  "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1200&q=80", // green valley
+  "https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=1200&q=80", // ocean waves
+  "https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=1200&q=80", // misty forest
+  "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1200&q=80", // golden field
+  "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80", // mountain lake
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80", // waterfall
+  "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1200&q=80", // sunrise meadow
+  "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200&q=80", // snowy peaks
+  "https://images.unsplash.com/photo-1476611338391-6f395a0ebc7b?w=1200&q=80", // autumn forest
+  "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=1200&q=80", // wildflowers
+  "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1200&q=80", // calm lake reflection
+  "https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=1200&q=80", // birds in sky
 ];
 
 const DAILY_VERSES = [
