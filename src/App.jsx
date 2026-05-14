@@ -8,6 +8,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { ThemeProvider } from '@/lib/themeContext';
 import AppLayout from '@/components/layout/AppLayout';
 // Add page imports here
+import HomePage from '@/pages/HomePage';
 import BibleReader from '@/pages/BibleReader';
 import GospelPage from '@/pages/GospelPage';
 import ResourcesPage from '@/pages/ResourcesPage';
@@ -35,12 +36,13 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
-      <Route element={<AppLayout />}>
-        <Route path="/" element={<BibleReader />} />
-        <Route path="/gospel" element={<GospelPage />} />
-        <Route path="/resources" element={<ResourcesPage />} />
-        <Route path="/about" element={<AboutPage />} />
-      </Route>
+    <Route element={<AppLayout />}>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/read" element={<BibleReader />} />
+      <Route path="/gospel" element={<GospelPage />} />
+      <Route path="/resources" element={<ResourcesPage />} />
+      <Route path="/about" element={<AboutPage />} />
+    </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

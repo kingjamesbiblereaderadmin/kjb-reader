@@ -21,46 +21,6 @@ function savePosition(abbr, chapter) {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr, chapter })); } catch {}
 }
 
-const DAILY_TOPICS = [
-  "sunrise+mountains+nature",
-  "holy+land+israel+landscape",
-  "ancient+jerusalem+stone",
-  "sea+of+galilee+sunrise",
-  "desert+wilderness+faith",
-  "olive+tree+israel",
-  "wheat+field+harvest+golden",
-];
-
-const DAILY_IMAGES = [
-  "https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=800&q=80",
-  "https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=800&q=80",
-  "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&q=80",
-  "https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=800&q=80",
-  "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=800&q=80",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80",
-  "https://images.unsplash.com/photo-1502126324834-38f8e02d7160?w=800&q=80",
-];
-
-function DailyPhoto() {
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-  const imgUrl = DAILY_IMAGES[dayOfYear % DAILY_IMAGES.length];
-
-  return (
-    <div className="w-full h-36 md:h-48 overflow-hidden rounded-xl mb-6 relative">
-      <img
-        src={imgUrl}
-        alt="Daily photo"
-        className="w-full h-full object-cover"
-        onError={(e) => { e.target.parentNode.style.display = 'none'; }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent rounded-xl" />
-      <div className="absolute bottom-3 left-4">
-        <p className="font-serif text-white text-xl font-semibold drop-shadow">KJB Reader</p>
-        <p className="font-sans text-white/70 text-xs">King James Bible — Pure Cambridge Edition</p>
-      </div>
-    </div>
-  );
-}
 
 export default function BibleReader() {
   const [pos, setPos] = useState(loadPosition);
@@ -136,7 +96,6 @@ export default function BibleReader() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
-      <DailyPhoto />
       {/* Sticky nav bar */}
       <div ref={topRef} className="sticky top-14 z-40 bg-background/95 backdrop-blur border-b border-border pb-3 mb-6">
         {/* Book / Chapter / Verse selectors */}

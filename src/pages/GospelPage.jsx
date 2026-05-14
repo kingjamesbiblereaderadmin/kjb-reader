@@ -1,13 +1,35 @@
 import React from 'react';
 import { Heart, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { BIBLE_BOOKS } from '@/lib/bibleData';
 
-const GOSPEL_VIDEOS = [
-  {
-    title: "THE GOSPEL THAT SAVES",
-    id: "znP9Dr6tOzU",
-    desc: "A short, clear presentation of the gospel of salvation.",
-  },
-];
+function VerseLink({ book, chapter, verse, children }) {
+  const navigate = useNavigate();
+  const bookData = BIBLE_BOOKS.find(b => b.shortName === book || b.apiName === book);
+
+  const handleClick = () => {
+    if (!bookData) return;
+    const pos = { abbr: bookData.abbr, chapter, verse };
+    try { localStorage.setItem('kjb-position', JSON.stringify(pos)); } catch {}
+    navigate('/read');
+  };
+
+  return (
+    <button
+      onClick={handleClick}
+      className="underline text-accent hover:text-accent/80 transition-colors font-medium cursor-pointer"
+    >
+      {children}
+    </button>
+  );
+}
+
+// Full verse texts
+const VERSE_TEXTS = {
+  'Rom3:20': '"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin." — Romans 3:20',
+  'Psa9:17': '"The wicked shall be turned into hell, and all the nations that forget God." — Psalm 9:17',
+  '1Tim3:16': '"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory." — 1 Timothy 3:16',
+};
 
 export default function GospelPage() {
   return (
@@ -31,14 +53,17 @@ export default function GospelPage() {
           <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
             <AlertCircle className="w-5 h-5 text-red-500" />
           </div>
-          <div>
-            <h3 className="font-serif text-xl font-semibold text-foreground mb-1">Believe you are a sinner that deserves hell</h3>
-            <p className="font-sans text-muted-foreground text-sm mb-2">
-              All have sinned and come short of the glory of God.
-            </p>
+          <div className="flex-1">
+            <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Believe you are a sinner that deserves hell</h3>
+            <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
+              {VERSE_TEXTS['Rom3:20']}
+            </blockquote>
+            <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
+              {VERSE_TEXTS['Psa9:17']}
+            </blockquote>
             <div className="flex flex-wrap gap-2">
-              <span className="bg-secondary px-2 py-1 rounded text-xs font-sans font-medium text-accent">Romans 3:20</span>
-              <span className="bg-secondary px-2 py-1 rounded text-xs font-sans font-medium text-accent">Psalm 9:17</span>
+              <VerseLink book="Romans" chapter={3} verse={20}>Romans 3:20</VerseLink>
+              <VerseLink book="Psalms" chapter={9} verse={17}>Psalm 9:17</VerseLink>
             </div>
           </div>
         </div>
@@ -48,13 +73,13 @@ export default function GospelPage() {
           <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
             <CheckCircle className="w-5 h-5 text-blue-500" />
           </div>
-          <div>
-            <h3 className="font-serif text-xl font-semibold text-foreground mb-1">Believe that Jesus is God manifested in the flesh</h3>
-            <p className="font-sans text-muted-foreground text-sm mb-2">
-              "And without controversy great is the mystery of godliness: God was manifest in the flesh..."
-            </p>
+          <div className="flex-1">
+            <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Believe that Jesus is God manifested in the flesh</h3>
+            <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
+              {VERSE_TEXTS['1Tim3:16']}
+            </blockquote>
             <div className="flex flex-wrap gap-2">
-              <span className="bg-secondary px-2 py-1 rounded text-xs font-sans font-medium text-accent">1 Timothy 3:16</span>
+              <VerseLink book="1 Timothy" chapter={3} verse={16}>1 Timothy 3:16</VerseLink>
             </div>
           </div>
         </div>
@@ -64,15 +89,14 @@ export default function GospelPage() {
           <div className="flex-shrink-0 w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
             <CheckCircle className="w-5 h-5 text-yellow-500" />
           </div>
-          <div>
-            <h3 className="font-serif text-xl font-semibold text-foreground mb-1">Believe he died, shed his blood, was buried and rose again</h3>
-            <p className="font-sans text-muted-foreground text-sm mb-3">
-              Jesus Christ died for your sins according to the scriptures, was buried, and rose again on the third day for your justification.
-            </p>
-            <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm">
-              "Moreover, brethren, I declare unto you the gospel which I preached unto you... how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures."
+          <div className="flex-1">
+            <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Believe he died, shed his blood, was buried and rose again</h3>
+            <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
+              "Moreover, brethren, I declare unto you the gospel which I preached unto you, which also ye have received, and wherein ye stand; By which also ye are saved, if ye keep in memory what I preached unto you, unless ye have believed in vain. For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." — 1 Corinthians 15:1–4
             </blockquote>
-            <span className="inline-block mt-2 bg-secondary px-2 py-1 rounded text-xs font-sans font-medium text-accent">1 Corinthians 15:1–4</span>
+            <div className="flex flex-wrap gap-2">
+              <VerseLink book="1 Corinthians" chapter={15} verse={1}>1 Corinthians 15:1–4</VerseLink>
+            </div>
           </div>
         </div>
 
@@ -107,15 +131,15 @@ export default function GospelPage() {
       {/* OSAS */}
       <div className="bg-card border border-border rounded-xl p-6 mb-10">
         <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Once Saved, Always Saved</h3>
-        <p className="font-sans text-sm text-foreground/80">
+        <p className="font-sans text-sm text-foreground/80 mb-3">
           A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life. God's gift of eternal life is just that — eternal.
         </p>
-        <blockquote className="mt-3 border-l-2 border-accent pl-4 font-serif italic text-foreground/75 text-sm">
-          "For the gifts and calling of God are without repentance." — Romans 11:29
+        <blockquote className="border-l-2 border-accent pl-4 font-serif italic text-foreground/75 text-sm mb-2">
+          "In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." — <VerseLink book="Ephesians" chapter={1} verse={13}>Ephesians 1:13</VerseLink>
         </blockquote>
       </div>
 
-      {/* Video - single featured */}
+      {/* Video */}
       <h2 className="font-serif text-2xl font-bold text-foreground mb-4">Watch the Gospel</h2>
       <div className="rounded-xl overflow-hidden border border-border mb-6">
         <div className="aspect-video w-full">
@@ -136,10 +160,7 @@ export default function GospelPage() {
 
       {/* Full playlist */}
       <div className="bg-card border border-border rounded-xl p-5">
-        <h3 className="font-serif text-xl font-semibold text-foreground mb-2">How to be Saved — Full Playlist</h3>
-        <p className="font-sans text-sm text-muted-foreground mb-4">
-          62-video playlist from God is Gracious 1031 Ministries covering the gospel in depth.
-        </p>
+        <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Amazing Gospel Presentations by Verified Preachers</h3>
         <a
           href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq"
           target="_blank"

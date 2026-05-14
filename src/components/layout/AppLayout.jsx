@@ -1,10 +1,11 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { BookOpen, Heart, Library, Info, Moon, Sun } from 'lucide-react';
+import { Home, BookOpen, Heart, Library, Info, Moon, Sun } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 
 const NAV_ITEMS = [
-  { path: '/', icon: BookOpen, label: 'Read' },
+  { path: '/', icon: Home, label: 'Home' },
+  { path: '/read', icon: BookOpen, label: 'Read' },
   { path: '/gospel', icon: Heart, label: 'Gospel' },
   { path: '/resources', icon: Library, label: 'Resources' },
   { path: '/about', icon: Info, label: 'About' },
@@ -28,7 +29,7 @@ export default function AppLayout() {
             <nav className="hidden md:flex items-center gap-1 mr-2">
               {NAV_ITEMS.map(item => {
                 const Icon = item.icon;
-                const active = pathname === item.path;
+                const active = item.path === '/' ? pathname === '/' : pathname === item.path;
                 return (
                   <Link
                     key={item.path}
@@ -62,15 +63,15 @@ export default function AppLayout() {
 
       {/* Mobile bottom nav */}
       <nav className="md:hidden border-t border-border bg-card/95 backdrop-blur-md sticky bottom-0 z-50">
-        <div className="flex justify-around py-2">
+        <div className="flex justify-around py-1.5">
           {NAV_ITEMS.map(item => {
             const Icon = item.icon;
-            const active = pathname === item.path;
-            return (
+            const active = item.path === '/' ? pathname === '/' : pathname === item.path;
+              return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-md transition-colors ${
+                className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-md transition-colors ${
                   active ? 'text-accent' : 'text-muted-foreground'
                 }`}
               >

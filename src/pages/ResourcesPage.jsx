@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink, FileText, BookOpen, ShieldAlert, GraduationCap, Globe } from 'lucide-react';
+import { ExternalLink, FileText, BookOpen, ShieldAlert, Globe } from 'lucide-react';
 
 const RESOURCES = [
   {
@@ -16,15 +16,33 @@ const RESOURCES = [
       },
       {
         title: "Free KJB PDF Download",
-        desc: "Download the Pure Cambridge Edition in PDF, RTF, DOC and SQLite formats from bibleprotector.com.",
-        url: "https://www.bibleprotector.com/KJB-PCE-MINION.pdf",
+        desc: "Download the Pure Cambridge Edition in PDF, ePub, and TXT formats from bibleprotector.com.",
+        url: "https://godisgracious1031ministriescom.odoo.com/web/content/1052?unique=1340ad78694ce33567d3539f3914efbe34a0ff3c&download=true",
         label: "Download PDF",
       },
       {
         title: "Why the King James Bible is God's Word",
-        desc: "Articles and studies defending the Authorised Version as the preserved Word of God in English.",
+        desc: "The KJB was translated with the Textus Receptus (Received Text) by godly men well versed in Biblical languages. It is mathematically proven to be a miracle — the Bible God has used for countless revivals.",
         url: "https://www.bibleprotector.com/purpose.htm",
         label: "Read more",
+      },
+      {
+        title: "KJV Compare",
+        desc: "Go through hundreds of changes made in modern versions of the Bible — verse-by-verse.",
+        url: "https://kjvcompare.com/",
+        label: "kjvcompare.com",
+      },
+      {
+        title: "Scion of Zion — KJB Comparisons",
+        desc: "Detailed comparisons of the KJB with modern versions, exposing corruptions and omissions.",
+        url: "https://www.scionofzion.com/kjcomparisons.html",
+        label: "scionofzion.com",
+      },
+      {
+        title: "1 John 5:7 Defence",
+        desc: "Resources defending the Johannine Comma (1 John 5:7) — the Trinitarian verse attacked by modern versions.",
+        url: "https://www.scionofzion.com/1_john_5_7.htm",
+        label: "Read defence",
       },
     ],
   },
@@ -36,41 +54,77 @@ const RESOURCES = [
     items: [
       {
         title: "The Critical Text & Westcott-Hort",
-        desc: "Westcott and Hort created the Critical Text based on Vatican and Egyptian manuscripts with hundreds of errors, deletions and additions to the Bible, attacking doctrines such as the Trinity and deity of Christ.",
-        url: "https://godisgracious1031ministriescom.odoo.com/statement-of-faith",
-        label: "Read more",
+        desc: "Westcott and Hort created the Critical Text based on Vatican and Egyptian manuscripts with hundreds of errors, deletions and additions to the Bible, attacking doctrines such as the Trinity and deity of Christ. Their text was used in the Revised Version of 1881.",
+        url: "https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf",
+        label: "Theological Heresies of Westcott & Hort (PDF)",
       },
       {
-        title: "Modern Versions Exposed",
-        desc: "Studies from the ministry website on the corruption of modern Bible versions such as the NIV, ESV, NASB and others.",
-        url: "https://godisgracious1031ministriescom.odoo.com/",
-        label: "Ministry website",
+        title: "NKJV Exposed",
+        desc: "The NKJV is NOT the same as the King James Bible. Resources exposing the New King James Version.",
+        url: "https://www.scionofzion.com/nkjv.htm",
+        label: "scionofzion.com/nkjv",
       },
       {
-        title: "KJB vs Modern Versions",
-        desc: "Verse-by-verse comparisons showing where modern versions omit or change the Word of God.",
-        url: "https://www.bibleprotector.com/editions.htm",
-        label: "See comparisons",
+        title: "A Lamp in the Dark — Full Documentary",
+        desc: "The untold history of the Bible — a documentary exposing the corruption of modern Bible translations.",
+        url: "https://www.youtube.com/watch?v=RmXBj2N9fhY",
+        label: "Watch on YouTube",
+      },
+      {
+        title: "Gail Riplinger — The Sword Slays the Dragon",
+        desc: "Gail Riplinger's powerful defence of the King James Bible against modern version corruption.",
+        url: "https://www.youtube.com/watch?v=fyN680Y0Vwc",
+        label: "Watch on YouTube",
+      },
+      {
+        title: "Irrefutable Proof: The KJB Superseded Hebrew and Greek",
+        desc: "Truth is Christ channel — demonstrating the superiority and authority of the King James Bible.",
+        url: "https://www.youtube.com/watch?v=t6ck6KrVPIk",
+        label: "Watch on YouTube",
+      },
+      {
+        title: "AV1611 Articles",
+        desc: "Articles defending the Authorised Version — King James Bible defence resources.",
+        url: "https://www.av1611.org/articles",
+        label: "av1611.org/articles",
+      },
+      {
+        title: "Preserved Words",
+        desc: "Another King James Bible Believer — resources and articles defending the preserved Word of God.",
+        url: "https://www.preservedwords.com/bp/index.html",
+        label: "preservedwords.com",
+      },
+      {
+        title: "Brandplucked — KJB Articles",
+        desc: "Extensive collection of articles defending the King James Bible.",
+        url: "https://brandplucked.com/kjbarticles.htm",
+        label: "brandplucked.com",
       },
     ],
   },
   {
-    category: "How to Study the Bible",
+    category: "Bible Study Resources",
     icon: BookOpen,
     color: "text-green-600",
     bg: "bg-green-50 dark:bg-green-900/20",
     items: [
       {
-        title: "Line Upon Line — Free Bible Lessons",
-        desc: "Free downloadable lessons teaching the basics of the King James Bible, including inspiration and preservation.",
-        url: "https://www.bibleprotector.com/LUL01.pdf",
-        label: "Lesson 1: The Bible Is Important",
-      },
-      {
         title: "KJBI.org — Free Online Bible College",
         desc: "King James Bible Institute — a free online Bible college for those who want to go deeper in God's Word.",
         url: "https://kjbi.org",
         label: "Visit KJBI.org",
+      },
+      {
+        title: "AV Publications",
+        desc: "Books and resources for King James Bible believers.",
+        url: "https://avpublications.com/",
+        label: "avpublications.com",
+      },
+      {
+        title: "Textus Receptus Bibles",
+        desc: "Research on the Textus Receptus — the Greek text underlying the King James Bible.",
+        url: "https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs",
+        label: "Read comparison",
       },
     ],
   },
@@ -85,12 +139,6 @@ const RESOURCES = [
         desc: "Shawn's ministry website — KJB resources, statement of faith, blog, and free Bible downloads.",
         url: "https://godisgracious1031ministriescom.odoo.com/",
         label: "Visit Ministry Website",
-      },
-      {
-        title: "KJBI.org — Free Bible College",
-        desc: "Study the Bible at a free online King James Bible college.",
-        url: "https://kjbi.org",
-        label: "Visit KJBI.org",
       },
       {
         title: "Contact the Ministry",
@@ -130,7 +178,7 @@ export default function ResourcesPage() {
                   <a
                     key={item.title}
                     href={item.url}
-                    target="_blank"
+                    target={item.url.startsWith('mailto') ? '_self' : '_blank'}
                     rel="noopener noreferrer"
                     className="block bg-card border border-border rounded-xl p-5 hover:border-accent/50 transition-colors group"
                   >
