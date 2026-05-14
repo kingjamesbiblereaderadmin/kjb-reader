@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Home, BookOpen, Heart, Library, Info, Moon, Sun, List, Settings } from 'lucide-react';
+import { Home, BookOpen, Heart, Library, Info, Moon, Sun, List, Settings, Menu, X } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
+import BibleSearchBar from '@/components/bible/BibleSearchBar';
 
 const NAV_ITEMS = [
   { path: '/', icon: Home, label: 'Home' },
@@ -16,38 +17,30 @@ const NAV_ITEMS = [
 export default function AppLayout() {
   const { pathname } = useLocation();
   const { isDark, toggleTheme } = useTheme();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 group">
+        <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2 flex-shrink-0" onClick={() => setMenuOpen(false)}>
             <BookOpen className="w-5 h-5 text-accent" />
-            <span className="font-serif text-xl font-bold tracking-wide text-foreground">
+            <span className="font-serif text-lg font-bold tracking-wide text-foreground hidden sm:block">
               King James Bible
             </span>
+            <span className="font-serif text-lg font-bold tracking-wide text-foreground sm:hidden">
+              KJB
+            </span>
           </Link>
-          <div className="flex items-center gap-1">
-            <nav className="hidden md:flex items-center gap-1 mr-2">
-              {NAV_ITEMS.map(item => {
-                const Icon = item.icon;
-                const active = item.path === '/' ? pathname === '/' : pathname === item.path;
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`px-3 py-1.5 rounded-md text-sm font-sans font-medium transition-colors flex items-center gap-1.5 ${
-                      active
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
-                    }`}
-                  >
-                    <Icon className="w-3.5 h-3.5" />
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
+
+          {/* Search bar */}
+          <div className="flex-1 max-w-sm">
+            <BibleSearchBar onClose={() => setMenuOpen(false)} />
+          </div>
+
+          {/* Right controls */}
+          <div className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={toggleTheme}
               className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
@@ -55,35 +48,53 @@ export default function AppLayout() {
             >
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
+            <button
+              onClick={() => setMenuOpen(o => !o)}
+              className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              aria-label="Open menu"
+            >
+              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
+
+        {/* Dropdown nav menu */}
+        {menuOpen && (
+          <>
+            <div
+              className="fixed inset-0 top-14 z-40 bg-black/20"
+              onClick={() => setMenuOpen(false)}
+            />
+            <div className="absolute top-14 right-0 left-0 z-50 bg-card/98 backdrop-blur-md border-b border-border shadow-lg">
+              <div className="max-w-4xl mx-auto px-4 py-3 grid grid-cols-2 sm:grid-cols-4 gap-1">
+                {NAV_ITEMS.map(item => {
+                  const Icon = item.icon;
+                  const active = item.path === '/' ? pathname === '/' : pathname === item.path;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setMenuOpen(false)}
+                      className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg font-sans text-sm font-medium transition-colors ${
+                        active
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-foreground hover:bg-secondary'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4 flex-shrink-0" />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </>
+        )}
       </header>
 
       <main className="flex-1">
         <Outlet />
       </main>
-
-      {/* Mobile bottom nav */}
-      <nav className="md:hidden border-t border-border bg-card/95 backdrop-blur-md sticky bottom-0 z-50">
-        <div className="flex justify-around py-1.5">
-          {NAV_ITEMS.map(item => {
-            const Icon = item.icon;
-            const active = item.path === '/' ? pathname === '/' : pathname === item.path;
-              return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-md transition-colors ${
-                  active ? 'text-accent' : 'text-muted-foreground'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                <span className="text-[10px] font-sans font-medium">{item.label}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
     </div>
   );
 }
