@@ -177,18 +177,14 @@ export default function BibleReader() {
               {highlightVerse ? `v.${highlightVerse}` : 'Verse'}
               <ChevronRight className="w-3 h-3 opacity-70" />
             </button>
-            {showVersePicker && verseCount > 0 && (
+            {showVersePicker && verseCount > 0 && !isViewingTitlePage && (
               <div className="absolute top-full left-0 mt-1 z-50">
                 <VerseSelector
                   totalVerses={verseCount}
                   currentVerse={highlightVerse}
                   onSelect={(v) => {
-                    setHighlightVerse(v);
+                    navigate(pos.abbr, pos.chapter, v);
                     setShowVersePicker(false);
-                    setTimeout(() => {
-                      const el = document.getElementById(`v${v}`);
-                      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 50);
                   }}
                   onClose={() => setShowVersePicker(false)}
                   autoSelect={true}
@@ -241,6 +237,11 @@ export default function BibleReader() {
           )}
           <div className="mt-3 w-16 h-px bg-accent mx-auto" />
         </div>
+      )}
+
+      {/* Title page only - no chapter info */}
+      {isViewingTitlePage && (
+        <div className="mb-8" />
       )}
 
       {/* Title pages or verses */}
