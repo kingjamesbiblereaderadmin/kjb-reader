@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, BookOpen, Loader2 } from 'lucide-react';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount } from '@/lib/bibleApi';
+import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
 import BookSelector from '@/components/bible/BookSelector';
 import ChapterSelector from '@/components/bible/ChapterSelector';
 import VerseSelector from '@/components/bible/VerseSelector';
@@ -208,6 +209,12 @@ export default function BibleReader() {
         </p>
         <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-1 leading-tight">{book.name}</h1>
         <p className="font-sans text-sm text-muted-foreground tracking-widest uppercase mt-1">Chapter {pos.chapter}</p>
+        {/* Subscript — shown below chapter heading on the relevant final chapter */}
+        {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
+          <p className="font-serif text-sm italic text-muted-foreground mt-3 max-w-md mx-auto leading-relaxed">
+            {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]}
+          </p>
+        )}
         <div className="mt-3 w-16 h-px bg-accent mx-auto" />
       </div>
 
@@ -231,6 +238,7 @@ export default function BibleReader() {
                 id={`v${v.verse}`}
                 bookName={book.name}
                 chapter={pos.chapter}
+                isColophon={COLOPHONS[`${book.apiName}:${pos.chapter}`] === v.verse}
               />
             ))}
             {pos.abbr === 'MAL' && pos.chapter === 4 && (

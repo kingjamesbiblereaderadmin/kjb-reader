@@ -1,15 +1,16 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
 import { Copy, Share2, X } from 'lucide-react';
 
-export default function VerseText({ verse, highlight = false, id, bookName, chapter }) {
+export default function VerseText({ verse, highlight = false, id, bookName, chapter, isColophon = false }) {
   const [selected, setSelected] = useState(false);
-  const ref = useRef(null);
 
   const html = renderVerseText(verse.text);
 
   const verseRef = `${bookName} ${chapter}:${verse.verse}`;
-  const verseText = `"${verse.text}" — ${verseRef} (KJB)`;
+  // Strip [brackets] and ¶ for clean share text, label as KJB
+  const cleanText = verse.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '');
+  const verseText = `"${cleanText}" — ${verseRef} (KJB)`;
 
   const handleCopy = (e) => {
     e.stopPropagation();
@@ -30,7 +31,6 @@ export default function VerseText({ verse, highlight = false, id, bookName, chap
   return (
     <span id={id} className="inline relative">
       <span
-        ref={ref}
         onClick={() => setSelected(s => !s)}
         className={`inline leading-loose transition-colors duration-200 rounded cursor-pointer px-0.5 py-0.5 ${
           selected
@@ -38,14 +38,14 @@ export default function VerseText({ verse, highlight = false, id, bookName, chap
             : highlight
             ? 'bg-accent/25 dark:bg-accent/20'
             : 'hover:bg-secondary/60'
-        }`}
+        } ${isColophon ? 'italic text-muted-foreground text-base' : ''}`}
       >
         <sup className="text-accent font-sans font-semibold text-xs mr-1 select-none">
           {verse.verse}
         </sup>
         <span
-          className="font-serif text-lg leading-loose [&_em]:italic [&_em]:text-foreground/75"
-          dangerouslySetInnerHTML={{ __html: html }}
+          className={`font-serif leading-loose [&_em]:italic [&_em]:text-foreground/75 [&_.pilcrow]:text-accent [&_.pilcrow]:not-italic [&_.pilcrow]:font-sans [&_.pilcrow]:text-sm [&_.pilcrow]:mr-0.5 ${isColophon ? 'text-base' : 'text-lg'}`}
+          dangerouslySetInnerHTML={{ __html: renderWithPilcrow(html) }}
         />
         {' '}
       </span>
@@ -53,7 +53,6 @@ export default function VerseText({ verse, highlight = false, id, bookName, chap
       {/* Action popover */}
       {selected && (
         <>
-          {/* Backdrop */}
           <span
             className="fixed inset-0 z-40"
             onClick={() => setSelected(false)}
@@ -83,4 +82,9 @@ export default function VerseText({ verse, highlight = false, id, bookName, chap
       )}
     </span>
   );
+}
+
+// Wrap the ¶ pilcrow character in a styled span
+function renderWithPilcrow(html) {
+  return html.replace(/¶/g, '<span class="pilcrow">¶</span>');
 }
