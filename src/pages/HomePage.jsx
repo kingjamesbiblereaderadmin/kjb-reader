@@ -77,7 +77,14 @@ export default function HomePage() {
             </blockquote>
             <p className="font-sans text-white/80 text-sm font-semibold text-left">— {verse.ref} (KJB)</p>
             <div className="mt-4 pt-4 border-t border-white/20">
-              <p className="font-serif text-white/70 text-sm text-left">King James Bible · Pure Cambridge Edition</p>
+              <a
+                href={imgData.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-sans text-white/70 text-xs hover:text-white/90 transition-colors block"
+              >
+                📷 {imgData.credit} by {imgData.author} / Unsplash
+              </a>
             </div>
           </div>
         </div>
