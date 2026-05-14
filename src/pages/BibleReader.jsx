@@ -271,16 +271,7 @@ export default function BibleReader() {
                 isFirstVerse={idx === 0}
               />
             ))}
-            {pos.abbr === 'MAL' && pos.chapter === 4 && (
-              <div className="mt-10 pt-6 border-t border-border text-center">
-                <p className="font-serif text-lg italic text-muted-foreground tracking-wide">
-                  — End of the Prophets —
-                </p>
-                <p className="font-sans text-xs text-muted-foreground mt-2 tracking-widest uppercase">
-                  Old Testament Complete
-                </p>
-              </div>
-            )}
+
           </div>
         )}
       </div>
