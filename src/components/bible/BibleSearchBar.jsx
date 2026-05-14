@@ -128,6 +128,9 @@ export default function BibleSearchBar({ onClose }) {
             <X className="w-3.5 h-3.5" />
           </button>
         )}
+        <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-medium text-accent hover:text-accent/80 px-2 py-1">
+          Go
+        </button>
       </form>
 
       {open && suggestions.length > 0 && (
