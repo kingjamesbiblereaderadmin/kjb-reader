@@ -55,13 +55,13 @@ export default function VerseText({ verse, highlight = false, id, bookName, chap
     <span id={id} className="inline relative">
       <span
         onClick={() => setSelected(s => !s)}
-        className={`inline leading-loose transition-colors duration-200 rounded cursor-pointer px-0.5 py-0.5 ${
+        className={`leading-loose transition-colors duration-200 rounded cursor-pointer px-0.5 py-0.5 ${
           selected
             ? highlightColors.find(c => c.name === highlightColor)?.bg
             : showHighlight
             ? highlightColors.find(c => c.name === highlightColor)?.bg
             : 'hover:bg-secondary/60'
-        } ${isColophon ? 'italic text-muted-foreground text-base' : ''} ${hasPilcrow ? 'block mt-3' : ''}`}
+        } ${isColophon ? 'block mt-8 pt-6 border-t border-border italic text-muted-foreground text-base text-center' : 'inline'} ${hasPilcrow ? 'block mt-3' : ''}`}
       >
         <sup className="text-accent font-sans font-semibold text-xs mr-1 select-none">
           {verse.verse}
