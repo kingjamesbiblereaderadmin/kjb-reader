@@ -105,9 +105,13 @@ export default function BibleSearchBar({ onClose }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!query.trim()) return;
     const parsed = parseReference(query);
-    if (parsed?.type === 'reference') goTo(parsed.book.abbr, parsed.chapter, parsed.verse);
-    else if (query.trim().length >= 3) goKeyword(query.trim());
+    if (parsed?.type === 'reference') {
+      goTo(parsed.book.abbr, parsed.chapter, parsed.verse);
+    } else if (query.trim().length >= 3) {
+      goKeyword(query.trim());
+    }
   };
 
   return (
