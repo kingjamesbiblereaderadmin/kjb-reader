@@ -19,6 +19,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, chap
 
   useEffect(() => {
     if (highlight) {
+      setShowHighlight(true);
       const timer = setTimeout(() => setShowHighlight(false), 5000);
       return () => clearTimeout(timer);
     }
