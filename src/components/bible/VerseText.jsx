@@ -25,8 +25,8 @@ export default function VerseText({ verse, highlight = false, id, bookName, chap
     }
   }, [highlight]);
 
-  // Strip subscript markers from first verse text to avoid duplication
-  const displayVerseText = isFirstVerse ? verse.text.replace(/^[A-Z][^:]*:\s*/, '') : verse.text;
+  // Strip <<...>> superscription markers embedded in verse text (e.g. Psalm 34:1)
+  const displayVerseText = verse.text.replace(/^<<[^>]*>>\s*/, '');
   const html = renderVerseText(displayVerseText);
   const hasPilcrow = verse.text.includes('¶');
 
