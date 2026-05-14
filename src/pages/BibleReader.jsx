@@ -91,7 +91,12 @@ export default function BibleReader() {
   };
 
   const goNext = () => {
-    if (pos.chapter < book.chapters) {
+    const isOnTitlePage = verses.length === 0 && (pos.abbr === 'GEN' || pos.abbr === 'MAT') && pos.chapter === 1;
+    
+    if (isOnTitlePage) {
+      // From title page, load chapter 1 content
+      loadChapter(pos.abbr, 1);
+    } else if (pos.chapter < book.chapters) {
       navigate(pos.abbr, pos.chapter + 1);
     } else {
       const next = getNextBook(pos.abbr);
