@@ -22,7 +22,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
             : 'hover:bg-secondary text-foreground'
         }`}
       >
-        <span>{book.shortName}</span>
+        <span>{book.name}</span>
         <span className="ml-2 text-xs text-muted-foreground">{book.chapters} ch.</span>
       </button>
     );
