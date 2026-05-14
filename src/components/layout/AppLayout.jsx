@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Home, BookOpen, Heart, Library, Info, Moon, Sun, List } from 'lucide-react';
+import { Home, BookOpen, Heart, Library, Info, Moon, Sun, List, Settings } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 
 const NAV_ITEMS = [

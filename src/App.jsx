@@ -14,6 +14,7 @@ import GospelPage from '@/pages/GospelPage';
 import ResourcesPage from '@/pages/ResourcesPage';
 import AboutPage from '@/pages/AboutPage';
 import ContentsPage from '@/pages/ContentsPage.jsx';
+import SettingsPage from '@/pages/SettingsPage.jsx';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
