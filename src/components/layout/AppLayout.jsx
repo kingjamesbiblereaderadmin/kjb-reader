@@ -26,7 +26,7 @@ export default function AppLayout() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 flex-shrink-0" onClick={() => setMenuOpen(false)}>
             <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB Reader" className="h-10 w-auto" />
-            <span className="font-serif text-lg font-bold text-foreground hidden sm:block">KJB Reader</span>
+            <span className="font-serif text-lg font-bold text-foreground hidden sm:block">The Holy Bible</span>
           </Link>
 
           {/* Search bar */}
