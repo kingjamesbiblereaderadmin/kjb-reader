@@ -86,25 +86,21 @@ export default function SettingsPage() {
   const downloadBook = async (book) => {
     if (downloading[book.abbr]) return;
     setDownloading(prev => ({ ...prev, [book.abbr]: true }));
+    setProgress(prev => ({ ...prev, [book.abbr]: 0 }));
 
-    // Start progress from already-cached chapters
-    const startCount = getBookCacheProgress(book.abbr, book.chapters);
-    setProgress(prev => ({ ...prev, [book.abbr]: startCount }));
-
+    let completed = 0;
     for (let c = 1; c <= book.chapters; c++) {
       const key = getCacheKey(book.abbr, c);
-      if (!localStorage.getItem(key)) {
-        try {
-          const data = await fetchChapter(book.apiName, c);
-          localStorage.setItem(key, JSON.stringify(data));
-        } catch (err) {
-          console.error(`Failed chapter ${c}`, err);
-        }
+      try {
+        const data = await fetchChapter(book.apiName, c);
+        localStorage.setItem(key, JSON.stringify(data));
+        completed++;
+      } catch (err) {
+        console.error(`Failed to cache chapter ${c}:`, err);
       }
-      setProgress(prev => ({ ...prev, [book.abbr]: c }));
+      setProgress(prev => ({ ...prev, [book.abbr]: completed }));
     }
 
-    // Verify all chapters are truly cached before marking done
     setDownloading(prev => ({ ...prev, [book.abbr]: false }));
     refreshStatus();
   };
