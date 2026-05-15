@@ -120,9 +120,9 @@ export default function SettingsPage() {
 
       {/* App Info */}
       <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-2">
-        <h2 className="font-serif text-lg font-semibold text-foreground">Bible Text</h2>
+        <h2 className="font-serif text-lg font-semibold text-foreground">APP Info:</h2>
         <div className="flex justify-between font-sans text-sm">
-          <span className="text-muted-foreground">Edition</span>
+          <span className="text-muted-foreground">Text:</span>
           <span className="text-foreground font-medium">King James Bible — Pure Cambridge Edition</span>
         </div>
         <div className="flex justify-between font-sans text-sm">
