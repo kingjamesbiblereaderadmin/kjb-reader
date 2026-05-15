@@ -99,14 +99,28 @@ export default function SettingsPage() {
 
     let completed = 0;
     for (let c = 1; c <= book.chapters; c++) {
+      if (!downloading[book.abbr]) break; // Allow cancellation
       const key = getCacheKey(book.abbr, c);
+      // Skip already cached chapters
+      try {
+        const cached = localStorage.getItem(key);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed?.verses?.length > 0) {
+            completed++;
+            setProgress(prev => ({ ...prev, [book.abbr]: completed }));
+            continue;
+          }
+        }
+      } catch {}
+
       try {
         const res = await base44.functions.invoke('bibleApi', {
           action: 'getChapter',
           book: book.apiName,
           chapter: c,
         });
-        if (res.data && res.data.verses) {
+        if (res.data?.verses?.length > 0) {
           const data = { verses: res.data.verses, colophon: res.data.colophon || null };
           localStorage.setItem(key, JSON.stringify(data));
           completed++;
