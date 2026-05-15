@@ -6,13 +6,13 @@ import { registerSW, scheduleDailyNotification, getNotificationsEnabled, request
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { fetchChapter, getCacheKey, CACHE_PREFIX } from '@/lib/bibleApi';
 
+const READ_LINK = { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', color: 'bg-primary text-primary-foreground' };
+
 const QUICK_LINKS = [
-  { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', color: 'bg-primary text-primary-foreground' },
   { path: '/contents', icon: List, label: 'Table of Contents', desc: 'Browse all 66 books', color: 'bg-secondary text-secondary-foreground' },
   { path: null, icon: null, label: '__RANDOM__', desc: '', color: '' },
   { path: '/saved', icon: Bookmark, label: 'Saved Verses', desc: 'Your bookmarked verses', color: 'bg-secondary text-secondary-foreground' },
   { path: '/resources', icon: Library, label: 'Resources', desc: 'KJB defence & study', color: 'bg-secondary text-secondary-foreground' },
-  { path: '/gospel', icon: Heart, label: 'The Gospel', desc: 'How to be saved', color: 'bg-red-600 text-white' },
   { path: '/about', icon: Info, label: 'About', desc: 'Ministry & links', color: 'bg-secondary text-secondary-foreground' },
   { path: '/settings', icon: Settings, label: 'Settings', desc: 'Offline downloads & info', color: 'bg-secondary text-secondary-foreground' },
 ];
@@ -143,6 +143,19 @@ export default function HomePage() {
       </div>
 
       {/* Quick links */}
+      {/* Full-width Read the Bible */}
+      <Link
+        to={READ_LINK.path}
+        className={`flex items-center gap-4 p-5 rounded-2xl shadow-sm hover:opacity-90 transition-opacity mb-4 ${READ_LINK.color}`}
+      >
+        <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-white/20">
+          <BookOpen className="w-5 h-5" />
+        </div>
+        <div>
+          <p className="font-serif font-bold text-lg leading-tight">{READ_LINK.label}</p>
+          <p className="font-sans text-xs opacity-75 mt-0.5">{READ_LINK.desc}</p>
+        </div>
+      </Link>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
         {QUICK_LINKS.map(link => {
           if (link.label === '__RANDOM__') {
