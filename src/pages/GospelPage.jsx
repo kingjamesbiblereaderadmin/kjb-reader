@@ -174,6 +174,34 @@ export default function GospelPage() {
         </a>
       </div>
 
+      {/* TikTok Preachers */}
+      <div className="bg-card border border-border rounded-xl p-5">
+        <h3 className="font-serif text-xl font-semibold text-foreground mb-1">Preachers to Follow on TikTok</h3>
+        <p className="font-sans text-xs text-muted-foreground mb-4">KJB-believing, soul-winning preachers worth following</p>
+        <div className="space-y-2">
+          {[
+            { handle: '@ryan_sohc', url: 'https://www.tiktok.com/@ryan_sohc' },
+            { handle: '@av1611ministries', url: 'https://www.tiktok.com/@av1611ministries' },
+            { handle: '@mission1611', url: 'https://www.tiktok.com/@mission1611' },
+            { handle: '@pauljohnson9632', url: 'https://www.tiktok.com/@pauljohnson9632' },
+            { handle: '@pastor_donnie.t', url: 'https://www.tiktok.com/@pastor_donnie.t' },
+          ].map(({ handle, url }) => (
+            <a
+              key={handle}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
+            >
+              <svg className="w-4 h-4 flex-shrink-0 text-foreground" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.72a4.85 4.85 0 01-1.01-.03z"/>
+              </svg>
+              <span className="font-sans text-sm font-medium text-foreground group-hover:text-accent transition-colors">{handle}</span>
+              <svg className="w-3.5 h-3.5 text-muted-foreground group-hover:text-accent ml-auto transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

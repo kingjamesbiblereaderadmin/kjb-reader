@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, BookOpen, Loader2, AlignJustify, List } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen, Loader2 } from 'lucide-react';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount } from '@/lib/bibleApi';
 import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
@@ -36,15 +36,6 @@ export default function BibleReader() {
   const [showBookPicker, setShowBookPicker] = useState(false);
   const [showChapterPicker, setShowChapterPicker] = useState(false);
   const [showVersePicker, setShowVersePicker] = useState(false);
-  const [paragraphMode, setParagraphMode] = useState(() => {
-    try { return localStorage.getItem('kjb-layout') === 'paragraph'; } catch { return false; }
-  });
-
-  const toggleLayout = () => {
-    const next = !paragraphMode;
-    setParagraphMode(next);
-    try { localStorage.setItem('kjb-layout', next ? 'paragraph' : 'line'); } catch {}
-  };
 
   const topRef = useRef(null);
   const book = BIBLE_BOOKS.find(b => b.abbr === pos.abbr) || BIBLE_BOOKS[0];
@@ -70,17 +61,13 @@ export default function BibleReader() {
       return;
     }
     
-    try {
-      const data = await fetchChapter(b.apiName, chapter);
-      setVerses(data.verses);
-      setColophon(data.colophon || null);
-      setVerseCount(data.verses.length);
-      setHighlightVerse(jumpVerse || null);
-      savePosition(bookAbbr, chapter);
-    } catch (err) {
-      setError('Failed to load chapter. Please check your connection.');
-    }
+    const data = await fetchChapter(b.apiName, chapter);
+    setVerses(data.verses);
+    setColophon(data.colophon || null);
+    setVerseCount(data.verses.length);
     setLoading(false);
+    setHighlightVerse(jumpVerse || null);
+    savePosition(bookAbbr, chapter);
   }, []);
 
   useEffect(() => {
@@ -152,7 +139,7 @@ export default function BibleReader() {
               onClick={() => { setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); }}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-colors"
             >
-              {isViewingTitlePage ? 'Title Page' : book.shortName}
+              {book.name}
               <ChevronRight className="w-3 h-3 opacity-70" />
             </button>
             {showBookPicker && (
@@ -215,16 +202,6 @@ export default function BibleReader() {
               </div>
             )}
           </div>
-
-          {/* Layout toggle */}
-          <button
-            onClick={toggleLayout}
-            title={paragraphMode ? 'Switch to line-by-line' : 'Switch to paragraph'}
-            className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
-          >
-            {paragraphMode ? <List className="w-3.5 h-3.5" /> : <AlignJustify className="w-3.5 h-3.5" />}
-            {paragraphMode ? 'Lines' : 'Para'}
-          </button>
 
           {/* Prev/Next chapter buttons */}
           <div className="ml-auto flex items-center gap-1">
@@ -292,7 +269,7 @@ export default function BibleReader() {
         )}
         {!loading && !error && verses.length > 0 && (
           <>
-            <div className={paragraphMode ? 'text-justify hyphens-auto' : ''}>
+            <div className="text-justify hyphens-auto">
               {verses.map((v, idx) => (
                 <VerseText
                   key={v.verse}
@@ -300,11 +277,9 @@ export default function BibleReader() {
                   highlight={highlightVerse === v.verse}
                   id={`v${v.verse}`}
                   bookName={book.name}
-                  abbr={pos.abbr}
                   chapter={pos.chapter}
                   isColophon={false}
                   isFirstVerse={idx === 0}
-                  paragraphMode={paragraphMode}
                 />
               ))}
             </div>
@@ -357,23 +332,10 @@ export default function BibleReader() {
         </div>
       )}
 
-      {/* End-of-section markers */}
-      {!loading && !error && pos.abbr === 'MAL' && pos.chapter === 4 && (
-        <div className="text-center my-8 py-6 border-t border-b border-border">
-          <p className="font-serif text-lg font-semibold text-muted-foreground tracking-widest uppercase">
-            End of the Prophets
-          </p>
-        </div>
-      )}
-      {!loading && !error && pos.abbr === 'REV' && pos.chapter === 22 && (
-        <div className="text-center my-8 py-6 border-t border-b border-border">
-          <p className="font-serif text-lg font-semibold text-muted-foreground tracking-widest uppercase">
-            End of the Holy Bible
-          </p>
-        </div>
-      )}
-
-
+      {/* Credit */}
+      <p className="text-center text-xs text-muted-foreground font-sans mt-8 pb-4">
+        Text: King James Bible, Pure Cambridge Edition — <a href="https://www.bibleprotector.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-accent">bibleprotector.com</a>
+      </p>
     </div>
   );
 }

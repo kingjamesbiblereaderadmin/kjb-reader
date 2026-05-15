@@ -1,28 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Download, Trash2, CheckCircle, Loader2, RefreshCw, Bell, BellOff } from 'lucide-react';
+import { Settings, Download, Trash2, CheckCircle, Loader2, HardDrive, RefreshCw } from 'lucide-react';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
-import { getCacheKey, CACHE_PREFIX } from '@/lib/bibleApi';
-import { base44 } from '@/api/base44Client';
-import {
-  getNotificationsEnabled, getNotificationTime, setNotificationTime,
-  requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification
-} from '@/lib/notifications';
-import { getDailyVerse } from '@/lib/dailyVerse';
+import { fetchChapter } from '@/lib/bibleApi';
 
-const LAST_REVISED = 'May 2026';
+const CACHE_PREFIX = 'kjb-offline-';
+const LAST_REVISED = 'May 2025'; // PCE last revision tracking
+
+function getCacheKey(abbr, chapter) {
+  return `${CACHE_PREFIX}${abbr}-${chapter}`;
+}
+
+function isBookCached(abbr, totalChapters) {
+  for (let c = 1; c <= totalChapters; c++) {
+    if (!localStorage.getItem(getCacheKey(abbr, c))) return false;
+  }
+  return true;
+}
 
 function getBookCacheProgress(abbr, totalChapters) {
   let count = 0;
   for (let c = 1; c <= totalChapters; c++) {
-    try {
-      const cached = localStorage.getItem(getCacheKey(abbr, c));
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (parsed && parsed.verses && parsed.verses.length > 0) {
-          count++;
-        }
-      }
-    } catch {}
+    if (localStorage.getItem(getCacheKey(abbr, c))) count++;
   }
   return count;
 }
@@ -33,45 +31,24 @@ function deleteBook(abbr, totalChapters) {
   }
 }
 
-function validateChapterData(data) {
-  return data && 
-         typeof data === 'object' && 
-         Array.isArray(data.verses) && 
-         data.verses.length > 0 &&
-         data.verses.every(v => v.verse && v.text);
-}
-
-function isChapterCached(abbr, chapter) {
-  try {
-    const key = getCacheKey(abbr, chapter);
-    const cached = localStorage.getItem(key);
-    if (!cached) return false;
-    const data = JSON.parse(cached);
-    return validateChapterData(data);
-  } catch {
-    return false;
-  }
-}
-
 export default function SettingsPage() {
   const [tab, setTab] = useState('old');
-  const [downloading, setDownloading] = useState({});
-  const [progress, setProgress] = useState({});
-  const [cacheStatus, setCacheStatus] = useState({});
+  const [downloading, setDownloading] = useState({}); // abbr -> true
+  const [progress, setProgress] = useState({}); // abbr -> downloaded chapter count
+  const [cacheStatus, setCacheStatus] = useState({}); // abbr -> { cached, downloaded }
   const [storageUsed, setStorageUsed] = useState(0);
-  const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
-  const [notifTime, setNotifTimeState] = useState(getNotificationTime);
-  const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
 
   const books = BIBLE_BOOKS.filter(b => b.testament === tab);
 
   const refreshStatus = () => {
     const status = {};
+    let totalBytes = 0;
     BIBLE_BOOKS.forEach(book => {
       const downloaded = getBookCacheProgress(book.abbr, book.chapters);
       const cached = downloaded === book.chapters;
       status[book.abbr] = { cached, downloaded };
     });
+    // Estimate storage
     try {
       let bytes = 0;
       for (let key in localStorage) {
@@ -79,90 +56,32 @@ export default function SettingsPage() {
           bytes += (localStorage.getItem(key) || '').length * 2;
         }
       }
-      setStorageUsed(bytes);
+      totalBytes = bytes;
     } catch {}
     setCacheStatus(status);
-    setProgress({});
+    setStorageUsed(totalBytes);
   };
 
   useEffect(() => { refreshStatus(); }, []);
-
-  const handleToggleNotifications = async () => {
-    if (notifEnabled) {
-      disableNotifications();
-      setNotifEnabled(false);
-    } else {
-      const result = await requestNotificationPermission();
-      setNotifPermission(result);
-      if (result === 'granted') {
-        setNotifEnabled(true);
-        scheduleDailyNotification(getDailyVerse());
-      }
-    }
-  };
-
-  const handleTimeChange = (e) => {
-    setNotifTimeState(e.target.value);
-    setNotificationTime(e.target.value);
-    if (notifEnabled) scheduleDailyNotification(getDailyVerse());
-  };
-
-  const handleTestNotif = () => {
-    const v = getDailyVerse();
-    showLocalNotification('King James Bible — Daily Verse', `"${v.text.slice(0, 100)}${v.text.length > 100 ? '…' : ''}" — ${v.ref}`);
-  };
 
   const downloadBook = async (book) => {
     if (downloading[book.abbr]) return;
     setDownloading(prev => ({ ...prev, [book.abbr]: true }));
     setProgress(prev => ({ ...prev, [book.abbr]: 0 }));
 
-    let completed = 0;
-
-    try {
-      for (let c = 1; c <= book.chapters; c++) {
-        // Skip if already properly cached
-        if (isChapterCached(book.abbr, c)) {
-          completed++;
-          setProgress(prev => ({ ...prev, [book.abbr]: completed }));
-          continue;
-        }
-
-        // Attempt download with exponential backoff
-        let success = false;
-        for (let attempt = 0; attempt < 3; attempt++) {
-          try {
-            const res = await base44.functions.invoke('bibleApi', {
-              action: 'getChapter',
-              book: book.apiName,
-              chapter: c,
-            });
-
-            if (validateChapterData(res?.data)) {
-              const key = getCacheKey(book.abbr, c);
-              const data = { verses: res.data.verses, colophon: res.data.colophon || null };
-              localStorage.setItem(key, JSON.stringify(data));
-              completed++;
-              success = true;
-              break;
-            } else {
-              throw new Error('Invalid chapter data');
-            }
-          } catch (err) {
-            const isLastAttempt = attempt === 2;
-            if (!isLastAttempt) {
-              // Wait before retry (exponential backoff: 500ms, 1000ms)
-              await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
-            }
-          }
-        }
-
-        setProgress(prev => ({ ...prev, [book.abbr]: completed }));
+    for (let c = 1; c <= book.chapters; c++) {
+      const key = getCacheKey(book.abbr, c);
+      if (!localStorage.getItem(key)) {
+        try {
+          const verses = await fetchChapter(book.apiName, c);
+          localStorage.setItem(key, JSON.stringify(verses));
+        } catch {}
       }
-    } finally {
-      setDownloading(prev => ({ ...prev, [book.abbr]: false }));
-      refreshStatus();
+      setProgress(prev => ({ ...prev, [book.abbr]: c }));
     }
+
+    setDownloading(prev => ({ ...prev, [book.abbr]: false }));
+    refreshStatus();
   };
 
   const removeBook = (book) => {
@@ -199,66 +118,21 @@ export default function SettingsPage() {
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
       </div>
 
-      {/* Notifications */}
-      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-4">
-        <h2 className="font-serif text-lg font-semibold text-foreground">Daily Notifications</h2>
-        {notifPermission === 'unsupported' ? (
-          <p className="font-sans text-sm text-muted-foreground">Notifications are not supported in this browser. Install as a PWA for full support.</p>
-        ) : (
-          <>
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="font-sans text-sm text-foreground font-medium">Verse of the Day</p>
-                <p className="font-sans text-xs text-muted-foreground mt-0.5">
-                  {notifPermission === 'denied' ? 'Blocked by browser — enable in site settings' : 'Receive a daily KJB verse reminder'}
-                </p>
-              </div>
-              <button
-                onClick={handleToggleNotifications}
-                disabled={notifPermission === 'denied'}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl font-sans text-sm font-medium transition-colors ${
-                  notifEnabled
-                    ? 'bg-primary text-primary-foreground hover:opacity-90'
-                    : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-                } disabled:opacity-40`}
-              >
-                {notifEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
-                {notifEnabled ? 'On' : 'Off'}
-              </button>
-            </div>
-            {notifEnabled && (
-              <div className="flex items-center gap-3 pt-1">
-                <label className="font-sans text-sm text-muted-foreground shrink-0">Notify at</label>
-                <input
-                  type="time"
-                  value={notifTime}
-                  onChange={handleTimeChange}
-                  className="flex-1 px-3 py-1.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground focus:outline-none focus:border-accent"
-                />
-                <button
-                  onClick={handleTestNotif}
-                  className="shrink-0 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
-                >
-                  Test
-                </button>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-
       {/* App Info */}
-      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
-        <h2 className="font-serif text-lg font-semibold text-foreground">App Info</h2>
-        <div className="flex justify-between items-center font-sans text-sm gap-4">
-          <span className="text-muted-foreground shrink-0">Bible Text</span>
-          <span className="text-foreground font-medium text-right">King James Bible (PCE)</span>
+      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-2">
+        <h2 className="font-serif text-lg font-semibold text-foreground">Bible Text</h2>
+        <div className="flex justify-between font-sans text-sm">
+          <span className="text-muted-foreground">Edition</span>
+          <span className="text-foreground font-medium">King James Bible — Pure Cambridge Edition</span>
         </div>
-        <div className="flex justify-between items-center font-sans text-sm gap-4">
-          <span className="text-muted-foreground shrink-0">Last App Revision</span>
-          <span className="text-foreground font-medium text-right">{LAST_REVISED}</span>
+        <div className="flex justify-between font-sans text-sm">
+          <span className="text-muted-foreground">Last Revision</span>
+          <span className="text-foreground font-medium">{LAST_REVISED}</span>
         </div>
-
+        <div className="flex justify-between font-sans text-sm">
+          <span className="text-muted-foreground">Source</span>
+          <a href="https://www.bibleprotector.com" target="_blank" rel="noopener noreferrer" className="text-accent underline underline-offset-2">bibleprotector.com</a>
+        </div>
       </div>
 
       {/* Offline Storage Summary */}
@@ -363,13 +237,13 @@ export default function SettingsPage() {
                     </>
                   )}
                   {!status.cached && !isDown && (
-                   <button
-                     onClick={() => downloadBook(book)}
-                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
-                   >
-                     <Download className="w-3.5 h-3.5" />
-                     {status.downloaded > 0 ? 'Resume' : 'Download'}
-                   </button>
+                    <button
+                      onClick={() => downloadBook(book)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      Download
+                    </button>
                   )}
                   {isDown && (
                     <Loader2 className="w-4 h-4 animate-spin text-accent" />
@@ -384,7 +258,6 @@ export default function SettingsPage() {
       <p className="text-center font-sans text-xs text-muted-foreground mt-4">
         Cached data is stored locally on your device and persists between sessions.
       </p>
-
     </div>
   );
 }
