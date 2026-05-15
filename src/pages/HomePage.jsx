@@ -131,8 +131,8 @@ export default function HomePage() {
                   <Shuffle className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="font-serif font-bold text-lg leading-tight">Random Verse</p>
-                  <p className="font-sans text-xs opacity-75 mt-0.5">Jump to a random passage</p>
+                  <p className="font-serif font-bold text-lg leading-tight">Random Chapter</p>
+                  <p className="font-sans text-xs opacity-75 mt-0.5">Jump to a random chapter</p>
                 </div>
               </button>
             );
