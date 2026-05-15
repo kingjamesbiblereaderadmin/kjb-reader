@@ -78,7 +78,7 @@ export default function BibleReader() {
       setHighlightVerse(jumpVerse || null);
       savePosition(bookAbbr, chapter);
     } catch (err) {
-      setError('This chapter is not available offline. Go to Settings → Offline Library to download it.');
+      setError('Failed to load chapter. Please check your connection.');
     }
     setLoading(false);
   }, []);
