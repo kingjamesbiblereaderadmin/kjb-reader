@@ -73,6 +73,21 @@ export default function SettingsPage() {
     }
   };
 
+  const handleDownloadAll = async () => {
+    if (!confirm('Download all 66 books? This may take a few minutes.')) return;
+    setDownloadingAll(true);
+    try {
+      for (const book of BIBLE_BOOKS) {
+        await downloadBook(book.apiName);
+      }
+      setCachedCount(getCachedChapterCount());
+    } catch (err) {
+      console.error('Download all failed:', err);
+    } finally {
+      setDownloadingAll(false);
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
       {/* Header */}
@@ -148,28 +163,85 @@ export default function SettingsPage() {
       </div>
 
       <div className="bg-card border border-border rounded-2xl p-5 mb-6">
-        <h2 className="font-serif text-lg font-semibold text-foreground mb-3">Offline Library</h2>
-        <p className="font-sans text-sm text-foreground mb-4">
-          Download Bible books to read offline. {cachedCount} of {BIBLE_BOOKS.length} books cached.
-        </p>
-        <div className="space-y-2 max-h-60 overflow-y-auto mb-4">
-          {BIBLE_BOOKS.map(book => (
-            <div key={book.abbr} className="flex items-center justify-between gap-3 p-3 bg-secondary/50 rounded-lg">
-              <div className="flex-1 min-w-0">
-                <p className="font-sans text-sm text-foreground truncate">{book.name}</p>
-                <p className="font-sans text-xs text-muted-foreground">{book.chapters} chapters</p>
-              </div>
-              <button
-                onClick={() => handleDownloadBook(book)}
-                disabled={downloading === book.apiName}
-                className="shrink-0 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-1.5"
-              >
-                <Download className="w-3 h-3" />
-                {downloading === book.apiName ? 'Downloading...' : 'Download'}
-              </button>
-            </div>
-          ))}
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="font-serif text-lg font-semibold text-foreground">Offline Library</h2>
+            <p className="font-sans text-xs text-muted-foreground mt-1">
+              {cachedCount} of {BIBLE_BOOKS.length} books cached
+            </p>
+          </div>
+          <button
+            onClick={handleDownloadAll}
+            disabled={downloadingAll}
+            className="shrink-0 px-4 py-2 rounded-lg bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
+          >
+            <Download className="w-4 h-4" />
+            {downloadingAll ? 'Downloading...' : 'Download All'}
+          </button>
         </div>
+
+        {/* Old Testament */}
+        <div className="space-y-2 mb-4">
+          <button
+            onClick={() => setExpandedTestament(expandedTestament === 'old' ? 'all' : 'old')}
+            className="flex items-center gap-2 font-serif font-semibold text-foreground hover:opacity-75 transition-opacity w-full text-left"
+          >
+            <ChevronDown className={`w-4 h-4 transition-transform ${expandedTestament === 'old' || expandedTestament === 'all' ? '' : '-rotate-90'}`} />
+            Old Testament
+          </button>
+          {(expandedTestament === 'old' || expandedTestament === 'all') && (
+            <div className="space-y-2 pl-4">
+              {BIBLE_BOOKS.filter(b => b.testament === 'OT').map(book => (
+                <div key={book.abbr} className="flex items-center justify-between gap-3 p-2 bg-secondary/50 rounded-lg">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-sans text-sm text-foreground truncate">{book.name}</p>
+                    <p className="font-sans text-xs text-muted-foreground">{book.chapters} chapters</p>
+                  </div>
+                  <button
+                    onClick={() => handleDownloadBook(book)}
+                    disabled={downloading === book.apiName}
+                    className="shrink-0 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    <Download className="w-3 h-3" />
+                    {downloading === book.apiName ? 'Downloading...' : 'Download'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* New Testament */}
+        <div className="space-y-2 mb-4">
+          <button
+            onClick={() => setExpandedTestament(expandedTestament === 'new' ? 'all' : 'new')}
+            className="flex items-center gap-2 font-serif font-semibold text-foreground hover:opacity-75 transition-opacity w-full text-left"
+          >
+            <ChevronDown className={`w-4 h-4 transition-transform ${expandedTestament === 'new' || expandedTestament === 'all' ? '' : '-rotate-90'}`} />
+            New Testament
+          </button>
+          {(expandedTestament === 'new' || expandedTestament === 'all') && (
+            <div className="space-y-2 pl-4">
+              {BIBLE_BOOKS.filter(b => b.testament === 'NT').map(book => (
+                <div key={book.abbr} className="flex items-center justify-between gap-3 p-2 bg-secondary/50 rounded-lg">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-sans text-sm text-foreground truncate">{book.name}</p>
+                    <p className="font-sans text-xs text-muted-foreground">{book.chapters} chapters</p>
+                  </div>
+                  <button
+                    onClick={() => handleDownloadBook(book)}
+                    disabled={downloading === book.apiName}
+                    className="shrink-0 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    <Download className="w-3 h-3" />
+                    {downloading === book.apiName ? 'Downloading...' : 'Download'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <button
           onClick={handleClearCache}
           className="w-full px-4 py-2 rounded-lg bg-destructive/10 text-destructive font-sans text-sm font-medium hover:bg-destructive/20 flex items-center justify-center gap-2"
