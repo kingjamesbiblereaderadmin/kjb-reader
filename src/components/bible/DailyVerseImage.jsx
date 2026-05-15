@@ -11,7 +11,7 @@ const VERSE_BACKGROUNDS = [
   { gradient: 'from-cyan-600 to-blue-600', accent: 'text-cyan-200' },      // Sun
 ];
 
-export default function DailyVerseImage({ verse }) {
+export default function RandomVerseImage({ verse }) {
   const dow = new Date().getDay();
   const { gradient, accent } = VERSE_BACKGROUNDS[dow];
 

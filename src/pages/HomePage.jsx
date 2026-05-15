@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle } from 'lucide-react';
-import DailyVerseImage from '@/components/bible/DailyVerseImage';
-import { getDailyVerse } from '@/lib/dailyVerse';
+import RandomVerseImage from '@/components/bible/DailyVerseImage';
+import { getRandomVerse } from '@/lib/dailyVerse';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 
@@ -19,7 +19,7 @@ const QUICK_LINKS = [
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const verse = getDailyVerse();
+  const verse = getRandomVerse();
 
   const handleRandomVerse = () => {
     const book = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
@@ -78,12 +78,12 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
       <div className="max-w-4xl mx-auto px-4 py-6">
-      {/* Daily verse card */}
+      {/* Random verse card */}
       <div
         onClick={handleVerseClick}
         className="w-full mb-6 cursor-pointer group relative"
       >
-        <DailyVerseImage verse={verse} />
+        <RandomVerseImage verse={verse} />
         {/* Bell overlay */}
         <button
           onClick={(e) => {

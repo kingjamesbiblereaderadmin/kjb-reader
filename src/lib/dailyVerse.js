@@ -55,26 +55,9 @@ export const VERSE_POOL = [
   { abbr: "GEN", book: "Genesis", chapter: 6, verse: 8, text: "But Noah found grace in the eyes of the LORD." },
 ];
 
-// Seeded pseudo-random — same result for same day, different each day
-function seededRandom(seed) {
-  const x = Math.sin(seed + 1) * 10000;
-  return x - Math.floor(x);
-}
-
-export function getDailyVerseKey() {
-  const now = new Date();
-  // Year * 1000 + day-of-year gives a unique number per day
-  const start = new Date(now.getFullYear(), 0, 0);
-  const dayOfYear = Math.floor((now - start) / 86400000);
-  return now.getFullYear() * 1000 + dayOfYear;
-}
-
-// Always use curated pool for daily verse
-export function getDailyVerse() {
-  const seed = getDailyVerseKey();
-
-  // Pick from curated pool
-  const idx = Math.floor(seededRandom(seed) * VERSE_POOL.length);
+// Pick a random verse from curated pool
+export function getRandomVerse() {
+  const idx = Math.floor(Math.random() * VERSE_POOL.length);
   const v = VERSE_POOL[idx];
   // Remove italic markers and return clean text
   const cleanText = v.text.replace(/\[([^\]]+)\]/g, '$1');
