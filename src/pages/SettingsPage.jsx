@@ -234,7 +234,7 @@ export default function SettingsPage() {
                   <div key={book.abbr} className="flex items-center justify-between gap-3 p-2 bg-secondary/50 rounded-lg">
                     <div className="flex-1 min-w-0">
                       <p className="font-sans text-sm text-foreground truncate">{book.name}</p>
-                      <p className="font-sans text-xs text-muted-foreground">{book.chapters} chapters</p>
+                      <p className="font-sans text-xs text-muted-foreground">{book.chapters} chapter{book.chapters === 1 ? '' : 's'}</p>
                     </div>
                     <div className="shrink-0 flex flex-col items-end gap-1">
                       {downloadProgress[book.apiName] !== undefined ? (
@@ -283,7 +283,7 @@ export default function SettingsPage() {
                   <div key={book.abbr} className="flex items-center justify-between gap-3 p-2 bg-secondary/50 rounded-lg">
                     <div className="flex-1 min-w-0">
                       <p className="font-sans text-sm text-foreground truncate">{book.name}</p>
-                      <p className="font-sans text-xs text-muted-foreground">{book.chapters} chapters</p>
+                      <p className="font-sans text-xs text-muted-foreground">{book.chapters} chapter{book.chapters === 1 ? '' : 's'}</p>
                     </div>
                     <div className="shrink-0 flex flex-col items-end gap-1">
                       {downloadProgress[book.apiName] !== undefined ? (
