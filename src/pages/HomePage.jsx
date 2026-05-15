@@ -26,6 +26,7 @@ export default function HomePage() {
   const [cachedCount, setCachedCount] = useState(0);
 
   useEffect(() => {
+    document.title = 'King James Bible — Pure Cambridge Edition';
     registerSW();
     if (getNotificationsEnabled()) scheduleDailyNotification(verse);
     // Count cached books
