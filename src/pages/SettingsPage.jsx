@@ -55,7 +55,12 @@ export default function SettingsPage() {
     setDownloadProgress({ [book.apiName]: 0 });
     try {
       for (let c = 1; c <= book.chapters; c++) {
-        await fetchChapter(book.apiName, c);
+        try {
+          await fetchChapter(book.apiName, c);
+        } catch (err) {
+          // Skip chapters that don't exist in the data
+          console.warn(`Skipping ${book.apiName} ${c}`);
+        }
         setDownloadProgress(prev => ({
           ...prev,
           [book.apiName]: Math.round((c / book.chapters) * 100)
