@@ -1,7 +1,6 @@
-// In-memory cache
-let bibleData = null;
-let chapterCache = {};
+const TEXT_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/ee659445e_TEXT-PCE-127.txt';
 
+// abbr -> full BookName mapping (matching lib/bibleData.js apiName values)
 const ABBR_TO_NAME = {
   'Ge':'Genesis','Ex':'Exodus','Le':'Leviticus','Nu':'Numbers','De':'Deuteronomy',
   'Jos':'Joshua','Jud':'Judges','Ru':'Ruth','1Sa':'1 Samuel','2Sa':'2 Samuel',
@@ -19,12 +18,13 @@ const ABBR_TO_NAME = {
   '3Jo':'3 John','Jude':'Jude','Re':'Revelation'
 };
 
-// Fetch Bible text from remote source once on startup, cache it
+// In-memory cache: { bookName: { chapterNum: [{ verse, text }] } }
+let bibleData = null;
+let chapterCache = {};
+
 async function loadBible() {
   if (bibleData) return bibleData;
 
-  const TEXT_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/ee659445e_TEXT-PCE-127.txt';
-  
   const res = await fetch(TEXT_URL);
   if (!res.ok) throw new Error('Failed to fetch Bible text');
   const text = await res.text();
@@ -32,39 +32,40 @@ async function loadBible() {
   const data = {};
   const colophons = {};
   const lines = text.split('\n');
+  let lastBook = null;
+  let lastChapter = null;
   
   for (let i = 0; i < lines.length; i++) {
     const trimmed = lines[i].trim();
     if (!trimmed) continue;
 
+    // Format: Ge 1:1 In the beginning...
     const spaceIdx = trimmed.indexOf(' ');
     if (spaceIdx === -1) continue;
     const abbr = trimmed.slice(0, spaceIdx);
     const rest = trimmed.slice(spaceIdx + 1);
 
     const colonIdx = rest.indexOf(':');
-    if (colonIdx === -1) continue;
+    const spaceIdx2 = rest.indexOf(' ');
+    if (colonIdx === -1 || spaceIdx2 === -1) continue;
 
     const chapter = parseInt(rest.slice(0, colonIdx), 10);
-    if (isNaN(chapter)) continue;
-
-    const spaceIdx2 = rest.indexOf(' ', colonIdx);
-    if (spaceIdx2 === -1) continue;
-
     const verse = parseInt(rest.slice(colonIdx + 1, spaceIdx2), 10);
     let verseText = rest.slice(spaceIdx2 + 1);
 
-    if (isNaN(verse) || !verseText) continue;
+    if (isNaN(chapter) || isNaN(verse) || !verseText) continue;
 
     const bookName = ABBR_TO_NAME[abbr];
     if (!bookName) continue;
 
+    // Extract embedded colophon from final verse (pattern: ...<<[text]>>)
     const colophonMatch = verseText.match(/<<\[([^\]]+)\]>>$/);
     if (colophonMatch) {
       const colophonKey = `${bookName}:${chapter}`;
       if (!colophons[colophonKey]) {
         colophons[colophonKey] = `[${colophonMatch[1]}]`;
       }
+      // Remove colophon from verse text
       verseText = verseText.replace(/\s*<<\[[^\]]+\]>>$/, '');
     }
 
@@ -73,6 +74,9 @@ async function loadBible() {
     if (!data[bookName]) data[bookName] = {};
     if (!data[bookName][chapter]) data[bookName][chapter] = [];
     data[bookName][chapter].push({ verse, text: verseText });
+    
+    lastBook = bookName;
+    lastChapter = chapter;
   }
 
   bibleData = data;

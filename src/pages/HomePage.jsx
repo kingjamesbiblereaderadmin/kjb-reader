@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle } from 'lucide-react';
-import RandomVerseImage from '@/components/bible/DailyVerseImage';
-import { getRandomVerse } from '@/lib/dailyVerse';
+import DailyVerseImage from '@/components/bible/DailyVerseImage';
+import { getDailyVerse } from '@/lib/dailyVerse';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
+import { fetchChapter, getCacheKey, CACHE_PREFIX } from '@/lib/bibleApi';
 
 const READ_LINK = { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', color: 'bg-primary text-primary-foreground' };
 
@@ -19,7 +20,7 @@ const QUICK_LINKS = [
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const verse = getRandomVerse();
+  const verse = getDailyVerse();
 
   const handleRandomVerse = () => {
     const book = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
@@ -29,18 +30,22 @@ export default function HomePage() {
   };
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
+  const [cachedCount, setCachedCount] = useState(0);
 
   useEffect(() => {
     registerSW();
     if (getNotificationsEnabled()) scheduleDailyNotification(verse);
 
-    // Sync notification state across pages
-    const handleStorageChange = () => {
-      setNotifEnabled(getNotificationsEnabled());
-      setNotifPermission('Notification' in window ? Notification.permission : 'unsupported');
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    // Count cached books
+    let count = 0;
+    for (const book of BIBLE_BOOKS) {
+      let allCached = true;
+      for (let c = 1; c <= book.chapters; c++) {
+        if (!localStorage.getItem(getCacheKey(book.abbr, c))) { allCached = false; break; }
+      }
+      if (allCached) count++;
+    }
+    setCachedCount(count);
   }, []);
 
   const handleVerseClick = () => {
@@ -69,8 +74,6 @@ export default function HomePage() {
         alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
       }
     }
-    // Trigger storage event for cross-tab sync
-    window.dispatchEvent(new Event('storage'));
   };
 
   const totalBooks = BIBLE_BOOKS.length;
@@ -78,12 +81,12 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
       <div className="max-w-4xl mx-auto px-4 py-6">
-      {/* Random verse card */}
+      {/* Daily verse card */}
       <div
         onClick={handleVerseClick}
         className="w-full mb-6 cursor-pointer group relative"
       >
-        <RandomVerseImage verse={verse} />
+        <DailyVerseImage verse={verse} />
         {/* Bell overlay */}
         <button
           onClick={(e) => {
