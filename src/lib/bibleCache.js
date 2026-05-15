@@ -1,6 +1,8 @@
-// In-memory cache
-let bibleData = null;
-let chapterCache = {};
+// Client-side Bible data caching for offline access
+// Fetches once from network, then uses localStorage
+
+const CACHE_KEY = 'bible_data_complete';
+const TEXT_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/ee659445e_TEXT-PCE-127.txt';
 
 const ABBR_TO_NAME = {
   'Ge':'Genesis','Ex':'Exodus','Le':'Leviticus','Nu':'Numbers','De':'Deuteronomy',
@@ -19,16 +21,9 @@ const ABBR_TO_NAME = {
   '3Jo':'3 John','Jude':'Jude','Re':'Revelation'
 };
 
-// Fetch Bible text from remote source once on startup, cache it
-async function loadBible() {
-  if (bibleData) return bibleData;
+let parsedData = null;
 
-  const TEXT_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/ee659445e_TEXT-PCE-127.txt';
-  
-  const res = await fetch(TEXT_URL);
-  if (!res.ok) throw new Error('Failed to fetch Bible text');
-  const text = await res.text();
-
+function parseBibleText(text) {
   const data = {};
   const colophons = {};
   const lines = text.split('\n');
@@ -75,54 +70,47 @@ async function loadBible() {
     data[bookName][chapter].push({ verse, text: verseText });
   }
 
-  bibleData = data;
-  bibleData.__colophons = colophons;
+  data.__colophons = colophons;
   return data;
 }
 
-Deno.serve(async (req) => {
-  try {
-    const body = await req.json();
-    const { action, book, chapter } = body;
+// Load Bible data from localStorage or fetch once from network
+export async function getBibleData() {
+  if (parsedData) return parsedData;
 
-    const bible = await loadBible();
-
-    if (action === 'getChapter') {
-      if (!book || !chapter) {
-        return Response.json({ error: 'book and chapter required' }, { status: 400 });
-      }
-
-      const cacheKey = `${book}:${chapter}`;
-      if (chapterCache[cacheKey]) {
-        return Response.json(chapterCache[cacheKey]);
-      }
-
-      const verses = bible[book]?.[chapter];
-      if (!verses || verses.length === 0) {
-        return Response.json({ error: `No verses found for ${book} ${chapter}` }, { status: 404 });
-      }
-
-      const colophon = bible.__colophons?.[`${book}:${chapter}`];
-      const result = { verses, colophon };
-      chapterCache[cacheKey] = result;
-      return Response.json(result);
-    }
-
-    if (action === 'getVerseCount') {
-      if (!book || !chapter) {
-        return Response.json({ error: 'book and chapter required' }, { status: 400 });
-      }
-      const count = bible[book]?.[chapter]?.length ?? 0;
-      return Response.json({ count });
-    }
-
-    if (action === 'getAllColophons') {
-      return Response.json({ colophons: bible.__colophons });
-    }
-
-    return Response.json({ error: 'Unknown action' }, { status: 400 });
-
-  } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+  // Try to load from localStorage
+  const cached = localStorage.getItem(CACHE_KEY);
+  if (cached) {
+    parsedData = JSON.parse(cached);
+    return parsedData;
   }
-});
+
+  // If not cached, fetch from network
+  try {
+    const res = await fetch(TEXT_URL);
+    if (!res.ok) throw new Error('Failed to fetch Bible text');
+    const text = await res.text();
+    
+    parsedData = parseBibleText(text);
+    
+    // Store in localStorage for offline access on subsequent visits
+    localStorage.setItem(CACHE_KEY, JSON.stringify(parsedData));
+    
+    return parsedData;
+  } catch (error) {
+    // Fallback: return empty object if network fails and no cache
+    console.error('Failed to load Bible data:', error);
+    return { __colophons: {} };
+  }
+}
+
+// Check if Bible data is available offline
+export function isBibleCached() {
+  return !!localStorage.getItem(CACHE_KEY) || !!parsedData;
+}
+
+// Clear cached Bible data
+export function clearBibleCache() {
+  localStorage.removeItem(CACHE_KEY);
+  parsedData = null;
+}

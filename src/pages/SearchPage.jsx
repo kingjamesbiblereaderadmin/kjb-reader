@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, BookOpen, Loader2 } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { getBibleData } from '@/lib/bibleCache';
 
 export default function SearchPage() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -23,29 +23,41 @@ export default function SearchPage() {
     setLoading(true);
     setSearched(true);
     setResults([]);
-    const res = await base44.integrations.Core.InvokeLLM({
-      prompt: `Search the King James Bible (Pure Cambridge Edition) for verses containing or closely related to the keyword(s): "${kw}".
-Return up to 15 matching verses. For each verse provide the book abbreviation (e.g. GEN, PSA, JHN, ROM), the book's full name, chapter number, verse number, and the full verse text from the KJB.`,
-      response_json_schema: {
-        type: 'object',
-        properties: {
-          results: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                abbr: { type: 'string' },
-                book: { type: 'string' },
-                chapter: { type: 'number' },
-                verse: { type: 'number' },
-                text: { type: 'string' },
-              },
-            },
-          },
-        },
-      },
-    });
-    setResults(res.results || []);
+    
+    try {
+      const bible = await getBibleData();
+      const keyword = kw.toLowerCase();
+      const matches = [];
+
+      // Search through all verses in the cached Bible
+      for (const bookName in bible) {
+        if (bookName === '__colophons') continue;
+        
+        const chapters = bible[bookName];
+        for (const chapterNum in chapters) {
+          const verses = chapters[chapterNum];
+          for (const verseObj of verses) {
+            if (verseObj.text.toLowerCase().includes(keyword)) {
+              matches.push({
+                book: bookName,
+                chapter: parseInt(chapterNum),
+                verse: verseObj.verse,
+                text: verseObj.text,
+                abbr: bookName.slice(0, 3).toUpperCase(),
+              });
+              if (matches.length >= 15) break;
+            }
+          }
+          if (matches.length >= 15) break;
+        }
+        if (matches.length >= 15) break;
+      }
+
+      setResults(matches);
+    } catch (err) {
+      console.error('Search error:', err);
+      setResults([]);
+    }
     setLoading(false);
   };
 

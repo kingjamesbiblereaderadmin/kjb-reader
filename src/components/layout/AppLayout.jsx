@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Home, BookOpen, Heart, Library, Info, Moon, Sun, Settings, Menu, X } from 'lucide-react';
+import { Home, BookOpen, Heart, Library, Info, Moon, Sun, Settings, Menu, X, Bookmark } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
 
@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { path: '/gospel', icon: Heart, label: 'Gospel' },
   { path: '/resources', icon: Library, label: 'Resources' },
   { path: '/about', icon: Info, label: 'About' },
+  { path: '/saved', icon: Bookmark, label: 'Saved' },
   { path: '/settings', icon: Settings, label: 'Settings' },
 ];
 
@@ -24,13 +25,8 @@ export default function AppLayout() {
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 flex-shrink-0" onClick={() => setMenuOpen(false)}>
-            <BookOpen className="w-5 h-5 text-accent" />
-            <span className="font-serif text-lg font-bold tracking-wide text-foreground hidden sm:block">
-              King James Bible
-            </span>
-            <span className="font-serif text-lg font-bold tracking-wide text-foreground sm:hidden">
-              KJB
-            </span>
+            <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB Reader" className="h-10 w-auto" />
+            <span className="font-serif text-lg font-bold text-foreground hidden sm:block">The Holy Bible</span>
           </Link>
 
           {/* Search bar */}
@@ -94,6 +90,19 @@ export default function AppLayout() {
       <main className="flex-1">
         <Outlet />
       </main>
+
+      <footer className="border-t border-border bg-card/80 py-4 mt-8">
+        <p className="text-center font-sans text-xs text-muted-foreground">
+          Bible text from{' '}
+          <a href="https://bibleprotector.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
+            bibleprotector.com
+          </a>
+          {' '}· Created by{' '}
+          <a href="https://base44.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
+            Base44
+          </a>
+        </p>
+      </footer>
     </div>
   );
 }
