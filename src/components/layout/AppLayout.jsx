@@ -95,6 +95,19 @@ export default function AppLayout() {
       <main className="flex-1">
         <Outlet />
       </main>
+
+      <footer className="border-t border-border bg-card/80 py-4 mt-8">
+        <p className="text-center font-sans text-xs text-muted-foreground">
+          Bible text from{' '}
+          <a href="https://bibleprotector.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
+            bibleprotector.com
+          </a>
+          {' '}· Created by{' '}
+          <a href="https://base44.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
+            Base44
+          </a>
+        </p>
+      </footer>
     </div>
   );
 }
