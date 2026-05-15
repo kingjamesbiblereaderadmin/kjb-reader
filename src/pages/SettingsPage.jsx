@@ -38,12 +38,12 @@ export default function SettingsPage() {
   const [cacheStatus, setCacheStatus] = useState({}); // abbr -> { cached, downloaded }
   const [storageUsed, setStorageUsed] = useState(0);
 
-  const books = BIBLE_BOOKS.filter((b) => b.testament === tab);
+  const books = BIBLE_BOOKS.filter(b => b.testament === tab);
 
   const refreshStatus = () => {
     const status = {};
     let totalBytes = 0;
-    BIBLE_BOOKS.forEach((book) => {
+    BIBLE_BOOKS.forEach(book => {
       const downloaded = getBookCacheProgress(book.abbr, book.chapters);
       const cached = downloaded === book.chapters;
       status[book.abbr] = { cached, downloaded };
@@ -62,12 +62,12 @@ export default function SettingsPage() {
     setStorageUsed(totalBytes);
   };
 
-  useEffect(() => {refreshStatus();}, []);
+  useEffect(() => { refreshStatus(); }, []);
 
   const downloadBook = async (book) => {
     if (downloading[book.abbr]) return;
-    setDownloading((prev) => ({ ...prev, [book.abbr]: true }));
-    setProgress((prev) => ({ ...prev, [book.abbr]: 0 }));
+    setDownloading(prev => ({ ...prev, [book.abbr]: true }));
+    setProgress(prev => ({ ...prev, [book.abbr]: 0 }));
 
     for (let c = 1; c <= book.chapters; c++) {
       const key = getCacheKey(book.abbr, c);
@@ -77,10 +77,10 @@ export default function SettingsPage() {
           localStorage.setItem(key, JSON.stringify(verses));
         } catch {}
       }
-      setProgress((prev) => ({ ...prev, [book.abbr]: c }));
+      setProgress(prev => ({ ...prev, [book.abbr]: c }));
     }
 
-    setDownloading((prev) => ({ ...prev, [book.abbr]: false }));
+    setDownloading(prev => ({ ...prev, [book.abbr]: false }));
     refreshStatus();
   };
 
@@ -98,12 +98,12 @@ export default function SettingsPage() {
   };
 
   const clearAll = () => {
-    BIBLE_BOOKS.forEach((book) => deleteBook(book.abbr, book.chapters));
+    BIBLE_BOOKS.forEach(book => deleteBook(book.abbr, book.chapters));
     refreshStatus();
   };
 
   const totalBooks = BIBLE_BOOKS.length;
-  const cachedBooks = Object.values(cacheStatus).filter((s) => s?.cached).length;
+  const cachedBooks = Object.values(cacheStatus).filter(s => s?.cached).length;
   const storageMB = (storageUsed / 1024 / 1024).toFixed(1);
 
   return (
@@ -120,14 +120,14 @@ export default function SettingsPage() {
 
       {/* App Info */}
       <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-2">
-        <h2 className="font-serif text-lg font-semibold text-foreground">Bible App:</h2>
+        <h2 className="font-serif text-lg font-semibold text-foreground">Bible Text</h2>
         <div className="flex justify-between font-sans text-sm">
-          <span className="text-muted-foreground">Text:</span>
+          <span className="text-muted-foreground">Edition</span>
           <span className="text-foreground font-medium">King James Bible — Pure Cambridge Edition</span>
         </div>
         <div className="flex justify-between font-sans text-sm">
-          <span className="text-muted-foreground hidden">App/Website last revised:</span>
-          
+          <span className="text-muted-foreground">Last Revision</span>
+          <span className="text-foreground font-medium">{LAST_REVISED}</span>
         </div>
         <div className="flex justify-between font-sans text-sm">
           <span className="text-muted-foreground">Source</span>
@@ -160,15 +160,15 @@ export default function SettingsPage() {
         <div className="flex gap-2">
           <button
             onClick={downloadAll}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-semibold hover:opacity-90 transition-opacity">
-            
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-semibold hover:opacity-90 transition-opacity"
+          >
             <Download className="w-4 h-4" />
             Download All
           </button>
           <button
             onClick={clearAll}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-semibold hover:bg-destructive/10 hover:text-destructive transition-colors">
-            
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-semibold hover:bg-destructive/10 hover:text-destructive transition-colors"
+          >
             <Trash2 className="w-4 h-4" />
             Clear All
           </button>
@@ -181,23 +181,23 @@ export default function SettingsPage() {
           <button
             onClick={() => setTab('old')}
             className={`flex-1 py-2.5 rounded-xl font-sans font-semibold text-sm transition-colors ${
-            tab === 'old' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'}`
-            }>
-            
+              tab === 'old' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+            }`}
+          >
             Old Testament
           </button>
           <button
             onClick={() => setTab('new')}
             className={`flex-1 py-2.5 rounded-xl font-sans font-semibold text-sm transition-colors ${
-            tab === 'new' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'}`
-            }>
-            
+              tab === 'new' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+            }`}
+          >
             New Testament
           </button>
         </div>
 
         <div className="space-y-2">
-          {books.map((book) => {
+          {books.map(book => {
             const status = cacheStatus[book.abbr] || { cached: false, downloaded: 0 };
             const isDown = downloading[book.abbr];
             const prog = progress[book.abbr] || 0;
@@ -207,50 +207,50 @@ export default function SettingsPage() {
                 <div className="flex-1 min-w-0">
                   <p className="font-serif text-base font-semibold text-foreground truncate">{book.shortName}</p>
                   <p className="font-sans text-xs text-muted-foreground">
-                    {isDown ?
-                    `Downloading… ${prog}/${book.chapters} chapters` :
-                    status.cached ?
-                    `${book.chapters} chapters cached` :
-                    status.downloaded > 0 ?
-                    `${status.downloaded}/${book.chapters} chapters` :
-                    `${book.chapters} chapters`}
+                    {isDown
+                      ? `Downloading… ${prog}/${book.chapters} chapters`
+                      : status.cached
+                      ? `${book.chapters} chapters cached`
+                      : status.downloaded > 0
+                      ? `${status.downloaded}/${book.chapters} chapters`
+                      : `${book.chapters} chapters`}
                   </p>
-                  {isDown &&
-                  <div className="mt-1.5 h-1.5 bg-secondary rounded-full overflow-hidden">
+                  {isDown && (
+                    <div className="mt-1.5 h-1.5 bg-secondary rounded-full overflow-hidden">
                       <div
-                      className="h-full bg-accent transition-all duration-300 rounded-full"
-                      style={{ width: `${prog / book.chapters * 100}%` }} />
-                    
+                        className="h-full bg-accent transition-all duration-300 rounded-full"
+                        style={{ width: `${(prog / book.chapters) * 100}%` }}
+                      />
                     </div>
-                  }
+                  )}
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  {status.cached && !isDown &&
-                  <>
+                  {status.cached && !isDown && (
+                    <>
                       <CheckCircle className="w-4 h-4 text-green-500" />
                       <button
-                      onClick={() => removeBook(book)}
-                      className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors">
-                      
+                        onClick={() => removeBook(book)}
+                        className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                      >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </>
-                  }
-                  {!status.cached && !isDown &&
-                  <button
-                    onClick={() => downloadBook(book)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity">
-                    
+                  )}
+                  {!status.cached && !isDown && (
+                    <button
+                      onClick={() => downloadBook(book)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+                    >
                       <Download className="w-3.5 h-3.5" />
                       Download
                     </button>
-                  }
-                  {isDown &&
-                  <Loader2 className="w-4 h-4 animate-spin text-accent" />
-                  }
+                  )}
+                  {isDown && (
+                    <Loader2 className="w-4 h-4 animate-spin text-accent" />
+                  )}
                 </div>
-              </div>);
-
+              </div>
+            );
           })}
         </div>
       </div>
@@ -258,6 +258,6 @@ export default function SettingsPage() {
       <p className="text-center font-sans text-xs text-muted-foreground mt-4">
         Cached data is stored locally on your device and persists between sessions.
       </p>
-    </div>);
-
+    </div>
+  );
 }
