@@ -14,7 +14,15 @@ const LAST_REVISED = 'May 2026';
 function getBookCacheProgress(abbr, totalChapters) {
   let count = 0;
   for (let c = 1; c <= totalChapters; c++) {
-    if (localStorage.getItem(getCacheKey(abbr, c))) count++;
+    try {
+      const cached = localStorage.getItem(getCacheKey(abbr, c));
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && parsed.verses && parsed.verses.length > 0) {
+          count++;
+        }
+      }
+    } catch {}
   }
   return count;
 }
