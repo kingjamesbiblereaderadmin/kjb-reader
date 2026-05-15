@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, BookOpen, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen, Loader2, AlignJustify, List } from 'lucide-react';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount } from '@/lib/bibleApi';
 import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
@@ -36,6 +36,15 @@ export default function BibleReader() {
   const [showBookPicker, setShowBookPicker] = useState(false);
   const [showChapterPicker, setShowChapterPicker] = useState(false);
   const [showVersePicker, setShowVersePicker] = useState(false);
+  const [paragraphMode, setParagraphMode] = useState(() => {
+    try { return localStorage.getItem('kjb-layout') === 'paragraph'; } catch { return false; }
+  });
+
+  const toggleLayout = () => {
+    const next = !paragraphMode;
+    setParagraphMode(next);
+    try { localStorage.setItem('kjb-layout', next ? 'paragraph' : 'line'); } catch {}
+  };
 
   const topRef = useRef(null);
   const book = BIBLE_BOOKS.find(b => b.abbr === pos.abbr) || BIBLE_BOOKS[0];
@@ -207,6 +216,16 @@ export default function BibleReader() {
             )}
           </div>
 
+          {/* Layout toggle */}
+          <button
+            onClick={toggleLayout}
+            title={paragraphMode ? 'Switch to line-by-line' : 'Switch to paragraph'}
+            className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+          >
+            {paragraphMode ? <List className="w-3.5 h-3.5" /> : <AlignJustify className="w-3.5 h-3.5" />}
+            {paragraphMode ? 'Lines' : 'Para'}
+          </button>
+
           {/* Prev/Next chapter buttons */}
           <div className="ml-auto flex items-center gap-1">
             <button
@@ -273,7 +292,7 @@ export default function BibleReader() {
         )}
         {!loading && !error && verses.length > 0 && (
           <>
-            <div className="text-justify hyphens-auto">
+            <div className={paragraphMode ? 'text-justify hyphens-auto' : ''}>
               {verses.map((v, idx) => (
                 <VerseText
                   key={v.verse}
@@ -285,6 +304,7 @@ export default function BibleReader() {
                   chapter={pos.chapter}
                   isColophon={false}
                   isFirstVerse={idx === 0}
+                  paragraphMode={paragraphMode}
                 />
               ))}
             </div>
