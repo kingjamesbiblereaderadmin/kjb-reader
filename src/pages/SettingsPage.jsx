@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Settings, Download, Trash2, CheckCircle, Loader2, RefreshCw, Bell, BellOff } from 'lucide-react';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
-import { fetchChapter, getCacheKey, CACHE_PREFIX } from '@/lib/bibleApi';
+import { getCacheKey, CACHE_PREFIX } from '@/lib/bibleApi';
+import { base44 } from '@/api/base44Client';
 import {
   getNotificationsEnabled, getNotificationTime, setNotificationTime,
   requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification
@@ -92,11 +93,18 @@ export default function SettingsPage() {
     for (let c = 1; c <= book.chapters; c++) {
       const key = getCacheKey(book.abbr, c);
       try {
-        const data = await fetchChapter(book.apiName, c);
-        localStorage.setItem(key, JSON.stringify(data));
-        completed++;
+        const res = await base44.functions.invoke('bibleApi', {
+          action: 'getChapter',
+          book: book.apiName,
+          chapter: c,
+        });
+        if (res.data && res.data.verses) {
+          const data = { verses: res.data.verses, colophon: res.data.colophon || null };
+          localStorage.setItem(key, JSON.stringify(data));
+          completed++;
+        }
       } catch (err) {
-        console.error(`Failed to cache chapter ${c}:`, err);
+        console.error(`Failed to download ${book.abbr} ${c}:`, err);
       }
       setProgress(prev => ({ ...prev, [book.abbr]: completed }));
     }
