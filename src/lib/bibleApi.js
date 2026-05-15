@@ -1,74 +1,24 @@
 import { base44 } from '@/api/base44Client';
-import { BIBLE_BOOKS } from '@/lib/bibleData';
-
-const CACHE_PREFIX = 'kjb-chapter-';
-
-export function getCacheKey(bookAbbr, chapter) {
-  return `${CACHE_PREFIX}${bookAbbr}-${chapter}`;
-}
+import { getBibleData, isBibleCached } from '@/lib/bibleCache';
 
 export async function fetchChapter(bookApiName, chapter) {
-  const book = BIBLE_BOOKS.find(b => b.apiName === bookApiName);
-  if (!book) throw new Error('Book not found');
-
-  const cacheKey = getCacheKey(book.abbr, chapter);
+  // Get complete Bible data (from cache or network)
+  const bible = await getBibleData();
   
-  // Try cache first
-  try {
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) {
-      return JSON.parse(cached);
-    }
-  } catch {}
-
-  // Fetch from API
-  const res = await base44.functions.invoke('bibleApi', {
-    action: 'getChapter',
-    book: bookApiName,
-    chapter: Number(chapter),
-  });
-
-  const data = { verses: res.data.verses, colophon: res.data.colophon || null };
+  const verses = bible[bookApiName]?.[chapter] || [];
+  if (!verses.length) throw new Error(`No verses found for ${bookApiName} ${chapter}`);
   
-  // Cache it
-  try {
-    localStorage.setItem(cacheKey, JSON.stringify(data));
-  } catch {}
-
-  return data;
+  const colophon = bible.__colophons?.[`${bookApiName}:${chapter}`] || null;
+  return { verses, colophon };
 }
 
 export async function fetchVerseCount(bookApiName, chapter) {
-  const res = await base44.functions.invoke('bibleApi', {
-    action: 'getVerseCount',
-    book: bookApiName,
-    chapter: Number(chapter),
-  });
-  return res.data.count;
+  const bible = await getBibleData();
+  return bible[bookApiName]?.[chapter]?.length ?? 0;
 }
 
-export function getCachedChapterCount() {
-  let count = 0;
-  for (const book of BIBLE_BOOKS) {
-    let allCached = true;
-    for (let c = 1; c <= book.chapters; c++) {
-      if (!localStorage.getItem(getCacheKey(book.abbr, c))) {
-        allCached = false;
-        break;
-      }
-    }
-    if (allCached) count++;
-  }
-  return count;
-}
-
-export async function downloadBook(bookApiName) {
-  const book = BIBLE_BOOKS.find(b => b.apiName === bookApiName);
-  if (!book) throw new Error('Book not found');
-
-  for (let c = 1; c <= book.chapters; c++) {
-    await fetchChapter(bookApiName, c);
-  }
+export function isBibleAvailableOffline() {
+  return isBibleCached();
 }
 
 // Render verse text: turn [word] into <em>word</em> for KJB italics

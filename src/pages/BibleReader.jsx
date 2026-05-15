@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, BookOpen, Loader2, AlignJustify, List } from 'lucide-react';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount } from '@/lib/bibleApi';
+import { getBibleData } from '@/lib/bibleCache';
 import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
 import BookSelector from '@/components/bible/BookSelector';
 import ChapterSelector from '@/components/bible/ChapterSelector';
@@ -84,6 +85,8 @@ export default function BibleReader() {
   }, []);
 
   useEffect(() => {
+    // Preload Bible data on first mount so it's cached for offline access
+    getBibleData().catch(() => {});
     loadChapter(pos.abbr, pos.chapter, pos.verse);
   }, []);
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, BookOpen, Loader2 } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { getBibleData } from '@/lib/bibleCache';
 
 export default function SearchPage() {
   const urlParams = new URLSearchParams(window.location.search);
