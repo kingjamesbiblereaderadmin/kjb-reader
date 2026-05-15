@@ -5,7 +5,6 @@ import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
-import { fetchChapter, getCacheKey, CACHE_PREFIX } from '@/lib/bibleApi';
 
 const READ_LINK = { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', color: 'bg-primary text-primary-foreground' };
 
@@ -30,22 +29,10 @@ export default function HomePage() {
   };
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
-  const [cachedCount, setCachedCount] = useState(0);
 
   useEffect(() => {
     registerSW();
     if (getNotificationsEnabled()) scheduleDailyNotification(verse);
-
-    // Count cached books
-    let count = 0;
-    for (const book of BIBLE_BOOKS) {
-      let allCached = true;
-      for (let c = 1; c <= book.chapters; c++) {
-        if (!localStorage.getItem(getCacheKey(book.abbr, c))) { allCached = false; break; }
-      }
-      if (allCached) count++;
-    }
-    setCachedCount(count);
   }, []);
 
   const handleVerseClick = () => {
