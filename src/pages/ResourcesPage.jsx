@@ -25,6 +25,8 @@ function getLinkLabel(url) {
   if (url.includes('facebook.com')) return 'Facebook';
   if (url.includes('instagram.com')) return 'Instagram';
   if (url.includes('linktr.ee')) return 'Linktree';
+  if (url.includes('univer.se')) return 'Joyfully Church';
+  if (url.includes('mission1611.com')) return 'Mission 1611';
   try {return new URL(url).hostname.replace('www.', '');} catch {return 'Website';}
 }
 
@@ -56,7 +58,8 @@ const PREACHERS = [
   links: [
   'https://www.instagram.com/robert.potthoff/',
   'https://www.facebook.com/potthoff87',
-  'https://www.instagram.com/big_red_preacher']
+  'https://www.instagram.com/big_red_preacher',
+  'https://mission1611.com/']
 
 },
 {
@@ -64,7 +67,8 @@ const PREACHERS = [
   desc: 'KJB Elites — faithful preacher of the word.',
   links: [
   'https://youtube.com/@josephgonzalez3',
-  'https://www.tiktok.com/@kjb_elites']
+  'https://www.tiktok.com/@kjb_elites',
+  'https://joyfullychurch.univer.se/']
 
 },
 {
@@ -121,13 +125,6 @@ const RESOURCES = [
   bg: "bg-green-50 dark:bg-green-900/20",
   expandable: true,
   items: [
-  {
-    title: "KJBI.org — Free Online Bible College",
-    desc: "King James Bible Institute — a free online Bible college for those who want to go deeper in God's Word. Courses on rightly dividing, dispensationalism, and more.",
-    url: "https://kjbi.org",
-    label: "Visit KJBI.org",
-    verified: true
-  },
   {
     title: "AV Publications",
     desc: "Books and resources for King James Bible believers.",
@@ -557,12 +554,22 @@ export default function ResourcesPage() {
           <FileText className="w-7 h-7 text-accent" />
         </div>
         <h1 className="font-serif text-4xl font-bold text-foreground mb-3">Resources</h1>
-        <p className="font-sans text-muted-foreground max-w-lg mx-auto">KJB defence materials, studies on modern version corruption, and links to free Bible study resources. 
-
-Please be advised that all resources except kjbi.org, and the verified preachers, these are for educational purposes only, as I may not affirm all their doctrinal statements."
-
-</p>
+        <p className="font-sans text-muted-foreground max-w-lg mx-auto">KJB defence materials, studies on modern version corruption, and links to free Bible study resources.</p>
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
+      </div>
+
+      {/* KJBI — Free Online Bible College (above everything) */}
+      <div className="bg-card border border-border rounded-2xl p-5 mb-6">
+        <div className="flex items-start gap-3">
+          <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+          <div>
+            <h2 className="font-serif text-lg font-bold text-foreground mb-1">KJBI.org — Free Online Bible College</h2>
+            <p className="font-sans text-sm text-muted-foreground mb-3">King James Bible Institute — a free online Bible college for those who want to go deeper in God's Word. Courses on rightly dividing, dispensationalism, and more.</p>
+            <a href="https://kjbi.org" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity">
+              Visit KJBI.org <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          </div>
+        </div>
       </div>
 
       {/* Why KJB is God's Word section */}
@@ -570,6 +577,13 @@ Please be advised that all resources except kjbi.org, and the verified preachers
 
       {/* Verified Preachers section */}
       <PreachersSection />
+
+      {/* Disclaimer box */}
+      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-xl p-4 mb-6">
+        <p className="font-sans text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+          <strong>Note:</strong> The resources below are for educational purposes only. I may not affirm all doctrinal statements of every resource or ministry linked here. Please use discernment and compare all things to the King James Bible.
+        </p>
+      </div>
 
       <div className="space-y-4">
         {RESOURCES.map((section) => {const Icon = section.icon;

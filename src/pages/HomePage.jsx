@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Heart, Library, Info, List } from 'lucide-react';
+import { BookOpen, Heart, Library, Info, List, Settings } from 'lucide-react';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 
 const DAILY_IMAGES = [
@@ -40,6 +40,7 @@ const QUICK_LINKS = [
   { path: '/gospel', icon: Heart, label: 'The Gospel', desc: 'How to be saved', color: 'bg-red-600 text-white' },
   { path: '/resources', icon: Library, label: 'Resources', desc: 'KJB defence & study', color: 'bg-secondary text-secondary-foreground' },
   { path: '/about', icon: Info, label: 'About', desc: 'Ministry & links', color: 'bg-secondary text-secondary-foreground' },
+  { path: '/settings', icon: Settings, label: 'Settings', desc: 'Offline downloads & info', color: 'bg-secondary text-secondary-foreground' },
 ];
 
 export default function HomePage() {

@@ -4,7 +4,7 @@ import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { fetchChapter } from '@/lib/bibleApi';
 
 const CACHE_PREFIX = 'kjb-offline-';
-const LAST_REVISED = 'May 2026'; // 
+const LAST_REVISED = 'May 2026';
 
 function getCacheKey(abbr, chapter) {
   return `${CACHE_PREFIX}${abbr}-${chapter}`;
@@ -42,13 +42,11 @@ export default function SettingsPage() {
 
   const refreshStatus = () => {
     const status = {};
-    let totalBytes = 0;
     BIBLE_BOOKS.forEach(book => {
       const downloaded = getBookCacheProgress(book.abbr, book.chapters);
       const cached = downloaded === book.chapters;
       status[book.abbr] = { cached, downloaded };
     });
-    // Estimate storage
     try {
       let bytes = 0;
       for (let key in localStorage) {
@@ -56,10 +54,9 @@ export default function SettingsPage() {
           bytes += (localStorage.getItem(key) || '').length * 2;
         }
       }
-      totalBytes = bytes;
+      setStorageUsed(bytes);
     } catch {}
     setCacheStatus(status);
-    setStorageUsed(totalBytes);
   };
 
   useEffect(() => { refreshStatus(); }, []);
@@ -67,20 +64,28 @@ export default function SettingsPage() {
   const downloadBook = async (book) => {
     if (downloading[book.abbr]) return;
     setDownloading(prev => ({ ...prev, [book.abbr]: true }));
-    setProgress(prev => ({ ...prev, [book.abbr]: 0 }));
+
+    // Start progress from already-cached chapters
+    const startCount = getBookCacheProgress(book.abbr, book.chapters);
+    setProgress(prev => ({ ...prev, [book.abbr]: startCount }));
 
     for (let c = 1; c <= book.chapters; c++) {
       const key = getCacheKey(book.abbr, c);
       if (!localStorage.getItem(key)) {
         try {
-          const verses = await fetchChapter(book.apiName, c);
-          localStorage.setItem(key, JSON.stringify(verses));
-        } catch {}
+          const data = await fetchChapter(book.apiName, c);
+          localStorage.setItem(key, JSON.stringify(data));
+        } catch (err) {
+          console.error(`Failed chapter ${c}`, err);
+        }
       }
       setProgress(prev => ({ ...prev, [book.abbr]: c }));
     }
 
+    // Verify all chapters are truly cached before marking done
+    const finalCount = getBookCacheProgress(book.abbr, book.chapters);
     setDownloading(prev => ({ ...prev, [book.abbr]: false }));
+    setProgress(prev => ({ ...prev, [book.abbr]: finalCount }));
     refreshStatus();
   };
 
@@ -119,19 +124,19 @@ export default function SettingsPage() {
       </div>
 
       {/* App Info */}
-      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-2">
-        <h2 className="font-serif text-lg font-semibold text-foreground">APP Info:</h2>
-        <div className="flex justify-between font-sans text-sm">
-          <span className="text-muted-foreground">Text:</span>
-          <span className="text-foreground font-medium">King James Bible — Pure Cambridge Edition</span>
+      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
+        <h2 className="font-serif text-lg font-semibold text-foreground">App Info</h2>
+        <div className="flex justify-between items-center font-sans text-sm gap-4">
+          <span className="text-muted-foreground shrink-0">Bible Text</span>
+          <span className="text-foreground font-medium text-right">King James Bible (PCE)</span>
         </div>
-        <div className="flex justify-between font-sans text-sm">
-          <span className="text-muted-foreground">Last Revision</span>
-          <span className="text-foreground font-medium">{LAST_REVISED}</span>
+        <div className="flex justify-between items-center font-sans text-sm gap-4">
+          <span className="text-muted-foreground shrink-0">Last App Revision</span>
+          <span className="text-foreground font-medium text-right">{LAST_REVISED}</span>
         </div>
-        <div className="flex justify-between font-sans text-sm">
-          <span className="text-muted-foreground">Source</span>
-          <a href="https://www.bibleprotector.com" target="_blank" rel="noopener noreferrer" className="text-accent underline underline-offset-2">bibleprotector.com</a>
+        <div className="flex justify-between items-center font-sans text-sm gap-4">
+          <span className="text-muted-foreground shrink-0">Text Source</span>
+          <a href="https://www.bibleprotector.com" target="_blank" rel="noopener noreferrer" className="text-accent underline underline-offset-2 text-right">bibleprotector.com</a>
         </div>
       </div>
 
@@ -237,13 +242,13 @@ export default function SettingsPage() {
                     </>
                   )}
                   {!status.cached && !isDown && (
-                    <button
-                      onClick={() => downloadBook(book)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      Download
-                    </button>
+                   <button
+                     onClick={() => downloadBook(book)}
+                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+                   >
+                     <Download className="w-3.5 h-3.5" />
+                     {status.downloaded > 0 ? 'Resume' : 'Download'}
+                   </button>
                   )}
                   {isDown && (
                     <Loader2 className="w-4 h-4 animate-spin text-accent" />
