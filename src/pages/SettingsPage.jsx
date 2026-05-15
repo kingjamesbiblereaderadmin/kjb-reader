@@ -118,8 +118,6 @@ export default function SettingsPage() {
     setProgress(prev => ({ ...prev, [book.abbr]: 0 }));
 
     let completed = 0;
-    const maxRetries = 2;
-    const timeout = 30000; // 30 seconds per chapter
 
     try {
       for (let c = 1; c <= book.chapters; c++) {
@@ -130,23 +128,15 @@ export default function SettingsPage() {
           continue;
         }
 
-        // Attempt download with retries
+        // Attempt download with exponential backoff
         let success = false;
-        for (let attempt = 0; attempt < maxRetries && !success; attempt++) {
+        for (let attempt = 0; attempt < 3; attempt++) {
           try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-            const res = await Promise.race([
-              base44.functions.invoke('bibleApi', {
-                action: 'getChapter',
-                book: book.apiName,
-                chapter: c,
-              }),
-              new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout))
-            ]);
-
-            clearTimeout(timeoutId);
+            const res = await base44.functions.invoke('bibleApi', {
+              action: 'getChapter',
+              book: book.apiName,
+              chapter: c,
+            });
 
             if (validateChapterData(res?.data)) {
               const key = getCacheKey(book.abbr, c);
@@ -154,11 +144,15 @@ export default function SettingsPage() {
               localStorage.setItem(key, JSON.stringify(data));
               completed++;
               success = true;
+              break;
+            } else {
+              throw new Error('Invalid chapter data');
             }
           } catch (err) {
-            // Retry on failure, silently continue on last attempt
-            if (attempt === maxRetries - 1) {
-              console.warn(`Chapter ${book.abbr} ${c} failed after retries`);
+            const isLastAttempt = attempt === 2;
+            if (!isLastAttempt) {
+              // Wait before retry (exponential backoff: 500ms, 1000ms)
+              await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
             }
           }
         }
