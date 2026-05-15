@@ -21,19 +21,27 @@ export async function fetchChapter(bookApiName, chapter) {
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
       const parsed = JSON.parse(cached);
-      if (parsed && parsed.verses) {
+      if (parsed && parsed.verses && parsed.verses.length > 0) {
         return { verses: parsed.verses, colophon: parsed.colophon || null };
       }
     }
   } catch {}
 
-  // Fall back to API
+  // Fall back to API (may fail when offline)
   const res = await base44.functions.invoke('bibleApi', {
     action: 'getChapter',
     book: bookApiName,
     chapter: Number(chapter),
   });
-  return { verses: res.data.verses, colophon: res.data.colophon };
+
+  const result = { verses: res.data.verses, colophon: res.data.colophon || null };
+
+  // Auto-cache the fetched chapter for future offline use
+  try {
+    localStorage.setItem(cacheKey, JSON.stringify(result));
+  } catch {}
+
+  return result;
 }
 
 export async function fetchVerseCount(bookApiName, chapter) {

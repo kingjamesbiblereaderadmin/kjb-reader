@@ -61,13 +61,17 @@ export default function BibleReader() {
       return;
     }
     
-    const data = await fetchChapter(b.apiName, chapter);
-    setVerses(data.verses);
-    setColophon(data.colophon || null);
-    setVerseCount(data.verses.length);
+    try {
+      const data = await fetchChapter(b.apiName, chapter);
+      setVerses(data.verses);
+      setColophon(data.colophon || null);
+      setVerseCount(data.verses.length);
+      setHighlightVerse(jumpVerse || null);
+      savePosition(bookAbbr, chapter);
+    } catch (err) {
+      setError('This chapter is not available offline. Go to Settings → Offline Library to download it.');
+    }
     setLoading(false);
-    setHighlightVerse(jumpVerse || null);
-    savePosition(bookAbbr, chapter);
   }, []);
 
   useEffect(() => {

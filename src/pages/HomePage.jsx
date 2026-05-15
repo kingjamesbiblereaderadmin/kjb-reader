@@ -33,6 +33,13 @@ export default function HomePage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
+      {/* Settings shortcut */}
+      <div className="flex justify-end mb-2">
+        <Link to="/settings" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors">
+          <Settings className="w-4 h-4" />
+          Settings
+        </Link>
+      </div>
       {/* Daily verse of the day */}
       <button
         onClick={handleVerseClick}
