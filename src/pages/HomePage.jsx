@@ -46,19 +46,6 @@ export default function HomePage() {
       if (allCached) count++;
     }
     setCachedCount(count);
-
-    // Silently download all chapters in the background on first visit
-    const bgDownload = async () => {
-      for (const book of BIBLE_BOOKS) {
-        for (let c = 1; c <= book.chapters; c++) {
-          if (!localStorage.getItem(getCacheKey(book.abbr, c))) {
-            try { await fetchChapter(book.apiName, c); } catch {}
-          }
-        }
-      }
-      setCachedCount(BIBLE_BOOKS.length);
-    };
-    bgDownload();
   }, []);
 
   const handleVerseClick = () => {
