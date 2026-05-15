@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, BellOff, Download, Trash2 } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, Trash2, ChevronDown } from 'lucide-react';
 import {
   getNotificationsEnabled, getNotificationTime, setNotificationTime,
   requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification
@@ -16,6 +16,8 @@ export default function SettingsPage() {
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
   const [cachedCount, setCachedCount] = useState(0);
   const [downloading, setDownloading] = useState(null);
+  const [expandedTestament, setExpandedTestament] = useState('all');
+  const [downloadingAll, setDownloadingAll] = useState(false);
 
   useEffect(() => {
     setCachedCount(getCachedChapterCount());
