@@ -91,14 +91,26 @@ export default function SettingsPage() {
     if (!confirm('Download all 66 books? This may take a few minutes.')) return;
     setDownloadingAll(true);
     try {
+      let totalChapters = BIBLE_BOOKS.reduce((sum, b) => sum + b.chapters, 0);
+      let downloadedChapters = 0;
+      
       for (const book of BIBLE_BOOKS) {
-        await downloadBook(book.apiName);
+        for (let c = 1; c <= book.chapters; c++) {
+          await fetchChapter(book.apiName, c);
+          downloadedChapters++;
+          setDownloadProgress({ 'all': Math.round((downloadedChapters / totalChapters) * 100) });
+        }
       }
       setCachedCount(getCachedChapterCount());
     } catch (err) {
       console.error('Download all failed:', err);
     } finally {
       setDownloadingAll(false);
+      setDownloadProgress(prev => {
+        const newProgress = { ...prev };
+        delete newProgress['all'];
+        return newProgress;
+      });
     }
   };
 
@@ -184,14 +196,26 @@ export default function SettingsPage() {
               {cachedCount} of {BIBLE_BOOKS.length} books cached
             </p>
           </div>
-          <button
-            onClick={handleDownloadAll}
-            disabled={downloadingAll}
-            className="shrink-0 px-4 py-2 rounded-lg bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
-          >
-            <Download className="w-4 h-4" />
-            {downloadingAll ? 'Downloading...' : 'Download All'}
-          </button>
+          {downloadProgress['all'] !== undefined ? (
+            <div className="shrink-0 flex flex-col items-end gap-1">
+              <div className="w-32 h-2 bg-secondary rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-accent transition-all duration-300"
+                  style={{ width: `${downloadProgress['all']}%` }}
+                />
+              </div>
+              <span className="font-sans text-xs text-muted-foreground">{downloadProgress['all']}%</span>
+            </div>
+          ) : (
+            <button
+              onClick={handleDownloadAll}
+              disabled={downloadingAll}
+              className="shrink-0 px-4 py-2 rounded-lg bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Download All
+            </button>
+          )}
         </div>
 
         {/* Old Testament */}
