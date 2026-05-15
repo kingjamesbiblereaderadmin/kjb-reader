@@ -33,6 +33,14 @@ export default function HomePage() {
   useEffect(() => {
     registerSW();
     if (getNotificationsEnabled()) scheduleDailyNotification(verse);
+
+    // Sync notification state across pages
+    const handleStorageChange = () => {
+      setNotifEnabled(getNotificationsEnabled());
+      setNotifPermission('Notification' in window ? Notification.permission : 'unsupported');
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   const handleVerseClick = () => {
@@ -61,6 +69,8 @@ export default function HomePage() {
         alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
       }
     }
+    // Trigger storage event for cross-tab sync
+    window.dispatchEvent(new Event('storage'));
   };
 
   const totalBooks = BIBLE_BOOKS.length;

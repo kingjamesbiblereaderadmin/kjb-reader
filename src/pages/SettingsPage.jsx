@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, BellOff } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, Trash2 } from 'lucide-react';
 import {
   getNotificationsEnabled, getNotificationTime, setNotificationTime,
   requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification
 } from '@/lib/notifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
+import { BIBLE_BOOKS } from '@/lib/bibleData';
+import { getCachedChapterCount, downloadBook, getCacheKey } from '@/lib/bibleApi';
 
 const LAST_REVISED = 'May 2026';
 
@@ -12,6 +14,12 @@ export default function SettingsPage() {
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
+  const [cachedCount, setCachedCount] = useState(0);
+  const [downloading, setDownloading] = useState(null);
+
+  useEffect(() => {
+    setCachedCount(getCachedChapterCount());
+  }, []);
 
   const handleToggleNotifications = async () => {
     if (notifEnabled) {
