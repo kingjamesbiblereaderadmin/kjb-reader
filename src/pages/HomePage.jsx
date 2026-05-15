@@ -94,19 +94,7 @@ export default function HomePage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
       {/* Daily verse of the day */}
-      <div className="w-full bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 rounded-2xl mb-4 overflow-hidden relative">
-        {/* Bell icon top-right */}
-        {notifPermission !== 'unsupported' && (
-          <button
-            onClick={handleToggleNotif}
-            title={notifEnabled ? 'Disable daily reminders' : 'Enable daily reminders'}
-            className={`absolute top-3 right-3 z-10 p-2 rounded-full transition-colors ${
-              notifEnabled ? 'text-primary bg-primary/15 hover:bg-primary/25' : 'text-muted-foreground bg-background/60 hover:bg-primary/10'
-            }`}
-          >
-            {notifEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
-          </button>
-        )}
+      <div className="w-full bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 rounded-2xl mb-4 overflow-hidden">
         <button
           onClick={handleVerseClick}
           className="w-full p-8 md:p-12 text-center hover:from-primary/15 hover:to-accent/15 transition-all cursor-pointer"
@@ -118,14 +106,25 @@ export default function HomePage() {
           <p className="font-sans text-base font-semibold text-primary">— {verse.ref} (KJB)</p>
           <div className="mt-6 w-12 h-px bg-accent mx-auto" />
         </button>
-        {/* Download offline button */}
+        {/* Action buttons */}
         <div className="flex border-t border-primary/15">
+          {notifPermission !== 'unsupported' && (
+            <button
+              onClick={handleToggleNotif}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 font-sans text-sm font-medium transition-colors border-r border-primary/15 ${
+                notifEnabled ? 'text-primary bg-primary/10 hover:bg-primary/15' : 'text-muted-foreground hover:bg-primary/5'
+              }`}
+            >
+              {notifEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+              {notifEnabled ? 'Reminders On' : 'Daily Reminder'}
+            </button>
+          )}
           <button
             onClick={() => setShowOfflineModal(true)}
             className="flex-1 flex items-center justify-center gap-2 py-3 font-sans text-sm font-medium text-muted-foreground hover:bg-primary/5 transition-colors"
           >
             <Download className="w-4 h-4" />
-            {cachedCount === totalBooks ? 'Bible Downloaded' : 'Download Offline'}
+            {cachedCount === totalBooks ? 'Downloaded' : 'Download Offline'}
           </button>
         </div>
       </div>
