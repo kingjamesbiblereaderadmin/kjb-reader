@@ -109,17 +109,15 @@ export default function HomePage() {
         </button>
         {/* Action buttons */}
         <div className="flex border-t border-primary/15">
-          {notifPermission !== 'unsupported' && (
-            <button
-              onClick={handleToggleNotif}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 font-sans text-sm font-medium transition-colors border-r border-primary/15 ${
-                notifEnabled ? 'text-primary bg-primary/10 hover:bg-primary/15' : 'text-muted-foreground hover:bg-primary/5'
-              }`}
-            >
-              {notifEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
-              {notifEnabled ? 'Reminders On' : 'Daily Reminder'}
-            </button>
-          )}
+          <button
+            onClick={handleToggleNotif}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 font-sans text-sm font-medium transition-colors border-r border-primary/15 ${
+              notifEnabled ? 'text-primary bg-primary/10 hover:bg-primary/15' : 'text-muted-foreground hover:bg-primary/5'
+            }`}
+          >
+            {notifEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+            {notifEnabled ? 'Reminders On' : 'Daily Reminder'}
+          </button>
           <button
             onClick={() => setShowOfflineModal(true)}
             className="flex-1 flex items-center justify-center gap-2 py-3 font-sans text-sm font-medium text-muted-foreground hover:bg-primary/5 transition-colors"
