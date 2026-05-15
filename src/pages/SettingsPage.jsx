@@ -126,7 +126,7 @@ export default function SettingsPage() {
           <span className="text-foreground font-medium">King James Bible — Pure Cambridge Edition</span>
         </div>
         <div className="flex justify-between font-sans text-sm">
-          <span className="text-muted-foreground hidden">App/Website last revised:</span>
+          
           
         </div>
         <div className="flex justify-between font-sans text-sm">
