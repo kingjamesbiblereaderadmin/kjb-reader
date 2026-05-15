@@ -63,14 +63,3 @@ export function getRandomVerse() {
   const cleanText = v.text.replace(/\[([^\]]+)\]/g, '$1');
   return { ...v, text: cleanText, ref: `${v.book} ${v.chapter}:${v.verse}` };
 }
-
-// Get verse of the day (same verse for entire day based on date)
-export function getDailyVerse() {
-  const today = new Date();
-  const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
-  const idx = dayOfYear % VERSE_POOL.length;
-  const v = VERSE_POOL[idx];
-  // Remove italic markers and return clean text
-  const cleanText = v.text.replace(/\[([^\]]+)\]/g, '$1');
-  return { ...v, text: cleanText, ref: `${v.book} ${v.chapter}:${v.verse}` };
-}

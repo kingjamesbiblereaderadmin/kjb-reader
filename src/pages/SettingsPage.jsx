@@ -4,7 +4,7 @@ import {
   getNotificationsEnabled, getNotificationTime, setNotificationTime,
   requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification
 } from '@/lib/notifications';
-import { getDailyVerse } from '@/lib/dailyVerse';
+import { getRandomVerse } from '@/lib/dailyVerse';
 
 const LAST_REVISED = 'May 2026';
 
@@ -34,8 +34,8 @@ export default function SettingsPage() {
   };
 
   const handleTestNotif = () => {
-    const v = getDailyVerse();
-    showLocalNotification('King James Bible — Verse of the Day', `"${v.text.slice(0, 100)}${v.text.length > 100 ? '…' : ''}" — ${v.ref}`);
+    const v = getRandomVerse();
+    showLocalNotification('King James Bible — Random Verse', `"${v.text.slice(0, 100)}${v.text.length > 100 ? '…' : ''}" — ${v.ref}`);
   };
 
   return (
