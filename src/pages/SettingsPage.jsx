@@ -16,7 +16,8 @@ export default function SettingsPage() {
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
   const [cachedCount, setCachedCount] = useState(0);
   const [downloading, setDownloading] = useState(null);
-  const [expandedTestament, setExpandedTestament] = useState('all');
+  const [expandedOT, setExpandedOT] = useState(true);
+  const [expandedNT, setExpandedNT] = useState(true);
   const [downloadingAll, setDownloadingAll] = useState(false);
 
   useEffect(() => {
@@ -183,13 +184,13 @@ export default function SettingsPage() {
         {/* Old Testament */}
         <div className="space-y-2 mb-4">
           <button
-            onClick={() => setExpandedTestament(expandedTestament === 'old' ? 'all' : 'old')}
+            onClick={() => setExpandedOT(!expandedOT)}
             className="flex items-center gap-2 font-serif font-semibold text-foreground hover:opacity-75 transition-opacity w-full text-left"
           >
-            <ChevronDown className={`w-4 h-4 transition-transform ${expandedTestament === 'old' || expandedTestament === 'all' ? '' : '-rotate-90'}`} />
+            <ChevronDown className={`w-4 h-4 transition-transform ${expandedOT ? '' : '-rotate-90'}`} />
             Old Testament
           </button>
-          {(expandedTestament === 'old' || expandedTestament === 'all') && (
+          {expandedOT && (
             <div className="space-y-2 pl-4">
               {BIBLE_BOOKS.filter(b => b.testament === 'OT').map(book => (
                 <div key={book.abbr} className="flex items-center justify-between gap-3 p-2 bg-secondary/50 rounded-lg">
@@ -214,13 +215,13 @@ export default function SettingsPage() {
         {/* New Testament */}
         <div className="space-y-2 mb-4">
           <button
-            onClick={() => setExpandedTestament(expandedTestament === 'new' ? 'all' : 'new')}
+            onClick={() => setExpandedNT(!expandedNT)}
             className="flex items-center gap-2 font-serif font-semibold text-foreground hover:opacity-75 transition-opacity w-full text-left"
           >
-            <ChevronDown className={`w-4 h-4 transition-transform ${expandedTestament === 'new' || expandedTestament === 'all' ? '' : '-rotate-90'}`} />
+            <ChevronDown className={`w-4 h-4 transition-transform ${expandedNT ? '' : '-rotate-90'}`} />
             New Testament
           </button>
-          {(expandedTestament === 'new' || expandedTestament === 'all') && (
+          {expandedNT && (
             <div className="space-y-2 pl-4">
               {BIBLE_BOOKS.filter(b => b.testament === 'NT').map(book => (
                 <div key={book.abbr} className="flex items-center justify-between gap-3 p-2 bg-secondary/50 rounded-lg">
