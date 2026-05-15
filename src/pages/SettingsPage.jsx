@@ -6,7 +6,7 @@ import {
 } from '@/lib/notifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
-import { getCachedChapterCount, downloadBook, getCacheKey } from '@/lib/bibleApi';
+import { getCachedChapterCount, fetchChapter, downloadBook, getCacheKey } from '@/lib/bibleApi';
 
 const LAST_REVISED = 'May 2026';
 
@@ -16,6 +16,7 @@ export default function SettingsPage() {
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
   const [cachedCount, setCachedCount] = useState(0);
   const [downloading, setDownloading] = useState(null);
+  const [downloadProgress, setDownloadProgress] = useState({});
   const [expandedOT, setExpandedOT] = useState(true);
   const [expandedNT, setExpandedNT] = useState(true);
   const [downloadingAll, setDownloadingAll] = useState(false);
@@ -51,13 +52,25 @@ export default function SettingsPage() {
 
   const handleDownloadBook = async (book) => {
     setDownloading(book.apiName);
+    setDownloadProgress({ [book.apiName]: 0 });
     try {
-      await downloadBook(book.apiName);
+      for (let c = 1; c <= book.chapters; c++) {
+        await fetchChapter(book.apiName, c);
+        setDownloadProgress(prev => ({
+          ...prev,
+          [book.apiName]: Math.round((c / book.chapters) * 100)
+        }));
+      }
       setCachedCount(getCachedChapterCount());
     } catch (err) {
       console.error('Download failed:', err);
     } finally {
       setDownloading(null);
+      setDownloadProgress(prev => {
+        const newProgress = { ...prev };
+        delete newProgress[book.apiName];
+        return newProgress;
+      });
     }
   };
 
@@ -199,14 +212,28 @@ export default function SettingsPage() {
                       <p className="font-sans text-sm text-foreground truncate">{book.name}</p>
                       <p className="font-sans text-xs text-muted-foreground">{book.chapters} chapters</p>
                     </div>
-                    <button
-                      onClick={() => handleDownloadBook(book)}
-                      disabled={downloading === book.apiName}
-                      className="shrink-0 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-1.5"
-                    >
-                      <Download className="w-3 h-3" />
-                      {downloading === book.apiName ? 'Downloading...' : 'Download'}
-                    </button>
+                    <div className="shrink-0 flex flex-col items-end gap-1">
+                      {downloadProgress[book.apiName] !== undefined ? (
+                        <>
+                          <div className="w-24 h-1.5 bg-secondary rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-primary transition-all duration-300"
+                              style={{ width: `${downloadProgress[book.apiName]}%` }}
+                            />
+                          </div>
+                          <span className="font-sans text-xs text-muted-foreground">{downloadProgress[book.apiName]}%</span>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => handleDownloadBook(book)}
+                          disabled={downloading === book.apiName}
+                          className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-1.5"
+                        >
+                          <Download className="w-3 h-3" />
+                          Download
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))
               ) : (
@@ -234,14 +261,28 @@ export default function SettingsPage() {
                       <p className="font-sans text-sm text-foreground truncate">{book.name}</p>
                       <p className="font-sans text-xs text-muted-foreground">{book.chapters} chapters</p>
                     </div>
-                    <button
-                      onClick={() => handleDownloadBook(book)}
-                      disabled={downloading === book.apiName}
-                      className="shrink-0 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-1.5"
-                    >
-                      <Download className="w-3 h-3" />
-                      {downloading === book.apiName ? 'Downloading...' : 'Download'}
-                    </button>
+                    <div className="shrink-0 flex flex-col items-end gap-1">
+                      {downloadProgress[book.apiName] !== undefined ? (
+                        <>
+                          <div className="w-24 h-1.5 bg-secondary rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-primary transition-all duration-300"
+                              style={{ width: `${downloadProgress[book.apiName]}%` }}
+                            />
+                          </div>
+                          <span className="font-sans text-xs text-muted-foreground">{downloadProgress[book.apiName]}%</span>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => handleDownloadBook(book)}
+                          disabled={downloading === book.apiName}
+                          className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-1.5"
+                        >
+                          <Download className="w-3 h-3" />
+                          Download
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))
               ) : (
