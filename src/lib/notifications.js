@@ -49,14 +49,17 @@ export function setNotificationTime(time) {
 // Show a local notification immediately (no push server needed)
 export async function showLocalNotification(title, body) {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
-  const reg = await navigator.serviceWorker.ready;
-  await reg.showNotification(title, {
-    body,
-    icon: '/icon-192.png',
-    badge: '/icon-192.png',
-    tag: 'daily-verse',
-    renotify: true,
-  });
+  try {
+    if ('serviceWorker' in navigator) {
+      const reg = await navigator.serviceWorker.ready;
+      await reg.showNotification(title, { body, icon: '/icon-192.png', tag: 'daily-verse', renotify: true });
+    } else {
+      new Notification(title, { body, icon: '/icon-192.png' });
+    }
+  } catch {
+    // Fallback: direct Notification API
+    try { new Notification(title, { body }); } catch {}
+  }
 }
 
 // Schedule a daily notification using setTimeout (fires while tab is open)
