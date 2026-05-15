@@ -26,7 +26,6 @@ export default function HomePage() {
   const [cachedCount, setCachedCount] = useState(0);
 
   useEffect(() => {
-    document.title = 'King James Bible — Pure Cambridge Edition';
     registerSW();
     if (getNotificationsEnabled()) scheduleDailyNotification(verse);
     // Count cached books
@@ -94,16 +93,20 @@ export default function HomePage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
-      {/* Settings shortcut */}
-      <div className="flex justify-end mb-2">
-        <Link to="/settings" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors">
-          <Settings className="w-4 h-4" />
-          Settings
-        </Link>
-      </div>
-
       {/* Daily verse of the day */}
-      <div className="w-full bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 rounded-2xl mb-4 overflow-hidden">
+      <div className="w-full bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 rounded-2xl mb-4 overflow-hidden relative">
+        {/* Bell icon top-right */}
+        {notifPermission !== 'unsupported' && (
+          <button
+            onClick={handleToggleNotif}
+            title={notifEnabled ? 'Disable daily reminders' : 'Enable daily reminders'}
+            className={`absolute top-3 right-3 z-10 p-2 rounded-full transition-colors ${
+              notifEnabled ? 'text-primary bg-primary/15 hover:bg-primary/25' : 'text-muted-foreground bg-background/60 hover:bg-primary/10'
+            }`}
+          >
+            {notifEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+          </button>
+        )}
         <button
           onClick={handleVerseClick}
           className="w-full p-8 md:p-12 text-center hover:from-primary/15 hover:to-accent/15 transition-all cursor-pointer"
@@ -115,22 +118,11 @@ export default function HomePage() {
           <p className="font-sans text-base font-semibold text-primary">— {verse.ref} (KJB)</p>
           <div className="mt-6 w-12 h-px bg-accent mx-auto" />
         </button>
-        {/* Action buttons below verse */}
+        {/* Download offline button */}
         <div className="flex border-t border-primary/15">
-          {notifPermission !== 'unsupported' && (
-            <button
-              onClick={handleToggleNotif}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 font-sans text-sm font-medium transition-colors ${
-                notifEnabled ? 'text-primary bg-primary/10 hover:bg-primary/15' : 'text-muted-foreground hover:bg-primary/5'
-              }`}
-            >
-              {notifEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
-              {notifEnabled ? 'Reminders On' : 'Enable Reminders'}
-            </button>
-          )}
           <button
             onClick={() => setShowOfflineModal(true)}
-            className="flex-1 flex items-center justify-center gap-2 py-3 font-sans text-sm font-medium text-muted-foreground hover:bg-primary/5 transition-colors border-l border-primary/15"
+            className="flex-1 flex items-center justify-center gap-2 py-3 font-sans text-sm font-medium text-muted-foreground hover:bg-primary/5 transition-colors"
           >
             <Download className="w-4 h-4" />
             {cachedCount === totalBooks ? 'Bible Downloaded' : 'Download Offline'}
