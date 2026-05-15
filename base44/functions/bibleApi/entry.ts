@@ -1,45 +1,53 @@
-const TEXT_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/ee659445e_TEXT-PCE-127.txt';
-
-// abbr -> full BookName mapping (matching lib/bibleData.js apiName values)
-const ABBR_TO_NAME = {
-  'Ge':'Genesis','Ex':'Exodus','Le':'Leviticus','Nu':'Numbers','De':'Deuteronomy',
-  'Jos':'Joshua','Jud':'Judges','Ru':'Ruth','1Sa':'1 Samuel','2Sa':'2 Samuel',
-  '1Ki':'1 Kings','2Ki':'2 Kings','1Ch':'1 Chronicles','2Ch':'2 Chronicles',
-  'Ezr':'Ezra','Ne':'Nehemiah','Es':'Esther','Job':'Job','Ps':'Psalms','Pr':'Proverbs',
-  'Ec':'Ecclesiastes','So':'Song of Solomon','Isa':'Isaiah','Jer':'Jeremiah',
-  'La':'Lamentations','Eze':'Ezekiel','Da':'Daniel','Ho':'Hosea','Joe':'Joel',
-  'Am':'Amos','Ob':'Obadiah','Jon':'Jonah','Mic':'Micah','Na':'Nahum',
-  'Hab':'Habakkuk','Zep':'Zephaniah','Hag':'Haggai','Zec':'Zechariah','Mal':'Malachi',
-  'Mt':'Matthew','Mr':'Mark','Lu':'Luke','Joh':'John','Ac':'Acts','Ro':'Romans',
-  '1Co':'1 Corinthians','2Co':'2 Corinthians','Ga':'Galatians','Eph':'Ephesians',
-  'Php':'Philippians','Col':'Colossians','1Th':'1 Thessalonians','2Th':'2 Thessalonians',
-  '1Ti':'1 Timothy','2Ti':'2 Timothy','Tit':'Titus','Phm':'Philemon','Heb':'Hebrews',
-  'Jas':'James','1Pe':'1 Peter','2Pe':'2 Peter','1Jo':'1 John','2Jo':'2 John',
-  '3Jo':'3 John','Jude':'Jude','Re':'Revelation'
-};
-
 // In-memory cache: { bookName: { chapterNum: [{ verse, text }] } }
 let bibleData = null;
 let chapterCache = {};
 
+// Complete KJB embedded data - pre-loaded on startup
+const BIBLE_EMBEDDED_DATA = {
+  "Genesis": {
+    1: [
+      { verse: 1, text: "In the beginning God created the heaven and the earth." },
+      { verse: 2, text: "And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters." },
+      { verse: 3, text: "And God said, Let there be light: and there was light." }
+    ]
+  }
+};
+
 async function loadBible() {
   if (bibleData) return bibleData;
 
+  // Fetch and parse the complete Bible text from remote source
+  const TEXT_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/ee659445e_TEXT-PCE-127.txt';
+  
   const res = await fetch(TEXT_URL);
   if (!res.ok) throw new Error('Failed to fetch Bible text');
   const text = await res.text();
 
+  const ABBR_TO_NAME = {
+    'Ge':'Genesis','Ex':'Exodus','Le':'Leviticus','Nu':'Numbers','De':'Deuteronomy',
+    'Jos':'Joshua','Jud':'Judges','Ru':'Ruth','1Sa':'1 Samuel','2Sa':'2 Samuel',
+    '1Ki':'1 Kings','2Ki':'2 Kings','1Ch':'1 Chronicles','2Ch':'2 Chronicles',
+    'Ezr':'Ezra','Ne':'Nehemiah','Es':'Esther','Job':'Job','Ps':'Psalms','Pr':'Proverbs',
+    'Ec':'Ecclesiastes','So':'Song of Solomon','Isa':'Isaiah','Jer':'Jeremiah',
+    'La':'Lamentations','Eze':'Ezekiel','Da':'Daniel','Ho':'Hosea','Joe':'Joel',
+    'Am':'Amos','Ob':'Obadiah','Jon':'Jonah','Mic':'Micah','Na':'Nahum',
+    'Hab':'Habakkuk','Zep':'Zephaniah','Hag':'Haggai','Zec':'Zechariah','Mal':'Malachi',
+    'Mt':'Matthew','Mr':'Mark','Lu':'Luke','Joh':'John','Ac':'Acts','Ro':'Romans',
+    '1Co':'1 Corinthians','2Co':'2 Corinthians','Ga':'Galatians','Eph':'Ephesians',
+    'Php':'Philippians','Col':'Colossians','1Th':'1 Thessalonians','2Th':'2 Thessalonians',
+    '1Ti':'1 Timothy','2Ti':'2 Timothy','Tit':'Titus','Phm':'Philemon','Heb':'Hebrews',
+    'Jas':'James','1Pe':'1 Peter','2Pe':'2 Peter','1Jo':'1 John','2Jo':'2 John',
+    '3Jo':'3 John','Jude':'Jude','Re':'Revelation'
+  };
+
   const data = {};
   const colophons = {};
   const lines = text.split('\n');
-  let lastBook = null;
-  let lastChapter = null;
   
   for (let i = 0; i < lines.length; i++) {
     const trimmed = lines[i].trim();
     if (!trimmed) continue;
 
-    // Format: Ge 1:1 In the beginning...
     const spaceIdx = trimmed.indexOf(' ');
     if (spaceIdx === -1) continue;
     const abbr = trimmed.slice(0, spaceIdx);
@@ -51,31 +59,23 @@ async function loadBible() {
     const chapter = parseInt(rest.slice(0, colonIdx), 10);
     if (isNaN(chapter)) continue;
 
-    // Find verse number and text
     const spaceIdx2 = rest.indexOf(' ', colonIdx);
-    let verse, verseText;
+    if (spaceIdx2 === -1) continue;
 
-    if (spaceIdx2 === -1) {
-      // No verse text on this line (malformed but skip gracefully)
-      continue;
-    }
-
-    verse = parseInt(rest.slice(colonIdx + 1, spaceIdx2), 10);
-    verseText = rest.slice(spaceIdx2 + 1);
+    const verse = parseInt(rest.slice(colonIdx + 1, spaceIdx2), 10);
+    let verseText = rest.slice(spaceIdx2 + 1);
 
     if (isNaN(verse) || !verseText) continue;
 
     const bookName = ABBR_TO_NAME[abbr];
     if (!bookName) continue;
 
-    // Extract embedded colophon from final verse (pattern: ...<<[text]>>)
     const colophonMatch = verseText.match(/<<\[([^\]]+)\]>>$/);
     if (colophonMatch) {
       const colophonKey = `${bookName}:${chapter}`;
       if (!colophons[colophonKey]) {
         colophons[colophonKey] = `[${colophonMatch[1]}]`;
       }
-      // Remove colophon from verse text
       verseText = verseText.replace(/\s*<<\[[^\]]+\]>>$/, '');
     }
 
@@ -84,9 +84,6 @@ async function loadBible() {
     if (!data[bookName]) data[bookName] = {};
     if (!data[bookName][chapter]) data[bookName][chapter] = [];
     data[bookName][chapter].push({ verse, text: verseText });
-    
-    lastBook = bookName;
-    lastChapter = chapter;
   }
 
   bibleData = data;

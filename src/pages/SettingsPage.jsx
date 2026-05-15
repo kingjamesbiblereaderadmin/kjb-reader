@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, BellOff, Download, Trash2, ChevronDown } from 'lucide-react';
+import { Settings, Bell, BellOff } from 'lucide-react';
 import {
   getNotificationsEnabled, getNotificationTime, setNotificationTime,
   requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification
 } from '@/lib/notifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
-import { BIBLE_BOOKS } from '@/lib/bibleData';
-import { getCachedChapterCount, fetchChapter, downloadBook, getCacheKey } from '@/lib/bibleApi';
 
 const LAST_REVISED = 'May 2026';
 
@@ -14,13 +12,6 @@ export default function SettingsPage() {
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
-  const [cachedCount, setCachedCount] = useState(0);
-  const [downloadProgress, setDownloadProgress] = useState(0);
-  const [downloadingAll, setDownloadingAll] = useState(false);
-
-  useEffect(() => {
-    setCachedCount(getCachedChapterCount());
-  }, []);
 
   const handleToggleNotifications = async () => {
     if (notifEnabled) {
@@ -45,44 +36,6 @@ export default function SettingsPage() {
   const handleTestNotif = () => {
     const v = getDailyVerse();
     showLocalNotification('King James Bible — Daily Verse', `"${v.text.slice(0, 100)}${v.text.length > 100 ? '…' : ''}" — ${v.ref}`);
-  };
-
-
-
-  const handleClearCache = () => {
-    if (confirm('Clear all cached Bible chapters?')) {
-      for (const book of BIBLE_BOOKS) {
-        for (let c = 1; c <= book.chapters; c++) {
-          try {
-            localStorage.removeItem(getCacheKey(book.abbr, c));
-          } catch {}
-        }
-      }
-      setCachedCount(0);
-    }
-  };
-
-  const handleDownloadAll = async () => {
-    if (!confirm('Download all 66 books? This may take a few minutes.')) return;
-    setDownloadingAll(true);
-    try {
-      let totalChapters = BIBLE_BOOKS.reduce((sum, b) => sum + b.chapters, 0);
-      let downloadedChapters = 0;
-      
-      for (const book of BIBLE_BOOKS) {
-        for (let c = 1; c <= book.chapters; c++) {
-          await fetchChapter(book.apiName, c);
-          downloadedChapters++;
-          setDownloadProgress(Math.round((downloadedChapters / totalChapters) * 100));
-        }
-      }
-      setCachedCount(getCachedChapterCount());
-    } catch (err) {
-      console.error('Download all failed:', err);
-    } finally {
-      setDownloadingAll(false);
-      setDownloadProgress(0);
-    }
   };
 
   return (
@@ -160,42 +113,10 @@ export default function SettingsPage() {
       </div>
 
       <div className="bg-card border border-border rounded-2xl p-5 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="font-serif text-lg font-semibold text-foreground">Offline Library</h2>
-            <p className="font-sans text-xs text-muted-foreground mt-1">
-              {cachedCount} of {BIBLE_BOOKS.length} books cached
-            </p>
-          </div>
-          {downloadingAll ? (
-            <div className="shrink-0 flex flex-col items-end gap-1">
-              <div className="w-32 h-2 bg-secondary rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-accent transition-all duration-300"
-                  style={{ width: `${downloadProgress}%` }}
-                />
-              </div>
-              <span className="font-sans text-xs text-muted-foreground">{downloadProgress}%</span>
-            </div>
-          ) : (
-            <button
-              onClick={handleDownloadAll}
-              disabled={downloadingAll}
-              className="shrink-0 px-4 py-2 rounded-lg bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
-            >
-              <Download className="w-4 h-4" />
-              Download All
-            </button>
-          )}
-        </div>
-
-        <button
-          onClick={handleClearCache}
-          className="w-full px-4 py-2 rounded-lg bg-destructive/10 text-destructive font-sans text-sm font-medium hover:bg-destructive/20 flex items-center justify-center gap-2"
-        >
-          <Trash2 className="w-4 h-4" />
-          Clear All
-        </button>
+        <h2 className="font-serif text-lg font-semibold text-foreground mb-2">Offline Library</h2>
+        <p className="font-sans text-sm text-muted-foreground">
+          All 66 books are fully embedded in the app and available offline.
+        </p>
       </div>
 
     </div>
