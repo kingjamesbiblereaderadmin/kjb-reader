@@ -188,26 +188,30 @@ export default function SettingsPage() {
             className="flex items-center gap-2 font-serif font-semibold text-foreground hover:opacity-75 transition-opacity w-full text-left"
           >
             <ChevronDown className={`w-4 h-4 transition-transform ${expandedOT ? '' : '-rotate-90'}`} />
-            Old Testament
+            Old Testament ({BIBLE_BOOKS.filter(b => b.testament === 'old').length} books)
           </button>
           {expandedOT && (
             <div className="space-y-2 pl-4">
-              {BIBLE_BOOKS.filter(b => b.testament === 'OT').map(book => (
-                <div key={book.abbr} className="flex items-center justify-between gap-3 p-2 bg-secondary/50 rounded-lg">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-sans text-sm text-foreground truncate">{book.name}</p>
-                    <p className="font-sans text-xs text-muted-foreground">{book.chapters} chapters</p>
+              {BIBLE_BOOKS.filter(b => b.testament === 'old').length > 0 ? (
+                BIBLE_BOOKS.filter(b => b.testament === 'old').map(book => (
+                  <div key={book.abbr} className="flex items-center justify-between gap-3 p-2 bg-secondary/50 rounded-lg">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-sans text-sm text-foreground truncate">{book.name}</p>
+                      <p className="font-sans text-xs text-muted-foreground">{book.chapters} chapters</p>
+                    </div>
+                    <button
+                      onClick={() => handleDownloadBook(book)}
+                      disabled={downloading === book.apiName}
+                      className="shrink-0 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-1.5"
+                    >
+                      <Download className="w-3 h-3" />
+                      {downloading === book.apiName ? 'Downloading...' : 'Download'}
+                    </button>
                   </div>
-                  <button
-                    onClick={() => handleDownloadBook(book)}
-                    disabled={downloading === book.apiName}
-                    className="shrink-0 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-1.5"
-                  >
-                    <Download className="w-3 h-3" />
-                    {downloading === book.apiName ? 'Downloading...' : 'Download'}
-                  </button>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">No books found</p>
+              )}
             </div>
           )}
         </div>
@@ -219,26 +223,30 @@ export default function SettingsPage() {
             className="flex items-center gap-2 font-serif font-semibold text-foreground hover:opacity-75 transition-opacity w-full text-left"
           >
             <ChevronDown className={`w-4 h-4 transition-transform ${expandedNT ? '' : '-rotate-90'}`} />
-            New Testament
+            New Testament ({BIBLE_BOOKS.filter(b => b.testament === 'new').length} books)
           </button>
           {expandedNT && (
             <div className="space-y-2 pl-4">
-              {BIBLE_BOOKS.filter(b => b.testament === 'NT').map(book => (
-                <div key={book.abbr} className="flex items-center justify-between gap-3 p-2 bg-secondary/50 rounded-lg">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-sans text-sm text-foreground truncate">{book.name}</p>
-                    <p className="font-sans text-xs text-muted-foreground">{book.chapters} chapters</p>
+              {BIBLE_BOOKS.filter(b => b.testament === 'new').length > 0 ? (
+                BIBLE_BOOKS.filter(b => b.testament === 'new').map(book => (
+                  <div key={book.abbr} className="flex items-center justify-between gap-3 p-2 bg-secondary/50 rounded-lg">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-sans text-sm text-foreground truncate">{book.name}</p>
+                      <p className="font-sans text-xs text-muted-foreground">{book.chapters} chapters</p>
+                    </div>
+                    <button
+                      onClick={() => handleDownloadBook(book)}
+                      disabled={downloading === book.apiName}
+                      className="shrink-0 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-1.5"
+                    >
+                      <Download className="w-3 h-3" />
+                      {downloading === book.apiName ? 'Downloading...' : 'Download'}
+                    </button>
                   </div>
-                  <button
-                    onClick={() => handleDownloadBook(book)}
-                    disabled={downloading === book.apiName}
-                    className="shrink-0 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-1.5"
-                  >
-                    <Download className="w-3 h-3" />
-                    {downloading === book.apiName ? 'Downloading...' : 'Download'}
-                  </button>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">No books found</p>
+              )}
             </div>
           )}
         </div>
