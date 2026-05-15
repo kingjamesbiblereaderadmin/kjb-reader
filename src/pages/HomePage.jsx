@@ -93,37 +93,33 @@ export default function HomePage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
-      {/* Daily verse of the day */}
-      <div className="w-full bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 rounded-2xl mb-4 overflow-hidden">
-        <button
-          onClick={handleVerseClick}
-          className="w-full p-8 md:p-12 text-center hover:from-primary/15 hover:to-accent/15 transition-all cursor-pointer"
-        >
-          <p className="font-sans text-xs text-primary tracking-widest uppercase font-semibold mb-4">Verse of the Day</p>
-          <blockquote className="font-serif text-2xl md:text-3xl font-bold text-foreground leading-relaxed italic mb-4">
-            "{verse.text}"
-          </blockquote>
-          <p className="font-sans text-base font-semibold text-primary">— {verse.ref} (KJB)</p>
-          <div className="mt-6 w-12 h-px bg-accent mx-auto" />
-        </button>
-        {/* Action buttons */}
-        <div className="border-t border-primary/15">
-          <button
-            onClick={handleToggleNotif}
-            className={`w-full flex items-center justify-center gap-2 py-3 font-sans text-sm font-medium transition-colors ${
-              notifEnabled ? 'text-primary bg-primary/10 hover:bg-primary/15' : 'text-muted-foreground hover:bg-primary/5'
-            }`}
-          >
-            {notifEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
-            {notifEnabled ? 'Daily Reminders On' : 'Enable Daily Reminder'}
-          </button>
+      {/* App logo header */}
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent mb-3">
+          <BookOpen className="w-8 h-8 text-primary-foreground" />
         </div>
+        <h1 className="font-serif text-3xl font-bold text-foreground">KJB Reader</h1>
+        <p className="font-sans text-sm text-muted-foreground mt-1">Pure Cambridge Edition</p>
       </div>
 
-      {/* Daily verse image */}
-      <div className="mb-4">
+      {/* Daily verse card */}
+      <button
+        onClick={handleVerseClick}
+        className="w-full mb-4 cursor-pointer group"
+      >
         <DailyVerseImage verse={verse} />
-      </div>
+      </button>
+
+      {/* Daily reminder button */}
+      <button
+        onClick={handleToggleNotif}
+        className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-sans text-sm font-medium transition-colors mb-6 ${
+          notifEnabled ? 'text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-90' : 'text-muted-foreground bg-secondary hover:bg-accent/20'
+        }`}
+      >
+        {notifEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+        {notifEnabled ? 'Daily Reminders On' : 'Enable Daily Reminder'}
+      </button>
 
       {/* Quick links */}
       {/* Full-width Read the Bible */}
