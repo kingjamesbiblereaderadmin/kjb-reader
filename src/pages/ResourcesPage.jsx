@@ -34,16 +34,16 @@ const WHY_KJB = {
   content: [
     {
       title: "Authorised King James Bible",
-      text: "The King James Bible is the only preserved Word of God in the English Language. This is the definitive text of the King James Bible in a modern font, free to download and free from printing or typographical errors. It is available in PDF, ePub, and TXT formats.",
+      text: "The King James Bible is the only preserved Word of God in the English Language.",
     },
     {
-      title: "Pure Cambridge Text",
+      title: "Warning about the NKJV",
       text: "You are more than welcome to purchase a King James Bible from the Dollar Store or any Bible retailer without worrying about errors. However, please note: the NKJV is not the same as the King James Bible. Please check out this resource to learn more and do your own research.",
       links: [{ url: 'https://www.scionofzion.com/nkjv.htm', label: 'NKJV Comparison' }],
     },
     {
       title: "Source & Disclaimer",
-      text: "Source: BibleProtector.com. Note: Resources are provided solely for reading the King James Bible. By sharing these links, I am not endorsing or guaranteeing that I agree with every position held by the author of any website. Thank you, and please share this resource with your friends and family.",
+      text: " Resources are provided solely for reading the King James Bible. By sharing these links, I am not endorsing or guaranteeing that I agree with every position held by the author of any website. Thank you, and please share this resource with your friends and family.",
     },
   ],
 };
