@@ -353,10 +353,7 @@ export default function BibleReader() {
         </div>
       )}
 
-      {/* Credit */}
-      <p className="text-center text-xs text-muted-foreground font-sans mt-8 pb-4">
-        Text: King James Bible, Pure Cambridge Edition — <a href="https://www.bibleprotector.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-accent">bibleprotector.com</a>
-      </p>
+
     </div>
   );
 }

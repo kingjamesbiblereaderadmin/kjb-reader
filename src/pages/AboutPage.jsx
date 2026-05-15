@@ -196,16 +196,7 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* Credits */}
-      <div className="bg-secondary rounded-xl p-5 text-center">
-        <h2 className="font-serif text-lg font-semibold text-foreground mb-2">Credits</h2>
-        <p className="font-sans text-sm text-muted-foreground">
-          Bible text: <a href="https://www.bibleprotector.com" target="_blank" rel="noopener noreferrer" className="text-accent underline">bibleprotector.com</a> — King James Bible, Pure Cambridge Edition
-        </p>
-        <p className="font-sans text-sm text-muted-foreground mt-1">
-          App created with <a href="https://base44.com" target="_blank" rel="noopener noreferrer" className="text-accent underline">Base44</a>
-        </p>
-      </div>
+
     </div>
   );
 }

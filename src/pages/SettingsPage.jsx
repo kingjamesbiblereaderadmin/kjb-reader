@@ -203,10 +203,7 @@ export default function SettingsPage() {
           <span className="text-muted-foreground shrink-0">Last App Revision</span>
           <span className="text-foreground font-medium text-right">{LAST_REVISED}</span>
         </div>
-        <div className="flex justify-between items-center font-sans text-sm gap-4">
-          <span className="text-muted-foreground shrink-0">Text Source</span>
-          <a href="https://www.bibleprotector.com" target="_blank" rel="noopener noreferrer" className="text-accent underline underline-offset-2 text-right">bibleprotector.com</a>
-        </div>
+
       </div>
 
       {/* Offline Storage Summary */}
@@ -332,6 +329,7 @@ export default function SettingsPage() {
       <p className="text-center font-sans text-xs text-muted-foreground mt-4">
         Cached data is stored locally on your device and persists between sessions.
       </p>
+
     </div>
   );
 }
