@@ -148,6 +148,11 @@ const RESOURCES = [
       },
     ],
   },
+
+const DISCLAIMER = {
+    {
+      title: All resources below are for educational purpouses only for the use of sharing how to defend the King James Bible is the pure words of God without error."
+    },
   {
     category: "KJB Defence",
     icon: ShieldAlert,
