@@ -53,6 +53,7 @@ export default function SettingsPage() {
       setStorageUsed(bytes);
     } catch {}
     setCacheStatus(status);
+    setProgress({});
   };
 
   useEffect(() => { refreshStatus(); }, []);
@@ -104,9 +105,7 @@ export default function SettingsPage() {
     }
 
     // Verify all chapters are truly cached before marking done
-    const finalCount = getBookCacheProgress(book.abbr, book.chapters);
     setDownloading(prev => ({ ...prev, [book.abbr]: false }));
-    setProgress(prev => ({ ...prev, [book.abbr]: finalCount }));
     refreshStatus();
   };
 
