@@ -111,17 +111,6 @@ const PREACHERS = [
   },
 ];
 
- {/* Disclaimer*/}
-      <div className="mb-8">
-        <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">Statement of Faith</h2>
-
-        <AccordionSection title="Disclaimer">
-          <ul className="space-y-2 font-sans text-sm text-foreground/80">
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>All resourcse provided are for educational purpouses and I do not endorse fully any of the creator's doctrines of the faith</li>
-          </ul>
-        </AccordionSection>
-      </div>
-
 
 const RESOURCES = [
   {
