@@ -15,10 +15,7 @@ export default function SettingsPage() {
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
   const [cachedCount, setCachedCount] = useState(0);
-  const [downloading, setDownloading] = useState(null);
-  const [downloadProgress, setDownloadProgress] = useState({});
-  const [expandedOT, setExpandedOT] = useState(true);
-  const [expandedNT, setExpandedNT] = useState(true);
+  const [downloadProgress, setDownloadProgress] = useState(0);
   const [downloadingAll, setDownloadingAll] = useState(false);
 
   useEffect(() => {
@@ -50,29 +47,7 @@ export default function SettingsPage() {
     showLocalNotification('King James Bible — Daily Verse', `"${v.text.slice(0, 100)}${v.text.length > 100 ? '…' : ''}" — ${v.ref}`);
   };
 
-  const handleDownloadBook = async (book) => {
-    setDownloading(book.apiName);
-    setDownloadProgress({ [book.apiName]: 0 });
-    try {
-      for (let c = 1; c <= book.chapters; c++) {
-        await fetchChapter(book.apiName, c);
-        setDownloadProgress(prev => ({
-          ...prev,
-          [book.apiName]: Math.round((c / book.chapters) * 100)
-        }));
-      }
-      setCachedCount(getCachedChapterCount());
-    } catch (err) {
-      console.error('Download failed:', err);
-    } finally {
-      setDownloading(null);
-      setDownloadProgress(prev => {
-        const newProgress = { ...prev };
-        delete newProgress[book.apiName];
-        return newProgress;
-      });
-    }
-  };
+
 
   const handleClearCache = () => {
     if (confirm('Clear all cached Bible chapters?')) {
@@ -98,7 +73,7 @@ export default function SettingsPage() {
         for (let c = 1; c <= book.chapters; c++) {
           await fetchChapter(book.apiName, c);
           downloadedChapters++;
-          setDownloadProgress({ 'all': Math.round((downloadedChapters / totalChapters) * 100) });
+          setDownloadProgress(Math.round((downloadedChapters / totalChapters) * 100));
         }
       }
       setCachedCount(getCachedChapterCount());
@@ -106,11 +81,7 @@ export default function SettingsPage() {
       console.error('Download all failed:', err);
     } finally {
       setDownloadingAll(false);
-      setDownloadProgress(prev => {
-        const newProgress = { ...prev };
-        delete newProgress['all'];
-        return newProgress;
-      });
+      setDownloadProgress(0);
     }
   };
 
@@ -196,15 +167,15 @@ export default function SettingsPage() {
               {cachedCount} of {BIBLE_BOOKS.length} books cached
             </p>
           </div>
-          {downloadProgress['all'] !== undefined ? (
+          {downloadingAll ? (
             <div className="shrink-0 flex flex-col items-end gap-1">
               <div className="w-32 h-2 bg-secondary rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-accent transition-all duration-300"
-                  style={{ width: `${downloadProgress['all']}%` }}
+                  style={{ width: `${downloadProgress}%` }}
                 />
               </div>
-              <span className="font-sans text-xs text-muted-foreground">{downloadProgress['all']}%</span>
+              <span className="font-sans text-xs text-muted-foreground">{downloadProgress}%</span>
             </div>
           ) : (
             <button
@@ -215,104 +186,6 @@ export default function SettingsPage() {
               <Download className="w-4 h-4" />
               Download All
             </button>
-          )}
-        </div>
-
-        {/* Old Testament */}
-        <div className="space-y-2 mb-4">
-          <button
-            onClick={() => setExpandedOT(!expandedOT)}
-            className="flex items-center gap-2 font-serif font-semibold text-foreground hover:opacity-75 transition-opacity w-full text-left"
-          >
-            <ChevronDown className={`w-4 h-4 transition-transform ${expandedOT ? '' : '-rotate-90'}`} />
-            Old Testament ({BIBLE_BOOKS.filter(b => b.testament === 'old').length} books)
-          </button>
-          {expandedOT && (
-            <div className="space-y-2 pl-4">
-              {BIBLE_BOOKS.filter(b => b.testament === 'old').length > 0 ? (
-                BIBLE_BOOKS.filter(b => b.testament === 'old').map(book => (
-                  <div key={book.abbr} className="flex items-center justify-between gap-3 p-2 bg-secondary/50 rounded-lg">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-sans text-sm text-foreground truncate">{book.name}</p>
-                      <p className="font-sans text-xs text-muted-foreground">{book.chapters} chapter{book.chapters === 1 ? '' : 's'}</p>
-                    </div>
-                    <div className="shrink-0 flex flex-col items-end gap-1">
-                      {downloadProgress[book.apiName] !== undefined ? (
-                        <>
-                          <div className="w-24 h-1.5 bg-secondary rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-primary transition-all duration-300"
-                              style={{ width: `${downloadProgress[book.apiName]}%` }}
-                            />
-                          </div>
-                          <span className="font-sans text-xs text-muted-foreground">{downloadProgress[book.apiName]}%</span>
-                        </>
-                      ) : (
-                        <button
-                          onClick={() => handleDownloadBook(book)}
-                          disabled={downloading === book.apiName}
-                          className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-1.5"
-                        >
-                          <Download className="w-3 h-3" />
-                          Download
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-muted-foreground">No books found</p>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* New Testament */}
-        <div className="space-y-2 mb-4">
-          <button
-            onClick={() => setExpandedNT(!expandedNT)}
-            className="flex items-center gap-2 font-serif font-semibold text-foreground hover:opacity-75 transition-opacity w-full text-left"
-          >
-            <ChevronDown className={`w-4 h-4 transition-transform ${expandedNT ? '' : '-rotate-90'}`} />
-            New Testament ({BIBLE_BOOKS.filter(b => b.testament === 'new').length} books)
-          </button>
-          {expandedNT && (
-            <div className="space-y-2 pl-4">
-              {BIBLE_BOOKS.filter(b => b.testament === 'new').length > 0 ? (
-                BIBLE_BOOKS.filter(b => b.testament === 'new').map(book => (
-                  <div key={book.abbr} className="flex items-center justify-between gap-3 p-2 bg-secondary/50 rounded-lg">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-sans text-sm text-foreground truncate">{book.name}</p>
-                      <p className="font-sans text-xs text-muted-foreground">{book.chapters} chapter{book.chapters === 1 ? '' : 's'}</p>
-                    </div>
-                    <div className="shrink-0 flex flex-col items-end gap-1">
-                      {downloadProgress[book.apiName] !== undefined ? (
-                        <>
-                          <div className="w-24 h-1.5 bg-secondary rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-primary transition-all duration-300"
-                              style={{ width: `${downloadProgress[book.apiName]}%` }}
-                            />
-                          </div>
-                          <span className="font-sans text-xs text-muted-foreground">{downloadProgress[book.apiName]}%</span>
-                        </>
-                      ) : (
-                        <button
-                          onClick={() => handleDownloadBook(book)}
-                          disabled={downloading === book.apiName}
-                          className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-1.5"
-                        >
-                          <Download className="w-3 h-3" />
-                          Download
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-muted-foreground">No books found</p>
-              )}
-            </div>
           )}
         </div>
 
