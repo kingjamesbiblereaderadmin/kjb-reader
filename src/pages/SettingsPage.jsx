@@ -98,41 +98,46 @@ export default function SettingsPage() {
     setProgress(prev => ({ ...prev, [book.abbr]: 0 }));
 
     let completed = 0;
-    for (let c = 1; c <= book.chapters; c++) {
-      if (!downloading[book.abbr]) break; // Allow cancellation
-      const key = getCacheKey(book.abbr, c);
-      // Skip already cached chapters
-      try {
-        const cached = localStorage.getItem(key);
-        if (cached) {
-          const parsed = JSON.parse(cached);
-          if (parsed?.verses?.length > 0) {
-            completed++;
-            setProgress(prev => ({ ...prev, [book.abbr]: completed }));
-            continue;
+    let isCancelled = false;
+
+    try {
+      for (let c = 1; c <= book.chapters; c++) {
+        const key = getCacheKey(book.abbr, c);
+
+        // Skip already cached chapters
+        try {
+          const cached = localStorage.getItem(key);
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (parsed?.verses?.length > 0) {
+              completed++;
+              continue;
+            }
           }
-        }
-      } catch {}
+        } catch {}
 
-      try {
-        const res = await base44.functions.invoke('bibleApi', {
-          action: 'getChapter',
-          book: book.apiName,
-          chapter: c,
-        });
-        if (res.data?.verses?.length > 0) {
-          const data = { verses: res.data.verses, colophon: res.data.colophon || null };
-          localStorage.setItem(key, JSON.stringify(data));
-          completed++;
+        try {
+          const res = await base44.functions.invoke('bibleApi', {
+            action: 'getChapter',
+            book: book.apiName,
+            chapter: c,
+          });
+          if (res?.data?.verses?.length > 0) {
+            const data = { verses: res.data.verses, colophon: res.data.colophon || null };
+            localStorage.setItem(key, JSON.stringify(data));
+            completed++;
+          }
+        } catch (err) {
+          // Continue on individual chapter failures
+          console.warn(`Chapter ${book.abbr} ${c} failed:`, err.message);
         }
-      } catch (err) {
-        console.error(`Failed to download ${book.abbr} ${c}:`, err);
+
+        setProgress(prev => ({ ...prev, [book.abbr]: completed }));
       }
-      setProgress(prev => ({ ...prev, [book.abbr]: completed }));
+    } finally {
+      setDownloading(prev => ({ ...prev, [book.abbr]: false }));
+      refreshStatus();
     }
-
-    setDownloading(prev => ({ ...prev, [book.abbr]: false }));
-    refreshStatus();
   };
 
   const removeBook = (book) => {
