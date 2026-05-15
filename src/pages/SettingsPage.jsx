@@ -98,38 +98,45 @@ export default function SettingsPage() {
     setProgress(prev => ({ ...prev, [book.abbr]: 0 }));
 
     let completed = 0;
-    let isCancelled = false;
+    const maxRetries = 3;
 
     try {
       for (let c = 1; c <= book.chapters; c++) {
         const key = getCacheKey(book.abbr, c);
 
-        // Skip already cached chapters
+        // Check if already cached
         try {
           const cached = localStorage.getItem(key);
           if (cached) {
             const parsed = JSON.parse(cached);
             if (parsed?.verses?.length > 0) {
               completed++;
+              setProgress(prev => ({ ...prev, [book.abbr]: completed }));
               continue;
             }
           }
         } catch {}
 
-        try {
-          const res = await base44.functions.invoke('bibleApi', {
-            action: 'getChapter',
-            book: book.apiName,
-            chapter: c,
-          });
-          if (res?.data?.verses?.length > 0) {
-            const data = { verses: res.data.verses, colophon: res.data.colophon || null };
-            localStorage.setItem(key, JSON.stringify(data));
-            completed++;
+        // Try to download with retries
+        let success = false;
+        for (let attempt = 0; attempt < maxRetries && !success; attempt++) {
+          try {
+            const res = await base44.functions.invoke('bibleApi', {
+              action: 'getChapter',
+              book: book.apiName,
+              chapter: c,
+            });
+            if (res?.data?.verses && res.data.verses.length > 0) {
+              const data = { verses: res.data.verses, colophon: res.data.colophon || null };
+              localStorage.setItem(key, JSON.stringify(data));
+              completed++;
+              success = true;
+            }
+          } catch (err) {
+            if (attempt === maxRetries - 1) {
+              console.warn(`Chapter ${book.abbr} ${c} failed after ${maxRetries} attempts:`, err.message);
+            }
           }
-        } catch (err) {
-          // Continue on individual chapter failures
-          console.warn(`Chapter ${book.abbr} ${c} failed:`, err.message);
         }
 
         setProgress(prev => ({ ...prev, [book.abbr]: completed }));
