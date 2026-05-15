@@ -55,12 +55,7 @@ export default function SettingsPage() {
     setDownloadProgress({ [book.apiName]: 0 });
     try {
       for (let c = 1; c <= book.chapters; c++) {
-        try {
-          await fetchChapter(book.apiName, c);
-        } catch (err) {
-          // Skip chapters that don't exist in the data
-          console.warn(`Skipping ${book.apiName} ${c}`);
-        }
+        await fetchChapter(book.apiName, c);
         setDownloadProgress(prev => ({
           ...prev,
           [book.apiName]: Math.round((c / book.chapters) * 100)
@@ -101,12 +96,7 @@ export default function SettingsPage() {
       
       for (const book of BIBLE_BOOKS) {
         for (let c = 1; c <= book.chapters; c++) {
-          try {
-            await fetchChapter(book.apiName, c);
-          } catch (err) {
-            // Skip chapters that don't exist in the data
-            console.warn(`Skipping ${book.apiName} ${c}`);
-          }
+          await fetchChapter(book.apiName, c);
           downloadedChapters++;
           setDownloadProgress({ 'all': Math.round((downloadedChapters / totalChapters) * 100) });
         }
