@@ -46,14 +46,24 @@ async function loadBible() {
     const rest = trimmed.slice(spaceIdx + 1);
 
     const colonIdx = rest.indexOf(':');
-    const spaceIdx2 = rest.indexOf(' ');
-    if (colonIdx === -1 || spaceIdx2 === -1) continue;
+    if (colonIdx === -1) continue;
 
     const chapter = parseInt(rest.slice(0, colonIdx), 10);
-    const verse = parseInt(rest.slice(colonIdx + 1, spaceIdx2), 10);
-    let verseText = rest.slice(spaceIdx2 + 1);
+    if (isNaN(chapter)) continue;
 
-    if (isNaN(chapter) || isNaN(verse) || !verseText) continue;
+    // Find verse number and text
+    const spaceIdx2 = rest.indexOf(' ', colonIdx);
+    let verse, verseText;
+
+    if (spaceIdx2 === -1) {
+      // No verse text on this line (malformed but skip gracefully)
+      continue;
+    }
+
+    verse = parseInt(rest.slice(colonIdx + 1, spaceIdx2), 10);
+    verseText = rest.slice(spaceIdx2 + 1);
+
+    if (isNaN(verse) || !verseText) continue;
 
     const bookName = ABBR_TO_NAME[abbr];
     if (!bookName) continue;

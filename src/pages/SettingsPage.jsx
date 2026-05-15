@@ -71,11 +71,7 @@ export default function SettingsPage() {
       
       for (const book of BIBLE_BOOKS) {
         for (let c = 1; c <= book.chapters; c++) {
-          try {
-            await fetchChapter(book.apiName, c);
-          } catch (err) {
-            console.warn(`Skipping ${book.apiName} ${c}`);
-          }
+          await fetchChapter(book.apiName, c);
           downloadedChapters++;
           setDownloadProgress(Math.round((downloadedChapters / totalChapters) * 100));
         }
