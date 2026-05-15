@@ -92,7 +92,8 @@ export default function HomePage() {
   const totalBooks = BIBLE_BOOKS.length;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
+      <div className="max-w-4xl mx-auto px-4 py-6">
       {/* Daily verse card */}
       <button
         onClick={handleVerseClick}
@@ -182,6 +183,7 @@ export default function HomePage() {
           Learn How to be Saved
         </Link>
       </div>
+    </div>
     </div>
   );
 }
