@@ -33,11 +33,7 @@ const WHY_KJB = {
   desc: "The King James Bible is the only preserved Word of God in the English Language",
   content: [
   {
-    title: "Authorised King James Bible",
-    text: "The King James Bible is the only preserved Word of God in the English Language. This is the definitive text of the King James Bible in a modern font, free to download and free from printing or typographical errors. It is available in PDF, ePub, and TXT formats."
-  },
-  {
-    title: "Pure Cambridge Text",
+    title: "Warning on the NKJV",
     text: "You are more than welcome to purchase a King James Bible from the Dollar Store or any Bible retailer without worrying about errors. However, please note: the NKJV is not the same as the King James Bible. Please check out this resource to learn more and do your own research.",
     links: [{ url: 'https://www.scionofzion.com/nkjv.htm', label: 'NKJV Comparison' }]
   }]
