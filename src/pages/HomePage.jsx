@@ -69,7 +69,7 @@ export default function HomePage() {
   };
 
   const handleToggleNotif = async (e) => {
-    e.stopPropagation();
+    if (e) e.stopPropagation();
     if (notifEnabled) {
       disableNotifications();
       setNotifEnabled(false);
@@ -93,32 +93,27 @@ export default function HomePage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
-      {/* App logo header */}
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent mb-3">
-          <BookOpen className="w-8 h-8 text-primary-foreground" />
-        </div>
-        <h1 className="font-serif text-3xl font-bold text-foreground">KJB Reader</h1>
-        <p className="font-sans text-sm text-muted-foreground mt-1">Pure Cambridge Edition</p>
-      </div>
-
       {/* Daily verse card */}
       <button
         onClick={handleVerseClick}
-        className="w-full mb-4 cursor-pointer group"
+        className="w-full mb-6 cursor-pointer group relative"
       >
         <DailyVerseImage verse={verse} />
-      </button>
-
-      {/* Daily reminder button */}
-      <button
-        onClick={handleToggleNotif}
-        className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-sans text-sm font-medium transition-colors mb-6 ${
-          notifEnabled ? 'text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-90' : 'text-muted-foreground bg-secondary hover:bg-accent/20'
-        }`}
-      >
-        {notifEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
-        {notifEnabled ? 'Daily Reminders On' : 'Enable Daily Reminder'}
+        {/* Bell overlay */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleToggleNotif(e);
+          }}
+          className="absolute top-3 right-3 p-2 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur transition-colors"
+          title={notifEnabled ? 'Reminders on' : 'Reminders off'}
+        >
+          {notifEnabled ? (
+            <Bell className="w-5 h-5 text-white" />
+          ) : (
+            <BellOff className="w-5 h-5 text-white/60" />
+          )}
+        </button>
       </button>
 
       {/* Quick links */}

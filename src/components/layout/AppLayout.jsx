@@ -25,13 +25,7 @@ export default function AppLayout() {
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 flex-shrink-0" onClick={() => setMenuOpen(false)}>
-            <BookOpen className="w-5 h-5 text-accent" />
-            <span className="font-serif text-lg font-bold tracking-wide text-foreground hidden sm:block">
-              King James Bible
-            </span>
-            <span className="font-serif text-lg font-bold tracking-wide text-foreground sm:hidden">
-              KJB
-            </span>
+            <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB Reader" className="h-10 w-auto" />
           </Link>
 
           {/* Search bar */}
