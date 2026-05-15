@@ -98,11 +98,7 @@ export default function SettingsPage() {
         for (let c = 1; c <= book.chapters; c++) {
           await fetchChapter(book.apiName, c);
           downloadedChapters++;
-          setDownloadProgress(prev => ({
-            ...prev,
-            'all': Math.round((downloadedChapters / totalChapters) * 100),
-            [book.apiName]: Math.round((c / book.chapters) * 100)
-          }));
+          setDownloadProgress({ 'all': Math.round((downloadedChapters / totalChapters) * 100) });
         }
       }
       setCachedCount(getCachedChapterCount());
