@@ -281,6 +281,7 @@ export default function BibleReader() {
                   highlight={highlightVerse === v.verse}
                   id={`v${v.verse}`}
                   bookName={book.name}
+                  abbr={pos.abbr}
                   chapter={pos.chapter}
                   isColophon={false}
                   isFirstVerse={idx === 0}

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Copy, Share2, X, Highlighter, ChevronDown } from 'lucide-react';
+import { Copy, Share2, X, Highlighter, ChevronDown, Bookmark, BookmarkCheck } from 'lucide-react';
+import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
 
-export default function VerseText({ verse, highlight = false, id, bookName, chapter, isColophon = false, isFirstVerse = false }) {
+export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isColophon = false, isFirstVerse = false }) {
   const [selected, setSelected] = useState(false);
   const [showHighlight, setShowHighlight] = useState(highlight);
   const [highlightColor, setHighlightColor] = useState('accent');
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [saved, setSaved] = useState(() => isVerseSaved(abbr, chapter, verse.verse));
 
   const highlightColors = [
     { name: 'accent', bg: 'bg-accent/40 dark:bg-accent/30' },
@@ -51,6 +53,19 @@ export default function VerseText({ verse, highlight = false, id, bookName, chap
   const handleCopy = (e) => {
     e.stopPropagation();
     navigator.clipboard.writeText(verseText);
+    setSelected(false);
+  };
+
+  const handleToggleSave = (e) => {
+    e.stopPropagation();
+    const cleanText = verse.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
+    if (saved) {
+      removeSavedVerse(abbr, chapter, verse.verse);
+      setSaved(false);
+    } else {
+      saveVerse({ abbr, chapter, verse: verse.verse, ref: `${bookName} ${chapter}:${verse.verse}`, text: cleanText });
+      setSaved(true);
+    }
     setSelected(false);
   };
 
@@ -139,6 +154,15 @@ export default function VerseText({ verse, highlight = false, id, bookName, chap
               className="flex items-center gap-1 px-2 py-1 rounded-lg bg-primary text-primary-foreground hover:opacity-90 font-sans text-xs font-medium transition-colors"
             >
               <Share2 className="w-3 h-3" /> Share
+            </button>
+            <button
+              onClick={handleToggleSave}
+              className={`flex items-center gap-1 px-2 py-1 rounded-lg font-sans text-xs font-medium transition-colors ${
+                saved ? 'bg-accent/20 text-accent hover:bg-accent/30' : 'bg-secondary text-foreground hover:bg-accent/20'
+              }`}
+            >
+              {saved ? <BookmarkCheck className="w-3 h-3" /> : <Bookmark className="w-3 h-3" />}
+              {saved ? 'Saved' : 'Save'}
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); setSelected(false); }}

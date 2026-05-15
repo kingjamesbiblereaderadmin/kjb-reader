@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Download, X, Loader2, CheckCircle } from 'lucide-react';
+import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Download, X, Loader2, CheckCircle, Bookmark } from 'lucide-react';
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
@@ -12,6 +12,7 @@ const QUICK_LINKS = [
   { path: '/gospel', icon: Heart, label: 'The Gospel', desc: 'How to be saved', color: 'bg-red-600 text-white' },
   { path: '/resources', icon: Library, label: 'Resources', desc: 'KJB defence & study', color: 'bg-secondary text-secondary-foreground' },
   { path: '/about', icon: Info, label: 'About', desc: 'Ministry & links', color: 'bg-secondary text-secondary-foreground' },
+  { path: '/saved', icon: Bookmark, label: 'Saved Verses', desc: 'Your bookmarked verses', color: 'bg-secondary text-secondary-foreground' },
   { path: '/settings', icon: Settings, label: 'Settings', desc: 'Offline downloads & info', color: 'bg-secondary text-secondary-foreground' },
 ];
 
