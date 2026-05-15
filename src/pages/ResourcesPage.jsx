@@ -41,10 +41,6 @@ const WHY_KJB = {
       text: "You are more than welcome to purchase a King James Bible from the Dollar Store or any Bible retailer without worrying about errors. However, please note: the NKJV is not the same as the King James Bible. Please check out this resource to learn more and do your own research.",
       links: [{ url: 'https://www.scionofzion.com/nkjv.htm', label: 'NKJV Comparison' }],
     },
-    {
-      title: "Source & Disclaimer",
-      text: "Source: BibleProtector.com. Note: Resources are provided solely for reading the King James Bible. By sharing these links, I am not endorsing or guaranteeing that I agree with every position held by the author of any website. Thank you, and please share this resource with your friends and family.",
-    },
   ],
 };
 
@@ -119,6 +115,8 @@ const PREACHERS = [
   },
 ];
 
+
+
 const RESOURCES = [
   {
     category: "How to Read the Bible",
@@ -160,12 +158,6 @@ const RESOURCES = [
         desc: "The definitive electronic text of the Pure Cambridge Edition of the KJB — bibleprotector.com. Free downloads available in PDF, ePub, and TXT formats.",
         url: "https://www.bibleprotector.com",
         label: "bibleprotector.com",
-      },
-      {
-        title: "Why the King James Bible is God's Word",
-        desc: "The KJB was translated with the Textus Receptus (Received Text) by godly men well versed in Biblical languages. It is mathematically proven to be a miracle — the Bible God has used for countless revivals.",
-        url: "https://www.bibleprotector.com/purpose.htm",
-        label: "Read more",
       },
       {
         title: "KJV Compare",
@@ -571,6 +563,7 @@ export default function ResourcesPage() {
         <h1 className="font-serif text-4xl font-bold text-foreground mb-3">Resources</h1>
         <p className="font-sans text-muted-foreground max-w-lg mx-auto">
           KJB defence materials, studies on modern version corruption, and links to free Bible study resources.
+          Please be advised that all resources except kjbi.org, and the verified preachers, these are for educational purpouses only, as I may not affirm all their doctrinal statements."
         </p>
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
       </div>
