@@ -4,7 +4,7 @@ import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { fetchChapter } from '@/lib/bibleApi';
 
 const CACHE_PREFIX = 'kjb-offline-';
-const LAST_REVISED = 'May 2025'; // PCE last revision tracking
+const LAST_REVISED = 'May 2026'; // PCE last revision tracking
 
 function getCacheKey(abbr, chapter) {
   return `${CACHE_PREFIX}${abbr}-${chapter}`;
