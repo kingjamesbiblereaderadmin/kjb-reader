@@ -95,7 +95,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
       <div className="max-w-4xl mx-auto px-4 py-6">
       {/* Daily verse card */}
-      <button
+      <div
         onClick={handleVerseClick}
         className="w-full mb-6 cursor-pointer group relative"
       >
@@ -115,7 +115,7 @@ export default function HomePage() {
             <BellOff className="w-5 h-5 text-white/60" />
           )}
         </button>
-      </button>
+      </div>
 
       {/* Quick links */}
       {/* Full-width Read the Bible */}
