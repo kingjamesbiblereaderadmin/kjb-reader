@@ -22,7 +22,6 @@ const QUICK_LINKS = [
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const imgData = DAILY_IMAGES[Math.floor(Math.random() * DAILY_IMAGES.length)];
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
   const verse = DAILY_VERSES[dayOfYear % DAILY_VERSES.length];
 
