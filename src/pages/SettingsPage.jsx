@@ -4,7 +4,7 @@ import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { fetchChapter } from '@/lib/bibleApi';
 
 const CACHE_PREFIX = 'kjb-offline-';
-const LAST_REVISED = 'May 2026'; 
+const LAST_REVISED = 'May 2025'; // PCE last revision tracking
 
 function getCacheKey(abbr, chapter) {
   return `${CACHE_PREFIX}${abbr}-${chapter}`;
@@ -122,8 +122,12 @@ export default function SettingsPage() {
       <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-2">
         <h2 className="font-serif text-lg font-semibold text-foreground">Bible Text</h2>
         <div className="flex justify-between font-sans text-sm">
-          <span className="text-muted-foreground">Text</span>
+          <span className="text-muted-foreground">Edition</span>
           <span className="text-foreground font-medium">King James Bible — Pure Cambridge Edition</span>
+        </div>
+        <div className="flex justify-between font-sans text-sm">
+          <span className="text-muted-foreground">Last Revision</span>
+          <span className="text-foreground font-medium">{LAST_REVISED}</span>
         </div>
         <div className="flex justify-between font-sans text-sm">
           <span className="text-muted-foreground">Source</span>
