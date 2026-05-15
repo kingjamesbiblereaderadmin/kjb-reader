@@ -1,4 +1,4 @@
-const TEXT_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/ee659445e_TEXT-PCE-127.txt';
+const TEXT_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/KJB_Complete.txt';
 
 // abbr -> full BookName mapping (matching lib/bibleData.js apiName values)
 const ABBR_TO_NAME = {
