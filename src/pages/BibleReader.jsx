@@ -337,6 +337,22 @@ export default function BibleReader() {
         </div>
       )}
 
+      {/* End-of-section markers */}
+      {!loading && !error && pos.abbr === 'MAL' && pos.chapter === 4 && (
+        <div className="text-center my-8 py-6 border-t border-b border-border">
+          <p className="font-serif text-lg font-semibold text-muted-foreground tracking-widest uppercase">
+            End of the Prophets
+          </p>
+        </div>
+      )}
+      {!loading && !error && pos.abbr === 'REV' && pos.chapter === 22 && (
+        <div className="text-center my-8 py-6 border-t border-b border-border">
+          <p className="font-serif text-lg font-semibold text-muted-foreground tracking-widest uppercase">
+            End of the Holy Bible
+          </p>
+        </div>
+      )}
+
       {/* Credit */}
       <p className="text-center text-xs text-muted-foreground font-sans mt-8 pb-4">
         Text: King James Bible, Pure Cambridge Edition — <a href="https://www.bibleprotector.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-accent">bibleprotector.com</a>
