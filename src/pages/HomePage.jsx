@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Heart, Library, Info, List, Settings } from 'lucide-react';
-import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled } from '@/lib/notifications';
 

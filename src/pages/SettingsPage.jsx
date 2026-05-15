@@ -10,13 +10,6 @@ import { getDailyVerse } from '@/lib/dailyVerse';
 
 const LAST_REVISED = 'May 2026';
 
-function isBookCached(abbr, totalChapters) {
-  for (let c = 1; c <= totalChapters; c++) {
-    if (!localStorage.getItem(getCacheKey(abbr, c))) return false;
-  }
-  return true;
-}
-
 function getBookCacheProgress(abbr, totalChapters) {
   let count = 0;
   for (let c = 1; c <= totalChapters; c++) {
