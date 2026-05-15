@@ -33,6 +33,26 @@ function deleteBook(abbr, totalChapters) {
   }
 }
 
+function validateChapterData(data) {
+  return data && 
+         typeof data === 'object' && 
+         Array.isArray(data.verses) && 
+         data.verses.length > 0 &&
+         data.verses.every(v => v.verse && v.text);
+}
+
+function isChapterCached(abbr, chapter) {
+  try {
+    const key = getCacheKey(abbr, chapter);
+    const cached = localStorage.getItem(key);
+    if (!cached) return false;
+    const data = JSON.parse(cached);
+    return validateChapterData(data);
+  } catch {
+    return false;
+  }
+}
+
 export default function SettingsPage() {
   const [tab, setTab] = useState('old');
   const [downloading, setDownloading] = useState({});
@@ -98,43 +118,47 @@ export default function SettingsPage() {
     setProgress(prev => ({ ...prev, [book.abbr]: 0 }));
 
     let completed = 0;
-    const maxRetries = 3;
+    const maxRetries = 2;
+    const timeout = 30000; // 30 seconds per chapter
 
     try {
       for (let c = 1; c <= book.chapters; c++) {
-        const key = getCacheKey(book.abbr, c);
+        // Skip if already properly cached
+        if (isChapterCached(book.abbr, c)) {
+          completed++;
+          setProgress(prev => ({ ...prev, [book.abbr]: completed }));
+          continue;
+        }
 
-        // Check if already cached
-        try {
-          const cached = localStorage.getItem(key);
-          if (cached) {
-            const parsed = JSON.parse(cached);
-            if (parsed?.verses?.length > 0) {
-              completed++;
-              setProgress(prev => ({ ...prev, [book.abbr]: completed }));
-              continue;
-            }
-          }
-        } catch {}
-
-        // Try to download with retries
+        // Attempt download with retries
         let success = false;
         for (let attempt = 0; attempt < maxRetries && !success; attempt++) {
           try {
-            const res = await base44.functions.invoke('bibleApi', {
-              action: 'getChapter',
-              book: book.apiName,
-              chapter: c,
-            });
-            if (res?.data?.verses && res.data.verses.length > 0) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+            const res = await Promise.race([
+              base44.functions.invoke('bibleApi', {
+                action: 'getChapter',
+                book: book.apiName,
+                chapter: c,
+              }),
+              new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout))
+            ]);
+
+            clearTimeout(timeoutId);
+
+            if (validateChapterData(res?.data)) {
+              const key = getCacheKey(book.abbr, c);
               const data = { verses: res.data.verses, colophon: res.data.colophon || null };
               localStorage.setItem(key, JSON.stringify(data));
               completed++;
               success = true;
             }
           } catch (err) {
+            // Retry on failure, silently continue on last attempt
             if (attempt === maxRetries - 1) {
-              console.warn(`Chapter ${book.abbr} ${c} failed after ${maxRetries} attempts:`, err.message);
+              console.warn(`Chapter ${book.abbr} ${c} failed after retries`);
             }
           }
         }
