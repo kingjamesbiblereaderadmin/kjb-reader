@@ -1,4 +1,7 @@
-// A large curated pool of KJB verses used as daily selection
+import { BIBLE_BOOKS } from '@/lib/bibleData';
+import { getCacheKey } from '@/lib/bibleApi';
+
+// A large curated pool of KJB verses used as fallback when cache is empty
 export const VERSE_POOL = [
   { abbr: "GEN", book: "Genesis", chapter: 1, verse: 1, text: "In the beginning God created the heaven and the earth." },
   { abbr: "GEN", book: "Genesis", chapter: 1, verse: 27, text: "So God created man in his own image, in the image of God created he him; male and female created he them." },
@@ -67,10 +70,52 @@ export function getDailyVerseKey() {
   return now.getFullYear() * 1000 + dayOfYear;
 }
 
-// Pick a daily verse from the curated pool using seeded randomness
+// Try to pick a verse from cached Bible data, fallback to VERSE_POOL
 export function getDailyVerse() {
   const seed = getDailyVerseKey();
+
+  // Collect all cached chapter keys
+  const cachedKeys = [];
+  for (const book of BIBLE_BOOKS) {
+    for (let c = 1; c <= book.chapters; c++) {
+      const key = getCacheKey(book.abbr, c);
+      if (localStorage.getItem(key)) {
+        cachedKeys.push({ book, chapter: c, key });
+      }
+    }
+  }
+
+  if (cachedKeys.length > 0) {
+    // Pick a random cached chapter
+    const chapterIdx = Math.floor(seededRandom(seed) * cachedKeys.length);
+    const { book, chapter, key } = cachedKeys[chapterIdx];
+    try {
+      const data = JSON.parse(localStorage.getItem(key));
+      if (data && data.verses && data.verses.length > 0) {
+        // Pick a verse within that chapter
+        const verseIdx = Math.floor(seededRandom(seed * 7) * data.verses.length);
+        const v = data.verses[verseIdx];
+        // Strip markers and get clean text
+        const cleanText = v.text
+          .replace(/^<<[^>]*>>\s*/, '')
+          .replace(/\[([^\]]+)\]/g, '$1')
+          .replace(/¶\s*/g, '');
+        return {
+          abbr: book.abbr,
+          book: book.shortName,
+          chapter,
+          verse: v.verse,
+          text: cleanText,
+          ref: `${book.shortName} ${chapter}:${v.verse}`,
+        };
+      }
+    } catch {}
+  }
+
+  // Fallback to curated pool
   const idx = Math.floor(seededRandom(seed) * VERSE_POOL.length);
   const v = VERSE_POOL[idx];
-  return { ...v, ref: `${v.book} ${v.chapter}:${v.verse}` };
+  // Remove italic markers and return clean text
+  const cleanText = v.text.replace(/\[([^\]]+)\]/g, '$1');
+  return { ...v, text: cleanText, ref: `${v.book} ${v.chapter}:${v.verse}` };
 }

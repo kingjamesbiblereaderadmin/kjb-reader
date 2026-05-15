@@ -46,7 +46,30 @@ export default function SettingsPage() {
     showLocalNotification('King James Bible — Daily Verse', `"${v.text.slice(0, 100)}${v.text.length > 100 ? '…' : ''}" — ${v.ref}`);
   };
 
+  const handleDownloadBook = async (book) => {
+    setDownloading(book.apiName);
+    try {
+      await downloadBook(book.apiName);
+      setCachedCount(getCachedChapterCount());
+    } catch (err) {
+      console.error('Download failed:', err);
+    } finally {
+      setDownloading(null);
+    }
+  };
 
+  const handleClearCache = () => {
+    if (confirm('Clear all cached Bible chapters?')) {
+      for (const book of BIBLE_BOOKS) {
+        for (let c = 1; c <= book.chapters; c++) {
+          try {
+            localStorage.removeItem(getCacheKey(book.abbr, c));
+          } catch {}
+        }
+      }
+      setCachedCount(0);
+    }
+  };
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
@@ -123,13 +146,35 @@ export default function SettingsPage() {
       </div>
 
       <div className="bg-card border border-border rounded-2xl p-5 mb-6">
-        <h2 className="font-serif text-lg font-semibold text-foreground mb-3">Bible Access</h2>
-        <p className="font-sans text-sm text-foreground mb-3">
-          The Bible text is loaded from our servers when you read. An internet connection is required to browse Scripture.
+        <h2 className="font-serif text-lg font-semibold text-foreground mb-3">Offline Library</h2>
+        <p className="font-sans text-sm text-foreground mb-4">
+          Download Bible books to read offline. {cachedCount} of {BIBLE_BOOKS.length} books cached.
         </p>
-        <p className="font-sans text-xs text-muted-foreground">
-          Offline functionality will be added in a future update.
-        </p>
+        <div className="space-y-2 max-h-60 overflow-y-auto mb-4">
+          {BIBLE_BOOKS.map(book => (
+            <div key={book.abbr} className="flex items-center justify-between gap-3 p-3 bg-secondary/50 rounded-lg">
+              <div className="flex-1 min-w-0">
+                <p className="font-sans text-sm text-foreground truncate">{book.name}</p>
+                <p className="font-sans text-xs text-muted-foreground">{book.chapters} chapters</p>
+              </div>
+              <button
+                onClick={() => handleDownloadBook(book)}
+                disabled={downloading === book.apiName}
+                className="shrink-0 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-1.5"
+              >
+                <Download className="w-3 h-3" />
+                {downloading === book.apiName ? 'Downloading...' : 'Download'}
+              </button>
+            </div>
+          ))}
+        </div>
+        <button
+          onClick={handleClearCache}
+          className="w-full px-4 py-2 rounded-lg bg-destructive/10 text-destructive font-sans text-sm font-medium hover:bg-destructive/20 flex items-center justify-center gap-2"
+        >
+          <Trash2 className="w-4 h-4" />
+          Clear All
+        </button>
       </div>
 
     </div>
