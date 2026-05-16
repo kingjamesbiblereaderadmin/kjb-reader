@@ -21,7 +21,10 @@ const ABBR_TO_NAME = {
   '3Jo':'3 John','Jude':'Jude','Re':'Revelation'
 };
 
+const EXPECTED_BOOK_COUNT = 66;
+
 let parsedData = null;
+let fetchInProgress = null;
 
 function parseBibleText(text) {
   const data = {};
@@ -74,47 +77,111 @@ function parseBibleText(text) {
   return data;
 }
 
-// Load Bible data from localStorage or fetch once from network
-export async function getBibleData() {
-  if (parsedData) return parsedData;
+// Sanity check: parsed data should contain most of the 66 books
+function isValidBibleData(data) {
+  if (!data || typeof data !== 'object') return false;
+  const bookCount = Object.keys(data).filter(k => k !== '__colophons').length;
+  return bookCount >= EXPECTED_BOOK_COUNT;
+}
 
-  // Clean up old cache key to free space
-  localStorage.removeItem('bible_data_complete');
-
-  // Try to load from localStorage
-  const cached = localStorage.getItem(CACHE_KEY);
-  if (cached) {
-    parsedData = JSON.parse(cached);
-    return parsedData;
+async function fetchWithRetry(url, retries = 3) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return await res.text();
+    } catch (err) {
+      console.error('[DEV][bibleCache] Fetch attempt ' + attempt + '/' + retries + ' failed:', err.message);
+      if (attempt === retries) throw err;
+      await new Promise(r => setTimeout(r, 1000 * attempt));
+    }
   }
+}
 
-  // If not cached, fetch from network
+function saveToCache(data) {
   try {
-    const res = await fetch(TEXT_URL);
-    if (!res.ok) throw new Error('Failed to fetch Bible text');
-    const text = await res.text();
-    
-    parsedData = parseBibleText(text);
-    
-    // Store in localStorage for offline access on subsequent visits
     localStorage.removeItem('bible_data_complete');
-    localStorage.setItem(CACHE_KEY, JSON.stringify(parsedData));
-    
-    return parsedData;
-  } catch (error) {
-    // Fallback: return empty object if network fails and no cache
-    console.error('Failed to load Bible data:', error);
-    return { __colophons: {} };
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.error('[DEV][bibleCache] localStorage save failed:', e.message);
   }
+}
+
+function loadFromCache() {
+  try {
+    localStorage.removeItem('bible_data_complete');
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (isValidBibleData(data)) return data;
+    console.error('[DEV][bibleCache] Cached data failed validation, clearing');
+    localStorage.removeItem(CACHE_KEY);
+    return null;
+  } catch (e) {
+    console.error('[DEV][bibleCache] Cache read/parse failed:', e.message);
+    localStorage.removeItem(CACHE_KEY);
+    return null;
+  }
+}
+
+async function fetchAndParse() {
+  const text = await fetchWithRetry(TEXT_URL);
+  const data = parseBibleText(text);
+  if (!isValidBibleData(data)) {
+    throw new Error('Parsed data only has ' + Object.keys(data).filter(k => k !== '__colophons').length + ' books');
+  }
+  return data;
+}
+
+// Load Bible data — cache-first with network fallback and retries
+export async function getBibleData() {
+  if (parsedData && isValidBibleData(parsedData)) return parsedData;
+
+  // Deduplicate concurrent calls
+  if (fetchInProgress) return fetchInProgress;
+
+  fetchInProgress = (async () => {
+    try {
+      // Try localStorage first
+      const cached = loadFromCache();
+      if (cached) {
+        parsedData = cached;
+        return parsedData;
+      }
+
+      // Fetch from network with retries
+      parsedData = await fetchAndParse();
+      saveToCache(parsedData);
+      return parsedData;
+    } catch (error) {
+      console.error('[DEV][bibleCache] All fetch attempts failed:', error.message);
+
+      // Last resort: try cache even if it was invalid before
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (raw) {
+          parsedData = JSON.parse(raw);
+          return parsedData;
+        }
+      } catch (e) { /* nothing left to try */ }
+
+      return { __colophons: {} };
+    } finally {
+      fetchInProgress = null;
+    }
+  })();
+
+  return fetchInProgress;
 }
 
 // Check if Bible data is available offline
 export function isBibleCached() {
-  return !!localStorage.getItem(CACHE_KEY) || !!parsedData;
+  return !!localStorage.getItem(CACHE_KEY) || (!!parsedData && isValidBibleData(parsedData));
 }
 
 // Clear cached Bible data
 export function clearBibleCache() {
   localStorage.removeItem(CACHE_KEY);
+  localStorage.removeItem('bible_data_complete');
   parsedData = null;
 }
