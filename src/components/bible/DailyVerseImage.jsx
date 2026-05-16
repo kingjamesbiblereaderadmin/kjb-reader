@@ -17,7 +17,7 @@ export default function RandomVerseImage({ verse }) {
 
   return (
     <div className={`w-full bg-gradient-to-br ${gradient} rounded-2xl shadow-lg p-8 md:p-12 text-center text-white`}>
-      <p className="font-sans text-xs tracking-widest uppercase font-semibold mb-6 opacity-90 hidden">Verse of the Day</p>
+      
       <blockquote className="font-serif text-2xl md:text-3xl font-bold leading-relaxed mb-6">
         "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
       </blockquote>
