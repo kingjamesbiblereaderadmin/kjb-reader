@@ -1,6 +1,6 @@
 Deno.serve(async (req) => {
   try {
-    const TEXT_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/ee659445e_TEXT-PCE-127.txt';
+    const TEXT_URL = 'https://www.bibleprotector.com/WHARTON_PCE.txt';
     const res = await fetch(TEXT_URL);
     if (!res.ok) throw new Error('Failed to fetch Bible text');
     const text = await res.text();
