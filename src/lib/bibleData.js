@@ -8,7 +8,7 @@ export const BIBLE_BOOKS = [
   { name: "The Fourth Book of Moses, called Numbers", shortName: "Numbers", apiName: "Numbers", abbr: "NUM", chapters: 36, testament: "old" },
   { name: "The Fifth Book of Moses, called Deuteronomy", shortName: "Deuteronomy", apiName: "Deuteronomy", abbr: "DEU", chapters: 34, testament: "old" },
   { name: "The Book of Joshua", shortName: "Joshua", apiName: "Joshua", abbr: "JOS", chapters: 24, testament: "old" },
-  { name: "The Book of Judges", shortName: "Judges", apiName: "Judges", abbr: "Jg", chapters: 21, testament: "old" },
+  { name: "The Book of Judges", shortName: "Judges", apiName: "Judges", abbr: "JDG", chapters: 21, testament: "old" },
   { name: "The Book of Ruth", shortName: "Ruth", apiName: "Ruth", abbr: "RUT", chapters: 4, testament: "old" },
   { name: "The First Book of Samuel, Otherwise called, The First Book Of The Kings", shortName: "1 Samuel", apiName: "1 Samuel", abbr: "1SA", chapters: 31, testament: "old" },
   { name: "The Second Book of Samuel, Otherwise called, The Second Book Of The Kings", shortName: "2 Samuel", apiName: "2 Samuel", abbr: "2SA", chapters: 24, testament: "old" },

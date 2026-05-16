@@ -1,204 +1,382 @@
-import React, { useState, useEffect } from 'react';
-import { renderVerseText } from '@/lib/bibleApi';
-import { Copy, Share2, X, Highlighter, ChevronDown, Bookmark, BookmarkCheck } from 'lucide-react';
-import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { ChevronLeft, ChevronRight, BookOpen, Loader2, AlignJustify, List } from 'lucide-react';
+import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
+import { fetchChapter, fetchVerseCount } from '@/lib/bibleApi';
+import { getBibleData } from '@/lib/bibleCache';
+import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
+import BookSelector from '@/components/bible/BookSelector';
+import ChapterSelector from '@/components/bible/ChapterSelector';
+import VerseSelector from '@/components/bible/VerseSelector';
+import VerseText from '@/components/bible/VerseText';
+import TitlePage from '@/components/bible/TitlePage';
 
-export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isColophon = false, isFirstVerse = false, paragraphMode = false }) {
-  const [selected, setSelected] = useState(false);
-  const [showHighlight, setShowHighlight] = useState(highlight);
-  const [highlightColor, setHighlightColor] = useState('accent');
-  const [showColorPicker, setShowColorPicker] = useState(false);
-  const [saved, setSaved] = useState(() => isVerseSaved(abbr, chapter, verse.verse));
+const STORAGE_KEY = 'kjb-position';
 
-  const highlightColors = [
-    { name: 'accent', bg: 'bg-accent/40 dark:bg-accent/30' },
-    { name: 'yellow', bg: 'bg-yellow-300/40' },
-    { name: 'green', bg: 'bg-green-300/40' },
-    { name: 'blue', bg: 'bg-blue-300/40' },
-    { name: 'pink', bg: 'bg-pink-300/40' },
-    { name: 'purple', bg: 'bg-purple-300/40' },
-  ];
+function loadPosition() {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    if (s) return JSON.parse(s);
+  } catch {}
+  return { abbr: 'GEN', chapter: 1, verse: null };
+}
+
+function savePosition(abbr, chapter) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr, chapter })); } catch {}
+}
+
+
+export default function BibleReader() {
+  const [pos, setPos] = useState(loadPosition);
+  const [verses, setVerses] = useState([]);
+  const [colophon, setColophon] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [highlightVerse, setHighlightVerse] = useState(pos.verse || null);
+  const [verseCount, setVerseCount] = useState(0);
+
+  const [showBookPicker, setShowBookPicker] = useState(false);
+  const [showChapterPicker, setShowChapterPicker] = useState(false);
+  const [showVersePicker, setShowVersePicker] = useState(false);
+  const [paragraphMode, setParagraphMode] = useState(() => {
+    try { return localStorage.getItem('kjb-layout') === 'paragraph'; } catch { return false; }
+  });
+
+  const toggleLayout = () => {
+    const next = !paragraphMode;
+    setParagraphMode(next);
+    try { localStorage.setItem('kjb-layout', next ? 'paragraph' : 'line'); } catch {}
+  };
+
+  const topRef = useRef(null);
+  const book = BIBLE_BOOKS.find(b => b.abbr === pos.abbr) || BIBLE_BOOKS[0];
+
+  // Determine if viewing a title page (chapter 0)
+  const isViewingTitlePage = pos.chapter === 0 && (pos.abbr === 'GEN' || pos.abbr === 'MAT');
+
+  const loadChapter = useCallback(async (bookAbbr, chapter, jumpVerse) => {
+    setLoading(true);
+    setError(null);
+    setVerses([]);
+    // Always scroll to top first; verse centering happens after load
+    window.scrollTo({ top: 0 });
+    const b = BIBLE_BOOKS.find(bk => bk.abbr === bookAbbr);
+    if (!b) { setError('Book not found'); setLoading(false); return; }
+    
+    // Skip API fetch for title pages (chapter 0)
+    if (chapter === 0) {
+      setVerseCount(0);
+      setLoading(false);
+      setHighlightVerse(jumpVerse || null);
+      savePosition(bookAbbr, chapter);
+      return;
+    }
+    
+    try {
+      const data = await fetchChapter(b.apiName, chapter);
+      setVerses(data.verses);
+      setColophon(data.colophon || null);
+      setVerseCount(data.verses.length);
+      setHighlightVerse(jumpVerse || null);
+      savePosition(bookAbbr, chapter);
+    } catch (err) {
+      setError('Failed to load chapter. Please check your connection.');
+    }
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
-    if (highlight) {
-      setShowHighlight(true);
-      const timer = setTimeout(() => setShowHighlight(false), 5000);
-      return () => clearTimeout(timer);
+    // Preload Bible data on first mount so it's cached for offline access
+    getBibleData().catch(() => {});
+    loadChapter(pos.abbr, pos.chapter, pos.verse);
+  }, []);
+
+  useEffect(() => {
+    if (!loading) {
+      if (highlightVerse) {
+        // Center on the specific verse
+        setTimeout(() => {
+          const el = document.getElementById(`v${highlightVerse}`);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      } else {
+        // No verse target — ensure we're at the top
+        window.scrollTo({ top: 0 });
+      }
     }
-  }, [highlight]);
+  }, [verses, loading, highlightVerse]);
 
-  // Strip <<...>> superscription markers
-  const displayVerseText = verse.text.replace(/^<<[^>]*>>\s*/, '');
-
-  // For colophons, extract only the bracketed text
-  let colophonText = null;
-  let mainText = displayVerseText;
-  if (isColophon) {
-    const match = displayVerseText.match(/\[([^\]]+)\]/);
-    if (match) {
-      colophonText = match[1];
-      mainText = displayVerseText.replace(/\[[^\]]+\]\s*/, '').trim();
+  const navigate = (newAbbr, newChapter, jumpVerse = null) => {
+    // Prevent chapter 0 for non-GEN/MAT books
+    if (newChapter === 0 && newAbbr !== 'GEN' && newAbbr !== 'MAT') {
+      return;
     }
-  }
-
-  const html = renderVerseText(colophonText || mainText);
-  // Remove ¶ from HTML — we handle it ourselves
-  const htmlNoPilcrow = html.replace(/¶\s*/g, '');
-  const hasPilcrow = verse.text.includes('¶');
-  const hasItalics = html.includes('<em>');
-
-  const verseRef = `${bookName} ${chapter}:${verse.verse}`;
-  const cleanText = verse.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '');
-  const verseText = `"${cleanText}" — ${verseRef} (KJB)`;
-
-  const highlightBg = highlightColors.find(c => c.name === highlightColor)?.bg;
-  const isHighlighted = selected || showHighlight;
-
-  const handleCopy = (e) => {
-    e.stopPropagation();
-    navigator.clipboard.writeText(verseText);
-    setSelected(false);
+    const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
+    setPos(newPos);
+    loadChapter(newAbbr, newChapter, jumpVerse);
   };
 
-  const handleToggleSave = (e) => {
-    e.stopPropagation();
-    const ct = verse.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
-    if (saved) {
-      removeSavedVerse(abbr, chapter, verse.verse);
-      setSaved(false);
+  const goNext = () => {
+    if (pos.chapter < book.chapters) {
+      navigate(pos.abbr, pos.chapter + 1);
     } else {
-      saveVerse({ abbr, chapter, verse: verse.verse, ref: verseRef, text: ct });
-      setSaved(true);
+      const next = getNextBook(pos.abbr);
+      if (next) {
+        navigate(next.abbr, 1);
+      }
     }
-    setSelected(false);
   };
 
-  const handleShare = (e) => {
-    e.stopPropagation();
-    if (navigator.share) {
-      navigator.share({ text: verseText });
+  const goPrev = () => {
+    if (pos.chapter > 1) {
+      navigate(pos.abbr, pos.chapter - 1);
+    } else if (pos.chapter === 1 && (pos.abbr === 'GEN' || pos.abbr === 'MAT')) {
+      // For GEN/MAT, allow going to chapter 0 (title page)
+      navigate(pos.abbr, 0);
     } else {
-      navigator.clipboard.writeText(verseText);
+      // Go to previous book's last chapter
+      const prev = getPrevBook(pos.abbr);
+      if (prev) navigate(prev.abbr, prev.chapters);
     }
-    setSelected(false);
   };
 
-  const textClass = isColophon && hasItalics
-    ? 'text-base italic text-muted-foreground'
-    : isColophon
-    ? 'text-base text-muted-foreground'
-    : 'text-lg';
+  const isLastChapterLastBook = pos.abbr === 'REV' && pos.chapter === 22;
+  const isFirstChapterFirstBook = pos.abbr === 'GEN' && pos.chapter === 0;
+  const isGenesisChapterOne = pos.abbr === 'GEN' && pos.chapter === 1;
 
-  const actionPopover = selected && (
-    <>
-      <span className="fixed inset-0 z-40" onClick={() => setSelected(false)} />
-      <span className="absolute left-0 top-full mt-1 z-50 flex items-center gap-1 bg-card border border-border rounded-xl shadow-lg px-2 py-1.5">
-        <div className="relative">
-          <button
-            onClick={(e) => { e.stopPropagation(); setShowColorPicker(!showColorPicker); }}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
-            title="Highlight color"
-          >
-            <Highlighter className="w-3 h-3" />
-            <ChevronDown className="w-2.5 h-2.5" />
-          </button>
-          {showColorPicker && (
-            <div className="absolute top-full left-0 mt-1 z-50 flex gap-1 bg-card border border-border rounded-lg p-2 shadow-lg">
-              {highlightColors.map(color => (
-                <button
-                  key={color.name}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setHighlightColor(color.name);
-                    setShowHighlight(true);
-                    setShowColorPicker(false);
+  return (
+    <div className="max-w-3xl mx-auto px-4 py-6">
+      {/* Sticky nav bar */}
+      <div ref={topRef} className="sticky top-14 z-40 bg-background/95 backdrop-blur border-b border-border pb-3 mb-6">
+        {/* Book / Chapter / Verse selectors */}
+        <div className="flex flex-wrap items-center gap-2 pt-3">
+          {/* Book selector */}
+          <div className="relative">
+            <button
+              onClick={() => { setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-colors"
+            >
+              {isViewingTitlePage ? 'Title Page' : book.shortName}
+              <ChevronRight className="w-3 h-3 opacity-70" />
+            </button>
+            {showBookPicker && (
+              <div className="absolute top-full left-0 mt-1 z-50">
+                <BookSelector
+                  currentAbbr={pos.abbr}
+                  onSelect={(b, isTitlePage) => {
+                    const chapter = isTitlePage ? 0 : 1;
+                    navigate(b.abbr, chapter);
                   }}
-                  className={`w-4 h-4 rounded border-2 ${color.bg} ${highlightColor === color.name ? 'border-foreground' : 'border-border'}`}
-                  title={color.name}
+                  onClose={() => setShowBookPicker(false)}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Chapter selector */}
+          <div className="relative">
+            <button
+              onClick={() => { setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+            >
+              Ch. {isViewingTitlePage ? 'Intro' : pos.chapter}
+              <ChevronRight className="w-3 h-3 opacity-70" />
+            </button>
+            {showChapterPicker && (
+              <div className="absolute top-full left-0 mt-1 z-50">
+                <ChapterSelector
+                  totalChapters={book.chapters}
+                  currentChapter={pos.chapter}
+                  onSelect={(ch) => navigate(pos.abbr, ch)}
+                  onClose={() => setShowChapterPicker(false)}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Verse selector */}
+          <div className="relative">
+            <button
+              onClick={() => { setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+              disabled={verseCount === 0}
+            >
+              {highlightVerse ? `v.${highlightVerse}` : 'Verse'}
+              <ChevronRight className="w-3 h-3 opacity-70" />
+            </button>
+            {showVersePicker && verseCount > 0 && !isViewingTitlePage && (
+              <div className="absolute top-full left-0 mt-1 z-50">
+                <VerseSelector
+                  totalVerses={verseCount}
+                  currentVerse={highlightVerse}
+                  onSelect={(v) => {
+                    navigate(pos.abbr, pos.chapter, v);
+                    setShowVersePicker(false);
+                  }}
+                  onClose={() => setShowVersePicker(false)}
+                  autoSelect={true}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Layout toggle */}
+          <button
+            onClick={toggleLayout}
+            title={paragraphMode ? 'Switch to line-by-line' : 'Switch to paragraph'}
+            className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+          >
+            {paragraphMode ? <List className="w-3.5 h-3.5" /> : <AlignJustify className="w-3.5 h-3.5" />}
+            {paragraphMode ? 'Lines' : 'Para'}
+          </button>
+
+          {/* Prev/Next chapter buttons */}
+          <div className="ml-auto flex items-center gap-1">
+            <button
+              onClick={goPrev}
+              disabled={isFirstChapterFirstBook}
+              className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={goNext}
+              disabled={isLastChapterLastBook}
+              className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-colors"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Click outside to close dropdowns */}
+      {(showBookPicker || showChapterPicker || showVersePicker) && (
+        <div
+          className="fixed inset-0 z-30"
+          onClick={() => { setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); }}
+        />
+      )}
+
+      {/* Book title — hidden when showing title page */}
+      {!isViewingTitlePage && (
+        <div className="text-center mb-6">
+          <p className="font-sans text-xs text-muted-foreground tracking-widest uppercase mb-1">
+            {book.testament === 'old' ? 'Old Testament' : 'New Testament'}
+          </p>
+          <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-1 leading-tight">{book.name}</h1>
+          <p className="font-sans text-sm text-muted-foreground tracking-widest uppercase mt-1">Chapter {pos.chapter}</p>
+          {/* Subscript — shown below chapter heading on the relevant final chapter */}
+          {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
+            <p className="font-serif text-sm text-muted-foreground mt-3 max-w-md mx-auto leading-relaxed">
+              {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]}
+            </p>
+          )}
+          <div className="mt-3 w-16 h-px bg-accent mx-auto" />
+        </div>
+      )}
+
+      {/* Title page only - no chapter info */}
+      {isViewingTitlePage && (
+        <div className="mb-8" />
+      )}
+
+      {/* Title pages or verses */}
+      <div className="font-serif text-lg leading-loose text-foreground/90">
+        {loading && (
+          <div className="flex justify-center py-16">
+            <Loader2 className="w-8 h-8 animate-spin text-accent" />
+          </div>
+        )}
+        {error && (
+          <div className="text-center py-16 text-destructive font-sans">{error}</div>
+        )}
+        {!loading && !error && isViewingTitlePage && (
+          <TitlePage type={pos.abbr === 'GEN' ? 'testament-old' : 'testament-new'} />
+        )}
+        {!loading && !error && verses.length > 0 && (
+          <>
+            <div className={paragraphMode ? 'text-justify hyphens-auto' : ''}>
+              {verses.map((v, idx) => (
+                <VerseText
+                  key={v.verse}
+                  verse={v}
+                  highlight={highlightVerse === v.verse}
+                  id={`v${v.verse}`}
+                  bookName={book.name}
+                  abbr={pos.abbr}
+                  chapter={pos.chapter}
+                  isColophon={false}
+                  isFirstVerse={idx === 0}
+                  paragraphMode={paragraphMode}
                 />
               ))}
             </div>
-          )}
-        </div>
-        <button
-          onClick={(e) => { e.stopPropagation(); setShowHighlight(!showHighlight); }}
-          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
-        >
-          {showHighlight ? 'Clear' : 'Apply'}
-        </button>
-        <button
-          onClick={handleCopy}
-          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
-        >
-          <Copy className="w-3 h-3" /> Copy
-        </button>
-        <button
-          onClick={handleShare}
-          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-primary text-primary-foreground hover:opacity-90 font-sans text-xs font-medium transition-colors"
-        >
-          <Share2 className="w-3 h-3" /> Share
-        </button>
-        <button
-          onClick={handleToggleSave}
-          className={`flex items-center gap-1 px-2 py-1 rounded-lg font-sans text-xs font-medium transition-colors ${
-            saved ? 'bg-accent/20 text-accent hover:bg-accent/30' : 'bg-secondary text-foreground hover:bg-accent/20'
-          }`}
-        >
-          {saved ? <BookmarkCheck className="w-3 h-3" /> : <Bookmark className="w-3 h-3" />}
-          {saved ? 'Saved' : 'Save'}
-        </button>
-        <button
-          onClick={(e) => { e.stopPropagation(); setSelected(false); }}
-          className="p-1 rounded-lg hover:bg-secondary text-muted-foreground transition-colors"
-        >
-          <X className="w-3 h-3" />
-        </button>
-      </span>
-    </>
-  );
-
-  // ── PARAGRAPH MODE: verses flow inline, pilcrow shown inline ──
-  if (paragraphMode) {
-    return (
-      <span id={id} className="inline relative">
-        {hasPilcrow && !isFirstVerse && (
-          <span className="block mt-4" />
+            {/* Colophon footer — displayed separately at the bottom */}
+            {colophon && (
+              <div className="mt-8 pt-6 border-t border-border">
+                <span className="inline text-base text-muted-foreground">
+                  ¶ {colophon.replace(/[\[\]]/g, '')}
+                </span>
+              </div>
+            )}
+          </>
         )}
-        <span
-          onClick={() => setSelected(s => !s)}
-          className={`inline leading-loose transition-colors duration-200 rounded cursor-pointer px-0.5 py-0.5 ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
-        >
-          {hasPilcrow && <span className="text-accent font-sans text-sm mr-1 not-italic select-none">¶</span>}
-          <sup className="text-accent font-sans font-semibold text-xs mr-1 select-none">{verse.verse}</sup>
-          <span
-            className={`font-serif leading-loose [&_em]:italic [&_em]:text-foreground/75 ${textClass}`}
-            dangerouslySetInnerHTML={{ __html: htmlNoPilcrow }}
-          />
-          {' '}
-        </span>
-        {actionPopover}
-      </span>
-    );
-  }
+      </div>
 
-  // ── LINE MODE (default): each verse is its own line ──
-  return (
-    <span id={id} className={`block relative ${hasPilcrow && !isFirstVerse ? 'mt-6' : 'mt-1.5'}`}>
-      {/* Pilcrow gap marker */}
-      {hasPilcrow && !isFirstVerse && (
-        <span className="block font-sans text-accent text-sm select-none mb-1 leading-none">¶</span>
+      {/* Bottom nav */}
+      {!loading && !error && (
+        <div className="flex justify-between mt-12 pt-6 border-t border-border">
+          <button
+            onClick={goPrev}
+            disabled={isFirstChapterFirstBook}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-30 transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            {isFirstChapterFirstBook
+              ? 'Beginning'
+              : isGenesisChapterOne
+              ? 'Title Page'
+              : isViewingTitlePage
+              ? `${getPrevBook(pos.abbr)?.shortName} ${getPrevBook(pos.abbr)?.chapters}`
+              : pos.chapter > 1
+              ? `Chapter ${pos.chapter - 1}`
+              : (pos.abbr === 'GEN' || pos.abbr === 'MAT')
+              ? `${book.shortName} Title Page`
+              : `${getPrevBook(pos.abbr)?.shortName} ${getPrevBook(pos.abbr)?.chapters}`}
+          </button>
+
+          <button
+            onClick={goNext}
+            disabled={isLastChapterLastBook}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-30 transition-colors"
+          >
+            {isViewingTitlePage
+              ? `Chapter 1`
+              : pos.chapter < book.chapters
+              ? `Chapter ${pos.chapter + 1}`
+              : `${getNextBook(pos.abbr)?.shortName} 1`}
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
       )}
-      <span
-        onClick={() => setSelected(s => !s)}
-        className={`flex items-baseline gap-2 leading-relaxed transition-colors duration-200 rounded cursor-pointer px-1 py-0.5 ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
-      >
-        <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none">{verse.verse}</sup>
-        <span
-          className={`font-serif leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass}`}
-          dangerouslySetInnerHTML={{ __html: htmlNoPilcrow }}
-        />
-      </span>
-      {actionPopover}
-    </span>
+
+      {/* End-of-section markers */}
+      {!loading && !error && pos.abbr === 'MAL' && pos.chapter === 4 && (
+        <div className="text-center my-8 py-6 border-t border-b border-border">
+          <p className="font-serif text-lg font-semibold text-muted-foreground tracking-widest uppercase">
+            End of the Prophets
+          </p>
+        </div>
+      )}
+      {!loading && !error && pos.abbr === 'REV' && pos.chapter === 22 && (
+        <div className="text-center my-8 py-6 border-t border-b border-border">
+          <p className="font-serif text-lg font-semibold text-muted-foreground tracking-widest uppercase">
+            End of the Holy Bible
+          </p>
+        </div>
+      )}
+
+
+    </div>
   );
 }
