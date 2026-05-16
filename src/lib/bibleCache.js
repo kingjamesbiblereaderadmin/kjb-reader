@@ -78,6 +78,9 @@ function parseBibleText(text) {
 export async function getBibleData() {
   if (parsedData) return parsedData;
 
+  // Clean up old cache key to free space
+  localStorage.removeItem('bible_data_complete');
+
   // Try to load from localStorage
   const cached = localStorage.getItem(CACHE_KEY);
   if (cached) {
@@ -94,6 +97,7 @@ export async function getBibleData() {
     parsedData = parseBibleText(text);
     
     // Store in localStorage for offline access on subsequent visits
+    localStorage.removeItem('bible_data_complete');
     localStorage.setItem(CACHE_KEY, JSON.stringify(parsedData));
     
     return parsedData;
