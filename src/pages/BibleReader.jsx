@@ -364,7 +364,7 @@ export default function BibleReader() {
       {!loading && !error && pos.abbr === 'MAL' && pos.chapter === 4 && (
         <div className="text-center my-8 py-6 border-t border-b border-border">
           <p className="font-serif text-lg font-semibold text-muted-foreground tracking-widest uppercase">
-            END OF THE PROPHETS
+            THE END OF THE PROPHETS
           </p>
         </div>
       )}
