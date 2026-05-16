@@ -91,7 +91,7 @@ async function fetchWithRetry(url, retries = 3) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return await res.text();
     } catch (err) {
-      console.error('[DEV][bibleCache] Fetch attempt ' + attempt + '/' + retries + ' failed:', err.message);
+      console.error('Fetch attempt ' + attempt + '/' + retries + ' failed:', err.message);
       if (attempt === retries) throw err;
       await new Promise(r => setTimeout(r, 1000 * attempt));
     }
@@ -103,7 +103,7 @@ function saveToCache(data) {
     localStorage.removeItem('bible_data_complete');
     localStorage.setItem(CACHE_KEY, JSON.stringify(data));
   } catch (e) {
-    console.error('[DEV][bibleCache] localStorage save failed:', e.message);
+    console.error('localStorage save failed:', e.message);
   }
 }
 
@@ -114,11 +114,11 @@ function loadFromCache() {
     if (!raw) return null;
     const data = JSON.parse(raw);
     if (isValidBibleData(data)) return data;
-    console.error('[DEV][bibleCache] Cached data failed validation, clearing');
+    console.error('Cached data failed validation, clearing');
     localStorage.removeItem(CACHE_KEY);
     return null;
   } catch (e) {
-    console.error('[DEV][bibleCache] Cache read/parse failed:', e.message);
+    console.error('Cache read/parse failed:', e.message);
     localStorage.removeItem(CACHE_KEY);
     return null;
   }
@@ -154,7 +154,7 @@ export async function getBibleData() {
       saveToCache(parsedData);
       return parsedData;
     } catch (error) {
-      console.error('[DEV][bibleCache] All fetch attempts failed:', error.message);
+      console.error('All fetch attempts failed:', error.message);
 
       // Last resort: try cache even if it was invalid before
       try {
