@@ -2,7 +2,7 @@
 // Fetches once from network, then uses localStorage
 
 const CACHE_KEY = 'bible_data_complete_v2';
-const TEXT_URL = 'https://www.bibleprotector.com/WHARTON_PCE.txt';
+const TEXT_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/ee659445e_TEXT-PCE-127.txt';
 
 const ABBR_TO_NAME = {
   'Ge':'Genesis','Ex':'Exodus','Le':'Leviticus','Nu':'Numbers','De':'Deuteronomy',
