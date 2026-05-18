@@ -84,6 +84,7 @@ export default function HomePage() {
       console.warn('Invalid verse data:', verse);
       return;
     }
+    console.log('Saving verse position:', { abbr: verse.abbr, chapter: verse.chapter, verse: verse.verse });
     try {
       localStorage.setItem('kjb-position', JSON.stringify({ abbr: verse.abbr, chapter: verse.chapter, verse: verse.verse }));
     } catch (err) {
