@@ -4,6 +4,10 @@ import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Men
 import { useTheme } from '@/lib/themeContext';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
+import FirstLoadPrompt from '@/components/FirstLoadPrompt';
+import { useInstallPrompt } from '@/hooks/useInstallPrompt';
+import { requestNotificationPermission, scheduleDailyNotification } from '@/lib/notifications';
+import { getDailyVerse } from '@/lib/dailyVerse';
 
 const NAV_ITEMS = [
   { path: '/', icon: Home, label: 'Home' },
@@ -200,8 +204,17 @@ export default function AppLayout() {
 }
 
 function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
+  const { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss, wasDismissed, setShowPrompt } = useBottomNavPrompt();
   const [moreOpen, setMoreOpen] = useState(false);
   const [footerVisible, setFooterVisible] = useState(true);
+
+  // Show prompt on daily-reading page too
+  useEffect(() => {
+    if (pathname === '/daily-reading' && !showPrompt && !wasDismissed()) {
+      const timer = setTimeout(() => setShowPrompt(true), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [pathname, showPrompt, setShowPrompt]);
 
   // Load footer visibility preference
   useEffect(() => {
@@ -330,6 +343,64 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
           </div>
         </div>
       )}
+
+      {showPrompt && (
+        <FirstLoadPrompt
+          isInstallable={isInstallable}
+          notifPermission={notifPermission}
+          onInstall={handleInstall}
+          onEnableNotif={handleEnableNotif}
+          onDismiss={handleDismiss}
+        />
+      )}
     </nav>
   );
+}
+
+function useBottomNavPrompt() {
+  const [showPrompt, setShowPrompt] = useState(false);
+  const { isInstallable, promptInstall, dismiss, wasDismissed } = useInstallPrompt();
+  const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
+
+  useEffect(() => {
+    if (wasDismissed()) return;
+    // Show prompt on first visit or when not dismissed
+    const timer = setTimeout(() => setShowPrompt(true), 1500);
+    return () => clearTimeout(timer);
+  }, [wasDismissed]);
+
+  useEffect(() => {
+    if (!showPrompt) return;
+    const handleInteraction = () => {
+      dismiss();
+      setShowPrompt(false);
+    };
+    document.addEventListener('click', handleInteraction, { once: true });
+    document.addEventListener('touchstart', handleInteraction, { once: true });
+    return () => {
+      document.removeEventListener('click', handleInteraction);
+      document.removeEventListener('touchstart', handleInteraction);
+    };
+  }, [showPrompt, dismiss]);
+
+  const handleInstall = async () => {
+    const accepted = await promptInstall();
+    if (accepted) setShowPrompt(false);
+  };
+
+  const handleEnableNotif = async () => {
+    const result = await requestNotificationPermission();
+    setNotifPermission(result);
+    if (result === 'granted') {
+      scheduleDailyNotification(getDailyVerse());
+      setShowPrompt(false);
+    }
+  };
+
+  const handleDismiss = () => {
+    dismiss();
+    setShowPrompt(false);
+  };
+
+  return { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss, wasDismissed };
 }
