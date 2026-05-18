@@ -1,0 +1,37 @@
+{
+  "name": "ReadingProgress",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "The date of the reading session (YYYY-MM-DD)"
+    },
+    "book": {
+      "type": "string",
+      "description": "Book abbreviation (e.g., 'GEN', 'MAT')"
+    },
+    "chapter": {
+      "type": "integer",
+      "description": "Chapter number read"
+    },
+    "verse_start": {
+      "type": "integer",
+      "description": "Starting verse"
+    },
+    "verse_end": {
+      "type": "integer",
+      "description": "Ending verse"
+    },
+    "completed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the daily goal was completed"
+    }
+  },
+  "required": [
+    "date",
+    "book",
+    "chapter"
+  ]
+}

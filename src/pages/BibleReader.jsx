@@ -187,8 +187,8 @@ export default function BibleReader() {
 
       {/* Sticky nav bar — hidden when hideUI or textOnlyMode is on */}
       {!(hideUI || textOnlyMode) && (
-        <div ref={topRef} className="sticky top-14 z-40 bg-background/95 backdrop-blur border-b border-border pb-3 mb-6">
-          <div className="relative flex flex-wrap items-center gap-2 pt-3 justify-between">
+        <div ref={topRef} className="sticky top-14 z-40 bg-background/95 backdrop-blur border-b border-border pb-2 mb-4">
+          <div className="relative flex flex-wrap items-center gap-2 pt-2 justify-between">
 
             {/* Book selector */}
             <div className="flex items-center gap-2 flex-wrap">

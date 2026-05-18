@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw, ChevronRight } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
+import DailyReadingSection from '@/components/reading/DailyReadingSection';
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
@@ -134,6 +135,9 @@ export default function HomePage() {
           </div>
         </div>
       )}
+
+      {/* Daily Reading Progress Section */}
+      <DailyReadingSection />
 
       {/* Daily verse card */}
       <div
