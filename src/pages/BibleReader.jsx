@@ -365,13 +365,22 @@ export default function BibleReader() {
             </div>
 
             {/* Hide header chevron */}
-            <button
-              onClick={() => setHideHeader(true)}
-              title="Hide header"
-              className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
-            >
-              <ChevronDown className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setHideHeader(true)}
+                title="Hide header"
+                className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
+              >
+                <ChevronDown className="w-4 h-4" />
+              </button>
+              <button
+                onClick={toggleFullscreen}
+                title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+                className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
+              >
+                {fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+              </button>
+            </div>
 
             {/* Prev/Next + Fullscreen */}
             <div className="flex items-center gap-1">
@@ -401,9 +410,9 @@ export default function BibleReader() {
         </div>
       )}
 
-      {/* Show header chevron when hidden — positioned with nav buttons */}
+      {/* Show header chevron when hidden — same position as hide button */}
       {hideHeader && (
-        <div className="fixed top-14 right-0 left-0 z-50 flex justify-center">
+        <div className="fixed top-14 right-4 z-50">
           <button
             onClick={() => setHideHeader(false)}
             className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
