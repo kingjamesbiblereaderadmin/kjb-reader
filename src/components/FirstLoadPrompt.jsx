@@ -178,6 +178,11 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                 Tap the <strong>Share</strong> button <span className="inline-block">⎙</span> in Safari, then choose <strong>"Add to Home Screen"</strong>.
               </p>
             )}
+            {!isIOS() && !isInstallable && (
+              <p className="mt-2 font-sans text-xs text-muted-foreground leading-relaxed px-1">
+                <strong>Tip:</strong> If the install prompt didn't appear, use your browser menu → <strong>"Install app"</strong> or <strong>"Add to Home Screen"</strong>.
+              </p>
+            )}
           </div>
         )}
 
