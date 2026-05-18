@@ -53,10 +53,6 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   // Dismissed by user
   if (dismissed) return null;
   
-  // Only dismiss when all visible actions are complete
-  const allDone = (downloaded || !showOffline) && (installDone || !showInstall) && (notifDone || !showNotif);
-  if (allDone) return null;
-  
   // Don't render the prompt at all if nothing to show
   if (!showInstall && !showOffline && !showNotif) return null;
 
