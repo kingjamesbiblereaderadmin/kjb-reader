@@ -4,7 +4,7 @@
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
 
-const CACHE_KEY = 'bible_data_pce_v18'; // v18: colophons with <<[...]]>> markers
+const CACHE_KEY = 'bible_data_pce_v19'; // v19: colophons with <<[...]]>> markers from PCE-127
 const TEXT_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/ee659445e_TEXT-PCE-127.txt';
 
 // Maps the abbreviation in the text file -> canonical book name (must match apiName in bibleData.js)
@@ -146,10 +146,10 @@ async function saveToCache(data) {
 
 async function loadFromCache() {
   try {
-    // Clear ALL old keys to force fresh download with v17
+    // Clear ALL old keys to force fresh download with v19
     localStorage.removeItem('bible_data_complete');
     localStorage.removeItem('bible_data_complete_v2');
-    for (let i = 1; i <= 17; i++) {
+    for (let i = 1; i <= 19; i++) {
       localStorage.removeItem(`bible_data_pce_v${i}`);
     }
     // Load from IndexedDB
@@ -215,8 +215,8 @@ export async function isBibleCached() {
 
 // Clear cached Bible data
 export async function clearBibleCache() {
-  // Clear ALL version keys (1-17)
-  for (let i = 1; i <= 17; i++) {
+  // Clear ALL version keys (1-19)
+  for (let i = 1; i <= 19; i++) {
     localStorage.removeItem(`bible_data_pce_v${i}`);
   }
   localStorage.removeItem('bible_data_complete');
