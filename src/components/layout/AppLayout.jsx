@@ -107,12 +107,12 @@ export default function AppLayout() {
             <BibleSearchBar onClose={() => setMenuOpen(false)} />
           </div>
 
-          <div className="flex h-full flex-shrink-0">
+          <div className="flex items-center gap-0 flex-shrink-0">
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
               onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
-              className="h-full w-14 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
+              className="h-14 w-14 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
               aria-label="Refresh"
             >
               <RotateCw className="w-5 h-5" />
@@ -121,7 +121,7 @@ export default function AppLayout() {
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
               onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
-              className="h-full w-14 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
+              className="h-14 w-14 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
               aria-label="Toggle theme"
             >
               {mode === 'auto' ? <SunMoon className="w-5 h-5" /> : isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
@@ -130,7 +130,7 @@ export default function AppLayout() {
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
               onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
-              className="h-full w-14 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
+              className="h-14 w-14 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
               aria-label="Open menu"
             >
               {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
