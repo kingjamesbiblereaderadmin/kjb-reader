@@ -90,7 +90,7 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`}>
-        <div className="max-w-5xl mx-auto px-4 h-14 sm:h-16 flex items-center gap-3">
+        <div className="max-w-5xl mx-auto px-4 h-[60px] sm:h-16 flex items-center gap-3">
           {/* Logo */}
           <Link
             to="/"
@@ -98,23 +98,23 @@ export default function AppLayout() {
               setMenuOpen(false);
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className="flex items-center gap-2 flex-shrink-0"
+            className="flex items-center gap-2 flex-shrink-0 pointer-events-auto"
           >
             <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB Reader" className="h-9 w-auto" />
           </Link>
 
           {/* Search - expands to fill space */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 pointer-events-auto">
             <BibleSearchBar onClose={() => setMenuOpen(false)} />
           </div>
 
           {/* Actions - buttons with 44x44px touch targets */}
-          <div className="flex items-center gap-0.5">
+          <div className="flex items-center gap-0.5 pointer-events-none">
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
               onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
-              className="w-[44px] h-[44px] flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
+              className="w-[44px] h-[44px] flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none pointer-events-auto"
               aria-label="Refresh"
             >
               <RotateCw className="w-5 h-5" />
@@ -123,7 +123,7 @@ export default function AppLayout() {
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
               onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
-              className="w-[44px] h-[44px] flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
+              className="w-[44px] h-[44px] flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none pointer-events-auto"
               aria-label="Toggle theme"
             >
               {mode === 'auto' ? <SunMoon className="w-5 h-5" /> : isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
@@ -132,7 +132,7 @@ export default function AppLayout() {
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
               onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
-              className="w-[44px] h-[44px] flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
+              className="w-[44px] h-[44px] flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none pointer-events-auto"
               aria-label="Open menu"
             >
               {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
