@@ -17,6 +17,22 @@ const FALLBACK_POOL = [
   { abbr: "1CO", book: "1 Corinthians", chapter: 15, verse: 3, text: "For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures." },
 ];
 
+// Verses to exclude from the featured verse (by "BOOK chapter:verse" key)
+const EXCLUDED_VERSES = new Set([
+  // Romans 10:9 (works-based salvation concern)
+  'Romans 10:9',
+  // "faith without works is dead" - James 2
+  'James 2:17', 'James 2:20', 'James 2:24', 'James 2:26',
+  // "endure unto the end"
+  'Matthew 10:22', 'Matthew 24:13', 'Mark 13:13',
+  // "keep the commandments" to enter / inherit life
+  'Matthew 19:17', 'Revelation 22:14',
+  // Violence / killing commands (Old Testament)
+  'Deuteronomy 17:12', 'Exodus 22:18', 'Exodus 31:15', 'Exodus 35:2',
+  'Leviticus 20:13', 'Leviticus 20:27', 'Numbers 31:17', 'Numbers 25:5',
+  '1 Samuel 15:3', 'Ezekiel 9:6',
+]);
+
 // Pick a truly random verse from the full cached Bible, fallback to pool if not available
 export async function getRandomVerseFromBible() {
   try {
@@ -24,22 +40,25 @@ export async function getRandomVerseFromBible() {
     const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
     if (!bookNames.length) throw new Error('no data');
 
-    const bookName = bookNames[Math.floor(Math.random() * bookNames.length)];
-    const chapters = Object.keys(bible[bookName]);
-    const chapter = chapters[Math.floor(Math.random() * chapters.length)];
-    const verses = bible[bookName][chapter];
-    const verseObj = verses[Math.floor(Math.random() * verses.length)];
+    let bookName, chapter, verseObj, displayName, bookData;
+    let attempts = 0;
+    do {
+      bookName = bookNames[Math.floor(Math.random() * bookNames.length)];
+      const chapters = Object.keys(bible[bookName]);
+      chapter = chapters[Math.floor(Math.random() * chapters.length)];
+      const verses = bible[bookName][chapter];
+      verseObj = verses[Math.floor(Math.random() * verses.length)];
+      bookData = BIBLE_BOOKS.find(b => b.apiName === bookName);
+      displayName = bookData ? bookData.name : bookName;
+      attempts++;
+    } while (EXCLUDED_VERSES.has(`${displayName} ${chapter}:${verseObj.verse}`) && attempts < 20);
 
-    // Find the abbr from BIBLE_BOOKS
-    const bookData = BIBLE_BOOKS.find(b => b.apiName === bookName);
     const abbr = bookData ? bookData.abbr : bookName.slice(0, 3).toUpperCase();
 
     const cleanText = verseObj.text
       .replace(/\[([^\]]+)\]/g, '$1')
       .replace(/¶\s*/g, '')
       .replace(/^<<[^>]*>>\s*/, '');
-
-    const displayName = bookData ? bookData.name : bookName;
 
     return {
       abbr,
