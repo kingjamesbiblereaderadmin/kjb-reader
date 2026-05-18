@@ -72,7 +72,7 @@ export default function AppLayout() {
             <BibleSearchBar onClose={() => setMenuOpen(false)} />
           </div>
 
-          <div className="flex items-center gap-1 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={() => window.location.reload()}
               className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
