@@ -150,11 +150,9 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             <p className="font-serif text-base font-semibold text-foreground leading-tight">Get the most from KJB Reader</p>
             <button
               type="button"
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); console.log('[FirstLoadPrompt] X button clicked'); handleClose(); }}
-              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); console.log('[FirstLoadPrompt] X button touched'); handleClose(); }}
-              className="shrink-0 p-2 rounded-lg text-muted-foreground hover:bg-secondary transition-colors relative z-[100001] cursor-pointer touch-manipulation"
+              onClick={() => handleClose()}
+              className="shrink-0 p-2 rounded-lg text-muted-foreground hover:bg-secondary transition-colors cursor-pointer"
               aria-label="Dismiss"
-              style={{ pointerEvents: 'auto' }}
             >
               <X className="w-4 h-4" />
             </button>
