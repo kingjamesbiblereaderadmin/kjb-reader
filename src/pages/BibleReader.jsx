@@ -514,8 +514,8 @@ export default function BibleReader() {
         {/* Colophon footer - shown below all verses for chapters that have one */}
         {!loading && !error && colophon && (
           <div className="text-center mt-12 mb-4">
-            <p className="font-serif text-sm text-muted-foreground tracking-widest uppercase">
-              {colophon}
+            <p className="font-serif text-sm text-muted-foreground leading-relaxed">
+              ¶ <em>{colophon}</em>
             </p>
           </div>
         )}
