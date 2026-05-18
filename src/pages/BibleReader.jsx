@@ -315,6 +315,13 @@ export default function BibleReader() {
               >
                 {fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
               </button>
+              <button
+                onClick={() => setHideUI(true)}
+                title="Hide UI"
+                className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
+              >
+                <EyeOff className="w-4 h-4" />
+              </button>
             </div>
           </div>
         </div>
