@@ -96,24 +96,18 @@ function parseBibleText(rawText) {
     }
 
     // Extract colophon markers: ¶ [text] at end of verse (pilcrow + square brackets)
-    // Try multiple patterns to catch all variations
-    const colophonPatterns = [
-      /\u00B6\s*\[(.*?)\]\s*$/,  // ¶ [text]
-      /\uFFFD\s*\[(.*?)\]\s*$/,  // Replacement char [text]
-    ];
-    
-    for (const pattern of colophonPatterns) {
-      const colophonMatch = verseText.match(pattern);
-      if (colophonMatch) {
-        const colophonKey = `${bookName}:${chapter}`;
-        if (!colophons[colophonKey]) {
-          colophons[colophonKey] = colophonMatch[1];
-          colophonCount++;
-          console.log(`[COLOPHON] Extracted: ${colophonKey} -> ${colophons[colophonKey]}`);
-        }
-        verseText = verseText.replace(/\s*[\u00B6\uFFFD]\s*\[.*?\]\s*$/, '').trim();
-        break;
+    // Must have pilcrow/replacement char + space + square brackets at end
+    const colophonMatch = verseText.match(/[\u00B6\uFFFD]\s*\[([^\]]+)\]\s*$/);
+    if (colophonMatch) {
+      const colophonKey = `${bookName}:${chapter}`;
+      if (!colophons[colophonKey]) {
+        colophons[colophonKey] = colophonMatch[1];
+        colophonCount++;
+        console.log(`[COLOPHON] ✓ Extracted: ${colophonKey} -> "${colophons[colophonKey]}"`);
       }
+      // Remove the colophon marker from verse text
+      verseText = verseText.replace(/\s*[\u00B6\uFFFD]\s*\[[^\]]+\]\s*$/, '').trim();
+      console.log(`[COLOPHON]   Cleaned verse: "${verseText.slice(0, 50)}..."`);
     }
 
     if (!verseText.trim()) continue;
