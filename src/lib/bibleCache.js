@@ -4,8 +4,8 @@
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
 
-const CACHE_KEY = 'bible_data_pce_v19'; // v19: colophons with <<[...]]>> markers from PCE-127
-const TEXT_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/ee659445e_TEXT-PCE-127.txt';
+const CACHE_KEY = 'bible_data_wharton_v1'; // v1: colophons from WHARTON_PCE.txt
+const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/b51575e86_WHARTON_PCE.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
 // Maps the abbreviation in the text file -> canonical book name (must match apiName in bibleData.js)
@@ -87,7 +87,7 @@ function parseBibleText(rawText) {
       continue;
     }
 
-    // Extract colophon markers: <<[...text...]>> at end of verse
+    // Extract colophon markers: <<[...text...]]>> at end of verse (supports both <<[...]]>> and <<[...]>> formats)
     const colophonMatch = verseText.match(/<<\[(.*?)\]>>\s*$/);
     if (colophonMatch) {
       const colophonKey = `${bookName}:${chapter}`;
