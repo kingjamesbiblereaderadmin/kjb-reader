@@ -135,13 +135,25 @@ export default function DailyReadingPage() {
                 <p className="font-sans text-base text-foreground">
                   <span className="font-semibold">{todayProgress.book}</span> Chapter {todayProgress.chapter} {verseCount ? `(v.1${verseCount > 1 ? '-' + verseCount : ''})` : ''}
                 </p>
-                {!completedToday && (
-                  <button
-                    onClick={handleStartReading}
-                    className="w-full px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
-                  >
-                    Read Now
-                  </button>
+                {!completedToday ? (
+                  <>
+                    <button
+                      onClick={handleStartReading}
+                      className="w-full px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+                    >
+                      Read Now
+                    </button>
+                    <button
+                      onClick={handleMarkComplete}
+                      className="w-full px-4 py-2.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+                    >
+                      Mark as Complete
+                    </button>
+                  </>
+                ) : (
+                  <div className="w-full px-4 py-2.5 rounded-lg bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 font-sans text-sm font-medium text-center">
+                    ✓ Completed today — come back tomorrow
+                  </div>
                 )}
               </div>
             ) : (
