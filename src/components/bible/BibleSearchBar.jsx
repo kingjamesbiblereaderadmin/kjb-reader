@@ -140,9 +140,10 @@ export default function BibleSearchBar({ onClose }) {
             </button>
             <button
               type="button"
-              onClick={(e) => { e.preventDefault(); setQuery(''); setSuggestions([]); }}
-              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setQuery(''); setSuggestions([]); }}
+              onClick={(e) => { e.stopPropagation(); setQuery(''); setSuggestions([]); inputRef.current?.focus(); }}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setQuery(''); setSuggestions([]); inputRef.current?.focus(); }}
               className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 touch-manipulation"
+              aria-label="Clear search"
             >
               <X className="w-3.5 h-3.5" />
             </button>
