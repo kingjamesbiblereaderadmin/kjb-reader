@@ -231,8 +231,8 @@ export default function DailyReadingPage() {
 
         {/* Reading Reminder */}
         <div className="mt-6 bg-card border border-border rounded-xl p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex-1">
               <p className="font-sans text-sm font-medium text-foreground">Daily Reading Reminder</p>
               <p className="font-sans text-xs text-muted-foreground mt-0.5">
                 {readingReminderEnabled 
@@ -243,7 +243,7 @@ export default function DailyReadingPage() {
             <button
               onClick={handleToggleReadingReminder}
               disabled={notifPermission === 'denied'}
-              className={`px-4 py-2 rounded-lg font-sans text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-lg font-sans text-sm font-medium transition-colors shrink-0 ${
                 readingReminderEnabled
                   ? 'bg-primary text-primary-foreground hover:opacity-90'
                   : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
@@ -253,13 +253,13 @@ export default function DailyReadingPage() {
             </button>
           </div>
           {readingReminderEnabled && (
-            <div className="flex items-center gap-3 pt-2 border-t border-border">
+            <div className="flex items-center gap-3 pt-3 border-t border-border">
               <label className="font-sans text-sm text-muted-foreground shrink-0">Remind at</label>
               <input
                 type="time"
                 value={readingReminderTime}
                 onChange={handleReadingReminderTimeChange}
-                className="flex-1 px-3 py-1.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground focus:outline-none focus:border-accent"
+                className="flex-1 max-w-xs px-3 py-1.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground focus:outline-none focus:border-accent"
               />
             </div>
           )}
