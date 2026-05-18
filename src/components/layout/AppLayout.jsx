@@ -64,6 +64,18 @@ export default function AppLayout() {
     }
   }, []);
 
+  // Dismiss prompt when user navigates to a different page
+  useEffect(() => {
+    const handleRouteChange = () => {
+      if (showPrompt) {
+        handleDismiss();
+        setShowPrompt(false);
+      }
+    };
+    window.addEventListener('popstate', handleRouteChange);
+    return () => window.removeEventListener('popstate', handleRouteChange);
+  }, [showPrompt, handleDismiss, setShowPrompt]);
+
   const handleDownloadOffline = async () => {
     try {
       await downloadBibleForOffline(() => {});
