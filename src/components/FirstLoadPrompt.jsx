@@ -14,8 +14,14 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   const [downloading, setDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(null);
   const [downloaded, setDownloaded] = useState(propDownloaded || false);
-  const [installDone, setInstallDone] = useState(false);
-  const [notifDone, setNotifDone] = useState(false);
+  const [installDone, setInstallDone] = useState(() => {
+    // Check if already installed on mount
+    return window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
+  });
+  const [notifDone, setNotifDone] = useState(() => {
+    // Check if notifications already enabled
+    return 'Notification' in window && Notification.permission === 'granted';
+  });
 
   useEffect(() => {
     if (propDownloaded !== undefined) {
@@ -38,17 +44,17 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   // Show install: either native prompt available, iOS, Android, or desktop PWA
   // Hide once installed or user completed install action
   const showInstall = !alreadyInstalled && !installDone && (isInstallable || isIOS() || isAndroid() || isDesktop);
-  // Always show notification option - works in browser and installed app/APK
-  const showNotif = true;
+  // Show notification option only if not already granted
+  const showNotif = !notifDone;
   // Show offline download prompt if not already downloaded
   const showOffline = !downloaded;
 
-  // Only dismiss when all three actions are complete
-  const allDone = downloaded && installDone && notifDone;
+  // Only dismiss when all visible actions are complete
+  const allDone = (downloaded || !showOffline) && (installDone || !showInstall) && (notifDone || !showNotif);
   if (allDone) return null;
   
   // Don't render the prompt at all if nothing to show
-  if (!showInstall && !showOffline) return null;
+  if (!showInstall && !showOffline && !showNotif) return null;
 
   const handleInstallClick = async () => {
     console.log('[FirstLoadPrompt] handleInstallClick called');
@@ -58,7 +64,6 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
       console.log('[FirstLoadPrompt] android install accepted:', accepted);
       if (accepted) {
         setInstallDone(true);
-        onDismiss();
       }
       return;
     }
@@ -68,7 +73,6 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
       console.log('[FirstLoadPrompt] install accepted:', accepted);
       if (accepted) {
         setInstallDone(true);
-        onDismiss();
       }
     } else if (isIOS()) {
       // iOS — show manual instructions (toggle hint)
@@ -79,7 +83,6 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
       console.log('[FirstLoadPrompt] desktop install accepted:', accepted);
       if (accepted) {
         setInstallDone(true);
-        onDismiss();
       }
     }
   };
@@ -89,8 +92,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     if (onEnableNotif) {
       try {
         await onEnableNotif();
-        // Don't set notifDone - let Settings page handle the state
-        // User can try multiple times if needed
+        setNotifDone(true);
       } catch (err) {
         console.error('Notification setup failed:', err);
       }
