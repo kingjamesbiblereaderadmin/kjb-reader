@@ -188,9 +188,10 @@ export default function BibleReader() {
       {/* Sticky nav bar — hidden when hideUI or textOnlyMode is on */}
       {!(hideUI || textOnlyMode) && (
         <div ref={topRef} className="sticky top-14 z-40 bg-background/95 backdrop-blur border-b border-border pb-3 mb-6">
-          <div className="relative flex flex-wrap items-center gap-2 pt-3">
+          <div className="relative flex flex-wrap items-center gap-2 pt-3 justify-between">
 
             {/* Book selector */}
+            <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => { setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); }}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-colors min-w-fit"
@@ -310,9 +311,10 @@ export default function BibleReader() {
               {paragraphMode ? <AlignJustify className="w-3.5 h-3.5" /> : <List className="w-3.5 h-3.5" />}
               {paragraphMode ? 'Para' : 'Lines'}
             </button>
+            </div>
 
             {/* Prev/Next + Fullscreen + Hide UI */}
-            <div className="ml-auto flex items-center gap-1">
+            <div className="flex items-center gap-1">
               <button
                 onClick={goPrev}
                 disabled={isFirstChapterFirstBook}
