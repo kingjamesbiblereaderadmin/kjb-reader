@@ -47,7 +47,11 @@ export function renderVerseText(text) {
   let cleaned = text.replace(/[<>]|>>/g, '');
   // Preserve pilcrow (¶) - don't strip it
   const parts = cleaned.split(/\[([^\]]+)\]/g);
-  return parts.map((part, i) =>
+  const result = parts.map((part, i) =>
     i % 2 === 1 ? `<em>${part}</em>` : part
   ).join('');
+  console.log('[RENDER] Input:', text.slice(0, 60), '...');
+  console.log('[RENDER] Output:', result.slice(0, 60), '...');
+  console.log('[RENDER] Has pilcrow:', result.includes('¶') || result.includes('\u00B6'));
+  return result;
 }
