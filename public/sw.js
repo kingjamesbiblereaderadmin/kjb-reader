@@ -2,7 +2,7 @@ const CACHE_NAME = 'kjb-shell-v3';
 const BIBLE_CACHE = 'kjb-bible-v1';
 const BIBLE_TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
 
-// On install: cache only the index.html shell (JS/CSS are hashed and handled dynamically)
+// On install: cache the app shell
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.add('/'))
@@ -23,7 +23,6 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
-  const url = new URL(request.url);
 
   // Cache-first for the large Bible text file
   if (request.url === BIBLE_TEXT_URL) {
@@ -59,7 +58,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For navigation requests (page loads/refreshes): network-first, fall back to cached '/'
+  // Navigation requests: network-first, fall back to cached '/'
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request).catch(() =>
@@ -68,4 +67,17 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
+});
+
+// Open the app when user taps a notification
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+      for (const client of list) {
+        if (client.url && 'focus' in client) return client.focus();
+      }
+      if (clients.openWindow) return clients.openWindow('/');
+    })
+  );
 });

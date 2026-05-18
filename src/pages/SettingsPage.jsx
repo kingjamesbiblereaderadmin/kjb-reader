@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Monitor } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useTheme } from '@/lib/themeContext';
 import {
@@ -15,8 +15,7 @@ export default function SettingsPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteInput, setDeleteInput] = useState('');
   const [deleting, setDeleting] = useState(false);
-  const { isDark, toggleTheme, resetToSystem } = useTheme();
-  const hasManualTheme = localStorage.getItem('kjb-dark-mode') !== null;
+  const { isDark, mode, setMode } = useTheme();
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
@@ -97,26 +96,32 @@ export default function SettingsPage() {
       {/* Appearance */}
       <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
         <h2 className="font-serif text-lg font-semibold text-foreground">Appearance</h2>
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="font-sans text-sm text-foreground font-medium">Theme</p>
-            <p className="font-sans text-xs text-muted-foreground mt-0.5">{isDark ? 'Dark mode' : 'Light mode'}</p>
-          </div>
-          <button
-            onClick={toggleTheme}
-            className="px-4 py-2 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-          >
-            {isDark ? '☀️ Light' : '🌙 Dark'}
-          </button>
+        <p className="font-sans text-xs text-muted-foreground">Choose how the app looks</p>
+        <div className="grid grid-cols-4 gap-2">
+          {[
+            { id: 'light', label: '☀️ Light' },
+            { id: 'dark', label: '🌙 Dark' },
+            { id: 'auto', label: '🕐 Auto' },
+            { id: 'system', label: '📱 System' },
+          ].map(opt => (
+            <button
+              key={opt.id}
+              onClick={() => setMode(opt.id)}
+              className={`py-2 rounded-xl font-sans text-sm font-medium transition-colors ${
+                mode === opt.id
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
         </div>
-        {hasManualTheme && (
-          <button
-            onClick={resetToSystem}
-            className="flex items-center gap-2 font-sans text-xs text-muted-foreground underline hover:text-foreground transition-colors"
-          >
-            <Monitor className="w-3 h-3" /> Follow system theme
-          </button>
-        )}
+        <p className="font-sans text-xs text-muted-foreground">
+          {mode === 'auto' ? '🕐 Auto: light 6am–6pm, dark 6pm–6am' :
+           mode === 'system' ? '📱 System: follows your device setting' :
+           mode === 'dark' ? '🌙 Dark mode always on' : '☀️ Light mode always on'}
+        </p>
       </div>
 
       {/* Offline Library */}
