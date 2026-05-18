@@ -169,7 +169,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           onClick={() => setSelected(s => !s)}
           className={`inline leading-loose transition-colors duration-200 rounded cursor-pointer px-0.5 py-0.5 ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
         >
-          {hasPilcrow && <span className="text-accent mr-1 not-italic select-none font-sans opacity-70" style={{fontSize:'0.9rem'}}>§</span>}
+          {hasPilcrow && <span className="text-accent mr-1 not-italic select-none font-sans opacity-70">¶</span>}
           <sup className="text-accent font-sans font-semibold text-xs mr-1 select-none">{verse.verse}</sup>
           <span
             className={`font-serif leading-loose [&_em]:italic [&_em]:text-foreground/75 ${textClass}`}
@@ -185,14 +185,11 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // ── LINE MODE (default): each verse is its own line ──
   return (
     <span id={id} className={`block relative ${hasPilcrow && !isFirstVerse ? 'mt-6' : 'mt-1.5'}`}>
-      {/* Pilcrow gap marker */}
-      {hasPilcrow && !isFirstVerse && (
-        <span className="block text-accent text-sm select-none mb-1 leading-none font-sans opacity-70">§</span>
-      )}
       <span
         onClick={() => setSelected(s => !s)}
         className={`flex items-baseline gap-2 leading-relaxed transition-colors duration-200 rounded cursor-pointer px-1 py-0.5 ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
       >
+        {hasPilcrow && <span className="text-accent font-sans select-none shrink-0 opacity-70 text-base">¶</span>}
         <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none">{verse.verse}</sup>
         <span
           className={`font-serif leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass}`}
