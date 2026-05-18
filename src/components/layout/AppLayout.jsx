@@ -22,8 +22,8 @@ const NAV_ITEMS = [
 const BOTTOM_NAV = [
   { path: '/', icon: Home, label: 'Home' },
   { path: '/read', icon: BookOpen, label: 'Read' },
-  { path: '/saved', icon: Bookmark, label: 'Saved' },
-  { path: '/settings', icon: Settings, label: 'Settings' },
+  { path: '/gospel', icon: Heart, label: 'Gospel' },
+  { path: '/resources', icon: Library, label: 'Resources' },
 ];
 
 export default function AppLayout() {

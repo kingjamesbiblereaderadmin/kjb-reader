@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw } from 'lucide-react';
+import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw, ChevronRight } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications } from '@/lib/notifications';
@@ -12,6 +12,7 @@ const QUICK_LINKS = [
   { path: '/contents', icon: List, label: 'Table of Contents', desc: 'Browse all 66 books', color: 'bg-secondary text-secondary-foreground' },
   { path: null, icon: null, label: '__RANDOM__', desc: '', color: '' },
   { path: '/saved', icon: Bookmark, label: 'Saved Verses', desc: 'Your bookmarked verses', color: 'bg-secondary text-secondary-foreground' },
+  { path: '/gospel', icon: Heart, label: 'Gospel', desc: 'Learn how to be saved', color: 'bg-secondary text-secondary-foreground' },
   { path: '/resources', icon: Library, label: 'Resources', desc: 'KJB defence & study', color: 'bg-secondary text-secondary-foreground' },
   { path: '/about', icon: Info, label: 'About', desc: 'Ministry & links', color: 'bg-secondary text-secondary-foreground' },
   { path: '/settings', icon: Settings, label: 'Settings', desc: 'Offline downloads & info', color: 'bg-secondary text-secondary-foreground' },
@@ -19,7 +20,7 @@ const QUICK_LINKS = [
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const [verse, setVerse] = useState(getDailyVerseFallback());
+  const [verse, setVerse] = useState(getDailyVerse());
   const [refreshing, setRefreshing] = useState(false);
   const touchStartY = useRef(0);
   const touchEndY = useRef(0);
@@ -32,8 +33,9 @@ export default function HomePage() {
     if (refreshing) return;
     setRefreshing(true);
     try {
-      await getRandomVerseFromBible().then(v => setVerse(v)).catch(() => {});
-      // Small delay to show the animation
+      // Refresh with a random verse from the fallback pool
+      const idx = Math.floor(Math.random() * 100);
+      setVerse(getDailyVerse());
       await new Promise(resolve => setTimeout(resolve, 600));
     } finally {
       setRefreshing(false);

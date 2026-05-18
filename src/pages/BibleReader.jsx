@@ -231,7 +231,11 @@ export default function BibleReader() {
                 <ChapterSelector
                   totalChapters={book.chapters}
                   currentChapter={pos.chapter}
-                  onSelect={(ch) => navigate(pos.abbr, ch)}
+                  onSelect={(ch, showVerse) => {
+                    navigate(pos.abbr, ch);
+                    setShowChapterPicker(false);
+                    if (showVerse) setShowVersePicker(true);
+                  }}
                   onClose={() => setShowChapterPicker(false)}
                 />
               </div>
@@ -240,7 +244,11 @@ export default function BibleReader() {
               <ChapterSelector
                 totalChapters={book.chapters}
                 currentChapter={pos.chapter}
-                onSelect={(ch) => navigate(pos.abbr, ch)}
+                onSelect={(ch, showVerse) => {
+                  navigate(pos.abbr, ch);
+                  setShowChapterPicker(false);
+                  if (showVerse) setShowVersePicker(true);
+                }}
                 onClose={() => setShowChapterPicker(false)}
               />
             </SelectorSheet>
