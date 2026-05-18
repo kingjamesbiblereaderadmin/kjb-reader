@@ -7,7 +7,6 @@ import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { requestNotificationPermission, scheduleDailyNotification } from '@/lib/notifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
-import { getFooterAutoHideEnabled, getFooterHideTime } from '@/lib/footerSettings';
 
 const NAV_ITEMS = [
   { path: '/', icon: Home, label: 'Home' },
@@ -41,34 +40,47 @@ export default function AppLayout() {
   const [footerHidden, setFooterHidden] = useState(() => {
     try { return localStorage.getItem('kjb-footer-hidden') === 'true'; } catch { return false; }
   });
-  const [autoHideScheduled, setAutoHideScheduled] = useState(false);
   const navigate = useNavigate();
   const isRoot = pathname === '/';
+  const activityTimeoutRef = useRef(null);
 
-  // Auto-hide footer based on time setting
+  // Hide footer when user is active (reading/clicking), show after 3 seconds of inactivity
   useEffect(() => {
-    const checkAutoHide = () => {
-      const enabled = getFooterAutoHideEnabled();
-      if (!enabled) return;
-
-      const hideTime = getFooterHideTime();
-      const now = new Date();
-      const [hours, minutes] = hideTime.split(':').map(Number);
-      const targetTime = new Date(now);
-      targetTime.setHours(hours, minutes, 0, 0);
-
-      // Hide if current time matches or passes the target time
-      const timeDiff = now.getTime() - targetTime.getTime();
-      if (timeDiff >= 0 && timeDiff < 60000 && !footerHidden) { // Within 1 minute window
+    const handleActivity = () => {
+      // Hide footer immediately on activity
+      if (!footerHidden) {
         setFooterHidden(true);
         try { localStorage.setItem('kjb-footer-hidden', 'true'); } catch {}
       }
+
+      // Clear existing timeout
+      if (activityTimeoutRef.current) {
+        clearTimeout(activityTimeoutRef.current);
+      }
+
+      // Show footer after 3 seconds of inactivity
+      activityTimeoutRef.current = setTimeout(() => {
+        setFooterHidden(false);
+        try { localStorage.setItem('kjb-footer-hidden', 'false'); } catch {}
+      }, 3000);
     };
 
-    // Check immediately and then every minute
-    checkAutoHide();
-    const interval = setInterval(checkAutoHide, 60000);
-    return () => clearInterval(interval);
+    // Listen for user activity
+    window.addEventListener('click', handleActivity);
+    window.addEventListener('scroll', handleActivity);
+    window.addEventListener('keypress', handleActivity);
+    window.addEventListener('touchstart', handleActivity);
+
+    // Initial cleanup
+    return () => {
+      window.removeEventListener('click', handleActivity);
+      window.removeEventListener('scroll', handleActivity);
+      window.removeEventListener('keypress', handleActivity);
+      window.removeEventListener('touchstart', handleActivity);
+      if (activityTimeoutRef.current) {
+        clearTimeout(activityTimeoutRef.current);
+      }
+    };
   }, [footerHidden]);
 
   return (

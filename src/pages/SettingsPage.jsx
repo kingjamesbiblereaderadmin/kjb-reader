@@ -182,12 +182,12 @@ export default function SettingsPage() {
       {/* Footer Visibility */}
       <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
         <h2 className="font-serif text-lg font-semibold text-foreground">Footer Menu</h2>
-        <p className="font-sans text-sm text-muted-foreground">Show or hide the bottom navigation menu</p>
+        <p className="font-sans text-sm text-muted-foreground">Bottom navigation auto-hides when reading and shows after 3 seconds of inactivity</p>
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="font-sans text-sm text-foreground font-medium">Bottom Navigation</p>
+            <p className="font-sans text-sm text-foreground font-medium">Auto-hide Footer</p>
             <p className="font-sans text-xs text-muted-foreground mt-0.5">
-              {footerHidden ? 'Hidden — tap the eye button to show' : 'Visible on all pages'}
+              {footerHidden ? 'Currently hidden' : 'Currently visible'}
             </p>
           </div>
           <button
@@ -203,7 +203,7 @@ export default function SettingsPage() {
             }`}
           >
             {footerHidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            {footerHidden ? 'Hidden' : 'Visible'}
+            {footerHidden ? 'Show' : 'Hide'}
           </button>
         </div>
       </div>
