@@ -140,8 +140,8 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
       {/* Backdrop - tap outside to dismiss */}
       <div 
         className="fixed inset-0 z-[99999] bg-background/80 backdrop-blur-sm"
-        onClick={(e) => { e.stopPropagation(); e.preventDefault(); console.log('[FirstLoadPrompt] backdrop clicked'); handleClose(); }}
-        onTouchEnd={(e) => { e.stopPropagation(); e.preventDefault(); console.log('[FirstLoadPrompt] backdrop touched'); handleClose(); }}
+        onClick={(e) => { e.preventDefault(); console.log('[FirstLoadPrompt] backdrop clicked'); handleClose(); }}
+        onTouchEnd={(e) => { e.preventDefault(); console.log('[FirstLoadPrompt] backdrop touched'); handleClose(); }}
         style={{ pointerEvents: 'auto', cursor: 'pointer' }}
       />
       <div className="fixed bottom-16 sm:bottom-4 right-4 z-[100000] w-80 pointer-events-auto">
@@ -149,9 +149,9 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
           <div className="flex items-start justify-between gap-2">
             <p className="font-serif text-base font-semibold text-foreground leading-tight">Get the most from KJB Reader</p>
             <button
-              onClick={(e) => { e.stopPropagation(); e.preventDefault(); console.log('[FirstLoadPrompt] X button clicked'); handleClose(); }}
-              onTouchEnd={(e) => { e.stopPropagation(); e.preventDefault(); console.log('[FirstLoadPrompt] X button touched'); handleClose(); }}
-              className="shrink-0 p-1 rounded-lg text-muted-foreground hover:bg-secondary transition-colors relative z-[100001] cursor-pointer"
+              onClick={(e) => { e.preventDefault(); console.log('[FirstLoadPrompt] X button clicked'); handleClose(); }}
+              onTouchEnd={(e) => { e.preventDefault(); console.log('[FirstLoadPrompt] X button touched'); handleClose(); }}
+              className="shrink-0 p-2 rounded-lg text-muted-foreground hover:bg-secondary transition-colors relative z-[100001] cursor-pointer touch-manipulation"
               aria-label="Dismiss"
               style={{ pointerEvents: 'auto' }}
             >
