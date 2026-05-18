@@ -183,12 +183,12 @@ export default function BibleReader() {
   const isGenesisChapterOne = pos.abbr === 'GEN' && pos.chapter === 1;
 
   return (
-    <div className={`max-w-3xl mx-auto px-4 py-6 ${hideUI || textOnlyMode ? 'select-text' : ''}`}>
+    <div className={`max-w-3xl mx-auto px-4 py-3 ${hideUI || textOnlyMode ? 'select-text' : ''}`}>
 
       {/* Sticky nav bar — hidden when hideUI or textOnlyMode is on */}
       {!(hideUI || textOnlyMode) && (
-        <div ref={topRef} className="sticky top-14 z-40 bg-background/95 backdrop-blur border-b border-border pb-2 mb-4">
-          <div className="relative flex flex-wrap items-center gap-2 pt-2 justify-between">
+        <div ref={topRef} className="sticky top-14 z-40 bg-background/95 backdrop-blur border-b border-border pb-1 mb-2">
+          <div className="relative flex flex-wrap items-center gap-2 pt-1 justify-between">
 
             {/* Book selector */}
             <div className="flex items-center gap-2 flex-wrap">
