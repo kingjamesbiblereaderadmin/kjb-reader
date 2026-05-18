@@ -11,7 +11,8 @@ function VerseLink({ book, chapter, verse, children }) {
     if (!bookData) return;
     const pos = { abbr: bookData.abbr, chapter, verse };
     try { localStorage.setItem('kjb-position', JSON.stringify(pos)); } catch {}
-    navigate('/read');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => navigate('/read'), 150);
   };
 
   return (
@@ -165,6 +166,7 @@ export default function GospelPage() {
           href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq"
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-sans text-sm font-medium transition-colors"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">

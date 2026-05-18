@@ -20,7 +20,8 @@ export default function SavedVersesPage() {
     try {
       localStorage.setItem('kjb-position', JSON.stringify({ abbr: entry.abbr, chapter: entry.chapter, verse: entry.verse }));
     } catch {}
-    navigate('/read');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => navigate('/read'), 150);
   };
 
   return (

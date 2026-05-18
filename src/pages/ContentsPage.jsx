@@ -18,8 +18,8 @@ export default function ContentsPage() {
 
   const goTo = (abbr, chapter, verse = null) => {
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse })); } catch {}
-    window.scrollTo({ top: 0 });
-    navigate('/read');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => navigate('/read'), 150);
     setShowPicker(false);
   };
 

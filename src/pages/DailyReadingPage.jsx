@@ -56,7 +56,8 @@ export default function DailyReadingPage() {
   };
 
   const handleStartReading = () => {
-    navigate('/read');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => navigate('/read'), 150);
   };
 
   const handleToggleReadingReminder = async () => {

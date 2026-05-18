@@ -63,7 +63,8 @@ export default function HomePage() {
     const book = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
     const chapter = Math.floor(Math.random() * book.chapters) + 1;
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr: book.abbr, chapter, verse: null })); } catch {}
-    navigate('/read');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => navigate('/read'), 150);
   };
 
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
@@ -96,7 +97,8 @@ export default function HomePage() {
     } catch (err) {
       console.error('Failed to save verse position:', err);
     }
-    navigate('/read');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => navigate('/read'), 150);
   };
 
   const handleToggleNotif = async (e) => {
