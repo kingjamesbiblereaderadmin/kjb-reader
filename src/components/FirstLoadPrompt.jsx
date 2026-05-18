@@ -36,6 +36,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   const handleInstallClick = () => {
     if (isInstallable) {
       onInstall();
+      onDismiss();
     } else if (isIOS()) {
       // iOS — show manual instructions
       setShowIOSHint(h => !h);
@@ -52,6 +53,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
       setDownloaded(true);
       setDownloadProgress(null);
       if (onDownloadOffline) onDownloadOffline();
+      onDismiss();
     } catch (err) {
       console.error('Failed to download offline data:', err);
     } finally {
