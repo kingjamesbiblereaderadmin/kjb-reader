@@ -61,10 +61,11 @@ export function ThemeProvider({ children }) {
   };
 
   const toggleTheme = () => {
-    // Toggle between light and dark mode explicitly
+    // Cycle through: light → dark → auto → light
     setMode(prev => {
-      const currentlyDark = resolveIsDark(prev);
-      return currentlyDark ? 'light' : 'dark';
+      if (prev === 'light') return 'dark';
+      if (prev === 'dark') return 'auto';
+      return 'light';
     });
   };
 
