@@ -1,7 +1,10 @@
 // Client-side Bible data caching for offline access
 // Uses the Wharton PCE text from bibleprotector.com
+// Uses IndexedDB for large data storage (~50MB+ capacity)
 
-const CACHE_KEY = 'bible_data_pce_v12';
+import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
+
+const CACHE_KEY = 'bible_data_pce_v13';
 const TEXT_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/ee659445e_TEXT-PCE-127.txt';
 
 // Maps the abbreviation in the text file -> canonical book name (must match apiName in bibleData.js)
@@ -116,32 +119,33 @@ async function fetchWithRetry(url, retries = 3) {
   }
 }
 
-function saveToCache(data) {
+async function saveToCache(data) {
   try {
-    // Clear old cache keys
+    // Clear old localStorage keys
     localStorage.removeItem('bible_data_complete');
     localStorage.removeItem('bible_data_complete_v2');
-    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    localStorage.removeItem('bible_data_pce_v12');
+    // Save to IndexedDB (supports ~50MB+)
+    await saveToIndexedDB(data);
   } catch (e) {
-    console.error('localStorage save failed:', e.message);
+    console.error('Cache save failed:', e.message);
   }
 }
 
-function loadFromCache() {
+async function loadFromCache() {
   try {
-    // Clear old cache keys on load
+    // Clear old localStorage keys
     localStorage.removeItem('bible_data_complete');
     localStorage.removeItem('bible_data_complete_v2');
-    const raw = localStorage.getItem(CACHE_KEY);
-    if (!raw) return null;
-    const data = JSON.parse(raw);
-    if (isValidBibleData(data)) return data;
-    console.error('Cached data failed validation, clearing');
-    localStorage.removeItem(CACHE_KEY);
+    localStorage.removeItem('bible_data_pce_v12');
+    // Load from IndexedDB
+    const data = await loadFromIndexedDB();
+    if (data && isValidBibleData(data)) {
+      return data;
+    }
     return null;
   } catch (e) {
-    console.error('Cache read/parse failed:', e.message);
-    localStorage.removeItem(CACHE_KEY);
+    console.error('Cache load failed:', e.message);
     return null;
   }
 }
@@ -164,24 +168,17 @@ export async function getBibleData() {
 
   fetchInProgress = (async () => {
     try {
-      const cached = loadFromCache();
+      const cached = await loadFromCache();
       if (cached) {
         parsedData = cached;
         return parsedData;
       }
 
       parsedData = await fetchAndParse();
-      saveToCache(parsedData);
+      await saveToCache(parsedData);
       return parsedData;
     } catch (error) {
       console.error('All fetch attempts failed:', error.message);
-      try {
-        const raw = localStorage.getItem(CACHE_KEY);
-        if (raw) {
-          parsedData = JSON.parse(raw);
-          return parsedData;
-        }
-      } catch (e) { /* nothing left to try */ }
       return { __colophons: {} };
     } finally {
       fetchInProgress = null;
@@ -192,26 +189,29 @@ export async function getBibleData() {
 }
 
 // Check if Bible data is available offline
-export function isBibleCached() {
-  return !!localStorage.getItem(CACHE_KEY) || (!!parsedData && isValidBibleData(parsedData));
+export async function isBibleCached() {
+  const cached = await loadFromIndexedDB();
+  return !!cached || (!!parsedData && isValidBibleData(parsedData));
 }
 
 // Clear cached Bible data
-export function clearBibleCache() {
+export async function clearBibleCache() {
   localStorage.removeItem(CACHE_KEY);
   localStorage.removeItem('bible_data_pce_v3');
   localStorage.removeItem('bible_data_pce_v4');
   localStorage.removeItem('bible_data_pce_v5');
   localStorage.removeItem('bible_data_pce_v6');
+  localStorage.removeItem('bible_data_pce_v12');
   localStorage.removeItem('bible_data_complete');
   localStorage.removeItem('bible_data_complete_v2');
+  await clearIndexedDB();
   parsedData = null;
 }
 
 // Download all Bible data and cache it for offline use
 export async function downloadBibleForOffline(onProgress) {
   // Clear existing cache to force a fresh download
-  clearBibleCache();
+  await clearBibleCache();
   onProgress && onProgress(0, 'Fetching Bible text...');
 
   const text = await fetchWithRetry(TEXT_URL);
@@ -223,7 +223,7 @@ export async function downloadBibleForOffline(onProgress) {
   }
 
   onProgress && onProgress(90, 'Saving to device...');
-  saveToCache(data);
+  await saveToCache(data);
   parsedData = data;
   onProgress && onProgress(100, 'Done!');
   return data;

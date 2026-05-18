@@ -37,8 +37,8 @@ export async function fetchVerseCount(bookApiName, chapter) {
   return bible[bookApiName]?.[chapter]?.length ?? 0;
 }
 
-export function isBibleAvailableOffline() {
-  return isBibleCached();
+export async function isBibleAvailableOffline() {
+  return await isBibleCached();
 }
 
 // Render verse text: turn [word] into <em>word</em> for KJB italics

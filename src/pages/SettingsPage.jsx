@@ -10,7 +10,7 @@ import {
   enableReadingReminder, disableReadingReminder, scheduleReadingReminder
 } from '@/lib/notifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
-import { isBibleCached, downloadBibleForOffline, clearBibleCache } from '@/lib/bibleCache';
+import { downloadBibleForOffline, clearBibleCache, isBibleCached } from '@/lib/bibleCache';
 
 const LAST_REVISED = 'May 2026';
 
@@ -29,14 +29,14 @@ export default function SettingsPage() {
   const [readingReminderTime, setReadingReminderTimeState] = useState(getReadingReminderTime);
 
   const { isInstallable, isInstalled, promptInstall } = useInstallPrompt();
-  const [cached, setCached] = useState(isBibleCached);
+  const [cached, setCached] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [dlProgress, setDlProgress] = useState(0);
   const [dlStatus, setDlStatus] = useState('');
   const [dlError, setDlError] = useState('');
 
   useEffect(() => {
-    setCached(isBibleCached());
+    isBibleCached().then(setCached);
   }, []);
 
   const handleToggleNotifications = async () => {
@@ -103,8 +103,8 @@ export default function SettingsPage() {
     setDownloading(false);
   };
 
-  const handleClearCache = () => {
-    clearBibleCache();
+  const handleClearCache = async () => {
+    await clearBibleCache();
     setCached(false);
     setDlProgress(0);
     setDlStatus('');
