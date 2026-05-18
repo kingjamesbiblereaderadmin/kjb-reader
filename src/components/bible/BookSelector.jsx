@@ -3,7 +3,7 @@ import { ChevronDown, ChevronRight } from 'lucide-react';
 import { OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
 
 export default function BookSelector({ currentAbbr, onSelect, onClose }) {
-  const [oldOpen, setOldOpen] = useState(true);
+  const [oldOpen, setOldOpen] = useState(false);
   const [newOpen, setNewOpen] = useState(false);
 
   const renderBook = (book) => {
