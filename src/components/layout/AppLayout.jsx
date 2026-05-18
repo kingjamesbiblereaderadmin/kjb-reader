@@ -258,14 +258,23 @@ function useAppLayoutPrompt() {
       alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
       return;
     }
-    const result = await requestNotificationPermission();
-    setNotifPermission(result);
-    if (result === 'granted') {
-      scheduleDailyNotification(getDailyVerse());
-      // Dismiss prompt after enabling
-      handleDismiss();
-    } else if (result === 'denied') {
-      alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
+    try {
+      console.log('Requesting notification permission...');
+      const result = await requestNotificationPermission();
+      console.log('Notification permission result:', result);
+      setNotifPermission(result);
+      if (result === 'granted') {
+        scheduleDailyNotification(getDailyVerse());
+        handleDismiss();
+      } else if (result === 'denied') {
+        alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
+      } else {
+        // result === 'default' - user dismissed the prompt without granting or denying
+        alert('Notification permission was not granted. Please click "Enable Daily Notifications" again and allow the permission when prompted.');
+      }
+    } catch (err) {
+      console.error('Notification permission error:', err);
+      alert('Failed to request notification permission. Please try again.');
     }
   };
 
