@@ -194,8 +194,8 @@ export default function AppLayout() {
         downloaded={downloaded}
       />
 
-      <footer className="hidden sm:block border-t border-border bg-card/80 py-3 mt-8 relative">
-        {!footerHidden && (
+      {!footerHidden && (
+        <footer className="hidden sm:block border-t border-border bg-card/80 py-3 mt-8 relative">
           <button
             onClick={() => { setFooterHidden(true); try { localStorage.setItem('kjb-footer-hidden', 'true'); } catch {} }}
             className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm"
@@ -203,17 +203,6 @@ export default function AppLayout() {
           >
             <ChevronDown className="w-4 h-4" />
           </button>
-        )}
-        {footerHidden && (
-          <button
-            onClick={() => { setFooterHidden(false); try { localStorage.setItem('kjb-footer-hidden', 'false'); } catch {} }}
-            className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm"
-            title="Show footer"
-          >
-            <ChevronDown className="w-4 h-4 rotate-180" />
-          </button>
-        )}
-        {!footerHidden && (
           <div className="max-w-5xl mx-auto px-4">
             <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mb-3">
               {NAV_ITEMS.map(item => {
@@ -246,8 +235,19 @@ export default function AppLayout() {
               </a>
             </p>
           </div>
-        )}
-      </footer>
+        </footer>
+      )}
+      {footerHidden && (
+        <footer className="hidden sm:block border-t border-border bg-card/80 py-1 mt-8 relative">
+          <button
+            onClick={() => { setFooterHidden(false); try { localStorage.setItem('kjb-footer-hidden', 'false'); } catch {} }}
+            className="w-full h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+            title="Show footer"
+          >
+            <ChevronDown className="w-4 h-4 rotate-180" />
+          </button>
+        </footer>
+      )}
     </div>
   );
 }
