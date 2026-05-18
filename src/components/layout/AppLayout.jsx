@@ -41,8 +41,35 @@ export default function AppLayout() {
   const [footerHidden, setFooterHidden] = useState(() => {
     try { return localStorage.getItem('kjb-footer-hidden') === 'true'; } catch { return false; }
   });
+  const [autoHideScheduled, setAutoHideScheduled] = useState(false);
   const navigate = useNavigate();
   const isRoot = pathname === '/';
+
+  // Auto-hide footer based on time setting
+  useEffect(() => {
+    const checkAutoHide = () => {
+      const enabled = getFooterAutoHideEnabled();
+      if (!enabled) return;
+
+      const hideTime = getFooterHideTime();
+      const now = new Date();
+      const [hours, minutes] = hideTime.split(':').map(Number);
+      const targetTime = new Date(now);
+      targetTime.setHours(hours, minutes, 0, 0);
+
+      // Hide if current time matches or passes the target time
+      const timeDiff = now.getTime() - targetTime.getTime();
+      if (timeDiff >= 0 && timeDiff < 60000 && !footerHidden) { // Within 1 minute window
+        setFooterHidden(true);
+        try { localStorage.setItem('kjb-footer-hidden', 'true'); } catch {}
+      }
+    };
+
+    // Check immediately and then every minute
+    checkAutoHide();
+    const interval = setInterval(checkAutoHide, 60000);
+    return () => clearInterval(interval);
+  }, [footerHidden]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
