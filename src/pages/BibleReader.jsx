@@ -203,7 +203,16 @@ export default function BibleReader() {
               <div className="absolute top-full left-0 mt-1 z-50">
                 <BookSelector
                   currentAbbr={pos.abbr}
-                  onSelect={(b, isTitlePage) => { navigate(b.abbr, isTitlePage ? 0 : 1); }}
+                  onSelect={(b, isTitlePage, showChapter) => {
+                    if (isTitlePage) {
+                      navigate(b.abbr, 0);
+                      setShowBookPicker(false);
+                    } else if (showChapter) {
+                      navigate(b.abbr, 1);
+                      setShowBookPicker(false);
+                      setShowChapterPicker(true);
+                    }
+                  }}
                   onClose={() => setShowBookPicker(false)}
                 />
               </div>
@@ -212,7 +221,16 @@ export default function BibleReader() {
             <SelectorSheet open={showBookPicker && isMobile()} onClose={() => setShowBookPicker(false)} title="Select Book">
               <BookSelector
                 currentAbbr={pos.abbr}
-                onSelect={(b, isTitlePage) => { navigate(b.abbr, isTitlePage ? 0 : 1); }}
+                onSelect={(b, isTitlePage, showChapter) => {
+                  if (isTitlePage) {
+                    navigate(b.abbr, 0);
+                    setShowBookPicker(false);
+                  } else if (showChapter) {
+                    navigate(b.abbr, 1);
+                    setShowBookPicker(false);
+                    setShowChapterPicker(true);
+                  }
+                }}
                 onClose={() => setShowBookPicker(false)}
               />
             </SelectorSheet>

@@ -11,7 +11,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
     return (
       <button
         key={book.abbr}
-        onClick={() => { onSelect(book, false); onClose(); }}
+        onClick={() => { onSelect(book, false, true); onClose(); }}
         className={`w-full text-left px-3 py-1.5 rounded text-sm font-sans transition-colors ${
           active
             ? 'bg-accent text-accent-foreground font-semibold'
@@ -44,7 +44,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
               book.abbr === 'GEN' ? (
                 <div key="gen-section">
                   <button
-                    onClick={() => { onSelect({ abbr: 'GEN', name: 'Genesis', chapters: 50, shortName: 'Gen' }, true); onClose(); }}
+                    onClick={() => { onSelect({ abbr: 'GEN', name: 'Genesis', chapters: 50, shortName: 'Gen' }, true, false); onClose(); }}
                     className="w-full text-left px-3 py-1.5 rounded text-sm font-sans transition-colors hover:bg-secondary text-foreground"
                   >
                     <span>Title Page</span>
