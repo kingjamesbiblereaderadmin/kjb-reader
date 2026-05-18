@@ -84,7 +84,13 @@ export default function HomePage() {
 
     const handleStorageChange = () => {
       setNotifEnabled(getNotificationsEnabled());
-      setNotifPermission('Notification' in window ? Notification.permission : 'unsupported');
+      if (!('serviceWorker' in navigator)) {
+        setNotifPermission('unsupported');
+      } else if (!('Notification' in window)) {
+        setNotifPermission('supported');
+      } else {
+        setNotifPermission(Notification.permission);
+      }
     };
     window.addEventListener('storage', handleStorageChange);
     return () => {
@@ -119,16 +125,18 @@ export default function HomePage() {
       return;
     }
     
-    if (!('Notification' in window)) {
-      alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
+    // Check if service worker is supported (required for Android notifications)
+    if (!('serviceWorker' in navigator)) {
+      alert('Notifications are not supported in this browser. Try using Chrome or installing the app.');
       return;
     }
     
     try {
       const result = await requestNotificationPermission();
+      console.log('Notification permission result:', result);
       setNotifPermission(result);
       
-      if (result === 'granted') {
+      if (result === 'granted' || result === 'supported') {
         setNotifEnabled(true);
         scheduleDailyNotification(verse);
         window.dispatchEvent(new Event('storage'));
