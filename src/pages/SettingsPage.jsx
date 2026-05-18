@@ -39,16 +39,37 @@ export default function SettingsPage() {
     isBibleCached().then(setCached);
   }, []);
 
+  // Refresh notification state on focus
+  useEffect(() => {
+    const handleFocus = () => {
+      setNotifEnabled(getNotificationsEnabled());
+      setNotifPermission('Notification' in window ? Notification.permission : 'unsupported');
+      setReadingReminderEnabled(getReadingReminderEnabled());
+    };
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleFocus);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleFocus);
+    };
+  }, []);
+
   const handleToggleNotifications = async () => {
     if (notifEnabled) {
       disableNotifications();
       setNotifEnabled(false);
     } else {
+      if (!('Notification' in window)) {
+        alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
+        return;
+      }
       const result = await requestNotificationPermission();
       setNotifPermission(result);
       if (result === 'granted') {
         setNotifEnabled(true);
         scheduleDailyNotification(getDailyVerse());
+      } else if (result === 'denied') {
+        alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
       }
     }
   };
@@ -69,12 +90,18 @@ export default function SettingsPage() {
       disableReadingReminder();
       setReadingReminderEnabled(false);
     } else {
+      if (!('Notification' in window)) {
+        alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
+        return;
+      }
       const result = await requestNotificationPermission();
       setNotifPermission(result);
       if (result === 'granted') {
         enableReadingReminder();
         setReadingReminderEnabled(true);
         scheduleReadingReminder();
+      } else if (result === 'denied') {
+        alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
       }
     }
   };

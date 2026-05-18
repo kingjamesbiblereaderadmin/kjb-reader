@@ -254,10 +254,18 @@ function useAppLayoutPrompt() {
   };
 
   const handleEnableNotif = async () => {
+    if (!('Notification' in window)) {
+      alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
+      return;
+    }
     const result = await requestNotificationPermission();
     setNotifPermission(result);
     if (result === 'granted') {
       scheduleDailyNotification(getDailyVerse());
+      // Dismiss prompt after enabling
+      handleDismiss();
+    } else if (result === 'denied') {
+      alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
     }
   };
 
