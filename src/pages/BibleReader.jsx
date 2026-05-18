@@ -490,7 +490,7 @@ export default function BibleReader() {
             {colophon && (
               <div className="mt-8 pt-6 border-t border-border text-center">
                 <p className="font-serif text-sm text-muted-foreground tracking-widest inline-block">
-                  ¶ {colophon.replace(/\[([^\]]+)\]/g, '<em>$1</em>')}
+                  ¶ {colophon}
                 </p>
               </div>
             )}
