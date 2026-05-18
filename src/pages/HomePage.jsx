@@ -82,11 +82,15 @@ export default function HomePage() {
     // Ensure we have valid verse data before navigating
     if (!verse.abbr || !verse.chapter || !verse.verse) {
       console.warn('Invalid verse data:', verse);
+      alert('Verse not loaded yet. Please wait a moment and try again.');
       return;
     }
-    console.log('Saving verse position:', { abbr: verse.abbr, chapter: verse.chapter, verse: verse.verse });
+    const savedData = { abbr: verse.abbr, chapter: verse.chapter, verse: verse.verse };
+    console.log('Daily verse clicked - saving:', savedData);
+    console.log('Full verse object:', verse);
     try {
-      localStorage.setItem('kjb-position', JSON.stringify({ abbr: verse.abbr, chapter: verse.chapter, verse: verse.verse }));
+      localStorage.setItem('kjb-position', JSON.stringify(savedData));
+      console.log('Saved to localStorage successfully');
     } catch (err) {
       console.error('Failed to save verse position:', err);
     }

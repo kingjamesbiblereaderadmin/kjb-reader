@@ -20,12 +20,19 @@ function loadPosition() {
     const s = localStorage.getItem(STORAGE_KEY);
     if (s) {
       const p = JSON.parse(s);
+      console.log('Loaded from localStorage:', p);
       // Validate abbr exists in BIBLE_BOOKS
-      if (p && p.abbr && BIBLE_BOOKS.find(b => b.abbr === p.abbr)) {
+      const bookExists = BIBLE_BOOKS.find(b => b.abbr === p.abbr);
+      console.log('Book exists:', bookExists);
+      if (p && p.abbr && bookExists) {
         return p;
+      } else {
+        console.warn('Invalid position data, using default');
       }
     }
-  } catch {}
+  } catch (err) {
+    console.error('Failed to load position:', err);
+  }
   return { abbr: 'GEN', chapter: 1, verse: null };
 }
 
