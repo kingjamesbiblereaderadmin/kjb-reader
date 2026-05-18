@@ -103,7 +103,7 @@ function armTimer(verse) {
     }
     localStorage.setItem(NOTIF_LAST_KEY, today);
     await showLocalNotification(
-      'King James Bible — Daily Verse',
+      'King James Bible — Verse of the Day',
       `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref}`
     );
     scheduleAndSave(verse);
