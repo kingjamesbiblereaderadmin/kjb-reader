@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown } from 'lucide-react';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
-import { fetchChapter, fetchVerseCount } from '@/lib/bibleApi';
+import { fetchChapter, fetchVerseCount, renderVerseText } from '@/lib/bibleApi';
 import { getBibleData } from '@/lib/bibleCache';
 import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
 import BookSelector from '@/components/bible/BookSelector';
@@ -496,9 +496,10 @@ export default function BibleReader() {
         {/* Colophon footer - shown below all verses for chapters that have one */}
         {!loading && !error && colophon && (
           <div className="mt-8 pt-6 border-t border-border">
-            <p className="font-serif text-sm text-muted-foreground italic text-center leading-relaxed">
-              {colophon}
-            </p>
+            <p
+              className="font-serif text-sm text-muted-foreground text-center leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: renderVerseText(colophon) }}
+            />
           </div>
         )}
       </div>
