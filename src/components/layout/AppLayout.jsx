@@ -178,7 +178,7 @@ export default function AppLayout() {
 
       {/* Mobile bottom nav bar */}
       <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border">
-        <div className="flex items-center justify-around px-2 py-1" style={{ paddingBottom: 'max(0.25rem, env(safe-area-inset-bottom))' }}>
+        <div className="flex items-center gap-1 px-2 py-1 overflow-x-auto" style={{ paddingBottom: 'max(0.25rem, env(safe-area-inset-bottom))' }}>
           {BOTTOM_NAV.map(item => {
             const Icon = item.icon;
             const active = item.path === '/' ? pathname === '/' : pathname === item.path;
@@ -191,7 +191,7 @@ export default function AppLayout() {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                   setTimeout(() => navigate(item.path), 150);
                 }}
-                className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors ${
+                className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition-colors shrink-0 ${
                   active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
