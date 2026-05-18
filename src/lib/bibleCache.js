@@ -89,22 +89,22 @@ function parseBibleText(rawText) {
     }
 
     // Extract colophon markers - two formats:
-    // Format 1: "verse text <<[colophon text]>>"
+    // Format 1: "verse text <<[colophon text]>>" (may have nested brackets)
     // Format 2: "verse text ¶ [colophon text]" (pilcrow + space + brackets)
     let colophonText = null;
     
-    // Try format 1 first: <<[...]]>>
-    const inlineMatch = verseText.match(/<<\[([^\]]+)\]>>\s*$/);
+    // Try format 1 first: <<[...]]>> - use greedy match to handle nested brackets
+    const inlineMatch = verseText.match(/<<\[(.+)\]>>\s*$/);
     if (inlineMatch) {
       colophonText = '\u00B6 ' + inlineMatch[1];
-      verseText = verseText.replace(/<<\[([^\]]+)\]>>\s*$/, '').trim();
+      verseText = verseText.replace(/<<\[(.+)\]>>\s*$/, '').trim();
     }
     
-    // Try format 2: ¶ [...]
-    const pilcrowMatch = verseText.match(/\s*¶\s*\[([^\]]+)\]\s*$/);
+    // Try format 2: ¶ [...] - use greedy match for nested brackets
+    const pilcrowMatch = verseText.match(/\s*¶\s*\[(.+)\]\s*$/);
     if (pilcrowMatch && !inlineMatch) {
       colophonText = '\u00B6 ' + pilcrowMatch[1];
-      verseText = verseText.replace(/\s*¶\s*\[([^\]]+)\]\s*$/, '').trim();
+      verseText = verseText.replace(/\s*¶\s*\[(.+)\]\s*$/, '').trim();
     }
     
     if (colophonText) {

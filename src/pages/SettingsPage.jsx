@@ -159,13 +159,12 @@ export default function SettingsPage() {
   };
 
   const handleClearCache = async () => {
-    await clearBibleCache();
+    await clearBibleCache(true); // Skip auto-reload
     setCached(false);
     setDlProgress(0);
     setDlStatus('');
     setDlError('');
-    // Force reload to re-fetch with fresh parsing
-    window.location.reload();
+    // User can manually download fresh data
   };
 
   return (
