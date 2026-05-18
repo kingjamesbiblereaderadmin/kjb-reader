@@ -46,10 +46,15 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   const hasItalics = html.includes('<em>');
   // Check if verse text contains pilcrow character (U+00B6)
   const hasPilcrow = verse.text.includes('\u00B6') || verse.text.includes('¶');
-  if (hasPilcrow && verse.verse <= 10) {
-    console.log(`[VerseText] ✓ Verse ${verse.verse} HAS PILCROW - text: "${verse.text.slice(0, 80)}"`);
-    console.log(`[VerseText]   Character codes: ${[...verse.text.slice(0, 10)].map(c => `U+${c.charCodeAt(0).toString(16).toUpperCase()}`).join(' ')}`);
+  
+  // Debug logging for first chapter
+  if (chapter === 1 && verse.verse <= 15) {
+    console.log(`[VerseText] ${bookName} ${chapter}:${verse.verse}`);
+    console.log(`  hasPilcrow: ${hasPilcrow}`);
+    console.log(`  text (first 80 chars): "${verse.text.slice(0, 80)}"`);
+    console.log(`  char codes (first 10): ${[...verse.text.slice(0, 10)].map(c => `U+${c.charCodeAt(0).toString(16).toUpperCase()}`).join(' ')}`);
   }
+  
   // Remove pilcrow from HTML to avoid duplicates since we render it separately
   const htmlNoPilcrow = html.replace(/[\u00B6¶]\s*/g, '');
 

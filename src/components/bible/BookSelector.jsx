@@ -25,11 +25,11 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
   };
 
   return (
-    <div className="bg-card border border-border rounded-xl shadow-xl overflow-hidden w-72 max-h-[80vh] flex flex-col">
+    <div className="bg-card border border-border rounded-xl shadow-xl overflow-hidden w-full max-h-[80vh] flex flex-col">
       <div className="px-4 py-3 border-b border-border">
         <p className="font-serif font-semibold text-foreground text-center">Select Book</p>
       </div>
-      <div className="overflow-y-auto flex-1 p-2 space-y-1">
+      <div className="overflow-y-auto flex-1 p-3 space-y-1">
         {/* Title Page - Above Old Testament */}
         <button
           onClick={() => { onSelect({ abbr: 'GEN', name: 'Genesis', chapters: 50, shortName: 'Gen' }, true, false); onClose(); }}
@@ -48,7 +48,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
           {oldOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </button>
         {oldOpen && (
-          <div className="ml-2 space-y-0.5">
+          <div className="space-y-0.5">
             {OLD_TESTAMENT.map((book) => renderBook(book))}
           </div>
         )}
@@ -62,7 +62,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
           {newOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </button>
         {newOpen && (
-          <div className="ml-2 space-y-0.5">
+          <div className="space-y-0.5">
             <button
               onClick={() => { onSelect({ abbr: 'MAT', name: 'Matthew', chapters: 28, shortName: 'Mat' }, true); onClose(); }}
               className="w-full text-left px-3 py-1.5 rounded text-sm font-sans transition-colors hover:bg-secondary text-foreground"
