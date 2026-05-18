@@ -2,7 +2,8 @@ import React from 'react';
 import { Download, Bell, X } from 'lucide-react';
 
 export default function FirstLoadPrompt({ isInstallable, notifPermission, onInstall, onEnableNotif, onDismiss }) {
-  const showInstall = !window.matchMedia('(display-mode: standalone)').matches && !window.navigator.standalone;
+  const alreadyInstalled = window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
+  const showInstall = isInstallable && !alreadyInstalled;
   const showNotif = notifPermission === 'default' && 'Notification' in window;
 
   if (!showInstall && !showNotif) return null;
