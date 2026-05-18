@@ -117,16 +117,16 @@ export default function BibleSearchBar({ onClose }) {
   return (
     <div className="relative w-full">
       <form onSubmit={handleSubmit} className="relative">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
-        <div className="relative">
+        <div className="relative flex items-center">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none flex-shrink-0" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={e => { setQuery(e.target.value); setOpen(true); }}
             onFocus={() => setOpen(true)}
-            placeholder="1 Corinthians 15:1-4; Romans 3:25"
-            className="w-full pl-8 pr-20 py-2.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors touch-manipulation min-h-[44px]"
+            placeholder="Search..."
+            className="w-full pl-8 pr-10 py-2.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors touch-manipulation min-h-[44px] truncate"
           />
           {query && (
             <button
