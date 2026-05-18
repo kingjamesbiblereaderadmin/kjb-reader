@@ -121,16 +121,24 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
         )}
 
         {showNotif && (
-          <button
-            onClick={onEnableNotif}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary font-sans text-sm font-medium hover:bg-primary/20 transition-colors text-left"
-          >
-            <Bell className="w-4 h-4 shrink-0" />
-            <span className="flex-1">
-              <span className="block font-semibold">Enable Daily Notifications</span>
-              <span className="block text-xs opacity-80">{isMobile() && !alreadyInstalled ? 'Install app first, then enable' : 'Get the daily verse every morning'}</span>
-            </span>
-          </button>
+          <div>
+            <button
+              onClick={onEnableNotif}
+              disabled={isMobile() && !alreadyInstalled}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary font-sans text-sm font-medium hover:bg-primary/20 transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Bell className="w-4 h-4 shrink-0" />
+              <span className="flex-1">
+                <span className="block font-semibold">Enable Daily Notifications</span>
+                <span className="block text-xs opacity-80">{isMobile() && !alreadyInstalled ? 'Install app first, then enable' : 'Get the daily verse every morning'}</span>
+              </span>
+            </button>
+            {isMobile() && !alreadyInstalled && (
+              <p className="mt-1.5 font-sans text-[10px] text-muted-foreground leading-relaxed px-1">
+                Notifications require the app to be installed. Tap the install button above first.
+              </p>
+            )}
+          </div>
         )}
       </div>
     </div>
