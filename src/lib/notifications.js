@@ -37,6 +37,10 @@ export function todayString() {
 }
 
 export async function requestNotificationPermission() {
+  console.log('requestNotificationPermission called');
+  console.log('serviceWorker in navigator:', 'serviceWorker' in navigator);
+  console.log('Notification in window:', 'Notification' in window);
+  
   // Check for Service Worker support (required for Android notifications)
   if (!('serviceWorker' in navigator)) {
     console.log('No service worker support');
@@ -44,8 +48,9 @@ export async function requestNotificationPermission() {
   }
   
   // Try to register service worker first
+  let reg;
   try {
-    const reg = await navigator.serviceWorker.register('/sw.js');
+    reg = await navigator.serviceWorker.register('/sw.js');
     console.log('Service worker registered:', reg.scope);
   } catch (err) {
     console.error('Service worker registration failed:', err);
@@ -55,16 +60,19 @@ export async function requestNotificationPermission() {
   // For Android PWA/WebView, Notification API might not be available
   // but service worker showNotification still works
   if (!('Notification' in window)) {
-    console.log('Notification API not available, but SW may work');
+    console.log('Notification API not available, but SW may work - returning granted');
     localStorage.setItem(NOTIF_KEY, 'true');
     return 'granted';
   }
   
   // Try standard permission request
   try {
+    console.log('Calling Notification.requestPermission()...');
     const result = await Notification.requestPermission();
     console.log('Notification permission result:', result);
-    if (result === 'granted') localStorage.setItem(NOTIF_KEY, 'true');
+    if (result === 'granted') {
+      localStorage.setItem(NOTIF_KEY, 'true');
+    }
     return result;
   } catch (err) {
     console.error('Notification.requestPermission error:', err);
