@@ -146,20 +146,22 @@ async function saveToCache(data) {
 
 async function loadFromCache() {
   try {
-    // Clear old localStorage keys (including v14/v15/v16 to force fresh download)
+    // Clear ALL old keys to force fresh download
     localStorage.removeItem('bible_data_complete');
     localStorage.removeItem('bible_data_complete_v2');
-    localStorage.removeItem('bible_data_pce_v12');
-    localStorage.removeItem('bible_data_pce_v13');
-    localStorage.removeItem('bible_data_pce_v14');
-    localStorage.removeItem('bible_data_pce_v15');
-    localStorage.removeItem('bible_data_pce_v16');
+    for (let i = 1; i <= 16; i++) {
+      localStorage.removeItem(`bible_data_pce_v${i}`);
+    }
     // Load from IndexedDB
     const data = await loadFromIndexedDB();
     if (data && isValidBibleData(data)) {
-      console.log('[CACHE] Loaded from IndexedDB, pilcrows in cache:', Object.values(data).filter(book => typeof book === 'object').reduce((sum, book) => sum + Object.values(book).reduce((s, ch) => s + (Array.isArray(ch) ? ch.filter(v => v.text.includes('\u00B6')).length : 0), 0), 0));
+      const pilcrowCount = Object.values(data).filter(book => typeof book === 'object').reduce((sum, book) => 
+        sum + Object.values(book).reduce((s, ch) => 
+          s + (Array.isArray(ch) ? ch.filter(v => v.text.includes('\u00B6')).length : 0), 0), 0);
+      console.log('[CACHE] ✓ Loaded from IndexedDB,', pilcrowCount, 'pilcrows found');
       return data;
     }
+    console.log('[CACHE] No valid cache, will fetch fresh');
     return null;
   } catch (e) {
     console.error('Cache load failed:', e.message);
@@ -213,16 +215,10 @@ export async function isBibleCached() {
 
 // Clear cached Bible data
 export async function clearBibleCache() {
-  localStorage.removeItem(CACHE_KEY);
-  localStorage.removeItem('bible_data_pce_v3');
-  localStorage.removeItem('bible_data_pce_v4');
-  localStorage.removeItem('bible_data_pce_v5');
-  localStorage.removeItem('bible_data_pce_v6');
-  localStorage.removeItem('bible_data_pce_v12');
-  localStorage.removeItem('bible_data_pce_v13');
-  localStorage.removeItem('bible_data_pce_v14');
-  localStorage.removeItem('bible_data_pce_v15');
-  localStorage.removeItem('bible_data_pce_v16');
+  // Clear ALL version keys
+  for (let i = 1; i <= 16; i++) {
+    localStorage.removeItem(`bible_data_pce_v${i}`);
+  }
   localStorage.removeItem('bible_data_complete');
   localStorage.removeItem('bible_data_complete_v2');
   await clearIndexedDB();
