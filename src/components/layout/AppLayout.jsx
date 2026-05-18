@@ -8,6 +8,7 @@ import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { requestNotificationPermission, scheduleDailyNotification } from '@/lib/notifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
+import { downloadBibleForOffline, isBibleCached } from '@/lib/bibleCache';
 
 const NAV_ITEMS = [
   { path: '/', icon: Home, label: 'Home' },
@@ -43,6 +44,25 @@ export default function AppLayout() {
   const [footerHidden, setFooterHidden] = useState(false);
   const navigate = useNavigate();
   const isRoot = pathname === '/';
+
+  // FirstLoadPrompt state (centralized in AppLayout)
+  const { showPrompt, isInstallable, notifPermission, handleInstall, handleDismiss, wasDismissed, setShowPrompt } = useAppLayoutPrompt();
+  const [downloaded, setDownloaded] = useState(false);
+
+  useEffect(() => {
+    isBibleCached().then(cached => setDownloaded(cached));
+  }, []);
+
+  const handleDownloadOffline = async () => {
+    try {
+      await downloadBibleForOffline(() => {});
+      setDownloaded(true);
+      handleDismiss();
+      setShowPrompt(false);
+    } catch (err) {
+      console.error('Failed to download offline data:', err);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -132,6 +152,18 @@ export default function AppLayout() {
 
       <BottomNav pathname={pathname} navigate={navigate} hidden={footerHidden} onToggleHide={() => setFooterHidden(true)} />
 
+      {/* FirstLoadPrompt - shows on both desktop and mobile */}
+      {showPrompt && (
+        <FirstLoadPrompt
+          isInstallable={isInstallable}
+          notifPermission={notifPermission}
+          onInstall={handleInstall}
+          onDismiss={handleDismiss}
+          onDownloadOffline={handleDownloadOffline}
+          downloaded={downloaded}
+        />
+      )}
+
       {/* Mobile footer show chevron - always visible when bottom nav is hidden */}
       {footerHidden && (
         <button
@@ -197,24 +229,38 @@ export default function AppLayout() {
           </div>
         )}
       </footer>
-
-
     </div>
   );
 }
 
+function useAppLayoutPrompt() {
+  const [showPrompt, setShowPrompt] = useState(false);
+  const { isInstallable, promptInstall, dismiss, wasDismissed } = useInstallPrompt();
+  const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
+
+  useEffect(() => {
+    if (wasDismissed()) return;
+    // Show prompt on first visit or when not dismissed
+    const timer = setTimeout(() => setShowPrompt(true), 1500);
+    return () => clearTimeout(timer);
+  }, [wasDismissed]);
+
+  const handleInstall = async () => {
+    const accepted = await promptInstall();
+    if (accepted) setShowPrompt(false);
+  };
+
+  const handleDismiss = () => {
+    dismiss();
+    setShowPrompt(false);
+  };
+
+  return { showPrompt, isInstallable, notifPermission, handleInstall, handleDismiss, wasDismissed, setShowPrompt };
+}
+
 function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
-  const { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss, wasDismissed, setShowPrompt } = useBottomNavPrompt();
   const [moreOpen, setMoreOpen] = useState(false);
   const [footerVisible, setFooterVisible] = useState(true);
-
-  // Show prompt on daily-reading page too
-  useEffect(() => {
-    if (pathname === '/daily-reading' && !showPrompt && !wasDismissed()) {
-      const timer = setTimeout(() => setShowPrompt(true), 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [pathname, showPrompt, setShowPrompt]);
 
   // Load footer visibility preference
   useEffect(() => {
@@ -343,64 +389,6 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
           </div>
         </div>
       )}
-
-      {showPrompt && (
-        <FirstLoadPrompt
-          isInstallable={isInstallable}
-          notifPermission={notifPermission}
-          onInstall={handleInstall}
-          onEnableNotif={handleEnableNotif}
-          onDismiss={handleDismiss}
-        />
-      )}
     </nav>
   );
-}
-
-function useBottomNavPrompt() {
-  const [showPrompt, setShowPrompt] = useState(false);
-  const { isInstallable, promptInstall, dismiss, wasDismissed } = useInstallPrompt();
-  const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
-
-  useEffect(() => {
-    if (wasDismissed()) return;
-    // Show prompt on first visit or when not dismissed
-    const timer = setTimeout(() => setShowPrompt(true), 1500);
-    return () => clearTimeout(timer);
-  }, [wasDismissed]);
-
-  useEffect(() => {
-    if (!showPrompt) return;
-    const handleInteraction = () => {
-      dismiss();
-      setShowPrompt(false);
-    };
-    document.addEventListener('click', handleInteraction, { once: true });
-    document.addEventListener('touchstart', handleInteraction, { once: true });
-    return () => {
-      document.removeEventListener('click', handleInteraction);
-      document.removeEventListener('touchstart', handleInteraction);
-    };
-  }, [showPrompt, dismiss]);
-
-  const handleInstall = async () => {
-    const accepted = await promptInstall();
-    if (accepted) setShowPrompt(false);
-  };
-
-  const handleEnableNotif = async () => {
-    const result = await requestNotificationPermission();
-    setNotifPermission(result);
-    if (result === 'granted') {
-      scheduleDailyNotification(getDailyVerse());
-      setShowPrompt(false);
-    }
-  };
-
-  const handleDismiss = () => {
-    dismiss();
-    setShowPrompt(false);
-  };
-
-  return { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss, wasDismissed };
 }

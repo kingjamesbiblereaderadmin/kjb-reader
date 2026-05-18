@@ -7,16 +7,20 @@ const isMobile = () => /iphone|ipad|ipod|android/i.test(navigator.userAgent);
 const isInStandaloneMode = () =>
   window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
 
-export default function FirstLoadPrompt({ isInstallable, notifPermission, onInstall, onDismiss, onDownloadOffline }) {
+export default function FirstLoadPrompt({ isInstallable, notifPermission, onInstall, onDismiss, onDownloadOffline, downloaded: propDownloaded }) {
   const [showIOSHint, setShowIOSHint] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(null);
-  const [downloaded, setDownloaded] = useState(false);
+  const [downloaded, setDownloaded] = useState(propDownloaded || false);
 
   useEffect(() => {
-    // Check if already cached on mount
-    isBibleCached().then(cached => setDownloaded(cached));
-  }, []);
+    if (propDownloaded !== undefined) {
+      setDownloaded(propDownloaded);
+    } else {
+      // Check if already cached on mount
+      isBibleCached().then(cached => setDownloaded(cached));
+    }
+  }, [propDownloaded]);
 
   const alreadyInstalled = isInStandaloneMode();
   const isDesktop = !isMobile();
