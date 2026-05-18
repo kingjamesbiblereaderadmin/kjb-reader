@@ -47,7 +47,7 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`}>
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-2">
           <Link
             to="/"
             className="flex items-center gap-2 flex-shrink-0"
@@ -60,7 +60,7 @@ export default function AppLayout() {
             <span className="font-serif text-lg font-bold text-foreground hidden sm:block">The Holy Bible</span>
           </Link>
 
-          <div className="flex-1 max-w-xs mx-4">
+          <div className="flex-1 min-w-0">
             <BibleSearchBar onClose={() => setMenuOpen(false)} />
           </div>
 
