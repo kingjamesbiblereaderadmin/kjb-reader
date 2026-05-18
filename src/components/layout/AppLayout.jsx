@@ -95,7 +95,14 @@ export default function AppLayout() {
               <span className="font-sans text-sm font-medium hidden sm:block">Back</span>
             </button>
           ) : (
-            <Link to="/" className="flex items-center gap-2 flex-shrink-0" onClick={() => setMenuOpen(false)}>
+            <Link
+              to="/"
+              className="flex items-center gap-2 flex-shrink-0"
+              onClick={() => {
+                setMenuOpen(false);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            >
               <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB Reader" className="h-10 w-auto" />
               <span className="font-serif text-lg font-bold text-foreground hidden sm:block">The Holy Bible</span>
             </Link>
@@ -141,7 +148,10 @@ export default function AppLayout() {
                     <Link
                       key={item.path}
                       to={item.path}
-                      onClick={() => setMenuOpen(false)}
+                      onClick={() => {
+                        setMenuOpen(false);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
                       className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg font-sans text-sm font-medium transition-colors ${
                         active
                           ? 'bg-primary text-primary-foreground'
@@ -173,6 +183,7 @@ export default function AppLayout() {
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors ${
                   active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
                 }`}
