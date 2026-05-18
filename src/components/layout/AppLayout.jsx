@@ -18,12 +18,13 @@ const NAV_ITEMS = [
   { path: '/settings', icon: Settings, label: 'Settings' },
 ];
 
-// Bottom bar shows only the most important 4 items on mobile
+// Bottom bar shows only the most important 5 items on mobile
 const BOTTOM_NAV = [
   { path: '/', icon: Home, label: 'Home' },
   { path: '/read', icon: BookOpen, label: 'Read' },
   { path: '/gospel', icon: Heart, label: 'Gospel' },
   { path: '/resources', icon: Library, label: 'Resources' },
+  { path: '/saved', icon: Bookmark, label: 'Saved' },
 ];
 
 export default function AppLayout() {
