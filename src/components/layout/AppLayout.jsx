@@ -104,17 +104,17 @@ export default function AppLayout() {
           </Link>
 
           {/* Search - expands to fill space */}
-          <div className="flex-1 min-w-0 pointer-events-auto">
+          <div className="flex-1 min-w-0 pointer-events-auto mr-2">
             <BibleSearchBar onClose={() => setMenuOpen(false)} />
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-2 pointer-events-none">
+          {/* Actions - fixed width container to prevent overlap */}
+          <div className="flex items-center gap-2 pointer-events-none shrink-0">
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
               onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
-              className="w-20 h-20 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors pointer-events-auto"
+              className="w-20 h-20 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors pointer-events-auto shrink-0"
               style={{ touchAction: 'manipulation' }}
               aria-label="Refresh"
             >
@@ -124,7 +124,7 @@ export default function AppLayout() {
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
               onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
-              className="w-20 h-20 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors pointer-events-auto"
+              className="w-20 h-20 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors pointer-events-auto shrink-0"
               style={{ touchAction: 'manipulation' }}
               aria-label="Toggle theme"
             >
@@ -134,7 +134,7 @@ export default function AppLayout() {
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
               onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
-              className="w-20 h-20 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors pointer-events-auto"
+              className="w-20 h-20 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors pointer-events-auto shrink-0"
               style={{ touchAction: 'manipulation' }}
               aria-label="Open menu"
             >
