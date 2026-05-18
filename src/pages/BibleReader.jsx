@@ -365,25 +365,7 @@ export default function BibleReader() {
             </button>
             </div>
 
-            {/* Hide header chevron */}
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setHideHeader(true)}
-                title="Hide header"
-                className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
-              >
-                <ChevronDown className="w-4 h-4" />
-              </button>
-              <button
-                onClick={toggleFullscreen}
-                title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-                className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
-              >
-                {fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-              </button>
-            </div>
-
-            {/* Prev/Next + Fullscreen */}
+            {/* Prev/Next + Fullscreen + Hide header */}
             <div className="flex items-center gap-1">
               <button
                 onClick={goPrev}
@@ -406,14 +388,28 @@ export default function BibleReader() {
               >
                 {fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
               </button>
+              <button
+                onClick={() => setHideHeader(true)}
+                title="Hide header"
+                className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
+              >
+                <ChevronDown className="w-4 h-4" />
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Show header chevron when hidden — same position as hide button */}
+      {/* Show header chevron when hidden — same position as hide button group */}
       {hideHeader && (
-        <div className="fixed top-14 right-4 z-50">
+        <div className="fixed top-14 right-4 z-50 flex items-center gap-1">
+          <button
+            onClick={toggleFullscreen}
+            title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+            className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
+          >
+            {fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          </button>
           <button
             onClick={() => setHideHeader(false)}
             className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
