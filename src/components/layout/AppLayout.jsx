@@ -329,99 +329,102 @@ function useAppLayoutPrompt() {
 }
 
 function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
-  const [footerVisible, setFooterVisible] = useState(true);
-
-  // Load footer visibility preference
-  useEffect(() => {
+  const [showMode, setShowMode] = useState(() => {
     try {
-      const saved = localStorage.getItem('kjb-footer-hidden');
-      if (saved === 'true') setFooterVisible(false);
-    } catch {}
-  }, []);
+      const saved = localStorage.getItem('kjb-footer-mode');
+      return saved === 'one' ? 'one' : saved === 'hidden' ? 'hidden' : 'two';
+    } catch { return 'two'; }
+  });
+
+  const cycleShowMode = () => {
+    const next = showMode === 'two' ? 'one' : showMode === 'one' ? 'hidden' : 'two';
+    setShowMode(next);
+    try { localStorage.setItem('kjb-footer-mode', next); } catch {}
+    if (next === 'hidden') onToggleHide?.();
+  };
 
   if (hidden) return null;
 
   return (
     <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border">
-      {/* Chevron to hide/show bottom nav */}
+      {/* Top chevron to cycle: 2 rows → 1 row → hidden → 2 rows */}
       <div className="relative">
         <button
-          onClick={() => {
-            setFooterVisible(false);
-            try { localStorage.setItem('kjb-footer-hidden', 'true'); } catch {}
-            onToggleHide?.();
-          }}
-          className={`absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm z-10 ${!footerVisible ? 'hidden' : ''}`}
-          title="Hide footer"
+          onClick={cycleShowMode}
+          onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
+          className={`absolute -top-3 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors flex items-center justify-center shadow-sm z-10 ${showMode === 'hidden' ? 'hidden' : ''}`}
+          title={showMode === 'two' ? 'Show one row' : showMode === 'one' ? 'Hide footer' : 'Show footer'}
         >
-          <ChevronDown className="w-4 h-4" />
+          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showMode === 'one' ? 'rotate-180' : ''}`} />
         </button>
-        {/* Show chevron when footer is hidden */}
-        {!footerVisible && (
+        {showMode === 'hidden' && (
           <button
-            onClick={() => {
-              setFooterVisible(true);
-              try { localStorage.setItem('kjb-footer-hidden', 'false'); } catch {}
-            }}
-            className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm z-10"
+            onClick={cycleShowMode}
+            onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
+            className="absolute -top-3 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors flex items-center justify-center shadow-sm z-10"
             title="Show footer"
           >
-            <ChevronDown className="w-4 h-4 rotate-180" />
+            <ChevronDown className="w-3.5 h-3.5 rotate-180" />
           </button>
         )}
       </div>
 
-      {/* Two rows of icons - 5 items each row, evenly spaced */}
-      <div>
-        {/* Primary row - 5 items */}
-        <div className="grid grid-cols-5 py-2">
-          {BOTTOM_NAV_PRIMARY.map(item => {
-            const Icon = item.icon;
-            const active = item.path === '/' ? pathname === '/' : pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                  setTimeout(() => navigate(item.path), 150);
-                }}
-                className={`flex flex-col items-center gap-0.5 py-2 transition-colors ${
-                  active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Icon className="w-6 h-6" />
-                <span className="font-sans text-[10px] font-medium">{item.label}</span>
-              </Link>
-            );
-          })}
+      {/* Navigation rows */}
+      {showMode !== 'hidden' && (
+        <div className="px-0.5">
+          {/* Primary row - 5 items */}
+          <div className="grid grid-cols-5">
+            {BOTTOM_NAV_PRIMARY.map(item => {
+              const Icon = item.icon;
+              const active = item.path === '/' ? pathname === '/' : pathname === item.path;
+              return (
+                <button
+                  key={item.path}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    setTimeout(() => navigate(item.path), 150);
+                  }}
+                  onTouchStart={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(() => navigate(item.path), 150); }}
+                  className={`flex flex-col items-center justify-center gap-0.5 py-2.5 min-h-[56px] transition-colors ${
+                    active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="font-sans text-[10px] font-medium">{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+          
+          {/* Secondary row - 4 items */}
+          {showMode === 'two' && (
+            <div className="grid grid-cols-4 border-t border-border">
+              {BOTTOM_NAV_SECONDARY.map(item => {
+                const Icon = item.icon;
+                const active = pathname === item.path;
+                return (
+                  <button
+                    key={item.path}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                      navigate(item.path);
+                    }}
+                    onTouchStart={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); navigate(item.path); }}
+                    className={`flex flex-col items-center justify-center gap-0.5 py-2.5 min-h-[56px] transition-colors ${
+                      active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span className="font-sans text-[10px] font-medium">{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
-        
-        {/* Secondary row - 4 items */}
-        <div className="grid grid-cols-4 py-2 border-t border-border">
-          {BOTTOM_NAV_SECONDARY.map(item => {
-            const Icon = item.icon;
-            const active = pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => {
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                  navigate(item.path);
-                }}
-                className={`flex flex-col items-center gap-0.5 py-2 transition-colors ${
-                  active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Icon className="w-6 h-6" />
-                <span className="font-sans text-[10px] font-medium">{item.label}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
+      )}
     </nav>
   );
 }
