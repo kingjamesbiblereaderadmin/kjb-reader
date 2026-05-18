@@ -37,6 +37,13 @@ export default function SettingsPage() {
 
   useEffect(() => {
     isBibleCached().then(setCached);
+
+    // Listen for storage events to sync with FirstLoadPrompt
+    const handleStorage = () => {
+      isBibleCached().then(setCached);
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
   // Refresh notification state on focus
@@ -135,6 +142,8 @@ export default function SettingsPage() {
       });
       setCached(true);
       setDlStatus('All 66 books downloaded successfully!');
+      // Dispatch storage event to sync FirstLoadPrompt
+      window.dispatchEvent(new Event('storage'));
     } catch (err) {
       setDlError('Download failed: ' + err.message + '. Please check your connection and try again.');
     }
