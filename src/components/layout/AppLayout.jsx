@@ -334,10 +334,33 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
     if (next === 'hidden') onToggleHide?.();
   };
 
-  if (hidden) return null;
+  if (hidden && showMode === 'hidden') {
+    return (
+      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border safe-area-pb">
+        <button
+          onClick={cycleShowMode}
+          onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
+          className="w-full h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors"
+          title="Tap to show navigation"
+        >
+          <ChevronDown className="w-4 h-4 rotate-180" />
+        </button>
+      </nav>
+    );
+  }
 
   return (
     <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border safe-area-pb">
+      {/* Toggle hide button */}
+      <button
+        onClick={() => { cycleShowMode(); onToggleHide?.(); }}
+        onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); onToggleHide?.(); }}
+        className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm z-10"
+        title="Hide navigation"
+      >
+        <ChevronDown className="w-4 h-4" />
+      </button>
+      
       {/* Navigation rows */}
       {showMode !== 'hidden' && (
         <div className="w-full">
@@ -373,32 +396,22 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
                 return (
                   <button
                     key={item.path}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    navigate(item.path);
-                  }}
-                  onTouchStart={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); navigate(item.path); }}
-                  className="flex flex-col items-center justify-center py-3 min-h-[60px] active:bg-secondary/50 transition-colors"
-                >
-                  <Icon className={`w-6 h-6 mb-1 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
-                  <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
-                </button>
-              );
-            })}
-          </div>
+                    onClick={(e) => {
+                      e.preventDefault();
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                      navigate(item.path);
+                    }}
+                    onTouchStart={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); navigate(item.path); }}
+                    className="flex flex-col items-center justify-center py-3 min-h-[60px] active:bg-secondary/50 transition-colors"
+                  >
+                    <Icon className={`w-6 h-6 mb-1 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           )}
         </div>
-      )}
-      
-      {/* Hidden mode indicator - tap bottom edge to restore */}
-      {showMode === 'hidden' && (
-        <button
-          onClick={cycleShowMode}
-          onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
-          className="w-full h-2 bg-gradient-to-t from-primary/10 to-transparent active:from-primary/20 transition-colors"
-          title="Tap to show footer"
-        />
       )}
     </nav>
   );
