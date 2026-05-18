@@ -126,59 +126,71 @@ export default function AppLayout() {
         <Outlet />
       </main>
 
-      <BottomNav pathname={pathname} navigate={navigate} hidden={footerHidden} />
+      <BottomNav pathname={pathname} navigate={navigate} hidden={footerHidden} onToggleHide={() => setFooterHidden(true)} />
 
-      {!footerHidden && (
       <footer className="hidden sm:block border-t border-border bg-card/80 py-3 mt-8 relative">
-        <button
-          onClick={() => { setFooterHidden(true); try { localStorage.setItem('kjb-footer-hidden', 'true'); } catch {} }}
-          className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm"
-          title="Hide footer"
-        >
-          <ChevronDown className="w-4 h-4" />
-        </button>
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="flex flex-wrap justify-center gap-4 mb-2">
-            {NAV_ITEMS.map(item => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => {
-                    setMenuOpen(false);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-sans text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  {item.label}
-                </Link>
-              );
-            })}
+        {!footerHidden && (
+          <button
+            onClick={() => { setFooterHidden(true); try { localStorage.setItem('kjb-footer-hidden', 'true'); } catch {} }}
+            className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm"
+            title="Hide footer"
+          >
+            <ChevronDown className="w-4 h-4" />
+          </button>
+        )}
+        {footerHidden && (
+          <button
+            onClick={() => { setFooterHidden(false); try { localStorage.setItem('kjb-footer-hidden', 'false'); } catch {} }}
+            className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm"
+            title="Show footer"
+          >
+            <ChevronDown className="w-4 h-4 rotate-180" />
+          </button>
+        )}
+        {!footerHidden && (
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mb-3">
+              {NAV_ITEMS.map(item => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-sans text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+            <p className="text-center font-sans text-xs text-muted-foreground">
+              Bible text from{' '}
+              <a href="https://bibleprotector.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
+                bibleprotector.com
+              </a>
+              {' '}· Created with{' '}
+              <a href="https://base44.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
+                Base44
+              </a>
+            </p>
           </div>
-          <p className="text-center font-sans text-xs text-muted-foreground">
-            Bible text from{' '}
-            <a href="https://bibleprotector.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
-              bibleprotector.com
-            </a>
-            {' '}· Created with{' '}
-            <a href="https://base44.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
-              Base44
-            </a>
-          </p>
-        </div>
+        )}
       </footer>
-      )}
 
 
     </div>
   );
 }
 
-function BottomNav({ pathname, navigate, hidden }) {
+function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
   const { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss } = useBottomNavPrompt();
   const [moreOpen, setMoreOpen] = useState(false);
+  const [showChevron, setShowChevron] = useState(false);
 
   if (hidden) return null;
 
@@ -186,6 +198,20 @@ function BottomNav({ pathname, navigate, hidden }) {
 
   return (
     <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border">
+      {/* Chevron to hide footer */}
+      <div className="relative">
+        <button
+          onClick={() => {
+            setShowChevron(false);
+            onToggleHide?.();
+          }}
+          className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm z-10"
+          title="Hide footer"
+        >
+          <ChevronDown className="w-4 h-4" />
+        </button>
+      </div>
+
       <div className="flex items-center justify-around px-2 py-2">
         {PRIMARY_NAV.map(item => {
           const Icon = item.icon;
