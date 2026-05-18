@@ -69,7 +69,10 @@ export default function HomePage() {
   };
 
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
-  const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
+  const [notifPermission, setNotifPermission] = useState(() => {
+    if (!('Notification' in window)) return 'unsupported';
+    return Notification.permission;
+  });
 
   useEffect(() => {
     registerSW();
@@ -106,24 +109,35 @@ export default function HomePage() {
 
   const handleToggleNotif = async (e) => {
     if (e) e.stopPropagation();
+    
     if (notifEnabled) {
       disableNotifications();
       setNotifEnabled(false);
-    } else {
-      if (!('Notification' in window)) {
-        alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
-        return;
-      }
+      setNotifPermission('Notification' in window ? Notification.permission : 'unsupported');
+      window.dispatchEvent(new Event('storage'));
+      return;
+    }
+    
+    if (!('Notification' in window)) {
+      alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
+      return;
+    }
+    
+    try {
       const result = await requestNotificationPermission();
       setNotifPermission(result);
+      
       if (result === 'granted') {
         setNotifEnabled(true);
         scheduleDailyNotification(verse);
+        window.dispatchEvent(new Event('storage'));
       } else if (result === 'denied') {
         alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
       }
+    } catch (err) {
+      console.error('Notification permission error:', err);
+      alert('Failed to request notification permission. Please try again.');
     }
-    window.dispatchEvent(new Event('storage'));
   };
 
   return (
