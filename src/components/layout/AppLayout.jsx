@@ -89,7 +89,7 @@ export default function AppLayout() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`}>
+      <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="max-w-5xl mx-auto px-4 h-[80px] sm:h-24 flex items-center gap-3">
           {/* Logo */}
           <Link
@@ -110,42 +110,36 @@ export default function AppLayout() {
 
           {/* Actions */}
           <div className="flex items-center gap-2 pointer-events-none">
-            <div className="relative w-20 h-20 pointer-events-auto">
-              <button
-                type="button"
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
-                onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
-                className="absolute inset-0 w-full h-full flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors"
-                style={{ touchAction: 'manipulation' }}
-                aria-label="Refresh"
-              >
-                <RotateCw className="w-6 h-6" />
-              </button>
-            </div>
-            <div className="relative w-20 h-20 pointer-events-auto">
-              <button
-                type="button"
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
-                onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
-                className="absolute inset-0 w-full h-full flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors"
-                style={{ touchAction: 'manipulation' }}
-                aria-label="Toggle theme"
-              >
-                {mode === 'auto' ? <SunMoon className="w-6 h-6" /> : isDark ? <Moon className="w-6 h-6" /> : <Sun className="w-6 h-6" />}
-              </button>
-            </div>
-            <div className="relative w-20 h-20 pointer-events-auto">
-              <button
-                type="button"
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
-                onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
-                className="absolute inset-0 w-full h-full flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors"
-                style={{ touchAction: 'manipulation' }}
-                aria-label="Open menu"
-              >
-                {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
+              onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
+              className="w-20 h-20 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors pointer-events-auto"
+              style={{ touchAction: 'manipulation' }}
+              aria-label="Refresh"
+            >
+              <RotateCw className="w-6 h-6" />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
+              onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
+              className="w-20 h-20 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors pointer-events-auto"
+              style={{ touchAction: 'manipulation' }}
+              aria-label="Toggle theme"
+            >
+              {mode === 'auto' ? <SunMoon className="w-6 h-6" /> : isDark ? <Moon className="w-6 h-6" /> : <Sun className="w-6 h-6" />}
+            </button>
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
+              onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
+              className="w-20 h-20 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors pointer-events-auto"
+              style={{ touchAction: 'manipulation' }}
+              aria-label="Open menu"
+            >
+              {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
         </div>
 
