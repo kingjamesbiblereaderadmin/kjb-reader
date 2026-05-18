@@ -375,12 +375,14 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
                     setTimeout(() => navigate(item.path), 150);
                   }}
                   onTouchStart={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(() => navigate(item.path), 150); }}
-                  className={`flex flex-col items-center justify-center gap-0.5 py-2.5 min-h-[56px] transition-colors ${
-                    active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                  className="flex flex-col items-center justify-center gap-0.5 w-full h-full min-h-[56px] transition-colors"
                 >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-sans text-[10px] font-medium">{item.label}</span>
+                  <div className={`w-full h-full flex flex-col items-center justify-center gap-0.5 py-2.5 ${
+                    active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+                  }`}>
+                    <Icon className="w-5 h-5" />
+                    <span className="font-sans text-[10px] font-medium">{item.label}</span>
+                  </div>
                 </button>
               );
             })}
@@ -401,12 +403,14 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
                       navigate(item.path);
                     }}
                     onTouchStart={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); navigate(item.path); }}
-                    className={`flex flex-col items-center justify-center gap-0.5 py-2.5 min-h-[56px] transition-colors ${
-                      active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-                    }`}
+                    className="flex flex-col items-center justify-center gap-0.5 w-full h-full min-h-[56px] transition-colors"
                   >
-                    <Icon className="w-5 h-5" />
-                    <span className="font-sans text-[10px] font-medium">{item.label}</span>
+                    <div className={`w-full h-full flex flex-col items-center justify-center gap-0.5 py-2.5 ${
+                      active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+                    }`}>
+                      <Icon className="w-5 h-5" />
+                      <span className="font-sans text-[10px] font-medium">{item.label}</span>
+                    </div>
                   </button>
                 );
               })}
