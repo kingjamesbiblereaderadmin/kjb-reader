@@ -233,12 +233,12 @@ export default function HomePage() {
               </span>
             </button>
           )}
-          {!alreadyInstalled && (isInstallable || isIOS()) && (
+          {!alreadyInstalled && (isInstallable || isIOS) && (
             <button
               onClick={handleInstallClick}
               className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
             >
-              {isIOS() && !isInstallable ? <Share className="w-4 h-4 shrink-0" /> : <Download className="w-4 h-4 shrink-0" />}
+              {isIOS && !isInstallable ? <Share className="w-4 h-4 shrink-0" /> : <Download className="w-4 h-4 shrink-0" />}
               <span className="text-left">
                 <span className="block font-semibold">Add to Home Screen</span>
                 <span className="block text-xs opacity-80">{downloaded ? 'Includes offline Bible' : 'Offline access, faster loading'}</span>
