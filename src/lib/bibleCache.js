@@ -4,7 +4,7 @@
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
 
-const CACHE_KEY = 'bible_data_pce_v32'; // v32: colophons with ¶ [text] format - fixed regex
+const CACHE_KEY = 'bible_data_pce_v33'; // v33: colophons with ¶ [text] - fixed U+000F parsing
 const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
@@ -35,12 +35,16 @@ let remoteVersion = null;
 function parseBibleText(rawText) {
   console.log('[PARSE] Raw text length:', rawText.length);
   
-  // Step 1: Normalize ALL replacement characters (U+FFFD) to pilcrow (U+00B6)
-  // The source file uses U+FFFD to represent the pilcrow (¶) due to encoding issues
-  const normalizedText = rawText.replace(/\uFFFD/g, '\u00B6');
+  // Step 1: Normalize ALL special characters to pilcrow (U+00B6)
+  // The source file uses  (U+000F) and other chars for pilcrow
+  const normalizedText = rawText
+    .replace(/\u000F/g, '\u00B6')  // Shift+O character
+    .replace(/\uFFFD/g, '\u00B6'); // Replacement character
+  const shiftOCount = (rawText.match(/\u000F/g) || []).length;
   const replacementCount = (rawText.match(/\uFFFD/g) || []).length;
   let totalPilcrowCount = (normalizedText.match(/\u00B6/g) || []).length;
   console.log('[PARSE] Raw text length:', rawText.length);
+  console.log('[PARSE] ✓ Shift+O chars (U+000F) converted:', shiftOCount);
   console.log('[PARSE] ✓ Replacement chars (U+FFFD) converted:', replacementCount);
   console.log('[PARSE] ✓ Pilcrows (U+00B6) in normalized text:', totalPilcrowCount);
   
@@ -84,9 +88,8 @@ function parseBibleText(rawText) {
     // Track pilcrows in verse text
     if (verseText.includes('\u00B6')) {
       pilcrowCount++;
-      if (verse <= 3) {
-        console.log(`[PARSE] ✓ ${abbr} ${chapter}:${verse} has pilcrow: "${verseText.slice(0, 60)}"`);
-      }
+      // Log ALL verses with pilcrows for debugging
+      console.log(`[PARSE] ✓ ${abbr} ${chapter}:${verse} has pilcrow: "${verseText.slice(0, 80)}"`);
     }
 
     const bookName = ABBR_TO_NAME[abbr];
@@ -94,10 +97,17 @@ function parseBibleText(rawText) {
       console.log('[SKIP] Unknown abbr:', abbr);
       continue;
     }
+    
+    // Debug: Log Philippians 4:22 specifically
+    if (abbr === 'Php' && chapter === 4 && verse === 22) {
+      console.log('[DEBUG Php 4:22] Raw verseText:', JSON.stringify(verseText));
+      console.log('[DEBUG Php 4:22] Has pilcrow:', verseText.includes('\u00B6'));
+      console.log('[DEBUG Php 4:22] Has colophon match:', !!verseText.match(/\u00B6\s*\[([^\]]+)\]\s*$/));
+    }
 
     // Extract colophon markers: ¶ [text] at end of verse (pilcrow + square brackets)
-    // Must have pilcrow/replacement char + space + square brackets at end
-    const colophonMatch = verseText.match(/[\u00B6\uFFFD]\s*\[([^\]]+)\]\s*$/);
+    // Must have pilcrow + space + square brackets at end
+    const colophonMatch = verseText.match(/\u00B6\s*\[([^\]]+)\]\s*$/);
     if (colophonMatch) {
       const colophonKey = `${bookName}:${chapter}`;
       if (!colophons[colophonKey]) {
@@ -106,7 +116,7 @@ function parseBibleText(rawText) {
         console.log(`[COLOPHON] ✓ Extracted: ${colophonKey} -> "${colophons[colophonKey]}"`);
       }
       // Remove the colophon marker from verse text
-      verseText = verseText.replace(/\s*[\u00B6\uFFFD]\s*\[[^\]]+\]\s*$/, '').trim();
+      verseText = verseText.replace(/\s*\u00B6\s*\[[^\]]+\]\s*$/, '').trim();
       console.log(`[COLOPHON]   Cleaned verse: "${verseText.slice(0, 50)}..."`);
     }
 
