@@ -37,51 +37,9 @@ export default function AppLayout() {
   const { pathname } = useLocation();
   const { isDark, mode, toggleTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [footerHidden, setFooterHidden] = useState(() => {
-    try { return localStorage.getItem('kjb-footer-hidden') === 'true'; } catch { return false; }
-  });
+  const [footerHidden, setFooterHidden] = useState(false);
   const navigate = useNavigate();
   const isRoot = pathname === '/';
-  const activityTimeoutRef = useRef(null);
-
-  // Hide footer when user is active (reading/clicking), show after 3 seconds of inactivity
-  useEffect(() => {
-    const handleActivity = () => {
-      // Hide footer immediately on activity
-      if (!footerHidden) {
-        setFooterHidden(true);
-        try { localStorage.setItem('kjb-footer-hidden', 'true'); } catch {}
-      }
-
-      // Clear existing timeout
-      if (activityTimeoutRef.current) {
-        clearTimeout(activityTimeoutRef.current);
-      }
-
-      // Show footer after 3 seconds of inactivity
-      activityTimeoutRef.current = setTimeout(() => {
-        setFooterHidden(false);
-        try { localStorage.setItem('kjb-footer-hidden', 'false'); } catch {}
-      }, 3000);
-    };
-
-    // Listen for user activity
-    window.addEventListener('click', handleActivity);
-    window.addEventListener('scroll', handleActivity);
-    window.addEventListener('keypress', handleActivity);
-    window.addEventListener('touchstart', handleActivity);
-
-    // Initial cleanup
-    return () => {
-      window.removeEventListener('click', handleActivity);
-      window.removeEventListener('scroll', handleActivity);
-      window.removeEventListener('keypress', handleActivity);
-      window.removeEventListener('touchstart', handleActivity);
-      if (activityTimeoutRef.current) {
-        clearTimeout(activityTimeoutRef.current);
-      }
-    };
-  }, [footerHidden]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
