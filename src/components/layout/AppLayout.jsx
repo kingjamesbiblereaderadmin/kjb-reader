@@ -196,7 +196,7 @@ export default function AppLayout() {
           </button>
         )}
         {!footerHidden && (
-          <div className="max-w-4xl mx-auto px-4">
+          <div className="max-w-5xl mx-auto px-4">
             <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mb-3">
               {NAV_ITEMS.map(item => {
                 const Icon = item.icon;
