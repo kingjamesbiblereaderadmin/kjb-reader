@@ -1,7 +1,7 @@
 // Client-side Bible data caching for offline access
 // Uses the Wharton PCE text from bibleprotector.com
 
-const CACHE_KEY = 'bible_data_pce_v11';
+const CACHE_KEY = 'bible_data_pce_v12';
 const TEXT_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/ee659445e_TEXT-PCE-127.txt';
 
 // Maps the abbreviation in the text file -> canonical book name (must match apiName in bibleData.js)
@@ -73,7 +73,7 @@ function parseBibleText(rawText) {
     if (colophonMatch) {
       const colophonKey = `${bookName}:${chapter}`;
       if (!colophons[colophonKey]) {
-        colophons[colophonKey] = `[${colophonMatch[1]}]`;
+        colophons[colophonKey] = colophonMatch[1];
         colophonCount++;
         console.log(`[COLOPHON] Extracted: ${colophonKey} -> ${colophons[colophonKey]}`);
       }
