@@ -67,7 +67,7 @@ async function loadBible() {
         colophons[colophonKey] = colophonMatch[1];
         console.log(`[COLOPHON EXTRACTED] ${colophonKey} -> ${colophons[colophonKey]}`);
       }
-      verseText = verseText.replace(/\s*<<\[([^\]]+)\]>>\s*$/, '').trim();
+      verseText = verseText.replace(/<<\[([^\]]+)\]>>\s*$/, '').trim();
     }
 
     if (!verseText.trim()) continue;
