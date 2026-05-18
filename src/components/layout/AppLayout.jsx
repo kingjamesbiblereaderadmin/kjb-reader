@@ -232,10 +232,10 @@ function BottomNav({ pathname, navigate }) {
                     setMoreOpen(false);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className={`flex items-center justify-center gap-2.5 px-3 py-3 rounded-xl font-sans text-sm font-medium transition-colors ${
+                  className={`flex items-center justify-center gap-1 px-4 py-2 rounded-lg font-sans text-[10px] font-medium transition-colors ${
                     active
                       ? 'bg-primary text-primary-foreground'
-                      : 'text-foreground hover:bg-secondary'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
                   }`}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
