@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, BookOpen, Heart, Library, Info, Moon, Sun, Settings, Menu, X, Bookmark, ChevronLeft } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
+import InstallBanner from '@/components/InstallBanner';
+import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 
 const NAV_ITEMS = [
   { path: '/', icon: Home, label: 'Home' },
@@ -28,6 +30,26 @@ export default function AppLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   const isRoot = pathname === '/';
+  const { isInstallable, promptInstall, dismiss, wasDismissed } = useInstallPrompt();
+  const [showBanner, setShowBanner] = useState(false);
+
+  // Show banner on first visit if not dismissed
+  useEffect(() => {
+    if (isInstallable && !wasDismissed()) {
+      const timer = setTimeout(() => setShowBanner(true), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isInstallable]);
+
+  const handleInstall = async () => {
+    await promptInstall();
+    setShowBanner(false);
+  };
+
+  const handleDismiss = () => {
+    dismiss();
+    setShowBanner(false);
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -133,6 +155,10 @@ export default function AppLayout() {
           })}
         </div>
       </nav>
+
+      {showBanner && (
+        <InstallBanner onInstall={handleInstall} onDismiss={handleDismiss} />
+      )}
 
       <footer className="hidden sm:block border-t border-border bg-card/80 py-4 mt-8">
         <p className="text-center font-sans text-xs text-muted-foreground">

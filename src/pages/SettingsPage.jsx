@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2 } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone } from 'lucide-react';
+import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { base44 } from '@/api/base44Client';
 import { useTheme, COLOUR_PALETTES } from '@/lib/themeContext';
 import {
@@ -20,6 +21,7 @@ export default function SettingsPage() {
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
 
+  const { isInstallable, isInstalled, promptInstall } = useInstallPrompt();
   const [cached, setCached] = useState(isBibleCached);
   const [downloading, setDownloading] = useState(false);
   const [dlProgress, setDlProgress] = useState(0);
@@ -149,15 +151,32 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Widgets & Lock Screen */}
-      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-2">
-        <h2 className="font-serif text-lg font-semibold text-foreground">Widgets & Lock Screen</h2>
+      {/* Install App */}
+      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
+        <h2 className="font-serif text-lg font-semibold text-foreground">Install App</h2>
         <p className="font-sans text-sm text-muted-foreground leading-relaxed">
-          Home screen and lock screen widgets are only available in <span className="font-medium text-foreground">native apps</span>. This app is a PWA (Progressive Web App), so Android and iOS do not support adding it as a widget.
+          Add the KJB Reader to your home screen for quick access and to enable daily verse notifications when the app is closed.
         </p>
-        <p className="font-sans text-sm text-muted-foreground leading-relaxed">
-          <span className="font-medium text-foreground">Best alternative:</span> Add this app to your home screen ("Add to Home Screen" in your browser), then turn on <span className="font-medium text-foreground">Daily Notifications</span> above. You'll receive a verse at your chosen time each day — even when the app is closed.
-        </p>
+        {isInstalled ? (
+          <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+            <CheckCircle2 className="w-5 h-5 shrink-0" />
+            <span className="font-sans text-sm font-medium">App is installed on your home screen</span>
+          </div>
+        ) : isInstallable ? (
+          <button
+            onClick={promptInstall}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+          >
+            <Smartphone className="w-4 h-4" />
+            Add to Home Screen
+          </button>
+        ) : (
+          <div className="space-y-1">
+            <p className="font-sans text-sm text-muted-foreground">
+              To install: open this site in <span className="font-medium text-foreground">Chrome (Android)</span> or <span className="font-medium text-foreground">Safari (iPhone)</span>, then tap <span className="font-medium text-foreground">"Add to Home Screen"</span> from the browser menu.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Offline Library */}
