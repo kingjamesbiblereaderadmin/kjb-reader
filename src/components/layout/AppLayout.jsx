@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw } from 'lucide-react';
+import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
@@ -13,8 +13,9 @@ const NAV_ITEMS = [
   { path: '/read', icon: BookOpen, label: 'Read' },
   { path: '/gospel', icon: Heart, label: 'Gospel' },
   { path: '/resources', icon: Library, label: 'Resources' },
-  { path: '/about', icon: Info, label: 'About' },
   { path: '/saved', icon: Bookmark, label: 'Saved' },
+  { path: '/read', icon: BookMarked, label: 'Daily Reading' },
+  { path: '/about', icon: Info, label: 'About' },
   { path: '/settings', icon: Settings, label: 'Settings' },
 ];
 
