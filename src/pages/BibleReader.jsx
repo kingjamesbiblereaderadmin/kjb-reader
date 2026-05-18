@@ -386,13 +386,6 @@ export default function BibleReader() {
                 <ChevronRight className="w-4 h-4" />
               </button>
               <button
-                onClick={() => setTextOnlyMode(true)}
-                title="Text only mode"
-                className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
-              >
-                <ArrowDownToLine className="w-4 h-4" />
-              </button>
-              <button
                 onClick={toggleFullscreen}
                 title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
                 className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
@@ -400,36 +393,36 @@ export default function BibleReader() {
                 {fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
               </button>
               <button
-                onClick={() => setHideUI(true)}
-                title="Hide UI"
+                onClick={() => {
+                  if (hideUI || textOnlyMode) {
+                    setHideUI(false);
+                    setTextOnlyMode(false);
+                  } else {
+                    setHideUI(true);
+                    setTextOnlyMode(true);
+                  }
+                }}
+                title={hideUI || textOnlyMode ? 'Show UI' : 'Hide UI'}
                 className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
               >
-                <EyeOff className="w-4 h-4" />
+                {(hideUI || textOnlyMode) ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Show UI button when hidden */}
-      {hideUI && (
+      {/* Show UI button when hidden or text-only mode */}
+      {(hideUI || textOnlyMode) && (
         <button
-          onClick={() => setHideUI(false)}
+          onClick={() => {
+            setHideUI(false);
+            setTextOnlyMode(false);
+          }}
           className="fixed bottom-20 right-4 z-50 p-3 rounded-full bg-card/80 backdrop-blur border border-border text-muted-foreground hover:text-foreground shadow-lg transition-colors"
           title="Show UI"
         >
           <Eye className="w-5 h-5" />
-        </button>
-      )}
-
-      {/* Show UI button when text-only mode */}
-      {textOnlyMode && (
-        <button
-          onClick={() => setTextOnlyMode(false)}
-          className="fixed bottom-20 right-4 z-50 p-3 rounded-full bg-card/80 backdrop-blur border border-border text-muted-foreground hover:text-foreground shadow-lg transition-colors"
-          title="Show UI"
-        >
-          <ArrowUpFromLine className="w-5 h-5" />
         </button>
       )}
 
