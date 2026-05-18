@@ -183,6 +183,7 @@ export default function HomePage() {
         {/* Bell overlay */}
         <button
           onClick={(e) => {
+            console.log('Bell button clicked!');
             e.stopPropagation();
             handleToggleNotif(e);
           }}
