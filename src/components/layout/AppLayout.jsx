@@ -183,7 +183,11 @@ export default function AppLayout() {
               <Link
                 key={item.path}
                 to={item.path}
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  setTimeout(() => navigate(item.path), 150);
+                }}
                 className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors ${
                   active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
                 }`}

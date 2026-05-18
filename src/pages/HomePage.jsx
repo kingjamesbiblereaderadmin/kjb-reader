@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
-import { getRandomVerseFromBible, getDailyVerseFallback } from '@/lib/dailyVerse';
+import { getDailyVerse } from '@/lib/dailyVerse';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 
@@ -25,7 +25,7 @@ export default function HomePage() {
   const touchEndY = useRef(0);
 
   useEffect(() => {
-    getRandomVerseFromBible().then(v => setVerse(v)).catch(() => {});
+    setVerse(getDailyVerse());
   }, []);
 
   const handleRefresh = async () => {

@@ -76,15 +76,17 @@ export async function getRandomVerseFromBible() {
   }
 }
 
-// Synchronous fallback used for initial render / offline first load
-export function getDailyVerseFallback() {
-  const idx = Math.floor(Math.random() * FALLBACK_POOL.length);
+// Get date-based daily verse (one per day)
+export function getDailyVerse() {
+  const today = new Date();
+  const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+  const idx = seed % FALLBACK_POOL.length;
   const v = FALLBACK_POOL[idx];
   const cleanText = v.text.replace(/\[([^\]]+)\]/g, '$1');
   return { ...v, text: cleanText, ref: `${v.book} ${v.chapter}:${v.verse}` };
 }
 
-// Legacy export for SettingsPage compatibility
-export function getDailyVerse() {
-  return getDailyVerseFallback();
+// Synchronous fallback used for initial render / offline first load
+export function getDailyVerseFallback() {
+  return getDailyVerse();
 }
