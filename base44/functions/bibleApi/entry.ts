@@ -59,15 +59,15 @@ async function loadBible() {
     const bookName = ABBR_TO_NAME[abbr];
     if (!bookName) continue;
 
-    // Extract colophon markers: ¶ [text] at end of verse (pilcrow + square brackets)
-    const colophonMatch = verseText.match(/¶\s*\[(.*?)\]\s*$/);
+    // Extract colophon markers: <<[text]>> at end of verse
+    const colophonMatch = verseText.match(/<<\[([^\]]+)\]>>\s*$/);
     if (colophonMatch) {
       const colophonKey = `${bookName}:${chapter}`;
       if (!colophons[colophonKey]) {
         colophons[colophonKey] = colophonMatch[1];
         console.log(`[COLOPHON EXTRACTED] ${colophonKey} -> ${colophons[colophonKey]}`);
       }
-      verseText = verseText.replace(/\s*¶\s*\[.*?\]\s*$/, '').trim();
+      verseText = verseText.replace(/\s*<<\[([^\]]+)\]>>\s*$/, '').trim();
     }
 
     if (!verseText.trim()) continue;
