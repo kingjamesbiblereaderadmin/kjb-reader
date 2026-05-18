@@ -88,26 +88,11 @@ function parseBibleText(rawText) {
       pilcrowCount++;
     }
 
-    // Extract colophon markers - two formats:
-    // Format 1: "verse text <<[colophon text]>>" (may have nested brackets)
-    // Format 2: "verse text ¶ [colophon text]" (pilcrow + space + brackets)
-    let colophonText = null;
-    
-    // Try format 1 first: <<[...]]>> - use greedy match to handle nested brackets
-    const inlineMatch = verseText.match(/<<\[(.+)\]>>\s*$/);
+    // Extract colophon markers - format: "verse text <<[colophon text]>>"
+    // Use non-greedy match with balanced bracket handling
+    const inlineMatch = verseText.match(/<<\[([\s\S]+?)\]>>\s*$/);
     if (inlineMatch) {
-      colophonText = '\u00B6 ' + inlineMatch[1];
-      verseText = verseText.replace(/<<\[(.+)\]>>\s*$/, '').trim();
-    }
-    
-    // Try format 2: ¶ [...] - use greedy match for nested brackets
-    const pilcrowMatch = verseText.match(/\s*¶\s*\[(.+)\]\s*$/);
-    if (pilcrowMatch && !inlineMatch) {
-      colophonText = '\u00B6 ' + pilcrowMatch[1];
-      verseText = verseText.replace(/\s*¶\s*\[(.+)\]\s*$/, '').trim();
-    }
-    
-    if (colophonText) {
+      const colophonText = '\u00B6 ' + inlineMatch[1];
       const bookName = ABBR_TO_NAME[abbr];
       if (bookName) {
         const colophonKey = `${bookName}:${chapter}`;
@@ -115,6 +100,8 @@ function parseBibleText(rawText) {
         colophonCount++;
         console.log(`[COLOPHON] ✓ ${colophonKey} -> "${colophonText}"`);
       }
+      // Strip the colophon from verse text
+      verseText = verseText.replace(/<<\[[\s\S]+?\]>>\s*$/, '').trim();
     }
 
     const bookName = ABBR_TO_NAME[abbr];
