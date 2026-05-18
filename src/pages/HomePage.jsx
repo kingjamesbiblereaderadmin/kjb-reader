@@ -86,11 +86,9 @@ export default function HomePage() {
       return;
     }
     const savedData = { abbr: verse.abbr, chapter: verse.chapter, verse: verse.verse };
-    console.log('Daily verse clicked - saving:', savedData);
-    console.log('Full verse object:', verse);
+    alert(`Navigating to: ${verse.ref}\nAbbr: ${verse.abbr}\nChapter: ${verse.chapter}\nVerse: ${verse.verse}`);
     try {
       localStorage.setItem('kjb-position', JSON.stringify(savedData));
-      console.log('Saved to localStorage successfully');
     } catch (err) {
       console.error('Failed to save verse position:', err);
     }
