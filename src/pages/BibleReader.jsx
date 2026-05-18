@@ -235,7 +235,7 @@ export default function BibleReader() {
   }, [verses, loading, book.name, pos.chapter, isViewingTitlePage]);
 
   return (
-    <div className={`max-w-3xl mx-auto px-4 py-3 ${hideHeader ? 'pt-16' : ''}`}>
+    <div className={`max-w-5xl mx-auto px-4 py-3 ${hideHeader ? 'pt-16' : ''}`}>
 
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
@@ -402,22 +402,24 @@ export default function BibleReader() {
 
       {/* Show header chevron when hidden — aligned with top border */}
       {hideHeader && (
-        <div className="fixed top-14 left-0 right-0 h-[49px] border-b border-border bg-background/95 backdrop-blur z-50 flex items-center justify-end px-4">
-          <div className="flex items-center gap-1">
-            <button
-              onClick={toggleFullscreen}
-              title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-              className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
-            >
-              {fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-            </button>
-            <button
-              onClick={() => setHideHeader(false)}
-              className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
-              title="Show header"
-            >
-              <ChevronDown className="w-4 h-4 rotate-180" />
-            </button>
+        <div className="fixed top-0 left-0 right-0 h-[49px] border-b border-border bg-background/95 backdrop-blur z-50">
+          <div className="max-w-3xl mx-auto px-4 h-full flex items-center justify-end">
+            <div className="flex items-center gap-1">
+              <button
+                onClick={toggleFullscreen}
+                title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+                className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
+              >
+                {fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+              </button>
+              <button
+                onClick={() => setHideHeader(false)}
+                className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
+                title="Show header"
+              >
+                <ChevronDown className="w-4 h-4 rotate-180" />
+              </button>
+            </div>
           </div>
         </div>
       )}
