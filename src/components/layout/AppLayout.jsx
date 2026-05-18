@@ -375,9 +375,9 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
       </div>
 
       {/* Two rows of icons */}
-      <div className="px-2 py-2">
+      <div className="flex px-1">
         {/* Primary row */}
-        <div className="flex items-center justify-around">
+        <div className="flex-1 flex items-center justify-around py-2">
           {PRIMARY_NAV.map(item => {
             const Icon = item.icon;
             const active = item.path === '/' ? pathname === '/' : pathname === item.path;
@@ -390,7 +390,7 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                   setTimeout(() => navigate(item.path), 150);
                 }}
-                className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-lg transition-colors ${
+                className={`flex flex-col items-center gap-0.5 px-2 py-3 min-w-[60px] transition-colors ${
                   active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
@@ -402,7 +402,7 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
         </div>
         
         {/* Secondary row */}
-        <div className="flex items-center justify-around mt-1 pt-2 border-t border-border">
+        <div className="flex-1 flex items-center justify-around py-2 border-t border-border">
           {BOTTOM_NAV_SECONDARY.map(item => {
             const Icon = item.icon;
             const active = pathname === item.path;
@@ -414,7 +414,7 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                   navigate(item.path);
                 }}
-                className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-lg transition-colors ${
+                className={`flex flex-col items-center gap-0.5 px-2 py-3 min-w-[60px] transition-colors ${
                   active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
