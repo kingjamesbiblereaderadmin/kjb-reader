@@ -130,6 +130,17 @@ export default function AppLayout() {
 
       <BottomNav pathname={pathname} navigate={navigate} hidden={footerHidden} onToggleHide={() => setFooterHidden(true)} />
 
+      {/* Mobile footer show chevron - always visible when bottom nav is hidden */}
+      {footerHidden && (
+        <button
+          onClick={() => { setFooterHidden(false); try { localStorage.setItem('kjb-footer-hidden', 'false'); } catch {} }}
+          className="sm:hidden fixed bottom-0 left-1/2 -translate-x-1/2 -mb-3 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm z-50"
+          title="Show footer"
+        >
+          <ChevronDown className="w-4 h-4 rotate-180" />
+        </button>
+      )}
+
       <footer className="hidden sm:block border-t border-border bg-card/80 py-3 mt-8 relative">
         {!footerHidden && (
           <button
@@ -218,18 +229,32 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
 
   return (
     <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border">
-      {/* Chevron to hide footer */}
+      {/* Chevron to hide/show bottom nav */}
       <div className="relative">
         <button
           onClick={() => {
-            setShowChevron(false);
+            setFooterVisible(false);
+            try { localStorage.setItem('kjb-footer-hidden', 'true'); } catch {}
             onToggleHide?.();
           }}
-          className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm z-10"
+          className={`absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm z-10 ${!footerVisible ? 'hidden' : ''}`}
           title="Hide footer"
         >
           <ChevronDown className="w-4 h-4" />
         </button>
+        {/* Show chevron when footer is hidden */}
+        {!footerVisible && (
+          <button
+            onClick={() => {
+              setFooterVisible(true);
+              try { localStorage.setItem('kjb-footer-hidden', 'false'); } catch {}
+            }}
+            className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm z-10"
+            title="Show footer"
+          >
+            <ChevronDown className="w-4 h-4 rotate-180" />
+          </button>
+        )}
       </div>
 
       <div className="flex items-center justify-around px-2 py-2">
