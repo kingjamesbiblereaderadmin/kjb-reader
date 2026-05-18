@@ -88,7 +88,7 @@ export default function DailyReadingPage() {
                 <p className="font-sans text-base text-foreground">
                   <span className="font-semibold">{todayProgress.book}</span> Chapter {todayProgress.chapter}
                   {todayProgress.verse_start && todayProgress.verse_end && (
-                    <span className="text-muted-foreground"> (v.{todayProgress.verse_start}-{todayProgress.verse_end})</span>
+                    <span className="text-muted-foreground"> ({todayProgress.verse_start === todayProgress.verse_end ? `v.${todayProgress.verse_start}` : `v.${todayProgress.verse_start}-${todayProgress.verse_end}`})</span>
                   )}
                 </p>
                 {!completedToday && (
