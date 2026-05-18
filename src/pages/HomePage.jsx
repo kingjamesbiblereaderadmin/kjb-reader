@@ -72,6 +72,7 @@ export default function HomePage() {
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
   const { showPrompt, isInstallable, handleInstall, handleDismiss, wasDismissed } = useInstallPrompt();
+  const [showFirstLoadPrompt, setShowFirstLoadPrompt] = useState(false);
 
   useEffect(() => {
     registerSW();
@@ -80,12 +81,20 @@ export default function HomePage() {
     }
     initReadingReminder();
 
+    // Show first load prompt after a delay if not dismissed
+    const timer = setTimeout(() => {
+      setShowFirstLoadPrompt(true);
+    }, 2000);
+
     const handleStorageChange = () => {
       setNotifEnabled(getNotificationsEnabled());
       setNotifPermission('Notification' in window ? Notification.permission : 'unsupported');
     };
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearTimeout(timer);
+    };
   }, []);
 
   const handleVerseClick = () => {
@@ -124,6 +133,10 @@ export default function HomePage() {
       }
     }
     window.dispatchEvent(new Event('storage'));
+  };
+
+  const handleDownloadOffline = () => {
+    setShowFirstLoadPrompt(false);
   };
 
   return (
@@ -235,12 +248,16 @@ export default function HomePage() {
       </div>
       </div>
 
-      {showPrompt && (
+      {showFirstLoadPrompt && (
       <FirstLoadPrompt
         isInstallable={isInstallable}
         notifPermission={notifPermission}
         onInstall={handleInstall}
-        onDismiss={handleDismiss}
+        onDismiss={() => {
+          handleDismiss();
+          setShowFirstLoadPrompt(false);
+        }}
+        onDownloadOffline={handleDownloadOffline}
       />
       )}
       </div>
