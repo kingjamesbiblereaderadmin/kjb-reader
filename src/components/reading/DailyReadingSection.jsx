@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, CheckCircle2, Circle, Flame, TrendingUp } from 'lucide-react';
-import { getWeeklyProgress, markReadingComplete, getTodayProgress } from '@/lib/readingProgress';
+import { getWeeklyProgress, markReadingComplete, getTodayProgress, initializeReadingProgress } from '@/lib/readingProgress';
 import { useNavigate } from 'react-router-dom';
 
 export default function DailyReadingSection() {
@@ -15,6 +15,7 @@ export default function DailyReadingSection() {
 
   const loadProgress = async () => {
     setLoading(true);
+    await initializeReadingProgress();
     const [weekly, today] = await Promise.all([
       getWeeklyProgress(),
       getTodayProgress(),
@@ -103,12 +104,20 @@ export default function DailyReadingSection() {
                 )}
               </p>
               {!completedToday && (
-                <button
-                  onClick={handleMarkComplete}
-                  className="w-full mt-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
-                >
-                  Mark as Complete
-                </button>
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={handleStartReading}
+                    className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+                  >
+                    Read
+                  </button>
+                  <button
+                    onClick={handleMarkComplete}
+                    className="flex-1 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+                  >
+                    Mark Complete
+                  </button>
+                </div>
               )}
             </div>
           ) : (

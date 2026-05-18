@@ -130,3 +130,27 @@ export async function getTodayProgress() {
     return null;
   }
 }
+
+export async function initializeReadingProgress() {
+  const today = getTodayDateString();
+  
+  try {
+    const existing = await base44.entities.ReadingProgress.filter({ date: today });
+    
+    if (existing.length === 0) {
+      await base44.entities.ReadingProgress.create({
+        date: today,
+        book: 'Genesis',
+        chapter: 1,
+        verse_start: 1,
+        verse_end: 1,
+        completed: false,
+      });
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Error initializing reading progress:', error);
+    return false;
+  }
+}
