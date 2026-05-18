@@ -109,24 +109,21 @@ export default function AppLayout() {
 
           <div className="flex items-center gap-0.5 flex-shrink-0">
             <button
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
-              onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
+              onClick={() => window.location.reload()}
               className="p-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation"
               aria-label="Refresh"
             >
               <RotateCw className="w-5 h-5" />
             </button>
             <button
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
-              onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
+              onClick={() => toggleTheme()}
               className="p-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation"
               aria-label="Toggle theme"
             >
               {mode === 'auto' ? <SunMoon className="w-5 h-5" /> : isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
             </button>
             <button
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
-              onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
+              onClick={() => setMenuOpen(o => !o)}
               className="p-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation"
               aria-label="Open menu"
             >
