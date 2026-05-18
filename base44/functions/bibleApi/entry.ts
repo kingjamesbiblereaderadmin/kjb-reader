@@ -23,7 +23,7 @@ const ABBR_TO_NAME = {
 async function loadBible() {
   if (bibleData) return bibleData;
 
-  const TEXT_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/ee659445e_TEXT-PCE-127.txt';
+  const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
   
   const res = await fetch(TEXT_URL);
   if (!res.ok) throw new Error('Failed to fetch Bible text');
