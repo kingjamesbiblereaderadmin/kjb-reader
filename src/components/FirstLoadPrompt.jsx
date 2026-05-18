@@ -39,7 +39,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   // Hide once installed or user completed install action
   const showInstall = !alreadyInstalled && !installDone && (isInstallable || isIOS() || isAndroid() || isDesktop);
   // Always show notification option - works in browser and installed app/APK
-  const showNotif = !notifDone;
+  const showNotif = true;
   // Show offline download prompt if not already downloaded
   const showOffline = !downloaded;
 
@@ -48,7 +48,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   if (allDone) return null;
   
   // Don't render the prompt at all if nothing to show
-  if (!showInstall && !showNotif && !showOffline) return null;
+  if (!showInstall && !showOffline) return null;
 
   const handleInstallClick = async () => {
     console.log('[FirstLoadPrompt] handleInstallClick called');
@@ -71,16 +71,29 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
         onDismiss();
       }
     } else if (isIOS()) {
-      // iOS — show manual instructions
+      // iOS — show manual instructions (toggle hint)
       setShowIOSHint(h => !h);
+    } else if (isDesktop) {
+      // Desktop PWA - try to trigger install
+      const accepted = await onInstall();
+      console.log('[FirstLoadPrompt] desktop install accepted:', accepted);
+      if (accepted) {
+        setInstallDone(true);
+        onDismiss();
+      }
     }
   };
 
   const handleNotifClick = async () => {
     console.log('[FirstLoadPrompt] handleNotifClick called');
     if (onEnableNotif) {
-      await onEnableNotif();
-      setNotifDone(true);
+      try {
+        await onEnableNotif();
+        // Don't set notifDone - let Settings page handle the state
+        // User can try multiple times if needed
+      } catch (err) {
+        console.error('Notification setup failed:', err);
+      }
     }
   };
 
