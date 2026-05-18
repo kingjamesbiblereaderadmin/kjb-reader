@@ -194,6 +194,7 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
   const { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss, wasDismissed, setShowPrompt } = useBottomNavPrompt();
   const [moreOpen, setMoreOpen] = useState(false);
   const [showChevron, setShowChevron] = useState(false);
+  const [footerVisible, setFooterVisible] = useState(true);
 
   // Show prompt on daily-reading page too
   useEffect(() => {
@@ -202,6 +203,14 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
       return () => clearTimeout(timer);
     }
   }, [pathname, showPrompt, setShowPrompt]);
+
+  // Load footer visibility preference
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('kjb-footer-hidden');
+      if (saved === 'true') setFooterVisible(false);
+    } catch {}
+  }, []);
 
   if (hidden) return null;
 
@@ -279,6 +288,32 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
                 </Link>
               );
             })}
+          </div>
+          
+          {/* Footer attribution */}
+          <div className="mt-3 pt-3 border-t border-border text-center">
+            <p className="font-sans text-[10px] text-muted-foreground mb-2">
+              Bible text from{' '}
+              <a href="https://bibleprotector.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
+                bibleprotector.com
+              </a>
+              {' '}· Created with{' '}
+              <a href="https://base44.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
+                Base44
+              </a>
+            </p>
+            {/* Show/hide footer toggle */}
+            <button
+              onClick={() => {
+                setFooterVisible(!footerVisible);
+                try {
+                  localStorage.setItem('kjb-footer-hidden', String(!footerVisible));
+                } catch {}
+              }}
+              className="font-sans text-[10px] text-muted-foreground hover:text-foreground transition-colors underline"
+            >
+              {footerVisible ? 'Hide' : 'Show'} Desktop Footer
+            </button>
           </div>
         </div>
       )}
