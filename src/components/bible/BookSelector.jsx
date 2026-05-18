@@ -30,6 +30,15 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
         <p className="font-serif font-semibold text-foreground text-center">Select Book</p>
       </div>
       <div className="overflow-y-auto flex-1 p-2 space-y-1">
+        {/* Title Page - Above Old Testament */}
+        <button
+          onClick={() => { onSelect({ abbr: 'GEN', name: 'Genesis', chapters: 50, shortName: 'Gen' }, true, false); onClose(); }}
+          className="w-full text-left px-3 py-2 rounded text-sm font-sans transition-colors hover:bg-secondary text-foreground font-medium text-primary"
+        >
+          <span>Title Page</span>
+          <span className="ml-2 text-xs text-muted-foreground">Old Testament intro</span>
+        </button>
+
         {/* Old Testament */}
         <button
           className="w-full flex items-center justify-between px-3 py-2 rounded font-sans font-semibold text-sm text-primary hover:bg-secondary transition-colors"
@@ -40,13 +49,6 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
         </button>
         {oldOpen && (
           <div className="ml-2 space-y-0.5">
-            <button
-              onClick={() => { onSelect({ abbr: 'GEN', name: 'Genesis', chapters: 50, shortName: 'Gen' }, true, false); onClose(); }}
-              className="w-full text-left px-3 py-1.5 rounded text-sm font-sans transition-colors hover:bg-secondary text-foreground"
-            >
-              <span>Title Page</span>
-              <span className="ml-2 text-xs text-muted-foreground">intro</span>
-            </button>
             {OLD_TESTAMENT.map((book) => renderBook(book))}
           </div>
         )}
