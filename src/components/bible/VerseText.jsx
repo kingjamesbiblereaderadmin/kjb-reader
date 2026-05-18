@@ -30,12 +30,13 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // Strip <<...>> superscription markers
   const displayVerseText = verse.text.replace(/^<<[^>]*>>\s*/, '');
 
-  // For colophons, extract only the bracketed text
+  // For colophons, extract only the bracketed text and format as footer
   let colophonText = null;
   let mainText = displayVerseText;
   if (isColophon) {
     const match = displayVerseText.match(/\[([^\]]+)\]/);
     if (match) {
+      // Keep bracketed text, will render without italics
       colophonText = match[1];
       mainText = displayVerseText.replace(/\[[^\]]+\]\s*/, '').trim();
     }
@@ -83,9 +84,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     setSelected(false);
   };
 
-  const textClass = isColophon && hasItalics
-    ? 'text-base italic text-muted-foreground'
-    : isColophon
+  const textClass = isColophon
     ? 'text-base text-muted-foreground'
     : 'text-lg';
 
@@ -190,7 +189,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         >
           <sup className="text-accent font-sans font-semibold text-xs mr-3 select-none">{verse.verse}</sup>
           <span
-            className={`font-serif leading-loose [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify`}
+            className={`font-serif leading-loose ${isColophon ? '' : '[&_em]:italic [&_em]:text-foreground/75'} ${textClass} break-words text-justify`}
             dangerouslySetInnerHTML={{ __html: html }}
           />
           {' '}
@@ -210,7 +209,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-1 mr-2">{verse.verse}</sup>
         <span className="flex-1 min-w-0">
           <span
-            className={`font-serif leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify`}
+            className={`font-serif leading-relaxed ${isColophon ? '' : '[&_em]:italic [&_em]:text-foreground/75'} ${textClass} break-words text-justify`}
             dangerouslySetInnerHTML={{ __html: html }}
           />
         </span>
