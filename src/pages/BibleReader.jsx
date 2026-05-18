@@ -12,6 +12,7 @@ import TitlePage from '@/components/bible/TitlePage';
 import SelectorSheet from '@/components/bible/SelectorSheet';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { base44 } from '@/api/base44Client';
+import { clearBibleCache } from '@/lib/bibleCache';
 
 const isMobile = () => window.innerWidth < 640;
 
@@ -60,6 +61,20 @@ export default function BibleReader() {
     try { return localStorage.getItem('kjb-layout') === 'paragraph'; } catch { return false; }
   });
   const [fullscreen, setFullscreen] = useState(false);
+  const [showRefreshHint, setShowRefreshHint] = useState(() => {
+    try { return localStorage.getItem('kjb_show_refresh_hint') !== 'false'; } catch { return true; }
+  });
+
+  const handleRefreshData = async () => {
+    try {
+      await clearBibleCache();
+      localStorage.setItem('kjb_show_refresh_hint', 'false');
+      setShowRefreshHint(false);
+      window.location.reload();
+    } catch (err) {
+      console.error('Refresh failed:', err);
+    }
+  };
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -236,6 +251,28 @@ export default function BibleReader() {
 
   return (
     <div className={`max-w-5xl mx-auto px-4 py-3 ${hideHeader ? 'pt-16' : ''}`}>
+
+      {/* Refresh hint - shown once to prompt cache refresh for colophons */}
+      {showRefreshHint && (
+        <div className="bg-accent/10 border border-accent/20 rounded-lg p-3 mb-4 flex items-start gap-3">
+          <div className="flex-1">
+            <p className="font-sans text-sm font-medium text-foreground mb-1">Colophons now available!</p>
+            <p className="font-sans text-xs text-muted-foreground mb-2">Refresh the Bible data to see colophons (ending inscriptions) for epistles like Hebrews, James, and Philemon.</p>
+            <button
+              onClick={handleRefreshData}
+              className="px-3 py-1.5 rounded-md bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 transition-colors"
+            >
+              Refresh Data
+            </button>
+          </div>
+          <button
+            onClick={() => { localStorage.setItem('kjb_show_refresh_hint', 'false'); setShowRefreshHint(false); }}
+            className="p-1 rounded hover:bg-accent/20 text-muted-foreground transition-colors"
+          >
+            <ChevronDown className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
