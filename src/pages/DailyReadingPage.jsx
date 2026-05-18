@@ -229,21 +229,21 @@ export default function DailyReadingPage() {
           </div>
         )}
 
-        {/* Reading Reminder Status */}
+        {/* Reading Reminder */}
         <div className="mt-6 bg-card border border-border rounded-xl p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div>
               <p className="font-sans text-sm font-medium text-foreground">Daily Reading Reminder</p>
               <p className="font-sans text-xs text-muted-foreground mt-0.5">
                 {readingReminderEnabled 
-                  ? 'You will receive a daily reminder to read' 
+                  ? `You will receive a daily reminder at ${readingReminderTime}` 
                   : 'Enable to get daily reminders'}
               </p>
             </div>
             <button
               onClick={handleToggleReadingReminder}
               disabled={notifPermission === 'denied'}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-sans text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-lg font-sans text-sm font-medium transition-colors ${
                 readingReminderEnabled
                   ? 'bg-primary text-primary-foreground hover:opacity-90'
                   : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
