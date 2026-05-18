@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff } from 'lucide-react';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { base44 } from '@/api/base44Client';
 import { useTheme, COLOUR_PALETTES } from '@/lib/themeContext';
@@ -19,6 +19,9 @@ export default function SettingsPage() {
   const [deleteInput, setDeleteInput] = useState('');
   const [deleting, setDeleting] = useState(false);
   const { isDark, mode, setMode, colourId, setColourId } = useTheme();
+  const [footerHidden, setFooterHidden] = useState(() => {
+    try { return localStorage.getItem('kjb-footer-hidden') === 'true'; } catch { return false; }
+  });
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
@@ -173,6 +176,35 @@ export default function SettingsPage() {
               </button>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Footer Visibility */}
+      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
+        <h2 className="font-serif text-lg font-semibold text-foreground">Footer Menu</h2>
+        <p className="font-sans text-sm text-muted-foreground">Show or hide the bottom navigation menu</p>
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="font-sans text-sm text-foreground font-medium">Bottom Navigation</p>
+            <p className="font-sans text-xs text-muted-foreground mt-0.5">
+              {footerHidden ? 'Hidden — tap the eye button to show' : 'Visible on all pages'}
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              const newVal = !footerHidden;
+              setFooterHidden(newVal);
+              try { localStorage.setItem('kjb-footer-hidden', String(newVal)); } catch {}
+            }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-sans text-sm font-medium transition-colors ${
+              footerHidden
+                ? 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                : 'bg-primary text-primary-foreground hover:opacity-90'
+            }`}
+          >
+            {footerHidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            {footerHidden ? 'Hidden' : 'Visible'}
+          </button>
         </div>
       </div>
 

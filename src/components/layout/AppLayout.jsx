@@ -7,6 +7,7 @@ import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { requestNotificationPermission, scheduleDailyNotification } from '@/lib/notifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
+import { getFooterAutoHideEnabled, getFooterHideTime } from '@/lib/footerSettings';
 
 const NAV_ITEMS = [
   { path: '/', icon: Home, label: 'Home' },
