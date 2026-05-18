@@ -51,6 +51,17 @@ export default function AppLayout() {
 
   useEffect(() => {
     isBibleCached().then(cached => setDownloaded(cached));
+
+    // Register service worker for PWA functionality
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then((registration) => {
+          console.log('[SW] Registered:', registration.scope);
+        })
+        .catch((err) => {
+          console.error('[SW] Registration failed:', err);
+        });
+    }
   }, []);
 
   const handleDownloadOffline = async () => {

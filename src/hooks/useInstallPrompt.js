@@ -16,20 +16,33 @@ export function useInstallPrompt() {
     }
 
     const handler = (e) => {
+      console.log('[PWA] beforeinstallprompt fired', e);
       e.preventDefault();
       setDeferredPrompt(e);
       setIsInstallable(true);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
+    
     window.addEventListener('appinstalled', () => {
+      console.log('[PWA] app installed');
       setIsInstalled(true);
       setIsInstallable(false);
       setDeferredPrompt(null);
     });
 
-    return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
+    // Debug: log if event never fires
+    const timeout = setTimeout(() => {
+      if (!isInstallable && !isInstalled) {
+        console.log('[PWA] No install prompt after 3s - likely iOS or missing manifest/service worker');
+      }
+    }, 3000);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler);
+      clearTimeout(timeout);
+    };
+  }, [isInstallable, isInstalled]);
 
   const promptInstall = async () => {
     if (!deferredPrompt) {
