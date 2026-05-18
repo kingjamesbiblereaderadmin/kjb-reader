@@ -66,6 +66,8 @@ export default function HomePage() {
     const book = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
     const chapter = Math.floor(Math.random() * book.chapters) + 1;
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr: book.abbr, chapter, verse: null })); } catch {}
+    handleDismiss();
+    setShowFirstLoadPrompt(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setTimeout(() => navigate('/read'), 150);
   };
@@ -120,6 +122,8 @@ export default function HomePage() {
     } catch (err) {
       console.error('Failed to save verse position:', err);
     }
+    handleDismiss();
+    setShowFirstLoadPrompt(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setTimeout(() => navigate('/read'), 150);
   };
@@ -143,12 +147,16 @@ export default function HomePage() {
         alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
       }
     }
+    handleDismiss();
+    setShowFirstLoadPrompt(false);
     window.dispatchEvent(new Event('storage'));
   };
 
   const handleInstallClick = () => {
     if (isInstallable) {
       handleInstall();
+      handleDismiss();
+      setShowFirstLoadPrompt(false);
     } else {
       setIsIOSHint(h => !h);
     }
@@ -162,6 +170,8 @@ export default function HomePage() {
       });
       setDownloaded(true);
       setDownloadProgress(null);
+      handleDismiss();
+      setShowFirstLoadPrompt(false);
     } catch (err) {
       console.error('Failed to download offline data:', err);
     } finally {
@@ -233,12 +243,12 @@ export default function HomePage() {
               </span>
             </button>
           )}
-          {!alreadyInstalled && (isInstallable || isIOS) && (
+          {!alreadyInstalled && (isInstallable || isIOS()) && (
             <button
               onClick={handleInstallClick}
               className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
             >
-              {isIOS && !isInstallable ? <Share className="w-4 h-4 shrink-0" /> : <Download className="w-4 h-4 shrink-0" />}
+              {isIOS() && !isInstallable ? <Share className="w-4 h-4 shrink-0" /> : <Download className="w-4 h-4 shrink-0" />}
               <span className="text-left">
                 <span className="block font-semibold">Add to Home Screen</span>
                 <span className="block text-xs opacity-80">{downloaded ? 'Includes offline Bible' : 'Offline access, faster loading'}</span>
