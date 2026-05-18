@@ -374,91 +374,57 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
         )}
       </div>
 
-      <div className="flex items-center justify-around px-2 py-2">
-        {PRIMARY_NAV.map(item => {
-          const Icon = item.icon;
-          const active = item.path === '/' ? pathname === '/' : pathname === item.path;
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={(e) => {
-                e.preventDefault();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                setTimeout(() => navigate(item.path), 150);
-              }}
-              className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-lg transition-colors ${
-                active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Icon className="w-5 h-5" />
-              <span className="font-sans text-[10px] font-medium">{item.label}</span>
-            </Link>
-          );
-        })}
-        <button
-          onClick={() => setMoreOpen(!moreOpen)}
-          className="flex flex-col items-center gap-0.5 px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ChevronDown className={`w-5 h-5 transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
-          <span className="font-sans text-[10px] font-medium">{moreOpen ? 'Less' : 'More'}</span>
-        </button>
-      </div>
-
-      {/* More menu expanded row */}
-      {moreOpen && (
-        <div className="border-t border-border bg-card/50 px-2 py-2">
-          <div className="grid grid-cols-4 gap-2">
-            {BOTTOM_NAV_SECONDARY.map(item => {
-              const Icon = item.icon;
-              const active = pathname === item.path;
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => {
-                    setMoreOpen(false);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    navigate(item.path);
-                  }}
-                  className={`flex flex-col items-center gap-0.5 px-2 py-2 rounded-lg transition-colors ${
-                    active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-sans text-[10px] font-medium">{item.label}</span>
-                </Link>
-              );
-            })}
-          </div>
-          
-          {/* Footer attribution */}
-          <div className="mt-3 pt-3 border-t border-border text-center">
-            <p className="font-sans text-[10px] text-muted-foreground mb-2">
-              Bible text from{' '}
-              <a href="https://bibleprotector.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
-                bibleprotector.com
-              </a>
-              {' '}· Created with{' '}
-              <a href="https://base44.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
-                Base44
-              </a>
-            </p>
-            {/* Show/hide footer toggle */}
-            <button
-              onClick={() => {
-                setFooterVisible(!footerVisible);
-                try {
-                  localStorage.setItem('kjb-footer-hidden', String(!footerVisible));
-                } catch {}
-              }}
-              className="font-sans text-[10px] text-muted-foreground hover:text-foreground transition-colors underline"
-            >
-              {footerVisible ? 'Hide' : 'Show'} Desktop Footer
-            </button>
-          </div>
+      {/* Two rows of icons */}
+      <div className="px-2 py-2">
+        {/* Primary row */}
+        <div className="flex items-center justify-around">
+          {PRIMARY_NAV.map(item => {
+            const Icon = item.icon;
+            const active = item.path === '/' ? pathname === '/' : pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  setTimeout(() => navigate(item.path), 150);
+                }}
+                className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-lg transition-colors ${
+                  active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Icon className="w-5 h-5" />
+                <span className="font-sans text-[10px] font-medium">{item.label}</span>
+              </Link>
+            );
+          })}
         </div>
-      )}
+        
+        {/* Secondary row */}
+        <div className="flex items-center justify-around mt-1 pt-2 border-t border-border">
+          {BOTTOM_NAV_SECONDARY.map(item => {
+            const Icon = item.icon;
+            const active = pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  navigate(item.path);
+                }}
+                className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-lg transition-colors ${
+                  active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Icon className="w-5 h-5" />
+                <span className="font-sans text-[10px] font-medium">{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
     </nav>
   );
 }
