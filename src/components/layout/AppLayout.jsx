@@ -46,7 +46,7 @@ export default function AppLayout() {
   const isRoot = pathname === '/';
 
   // FirstLoadPrompt state (centralized in AppLayout)
-  const { showPrompt, isInstallable, notifPermission, handleInstall, handleDismiss, wasDismissed, setShowPrompt } = useAppLayoutPrompt();
+  const { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss, wasDismissed, setShowPrompt } = useAppLayoutPrompt();
   const [downloaded, setDownloaded] = useState(false);
 
   useEffect(() => {
@@ -158,6 +158,7 @@ export default function AppLayout() {
           isInstallable={isInstallable}
           notifPermission={notifPermission}
           onInstall={handleInstall}
+          onEnableNotif={handleEnableNotif}
           onDismiss={handleDismiss}
           onDownloadOffline={handleDownloadOffline}
           downloaded={downloaded}
@@ -252,12 +253,20 @@ function useAppLayoutPrompt() {
     if (accepted) setShowPrompt(false);
   };
 
+  const handleEnableNotif = async () => {
+    const result = await requestNotificationPermission();
+    setNotifPermission(result);
+    if (result === 'granted') {
+      scheduleDailyNotification(getDailyVerse());
+    }
+  };
+
   const handleDismiss = () => {
     dismiss();
     setShowPrompt(false);
   };
 
-  return { showPrompt, isInstallable, notifPermission, handleInstall, handleDismiss, wasDismissed, setShowPrompt };
+  return { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss, wasDismissed, setShowPrompt };
 }
 
 function BottomNav({ pathname, navigate, hidden, onToggleHide }) {

@@ -7,7 +7,7 @@ const isMobile = () => /iphone|ipad|ipod|android/i.test(navigator.userAgent);
 const isInStandaloneMode = () =>
   window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
 
-export default function FirstLoadPrompt({ isInstallable, notifPermission, onInstall, onDismiss, onDownloadOffline, downloaded: propDownloaded }) {
+export default function FirstLoadPrompt({ isInstallable, notifPermission, onInstall, onDismiss, onDownloadOffline, downloaded: propDownloaded, onEnableNotif }) {
   const [showIOSHint, setShowIOSHint] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(null);
@@ -121,13 +121,16 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
         )}
 
         {showNotif && (
-          <div className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium">
+          <button
+            onClick={onEnableNotif}
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity text-left"
+          >
             <Bell className="w-4 h-4 shrink-0" />
-            <span className="text-left">
-              <span className="block font-semibold">Daily Verse Notifications</span>
-              <span className="block text-xs text-muted-foreground">Enable in browser settings</span>
+            <span className="flex-1">
+              <span className="block font-semibold">Enable Daily Notifications</span>
+              <span className="block text-xs text-muted-foreground">Get the daily verse every morning</span>
             </span>
-          </div>
+          </button>
         )}
       </div>
     </div>
