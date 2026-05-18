@@ -36,8 +36,10 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   if (!showInstall && !showNotif && !showOffline) return null;
 
   const handleInstallClick = async () => {
+    console.log('[FirstLoadPrompt] handleInstallClick called');
     if (isInstallable) {
       const accepted = await onInstall();
+      console.log('[FirstLoadPrompt] install accepted:', accepted);
       if (accepted) onDismiss();
     } else if (isIOS()) {
       // iOS — show manual instructions
@@ -45,7 +47,15 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     } else if (isAndroid()) {
       // Android — try to trigger install prompt (same as Settings button)
       const accepted = await onInstall();
+      console.log('[FirstLoadPrompt] android install accepted:', accepted);
       if (accepted) onDismiss();
+    }
+  };
+
+  const handleNotifClick = async () => {
+    console.log('[FirstLoadPrompt] handleNotifClick called');
+    if (onEnableNotif) {
+      await onEnableNotif();
     }
   };
 
@@ -124,7 +134,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
 
         {showNotif && (
           <button
-            onClick={onEnableNotif}
+            onClick={handleNotifClick}
             className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary font-sans text-sm font-medium hover:bg-primary/20 transition-colors text-left"
           >
             <Bell className="w-4 h-4 shrink-0" />
