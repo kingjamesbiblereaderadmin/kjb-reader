@@ -374,10 +374,9 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     setTimeout(() => navigate(item.path), 150);
                   }}
-                  onTouchStart={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(() => navigate(item.path), 150); }}
-                  className="flex flex-col items-center justify-center w-full min-h-[44px] p-2 active:bg-secondary/50 transition-colors touch-manipulation"
+                  className="flex flex-col items-center justify-center w-full h-14 active:bg-secondary/50 transition-colors"
                 >
-                  <Icon className={`w-6 h-6 mb-1 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <Icon className={`w-6 h-6 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
                   <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
                 </button>
               );
@@ -398,10 +397,9 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                       navigate(item.path);
                     }}
-                    onTouchStart={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); navigate(item.path); }}
-                    className="flex flex-col items-center justify-center w-full min-h-[44px] p-2 active:bg-secondary/50 transition-colors touch-manipulation"
+                    className="flex flex-col items-center justify-center w-full h-14 active:bg-secondary/50 transition-colors"
                   >
-                    <Icon className={`w-6 h-6 mb-1 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <Icon className={`w-6 h-6 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
                     <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
                   </button>
                 );
