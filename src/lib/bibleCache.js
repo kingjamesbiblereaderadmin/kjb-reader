@@ -4,7 +4,7 @@
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
 
-const CACHE_KEY = 'bible_data_pce_v14';
+const CACHE_KEY = 'bible_data_pce_v15'; // v15: pilcrow normalization fix
 const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
 
 // Maps the abbreviation in the text file -> canonical book name (must match apiName in bibleData.js)
@@ -146,13 +146,15 @@ async function saveToCache(data) {
 
 async function loadFromCache() {
   try {
-    // Clear old localStorage keys
+    // Clear old localStorage keys (including v14 to force fresh download)
     localStorage.removeItem('bible_data_complete');
     localStorage.removeItem('bible_data_complete_v2');
     localStorage.removeItem('bible_data_pce_v12');
+    localStorage.removeItem('bible_data_pce_v14');
     // Load from IndexedDB
     const data = await loadFromIndexedDB();
     if (data && isValidBibleData(data)) {
+      console.log('[CACHE] Loaded from IndexedDB, pilcrows in cache:', Object.values(data).filter(book => typeof book === 'object').reduce((sum, book) => sum + Object.values(book).reduce((s, ch) => s + (Array.isArray(ch) ? ch.filter(v => v.text.includes('\u00B6')).length : 0), 0), 0));
       return data;
     }
     return null;
