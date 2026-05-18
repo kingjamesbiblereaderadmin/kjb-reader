@@ -153,29 +153,22 @@ export default function BibleSearchBar({ onClose }) {
       </form>
 
       {open && suggestions.length > 0 && (
-        <>
-          <div
-            className="fixed inset-0 z-40"
-            onClick={(e) => { e.preventDefault(); setOpen(false); }}
-            onTouchEnd={(e) => { e.preventDefault(); setOpen(false); }}
-          />
-          <div className="absolute top-full mt-1 left-0 right-0 z-50 bg-card border border-border rounded-xl shadow-xl overflow-hidden">
-            {suggestions.map((s, i) => (
-              <button
-                key={i}
-                onClick={(e) => { e.preventDefault(); handleSelect(s); }}
-                onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleSelect(s); }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-secondary transition-colors text-left border-b border-border last:border-0 touch-manipulation"
-              >
-                <Search className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="font-sans text-sm font-medium text-foreground truncate">{s.label}</p>
-                  <p className="font-sans text-xs text-muted-foreground">{s.sub}</p>
-                </div>
-              </button>
-            ))}
-          </div>
-        </>
+        <div className="absolute top-full mt-1 left-0 right-0 z-50 bg-card border border-border rounded-xl shadow-xl overflow-hidden">
+          {suggestions.map((s, i) => (
+            <button
+              key={i}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleSelect(s); }}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleSelect(s); }}
+              className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-secondary transition-colors text-left border-b border-border last:border-0 touch-manipulation"
+            >
+              <Search className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="font-sans text-sm font-medium text-foreground truncate">{s.label}</p>
+                <p className="font-sans text-xs text-muted-foreground">{s.sub}</p>
+              </div>
+            </button>
+          ))}
+        </div>
       )}
     </div>
   );
