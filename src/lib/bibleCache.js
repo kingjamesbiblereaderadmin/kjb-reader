@@ -178,12 +178,6 @@ async function saveToCache(data) {
 
 async function loadFromCache() {
   try {
-    // Clear ALL old keys to force fresh download with v19
-    localStorage.removeItem('bible_data_complete');
-    localStorage.removeItem('bible_data_complete_v2');
-    for (let i = 1; i <= 19; i++) {
-      localStorage.removeItem(`bible_data_pce_v${i}`);
-    }
     // Load from IndexedDB
     const data = await loadFromIndexedDB();
     if (data && isValidBibleData(data)) {

@@ -315,6 +315,7 @@ function useAppLayoutPrompt() {
   };
 
   const handleDismiss = () => {
+    console.log('[AppLayout] handleDismiss called');
     dismiss();
     setShowPrompt(false);
     try {

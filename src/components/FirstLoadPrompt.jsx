@@ -118,9 +118,12 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   };
 
   const handleClose = (e) => {
+    console.log('[FirstLoadPrompt] handleClose called');
     e?.stopPropagation?.();
     e?.preventDefault?.();
-    onDismiss();
+    if (onDismiss) {
+      onDismiss();
+    }
   };
 
   return (
