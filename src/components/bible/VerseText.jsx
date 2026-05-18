@@ -184,10 +184,10 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     <span id={id} className="block relative mt-2">
       <span
         onClick={() => setSelected(s => !s)}
-        className={`flex items-baseline gap-2 leading-relaxed transition-colors duration-200 rounded cursor-pointer px-1 py-0.5 ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
+        className={`flex items-start gap-2 leading-relaxed transition-colors duration-200 rounded cursor-pointer px-1 py-0.5 ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
       >
-        <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none">{verse.verse}</sup>
-        {hasPilcrow && <span className="text-accent font-sans select-none shrink-0 opacity-70 text-base mr-1">¶</span>}
+        <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-0.5">{verse.verse}</sup>
+        {hasPilcrow && <span className="text-accent font-sans select-none shrink-0 opacity-70 text-base mr-1 mt-0.5">¶</span>}
         <span
           className={`font-serif leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass}`}
           dangerouslySetInnerHTML={{ __html: htmlNoPilcrow }}
