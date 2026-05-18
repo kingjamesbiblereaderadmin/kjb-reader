@@ -364,11 +364,11 @@ function useBottomNavPrompt() {
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
 
   useEffect(() => {
-    if (wasDismissed()) return;
+    if (wasDismissed && wasDismissed()) return;
     // Show prompt on first visit or when not dismissed
     const timer = setTimeout(() => setShowPrompt(true), 1500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [wasDismissed]);
 
   useEffect(() => {
     if (!showPrompt) return;
@@ -382,7 +382,7 @@ function useBottomNavPrompt() {
       document.removeEventListener('click', handleInteraction);
       document.removeEventListener('touchstart', handleInteraction);
     };
-  }, [showPrompt]);
+  }, [showPrompt, dismiss]);
 
   const handleInstall = async () => {
     const accepted = await promptInstall();
@@ -403,5 +403,5 @@ function useBottomNavPrompt() {
     setShowPrompt(false);
   };
 
-  return { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss };
+  return { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss, wasDismissed };
 }
