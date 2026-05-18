@@ -45,31 +45,17 @@ export default function AppLayout() {
     <div className="min-h-screen bg-background flex flex-col">
       <header className="border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
-          {!isRoot ? (
-            <button
-              onClick={() => {
-                navigate(-1);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex-shrink-0"
-              aria-label="Go back"
-            >
-              <ChevronLeft className="w-5 h-5" />
-              <span className="font-sans text-sm font-medium hidden sm:block">Back</span>
-            </button>
-          ) : (
-            <Link
-              to="/"
-              className="flex items-center gap-2 flex-shrink-0"
-              onClick={() => {
-                setMenuOpen(false);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-            >
-              <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB Reader" className="h-10 w-auto" />
-              <span className="font-serif text-lg font-bold text-foreground hidden sm:block">The Holy Bible</span>
-            </Link>
-          )}
+          <Link
+            to="/"
+            className="flex items-center gap-2 flex-shrink-0"
+            onClick={() => {
+              setMenuOpen(false);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          >
+            <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB Reader" className="h-10 w-auto" />
+            <span className="font-serif text-lg font-bold text-foreground hidden sm:block">The Holy Bible</span>
+          </Link>
 
           <div className="flex-1 max-w-xs">
             <BibleSearchBar onClose={() => setMenuOpen(false)} />
