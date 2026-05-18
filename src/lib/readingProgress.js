@@ -82,7 +82,7 @@ function calculateStreak(progress) {
   return streak;
 }
 
-export async function markReadingComplete(book, chapter, verseStart, verseEnd) {
+export async function markReadingComplete(book, chapter) {
   const today = getTodayDateString();
   
   try {
@@ -92,8 +92,6 @@ export async function markReadingComplete(book, chapter, verseStart, verseEnd) {
       await base44.entities.ReadingProgress.update(existing[0].id, {
         book,
         chapter,
-        verse_start: verseStart,
-        verse_end: verseEnd,
         completed: true,
       });
     } else {
@@ -101,8 +99,6 @@ export async function markReadingComplete(book, chapter, verseStart, verseEnd) {
         date: today,
         book,
         chapter,
-        verse_start: verseStart,
-        verse_end: verseEnd,
         completed: true,
       });
     }
@@ -133,12 +129,23 @@ export async function initializeReadingProgress() {
     const existing = await base44.entities.ReadingProgress.filter({ date: today });
     
     if (existing.length === 0) {
+      // Get the last completed reading to determine next chapter
+      const allProgress = await base44.entities.ReadingProgress.filter({ completed: true });
+      const sorted = allProgress.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      let nextBook = 'Genesis';
+      let nextChapter = 1;
+      
+      if (sorted.length > 0) {
+        const last = sorted[0];
+        nextBook = last.book;
+        nextChapter = (last.chapter || 1) + 1;
+      }
+      
       await base44.entities.ReadingProgress.create({
         date: today,
-        book: 'Genesis',
-        chapter: 1,
-        verse_start: 1,
-        verse_end: 1,
+        book: nextBook,
+        chapter: nextChapter,
         completed: false,
       });
       return true;

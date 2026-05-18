@@ -28,7 +28,7 @@ export default function DailyReadingPage() {
   const handleMarkComplete = async () => {
     const today = todayProgress;
     if (today) {
-      await markReadingComplete(today.book, today.chapter, today.verse_start, today.verse_end);
+      await markReadingComplete(today.book, today.chapter);
       await loadProgress();
     }
   };
@@ -87,9 +87,6 @@ export default function DailyReadingPage() {
               <div className="space-y-3">
                 <p className="font-sans text-base text-foreground">
                   <span className="font-semibold">{todayProgress.book}</span> Chapter {todayProgress.chapter}
-                  {todayProgress.verse_start && todayProgress.verse_end && (
-                    <span className="text-muted-foreground"> ({todayProgress.verse_start === todayProgress.verse_end ? `v.${todayProgress.verse_start}` : `v.${todayProgress.verse_start}-${todayProgress.verse_end}`})</span>
-                  )}
                 </p>
                 {!completedToday && (
                   <div className="flex gap-3">
