@@ -3,7 +3,7 @@ import { renderVerseText } from '@/lib/bibleApi';
 import { Copy, Share2, X, Highlighter, ChevronDown, Bookmark, BookmarkCheck } from 'lucide-react';
 import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
 
-export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isColophon = false, isFirstVerse = false, paragraphMode = false }) {
+export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isColophon = false, colophonText = null, isFirstVerse = false, paragraphMode = false }) {
   const [selected, setSelected] = useState(false);
   const [showHighlight, setShowHighlight] = useState(highlight);
   const [highlightColor, setHighlightColor] = useState('accent');
@@ -28,22 +28,16 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   }, [highlight]);
 
   // Strip <<...>> superscription markers
-  const displayVerseText = verse.text.replace(/^<<[^>]*>>\s*/, '');
+  let displayVerseText = verse.text.replace(/^<<[^>]*>>\s*/, '');
 
-  // For colophons, extract only the bracketed text and format as footer
-  let colophonText = null;
+  // If colophonText is passed as prop, append it to the verse
   let mainText = displayVerseText;
-  if (isColophon) {
-    const match = displayVerseText.match(/\[([^\]]+)\]/);
-    if (match) {
-      // Keep bracketed text, will render without italics
-      colophonText = match[1];
-      mainText = displayVerseText.replace(/\[[^\]]+\]\s*/, '').trim();
-    }
+  if (colophonText) {
+    mainText = displayVerseText + ' ¶ [' + colophonText + ']';
   }
 
   // Pilcrow (¶) indicates verse continuation in traditional KJB formatting
-  const html = renderVerseText(colophonText || mainText);
+  const html = renderVerseText(mainText);
   const hasItalics = html.includes('<em>');
   // Check if verse text contains pilcrow character (U+00B6)
   const hasPilcrow = verse.text.includes('\u00B6') || verse.text.includes('¶');

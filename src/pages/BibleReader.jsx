@@ -469,9 +469,11 @@ export default function BibleReader() {
           <TitlePage type={pos.abbr === 'GEN' ? 'testament-old' : 'testament-new'} />
         )}
         {!loading && !error && verses.length > 0 && (
-          <>
-            <div className={paragraphMode ? 'text-justify hyphens-auto' : ''}>
-              {verses.map((v, idx) => (
+          <div className={paragraphMode ? 'text-justify hyphens-auto' : ''}>
+            {verses.map((v, idx) => {
+              const isLastVerse = idx === verses.length - 1;
+              const verseHasColophon = isLastVerse && colophon;
+              return (
                 <VerseText
                   key={v.verse}
                   verse={v}
@@ -480,21 +482,14 @@ export default function BibleReader() {
                   bookName={book.name}
                   abbr={pos.abbr}
                   chapter={pos.chapter}
-                  isColophon={false}
+                  isColophon={verseHasColophon}
+                  colophonText={verseHasColophon ? colophon : null}
                   isFirstVerse={idx === 0}
                   paragraphMode={paragraphMode}
                 />
-              ))}
-            </div>
-            {/* Colophon footer — displayed separately at the bottom */}
-            {colophon && (
-              <div className="mt-8 pt-6 border-t border-border text-center">
-                <p className="font-serif text-sm text-muted-foreground tracking-widest inline-block">
-                  ¶ {colophon}
-                </p>
-              </div>
-            )}
-          </>
+              );
+            })}
+          </div>
         )}
       </div>
 
