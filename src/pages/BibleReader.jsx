@@ -514,8 +514,13 @@ export default function BibleReader() {
         {/* Colophon footer - shown below all verses for chapters that have one */}
         {!loading && !error && colophon && (
           <div className="text-center mt-12 mb-4">
-            <p className="font-serif text-sm text-muted-foreground tracking-widest uppercase">
-              {colophon}
+            <p className="font-serif text-sm text-muted-foreground tracking-wide leading-relaxed">
+              {colophon.split(/(\[([^\]]+)\])/g).map((part, i) => {
+                if (part.startsWith('[') && part.endsWith(']')) {
+                  return <em key={i} className="not-italic font-serif">{part.slice(1, -1)}</em>;
+                }
+                return part;
+              })}
             </p>
           </div>
         )}

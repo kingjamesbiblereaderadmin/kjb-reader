@@ -92,7 +92,9 @@ function parseBibleText(rawText) {
     // Format: "verse text <<[colophon text]>>"
     const colophonMatch = verseText.match(/<<\[([^\]]+)\]>>\s*$/);
     if (colophonMatch) {
-      const colophonText = colophonMatch[1];
+      const rawColophonText = colophonMatch[1];
+      // Add pilcrow prefix and preserve for display
+      const colophonText = '\u00B6 ' + rawColophonText;
       const bookName = ABBR_TO_NAME[abbr];
       if (bookName) {
         const colophonKey = `${bookName}:${chapter}`;
