@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw, ChevronRight, BookMarked } from 'lucide-react';
+import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw, ChevronRight, BookMarked, Download, Share, WifiOff } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { getDailyVerse } from '@/lib/dailyVerse';
+import { downloadBibleForOffline, isBibleCached } from '@/lib/bibleCache';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications, initNotifications, initReadingReminder } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
@@ -73,6 +74,12 @@ export default function HomePage() {
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
   const { showPrompt, isInstallable, handleInstall, handleDismiss, wasDismissed } = useInstallPrompt();
   const [showFirstLoadPrompt, setShowFirstLoadPrompt] = useState(false);
+  const [isIOSHint, setIsIOSHint] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(null);
+  const [downloaded, setDownloaded] = useState(false);
+  const alreadyInstalled = typeof window !== 'undefined' && (window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone);
+  const isIOS = typeof window !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
 
   useEffect(() => {
     registerSW();
@@ -80,6 +87,9 @@ export default function HomePage() {
       initNotifications(verse);
     }
     initReadingReminder();
+
+    // Check if offline Bible is downloaded
+    isBibleCached().then(cached => setDownloaded(cached));
 
     // Show first load prompt after a delay if not dismissed
     const timer = setTimeout(() => {
@@ -89,6 +99,7 @@ export default function HomePage() {
     const handleStorageChange = () => {
       setNotifEnabled(getNotificationsEnabled());
       setNotifPermission('Notification' in window ? Notification.permission : 'unsupported');
+      isBibleCached().then(cached => setDownloaded(cached));
     };
     window.addEventListener('storage', handleStorageChange);
     return () => {
@@ -135,8 +146,27 @@ export default function HomePage() {
     window.dispatchEvent(new Event('storage'));
   };
 
-  const handleDownloadOffline = () => {
-    setShowFirstLoadPrompt(false);
+  const handleInstallClick = () => {
+    if (isInstallable) {
+      handleInstall();
+    } else {
+      setIsIOSHint(h => !h);
+    }
+  };
+
+  const handleDownloadOffline = async () => {
+    setDownloading(true);
+    try {
+      await downloadBibleForOffline((progress) => {
+        setDownloadProgress(progress);
+      });
+      setDownloaded(true);
+      setDownloadProgress(null);
+    } catch (err) {
+      console.error('Failed to download offline data:', err);
+    } finally {
+      setDownloading(false);
+    }
   };
 
   return (
@@ -178,6 +208,49 @@ export default function HomePage() {
             <BellOff className="w-5 h-5 text-white/60" />
           )}
         </button>
+      </div>
+
+      {/* Get the most from KJB Reader section */}
+      <div className="bg-card border border-border rounded-2xl shadow-sm p-4 mb-6">
+        <p className="font-serif text-base font-semibold text-foreground leading-tight mb-3">Get the most from KJB Reader</p>
+        <div className="space-y-2">
+          {!downloaded && (
+            <button
+              onClick={handleDownloadOffline}
+              disabled={downloading}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-accent text-accent-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {downloading ? (
+                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <WifiOff className="w-4 h-4 shrink-0" />
+              )}
+              <span className="text-left flex-1">
+                <span className="block font-semibold">{downloading ? 'Downloading...' : 'Download for Offline'}</span>
+                <span className="block text-xs opacity-80">
+                  {downloading && downloadProgress ? `${Math.round(downloadProgress * 100)}% complete` : 'Read without internet'}
+                </span>
+              </span>
+            </button>
+          )}
+          {!alreadyInstalled && (isInstallable || isIOS()) && (
+            <button
+              onClick={handleInstallClick}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              {isIOS() && !isInstallable ? <Share className="w-4 h-4 shrink-0" /> : <Download className="w-4 h-4 shrink-0" />}
+              <span className="text-left">
+                <span className="block font-semibold">Add to Home Screen</span>
+                <span className="block text-xs opacity-80">{downloaded ? 'Includes offline Bible' : 'Offline access, faster loading'}</span>
+              </span>
+            </button>
+          )}
+          {isIOSHint && (
+            <p className="font-sans text-xs text-muted-foreground leading-relaxed px-1">
+              Tap the <strong>Share</strong> button <span className="inline-block">⎙</span> in Safari, then choose <strong>"Add to Home Screen"</strong>.
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Quick links */}
@@ -248,18 +321,6 @@ export default function HomePage() {
       </div>
       </div>
 
-      {showFirstLoadPrompt && (
-      <FirstLoadPrompt
-        isInstallable={isInstallable}
-        notifPermission={notifPermission}
-        onInstall={handleInstall}
-        onDismiss={() => {
-          handleDismiss();
-          setShowFirstLoadPrompt(false);
-        }}
-        onDownloadOffline={handleDownloadOffline}
-      />
-      )}
       </div>
       );
       }
