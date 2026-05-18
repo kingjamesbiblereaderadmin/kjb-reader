@@ -6,6 +6,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { ThemeProvider } from '@/lib/themeContext';
+import { HeaderHideProvider } from '@/lib/HeaderHideContext';
 import AppLayout from '@/components/layout/AppLayout';
 import { AnimatePresence, motion } from 'framer-motion';
 // Add page imports here
@@ -77,12 +78,14 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <QueryClientProvider client={queryClientInstance}>
-          <Router>
-            <AuthenticatedApp />
-          </Router>
-          <Toaster />
-        </QueryClientProvider>
+        <HeaderHideProvider>
+          <QueryClientProvider client={queryClientInstance}>
+            <Router>
+              <AuthenticatedApp />
+            </Router>
+            <Toaster />
+          </QueryClientProvider>
+        </HeaderHideProvider>
       </AuthProvider>
     </ThemeProvider>
   )

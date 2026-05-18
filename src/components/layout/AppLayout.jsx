@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked, EyeOff, Eye } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
+import { useHeaderHide } from '@/lib/HeaderHideContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
@@ -37,6 +38,7 @@ const BOTTOM_NAV_SECONDARY = [
 export default function AppLayout() {
   const { pathname } = useLocation();
   const { isDark, mode, toggleTheme } = useTheme();
+  const { hideHeader } = useHeaderHide();
   const [menuOpen, setMenuOpen] = useState(false);
   const [footerHidden, setFooterHidden] = useState(false);
   const navigate = useNavigate();
@@ -44,7 +46,7 @@ export default function AppLayout() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className="border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50">
+      <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`}>
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
           <Link
             to="/"

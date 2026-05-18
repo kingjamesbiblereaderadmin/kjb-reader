@@ -10,6 +10,7 @@ import VerseSelector from '@/components/bible/VerseSelector';
 import VerseText from '@/components/bible/VerseText';
 import TitlePage from '@/components/bible/TitlePage';
 import SelectorSheet from '@/components/bible/SelectorSheet';
+import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { base44 } from '@/api/base44Client';
 
 const isMobile = () => window.innerWidth < 640;
@@ -43,6 +44,7 @@ function savePosition(abbr, chapter) {
 
 
 export default function BibleReader() {
+  const { hideHeader, setHideHeader } = useHeaderHide();
   const [pos, setPos] = useState(loadPosition);
   const [verses, setVerses] = useState([]);
   const [colophon, setColophon] = useState(null);
@@ -58,7 +60,6 @@ export default function BibleReader() {
     try { return localStorage.getItem('kjb-layout') === 'paragraph'; } catch { return false; }
   });
   const [fullscreen, setFullscreen] = useState(false);
-  const [hideHeader, setHideHeader] = useState(false);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
