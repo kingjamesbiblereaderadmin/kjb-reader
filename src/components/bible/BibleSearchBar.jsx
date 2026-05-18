@@ -124,15 +124,26 @@ export default function BibleSearchBar({ onClose }) {
           value={query}
           onChange={e => { setQuery(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
+          onTouchEnd={(e) => { e.stopPropagation(); }}
           placeholder="1 Corinthians 15:1-4; Romans 3:25"
-          className="w-full pl-8 pr-7 py-1.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors"
+          className="w-full pl-8 pr-7 py-2 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors touch-manipulation"
         />
         {query && (
           <>
-            <button type="submit" className="absolute right-8 top-1/2 -translate-y-1/2 text-xs font-medium text-accent hover:text-accent/80 px-2 py-1">
+            <button
+              type="submit"
+              onClick={(e) => { e.preventDefault(); handleSubmit(e); }}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleSubmit(e); }}
+              className="absolute right-8 top-1/2 -translate-y-1/2 text-xs font-medium text-accent hover:text-accent/80 px-2 py-1 touch-manipulation"
+            >
               Go
             </button>
-            <button type="button" onClick={() => { setQuery(''); setSuggestions([]); }} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); setQuery(''); setSuggestions([]); }}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setQuery(''); setSuggestions([]); }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 touch-manipulation"
+            >
               <X className="w-3.5 h-3.5" />
             </button>
           </>
@@ -141,13 +152,18 @@ export default function BibleSearchBar({ onClose }) {
 
       {open && suggestions.length > 0 && (
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div
+            className="fixed inset-0 z-40"
+            onClick={(e) => { e.preventDefault(); setOpen(false); }}
+            onTouchEnd={(e) => { e.preventDefault(); setOpen(false); }}
+          />
           <div className="absolute top-full mt-1 left-0 right-0 z-50 bg-card border border-border rounded-xl shadow-xl overflow-hidden">
             {suggestions.map((s, i) => (
               <button
                 key={i}
-                onClick={() => handleSelect(s)}
-                className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-secondary transition-colors text-left border-b border-border last:border-0"
+                onClick={(e) => { e.preventDefault(); handleSelect(s); }}
+                onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleSelect(s); }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-secondary transition-colors text-left border-b border-border last:border-0 touch-manipulation"
               >
                 <Search className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
                 <div className="flex-1 min-w-0">
