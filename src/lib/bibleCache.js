@@ -4,7 +4,7 @@
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
 
-const CACHE_KEY = 'bible_data_pce_v33'; // v33: colophons with ¶ [text] - fixed U+000F parsing
+const CACHE_KEY = 'bible_data_pce_v34'; // v34: standalone colophon lines parsed correctly
 const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
@@ -64,7 +64,27 @@ function parseBibleText(rawText) {
     const spaceIdx = trimmed.indexOf(' ');
     if (spaceIdx === -1) continue;
     const abbr = trimmed.slice(0, spaceIdx);
-    const rest = trimmed.slice(spaceIdx + 1);
+    const rest = trimmed.slice(spaceIdx + 1).trim();
+
+    // Check if this is a colophon line: "ABBR [text in brackets]"
+    // Format: "Ro  [Written to the Romans...]" or "Heb  [Written to the Hebrews...]"
+    // rest starts with '[' after the abbr
+    if (rest.startsWith('[') && rest.endsWith(']')) {
+      const bookName = ABBR_TO_NAME[abbr];
+      if (bookName && data[bookName]) {
+        // Find the last chapter of this book to attach the colophon to
+        const chapters = Object.keys(data[bookName]).map(Number).filter(n => !isNaN(n));
+        if (chapters.length > 0) {
+          const lastChapter = Math.max(...chapters);
+          const colophonKey = `${bookName}:${lastChapter}`;
+          const colophonText = rest.slice(1, -1); // strip [ and ]
+          colophons[colophonKey] = colophonText;
+          colophonCount++;
+          console.log(`[COLOPHON] ✓ Standalone: ${colophonKey} -> "${colophonText}"`);
+        }
+      }
+      continue;
+    }
 
     const colonIdx = rest.indexOf(':');
     if (colonIdx === -1) continue;
@@ -79,48 +99,14 @@ function parseBibleText(rawText) {
     let verseText = rest.slice(spaceIdx2 + 1);
 
     if (isNaN(verse) || !verseText) continue;
-    
-    // Double-check: convert any remaining replacement chars to pilcrow
-    if (verseText.includes('\uFFFD')) {
-      verseText = verseText.replace(/\uFFFD/g, '\u00B6');
-    }
-    
+
     // Track pilcrows in verse text
     if (verseText.includes('\u00B6')) {
       pilcrowCount++;
-      // Log ALL verses with pilcrows for debugging
-      console.log(`[PARSE] ✓ ${abbr} ${chapter}:${verse} has pilcrow: "${verseText.slice(0, 80)}"`);
     }
 
     const bookName = ABBR_TO_NAME[abbr];
-    if (!bookName) {
-      console.log('[SKIP] Unknown abbr:', abbr);
-      continue;
-    }
-    
-    // Debug: Log Philippians 4:22 specifically
-    if (abbr === 'Php' && chapter === 4 && verse === 22) {
-      console.log('[DEBUG Php 4:22] Raw verseText:', JSON.stringify(verseText));
-      console.log('[DEBUG Php 4:22] Has pilcrow:', verseText.includes('\u00B6'));
-      console.log('[DEBUG Php 4:22] Has colophon match:', !!verseText.match(/\u00B6\s*\[([^\]]+)\]\s*$/));
-    }
-
-    // Extract colophon markers: ¶ [text] at end of verse (pilcrow + square brackets)
-    // Must have pilcrow + space + square brackets at end
-    const colophonMatch = verseText.match(/\u00B6\s*\[([^\]]+)\]\s*$/);
-    if (colophonMatch) {
-      const colophonKey = `${bookName}:${chapter}`;
-      if (!colophons[colophonKey]) {
-        colophons[colophonKey] = colophonMatch[1];
-        colophonCount++;
-        console.log(`[COLOPHON] ✓ Extracted: ${colophonKey} -> "${colophons[colophonKey]}"`);
-      }
-      // Remove the colophon marker from verse text
-      verseText = verseText.replace(/\s*\u00B6\s*\[[^\]]+\]\s*$/, '').trim();
-      console.log(`[COLOPHON]   Cleaned verse: "${verseText.slice(0, 50)}..."`);
-    }
-
-    if (!verseText.trim()) continue;
+    if (!bookName) continue;
 
     if (!data[bookName]) data[bookName] = {};
     if (!data[bookName][chapter]) data[bookName][chapter] = [];
