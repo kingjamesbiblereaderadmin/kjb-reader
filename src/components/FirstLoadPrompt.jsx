@@ -22,7 +22,13 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     // Check if notifications already enabled
     return 'Notification' in window && Notification.permission === 'granted';
   });
-  const [dismissed, setDismissed] = useState(false);
+  const [dismissed, setDismissed] = useState(() => {
+    try {
+      return localStorage.getItem('kjb-prompt-dismissed') === 'true';
+    } catch {
+      return false;
+    }
+  });
 
   useEffect(() => {
     if (propDownloaded !== undefined) {
