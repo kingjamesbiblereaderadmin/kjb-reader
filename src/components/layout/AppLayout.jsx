@@ -238,6 +238,7 @@ function useAppLayoutPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);
   const { isInstallable, isInstalled, promptInstall, dismiss, wasDismissed } = useInstallPrompt();
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
+  const [notifEnabled, setNotifEnabled] = useState(() => getNotificationsEnabled());
 
   useEffect(() => {
     const dismissed = wasDismissed();
@@ -269,17 +270,14 @@ function useAppLayoutPrompt() {
       if (result === 'granted') {
         console.log('Permission granted, scheduling notification');
         scheduleDailyNotification(getDailyVerse());
-        // Keep the popup visible, just update the state
-        setShowPrompt(false);
+        // Update state but keep popup visible so user can see the change
+        setNotifEnabled(true);
+        window.dispatchEvent(new Event('storage'));
       } else if (result === 'denied') {
         console.log('Permission denied');
         alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
-      } else {
-        console.log('Permission default/dismissed:', result);
-        // result === 'default' - user dismissed the prompt without granting or denying
-        // Keep popup open so they can try again
-        alert('Notification permission was not granted. Please click "Enable Daily Notifications" again and allow the permission when prompted.');
       }
+      // If 'default' (dismissed), just keep popup open - user can try again
     } catch (err) {
       console.error('Notification permission error:', err);
       alert('Failed to request notification permission. Please try again.');
