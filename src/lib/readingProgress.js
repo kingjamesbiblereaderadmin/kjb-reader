@@ -39,22 +39,17 @@ export async function getWeeklyProgress() {
     }
     
     const completedDays = weekData.filter(d => d.completed).length;
-    const totalVerses = progress.reduce((sum, p) => {
-      if (p.verse_start && p.verse_end) {
-        return sum + (p.verse_end - p.verse_start + 1);
-      }
-      return sum + 1;
-    }, 0);
+    const totalChapters = progress.filter(p => p.completed).length;
     
     return {
       weekData,
       completedDays,
-      totalVerses,
+      totalChapters,
       streak: calculateStreak(progress),
     };
   } catch (error) {
     console.error('Error fetching weekly progress:', error);
-    return { weekData: [], completedDays: 0, totalVerses: 0, streak: 0 };
+    return { weekData: [], completedDays: 0, totalChapters: 0, streak: 0 };
   }
 }
 

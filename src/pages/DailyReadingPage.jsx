@@ -154,8 +154,8 @@ export default function DailyReadingPage() {
 
           <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
             <div className="text-center">
-              <p className="font-sans text-xs text-muted-foreground mb-1">Verses Read</p>
-              <p className="font-serif text-2xl font-bold text-foreground">{weeklyProgress?.totalVerses || 0}</p>
+              <p className="font-sans text-xs text-muted-foreground mb-1">Chapters Read</p>
+              <p className="font-serif text-2xl font-bold text-foreground">{weeklyProgress?.totalChapters || 0}</p>
             </div>
             <div className="text-center">
               <p className="font-sans text-xs text-muted-foreground mb-1">Completion Rate</p>
