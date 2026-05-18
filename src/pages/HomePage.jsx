@@ -175,20 +175,19 @@ export default function HomePage() {
       )}
 
       {/* Daily verse card */}
-      <div
-        onClick={handleVerseClick}
-        className="w-full mb-6 cursor-pointer group relative"
-      >
-        <DailyVerseImage verse={verse} />
-        {/* Bell overlay */}
+      <div className="w-full mb-6 relative">
+        <div onClick={handleVerseClick} className="cursor-pointer">
+          <DailyVerseImage verse={verse} />
+        </div>
+        {/* Bell button */}
         <button
-          onClick={(e) => {
+          onClick={() => {
             console.log('Bell button clicked!');
-            e.stopPropagation();
-            handleToggleNotif(e);
+            handleToggleNotif();
           }}
-          className="absolute top-3 right-3 p-2 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur transition-colors"
+          className="absolute top-3 right-3 p-2 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur transition-colors z-10"
           title={notifEnabled ? 'Reminders on' : 'Reminders off'}
+          type="button"
         >
           {notifEnabled ? (
             <Bell className="w-5 h-5 text-white" />
