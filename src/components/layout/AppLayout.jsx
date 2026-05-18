@@ -107,30 +107,30 @@ export default function AppLayout() {
             <BibleSearchBar onClose={() => setMenuOpen(false)} />
           </div>
 
-          <div className="flex items-center gap-0.5 flex-shrink-0">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <button
               type="button"
-              onClick={() => window.location.reload()}
-              onTouchStart={() => window.location.reload()}
-              className="p-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
+              className="w-11 h-11 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none -mb-0.5"
               aria-label="Refresh"
             >
               <RotateCw className="w-5 h-5" />
             </button>
             <button
               type="button"
-              onClick={() => toggleTheme()}
-              onTouchStart={() => toggleTheme()}
-              className="p-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
+              className="w-11 h-11 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none -mb-0.5"
               aria-label="Toggle theme"
             >
               {mode === 'auto' ? <SunMoon className="w-5 h-5" /> : isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
             </button>
             <button
               type="button"
-              onClick={() => setMenuOpen(o => !o)}
-              onTouchStart={() => setMenuOpen(o => !o)}
-              className="p-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
+              className="w-11 h-11 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none -mb-0.5"
               aria-label="Open menu"
             >
               {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
