@@ -90,26 +90,60 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="max-w-5xl mx-auto px-4 h-[80px] sm:h-24 flex items-center gap-3">
-          {/* Logo */}
+        <div className="max-w-5xl mx-auto px-4 flex items-center gap-3 h-[80px] sm:h-24">
+          {/* Logo - hidden on mobile, visible on desktop */}
           <Link
             to="/"
             onClick={() => {
               setMenuOpen(false);
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className="flex items-center gap-2 flex-shrink-0 pointer-events-auto"
+            className="hidden sm:flex items-center gap-2 flex-shrink-0 pointer-events-auto"
           >
             <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB Reader" className="h-9 w-auto" />
           </Link>
 
           {/* Search - expands to fill space */}
-          <div className="flex-1 min-w-0 pointer-events-auto mr-2">
+          <div className="flex-1 min-w-0 pointer-events-auto">
             <BibleSearchBar onClose={() => setMenuOpen(false)} />
           </div>
 
-          {/* Actions - fixed width container to prevent overlap */}
-          <div className="flex items-center gap-2 pointer-events-none shrink-0">
+          {/* Mobile actions - compact 3-button row */}
+          <div className="flex sm:hidden items-center gap-1 shrink-0">
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
+              onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
+              className="w-12 h-12 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors pointer-events-auto shrink-0"
+              style={{ touchAction: 'manipulation' }}
+              aria-label="Refresh"
+            >
+              <RotateCw className="w-5 h-5" />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
+              onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
+              className="w-12 h-12 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors pointer-events-auto shrink-0"
+              style={{ touchAction: 'manipulation' }}
+              aria-label="Toggle theme"
+            >
+              {mode === 'auto' ? <SunMoon className="w-5 h-5" /> : isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+            </button>
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
+              onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
+              className="w-12 h-12 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors pointer-events-auto shrink-0"
+              style={{ touchAction: 'manipulation' }}
+              aria-label="Open menu"
+            >
+              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
+
+          {/* Desktop actions - larger buttons */}
+          <div className="hidden sm:flex items-center gap-2 shrink-0">
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
