@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked } from 'lucide-react';
+import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked, EyeOff, Eye } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
@@ -37,6 +37,9 @@ export default function AppLayout() {
   const { pathname } = useLocation();
   const { isDark, mode, toggleTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [footerHidden, setFooterHidden] = useState(() => {
+    try { return localStorage.getItem('kjb-footer-hidden') === 'true'; } catch { return false; }
+  });
   const navigate = useNavigate();
   const isRoot = pathname === '/';
 
@@ -90,6 +93,13 @@ export default function AppLayout() {
               {mode === 'auto' ? <SunMoon className="w-5 h-5" /> : isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
             </button>
             <button
+              onClick={() => { setFooterHidden(h => !h); try { localStorage.setItem('kjb-footer-hidden', String(!footerHidden)); } catch {} }}
+              className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              aria-label={footerHidden ? 'Show footer' : 'Hide footer'}
+            >
+              {footerHidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+            </button>
+            <button
               onClick={() => setMenuOpen(o => !o)}
               className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
               aria-label="Open menu"
@@ -139,8 +149,9 @@ export default function AppLayout() {
         <Outlet />
       </main>
 
-      <BottomNav pathname={pathname} navigate={navigate} />
+      <BottomNav pathname={pathname} navigate={navigate} hidden={footerHidden} />
 
+      {!footerHidden && (
       <footer className="hidden sm:block border-t border-border bg-card/80 py-4 mt-8">
         <div className="max-w-4xl mx-auto px-4">
           <div className="flex flex-wrap justify-center gap-4 mb-3">
@@ -174,13 +185,27 @@ export default function AppLayout() {
           </p>
         </div>
       </footer>
+      )}
+
+      {/* Show footer button when hidden */}
+      {footerHidden && (
+        <button
+          onClick={() => { setFooterHidden(false); try { localStorage.setItem('kjb-footer-hidden', 'false'); } catch {} }}
+          className="fixed bottom-4 right-4 z-50 p-3 rounded-full bg-card/80 backdrop-blur border border-border text-muted-foreground hover:text-foreground shadow-lg transition-colors sm:block hidden"
+          title="Show footer"
+        >
+          <Eye className="w-5 h-5" />
+        </button>
+      )}
     </div>
   );
 }
 
-function BottomNav({ pathname, navigate }) {
+function BottomNav({ pathname, navigate, hidden }) {
   const { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss } = useBottomNavPrompt();
   const [moreOpen, setMoreOpen] = useState(false);
+
+  if (hidden) return null;
 
   const PRIMARY_NAV = BOTTOM_NAV_PRIMARY.slice(0, 3);
 
