@@ -60,6 +60,10 @@ export default function AppLayout() {
             <span className="font-serif text-lg font-bold text-foreground hidden sm:block">The Holy Bible</span>
           </Link>
 
+          <div className="flex-1 max-w-xs mx-4">
+            <BibleSearchBar onClose={() => setMenuOpen(false)} />
+          </div>
+
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={() => window.location.reload()}
