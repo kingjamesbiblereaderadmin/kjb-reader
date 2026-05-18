@@ -4,7 +4,7 @@
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
 
-const CACHE_KEY = 'bible_data_pce_v35'; // v35: handle pilcrow-prefixed colophon lines
+const CACHE_KEY = 'bible_data_pce_v36'; // v36: extract inline <<[...]> colophons from verse text
 const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
@@ -66,27 +66,8 @@ function parseBibleText(rawText) {
     const abbr = trimmed.slice(0, spaceIdx);
     const rest = trimmed.slice(spaceIdx + 1).trim();
 
-    // Check if this is a colophon line: "ABBR [text in brackets]"
-    // Format: "Ro  [Written to the Romans...]" or "Heb  [Written to the Hebrews...]"
-    // May also have a pilcrow prefix: "Ro ¶ [Written...]"
-    // Strip any leading pilcrow before checking
-    const restNoBracket = rest.replace(/^\u00B6\s*/, '').trim();
-    if (restNoBracket.startsWith('[') && restNoBracket.endsWith(']')) {
-      const bookName = ABBR_TO_NAME[abbr];
-      if (bookName && data[bookName]) {
-        // Find the last chapter of this book to attach the colophon to
-        const chapters = Object.keys(data[bookName]).map(Number).filter(n => !isNaN(n));
-        if (chapters.length > 0) {
-          const lastChapter = Math.max(...chapters);
-          const colophonKey = `${bookName}:${lastChapter}`;
-          const colophonText = restNoBracket.slice(1, -1); // strip [ and ]
-          colophons[colophonKey] = colophonText;
-          colophonCount++;
-          console.log(`[COLOPHON] ✓ Standalone: ${colophonKey} -> "${colophonText}"`);
-        }
-      }
-      continue;
-    }
+    // Note: Colophons are inline in verse text as <<[...]>>, not standalone lines
+    // They are extracted during verse parsing below
 
     const colonIdx = rest.indexOf(':');
     if (colonIdx === -1) continue;
@@ -105,6 +86,22 @@ function parseBibleText(rawText) {
     // Track pilcrows in verse text
     if (verseText.includes('\u00B6')) {
       pilcrowCount++;
+    }
+
+    // Extract colophon from <<...>> markers at end of verse
+    // Format: "verse text <<[colophon text]>>"
+    const colophonMatch = verseText.match(/<<\[([^\]]+)\]>>\s*$/);
+    if (colophonMatch) {
+      const colophonText = colophonMatch[1];
+      const bookName = ABBR_TO_NAME[abbr];
+      if (bookName) {
+        const colophonKey = `${bookName}:${chapter}`;
+        colophons[colophonKey] = colophonText;
+        colophonCount++;
+        console.log(`[COLOPHON] ✓ Inline: ${colophonKey} -> "${colophonText}"`);
+      }
+      // Strip the colophon from verse text
+      verseText = verseText.replace(/<<\[([^\]]+)\]>>\s*$/, '').trim();
     }
 
     const bookName = ABBR_TO_NAME[abbr];
@@ -204,9 +201,9 @@ async function loadFromCache() {
       const colophonCount = data.__colophons ? Object.keys(data.__colophons).length : 0;
       console.log('[CACHE] ✓ Loaded from IndexedDB,', pilcrowCount, 'pilcrows,', colophonCount, 'colophons');
       
-      // If 0 pilcrows, cache is stale - force refresh
-      if (pilcrowCount === 0) {
-        console.log('[CACHE] ⚠️ Stale cache detected (0 pilcrows) - will fetch fresh');
+      // If 0 pilcrows OR 0 colophons, cache is stale - force refresh
+      if (pilcrowCount === 0 || colophonCount === 0) {
+        console.log('[CACHE] ⚠️ Stale cache detected (', pilcrowCount, 'pilcrows,', colophonCount, 'colophons) - will fetch fresh');
         return null;
       }
       
