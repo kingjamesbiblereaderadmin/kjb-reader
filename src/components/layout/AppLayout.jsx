@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, RotateCw } from 'lucide-react';
+import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
@@ -177,46 +177,44 @@ export default function AppLayout() {
 }
 
 function BottomNav({ pathname, navigate }) {
-  const [showMore, setShowMore] = useState(false);
+  const scrollRef = React.useRef(null);
+  const [showArrow, setShowArrow] = useState(false);
   const { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss } = useBottomNavPrompt();
+
+  const ALL_NAV_ITEMS = [
+    ...BOTTOM_NAV_PRIMARY,
+    ...BOTTOM_NAV_SECONDARY,
+  ];
+
+  const scrollRight = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: 200, behavior: 'smooth' });
+    }
+  };
+
+  const checkScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setShowArrow(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  React.useEffect(() => {
+    checkScroll();
+  }, []);
 
   return (
     <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border">
-      <div className="flex items-center px-2 py-1" style={{ paddingBottom: 'max(0.25rem, env(safe-area-inset-bottom))' }}>
-        {BOTTOM_NAV_PRIMARY.map(item => {
-          const Icon = item.icon;
-          const active = item.path === '/' ? pathname === '/' : pathname === item.path;
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={(e) => {
-                e.preventDefault();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                setTimeout(() => navigate(item.path), 150);
-              }}
-              className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-lg transition-colors flex-1 ${
-                active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Icon className="w-5 h-5" />
-              <span className="font-sans text-[10px] font-medium">{item.label}</span>
-            </Link>
-          );
-        })}
-        <button
-          onClick={() => setShowMore(s => !s)}
-          className="flex flex-col items-center justify-center gap-0.5 px-3 py-2 min-w-[60px]"
+      <div className="relative">
+        <div
+          ref={scrollRef}
+          onScroll={checkScroll}
+          className="flex items-center px-2 py-1 overflow-x-auto scrollbar-hide"
+          style={{ paddingBottom: 'max(0.25rem, env(safe-area-inset-bottom))' }}
         >
-          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${showMore ? 'rotate-180' : ''}`} />
-          <span className="font-sans text-[10px] font-medium text-muted-foreground">More</span>
-        </button>
-      </div>
-      {showMore && (
-        <div className="border-t border-border bg-card/95 backdrop-blur-md px-2 py-2 flex items-center gap-2 overflow-x-auto">
-          {BOTTOM_NAV_SECONDARY.map(item => {
+          {ALL_NAV_ITEMS.map(item => {
             const Icon = item.icon;
-            const active = pathname === item.path;
+            const active = item.path === '/' ? pathname === '/' : pathname === item.path;
             return (
               <Link
                 key={item.path}
@@ -225,10 +223,9 @@ function BottomNav({ pathname, navigate }) {
                   e.preventDefault();
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                   setTimeout(() => navigate(item.path), 150);
-                  setShowMore(false);
                 }}
                 className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-lg transition-colors shrink-0 ${
-                  active ? 'text-primary bg-secondary' : 'text-muted-foreground hover:text-foreground'
+                  active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <Icon className="w-5 h-5" />
@@ -237,7 +234,15 @@ function BottomNav({ pathname, navigate }) {
             );
           })}
         </div>
-      )}
+        {showArrow && (
+          <button
+            onClick={scrollRight}
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-card/95 backdrop-blur p-1.5 rounded-full shadow-lg border border-border"
+          >
+            <ChevronRight className="w-5 h-5 text-foreground" />
+          </button>
+        )}
+      </div>
       {showPrompt && (
         <FirstLoadPrompt
           isInstallable={isInstallable}
