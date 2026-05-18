@@ -11,12 +11,12 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   const [saved, setSaved] = useState(() => isVerseSaved(abbr, chapter, verse.verse));
 
   const highlightColors = [
-    { name: 'accent', bg: 'bg-accent/40 dark:bg-accent/30' },
-    { name: 'yellow', bg: 'bg-yellow-300/40' },
-    { name: 'green', bg: 'bg-green-300/40' },
-    { name: 'blue', bg: 'bg-blue-300/40' },
-    { name: 'pink', bg: 'bg-pink-300/40' },
-    { name: 'purple', bg: 'bg-purple-300/40' },
+    { name: 'accent', bg: 'bg-accent/40 dark:bg-accent/30', label: 'Default', color: 'hsl(var(--accent))' },
+    { name: 'yellow', bg: 'bg-yellow-300/40', label: 'Yellow', color: '#fde047' },
+    { name: 'green', bg: 'bg-green-300/40', label: 'Green', color: '#86efac' },
+    { name: 'blue', bg: 'bg-blue-300/40', label: 'Blue', color: '#93c5fd' },
+    { name: 'pink', bg: 'bg-pink-300/40', label: 'Pink', color: '#f9a8d4' },
+    { name: 'purple', bg: 'bg-purple-300/40', label: 'Purple', color: '#d8b4fe' },
   ];
 
   useEffect(() => {
@@ -97,14 +97,16 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         <div className="relative">
           <button
             onClick={(e) => { e.stopPropagation(); setShowColorPicker(!showColorPicker); }}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
             title="Highlight color"
           >
-            <Highlighter className="w-3 h-3" />
+            <Highlighter className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{highlightColors.find(c => c.name === highlightColor)?.label}</span>
             <ChevronDown className="w-2.5 h-2.5" />
           </button>
           {showColorPicker && (
-            <div className="absolute top-full left-0 mt-1 z-50 flex gap-1 bg-card border border-border rounded-lg p-2 shadow-lg">
+            <div className="absolute top-full left-0 mt-1.5 z-50 flex flex-col gap-1.5 bg-card border border-border rounded-xl p-3 shadow-xl min-w-[140px]">
+              <p className="font-sans text-xs font-medium text-muted-foreground mb-0.5">Choose color</p>
               {highlightColors.map(color => (
                 <button
                   key={color.name}
@@ -114,18 +116,34 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
                     setShowHighlight(true);
                     setShowColorPicker(false);
                   }}
-                  className={`w-4 h-4 rounded border-2 ${color.bg} ${highlightColor === color.name ? 'border-foreground' : 'border-border'}`}
-                  title={color.name}
-                />
+                  className="flex items-center gap-2.5 w-full p-1.5 rounded-lg hover:bg-secondary transition-colors"
+                >
+                  <span
+                    className="w-5 h-5 rounded-full border-2 border-border shadow-sm"
+                    style={{ backgroundColor: color.color }}
+                  />
+                  <span className={`font-sans text-sm ${highlightColor === color.name ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
+                    {color.label}
+                  </span>
+                  {highlightColor === color.name && showHighlight && (
+                    <span className="ml-auto text-xs text-primary font-medium">Active</span>
+                  )}
+                </button>
               ))}
             </div>
           )}
         </div>
         <button
           onClick={(e) => { e.stopPropagation(); setShowHighlight(!showHighlight); }}
-          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-sans text-xs font-medium transition-colors ${
+            showHighlight
+              ? 'bg-accent/20 text-accent hover:bg-accent/30'
+              : 'bg-secondary hover:bg-accent/20 text-foreground'
+          }`}
+          title={showHighlight ? 'Remove highlight' : 'Apply highlight'}
         >
-          {showHighlight ? 'Clear' : 'Apply'}
+          <Highlighter className="w-3.5 h-3.5" />
+          {showHighlight ? 'Clear' : 'Highlight'}
         </button>
         <button
           onClick={handleCopy}
