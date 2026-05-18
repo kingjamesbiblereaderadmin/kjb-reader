@@ -262,16 +262,27 @@ export default function SettingsPage() {
         ) : (
           <div className="space-y-3">
             <button
-              onClick={promptInstall}
+              onClick={async () => {
+                const accepted = await promptInstall();
+                if (!accepted) {
+                  // Manual install instructions will show below
+                }
+              }}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
             >
               <Smartphone className="w-4 h-4" />
               Add to Home Screen
             </button>
             {!isInstallable && (
-              <p className="font-sans text-xs text-muted-foreground">
-                If the button doesn't work, open this site in <span className="font-medium text-foreground">Chrome (Android)</span> or <span className="font-medium text-foreground">Safari (iPhone)</span> and tap <span className="font-medium text-foreground">"Add to Home Screen"</span> from the browser menu.
-              </p>
+              <div className="space-y-2 bg-secondary/50 rounded-xl p-4">
+                <p className="font-sans text-xs text-muted-foreground mb-2">
+                  <strong>Manual install:</strong>
+                </p>
+                <div className="font-sans text-xs text-muted-foreground space-y-1">
+                  <p>• <strong>iPhone (Safari):</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">⎕ Share</span> then <span className="text-foreground font-medium">"Add to Home Screen"</span></p>
+                  <p>• <strong>Android (Chrome):</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">⋮ Menu</span> then <span className="text-foreground font-medium">"Install app"</span> or <span className="text-foreground font-medium">"Add to Home screen"</span></p>
+                </div>
+              </div>
             )}
           </div>
         )}

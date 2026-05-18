@@ -32,7 +32,11 @@ export function useInstallPrompt() {
   }, []);
 
   const promptInstall = async () => {
-    if (!deferredPrompt) return false;
+    if (!deferredPrompt) {
+      // No beforeinstallprompt event (likely iOS Safari or already handled)
+      // Return false to indicate manual install instructions should be shown
+      return false;
+    }
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     setDeferredPrompt(null);
