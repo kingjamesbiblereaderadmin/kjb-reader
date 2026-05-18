@@ -392,7 +392,9 @@ export default function BibleReader() {
             {book.testament === 'old' ? 'Old Testament' : 'New Testament'}
           </p>
           <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-1 leading-tight">{book.name}</h1>
-          <p className="font-sans text-sm text-muted-foreground tracking-widest uppercase mt-1">Chapter {pos.chapter}</p>
+          <p className="font-sans text-sm text-muted-foreground tracking-widest uppercase mt-1">
+            Chapter {pos.chapter} {verseCount > 0 && <span>(v.1-{verseCount})</span>}
+          </p>
           {/* Subscript — shown below chapter heading on the relevant final chapter */}
           {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
             <p className="font-serif text-sm text-muted-foreground mt-3 max-w-md mx-auto leading-relaxed">
