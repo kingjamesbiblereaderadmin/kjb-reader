@@ -201,7 +201,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         >
           <sup className="text-accent font-sans font-semibold text-xs mr-2 select-none">{verse.verse}</sup>
           {hasPilcrow && (
-            <span className="text-accent mr-1 not-italic select-none font-sans text-sm opacity-60">¶</span>
+            <span className="text-accent mr-1.5 not-italic select-none font-sans text-sm opacity-60">¶</span>
           )}
           <span
             className={`font-serif leading-loose [&_em]:italic [&_em]:text-foreground/75 ${textClass}`}
@@ -216,19 +216,21 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
 
   // ── LINE MODE (default): each verse is its own line ──
   return (
-    <span id={id} className={`block ${hasPilcrow ? 'mt-4' : 'mt-2'} relative`}>
-      {hasPilcrow && (
-        <div className="text-accent text-sm opacity-60 font-sans mb-1 select-none">¶</div>
-      )}
+    <span id={id} className="block mt-2 relative">
       <span
         onClick={() => setSelected(s => !s)}
         className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-1 py-0.5 gap-2 ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
       >
         <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-0.5 mr-1">{verse.verse}</sup>
-        <span
-          className={`font-serif leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words flex-1`}
-          dangerouslySetInnerHTML={{ __html: htmlNoPilcrow }}
-        />
+        <span className="flex-1 break-words">
+          {hasPilcrow && (
+            <span className="text-accent mr-1.5 not-italic select-none font-sans text-sm opacity-60">¶</span>
+          )}
+          <span
+            className={`font-serif leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass}`}
+            dangerouslySetInnerHTML={{ __html: htmlNoPilcrow }}
+          />
+        </span>
       </span>
       {actionPopover}
     </span>
