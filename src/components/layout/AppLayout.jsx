@@ -14,7 +14,7 @@ const NAV_ITEMS = [
   { path: '/gospel', icon: Heart, label: 'Gospel' },
   { path: '/resources', icon: Library, label: 'Resources' },
   { path: '/saved', icon: Bookmark, label: 'Saved' },
-  { path: '/read', icon: BookMarked, label: 'Daily Reading' },
+  { path: '/daily-reading', icon: BookMarked, label: 'Daily Reading' },
   { path: '/about', icon: Info, label: 'About' },
   { path: '/settings', icon: Settings, label: 'Settings' },
 ];
@@ -28,6 +28,7 @@ const BOTTOM_NAV_PRIMARY = [
 ];
 
 const BOTTOM_NAV_SECONDARY = [
+  { path: '/daily-reading', icon: BookMarked, label: 'Daily Reading' },
   { path: '/about', icon: Info, label: 'About' },
   { path: '/settings', icon: Settings, label: 'Settings' },
 ];
@@ -179,6 +180,7 @@ export default function AppLayout() {
 
 function BottomNav({ pathname, navigate }) {
   const { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss } = useBottomNavPrompt();
+  const [moreOpen, setMoreOpen] = useState(false);
 
   const PRIMARY_NAV = BOTTOM_NAV_PRIMARY.slice(0, 3);
 
@@ -206,11 +208,50 @@ function BottomNav({ pathname, navigate }) {
             </Link>
           );
         })}
-        <div className="flex flex-col items-center gap-0.5 px-4 py-2 text-muted-foreground">
+        <button
+          onClick={() => setMoreOpen(true)}
+          className="flex flex-col items-center gap-0.5 px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
+        >
           <ChevronDown className="w-5 h-5" />
           <span className="font-sans text-[10px] font-medium">More</span>
-        </div>
+        </button>
       </div>
+
+      {/* More menu bottom sheet */}
+      {moreOpen && (
+        <>
+          <div className="fixed inset-0 z-40 bg-background/80" onClick={() => setMoreOpen(false)} />
+          <div className="fixed bottom-0 left-0 right-0 z-50 bg-card rounded-t-2xl border-t border-border p-4">
+            <div className="max-w-4xl mx-auto">
+              <div className="w-12 h-1.5 bg-secondary rounded-full mx-auto mb-4" />
+              <div className="grid grid-cols-2 gap-2">
+                {BOTTOM_NAV_SECONDARY.map(item => {
+                  const Icon = item.icon;
+                  const active = pathname === item.path;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => {
+                        setMoreOpen(false);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className={`flex items-center gap-2.5 px-3 py-3 rounded-lg font-sans text-sm font-medium transition-colors ${
+                        active
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-foreground hover:bg-secondary'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4 flex-shrink-0" />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
       {showPrompt && (
         <FirstLoadPrompt
           isInstallable={isInstallable}
