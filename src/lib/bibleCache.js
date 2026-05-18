@@ -4,7 +4,7 @@
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
 
-const CACHE_KEY = 'bible_data_pce_v16'; // v16: pilcrow normalization fix
+const CACHE_KEY = 'bible_data_pce_v17'; // v17: force fresh download with pilcrows
 const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
 
 // Maps the abbreviation in the text file -> canonical book name (must match apiName in bibleData.js)
@@ -146,10 +146,10 @@ async function saveToCache(data) {
 
 async function loadFromCache() {
   try {
-    // Clear ALL old keys to force fresh download
+    // Clear ALL old keys to force fresh download with v17
     localStorage.removeItem('bible_data_complete');
     localStorage.removeItem('bible_data_complete_v2');
-    for (let i = 1; i <= 16; i++) {
+    for (let i = 1; i <= 17; i++) {
       localStorage.removeItem(`bible_data_pce_v${i}`);
     }
     // Load from IndexedDB
@@ -215,8 +215,8 @@ export async function isBibleCached() {
 
 // Clear cached Bible data
 export async function clearBibleCache() {
-  // Clear ALL version keys
-  for (let i = 1; i <= 16; i++) {
+  // Clear ALL version keys (1-17)
+  for (let i = 1; i <= 17; i++) {
     localStorage.removeItem(`bible_data_pce_v${i}`);
   }
   localStorage.removeItem('bible_data_complete');
