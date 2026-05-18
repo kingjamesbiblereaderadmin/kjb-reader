@@ -335,32 +335,10 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
   if (hidden) return null;
 
   return (
-    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border">
-      {/* Top chevron to cycle: 2 rows → 1 row → hidden → 2 rows */}
-      <div className="relative">
-        <button
-          onClick={cycleShowMode}
-          onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
-          className={`absolute -top-3 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors flex items-center justify-center shadow-sm z-10 ${showMode === 'hidden' ? 'hidden' : ''}`}
-          title={showMode === 'two' ? 'Show one row' : showMode === 'one' ? 'Hide footer' : 'Show footer'}
-        >
-          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showMode === 'one' ? 'rotate-180' : ''}`} />
-        </button>
-        {showMode === 'hidden' && (
-          <button
-            onClick={cycleShowMode}
-            onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
-            className="absolute -top-3 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors flex items-center justify-center shadow-sm z-10"
-            title="Show footer"
-          >
-            <ChevronDown className="w-3.5 h-3.5 rotate-180" />
-          </button>
-        )}
-      </div>
-
+    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border safe-area-pb">
       {/* Navigation rows */}
       {showMode !== 'hidden' && (
-        <div className="px-0.5">
+        <div className="w-full">
           {/* Primary row - 5 items */}
           <div className="grid grid-cols-5">
             {BOTTOM_NAV_PRIMARY.map(item => {
@@ -375,14 +353,10 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
                     setTimeout(() => navigate(item.path), 150);
                   }}
                   onTouchStart={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(() => navigate(item.path), 150); }}
-                  className="flex flex-col items-center justify-center gap-0.5 w-full h-full min-h-[56px] transition-colors"
+                  className="flex flex-col items-center justify-center py-3 min-h-[60px] active:bg-secondary/50 transition-colors"
                 >
-                  <div className={`w-full h-full flex flex-col items-center justify-center gap-0.5 py-2.5 ${
-                    active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-                  }`}>
-                    <Icon className="w-5 h-5" />
-                    <span className="font-sans text-[10px] font-medium">{item.label}</span>
-                  </div>
+                  <Icon className={`w-6 h-6 mb-1 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
                 </button>
               );
             })}
@@ -397,26 +371,32 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
                 return (
                   <button
                     key={item.path}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                      navigate(item.path);
-                    }}
-                    onTouchStart={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); navigate(item.path); }}
-                    className="flex flex-col items-center justify-center gap-0.5 w-full h-full min-h-[56px] transition-colors"
-                  >
-                    <div className={`w-full h-full flex flex-col items-center justify-center gap-0.5 py-2.5 ${
-                      active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-                    }`}>
-                      <Icon className="w-5 h-5" />
-                      <span className="font-sans text-[10px] font-medium">{item.label}</span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    navigate(item.path);
+                  }}
+                  onTouchStart={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); navigate(item.path); }}
+                  className="flex flex-col items-center justify-center py-3 min-h-[60px] active:bg-secondary/50 transition-colors"
+                >
+                  <Icon className={`w-6 h-6 mb-1 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
           )}
         </div>
+      )}
+      
+      {/* Hidden mode indicator - tap bottom edge to restore */}
+      {showMode === 'hidden' && (
+        <button
+          onClick={cycleShowMode}
+          onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
+          className="w-full h-2 bg-gradient-to-t from-primary/10 to-transparent active:from-primary/20 transition-colors"
+          title="Tap to show footer"
+        />
       )}
     </nav>
   );
