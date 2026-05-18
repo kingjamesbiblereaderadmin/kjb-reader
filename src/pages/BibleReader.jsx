@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, EyeOff, Eye, ArrowDownToLine, ArrowUpFromLine } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown } from 'lucide-react';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount } from '@/lib/bibleApi';
 import { getBibleData } from '@/lib/bibleCache';
@@ -58,8 +58,7 @@ export default function BibleReader() {
     try { return localStorage.getItem('kjb-layout') === 'paragraph'; } catch { return false; }
   });
   const [fullscreen, setFullscreen] = useState(false);
-  const [hideUI, setHideUI] = useState(false);
-  const [textOnlyMode, setTextOnlyMode] = useState(false);
+  const [hideHeader, setHideHeader] = useState(false);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -69,10 +68,6 @@ export default function BibleReader() {
       document.exitFullscreen?.().catch(() => {});
       setFullscreen(false);
     }
-  };
-
-  const toggleTextOnly = () => {
-    setTextOnlyMode(prev => !prev);
   };
 
   useEffect(() => {
@@ -239,10 +234,10 @@ export default function BibleReader() {
   }, [verses, loading, book.name, pos.chapter, isViewingTitlePage]);
 
   return (
-    <div className={`max-w-3xl mx-auto px-4 py-3 ${hideUI || textOnlyMode ? 'select-text' : ''}`}>
+    <div className={`max-w-3xl mx-auto px-4 py-3`}>
 
-      {/* Sticky nav bar — hidden when hideUI or textOnlyMode is on */}
-      {!(hideUI || textOnlyMode) && (
+      {/* Sticky nav bar — hidden when hideHeader is on */}
+      {!hideHeader && (
         <div ref={topRef} className="sticky top-14 z-40 bg-background/95 backdrop-blur border-b border-border pb-1 mb-2">
           <div className="relative flex flex-wrap items-center gap-2 pt-1 justify-between">
 
@@ -369,7 +364,16 @@ export default function BibleReader() {
             </button>
             </div>
 
-            {/* Prev/Next + Fullscreen + Hide UI */}
+            {/* Hide header chevron */}
+            <button
+              onClick={() => setHideHeader(true)}
+              title="Hide header"
+              className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
+            >
+              <ChevronDown className="w-4 h-4" />
+            </button>
+
+            {/* Prev/Next + Fullscreen */}
             <div className="flex items-center gap-1">
               <button
                 onClick={goPrev}
@@ -392,37 +396,19 @@ export default function BibleReader() {
               >
                 {fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
               </button>
-              <button
-                onClick={() => {
-                  if (hideUI || textOnlyMode) {
-                    setHideUI(false);
-                    setTextOnlyMode(false);
-                  } else {
-                    setHideUI(true);
-                    setTextOnlyMode(true);
-                  }
-                }}
-                title={hideUI || textOnlyMode ? 'Show UI' : 'Hide UI'}
-                className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
-              >
-                {(hideUI || textOnlyMode) ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Show UI button when hidden or text-only mode */}
-      {(hideUI || textOnlyMode) && (
+      {/* Show header chevron when hidden */}
+      {hideHeader && (
         <button
-          onClick={() => {
-            setHideUI(false);
-            setTextOnlyMode(false);
-          }}
-          className="fixed bottom-20 right-4 z-50 p-3 rounded-full bg-card/80 backdrop-blur border border-border text-muted-foreground hover:text-foreground shadow-lg transition-colors"
-          title="Show UI"
+          onClick={() => setHideHeader(false)}
+          className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 p-2 rounded-full bg-card/80 backdrop-blur border border-border text-muted-foreground hover:text-foreground shadow-lg transition-colors"
+          title="Show header"
         >
-          <Eye className="w-5 h-5" />
+          <ChevronDown className="w-5 h-5 rotate-180" />
         </button>
       )}
 
