@@ -209,49 +209,44 @@ function BottomNav({ pathname, navigate }) {
           );
         })}
         <button
-          onClick={() => setMoreOpen(true)}
+          onClick={() => setMoreOpen(!moreOpen)}
           className="flex flex-col items-center gap-0.5 px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ChevronDown className="w-5 h-5" />
+          {moreOpen ? <ChevronDown className="w-5 h-5 rotate-180 transition-transform" /> : <ChevronDown className="w-5 h-5 transition-transform" />}
           <span className="font-sans text-[10px] font-medium">More</span>
         </button>
       </div>
 
-      {/* More menu bottom sheet */}
+      {/* More menu expanded row */}
       {moreOpen && (
-        <>
-          <div className="fixed inset-0 z-40 bg-background/80" onClick={() => setMoreOpen(false)} />
-          <div className="fixed bottom-0 left-0 right-0 z-50 bg-card rounded-t-2xl border-t border-border p-4">
-            <div className="max-w-4xl mx-auto">
-              <div className="w-12 h-1.5 bg-secondary rounded-full mx-auto mb-4" />
-              <div className="grid grid-cols-2 gap-2">
-                {BOTTOM_NAV_SECONDARY.map(item => {
-                  const Icon = item.icon;
-                  const active = pathname === item.path;
-                  return (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      onClick={() => {
-                        setMoreOpen(false);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }}
-                      className={`flex items-center gap-2.5 px-3 py-3 rounded-lg font-sans text-sm font-medium transition-colors ${
-                        active
-                          ? 'bg-primary text-primary-foreground'
-                          : 'text-foreground hover:bg-secondary'
-                      }`}
-                    >
-                      <Icon className="w-4 h-4 flex-shrink-0" />
-                      {item.label}
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
+        <div className="border-t border-border bg-card/50 px-2 py-2">
+          <div className="grid grid-cols-2 gap-2">
+            {BOTTOM_NAV_SECONDARY.map(item => {
+              const Icon = item.icon;
+              const active = pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => {
+                    setMoreOpen(false);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className={`flex items-center justify-center gap-2.5 px-3 py-3 rounded-xl font-sans text-sm font-medium transition-colors ${
+                    active
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-foreground hover:bg-secondary'
+                  }`}
+                >
+                  <Icon className="w-5 h-5 flex-shrink-0" />
+                  {item.label}
+                </Link>
+              );
+            })}
           </div>
-        </>
+        </div>
       )}
+
       {showPrompt && (
         <FirstLoadPrompt
           isInstallable={isInstallable}
