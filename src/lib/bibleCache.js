@@ -32,18 +32,22 @@ let fetchInProgress = null;
 
 function parseBibleText(rawText) {
   console.log('[PARSE] Raw text length:', rawText.length);
-  console.log('[PARSE] Replacement chars (\\uFFFD) in raw:', (rawText.match(/\uFFFD/g) || []).length);
-  // The source file's ¶ characters are fetched as U+FFFD (replacement char) due to Latin-1 encoding
-  // Normalize them all to U+00B6 (pilcrow) for consistent detection
-  const text = rawText.replace(/\uFFFD/g, '¶');
-  console.log('[PARSE] Pilcrows (¶) after normalization:', (text.match(/¶/g) || []).length);
+  
+  // Step 1: Normalize ALL replacement characters (U+FFFD) to pilcrow (U+00B6)
+  // The source file uses U+FFFD to represent the pilcrow (¶) due to encoding issues
+  const normalizedText = rawText.replace(/\uFFFD/g, '\u00B6');
+  console.log('[PARSE] Replacement chars (U+FFFD) found:', (rawText.match(/\uFFFD/g) || []).length);
+  console.log('[PARSE] Pilcrows (U+00B6) after normalization:', (normalizedText.match(/\u00B6/g) || []).length);
+  
   const data = {};
   const colophons = {};
-  const lines = text.split('\n');
+  const lines = normalizedText.split('\n');
   console.log('[PARSE] Split into', lines.length, 'lines');
 
   let verseCount = 0;
   let colophonCount = 0;
+  let pilcrowCount = 0;
+  
   for (let i = 0; i < lines.length; i++) {
     const trimmed = lines[i].trim();
     if (!trimmed) continue;
@@ -67,10 +71,12 @@ function parseBibleText(rawText) {
 
     if (isNaN(verse) || !verseText) continue;
     
-    // Debug: log first few verses with pilcrows
-    if ((verseText.includes('�') || verseText.includes('¶') || verseText.includes('\u00B6')) && verse <= 3) {
-      console.log(`[PARSE] ${abbr} ${chapter}:${verse} - has pilcrow marker, text preview: "${verseText.slice(0, 80)}"`);
-      console.log(`[PARSE]   Character codes: ${[...verseText.slice(0, 5)].map(c => c.charCodeAt(0).toString(16)).join(' ')}`);
+    // Track pilcrows in verse text
+    if (verseText.includes('\u00B6')) {
+      pilcrowCount++;
+      if (verse <= 3) {
+        console.log(`[PARSE] ✓ ${abbr} ${chapter}:${verse} has pilcrow: "${verseText.slice(0, 60)}"`);
+      }
     }
 
     const bookName = ABBR_TO_NAME[abbr];
@@ -80,7 +86,6 @@ function parseBibleText(rawText) {
     }
 
     // Extract colophon markers: <<[...text...]>> at end of verse
-    // Preserve brackets for italic markup
     const colophonMatch = verseText.match(/<<\[(.*?)\]>>\s*$/);
     if (colophonMatch) {
       const colophonKey = `${bookName}:${chapter}`;
@@ -101,9 +106,8 @@ function parseBibleText(rawText) {
   }
 
   data.__colophons = colophons;
-  console.log('Parsed:', verseCount, 'verses,', colophonCount, 'colophons found');
-  console.log('Books parsed:', Object.keys(data).filter(k => k !== '__colophons').length);
-  console.log('Sample colophons:', Object.entries(colophons).slice(0, 5));
+  console.log('[PARSE] ✓ Complete:', verseCount, 'verses,', colophonCount, 'colophons,', pilcrowCount, 'verses with pilcrows');
+  console.log('[PARSE] Books parsed:', Object.keys(data).filter(k => k !== '__colophons').length);
   return data;
 }
 
