@@ -315,38 +315,45 @@ export default function SettingsPage() {
             )}
 
             {/* Reading Reminder */}
-            <div className="pt-4 border-t border-border flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3 flex-1">
-                <div>
-                  <p className="font-sans text-sm text-foreground font-medium">Reading Reminder</p>
-                  <p className="font-sans text-xs text-muted-foreground mt-0.5">
-                    Daily reminder to read a chapter
-                  </p>
-                </div>
-                {readingReminderEnabled && (
-                  <div className="flex items-center gap-2">
-                    <label className="font-sans text-xs text-muted-foreground">at</label>
-                    <input
-                      type="time"
-                      value={readingReminderTime}
-                      onChange={handleReadingReminderTimeChange}
-                      className="px-2 py-1.5 rounded-lg bg-secondary border border-border text-xs font-sans text-foreground focus:outline-none focus:border-accent"
-                    />
+            <div className="pt-4 border-t border-border">
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <div className="flex items-center gap-3 flex-1">
+                  <div>
+                    <p className="font-sans text-sm text-foreground font-medium">Reading Reminder</p>
+                    <p className="font-sans text-xs text-muted-foreground mt-0.5">
+                      Daily reminder to read your assigned chapter
+                    </p>
                   </div>
-                )}
+                  {readingReminderEnabled && (
+                    <div className="flex items-center gap-2">
+                      <label className="font-sans text-xs text-muted-foreground">at</label>
+                      <input
+                        type="time"
+                        value={readingReminderTime}
+                        onChange={handleReadingReminderTimeChange}
+                        className="px-2 py-1.5 rounded-lg bg-secondary border border-border text-xs font-sans text-foreground focus:outline-none focus:border-accent"
+                      />
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={handleToggleReadingReminder}
+                  disabled={notifPermission === 'denied'}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl font-sans text-sm font-medium transition-colors shrink-0 ${
+                    readingReminderEnabled
+                      ? 'bg-primary text-primary-foreground hover:opacity-90'
+                      : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                  } disabled:opacity-40`}
+                >
+                  {readingReminderEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+                  {readingReminderEnabled ? 'On' : 'Off'}
+                </button>
               </div>
-              <button
-                onClick={handleToggleReadingReminder}
-                disabled={notifPermission === 'denied'}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl font-sans text-sm font-medium transition-colors shrink-0 ${
-                  readingReminderEnabled
-                    ? 'bg-primary text-primary-foreground hover:opacity-90'
-                    : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-                } disabled:opacity-40`}
-              >
-                {readingReminderEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
-                {readingReminderEnabled ? 'On' : 'Off'}
-              </button>
+              {readingReminderEnabled && (
+                <p className="font-sans text-xs text-muted-foreground bg-secondary/50 rounded-lg p-2">
+                  ⏰ You will be reminded daily to read your assigned chapter at {readingReminderTime}
+                </p>
+              )}
             </div>
           </>
         )}

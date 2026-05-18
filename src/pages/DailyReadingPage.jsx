@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, CheckCircle2, Circle, Flame, TrendingUp } from 'lucide-react';
+import { BookOpen, CheckCircle2, Circle, Flame, TrendingUp, Bell, BellOff } from 'lucide-react';
 import { getWeeklyProgress, markReadingComplete, getTodayProgress, initializeReadingProgress } from '@/lib/readingProgress';
 import { useNavigate } from 'react-router-dom';
 import { getBookByApiName } from '@/lib/bibleData';
 import { fetchVerseCount } from '@/lib/bibleApi';
+import { getReadingReminderEnabled, requestNotificationPermission, scheduleReadingReminder, enableReadingReminder } from '@/lib/notifications';
 
 export default function DailyReadingPage() {
   const navigate = useNavigate();
@@ -11,6 +12,8 @@ export default function DailyReadingPage() {
   const [todayProgress, setTodayProgress] = useState(null);
   const [loading, setLoading] = useState(true);
   const [verseCount, setVerseCount] = useState(null);
+  const [readingReminderEnabled, setReadingReminderEnabled] = useState(getReadingReminderEnabled);
+  const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
 
   useEffect(() => {
     loadProgress();
@@ -53,6 +56,24 @@ export default function DailyReadingPage() {
 
   const handleStartReading = () => {
     navigate('/read');
+  };
+
+  const handleToggleReadingReminder = async () => {
+    if (readingReminderEnabled) {
+      // Disable reminder
+      const { disableReadingReminder } = await import('@/lib/notifications');
+      disableReadingReminder();
+      setReadingReminderEnabled(false);
+    } else {
+      // Enable reminder
+      const result = await requestNotificationPermission();
+      setNotifPermission(result);
+      if (result === 'granted') {
+        enableReadingReminder();
+        setReadingReminderEnabled(true);
+        scheduleReadingReminder();
+      }
+    }
   };
 
   if (loading) {
@@ -113,6 +134,13 @@ export default function DailyReadingPage() {
                       className="flex-1 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
                     >
                       Read Now
+                    </button>
+                    <button
+                      onClick={handleToggleReadingReminder}
+                      className="px-4 py-2.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+                      title={readingReminderEnabled ? 'Disable reminder' : 'Enable daily reminder'}
+                    >
+                      {readingReminderEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
                     </button>
                   </div>
                 )}
@@ -189,6 +217,37 @@ export default function DailyReadingPage() {
             </div>
           </div>
         )}
+
+        {/* Reading Reminder Status */}
+        <div className="mt-6 bg-card border border-border rounded-xl p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-sans text-sm font-medium text-foreground">Daily Reading Reminder</p>
+              <p className="font-sans text-xs text-muted-foreground mt-0.5">
+                {readingReminderEnabled 
+                  ? 'You will receive a daily reminder to read' 
+                  : 'Enable to get daily reminders'}
+              </p>
+            </div>
+            <button
+              onClick={handleToggleReadingReminder}
+              disabled={notifPermission === 'denied'}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-sans text-sm font-medium transition-colors ${
+                readingReminderEnabled
+                  ? 'bg-primary text-primary-foreground hover:opacity-90'
+                  : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+              } disabled:opacity-40`}
+            >
+              {readingReminderEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+              {readingReminderEnabled ? 'On' : 'Off'}
+            </button>
+          </div>
+          {notifPermission === 'denied' && (
+            <p className="font-sans text-xs text-muted-foreground mt-2">
+              Notifications are blocked. Please allow notifications in your browser settings.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
