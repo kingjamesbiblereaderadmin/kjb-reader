@@ -6,6 +6,7 @@ import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailabl
 
 const CACHE_KEY = 'bible_data_pce_v19'; // v19: colophons with <<[...]]>> markers from PCE-127
 const TEXT_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/ee659445e_TEXT-PCE-127.txt';
+const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
 // Maps the abbreviation in the text file -> canonical book name (must match apiName in bibleData.js)
 const ABBR_TO_NAME = {
@@ -29,6 +30,7 @@ const EXPECTED_BOOK_COUNT = 66;
 
 let parsedData = null;
 let fetchInProgress = null;
+let remoteVersion = null;
 
 function parseBibleText(rawText) {
   console.log('[PARSE] Raw text length:', rawText.length);
@@ -131,6 +133,32 @@ async function fetchWithRetry(url, retries = 3) {
   }
 }
 
+// Fetch remote version to check for updates
+async function fetchRemoteVersion() {
+  try {
+    const versionText = await fetchWithRetry(VERSION_URL);
+    return versionText.trim();
+  } catch (err) {
+    console.error('Failed to fetch remote version:', err.message);
+    return null;
+  }
+}
+
+// Check if cache needs update by comparing versions
+async function checkForUpdates() {
+  const remoteVer = await fetchRemoteVersion();
+  if (!remoteVer) return false;
+  
+  remoteVersion = remoteVer;
+  const localVersion = localStorage.getItem('bible_cache_version');
+  
+  if (localVersion !== remoteVer) {
+    console.log('[UPDATE] Remote version', remoteVer, 'differs from local', localVersion);
+    return true;
+  }
+  return false;
+}
+
 async function saveToCache(data) {
   try {
     // Clear old localStorage keys
@@ -139,6 +167,10 @@ async function saveToCache(data) {
     localStorage.removeItem('bible_data_pce_v12');
     // Save to IndexedDB (supports ~50MB+)
     await saveToIndexedDB(data);
+    // Save version marker
+    if (remoteVersion) {
+      localStorage.setItem('bible_cache_version', remoteVersion);
+    }
   } catch (e) {
     console.error('Cache save failed:', e.message);
   }
@@ -178,7 +210,7 @@ async function fetchAndParse() {
   return data;
 }
 
-// Load Bible data — cache-first with network fallback and retries
+// Load Bible data — cache-first with network fallback and auto-update
 export async function getBibleData() {
   if (parsedData && isValidBibleData(parsedData)) return parsedData;
 
@@ -188,11 +220,18 @@ export async function getBibleData() {
   fetchInProgress = (async () => {
     try {
       const cached = await loadFromCache();
-      if (cached) {
+      
+      // Check for updates in background
+      const needsUpdate = await checkForUpdates();
+      
+      if (cached && !needsUpdate) {
         parsedData = cached;
+        console.log('[CACHE] Using cached version');
         return parsedData;
       }
 
+      // Auto-update: fetch fresh data
+      console.log('[UPDATE] Fetching updated Bible data...');
       parsedData = await fetchAndParse();
       await saveToCache(parsedData);
       return parsedData;
