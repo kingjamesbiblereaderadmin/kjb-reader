@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { BookOpen, CheckCircle2, Circle, Flame, TrendingUp } from 'lucide-react';
 import { getWeeklyProgress, markReadingComplete, getTodayProgress, initializeReadingProgress } from '@/lib/readingProgress';
 import { useNavigate } from 'react-router-dom';
+import { getBookByApiName } from '@/lib/bibleData';
+import { fetchVerseCount } from '@/lib/bibleApi';
 
 export default function DailyReadingPage() {
   const navigate = useNavigate();
   const [weeklyProgress, setWeeklyProgress] = useState(null);
   const [todayProgress, setTodayProgress] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [verseCount, setVerseCount] = useState(null);
 
   useEffect(() => {
     loadProgress();
@@ -22,6 +25,21 @@ export default function DailyReadingPage() {
     ]);
     setWeeklyProgress(weekly);
     setTodayProgress(today);
+    
+    // Fetch verse count for today's chapter
+    if (today && today.book) {
+      const bookData = getBookByApiName(today.book);
+      if (bookData) {
+        try {
+          const count = await fetchVerseCount(bookData.abbr, today.chapter);
+          setVerseCount(count);
+        } catch (err) {
+          console.error('Failed to fetch verse count:', err);
+          setVerseCount(null);
+        }
+      }
+    }
+    
     setLoading(false);
   };
 
@@ -86,7 +104,7 @@ export default function DailyReadingPage() {
             {todayProgress ? (
               <div className="space-y-3">
                 <p className="font-sans text-base text-foreground">
-                  <span className="font-semibold">{todayProgress.book}</span> Chapter {todayProgress.chapter}
+                  <span className="font-semibold">{todayProgress.book}</span> Chapter {todayProgress.chapter} {verseCount ? `(v.1${verseCount > 1 ? '-' + verseCount : ''})` : ''}
                 </p>
                 {!completedToday && (
                   <div className="flex gap-3">
