@@ -177,71 +177,38 @@ export default function AppLayout() {
 }
 
 function BottomNav({ pathname, navigate }) {
-  const scrollRef = React.useRef(null);
-  const [showArrow, setShowArrow] = useState(false);
   const { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss } = useBottomNavPrompt();
 
-  const ALL_NAV_ITEMS = [
-    ...BOTTOM_NAV_PRIMARY,
-    ...BOTTOM_NAV_SECONDARY,
-  ];
-
-  const scrollRight = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: 200, behavior: 'smooth' });
-    }
-  };
-
-  const checkScroll = () => {
-    if (scrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      setShowArrow(scrollLeft < scrollWidth - clientWidth - 10);
-    }
-  };
-
-  React.useEffect(() => {
-    checkScroll();
-  }, []);
+  const PRIMARY_NAV = BOTTOM_NAV_PRIMARY.slice(0, 3);
 
   return (
     <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border">
-      <div className="relative">
-        <div
-          ref={scrollRef}
-          onScroll={checkScroll}
-          className="flex items-center px-2 py-1 overflow-x-auto scrollbar-hide"
-          style={{ paddingBottom: 'max(0.25rem, env(safe-area-inset-bottom))' }}
-        >
-          {ALL_NAV_ITEMS.map(item => {
-            const Icon = item.icon;
-            const active = item.path === '/' ? pathname === '/' : pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                  setTimeout(() => navigate(item.path), 150);
-                }}
-                className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-lg transition-colors shrink-0 ${
-                  active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                <span className="font-sans text-[10px] font-medium">{item.label}</span>
-              </Link>
-            );
-          })}
+      <div className="flex items-center justify-around px-2 py-2">
+        {PRIMARY_NAV.map(item => {
+          const Icon = item.icon;
+          const active = item.path === '/' ? pathname === '/' : pathname === item.path;
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              onClick={(e) => {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                setTimeout(() => navigate(item.path), 150);
+              }}
+              className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-lg transition-colors ${
+                active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Icon className="w-5 h-5" />
+              <span className="font-sans text-[10px] font-medium">{item.label}</span>
+            </Link>
+          );
+        })}
+        <div className="flex flex-col items-center gap-0.5 px-4 py-2 text-muted-foreground">
+          <ChevronDown className="w-5 h-5" />
+          <span className="font-sans text-[10px] font-medium">More</span>
         </div>
-        {showArrow && (
-          <button
-            onClick={scrollRight}
-            className="absolute right-2 top-1/2 -translate-y-1/2 bg-card/95 backdrop-blur p-1.5 rounded-full shadow-lg border border-border"
-          >
-            <ChevronRight className="w-5 h-5 text-foreground" />
-          </button>
-        )}
       </div>
       {showPrompt && (
         <FirstLoadPrompt
