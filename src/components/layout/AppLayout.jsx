@@ -110,7 +110,7 @@ export default function AppLayout() {
               className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
               aria-label="Toggle theme"
             >
-              {mode === 'auto' ? <SunMoon className="w-4 h-4" /> : isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {mode === 'auto' ? <SunMoon className="w-4 h-4" /> : isDark ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
             </button>
             <button
               onClick={() => setMenuOpen(o => !o)}
