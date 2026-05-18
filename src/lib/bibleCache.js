@@ -76,6 +76,11 @@ function parseBibleText(rawText) {
 
     if (isNaN(verse) || !verseText) continue;
     
+    // Double-check: convert any remaining replacement chars to pilcrow
+    if (verseText.includes('\uFFFD')) {
+      verseText = verseText.replace(/\uFFFD/g, '\u00B6');
+    }
+    
     // Track pilcrows in verse text
     if (verseText.includes('\u00B6')) {
       pilcrowCount++;
@@ -253,8 +258,8 @@ export async function isBibleCached() {
 
 // Clear cached Bible data
 export async function clearBibleCache() {
-  // Clear ALL version keys (1-20)
-  for (let i = 1; i <= 20; i++) {
+  // Clear ALL version keys (1-21)
+  for (let i = 1; i <= 21; i++) {
     localStorage.removeItem(`bible_data_pce_v${i}`);
   }
   localStorage.removeItem('bible_data_complete');
@@ -262,6 +267,7 @@ export async function clearBibleCache() {
   localStorage.removeItem('bible_cache_version');
   await clearIndexedDB();
   parsedData = null;
+  console.log('[CLEAR] Cache cleared - please refresh page and re-download');
 }
 
 // Download all Bible data and cache it for offline use
