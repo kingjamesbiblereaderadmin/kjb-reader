@@ -108,43 +108,34 @@ export default function AppLayout() {
             <BibleSearchBar onClose={() => setMenuOpen(false)} />
           </div>
 
-          {/* Actions - responsive button sizes with full-area touch targets */}
+          {/* Actions - responsive button sizes with visible square touch targets */}
           <div className="flex items-center gap-1 sm:gap-2 pointer-events-none shrink-0">
-            <div className="relative w-12 h-12 sm:w-14 sm:h-14 pointer-events-auto shrink-0">
-              <button
-                type="button"
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
-                onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
-                className="absolute inset-0 w-full h-full flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors"
-                style={{ touchAction: 'manipulation' }}
-                aria-label="Refresh"
-              >
-                <RotateCw className="w-5 h-5 sm:w-6 sm:h-6" />
-              </button>
+            <div className="w-12 h-12 sm:w-14 sm:h-14 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
+              onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
+              style={{ touchAction: 'manipulation' }}
+              role="button"
+              aria-label="Refresh"
+            >
+              <RotateCw className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <div className="relative w-12 h-12 sm:w-14 sm:h-14 pointer-events-auto shrink-0">
-              <button
-                type="button"
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
-                onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
-                className="absolute inset-0 w-full h-full flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors"
-                style={{ touchAction: 'manipulation' }}
-                aria-label="Toggle theme"
-              >
-                {mode === 'auto' ? <SunMoon className="w-5 h-5 sm:w-6 sm:h-6" /> : isDark ? <Moon className="w-5 h-5 sm:w-6 sm:h-6" /> : <Sun className="w-5 h-5 sm:w-6 sm:h-6" />}
-              </button>
+            <div className="w-12 h-12 sm:w-14 sm:h-14 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
+              onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
+              style={{ touchAction: 'manipulation' }}
+              role="button"
+              aria-label="Toggle theme"
+            >
+              {mode === 'auto' ? <SunMoon className="w-5 h-5 sm:w-6 sm:h-6" /> : isDark ? <Moon className="w-5 h-5 sm:w-6 sm:h-6" /> : <Sun className="w-5 h-5 sm:w-6 sm:h-6" />}
             </div>
-            <div className="relative w-12 h-12 sm:w-14 sm:h-14 pointer-events-auto shrink-0">
-              <button
-                type="button"
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
-                onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
-                className="absolute inset-0 w-full h-full flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors"
-                style={{ touchAction: 'manipulation' }}
-                aria-label="Open menu"
-              >
-                {menuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
-              </button>
+            <div className="w-12 h-12 sm:w-14 sm:h-14 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
+              onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
+              style={{ touchAction: 'manipulation' }}
+              role="button"
+              aria-label="Open menu"
+            >
+              {menuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
             </div>
           </div>
         </div>
