@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Heart, Library, Info, Moon, Sun, Settings, Menu, X, Bookmark, ChevronLeft } from 'lucide-react';
+import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
@@ -28,7 +28,7 @@ const BOTTOM_NAV = [
 
 export default function AppLayout() {
   const { pathname } = useLocation();
-  const { isDark, toggleTheme } = useTheme();
+  const { isDark, mode, toggleTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   const isRoot = pathname === '/';
@@ -108,9 +108,9 @@ export default function AppLayout() {
             <button
               onClick={toggleTheme}
               className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-              aria-label="Toggle dark mode"
+              aria-label="Toggle theme"
             >
-              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {mode === 'auto' ? <SunMoon className="w-4 h-4" /> : isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
             <button
               onClick={() => setMenuOpen(o => !o)}
