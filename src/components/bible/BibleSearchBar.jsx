@@ -118,37 +118,28 @@ export default function BibleSearchBar({ onClose }) {
     <div className="relative w-full">
       <form onSubmit={handleSubmit} className="relative">
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
-        <input
-          ref={inputRef}
-          type="text"
-          value={query}
-          onChange={e => { setQuery(e.target.value); setOpen(true); }}
-          onFocus={() => setOpen(true)}
-          placeholder="1 Corinthians 15:1-4; Romans 3:25"
-          className="w-full pl-8 pr-7 py-2.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors touch-manipulation min-h-[44px]"
-        />
-        {query && (
-          <>
+        <div className="relative">
+          <input
+            ref={inputRef}
+            type="text"
+            value={query}
+            onChange={e => { setQuery(e.target.value); setOpen(true); }}
+            onFocus={() => setOpen(true)}
+            placeholder="1 Corinthians 15:1-4; Romans 3:25"
+            className="w-full pl-8 pr-20 py-2.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors touch-manipulation min-h-[44px]"
+          />
+          {query && (
             <button
               type="button"
               onClick={() => { setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
               onTouchStart={() => { setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
-              className="absolute right-8 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground hover:text-foreground px-3 py-2 min-w-[48px] min-h-[48px] flex items-center justify-center touch-manipulation select-none active:opacity-60"
-              aria-label="Clear search"
-            >
-              Clear
-            </button>
-            <button
-              type="button"
-              onClick={() => { setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
-              onTouchStart={() => { setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-2 min-w-[48px] min-h-[48px] flex items-center justify-center touch-manipulation select-none active:opacity-60"
+              className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation select-none active:opacity-60"
               aria-label="Clear search"
             >
               <X className="w-4 h-4" />
             </button>
-          </>
-        )}
+          )}
+        </div>
       </form>
 
       {open && suggestions.length > 0 && (
