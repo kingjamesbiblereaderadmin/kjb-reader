@@ -25,6 +25,8 @@ const BOTTOM_NAV = [
   { path: '/gospel', icon: Heart, label: 'Gospel' },
   { path: '/resources', icon: Library, label: 'Resources' },
   { path: '/saved', icon: Bookmark, label: 'Saved' },
+  { path: '/about', icon: Info, label: 'About' },
+  { path: '/settings', icon: Settings, label: 'Settings' },
 ];
 
 export default function AppLayout() {
