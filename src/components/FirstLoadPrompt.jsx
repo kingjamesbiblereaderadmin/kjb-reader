@@ -130,9 +130,10 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     <>
       {/* Backdrop - tap outside to dismiss */}
       <div 
-        className="fixed inset-0 z-[9998] bg-background/20 backdrop-blur-sm"
+        className="fixed inset-0 z-[9998] bg-background/80 backdrop-blur-sm"
         onClick={handleClose}
         onTouchEnd={(e) => { e.preventDefault(); handleClose(e); }}
+        style={{ pointerEvents: 'auto' }}
       />
       <div className="fixed bottom-16 sm:bottom-4 right-4 z-[9999] w-80 pointer-events-auto">
         <div className="bg-card border border-border rounded-2xl shadow-2xl p-4 space-y-3 relative">
