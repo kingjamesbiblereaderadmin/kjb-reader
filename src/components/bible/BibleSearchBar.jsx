@@ -132,7 +132,8 @@ export default function BibleSearchBar({ onClose }) {
             <button
               type="button"
               onClick={() => { setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
-              className="absolute right-0 top-0 bottom-0 w-16 flex items-center justify-center text-muted-foreground hover:text-foreground active:opacity-60 touch-manipulation"
+              className="absolute right-0 top-0 bottom-0 w-16 flex items-center justify-center text-muted-foreground hover:text-foreground active:opacity-60"
+              style={{ touchAction: 'manipulation' }}
               aria-label="Clear search"
             >
               <X className="w-5 h-5" />
