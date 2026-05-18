@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw, ChevronRight, BookMarked } from 'lucide-react';
-import DailyReadingSection from '@/components/reading/DailyReadingSection';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications, initNotifications, initReadingReminder } from '@/lib/notifications';
@@ -161,11 +160,6 @@ export default function HomePage() {
             <BellOff className="w-5 h-5 text-white/60" />
           )}
         </button>
-      </div>
-
-      {/* Daily Reading Section */}
-      <div className="mb-6">
-        <DailyReadingSection />
       </div>
 
       {/* Quick links */}

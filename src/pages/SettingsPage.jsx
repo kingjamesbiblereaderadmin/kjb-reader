@@ -315,17 +315,30 @@ export default function SettingsPage() {
             )}
 
             {/* Reading Reminder */}
-            <div className="pt-4 border-t border-border flex items-center justify-between gap-4">
-              <div>
-                <p className="font-sans text-sm text-foreground font-medium">Reading Reminder</p>
-                <p className="font-sans text-xs text-muted-foreground mt-0.5">
-                  Daily reminder to read a chapter
-                </p>
+            <div className="pt-4 border-t border-border flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 flex-1">
+                <div>
+                  <p className="font-sans text-sm text-foreground font-medium">Reading Reminder</p>
+                  <p className="font-sans text-xs text-muted-foreground mt-0.5">
+                    Daily reminder to read a chapter
+                  </p>
+                </div>
+                {readingReminderEnabled && (
+                  <div className="flex items-center gap-2">
+                    <label className="font-sans text-xs text-muted-foreground">at</label>
+                    <input
+                      type="time"
+                      value={readingReminderTime}
+                      onChange={handleReadingReminderTimeChange}
+                      className="px-2 py-1.5 rounded-lg bg-secondary border border-border text-xs font-sans text-foreground focus:outline-none focus:border-accent"
+                    />
+                  </div>
+                )}
               </div>
               <button
                 onClick={handleToggleReadingReminder}
                 disabled={notifPermission === 'denied'}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl font-sans text-sm font-medium transition-colors ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl font-sans text-sm font-medium transition-colors shrink-0 ${
                   readingReminderEnabled
                     ? 'bg-primary text-primary-foreground hover:opacity-90'
                     : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
@@ -335,17 +348,6 @@ export default function SettingsPage() {
                 {readingReminderEnabled ? 'On' : 'Off'}
               </button>
             </div>
-            {readingReminderEnabled && (
-              <div className="flex items-center gap-3 pt-1">
-                <label className="font-sans text-sm text-muted-foreground shrink-0">Remind at</label>
-                <input
-                  type="time"
-                  value={readingReminderTime}
-                  onChange={handleReadingReminderTimeChange}
-                  className="flex-1 px-3 py-1.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground focus:outline-none focus:border-accent"
-                />
-              </div>
-            )}
           </>
         )}
       </div>
