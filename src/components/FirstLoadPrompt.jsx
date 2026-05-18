@@ -97,7 +97,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
               {isIOS() && !isInstallable ? <Share className="w-4 h-4 shrink-0" /> : <Download className="w-4 h-4 shrink-0" />}
               <span className="text-left">
                 <span className="block font-semibold">Add to Home Screen</span>
-                <span className="block text-xs opacity-80">Offline access, faster loading</span>
+                <span className="block text-xs opacity-80">{downloaded ? 'Includes offline Bible' : 'Offline access, faster loading'}</span>
               </span>
             </button>
             {showIOSHint && (
