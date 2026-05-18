@@ -488,9 +488,9 @@ export default function BibleReader() {
             {/* Colophon footer — displayed separately at the bottom */}
             {colophon && (
               <div className="mt-8 pt-6 border-t border-border">
-                <span className="inline text-base text-muted-foreground">
+                <p className="font-serif text-sm text-muted-foreground tracking-widest uppercase">
                   ¶ {colophon.replace(/[\[\]]/g, '')}
-                </span>
+                </p>
               </div>
             )}
           </>
