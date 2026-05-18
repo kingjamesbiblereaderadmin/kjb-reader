@@ -130,7 +130,9 @@ function isValidBibleData(data) {
 async function fetchWithRetry(url, retries = 3) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      const res = await fetch(url);
+      // Add cache-busting timestamp to bypass service worker cache
+      const cacheBustedUrl = `${url}?t=${Date.now()}`;
+      const res = await fetch(cacheBustedUrl, { cache: 'reload' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return await res.text();
     } catch (err) {
