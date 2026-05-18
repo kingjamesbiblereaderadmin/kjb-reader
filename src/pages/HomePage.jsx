@@ -82,11 +82,9 @@ export default function HomePage() {
     // Ensure we have valid verse data before navigating
     if (!verse.abbr || !verse.chapter || !verse.verse) {
       console.warn('Invalid verse data:', verse);
-      alert('Verse not loaded yet. Please wait a moment and try again.');
       return;
     }
     const savedData = { abbr: verse.abbr, chapter: verse.chapter, verse: verse.verse };
-    alert(`Navigating to: ${verse.ref}\nAbbr: ${verse.abbr}\nChapter: ${verse.chapter}\nVerse: ${verse.verse}`);
     try {
       localStorage.setItem('kjb-position', JSON.stringify(savedData));
     } catch (err) {

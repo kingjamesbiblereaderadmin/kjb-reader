@@ -18,7 +18,7 @@ export default function DailyVerseImage({ verse }) {
   return (
     <div className={`w-full bg-gradient-to-br ${gradient} rounded-2xl shadow-lg px-8 pt-5 pb-8 text-center text-white`}>
       <p className={`font-sans text-xs font-semibold tracking-widest uppercase mb-4 opacity-80 ${accent}`}>
-        Featured Verse
+        Verse of the Day
       </p>
       <blockquote className="font-serif text-2xl md:text-3xl font-bold leading-relaxed mb-6">
         "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
