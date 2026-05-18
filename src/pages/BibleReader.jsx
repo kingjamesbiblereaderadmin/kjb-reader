@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, EyeOff, Eye } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, EyeOff, Eye, ArrowDownToLine, ArrowUpFromLine } from 'lucide-react';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount } from '@/lib/bibleApi';
 import { getBibleData } from '@/lib/bibleCache';
@@ -58,6 +58,7 @@ export default function BibleReader() {
   });
   const [fullscreen, setFullscreen] = useState(false);
   const [hideUI, setHideUI] = useState(false);
+  const [textOnlyMode, setTextOnlyMode] = useState(false);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -67,6 +68,10 @@ export default function BibleReader() {
       document.exitFullscreen?.().catch(() => {});
       setFullscreen(false);
     }
+  };
+
+  const toggleTextOnly = () => {
+    setTextOnlyMode(prev => !prev);
   };
 
   useEffect(() => {
@@ -178,10 +183,10 @@ export default function BibleReader() {
   const isGenesisChapterOne = pos.abbr === 'GEN' && pos.chapter === 1;
 
   return (
-    <div className={`max-w-3xl mx-auto px-4 py-6 ${hideUI ? 'select-text' : ''}`}>
+    <div className={`max-w-3xl mx-auto px-4 py-6 ${hideUI || textOnlyMode ? 'select-text' : ''}`}>
 
-      {/* Sticky nav bar — hidden when hideUI is on */}
-      {!hideUI && (
+      {/* Sticky nav bar — hidden when hideUI or textOnlyMode is on */}
+      {!(hideUI || textOnlyMode) && (
         <div ref={topRef} className="sticky top-14 z-40 bg-background/95 backdrop-blur border-b border-border pb-3 mb-6">
           <div className="relative flex flex-wrap items-center gap-2 pt-3">
 
@@ -297,11 +302,11 @@ export default function BibleReader() {
                 <ChevronRight className="w-4 h-4" />
               </button>
               <button
-                onClick={() => setHideUI(true)}
-                title="Hide UI"
+                onClick={() => setTextOnlyMode(true)}
+                title="Text only mode"
                 className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
               >
-                <EyeOff className="w-4 h-4" />
+                <ArrowDownToLine className="w-4 h-4" />
               </button>
               <button
                 onClick={toggleFullscreen}
@@ -323,6 +328,17 @@ export default function BibleReader() {
           title="Show UI"
         >
           <Eye className="w-5 h-5" />
+        </button>
+      )}
+
+      {/* Show UI button when text-only mode */}
+      {textOnlyMode && (
+        <button
+          onClick={() => setTextOnlyMode(false)}
+          className="fixed bottom-20 right-4 z-50 p-3 rounded-full bg-card/80 backdrop-blur border border-border text-muted-foreground hover:text-foreground shadow-lg transition-colors"
+          title="Show UI"
+        >
+          <ArrowUpFromLine className="w-5 h-5" />
         </button>
       )}
 
