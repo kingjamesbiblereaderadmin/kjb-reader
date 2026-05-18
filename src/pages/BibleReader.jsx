@@ -193,7 +193,7 @@ export default function BibleReader() {
             {/* Book selector */}
             <button
               onClick={() => { setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-colors min-w-fit"
             >
               {isViewingTitlePage ? 'Title Page' : book.shortName}
               <ChevronRight className="w-3 h-3 opacity-70" />
@@ -239,7 +239,7 @@ export default function BibleReader() {
             <button
               onClick={() => { if (!isViewingTitlePage) { setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); } }}
               disabled={isViewingTitlePage}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed min-w-fit"
             >
               Ch. {isViewingTitlePage ? 'Intro' : pos.chapter}
               <ChevronRight className="w-3 h-3 opacity-70" />
@@ -274,7 +274,7 @@ export default function BibleReader() {
             {/* Verse selector */}
             <button
               onClick={() => { if (!isViewingTitlePage) { setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); } }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed min-w-fit"
               disabled={verseCount === 0 || isViewingTitlePage}
             >
               {highlightVerse ? `v.${highlightVerse}` : 'Verse'}
