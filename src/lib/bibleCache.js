@@ -172,7 +172,7 @@ async function saveToCache(data) {
     // Clear ALL old localStorage keys to force fresh data
     localStorage.removeItem('bible_data_complete');
     localStorage.removeItem('bible_data_complete_v2');
-    for (let i = 1; i <= 25; i++) {
+    for (let i = 1; i <= 30; i++) {
       localStorage.removeItem(`bible_data_pce_v${i}`);
     }
     // Save to IndexedDB (supports ~50MB+)
@@ -181,6 +181,7 @@ async function saveToCache(data) {
     if (remoteVersion) {
       localStorage.setItem('bible_cache_version', remoteVersion);
     }
+    console.log('[CACHE] ✓ Saved to IndexedDB, version:', remoteVersion);
   } catch (e) {
     console.error('Cache save failed:', e.message);
   }
@@ -195,6 +196,13 @@ async function loadFromCache() {
         sum + Object.values(book).reduce((s, ch) => 
           s + (Array.isArray(ch) ? ch.filter(v => v.text.includes('\u00B6')).length : 0), 0), 0);
       console.log('[CACHE] ✓ Loaded from IndexedDB,', pilcrowCount, 'pilcrows found');
+      
+      // If 0 pilcrows, cache is stale - force refresh
+      if (pilcrowCount === 0) {
+        console.log('[CACHE] ⚠️ Stale cache detected (0 pilcrows) - will fetch fresh');
+        return null;
+      }
+      
       return data;
     }
     console.log('[CACHE] No valid cache, will fetch fresh');
