@@ -153,10 +153,10 @@ export default function SettingsPage() {
       <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-2">
         <h2 className="font-serif text-lg font-semibold text-foreground">Widgets & Lock Screen</h2>
         <p className="font-sans text-sm text-muted-foreground leading-relaxed">
-          Home screen widgets and lock screen widgets require a <span className="font-medium text-foreground">native app</span> (iOS/Android). This is a web PWA, so the OS doesn't support placing it as a widget.
+          Home screen and lock screen widgets are only available in <span className="font-medium text-foreground">native apps</span>. This app is a PWA (Progressive Web App), so Android and iOS do not support adding it as a widget.
         </p>
         <p className="font-sans text-sm text-muted-foreground leading-relaxed">
-          <span className="font-medium text-foreground">What you can do instead:</span> Install this app to your home screen (Add to Home Screen), then enable <span className="font-medium text-foreground">Daily Notifications</span> above — you'll get a verse reminder at your chosen time each day.
+          <span className="font-medium text-foreground">Best alternative:</span> Add this app to your home screen ("Add to Home Screen" in your browser), then turn on <span className="font-medium text-foreground">Daily Notifications</span> above. You'll receive a verse at your chosen time each day — even when the app is closed.
         </p>
       </div>
 
@@ -225,14 +225,16 @@ export default function SettingsPage() {
       <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-4">
         <h2 className="font-serif text-lg font-semibold text-foreground">Daily Notifications</h2>
         {notifPermission === 'unsupported' ? (
-          <p className="font-sans text-sm text-muted-foreground">Notifications are not supported in this browser. Install as a PWA for full support.</p>
+          <p className="font-sans text-sm text-muted-foreground">Notifications are not supported in this browser. To enable them, add this app to your home screen (install as a PWA) using Chrome on Android or Safari on iPhone.</p>
         ) : (
           <>
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="font-sans text-sm text-foreground font-medium">Verse of the Day</p>
                 <p className="font-sans text-xs text-muted-foreground mt-0.5">
-                  {notifPermission === 'denied' ? 'Blocked by browser — enable in site settings' : 'Receive a daily KJB verse reminder'}
+                  {notifPermission === 'denied'
+                    ? 'Blocked — go to your browser/app settings and allow notifications for this site'
+                    : 'Get a daily verse at your chosen time, even when the app is closed'}
                 </p>
               </div>
               <button

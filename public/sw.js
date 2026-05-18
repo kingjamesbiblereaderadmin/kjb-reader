@@ -2,7 +2,6 @@ const CACHE_NAME = 'kjb-shell-v3';
 const BIBLE_CACHE = 'kjb-bible-v1';
 const BIBLE_TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
 
-// On install: cache the app shell
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.add('/'))
@@ -10,7 +9,6 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// On activate: clean up old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
@@ -24,7 +22,6 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
 
-  // Cache-first for the large Bible text file
   if (request.url === BIBLE_TEXT_URL) {
     event.respondWith(
       caches.open(BIBLE_CACHE).then(async (cache) => {
@@ -38,7 +35,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Network-first for JS, CSS, fonts — fall back to cache
   if (
     request.destination === 'script' ||
     request.destination === 'style' ||
@@ -58,7 +54,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Navigation requests: network-first, fall back to cached '/'
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request).catch(() =>
@@ -68,6 +63,47 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 });
+
+// Periodic background sync — fires hourly if OS grants it (Android Chrome)
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'daily-verse-notif') {
+    event.waitUntil(checkAndNotify());
+  }
+});
+
+async function checkAndNotify() {
+  // Read scheduled time from all open clients' storage via a message round-trip
+  // Simpler: use IndexedDB or a dedicated cache entry for the schedule config
+  const cache = await caches.open('kjb-notif-config');
+  const configRes = await cache.match('/notif-config');
+  if (!configRes) return;
+
+  const config = await configRes.json();
+  const { nextTs, lastDate, verseText, verseRef } = config;
+  if (!nextTs || !verseText) return;
+
+  const now = Date.now();
+  const today = new Date().toISOString().slice(0, 10);
+
+  if (now >= nextTs && lastDate !== today) {
+    // Fire the notification
+    await self.registration.showNotification('King James Bible — Daily Verse', {
+      body: `"${verseText}" — ${verseRef}`,
+      icon: '/icon-192.png',
+      badge: '/icon-192.png',
+      tag: 'daily-verse',
+      renotify: true,
+    });
+
+    // Update config with next fire time
+    const next = new Date(nextTs);
+    next.setDate(next.getDate() + 1);
+    const updated = { ...config, nextTs: next.getTime(), lastDate: today };
+    await cache.put('/notif-config', new Response(JSON.stringify(updated), {
+      headers: { 'Content-Type': 'application/json' }
+    }));
+  }
+}
 
 // Open the app when user taps a notification
 self.addEventListener('notificationclick', (event) => {
