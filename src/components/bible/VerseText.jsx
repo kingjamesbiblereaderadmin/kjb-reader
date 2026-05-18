@@ -92,8 +92,8 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
 
   const actionPopover = selected && (
     <>
-      <span className="fixed inset-0 z-40" onClick={() => setSelected(false)} />
-      <span className="absolute left-0 top-full mt-1 z-50 flex items-center gap-1 bg-card border border-border rounded-xl shadow-lg px-2 py-1.5">
+      <div className="fixed inset-0 z-40" onClick={() => setSelected(false)} />
+      <div className="absolute left-0 top-full mt-1.5 z-50 flex flex-wrap items-center gap-1.5 bg-card border border-border rounded-xl shadow-xl px-2.5 py-2">
         <div className="relative">
           <button
             onClick={(e) => { e.stopPropagation(); setShowColorPicker(!showColorPicker); }}
@@ -133,38 +133,43 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             </div>
           )}
         </div>
-        <button
-          onClick={(e) => { e.stopPropagation(); setShowHighlight(!showHighlight); }}
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-sans text-xs font-medium transition-colors ${
-            showHighlight
-              ? 'bg-accent/20 text-accent hover:bg-accent/30'
-              : 'bg-secondary hover:bg-accent/20 text-foreground'
-          }`}
-          title={showHighlight ? 'Remove highlight' : 'Apply highlight'}
-        >
-          <Highlighter className="w-3.5 h-3.5" />
-          {showHighlight ? 'Clear' : 'Highlight'}
-        </button>
+        {showHighlight ? (
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowHighlight(false); }}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-accent/20 text-accent hover:bg-accent/30 font-sans text-xs font-medium transition-colors"
+            title="Remove highlight"
+          >
+            <Highlighter className="w-3.5 h-3.5" />
+            Unhighlight
+          </button>
+        ) : (
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowHighlight(true); }}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+            title="Apply highlight"
+          >
+            <Highlighter className="w-3.5 h-3.5" />
+            Highlight
+          </button>
+        )}
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
         >
           <Copy className="w-3 h-3" /> Copy
         </button>
         <button
           onClick={handleShare}
-          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-primary text-primary-foreground hover:opacity-90 font-sans text-xs font-medium transition-colors"
+          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-90 font-sans text-xs font-medium transition-colors"
         >
           <Share2 className="w-3 h-3" /> Share
         </button>
         <button
           onClick={handleToggleSave}
-          className={`flex items-center gap-1 px-2 py-1 rounded-lg font-sans text-xs font-medium transition-colors ${
-            saved ? 'bg-accent/20 text-accent hover:bg-accent/30' : 'bg-secondary text-foreground hover:bg-accent/20'
-          }`}
+          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
         >
-          {saved ? <BookmarkCheck className="w-3 h-3" /> : <Bookmark className="w-3 h-3" />}
-          {saved ? 'Saved' : 'Save'}
+          {saved ? <BookmarkCheck className="w-3 h-3 text-accent" /> : <Bookmark className="w-3 h-3" />}
+          Save
         </button>
         <button
           onClick={(e) => { e.stopPropagation(); setSelected(false); }}
@@ -172,7 +177,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         >
           <X className="w-3 h-3" />
         </button>
-      </span>
+      </div>
     </>
   );
 
