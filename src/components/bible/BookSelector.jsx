@@ -61,20 +61,14 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
         </button>
         {newOpen && (
           <div className="ml-2 space-y-0.5">
-            {NEW_TESTAMENT.map((book) => (
-              book.abbr === 'MAT' ? (
-                <div key="mat-section">
-                  <button
-                    onClick={() => { onSelect({ abbr: 'MAT', name: 'Matthew', chapters: 28, shortName: 'Mat' }, true); onClose(); }}
-                    className="w-full text-left px-3 py-1.5 rounded text-sm font-sans transition-colors hover:bg-secondary text-foreground"
-                  >
-                    <span>Title Page</span>
-                    <span className="ml-2 text-xs text-muted-foreground">intro</span>
-                  </button>
-                  {renderBook(book)}
-                </div>
-              ) : renderBook(book)
-            ))}
+            <button
+              onClick={() => { onSelect({ abbr: 'MAT', name: 'Matthew', chapters: 28, shortName: 'Mat' }, true); onClose(); }}
+              className="w-full text-left px-3 py-1.5 rounded text-sm font-sans transition-colors hover:bg-secondary text-foreground"
+            >
+              <span>Title Page</span>
+              <span className="ml-2 text-xs text-muted-foreground">intro</span>
+            </button>
+            {NEW_TESTAMENT.map((book) => renderBook(book))}
           </div>
         )}
       </div>
