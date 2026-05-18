@@ -6,7 +6,7 @@ import { useHeaderHide } from '@/lib/HeaderHideContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
-import { requestNotificationPermission, scheduleDailyNotification } from '@/lib/notifications';
+import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled } from '@/lib/notifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { downloadBibleForOffline, isBibleCached } from '@/lib/bibleCache';
 
