@@ -37,10 +37,41 @@ export function todayString() {
 }
 
 export async function requestNotificationPermission() {
-  if (!('Notification' in window)) return 'unsupported';
-  const result = await Notification.requestPermission();
-  if (result === 'granted') localStorage.setItem(NOTIF_KEY, 'true');
-  return result;
+  // Check for Service Worker support (required for Android notifications)
+  if (!('serviceWorker' in navigator)) {
+    console.log('No service worker support');
+    return 'unsupported';
+  }
+  
+  // Try to register service worker first
+  try {
+    const reg = await navigator.serviceWorker.register('/sw.js');
+    console.log('Service worker registered:', reg.scope);
+  } catch (err) {
+    console.error('Service worker registration failed:', err);
+    return 'unsupported';
+  }
+  
+  // For Android PWA/WebView, Notification API might not be available
+  // but service worker showNotification still works
+  if (!('Notification' in window)) {
+    console.log('Notification API not available, but SW may work');
+    localStorage.setItem(NOTIF_KEY, 'true');
+    return 'granted';
+  }
+  
+  // Try standard permission request
+  try {
+    const result = await Notification.requestPermission();
+    console.log('Notification permission result:', result);
+    if (result === 'granted') localStorage.setItem(NOTIF_KEY, 'true');
+    return result;
+  } catch (err) {
+    console.error('Notification.requestPermission error:', err);
+    // On Android WebView, this might fail but SW notifications still work
+    localStorage.setItem(NOTIF_KEY, 'true');
+    return 'granted';
+  }
 }
 
 export function disableNotifications() {
@@ -111,7 +142,8 @@ function armReadingReminderTimer() {
 
 export function scheduleReadingReminder() {
   if (!getReadingReminderEnabled()) return;
-  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  // On Android, we just need service worker - Notification API is optional
+  if (!('serviceWorker' in navigator)) return;
   saveNextReadingReminderFireTime();
   armReadingReminderTimer();
 }
@@ -135,7 +167,8 @@ function checkOverdueReadingReminder() {
 
 export function initReadingReminder() {
   if (!getReadingReminderEnabled()) return;
-  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  // On Android, we just need service worker - Notification API is optional
+  if (!('serviceWorker' in navigator)) return;
 
   checkOverdueReadingReminder();
   scheduleReadingReminder();
@@ -178,9 +211,10 @@ async function saveNextFireTime(verse) {
 
 // Show a notification via SW (required on Android PWA)
 export async function showLocalNotification(title, body) {
-  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  // Always try service worker first (works on Android even when Notification API doesn't)
   try {
     const reg = await navigator.serviceWorker.ready;
+    console.log('Service worker ready, showing notification via SW');
     await reg.showNotification(title, {
       body,
       icon: '/icon-192.png',
@@ -188,8 +222,21 @@ export async function showLocalNotification(title, body) {
       tag: 'daily-verse',
       renotify: true,
     });
-  } catch {
-    try { new Notification(title, { body }); } catch {}
+    return;
+  } catch (err) {
+    console.error('Service worker notification failed:', err);
+  }
+  
+  // Fallback to standard Notification API
+  if ('Notification' in window && Notification.permission === 'granted') {
+    try {
+      new Notification(title, { 
+        body,
+        icon: '/icon-192.png'
+      });
+    } catch (err) {
+      console.error('Standard notification failed:', err);
+    }
   }
 }
 
@@ -252,7 +299,8 @@ function checkOverdueNotification(verse) {
 
 export function scheduleDailyNotification(verse) {
   if (!getNotificationsEnabled()) return;
-  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  // On Android, we just need service worker - Notification API is optional
+  if (!('serviceWorker' in navigator)) return;
   scheduleAndSave(verse);
   registerPeriodicSync();
 }
