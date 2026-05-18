@@ -246,7 +246,14 @@ export default function AppLayout() {
 }
 
 function useAppLayoutPrompt() {
-  const [showPrompt, setShowPrompt] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(() => {
+    // Check localStorage first - if dismissed, don't show on refresh
+    try {
+      const dismissed = localStorage.getItem('kjb-prompt-dismissed');
+      if (dismissed === 'true') return false;
+    } catch {}
+    return false;
+  });
   const { isInstallable, isInstalled, promptInstall, dismiss, wasDismissed } = useInstallPrompt();
   const [notifPermission, setNotifPermission] = useState(() => {
     if (!('serviceWorker' in navigator)) return 'unsupported';
@@ -258,7 +265,8 @@ function useAppLayoutPrompt() {
   useEffect(() => {
     const dismissed = wasDismissed();
     const alreadyInstalled = isInstalled || window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
-    if (alreadyInstalled || dismissed) return;
+    const localStorageDismissed = localStorage.getItem('kjb-prompt-dismissed') === 'true';
+    if (alreadyInstalled || dismissed || localStorageDismissed) return;
     const timer = setTimeout(() => {
       setShowPrompt(true);
     }, 1500);
@@ -302,6 +310,9 @@ function useAppLayoutPrompt() {
   const handleDismiss = () => {
     dismiss();
     setShowPrompt(false);
+    try {
+      localStorage.setItem('kjb-prompt-dismissed', 'true');
+    } catch {}
   };
 
   return { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss, wasDismissed, setShowPrompt };
