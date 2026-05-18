@@ -44,16 +44,18 @@ export default function AppLayout() {
   }, []);
 
   const handleInstall = async () => {
-    await promptInstall();
-    setShowPrompt(false);
+    const accepted = await promptInstall();
+    if (accepted) setShowPrompt(false);
   };
 
   const handleEnableNotif = async () => {
     const result = await requestNotificationPermission();
     setNotifPermission(result);
-    if (result === 'granted') scheduleDailyNotification(getDailyVerse());
-    // If both done, dismiss
-    setShowPrompt(false);
+    if (result === 'granted') {
+      scheduleDailyNotification(getDailyVerse());
+      setShowPrompt(false);
+    }
+    // If denied, keep prompt open so user sees the "blocked" message
   };
 
   const handleDismiss = () => {
