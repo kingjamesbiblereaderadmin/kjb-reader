@@ -115,9 +115,11 @@ export default function HomePage() {
   };
 
   const handleToggleNotif = async (e) => {
+    console.log('handleToggleNotif called on HomePage');
     if (e) e.stopPropagation();
     
     if (notifEnabled) {
+      console.log('Notifications already enabled, disabling...');
       disableNotifications();
       setNotifEnabled(false);
       setNotifPermission('Notification' in window ? Notification.permission : 'unsupported');
@@ -125,22 +127,27 @@ export default function HomePage() {
       return;
     }
     
+    console.log('Enabling notifications...');
     // Check if service worker is supported (required for Android notifications)
     if (!('serviceWorker' in navigator)) {
+      console.log('No service worker support');
       alert('Notifications are not supported in this browser. Try using Chrome or installing the app.');
       return;
     }
     
     try {
+      console.log('Calling requestNotificationPermission...');
       const result = await requestNotificationPermission();
       console.log('Notification permission result:', result);
       setNotifPermission(result);
       
       if (result === 'granted' || result === 'supported') {
+        console.log('Permission granted, enabling notifications');
         setNotifEnabled(true);
         scheduleDailyNotification(verse);
         window.dispatchEvent(new Event('storage'));
       } else if (result === 'denied') {
+        console.log('Permission denied');
         alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
       }
     } catch (err) {
