@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Bell, X, Share, WifiOff } from 'lucide-react';
+import { Download, Bell, X, Share, WifiOff, MonitorSmartphone } from 'lucide-react';
 import { downloadBibleForOffline, isBibleCached } from '@/lib/bibleCache';
 
 const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isMobile = () => /iphone|ipad|ipod|android/i.test(navigator.userAgent);
 const isInStandaloneMode = () =>
   window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
 
@@ -18,8 +19,9 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   }, []);
 
   const alreadyInstalled = isInStandaloneMode();
-  // Show install: either native prompt available, or iOS where we show manual hint
-  const showInstall = !alreadyInstalled && (isInstallable || isIOS());
+  const isDesktop = !isMobile();
+  // Show install: either native prompt available, iOS, or desktop PWA
+  const showInstall = !alreadyInstalled && (isInstallable || isIOS() || isDesktop);
   // Always show notification option (just informational - user enables in settings)
   const showNotif = 'Notification' in window;
   // Show offline download prompt if not already downloaded
@@ -30,10 +32,11 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   const handleInstallClick = () => {
     if (isInstallable) {
       onInstall();
-    } else {
+    } else if (isIOS()) {
       // iOS — show manual instructions
       setShowIOSHint(h => !h);
     }
+    // Desktop: no action needed, browser handles PWA installation via browser menu
   };
 
   const handleDownloadOffline = async () => {
@@ -94,15 +97,20 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
               onClick={handleInstallClick}
               className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
             >
-              {isIOS() && !isInstallable ? <Share className="w-4 h-4 shrink-0" /> : <Download className="w-4 h-4 shrink-0" />}
+              {isIOS() && !isInstallable ? <Share className="w-4 h-4 shrink-0" /> : isDesktop ? <MonitorSmartphone className="w-4 h-4 shrink-0" /> : <Download className="w-4 h-4 shrink-0" />}
               <span className="text-left">
-                <span className="block font-semibold">Add to Home Screen</span>
+                <span className="block font-semibold">{isDesktop ? 'Install App' : 'Add to Home Screen'}</span>
                 <span className="block text-xs opacity-80">{downloaded ? 'Includes offline Bible' : 'Offline access, faster loading'}</span>
               </span>
             </button>
             {showIOSHint && (
               <p className="mt-2 font-sans text-xs text-muted-foreground leading-relaxed px-1">
                 Tap the <strong>Share</strong> button <span className="inline-block">⎙</span> in Safari, then choose <strong>"Add to Home Screen"</strong>.
+              </p>
+            )}
+            {isDesktop && !isInstallable && (
+              <p className="mt-2 font-sans text-xs text-muted-foreground leading-relaxed px-1">
+                Click the <strong>install icon</strong> <span className="inline-block">⬇</span> in your browser's address bar to install the app.
               </p>
             )}
           </div>
