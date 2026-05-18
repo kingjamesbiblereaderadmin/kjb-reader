@@ -3,7 +3,7 @@ import { renderVerseText } from '@/lib/bibleApi';
 import { Copy, Share2, X, Highlighter, ChevronDown, Bookmark, BookmarkCheck } from 'lucide-react';
 import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
 
-export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isColophon = false, colophonText = null, isFirstVerse = false, paragraphMode = false }) {
+export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false }) {
   const [selected, setSelected] = useState(false);
   const [showHighlight, setShowHighlight] = useState(highlight);
   const [highlightColor, setHighlightColor] = useState('accent');
@@ -30,14 +30,8 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // Strip <<...>> superscription markers
   let displayVerseText = verse.text.replace(/^<<[^>]*>>\s*/, '');
 
-  // If colophonText is passed as prop, append it to the verse
-  let mainText = displayVerseText;
-  if (colophonText) {
-    mainText = displayVerseText + ' ¶ [' + colophonText + ']';
-  }
-
   // Pilcrow (¶) indicates verse continuation in traditional KJB formatting
-  const html = renderVerseText(mainText);
+  const html = renderVerseText(displayVerseText);
   const hasItalics = html.includes('<em>');
   // Check if verse text contains pilcrow character (U+00B6)
   const hasPilcrow = verse.text.includes('\u00B6') || verse.text.includes('¶');
@@ -78,9 +72,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     setSelected(false);
   };
 
-  const textClass = isColophon
-    ? 'text-base text-muted-foreground'
-    : 'text-lg';
+  const textClass = 'text-lg';
 
   const actionPopover = selected && (
     <>
@@ -183,7 +175,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         >
           <sup className="text-accent font-sans font-semibold text-xs mr-3 select-none">{verse.verse}</sup>
           <span
-            className={`font-serif leading-loose ${isColophon ? '' : '[&_em]:italic [&_em]:text-foreground/75'} ${textClass} break-words text-justify`}
+            className={`font-serif leading-loose [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify`}
             dangerouslySetInnerHTML={{ __html: html }}
           />
           {' '}
@@ -203,7 +195,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-1 mr-2">{verse.verse}</sup>
         <span className="flex-1 min-w-0">
           <span
-            className={`font-serif leading-relaxed ${isColophon ? '' : '[&_em]:italic [&_em]:text-foreground/75'} ${textClass} break-words text-justify`}
+            className={`font-serif leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify`}
             dangerouslySetInnerHTML={{ __html: html }}
           />
         </span>

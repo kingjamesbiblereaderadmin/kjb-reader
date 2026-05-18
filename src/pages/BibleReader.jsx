@@ -470,25 +470,27 @@ export default function BibleReader() {
         )}
         {!loading && !error && verses.length > 0 && (
           <div className={paragraphMode ? 'text-justify hyphens-auto' : ''}>
-            {verses.map((v, idx) => {
-              const isLastVerse = idx === verses.length - 1;
-              const verseHasColophon = isLastVerse && colophon;
-              return (
-                <VerseText
-                  key={v.verse}
-                  verse={v}
-                  highlight={highlightVerse === v.verse}
-                  id={`v${v.verse}`}
-                  bookName={book.name}
-                  abbr={pos.abbr}
-                  chapter={pos.chapter}
-                  isColophon={verseHasColophon}
-                  colophonText={verseHasColophon ? colophon : null}
-                  isFirstVerse={idx === 0}
-                  paragraphMode={paragraphMode}
-                />
-              );
-            })}
+            {verses.map((v, idx) => (
+              <VerseText
+                key={v.verse}
+                verse={v}
+                highlight={highlightVerse === v.verse}
+                id={`v${v.verse}`}
+                bookName={book.name}
+                abbr={pos.abbr}
+                chapter={pos.chapter}
+                isFirstVerse={idx === 0}
+                paragraphMode={paragraphMode}
+              />
+            ))}
+          </div>
+        )}
+        {/* Colophon footer - shown below all verses for chapters that have one */}
+        {!loading && !error && colophon && (
+          <div className="mt-8 pt-6 border-t border-border">
+            <p className="font-serif text-sm text-muted-foreground italic text-center leading-relaxed">
+              {colophon}
+            </p>
           </div>
         )}
       </div>
