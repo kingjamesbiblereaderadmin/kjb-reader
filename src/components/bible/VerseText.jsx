@@ -223,12 +223,9 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
       >
         <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-0.5 mr-1">{verse.verse}</sup>
         <span className="flex-1 break-words">
-          {hasPilcrow && (
-            <span className="text-accent mr-1.5 not-italic select-none font-sans text-sm opacity-60">¶</span>
-          )}
           <span
             className={`font-serif leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass}`}
-            dangerouslySetInnerHTML={{ __html: htmlNoPilcrow }}
+            dangerouslySetInnerHTML={{ __html: hasPilcrow ? '<span class="text-accent opacity-60 select-none mr-1.5">¶</span>' + htmlNoPilcrow : htmlNoPilcrow }}
           />
         </span>
       </span>
