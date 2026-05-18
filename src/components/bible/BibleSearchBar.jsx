@@ -131,17 +131,18 @@ export default function BibleSearchBar({ onClose }) {
         {query && (
           <>
             <button
-              type="submit"
-              onClick={(e) => { e.preventDefault(); handleSubmit(e); }}
-              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleSubmit(e); }}
-              className="absolute right-8 top-1/2 -translate-y-1/2 text-xs font-medium text-accent hover:text-accent/80 px-2 py-1 touch-manipulation"
+              type="button"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
+              className="absolute right-8 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground hover:text-foreground px-2 py-1 touch-manipulation"
+              aria-label="Clear search"
             >
-              Go
+              Clear
             </button>
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); setQuery(''); setSuggestions([]); inputRef.current?.focus(); }}
-              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setQuery(''); setSuggestions([]); inputRef.current?.focus(); }}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
               className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 touch-manipulation"
               aria-label="Clear search"
             >
