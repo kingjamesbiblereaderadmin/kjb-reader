@@ -41,12 +41,15 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     }
   }
 
-  // The source file's pilcrow (¶) is fetched as U+FFFD (replacement char) due to encoding
-  const hasPilcrow = verse.text.includes('\u00B6') || verse.text.includes('\uFFFD');
+  // Pilcrow (¶) indicates verse continuation in traditional KJB formatting
+  // Show pilcrow when this verse continues from the previous verse (not first verse, not starting new sentence)
   const html = renderVerseText(colophonText || mainText);
-  // Remove both ¶ and the replacement char from HTML to avoid duplicates
-  const htmlNoPilcrow = html.replace(/[\u00B6\uFFFD]\s*/g, '');
   const hasItalics = html.includes('<em>');
+  // Determine if this verse should show a pilcrow (verse continuation marker)
+  // Pilcrows appear when the verse doesn't start with a capital letter (continuation) or starts with "And"
+  const startsWithCapital = /^[A-Z]/.test(mainText.trim());
+  const startsWithAnd = /^And\s/i.test(mainText.trim());
+  const showPilcrow = !isFirstVerse && (!startsWithCapital || startsWithAnd);
 
   const verseRef = `${bookName} ${chapter}:${verse.verse}`;
   const cleanText = verse.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '');
@@ -190,10 +193,12 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           className={`inline leading-loose transition-colors duration-200 rounded cursor-pointer px-0.5 py-0.5 ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
         >
           <sup className="text-accent font-sans font-semibold text-xs mr-2 select-none">{verse.verse}</sup>
-          {hasPilcrow && !isFirstVerse && <span className="text-accent mr-1 not-italic select-none font-sans opacity-70">¶</span>}
+          {showPilcrow && (
+            <span className="text-accent mx-1 not-italic select-none font-sans text-sm opacity-60">¶</span>
+          )}
           <span
             className={`font-serif leading-loose [&_em]:italic [&_em]:text-foreground/75 ${textClass}`}
-            dangerouslySetInnerHTML={{ __html: htmlNoPilcrow }}
+            dangerouslySetInnerHTML={{ __html: html }}
           />
           {' '}
         </span>
@@ -210,9 +215,12 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-1 py-0.5 gap-2 ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
       >
         <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-0.5 mr-1">{verse.verse}</sup>
+        {showPilcrow && (
+          <span className="text-accent mr-1.5 not-italic select-none font-sans text-sm opacity-60 mt-0.5">¶</span>
+        )}
         <span
           className={`font-serif leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words flex-1`}
-          dangerouslySetInnerHTML={{ __html: hasPilcrow && !isFirstVerse ? `<span class="text-accent select-none opacity-70">¶</span> ${htmlNoPilcrow}` : htmlNoPilcrow }}
+          dangerouslySetInnerHTML={{ __html: html }}
         />
       </span>
       {actionPopover}
