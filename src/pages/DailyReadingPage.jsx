@@ -96,12 +96,6 @@ export default function DailyReadingPage() {
                     >
                       Read Now
                     </button>
-                    <button
-                      onClick={handleMarkComplete}
-                      className="flex-1 px-4 py-2.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-                    >
-                      Mark Complete
-                    </button>
                   </div>
                 )}
               </div>

@@ -10,6 +10,7 @@ import VerseSelector from '@/components/bible/VerseSelector';
 import VerseText from '@/components/bible/VerseText';
 import TitlePage from '@/components/bible/TitlePage';
 import SelectorSheet from '@/components/bible/SelectorSheet';
+import { base44 } from '@/api/base44Client';
 
 const isMobile = () => window.innerWidth < 640;
 
@@ -181,6 +182,61 @@ export default function BibleReader() {
   const isLastChapterLastBook = pos.abbr === 'REV' && pos.chapter === 22;
   const isFirstChapterFirstBook = pos.abbr === 'GEN' && pos.chapter === 0;
   const isGenesisChapterOne = pos.abbr === 'GEN' && pos.chapter === 1;
+
+  // Auto-track reading when chapter loads
+  useEffect(() => {
+    const autoTrackReading = async () => {
+      if (loading || isViewingTitlePage || !verses.length) return;
+      
+      try {
+        // Check if this matches today's assigned reading
+        const today = new Date().toISOString().split('T')[0];
+        const todayProgress = await base44.entities.ReadingProgress.filter({ date: today });
+        
+        if (todayProgress.length > 0) {
+          const todayReading = todayProgress[0];
+          // If user is viewing today's assigned chapter and it's not completed, mark it
+          if (todayReading.book === book.name && todayReading.chapter === pos.chapter && !todayReading.completed) {
+            await base44.entities.ReadingProgress.update(todayReading.id, {
+              completed: true,
+            });
+            
+            // Schedule next chapter for tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+            
+            const tomorrowExisting = await base44.entities.ReadingProgress.filter({ date: tomorrowStr });
+            if (tomorrowExisting.length === 0) {
+              // Get next chapter (handle book transitions)
+              let nextBook = book.name;
+              let nextChapter = pos.chapter + 1;
+              
+              if (nextChapter > book.chapters) {
+                const nextBookData = getNextBook(pos.abbr);
+                if (nextBookData) {
+                  nextBook = nextBookData.name;
+                  nextChapter = 1;
+                }
+              }
+              
+              await base44.entities.ReadingProgress.create({
+                date: tomorrowStr,
+                book: nextBook,
+                chapter: nextChapter,
+                completed: false,
+              });
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Auto-track error:', error);
+      }
+    };
+
+    const timer = setTimeout(autoTrackReading, 2000); // Wait 2 seconds after load
+    return () => clearTimeout(timer);
+  }, [verses, loading, book.name, pos.chapter, isViewingTitlePage]);
 
   return (
     <div className={`max-w-3xl mx-auto px-4 py-3 ${hideUI || textOnlyMode ? 'select-text' : ''}`}>
