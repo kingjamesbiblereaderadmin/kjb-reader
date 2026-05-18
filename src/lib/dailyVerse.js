@@ -39,13 +39,15 @@ export async function getRandomVerseFromBible() {
       .replace(/¶\s*/g, '')
       .replace(/^<<[^>]*>>\s*/, '');
 
+    const displayName = bookData ? bookData.name : bookName;
+
     return {
       abbr,
-      book: bookName,
+      book: displayName,
       chapter: parseInt(chapter),
       verse: verseObj.verse,
       text: cleanText,
-      ref: `${bookName} ${chapter}:${verseObj.verse}`
+      ref: `${displayName} ${chapter}:${verseObj.verse}`
     };
   } catch {
     // Fallback to static pool
