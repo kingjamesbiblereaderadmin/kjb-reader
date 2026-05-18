@@ -44,7 +44,7 @@ export function useInstallPrompt() {
   };
 
   const dismiss = () => {
-    try { localStorage.setItem(DISMISSED_KEY, '1'); } catch {}
+    try { localStorage.removeItem(DISMISSED_KEY); } catch {}
     setIsInstallable(false);
   };
 

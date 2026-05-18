@@ -103,7 +103,7 @@ export default function AppLayout() {
                       to={item.path}
                       onClick={() => {
                         setMenuOpen(false);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        navigate(item.path);
                       }}
                       className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg font-sans text-sm font-medium transition-colors ${
                         active
@@ -158,7 +158,7 @@ export default function AppLayout() {
                     to={item.path}
                     onClick={() => {
                       setMenuOpen(false);
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                      navigate(item.path);
                     }}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-sans text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
                   >
@@ -188,9 +188,17 @@ export default function AppLayout() {
 }
 
 function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
-  const { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss } = useBottomNavPrompt();
+  const { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss, wasDismissed } = useBottomNavPrompt();
   const [moreOpen, setMoreOpen] = useState(false);
   const [showChevron, setShowChevron] = useState(false);
+
+  // Show prompt on daily-reading page too
+  useEffect(() => {
+    if (pathname === '/daily-reading' && !showPrompt && !wasDismissed()) {
+      const timer = setTimeout(() => setShowPrompt(true), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [pathname, showPrompt]);
 
   if (hidden) return null;
 
@@ -222,7 +230,6 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
               to={item.path}
               onClick={(e) => {
                 e.preventDefault();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
                 setTimeout(() => navigate(item.path), 150);
               }}
               className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-lg transition-colors ${
@@ -256,7 +263,7 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
                   to={item.path}
                   onClick={() => {
                     setMoreOpen(false);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    navigate(item.path);
                   }}
                   className={`flex items-center justify-center gap-1 px-4 py-2 rounded-lg font-sans text-[10px] font-medium transition-colors ${
                     active
@@ -293,7 +300,8 @@ function useBottomNavPrompt() {
 
   useEffect(() => {
     if (wasDismissed()) return;
-    const timer = setTimeout(() => setShowPrompt(true), 2000);
+    // Show prompt on first visit or when not dismissed
+    const timer = setTimeout(() => setShowPrompt(true), 1500);
     return () => clearTimeout(timer);
   }, []);
 
