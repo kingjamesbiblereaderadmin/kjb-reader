@@ -3,8 +3,10 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, BookOpen, Heart, Library, Info, Moon, Sun, Settings, Menu, X, Bookmark, ChevronLeft } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
-import InstallBanner from '@/components/InstallBanner';
+import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
+import { requestNotificationPermission, scheduleDailyNotification } from '@/lib/notifications';
+import { getDailyVerse } from '@/lib/dailyVerse';
 
 const NAV_ITEMS = [
   { path: '/', icon: Home, label: 'Home' },
@@ -31,24 +33,32 @@ export default function AppLayout() {
   const navigate = useNavigate();
   const isRoot = pathname === '/';
   const { isInstallable, promptInstall, dismiss, wasDismissed } = useInstallPrompt();
-  const [showBanner, setShowBanner] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(false);
+  const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
 
-  // Show banner on first visit if not dismissed
+  // Show prompt on first visit after 2s if not dismissed
   useEffect(() => {
-    if (isInstallable && !wasDismissed()) {
-      const timer = setTimeout(() => setShowBanner(true), 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [isInstallable]);
+    if (wasDismissed()) return;
+    const timer = setTimeout(() => setShowPrompt(true), 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleInstall = async () => {
     await promptInstall();
-    setShowBanner(false);
+    setShowPrompt(false);
+  };
+
+  const handleEnableNotif = async () => {
+    const result = await requestNotificationPermission();
+    setNotifPermission(result);
+    if (result === 'granted') scheduleDailyNotification(getDailyVerse());
+    // If both done, dismiss
+    setShowPrompt(false);
   };
 
   const handleDismiss = () => {
     dismiss();
-    setShowBanner(false);
+    setShowPrompt(false);
   };
 
   return (
@@ -156,8 +166,14 @@ export default function AppLayout() {
         </div>
       </nav>
 
-      {showBanner && (
-        <InstallBanner onInstall={handleInstall} onDismiss={handleDismiss} />
+      {showPrompt && (
+        <FirstLoadPrompt
+          isInstallable={isInstallable}
+          notifPermission={notifPermission}
+          onInstall={handleInstall}
+          onEnableNotif={handleEnableNotif}
+          onDismiss={handleDismiss}
+        />
       )}
 
       <footer className="hidden sm:block border-t border-border bg-card/80 py-4 mt-8">
