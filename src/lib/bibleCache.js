@@ -68,8 +68,8 @@ function parseBibleText(rawText) {
       continue;
     }
 
-    // Extract colophon markers <<[...]>>
-    const colophonMatch = verseText.match(/<<\[([^\]]+)\]>>\s*$/);
+    // Extract colophon markers: ¶ [text] at end of verse
+    const colophonMatch = verseText.match(/\s*[\u00B6\uFFFD]\s*\[([^\]]+)\]\s*$/);
     if (colophonMatch) {
       const colophonKey = `${bookName}:${chapter}`;
       if (!colophons[colophonKey]) {
@@ -77,7 +77,7 @@ function parseBibleText(rawText) {
         colophonCount++;
         console.log(`[COLOPHON] Extracted: ${colophonKey} -> ${colophons[colophonKey]}`);
       }
-      verseText = verseText.replace(/\s*<<\[[^\]]+\]>>\s*$/, '').trim();
+      verseText = verseText.replace(/\s*[\u00B6\uFFFD]\s*\[[^\]]+\]\s*$/, '').trim();
     }
 
     if (!verseText.trim()) continue;
