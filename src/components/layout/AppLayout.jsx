@@ -177,12 +177,12 @@ export default function AppLayout() {
 }
 
 function BottomNav({ pathname, navigate }) {
-  const [expanded, setExpanded] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss } = useBottomNavPrompt();
 
   return (
     <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border">
-      <div className="flex items-center justify-around px-2 py-1" style={{ paddingBottom: 'max(0.25rem, env(safe-area-inset-bottom))' }}>
+      <div className="flex items-center px-2 py-1" style={{ paddingBottom: 'max(0.25rem, env(safe-area-inset-bottom))' }}>
         {BOTTOM_NAV_PRIMARY.map(item => {
           const Icon = item.icon;
           const active = item.path === '/' ? pathname === '/' : pathname === item.path;
@@ -195,7 +195,7 @@ function BottomNav({ pathname, navigate }) {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 setTimeout(() => navigate(item.path), 150);
               }}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors ${
+              className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-lg transition-colors flex-1 ${
                 active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -205,17 +205,15 @@ function BottomNav({ pathname, navigate }) {
           );
         })}
         <button
-          onClick={() => setExpanded(e => !e)}
-          className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors ${
-            expanded ? 'text-primary bg-secondary' : 'text-muted-foreground hover:text-foreground'
-          }`}
+          onClick={() => setShowMore(s => !s)}
+          className="flex flex-col items-center justify-center gap-0.5 px-3 py-2 min-w-[60px]"
         >
-          <ChevronDown className={`w-5 h-5 transition-transform ${expanded ? 'rotate-180' : ''}`} />
-          <span className="font-sans text-[10px] font-medium">More</span>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${showMore ? 'rotate-180' : ''}`} />
+          <span className="font-sans text-[10px] font-medium text-muted-foreground">More</span>
         </button>
       </div>
-      {expanded && (
-        <div className="border-t border-border bg-card/95 backdrop-blur-md px-4 py-2 flex items-center justify-around">
+      {showMore && (
+        <div className="border-t border-border bg-card/95 backdrop-blur-md px-2 py-2 flex items-center gap-2 overflow-x-auto">
           {BOTTOM_NAV_SECONDARY.map(item => {
             const Icon = item.icon;
             const active = pathname === item.path;
@@ -227,9 +225,9 @@ function BottomNav({ pathname, navigate }) {
                   e.preventDefault();
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                   setTimeout(() => navigate(item.path), 150);
-                  setExpanded(false);
+                  setShowMore(false);
                 }}
-                className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-lg transition-colors ${
+                className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-lg transition-colors shrink-0 ${
                   active ? 'text-primary bg-secondary' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
