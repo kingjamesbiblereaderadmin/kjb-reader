@@ -146,12 +146,14 @@ async function saveToCache(data) {
 
 async function loadFromCache() {
   try {
-    // Clear old localStorage keys (including v14/v15 to force fresh download)
+    // Clear old localStorage keys (including v14/v15/v16 to force fresh download)
     localStorage.removeItem('bible_data_complete');
     localStorage.removeItem('bible_data_complete_v2');
     localStorage.removeItem('bible_data_pce_v12');
+    localStorage.removeItem('bible_data_pce_v13');
     localStorage.removeItem('bible_data_pce_v14');
     localStorage.removeItem('bible_data_pce_v15');
+    localStorage.removeItem('bible_data_pce_v16');
     // Load from IndexedDB
     const data = await loadFromIndexedDB();
     if (data && isValidBibleData(data)) {
@@ -217,6 +219,10 @@ export async function clearBibleCache() {
   localStorage.removeItem('bible_data_pce_v5');
   localStorage.removeItem('bible_data_pce_v6');
   localStorage.removeItem('bible_data_pce_v12');
+  localStorage.removeItem('bible_data_pce_v13');
+  localStorage.removeItem('bible_data_pce_v14');
+  localStorage.removeItem('bible_data_pce_v15');
+  localStorage.removeItem('bible_data_pce_v16');
   localStorage.removeItem('bible_data_complete');
   localStorage.removeItem('bible_data_complete_v2');
   await clearIndexedDB();

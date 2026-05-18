@@ -292,9 +292,10 @@ export default function SettingsPage() {
             </div>
             <button
               onClick={handleClearCache}
-              className="font-sans text-xs text-muted-foreground underline hover:text-foreground transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive font-sans text-xs font-medium hover:bg-destructive/20 transition-colors"
             >
-              Clear download & re-download
+              <Trash2 className="w-3.5 h-3.5" />
+              Clear Cache & Reload
             </button>
           </div>
         ) : (

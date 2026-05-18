@@ -45,6 +45,7 @@ export async function isBibleAvailableOffline() {
 // Preserve pilcrow characters (¶) for traditional formatting
 export function renderVerseText(text) {
   let cleaned = text.replace(/[<>]|>>/g, '');
+  // Preserve pilcrow (¶) - don't strip it
   const parts = cleaned.split(/\[([^\]]+)\]/g);
   return parts.map((part, i) =>
     i % 2 === 1 ? `<em>${part}</em>` : part
