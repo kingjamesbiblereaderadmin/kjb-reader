@@ -246,7 +246,11 @@ function useAppLayoutPrompt() {
     console.log('FirstLoadPrompt check:', { dismissed, isInstallable, isInstalled, alreadyInstalled, standalone: window.matchMedia('(display-mode: standalone)').matches });
     if (alreadyInstalled) return;
     // Always show prompt for testing (ignore dismissed flag)
-    const timer = setTimeout(() => setShowPrompt(true), 1500);
+    console.log('Setting showPrompt to true after 1.5s');
+    const timer = setTimeout(() => {
+      console.log('Timer fired, setting showPrompt=true');
+      setShowPrompt(true);
+    }, 1500);
     return () => clearTimeout(timer);
   }, [wasDismissed, isInstallable, isInstalled]);
 

@@ -128,7 +128,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             <Bell className="w-4 h-4 shrink-0" />
             <span className="flex-1">
               <span className="block font-semibold">Enable Daily Notifications</span>
-              <span className="block text-xs opacity-80">Get the daily verse every morning</span>
+              <span className="block text-xs opacity-80">{isMobile() && !alreadyInstalled ? 'Install app first, then enable' : 'Get the daily verse every morning'}</span>
             </span>
           </button>
         )}
