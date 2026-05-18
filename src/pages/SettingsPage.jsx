@@ -162,19 +162,20 @@ export default function SettingsPage() {
             <CheckCircle2 className="w-5 h-5 shrink-0" />
             <span className="font-sans text-sm font-medium">App is installed on your home screen</span>
           </div>
-        ) : isInstallable ? (
-          <button
-            onClick={promptInstall}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
-          >
-            <Smartphone className="w-4 h-4" />
-            Add to Home Screen
-          </button>
         ) : (
-          <div className="space-y-1">
-            <p className="font-sans text-sm text-muted-foreground">
-              To install: open this site in <span className="font-medium text-foreground">Chrome (Android)</span> or <span className="font-medium text-foreground">Safari (iPhone)</span>, then tap <span className="font-medium text-foreground">"Add to Home Screen"</span> from the browser menu.
-            </p>
+          <div className="space-y-3">
+            <button
+              onClick={promptInstall}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              <Smartphone className="w-4 h-4" />
+              Add to Home Screen
+            </button>
+            {!isInstallable && (
+              <p className="font-sans text-xs text-muted-foreground">
+                If the button doesn't work, open this site in <span className="font-medium text-foreground">Chrome (Android)</span> or <span className="font-medium text-foreground">Safari (iPhone)</span> and tap <span className="font-medium text-foreground">"Add to Home Screen"</span> from the browser menu.
+              </p>
+            )}
           </div>
         )}
       </div>
