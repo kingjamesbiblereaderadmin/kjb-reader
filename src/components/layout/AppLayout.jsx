@@ -227,16 +227,7 @@ export default function AppLayout() {
       </footer>
       )}
 
-      {/* Show footer button when hidden */}
-      {footerHidden && (
-        <button
-          onClick={() => { setFooterHidden(false); try { localStorage.setItem('kjb-footer-hidden', 'false'); } catch {} }}
-          className="fixed bottom-4 right-4 z-50 p-3 rounded-full bg-card/80 backdrop-blur border border-border text-muted-foreground hover:text-foreground shadow-lg transition-colors sm:block hidden"
-          title="Show footer"
-        >
-          <Eye className="w-5 h-5" />
-        </button>
-      )}
+
     </div>
   );
 }
