@@ -4,7 +4,7 @@
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
 
-const CACHE_KEY = 'bible_data_pce_v31'; // v31: colophons with ¶ [text] format
+const CACHE_KEY = 'bible_data_pce_v32'; // v32: colophons with ¶ [text] format - fixed regex
 const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
@@ -96,15 +96,24 @@ function parseBibleText(rawText) {
     }
 
     // Extract colophon markers: ¶ [text] at end of verse (pilcrow + square brackets)
-    const colophonMatch = verseText.match(/\u00B6\s*\[(.*?)\]\s*$/);
-    if (colophonMatch) {
-      const colophonKey = `${bookName}:${chapter}`;
-      if (!colophons[colophonKey]) {
-        colophons[colophonKey] = colophonMatch[1];
-        colophonCount++;
-        console.log(`[COLOPHON] Extracted: ${colophonKey} -> ${colophons[colophonKey]}`);
+    // Try multiple patterns to catch all variations
+    const colophonPatterns = [
+      /\u00B6\s*\[(.*?)\]\s*$/,  // ¶ [text]
+      /\uFFFD\s*\[(.*?)\]\s*$/,  // Replacement char [text]
+    ];
+    
+    for (const pattern of colophonPatterns) {
+      const colophonMatch = verseText.match(pattern);
+      if (colophonMatch) {
+        const colophonKey = `${bookName}:${chapter}`;
+        if (!colophons[colophonKey]) {
+          colophons[colophonKey] = colophonMatch[1];
+          colophonCount++;
+          console.log(`[COLOPHON] Extracted: ${colophonKey} -> ${colophons[colophonKey]}`);
+        }
+        verseText = verseText.replace(/\s*[\u00B6\uFFFD]\s*\[.*?\]\s*$/, '').trim();
+        break;
       }
-      verseText = verseText.replace(/\s*\u00B6\s*\[.*?\]\s*$/, '').trim();
     }
 
     if (!verseText.trim()) continue;
