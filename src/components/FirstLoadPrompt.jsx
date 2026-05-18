@@ -22,6 +22,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     // Check if notifications already enabled
     return 'Notification' in window && Notification.permission === 'granted';
   });
+  const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
     if (propDownloaded !== undefined) {
@@ -49,6 +50,9 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   // Show offline download prompt if not already downloaded
   const showOffline = !downloaded;
 
+  // Dismissed by user
+  if (dismissed) return null;
+  
   // Only dismiss when all visible actions are complete
   const allDone = (downloaded || !showOffline) && (installDone || !showInstall) && (notifDone || !showNotif);
   if (allDone) return null;
@@ -119,7 +123,9 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
 
   const handleClose = () => {
     console.log('[FirstLoadPrompt] handleClose called');
-    // Directly set localStorage to ensure prompt stays dismissed
+    // Set local state to close immediately
+    setDismissed(true);
+    // Also persist to localStorage
     try {
       localStorage.setItem('kjb-prompt-dismissed', 'true');
     } catch {}
