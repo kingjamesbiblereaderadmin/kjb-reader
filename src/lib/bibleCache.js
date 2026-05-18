@@ -67,6 +67,7 @@ function parseBibleText(rawText) {
       const colophonKey = `${bookName}:${chapter}`;
       if (!colophons[colophonKey]) {
         colophons[colophonKey] = `[${colophonMatch[1]}]`;
+        console.log(`[COLOPHON] Extracted: ${colophonKey}`);
       }
       verseText = verseText.replace(/\s*<<\[[^\]]+\]>>\s*$/, '');
     }

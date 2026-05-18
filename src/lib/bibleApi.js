@@ -28,6 +28,7 @@ export async function fetchChapter(bookApiName, chapter) {
   }
   
   const colophon = bible.__colophons?.[`${bookApiName}:${chapter}`] || null;
+  if (colophon) console.log(`[COLOPHON RETRIEVE] ${bookApiName}:${chapter} ->`, colophon);
   return { verses, colophon };
 }
 
