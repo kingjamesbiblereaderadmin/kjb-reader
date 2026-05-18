@@ -130,7 +130,11 @@ export default function SettingsPage() {
     if (readingReminderEnabled) scheduleReadingReminder();
   };
 
-  const handleDownload = async () => {
+  const handleDownload = async (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     setDownloading(true);
     setDlError('');
     setDlProgress(0);
@@ -345,6 +349,7 @@ export default function SettingsPage() {
             )}
             <button
               onClick={handleDownload}
+              onTouchEnd={(e) => { e.preventDefault(); handleDownload(e); }}
               disabled={downloading}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 disabled:opacity-60 transition-opacity"
             >
