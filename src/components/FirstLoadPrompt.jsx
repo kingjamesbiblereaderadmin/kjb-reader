@@ -10,6 +10,7 @@ const isInStandaloneMode = () =>
 
 export default function FirstLoadPrompt({ isInstallable, notifPermission, onInstall, onDismiss, onDownloadOffline, downloaded: propDownloaded, onEnableNotif }) {
   const [showIOSHint, setShowIOSHint] = useState(false);
+  const [showAndroidHint, setShowAndroidHint] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(null);
   const [downloaded, setDownloaded] = useState(propDownloaded || false);
@@ -43,7 +44,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
       setShowIOSHint(h => !h);
     } else if (isAndroid()) {
       // Android — show manual instructions
-      setShowIOSHint(h => !h);
+      setShowAndroidHint(h => !h);
     }
     // Desktop: no action needed, browser handles PWA installation via browser menu
   };
@@ -115,11 +116,12 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             </button>
             {showIOSHint && (
               <p className="mt-2 font-sans text-xs text-muted-foreground leading-relaxed px-1">
-                {isAndroid() ? (
-                  <>Tap the <strong>⋮ Menu</strong> button in Chrome, then choose <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong>.</>
-                ) : (
-                  <>Tap the <strong>Share</strong> button <span className="inline-block">⎙</span> in Safari, then choose <strong>"Add to Home Screen"</strong>.</>
-                )}
+                Tap the <strong>Share</strong> button <span className="inline-block">⎙</span> in Safari, then choose <strong>"Add to Home Screen"</strong>.
+              </p>
+            )}
+            {showAndroidHint && (
+              <p className="mt-2 font-sans text-xs text-muted-foreground leading-relaxed px-1">
+                Tap the <strong>⋮ Menu</strong> button in Chrome, then choose <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong>.
               </p>
             )}
             {isDesktop && !isInstallable && (
