@@ -243,8 +243,8 @@ function useAppLayoutPrompt() {
     const dismissed = wasDismissed();
     const alreadyInstalled = isInstalled || window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
     console.log('FirstLoadPrompt check:', { dismissed, isInstallable, isInstalled, alreadyInstalled, standalone: window.matchMedia('(display-mode: standalone)').matches });
-    if (dismissed || alreadyInstalled) return;
-    // Show prompt on first visit or when not dismissed
+    if (alreadyInstalled) return;
+    // Always show prompt for testing (ignore dismissed flag)
     const timer = setTimeout(() => setShowPrompt(true), 1500);
     return () => clearTimeout(timer);
   }, [wasDismissed, isInstallable, isInstalled]);
