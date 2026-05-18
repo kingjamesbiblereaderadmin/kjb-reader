@@ -4,7 +4,7 @@
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
 
-const CACHE_KEY = 'bible_data_pce_v22'; // v22: forcing fresh fetch with pilcrow conversion
+const CACHE_KEY = 'bible_data_pce_v23'; // v23: aggressive localStorage clearing + fresh fetch
 const TEXT_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/ee659445e_TEXT-PCE-127.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
@@ -172,7 +172,7 @@ async function saveToCache(data) {
     // Clear ALL old localStorage keys to force fresh data
     localStorage.removeItem('bible_data_complete');
     localStorage.removeItem('bible_data_complete_v2');
-    for (let i = 1; i <= 19; i++) {
+    for (let i = 1; i <= 25; i++) {
       localStorage.removeItem(`bible_data_pce_v${i}`);
     }
     // Save to IndexedDB (supports ~50MB+)
