@@ -432,7 +432,7 @@ export default function BibleReader() {
 
       {/* Book title — hidden when showing title page */}
       {!isViewingTitlePage && (
-        <div className="text-center mb-6">
+        <div className="text-center mb-6 pt-4">
           <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-1 leading-tight">{book.name}</h1>
           <p className="font-sans text-sm text-muted-foreground tracking-widest uppercase mt-1">
             Chapter {pos.chapter}
