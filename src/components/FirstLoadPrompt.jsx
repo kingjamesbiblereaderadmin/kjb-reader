@@ -68,6 +68,8 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
       setDownloaded(true);
       setDownloadProgress(null);
       if (onDownloadOffline) onDownloadOffline();
+      // Dispatch storage event to sync Settings page
+      window.dispatchEvent(new Event('storage'));
       onDismiss();
     } catch (err) {
       console.error('Failed to download offline data:', err);
