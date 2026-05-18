@@ -400,8 +400,8 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
           onClick={() => setMoreOpen(!moreOpen)}
           className="flex flex-col items-center gap-0.5 px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
         >
-          {moreOpen ? <ChevronDown className="w-5 h-5 rotate-180 transition-transform" /> : <ChevronDown className="w-5 h-5 transition-transform" />}
-          <span className="font-sans text-[10px] font-medium">More</span>
+          <ChevronDown className={`w-5 h-5 transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
+          <span className="font-sans text-[10px] font-medium">{moreOpen ? 'Less' : 'More'}</span>
         </button>
       </div>
 
