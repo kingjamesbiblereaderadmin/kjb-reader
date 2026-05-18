@@ -25,8 +25,8 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
 
   const alreadyInstalled = isInStandaloneMode();
   const isDesktop = !isMobile();
-  // Show install: either native prompt available, iOS, or desktop PWA
-  const showInstall = !alreadyInstalled && (isInstallable || isIOS() || isDesktop);
+  // Show install: either native prompt available, iOS, Android, or desktop PWA
+  const showInstall = !alreadyInstalled && (isInstallable || isIOS() || isAndroid() || isDesktop);
   // Always show notification option - works in browser and installed app/APK
   const showNotif = true;
   // Show offline download prompt if not already downloaded
@@ -40,6 +40,9 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
       onDismiss();
     } else if (isIOS()) {
       // iOS — show manual instructions
+      setShowIOSHint(h => !h);
+    } else if (isAndroid()) {
+      // Android — show manual instructions
       setShowIOSHint(h => !h);
     }
     // Desktop: no action needed, browser handles PWA installation via browser menu
@@ -112,7 +115,11 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             </button>
             {showIOSHint && (
               <p className="mt-2 font-sans text-xs text-muted-foreground leading-relaxed px-1">
-                Tap the <strong>Share</strong> button <span className="inline-block">⎙</span> in Safari, then choose <strong>"Add to Home Screen"</strong>.
+                {isAndroid() ? (
+                  <>Tap the <strong>⋮ Menu</strong> button in Chrome, then choose <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong>.</>
+                ) : (
+                  <>Tap the <strong>Share</strong> button <span className="inline-block">⎙</span> in Safari, then choose <strong>"Add to Home Screen"</strong>.</>
+                )}
               </p>
             )}
             {isDesktop && !isInstallable && (
