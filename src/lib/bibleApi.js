@@ -42,7 +42,7 @@ export async function isBibleAvailableOffline() {
 }
 
 // Render verse text: turn [word] into <em>word</em> for KJB italics
-// Preserve pilcrow characters (¶ and replacement char) for traditional formatting
+// Preserve pilcrow characters (¶) for traditional formatting
 export function renderVerseText(text) {
   let cleaned = text.replace(/[<>]|>>/g, '');
   const parts = cleaned.split(/\[([^\]]+)\]/g);

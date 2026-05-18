@@ -42,11 +42,11 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   }
 
   // Pilcrow (¶) indicates verse continuation in traditional KJB formatting
-  // The source file's pilcrow is fetched as U+FFFD (replacement char) due to encoding
   const html = renderVerseText(colophonText || mainText);
   const hasItalics = html.includes('<em>');
   // Check if verse text contains pilcrow character (either actual ¶ or replacement char)
   const hasPilcrow = verse.text.includes('\u00B6') || verse.text.includes('\uFFFD');
+  console.log(`[VerseText] Verse ${verse.verse}, hasPilcrow: ${hasPilcrow}, text preview:`, verse.text.slice(0, 50));
   // Remove pilcrow and replacement char from HTML to avoid duplicates since we render it separately
   const htmlNoPilcrow = html.replace(/[\u00B6\uFFFD]\s*/g, '');
 
