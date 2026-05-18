@@ -497,12 +497,10 @@ export default function BibleReader() {
         )}
         {/* Colophon footer - shown below all verses for chapters that have one */}
         {!loading && !error && colophon && (
-          <div className="mt-8 pt-6 border-t border-border">
-            <p
-              className="font-serif text-sm text-muted-foreground text-center leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: renderVerseText(colophon) }}
-            />
-            <p className="font-serif text-xs text-muted-foreground text-center mt-2">(Colophon)</p>
+          <div className="text-center mt-12 mb-4">
+            <p className="font-serif text-sm text-muted-foreground tracking-widest uppercase">
+              {colophon}
+            </p>
           </div>
         )}
       </div>
