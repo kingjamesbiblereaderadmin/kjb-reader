@@ -246,14 +246,7 @@ export default function AppLayout() {
 }
 
 function useAppLayoutPrompt() {
-  const [showPrompt, setShowPrompt] = useState(() => {
-    // Check localStorage first - if dismissed, don't show on refresh
-    try {
-      const dismissed = localStorage.getItem('kjb-prompt-dismissed');
-      if (dismissed === 'true') return false;
-    } catch {}
-    return false;
-  });
+  const [showPrompt, setShowPrompt] = useState(false);
   const { isInstallable, isInstalled, promptInstall, dismiss, wasDismissed } = useInstallPrompt();
   const [notifPermission, setNotifPermission] = useState(() => {
     if (!('serviceWorker' in navigator)) return 'unsupported';
