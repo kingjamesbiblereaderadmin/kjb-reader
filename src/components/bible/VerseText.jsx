@@ -184,7 +184,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           onClick={() => setSelected(s => !s)}
           className={`inline leading-loose transition-colors duration-200 rounded cursor-pointer px-0.5 py-0.5 ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
         >
-          <sup className="text-accent font-sans font-semibold text-xs mr-1 select-none">{verse.verse}</sup>
+          <sup className="text-accent font-sans font-semibold text-xs mr-2 select-none">{verse.verse}</sup>
           {hasPilcrow && !isFirstVerse && <span className="text-accent mr-1 not-italic select-none font-sans opacity-70">¶</span>}
           <span
             className={`font-serif leading-loose [&_em]:italic [&_em]:text-foreground/75 ${textClass}`}
@@ -204,7 +204,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         onClick={() => setSelected(s => !s)}
         className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-1 py-0.5 gap-2 ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
       >
-        <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-0.5">{verse.verse}</sup>
+        <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-0.5 mr-1">{verse.verse}</sup>
         <span
           className={`font-serif leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words flex-1`}
           dangerouslySetInnerHTML={{ __html: hasPilcrow ? `<span class="text-accent select-none opacity-70">¶</span> ${htmlNoPilcrow}` : htmlNoPilcrow }}
