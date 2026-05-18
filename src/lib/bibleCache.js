@@ -184,6 +184,8 @@ async function checkForUpdates() {
 
 async function saveToCache(data) {
   try {
+    // Clear IndexedDB first to avoid stale data
+    await clearIndexedDB();
     // Clear ALL old localStorage keys to force fresh data
     localStorage.removeItem('bible_data_complete');
     localStorage.removeItem('bible_data_complete_v2');
@@ -196,7 +198,8 @@ async function saveToCache(data) {
     if (remoteVersion) {
       localStorage.setItem('bible_cache_version', remoteVersion);
     }
-    console.log('[CACHE] ✓ Saved to IndexedDB, version:', remoteVersion);
+    const colophonCount = data.__colophons ? Object.keys(data.__colophons).length : 0;
+    console.log('[CACHE] ✓ Saved to IndexedDB, version:', remoteVersion, ',', colophonCount, 'colophons');
   } catch (e) {
     console.error('Cache save failed:', e.message);
   }
@@ -210,11 +213,12 @@ async function loadFromCache() {
       const pilcrowCount = Object.values(data).filter(book => typeof book === 'object').reduce((sum, book) => 
         sum + Object.values(book).reduce((s, ch) => 
           s + (Array.isArray(ch) ? ch.filter(v => v.text.includes('\u00B6')).length : 0), 0), 0);
-      console.log('[CACHE] ✓ Loaded from IndexedDB,', pilcrowCount, 'pilcrows found');
+      const colophonCount = data.__colophons ? Object.keys(data.__colophons).length : 0;
+      console.log('[CACHE] ✓ Loaded from IndexedDB,', pilcrowCount, 'pilcrows,', colophonCount, 'colophons');
       
-      // If 0 pilcrows, cache is stale - force refresh
-      if (pilcrowCount === 0) {
-        console.log('[CACHE] ⚠️ Stale cache detected (0 pilcrows) - will fetch fresh');
+      // If 0 pilcrows OR 0 colophons, cache is stale - force refresh
+      if (pilcrowCount === 0 || colophonCount === 0) {
+        console.log('[CACHE] ⚠️ Stale cache detected (', pilcrowCount, 'pilcrows,', colophonCount, 'colophons) - will fetch fresh');
         return null;
       }
       
