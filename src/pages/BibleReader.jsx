@@ -235,12 +235,12 @@ export default function BibleReader() {
   }, [verses, loading, book.name, pos.chapter, isViewingTitlePage]);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-3">
+    <div className={`max-w-5xl mx-auto px-4 py-3 ${hideHeader ? 'mt-[-49px]' : ''}`}>
 
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
         <div ref={topRef} className="sticky top-14 z-40 bg-background/95 backdrop-blur border-b border-border pb-1 mb-2">
-          <div className="flex flex-wrap items-center gap-2 pt-1 justify-between">
+          <div className="flex items-center gap-2 pt-1 justify-between">
 
             {/* Book selector */}
             <button
@@ -504,6 +504,12 @@ export default function BibleReader() {
                 return part;
               })}
             </p>
+          </div>
+        )}
+        {/* Debug colophon data */}
+        {false && loading && !error && colophon && (
+          <div className="text-center mt-12 mb-4 bg-yellow-100 p-4">
+            <p className="font-sans text-xs">Colophon raw: {JSON.stringify(colophon)}</p>
           </div>
         )}
       </div>

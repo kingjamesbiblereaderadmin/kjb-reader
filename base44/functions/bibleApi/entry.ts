@@ -70,6 +70,15 @@ async function loadBible() {
       verseText = verseText.replace(/<<\[([\s\S]+?)\]>>\s*$/, '').trim();
     }
 
+    // Also check for standalone colophon line: "Heb ¶ [Written...]"
+    if (!colophonMatch && verseText.startsWith('\u00B6') && verseText.includes('[')) {
+      const colophonKey = `${bookName}:${chapter}`;
+      if (!colophons[colophonKey]) {
+        colophons[colophonKey] = verseText;
+        console.log(`[COLOPHON EXTRACTED STANDALONE] ${colophonKey} -> ${verseText}`);
+      }
+    }
+
     if (!verseText.trim()) continue;
 
     if (!data[bookName]) data[bookName] = {};
