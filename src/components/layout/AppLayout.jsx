@@ -68,8 +68,9 @@ export default function AppLayout() {
     try {
       await downloadBibleForOffline(() => {});
       setDownloaded(true);
-      handleDismiss();
-      setShowPrompt(false);
+      // Force re-render of FirstLoadPrompt by updating state
+      setShowPrompt(prev => !prev);
+      setTimeout(() => setShowPrompt(true), 10);
     } catch (err) {
       console.error('Failed to download offline data:', err);
     }
@@ -167,17 +168,15 @@ export default function AppLayout() {
       <BottomNav pathname={pathname} navigate={navigate} hidden={footerHidden} onToggleHide={() => setFooterHidden(true)} />
 
       {/* FirstLoadPrompt - shows on both desktop and mobile */}
-      {showPrompt && (
-        <FirstLoadPrompt
-          isInstallable={isInstallable}
-          notifPermission={notifPermission}
-          onInstall={handleInstall}
-          onEnableNotif={handleEnableNotif}
-          onDismiss={handleDismiss}
-          onDownloadOffline={handleDownloadOffline}
-          downloaded={downloaded}
-        />
-      )}
+      <FirstLoadPrompt
+        isInstallable={isInstallable}
+        notifPermission={notifPermission}
+        onInstall={handleInstall}
+        onEnableNotif={handleEnableNotif}
+        onDismiss={handleDismiss}
+        onDownloadOffline={handleDownloadOffline}
+        downloaded={downloaded}
+      />
 
       {/* Mobile footer show chevron - always visible when bottom nav is hidden */}
       {footerHidden && (

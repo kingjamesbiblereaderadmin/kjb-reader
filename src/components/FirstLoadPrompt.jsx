@@ -26,9 +26,17 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     }
   }, [propDownloaded]);
 
+  // Sync downloaded state when prop changes
+  useEffect(() => {
+    if (propDownloaded === true) {
+      setDownloaded(true);
+    }
+  }, [propDownloaded]);
+
   const alreadyInstalled = isInStandaloneMode();
   const isDesktop = !isMobile();
   // Show install: either native prompt available, iOS, Android, or desktop PWA
+  // Hide once installed or user completed install action
   const showInstall = !alreadyInstalled && !installDone && (isInstallable || isIOS() || isAndroid() || isDesktop);
   // Always show notification option - works in browser and installed app/APK
   const showNotif = !notifDone;
@@ -38,6 +46,9 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   // Only dismiss when all three actions are complete
   const allDone = downloaded && installDone && notifDone;
   if (allDone) return null;
+  
+  // Don't render the prompt at all if nothing to show
+  if (!showInstall && !showNotif && !showOffline) return null;
 
   const handleInstallClick = async () => {
     console.log('[FirstLoadPrompt] handleInstallClick called');
@@ -82,7 +93,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
       setDownloaded(true);
       setDownloadProgress(null);
       if (onDownloadOffline) onDownloadOffline();
-      // Dispatch storage event to sync Settings page
+      // Dispatch storage event to sync Settings page and FirstLoadPrompt
       window.dispatchEvent(new Event('storage'));
     } catch (err) {
       console.error('Failed to download offline data:', err);
