@@ -29,6 +29,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     // Check localStorage on mount
     try {
       const wasDismissed = localStorage.getItem('kjb-prompt-dismissed') === 'true';
+      console.log('[FirstLoadPrompt] mounted, dismissed:', wasDismissed);
       setDismissed(wasDismissed);
     } catch {}
     setMounted(true);
@@ -48,12 +49,26 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
       // Also check localStorage in case it was updated
       try {
         const wasDismissed = localStorage.getItem('kjb-prompt-dismissed') === 'true';
+        console.log('[FirstLoadPrompt] storage event, dismissed:', wasDismissed);
         if (wasDismissed) setDismissed(true);
       } catch {}
     };
     window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, [propDownloaded]);
+    // Also check on mount interval to catch updates from other tabs
+    const interval = setInterval(() => {
+      try {
+        const wasDismissed = localStorage.getItem('kjb-prompt-dismissed') === 'true';
+        if (wasDismissed && !dismissed) {
+          console.log('[FirstLoadPrompt] interval check, dismissing');
+          setDismissed(true);
+        }
+      } catch {}
+    }, 1000);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      clearInterval(interval);
+    };
+  }, [propDownloaded, dismissed]);
 
   const alreadyInstalled = isInStandaloneMode();
   const isDesktop = !isMobile();
@@ -142,6 +157,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     // Also persist to localStorage
     try {
       localStorage.setItem('kjb-prompt-dismissed', 'true');
+      console.log('[FirstLoadPrompt] Set localStorage dismissed=true');
     } catch {}
     // Call parent dismiss if available
     if (onDismiss) {
