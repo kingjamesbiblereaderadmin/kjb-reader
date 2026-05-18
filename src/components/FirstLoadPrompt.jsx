@@ -4,6 +4,7 @@ import { downloadBibleForOffline, isBibleCached } from '@/lib/bibleCache';
 
 const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
 const isMobile = () => /iphone|ipad|ipod|android/i.test(navigator.userAgent);
+const isAndroid = () => /android/i.test(navigator.userAgent);
 const isInStandaloneMode = () =>
   window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
 

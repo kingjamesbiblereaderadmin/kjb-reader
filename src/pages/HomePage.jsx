@@ -70,7 +70,8 @@ export default function HomePage() {
 
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifPermission, setNotifPermission] = useState(() => {
-    if (!('Notification' in window)) return 'unsupported';
+    if (!('serviceWorker' in navigator)) return 'unsupported';
+    if (!('Notification' in window)) return 'supported';
     return Notification.permission;
   });
 

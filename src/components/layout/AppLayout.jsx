@@ -237,7 +237,11 @@ export default function AppLayout() {
 function useAppLayoutPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);
   const { isInstallable, isInstalled, promptInstall, dismiss, wasDismissed } = useInstallPrompt();
-  const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
+  const [notifPermission, setNotifPermission] = useState(() => {
+    if (!('serviceWorker' in navigator)) return 'unsupported';
+    if (!('Notification' in window)) return 'supported';
+    return Notification.permission;
+  });
   const [notifEnabled, setNotifEnabled] = useState(() => getNotificationsEnabled());
 
   useEffect(() => {
@@ -257,22 +261,11 @@ function useAppLayoutPrompt() {
 
   const handleEnableNotif = async () => {
     console.log('handleEnableNotif called');
-    console.log('Notification in window:', 'Notification' in window);
-    console.log('Notification.permission:', 'Notification' in window ? Notification.permission : 'N/A');
     
-    // Check if running in Android WebView (APK)
-    const isAndroidWebView = /wv|Version\/[\d.]+.*Chrome/i.test(navigator.userAgent);
-    console.log('Is Android WebView:', isAndroidWebView);
-    
-    if (!('Notification' in window)) {
-      console.log('Notifications not supported in window');
-      // In APK/WebView, notifications may work via service worker even if Notification API isn't directly available
-      if (isAndroidWebView) {
-        console.log('Running in WebView, trying to request permission anyway');
-      } else {
-        alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
-        return;
-      }
+    // Check if service worker is supported (required for Android notifications)
+    if (!('serviceWorker' in navigator)) {
+      alert('Notifications are not supported in this browser. Try using Chrome or installing the app.');
+      return;
     }
     
     try {
@@ -280,7 +273,7 @@ function useAppLayoutPrompt() {
       const result = await requestNotificationPermission();
       console.log('Notification permission result:', result);
       setNotifPermission(result);
-      if (result === 'granted') {
+      if (result === 'granted' || result === 'supported') {
         console.log('Permission granted, scheduling notification');
         scheduleDailyNotification(getDailyVerse());
         setNotifEnabled(true);
