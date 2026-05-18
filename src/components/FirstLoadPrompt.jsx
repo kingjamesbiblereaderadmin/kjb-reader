@@ -117,10 +117,8 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     }
   };
 
-  const handleClose = (e) => {
+  const handleClose = () => {
     console.log('[FirstLoadPrompt] handleClose called');
-    e?.stopPropagation?.();
-    e?.preventDefault?.();
     if (onDismiss) {
       onDismiss();
     }
@@ -131,18 +129,16 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
       {/* Backdrop - tap outside to dismiss */}
       <div 
         className="fixed inset-0 z-[9998] bg-background/80 backdrop-blur-sm"
-        onClick={handleClose}
-        onTouchEnd={(e) => { e.preventDefault(); handleClose(e); }}
-        style={{ pointerEvents: 'auto' }}
+        onClick={(e) => { e.stopPropagation(); handleClose(); }}
+        style={{ pointerEvents: 'auto', cursor: 'pointer' }}
       />
       <div className="fixed bottom-16 sm:bottom-4 right-4 z-[9999] w-80 pointer-events-auto">
         <div className="bg-card border border-border rounded-2xl shadow-2xl p-4 space-y-3 relative">
           <div className="flex items-start justify-between gap-2">
             <p className="font-serif text-base font-semibold text-foreground leading-tight">Get the most from KJB Reader</p>
             <button
-              onClick={handleClose}
-              onTouchEnd={(e) => { e.preventDefault(); handleClose(e); }}
-              className="shrink-0 p-1 rounded-lg text-muted-foreground hover:bg-secondary transition-colors relative z-[10000]"
+              onClick={(e) => { e.stopPropagation(); handleClose(); }}
+              className="shrink-0 p-1 rounded-lg text-muted-foreground hover:bg-secondary transition-colors relative z-[10000] cursor-pointer"
               aria-label="Dismiss"
               style={{ pointerEvents: 'auto' }}
             >
