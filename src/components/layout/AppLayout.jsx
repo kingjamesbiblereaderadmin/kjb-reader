@@ -265,11 +265,13 @@ function useAppLayoutPrompt() {
       setNotifPermission(result);
       if (result === 'granted') {
         scheduleDailyNotification(getDailyVerse());
-        handleDismiss();
+        // Keep the popup visible, just update the state
+        setShowPrompt(false);
       } else if (result === 'denied') {
         alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
       } else {
         // result === 'default' - user dismissed the prompt without granting or denying
+        // Keep popup open so they can try again
         alert('Notification permission was not granted. Please click "Enable Daily Notifications" again and allow the permission when prompted.');
       }
     } catch (err) {
