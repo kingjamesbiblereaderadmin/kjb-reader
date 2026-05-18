@@ -261,6 +261,8 @@ function useAppLayoutPrompt() {
 
   const handleEnableNotif = async () => {
     console.log('handleEnableNotif called');
+    console.log('Notification in window:', 'Notification' in window);
+    console.log('Notification.permission:', 'Notification' in window ? Notification.permission : 'N/A');
     if (!('Notification' in window)) {
       console.log('Notifications not supported in window');
       alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
@@ -274,14 +276,12 @@ function useAppLayoutPrompt() {
       if (result === 'granted') {
         console.log('Permission granted, scheduling notification');
         scheduleDailyNotification(getDailyVerse());
-        // Update state but keep popup visible so user can see the change
         setNotifEnabled(true);
         window.dispatchEvent(new Event('storage'));
       } else if (result === 'denied') {
         console.log('Permission denied');
         alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
       }
-      // If 'default' (dismissed), just keep popup open - user can try again
     } catch (err) {
       console.error('Notification permission error:', err);
       alert('Failed to request notification permission. Please try again.');
