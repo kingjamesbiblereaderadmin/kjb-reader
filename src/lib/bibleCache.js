@@ -1,7 +1,7 @@
 // Client-side Bible data caching for offline access
 // Uses the Wharton PCE text from bibleprotector.com
 
-const CACHE_KEY = 'bible_data_pce_v5';
+const CACHE_KEY = 'bible_data_pce_v6';
 const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
 
 // Maps the abbreviation in the text file -> canonical book name (must match apiName in bibleData.js)
@@ -27,7 +27,10 @@ const EXPECTED_BOOK_COUNT = 66;
 let parsedData = null;
 let fetchInProgress = null;
 
-function parseBibleText(text) {
+function parseBibleText(rawText) {
+  // Normalize: replace any pilcrow-like characters to standard U+00B6
+  // The source file may encode ¶ differently depending on the charset
+  const text = rawText.replace(/\u00B6|\u204B|\u2761/g, '\u00B6');
   const data = {};
   const colophons = {};
   const lines = text.split('\n');
@@ -184,6 +187,7 @@ export function clearBibleCache() {
   localStorage.removeItem(CACHE_KEY);
   localStorage.removeItem('bible_data_pce_v3');
   localStorage.removeItem('bible_data_pce_v4');
+  localStorage.removeItem('bible_data_pce_v5');
   localStorage.removeItem('bible_data_complete');
   localStorage.removeItem('bible_data_complete_v2');
   parsedData = null;
