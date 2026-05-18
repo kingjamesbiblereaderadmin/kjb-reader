@@ -1,7 +1,7 @@
 // Client-side Bible data caching for offline access
 // Uses the Wharton PCE text from bibleprotector.com
 
-const CACHE_KEY = 'bible_data_pce_v7';
+const CACHE_KEY = 'bible_data_pce_v8';
 const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
 
 // Maps the abbreviation in the text file -> canonical book name (must match apiName in bibleData.js)
@@ -79,6 +79,8 @@ function parseBibleText(rawText) {
   }
 
   data.__colophons = colophons;
+  console.log('Parsed colophons:', Object.keys(colophons).length, 'colophons found');
+  console.log('Sample colophons:', Object.entries(colophons).slice(0, 3));
   return data;
 }
 
