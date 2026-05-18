@@ -117,21 +117,27 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     }
   };
 
+  const handleClose = (e) => {
+    e?.stopPropagation?.();
+    e?.preventDefault?.();
+    onDismiss();
+  };
+
   return (
     <>
       {/* Backdrop - tap outside to dismiss */}
       <div 
         className="fixed inset-0 z-40 bg-background/20 backdrop-blur-sm"
-        onClick={onDismiss}
-        onTouchEnd={(e) => { e.preventDefault(); onDismiss(); }}
+        onClick={handleClose}
+        onTouchEnd={(e) => { e.preventDefault(); handleClose(e); }}
       />
       <div className="fixed bottom-16 sm:bottom-4 right-4 z-50 w-80 pointer-events-auto">
         <div className="bg-card border border-border rounded-2xl shadow-2xl p-4 space-y-3">
           <div className="flex items-start justify-between gap-2">
             <p className="font-serif text-base font-semibold text-foreground leading-tight">Get the most from KJB Reader</p>
             <button
-              onClick={onDismiss}
-              onTouchEnd={(e) => { e.preventDefault(); onDismiss(); }}
+              onClick={handleClose}
+              onTouchEnd={(e) => { e.preventDefault(); handleClose(e); }}
               className="shrink-0 p-1 rounded-lg text-muted-foreground hover:bg-secondary transition-colors"
               aria-label="Dismiss"
             >
