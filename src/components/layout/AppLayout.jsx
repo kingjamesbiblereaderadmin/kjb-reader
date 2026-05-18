@@ -29,6 +29,7 @@ const BOTTOM_NAV_PRIMARY = [
 
 const BOTTOM_NAV_SECONDARY = [
   { path: '/daily-reading', icon: BookMarked, label: 'Daily Reading' },
+  { path: '/resources', icon: Library, label: 'Resources' },
   { path: '/about', icon: Info, label: 'About' },
   { path: '/settings', icon: Settings, label: 'Settings' },
 ];
@@ -256,7 +257,7 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
       {/* More menu expanded row */}
       {moreOpen && (
         <div className="border-t border-border bg-card/50 px-2 py-2">
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-4 gap-2">
             {BOTTOM_NAV_SECONDARY.map(item => {
               const Icon = item.icon;
               const active = pathname === item.path;
@@ -269,14 +270,12 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     navigate(item.path);
                   }}
-                  className={`flex items-center justify-center gap-1 px-4 py-2 rounded-lg font-sans text-[10px] font-medium transition-colors ${
-                    active
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                  className={`flex flex-col items-center gap-0.5 px-2 py-2 rounded-lg transition-colors ${
+                    active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  <Icon className="w-5 h-5 flex-shrink-0" />
-                  {item.label}
+                  <Icon className="w-5 h-5" />
+                  <span className="font-sans text-[10px] font-medium">{item.label}</span>
                 </Link>
               );
             })}
