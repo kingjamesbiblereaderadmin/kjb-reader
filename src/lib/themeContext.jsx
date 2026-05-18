@@ -61,7 +61,11 @@ export function ThemeProvider({ children }) {
   };
 
   const toggleTheme = () => {
-    setMode(isDark ? 'light' : 'dark');
+    // Toggle between light and dark mode explicitly
+    setMode(prev => {
+      const currentlyDark = resolveIsDark(prev);
+      return currentlyDark ? 'light' : 'dark';
+    });
   };
 
   // Persist mode and apply dark class
@@ -104,5 +108,9 @@ export function ThemeProvider({ children }) {
 }
 
 export function useTheme() {
-  return useContext(ThemeContext);
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
 }
