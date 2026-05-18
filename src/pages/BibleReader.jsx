@@ -358,7 +358,8 @@ export default function BibleReader() {
             <button
               onClick={toggleLayout}
               title={paragraphMode ? 'Switch to line-by-line' : 'Switch to paragraph'}
-              className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+              disabled={isViewingTitlePage}
+              className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {paragraphMode ? <AlignJustify className="w-3.5 h-3.5" /> : <List className="w-3.5 h-3.5" />}
               {paragraphMode ? 'Para' : 'Lines'}
