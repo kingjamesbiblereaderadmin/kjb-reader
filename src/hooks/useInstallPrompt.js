@@ -45,9 +45,21 @@ export function useInstallPrompt() {
   };
 
   const dismiss = () => {
-    try { localStorage.removeItem(DISMISSED_KEY); } catch {}
-    setIsInstallable(false);
+    try { localStorage.setItem(DISMISSED_KEY, 'true'); } catch {}
+    setShowPrompt(false);
   };
 
-  return { isInstallable, isInstalled, promptInstall, dismiss, wasDismissed, showPrompt, setShowPrompt };
+  const handleInstall = async () => {
+    const accepted = await promptInstall();
+    if (accepted) {
+      setShowPrompt(false);
+    }
+    return accepted;
+  };
+
+  const handleDismiss = () => {
+    dismiss();
+  };
+
+  return { isInstallable, isInstalled, promptInstall, dismiss, wasDismissed, showPrompt, setShowPrompt, handleInstall, handleDismiss };
 }

@@ -2,9 +2,11 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw, ChevronRight, BookMarked } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
+import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications, initNotifications, initReadingReminder } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
+import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 
 const READ_LINK = { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', color: 'bg-primary text-primary-foreground' };
 
@@ -69,6 +71,7 @@ export default function HomePage() {
 
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
+  const { showPrompt, isInstallable, handleInstall, handleDismiss, wasDismissed } = useInstallPrompt();
 
   useEffect(() => {
     registerSW();
@@ -230,7 +233,16 @@ export default function HomePage() {
           Learn How to be Saved
         </Link>
       </div>
-    </div>
-    </div>
-  );
-}
+      </div>
+
+      {showPrompt && (
+      <FirstLoadPrompt
+        isInstallable={isInstallable}
+        notifPermission={notifPermission}
+        onInstall={handleInstall}
+        onDismiss={handleDismiss}
+      />
+      )}
+      </div>
+      );
+      }
