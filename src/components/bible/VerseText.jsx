@@ -187,11 +187,13 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         className={`flex items-baseline gap-2 leading-relaxed transition-colors duration-200 rounded cursor-pointer px-1 py-0.5 ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
       >
         <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none">{verse.verse}</sup>
-        {hasPilcrow ? (
-          <span className="text-accent font-sans select-none shrink-0 opacity-70 text-base mr-1 flex-shrink-0">¶</span>
-        ) : (
-          <span className="w-4 flex-shrink-0" />
-        )}
+        <span className="flex items-baseline gap-1 min-w-[1.25rem] shrink-0">
+          {hasPilcrow ? (
+            <span className="text-accent font-sans select-none opacity-70 text-base">¶</span>
+          ) : (
+            <span className="w-4" />
+          )}
+        </span>
         <span
           className={`font-serif leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words`}
           dangerouslySetInnerHTML={{ __html: htmlNoPilcrow }}
