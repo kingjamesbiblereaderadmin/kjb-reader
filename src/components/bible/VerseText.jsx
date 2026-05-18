@@ -45,10 +45,13 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   const html = renderVerseText(colophonText || mainText);
   const hasItalics = html.includes('<em>');
   // Check if verse text contains pilcrow character (either actual ¶ or replacement char)
-  const hasPilcrow = verse.text.includes('¶') || verse.text.includes('\u00B6') || verse.text.includes('\uFFFD');
-  console.log(`[VerseText] Verse ${verse.verse}, hasPilcrow: ${hasPilcrow}, text preview:`, verse.text.slice(0, 80));
+  const hasPilcrow = verse.text.includes('¶') || verse.text.includes('\u00B6') || verse.text.includes('\uFFFD') || verse.text.includes('�');
+  if (hasPilcrow && verse.verse <= 10) {
+    console.log(`[VerseText] ✓ Verse ${verse.verse} HAS PILCROW - text: "${verse.text.slice(0, 80)}"`);
+    console.log(`[VerseText]   Character codes at start: ${[...verse.text.slice(0, 10)].map(c => `U+${c.charCodeAt(0).toString(16).toUpperCase()}`).join(' ')}`);
+  }
   // Remove pilcrow and replacement char from HTML to avoid duplicates since we render it separately
-  const htmlNoPilcrow = html.replace(/[\u00B6\uFFFD¶]\s*/g, '');
+  const htmlNoPilcrow = html.replace(/[\u00B6\uFFFD¶�]\s*/g, '');
 
   const verseRef = `${bookName} ${chapter}:${verse.verse}`;
   const cleanText = verse.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '');

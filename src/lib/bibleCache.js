@@ -67,9 +67,10 @@ function parseBibleText(rawText) {
 
     if (isNaN(verse) || !verseText) continue;
     
-    // Debug: log if this verse has a pilcrow (check both original and normalized)
-    if (verseText.includes('¶') || verseText.includes('\u00B6')) {
-      console.log(`[PARSE] Found pilcrow in ${bookName} ${chapter}:${verse} - text: "${verseText.slice(0, 60)}..."`);
+    // Debug: log first few verses with pilcrows
+    if ((verseText.includes('�') || verseText.includes('¶') || verseText.includes('\u00B6')) && verse <= 3) {
+      console.log(`[PARSE] ${abbr} ${chapter}:${verse} - has pilcrow marker, text preview: "${verseText.slice(0, 80)}"`);
+      console.log(`[PARSE]   Character codes: ${[...verseText.slice(0, 5)].map(c => c.charCodeAt(0).toString(16)).join(' ')}`);
     }
 
     const bookName = ABBR_TO_NAME[abbr];
