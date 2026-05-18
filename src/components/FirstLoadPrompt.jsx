@@ -35,18 +35,18 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
 
   if (!showInstall && !showNotif && !showOffline) return null;
 
-  const handleInstallClick = () => {
+  const handleInstallClick = async () => {
     if (isInstallable) {
-      onInstall();
-      onDismiss();
+      const accepted = await onInstall();
+      if (accepted) onDismiss();
     } else if (isIOS()) {
       // iOS — show manual instructions
       setShowIOSHint(h => !h);
     } else if (isAndroid()) {
-      // Android — show manual instructions
-      setShowAndroidHint(h => !h);
+      // Android — try to trigger install prompt (same as Settings button)
+      const accepted = await onInstall();
+      if (accepted) onDismiss();
     }
-    // Desktop: no action needed, browser handles PWA installation via browser menu
   };
 
   const handleDownloadOffline = async () => {
@@ -117,16 +117,6 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             {showIOSHint && (
               <p className="mt-2 font-sans text-xs text-muted-foreground leading-relaxed px-1">
                 Tap the <strong>Share</strong> button <span className="inline-block">⎙</span> in Safari, then choose <strong>"Add to Home Screen"</strong>.
-              </p>
-            )}
-            {showAndroidHint && (
-              <p className="mt-2 font-sans text-xs text-muted-foreground leading-relaxed px-1">
-                Tap the <strong>⋮ Menu</strong> button in Chrome, then choose <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong>.
-              </p>
-            )}
-            {isDesktop && !isInstallable && (
-              <p className="mt-2 font-sans text-xs text-muted-foreground leading-relaxed px-1">
-                Click the <strong>install icon</strong> <span className="inline-block">⬇</span> in your browser's address bar to install the app.
               </p>
             )}
           </div>
