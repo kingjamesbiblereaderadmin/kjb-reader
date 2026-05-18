@@ -35,6 +35,8 @@ export function useInstallPrompt() {
     const timeout = setTimeout(() => {
       if (!isInstallable && !isInstalled) {
         console.log('[PWA] No install prompt after 3s - likely iOS or missing manifest/service worker');
+        console.log('[PWA] manifest.json exists:', !!document.querySelector('link[rel="manifest"]'));
+        console.log('[PWA] serviceWorker registered:', !!navigator.serviceWorker?.controller);
       }
     }, 3000);
 
