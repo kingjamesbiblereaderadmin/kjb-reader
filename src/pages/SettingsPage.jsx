@@ -147,6 +147,7 @@ export default function SettingsPage() {
     setDlProgress(0);
     setDlStatus('');
     setDlError('');
+    window.location.reload();
   };
 
   return (

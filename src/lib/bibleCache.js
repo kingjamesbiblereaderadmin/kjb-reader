@@ -34,7 +34,8 @@ function parseBibleText(rawText) {
   console.log('[PARSE] Raw text length:', rawText.length);
   // The source file's ¶ characters are fetched as U+FFFD (replacement char) due to Latin-1 encoding
   // Normalize them all to U+00B6 (pilcrow) for consistent detection
-  const text = rawText.replace(/\uFFFD/g, '\u00B6');
+  const text = rawText.replace(/\uFFFD/g, '¶');
+  console.log('[PARSE] Pilcrows in text:', (text.match(/¶/g) || []).length);
   const data = {};
   const colophons = {};
   const lines = text.split('\n');
@@ -64,6 +65,11 @@ function parseBibleText(rawText) {
     let verseText = rest.slice(spaceIdx2 + 1);
 
     if (isNaN(verse) || !verseText) continue;
+    
+    // Debug: log if this verse has a pilcrow
+    if (verseText.includes('\u00B6')) {
+      console.log(`[PARSE] Found pilcrow in ${bookName} ${chapter}:${verse}`);
+    }
 
     const bookName = ABBR_TO_NAME[abbr];
     if (!bookName) {
