@@ -291,58 +291,6 @@ export default function SettingsPage() {
         )}
       </div>
 
-      {/* Delete Account */}
-      <div className="bg-card border border-destructive/30 rounded-2xl p-5 mb-6">
-        <h2 className="font-serif text-lg font-semibold text-destructive mb-2">Danger Zone</h2>
-        <p className="font-sans text-sm text-muted-foreground mb-4">
-          Permanently delete your account and all saved data. This action cannot be undone.
-        </p>
-        {!showDeleteConfirm ? (
-          <button
-            onClick={() => setShowDeleteConfirm(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-destructive/10 text-destructive font-sans text-sm font-medium hover:bg-destructive/20 transition-colors"
-          >
-            <Trash2 className="w-4 h-4" /> Delete Account
-          </button>
-        ) : (
-          <div className="space-y-3">
-            <p className="font-sans text-sm text-foreground font-medium">
-              Type <span className="font-bold text-destructive">DELETE</span> to confirm:
-            </p>
-            <input
-              type="text"
-              value={deleteInput}
-              onChange={e => setDeleteInput(e.target.value)}
-              placeholder="DELETE"
-              className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground focus:outline-none focus:border-destructive"
-            />
-            <div className="flex gap-2">
-              <button
-                onClick={async () => {
-                  if (deleteInput !== 'DELETE') return;
-                  setDeleting(true);
-                  try {
-                    await base44.auth.deleteMe?.();
-                  } catch {}
-                  base44.auth.logout('/');
-                }}
-                disabled={deleteInput !== 'DELETE' || deleting}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-destructive text-white font-sans text-sm font-medium hover:opacity-90 disabled:opacity-40 transition-opacity"
-              >
-                {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                {deleting ? 'Deleting…' : 'Confirm Delete'}
-              </button>
-              <button
-                onClick={() => { setShowDeleteConfirm(false); setDeleteInput(''); }}
-                className="px-4 py-2 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
       {/* App Info */}
       <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
         <h2 className="font-serif text-lg font-semibold text-foreground">App Info</h2>

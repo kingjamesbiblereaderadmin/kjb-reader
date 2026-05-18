@@ -212,16 +212,37 @@ export default function AppLayout() {
       )}
 
       <footer className="hidden sm:block border-t border-border bg-card/80 py-4 mt-8">
-        <p className="text-center font-sans text-xs text-muted-foreground">
-          Bible text from{' '}
-          <a href="https://bibleprotector.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
-            bibleprotector.com
-          </a>
-          {' '}· Created with{' '}
-          <a href="https://base44.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
-            Base44
-          </a>
-        </p>
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="flex flex-wrap justify-center gap-4 mb-3">
+            {NAV_ITEMS.map(item => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => {
+                    setMenuOpen(false);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-sans text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+          <p className="text-center font-sans text-xs text-muted-foreground">
+            Bible text from{' '}
+            <a href="https://bibleprotector.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
+              bibleprotector.com
+            </a>
+            {' '}· Created with{' '}
+            <a href="https://base44.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
+              Base44
+            </a>
+          </p>
+        </div>
       </footer>
     </div>
   );
