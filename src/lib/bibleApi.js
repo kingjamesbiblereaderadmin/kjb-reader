@@ -28,7 +28,8 @@ export async function fetchChapter(bookApiName, chapter) {
   }
   
   const colophon = bible.__colophons?.[`${bookApiName}:${chapter}`] || null;
-  if (colophon) console.log(`[COLOPHON RETRIEVE] ${bookApiName}:${chapter} ->`, colophon);
+  console.log(`[COLOPHON RETRIEVE] ${bookApiName}:${chapter} ->`, colophon);
+  console.log('[COLOPHON DEBUG] All colophon keys:', Object.keys(bible.__colophons || {}));
   return { verses, colophon };
 }
 
@@ -50,8 +51,5 @@ export function renderVerseText(text) {
   const result = parts.map((part, i) =>
     i % 2 === 1 ? `<em>${part}</em>` : part
   ).join('');
-  console.log('[RENDER] Input:', text.slice(0, 60), '...');
-  console.log('[RENDER] Output:', result.slice(0, 60), '...');
-  console.log('[RENDER] Has pilcrow:', result.includes('¶') || result.includes('\u00B6'));
   return result;
 }

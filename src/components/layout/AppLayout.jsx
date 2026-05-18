@@ -80,9 +80,8 @@ export default function AppLayout() {
     try {
       await downloadBibleForOffline(() => {});
       setDownloaded(true);
-      // Force re-render of FirstLoadPrompt by updating state
-      setShowPrompt(prev => !prev);
-      setTimeout(() => setShowPrompt(true), 10);
+      // Dispatch storage event to sync all components
+      window.dispatchEvent(new Event('storage'));
     } catch (err) {
       console.error('Failed to download offline data:', err);
     }
@@ -90,49 +89,54 @@ export default function AppLayout() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`}>
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-2">
+      <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div className="max-w-5xl mx-auto px-4 h-[80px] sm:h-24 flex items-center gap-2 sm:gap-3">
+          {/* Logo */}
           <Link
             to="/"
-            className="flex items-center gap-2 flex-shrink-0"
             onClick={() => {
               setMenuOpen(false);
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
+            className="flex items-center gap-2 flex-shrink-0 pointer-events-auto"
           >
-            <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB Reader" className="h-10 w-auto" />
-            <span className="font-serif text-lg font-bold text-foreground hidden sm:block">The Holy Bible</span>
+            <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB Reader" className="h-9 w-auto" />
           </Link>
 
-          <div className="flex-1 min-w-0 touch-manipulation">
+          {/* Search - expands to fill space */}
+          <div className="flex-1 min-w-0 pointer-events-auto">
             <BibleSearchBar onClose={() => setMenuOpen(false)} />
           </div>
 
-          <div className="flex items-center gap-1 flex-shrink-0">
-            <button
-              onClick={() => window.location.reload()}
-              onTouchEnd={(e) => { e.preventDefault(); window.location.reload(); }}
-              className="p-2.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation"
+          {/* Actions - responsive button sizes with visible square touch targets */}
+          <div className="flex items-center gap-1 sm:gap-2 pointer-events-none shrink-0">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
+              onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
+              style={{ touchAction: 'manipulation' }}
+              role="button"
               aria-label="Refresh"
             >
-              <RotateCw className="w-5 h-5" />
-            </button>
-            <button
-              onClick={toggleTheme}
-              onTouchEnd={(e) => { e.preventDefault(); toggleTheme(); }}
-              className="p-2.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation"
+              <RotateCw className="w-5 h-5 sm:w-6 sm:h-6" />
+            </div>
+            <div className="w-12 h-12 sm:w-14 sm:h-14 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
+              onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
+              style={{ touchAction: 'manipulation' }}
+              role="button"
               aria-label="Toggle theme"
             >
-              {mode === 'auto' ? <SunMoon className="w-5 h-5" /> : isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
-            </button>
-            <button
-              onClick={() => setMenuOpen(o => !o)}
-              onTouchEnd={(e) => { e.preventDefault(); setMenuOpen(o => !o); }}
-              className="p-2.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation"
+              {mode === 'auto' ? <SunMoon className="w-5 h-5 sm:w-6 sm:h-6" /> : isDark ? <Moon className="w-5 h-5 sm:w-6 sm:h-6" /> : <Sun className="w-5 h-5 sm:w-6 sm:h-6" />}
+            </div>
+            <div className="w-12 h-12 sm:w-14 sm:h-14 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
+              onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
+              style={{ touchAction: 'manipulation' }}
+              role="button"
               aria-label="Open menu"
             >
-              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
+              {menuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
+            </div>
           </div>
         </div>
 
@@ -190,19 +194,8 @@ export default function AppLayout() {
         downloaded={downloaded}
       />
 
-      {/* Mobile footer show chevron - always visible when bottom nav is hidden */}
-      {footerHidden && (
-        <button
-          onClick={() => { setFooterHidden(false); try { localStorage.setItem('kjb-footer-hidden', 'false'); } catch {} }}
-          className="sm:hidden fixed bottom-0 left-1/2 -translate-x-1/2 -mb-3 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm z-50"
-          title="Show footer"
-        >
-          <ChevronDown className="w-4 h-4 rotate-180" />
-        </button>
-      )}
-
-      <footer className="hidden sm:block border-t border-border bg-card/80 py-3 mt-8 relative">
-        {!footerHidden && (
+      {!footerHidden && (
+        <footer className="hidden sm:block border-t border-border bg-card/80 py-3 mt-8 relative">
           <button
             onClick={() => { setFooterHidden(true); try { localStorage.setItem('kjb-footer-hidden', 'true'); } catch {} }}
             className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm"
@@ -210,17 +203,6 @@ export default function AppLayout() {
           >
             <ChevronDown className="w-4 h-4" />
           </button>
-        )}
-        {footerHidden && (
-          <button
-            onClick={() => { setFooterHidden(false); try { localStorage.setItem('kjb-footer-hidden', 'false'); } catch {} }}
-            className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm"
-            title="Show footer"
-          >
-            <ChevronDown className="w-4 h-4 rotate-180" />
-          </button>
-        )}
-        {!footerHidden && (
           <div className="max-w-5xl mx-auto px-4">
             <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mb-3">
               {NAV_ITEMS.map(item => {
@@ -253,8 +235,19 @@ export default function AppLayout() {
               </a>
             </p>
           </div>
-        )}
-      </footer>
+        </footer>
+      )}
+      {footerHidden && (
+        <footer className="hidden sm:block border-t border-border bg-card/80 py-1 mt-8 relative">
+          <button
+            onClick={() => { setFooterHidden(false); try { localStorage.setItem('kjb-footer-hidden', 'false'); } catch {} }}
+            className="w-full h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+            title="Show footer"
+          >
+            <ChevronDown className="w-4 h-4 rotate-180" />
+          </button>
+        </footer>
+      )}
     </div>
   );
 }
@@ -327,134 +320,95 @@ function useAppLayoutPrompt() {
 }
 
 function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
-  const [moreOpen, setMoreOpen] = useState(false);
-  const [footerVisible, setFooterVisible] = useState(true);
-
-  // Load footer visibility preference
-  useEffect(() => {
+  const [showMode, setShowMode] = useState(() => {
     try {
-      const saved = localStorage.getItem('kjb-footer-hidden');
-      if (saved === 'true') setFooterVisible(false);
-    } catch {}
-  }, []);
+      const saved = localStorage.getItem('kjb-footer-mode');
+      return saved === 'one' ? 'one' : saved === 'hidden' ? 'hidden' : 'two';
+    } catch { return 'two'; }
+  });
 
-  if (hidden) return null;
+  const cycleShowMode = () => {
+    const next = showMode === 'two' ? 'one' : showMode === 'one' ? 'hidden' : 'two';
+    setShowMode(next);
+    try { localStorage.setItem('kjb-footer-mode', next); } catch {}
+    if (next === 'hidden') onToggleHide?.();
+  };
 
-  const PRIMARY_NAV = BOTTOM_NAV_PRIMARY.slice(0, 3);
+  if (hidden && showMode === 'hidden') {
+    return (
+      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border safe-area-pb">
+        <button
+          onClick={cycleShowMode}
+          onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
+          className="w-full h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors"
+          title="Tap to show navigation"
+        >
+          <ChevronDown className="w-4 h-4 rotate-180" />
+        </button>
+      </nav>
+    );
+  }
 
   return (
-    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border">
-      {/* Chevron to hide/show bottom nav */}
-      <div className="relative">
-        <button
-          onClick={() => {
-            setFooterVisible(false);
-            try { localStorage.setItem('kjb-footer-hidden', 'true'); } catch {}
-            onToggleHide?.();
-          }}
-          className={`absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm z-10 ${!footerVisible ? 'hidden' : ''}`}
-          title="Hide footer"
-        >
-          <ChevronDown className="w-4 h-4" />
-        </button>
-        {/* Show chevron when footer is hidden */}
-        {!footerVisible && (
-          <button
-            onClick={() => {
-              setFooterVisible(true);
-              try { localStorage.setItem('kjb-footer-hidden', 'false'); } catch {}
-            }}
-            className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm z-10"
-            title="Show footer"
-          >
-            <ChevronDown className="w-4 h-4 rotate-180" />
-          </button>
-        )}
-      </div>
-
-      <div className="flex items-center justify-around px-2 py-2">
-        {PRIMARY_NAV.map(item => {
-          const Icon = item.icon;
-          const active = item.path === '/' ? pathname === '/' : pathname === item.path;
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={(e) => {
-                e.preventDefault();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                setTimeout(() => navigate(item.path), 150);
-              }}
-              className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-lg transition-colors ${
-                active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Icon className="w-5 h-5" />
-              <span className="font-sans text-[10px] font-medium">{item.label}</span>
-            </Link>
-          );
-        })}
-        <button
-          onClick={() => setMoreOpen(!moreOpen)}
-          className="flex flex-col items-center gap-0.5 px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
-        >
-          {moreOpen ? <ChevronDown className="w-5 h-5 rotate-180 transition-transform" /> : <ChevronDown className="w-5 h-5 transition-transform" />}
-          <span className="font-sans text-[10px] font-medium">More</span>
-        </button>
-      </div>
-
-      {/* More menu expanded row */}
-      {moreOpen && (
-        <div className="border-t border-border bg-card/50 px-2 py-2">
-          <div className="grid grid-cols-4 gap-2">
-            {BOTTOM_NAV_SECONDARY.map(item => {
+    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border safe-area-pb">
+      {/* Toggle hide button */}
+      <button
+        onClick={() => { cycleShowMode(); onToggleHide?.(); }}
+        onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); onToggleHide?.(); }}
+        className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm z-10"
+        title="Hide navigation"
+      >
+        <ChevronDown className="w-4 h-4" />
+      </button>
+      
+      {/* Navigation rows */}
+      {showMode !== 'hidden' && (
+        <div className="w-full">
+          {/* Primary row - 5 items */}
+          <div className="grid grid-cols-5 gap-0">
+            {BOTTOM_NAV_PRIMARY.map(item => {
               const Icon = item.icon;
-              const active = pathname === item.path;
+              const active = item.path === '/' ? pathname === '/' : pathname === item.path;
               return (
-                <Link
+                <button
                   key={item.path}
-                  to={item.path}
-                  onClick={() => {
-                    setMoreOpen(false);
+                  onClick={(e) => {
+                    e.preventDefault();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
-                    navigate(item.path);
+                    setTimeout(() => navigate(item.path), 150);
                   }}
-                  className={`flex flex-col items-center gap-0.5 px-2 py-2 rounded-lg transition-colors ${
-                    active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                  className="flex flex-col items-center justify-center w-full h-14 active:bg-secondary/50 transition-colors"
                 >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-sans text-[10px] font-medium">{item.label}</span>
-                </Link>
+                  <Icon className={`w-6 h-6 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
+                </button>
               );
             })}
           </div>
           
-          {/* Footer attribution */}
-          <div className="mt-3 pt-3 border-t border-border text-center">
-            <p className="font-sans text-[10px] text-muted-foreground mb-2">
-              Bible text from{' '}
-              <a href="https://bibleprotector.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
-                bibleprotector.com
-              </a>
-              {' '}· Created with{' '}
-              <a href="https://base44.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
-                Base44
-              </a>
-            </p>
-            {/* Show/hide footer toggle */}
-            <button
-              onClick={() => {
-                setFooterVisible(!footerVisible);
-                try {
-                  localStorage.setItem('kjb-footer-hidden', String(!footerVisible));
-                } catch {}
-              }}
-              className="font-sans text-[10px] text-muted-foreground hover:text-foreground transition-colors underline"
-            >
-              {footerVisible ? 'Hide' : 'Show'} Desktop Footer
-            </button>
-          </div>
+          {/* Secondary row - 4 items */}
+          {showMode === 'two' && (
+            <div className="grid grid-cols-4 gap-0 border-t border-border">
+              {BOTTOM_NAV_SECONDARY.map(item => {
+                const Icon = item.icon;
+                const active = pathname === item.path;
+                return (
+                  <button
+                    key={item.path}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                      navigate(item.path);
+                    }}
+                    className="flex flex-col items-center justify-center w-full h-14 active:bg-secondary/50 transition-colors"
+                  >
+                    <Icon className={`w-6 h-6 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
     </nav>

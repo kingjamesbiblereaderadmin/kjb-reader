@@ -4,8 +4,8 @@
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
 
-const CACHE_KEY = 'bible_data_wharton_v1'; // v1: colophons from WHARTON_PCE.txt
-const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/b51575e86_WHARTON_PCE.txt';
+const CACHE_KEY = 'bible_data_pce_v36'; // v36: force reload with colophon fix
+const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
 // Maps the abbreviation in the text file -> canonical book name (must match apiName in bibleData.js)
@@ -35,11 +35,18 @@ let remoteVersion = null;
 function parseBibleText(rawText) {
   console.log('[PARSE] Raw text length:', rawText.length);
   
-  // Step 1: Normalize ALL replacement characters (U+FFFD) to pilcrow (U+00B6)
-  // The source file uses U+FFFD to represent the pilcrow (¶) due to encoding issues
-  const normalizedText = rawText.replace(/\uFFFD/g, '\u00B6');
-  console.log('[PARSE] Replacement chars (U+FFFD) found:', (rawText.match(/\uFFFD/g) || []).length);
-  console.log('[PARSE] Pilcrows (U+00B6) after normalization:', (normalizedText.match(/\u00B6/g) || []).length);
+  // Step 1: Normalize ALL special characters to pilcrow (U+00B6)
+  // The source file uses  (U+000F) and other chars for pilcrow
+  const normalizedText = rawText
+    .replace(/\u000F/g, '\u00B6')  // Shift+O character
+    .replace(/\uFFFD/g, '\u00B6'); // Replacement character
+  const shiftOCount = (rawText.match(/\u000F/g) || []).length;
+  const replacementCount = (rawText.match(/\uFFFD/g) || []).length;
+  let totalPilcrowCount = (normalizedText.match(/\u00B6/g) || []).length;
+  console.log('[PARSE] Raw text length:', rawText.length);
+  console.log('[PARSE] ✓ Shift+O chars (U+000F) converted:', shiftOCount);
+  console.log('[PARSE] ✓ Replacement chars (U+FFFD) converted:', replacementCount);
+  console.log('[PARSE] ✓ Pilcrows (U+00B6) in normalized text:', totalPilcrowCount);
   
   const data = {};
   const colophons = {};
@@ -57,7 +64,29 @@ function parseBibleText(rawText) {
     const spaceIdx = trimmed.indexOf(' ');
     if (spaceIdx === -1) continue;
     const abbr = trimmed.slice(0, spaceIdx);
-    const rest = trimmed.slice(spaceIdx + 1);
+    const rest = trimmed.slice(spaceIdx + 1).trim();
+
+    // Check if this is a colophon line: "ABBR [text in brackets]"
+    // Format: "Ro  [Written to the Romans...]" or "Heb  [Written to the Hebrews...]"
+    // May also have a pilcrow prefix: "Ro ¶ [Written...]"
+    // Strip any leading pilcrow before checking
+    const restNoBracket = rest.replace(/^\u00B6\s*/, '').trim();
+    if (restNoBracket.startsWith('[') && restNoBracket.endsWith(']')) {
+      const bookName = ABBR_TO_NAME[abbr];
+      if (bookName && data[bookName]) {
+        // Find the last chapter of this book to attach the colophon to
+        const chapters = Object.keys(data[bookName]).map(Number).filter(n => !isNaN(n));
+        if (chapters.length > 0) {
+          const lastChapter = Math.max(...chapters);
+          const colophonKey = `${bookName}:${lastChapter}`;
+          const colophonText = restNoBracket.slice(1, -1); // strip [ and ]
+          colophons[colophonKey] = colophonText;
+          colophonCount++;
+          console.log(`[COLOPHON] ✓ Standalone: ${colophonKey} -> "${colophonText}"`);
+        }
+      }
+      continue;
+    }
 
     const colonIdx = rest.indexOf(':');
     if (colonIdx === -1) continue;
@@ -72,34 +101,14 @@ function parseBibleText(rawText) {
     let verseText = rest.slice(spaceIdx2 + 1);
 
     if (isNaN(verse) || !verseText) continue;
-    
+
     // Track pilcrows in verse text
     if (verseText.includes('\u00B6')) {
       pilcrowCount++;
-      if (verse <= 3) {
-        console.log(`[PARSE] ✓ ${abbr} ${chapter}:${verse} has pilcrow: "${verseText.slice(0, 60)}"`);
-      }
     }
 
     const bookName = ABBR_TO_NAME[abbr];
-    if (!bookName) {
-      console.log('[SKIP] Unknown abbr:', abbr);
-      continue;
-    }
-
-    // Extract colophon markers: <<[...text...]]>> at end of verse (supports both <<[...]]>> and <<[...]>> formats)
-    const colophonMatch = verseText.match(/<<\[(.*?)\]>>\s*$/);
-    if (colophonMatch) {
-      const colophonKey = `${bookName}:${chapter}`;
-      if (!colophons[colophonKey]) {
-        colophons[colophonKey] = colophonMatch[1];
-        colophonCount++;
-        console.log(`[COLOPHON] Extracted: ${colophonKey} -> ${colophons[colophonKey]}`);
-      }
-      verseText = verseText.replace(/\s*<<\[.*?\]>>\s*$/, '').trim();
-    }
-
-    if (!verseText.trim()) continue;
+    if (!bookName) continue;
 
     if (!data[bookName]) data[bookName] = {};
     if (!data[bookName][chapter]) data[bookName][chapter] = [];
@@ -108,7 +117,7 @@ function parseBibleText(rawText) {
   }
 
   data.__colophons = colophons;
-  console.log('[PARSE] ✓ Complete:', verseCount, 'verses,', colophonCount, 'colophons,', pilcrowCount, 'verses with pilcrows');
+  console.log('[PARSE] ✓ Complete:', verseCount, 'verses,', colophonCount, 'colophons,', pilcrowCount, 'verses with pilcrows (total:', totalPilcrowCount, ')');
   console.log('[PARSE] Books parsed:', Object.keys(data).filter(k => k !== '__colophons').length);
   return data;
 }
@@ -122,7 +131,9 @@ function isValidBibleData(data) {
 async function fetchWithRetry(url, retries = 3) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      const res = await fetch(url);
+      // Add cache-busting timestamp to bypass service worker cache
+      const cacheBustedUrl = `${url}?t=${Date.now()}`;
+      const res = await fetch(cacheBustedUrl, { cache: 'reload' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return await res.text();
     } catch (err) {
@@ -161,16 +172,22 @@ async function checkForUpdates() {
 
 async function saveToCache(data) {
   try {
-    // Clear old localStorage keys
+    // Clear IndexedDB first to avoid stale data
+    await clearIndexedDB();
+    // Clear ALL old localStorage keys to force fresh data
     localStorage.removeItem('bible_data_complete');
     localStorage.removeItem('bible_data_complete_v2');
-    localStorage.removeItem('bible_data_pce_v12');
+    for (let i = 1; i <= 30; i++) {
+      localStorage.removeItem(`bible_data_pce_v${i}`);
+    }
     // Save to IndexedDB (supports ~50MB+)
     await saveToIndexedDB(data);
     // Save version marker
     if (remoteVersion) {
       localStorage.setItem('bible_cache_version', remoteVersion);
     }
+    const colophonCount = data.__colophons ? Object.keys(data.__colophons).length : 0;
+    console.log('[CACHE] ✓ Saved to IndexedDB, version:', remoteVersion, ',', colophonCount, 'colophons');
   } catch (e) {
     console.error('Cache save failed:', e.message);
   }
@@ -184,7 +201,15 @@ async function loadFromCache() {
       const pilcrowCount = Object.values(data).filter(book => typeof book === 'object').reduce((sum, book) => 
         sum + Object.values(book).reduce((s, ch) => 
           s + (Array.isArray(ch) ? ch.filter(v => v.text.includes('\u00B6')).length : 0), 0), 0);
-      console.log('[CACHE] ✓ Loaded from IndexedDB,', pilcrowCount, 'pilcrows found');
+      const colophonCount = data.__colophons ? Object.keys(data.__colophons).length : 0;
+      console.log('[CACHE] ✓ Loaded from IndexedDB,', pilcrowCount, 'pilcrows,', colophonCount, 'colophons');
+      
+      // If 0 pilcrows, cache is stale - force refresh
+      if (pilcrowCount === 0) {
+        console.log('[CACHE] ⚠️ Stale cache detected (0 pilcrows) - will fetch fresh');
+        return null;
+      }
+      
       return data;
     }
     console.log('[CACHE] No valid cache, will fetch fresh');
@@ -248,14 +273,19 @@ export async function isBibleCached() {
 
 // Clear cached Bible data
 export async function clearBibleCache() {
-  // Clear ALL version keys (1-19)
-  for (let i = 1; i <= 19; i++) {
+  // Clear ALL version keys (1-30)
+  for (let i = 1; i <= 30; i++) {
     localStorage.removeItem(`bible_data_pce_v${i}`);
   }
   localStorage.removeItem('bible_data_complete');
   localStorage.removeItem('bible_data_complete_v2');
+  localStorage.removeItem('bible_cache_version');
+  localStorage.removeItem('bible_data_pce_v23');
   await clearIndexedDB();
   parsedData = null;
+  console.log('[CLEAR] ✓ All cache cleared - refreshing page...');
+  // Force reload to fetch fresh data with colophons
+  window.location.reload();
 }
 
 // Download all Bible data and cache it for offline use
@@ -263,8 +293,11 @@ export async function downloadBibleForOffline(onProgress) {
   // Clear existing cache to force a fresh download
   await clearBibleCache();
   onProgress && onProgress(0, 'Fetching Bible text...');
+  console.log('[DOWNLOAD] Fetching from:', TEXT_URL);
 
   const text = await fetchWithRetry(TEXT_URL);
+  console.log('[DOWNLOAD] Raw text length:', text.length);
+  console.log('[DOWNLOAD] U+FFFD chars in raw:', (text.match(/\uFFFD/g) || []).length);
   onProgress && onProgress(50, 'Parsing 66 books...');
 
   const data = parseBibleText(text);
@@ -276,5 +309,6 @@ export async function downloadBibleForOffline(onProgress) {
   await saveToCache(data);
   parsedData = data;
   onProgress && onProgress(100, 'Done!');
+  console.log('[DOWNLOAD] ✓ Complete -', Object.keys(data).filter(k => k !== '__colophons').length, 'books');
   return data;
 }

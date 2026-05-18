@@ -23,6 +23,17 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     return 'Notification' in window && Notification.permission === 'granted';
   });
   const [dismissed, setDismissed] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // Check localStorage on mount
+    try {
+      const wasDismissed = localStorage.getItem('kjb-prompt-dismissed') === 'true';
+      console.log('[FirstLoadPrompt] mounted, dismissed:', wasDismissed);
+      setDismissed(wasDismissed);
+    } catch {}
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (propDownloaded !== undefined) {
@@ -31,14 +42,33 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
       // Check if already cached on mount
       isBibleCached().then(cached => setDownloaded(cached));
     }
-  }, [propDownloaded]);
 
-  // Sync downloaded state when prop changes
-  useEffect(() => {
-    if (propDownloaded === true) {
-      setDownloaded(true);
-    }
-  }, [propDownloaded]);
+    // Listen for storage events to sync across components
+    const handleStorage = () => {
+      isBibleCached().then(cached => setDownloaded(cached));
+      // Also check localStorage in case it was updated
+      try {
+        const wasDismissed = localStorage.getItem('kjb-prompt-dismissed') === 'true';
+        console.log('[FirstLoadPrompt] storage event, dismissed:', wasDismissed);
+        if (wasDismissed) setDismissed(true);
+      } catch {}
+    };
+    window.addEventListener('storage', handleStorage);
+    // Also check on mount interval to catch updates from other tabs
+    const interval = setInterval(() => {
+      try {
+        const wasDismissed = localStorage.getItem('kjb-prompt-dismissed') === 'true';
+        if (wasDismissed && !dismissed) {
+          console.log('[FirstLoadPrompt] interval check, dismissing');
+          setDismissed(true);
+        }
+      } catch {}
+    }, 1000);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      clearInterval(interval);
+    };
+  }, [propDownloaded, dismissed]);
 
   const alreadyInstalled = isInStandaloneMode();
   const isDesktop = !isMobile();
@@ -50,12 +80,11 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   // Show offline download prompt if not already downloaded
   const showOffline = !downloaded;
 
+  // Don't render until mounted (prevents flash)
+  if (!mounted) return null;
+  
   // Dismissed by user
   if (dismissed) return null;
-  
-  // Only dismiss when all visible actions are complete
-  const allDone = (downloaded || !showOffline) && (installDone || !showInstall) && (notifDone || !showNotif);
-  if (allDone) return null;
   
   // Don't render the prompt at all if nothing to show
   if (!showInstall && !showOffline && !showNotif) return null;
@@ -128,6 +157,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     // Also persist to localStorage
     try {
       localStorage.setItem('kjb-prompt-dismissed', 'true');
+      console.log('[FirstLoadPrompt] Set localStorage dismissed=true');
     } catch {}
     // Call parent dismiss if available
     if (onDismiss) {
@@ -140,7 +170,8 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
       {/* Backdrop - tap outside to dismiss */}
       <div 
         className="fixed inset-0 z-[99999] bg-background/80 backdrop-blur-sm"
-        onClick={() => { console.log('[FirstLoadPrompt] backdrop clicked'); handleClose(); }}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); console.log('[FirstLoadPrompt] backdrop clicked'); handleClose(); }}
+        onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); console.log('[FirstLoadPrompt] backdrop touched'); handleClose(); }}
         style={{ pointerEvents: 'auto', cursor: 'pointer' }}
       />
       <div className="fixed bottom-16 sm:bottom-4 right-4 z-[100000] w-80 pointer-events-auto">
@@ -148,10 +179,11 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
           <div className="flex items-start justify-between gap-2">
             <p className="font-serif text-base font-semibold text-foreground leading-tight">Get the most from KJB Reader</p>
             <button
-              onClick={() => { console.log('[FirstLoadPrompt] X button clicked'); handleClose(); }}
-              className="shrink-0 p-1 rounded-lg text-muted-foreground hover:bg-secondary transition-colors relative z-[100001] cursor-pointer"
+              type="button"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleClose(); }}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleClose(); }}
+              className="shrink-0 w-10 h-10 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary active:bg-secondary transition-colors cursor-pointer touch-manipulation select-none"
               aria-label="Dismiss"
-              style={{ pointerEvents: 'auto' }}
             >
               <X className="w-4 h-4" />
             </button>
