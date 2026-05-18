@@ -144,6 +144,10 @@ export default function SettingsPage() {
       setDlStatus('All 66 books downloaded successfully!');
       // Dispatch storage event to sync FirstLoadPrompt
       window.dispatchEvent(new Event('storage'));
+      // Also update localStorage to prevent prompt from reappearing
+      try {
+        localStorage.setItem('kjb-prompt-dismissed', 'true');
+      } catch {}
     } catch (err) {
       setDlError('Download failed: ' + err.message + '. Please check your connection and try again.');
     }

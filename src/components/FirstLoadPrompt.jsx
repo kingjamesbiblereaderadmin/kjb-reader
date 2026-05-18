@@ -45,6 +45,11 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     // Listen for storage events to sync across components
     const handleStorage = () => {
       isBibleCached().then(cached => setDownloaded(cached));
+      // Also check localStorage in case it was updated
+      try {
+        const wasDismissed = localStorage.getItem('kjb-prompt-dismissed') === 'true';
+        if (wasDismissed) setDismissed(true);
+      } catch {}
     };
     window.addEventListener('storage', handleStorage);
     return () => window.removeEventListener('storage', handleStorage);
