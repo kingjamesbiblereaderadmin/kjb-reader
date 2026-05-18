@@ -56,7 +56,7 @@ export default function AppLayout() {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
           >
-            <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB Reader" className="h-10 w-auto" />
+            <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB Reader" className="h-8 w-auto" />
             <span className="font-serif text-lg font-bold text-foreground hidden sm:block">The Holy Bible</span>
           </Link>
 
@@ -81,10 +81,10 @@ export default function AppLayout() {
             </button>
             <button
               onClick={() => setMenuOpen(o => !o)}
-              className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
               aria-label="Open menu"
             >
-              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {menuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
           </div>
         </div>
