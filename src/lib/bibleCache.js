@@ -4,7 +4,7 @@
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
 
-const CACHE_KEY = 'bible_data_pce_v36'; // v36: force reload with colophon fix
+const CACHE_KEY = 'bible_data_pce_v37'; // v37: force reload with enhanced colophon debugging
 const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
@@ -47,11 +47,15 @@ function parseBibleText(rawText) {
   console.log('[PARSE] ✓ Shift+O chars (U+000F) converted:', shiftOCount);
   console.log('[PARSE] ✓ Replacement chars (U+FFFD) converted:', replacementCount);
   console.log('[PARSE] ✓ Pilcrows (U+00B6) in normalized text:', totalPilcrowCount);
-  
+
   const data = {};
   const colophons = {};
   const lines = normalizedText.split('\n');
   console.log('[PARSE] Split into', lines.length, 'lines');
+
+  // Debug: Show first few colophon lines
+  const colophonLines = lines.filter(l => l.includes('[') && l.includes(']') && l.match(/^\w+\s+\u00B6?\s*\[/));
+  console.log('[PARSE] Sample colophon lines found:', colophonLines.slice(0, 5));
 
   let verseCount = 0;
   let colophonCount = 0;
@@ -83,7 +87,11 @@ function parseBibleText(rawText) {
           colophons[colophonKey] = colophonText;
           colophonCount++;
           console.log(`[COLOPHON] ✓ Standalone: ${colophonKey} -> "${colophonText}"`);
+        } else {
+          console.log(`[COLOPHON] ⚠️ No chapters found for ${bookName} (abbr: ${abbr})`);
         }
+      } else {
+        console.log(`[COLOPHON] ⚠️ Book not found: ${abbr} -> ${bookName}, data exists: ${!!(bookName && data[bookName])}`);
       }
       continue;
     }
