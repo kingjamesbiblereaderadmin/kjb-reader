@@ -506,12 +506,7 @@ export default function BibleReader() {
             </p>
           </div>
         )}
-        {/* Debug colophon data */}
-        {false && loading && !error && colophon && (
-          <div className="text-center mt-12 mb-4 bg-yellow-100 p-4">
-            <p className="font-sans text-xs">Colophon raw: {JSON.stringify(colophon)}</p>
-          </div>
-        )}
+
       </div>
 
       {/* End-of-section markers — shown as a text footer below the verses */}
