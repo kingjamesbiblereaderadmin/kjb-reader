@@ -4,7 +4,7 @@
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
 
-const CACHE_KEY = 'bible_data_pce_v38'; // v38: force colophon refresh
+const CACHE_KEY = 'bible_data_pce_v35'; // v35: handle pilcrow-prefixed colophon lines
 const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
@@ -66,8 +66,27 @@ function parseBibleText(rawText) {
     const abbr = trimmed.slice(0, spaceIdx);
     const rest = trimmed.slice(spaceIdx + 1).trim();
 
-    // Note: Colophons are inline in verse text as <<[...]>>, not standalone lines
-    // They are extracted during verse parsing below
+    // Check if this is a colophon line: "ABBR [text in brackets]"
+    // Format: "Ro  [Written to the Romans...]" or "Heb  [Written to the Hebrews...]"
+    // May also have a pilcrow prefix: "Ro ¶ [Written...]"
+    // Strip any leading pilcrow before checking
+    const restNoBracket = rest.replace(/^\u00B6\s*/, '').trim();
+    if (restNoBracket.startsWith('[') && restNoBracket.endsWith(']')) {
+      const bookName = ABBR_TO_NAME[abbr];
+      if (bookName && data[bookName]) {
+        // Find the last chapter of this book to attach the colophon to
+        const chapters = Object.keys(data[bookName]).map(Number).filter(n => !isNaN(n));
+        if (chapters.length > 0) {
+          const lastChapter = Math.max(...chapters);
+          const colophonKey = `${bookName}:${lastChapter}`;
+          const colophonText = restNoBracket.slice(1, -1); // strip [ and ]
+          colophons[colophonKey] = colophonText;
+          colophonCount++;
+          console.log(`[COLOPHON] ✓ Standalone: ${colophonKey} -> "${colophonText}"`);
+        }
+      }
+      continue;
+    }
 
     const colonIdx = rest.indexOf(':');
     if (colonIdx === -1) continue;
@@ -86,22 +105,6 @@ function parseBibleText(rawText) {
     // Track pilcrows in verse text
     if (verseText.includes('\u00B6')) {
       pilcrowCount++;
-    }
-
-    // Extract colophon markers - format: "verse text <<[colophon text]>>"
-    // Use non-greedy match with balanced bracket handling
-    const inlineMatch = verseText.match(/<<\[([\s\S]+?)\]>>\s*$/);
-    if (inlineMatch) {
-      const colophonText = '\u00B6 ' + inlineMatch[1];
-      const bookName = ABBR_TO_NAME[abbr];
-      if (bookName) {
-        const colophonKey = `${bookName}:${chapter}`;
-        colophons[colophonKey] = colophonText;
-        colophonCount++;
-        console.log(`[COLOPHON] ✓ ${colophonKey} -> "${colophonText}"`);
-      }
-      // Strip the colophon from verse text
-      verseText = verseText.replace(/<<\[[\s\S]+?\]>>\s*$/, '').trim();
     }
 
     const bookName = ABBR_TO_NAME[abbr];
@@ -201,9 +204,9 @@ async function loadFromCache() {
       const colophonCount = data.__colophons ? Object.keys(data.__colophons).length : 0;
       console.log('[CACHE] ✓ Loaded from IndexedDB,', pilcrowCount, 'pilcrows,', colophonCount, 'colophons');
       
-      // If 0 pilcrows OR 0 colophons, cache is stale - force refresh
-      if (pilcrowCount === 0 || colophonCount === 0) {
-        console.log('[CACHE] ⚠️ Stale cache detected (', pilcrowCount, 'pilcrows,', colophonCount, 'colophons) - will fetch fresh');
+      // If 0 pilcrows, cache is stale - force refresh
+      if (pilcrowCount === 0) {
+        console.log('[CACHE] ⚠️ Stale cache detected (0 pilcrows) - will fetch fresh');
         return null;
       }
       
@@ -269,7 +272,7 @@ export async function isBibleCached() {
 }
 
 // Clear cached Bible data
-export async function clearBibleCache(skipReload = false) {
+export async function clearBibleCache() {
   // Clear ALL version keys (1-30)
   for (let i = 1; i <= 30; i++) {
     localStorage.removeItem(`bible_data_pce_v${i}`);
@@ -280,18 +283,15 @@ export async function clearBibleCache(skipReload = false) {
   localStorage.removeItem('bible_data_pce_v23');
   await clearIndexedDB();
   parsedData = null;
-  console.log('[CLEAR] ✓ All cache cleared');
-  // Only reload if not skipping (downloadBibleForOffline handles its own flow)
-  if (!skipReload) {
-    console.log('[CLEAR] Refreshing page...');
-    window.location.reload();
-  }
+  console.log('[CLEAR] ✓ All cache cleared - refreshing page...');
+  // Force reload to fetch fresh data with colophons
+  window.location.reload();
 }
 
 // Download all Bible data and cache it for offline use
 export async function downloadBibleForOffline(onProgress) {
-  // Clear existing cache WITHOUT reloading (we'll handle the flow ourselves)
-  await clearBibleCache(true);
+  // Clear existing cache to force a fresh download
+  await clearBibleCache();
   onProgress && onProgress(0, 'Fetching Bible text...');
   console.log('[DOWNLOAD] Fetching from:', TEXT_URL);
 
