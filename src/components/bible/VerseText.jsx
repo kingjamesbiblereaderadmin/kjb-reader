@@ -190,7 +190,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         >
           <sup className="text-accent font-sans font-semibold text-xs mr-2 select-none">{verse.verse}</sup>
           <span
-            className={`font-serif leading-loose [&_em]:italic [&_em]:text-foreground/75 ${textClass} whitespace-nowrap`}
+            className={`font-serif leading-loose [&_em]:italic [&_em]:text-foreground/75 ${textClass}`}
             dangerouslySetInnerHTML={{ __html: html }}
           />
           {' '}
@@ -210,7 +210,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-0.5 mr-1">{verse.verse}</sup>
         <span className="flex-1">
           <span
-            className={`font-serif leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} whitespace-nowrap`}
+            className={`font-serif leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass}`}
             dangerouslySetInnerHTML={{ __html: html }}
           />
         </span>
