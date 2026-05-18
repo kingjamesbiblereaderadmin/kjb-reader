@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, Fragment } from 'react';
 import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown } from 'lucide-react';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount } from '@/lib/bibleApi';
@@ -488,8 +488,15 @@ export default function BibleReader() {
         {/* Colophon footer - shown below all verses for chapters that have one */}
         {!loading && !error && colophon && (
           <div className="mt-8 pt-6 border-t border-border">
-            <p className="font-serif text-sm text-muted-foreground italic text-center leading-relaxed">
-              {colophon}
+            <p className="font-serif text-sm text-muted-foreground text-center leading-relaxed">
+              <span className="italic">
+                {colophon.split('¶').map((part, idx) => (
+                  <Fragment key={idx}>
+                    {idx > 0 && <span className="mx-1">¶</span>}
+                    <span>{part.trim()}</span>
+                  </Fragment>
+                ))}
+              </span>
             </p>
           </div>
         )}
