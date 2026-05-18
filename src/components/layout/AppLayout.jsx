@@ -80,9 +80,8 @@ export default function AppLayout() {
     try {
       await downloadBibleForOffline(() => {});
       setDownloaded(true);
-      // Force re-render of FirstLoadPrompt by updating state
-      setShowPrompt(prev => !prev);
-      setTimeout(() => setShowPrompt(true), 10);
+      // Dispatch storage event to sync all components
+      window.dispatchEvent(new Event('storage'));
     } catch (err) {
       console.error('Failed to download offline data:', err);
     }

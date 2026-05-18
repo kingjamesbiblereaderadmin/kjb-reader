@@ -31,13 +31,13 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
       // Check if already cached on mount
       isBibleCached().then(cached => setDownloaded(cached));
     }
-  }, [propDownloaded]);
 
-  // Sync downloaded state when prop changes
-  useEffect(() => {
-    if (propDownloaded === true) {
-      setDownloaded(true);
-    }
+    // Listen for storage events to sync across components
+    const handleStorage = () => {
+      isBibleCached().then(cached => setDownloaded(cached));
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, [propDownloaded]);
 
   const alreadyInstalled = isInStandaloneMode();
