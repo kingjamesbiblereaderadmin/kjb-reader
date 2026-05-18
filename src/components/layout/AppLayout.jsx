@@ -47,7 +47,7 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`}>
-        <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link
             to="/"
             className="flex items-center gap-2 flex-shrink-0"
@@ -59,10 +59,6 @@ export default function AppLayout() {
             <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB Reader" className="h-10 w-auto" />
             <span className="font-serif text-lg font-bold text-foreground hidden sm:block">The Holy Bible</span>
           </Link>
-
-          <div className="flex-1 max-w-xs">
-            <BibleSearchBar onClose={() => setMenuOpen(false)} />
-          </div>
 
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
