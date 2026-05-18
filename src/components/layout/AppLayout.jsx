@@ -192,17 +192,6 @@ export default function AppLayout() {
         downloaded={downloaded}
       />
 
-      {/* Mobile footer show chevron - always visible when bottom nav is hidden */}
-      {footerHidden && (
-        <button
-          onClick={() => { setFooterHidden(false); try { localStorage.setItem('kjb-footer-hidden', 'false'); } catch {} }}
-          className="sm:hidden fixed bottom-0 left-1/2 -translate-x-1/2 -mb-3 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm z-50"
-          title="Show footer"
-        >
-          <ChevronDown className="w-4 h-4 rotate-180" />
-        </button>
-      )}
-
       <footer className="hidden sm:block border-t border-border bg-card/80 py-3 mt-8 relative">
         {!footerHidden && (
           <button
