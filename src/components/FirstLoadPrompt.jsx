@@ -14,6 +14,8 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   const [downloading, setDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(null);
   const [downloaded, setDownloaded] = useState(propDownloaded || false);
+  const [installDone, setInstallDone] = useState(false);
+  const [notifDone, setNotifDone] = useState(false);
 
   useEffect(() => {
     if (propDownloaded !== undefined) {
@@ -27,20 +29,25 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   const alreadyInstalled = isInStandaloneMode();
   const isDesktop = !isMobile();
   // Show install: either native prompt available, iOS, Android, or desktop PWA
-  const showInstall = !alreadyInstalled && (isInstallable || isIOS() || isAndroid() || isDesktop);
+  const showInstall = !alreadyInstalled && !installDone && (isInstallable || isIOS() || isAndroid() || isDesktop);
   // Always show notification option - works in browser and installed app/APK
-  const showNotif = true;
+  const showNotif = !notifDone;
   // Show offline download prompt if not already downloaded
   const showOffline = !downloaded;
 
-  if (!showInstall && !showNotif && !showOffline) return null;
+  // Only dismiss when all three actions are complete
+  const allDone = downloaded && installDone && notifDone;
+  if (allDone) return null;
 
   const handleInstallClick = async () => {
     console.log('[FirstLoadPrompt] handleInstallClick called');
     if (isInstallable) {
       const accepted = await onInstall();
       console.log('[FirstLoadPrompt] install accepted:', accepted);
-      if (accepted) onDismiss();
+      if (accepted) {
+        setInstallDone(true);
+        onDismiss();
+      }
     } else if (isIOS()) {
       // iOS — show manual instructions
       setShowIOSHint(h => !h);
@@ -48,7 +55,10 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
       // Android — try to trigger install prompt (same as Settings button)
       const accepted = await onInstall();
       console.log('[FirstLoadPrompt] android install accepted:', accepted);
-      if (accepted) onDismiss();
+      if (accepted) {
+        setInstallDone(true);
+        onDismiss();
+      }
     }
   };
 
@@ -56,6 +66,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     console.log('[FirstLoadPrompt] handleNotifClick called');
     if (onEnableNotif) {
       await onEnableNotif();
+      setNotifDone(true);
     }
   };
 
@@ -70,7 +81,6 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
       if (onDownloadOffline) onDownloadOffline();
       // Dispatch storage event to sync Settings page
       window.dispatchEvent(new Event('storage'));
-      onDismiss();
     } catch (err) {
       console.error('Failed to download offline data:', err);
     } finally {
