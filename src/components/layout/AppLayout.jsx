@@ -194,6 +194,16 @@ export default function AppLayout() {
               );
             })}
           </div>
+          <div className="flex items-center justify-center gap-4 mb-3">
+            <button
+              onClick={() => { setFooterHidden(true); try { localStorage.setItem('kjb-footer-hidden', 'true'); } catch {} }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-sans text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              title="Hide footer"
+            >
+              <EyeOff className="w-3.5 h-3.5" />
+              Hide footer
+            </button>
+          </div>
           <p className="text-center font-sans text-xs text-muted-foreground">
             Bible text from{' '}
             <a href="https://bibleprotector.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
