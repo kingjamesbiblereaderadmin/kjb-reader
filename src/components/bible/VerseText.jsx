@@ -41,10 +41,11 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     }
   }
 
-  const hasPilcrow = verse.text.includes('\u00B6');
+  // The source file's pilcrow (¶) is fetched as U+FFFD (replacement char) due to encoding
+  const hasPilcrow = verse.text.includes('\u00B6') || verse.text.includes('\uFFFD');
   const html = renderVerseText(colophonText || mainText);
-  // Remove ¶ (U+00B6) from HTML — we render the paragraph break ourselves
-  const htmlNoPilcrow = html.replace(/\u00B6\s*/g, '');
+  // Remove both ¶ and the replacement char from HTML
+  const htmlNoPilcrow = html.replace(/[\u00B6\uFFFD]\s*/g, '');
   const hasItalics = html.includes('<em>');
 
   const verseRef = `${bookName} ${chapter}:${verse.verse}`;

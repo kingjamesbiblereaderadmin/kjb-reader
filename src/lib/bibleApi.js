@@ -5,8 +5,8 @@ import { getBibleData, isBibleCached } from '@/lib/bibleCache';
 // The PCE text file includes "¶ THE END." and "¶ END OF THE PROPHETS" inline in verse text
 function stripEndMarker(text) {
   return text
-    .replace(/\s*¶\s*THE END\.?\s*$/i, '')
-    .replace(/\s*¶\s*END OF THE PROPHETS\.?\s*$/i, '')
+    .replace(/\s*[\u00B6\uFFFD]\s*THE END\.?\s*$/i, '')
+    .replace(/\s*[\u00B6\uFFFD]\s*END OF THE PROPHETS\.?\s*$/i, '')
     .trim();
 }
 
