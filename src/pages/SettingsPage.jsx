@@ -37,13 +37,6 @@ export default function SettingsPage() {
 
   useEffect(() => {
     isBibleCached().then(setCached);
-
-    // Listen for storage events to sync with FirstLoadPrompt
-    const handleStorage = () => {
-      isBibleCached().then(setCached);
-    };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
   // Refresh notification state on focus
@@ -130,11 +123,7 @@ export default function SettingsPage() {
     if (readingReminderEnabled) scheduleReadingReminder();
   };
 
-  const handleDownload = async (e) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
+  const handleDownload = async () => {
     setDownloading(true);
     setDlError('');
     setDlProgress(0);
@@ -146,12 +135,6 @@ export default function SettingsPage() {
       });
       setCached(true);
       setDlStatus('All 66 books downloaded successfully!');
-      // Dispatch storage event to sync FirstLoadPrompt
-      window.dispatchEvent(new Event('storage'));
-      // Also update localStorage to prevent prompt from reappearing
-      try {
-        localStorage.setItem('kjb-prompt-dismissed', 'true');
-      } catch {}
     } catch (err) {
       setDlError('Download failed: ' + err.message + '. Please check your connection and try again.');
     }
@@ -318,26 +301,13 @@ export default function SettingsPage() {
               <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
               <span className="font-sans text-sm font-medium">All 66 books downloaded — available offline</span>
             </div>
-            <div className="flex gap-2">
-              <button
-                onClick={async () => {
-                  await handleClearCache();
-                  // Auto-download fresh data with pilcrows
-                  setTimeout(() => handleDownload(), 500);
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
-              >
-                <Download className="w-3.5 h-3.5" />
-                Refresh with Latest
-              </button>
-              <button
-                onClick={handleClearCache}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive font-sans text-xs font-medium hover:bg-destructive/20 transition-colors"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                Clear Cache
-              </button>
-            </div>
+            <button
+              onClick={handleClearCache}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive font-sans text-xs font-medium hover:bg-destructive/20 transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Clear Cache & Reload
+            </button>
           </div>
         ) : (
           <div className="space-y-3">
@@ -349,7 +319,6 @@ export default function SettingsPage() {
             )}
             <button
               onClick={handleDownload}
-              onTouchEnd={(e) => { e.preventDefault(); handleDownload(e); }}
               disabled={downloading}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 disabled:opacity-60 transition-opacity"
             >

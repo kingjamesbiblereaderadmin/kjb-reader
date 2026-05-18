@@ -36,6 +36,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
           className="w-full text-left px-3 py-2 rounded text-sm font-sans transition-colors hover:bg-secondary text-foreground font-medium text-primary"
         >
           <span>Title Page</span>
+          <span className="ml-2 text-xs text-muted-foreground">Old Testament intro</span>
         </button>
 
         {/* Old Testament */}
@@ -67,6 +68,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
               className="w-full text-left px-3 py-1.5 rounded text-sm font-sans transition-colors hover:bg-secondary text-foreground"
             >
               <span>Title Page</span>
+              <span className="ml-2 text-xs text-muted-foreground">intro</span>
             </button>
             {NEW_TESTAMENT.map((book) => renderBook(book))}
           </div>

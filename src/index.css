@@ -86,12 +86,4 @@
     -webkit-user-select: none;
     user-select: none;
   }
-  /* Ensure pilcrow character (¶) is visible and properly styled */
-  .font-serif {
-    font-variant-ligatures: none;
-  }
-  /* Force pilcrow to render */
-  [id^="v"]::before {
-    /* Only for debugging - check if pilcrow exists */
-  }
 }

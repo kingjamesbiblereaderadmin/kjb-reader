@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown } from 'lucide-react';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
-import { fetchChapter, fetchVerseCount, renderVerseText } from '@/lib/bibleApi';
+import { fetchChapter, fetchVerseCount } from '@/lib/bibleApi';
 import { getBibleData } from '@/lib/bibleCache';
 import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
 import BookSelector from '@/components/bible/BookSelector';
@@ -243,17 +243,14 @@ export default function BibleReader() {
           <div className="relative flex flex-wrap items-center gap-2 pt-1 justify-between">
 
             {/* Book selector */}
-            <div className="flex items-center gap-0 flex-wrap -m-1">
-            <div className="p-1">
+            <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => { setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); }}
-              onTouchEnd={(e) => { e.preventDefault(); setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); }}
-              className="flex items-center gap-1.5 px-4 py-3 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-colors min-w-fit touch-manipulation min-h-[48px]"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-colors min-w-fit"
             >
               {isViewingTitlePage ? 'Title Page' : book.shortName}
               <ChevronRight className="w-3 h-3 opacity-70" />
             </button>
-            </div>
             {/* Desktop popover */}
             {showBookPicker && !isMobile() && (
               <div className="absolute top-full left-0 mt-1 z-50">
@@ -291,34 +288,17 @@ export default function BibleReader() {
               />
             </SelectorSheet>
 
-            {!isViewingTitlePage && (
-              <>
             {/* Chapter selector */}
-            <div className="p-1">
             <button
-              onClick={() => { setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); }}
-              onTouchEnd={(e) => { e.preventDefault(); setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); }}
-              className="flex items-center gap-1.5 px-4 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors min-w-fit touch-manipulation min-h-[48px]"
+              onClick={() => { if (!isViewingTitlePage) { setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); } }}
+              disabled={isViewingTitlePage}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed min-w-fit"
             >
-              Ch. {pos.chapter}
+              Ch. {isViewingTitlePage ? 'Intro' : pos.chapter}
               <ChevronRight className="w-3 h-3 opacity-70" />
             </button>
-            </div>
-              {showChapterPicker && !isMobile() && (
-                <div className="absolute top-full left-0 mt-1 z-50">
-                  <ChapterSelector
-                    totalChapters={book.chapters}
-                    currentChapter={pos.chapter}
-                    onSelect={(ch, showVerse) => {
-                      navigate(pos.abbr, ch);
-                      setShowChapterPicker(false);
-                      if (showVerse) setShowVersePicker(true);
-                    }}
-                    onClose={() => setShowChapterPicker(false)}
-                  />
-                </div>
-              )}
-              <SelectorSheet open={showChapterPicker && isMobile()} onClose={() => setShowChapterPicker(false)} title={`${book.shortName} — Select Chapter`}>
+            {showChapterPicker && !isViewingTitlePage && !isMobile() && (
+              <div className="absolute top-full left-0 mt-1 z-50">
                 <ChapterSelector
                   totalChapters={book.chapters}
                   currentChapter={pos.chapter}
@@ -329,32 +309,32 @@ export default function BibleReader() {
                   }}
                   onClose={() => setShowChapterPicker(false)}
                 />
-              </SelectorSheet>
-
-              {/* Verse selector */}
-              <div className="p-1">
-              <button
-                onClick={() => { setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); }}
-                onTouchEnd={(e) => { e.preventDefault(); setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); }}
-                className="flex items-center gap-1.5 px-4 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors min-w-fit touch-manipulation min-h-[48px]"
-                disabled={verseCount === 0}
-              >
-                {highlightVerse ? `v.${highlightVerse}` : 'Verse'}
-                <ChevronRight className="w-3 h-3 opacity-70" />
-              </button>
               </div>
-              {showVersePicker && verseCount > 0 && !isMobile() && (
-                <div className="absolute top-full left-0 mt-1 z-50">
-                  <VerseSelector
-                    totalVerses={verseCount}
-                    currentVerse={highlightVerse}
-                    onSelect={(v) => { navigate(pos.abbr, pos.chapter, v); setShowVersePicker(false); }}
-                    onClose={() => setShowVersePicker(false)}
-                    autoSelect={true}
-                  />
-                </div>
-              )}
-              <SelectorSheet open={showVersePicker && verseCount > 0 && isMobile()} onClose={() => setShowVersePicker(false)} title={`${book.shortName} ${pos.chapter} — Select Verse`}>
+            )}
+            <SelectorSheet open={showChapterPicker && !isViewingTitlePage && isMobile()} onClose={() => setShowChapterPicker(false)} title={`${book.shortName} — Select Chapter`}>
+              <ChapterSelector
+                totalChapters={book.chapters}
+                currentChapter={pos.chapter}
+                onSelect={(ch, showVerse) => {
+                  navigate(pos.abbr, ch);
+                  setShowChapterPicker(false);
+                  if (showVerse) setShowVersePicker(true);
+                }}
+                onClose={() => setShowChapterPicker(false)}
+              />
+            </SelectorSheet>
+
+            {/* Verse selector */}
+            <button
+              onClick={() => { if (!isViewingTitlePage) { setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); } }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed min-w-fit"
+              disabled={verseCount === 0 || isViewingTitlePage}
+            >
+              {highlightVerse ? `v.${highlightVerse}` : 'Verse'}
+              <ChevronRight className="w-3 h-3 opacity-70" />
+            </button>
+            {showVersePicker && verseCount > 0 && !isViewingTitlePage && !isMobile() && (
+              <div className="absolute top-full left-0 mt-1 z-50">
                 <VerseSelector
                   totalVerses={verseCount}
                   currentVerse={highlightVerse}
@@ -362,66 +342,60 @@ export default function BibleReader() {
                   onClose={() => setShowVersePicker(false)}
                   autoSelect={true}
                 />
-              </SelectorSheet>
-
-              {/* Layout toggle */}
-              <div className="p-1">
-              <button
-                onClick={toggleLayout}
-                onTouchEnd={(e) => { e.preventDefault(); toggleLayout(); }}
-                title={paragraphMode ? 'Switch to line-by-line' : 'Switch to paragraph'}
-                className="flex items-center gap-1 px-3 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors touch-manipulation min-h-[48px]"
-              >
-                {paragraphMode ? <AlignJustify className="w-3.5 h-3.5" /> : <List className="w-3.5 h-3.5" />}
-                {paragraphMode ? 'Para' : 'Lines'}
-              </button>
               </div>
-              </>
             )}
+            <SelectorSheet open={showVersePicker && verseCount > 0 && !isViewingTitlePage && isMobile()} onClose={() => setShowVersePicker(false)} title={`${book.shortName} ${pos.chapter} — Select Verse`}>
+              <VerseSelector
+                totalVerses={verseCount}
+                currentVerse={highlightVerse}
+                onSelect={(v) => { navigate(pos.abbr, pos.chapter, v); setShowVersePicker(false); }}
+                onClose={() => setShowVersePicker(false)}
+                autoSelect={true}
+              />
+            </SelectorSheet>
+
+            {/* Layout toggle */}
+            <button
+              onClick={toggleLayout}
+              title={paragraphMode ? 'Switch to line-by-line' : 'Switch to paragraph'}
+              disabled={isViewingTitlePage}
+              className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {paragraphMode ? <AlignJustify className="w-3.5 h-3.5" /> : <List className="w-3.5 h-3.5" />}
+              {paragraphMode ? 'Para' : 'Lines'}
+            </button>
             </div>
 
             {/* Prev/Next + Fullscreen + Hide header */}
-            <div className="flex items-center gap-0">
-              <div className="p-1">
+            <div className="flex items-center gap-1">
               <button
                 onClick={goPrev}
-                onTouchEnd={(e) => { e.preventDefault(); goPrev(); }}
                 disabled={isFirstChapterFirstBook}
-                className="p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-colors touch-manipulation min-h-[48px] min-w-[48px] flex items-center justify-center"
+                className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-colors"
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="w-4 h-4" />
               </button>
-              </div>
-              <div className="p-1">
               <button
                 onClick={goNext}
-                onTouchEnd={(e) => { e.preventDefault(); goNext(); }}
                 disabled={isLastChapterLastBook}
-                className="p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-colors touch-manipulation min-h-[48px] min-w-[48px] flex items-center justify-center"
+                className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-colors"
               >
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight className="w-4 h-4" />
               </button>
-              </div>
-              <div className="p-1">
               <button
                 onClick={toggleFullscreen}
-                onTouchEnd={(e) => { e.preventDefault(); toggleFullscreen(); }}
                 title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-                className="p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors touch-manipulation min-h-[48px] min-w-[48px] flex items-center justify-center"
+                className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
               >
-                {fullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+                {fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
               </button>
-              </div>
-              <div className="p-1">
               <button
                 onClick={() => setHideHeader(true)}
-                onTouchEnd={(e) => { e.preventDefault(); setHideHeader(true); }}
                 title="Hide header"
-                className="p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors touch-manipulation min-h-[48px] min-w-[48px] flex items-center justify-center"
+                className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
               >
-                <ChevronDown className="w-5 h-5" />
+                <ChevronDown className="w-4 h-4" />
               </button>
-              </div>
             </div>
           </div>
         </div>
@@ -513,9 +487,9 @@ export default function BibleReader() {
         )}
         {/* Colophon footer - shown below all verses for chapters that have one */}
         {!loading && !error && colophon && (
-          <div className="text-center mt-12 mb-4">
-            <p className="font-serif text-sm text-muted-foreground leading-relaxed">
-              ¶ <em>{colophon}</em>
+          <div className="mt-8 pt-6 border-t border-border">
+            <p className="font-serif text-sm text-muted-foreground italic text-center leading-relaxed">
+              {colophon}
             </p>
           </div>
         )}
@@ -539,40 +513,36 @@ export default function BibleReader() {
 
       {/* Bottom nav */}
       {!loading && !error && (
-        <div className="flex justify-between gap-2 mt-6 pt-6 border-t border-border">
+        <div className="flex justify-between mt-6 pt-6 border-t border-border">
           <button
             onClick={goPrev}
             disabled={isFirstChapterFirstBook}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-30 transition-colors min-h-[48px] touch-manipulation"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-30 transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">
-              {isFirstChapterFirstBook
-                ? 'Beginning'
-                : isGenesisChapterOne
-                ? 'Title Page'
-                : isViewingTitlePage
-                ? `${getPrevBook(pos.abbr)?.shortName} ${getPrevBook(pos.abbr)?.chapters}`
-                : pos.chapter > 1
-                ? `Chapter ${pos.chapter - 1}`
-                : (pos.abbr === 'GEN' || pos.abbr === 'MAT')
-                ? `${book.shortName} Title Page`
-                : `${getPrevBook(pos.abbr)?.shortName} ${getPrevBook(pos.abbr)?.chapters}`}
-            </span>
+            {isFirstChapterFirstBook
+              ? 'Beginning'
+              : isGenesisChapterOne
+              ? 'Title Page'
+              : isViewingTitlePage
+              ? `${getPrevBook(pos.abbr)?.shortName} ${getPrevBook(pos.abbr)?.chapters}`
+              : pos.chapter > 1
+              ? `Chapter ${pos.chapter - 1}`
+              : (pos.abbr === 'GEN' || pos.abbr === 'MAT')
+              ? `${book.shortName} Title Page`
+              : `${getPrevBook(pos.abbr)?.shortName} ${getPrevBook(pos.abbr)?.chapters}`}
           </button>
 
           <button
             onClick={goNext}
             disabled={isLastChapterLastBook}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-30 transition-colors min-h-[48px] touch-manipulation"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-30 transition-colors"
           >
-            <span className="hidden sm:inline">
-              {isViewingTitlePage
-                ? `Chapter 1`
-                : pos.chapter < book.chapters
-                ? `Chapter ${pos.chapter + 1}`
-                : `${getNextBook(pos.abbr)?.shortName} 1`}
-            </span>
+            {isViewingTitlePage
+              ? `Chapter 1`
+              : pos.chapter < book.chapters
+              ? `Chapter ${pos.chapter + 1}`
+              : `${getNextBook(pos.abbr)?.shortName} 1`}
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>

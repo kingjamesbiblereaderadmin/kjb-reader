@@ -117,48 +117,47 @@ export default function BibleSearchBar({ onClose }) {
   return (
     <div className="relative w-full">
       <form onSubmit={handleSubmit} className="relative">
-        <div className="relative flex items-center min-h-[80px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none flex-shrink-0" />
-          <input
-            ref={inputRef}
-            type="text"
-            value={query}
-            onChange={e => { setQuery(e.target.value); setOpen(true); }}
-            onFocus={() => setOpen(true)}
-            placeholder="Search..."
-            className="w-full pl-9 pr-16 py-3 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors min-h-[72px] truncate"
-          />
-          {query && (
-            <button
-              type="button"
-              onClick={() => { setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
-              onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
-              className="absolute right-0 top-0 bottom-0 w-20 flex items-center justify-center text-muted-foreground hover:text-foreground active:opacity-60"
-              style={{ touchAction: 'manipulation' }}
-              aria-label="Clear search"
-            >
-              <X className="w-6 h-6" />
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+        <input
+          ref={inputRef}
+          type="text"
+          value={query}
+          onChange={e => { setQuery(e.target.value); setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          placeholder="1 Corinthians 15:1-4; Romans 3:25"
+          className="w-full pl-8 pr-7 py-1.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors"
+        />
+        {query && (
+          <>
+            <button type="submit" className="absolute right-8 top-1/2 -translate-y-1/2 text-xs font-medium text-accent hover:text-accent/80 px-2 py-1">
+              Go
             </button>
-          )}
-        </div>
+            <button type="button" onClick={() => { setQuery(''); setSuggestions([]); }} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </>
+        )}
       </form>
 
       {open && suggestions.length > 0 && (
-        <div className="absolute top-full mt-1 left-0 right-0 z-50 bg-card border border-border rounded-xl shadow-xl overflow-hidden">
-          {suggestions.map((s, i) => (
-            <button
-              key={i}
-              onClick={() => handleSelect(s)}
-              className="w-full flex items-center gap-3 px-3 py-3 min-h-[48px] hover:bg-secondary transition-colors text-left border-b border-border last:border-0 touch-manipulation"
-            >
-              <Search className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="font-sans text-sm font-medium text-foreground truncate">{s.label}</p>
-                <p className="font-sans text-xs text-muted-foreground">{s.sub}</p>
-              </div>
-            </button>
-          ))}
-        </div>
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute top-full mt-1 left-0 right-0 z-50 bg-card border border-border rounded-xl shadow-xl overflow-hidden">
+            {suggestions.map((s, i) => (
+              <button
+                key={i}
+                onClick={() => handleSelect(s)}
+                className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-secondary transition-colors text-left border-b border-border last:border-0"
+              >
+                <Search className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-sans text-sm font-medium text-foreground truncate">{s.label}</p>
+                  <p className="font-sans text-xs text-muted-foreground">{s.sub}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

@@ -34,7 +34,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   const html = renderVerseText(displayVerseText);
   const hasItalics = html.includes('<em>');
   // Check if verse text contains pilcrow character (U+00B6)
-  const hasPilcrow = displayVerseText.includes('\u00B6') || displayVerseText.includes('¶');
+  const hasPilcrow = verse.text.includes('\u00B6') || verse.text.includes('¶');
 
   const verseRef = `${bookName} ${chapter}:${verse.verse}`;
   const cleanText = verse.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '');

@@ -3,8 +3,8 @@ import React from 'react';
 export default function TitlePage({ type }) {
   if (type === 'testament-old') {
     return (
-      <div className="text-center px-4 py-8">
-        <div className="max-w-md mx-auto">
+      <div className="flex items-center justify-center text-center px-4 py-8">
+        <div className="max-w-md">
           <div className="mb-4 h-px bg-foreground/20" />
           <p className="font-serif text-xs tracking-[0.25em] text-muted-foreground mb-3 font-light">THE</p>
           <h1 className="font-serif text-7xl md:text-8xl font-light text-foreground mb-4 leading-tight tracking-tight">
