@@ -123,12 +123,12 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
         {showNotif && (
           <button
             onClick={onEnableNotif}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity text-left"
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary font-sans text-sm font-medium hover:bg-primary/20 transition-colors text-left"
           >
             <Bell className="w-4 h-4 shrink-0" />
             <span className="flex-1">
               <span className="block font-semibold">Enable Daily Notifications</span>
-              <span className="block text-xs text-muted-foreground">Get the daily verse every morning</span>
+              <span className="block text-xs opacity-80">Get the daily verse every morning</span>
             </span>
           </button>
         )}
