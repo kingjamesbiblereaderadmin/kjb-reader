@@ -90,7 +90,7 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`}>
-        <div className="max-w-5xl mx-auto px-4 h-[72px] sm:h-20 flex items-center gap-3">
+        <div className="max-w-5xl mx-auto px-4 h-[80px] sm:h-24 flex items-center gap-3">
           {/* Logo */}
           <Link
             to="/"
@@ -109,8 +109,8 @@ export default function AppLayout() {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-1 pointer-events-none">
-            <div className="relative w-16 h-16 pointer-events-auto">
+          <div className="flex items-center gap-2 pointer-events-none">
+            <div className="relative w-20 h-20 pointer-events-auto">
               <button
                 type="button"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
@@ -119,10 +119,10 @@ export default function AppLayout() {
                 style={{ touchAction: 'manipulation' }}
                 aria-label="Refresh"
               >
-                <RotateCw className="w-5 h-5" />
+                <RotateCw className="w-6 h-6" />
               </button>
             </div>
-            <div className="relative w-16 h-16 pointer-events-auto">
+            <div className="relative w-20 h-20 pointer-events-auto">
               <button
                 type="button"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
@@ -131,10 +131,10 @@ export default function AppLayout() {
                 style={{ touchAction: 'manipulation' }}
                 aria-label="Toggle theme"
               >
-                {mode === 'auto' ? <SunMoon className="w-5 h-5" /> : isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                {mode === 'auto' ? <SunMoon className="w-6 h-6" /> : isDark ? <Moon className="w-6 h-6" /> : <Sun className="w-6 h-6" />}
               </button>
             </div>
-            <div className="relative w-16 h-16 pointer-events-auto">
+            <div className="relative w-20 h-20 pointer-events-auto">
               <button
                 type="button"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
@@ -143,7 +143,7 @@ export default function AppLayout() {
                 style={{ touchAction: 'manipulation' }}
                 aria-label="Open menu"
               >
-                {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
             </div>
           </div>

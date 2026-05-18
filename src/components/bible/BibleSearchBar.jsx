@@ -117,7 +117,7 @@ export default function BibleSearchBar({ onClose }) {
   return (
     <div className="relative w-full">
       <form onSubmit={handleSubmit} className="relative">
-        <div className="relative flex items-center min-h-[72px]">
+        <div className="relative flex items-center min-h-[80px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none flex-shrink-0" />
           <input
             ref={inputRef}
@@ -133,11 +133,11 @@ export default function BibleSearchBar({ onClose }) {
               type="button"
               onClick={() => { setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
               onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
-              className="absolute right-0 top-0 bottom-0 w-16 flex items-center justify-center text-muted-foreground hover:text-foreground active:opacity-60"
+              className="absolute right-0 top-0 bottom-0 w-20 flex items-center justify-center text-muted-foreground hover:text-foreground active:opacity-60"
               style={{ touchAction: 'manipulation' }}
               aria-label="Clear search"
             >
-              <X className="w-5 h-5" />
+              <X className="w-6 h-6" />
             </button>
           )}
         </div>
