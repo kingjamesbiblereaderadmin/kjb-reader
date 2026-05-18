@@ -113,7 +113,7 @@ export default function AppLayout() {
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
-              className="w-14 h-14 flex items-center justify-center rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors pointer-events-auto"
+              className="w-16 h-16 flex items-center justify-center rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors pointer-events-auto"
               aria-label="Refresh"
             >
               <RotateCw className="w-5 h-5" />
@@ -121,7 +121,7 @@ export default function AppLayout() {
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
-              className="w-14 h-14 flex items-center justify-center rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors pointer-events-auto"
+              className="w-16 h-16 flex items-center justify-center rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors pointer-events-auto"
               aria-label="Toggle theme"
             >
               {mode === 'auto' ? <SunMoon className="w-5 h-5" /> : isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
@@ -129,7 +129,7 @@ export default function AppLayout() {
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
-              className="w-14 h-14 flex items-center justify-center rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors pointer-events-auto"
+              className="w-16 h-16 flex items-center justify-center rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors pointer-events-auto"
               aria-label="Open menu"
             >
               {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
