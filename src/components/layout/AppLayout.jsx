@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft } from 'lucide-react';
+import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
@@ -18,13 +18,15 @@ const NAV_ITEMS = [
   { path: '/settings', icon: Settings, label: 'Settings' },
 ];
 
-// Bottom bar shows only the most important 5 items on mobile
-const BOTTOM_NAV = [
+const BOTTOM_NAV_PRIMARY = [
   { path: '/', icon: Home, label: 'Home' },
   { path: '/read', icon: BookOpen, label: 'Read' },
   { path: '/gospel', icon: Heart, label: 'Gospel' },
   { path: '/resources', icon: Library, label: 'Resources' },
   { path: '/saved', icon: Bookmark, label: 'Saved' },
+];
+
+const BOTTOM_NAV_SECONDARY = [
   { path: '/about', icon: Info, label: 'About' },
   { path: '/settings', icon: Settings, label: 'Settings' },
 ];
@@ -35,56 +37,11 @@ export default function AppLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   const isRoot = pathname === '/';
-  const { isInstallable, promptInstall, dismiss, wasDismissed } = useInstallPrompt();
-  const [showPrompt, setShowPrompt] = useState(false);
-  const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
-
-  // Show prompt on first visit after 2s if not dismissed
-  useEffect(() => {
-    if (wasDismissed()) return;
-    const timer = setTimeout(() => setShowPrompt(true), 2000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Auto-dismiss prompt on any user interaction (click/tap)
-  useEffect(() => {
-    if (!showPrompt) return;
-    const handleInteraction = () => {
-      handleDismiss();
-    };
-    document.addEventListener('click', handleInteraction, { once: true });
-    document.addEventListener('touchstart', handleInteraction, { once: true });
-    return () => {
-      document.removeEventListener('click', handleInteraction);
-      document.removeEventListener('touchstart', handleInteraction);
-    };
-  }, [showPrompt]);
-
-  const handleInstall = async () => {
-    const accepted = await promptInstall();
-    if (accepted) setShowPrompt(false);
-  };
-
-  const handleEnableNotif = async () => {
-    const result = await requestNotificationPermission();
-    setNotifPermission(result);
-    if (result === 'granted') {
-      scheduleDailyNotification(getDailyVerse());
-      setShowPrompt(false);
-    }
-    // If denied, keep prompt open so user sees the "blocked" message
-  };
-
-  const handleDismiss = () => {
-    dismiss();
-    setShowPrompt(false);
-  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
-          {/* Back button or Logo */}
           {!isRoot ? (
             <button
               onClick={() => {
@@ -111,12 +68,10 @@ export default function AppLayout() {
             </Link>
           )}
 
-          {/* Search bar */}
           <div className="flex-1 max-w-xs">
             <BibleSearchBar onClose={() => setMenuOpen(false)} />
           </div>
 
-          {/* Right controls */}
           <div className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={toggleTheme}
@@ -135,7 +90,6 @@ export default function AppLayout() {
           </div>
         </div>
 
-        {/* Dropdown nav menu */}
         {menuOpen && (
           <>
             <div
@@ -176,42 +130,7 @@ export default function AppLayout() {
         <Outlet />
       </main>
 
-      {/* Mobile bottom nav bar */}
-      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border">
-        <div className="flex items-center gap-1 px-2 py-1 overflow-x-auto" style={{ paddingBottom: 'max(0.25rem, env(safe-area-inset-bottom))' }}>
-          {BOTTOM_NAV.map(item => {
-            const Icon = item.icon;
-            const active = item.path === '/' ? pathname === '/' : pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                  setTimeout(() => navigate(item.path), 150);
-                }}
-                className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition-colors shrink-0 ${
-                  active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                <span className="font-sans text-[10px] font-medium">{item.label}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
-
-      {showPrompt && (
-        <FirstLoadPrompt
-          isInstallable={isInstallable}
-          notifPermission={notifPermission}
-          onInstall={handleInstall}
-          onEnableNotif={handleEnableNotif}
-          onDismiss={handleDismiss}
-        />
-      )}
+      <BottomNav pathname={pathname} navigate={navigate} />
 
       <footer className="hidden sm:block border-t border-border bg-card/80 py-4 mt-8">
         <div className="max-w-4xl mx-auto px-4">
@@ -248,4 +167,128 @@ export default function AppLayout() {
       </footer>
     </div>
   );
+}
+
+function BottomNav({ pathname, navigate }) {
+  const [expanded, setExpanded] = useState(false);
+  const { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss } = useBottomNavPrompt();
+
+  return (
+    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border">
+      <div className="flex items-center justify-around px-2 py-1" style={{ paddingBottom: 'max(0.25rem, env(safe-area-inset-bottom))' }}>
+        {BOTTOM_NAV_PRIMARY.map(item => {
+          const Icon = item.icon;
+          const active = item.path === '/' ? pathname === '/' : pathname === item.path;
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              onClick={(e) => {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                setTimeout(() => navigate(item.path), 150);
+              }}
+              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors ${
+                active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Icon className="w-5 h-5" />
+              <span className="font-sans text-[10px] font-medium">{item.label}</span>
+            </Link>
+          );
+        })}
+        <button
+          onClick={() => setExpanded(e => !e)}
+          className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors ${
+            expanded ? 'text-primary bg-secondary' : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <ChevronDown className={`w-5 h-5 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+          <span className="font-sans text-[10px] font-medium">More</span>
+        </button>
+      </div>
+      {expanded && (
+        <div className="border-t border-border bg-card/95 backdrop-blur-md px-4 py-2 flex items-center justify-around">
+          {BOTTOM_NAV_SECONDARY.map(item => {
+            const Icon = item.icon;
+            const active = pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  setTimeout(() => navigate(item.path), 150);
+                  setExpanded(false);
+                }}
+                className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-lg transition-colors ${
+                  active ? 'text-primary bg-secondary' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Icon className="w-5 h-5" />
+                <span className="font-sans text-[10px] font-medium">{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+      {showPrompt && (
+        <FirstLoadPrompt
+          isInstallable={isInstallable}
+          notifPermission={notifPermission}
+          onInstall={handleInstall}
+          onEnableNotif={handleEnableNotif}
+          onDismiss={handleDismiss}
+        />
+      )}
+    </nav>
+  );
+}
+
+function useBottomNavPrompt() {
+  const [showPrompt, setShowPrompt] = useState(false);
+  const { isInstallable, promptInstall, dismiss, wasDismissed } = useInstallPrompt();
+  const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
+
+  useEffect(() => {
+    if (wasDismissed()) return;
+    const timer = setTimeout(() => setShowPrompt(true), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!showPrompt) return;
+    const handleInteraction = () => {
+      dismiss();
+      setShowPrompt(false);
+    };
+    document.addEventListener('click', handleInteraction, { once: true });
+    document.addEventListener('touchstart', handleInteraction, { once: true });
+    return () => {
+      document.removeEventListener('click', handleInteraction);
+      document.removeEventListener('touchstart', handleInteraction);
+    };
+  }, [showPrompt]);
+
+  const handleInstall = async () => {
+    const accepted = await promptInstall();
+    if (accepted) setShowPrompt(false);
+  };
+
+  const handleEnableNotif = async () => {
+    const result = await requestNotificationPermission();
+    setNotifPermission(result);
+    if (result === 'granted') {
+      scheduleDailyNotification(getDailyVerse());
+      setShowPrompt(false);
+    }
+  };
+
+  const handleDismiss = () => {
+    dismiss();
+    setShowPrompt(false);
+  };
+
+  return { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss };
 }
