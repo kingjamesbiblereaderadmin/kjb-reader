@@ -5,7 +5,9 @@ import { base44 } from '@/api/base44Client';
 import { useTheme, COLOUR_PALETTES } from '@/lib/themeContext';
 import {
   getNotificationsEnabled, getNotificationTime, setNotificationTime,
-  requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification
+  requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification,
+  getReadingReminderEnabled, getReadingReminderTime, setReadingReminderTime,
+  enableReadingReminder, disableReadingReminder, scheduleReadingReminder
 } from '@/lib/notifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { isBibleCached, downloadBibleForOffline, clearBibleCache } from '@/lib/bibleCache';
@@ -20,6 +22,8 @@ export default function SettingsPage() {
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
+  const [readingReminderEnabled, setReadingReminderEnabled] = useState(getReadingReminderEnabled);
+  const [readingReminderTime, setReadingReminderTimeState] = useState(getReadingReminderTime);
 
   const { isInstallable, isInstalled, promptInstall } = useInstallPrompt();
   const [cached, setCached] = useState(isBibleCached);
@@ -55,6 +59,27 @@ export default function SettingsPage() {
   const handleTestNotif = () => {
     const v = getDailyVerse();
     showLocalNotification('King James Bible — Verse of the Day', `"${v.text.slice(0, 100)}${v.text.length > 100 ? '…' : ''}" — ${v.ref}`);
+  };
+
+  const handleToggleReadingReminder = async () => {
+    if (readingReminderEnabled) {
+      disableReadingReminder();
+      setReadingReminderEnabled(false);
+    } else {
+      const result = await requestNotificationPermission();
+      setNotifPermission(result);
+      if (result === 'granted') {
+        enableReadingReminder();
+        setReadingReminderEnabled(true);
+        scheduleReadingReminder();
+      }
+    }
+  };
+
+  const handleReadingReminderTimeChange = (e) => {
+    setReadingReminderTimeState(e.target.value);
+    setReadingReminderTime(e.target.value);
+    if (readingReminderEnabled) scheduleReadingReminder();
   };
 
   const handleDownload = async () => {
@@ -248,6 +273,7 @@ export default function SettingsPage() {
           <p className="font-sans text-sm text-muted-foreground">Notifications are not supported in this browser. To enable them, add this app to your home screen (install as a PWA) using Chrome on Android or Safari on iPhone.</p>
         ) : (
           <>
+            {/* Verse of the Day */}
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="font-sans text-sm text-foreground font-medium">Verse of the Day</p>
@@ -285,6 +311,39 @@ export default function SettingsPage() {
                 >
                   Test
                 </button>
+              </div>
+            )}
+
+            {/* Reading Reminder */}
+            <div className="pt-4 border-t border-border flex items-center justify-between gap-4">
+              <div>
+                <p className="font-sans text-sm text-foreground font-medium">Reading Reminder</p>
+                <p className="font-sans text-xs text-muted-foreground mt-0.5">
+                  Daily reminder to read a chapter
+                </p>
+              </div>
+              <button
+                onClick={handleToggleReadingReminder}
+                disabled={notifPermission === 'denied'}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl font-sans text-sm font-medium transition-colors ${
+                  readingReminderEnabled
+                    ? 'bg-primary text-primary-foreground hover:opacity-90'
+                    : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                } disabled:opacity-40`}
+              >
+                {readingReminderEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+                {readingReminderEnabled ? 'On' : 'Off'}
+              </button>
+            </div>
+            {readingReminderEnabled && (
+              <div className="flex items-center gap-3 pt-1">
+                <label className="font-sans text-sm text-muted-foreground shrink-0">Remind at</label>
+                <input
+                  type="time"
+                  value={readingReminderTime}
+                  onChange={handleReadingReminderTimeChange}
+                  className="flex-1 px-3 py-1.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground focus:outline-none focus:border-accent"
+                />
               </div>
             )}
           </>

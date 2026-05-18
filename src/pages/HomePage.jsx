@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw, ChevronRight, BookMarked } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import { getDailyVerse } from '@/lib/dailyVerse';
-import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications } from '@/lib/notifications';
+import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications, initNotifications, initReadingReminder } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 
 const READ_LINK = { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', color: 'bg-primary text-primary-foreground' };
@@ -70,7 +70,10 @@ export default function HomePage() {
 
   useEffect(() => {
     registerSW();
-    if (getNotificationsEnabled()) scheduleDailyNotification(verse);
+    if (getNotificationsEnabled()) {
+      initNotifications(verse);
+    }
+    initReadingReminder();
 
     const handleStorageChange = () => {
       setNotifEnabled(getNotificationsEnabled());
