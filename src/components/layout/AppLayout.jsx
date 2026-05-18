@@ -365,7 +365,7 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
       {showMode !== 'hidden' && (
         <div className="w-full">
           {/* Primary row - 5 items */}
-          <div className="grid grid-cols-5">
+          <div className="grid grid-cols-5 gap-0">
             {BOTTOM_NAV_PRIMARY.map(item => {
               const Icon = item.icon;
               const active = item.path === '/' ? pathname === '/' : pathname === item.path;
@@ -378,7 +378,7 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
                     setTimeout(() => navigate(item.path), 150);
                   }}
                   onTouchStart={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(() => navigate(item.path), 150); }}
-                  className="flex flex-col items-center justify-center py-3 min-h-[60px] active:bg-secondary/50 transition-colors"
+                  className="flex flex-col items-center justify-center w-full min-h-[44px] p-2 active:bg-secondary/50 transition-colors touch-manipulation"
                 >
                   <Icon className={`w-6 h-6 mb-1 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
                   <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
@@ -389,7 +389,7 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
           
           {/* Secondary row - 4 items */}
           {showMode === 'two' && (
-            <div className="grid grid-cols-4 border-t border-border">
+            <div className="grid grid-cols-4 gap-0 border-t border-border">
               {BOTTOM_NAV_SECONDARY.map(item => {
                 const Icon = item.icon;
                 const active = pathname === item.path;
@@ -402,7 +402,7 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
                       navigate(item.path);
                     }}
                     onTouchStart={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); navigate(item.path); }}
-                    className="flex flex-col items-center justify-center py-3 min-h-[60px] active:bg-secondary/50 transition-colors"
+                    className="flex flex-col items-center justify-center w-full min-h-[44px] p-2 active:bg-secondary/50 transition-colors touch-manipulation"
                   >
                     <Icon className={`w-6 h-6 mb-1 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
                     <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
