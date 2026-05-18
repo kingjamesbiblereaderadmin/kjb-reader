@@ -114,9 +114,8 @@ export default function HomePage() {
     setTimeout(() => navigate('/read'), 150);
   };
 
-  const handleToggleNotif = async (e) => {
+  const handleToggleNotif = async () => {
     console.log('handleToggleNotif called on HomePage');
-    if (e) e.stopPropagation();
     
     if (notifEnabled) {
       console.log('Notifications already enabled, disabling...');
@@ -128,10 +127,10 @@ export default function HomePage() {
     }
     
     console.log('Enabling notifications...');
-    // Check if service worker is supported (required for Android notifications)
-    if (!('serviceWorker' in navigator)) {
-      console.log('No service worker support');
-      alert('Notifications are not supported in this browser. Try using Chrome or installing the app.');
+    
+    if (!('Notification' in window)) {
+      console.log('Notification API not available');
+      alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
       return;
     }
     
@@ -141,7 +140,7 @@ export default function HomePage() {
       console.log('Notification permission result:', result);
       setNotifPermission(result);
       
-      if (result === 'granted' || result === 'supported') {
+      if (result === 'granted') {
         console.log('Permission granted, enabling notifications');
         setNotifEnabled(true);
         scheduleDailyNotification(verse);
