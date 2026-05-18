@@ -93,13 +93,6 @@ export default function AppLayout() {
               {mode === 'auto' ? <SunMoon className="w-5 h-5" /> : isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
             </button>
             <button
-              onClick={() => { setFooterHidden(h => !h); try { localStorage.setItem('kjb-footer-hidden', String(!footerHidden)); } catch {} }}
-              className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-              aria-label={footerHidden ? 'Show footer' : 'Hide footer'}
-            >
-              {footerHidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-            </button>
-            <button
               onClick={() => setMenuOpen(o => !o)}
               className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
               aria-label="Open menu"
