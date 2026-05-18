@@ -110,33 +110,42 @@ export default function AppLayout() {
 
           {/* Actions */}
           <div className="flex items-center gap-1 pointer-events-none">
-            <button
-              type="button"
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
-              className="w-16 h-16 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors pointer-events-auto"
-              style={{ touchAction: 'manipulation' }}
-              aria-label="Refresh"
-            >
-              <RotateCw className="w-5 h-5" />
-            </button>
-            <button
-              type="button"
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
-              className="w-16 h-16 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors pointer-events-auto"
-              style={{ touchAction: 'manipulation' }}
-              aria-label="Toggle theme"
-            >
-              {mode === 'auto' ? <SunMoon className="w-5 h-5" /> : isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
-            </button>
-            <button
-              type="button"
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
-              className="w-16 h-16 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors pointer-events-auto"
-              style={{ touchAction: 'manipulation' }}
-              aria-label="Open menu"
-            >
-              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
+            <div className="relative w-16 h-16 pointer-events-auto">
+              <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
+                onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
+                className="absolute inset-0 w-full h-full flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors"
+                style={{ touchAction: 'manipulation' }}
+                aria-label="Refresh"
+              >
+                <RotateCw className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="relative w-16 h-16 pointer-events-auto">
+              <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
+                onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
+                className="absolute inset-0 w-full h-full flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors"
+                style={{ touchAction: 'manipulation' }}
+                aria-label="Toggle theme"
+              >
+                {mode === 'auto' ? <SunMoon className="w-5 h-5" /> : isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+              </button>
+            </div>
+            <div className="relative w-16 h-16 pointer-events-auto">
+              <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
+                onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
+                className="absolute inset-0 w-full h-full flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 active:bg-primary active:text-primary-foreground transition-colors"
+                style={{ touchAction: 'manipulation' }}
+                aria-label="Open menu"
+              >
+                {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
         </div>
 
