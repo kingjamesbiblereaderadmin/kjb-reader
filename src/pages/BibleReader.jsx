@@ -330,9 +330,25 @@ export default function BibleReader() {
         )}
       </div>
 
+      {/* End-of-section markers — shown as a text footer below the verses */}
+      {!loading && !error && pos.abbr === 'MAL' && pos.chapter === 4 && (
+        <div className="text-center mt-12 mb-4">
+          <p className="font-serif text-sm text-muted-foreground tracking-widest uppercase">
+            End of the Prophets
+          </p>
+        </div>
+      )}
+      {!loading && !error && pos.abbr === 'REV' && pos.chapter === 22 && (
+        <div className="text-center mt-12 mb-4">
+          <p className="font-serif text-sm text-muted-foreground tracking-widest uppercase">
+            The End
+          </p>
+        </div>
+      )}
+
       {/* Bottom nav */}
       {!loading && !error && (
-        <div className="flex justify-between mt-12 pt-6 border-t border-border">
+        <div className="flex justify-between mt-6 pt-6 border-t border-border">
           <button
             onClick={goPrev}
             disabled={isFirstChapterFirstBook}
@@ -367,21 +383,6 @@ export default function BibleReader() {
         </div>
       )}
 
-      {/* End-of-section markers */}
-      {!loading && !error && pos.abbr === 'MAL' && pos.chapter === 4 && (
-        <div className="text-center my-8 py-6 border-t border-b border-border">
-          <p className="font-serif text-lg font-semibold text-muted-foreground tracking-widest uppercase">
-            End of the Prophets
-          </p>
-        </div>
-      )}
-      {!loading && !error && pos.abbr === 'REV' && pos.chapter === 22 && (
-        <div className="text-center my-8 py-6 border-t border-b border-border">
-          <p className="font-serif text-lg font-semibold text-muted-foreground tracking-widest uppercase">
-            The End
-          </p>
-        </div>
-      )}
 
 
     </div>
