@@ -401,15 +401,17 @@ export default function BibleReader() {
         </div>
       )}
 
-      {/* Show header chevron when hidden */}
+      {/* Show header chevron when hidden — positioned with nav buttons */}
       {hideHeader && (
-        <button
-          onClick={() => setHideHeader(false)}
-          className="fixed top-14 right-4 z-50 p-1.5 rounded-lg bg-card/90 backdrop-blur border border-border text-muted-foreground hover:text-foreground shadow-lg transition-colors"
-          title="Show header"
-        >
-          <ChevronDown className="w-4 h-4 rotate-180" />
-        </button>
+        <div className="fixed top-14 right-0 left-0 z-50 flex justify-center">
+          <button
+            onClick={() => setHideHeader(false)}
+            className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
+            title="Show header"
+          >
+            <ChevronDown className="w-4 h-4 rotate-180" />
+          </button>
+        </div>
       )}
 
       {/* Click outside to close desktop dropdowns */}
