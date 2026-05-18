@@ -255,7 +255,9 @@ function useAppLayoutPrompt() {
   };
 
   const handleEnableNotif = async () => {
+    console.log('handleEnableNotif called');
     if (!('Notification' in window)) {
+      console.log('Notifications not supported in window');
       alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
       return;
     }
@@ -265,12 +267,15 @@ function useAppLayoutPrompt() {
       console.log('Notification permission result:', result);
       setNotifPermission(result);
       if (result === 'granted') {
+        console.log('Permission granted, scheduling notification');
         scheduleDailyNotification(getDailyVerse());
         // Keep the popup visible, just update the state
         setShowPrompt(false);
       } else if (result === 'denied') {
+        console.log('Permission denied');
         alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
       } else {
+        console.log('Permission default/dismissed:', result);
         // result === 'default' - user dismissed the prompt without granting or denying
         // Keep popup open so they can try again
         alert('Notification permission was not granted. Please click "Enable Daily Notifications" again and allow the permission when prompted.');
