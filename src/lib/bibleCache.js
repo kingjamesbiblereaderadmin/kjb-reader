@@ -4,7 +4,7 @@
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
 
-const CACHE_KEY = 'bible_data_pce_v23'; // v23: aggressive localStorage clearing + fresh fetch
+const CACHE_KEY = 'bible_data_pce_v30'; // v30: using correct file with U+FFFD pilcrows
 const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
@@ -258,16 +258,17 @@ export async function isBibleCached() {
 
 // Clear cached Bible data
 export async function clearBibleCache() {
-  // Clear ALL version keys (1-21)
-  for (let i = 1; i <= 21; i++) {
+  // Clear ALL version keys (1-30)
+  for (let i = 1; i <= 30; i++) {
     localStorage.removeItem(`bible_data_pce_v${i}`);
   }
   localStorage.removeItem('bible_data_complete');
   localStorage.removeItem('bible_data_complete_v2');
   localStorage.removeItem('bible_cache_version');
+  localStorage.removeItem('bible_data_pce_v23');
   await clearIndexedDB();
   parsedData = null;
-  console.log('[CLEAR] Cache cleared - please refresh page and re-download');
+  console.log('[CLEAR] ✓ All cache cleared - refreshing page...');
 }
 
 // Download all Bible data and cache it for offline use
@@ -275,8 +276,11 @@ export async function downloadBibleForOffline(onProgress) {
   // Clear existing cache to force a fresh download
   await clearBibleCache();
   onProgress && onProgress(0, 'Fetching Bible text...');
+  console.log('[DOWNLOAD] Fetching from:', TEXT_URL);
 
   const text = await fetchWithRetry(TEXT_URL);
+  console.log('[DOWNLOAD] Raw text length:', text.length);
+  console.log('[DOWNLOAD] U+FFFD chars in raw:', (text.match(/\uFFFD/g) || []).length);
   onProgress && onProgress(50, 'Parsing 66 books...');
 
   const data = parseBibleText(text);
@@ -288,5 +292,6 @@ export async function downloadBibleForOffline(onProgress) {
   await saveToCache(data);
   parsedData = data;
   onProgress && onProgress(100, 'Done!');
+  console.log('[DOWNLOAD] ✓ Complete -', Object.keys(data).filter(k => k !== '__colophons').length, 'books');
   return data;
 }
