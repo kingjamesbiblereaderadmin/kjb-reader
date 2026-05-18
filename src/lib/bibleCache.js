@@ -88,22 +88,33 @@ function parseBibleText(rawText) {
       pilcrowCount++;
     }
 
-    // Extract colophon from <<...>> markers at end of verse
-    // Format: "verse text <<[colophon text]>>"
-    const colophonMatch = verseText.match(/<<\[([^\]]+)\]>>\s*$/);
-    if (colophonMatch) {
-      const rawColophonText = colophonMatch[1];
-      // Add pilcrow prefix and preserve for display
-      const colophonText = '\u00B6 ' + rawColophonText;
+    // Extract colophon markers - two formats:
+    // Format 1: "verse text <<[colophon text]>>"
+    // Format 2: "verse text ¶ [colophon text]" (pilcrow + space + brackets)
+    let colophonText = null;
+    
+    // Try format 1 first: <<[...]]>>
+    const inlineMatch = verseText.match(/<<\[([^\]]+)\]>>\s*$/);
+    if (inlineMatch) {
+      colophonText = '\u00B6 ' + inlineMatch[1];
+      verseText = verseText.replace(/<<\[([^\]]+)\]>>\s*$/, '').trim();
+    }
+    
+    // Try format 2: ¶ [...]
+    const pilcrowMatch = verseText.match(/\s*¶\s*\[([^\]]+)\]\s*$/);
+    if (pilcrowMatch && !inlineMatch) {
+      colophonText = '\u00B6 ' + pilcrowMatch[1];
+      verseText = verseText.replace(/\s*¶\s*\[([^\]]+)\]\s*$/, '').trim();
+    }
+    
+    if (colophonText) {
       const bookName = ABBR_TO_NAME[abbr];
       if (bookName) {
         const colophonKey = `${bookName}:${chapter}`;
         colophons[colophonKey] = colophonText;
         colophonCount++;
-        console.log(`[COLOPHON] ✓ Inline: ${colophonKey} -> "${colophonText}"`);
+        console.log(`[COLOPHON] ✓ ${colophonKey} -> "${colophonText}"`);
       }
-      // Strip the colophon from verse text
-      verseText = verseText.replace(/<<\[([^\]]+)\]>>\s*$/, '').trim();
     }
 
     const bookName = ABBR_TO_NAME[abbr];
@@ -271,7 +282,7 @@ export async function isBibleCached() {
 }
 
 // Clear cached Bible data
-export async function clearBibleCache() {
+export async function clearBibleCache(skipReload = false) {
   // Clear ALL version keys (1-30)
   for (let i = 1; i <= 30; i++) {
     localStorage.removeItem(`bible_data_pce_v${i}`);
@@ -282,15 +293,18 @@ export async function clearBibleCache() {
   localStorage.removeItem('bible_data_pce_v23');
   await clearIndexedDB();
   parsedData = null;
-  console.log('[CLEAR] ✓ All cache cleared - refreshing page...');
-  // Force reload to fetch fresh data with colophons
-  window.location.reload();
+  console.log('[CLEAR] ✓ All cache cleared');
+  // Only reload if not skipping (downloadBibleForOffline handles its own flow)
+  if (!skipReload) {
+    console.log('[CLEAR] Refreshing page...');
+    window.location.reload();
+  }
 }
 
 // Download all Bible data and cache it for offline use
 export async function downloadBibleForOffline(onProgress) {
-  // Clear existing cache to force a fresh download
-  await clearBibleCache();
+  // Clear existing cache WITHOUT reloading (we'll handle the flow ourselves)
+  await clearBibleCache(true);
   onProgress && onProgress(0, 'Fetching Bible text...');
   console.log('[DOWNLOAD] Fetching from:', TEXT_URL);
 
