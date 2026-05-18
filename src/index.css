@@ -90,4 +90,8 @@
   .font-serif {
     font-variant-ligatures: none;
   }
+  /* Force pilcrow to render */
+  [id^="v"]::before {
+    /* Only for debugging - check if pilcrow exists */
+  }
 }
