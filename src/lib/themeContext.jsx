@@ -60,6 +60,10 @@ export function ThemeProvider({ children }) {
     try { localStorage.setItem('kjb-colour', id); } catch {}
   };
 
+  const toggleTheme = () => {
+    setMode(isDark ? 'light' : 'dark');
+  };
+
   // Persist mode and apply dark class
   useEffect(() => {
     try { localStorage.setItem('kjb-theme-mode', mode); } catch {}
@@ -93,7 +97,7 @@ export function ThemeProvider({ children }) {
   }, [colourId, isDark]);
 
   return (
-    <ThemeContext.Provider value={{ isDark, mode, setMode, colourId, setColourId }}>
+    <ThemeContext.Provider value={{ isDark, mode, setMode, colourId, setColourId, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
