@@ -372,9 +372,9 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
       </div>
 
       {/* Two rows of icons - 5 items each row, evenly spaced */}
-      <div className="px-0">
+      <div>
         {/* Primary row - 5 items */}
-        <div className="flex items-center justify-between py-2">
+        <div className="grid grid-cols-5 py-2">
           {BOTTOM_NAV_PRIMARY.map(item => {
             const Icon = item.icon;
             const active = item.path === '/' ? pathname === '/' : pathname === item.path;
@@ -387,7 +387,7 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                   setTimeout(() => navigate(item.path), 150);
                 }}
-                className={`flex flex-col items-center gap-0.5 flex-1 py-2 transition-colors ${
+                className={`flex flex-col items-center gap-0.5 py-2 transition-colors ${
                   active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
@@ -399,7 +399,7 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
         </div>
         
         {/* Secondary row - 4 items */}
-        <div className="flex items-center justify-between py-2 border-t border-border">
+        <div className="grid grid-cols-4 py-2 border-t border-border">
           {BOTTOM_NAV_SECONDARY.map(item => {
             const Icon = item.icon;
             const active = pathname === item.path;
@@ -411,7 +411,7 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                   navigate(item.path);
                 }}
-                className={`flex flex-col items-center gap-0.5 flex-1 py-2 transition-colors ${
+                className={`flex flex-col items-center gap-0.5 py-2 transition-colors ${
                   active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
