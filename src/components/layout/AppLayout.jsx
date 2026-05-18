@@ -236,17 +236,18 @@ export default function AppLayout() {
 
 function useAppLayoutPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);
-  const { isInstallable, promptInstall, dismiss, wasDismissed } = useInstallPrompt();
+  const { isInstallable, isInstalled, promptInstall, dismiss, wasDismissed } = useInstallPrompt();
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
 
   useEffect(() => {
     const dismissed = wasDismissed();
-    console.log('FirstLoadPrompt check:', { dismissed, isInstallable, standalone: window.matchMedia('(display-mode: standalone)').matches });
-    if (dismissed) return;
+    const alreadyInstalled = isInstalled || window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
+    console.log('FirstLoadPrompt check:', { dismissed, isInstallable, isInstalled, alreadyInstalled, standalone: window.matchMedia('(display-mode: standalone)').matches });
+    if (dismissed || alreadyInstalled) return;
     // Show prompt on first visit or when not dismissed
     const timer = setTimeout(() => setShowPrompt(true), 1500);
     return () => clearTimeout(timer);
-  }, [wasDismissed, isInstallable]);
+  }, [wasDismissed, isInstallable, isInstalled]);
 
   const handleInstall = async () => {
     const accepted = await promptInstall();
