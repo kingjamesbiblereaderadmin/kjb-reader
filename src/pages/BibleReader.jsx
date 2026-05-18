@@ -405,10 +405,10 @@ export default function BibleReader() {
       {hideHeader && (
         <button
           onClick={() => setHideHeader(false)}
-          className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 p-3 rounded-full bg-card/90 backdrop-blur border border-border text-muted-foreground hover:text-foreground shadow-lg transition-colors sm:bottom-8"
+          className="fixed top-16 left-1/2 -translate-x-1/2 z-50 p-2 rounded-full bg-card/90 backdrop-blur border border-border text-muted-foreground hover:text-foreground shadow-lg transition-colors"
           title="Show header"
         >
-          <ChevronDown className="w-6 h-6 rotate-180" />
+          <ChevronDown className="w-5 h-5 rotate-180" />
         </button>
       )}
 
