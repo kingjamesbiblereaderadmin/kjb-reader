@@ -132,7 +132,8 @@ export default function BibleSearchBar({ onClose }) {
             <button
               type="button"
               onClick={() => { setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
-              className="absolute right-8 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground hover:text-foreground px-3 py-2 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
+              onTouchStart={() => { setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
+              className="absolute right-8 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground hover:text-foreground px-3 py-2 min-w-[48px] min-h-[48px] flex items-center justify-center touch-manipulation select-none active:opacity-60"
               aria-label="Clear search"
             >
               Clear
@@ -140,10 +141,11 @@ export default function BibleSearchBar({ onClose }) {
             <button
               type="button"
               onClick={() => { setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-2 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
+              onTouchStart={() => { setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-2 min-w-[48px] min-h-[48px] flex items-center justify-center touch-manipulation select-none active:opacity-60"
               aria-label="Clear search"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-4 h-4" />
             </button>
           </>
         )}
