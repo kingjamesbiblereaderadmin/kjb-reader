@@ -183,7 +183,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // ── PARAGRAPH MODE: verses flow inline, pilcrow shown inline ──
   if (paragraphMode) {
     return (
-      <span id={id} className="inline relative">
+      <span id={id} className={`inline relative ${hasPilcrow ? 'mt-4 block' : ''}`}>
         <span
           onClick={() => setSelected(s => !s)}
           className={`inline leading-loose transition-colors duration-200 rounded cursor-pointer px-0.5 py-0.5 ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
