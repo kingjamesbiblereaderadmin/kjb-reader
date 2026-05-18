@@ -111,8 +111,8 @@ export default function AppLayout() {
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
-              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
-              className="h-full w-14 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none border-l border-r border-transparent"
+              onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
+              className="h-full w-14 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
               aria-label="Refresh"
             >
               <RotateCw className="w-5 h-5" />
@@ -120,8 +120,8 @@ export default function AppLayout() {
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
-              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
-              className="h-full w-14 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none border-l border-r border-transparent"
+              onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
+              className="h-full w-14 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
               aria-label="Toggle theme"
             >
               {mode === 'auto' ? <SunMoon className="w-5 h-5" /> : isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
@@ -129,8 +129,8 @@ export default function AppLayout() {
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
-              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
-              className="h-full w-14 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none border-l border-r border-transparent"
+              onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
+              className="h-full w-14 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
               aria-label="Open menu"
             >
               {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
