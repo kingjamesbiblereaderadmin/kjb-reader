@@ -6,6 +6,7 @@ export function useInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [isInstallable, setIsInstallable] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
     // Already installed (standalone mode)
@@ -48,5 +49,5 @@ export function useInstallPrompt() {
     setIsInstallable(false);
   };
 
-  return { isInstallable, isInstalled, promptInstall, dismiss, wasDismissed };
+  return { isInstallable, isInstalled, promptInstall, dismiss, wasDismissed, showPrompt, setShowPrompt };
 }
