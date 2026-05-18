@@ -90,7 +90,7 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`}>
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-3">
+        <div className="max-w-5xl mx-auto px-4 h-14 sm:h-16 flex items-center gap-3">
           {/* Logo */}
           <Link
             to="/"
