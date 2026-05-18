@@ -5,14 +5,14 @@ const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
 const isInStandaloneMode = () =>
   window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
 
-export default function FirstLoadPrompt({ isInstallable, notifPermission, onInstall, onEnableNotif, onDismiss }) {
+export default function FirstLoadPrompt({ isInstallable, notifPermission, onInstall, onDismiss }) {
   const [showIOSHint, setShowIOSHint] = useState(false);
 
   const alreadyInstalled = isInStandaloneMode();
   // Show install: either native prompt available, or iOS where we show manual hint
   const showInstall = !alreadyInstalled && (isInstallable || isIOS());
-  // Show notif: 'default' (never asked) OR re-show if denied so user knows to unblock in settings
-  const showNotif = 'Notification' in window && notifPermission !== 'granted';
+  // Always show notification option (just informational - user enables in settings)
+  const showNotif = 'Notification' in window;
 
   if (!showInstall && !showNotif) return null;
 
@@ -60,21 +60,13 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
         )}
 
         {showNotif && (
-          <button
-            onClick={onEnableNotif}
-            disabled={notifPermission === 'denied'}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors disabled:opacity-50"
-          >
+          <div className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium">
             <Bell className="w-4 h-4 shrink-0" />
             <span className="text-left">
               <span className="block font-semibold">Daily Verse Notifications</span>
-              <span className="block text-xs text-muted-foreground">
-                {notifPermission === 'denied'
-                  ? 'Blocked — enable in browser settings'
-                  : 'A verse delivered to you each day'}
-              </span>
+              <span className="block text-xs text-muted-foreground">Enable in browser settings</span>
             </span>
-          </button>
+          </div>
         )}
       </div>
     </div>

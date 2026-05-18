@@ -43,6 +43,20 @@ export default function AppLayout() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Auto-dismiss prompt on any user interaction (click/tap)
+  useEffect(() => {
+    if (!showPrompt) return;
+    const handleInteraction = () => {
+      handleDismiss();
+    };
+    document.addEventListener('click', handleInteraction, { once: true });
+    document.addEventListener('touchstart', handleInteraction, { once: true });
+    return () => {
+      document.removeEventListener('click', handleInteraction);
+      document.removeEventListener('touchstart', handleInteraction);
+    };
+  }, [showPrompt]);
+
   const handleInstall = async () => {
     const accepted = await promptInstall();
     if (accepted) setShowPrompt(false);
