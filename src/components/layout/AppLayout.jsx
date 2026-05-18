@@ -91,28 +91,31 @@ export default function AppLayout() {
             <span className="font-serif text-lg font-bold text-foreground hidden sm:block">The Holy Bible</span>
           </Link>
 
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 touch-manipulation">
             <BibleSearchBar onClose={() => setMenuOpen(false)} />
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={() => window.location.reload()}
-              className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              onTouchEnd={(e) => { e.preventDefault(); window.location.reload(); }}
+              className="p-2.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation"
               aria-label="Refresh"
             >
-              <RotateCw className="w-4 h-4" />
+              <RotateCw className="w-5 h-5" />
             </button>
             <button
               onClick={toggleTheme}
-              className="p-3 -m-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors touch-none"
+              onTouchEnd={(e) => { e.preventDefault(); toggleTheme(); }}
+              className="p-2.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation"
               aria-label="Toggle theme"
             >
               {mode === 'auto' ? <SunMoon className="w-5 h-5" /> : isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
             </button>
             <button
               onClick={() => setMenuOpen(o => !o)}
-              className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              onTouchEnd={(e) => { e.preventDefault(); setMenuOpen(o => !o); }}
+              className="p-2.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation"
               aria-label="Open menu"
             >
               {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

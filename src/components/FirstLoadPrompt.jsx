@@ -41,6 +41,17 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
 
   const handleInstallClick = async () => {
     console.log('[FirstLoadPrompt] handleInstallClick called');
+    // For Android Chrome, always show the install prompt
+    if (isAndroid()) {
+      const accepted = await onInstall();
+      console.log('[FirstLoadPrompt] android install accepted:', accepted);
+      if (accepted) {
+        setInstallDone(true);
+        onDismiss();
+      }
+      return;
+    }
+    // For iOS or desktop
     if (isInstallable) {
       const accepted = await onInstall();
       console.log('[FirstLoadPrompt] install accepted:', accepted);
@@ -51,14 +62,6 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     } else if (isIOS()) {
       // iOS — show manual instructions
       setShowIOSHint(h => !h);
-    } else if (isAndroid()) {
-      // Android — try to trigger install prompt (same as Settings button)
-      const accepted = await onInstall();
-      console.log('[FirstLoadPrompt] android install accepted:', accepted);
-      if (accepted) {
-        setInstallDone(true);
-        onDismiss();
-      }
     }
   };
 
@@ -106,8 +109,9 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
           <div>
             <button
               onClick={handleDownloadOffline}
+              onTouchEnd={(e) => { e.preventDefault(); if (!downloading) handleDownloadOffline(); }}
               disabled={downloading}
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-accent text-accent-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-accent text-accent-foreground font-sans text-sm font-medium hover:opacity-90 active:opacity-80 transition-opacity disabled:opacity-50 touch-manipulation"
             >
               {downloading ? (
                 <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -128,7 +132,8 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
           <div>
             <button
               onClick={handleInstallClick}
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+              onTouchEnd={(e) => { e.preventDefault(); handleInstallClick(); }}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 active:opacity-80 transition-opacity touch-manipulation"
             >
               {isIOS() && !isInstallable ? <Share className="w-4 h-4 shrink-0" /> : isDesktop ? <MonitorSmartphone className="w-4 h-4 shrink-0" /> : <Download className="w-4 h-4 shrink-0" />}
               <span className="text-left">
@@ -147,7 +152,8 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
         {showNotif && (
           <button
             onClick={handleNotifClick}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary font-sans text-sm font-medium hover:bg-primary/20 transition-colors text-left"
+            onTouchEnd={(e) => { e.preventDefault(); handleNotifClick(); }}
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary font-sans text-sm font-medium hover:bg-primary/20 active:bg-primary/25 transition-colors text-left touch-manipulation"
           >
             <Bell className="w-4 h-4 shrink-0" />
             <span className="flex-1">
