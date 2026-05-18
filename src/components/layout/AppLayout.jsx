@@ -262,9 +262,9 @@ function useAppLayoutPrompt() {
   const handleEnableNotif = async () => {
     console.log('handleEnableNotif called');
     
-    // Check if service worker is supported (required for Android notifications)
-    if (!('serviceWorker' in navigator)) {
-      alert('Notifications are not supported in this browser. Try using Chrome or installing the app.');
+    if (!('Notification' in window)) {
+      console.log('Notification API not available');
+      alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
       return;
     }
     
@@ -273,7 +273,7 @@ function useAppLayoutPrompt() {
       const result = await requestNotificationPermission();
       console.log('Notification permission result:', result);
       setNotifPermission(result);
-      if (result === 'granted' || result === 'supported') {
+      if (result === 'granted') {
         console.log('Permission granted, scheduling notification');
         scheduleDailyNotification(getDailyVerse());
         setNotifEnabled(true);
