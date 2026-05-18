@@ -4,7 +4,7 @@
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
 
-const CACHE_KEY = 'bible_data_pce_v34'; // v34: standalone colophon lines parsed correctly
+const CACHE_KEY = 'bible_data_pce_v35'; // v35: handle pilcrow-prefixed colophon lines
 const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
@@ -68,8 +68,10 @@ function parseBibleText(rawText) {
 
     // Check if this is a colophon line: "ABBR [text in brackets]"
     // Format: "Ro  [Written to the Romans...]" or "Heb  [Written to the Hebrews...]"
-    // rest starts with '[' after the abbr
-    if (rest.startsWith('[') && rest.endsWith(']')) {
+    // May also have a pilcrow prefix: "Ro ¶ [Written...]"
+    // Strip any leading pilcrow before checking
+    const restNoBracket = rest.replace(/^\u00B6\s*/, '').trim();
+    if (restNoBracket.startsWith('[') && restNoBracket.endsWith(']')) {
       const bookName = ABBR_TO_NAME[abbr];
       if (bookName && data[bookName]) {
         // Find the last chapter of this book to attach the colophon to
@@ -77,7 +79,7 @@ function parseBibleText(rawText) {
         if (chapters.length > 0) {
           const lastChapter = Math.max(...chapters);
           const colophonKey = `${bookName}:${lastChapter}`;
-          const colophonText = rest.slice(1, -1); // strip [ and ]
+          const colophonText = restNoBracket.slice(1, -1); // strip [ and ]
           colophons[colophonKey] = colophonText;
           colophonCount++;
           console.log(`[COLOPHON] ✓ Standalone: ${colophonKey} -> "${colophonText}"`);
@@ -202,9 +204,9 @@ async function loadFromCache() {
       const colophonCount = data.__colophons ? Object.keys(data.__colophons).length : 0;
       console.log('[CACHE] ✓ Loaded from IndexedDB,', pilcrowCount, 'pilcrows,', colophonCount, 'colophons');
       
-      // If 0 pilcrows OR 0 colophons, cache is stale - force refresh
-      if (pilcrowCount === 0 || colophonCount === 0) {
-        console.log('[CACHE] ⚠️ Stale cache detected (', pilcrowCount, 'pilcrows,', colophonCount, 'colophons) - will fetch fresh');
+      // If 0 pilcrows, cache is stale - force refresh
+      if (pilcrowCount === 0) {
+        console.log('[CACHE] ⚠️ Stale cache detected (0 pilcrows) - will fetch fresh');
         return null;
       }
       
