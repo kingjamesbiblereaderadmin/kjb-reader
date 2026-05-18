@@ -118,7 +118,12 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   };
 
   const handleClose = () => {
-    console.log('[FirstLoadPrompt] handleClose called, onDismiss exists:', !!onDismiss);
+    console.log('[FirstLoadPrompt] handleClose called');
+    // Directly set localStorage to ensure prompt stays dismissed
+    try {
+      localStorage.setItem('kjb-prompt-dismissed', 'true');
+    } catch {}
+    // Call parent dismiss if available
     if (onDismiss) {
       onDismiss();
     }
@@ -128,17 +133,17 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     <>
       {/* Backdrop - tap outside to dismiss */}
       <div 
-        className="fixed inset-0 z-[9998] bg-background/80 backdrop-blur-sm"
-        onClick={(e) => { e.stopPropagation(); console.log('[FirstLoadPrompt] backdrop clicked'); handleClose(); }}
+        className="fixed inset-0 z-[99999] bg-background/80 backdrop-blur-sm"
+        onClick={() => { console.log('[FirstLoadPrompt] backdrop clicked'); handleClose(); }}
         style={{ pointerEvents: 'auto', cursor: 'pointer' }}
       />
-      <div className="fixed bottom-16 sm:bottom-4 right-4 z-[9999] w-80 pointer-events-auto">
+      <div className="fixed bottom-16 sm:bottom-4 right-4 z-[100000] w-80 pointer-events-auto">
         <div className="bg-card border border-border rounded-2xl shadow-2xl p-4 space-y-3 relative">
           <div className="flex items-start justify-between gap-2">
             <p className="font-serif text-base font-semibold text-foreground leading-tight">Get the most from KJB Reader</p>
             <button
-              onClick={(e) => { e.stopPropagation(); console.log('[FirstLoadPrompt] X button clicked'); handleClose(); }}
-              className="shrink-0 p-1 rounded-lg text-muted-foreground hover:bg-secondary transition-colors relative z-[10000] cursor-pointer"
+              onClick={() => { console.log('[FirstLoadPrompt] X button clicked'); handleClose(); }}
+              className="shrink-0 p-1 rounded-lg text-muted-foreground hover:bg-secondary transition-colors relative z-[100001] cursor-pointer"
               aria-label="Dismiss"
               style={{ pointerEvents: 'auto' }}
             >
