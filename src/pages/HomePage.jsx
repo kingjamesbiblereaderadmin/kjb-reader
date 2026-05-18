@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle } from 'lucide-react';
+import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import { getRandomVerseFromBible, getDailyVerseFallback } from '@/lib/dailyVerse';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications } from '@/lib/notifications';
@@ -19,12 +19,42 @@ const QUICK_LINKS = [
 
 export default function HomePage() {
   const navigate = useNavigate();
-  // Load a random verse on every page load (async, updates from fallback)
   const [verse, setVerse] = useState(getDailyVerseFallback());
+  const [refreshing, setRefreshing] = useState(false);
+  const touchStartY = useRef(0);
+  const touchEndY = useRef(0);
 
   useEffect(() => {
     getRandomVerseFromBible().then(v => setVerse(v)).catch(() => {});
   }, []);
+
+  const handleRefresh = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    try {
+      await getRandomVerseFromBible().then(v => setVerse(v)).catch(() => {});
+      // Small delay to show the animation
+      await new Promise(resolve => setTimeout(resolve, 600));
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const handleTouchStart = (e) => {
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchMove = (e) => {
+    touchEndY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = () => {
+    const diff = touchEndY.current - touchStartY.current;
+    // Pull down more than 100px from the very top
+    if (diff > 100 && window.scrollY === 0) {
+      handleRefresh();
+    }
+  };
 
   const handleRandomVerse = () => {
     const book = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
@@ -78,8 +108,23 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
+    <div
+      className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       <div className="max-w-4xl mx-auto px-4 py-6">
+      {/* Pull-to-refresh indicator */}
+      {refreshing && (
+        <div className="fixed top-16 left-0 right-0 z-50 flex justify-center pointer-events-none">
+          <div className="bg-card/90 backdrop-blur border border-border rounded-full px-4 py-2 shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-4">
+            <RotateCw className="w-4 h-4 text-accent animate-spin" />
+            <span className="font-sans text-sm font-medium text-foreground">Refreshing...</span>
+          </div>
+        </div>
+      )}
+
       {/* Daily verse card */}
       <div
         onClick={handleVerseClick}
