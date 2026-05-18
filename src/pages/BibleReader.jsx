@@ -500,6 +500,7 @@ export default function BibleReader() {
               className="font-serif text-sm text-muted-foreground text-center leading-relaxed"
               dangerouslySetInnerHTML={{ __html: renderVerseText(colophon) }}
             />
+            <p className="font-serif text-xs text-muted-foreground text-center mt-2">(Colophon)</p>
           </div>
         )}
       </div>
