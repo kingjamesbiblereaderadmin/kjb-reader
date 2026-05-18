@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, CheckCircle2, Circle, Flame, TrendingUp, Bell, BellOff } from 'lucide-react';
+import { BookOpen, CheckCircle2, Circle, Flame, TrendingUp } from 'lucide-react';
 import { getWeeklyProgress, markReadingComplete, getTodayProgress, initializeReadingProgress } from '@/lib/readingProgress';
 import { useNavigate } from 'react-router-dom';
 import { getBookByApiName } from '@/lib/bibleData';
 import { fetchVerseCount } from '@/lib/bibleApi';
-import { getReadingReminderEnabled, requestNotificationPermission, scheduleReadingReminder, enableReadingReminder } from '@/lib/notifications';
+import { getReadingReminderEnabled, getReadingReminderTime, requestNotificationPermission, scheduleReadingReminder, enableReadingReminder, setReadingReminderTime } from '@/lib/notifications';
 
 export default function DailyReadingPage() {
   const navigate = useNavigate();
@@ -13,6 +13,7 @@ export default function DailyReadingPage() {
   const [loading, setLoading] = useState(true);
   const [verseCount, setVerseCount] = useState(null);
   const [readingReminderEnabled, setReadingReminderEnabled] = useState(getReadingReminderEnabled);
+  const [readingReminderTime, setReadingReminderTimeState] = useState(getReadingReminderTime);
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
 
   useEffect(() => {
@@ -76,6 +77,13 @@ export default function DailyReadingPage() {
     }
   };
 
+  const handleReadingReminderTimeChange = (e) => {
+    const newTime = e.target.value;
+    setReadingReminderTimeState(newTime);
+    setReadingReminderTime(newTime);
+    if (readingReminderEnabled) scheduleReadingReminder();
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background p-6">
@@ -128,21 +136,12 @@ export default function DailyReadingPage() {
                   <span className="font-semibold">{todayProgress.book}</span> Chapter {todayProgress.chapter} {verseCount ? `(v.1${verseCount > 1 ? '-' + verseCount : ''})` : ''}
                 </p>
                 {!completedToday && (
-                  <div className="flex gap-3">
-                    <button
-                      onClick={handleStartReading}
-                      className="flex-1 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
-                    >
-                      Read Now
-                    </button>
-                    <button
-                      onClick={handleToggleReadingReminder}
-                      className="px-4 py-2.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-                      title={readingReminderEnabled ? 'Disable reminder' : 'Enable daily reminder'}
-                    >
-                      {readingReminderEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
-                    </button>
-                  </div>
+                  <button
+                    onClick={handleStartReading}
+                    className="w-full px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+                  >
+                    Read Now
+                  </button>
                 )}
               </div>
             ) : (
@@ -219,7 +218,7 @@ export default function DailyReadingPage() {
         )}
 
         {/* Reading Reminder Status */}
-        <div className="mt-6 bg-card border border-border rounded-xl p-4">
+        <div className="mt-6 bg-card border border-border rounded-xl p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div>
               <p className="font-sans text-sm font-medium text-foreground">Daily Reading Reminder</p>
@@ -238,12 +237,22 @@ export default function DailyReadingPage() {
                   : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
               } disabled:opacity-40`}
             >
-              {readingReminderEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
               {readingReminderEnabled ? 'On' : 'Off'}
             </button>
           </div>
+          {readingReminderEnabled && (
+            <div className="flex items-center gap-3 pt-2 border-t border-border">
+              <label className="font-sans text-sm text-muted-foreground shrink-0">Remind at</label>
+              <input
+                type="time"
+                value={readingReminderTime}
+                onChange={handleReadingReminderTimeChange}
+                className="flex-1 px-3 py-1.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground focus:outline-none focus:border-accent"
+              />
+            </div>
+          )}
           {notifPermission === 'denied' && (
-            <p className="font-sans text-xs text-muted-foreground mt-2">
+            <p className="font-sans text-xs text-muted-foreground">
               Notifications are blocked. Please allow notifications in your browser settings.
             </p>
           )}
