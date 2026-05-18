@@ -185,9 +185,16 @@ export default function AppLayout() {
       <BottomNav pathname={pathname} navigate={navigate} hidden={footerHidden} />
 
       {!footerHidden && (
-      <footer className="hidden sm:block border-t border-border bg-card/80 py-4 mt-8">
+      <footer className="hidden sm:block border-t border-border bg-card/80 py-3 mt-8 relative">
+        <button
+          onClick={() => { setFooterHidden(true); try { localStorage.setItem('kjb-footer-hidden', 'true'); } catch {} }}
+          className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm"
+          title="Hide footer"
+        >
+          <ChevronDown className="w-4 h-4" />
+        </button>
         <div className="max-w-4xl mx-auto px-4">
-          <div className="flex flex-wrap justify-center gap-4 mb-3">
+          <div className="flex flex-wrap justify-center gap-4 mb-2">
             {NAV_ITEMS.map(item => {
               const Icon = item.icon;
               return (
@@ -205,16 +212,6 @@ export default function AppLayout() {
                 </Link>
               );
             })}
-          </div>
-          <div className="flex items-center justify-center gap-4 mb-3">
-            <button
-              onClick={() => { setFooterHidden(true); try { localStorage.setItem('kjb-footer-hidden', 'true'); } catch {} }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-sans text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-              title="Hide footer"
-            >
-              <EyeOff className="w-3.5 h-3.5" />
-              Hide footer
-            </button>
           </div>
           <p className="text-center font-sans text-xs text-muted-foreground">
             Bible text from{' '}
