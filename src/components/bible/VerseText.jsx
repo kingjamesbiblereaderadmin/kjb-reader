@@ -169,7 +169,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
         >
           {saved ? <BookmarkCheck className="w-3 h-3 text-accent" /> : <Bookmark className="w-3 h-3" />}
-          Save
+          {saved ? 'Saved' : 'Save'}
         </button>
         <button
           onClick={(e) => { e.stopPropagation(); setSelected(false); }}
