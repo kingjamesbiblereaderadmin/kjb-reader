@@ -235,7 +235,7 @@ export default function BibleReader() {
   }, [verses, loading, book.name, pos.chapter, isViewingTitlePage]);
 
   return (
-    <div className={`max-w-3xl mx-auto px-4 py-3`}>
+    <div className={`max-w-3xl mx-auto px-4 py-3 ${hideHeader ? 'pt-16' : ''}`}>
 
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
