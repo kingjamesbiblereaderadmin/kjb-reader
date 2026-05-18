@@ -403,7 +403,7 @@ export default function BibleReader() {
       {/* Show header chevron when hidden — aligned with top border */}
       {hideHeader && (
         <div className="fixed top-0 left-0 right-0 h-[49px] border-b border-border bg-background/95 backdrop-blur z-50">
-          <div className="max-w-3xl mx-auto px-4 h-full flex items-center justify-end">
+          <div className="max-w-5xl mx-auto px-4 h-full flex items-center justify-end">
             <div className="flex items-center gap-1">
               <button
                 onClick={toggleFullscreen}
