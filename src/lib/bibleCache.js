@@ -95,8 +95,8 @@ function parseBibleText(rawText) {
       continue;
     }
 
-    // Extract colophon markers: <<[...text...]>> at end of verse
-    const colophonMatch = verseText.match(/<<\[(.*?)\]>>\s*$/);
+    // Extract colophon markers: ¶ [text] at end of verse (pilcrow + square brackets)
+    const colophonMatch = verseText.match(/\u00B6\s*\[(.*?)\]\s*$/);
     if (colophonMatch) {
       const colophonKey = `${bookName}:${chapter}`;
       if (!colophons[colophonKey]) {
@@ -104,7 +104,7 @@ function parseBibleText(rawText) {
         colophonCount++;
         console.log(`[COLOPHON] Extracted: ${colophonKey} -> ${colophons[colophonKey]}`);
       }
-      verseText = verseText.replace(/\s*<<\[.*?\]>>\s*$/, '').trim();
+      verseText = verseText.replace(/\s*\u00B6\s*\[.*?\]\s*$/, '').trim();
     }
 
     if (!verseText.trim()) continue;
@@ -279,6 +279,8 @@ export async function clearBibleCache() {
   await clearIndexedDB();
   parsedData = null;
   console.log('[CLEAR] ✓ All cache cleared - refreshing page...');
+  // Force reload to fetch fresh data with colophons
+  window.location.reload();
 }
 
 // Download all Bible data and cache it for offline use
