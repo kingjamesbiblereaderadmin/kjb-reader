@@ -79,12 +79,12 @@ export default function HomePage() {
   }, []);
 
   const handleVerseClick = () => {
+    // Ensure we have valid verse data before navigating
+    if (!verse.abbr || !verse.chapter || !verse.verse) {
+      console.warn('Invalid verse data:', verse);
+      return;
+    }
     try {
-      // Ensure we have valid verse data before navigating
-      if (!verse.abbr || !verse.chapter || !verse.verse) {
-        console.warn('Invalid verse data:', verse);
-        return;
-      }
       localStorage.setItem('kjb-position', JSON.stringify({ abbr: verse.abbr, chapter: verse.chapter, verse: verse.verse }));
     } catch (err) {
       console.error('Failed to save verse position:', err);

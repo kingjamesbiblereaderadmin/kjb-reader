@@ -84,7 +84,10 @@ export default function AppLayout() {
           {/* Back button or Logo */}
           {!isRoot ? (
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => {
+                navigate(-1);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
               className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex-shrink-0"
               aria-label="Go back"
             >
