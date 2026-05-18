@@ -111,8 +111,8 @@ export default function AppLayout() {
             <button
               type="button"
               onClick={() => window.location.reload()}
-              onTouchEnd={(e) => { e.preventDefault(); window.location.reload(); }}
-              className="p-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation"
+              onTouchStart={() => window.location.reload()}
+              className="p-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
               aria-label="Refresh"
             >
               <RotateCw className="w-5 h-5" />
@@ -120,8 +120,8 @@ export default function AppLayout() {
             <button
               type="button"
               onClick={() => toggleTheme()}
-              onTouchEnd={(e) => { e.preventDefault(); toggleTheme(); }}
-              className="p-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation"
+              onTouchStart={() => toggleTheme()}
+              className="p-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
               aria-label="Toggle theme"
             >
               {mode === 'auto' ? <SunMoon className="w-5 h-5" /> : isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
@@ -129,8 +129,8 @@ export default function AppLayout() {
             <button
               type="button"
               onClick={() => setMenuOpen(o => !o)}
-              onTouchEnd={(e) => { e.preventDefault(); setMenuOpen(o => !o); }}
-              className="p-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation"
+              onTouchStart={() => setMenuOpen(o => !o)}
+              className="p-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
               aria-label="Open menu"
             >
               {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
