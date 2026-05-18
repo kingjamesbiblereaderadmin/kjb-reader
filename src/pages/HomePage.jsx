@@ -133,7 +133,7 @@ export default function HomePage() {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      <div className="max-w-4xl mx-auto px-4 py-6">
+      <div className="max-w-5xl mx-auto px-4 py-6">
       {/* Pull-to-refresh indicator */}
       {refreshing && (
         <div className="fixed top-16 left-0 right-0 z-50 flex justify-center pointer-events-none">
