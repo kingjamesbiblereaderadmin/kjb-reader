@@ -22,13 +22,17 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     // Check if notifications already enabled
     return 'Notification' in window && Notification.permission === 'granted';
   });
-  const [dismissed, setDismissed] = useState(() => {
+  const [dismissed, setDismissed] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // Check localStorage on mount
     try {
-      return localStorage.getItem('kjb-prompt-dismissed') === 'true';
-    } catch {
-      return false;
-    }
-  });
+      const wasDismissed = localStorage.getItem('kjb-prompt-dismissed') === 'true';
+      setDismissed(wasDismissed);
+    } catch {}
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (propDownloaded !== undefined) {
@@ -56,6 +60,9 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   // Show offline download prompt if not already downloaded
   const showOffline = !downloaded;
 
+  // Don't render until mounted (prevents flash)
+  if (!mounted) return null;
+  
   // Dismissed by user
   if (dismissed) return null;
   
