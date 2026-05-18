@@ -69,14 +69,12 @@ function parseBibleText(rawText) {
     }
 
     // Extract colophon markers: <<[...text...]>> at end of verse
-    // Handle nested brackets by matching everything between << and >>
+    // Preserve brackets for italic markup
     const colophonMatch = verseText.match(/<<\[(.*?)\]>>\s*$/);
     if (colophonMatch) {
       const colophonKey = `${bookName}:${chapter}`;
       if (!colophons[colophonKey]) {
-        // Remove internal brackets from colophon text
-        let cleanColophon = colophonMatch[1].replace(/\[/g, '').replace(/\]/g, '');
-        colophons[colophonKey] = cleanColophon;
+        colophons[colophonKey] = colophonMatch[1];
         colophonCount++;
         console.log(`[COLOPHON] Extracted: ${colophonKey} -> ${colophons[colophonKey]}`);
       }
