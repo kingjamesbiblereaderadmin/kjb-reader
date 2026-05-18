@@ -1,8 +1,8 @@
 // Client-side Bible data caching for offline access
 // Uses the Wharton PCE text from bibleprotector.com
 
-const CACHE_KEY = 'bible_data_pce_v9';
-const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/ee659445e_TEXT-PCE-127.txt';
+const CACHE_KEY = 'bible_data_pce_v10';
+const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
 
 // Maps the abbreviation in the text file -> canonical book name (must match apiName in bibleData.js)
 const ABBR_TO_NAME = {
@@ -28,13 +28,17 @@ let parsedData = null;
 let fetchInProgress = null;
 
 function parseBibleText(rawText) {
+  console.log('[PARSE] Raw text length:', rawText.length);
   // The source file's ¶ characters are fetched as U+FFFD (replacement char) due to Latin-1 encoding
   // Normalize them all to U+00B6 (pilcrow) for consistent detection
   const text = rawText.replace(/\uFFFD/g, '\u00B6');
   const data = {};
   const colophons = {};
   const lines = text.split('\n');
+  console.log('[PARSE] Split into', lines.length, 'lines');
 
+  let verseCount = 0;
+  let colophonCount = 0;
   for (let i = 0; i < lines.length; i++) {
     const trimmed = lines[i].trim();
     if (!trimmed) continue;
@@ -59,7 +63,10 @@ function parseBibleText(rawText) {
     if (isNaN(verse) || !verseText) continue;
 
     const bookName = ABBR_TO_NAME[abbr];
-    if (!bookName) continue;
+    if (!bookName) {
+      console.log('[SKIP] Unknown abbr:', abbr);
+      continue;
+    }
 
     // Extract colophon markers <<[...]>>
     const colophonMatch = verseText.match(/\s*<<\[([^\]]+)\]>>\s*$/);
@@ -67,6 +74,7 @@ function parseBibleText(rawText) {
       const colophonKey = `${bookName}:${chapter}`;
       if (!colophons[colophonKey]) {
         colophons[colophonKey] = `[${colophonMatch[1]}]`;
+        colophonCount++;
         console.log(`[COLOPHON] Extracted: ${colophonKey}`);
       }
       verseText = verseText.replace(/\s*<<\[[^\]]+\]>>\s*$/, '');
@@ -77,11 +85,13 @@ function parseBibleText(rawText) {
     if (!data[bookName]) data[bookName] = {};
     if (!data[bookName][chapter]) data[bookName][chapter] = [];
     data[bookName][chapter].push({ verse, text: verseText });
+    verseCount++;
   }
 
   data.__colophons = colophons;
-  console.log('Parsed colophons:', Object.keys(colophons).length, 'colophons found');
-  console.log('Sample colophons:', Object.entries(colophons).slice(0, 3));
+  console.log('Parsed:', verseCount, 'verses,', colophonCount, 'colophons found');
+  console.log('Books parsed:', Object.keys(data).filter(k => k !== '__colophons').length);
+  console.log('Sample colophons:', Object.entries(colophons).slice(0, 5));
   return data;
 }
 
