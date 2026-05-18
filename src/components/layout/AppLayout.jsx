@@ -90,7 +90,7 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`}>
-        <div className="max-w-5xl mx-auto px-3 sm:px-4 h-[60px] sm:h-14 flex items-center gap-2 sm:gap-3">
+        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-3">
           {/* Logo */}
           <Link
             to="/"
@@ -98,18 +98,18 @@ export default function AppLayout() {
               setMenuOpen(false);
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className="flex items-center gap-2 flex-shrink-0 p-2 -ml-2"
+            className="flex items-center gap-2 flex-shrink-0"
           >
-            <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB Reader" className="h-8 w-auto" />
+            <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB Reader" className="h-9 w-auto" />
           </Link>
 
           {/* Search - expands to fill space */}
-          <div className="flex-1 min-w-0 px-1">
+          <div className="flex-1 min-w-0">
             <BibleSearchBar onClose={() => setMenuOpen(false)} />
           </div>
 
-          {/* Actions - buttons with proper touch targets */}
-          <div className="flex items-center gap-1">
+          {/* Actions - buttons with 44x44px touch targets */}
+          <div className="flex items-center gap-0.5">
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
