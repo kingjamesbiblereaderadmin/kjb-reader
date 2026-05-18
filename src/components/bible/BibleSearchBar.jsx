@@ -124,17 +124,17 @@ export default function BibleSearchBar({ onClose }) {
           value={query}
           onChange={e => { setQuery(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
-          onTouchEnd={(e) => { e.stopPropagation(); }}
+          onTouchStart={(e) => { e.stopPropagation(); }}
           placeholder="1 Corinthians 15:1-4; Romans 3:25"
-          className="w-full pl-8 pr-7 py-2 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors touch-manipulation"
+          className="w-full pl-8 pr-7 py-2.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors touch-manipulation min-h-[44px]"
         />
         {query && (
           <>
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
-              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
-              className="absolute right-8 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground hover:text-foreground px-2 py-1 touch-manipulation"
+              onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
+              className="absolute right-8 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground hover:text-foreground px-3 py-2 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
               aria-label="Clear search"
             >
               Clear
@@ -142,8 +142,8 @@ export default function BibleSearchBar({ onClose }) {
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
-              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 touch-manipulation"
+              onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-2 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
               aria-label="Clear search"
             >
               <X className="w-3.5 h-3.5" />
@@ -158,8 +158,8 @@ export default function BibleSearchBar({ onClose }) {
             <button
               key={i}
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleSelect(s); }}
-              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleSelect(s); }}
-              className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-secondary transition-colors text-left border-b border-border last:border-0 touch-manipulation"
+              onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); handleSelect(s); }}
+              className="w-full flex items-center gap-3 px-3 py-3 min-h-[48px] hover:bg-secondary transition-colors text-left border-b border-border last:border-0 touch-manipulation"
             >
               <Search className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
               <div className="flex-1 min-w-0">
