@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { useTheme } from '@/lib/themeContext';
+import { useTheme, COLOUR_PALETTES } from '@/lib/themeContext';
 import {
   getNotificationsEnabled, getNotificationTime, setNotificationTime,
   requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification
@@ -15,7 +15,7 @@ export default function SettingsPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteInput, setDeleteInput] = useState('');
   const [deleting, setDeleting] = useState(false);
-  const { isDark, mode, setMode } = useTheme();
+  const { isDark, mode, setMode, colourId, setColourId } = useTheme();
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
@@ -121,6 +121,42 @@ export default function SettingsPage() {
           {mode === 'auto' ? '🕐 Auto: light 6am–6pm, dark 6pm–6am' :
            mode === 'system' ? '📱 System: follows your device setting' :
            mode === 'dark' ? '🌙 Dark mode always on' : '☀️ Light mode always on'}
+        </p>
+
+        {/* Colour palette */}
+        <div className="pt-2 border-t border-border space-y-2">
+          <p className="font-sans text-sm text-foreground font-medium">Accent Colour</p>
+          <div className="flex flex-wrap gap-2">
+            {COLOUR_PALETTES.map(p => (
+              <button
+                key={p.id}
+                onClick={() => setColourId(p.id)}
+                title={p.name}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-sans text-xs font-medium border-2 transition-all ${
+                  colourId === p.id
+                    ? 'border-foreground scale-105 bg-secondary'
+                    : 'border-transparent bg-secondary hover:border-border'
+                }`}
+              >
+                <span
+                  className="w-3.5 h-3.5 rounded-full shrink-0"
+                  style={{ backgroundColor: p.swatch }}
+                />
+                {p.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Widgets & Lock Screen */}
+      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-2">
+        <h2 className="font-serif text-lg font-semibold text-foreground">Widgets & Lock Screen</h2>
+        <p className="font-sans text-sm text-muted-foreground leading-relaxed">
+          Home screen widgets and lock screen widgets require a <span className="font-medium text-foreground">native app</span> (iOS/Android). This is a web PWA, so the OS doesn't support placing it as a widget.
+        </p>
+        <p className="font-sans text-sm text-muted-foreground leading-relaxed">
+          <span className="font-medium text-foreground">What you can do instead:</span> Install this app to your home screen (Add to Home Screen), then enable <span className="font-medium text-foreground">Daily Notifications</span> above — you'll get a verse reminder at your chosen time each day.
         </p>
       </div>
 
