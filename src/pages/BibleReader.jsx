@@ -449,7 +449,7 @@ export default function BibleReader() {
           </p>
           <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-1 leading-tight">{book.name}</h1>
           <p className="font-sans text-sm text-muted-foreground tracking-widest uppercase mt-1">
-            Chapter {pos.chapter} {verseCount > 0 && <span>({verseCount === 1 ? 'v.1' : `v.1-${verseCount}`})</span>}
+            Chapter {pos.chapter}
           </p>
           {/* Subscript — shown below chapter heading on the relevant final chapter */}
           {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
