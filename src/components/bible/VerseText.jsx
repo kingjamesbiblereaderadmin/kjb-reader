@@ -46,17 +46,6 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   const hasItalics = html.includes('<em>');
   // Check if verse text contains pilcrow character (U+00B6)
   const hasPilcrow = verse.text.includes('\u00B6') || verse.text.includes('¶');
-  
-  // Debug logging for first chapter
-  if (chapter === 1 && verse.verse <= 15) {
-    console.log(`[VerseText] ${bookName} ${chapter}:${verse.verse}`);
-    console.log(`  hasPilcrow: ${hasPilcrow}`);
-    console.log(`  text (first 80 chars): "${verse.text.slice(0, 80)}"`);
-    console.log(`  char codes (first 10): ${[...verse.text.slice(0, 10)].map(c => `U+${c.charCodeAt(0).toString(16).toUpperCase()}`).join(' ')}`);
-  }
-  
-  // Remove pilcrow from HTML to avoid duplicates since we render it separately
-  const htmlNoPilcrow = html.replace(/[\u00B6¶]\s*/g, '');
 
   const verseRef = `${bookName} ${chapter}:${verse.verse}`;
   const cleanText = verse.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '');
@@ -200,12 +189,9 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           className={`inline leading-loose transition-colors duration-200 rounded cursor-pointer px-0.5 py-0.5 ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
         >
           <sup className="text-accent font-sans font-semibold text-xs mr-2 select-none">{verse.verse}</sup>
-          {hasPilcrow && (
-            <span className="text-accent mr-1.5 not-italic select-none font-sans text-sm opacity-60">¶</span>
-          )}
           <span
             className={`font-serif leading-loose [&_em]:italic [&_em]:text-foreground/75 ${textClass}`}
-            dangerouslySetInnerHTML={{ __html: htmlNoPilcrow }}
+            dangerouslySetInnerHTML={{ __html: html }}
           />
           {' '}
         </span>
@@ -223,10 +209,9 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
       >
         <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-0.5 mr-1">{verse.verse}</sup>
         <span className="flex-1 break-words">
-          <span className="inline-block w-4 mr-1.5 select-none" />
           <span
             className={`font-serif leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass}`}
-            dangerouslySetInnerHTML={{ __html: htmlNoPilcrow }}
+            dangerouslySetInnerHTML={{ __html: html }}
           />
         </span>
       </span>
