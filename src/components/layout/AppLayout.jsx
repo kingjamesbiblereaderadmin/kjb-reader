@@ -90,29 +90,31 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`}>
-        <div className="max-w-5xl mx-auto px-0 h-14 flex items-stretch gap-0">
+        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center gap-3">
+          {/* Logo */}
           <Link
             to="/"
-            className="flex items-center gap-2 flex-shrink-0"
             onClick={() => {
               setMenuOpen(false);
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
+            className="flex items-center gap-2 flex-shrink-0"
           >
-            <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB Reader" className="h-10 w-auto" />
-            <span className="font-serif text-lg font-bold text-foreground hidden sm:block">The Holy Bible</span>
+            <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB Reader" className="h-9 w-auto" />
           </Link>
 
-          <div className="flex-1 min-w-0 touch-manipulation">
+          {/* Search - expands to fill space */}
+          <div className="flex-1 min-w-0">
             <BibleSearchBar onClose={() => setMenuOpen(false)} />
           </div>
 
-          <div className="flex items-center gap-0 flex-shrink-0">
+          {/* Actions */}
+          <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
               onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
-              className="h-14 w-14 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
+              className="w-10 h-10 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
               aria-label="Refresh"
             >
               <RotateCw className="w-5 h-5" />
@@ -121,7 +123,7 @@ export default function AppLayout() {
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
               onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
-              className="h-14 w-14 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
+              className="w-10 h-10 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
               aria-label="Toggle theme"
             >
               {mode === 'auto' ? <SunMoon className="w-5 h-5" /> : isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
@@ -130,7 +132,7 @@ export default function AppLayout() {
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
               onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
-              className="h-14 w-14 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
+              className="w-10 h-10 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation select-none"
               aria-label="Open menu"
             >
               {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
