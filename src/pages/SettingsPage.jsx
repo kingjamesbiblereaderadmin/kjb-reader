@@ -147,6 +147,7 @@ export default function SettingsPage() {
     setDlProgress(0);
     setDlStatus('');
     setDlError('');
+    // Force reload to re-fetch with fresh parsing
     window.location.reload();
   };
 
