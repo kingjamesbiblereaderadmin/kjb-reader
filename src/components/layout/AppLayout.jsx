@@ -263,11 +263,22 @@ function useAppLayoutPrompt() {
     console.log('handleEnableNotif called');
     console.log('Notification in window:', 'Notification' in window);
     console.log('Notification.permission:', 'Notification' in window ? Notification.permission : 'N/A');
+    
+    // Check if running in Android WebView (APK)
+    const isAndroidWebView = /wv|Version\/[\d.]+.*Chrome/i.test(navigator.userAgent);
+    console.log('Is Android WebView:', isAndroidWebView);
+    
     if (!('Notification' in window)) {
       console.log('Notifications not supported in window');
-      alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
-      return;
+      // In APK/WebView, notifications may work via service worker even if Notification API isn't directly available
+      if (isAndroidWebView) {
+        console.log('Running in WebView, trying to request permission anyway');
+      } else {
+        alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
+        return;
+      }
     }
+    
     try {
       console.log('Requesting notification permission...');
       const result = await requestNotificationPermission();
@@ -280,7 +291,7 @@ function useAppLayoutPrompt() {
         window.dispatchEvent(new Event('storage'));
       } else if (result === 'denied') {
         console.log('Permission denied');
-        alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
+        alert('Notifications are blocked. Please allow notifications in your browser/app settings for this site.');
       }
     } catch (err) {
       console.error('Notification permission error:', err);

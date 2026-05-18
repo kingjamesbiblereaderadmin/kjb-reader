@@ -26,8 +26,8 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   const isDesktop = !isMobile();
   // Show install: either native prompt available, iOS, or desktop PWA
   const showInstall = !alreadyInstalled && (isInstallable || isIOS() || isDesktop);
-  // Always show notification option (just informational - user enables in settings)
-  const showNotif = 'Notification' in window;
+  // Always show notification option - works in browser and installed app/APK
+  const showNotif = true;
   // Show offline download prompt if not already downloaded
   const showOffline = !downloaded;
 
