@@ -216,7 +216,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
 
   // ── LINE MODE (default): each verse is its own line ──
   return (
-    <span id={id} className="block mt-2 relative">
+    <span id={id} className={`block relative ${hasPilcrow ? 'mt-6' : 'mt-2'}`}>
       <span
         onClick={() => setSelected(s => !s)}
         className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-1 py-0.5 gap-2 ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
