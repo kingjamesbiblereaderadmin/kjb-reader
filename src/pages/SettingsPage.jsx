@@ -314,13 +314,26 @@ export default function SettingsPage() {
               <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
               <span className="font-sans text-sm font-medium">All 66 books downloaded — available offline</span>
             </div>
-            <button
-              onClick={handleClearCache}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive font-sans text-xs font-medium hover:bg-destructive/20 transition-colors"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              Clear Cache & Reload
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={async () => {
+                  await handleClearCache();
+                  // Auto-download fresh data with pilcrows
+                  setTimeout(() => handleDownload(), 500);
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+              >
+                <Download className="w-3.5 h-3.5" />
+                Refresh with Latest
+              </button>
+              <button
+                onClick={handleClearCache}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive font-sans text-xs font-medium hover:bg-destructive/20 transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Clear Cache
+              </button>
+            </div>
           </div>
         ) : (
           <div className="space-y-3">

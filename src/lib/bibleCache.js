@@ -4,7 +4,7 @@
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
 
-const CACHE_KEY = 'bible_data_pce_v19'; // v19: colophons with <<[...]]>> markers from PCE-127
+const CACHE_KEY = 'bible_data_pce_v20'; // v20: pilcrows properly converted from U+FFFD to U+00B6
 const TEXT_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/ee659445e_TEXT-PCE-127.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
@@ -38,8 +38,11 @@ function parseBibleText(rawText) {
   // Step 1: Normalize ALL replacement characters (U+FFFD) to pilcrow (U+00B6)
   // The source file uses U+FFFD to represent the pilcrow (¶) due to encoding issues
   const normalizedText = rawText.replace(/\uFFFD/g, '\u00B6');
-  console.log('[PARSE] Replacement chars (U+FFFD) found:', (rawText.match(/\uFFFD/g) || []).length);
-  console.log('[PARSE] Pilcrows (U+00B6) after normalization:', (normalizedText.match(/\u00B6/g) || []).length);
+  const replacementCount = (rawText.match(/\uFFFD/g) || []).length;
+  let totalPilcrowCount = (normalizedText.match(/\u00B6/g) || []).length;
+  console.log('[PARSE] Raw text length:', rawText.length);
+  console.log('[PARSE] ✓ Replacement chars (U+FFFD) converted:', replacementCount);
+  console.log('[PARSE] ✓ Pilcrows (U+00B6) in normalized text:', totalPilcrowCount);
   
   const data = {};
   const colophons = {};
@@ -108,7 +111,7 @@ function parseBibleText(rawText) {
   }
 
   data.__colophons = colophons;
-  console.log('[PARSE] ✓ Complete:', verseCount, 'verses,', colophonCount, 'colophons,', pilcrowCount, 'verses with pilcrows');
+  console.log('[PARSE] ✓ Complete:', verseCount, 'verses,', colophonCount, 'colophons,', pilcrowCount, 'verses with pilcrows (total:', totalPilcrowCount, ')');
   console.log('[PARSE] Books parsed:', Object.keys(data).filter(k => k !== '__colophons').length);
   return data;
 }
@@ -161,10 +164,12 @@ async function checkForUpdates() {
 
 async function saveToCache(data) {
   try {
-    // Clear old localStorage keys
+    // Clear ALL old localStorage keys to force fresh data
     localStorage.removeItem('bible_data_complete');
     localStorage.removeItem('bible_data_complete_v2');
-    localStorage.removeItem('bible_data_pce_v12');
+    for (let i = 1; i <= 19; i++) {
+      localStorage.removeItem(`bible_data_pce_v${i}`);
+    }
     // Save to IndexedDB (supports ~50MB+)
     await saveToIndexedDB(data);
     // Save version marker
@@ -248,12 +253,13 @@ export async function isBibleCached() {
 
 // Clear cached Bible data
 export async function clearBibleCache() {
-  // Clear ALL version keys (1-19)
-  for (let i = 1; i <= 19; i++) {
+  // Clear ALL version keys (1-20)
+  for (let i = 1; i <= 20; i++) {
     localStorage.removeItem(`bible_data_pce_v${i}`);
   }
   localStorage.removeItem('bible_data_complete');
   localStorage.removeItem('bible_data_complete_v2');
+  localStorage.removeItem('bible_cache_version');
   await clearIndexedDB();
   parsedData = null;
 }
