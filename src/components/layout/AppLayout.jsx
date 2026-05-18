@@ -109,21 +109,27 @@ export default function AppLayout() {
 
           <div className="flex items-center gap-0.5 flex-shrink-0">
             <button
+              type="button"
               onClick={() => window.location.reload()}
+              onTouchEnd={(e) => { e.preventDefault(); window.location.reload(); }}
               className="p-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation"
               aria-label="Refresh"
             >
               <RotateCw className="w-5 h-5" />
             </button>
             <button
+              type="button"
               onClick={() => toggleTheme()}
+              onTouchEnd={(e) => { e.preventDefault(); toggleTheme(); }}
               className="p-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation"
               aria-label="Toggle theme"
             >
               {mode === 'auto' ? <SunMoon className="w-5 h-5" /> : isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
             </button>
             <button
+              type="button"
               onClick={() => setMenuOpen(o => !o)}
+              onTouchEnd={(e) => { e.preventDefault(); setMenuOpen(o => !o); }}
               className="p-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary active:bg-secondary transition-colors touch-manipulation"
               aria-label="Open menu"
             >
