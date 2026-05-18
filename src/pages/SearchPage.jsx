@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, BookOpen, Loader2 } from 'lucide-react';
 import { getBibleData } from '@/lib/bibleCache';
+import { BIBLE_BOOKS } from '@/lib/bibleData';
 
 export default function SearchPage() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -38,19 +39,20 @@ export default function SearchPage() {
           const verses = chapters[chapterNum];
           for (const verseObj of verses) {
             if (verseObj.text.toLowerCase().includes(keyword)) {
+              const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
               matches.push({
                 book: bookName,
                 chapter: parseInt(chapterNum),
                 verse: verseObj.verse,
-                text: verseObj.text,
-                abbr: bookName.slice(0, 3).toUpperCase(),
+                text: verseObj.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, ''),
+                abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
               });
-              if (matches.length >= 15) break;
+              if (matches.length >= 100) break;
             }
           }
-          if (matches.length >= 15) break;
+          if (matches.length >= 100) break;
         }
-        if (matches.length >= 15) break;
+        if (matches.length >= 100) break;
       }
 
       setResults(matches);
@@ -85,7 +87,7 @@ export default function SearchPage() {
             type="text"
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="e.g. grace, faith, propitiation..."
+            placeholder="e.g. grace, faith, blood..."
             className="w-full pl-9 pr-4 py-2 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors"
             autoFocus
           />
@@ -115,7 +117,7 @@ export default function SearchPage() {
 
       {!loading && results.length > 0 && (
         <div className="space-y-3">
-          <p className="font-sans text-xs text-muted-foreground mb-4">{results.length} result{results.length !== 1 ? 's' : ''} for "{initialQuery || query}"</p>
+          <p className="font-sans text-xs text-muted-foreground mb-4">{results.length}{results.length >= 100 ? '+' : ''} result{results.length !== 1 ? 's' : ''} for "{initialQuery || query}"</p>
           {results.map((r, i) => (
             <button
               key={i}

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
-import { getDailyVerse } from '@/lib/dailyVerse';
+import { getRandomVerseFromBible, getDailyVerseFallback } from '@/lib/dailyVerse';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 
@@ -19,7 +19,12 @@ const QUICK_LINKS = [
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const verse = getDailyVerse();
+  // Load a random verse on every page load (async, updates from fallback)
+  const [verse, setVerse] = useState(getDailyVerseFallback());
+
+  useEffect(() => {
+    getRandomVerseFromBible().then(v => setVerse(v)).catch(() => {});
+  }, []);
 
   const handleRandomVerse = () => {
     const book = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
@@ -27,6 +32,7 @@ export default function HomePage() {
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr: book.abbr, chapter, verse: null })); } catch {}
     navigate('/read');
   };
+
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
 
@@ -34,7 +40,6 @@ export default function HomePage() {
     registerSW();
     if (getNotificationsEnabled()) scheduleDailyNotification(verse);
 
-    // Sync notification state across pages
     const handleStorageChange = () => {
       setNotifEnabled(getNotificationsEnabled());
       setNotifPermission('Notification' in window ? Notification.permission : 'unsupported');
@@ -69,11 +74,8 @@ export default function HomePage() {
         alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
       }
     }
-    // Trigger storage event for cross-tab sync
     window.dispatchEvent(new Event('storage'));
   };
-
-  const totalBooks = BIBLE_BOOKS.length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, BellOff } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import {
   getNotificationsEnabled, getNotificationTime, setNotificationTime,
   requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification
 } from '@/lib/notifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
+import { isBibleCached, downloadBibleForOffline, clearBibleCache } from '@/lib/bibleCache';
 
 const LAST_REVISED = 'May 2026';
 
@@ -12,6 +13,16 @@ export default function SettingsPage() {
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
+
+  const [cached, setCached] = useState(isBibleCached);
+  const [downloading, setDownloading] = useState(false);
+  const [dlProgress, setDlProgress] = useState(0);
+  const [dlStatus, setDlStatus] = useState('');
+  const [dlError, setDlError] = useState('');
+
+  useEffect(() => {
+    setCached(isBibleCached());
+  }, []);
 
   const handleToggleNotifications = async () => {
     if (notifEnabled) {
@@ -38,6 +49,32 @@ export default function SettingsPage() {
     showLocalNotification('King James Bible — Verse of the Day', `"${v.text.slice(0, 100)}${v.text.length > 100 ? '…' : ''}" — ${v.ref}`);
   };
 
+  const handleDownload = async () => {
+    setDownloading(true);
+    setDlError('');
+    setDlProgress(0);
+    setDlStatus('Starting download...');
+    try {
+      await downloadBibleForOffline((pct, msg) => {
+        setDlProgress(pct);
+        setDlStatus(msg);
+      });
+      setCached(true);
+      setDlStatus('All 66 books downloaded successfully!');
+    } catch (err) {
+      setDlError('Download failed: ' + err.message + '. Please check your connection and try again.');
+    }
+    setDownloading(false);
+  };
+
+  const handleClearCache = () => {
+    clearBibleCache();
+    setCached(false);
+    setDlProgress(0);
+    setDlStatus('');
+    setDlError('');
+  };
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
       {/* Header */}
@@ -48,6 +85,67 @@ export default function SettingsPage() {
         <h1 className="font-serif text-4xl font-bold text-foreground mb-2">Settings</h1>
         <p className="font-sans text-sm text-muted-foreground">Offline downloads & app information</p>
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
+      </div>
+
+      {/* Offline Library */}
+      <div className="bg-card border border-border rounded-2xl p-5 mb-6">
+        <h2 className="font-serif text-lg font-semibold text-foreground mb-2">Offline Library</h2>
+        <p className="font-sans text-sm text-muted-foreground mb-4">
+          Download all 66 books to your device for offline reading. Once downloaded, the Bible is available without an internet connection.
+        </p>
+
+        {cached ? (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+              <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+              <span className="font-sans text-sm font-medium">All 66 books downloaded — available offline</span>
+            </div>
+            <button
+              onClick={handleClearCache}
+              className="font-sans text-xs text-muted-foreground underline hover:text-foreground transition-colors"
+            >
+              Clear download & re-download
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {!downloading && !dlStatus && (
+              <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 mb-3">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span className="font-sans text-sm">Not downloaded — Bible loads from network each visit</span>
+              </div>
+            )}
+            <button
+              onClick={handleDownload}
+              disabled={downloading}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 disabled:opacity-60 transition-opacity"
+            >
+              {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              {downloading ? 'Downloading…' : 'Download All 66 Books (Offline)'}
+            </button>
+            {downloading && (
+              <div className="space-y-2">
+                <div className="w-full bg-secondary rounded-full h-2">
+                  <div
+                    className="bg-primary h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${dlProgress}%` }}
+                  />
+                </div>
+                <p className="font-sans text-xs text-muted-foreground">{dlStatus}</p>
+              </div>
+            )}
+            {dlStatus && !downloading && (
+              <p className="font-sans text-sm text-green-600 dark:text-green-400 flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4" /> {dlStatus}
+              </p>
+            )}
+            {dlError && (
+              <p className="font-sans text-sm text-destructive flex items-center gap-1.5">
+                <AlertCircle className="w-4 h-4" /> {dlError}
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Notifications */}
@@ -109,16 +207,7 @@ export default function SettingsPage() {
           <span className="text-muted-foreground shrink-0">Last App Revision</span>
           <span className="text-foreground font-medium text-right">{LAST_REVISED}</span>
         </div>
-
       </div>
-
-      <div className="bg-card border border-border rounded-2xl p-5 mb-6">
-        <h2 className="font-serif text-lg font-semibold text-foreground mb-2">Offline Library</h2>
-        <p className="font-sans text-sm text-muted-foreground">
-          All 66 books are fully embedded in the app and available offline.
-        </p>
-      </div>
-
     </div>
   );
 }

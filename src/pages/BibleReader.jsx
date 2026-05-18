@@ -15,7 +15,13 @@ const STORAGE_KEY = 'kjb-position';
 function loadPosition() {
   try {
     const s = localStorage.getItem(STORAGE_KEY);
-    if (s) return JSON.parse(s);
+    if (s) {
+      const p = JSON.parse(s);
+      // Validate abbr exists in BIBLE_BOOKS
+      if (p && p.abbr && BIBLE_BOOKS.find(b => b.abbr === p.abbr)) {
+        return p;
+      }
+    }
   } catch {}
   return { abbr: 'GEN', chapter: 1, verse: null };
 }
@@ -175,13 +181,14 @@ export default function BibleReader() {
           {/* Chapter selector */}
           <div className="relative">
             <button
-              onClick={() => { setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+              onClick={() => { if (!isViewingTitlePage) { setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); } }}
+              disabled={isViewingTitlePage}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Ch. {isViewingTitlePage ? 'Intro' : pos.chapter}
               <ChevronRight className="w-3 h-3 opacity-70" />
             </button>
-            {showChapterPicker && (
+            {showChapterPicker && !isViewingTitlePage && (
               <div className="absolute top-full left-0 mt-1 z-50">
                 <ChapterSelector
                   totalChapters={book.chapters}
@@ -196,9 +203,9 @@ export default function BibleReader() {
           {/* Verse selector */}
           <div className="relative">
             <button
-              onClick={() => { setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-              disabled={verseCount === 0}
+              onClick={() => { if (!isViewingTitlePage) { setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); } }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              disabled={verseCount === 0 || isViewingTitlePage}
             >
               {highlightVerse ? `v.${highlightVerse}` : 'Verse'}
               <ChevronRight className="w-3 h-3 opacity-70" />
@@ -371,7 +378,7 @@ export default function BibleReader() {
       {!loading && !error && pos.abbr === 'REV' && pos.chapter === 22 && (
         <div className="text-center my-8 py-6 border-t border-b border-border">
           <p className="font-serif text-lg font-semibold text-muted-foreground tracking-widest uppercase">
-            End of the Holy Bible
+            The End
           </p>
         </div>
       )}

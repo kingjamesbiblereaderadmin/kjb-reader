@@ -1,9 +1,10 @@
 // Client-side Bible data caching for offline access
-// Fetches once from network, then uses localStorage
+// Uses the Wharton PCE text from bibleprotector.com
 
-const CACHE_KEY = 'bible_data_complete_v2';
-const TEXT_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/ee659445e_TEXT-PCE-127.txt';
+const CACHE_KEY = 'bible_data_pce_v3';
+const TEXT_URL = 'https://www.bibleprotector.com/WHARTON_PCE.txt';
 
+// Maps the abbreviation in the text file -> canonical book name (must match apiName in bibleData.js)
 const ABBR_TO_NAME = {
   'Ge':'Genesis','Ex':'Exodus','Le':'Leviticus','Nu':'Numbers','De':'Deuteronomy',
   'Jos':'Joshua','Jg':'Judges','Ru':'Ruth','1Sa':'1 Samuel','2Sa':'2 Samuel',
@@ -30,7 +31,7 @@ function parseBibleText(text) {
   const data = {};
   const colophons = {};
   const lines = text.split('\n');
-  
+
   for (let i = 0; i < lines.length; i++) {
     const trimmed = lines[i].trim();
     if (!trimmed) continue;
@@ -57,6 +58,7 @@ function parseBibleText(text) {
     const bookName = ABBR_TO_NAME[abbr];
     if (!bookName) continue;
 
+    // Extract colophon markers <<[...]>>
     const colophonMatch = verseText.match(/<<\[([^\]]+)\]>>$/);
     if (colophonMatch) {
       const colophonKey = `${bookName}:${chapter}`;
@@ -77,7 +79,6 @@ function parseBibleText(text) {
   return data;
 }
 
-// Sanity check: parsed data should contain most of the 66 books
 function isValidBibleData(data) {
   if (!data || typeof data !== 'object') return false;
   const bookCount = Object.keys(data).filter(k => k !== '__colophons').length;
@@ -100,7 +101,9 @@ async function fetchWithRetry(url, retries = 3) {
 
 function saveToCache(data) {
   try {
+    // Clear old cache keys
     localStorage.removeItem('bible_data_complete');
+    localStorage.removeItem('bible_data_complete_v2');
     localStorage.setItem(CACHE_KEY, JSON.stringify(data));
   } catch (e) {
     console.error('localStorage save failed:', e.message);
@@ -109,7 +112,9 @@ function saveToCache(data) {
 
 function loadFromCache() {
   try {
+    // Clear old cache keys on load
     localStorage.removeItem('bible_data_complete');
+    localStorage.removeItem('bible_data_complete_v2');
     const raw = localStorage.getItem(CACHE_KEY);
     if (!raw) return null;
     const data = JSON.parse(raw);
@@ -142,21 +147,17 @@ export async function getBibleData() {
 
   fetchInProgress = (async () => {
     try {
-      // Try localStorage first
       const cached = loadFromCache();
       if (cached) {
         parsedData = cached;
         return parsedData;
       }
 
-      // Fetch from network with retries
       parsedData = await fetchAndParse();
       saveToCache(parsedData);
       return parsedData;
     } catch (error) {
       console.error('All fetch attempts failed:', error.message);
-
-      // Last resort: try cache even if it was invalid before
       try {
         const raw = localStorage.getItem(CACHE_KEY);
         if (raw) {
@@ -164,7 +165,6 @@ export async function getBibleData() {
           return parsedData;
         }
       } catch (e) { /* nothing left to try */ }
-
       return { __colophons: {} };
     } finally {
       fetchInProgress = null;
@@ -183,5 +183,27 @@ export function isBibleCached() {
 export function clearBibleCache() {
   localStorage.removeItem(CACHE_KEY);
   localStorage.removeItem('bible_data_complete');
+  localStorage.removeItem('bible_data_complete_v2');
   parsedData = null;
+}
+
+// Download all Bible data and cache it for offline use
+export async function downloadBibleForOffline(onProgress) {
+  // Clear existing cache to force a fresh download
+  clearBibleCache();
+  onProgress && onProgress(0, 'Fetching Bible text...');
+
+  const text = await fetchWithRetry(TEXT_URL);
+  onProgress && onProgress(50, 'Parsing 66 books...');
+
+  const data = parseBibleText(text);
+  if (!isValidBibleData(data)) {
+    throw new Error('Download incomplete: only got ' + Object.keys(data).filter(k => k !== '__colophons').length + ' books');
+  }
+
+  onProgress && onProgress(90, 'Saving to device...');
+  saveToCache(data);
+  parsedData = data;
+  onProgress && onProgress(100, 'Done!');
+  return data;
 }

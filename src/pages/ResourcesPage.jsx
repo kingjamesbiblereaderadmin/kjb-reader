@@ -111,7 +111,12 @@ const PREACHERS = [
   'https://www.tiktok.com/@cprmissions',
   'https://www.facebook.com/CPRmission/',
   'https://www.instagram.com/cprmissions/']
-
+},
+{
+  name: 'James Bray',
+  desc: 'KJB preacher and Bible teacher on YouTube.',
+  links: [
+  'https://youtube.com/@jamesbrayall3?si=nXkuHAhyVvC_0KVg']
 }];
 
 
@@ -418,27 +423,7 @@ const RESOURCES = [
   }]
 
 },
-{
-  category: "Ministry Links",
-  icon: Globe,
-  color: "text-purple-500",
-  bg: "bg-purple-50 dark:bg-purple-900/20",
-  expandable: true,
-  items: [
-  {
-    title: "God is Gracious 1031 Ministries",
-    desc: "Shawn's ministry website — KJB resources, statement of faith, blog, and free Bible downloads.",
-    url: "https://godisgracious1031ministriescom.odoo.com/",
-    label: "Visit Ministry Website"
-  },
-  {
-    title: "Contact the Ministry",
-    desc: "Email: Godisgracious1031@outlook.com | Discord: shawn_svdbyfaithinhisbloodr325av",
-    url: "mailto:Godisgracious1031@outlook.com",
-    label: "Send Email"
-  }]
-
-}];
+];
 
 
 function WhyKJBSection() {
@@ -577,6 +562,39 @@ export default function ResourcesPage() {
 
       {/* Verified Preachers section */}
       <PreachersSection />
+
+      {/* Ministry Links */}
+      <div className="bg-card border border-border rounded-2xl p-5 mb-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-900/20 mb-4">
+          <Globe className="w-4 h-4 text-purple-500" />
+          <h2 className="font-sans font-semibold text-sm text-purple-600 dark:text-purple-400">Ministry Links</h2>
+        </div>
+        <div className="space-y-2">
+          <a
+            href="https://godisgracious1031ministriescom.odoo.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
+          >
+            <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">God is Gracious 1031 Ministries</p>
+              <p className="font-sans text-xs text-muted-foreground">Ministry Website</p>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+          </a>
+          <a
+            href="mailto:Godisgracious1031@outlook.com"
+            className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
+          >
+            <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Contact the Ministry</p>
+              <p className="font-sans text-xs text-muted-foreground">Godisgracious1031@outlook.com</p>
+            </div>
+          </a>
+        </div>
+      </div>
 
       {/* Disclaimer box */}
       <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-xl p-4 mb-6">

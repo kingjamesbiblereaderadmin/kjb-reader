@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Home, BookOpen, Heart, Library, Info, Moon, Sun, Settings, Menu, X, Bookmark } from 'lucide-react';
+import { Home, BookOpen, Heart, Library, Info, Moon, Sun, Settings, Menu, X, Bookmark, Search } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
 
@@ -10,6 +10,14 @@ const NAV_ITEMS = [
   { path: '/gospel', icon: Heart, label: 'Gospel' },
   { path: '/resources', icon: Library, label: 'Resources' },
   { path: '/about', icon: Info, label: 'About' },
+  { path: '/saved', icon: Bookmark, label: 'Saved' },
+  { path: '/settings', icon: Settings, label: 'Settings' },
+];
+
+// Bottom bar shows only the most important 4 items on mobile
+const BOTTOM_NAV = [
+  { path: '/', icon: Home, label: 'Home' },
+  { path: '/read', icon: BookOpen, label: 'Read' },
   { path: '/saved', icon: Bookmark, label: 'Saved' },
   { path: '/settings', icon: Settings, label: 'Settings' },
 ];
@@ -87,17 +95,39 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main className="flex-1">
+      <main className="flex-1 pb-16 sm:pb-0">
         <Outlet />
       </main>
 
-      <footer className="border-t border-border bg-card/80 py-4 mt-8">
+      {/* Mobile bottom nav bar */}
+      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border">
+        <div className="flex items-center justify-around px-2 py-1" style={{ paddingBottom: 'max(0.25rem, env(safe-area-inset-bottom))' }}>
+          {BOTTOM_NAV.map(item => {
+            const Icon = item.icon;
+            const active = item.path === '/' ? pathname === '/' : pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors ${
+                  active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Icon className="w-5 h-5" />
+                <span className="font-sans text-[10px] font-medium">{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+
+      <footer className="hidden sm:block border-t border-border bg-card/80 py-4 mt-8">
         <p className="text-center font-sans text-xs text-muted-foreground">
           Bible text from{' '}
           <a href="https://bibleprotector.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
             bibleprotector.com
           </a>
-          {' '}· Created by{' '}
+          {' '}· Created with{' '}
           <a href="https://base44.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
             Base44
           </a>

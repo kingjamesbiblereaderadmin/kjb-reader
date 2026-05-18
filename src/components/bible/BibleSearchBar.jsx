@@ -124,7 +124,7 @@ export default function BibleSearchBar({ onClose }) {
           value={query}
           onChange={e => { setQuery(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
-          placeholder="Romans 3:25 · John 3:16..."
+          placeholder="1 Corinthians 15:1-4..."
           className="w-full pl-8 pr-7 py-1.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors"
         />
         {query && (
