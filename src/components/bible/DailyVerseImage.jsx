@@ -31,6 +31,7 @@ export default function DailyVerseImage({ verse, onClick }) {
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [showStyleEditor, setShowStyleEditor] = useState(false);
   const [showLightbox, setShowLightbox] = useState(false);
+  const [showVersePanel, setShowVersePanel] = useState(() => localStorage.getItem('kjb-verse-panel-visible') !== 'false');
   const [textColor, setTextColor] = useState(() => localStorage.getItem('kjb-verse-text-color') || '#ffffff');
   const [textOpacity, setTextOpacity] = useState(() => parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '0.95'));
   const [fontFamily, setFontFamily] = useState(() => localStorage.getItem('kjb-verse-font-family') || 'serif');
@@ -43,6 +44,7 @@ export default function DailyVerseImage({ verse, onClick }) {
       try { setFontFamily(localStorage.getItem('kjb-verse-font-family') || 'serif'); } catch {}
       try { setNotifImage(localStorage.getItem('kjb-notif-image') || ''); } catch {}
       try { setNotifEnabled(getNotificationsEnabled()); } catch {}
+      try { setShowVersePanel(localStorage.getItem('kjb-verse-panel-visible') !== 'false'); } catch {}
     };
     window.addEventListener('storage', handleStorage);
     handleStorage();
@@ -495,13 +497,31 @@ export default function DailyVerseImage({ verse, onClick }) {
         className="hidden"
       />
       
-      <p 
-        className={`font-sans text-xs font-semibold tracking-widest uppercase mb-4 ${accentClass}`}
-        style={{ opacity: 0.8 * textOpacity, color: textColor, fontFamily }}
-      >
-        Verse of the Day
-      </p>
-      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-5">
+      <div className="flex items-center justify-between mb-4">
+        <p 
+          className={`font-sans text-xs font-semibold tracking-widest uppercase ${accentClass}`}
+          style={{ opacity: 0.8 * textOpacity, color: textColor, fontFamily }}
+        >
+          Verse of the Day
+        </p>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const newValue = !showVersePanel;
+            setShowVersePanel(newValue);
+            localStorage.setItem('kjb-verse-panel-visible', String(newValue));
+            window.dispatchEvent(new Event('storage'));
+          }}
+          className="p-1.5 rounded-md bg-white/20 hover:bg-white/30 transition-colors"
+          title={showVersePanel ? 'Hide panel' : 'Show panel'}
+          type="button"
+        >
+          <Eye className="w-4 h-4 text-white" />
+        </button>
+      </div>
+      {showVersePanel && (
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-5">
         <blockquote 
           className="text-2xl md:text-3xl leading-relaxed"
           style={{ 
@@ -526,6 +546,7 @@ export default function DailyVerseImage({ verse, onClick }) {
           — {verse.ref} (KJB)
         </p>
       </div>
+      )}
       <div 
         className={`w-12 h-1 mx-auto ${accentClass}`}
         style={{ opacity: 0.75 * textOpacity, backgroundColor: textColor }}
