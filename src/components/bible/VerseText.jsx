@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
 import { Copy, Share2, X, Highlighter, ChevronDown, Bookmark, BookmarkCheck, CheckSquare, Square } from 'lucide-react';
 import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
+import { BIBLE_BOOKS } from '@/lib/bibleData';
 
 export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect }) {
+  const bookEntry = BIBLE_BOOKS.find(b => b.abbr === abbr);
+  const shortBookName = bookEntry ? bookEntry.shortName : bookName;
   const [selected, setSelected] = useState(false);
   const [showHighlight, setShowHighlight] = useState(highlight);
   const [highlightColor, setHighlightColor] = useState('accent');
@@ -33,7 +36,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // renderVerseText handles [italics] and ¶ pilcrow styling
   const html = renderVerseText(displayVerseText);
 
-  const verseRef = `${bookName} ${chapter}:${verse.verse}`;
+  const verseRef = `${shortBookName} ${chapter}:${verse.verse}`;
   const cleanText = verse.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '');
   const verseText = `"${cleanText}" — ${verseRef} (KJB)`;
 

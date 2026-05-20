@@ -290,7 +290,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       // Fallback: share text only
       const shareData = {
         title: 'Daily Verse',
-        text: `"${verse.text}" — ${verse.ref}`,
+        text: `"${verse.text}" — ${verse.ref} (KJB)`,
         url: window.location.href,
       };
       
