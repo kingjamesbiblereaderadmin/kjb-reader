@@ -43,7 +43,7 @@ export async function isBibleAvailableOffline() {
 }
 
 // Render verse text: turn [word] into <em>word</em> for KJB italics
-// Preserve pilcrow characters (¶) for traditional formatting
+// Render pilcrow (¶) as a styled muted glyph inline
 export function renderVerseText(text) {
   let cleaned = text.replace(/[<>]|>>/g, '');
   // Normalize smart/curly apostrophes and quotes to plain ASCII to fix Edge rendering
@@ -53,7 +53,9 @@ export function renderVerseText(text) {
     .replace(/\u201C/g, '"')   // left double quote
     .replace(/\u201D/g, '"')   // right double quote
     .replace(/\u2032/g, "'");  // prime
-  // Preserve pilcrow (¶) - don't strip it
+  // Render pilcrow as a styled span (muted, slightly smaller, non-selectable)
+  cleaned = cleaned.replace(/\u00B6\s*/g, '<span class="pilcrow">¶ </span>');
+  // Turn [bracketed] text into italics
   const parts = cleaned.split(/\[([^\]]+)\]/g);
   const result = parts.map((part, i) =>
     i % 2 === 1 ? `<em>${part}</em>` : part

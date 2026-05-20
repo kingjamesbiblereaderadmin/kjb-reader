@@ -30,11 +30,8 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // Strip <<...>> superscription markers
   let displayVerseText = verse.text.replace(/^<<[^>]*>>\s*/, '');
 
-  // Pilcrow (¶) indicates verse continuation in traditional KJB formatting
+  // renderVerseText handles [italics] and ¶ pilcrow styling
   const html = renderVerseText(displayVerseText);
-  const hasItalics = html.includes('<em>');
-  // Check if verse text contains pilcrow character (U+00B6)
-  const hasPilcrow = displayVerseText.includes('\u00B6') || displayVerseText.includes('¶');
 
   const verseRef = `${bookName} ${chapter}:${verse.verse}`;
   const cleanText = verse.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '');
@@ -168,7 +165,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // ── PARAGRAPH MODE: verses flow inline, pilcrow shown inline ──
   if (paragraphMode) {
     return (
-      <span id={id} className={`inline relative ${hasPilcrow ? 'mt-4 block' : ''}`}>
+      <span id={id} className="inline relative">
         <span
           onClick={() => setSelected(s => !s)}
           className={`inline leading-loose transition-colors duration-200 rounded cursor-pointer px-0.5 py-0.5 ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
@@ -187,7 +184,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
 
   // ── LINE MODE (default): each verse is its own line ──
   return (
-    <span id={id} className={`block relative ${hasPilcrow ? 'mt-6' : 'mt-2'}`}>
+    <span id={id} className="block relative mt-2">
       <span
         onClick={() => setSelected(s => !s)}
         className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-1 py-0.5 gap-3 ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}

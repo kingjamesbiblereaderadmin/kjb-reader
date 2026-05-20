@@ -86,12 +86,12 @@
     -webkit-user-select: none;
     user-select: none;
   }
-  /* Ensure pilcrow character (¶) is visible and properly styled */
-  .font-serif {
-    font-variant-ligatures: none;
-  }
-  /* Force pilcrow to render */
-  [id^="v"]::before {
-    /* Only for debugging - check if pilcrow exists */
+  /* Pilcrow paragraph mark — muted, non-selectable, serif */
+  .pilcrow {
+    color: hsl(var(--muted-foreground));
+    opacity: 0.6;
+    font-style: normal;
+    user-select: none;
+    -webkit-user-select: none;
   }
 }

@@ -466,9 +466,9 @@ export default function BibleReader() {
           <p className="font-sans text-sm text-muted-foreground tracking-widest uppercase mt-1">
             Chapter {pos.chapter}
           </p>
-          {/* Subscript — shown below chapter heading, centred, not italic */}
+          {/* Subscript — centred below chapter number, plain (not italic) */}
           {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
-            <p className="font-serif text-sm text-muted-foreground mt-2 max-w-lg mx-auto leading-relaxed text-center not-italic">
+            <p style={{ fontStyle: 'normal' }} className="font-serif text-sm text-muted-foreground mt-2 max-w-lg mx-auto leading-relaxed text-center">
               {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]}
             </p>
           )}
@@ -511,12 +511,12 @@ export default function BibleReader() {
             ))}
           </div>
         )}
-        {/* Colophon footer - shown below all verses for chapters that have one */}
+        {/* Colophon footer - centred, plain text, only [bracketed] words italic */}
         {!loading && !error && colophon && (
-          <div className="text-center mt-12 mb-4">
+          <div className="mt-12 mb-4 border-t border-border pt-6 text-center">
             <p
-              className="font-serif text-sm text-muted-foreground leading-relaxed [&_em]:italic [&_em]:text-muted-foreground"
-              dangerouslySetInnerHTML={{ __html: '¶ ' + renderColophonText(colophon) }}
+              className="font-serif text-sm text-muted-foreground leading-relaxed not-italic [&_em]:italic [&_em]:text-muted-foreground"
+              dangerouslySetInnerHTML={{ __html: '¶&nbsp;&nbsp;' + renderColophonText(colophon) }}
             />
           </div>
         )}
