@@ -547,7 +547,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               <Palette className="w-3.5 h-3.5" />
               Text Color
             </label>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mb-2">
               {[
                 '#000000', '#1a1a1a', '#ffffff', '#f8f8f8',
                 '#fef3c7', '#fde68a', '#fbbf24', '#f59e0b',
@@ -568,6 +568,27 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 />
               ))}
             </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={textColor}
+                onChange={(e) => handleTextColorChange(e.target.value)}
+                className="w-8 h-8 rounded-lg border border-slate-300 cursor-pointer"
+              />
+              <input
+                type="text"
+                placeholder="#ffffff"
+                value={textColor}
+                onChange={(e) => {
+                  const hex = e.target.value;
+                  if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+                    handleTextColorChange(hex);
+                  }
+                }}
+                className="flex-1 px-2 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 font-sans text-xs font-mono"
+              />
+            </div>
+            <p className="font-sans text-[10px] text-slate-500 dark:text-slate-400 mt-1">Enter a hex colour code (e.g., #ffffff)</p>
           </div>
 
           {/* Text Opacity */}
