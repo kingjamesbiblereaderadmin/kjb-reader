@@ -278,38 +278,31 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           text: `"${verse.text}" — ${verse.ref}`,
           files: [new File([blob], `daily-verse-${new Date().toISOString().slice(0, 10)}.png`, { type: 'image/png' })],
         });
-        return;
+      } else {
+        // Try clipboard image
+        try {
+          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+          alert('Image copied to clipboard!');
+        } catch {}
       }
-      
-      // Try clipboard image
-      try {
-        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-        alert('Image copied to clipboard!');
-        return;
-      } catch {}
     } catch (err) {
       console.error('Image share failed:', err);
-    } finally {
-      setShowButtons(true);
-      setCapturing(false);
-    }
-    
-    // Fallback: share text only
-    const shareData = {
-      title: 'Daily Verse',
-      text: `"${verse.text}" — ${verse.ref}`,
-      url: window.location.href,
-    };
-    
-    try {
+      // Fallback: share text only
+      const shareData = {
+        title: 'Daily Verse',
+        text: `"${verse.text}" — ${verse.ref}`,
+        url: window.location.href,
+      };
+      
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
         alert('Verse text copied to clipboard!');
       }
-    } catch (err) {
-      console.error('Share failed:', err);
+    } finally {
+      setShowButtons(true);
+      setCapturing(false);
     }
   };
 
@@ -398,6 +391,122 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 <Download className="w-3.5 h-3.5 text-slate-800" />
               )}
             </button>
+            {/* Unified menu button */}
+            <div ref={menuRef} className="relative">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (!showStyleEditor) {
+                    setShowMenu(!showMenu);
+                  }
+                }}
+                className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+                title="More options"
+                type="button"
+              >
+                <MoreVertical className="w-4 h-4 text-slate-800" />
+              </button>
+              {/* Dropdown menu */}
+              {showMenu && (
+                <div
+                  className="absolute right-0 top-8 z-30 bg-white rounded-lg shadow-xl border border-slate-200 py-1 w-48"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    onClick={handleCopyVerse}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                  >
+                    <Copy className="w-4 h-4" />
+                    Copy Verse
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const newValue = !showVersePanel;
+                      setShowVersePanel(newValue);
+                      localStorage.setItem('kjb-verse-panel-visible', String(newValue));
+                      window.dispatchEvent(new Event('storage'));
+                      setShowMenu(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                  >
+                    <Eye className="w-4 h-4" />
+                    {showVersePanel ? 'Hide Panel' : 'Show Panel'}
+                  </button>
+                  {!showStyleEditor && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setShowStyleEditor(true);
+                        setShowMenu(false);
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                    >
+                      <Palette className="w-4 h-4" />
+                      Text Style
+                    </button>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      e.nativeEvent.stopImmediatePropagation();
+                      setCropImageForNotif(false);
+                      if (fileInputRef.current) {
+                        fileInputRef.current.click();
+                      }
+                      setShowMenu(false);
+                    }}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      e.nativeEvent.stopImmediatePropagation();
+                    }}
+                    onTouchStart={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      e.nativeEvent.stopImmediatePropagation();
+                    }}
+                    disabled={uploading}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-50"
+                  >
+                    <Image className="w-4 h-4" />
+                    {uploading ? 'Uploading...' : 'Change Background'}
+                  </button>
+                  {customBg && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setCustomBg('');
+                        localStorage.removeItem('kjb-daily-verse-bg');
+                        window.dispatchEvent(new Event('storage'));
+                        setShowMenu(false);
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Remove Custom Background
+                    </button>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setShowButtons(false);
+                      setShowMenu(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                  >
+                    <ChevronsDown className="w-4 h-4 rotate-180" />
+                    Hide All Buttons
+                  </button>
+                </div>
+              )}
+            </div>
 
           </>
         ) : (
