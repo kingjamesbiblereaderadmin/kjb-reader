@@ -312,9 +312,7 @@ export async function clearBibleCache() {
   localStorage.removeItem('bible_data_pce_v23');
   await clearIndexedDB();
   parsedData = null;
-  console.log('[CLEAR] ✓ All cache cleared - refreshing page...');
-  // Force reload to fetch fresh data with colophons
-  window.location.reload();
+  console.log('[CLEAR] ✓ All cache cleared');
 }
 
 // Download all Bible data and cache it for offline use
