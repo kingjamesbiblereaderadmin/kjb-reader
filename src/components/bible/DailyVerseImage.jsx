@@ -311,7 +311,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const handleCopyVerse = async (e) => {
     e.stopPropagation();
     try {
-      const verseText = `"${verse.text}" — ${verse.ref}`;
+      const verseText = `"${verse.text}" — ${verse.ref} (KJB)`;
       await navigator.clipboard.writeText(verseText);
       alert('Verse copied to clipboard!');
       setShowMenu(false);
