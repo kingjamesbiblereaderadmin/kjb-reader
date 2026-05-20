@@ -267,15 +267,11 @@ export default function DailyVerseImage({ verse, onClick }) {
   return (
     <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-8 pt-5 pb-8 text-center text-white relative cursor-pointer`} style={bgStyle}>
       {/* Action buttons */}
-      <div className="absolute top-2 right-2 flex gap-1.5 z-10">
+      <div className="absolute top-2 right-2 flex gap-1.5 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
         <button
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            setShowStyleEditor(!showStyleEditor);
-          }}
-          onTouchEnd={(e) => {
-            e.preventDefault();
             setShowStyleEditor(!showStyleEditor);
           }}
           className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
@@ -288,10 +284,7 @@ export default function DailyVerseImage({ verse, onClick }) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            fileInputRef.current?.click();
-          }}
-          onTouchEnd={(e) => {
-            e.preventDefault();
+            setCropImageForNotif(false);
             fileInputRef.current?.click();
           }}
           disabled={uploading}
@@ -312,11 +305,6 @@ export default function DailyVerseImage({ verse, onClick }) {
             setCropImageForNotif(true);
             fileInputRef.current?.click();
           }}
-          onTouchEnd={(e) => {
-            e.preventDefault();
-            setCropImageForNotif(true);
-            fileInputRef.current?.click();
-          }}
           disabled={uploading}
           className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
           title="Set notification image"
@@ -332,10 +320,6 @@ export default function DailyVerseImage({ verse, onClick }) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            handleShare(e);
-          }}
-          onTouchEnd={(e) => {
-            e.preventDefault();
             handleShare(e);
           }}
           disabled={capturing}
@@ -355,10 +339,6 @@ export default function DailyVerseImage({ verse, onClick }) {
             e.stopPropagation();
             handleSetWallpaper(e);
           }}
-          onTouchEnd={(e) => {
-            e.preventDefault();
-            handleSetWallpaper(e);
-          }}
           disabled={capturing}
           className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
           title="Set as wallpaper"
@@ -374,10 +354,6 @@ export default function DailyVerseImage({ verse, onClick }) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            handleDownload(e);
-          }}
-          onTouchEnd={(e) => {
-            e.preventDefault();
             handleDownload(e);
           }}
           disabled={capturing}
