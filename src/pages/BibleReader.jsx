@@ -398,8 +398,6 @@ export default function BibleReader() {
                 ))}
               </div>
             </SelectorSheet>
-            </div>
-            )}
 
             {/* Desktop popover */}
             {showBookPicker && !isMobile() && (
