@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Video, Instagram } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Instagram } from 'lucide-react';
+
+const TikTokIcon = () => (
+  <svg className="w-4 h-4 text-green-500" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05 6.33 6.33 0 0 0-5 10.14 6.32 6.32 0 0 0 10.93-4.5V8.38a7.72 7.72 0 0 0 4.22 1.28V6.69a4.76 4.76 0 0 1-3.77-4.25Z"/>
+  </svg>
+);
 import ImageCropper from '@/components/bible/ImageCropper';
 import { Switch } from '@/components/ui/switch';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
@@ -1228,7 +1234,7 @@ export default function SettingsPage() {
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
             >
-              <Video className="w-4 h-4 text-green-500 flex-shrink-0" />
+              <TikTokIcon />
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">TikTok</p>
                 <p className="font-sans text-xs text-muted-foreground">@svdbyfaithinr325av</p>
