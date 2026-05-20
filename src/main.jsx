@@ -5,6 +5,14 @@ import '@/index.css'
 import { initNotifications } from '@/lib/notifications'
 import { getDailyVerse } from '@/lib/dailyVerse'
 
+// Set dyslexic font attribute on initial load if enabled
+try {
+  const dyslexicFont = localStorage.getItem('kjb-dyslexic-font') === 'true';
+  if (dyslexicFont) {
+    document.documentElement.setAttribute('data-dyslexic-font', 'true');
+  }
+} catch {}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <App />
 )
