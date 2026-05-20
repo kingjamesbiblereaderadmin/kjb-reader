@@ -12,13 +12,12 @@ Deno.serve(async (req) => {
     const buf = await res.arrayBuffer();
     const bytes = new Uint8Array(buf);
 
-    // Decode as latin-1 to see raw bytes
-    const latin1 = new TextDecoder('latin-1').decode(bytes);
-    // Also decode as utf-8
-    const utf8 = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
+    // Decode as windows-1252 to see raw bytes
+    const latin1 = new TextDecoder('windows-1252', { fatal: false }).decode(bytes);
 
     // Search for lines containing "Caesar" or "aesar" or "apostrophe" variants
     const lines = latin1.split('\n');
+    const utf8Lines = new TextDecoder('utf-8', { fatal: false }).decode(bytes).split('\n');
     const matches = [];
 
     for (let i = 0; i < lines.length; i++) {
