@@ -183,7 +183,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-1 mr-2">{verse.verse}</sup>
             <span className="flex-1 min-w-0">
               <span
-                className="font-serif leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify"
+                className="leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify"
                 dangerouslySetInnerHTML={{ __html: html }}
               />
             </span>
@@ -208,7 +208,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           )}
           <sup className="text-accent font-sans font-semibold text-xs mr-3 select-none">{verse.verse}</sup>
           <span
-            className="font-serif leading-loose [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify"
+            className="leading-loose [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify"
             dangerouslySetInnerHTML={{ __html: html }}
           />
           {' '}
@@ -235,7 +235,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-1 mr-2">{verse.verse}</sup>
         <span className="flex-1 min-w-0">
           <span
-            className="font-serif leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify"
+            className="leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify"
             dangerouslySetInnerHTML={{ __html: html }}
           />
         </span>
