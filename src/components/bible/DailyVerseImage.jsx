@@ -1,7 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Download, Share2 } from 'lucide-react';
+import { Download, Share2, Upload } from 'lucide-react';
 import html2canvas from 'html2canvas';
+import { base44 } from '@/api/base44Client';
 
 const VERSE_BACKGROUNDS = [
   { gradient: 'from-blue-600 to-purple-600', accent: 'text-blue-200' },
@@ -31,10 +32,30 @@ export default function DailyVerseImage({ verse }) {
   
   const verseRef = useRef(null);
   const [capturing, setCapturing] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
+  
+  const handleUpload = async (e) => {
+    e.stopPropagation();
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const res = await base44.integrations.Core.UploadFile({ file });
+      setCustomBg(res.file_url);
+      localStorage.setItem('kjb-daily-verse-bg', res.file_url);
+      window.dispatchEvent(new Event('storage'));
+    } catch (err) {
+      console.error('Upload failed:', err);
+      alert('Failed to upload image. Please try again.');
+    }
+    setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
   
   const bgStyle = customBg
     ? { backgroundImage: `url(${customBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }
-    : { background: `linear-gradient(to bottom right, var(--tw-gradient-stops))` };
+    : {};
   const gradientClass = customBg ? '' : `bg-gradient-to-br ${defaultBg.gradient}`;
   const accentClass = customBg ? 'text-white' : defaultBg.accent;
 
@@ -120,7 +141,29 @@ export default function DailyVerseImage({ verse }) {
             <Download className="w-5 h-5 text-white" />
           )}
         </button>
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          className="p-2 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur transition-colors disabled:opacity-50"
+          title="Change background image"
+          type="button"
+        >
+          {uploading ? (
+            <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin block" />
+          ) : (
+            <Upload className="w-5 h-5 text-white" />
+          )}
+        </button>
       </div>
+      
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleUpload}
+        className="hidden"
+      />
       
       <p className={`font-sans text-xs font-semibold tracking-widest uppercase mb-4 opacity-80 ${accentClass}`}>
         Verse of the Day
