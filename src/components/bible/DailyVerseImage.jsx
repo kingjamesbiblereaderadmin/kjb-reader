@@ -172,6 +172,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
   const handleDownload = async (e) => {
     e.stopPropagation();
+    e.preventDefault();
     setCapturing(true);
     setShowButtons(false);
     setShowStyleEditor(false);
@@ -186,7 +187,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       const link = document.createElement('a');
       link.download = `daily-verse-${new Date().toISOString().slice(0, 10)}.png`;
       link.href = canvas.toDataURL('image/png');
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
     } catch (err) {
       console.error('Failed to download image:', err);
     } finally {
@@ -260,6 +263,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
   const handleShare = async (e) => {
     e.stopPropagation();
+    e.preventDefault();
     setCapturing(true);
     setShowButtons(false);
     setShowStyleEditor(false);
