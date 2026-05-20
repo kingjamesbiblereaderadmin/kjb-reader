@@ -1,7 +1,7 @@
 // KJB Reader Service Worker
-// Handles: asset caching, background notifications via periodicsync + push
+// Handles: asset caching, background notifications, automatic updates
 
-const CACHE_NAME = 'kjb-app-v3';
+const CACHE_NAME = 'kjb-app-v4'; // Incremented version for cache busting
 const NOTIF_CONFIG_CACHE = 'kjb-notif-config';
 
 const PRECACHE_URLS = [
@@ -25,19 +25,24 @@ self.addEventListener('activate', (event) => {
         keys.filter(k => k !== CACHE_NAME && k !== NOTIF_CONFIG_CACHE)
           .map(k => caches.delete(k))
       )
-    )
+    ).then(() => {
+      // Notify all clients to reload
+      return self.clients.matchAll({ type: 'window' }).then(clients => {
+        clients.forEach(client => client.navigate(client.url));
+      });
+    })
   );
   self.clients.claim();
 });
 
-// ── Fetch (cache-first, but skip Vite/React chunks) ─────────────────────────
+// ── Fetch (network-first for JS/CSS, cache-first for HTML) ──────────────────
 self.addEventListener('fetch', (event) => {
   // Don't intercept non-GET or external requests
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
-  // Skip caching for Vite/React chunks to prevent stale React errors
+  // Skip caching for Vite/React chunks - always fetch fresh
   const pathname = url.pathname;
   if (
     pathname.includes('/@vite') ||
@@ -49,21 +54,39 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then(cached => {
-      return cached || fetch(event.request).then(response => {
-        // Cache successful HTML/JS/CSS responses (excluding Vite chunks)
-        if (response && response.status === 200) {
-          const ct = response.headers.get('content-type') || '';
-          if (ct.includes('text/html') || (ct.includes('javascript') && !pathname.includes('chunk-'))) {
+  // Network-first for CSS and JS (to get updates), cache-first for HTML
+  const isStaticAsset = pathname.endsWith('.css') || pathname.endsWith('.js');
+  
+  if (isStaticAsset) {
+    // Network-first: try to fetch fresh, fall back to cache
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          if (response && response.status === 200) {
             const clone = response.clone();
             caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
           }
-        }
-        return response;
-      });
-    })
-  );
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+  } else {
+    // Cache-first for HTML and other assets
+    event.respondWith(
+      caches.match(event.request).then(cached => {
+        return cached || fetch(event.request).then(response => {
+          if (response && response.status === 200) {
+            const ct = response.headers.get('content-type') || '';
+            if (ct.includes('text/html')) {
+              const clone = response.clone();
+              caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+            }
+          }
+          return response;
+        });
+      })
+    );
+  }
 });
 
 // ── Helper: read notification config from cache ───────────────────────────────
