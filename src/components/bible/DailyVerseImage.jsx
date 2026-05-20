@@ -302,7 +302,7 @@ export default function DailyVerseImage({ verse, onClick }) {
   return (
     <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-8 pt-5 pb-8 text-center text-white relative cursor-pointer`} style={bgStyle}>
       {/* Action buttons */}
-      <div className="absolute top-2 right-2 flex gap-1.5 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
+      <div className="absolute top-2 right-2 flex gap-1 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
         {showButtons ? (
           <>
             <button
@@ -311,11 +311,11 @@ export default function DailyVerseImage({ verse, onClick }) {
                 e.stopPropagation();
                 setShowLightbox(true);
               }}
-              className="p-1.5 rounded-md bg-primary hover:bg-primary/90 transition-colors shadow-md"
+              className="p-1 rounded-md bg-primary hover:bg-primary/90 transition-colors shadow-md"
               title="View in full screen"
               type="button"
             >
-              <Maximize2 className="w-5 h-5 text-primary-foreground" />
+              <Maximize2 className="w-3.5 h-3.5 text-primary-foreground" />
             </button>
             <button
               onClick={(e) => {
@@ -326,11 +326,11 @@ export default function DailyVerseImage({ verse, onClick }) {
                 localStorage.setItem('kjb-verse-panel-visible', String(newValue));
                 window.dispatchEvent(new Event('storage'));
               }}
-              className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+              className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
               title={showVersePanel ? 'Hide panel' : 'Show panel'}
               type="button"
             >
-              <Eye className="w-4 h-4 text-slate-800" />
+              <Eye className="w-3.5 h-3.5 text-slate-800" />
             </button>
             <button
               onClick={(e) => {
@@ -338,11 +338,11 @@ export default function DailyVerseImage({ verse, onClick }) {
                 e.stopPropagation();
                 setShowStyleEditor(!showStyleEditor);
               }}
-              className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+              className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
               title="Customize text style"
               type="button"
             >
-              <Palette className="w-4 h-4 text-slate-800" />
+              <Palette className="w-3.5 h-3.5 text-slate-800" />
             </button>
             <button
               onClick={(e) => {
@@ -350,21 +350,29 @@ export default function DailyVerseImage({ verse, onClick }) {
                 e.stopPropagation();
                 e.nativeEvent.stopImmediatePropagation();
                 setCropImageForNotif(false);
-                fileInputRef.current?.click();
+                if (fileInputRef.current) {
+                  fileInputRef.current.click();
+                }
               }}
               onMouseDown={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+              }}
+              onTouchStart={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
               }}
               disabled={uploading}
-              className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
+              className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
               title="Change background image"
               type="button"
             >
               {uploading ? (
-                <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
+                <span className="w-3.5 h-3.5 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
               ) : (
-                <Upload className="w-4 h-4 text-slate-800" />
+                <Upload className="w-3.5 h-3.5 text-slate-800" />
               )}
             </button>
             <button
@@ -374,14 +382,14 @@ export default function DailyVerseImage({ verse, onClick }) {
                 handleShare(e);
               }}
               disabled={capturing}
-              className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
+              className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
               title="Share verse image"
               type="button"
             >
               {capturing ? (
-                <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
+                <span className="w-3.5 h-3.5 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
               ) : (
-                <Share2 className="w-4 h-4 text-slate-800" />
+                <Share2 className="w-3.5 h-3.5 text-slate-800" />
               )}
             </button>
             <button
@@ -391,14 +399,14 @@ export default function DailyVerseImage({ verse, onClick }) {
                 handleDownload(e);
               }}
               disabled={capturing}
-              className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
+              className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
               title="Download verse image"
               type="button"
             >
               {capturing ? (
-                <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
+                <span className="w-3.5 h-3.5 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
               ) : (
-                <Download className="w-4 h-4 text-slate-800" />
+                <Download className="w-3.5 h-3.5 text-slate-800" />
               )}
             </button>
             <button
@@ -407,11 +415,11 @@ export default function DailyVerseImage({ verse, onClick }) {
                 e.stopPropagation();
                 setShowButtons(false);
               }}
-              className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+              className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
               title="Hide buttons"
               type="button"
             >
-              <ChevronsDown className="w-4 h-4 text-slate-800 rotate-180" />
+              <ChevronsDown className="w-3.5 h-3.5 text-slate-800 rotate-180" />
             </button>
           </>
         ) : (
@@ -421,11 +429,11 @@ export default function DailyVerseImage({ verse, onClick }) {
               e.stopPropagation();
               setShowButtons(true);
             }}
-            className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+            className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
             title="Show buttons"
             type="button"
           >
-            <ChevronsDown className="w-4 h-4 text-slate-800" />
+            <ChevronsDown className="w-3.5 h-3.5 text-slate-800" />
           </button>
         )}
       </div>
