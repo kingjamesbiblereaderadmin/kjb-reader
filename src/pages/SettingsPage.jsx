@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type } from 'lucide-react';
 import ImageCropper from '@/components/bible/ImageCropper';
 import { Switch } from '@/components/ui/switch';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
@@ -32,11 +32,37 @@ export default function SettingsPage() {
     try { return localStorage.getItem('kjb-notif-image') || ''; } catch { return ''; }
   });
   
-
+  const [verseTextColor, setVerseTextColor] = useState(() => {
+    try { return localStorage.getItem('kjb-verse-text-color') || '#ffffff'; } catch { return '#ffffff'; }
+  });
+  const [verseTextOpacity, setVerseTextOpacity] = useState(() => {
+    try { return parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '0.95'); } catch { return 0.95; }
+  });
+  const [verseFontFamily, setVerseFontFamily] = useState(() => {
+    try { return localStorage.getItem('kjb-verse-font-family') || 'serif'; } catch { return 'serif'; }
+  });
 
   const [zoomLevel, setZoomLevel] = useState(() => {
     try { return parseInt(localStorage.getItem('kjb-zoom') || '100'); } catch { return 100; }
   });
+
+  const VERSE_COLORS = [
+    '#000000', '#1a1a1a', '#ffffff', '#f8f8f8',
+    '#fef3c7', '#fde68a', '#fbbf24', '#f59e0b',
+    '#dbeafe', '#93c5fd', '#3b82f6', '#1e40af',
+    '#fecaca', '#fca5a5', '#ef4444', '#b91c1c',
+    '#ddd6fe', '#a78bfa', '#8b5cf6', '#5b21b6',
+    '#bbf7d0', '#6ee7b7', '#10b981', '#047857',
+    '#ffe4e6', '#fda4af', '#ec4899', '#9d174d',
+    '#e0f2fe', '#7dd3fc', '#0ea5e9', '#0369a1'
+  ];
+
+  const VERSE_FONTS = [
+    { value: 'serif', label: 'Serif' },
+    { value: 'sans-serif', label: 'Sans Serif' },
+    { value: 'monospace', label: 'Mono' },
+    { value: 'cursive', label: 'Cursive' },
+  ];
 
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);
@@ -483,6 +509,89 @@ export default function SettingsPage() {
                 {p.name}
               </button>
             ))}
+          </div>
+        </div>
+
+        {/* Daily Verse Text Style */}
+        <div className="pt-4 border-t border-border space-y-4">
+          <h3 className="font-serif text-base font-semibold text-foreground flex items-center gap-2">
+            <Palette className="w-4 h-4" />
+            Daily Verse Text Style
+          </h3>
+          
+          {/* Text Color with Hex */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="font-sans text-sm text-foreground font-medium">Text Color</p>
+              <code className="font-mono text-xs bg-secondary px-2 py-1 rounded">{verseTextColor}</code>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {VERSE_COLORS.map(color => (
+                <button
+                  key={color}
+                  onClick={() => {
+                    setVerseTextColor(color);
+                    localStorage.setItem('kjb-verse-text-color', color);
+                    window.dispatchEvent(new Event('storage'));
+                  }}
+                  className={`w-8 h-8 rounded-lg border-2 transition-all ${
+                    verseTextColor === color ? 'border-foreground scale-110' : 'border-slate-300 hover:border-slate-500'
+                  }`}
+                  style={{ backgroundColor: color }}
+                  title={color}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Text Opacity */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="font-sans text-sm text-foreground font-medium">Opacity</p>
+              <span className="font-sans text-xs text-muted-foreground">{Math.round(verseTextOpacity * 100)}%</span>
+            </div>
+            <input
+              type="range"
+              min="0.3"
+              max="1"
+              step="0.05"
+              value={verseTextOpacity}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                setVerseTextOpacity(val);
+                localStorage.setItem('kjb-verse-text-opacity', String(val));
+                window.dispatchEvent(new Event('storage'));
+              }}
+              className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+            />
+          </div>
+
+          {/* Font Family */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Type className="w-4 h-4 text-muted-foreground" />
+              <p className="font-sans text-sm text-foreground font-medium">Font Family</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {VERSE_FONTS.map(font => (
+                <button
+                  key={font.value}
+                  onClick={() => {
+                    setVerseFontFamily(font.value);
+                    localStorage.setItem('kjb-verse-font-family', font.value);
+                    window.dispatchEvent(new Event('storage'));
+                  }}
+                  className={`px-4 py-3 rounded-xl font-sans text-sm font-medium transition-all ${
+                    verseFontFamily === font.value
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                  }`}
+                  style={{ fontFamily: font.value }}
+                >
+                  {font.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
