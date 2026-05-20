@@ -111,7 +111,7 @@ Deno.serve(async (req) => {
     const versePayload = JSON.stringify({
       title: verseTitle,
       body: verseBody,
-      url: verseUrl,
+      url: null,
       type: 'daily-verse'
     });
     
