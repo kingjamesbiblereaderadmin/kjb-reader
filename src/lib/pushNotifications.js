@@ -23,14 +23,12 @@ async function getVapidPublicKey() {
   try {
     // Call directly without SDK to avoid auth requirement
     const response = await fetch('/api/functions/getVapidPublicKey', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({})
+      method: 'GET',
     });
     if (response.ok) {
-      const data = await response.json();
-      if (data.publicKey) {
-        VAPID_PUBLIC_KEY = data.publicKey;
+      const publicKey = await response.text();
+      if (publicKey) {
+        VAPID_PUBLIC_KEY = publicKey;
         return VAPID_PUBLIC_KEY;
       }
     }

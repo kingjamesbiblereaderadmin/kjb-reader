@@ -9,17 +9,15 @@ Deno.serve(async (req) => {
       );
     }
 
-    return Response.json(
-      { publicKey },
-      {
-        status: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, OPTIONS',
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    // Return plain text to avoid SDK auth requirement
+    return new Response(publicKey, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Content-Type': 'text/plain',
+      },
+    });
   } catch (error) {
     return Response.json(
       { error: error.message },
