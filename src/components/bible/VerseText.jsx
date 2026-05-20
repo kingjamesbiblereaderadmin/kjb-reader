@@ -165,10 +165,10 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // ── PARAGRAPH MODE: verses flow inline; pilcrow verses break to a new line ──
   const hasPilcrow = verse.text.includes('\u00B6') || verse.text.includes('\u000F');
   if (paragraphMode) {
-    // Pilcrow verse: render as a block (new paragraph), matching line-mode indentation
+    // Pilcrow verse: render as a block (new paragraph) with gap above, no indent
     if (hasPilcrow && !isFirstVerse) {
       return (
-        <span id={id} className="block relative mt-2">
+        <span id={id} className="block relative mt-4 pl-0">
           <span
             onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
             className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-1 py-0.5 gap-3 ${
