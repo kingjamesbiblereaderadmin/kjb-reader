@@ -131,23 +131,20 @@ export default function SearchPage() {
             }
 
             if (found) {
-              const key = `${bookName}-${chapterNum}-${verseObj.verse}`;
-              if (seen.has(key)) continue;
-              seen.add(key);
-              const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
-              matches.push({
-                book: bookName,
-                chapter: parseInt(chapterNum),
-                verse: verseObj.verse,
-                text: verseObj.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, ''),
-                abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
-              });
-              if (matches.length >= 200) break;
+            const key = `${bookName}-${chapterNum}-${verseObj.verse}`;
+            if (seen.has(key)) continue;
+            seen.add(key);
+            const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+            matches.push({
+              book: bookName,
+              chapter: parseInt(chapterNum),
+              verse: verseObj.verse,
+              text: verseObj.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, ''),
+              abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
+            });
             }
-          }
-          if (matches.length >= 200) break;
-        }
-        if (matches.length >= 200) break;
+            }
+            }
       }
 
       setResults(matches);
@@ -368,7 +365,7 @@ export default function SearchPage() {
           <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div>
               <p className="font-sans text-xs text-muted-foreground">
-                {results.length}{results.length >= 200 ? '+' : ''} result{results.length !== 1 ? 's' : ''} for "{getQueryFromUrl() || query}"
+                {results.length} result{results.length !== 1 ? 's' : ''} for "{getQueryFromUrl() || query}"
               </p>
               {expandedTerms.length > 1 && (
                 <p className="font-sans text-xs text-accent mt-0.5">
