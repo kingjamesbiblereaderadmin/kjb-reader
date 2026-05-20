@@ -336,7 +336,7 @@ export default function SettingsPage() {
               <div className="mt-3 pt-3 border-t border-border">
                 <p className="font-sans text-xs text-primary font-medium flex items-center gap-1.5">
                   <Bell className="w-3.5 h-3.5" />
-                  After installing, enable notifications below to receive daily verses when you open the app
+                  After installing, enable notifications below to receive daily verses
                 </p>
               </div>
             </div>
