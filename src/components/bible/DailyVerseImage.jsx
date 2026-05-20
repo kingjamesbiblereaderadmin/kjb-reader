@@ -30,7 +30,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   });
   const [showStyleEditor, setShowStyleEditor] = useState(false);
   const [showLightbox, setShowLightbox] = useState(false);
-  const [showVersePanel, setShowVersePanel] = useState(() => localStorage.getItem('kjb-verse-panel-visible') !== 'false');
+  const [showVersePanel, setShowVersePanel] = useState(() => localStorage.getItem('kjb-verse-panel-visible') === 'true');
   const [showButtons, setShowButtons] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
