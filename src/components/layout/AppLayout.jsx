@@ -46,12 +46,10 @@ export default function AppLayout() {
   const isRoot = pathname === '/';
 
   // FirstLoadPrompt state (centralized in AppLayout)
-  const { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss, wasDismissed, setShowPrompt } = useAppLayoutPrompt();
-  const [downloaded, setDownloaded] = useState(false);
+  const { isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss } = useAppLayoutPrompt();
+  const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
-    isBibleCached().then(cached => setDownloaded(cached));
-
     // Register service worker for PWA functionality
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js')
@@ -62,35 +60,25 @@ export default function AppLayout() {
           console.error('[SW] Registration failed:', err);
         });
     }
-  }, []);
 
-  // Dismiss prompt when user navigates to a different page
-  useEffect(() => {
-    const handleRouteChange = () => {
-      if (showPrompt) {
-        handleDismiss();
-        setShowPrompt(false);
-      }
-    };
-    window.addEventListener('popstate', handleRouteChange);
-    return () => window.removeEventListener('popstate', handleRouteChange);
-  }, [showPrompt, handleDismiss, setShowPrompt]);
-
-  const handleDownloadOffline = async () => {
-    try {
-      await downloadBibleForOffline(() => {});
-      setDownloaded(true);
-      // Dispatch storage event to sync all components
-      window.dispatchEvent(new Event('storage'));
-    } catch (err) {
-      console.error('Failed to download offline data:', err);
+    // Only show prompt once per session, after a delay, if not dismissed
+    const alreadyInstalled = window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
+    const dismissed = localStorage.getItem('kjb-prompt-dismissed') === 'true' || localStorage.getItem('kjb-install-dismissed') === 'true';
+    if (!alreadyInstalled && !dismissed) {
+      const timer = setTimeout(() => setShowPrompt(true), 2000);
+      return () => clearTimeout(timer);
     }
+  }, []); // Only run once on mount
+
+  const handleDismissPrompt = () => {
+    setShowPrompt(false);
+    handleDismiss();
   };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="max-w-5xl mx-auto px-4 h-[80px] sm:h-24 flex items-center gap-2 sm:gap-3">
+        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-2 sm:gap-3">
           {/* Logo */}
           <Link
             to="/"
@@ -100,7 +88,7 @@ export default function AppLayout() {
             }}
             className="flex items-center gap-2 flex-shrink-0 pointer-events-auto"
           >
-            <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB Reader" className="h-9 w-auto" />
+            <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB Reader" className="h-8 w-auto" />
           </Link>
 
           {/* Search - expands to fill space */}
@@ -110,32 +98,29 @@ export default function AppLayout() {
 
           {/* Actions - responsive button sizes with visible square touch targets */}
           <div className="flex items-center gap-1 sm:gap-2 pointer-events-none shrink-0">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
+            <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
-              onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
               style={{ touchAction: 'manipulation' }}
               role="button"
               aria-label="Refresh"
             >
-              <RotateCw className="w-5 h-5 sm:w-6 sm:h-6" />
+              <RotateCw className="w-4 h-4" />
             </div>
-            <div className="w-12 h-12 sm:w-14 sm:h-14 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
+            <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
-              onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
               style={{ touchAction: 'manipulation' }}
               role="button"
               aria-label="Toggle theme"
             >
-              {mode === 'auto' ? <SunMoon className="w-5 h-5 sm:w-6 sm:h-6" /> : isDark ? <Moon className="w-5 h-5 sm:w-6 sm:h-6" /> : <Sun className="w-5 h-5 sm:w-6 sm:h-6" />}
+              {mode === 'auto' ? <SunMoon className="w-4 h-4" /> : isDark ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
             </div>
-            <div className="w-12 h-12 sm:w-14 sm:h-14 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
+            <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
-              onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
               style={{ touchAction: 'manipulation' }}
               role="button"
               aria-label="Open menu"
             >
-              {menuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
+              {menuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </div>
           </div>
         </div>
@@ -146,7 +131,7 @@ export default function AppLayout() {
               className="fixed inset-0 top-14 z-40 bg-background/95"
               onClick={() => setMenuOpen(false)}
             />
-            <div className="absolute top-14 right-0 left-0 z-50 bg-card backdrop-blur-md border-b border-border shadow-lg">
+            <div className="absolute top-full right-0 left-0 z-50 bg-card backdrop-blur-md border-b border-border shadow-lg">
               <div className="max-w-4xl mx-auto px-4 py-3 grid grid-cols-2 sm:grid-cols-4 gap-1">
                 {NAV_ITEMS.map(item => {
                   const Icon = item.icon;
@@ -177,22 +162,22 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main className="flex-1 pb-16 sm:pb-0">
+      <main className="flex-1 pb-20 sm:pb-0">
         <Outlet />
       </main>
 
       <BottomNav pathname={pathname} navigate={navigate} hidden={footerHidden} onToggleHide={() => setFooterHidden(true)} />
 
-      {/* FirstLoadPrompt - shows on both desktop and mobile */}
-      <FirstLoadPrompt
-        isInstallable={isInstallable}
-        notifPermission={notifPermission}
-        onInstall={handleInstall}
-        onEnableNotif={handleEnableNotif}
-        onDismiss={handleDismiss}
-        onDownloadOffline={handleDownloadOffline}
-        downloaded={downloaded}
-      />
+      {/* FirstLoadPrompt - shows once per session */}
+      {showPrompt && (
+        <FirstLoadPrompt
+          isInstallable={isInstallable}
+          notifPermission={notifPermission}
+          onInstall={handleInstall}
+          onEnableNotif={handleEnableNotif}
+          onDismiss={handleDismissPrompt}
+        />
+      )}
 
       {!footerHidden && (
         <footer className="hidden sm:block border-t border-border bg-card/80 py-3 mt-8 relative">
@@ -253,8 +238,7 @@ export default function AppLayout() {
 }
 
 function useAppLayoutPrompt() {
-  const [showPrompt, setShowPrompt] = useState(false);
-  const { isInstallable, isInstalled, promptInstall, dismiss, wasDismissed } = useInstallPrompt();
+  const { isInstallable, isInstalled, promptInstall, dismiss } = useInstallPrompt();
   const [notifPermission, setNotifPermission] = useState(() => {
     if (!('serviceWorker' in navigator)) return 'unsupported';
     if (!('Notification' in window)) return 'supported';
@@ -262,20 +246,9 @@ function useAppLayoutPrompt() {
   });
   const [notifEnabled, setNotifEnabled] = useState(() => getNotificationsEnabled());
 
-  useEffect(() => {
-    const dismissed = wasDismissed();
-    const alreadyInstalled = isInstalled || window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
-    const localStorageDismissed = localStorage.getItem('kjb-prompt-dismissed') === 'true';
-    if (alreadyInstalled || dismissed || localStorageDismissed) return;
-    const timer = setTimeout(() => {
-      setShowPrompt(true);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, [wasDismissed, isInstallable, isInstalled]);
-
   const handleInstall = async () => {
     const accepted = await promptInstall();
-    if (accepted) setShowPrompt(false);
+    return accepted;
   };
 
   const handleEnableNotif = async () => {
@@ -308,64 +281,50 @@ function useAppLayoutPrompt() {
   };
 
   const handleDismiss = () => {
-    console.log('[AppLayout] handleDismiss called');
     dismiss();
-    setShowPrompt(false);
-    try {
-      localStorage.setItem('kjb-prompt-dismissed', 'true');
-    } catch {}
+    try { localStorage.setItem('kjb-prompt-dismissed', 'true'); } catch {}
   };
 
-  return { showPrompt, isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss, wasDismissed, setShowPrompt };
+  return { isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss };
 }
 
 function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
   const [showMode, setShowMode] = useState(() => {
     try {
       const saved = localStorage.getItem('kjb-footer-mode');
-      return saved === 'one' ? 'one' : saved === 'hidden' ? 'hidden' : 'two';
-    } catch { return 'two'; }
+      return saved === 'two' ? 'two' : saved === 'hidden' ? 'hidden' : 'one';
+    } catch { return 'one'; }
   });
 
   const cycleShowMode = () => {
-    const next = showMode === 'two' ? 'one' : showMode === 'one' ? 'hidden' : 'two';
+    const next = showMode === 'one' ? 'two' : showMode === 'two' ? 'hidden' : 'one';
     setShowMode(next);
     try { localStorage.setItem('kjb-footer-mode', next); } catch {}
     if (next === 'hidden') onToggleHide?.();
   };
 
-  if (hidden && showMode === 'hidden') {
-    return (
-      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border safe-area-pb">
-        <button
-          onClick={cycleShowMode}
-          onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
-          className="w-full h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors"
-          title="Tap to show navigation"
-        >
-          <ChevronDown className="w-4 h-4 rotate-180" />
-        </button>
-      </nav>
-    );
-  }
+  const chevronIcon = showMode === 'hidden'
+    ? <ChevronDown className="w-3.5 h-3.5 rotate-180" />
+    : showMode === 'one'
+    ? <ChevronDown className="w-3.5 h-3.5" />
+    : <ChevronDown className="w-3.5 h-3.5" />;
 
   return (
     <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border safe-area-pb">
-      {/* Toggle hide button */}
-      <button
-        onClick={() => { cycleShowMode(); onToggleHide?.(); }}
-        onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); onToggleHide?.(); }}
-        className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center shadow-sm z-10"
-        title="Hide navigation"
-      >
-        <ChevronDown className="w-4 h-4" />
-      </button>
-      
-      {/* Navigation rows */}
-      {showMode !== 'hidden' && (
+      {showMode === 'hidden' ? (
+        /* Collapsed state - just a slim bar with chevron */
+        <button
+          onClick={() => { cycleShowMode(); }}
+          onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
+          className="w-full h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors border-t border-border"
+          title="Show navigation"
+        >
+          <ChevronDown className="w-4 h-4 rotate-180" />
+        </button>
+      ) : (
         <div className="w-full">
-          {/* Primary row - 5 items */}
-          <div className="grid grid-cols-5 gap-0">
+          {/* Primary row: 5 nav items + chevron toggle button */}
+          <div className="flex items-stretch">
             {BOTTOM_NAV_PRIMARY.map(item => {
               const Icon = item.icon;
               const active = item.path === '/' ? pathname === '/' : pathname === item.path;
@@ -377,16 +336,25 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     setTimeout(() => navigate(item.path), 150);
                   }}
-                  className="flex flex-col items-center justify-center w-full h-14 active:bg-secondary/50 transition-colors"
+                  className="flex flex-col items-center justify-center flex-1 h-14 active:bg-secondary/50 transition-colors"
                 >
-                  <Icon className={`w-6 h-6 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <Icon className={`w-5 h-5 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
                   <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
                 </button>
               );
             })}
+            {/* Chevron toggle - inline in primary row */}
+            <button
+              onClick={() => { cycleShowMode(); onToggleHide?.(); }}
+              onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); onToggleHide?.(); }}
+              className="w-8 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-colors shrink-0 border-l border-border"
+              title="Toggle navigation rows"
+            >
+              {showMode === 'two' ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5 rotate-180" />}
+            </button>
           </div>
-          
-          {/* Secondary row - 4 items */}
+
+          {/* Secondary row - shown when two rows */}
           {showMode === 'two' && (
             <div className="grid grid-cols-4 gap-0 border-t border-border">
               {BOTTOM_NAV_SECONDARY.map(item => {
@@ -400,9 +368,9 @@ function BottomNav({ pathname, navigate, hidden, onToggleHide }) {
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                       navigate(item.path);
                     }}
-                    className="flex flex-col items-center justify-center w-full h-14 active:bg-secondary/50 transition-colors"
+                    className="flex flex-col items-center justify-center w-full h-12 active:bg-secondary/50 transition-colors"
                   >
-                    <Icon className={`w-6 h-6 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <Icon className={`w-5 h-5 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
                     <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
                   </button>
                 );

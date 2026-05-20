@@ -202,6 +202,7 @@ export default function HomePage() {
       {/* Full-width Read the Bible */}
       <Link
         to={READ_LINK.path}
+        onClick={() => window.scrollTo({ top: 0 })}
         className={`flex items-center gap-4 p-5 rounded-2xl shadow-sm hover:opacity-90 transition-opacity mb-4 ${READ_LINK.color}`}
       >
         <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-white/20">
@@ -236,6 +237,7 @@ export default function HomePage() {
             <Link
               key={link.path}
               to={link.path}
+              onClick={() => window.scrollTo({ top: 0 })}
               className={`flex items-center gap-4 p-5 rounded-2xl shadow-sm hover:opacity-90 transition-opacity ${link.color}`}
             >
               <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-white/20">

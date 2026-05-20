@@ -46,10 +46,28 @@ export async function isBibleAvailableOffline() {
 // Preserve pilcrow characters (¶) for traditional formatting
 export function renderVerseText(text) {
   let cleaned = text.replace(/[<>]|>>/g, '');
+  // Normalize smart/curly apostrophes and quotes to plain ASCII to fix Edge rendering
+  cleaned = cleaned
+    .replace(/\u2019/g, "'")   // right single quotation mark → apostrophe
+    .replace(/\u2018/g, "'")   // left single quotation mark
+    .replace(/\u201C/g, '"')   // left double quote
+    .replace(/\u201D/g, '"')   // right double quote
+    .replace(/\u2032/g, "'");  // prime
   // Preserve pilcrow (¶) - don't strip it
   const parts = cleaned.split(/\[([^\]]+)\]/g);
   const result = parts.map((part, i) =>
     i % 2 === 1 ? `<em>${part}</em>` : part
   ).join('');
   return result;
+}
+
+// Render colophon text: [bracketed] words become italic, rest is plain
+export function renderColophonText(text) {
+  const normalized = text
+    .replace(/\u2019/g, "'").replace(/\u2018/g, "'")
+    .replace(/\u201C/g, '"').replace(/\u201D/g, '"');
+  const parts = normalized.split(/\[([^\]]+)\]/g);
+  return parts.map((part, i) =>
+    i % 2 === 1 ? `<em>${part}</em>` : part
+  ).join('');
 }

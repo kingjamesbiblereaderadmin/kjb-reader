@@ -307,7 +307,7 @@ export default function SettingsPage() {
 
       {/* Offline Library */}
       <div className="bg-card border border-border rounded-2xl p-5 mb-6">
-        <h2 className="font-serif text-lg font-semibold text-foreground mb-2">Offline Library</h2>
+        <h2 className="font-serif text-lg font-semibold text-foreground mb-2">Bible Cache</h2>
         <p className="font-sans text-sm text-muted-foreground mb-4">
           Download all 66 books to your device for offline reading. Once downloaded, the Bible is available without an internet connection.
         </p>
@@ -316,7 +316,7 @@ export default function SettingsPage() {
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
               <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-              <span className="font-sans text-sm font-medium">All 66 books downloaded — available offline</span>
+              <span className="font-sans text-sm font-medium">The Bible is cached — available offline</span>
             </div>
             <div className="flex gap-2">
               <button

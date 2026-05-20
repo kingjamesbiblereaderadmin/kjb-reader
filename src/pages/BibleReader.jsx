@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown } from 'lucide-react';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
-import { fetchChapter, fetchVerseCount, renderVerseText } from '@/lib/bibleApi';
+import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText } from '@/lib/bibleApi';
 import { getBibleData } from '@/lib/bibleCache';
 import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
 import BookSelector from '@/components/bible/BookSelector';
@@ -239,7 +239,7 @@ export default function BibleReader() {
 
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
-        <div ref={topRef} className="sticky top-14 z-40 bg-background/95 backdrop-blur border-b border-border pb-1 mb-2">
+        <div ref={topRef} className="sticky top-[56px] sm:top-[72px] z-40 bg-background/95 backdrop-blur border-b border-border pb-1 mb-2">
           <div className="relative flex flex-wrap items-center gap-2 pt-1 justify-between">
 
             {/* Book selector */}
@@ -514,9 +514,10 @@ export default function BibleReader() {
         {/* Colophon footer - shown below all verses for chapters that have one */}
         {!loading && !error && colophon && (
           <div className="text-center mt-12 mb-4">
-            <p className="font-serif text-sm text-muted-foreground leading-relaxed">
-              ¶ <em>{colophon}</em>
-            </p>
+            <p
+              className="font-serif text-sm text-muted-foreground leading-relaxed [&_em]:italic [&_em]:text-muted-foreground"
+              dangerouslySetInnerHTML={{ __html: '¶ ' + renderColophonText(colophon) }}
+            />
           </div>
         )}
       </div>

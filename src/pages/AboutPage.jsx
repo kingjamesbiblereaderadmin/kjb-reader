@@ -10,7 +10,7 @@ function AccordionSection({ title, children }) {
         className="w-full flex items-center justify-between px-5 py-4 bg-card hover:bg-secondary/50 transition-colors text-left"
       >
         <h3 className="font-serif text-lg font-semibold text-foreground">{title}</h3>
-        {open ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
+        {open ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground rotate-[-90deg]" />}
       </button>
       {open && (
         <div className="px-5 py-4 bg-card border-t border-border">
@@ -164,7 +164,7 @@ export default function AboutPage() {
             <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
           </a>
           <a
-            href="https://www.tiktok.com/@godisgracious1031"
+            href="https://www.tiktok.com/@joyfullychurch"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
@@ -172,7 +172,7 @@ export default function AboutPage() {
             <TikTokIcon className="w-4 h-4 text-foreground" />
             <div>
               <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">TikTok</p>
-              <p className="font-sans text-xs text-muted-foreground">@godisgracious1031</p>
+              <p className="font-sans text-xs text-muted-foreground">@joyfullychurch</p>
             </div>
             <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
           </a>
