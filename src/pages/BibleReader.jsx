@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus } from 'lucide-react';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText } from '@/lib/bibleApi';
 import { getBibleData } from '@/lib/bibleCache';
@@ -63,6 +63,7 @@ export default function BibleReader() {
   const [zoomLevel, setZoomLevel] = useState(() => {
     try { return parseInt(localStorage.getItem('kjb-zoom') || '100'); } catch { return 100; }
   });
+  const [showZoomPopover, setShowZoomPopover] = useState(false);
 
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
@@ -94,6 +95,12 @@ export default function BibleReader() {
 
   const adjustZoom = (delta) => {
     const newZoom = Math.max(75, Math.min(150, zoomLevel + delta));
+    setZoomLevel(newZoom);
+    try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch {}
+  };
+
+  const handleZoomChange = (e) => {
+    const newZoom = parseInt(e.target.value);
     setZoomLevel(newZoom);
     try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch {}
   };
@@ -447,16 +454,58 @@ export default function BibleReader() {
               </SelectorSheet>
 
               {/* Zoom control */}
-              <div className="p-1">
+              <div className="p-1 relative">
               <button
-                onClick={() => adjustZoom(25)}
-                onTouchEnd={(e) => { e.preventDefault(); adjustZoom(25); }}
+                onClick={() => setShowZoomPopover(p => !p)}
+                onTouchEnd={(e) => { e.preventDefault(); setShowZoomPopover(p => !p); }}
                 title={`Zoom: ${zoomLevel}%`}
                 className="flex items-center gap-1 px-3 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors touch-manipulation min-h-[48px]"
               >
                 <ZoomIn className="w-3.5 h-3.5" />
                 {zoomLevel}%
               </button>
+              {showZoomPopover && (
+                <div className="absolute top-full right-0 mt-2 z-50 bg-card border border-border rounded-xl shadow-xl p-4 w-64">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-sans text-xs font-medium text-foreground">Text Size</span>
+                    <span className="font-sans text-xs font-semibold text-primary">{zoomLevel}%</span>
+                  </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <button
+                      onClick={() => adjustZoom(-5)}
+                      className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 transition-colors"
+                    >
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+                    <input
+                      type="range"
+                      min="75"
+                      max="150"
+                      step="5"
+                      value={zoomLevel}
+                      onChange={handleZoomChange}
+                      className="flex-1 h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                    />
+                    <button
+                      onClick={() => adjustZoom(5)}
+                      className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 transition-colors"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  {zoomLevel !== 100 && (
+                    <button
+                      onClick={() => {
+                        setZoomLevel(100);
+                        try { localStorage.setItem('kjb-zoom', '100'); } catch {}
+                      }}
+                      className="w-full mt-2 px-2 py-1.5 rounded-lg bg-primary/10 text-primary font-sans text-xs font-medium hover:bg-primary/20 transition-colors"
+                    >
+                      Reset to 100%
+                    </button>
+                  )}
+                </div>
+              )}
               </div>
 
               {/* Layout toggle */}
@@ -559,10 +608,10 @@ export default function BibleReader() {
       )}
 
       {/* Click outside to close desktop dropdowns */}
-      {(showBookPicker || showChapterPicker || showVersePicker) && (
+      {(showBookPicker || showChapterPicker || showVersePicker || showZoomPopover) && (
         <div
           className="fixed inset-0 z-30"
-          onClick={() => { setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); }}
+          onClick={() => { setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); }}
         />
       )}
 
