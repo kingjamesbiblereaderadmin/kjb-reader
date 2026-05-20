@@ -8,7 +8,7 @@ import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled } from '@/lib/notifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
-import { downloadBibleForOffline, isBibleCached } from '@/lib/bibleCache';
+import { getBibleData, isBibleCached } from '@/lib/bibleCache';
 
 const NAV_ITEMS = [
   { path: '/', icon: Home, label: 'Home' },
@@ -60,6 +60,14 @@ export default function AppLayout() {
           console.error('[SW] Registration failed:', err);
         });
     }
+
+    // Silently pre-cache all 66 books in the background on first load
+    isBibleCached().then(cached => {
+      if (!cached) {
+        console.log('[CACHE] Not cached yet — pre-fetching in background...');
+        getBibleData().catch(err => console.warn('[CACHE] Background fetch failed:', err));
+      }
+    });
 
     // Only show prompt once per session, after a delay, if not dismissed
     const alreadyInstalled = window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
