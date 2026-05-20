@@ -46,8 +46,11 @@ export default function SettingsPage() {
   const [verseTextOpacity, setVerseTextOpacity] = useState(() => {
     try { return parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '0.95'); } catch { return 0.95; }
   });
-  const [verseFontFamily, setVerseFontFamily] = useState(() => {
+  const [readerFontFamily, setReaderFontFamily] = useState(() => {
     try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
+  });
+  const [verseFontFamily, setVerseFontFamily] = useState(() => {
+    try { return localStorage.getItem('kjb-verse-font-family') || 'serif'; } catch { return 'serif'; }
   });
   const [showVersePanel, setShowVersePanel] = useState(() => {
     try { return localStorage.getItem('kjb-verse-panel-visible') !== 'false'; } catch { return true; }
@@ -332,12 +335,12 @@ export default function SettingsPage() {
           <button
             key={font.value}
             onClick={() => {
-              setVerseFontFamily(font.value);
+              setReaderFontFamily(font.value);
               localStorage.setItem('kjb-reader-font-family', font.value);
               window.dispatchEvent(new Event('storage'));
             }}
             className={`w-full py-3 rounded-xl font-sans text-sm font-medium transition-all text-center border-2 ${
-              verseFontFamily === font.value
+              readerFontFamily === font.value
                 ? 'bg-primary text-primary-foreground border-primary'
                 : 'bg-transparent text-foreground border-border hover:border-accent'
             }`}
@@ -348,7 +351,7 @@ export default function SettingsPage() {
         ))}
         <button
           onClick={() => {
-            setVerseFontFamily('serif');
+            setReaderFontFamily('serif');
             localStorage.setItem('kjb-reader-font-family', 'serif');
             window.dispatchEvent(new Event('storage'));
           }}
@@ -1030,6 +1033,7 @@ export default function SettingsPage() {
                     localStorage.removeItem('kjb-verse-text-color');
                     localStorage.removeItem('kjb-verse-text-opacity');
                     localStorage.removeItem('kjb-verse-font-family');
+                    localStorage.removeItem('kjb-reader-font-family');
                     localStorage.removeItem('kjb-verse-panel-visible');
                     localStorage.removeItem('kjb-zoom');
                     localStorage.removeItem('kjb-notif-image');
