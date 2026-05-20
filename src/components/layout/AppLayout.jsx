@@ -275,31 +275,18 @@ function useAppLayoutPrompt() {
   };
 
   const handleEnableNotif = async () => {
-    console.log('handleEnableNotif called');
-    
-    if (!('Notification' in window)) {
-      console.log('Notification API not available');
-      alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
-      return;
-    }
-    
     try {
-      console.log('Requesting notification permission...');
       const result = await requestNotificationPermission();
-      console.log('Notification permission result:', result);
       setNotifPermission(result);
-      if (result === 'granted') {
-        console.log('Permission granted, scheduling notification');
+      if (result === 'granted' || result === 'unsupported') {
         scheduleDailyNotification(getDailyVerse());
         setNotifEnabled(true);
         window.dispatchEvent(new Event('storage'));
       } else if (result === 'denied') {
-        console.log('Permission denied');
         alert('Notifications are blocked. Please allow notifications in your browser/app settings for this site.');
       }
     } catch (err) {
       console.error('Notification permission error:', err);
-      alert('Failed to request notification permission. Please try again.');
     }
   };
 

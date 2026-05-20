@@ -68,13 +68,10 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   };
 
   const handleNotifClick = async (e) => {
-    e.preventDefault();
     e.stopPropagation();
     if (onEnableNotif) {
       await onEnableNotif();
-      if ('Notification' in window && Notification.permission === 'granted') {
-        setNotifDone(true);
-      }
+      setNotifDone(true);
     }
   };
 
@@ -132,8 +129,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
           {showNotif && (
             <button
               type="button"
-              onClick={handleNotifClick}
-              onPointerDown={e => e.stopPropagation()}
+              onPointerUp={handleNotifClick}
               className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary font-sans text-sm font-medium hover:bg-primary/20 active:bg-primary/25 transition-colors text-left touch-manipulation"
             >
               <Bell className="w-4 h-4 shrink-0" />
