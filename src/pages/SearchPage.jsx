@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked } from 'lucide-react';
+import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked, ChevronDown } from 'lucide-react';
 import { getBibleData } from '@/lib/bibleCache';
-import { BIBLE_BOOKS } from '@/lib/bibleData';
+import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
 import { expandSearchTerms } from '@/lib/searchSynonyms';
 
 const OT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'OT' || BIBLE_BOOKS.indexOf(b) < 39).map(b => b.apiName));
@@ -34,6 +34,8 @@ export default function SearchPage() {
   const [testament, setTestament] = useState('all');
   const [wholeWord, setWholeWord] = useState(false);
   const [numberedBookFilter, setNumberedBookFilter] = useState(null);
+  const [showBookFilter, setShowBookFilter] = useState(false);
+  const [selectedBooks, setSelectedBooks] = useState(new Set());
 
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
@@ -48,6 +50,7 @@ export default function SearchPage() {
     setSelected(new Set());
     setSelectMode(false);
     setNumberedBookFilter(null);
+    setSelectedBooks(new Set());
 
     try {
       const bible = await getBibleData();
@@ -99,6 +102,12 @@ export default function SearchPage() {
         if (bookName === '__colophons') continue;
         if (testament === 'ot' && !OT_BOOKS.has(bookName)) continue;
         if (testament === 'nt' && !NT_BOOKS.has(bookName)) continue;
+        
+        // If specific books selected, only search those
+        if (selectedBooks.size > 0) {
+          const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+          if (!bookEntry || !selectedBooks.has(bookEntry.abbr)) continue;
+        }
         
         // If searching for a numbered book, only show results from that specific book
         if (targetBookAbbr) {
@@ -259,6 +268,17 @@ export default function SearchPage() {
             {label}
           </button>
         ))}
+        <button
+          type="button"
+          onClick={() => setShowBookFilter(!showBookFilter)}
+          className={`px-2.5 py-1 rounded-lg font-sans text-xs font-medium transition-colors flex items-center gap-1 ${
+            showBookFilter ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+          }`}
+        >
+          <BookOpen className="w-3 h-3" />
+          Books {selectedBooks.size > 0 && `(${selectedBooks.size})`}
+          <ChevronDown className={`w-3 h-3 transition-transform ${showBookFilter ? 'rotate-180' : ''}`} />
+        </button>
         <div className="ml-2 flex items-center gap-1.5">
           <input
             id="whole-word"
@@ -270,6 +290,55 @@ export default function SearchPage() {
           <label htmlFor="whole-word" className="font-sans text-xs text-muted-foreground cursor-pointer select-none">Whole word only</label>
         </div>
       </div>
+
+      {/* Book filter panel */}
+      {showBookFilter && (
+        <div className="mb-5 p-4 rounded-xl bg-secondary/50 border border-border">
+          <div className="flex items-center justify-between mb-3">
+            <p className="font-sans text-sm font-semibold text-foreground">Select Books</p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  if (testament === 'ot') setSelectedBooks(new Set(OLD_TESTAMENT.map(b => b.abbr)));
+                  else if (testament === 'nt') setSelectedBooks(new Set(NEW_TESTAMENT.map(b => b.abbr)));
+                  else setSelectedBooks(new Set(BIBLE_BOOKS.map(b => b.abbr)));
+                }}
+                className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+              >
+                Select All
+              </button>
+              <button
+                onClick={() => setSelectedBooks(new Set())}
+                className="px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 max-h-64 overflow-y-auto">
+            {(testament === 'ot' ? OLD_TESTAMENT : testament === 'nt' ? NEW_TESTAMENT : BIBLE_BOOKS).map(book => (
+              <button
+                key={book.abbr}
+                onClick={() => {
+                  setSelectedBooks(prev => {
+                    const next = new Set(prev);
+                    next.has(book.abbr) ? next.delete(book.abbr) : next.add(book.abbr);
+                    return next;
+                  });
+                }}
+                className={`px-2 py-1.5 rounded-lg font-sans text-xs font-medium transition-colors text-left truncate ${
+                  selectedBooks.has(book.abbr)
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-card text-foreground hover:bg-accent/20'
+                }`}
+                title={book.shortName}
+              >
+                {book.shortName.length > 12 ? book.abbr : book.shortName}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {loading && (
         <div className="flex justify-center py-16">

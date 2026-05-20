@@ -5,6 +5,7 @@ import { useTheme } from '@/lib/themeContext';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
+import ScrollToTop from '@/components/ScrollToTop';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, showLocalNotification } from '@/lib/notifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
@@ -197,6 +198,9 @@ export default function AppLayout() {
       </main>
 
       <BottomNav pathname={pathname} navigate={navigate} />
+
+      {/* Scroll to top button - appears on all pages when scrolling */}
+      <ScrollToTop />
 
       {/* FirstLoadPrompt - shows once per session */}
       {showPrompt && (
