@@ -23,27 +23,39 @@ self.addEventListener('activate', (event) => {
     caches.keys().then(keys =>
       Promise.all(
         keys.filter(k => k !== CACHE_NAME && k !== NOTIF_CONFIG_CACHE)
-            .map(k => caches.delete(k))
+          .map(k => caches.delete(k))
       )
     )
   );
   self.clients.claim();
 });
 
-// ── Fetch (cache-first) ───────────────────────────────────────────────────────
+// ── Fetch (cache-first, but skip Vite/React chunks) ─────────────────────────
 self.addEventListener('fetch', (event) => {
   // Don't intercept non-GET or external requests
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
+  // Skip caching for Vite/React chunks to prevent stale React errors
+  const pathname = url.pathname;
+  if (
+    pathname.includes('/@vite') ||
+    pathname.includes('/@react-refresh') ||
+    pathname.includes('chunk-') ||
+    pathname.includes('.vite/deps') ||
+    pathname.includes('node_modules')
+  ) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then(cached => {
       return cached || fetch(event.request).then(response => {
-        // Cache successful HTML/JS/CSS responses
+        // Cache successful HTML/JS/CSS responses (excluding Vite chunks)
         if (response && response.status === 200) {
           const ct = response.headers.get('content-type') || '';
-          if (ct.includes('text/html') || ct.includes('javascript') || ct.includes('css')) {
+          if (ct.includes('text/html') || (ct.includes('javascript') && !pathname.includes('chunk-'))) {
             const clone = response.clone();
             caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
           }
