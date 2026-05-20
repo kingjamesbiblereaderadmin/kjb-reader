@@ -370,11 +370,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                     setShowMenu(!showMenu);
                   }
                 }}
-                className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+                className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
                 title="More options"
                 type="button"
               >
-                <MoreVertical className="w-3.5 h-3.5 text-slate-800" />
+                <MoreVertical className="w-4 h-4 text-slate-800" />
               </button>
               {/* Dropdown menu */}
               {showMenu && (
