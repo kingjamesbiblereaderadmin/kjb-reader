@@ -20,7 +20,7 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
   const handleConfirm = () => {
     if (selected.size === 0) { onClose(); return; }
     const sorted = [...selected].sort((a, b) => a - b);
-    onSelect(sorted);
+    onSelect(multiSelect ? sorted : sorted[0]);
     onClose();
   };
 
@@ -51,23 +51,21 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
           })}
         </div>
       </div>
-      {multiSelect && (
-        <div className="p-3 border-t border-border flex gap-2">
-          <button
-            onClick={onClose}
-            className="flex-1 px-4 py-2.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleConfirm}
-            disabled={selected.size === 0}
-            className="flex-1 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 disabled:opacity-30 transition-opacity"
-          >
-            Go
-          </button>
-        </div>
-      )}
+      <div className="p-3 border-t border-border flex gap-2">
+        <button
+          onClick={onClose}
+          className="flex-1 px-4 py-2.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleConfirm}
+          disabled={selected.size === 0}
+          className="flex-1 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 disabled:opacity-30 transition-opacity"
+        >
+          Go
+        </button>
+      </div>
     </div>
   );
 }
