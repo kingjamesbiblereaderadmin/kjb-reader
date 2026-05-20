@@ -39,6 +39,9 @@ export default function SettingsPage() {
   const [verseFontFamily, setVerseFontFamily] = useState(() => {
     try { return localStorage.getItem('kjb-verse-font-family') || 'serif'; } catch { return 'serif'; }
   });
+  const [showVersePanel, setShowVersePanel] = useState(() => {
+    try { return localStorage.getItem('kjb-verse-panel-visible') === 'true'; } catch { return false; }
+  });
 
   const [zoomLevel, setZoomLevel] = useState(() => {
     try { return parseInt(localStorage.getItem('kjb-zoom') || '100'); } catch { return 100; }
@@ -274,6 +277,106 @@ export default function SettingsPage() {
         <h2 className="font-serif text-lg font-semibold text-foreground">Appearance</h2>
         <p className="font-sans text-xs text-muted-foreground">Choose how the app looks</p>
         
+        {/* Daily Verse Text Style */}
+        <div className="pt-4 border-t border-border space-y-4">
+          <h3 className="font-serif text-base font-semibold text-foreground flex items-center gap-2">
+            <Palette className="w-4 h-4" />
+            Daily Verse Style
+          </h3>
+          
+          {/* Hide Panel Toggle */}
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex-1">
+              <p className="font-sans text-sm text-foreground font-medium">Show Verse Panel</p>
+              <p className="font-sans text-xs text-muted-foreground">Display the "Verse of the Day" panel background</p>
+            </div>
+            <Switch
+              checked={showVersePanel}
+              onCheckedChange={(checked) => {
+                setShowVersePanel(checked);
+                localStorage.setItem('kjb-verse-panel-visible', String(checked));
+                window.dispatchEvent(new Event('storage'));
+              }}
+              className="shrink-0"
+            />
+          </div>
+          
+          {/* Text Color with Hex */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="font-sans text-sm text-foreground font-medium">Text Color</p>
+              <code className="font-mono text-xs bg-secondary px-2 py-1 rounded">{verseTextColor}</code>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {VERSE_COLORS.map(color => (
+                <button
+                  key={color}
+                  onClick={() => {
+                    setVerseTextColor(color);
+                    localStorage.setItem('kjb-verse-text-color', color);
+                    window.dispatchEvent(new Event('storage'));
+                  }}
+                  className={`w-8 h-8 rounded-lg border-2 transition-all ${
+                    verseTextColor === color ? 'border-foreground scale-110' : 'border-slate-300 hover:border-slate-500'
+                  }`}
+                  style={{ backgroundColor: color }}
+                  title={color}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Text Opacity */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="font-sans text-sm text-foreground font-medium">Opacity</p>
+              <span className="font-sans text-xs text-muted-foreground">{Math.round(verseTextOpacity * 100)}%</span>
+            </div>
+            <input
+              type="range"
+              min="0.3"
+              max="1"
+              step="0.05"
+              value={verseTextOpacity}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                setVerseTextOpacity(val);
+                localStorage.setItem('kjb-verse-text-opacity', String(val));
+                window.dispatchEvent(new Event('storage'));
+              }}
+              className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+            />
+          </div>
+
+          {/* Font Family */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Type className="w-4 h-4 text-muted-foreground" />
+              <p className="font-sans text-sm text-foreground font-medium">Font Family</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {VERSE_FONTS.map(font => (
+                <button
+                  key={font.value}
+                  onClick={() => {
+                    setVerseFontFamily(font.value);
+                    localStorage.setItem('kjb-verse-font-family', font.value);
+                    window.dispatchEvent(new Event('storage'));
+                  }}
+                  className={`px-4 py-3 rounded-xl font-sans text-sm font-medium transition-all ${
+                    verseFontFamily === font.value
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                  }`}
+                  style={{ fontFamily: font.value }}
+                >
+                  {font.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* Custom Daily Verse Background */}
         <div className="pt-4 border-t border-border space-y-3">
           <h3 className="font-serif text-base font-semibold text-foreground">Daily Verse Background</h3>
@@ -425,88 +528,6 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Daily Verse Text Style */}
-        <div className="pt-4 border-t border-border space-y-4">
-          <h3 className="font-serif text-base font-semibold text-foreground flex items-center gap-2">
-            <Palette className="w-4 h-4" />
-            Daily Verse Text Style
-          </h3>
-          
-          {/* Text Color with Hex */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="font-sans text-sm text-foreground font-medium">Text Color</p>
-              <code className="font-mono text-xs bg-secondary px-2 py-1 rounded">{verseTextColor}</code>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {VERSE_COLORS.map(color => (
-                <button
-                  key={color}
-                  onClick={() => {
-                    setVerseTextColor(color);
-                    localStorage.setItem('kjb-verse-text-color', color);
-                    window.dispatchEvent(new Event('storage'));
-                  }}
-                  className={`w-8 h-8 rounded-lg border-2 transition-all ${
-                    verseTextColor === color ? 'border-foreground scale-110' : 'border-slate-300 hover:border-slate-500'
-                  }`}
-                  style={{ backgroundColor: color }}
-                  title={color}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Text Opacity */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="font-sans text-sm text-foreground font-medium">Opacity</p>
-              <span className="font-sans text-xs text-muted-foreground">{Math.round(verseTextOpacity * 100)}%</span>
-            </div>
-            <input
-              type="range"
-              min="0.3"
-              max="1"
-              step="0.05"
-              value={verseTextOpacity}
-              onChange={(e) => {
-                const val = parseFloat(e.target.value);
-                setVerseTextOpacity(val);
-                localStorage.setItem('kjb-verse-text-opacity', String(val));
-                window.dispatchEvent(new Event('storage'));
-              }}
-              className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
-            />
-          </div>
-
-          {/* Font Family */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Type className="w-4 h-4 text-muted-foreground" />
-              <p className="font-sans text-sm text-foreground font-medium">Font Family</p>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {VERSE_FONTS.map(font => (
-                <button
-                  key={font.value}
-                  onClick={() => {
-                    setVerseFontFamily(font.value);
-                    localStorage.setItem('kjb-verse-font-family', font.value);
-                    window.dispatchEvent(new Event('storage'));
-                  }}
-                  className={`px-4 py-3 rounded-xl font-sans text-sm font-medium transition-all ${
-                    verseFontFamily === font.value
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-                  }`}
-                  style={{ fontFamily: font.value }}
-                >
-                  {font.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
 
 
