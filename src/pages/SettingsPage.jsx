@@ -50,7 +50,7 @@ export default function SettingsPage() {
     try { return localStorage.getItem('kjb-verse-font-family') || 'serif'; } catch { return 'serif'; }
   });
   const [showVersePanel, setShowVersePanel] = useState(() => {
-    try { return localStorage.getItem('kjb-verse-panel-visible') === 'true'; } catch { return false; }
+    try { return localStorage.getItem('kjb-verse-panel-visible') !== 'false'; } catch { return true; }
   });
 
   const [zoomLevel, setZoomLevel] = useState(() => {

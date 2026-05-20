@@ -30,7 +30,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   });
   const [showStyleEditor, setShowStyleEditor] = useState(false);
   const [showLightbox, setShowLightbox] = useState(false);
-  const [showVersePanel, setShowVersePanel] = useState(() => localStorage.getItem('kjb-verse-panel-visible') === 'true');
+  const [showVersePanel, setShowVersePanel] = useState(() => localStorage.getItem('kjb-verse-panel-visible') !== 'false');
   const [showButtons, setShowButtons] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
@@ -102,8 +102,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         setTimeout(() => {
           setCustomBg(localStorage.getItem('kjb-daily-verse-bg') || '');
         }, 100);
-        // Auto-open style editor for customization
-        setShowStyleEditor(true);
         // Auto-detect if background is light or dark and adjust text color
         const img = new Image();
         img.onload = () => {
