@@ -59,10 +59,11 @@ export default function SettingsPage() {
   ];
 
   const VERSE_FONTS = [
-    { value: 'serif', label: 'Serif' },
-    { value: 'sans-serif', label: 'Sans Serif' },
+    { value: 'serif', label: 'Serif (Merriweather)' },
+    { value: 'sans-serif', label: 'Sans Serif (Inter)' },
     { value: 'monospace', label: 'Mono' },
     { value: 'cursive', label: 'Cursive' },
+    { value: '"Cormorant Garamond", serif', label: 'Cormorant Garamond' },
   ];
 
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
@@ -841,13 +842,14 @@ export default function SettingsPage() {
 
       {/* Credits */}
       <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
-        <h2 className="font-serif text-lg font-semibold text-foreground">Credits</h2>
-        <div className="space-y-2 font-sans text-xs text-muted-foreground">
-          <p>• <strong className="text-foreground">Bible Text:</strong> Public Domain Edition (PCE) of the King James Bible</p>
-          <p>• <strong className="text-foreground">Cormorant Garamond:</strong> Google Fonts (SIL Open Font License)</p>
-          <p>• <strong className="text-foreground">Inter Font:</strong> Google Fonts (SIL Open Font License)</p>
-          <p>• <strong className="text-foreground">Merriweather Font:</strong> Google Fonts (SIL Open Font License)</p>
-        </div>
+      <h2 className="font-serif text-lg font-semibold text-foreground">Credits</h2>
+      <div className="space-y-2 font-sans text-xs text-muted-foreground">
+        <p>• <strong className="text-foreground">Bible Text:</strong> Public Domain Edition (PCE) of the King James Bible</p>
+        <p>• <strong className="text-foreground">Cormorant Garamond:</strong> Google Fonts (SIL Open Font License)</p>
+        <p>• <strong className="text-foreground">Inter:</strong> Google Fonts (SIL Open Font License)</p>
+        <p>• <strong className="text-foreground">Merriweather:</strong> Google Fonts (SIL Open Font License)</p>
+        <p className="pt-2 text-[10px] opacity-75">All fonts are open source and freely available under the SIL Open Font License.</p>
+      </div>
       </div>
     </div>
   );
