@@ -168,10 +168,10 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     // Pilcrow verse: render as a block (new paragraph) with gap above, no indent
     if (hasPilcrow && !isFirstVerse) {
       return (
-        <span id={id} className="block relative pt-6 pl-0">
+        <span id={id} className="block relative pt-6">
           <span
             onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
-            className={`inline leading-relaxed transition-colors duration-200 rounded cursor-pointer px-0.5 py-0.5 ${
+            className={`inline leading-relaxed transition-colors duration-200 rounded cursor-pointer px-0 py-0.5 ${
               selectMode && isSelected ? 'bg-primary/10 border border-primary/30 rounded-lg' : isHighlighted ? highlightBg : 'hover:bg-secondary/60'
             }`}
           >
