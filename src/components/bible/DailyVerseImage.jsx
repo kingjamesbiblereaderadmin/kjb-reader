@@ -289,17 +289,16 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       }
     } catch (err) {
       console.error('Image share failed:', err);
-      // Fallback: share text only
-      const shareData = {
-        title: 'Daily Verse',
-        text: `"${verse.text}" — ${verse.ref} (KJB)`,
-        url: window.location.href,
-      };
+      // Fallback: share text only (no URL to avoid "tap to share URL" message)
+      const shareText = `"${verse.text}" — ${verse.ref} (KJB)`;
       
       if (navigator.share) {
-        await navigator.share(shareData);
+        await navigator.share({
+          title: 'Daily Verse',
+          text: shareText,
+        });
       } else {
-        await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
+        await navigator.clipboard.writeText(shareText);
         alert('Verse text copied to clipboard!');
       }
     } finally {
