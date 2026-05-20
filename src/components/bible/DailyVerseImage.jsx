@@ -471,7 +471,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 </div>
               )}
             </div>
-          </div>
+            </div>
+          </>
         ) : (
           <button
             onClick={(e) => {
@@ -525,7 +526,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           style={{ opacity: 0.75 * textOpacity, backgroundColor: textColor }}
         />
         </div>
-      </div>
+        </div>
 
       {/* Style Editor Panel */}
       {showStyleEditor && (
