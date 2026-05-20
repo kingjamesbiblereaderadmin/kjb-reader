@@ -380,8 +380,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           </div>
         </div>
         
-        {/* Verse content centered */}
-        <div className="flex-1 flex flex-col justify-center items-center text-center px-4 pt-12">
+        {/* Verse content */}
+        <div className="flex-1 flex flex-col items-center text-center px-4 pt-16 pb-4">
         {showVersePanel && (
           <p 
             className={`font-sans text-xs md:text-sm font-bold tracking-wider uppercase mb-3 md:mb-4 ${accentClass}`}
