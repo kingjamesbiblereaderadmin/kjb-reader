@@ -45,7 +45,8 @@ export default function DailyVerseImage({ verse, onClick }) {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 2 * 1024 * 1024) {
-      alert('Image must be less than 2MB for storage');
+      alert('Image too large! Please choose an image under 2MB.');
+      if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
     const reader = new FileReader();
@@ -57,9 +58,9 @@ export default function DailyVerseImage({ verse, onClick }) {
     };
     reader.onerror = () => {
       alert('Failed to read image');
+      if (fileInputRef.current) fileInputRef.current.value = '';
     };
     reader.readAsDataURL(file);
-    if (fileInputRef.current) fileInputRef.current.value = '';
   };
   
   const handleCropComplete = (croppedDataUrl) => {
@@ -124,35 +125,47 @@ export default function DailyVerseImage({ verse, onClick }) {
 
   const handleShare = async (e) => {
     e.stopPropagation();
-    setCapturing(true);
     try {
+      // Try to share/copy image first
       const canvas = await html2canvas(verseRef.current, {
         backgroundColor: null,
         scale: 2,
         useCORS: true,
       });
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-      const file = new File([blob], `daily-verse-${new Date().toISOString().slice(0, 10)}.png`, { type: 'image/png' });
       
-      if (navigator.share && navigator.canShare({ files: [file] })) {
+      if (navigator.share && navigator.canShare({ files: [new File([blob], 'verse.png', { type: 'image/png' })] })) {
         await navigator.share({
           title: 'Daily Verse - KJB Reader',
           text: `"${verse.text}" — ${verse.ref}`,
-          files: [file],
+          files: [new File([blob], `daily-verse-${new Date().toISOString().slice(0, 10)}.png`, { type: 'image/png' })],
         });
-      } else {
-        // Fallback: copy image to clipboard
-        await navigator.clipboard.write([
-          new ClipboardItem({ 'image/png': blob }),
-        ]);
-        alert('Image copied to clipboard!');
+        return;
       }
+      
+      // Try clipboard image
+      try {
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        alert('Image copied to clipboard!');
+        return;
+      } catch {}
     } catch (err) {
-      console.error('Failed to share image:', err);
-      // Fallback to download
-      handleDownload(e);
+      console.error('Image share failed:', err);
     }
-    setCapturing(false);
+    
+    // Fallback: share text only
+    const shareData = {
+      title: 'Daily Verse',
+      text: `"${verse.text}" — ${verse.ref}`,
+      url: window.location.href,
+    };
+    
+    if (navigator.share) {
+      await navigator.share(shareData);
+    } else {
+      await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
+      alert('Verse text copied to clipboard!');
+    }
   };
 
   return (
@@ -161,7 +174,12 @@ export default function DailyVerseImage({ verse, onClick }) {
       <div className="absolute top-2 right-2 flex gap-1.5 z-10">
         <button
           onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
+            setShowStyleEditor(!showStyleEditor);
+          }}
+          onTouchEnd={(e) => {
+            e.preventDefault();
             setShowStyleEditor(!showStyleEditor);
           }}
           className="p-1.5 rounded-md bg-white/20 hover:bg-white/30 backdrop-blur transition-colors"
@@ -172,7 +190,12 @@ export default function DailyVerseImage({ verse, onClick }) {
         </button>
         <button
           onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
+            fileInputRef.current?.click();
+          }}
+          onTouchEnd={(e) => {
+            e.preventDefault();
             fileInputRef.current?.click();
           }}
           disabled={uploading}
@@ -188,7 +211,12 @@ export default function DailyVerseImage({ verse, onClick }) {
         </button>
         <button
           onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
+            handleShare(e);
+          }}
+          onTouchEnd={(e) => {
+            e.preventDefault();
             handleShare(e);
           }}
           disabled={capturing}
@@ -204,7 +232,12 @@ export default function DailyVerseImage({ verse, onClick }) {
         </button>
         <button
           onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
+            handleDownload(e);
+          }}
+          onTouchEnd={(e) => {
+            e.preventDefault();
             handleDownload(e);
           }}
           disabled={capturing}
