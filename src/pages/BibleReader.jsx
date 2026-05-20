@@ -63,6 +63,9 @@ export default function BibleReader() {
   const [zoomLevel, setZoomLevel] = useState(() => {
     try { return parseInt(localStorage.getItem('kjb-zoom') || '100'); } catch { return 100; }
   });
+  const [dyslexicFont, setDyslexicFont] = useState(() => {
+    try { return localStorage.getItem('kjb-dyslexic-font') === 'true'; } catch { return false; }
+  });
   const [showZoomPopover, setShowZoomPopover] = useState(false);
 
   // Multi-select state
@@ -85,6 +88,16 @@ export default function BibleReader() {
     const handler = () => setFullscreen(!!document.fullscreenElement);
     document.addEventListener('fullscreenchange', handler);
     return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
+
+  // Listen for dyslexic font changes from Settings
+  useEffect(() => {
+    const handleFontChange = () => {
+      const newVal = localStorage.getItem('kjb-dyslexic-font') === 'true';
+      setDyslexicFont(newVal);
+    };
+    window.addEventListener('dyslexic-font-change', handleFontChange);
+    return () => window.removeEventListener('dyslexic-font-change', handleFontChange);
   }, []);
 
   const toggleLayout = () => {
@@ -639,7 +652,7 @@ export default function BibleReader() {
 
       {/* Title pages or verses */}
       <div 
-        className="font-serif leading-loose text-foreground/90"
+        className={`${dyslexicFont ? 'font-[var(--font-dyslexic)]' : 'font-serif'} leading-loose text-foreground/90`}
         style={{ fontSize: `${zoomLevel / 100}rem`, lineHeight: zoomLevel > 100 ? '1.8' : '1.6' }}
       >
         {loading && (
