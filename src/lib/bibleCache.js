@@ -4,7 +4,7 @@
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
 
-const CACHE_KEY = 'bible_data_pce_v37'; // v37: fix apostrophes decoded as pilcrow (windows-1252 encoding)
+const CACHE_KEY = 'bible_data_pce_v38'; // v38: remove parentheses from (but) in 1 John 2:23
 const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
@@ -114,6 +114,11 @@ function parseBibleText(rawText) {
 
     if (!data[bookName]) data[bookName] = {};
     if (!data[bookName][chapter]) data[bookName][chapter] = [];
+    // Manual text corrections (source file cannot be edited directly)
+    if (bookName === '1 John' && chapter === 2 && verse === 23) {
+      verseText = verseText.replace(/\(but\)/gi, 'but');
+    }
+
     data[bookName][chapter].push({ verse, text: verseText });
     verseCount++;
   }
@@ -183,7 +188,7 @@ async function saveToCache(data) {
     // Clear ALL old localStorage keys to force fresh data
     localStorage.removeItem('bible_data_complete');
     localStorage.removeItem('bible_data_complete_v2');
-    for (let i = 1; i <= 37; i++) {
+    for (let i = 1; i <= 38; i++) {
       localStorage.removeItem(`bible_data_pce_v${i}`);
     }
     // Save to IndexedDB (supports ~50MB+)
