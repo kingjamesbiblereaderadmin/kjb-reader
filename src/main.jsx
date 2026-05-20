@@ -21,7 +21,7 @@ if ('serviceWorker' in navigator) {
         setInterval(() => {
           registration.update().then(() => {
             console.log('[SW] Checked for updates');
-          });
+          }).catch(() => {}); // Silent fail on update check
         }, 60000); // Check every minute
         
         // Listen for update messages from service worker
@@ -45,6 +45,10 @@ if ('serviceWorker' in navigator) {
         // Re-arm daily notification scheduler on every app load
         initNotifications(getDailyVerse());
       })
-      .catch(err => console.error('[SW] Registration failed:', err));
+      .catch(err => {
+        console.warn('[SW] Registration failed (this is ok for development):', err.message);
+        // Still initialize notifications even if SW fails
+        initNotifications(getDailyVerse());
+      });
   });
 }
