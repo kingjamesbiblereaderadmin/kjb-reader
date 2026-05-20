@@ -36,7 +36,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const menuRef = useRef(null);
   const [textColor, setTextColor] = useState(() => localStorage.getItem('kjb-verse-text-color') || '#ffffff');
   const [textOpacity, setTextOpacity] = useState(() => parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '0.95'));
-  const [fontFamily, setFontFamily] = useState(() => localStorage.getItem('kjb-verse-font-family') || 'serif');
+  const [fontFamily, setFontFamily] = useState(() => {
+    try { return localStorage.getItem('kjb-verse-font-family') || 'serif'; } catch { return 'serif'; }
+  });
   
   useEffect(() => {
     const handleStorage = () => {
