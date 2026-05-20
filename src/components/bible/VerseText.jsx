@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Copy, Share2, X, Highlighter, ChevronDown, Bookmark, BookmarkCheck } from 'lucide-react';
+import { Copy, Share2, X, Highlighter, ChevronDown, Bookmark, BookmarkCheck, CheckSquare, Square } from 'lucide-react';
 import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
 
-export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false }) {
+export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect }) {
   const [selected, setSelected] = useState(false);
   const [showHighlight, setShowHighlight] = useState(highlight);
   const [highlightColor, setHighlightColor] = useState('accent');
@@ -170,9 +170,16 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
       return (
         <span id={id} className="block relative mt-2">
           <span
-            onClick={() => setSelected(s => !s)}
-            className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-1 py-0.5 gap-3 ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
+            onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
+            className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-1 py-0.5 gap-3 ${
+              selectMode && isSelected ? 'bg-primary/10 border border-primary/30 rounded-lg' : isHighlighted ? highlightBg : 'hover:bg-secondary/60'
+            }`}
           >
+            {selectMode && (
+              <span className="shrink-0 mt-1 text-primary">
+                {isSelected ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4 text-muted-foreground" />}
+              </span>
+            )}
             <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-1 mr-2">{verse.verse}</sup>
             <span className="flex-1 min-w-0">
               <span
@@ -181,7 +188,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
               />
             </span>
           </span>
-          {actionPopover}
+          {!selectMode && actionPopover}
         </span>
       );
     }
@@ -189,9 +196,16 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     return (
       <span id={id} className="inline relative">
         <span
-          onClick={() => setSelected(s => !s)}
-          className={`inline leading-loose transition-colors duration-200 rounded cursor-pointer px-0.5 py-0.5 ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
+          onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
+          className={`inline leading-loose transition-colors duration-200 rounded cursor-pointer px-0.5 py-0.5 ${
+            selectMode && isSelected ? 'bg-primary/10' : isHighlighted ? highlightBg : 'hover:bg-secondary/60'
+          }`}
         >
+          {selectMode && (
+            <span className="inline-flex items-center mr-1 text-primary align-middle">
+              {isSelected ? <CheckSquare className="w-3.5 h-3.5" /> : <Square className="w-3.5 h-3.5 text-muted-foreground" />}
+            </span>
+          )}
           <sup className="text-accent font-sans font-semibold text-xs mr-3 select-none">{verse.verse}</sup>
           <span
             className={`font-serif leading-loose [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify`}
@@ -199,7 +213,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           />
           {' '}
         </span>
-        {actionPopover}
+        {!selectMode && actionPopover}
       </span>
     );
   }
@@ -208,9 +222,16 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   return (
     <span id={id} className="block relative mt-2">
       <span
-        onClick={() => setSelected(s => !s)}
-        className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-1 py-0.5 gap-3 ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
+        onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
+        className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-1 py-0.5 gap-3 ${
+          selectMode && isSelected ? 'bg-primary/10 border border-primary/30 rounded-lg' : isHighlighted ? highlightBg : 'hover:bg-secondary/60'
+        }`}
       >
+        {selectMode && (
+          <span className="shrink-0 mt-1 text-primary">
+            {isSelected ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4 text-muted-foreground" />}
+          </span>
+        )}
         <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-1 mr-2">{verse.verse}</sup>
         <span className="flex-1 min-w-0">
           <span
@@ -219,7 +240,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           />
         </span>
       </span>
-      {actionPopover}
+      {!selectMode && actionPopover}
     </span>
   );
 }

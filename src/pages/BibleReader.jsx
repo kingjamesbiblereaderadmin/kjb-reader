@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked } from 'lucide-react';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText } from '@/lib/bibleApi';
 import { getBibleData } from '@/lib/bibleCache';
@@ -61,6 +61,12 @@ export default function BibleReader() {
   });
   const [fullscreen, setFullscreen] = useState(false);
 
+  // Multi-select state
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedVerses, setSelectedVerses] = useState(new Set());
+  const [filterMode, setFilterMode] = useState(false); // show only selected verses
+  const [copyFeedback, setCopyFeedback] = useState(false);
+
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen?.().catch(() => {});
@@ -81,6 +87,44 @@ export default function BibleReader() {
     const next = !paragraphMode;
     setParagraphMode(next);
     try { localStorage.setItem('kjb-layout', next ? 'paragraph' : 'line'); } catch {}
+  };
+
+  const toggleSelectMode = () => {
+    if (selectMode) {
+      setSelectMode(false);
+      setSelectedVerses(new Set());
+      setFilterMode(false);
+    } else {
+      setSelectMode(true);
+    }
+  };
+
+  const toggleVerseSelect = (verseNum) => {
+    setSelectedVerses(prev => {
+      const next = new Set(prev);
+      next.has(verseNum) ? next.delete(verseNum) : next.add(verseNum);
+      return next;
+    });
+  };
+
+  const handleCopySelected = async () => {
+    const toUse = selectedVerses.size > 0 ? selectedVerses : new Set(verses.map(v => v.verse));
+    const lines = verses
+      .filter(v => toUse.has(v.verse))
+      .map(v => {
+        const clean = v.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
+        return `"${clean}" — ${book.name} ${pos.chapter}:${v.verse} (KJB)`;
+      })
+      .join('\n\n');
+    await navigator.clipboard.writeText(lines);
+    setCopyFeedback(true);
+    setTimeout(() => setCopyFeedback(false), 1800);
+  };
+
+  const handleReadSelected = () => {
+    setFilterMode(true);
+    setSelectMode(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const topRef = useRef(null);
@@ -376,6 +420,18 @@ export default function BibleReader() {
                 {paragraphMode ? 'Para' : 'Lines'}
               </button>
               </div>
+              {/* Select mode toggle */}
+              <div className="p-1">
+              <button
+                onClick={toggleSelectMode}
+                onTouchEnd={(e) => { e.preventDefault(); toggleSelectMode(); }}
+                title="Select verses"
+                className={`flex items-center gap-1 px-3 py-3 rounded-lg font-sans text-xs font-medium transition-colors touch-manipulation min-h-[48px] ${selectMode ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'}`}
+              >
+                <CheckSquare className="w-3.5 h-3.5" />
+                {selectMode ? 'Done' : 'Select'}
+              </button>
+              </div>
               </>
             )}
             </div>
@@ -496,7 +552,9 @@ export default function BibleReader() {
         )}
         {!loading && !error && verses.length > 0 && (
           <div className={paragraphMode ? 'text-justify hyphens-auto' : ''}>
-            {verses.map((v, idx) => (
+            {verses
+              .filter(v => !filterMode || selectedVerses.has(v.verse))
+              .map((v, idx) => (
               <VerseText
                 key={v.verse}
                 verse={v}
@@ -507,6 +565,9 @@ export default function BibleReader() {
                 chapter={pos.chapter}
                 isFirstVerse={idx === 0}
                 paragraphMode={paragraphMode}
+                selectMode={selectMode}
+                isSelected={selectedVerses.has(v.verse)}
+                onSelect={toggleVerseSelect}
               />
             ))}
           </div>
@@ -535,6 +596,50 @@ export default function BibleReader() {
           <p className="font-serif text-sm text-muted-foreground tracking-widest uppercase">
             The End
           </p>
+        </div>
+      )}
+
+      {/* Filter mode banner */}
+      {filterMode && (
+        <div className="sticky top-[56px] sm:top-[72px] z-40 mb-3 px-3 py-2 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-between gap-2">
+          <p className="font-sans text-xs text-primary font-semibold flex items-center gap-1.5">
+            <BookMarked className="w-3.5 h-3.5" />
+            Showing {selectedVerses.size} selected verse{selectedVerses.size !== 1 ? 's' : ''}
+          </p>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={handleCopySelected}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+            >
+              <Copy className="w-3 h-3" /> {copyFeedback ? 'Copied!' : 'Copy'}
+            </button>
+            <button
+              onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); }}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-secondary text-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+            >
+              <X className="w-3 h-3" /> Exit
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Floating select action bar */}
+      {selectMode && selectedVerses.size > 0 && (
+        <div className="fixed bottom-24 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-card border border-border shadow-2xl">
+          <span className="font-sans text-xs text-muted-foreground font-medium">{selectedVerses.size} selected</span>
+          <div className="w-px h-4 bg-border" />
+          <button
+            onClick={handleCopySelected}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+          >
+            <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy'}
+          </button>
+          <button
+            onClick={handleReadSelected}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+          >
+            <BookMarked className="w-3.5 h-3.5" /> Read Selected
+          </button>
         </div>
       )}
 
