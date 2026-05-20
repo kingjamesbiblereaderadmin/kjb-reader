@@ -54,6 +54,25 @@ export default function SearchPage() {
       const terms = expandSearchTerms(kw);
       setExpandedTerms(terms.length > 1 ? terms : []);
       
+      // Check if query is a verse range (e.g., "Romans 1:20-22")
+      const rangeMatch = kwLower.match(/^([a-z0-9\s]+)\s+(\d+):(\d+)-(\d+)$/);
+      if (rangeMatch) {
+        const bookStr = rangeMatch[1].trim();
+        const ch = parseInt(rangeMatch[2]);
+        const v1 = parseInt(rangeMatch[3]);
+        const v2 = parseInt(rangeMatch[4]);
+        const matchingBook = BIBLE_BOOKS.find(b => 
+          b.shortName.toLowerCase().includes(bookStr) ||
+          b.abbr.toLowerCase() === bookStr
+        );
+        if (matchingBook && ch >= 1 && ch <= matchingBook.chapters && v1 <= v2) {
+          // Navigate directly to the range
+          goToVerse(matchingBook.abbr, ch, v1, v2);
+          setLoading(false);
+          return;
+        }
+      }
+
       // Check if query is a numbered book (e.g., "1 john", "2 timothy") or contains one
       const kwLower = kw.trim().toLowerCase();
       const numberedBookMatch = kwLower.match(/(\d+)\s+([a-z]+)/);
@@ -147,8 +166,8 @@ export default function SearchPage() {
     }
   };
 
-  const goToVerse = (abbr, chapter, verse) => {
-    try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse })); } catch {}
+  const goToVerse = (abbr, chapter, verse, verseEnd) => {
+    try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null, verseEnd: verseEnd || null })); } catch {}
     window.scrollTo({ top: 0 });
     navigate('/read');
   };
