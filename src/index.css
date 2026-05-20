@@ -54,32 +54,32 @@
   /* Modern/Clean theme override - applied when 1611 theme is disabled */
   :root[data-theme-modern] {
     --background: 0 0% 100%;
-    --foreground: 220 20% 10%;
+    --foreground: 240 10% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 10%;
+    --card-foreground: 240 10% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 10%;
-    --primary: 220 60% 20%;
+    --popover-foreground: 240 10% 10%;
+    --primary: 240 5% 15%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 15% 92%;
-    --secondary-foreground: 220 20% 15%;
-    --muted: 220 10% 93%;
-    --muted-foreground: 220 10% 45%;
-    --accent: 38 70% 50%;
-    --accent-foreground: 220 20% 10%;
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 10% 20%;
+    --muted: 240 5% 97%;
+    --muted-foreground: 240 5% 45%;
+    --accent: 240 5% 10%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 220 15% 88%;
-    --input: 220 15% 88%;
-    --ring: 220 60% 20%;
-    --sidebar-background: 220 20% 96%;
-    --sidebar-foreground: 220 20% 15%;
-    --sidebar-primary: 220 60% 20%;
+    --border: 240 5% 90%;
+    --input: 240 5% 90%;
+    --ring: 240 5% 15%;
+    --sidebar-background: 240 5% 98%;
+    --sidebar-foreground: 240 10% 15%;
+    --sidebar-primary: 240 5% 15%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 92%;
-    --sidebar-accent-foreground: 220 20% 15%;
-    --sidebar-border: 220 15% 88%;
-    --sidebar-ring: 220 60% 20%;
+    --sidebar-accent: 240 5% 96%;
+    --sidebar-accent-foreground: 240 10% 15%;
+    --sidebar-border: 240 5% 90%;
+    --sidebar-ring: 240 5% 15%;
   }
 
   .dark {
