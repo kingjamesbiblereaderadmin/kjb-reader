@@ -277,8 +277,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     <div className="w-full">
       {/* Verse card */}
       <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-6 md:px-8 py-8 md:py-10 text-center text-white relative cursor-pointer min-h-[280px] md:min-h-[340px] flex flex-col`} style={bgStyle}>
-        {/* Top buttons row */}
-        <div className="flex justify-between items-start mb-4">
+        {/* Top buttons row - aligned to top edge */}
+        <div className="flex justify-between items-center absolute top-4 left-4 right-4">
           {/* Bell button - top left */}
           {onToggleNotif && (
             <button
@@ -381,7 +381,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         </div>
         
         {/* Verse content centered */}
-        <div className="flex-1 flex flex-col justify-center items-center text-center px-4">
+        <div className="flex-1 flex flex-col justify-center items-center text-center px-4 pt-12">
         {showVersePanel && (
           <p 
             className={`font-sans text-xs md:text-sm font-bold tracking-wider uppercase mb-3 md:mb-4 ${accentClass}`}
