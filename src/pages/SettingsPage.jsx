@@ -206,6 +206,15 @@ export default function SettingsPage() {
         return;
       }
 
+      // Check if running in preview environment
+      const isPreview = window.location.hostname.includes('preview-sandbox') || 
+                        window.location.hostname.includes('base44.app');
+      if (isPreview) {
+        alert('Push notifications are not available in preview mode.\n\nPlease deploy the app and install it from the deployed URL to test push notifications.');
+        setSubscribing(false);
+        return;
+      }
+
       const subscription = await subscribeToPush();
       if (!subscription) {
         alert('Failed to subscribe. Make sure you have installed the app and granted notification permission.');
@@ -230,7 +239,19 @@ export default function SettingsPage() {
     } catch (err) {
       console.error('Subscribe error:', err);
       setSubscribing(false);
-      alert('Failed to subscribe: ' + err.message + '\n\nNote: Push notifications require the app to be installed (PWA) and may not work in all browsers.');
+      
+      // Provide helpful error message based on error type
+      let errorMsg = 'Failed to subscribe: ' + err.message;
+      if (err.name === 'NotAllowedError') {
+        errorMsg += '\n\nNotification permission was denied. Please allow notifications in your browser settings.';
+      } else if (err.name === 'InvalidStateError') {
+        errorMsg += '\n\nYou may already be subscribed or the app is not properly installed.';
+      } else if (err.message.includes('applicationServerKey')) {
+        errorMsg += '\n\nPush notifications require a valid VAPID key configuration.';
+      } else {
+        errorMsg += '\n\nNote: Push notifications require the app to be installed (PWA) on a deployed domain (not preview).';
+      }
+      alert(errorMsg);
     }
   };
 
