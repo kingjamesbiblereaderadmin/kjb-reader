@@ -281,7 +281,7 @@ export default function SettingsPage() {
         {/* Custom Daily Verse Background */}
         <div className="pt-4 border-t border-border space-y-3">
           <h3 className="font-serif text-base font-semibold text-foreground">Daily Verse Background</h3>
-          <p className="font-sans text-xs text-muted-foreground">Upload a custom image (stored locally, no credits)</p>
+          <p className="font-sans text-xs text-muted-foreground">Upload a custom image for the daily verse card</p>
           
           {customBg ? (
             <div className="space-y-2">
