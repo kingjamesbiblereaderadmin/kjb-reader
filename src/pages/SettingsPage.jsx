@@ -63,7 +63,6 @@ export default function SettingsPage() {
     { value: 'sans-serif', label: 'Sans Serif (Inter)' },
     { value: 'monospace', label: 'Mono' },
     { value: 'cursive', label: 'Cursive' },
-    { value: '"Cormorant Garamond", serif', label: 'Cormorant Garamond' },
   ];
 
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
@@ -279,28 +278,42 @@ export default function SettingsPage() {
         {/* Font Family */}
         <div className="pt-4 border-t border-border space-y-3">
         <div className="flex items-center gap-2">
-          <Type className="w-4 h-4 text-muted-foreground" />
-          <p className="font-sans text-sm text-foreground font-medium">Font Family</p>
+        <Type className="w-4 h-4 text-muted-foreground" />
+        <p className="font-sans text-sm text-foreground font-medium">Font Family</p>
         </div>
         <div className="flex flex-col gap-2">
-          {VERSE_FONTS.map(font => (
-            <button
-              key={font.value}
-              onClick={() => {
-                setVerseFontFamily(font.value);
-                localStorage.setItem('kjb-verse-font-family', font.value);
-                window.dispatchEvent(new Event('storage'));
-              }}
-              className={`w-full py-3 rounded-xl font-sans text-sm font-medium transition-all text-center ${
-                verseFontFamily === font.value
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-              }`}
-              style={{ fontFamily: font.value }}
-            >
-              {font.label}
-            </button>
-          ))}
+        {VERSE_FONTS.map(font => (
+          <button
+            key={font.value}
+            onClick={() => {
+              setVerseFontFamily(font.value);
+              localStorage.setItem('kjb-verse-font-family', font.value);
+              window.dispatchEvent(new Event('storage'));
+            }}
+            className={`w-full py-3 rounded-xl font-sans text-sm font-medium transition-all text-center ${
+              verseFontFamily === font.value
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+            }`}
+            style={{ fontFamily: font.value }}
+          >
+            {font.label}
+          </button>
+        ))}
+        <button
+          onClick={() => {
+            setVerseFontFamily('serif');
+            localStorage.setItem('kjb-verse-font-family', 'serif');
+            window.dispatchEvent(new Event('storage'));
+          }}
+          className={`w-full py-3 rounded-xl font-sans text-sm font-medium transition-all text-center ${
+            verseFontFamily === 'serif'
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+          }`}
+        >
+          Reset to Default
+        </button>
         </div>
         </div>
       </div>
