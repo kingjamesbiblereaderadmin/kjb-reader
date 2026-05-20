@@ -602,12 +602,9 @@ export default function SettingsPage() {
             />
           </div>
           
-          {/* Text Color with Hex */}
+          {/* Text Color */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="font-sans text-sm text-foreground font-medium">Text Color</p>
-              <code className="font-mono text-xs bg-secondary px-2 py-1 rounded">{verseTextColor}</code>
-            </div>
+            <p className="font-sans text-sm text-foreground font-medium">Text Color</p>
             <div className="flex flex-wrap gap-2">
               {VERSE_COLORS.map(color => (
                 <button
