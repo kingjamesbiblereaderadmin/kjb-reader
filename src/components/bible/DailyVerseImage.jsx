@@ -188,7 +188,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         useCORS: true,
       });
       const link = document.createElement('a');
-      link.download = `daily-verse-${new Date().toISOString().slice(0, 10)}.png`;
+      const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
+      link.download = `daily-verse-${dateStr}.png`;
       link.href = canvas.toDataURL('image/png');
       document.body.appendChild(link);
       link.click();
@@ -282,11 +283,12 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       });
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
       
+      const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
       if (navigator.share && navigator.canShare({ files: [new File([blob], 'verse.png', { type: 'image/png' })] })) {
         await navigator.share({
           title: 'Daily Verse - KJB Reader',
           text: `"${verse.text}" — ${verse.ref}`,
-          files: [new File([blob], `daily-verse-${new Date().toISOString().slice(0, 10)}.png`, { type: 'image/png' })],
+          files: [new File([blob], `daily-verse-${dateStr}.png`, { type: 'image/png' })],
         });
       } else {
         // Try clipboard image
