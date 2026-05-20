@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search, BookOpen, Loader2, Filter } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked } from 'lucide-react';
 import { getBibleData } from '@/lib/bibleCache';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { expandSearchTerms } from '@/lib/searchSynonyms';
@@ -21,28 +21,31 @@ function highlightText(text, terms) {
 }
 
 export default function SearchPage() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const initialQuery = urlParams.get('q') || '';
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const [query, setQuery] = useState(initialQuery);
+  const getQueryFromUrl = () => new URLSearchParams(window.location.search).get('q') || '';
+
+  const [query, setQuery] = useState(getQueryFromUrl);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [expandedTerms, setExpandedTerms] = useState([]);
-  const [testament, setTestament] = useState('all'); // 'all' | 'ot' | 'nt'
+  const [testament, setTestament] = useState('all');
   const [wholeWord, setWholeWord] = useState(false);
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (initialQuery.trim().length >= 2) {
-      runSearch(initialQuery.trim());
-    }
-  }, []);
+  // Multi-select state
+  const [selectMode, setSelectMode] = useState(false);
+  const [selected, setSelected] = useState(new Set());
+  const [copyFeedback, setCopyFeedback] = useState(false);
 
-  const runSearch = async (kw) => {
+  const runSearch = useCallback(async (kw) => {
+    if (!kw || kw.trim().length < 2) return;
     setLoading(true);
     setSearched(true);
     setResults([]);
+    setSelected(new Set());
+    setSelectMode(false);
 
     try {
       const bible = await getBibleData();
@@ -97,13 +100,23 @@ export default function SearchPage() {
       setResults([]);
     }
     setLoading(false);
-  };
+  }, [testament, wholeWord]);
+
+  // Re-run search whenever URL changes (fixes header search bar)
+  useEffect(() => {
+    const q = getQueryFromUrl();
+    if (q) {
+      setQuery(q);
+      runSearch(q);
+    }
+  }, [location.search]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (query.trim().length >= 2) {
-      window.history.replaceState({}, '', `/search?q=${encodeURIComponent(query.trim())}`);
-      runSearch(query.trim());
+    const kw = query.trim();
+    if (kw.length >= 2) {
+      window.history.replaceState({}, '', `/search?q=${encodeURIComponent(kw)}`);
+      runSearch(kw);
     }
   };
 
@@ -112,6 +125,47 @@ export default function SearchPage() {
     window.scrollTo({ top: 0 });
     navigate('/read');
   };
+
+  // Selection helpers
+  const toggleSelect = (i) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      next.has(i) ? next.delete(i) : next.add(i);
+      return next;
+    });
+  };
+
+  const selectAll = () => setSelected(new Set(results.map((_, i) => i)));
+  const clearSelection = () => { setSelected(new Set()); setSelectMode(false); };
+
+  const formatVerses = (indices) =>
+    [...indices].sort((a, b) => a - b)
+      .map(i => `"${results[i].text}" — ${results[i].book} ${results[i].chapter}:${results[i].verse} (KJB)`)
+      .join('\n\n');
+
+  const handleCopySelected = async () => {
+    const text = selected.size > 0 ? formatVerses(selected) : formatVerses(results.map((_, i) => i));
+    await navigator.clipboard.writeText(text);
+    setCopyFeedback(true);
+    setTimeout(() => setCopyFeedback(false), 1800);
+  };
+
+  const handleExport = () => {
+    const indices = selected.size > 0 ? selected : new Set(results.map((_, i) => i));
+    const q = getQueryFromUrl() || query;
+    const header = `KJB Search Results — "${q}"\n${'='.repeat(50)}\n\n`;
+    const body = formatVerses(indices);
+    const footer = `\n\n${'='.repeat(50)}\n${indices.size} verse${indices.size !== 1 ? 's' : ''} — King James Bible (PCE)`;
+    const blob = new Blob([header + body + footer], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `kjb-search-${q.replace(/\s+/g, '-').slice(0, 30)}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const selectedList = [...selected].sort((a, b) => a - b);
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
@@ -181,30 +235,129 @@ export default function SearchPage() {
       )}
 
       {!loading && results.length > 0 && (
-        <div className="space-y-3">
-          <div className="mb-4">
-            <p className="font-sans text-xs text-muted-foreground">{results.length}{results.length >= 200 ? '+' : ''} result{results.length !== 1 ? 's' : ''} for "{initialQuery || query}"</p>
-            {expandedTerms.length > 1 && (
-              <p className="font-sans text-xs text-accent mt-1">
-                Also searching: {expandedTerms.filter(t => t !== query.toLowerCase()).join(', ')}
+        <div>
+          {/* Results header + action bar */}
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div>
+              <p className="font-sans text-xs text-muted-foreground">
+                {results.length}{results.length >= 200 ? '+' : ''} result{results.length !== 1 ? 's' : ''} for "{getQueryFromUrl() || query}"
               </p>
-            )}
+              {expandedTerms.length > 1 && (
+                <p className="font-sans text-xs text-accent mt-0.5">
+                  Also searching: {expandedTerms.filter(t => t !== query.toLowerCase()).join(', ')}
+                </p>
+              )}
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {!selectMode ? (
+                <>
+                  <button
+                    onClick={() => setSelectMode(true)}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+                  >
+                    <CheckSquare className="w-3.5 h-3.5" /> Select
+                  </button>
+                  <button
+                    onClick={handleCopySelected}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+                  >
+                    <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy All'}
+                  </button>
+                  <button
+                    onClick={handleExport}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+                  >
+                    <Download className="w-3.5 h-3.5" /> Export
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button onClick={selectAll} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors">
+                    <CheckSquare className="w-3.5 h-3.5" /> All
+                  </button>
+                  <button onClick={clearSelection} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors">
+                    <X className="w-3.5 h-3.5" /> Cancel
+                  </button>
+                  {selected.size > 0 && (
+                    <>
+                      <button
+                        onClick={handleCopySelected}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+                      >
+                        <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : `Copy (${selected.size})`}
+                      </button>
+                      <button
+                        onClick={handleExport}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+                      >
+                        <Download className="w-3.5 h-3.5" /> Export ({selected.size})
+                      </button>
+                    </>
+                  )}
+                </>
+              )}
+            </div>
           </div>
-          {results.map((r, i) => (
-            <button
-              key={i}
-              onClick={() => goToVerse(r.abbr, r.chapter, r.verse)}
-              className="w-full text-left p-4 rounded-xl bg-card border border-border hover:border-accent/40 hover:bg-accent/5 transition-colors"
-            >
-              <p className="font-sans text-xs text-accent font-semibold mb-1 flex items-center gap-1">
-                <BookOpen className="w-3 h-3" />
-                {r.book} {r.chapter}:{r.verse}
-              </p>
-              <p className="font-serif text-base text-foreground leading-relaxed">
-                "{highlightText(r.text, expandedTerms.length > 1 ? expandedTerms : [query])}"
-              </p>
-            </button>
-          ))}
+
+          {/* Selected verses reading panel */}
+          {selectMode && selected.size > 0 && (
+            <div className="mb-4 p-4 rounded-xl bg-primary/5 border border-primary/20">
+              <div className="flex items-center justify-between mb-2">
+                <p className="font-sans text-xs font-semibold text-primary flex items-center gap-1.5">
+                  <BookMarked className="w-3.5 h-3.5" />
+                  {selected.size} verse{selected.size !== 1 ? 's' : ''} selected
+                </p>
+              </div>
+              <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                {selectedList.map(i => (
+                  <div key={i} className="text-sm">
+                    <span className="font-sans text-xs text-accent font-semibold mr-2">
+                      {results[i].book} {results[i].chapter}:{results[i].verse}
+                    </span>
+                    <span className="font-serif text-foreground leading-relaxed">{results[i].text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Verse list */}
+          <div className="space-y-2">
+            {results.map((r, i) => {
+              const isSelected = selected.has(i);
+              return (
+                <div
+                  key={i}
+                  onClick={() => selectMode ? toggleSelect(i) : goToVerse(r.abbr, r.chapter, r.verse)}
+                  className={`w-full text-left p-4 rounded-xl border transition-colors cursor-pointer flex items-start gap-3 ${
+                    isSelected
+                      ? 'bg-primary/10 border-primary/40'
+                      : 'bg-card border-border hover:border-accent/40 hover:bg-accent/5'
+                  }`}
+                >
+                  {selectMode && (
+                    <div className="shrink-0 mt-0.5">
+                      {isSelected
+                        ? <CheckSquare className="w-4 h-4 text-primary" />
+                        : <Square className="w-4 h-4 text-muted-foreground" />
+                      }
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-sans text-xs text-accent font-semibold mb-1 flex items-center gap-1">
+                      <BookOpen className="w-3 h-3" />
+                      {r.book} {r.chapter}:{r.verse}
+                    </p>
+                    <p className="font-serif text-base text-foreground leading-relaxed">
+                      "{highlightText(r.text, expandedTerms.length > 1 ? expandedTerms : [query])}"
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
