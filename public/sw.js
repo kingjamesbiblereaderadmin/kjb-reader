@@ -143,6 +143,49 @@ self.addEventListener('periodicsync', event => {
   }
 });
 
+// Push notification event - receives messages from server even when app is closed
+self.addEventListener('push', event => {
+  console.log('[SW] Push event received:', event.data ? event.data.text() : 'no data');
+  
+  event.waitUntil(
+    (async () => {
+      try {
+        let data = {};
+        if (event.data) {
+          try {
+            data = event.data.json();
+          } catch {
+            data = { title: 'KJB Reader', body: event.data.text() };
+          }
+        }
+        
+        const title = data.title || 'King James Bible';
+        const body = data.body || 'New notification';
+        const icon = data.icon || 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
+        const badge = data.badge || icon;
+        const url = data.url || '/';
+        const tag = data.tag || 'daily-verse';
+        
+        console.log('[SW] Showing notification:', { title, body, tag });
+        
+        await self.registration.showNotification(title, {
+          body,
+          icon,
+          badge,
+          tag,
+          renotify: true,
+          data: { url },
+          actions: data.actions || []
+        });
+        
+        console.log('[SW] Notification shown successfully');
+      } catch (err) {
+        console.error('[SW] Push notification error:', err);
+      }
+    })()
+  );
+});
+
 // Handle notification click
 self.addEventListener('notificationclick', event => {
   console.log('[SW] Notification clicked');

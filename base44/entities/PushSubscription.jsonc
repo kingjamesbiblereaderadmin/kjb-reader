@@ -1,0 +1,27 @@
+{
+  "name": "PushSubscription",
+  "type": "object",
+  "properties": {
+    "endpoint": {
+      "type": "string",
+      "description": "Push service endpoint URL"
+    },
+    "keys": {
+      "type": "string",
+      "description": "JSON string containing p256dh and auth keys"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email of the user who subscribed"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the subscription is active"
+    }
+  },
+  "required": [
+    "endpoint",
+    "keys"
+  ]
+}
