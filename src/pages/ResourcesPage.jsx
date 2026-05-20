@@ -426,12 +426,11 @@ const RESOURCES = [
 ];
 
 
-function WhyKJBSection() {
-  const [expanded, setExpanded] = useState(false);
+function WhyKJBSection({ expanded, toggle }) {
   return (
     <div className="mb-10">
       <button
-        onClick={() => setExpanded(!expanded)}
+        onClick={toggle}
         className="w-full bg-gradient-to-r from-amber-50 to-amber-50 dark:from-amber-900/20 dark:to-amber-900/20 border border-amber-200 dark:border-amber-900/30 rounded-xl p-4 hover:border-amber-300 transition-all text-left">
         
         <div className="flex items-center justify-between">
@@ -471,8 +470,7 @@ function WhyKJBSection() {
 
 }
 
-function PreachersSection() {
-  const [expanded, setExpanded] = useState(null);
+function PreachersSection({ expandedState, toggle }) {
   return (
     <div className="mb-10">
       <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 mb-4">
@@ -483,12 +481,12 @@ function PreachersSection() {
         KJB-believing, soul-winning preachers — tap to see all their links
       </p>
       <div className="space-y-2">
-        {PREACHERS.map((preacher) => {
-          const isOpen = expanded === preacher.name;
+        {PREACHERS.map((preacher, idx) => {
+          const isOpen = expandedState === preacher.name;
           return (
             <div key={preacher.name} className="bg-card border border-border rounded-xl overflow-hidden transition-all">
               <button
-                onClick={() => setExpanded(isOpen ? null : preacher.name)}
+                onClick={() => toggle(isOpen ? null : preacher.name)}
                 className="w-full flex items-center gap-3 p-4 hover:bg-accent/5 transition-colors text-left">
                 
                 <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
@@ -531,7 +529,45 @@ function PreachersSection() {
 }
 
 export default function ResourcesPage() {
-  const [expandedSection, setExpandedSection] = useState(null);
+  const [expandedSections, setExpandedSections] = useState({
+    kjbi: true,
+    whyKjb: true,
+    preachers: true,
+    ministry: true,
+    disclaimer: true,
+    resources: {},
+  });
+  
+  const allResourceSectionsExpanded = RESOURCES.every((_, idx) => expandedSections.resources[idx]);
+  
+  const toggleAll = () => {
+    const newState = !allResourceSectionsExpanded;
+    const newResourcesState = {};
+    RESOURCES.forEach((_, idx) => {
+      newResourcesState[idx] = newState;
+    });
+    setExpandedSections(prev => ({
+      ...prev,
+      kjbi: newState,
+      whyKjb: newState,
+      preachers: newState,
+      ministry: newState,
+      disclaimer: newState,
+      resources: newResourcesState,
+    }));
+  };
+  
+  const toggleSection = (section, idx = null) => {
+    if (section === 'resources' && idx !== null) {
+      setExpandedSections(prev => ({
+        ...prev,
+        resources: { ...prev.resources, [idx]: !prev.resources[idx] },
+      }));
+    } else {
+      setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+    }
+  };
+  
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
       <div className="text-center mb-10">
@@ -541,35 +577,61 @@ export default function ResourcesPage() {
         <h1 className="font-serif text-4xl font-bold text-foreground mb-3">Resources</h1>
         <p className="font-sans text-muted-foreground max-w-lg mx-auto">KJB defence materials, studies on modern version corruption, and links to free Bible study resources.</p>
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
+        <button
+          onClick={toggleAll}
+          className="mt-4 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+        >
+          {allResourceSectionsExpanded ? 'Collapse All' : 'Expand All'}
+        </button>
       </div>
 
       {/* KJBI — Free Online Bible College (above everything) */}
-      <div className="bg-card border border-border rounded-2xl p-5 mb-6">
-        <div className="flex items-start gap-3">
-          <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-          <div>
-            <h2 className="font-serif text-lg font-bold text-foreground mb-1">KJBI.org — Free Online Bible College</h2>
-            <p className="font-sans text-sm text-muted-foreground mb-3">King James Bible Institute — a free online Bible college for those who want to go deeper in God's Word. Courses on rightly dividing, dispensationalism, and more.</p>
-            <a href="https://kjbi.org" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity">
-              Visit KJBI.org <ExternalLink className="w-3.5 h-3.5" />
-            </a>
+      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+        <button
+          onClick={() => toggleSection('kjbi')}
+          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+        >
+          <div className="flex items-start gap-3">
+            <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <h2 className="font-serif text-lg font-bold text-foreground mb-1">KJBI.org — Free Online Bible College</h2>
+              <p className="font-sans text-sm text-muted-foreground mb-3">King James Bible Institute — a free online Bible college for those who want to go deeper in God's Word.</p>
+            </div>
           </div>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.kjbi ? 'rotate-180' : ''}`} />
+        </button>
+        {expandedSections.kjbi && (
+        <div className="p-5 pt-0">
+          <a href="https://kjbi.org" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity">
+            Visit KJBI.org <ExternalLink className="w-3.5 h-3.5" />
+          </a>
         </div>
+        )}
       </div>
 
       {/* Why KJB is God's Word section */}
-      <WhyKJBSection />
+      <WhyKJBSection expanded={expandedSections.whyKjb} toggle={() => toggleSection('whyKjb')} />
 
       {/* Verified Preachers section */}
-      <PreachersSection />
+      <PreachersSection expandedState={expandedSections.preachers} toggle={(val) => toggleSection('preachers', val)} />
 
       {/* Ministry Links */}
-      <div className="bg-card border border-border rounded-2xl p-5 mb-6">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-900/20 mb-4">
-          <Globe className="w-4 h-4 text-purple-500" />
-          <h2 className="font-sans font-semibold text-sm text-purple-600 dark:text-purple-400">Ministry Links</h2>
-        </div>
-        <div className="space-y-2">
+      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+        <button
+          onClick={() => toggleSection('ministry')}
+          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+        >
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-900/20 mb-2">
+              <Globe className="w-4 h-4 text-purple-500" />
+              <h2 className="font-sans font-semibold text-sm text-purple-600 dark:text-purple-400">Ministry Links</h2>
+            </div>
+            <p className="font-sans text-xs text-muted-foreground">Contact and ministry websites</p>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.ministry ? 'rotate-180' : ''}`} />
+        </button>
+        {expandedSections.ministry && (
+        <div className="p-5 pt-0 space-y-2">
           <a
             href="https://godisgracious1031ministriescom.odoo.com/"
             target="_blank"
@@ -594,23 +656,30 @@ export default function ResourcesPage() {
             </div>
           </a>
         </div>
+        )}
       </div>
 
       {/* Disclaimer box */}
-      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-xl p-4 mb-6">
-        <p className="font-sans text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
-          <strong>Note:</strong> The resources below are for educational purposes only. I may not affirm all doctrinal statements of every resource or ministry linked here. Please use discernment and compare all things to the King James Bible.
-        </p>
+      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-xl p-4 mb-6 overflow-hidden">
+        <button
+          onClick={() => toggleSection('disclaimer')}
+          className="w-full flex items-center justify-between text-left"
+        >
+          <p className="font-sans text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+            <strong>Note:</strong> The resources below are for educational purposes only. I may not affirm all doctrinal statements of every resource or ministry linked here. Please use discernment and compare all things to the King James Bible.
+          </p>
+          <ChevronDown className={`w-4 h-4 text-amber-600 transition-transform ${expandedSections.disclaimer ? 'rotate-180' : ''}`} />
+        </button>
       </div>
 
       <div className="space-y-4">
-        {RESOURCES.map((section) => {const Icon = section.icon;
-            const isOpen = expandedSection === section.category;
+        {RESOURCES.map((section, idx) => {const Icon = section.icon;
+            const isOpen = expandedSections.resources[idx] !== false;
             return (
-              <div key={section.category}>
-              <button
-                  onClick={() => setExpandedSection(isOpen ? null : section.category)}
-                  className={`w-full ${section.bg} border rounded-xl p-4 hover:border-opacity-75 transition-all text-left`}>
+              <div key={section.category} className="bg-card border border-border rounded-2xl overflow-hidden">
+                <button
+                  onClick={() => toggleSection('resources', idx)}
+                  className={`w-full ${section.bg} border-b rounded-t-xl p-4 hover:border-opacity-75 transition-all text-left`}>
                   
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
@@ -623,7 +692,7 @@ export default function ResourcesPage() {
                 </div>
               </button>
               {isOpen &&
-                <div className="mt-2 space-y-3 pl-2">
+                <div className="p-4 space-y-3">
                   {section.items.map((item) =>
                   <a
                     key={item.title}

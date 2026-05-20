@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown } from 'lucide-react';
 import ImageCropper from '@/components/bible/ImageCropper';
 import { Switch } from '@/components/ui/switch';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
@@ -20,6 +20,16 @@ export default function SettingsPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteInput, setDeleteInput] = useState('');
   const [deleting, setDeleting] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({
+    text: true,
+    appearance: true,
+    install: true,
+    offline: true,
+    notifications: true,
+    info: true,
+    credits: true,
+    advanced: true,
+  });
   const { isDark, mode, setMode, colourId, setColourId } = useTheme();
   
   const [customBg, setCustomBg] = useState(() => {
@@ -213,6 +223,26 @@ export default function SettingsPage() {
     window.location.reload();
   };
 
+  const allExpanded = Object.values(expandedSections).every(v => v);
+  
+  const toggleAll = () => {
+    const newState = !allExpanded;
+    setExpandedSections({
+      text: newState,
+      appearance: newState,
+      install: newState,
+      offline: newState,
+      notifications: newState,
+      info: newState,
+      credits: newState,
+      advanced: newState,
+    });
+  };
+
+  const toggleSection = (section) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
       {/* Header */}
@@ -223,12 +253,28 @@ export default function SettingsPage() {
         <h1 className="font-serif text-4xl font-bold text-foreground mb-2">Settings</h1>
         <p className="font-sans text-sm text-muted-foreground">Offline downloads & app information</p>
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
+        <button
+          onClick={toggleAll}
+          className="mt-4 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+        >
+          {allExpanded ? 'Collapse All' : 'Expand All'}
+        </button>
       </div>
 
       {/* Text Settings */}
-      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-4">
-        <h2 className="font-serif text-lg font-semibold text-foreground">Text</h2>
-        <p className="font-sans text-xs text-muted-foreground">Customize text size and font</p>
+      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+        <button
+          onClick={() => toggleSection('text')}
+          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+        >
+          <div>
+            <h2 className="font-serif text-lg font-semibold text-foreground">Text</h2>
+            <p className="font-sans text-xs text-muted-foreground">Customize text size and font</p>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.text ? 'rotate-180' : ''}`} />
+        </button>
+        {expandedSections.text && (
+        <div className="p-5 pt-0 space-y-4">
         
         {/* Zoom Level */}
         <div className="pt-2 space-y-3">
@@ -312,12 +358,24 @@ export default function SettingsPage() {
         </button>
         </div>
         </div>
+        </div>
+        )}
       </div>
 
       {/* Appearance */}
-      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-4">
-        <h2 className="font-serif text-lg font-semibold text-foreground">Appearance</h2>
-        <p className="font-sans text-xs text-muted-foreground">Customize the look and feel</p>
+      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+        <button
+          onClick={() => toggleSection('appearance')}
+          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+        >
+          <div>
+            <h2 className="font-serif text-lg font-semibold text-foreground">Appearance</h2>
+            <p className="font-sans text-xs text-muted-foreground">Customize the look and feel</p>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.appearance ? 'rotate-180' : ''}`} />
+        </button>
+        {expandedSections.appearance && (
+        <div className="p-5 pt-0 space-y-4">
         
         {/* Theme Mode */}
         <div className="space-y-3">
@@ -572,18 +630,24 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
+        </div>
+        )}
       </div>
 
-
-
-
-
-
-
-
-
       {/* Install App */}
-      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
+      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+        <button
+          onClick={() => toggleSection('install')}
+          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+        >
+          <div>
+            <h2 className="font-serif text-lg font-semibold text-foreground">Install App</h2>
+            <p className="font-sans text-xs text-muted-foreground">Add to home screen for notifications</p>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.install ? 'rotate-180' : ''}`} />
+        </button>
+        {expandedSections.install && (
+        <div className="p-5 pt-0 space-y-3">
         <h2 className="font-serif text-lg font-semibold text-foreground">Install App</h2>
         <p className="font-sans text-sm text-muted-foreground leading-relaxed">
           Add the KJB Reader to your home screen for quick access and to receive daily verse notifications even when the app is closed.
@@ -628,13 +692,26 @@ export default function SettingsPage() {
                 </p>
               </div>
             </div>
-          </div>
-        )}
-      </div>
+            </div>
+            </div>
+            </div>
+            )}
+            </div>
 
-      {/* Offline Library */}
-      <div className="bg-card border border-border rounded-2xl p-5 mb-6">
-        <h2 className="font-serif text-lg font-semibold text-foreground mb-2">Bible Cache</h2>
+            {/* Offline Library */}
+            <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+            <button
+            onClick={() => toggleSection('offline')}
+            className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+            >
+            <div>
+            <h2 className="font-serif text-lg font-semibold text-foreground">Bible Cache</h2>
+            <p className="font-sans text-xs text-muted-foreground">Download for offline reading</p>
+            </div>
+            <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.offline ? 'rotate-180' : ''}`} />
+            </button>
+            {expandedSections.offline && (
+            <div className="p-5 pt-0">
         <p className="font-sans text-sm text-muted-foreground mb-4">
           Download all 66 books to your device for offline reading. Once downloaded, the Bible is available without an internet connection.
         </p>
@@ -705,15 +782,24 @@ export default function SettingsPage() {
               </p>
             )}
           </div>
+        </div>
         )}
       </div>
 
       {/* Notifications */}
-      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-4">
-        <h2 className="font-serif text-lg font-semibold text-foreground">Daily Verse Reminders</h2>
-        <p className="font-sans text-xs text-muted-foreground">
-          Get reminded to read your daily verse when you open the app. Notifications will update the verse when the app is opened.
-        </p>
+      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+        <button
+          onClick={() => toggleSection('notifications')}
+          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+        >
+          <div>
+            <h2 className="font-serif text-lg font-semibold text-foreground">Daily Verse Reminders</h2>
+            <p className="font-sans text-xs text-muted-foreground">Get reminded to read your daily verse</p>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.notifications ? 'rotate-180' : ''}`} />
+        </button>
+        {expandedSections.notifications && (
+        <div className="p-5 pt-0 space-y-4">
         {notifPermission === 'unsupported' ? (
           <div className="space-y-3">
             <p className="font-sans text-sm text-muted-foreground">
@@ -803,12 +889,24 @@ export default function SettingsPage() {
               )}
             </div>
           </>
+        </div>
         )}
       </div>
 
       {/* App Info */}
-      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
-        <h2 className="font-serif text-lg font-semibold text-foreground">App Info</h2>
+      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+        <button
+          onClick={() => toggleSection('info')}
+          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+        >
+          <div>
+            <h2 className="font-serif text-lg font-semibold text-foreground">App Info</h2>
+            <p className="font-sans text-xs text-muted-foreground">Version and features</p>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.info ? 'rotate-180' : ''}`} />
+        </button>
+        {expandedSections.info && (
+        <div className="p-5 pt-0 space-y-3">
         <div className="space-y-2">
           <div className="flex justify-between items-center font-sans text-sm gap-4">
             <span className="text-muted-foreground shrink-0">Bible Text</span>
@@ -879,25 +977,48 @@ export default function SettingsPage() {
             <span className="text-foreground font-medium text-right">Light / Dark / Auto / System</span>
           </div>
         </div>
+        )}
       </div>
 
       {/* Credits */}
-      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
-      <h2 className="font-serif text-lg font-semibold text-foreground">Credits</h2>
-      <div className="space-y-2 font-sans text-xs text-muted-foreground">
+      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+        <button
+          onClick={() => toggleSection('credits')}
+          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+        >
+          <div>
+            <h2 className="font-serif text-lg font-semibold text-foreground">Credits</h2>
+            <p className="font-sans text-xs text-muted-foreground">Attributions and licenses</p>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.credits ? 'rotate-180' : ''}`} />
+        </button>
+        {expandedSections.credits && (
+        <div className="p-5 pt-0 space-y-3">
+          <div className="space-y-2 font-sans text-xs text-muted-foreground">
         <p>• <strong className="text-foreground">Bible Text:</strong> Public Domain Edition (PCE) of the King James Bible</p>
         <p>• <strong className="text-foreground">Cormorant Garamond:</strong> Google Fonts (SIL Open Font License)</p>
         <p>• <strong className="text-foreground">Inter:</strong> Google Fonts (SIL Open Font License)</p>
         <p>• <strong className="text-foreground">Merriweather:</strong> Google Fonts (SIL Open Font License)</p>
         <p className="pt-2 text-[10px] opacity-75">All fonts are open source and freely available under the SIL Open Font License.</p>
       </div>
+        </div>
+        )}
       </div>
 
       {/* Advanced */}
-      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-4">
-        <h2 className="font-serif text-lg font-semibold text-foreground">Advanced</h2>
-        <p className="font-sans text-xs text-muted-foreground">Reset settings and check for updates</p>
-        
+      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+        <button
+          onClick={() => toggleSection('advanced')}
+          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+        >
+          <div>
+            <h2 className="font-serif text-lg font-semibold text-foreground">Advanced</h2>
+            <p className="font-sans text-xs text-muted-foreground">Reset settings and check for updates</p>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.advanced ? 'rotate-180' : ''}`} />
+        </button>
+        {expandedSections.advanced && (
+        <div className="p-5 pt-0 space-y-4">
         <div className="flex gap-3 pt-2">
           <button
             onClick={() => {
@@ -941,6 +1062,8 @@ export default function SettingsPage() {
             Check for Updates
           </button>
         </div>
+        </div>
+        )}
       </div>
     </div>
   );
