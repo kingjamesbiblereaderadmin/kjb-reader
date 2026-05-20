@@ -20,36 +20,26 @@ Deno.serve(async (req) => {
     const utf8Lines = new TextDecoder('utf-8', { fatal: false }).decode(bytes).split('\n');
     const matches = [];
 
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      // Look for Philippians 4:22 and surrounding
-      if (line.startsWith('Php 4:22') || line.startsWith('Php 4:21') || line.startsWith('Php 4:20') || line.startsWith('Php 4:23')) {
-        // Show hex of each character in the line
-        const hexChars = Array.from(line).map(c => {
-          const code = c.charCodeAt(0);
-          return { char: c, hex: 'U+' + code.toString(16).toUpperCase().padStart(4, '0'), code };
-        }).slice(0, 80);
-        matches.push({ line: line.slice(0, 120), lineNum: i, hexChars });
-      }
-      // Also look for lines with U+000F (shift-in) mid-word
-      if ((line.startsWith('Php') || line.startsWith('Phm') || line.startsWith('Tit') || line.startsWith('Ro') || line.startsWith('1Co') || line.startsWith('Ga')) 
-          && line.includes('\u000F') && !line.match(/^\S+ \S+:\d+ \u000F/)) {
-        // U+000F appears NOT at the start of verse text
-        const verseMatch = line.match(/^\S+ \d+:\d+ (.*)$/);
-        if (verseMatch) {
-          const verseText = verseMatch[1];
-          if (verseText.indexOf('\u000F') > 0) { // mid-word or mid-verse
-            matches.push({ 
-              line: line.slice(0, 120), 
-              lineNum: i,
-              note: 'U+000F mid-verse at pos ' + verseText.indexOf('\u000F'),
-              before: verseText.slice(Math.max(0, verseText.indexOf('\u000F') - 10), verseText.indexOf('\u000F')),
-              after: verseText.slice(verseText.indexOf('\u000F'), verseText.indexOf('\u000F') + 10)
-            });
-          }
-        }
+    // Check for windows-1252 "smart quote" bytes (0x91-0x94) that are invalid UTF-8
+    // These would decode as U+FFFD in UTF-8 mode, then get converted to ¶
+    const badBytes = [];
+    for (let bi = 0; bi < bytes.length - 1; bi++) {
+      // 0x91=left single, 0x92=right single, 0x93=left double, 0x94=right double (windows-1252)
+      if (bytes[bi] === 0x92 || bytes[bi] === 0x91 || bytes[bi] === 0x93 || bytes[bi] === 0x94) {
+        const start = Math.max(0, bi - 15);
+        const end = Math.min(bytes.length, bi + 15);
+        const ctxW = new TextDecoder('windows-1252', { fatal: false }).decode(bytes.slice(start, end));
+        const ctxU = new TextDecoder('utf-8', { fatal: false }).decode(bytes.slice(start, end));
+        badBytes.push({ bytePos: bi, byte: bytes[bi], byteHex: '0x' + bytes[bi].toString(16), ctxWindows1252: ctxW, ctxUtf8: ctxU });
+        if (badBytes.length >= 5) break;
       }
     }
+
+    // Also check what the UTF-8 decoded text shows for Php 4:22
+    const utf8Php422 = utf8Lines.find(l => l.startsWith('Php 4:22'));
+    const win1252Php422 = lines.find(l => l.startsWith('Php 4:22'));
+
+    matches.push({ badBytes, utf8Php422, win1252Php422, totalBadBytes: badBytes.length });
 
     return Response.json({ matches: matches.slice(0, 20) });
   } catch (error) {

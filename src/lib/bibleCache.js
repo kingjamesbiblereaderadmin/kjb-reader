@@ -4,7 +4,7 @@
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
 
-const CACHE_KEY = 'bible_data_pce_v36'; // v36: force reload with colophon fix
+const CACHE_KEY = 'bible_data_pce_v37'; // v37: fix apostrophes decoded as pilcrow (windows-1252 encoding)
 const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
@@ -35,11 +35,13 @@ let remoteVersion = null;
 function parseBibleText(rawText) {
   console.log('[PARSE] Raw text length:', rawText.length);
   
-  // Step 1: Normalize ALL special characters to pilcrow (U+00B6)
-  // The source file uses  (U+000F) and other chars for pilcrow
+  // Step 1: Normalize the pilcrow character to U+00B6
+  // The source file (windows-1252) uses U+000F as the pilcrow marker.
+  // We no longer need to replace U+FFFD here — previously that wrongly converted
+  // apostrophes (windows-1252 byte 0x92 decoded as U+FFFD in UTF-8 mode) to ¶.
+  // Now the file is decoded as windows-1252 so apostrophes come through as U+2019 correctly.
   const normalizedText = rawText
-    .replace(/\u000F/g, '\u00B6')  // Shift+O character
-    .replace(/\uFFFD/g, '\u00B6'); // Replacement character
+    .replace(/\u000F/g, '\u00B6'); // Shift-in control char used as pilcrow in source
   const shiftOCount = (rawText.match(/\u000F/g) || []).length;
   const replacementCount = (rawText.match(/\uFFFD/g) || []).length;
   let totalPilcrowCount = (normalizedText.match(/\u00B6/g) || []).length;
@@ -135,7 +137,11 @@ async function fetchWithRetry(url, retries = 3) {
       const cacheBustedUrl = `${url}?t=${Date.now()}`;
       const res = await fetch(cacheBustedUrl, { cache: 'reload' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      return await res.text();
+      // Decode as windows-1252: the source file uses this encoding (not UTF-8).
+      // Apostrophes are byte 0x92 which is invalid UTF-8 and would decode as U+FFFD,
+      // then get wrongly converted to ¶ by the normalization step.
+      const buf = await res.arrayBuffer();
+      return new TextDecoder('windows-1252').decode(buf);
     } catch (err) {
       console.error('Fetch attempt ' + attempt + '/' + retries + ' failed:', err.message);
       if (attempt === retries) throw err;
@@ -177,7 +183,7 @@ async function saveToCache(data) {
     // Clear ALL old localStorage keys to force fresh data
     localStorage.removeItem('bible_data_complete');
     localStorage.removeItem('bible_data_complete_v2');
-    for (let i = 1; i <= 30; i++) {
+    for (let i = 1; i <= 37; i++) {
       localStorage.removeItem(`bible_data_pce_v${i}`);
     }
     // Save to IndexedDB (supports ~50MB+)
