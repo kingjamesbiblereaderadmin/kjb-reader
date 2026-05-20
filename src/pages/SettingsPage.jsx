@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Music, Instagram } from 'lucide-react';
 import ImageCropper from '@/components/bible/ImageCropper';
 import { Switch } from '@/components/ui/switch';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
@@ -1216,12 +1216,38 @@ export default function SettingsPage() {
               <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
             </a>
             <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary">
-              <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+              <MessageCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground">Discord</p>
                 <p className="font-sans text-xs text-muted-foreground">shawn_svdbyfaithinhisbloodr325av</p>
               </div>
             </div>
+            <a
+              href="https://www.tiktok.com/@svdbyfaithinr325av"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
+            >
+              <Music className="w-4 h-4 text-green-500 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">TikTok</p>
+                <p className="font-sans text-xs text-muted-foreground">@svdbyfaithinr325av</p>
+              </div>
+              <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+            </a>
+            <a
+              href="https://www.instagram.com/svdbyfaithinhisbloodr325av?igsh=NTl0NmM1NWoyb2F0"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
+            >
+              <Instagram className="w-4 h-4 text-green-500 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Instagram</p>
+                <p className="font-sans text-xs text-muted-foreground">@svdbyfaithinhisbloodr325av</p>
+              </div>
+              <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+            </a>
           </div>
         )}
       </div>
