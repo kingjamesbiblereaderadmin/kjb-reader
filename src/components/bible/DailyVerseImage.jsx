@@ -276,10 +276,10 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   return (
     <div className="w-full">
       {/* Verse card */}
-      <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-6 md:px-8 py-8 md:py-10 text-center text-white relative cursor-pointer min-h-[280px] md:min-h-[340px] flex flex-col justify-between`} style={bgStyle}>
-        {/* Top section - notification toggle */}
-        <div className="flex justify-between items-start">
-          <div className="flex-1" />
+      <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-6 md:px-8 py-8 md:py-10 text-center text-white relative cursor-pointer min-h-[280px] md:min-h-[340px] flex flex-col`} style={bgStyle}>
+        {/* Top buttons row */}
+        <div className="flex justify-between items-start mb-4">
+          {/* Bell button - top left */}
           {onToggleNotif && (
             <button
               onClick={(e) => {
@@ -287,7 +287,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 e.stopPropagation();
                 onToggleNotif();
               }}
-              className="p-2 rounded-full bg-white/90 hover:bg-white transition-colors shadow-md z-10"
+              className="p-2 rounded-lg bg-white/90 hover:bg-white transition-colors shadow-md z-10"
               title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
               type="button"
             >
@@ -298,57 +298,15 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               )}
             </button>
           )}
-        </div>
-        
-        {/* Verse content centered */}
-        <div className="flex-1 flex flex-col justify-center items-center text-center px-4 py-4">
-        {showVersePanel && (
-          <p 
-            className={`font-sans text-[10px] md:text-xs font-bold tracking-wider uppercase mb-3 md:mb-4 ${accentClass}`}
-            style={{ opacity: textOpacity, color: textColor, fontFamily }}
-          >
-            Verse of the Day
-          </p>
-        )}
-        <blockquote 
-          className="text-base md:text-lg lg:text-xl leading-relaxed break-words mb-3"
-          style={{ 
-            color: textColor, 
-            opacity: textOpacity, 
-            fontFamily,
-            fontWeight: '700',
-            textShadow: '0 2px 8px rgba(0,0,0,0.3)'
-          }}
-        >
-          "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
-        </blockquote>
-        <p 
-          className="font-sans text-sm md:text-base font-semibold mb-2"
-          style={{ 
-            opacity: Math.min(1, textOpacity + 0.05), 
-            color: textColor, 
-            fontFamily,
-            textShadow: '0 1px 4px rgba(0,0,0,0.3)'
-          }}
-        >
-          — {verse.ref} (KJB)
-        </p>
-        <div 
-          className={`w-10 h-px mx-auto ${accentClass}`}
-          style={{ opacity: 0.75 * textOpacity, backgroundColor: textColor }}
-        />
-        </div>
-        
-        {/* Bottom button bar */}
-        {showButtons && (
-          <div className="flex justify-center gap-3 mt-4" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
+          {/* Other buttons - top right */}
+          <div className="flex gap-2">
             <button
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 setShowStyleEditor(true);
               }}
-              className="p-2.5 rounded-full bg-white/90 hover:bg-white transition-colors shadow-md"
+              className="p-2 rounded-lg bg-white/90 hover:bg-white transition-colors shadow-md"
               title="Text style"
               type="button"
             >
@@ -375,7 +333,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 e.nativeEvent.stopImmediatePropagation();
               }}
               disabled={uploading}
-              className="p-2.5 rounded-full bg-white/90 hover:bg-white transition-colors shadow-md disabled:opacity-50"
+              className="p-2 rounded-lg bg-white/90 hover:bg-white transition-colors shadow-md disabled:opacity-50"
               title="Upload custom background"
               type="button"
             >
@@ -392,7 +350,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 handleShare(e);
               }}
               disabled={capturing}
-              className="p-2.5 rounded-full bg-white/90 hover:bg-white transition-colors shadow-md disabled:opacity-50"
+              className="p-2 rounded-lg bg-white/90 hover:bg-white transition-colors shadow-md disabled:opacity-50"
               title="Share verse image"
               type="button"
             >
@@ -409,7 +367,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 handleDownload(e);
               }}
               disabled={capturing}
-              className="p-2.5 rounded-full bg-white/90 hover:bg-white transition-colors shadow-md disabled:opacity-50"
+              className="p-2 rounded-lg bg-white/90 hover:bg-white transition-colors shadow-md disabled:opacity-50"
               title="Download verse image"
               type="button"
             >
@@ -420,7 +378,46 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               )}
             </button>
           </div>
+        </div>
+        
+        {/* Verse content centered */}
+        <div className="flex-1 flex flex-col justify-center items-center text-center px-4">
+        {showVersePanel && (
+          <p 
+            className={`font-sans text-xs md:text-sm font-bold tracking-wider uppercase mb-3 md:mb-4 ${accentClass}`}
+            style={{ opacity: textOpacity, color: textColor, fontFamily }}
+          >
+            Verse of the Day
+          </p>
         )}
+        <blockquote 
+          className="text-lg md:text-xl lg:text-2xl leading-relaxed break-words mb-3"
+          style={{ 
+            color: textColor, 
+            opacity: textOpacity, 
+            fontFamily,
+            fontWeight: '700',
+            textShadow: '0 2px 8px rgba(0,0,0,0.3)'
+          }}
+        >
+          "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
+        </blockquote>
+        <p 
+          className="font-sans text-base md:text-lg font-semibold mb-2"
+          style={{ 
+            opacity: Math.min(1, textOpacity + 0.05), 
+            color: textColor, 
+            fontFamily,
+            textShadow: '0 1px 4px rgba(0,0,0,0.3)'
+          }}
+        >
+          — {verse.ref} (KJB)
+        </p>
+        <div 
+          className={`w-10 h-px mx-auto ${accentClass}`}
+          style={{ opacity: 0.75 * textOpacity, backgroundColor: textColor }}
+        />
+        </div>
         </div>
 
       {/* Style Editor Panel */}
