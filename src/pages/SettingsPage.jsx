@@ -993,7 +993,11 @@ export default function SettingsPage() {
               </div>
               <div className="flex justify-between items-center font-sans text-sm gap-4">
                 <span className="text-muted-foreground shrink-0">Theme</span>
-                <span className="text-foreground font-medium text-right">Light / Dark / Auto / System</span>
+                <span className="text-foreground font-medium text-right">
+                  {mode === 'auto' ? '🕐 Auto' :
+                   mode === 'system' ? '📱 System' :
+                   mode === 'dark' ? '🌙 Dark' : '☀️ Light'}
+                </span>
               </div>
             </div>
           </div>
