@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
       
       if (!vapidPublicKey || !vapidPrivateKey) {
         return Response.json({ 
-          error: 'VAPID keys not configured. Please set VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY secrets.' 
+          error: 'VAPID keys not configured' 
         }, { status: 500 });
       }
       

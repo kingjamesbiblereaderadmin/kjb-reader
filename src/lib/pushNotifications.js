@@ -1,5 +1,6 @@
-// Push notification helpers for KJB PWA
+// Push notification helpers for KJB PWA with VAPID
 // Strategy: store next-fire timestamp, check on page load/focus + SW periodic sync
+// Updated: 2026-05-20 - Added VAPID push subscription support
 
 import { getDailyVerse } from './dailyVerse';
 
@@ -13,6 +14,9 @@ const READING_REMINDER_KEY = 'kjb-reading-reminder-enabled';
 const READING_REMINDER_TIME_KEY = 'kjb-reading-reminder-time'; // HH:MM
 const READING_REMINDER_LAST_KEY = 'kjb-reading-reminder-last'; // YYYY-MM-DD
 const READING_REMINDER_NEXT_KEY = 'kjb-reading-reminder-next'; // Unix ms timestamp
+
+// VAPID public key for push subscriptions
+const VAPID_PUBLIC_KEY = 'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEADf-ZFJOkUx4a_BR4RPtWt4Ve4raBMl7TnQhwvkHhRUc_ZliOirS7pQlcUZFJXxZe6zizcpRZrTqhqJJInQkvw';
 
 export function getNotificationsEnabled() {
   return localStorage.getItem(NOTIF_KEY) === 'true';
@@ -87,6 +91,46 @@ export async function requestNotificationPermission() {
 export function disableNotifications() {
   localStorage.setItem(NOTIF_KEY, 'false');
   localStorage.removeItem(NOTIF_NEXT_KEY);
+}
+
+// Subscribe to push notifications with VAPID
+export async function subscribeToPush() {
+  if (!('serviceWorker' in navigator)) return null;
+  
+  const reg = await navigator.serviceWorker.ready;
+  
+  // Convert VAPID key from base64 url-safe to Uint8Array
+  const vapidKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+  
+  const subscription = await reg.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: vapidKey
+  });
+  
+  return subscription;
+}
+
+export function unsubscribeFromPush() {
+  return navigator.serviceWorker.ready.then(async reg => {
+    const subscription = await reg.pushManager.getSubscription();
+    if (subscription) {
+      await subscription.unsubscribe();
+    }
+  });
+}
+
+// Helper to convert base64 url-safe to Uint8Array
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding)
+    .replace(/\-/g, '+')
+    .replace(/_/g, '/');
+  const rawData = atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
 }
 
 // Reading reminder functions
