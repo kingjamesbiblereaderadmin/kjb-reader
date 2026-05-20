@@ -4,8 +4,8 @@
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
 
-const CACHE_KEY = 'bible_data_pce_v39'; // v39: new RTF-format PCE source
-const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/3cec01ce1_KJB-PCE-RTF.txt';
+const CACHE_KEY = 'bible_data_pce_v40'; // v40: TEXT-PCE-127 with <<[colophons]]>
+const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/5db4f0433_TEXT-PCE-127.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
 const EXPECTED_BOOK_COUNT = 66;
@@ -111,23 +111,7 @@ function parseBibleText(rawText) {
   console.log('[PARSE] Raw text length:', rawText.length);
 
   const data = {};
-  // Colophons — final verse marker: these chapters' last verse IS the colophon in the PCE text
-  const colophons = {
-    'Malachi:4': 6,
-    'Romans:16': 24,
-    '1 Corinthians:16': 24,
-    '2 Corinthians:13': 14,
-    'Ephesians:6': 24,
-    'Philippians:4': 23,
-    'Colossians:4': 18,
-    '1 Thessalonians:5': 28,
-    '2 Thessalonians:3': 18,
-    '1 Timothy:6': 21,
-    '2 Timothy:4': 22,
-    'Titus:3': 15,
-    'Philemon:1': 25,
-    'Hebrews:13': 25,
-  };
+  const colophons = {}; // Will be populated from <<[...]]>> markers
   const lines = rawText.split('\n');
   console.log('[PARSE] Split into', lines.length, 'lines');
 
@@ -204,7 +188,20 @@ function parseBibleText(rawText) {
     const verseNumMatch = trimmed.match(/^(\d+)\s+(.+)$/);
     if (verseNumMatch) {
       const verseNum = parseInt(verseNumMatch[1], 10);
-      const verseText = verseNumMatch[2].trim();
+      let verseText = verseNumMatch[2].trim();
+      
+      // Check for colophon marker <<[...]]>> at end of verse
+      const colophonMatch = verseText.match(/<<\[([^\]]+)\]>>$/);
+      if (colophonMatch) {
+        // Extract colophon and remove from verse text
+        const colophonText = colophonMatch[1];
+        verseText = verseText.replace(/<<\[([^\]]+)\]>>$/, '').trim();
+        // Store colophon: "book:chapter" -> verse number
+        const key = `${currentBook}:${currentChapter}`;
+        colophons[key] = colophonText;
+        console.log('[PARSE] Colophon found:', key, '->', colophonText);
+      }
+      
       // Sanity: verse numbers shouldn't be > 200
       if (verseNum > 0 && verseNum <= 200 && verseText.length > 0) {
         data[currentBook][currentChapter].push({ verse: verseNum, text: verseText });
@@ -224,7 +221,7 @@ function parseBibleText(rawText) {
 
   data.__colophons = colophons;
   const bookCount = Object.keys(data).filter(k => k !== '__colophons').length;
-  console.log('[PARSE] ✓ Complete:', verseCount, 'verses,', bookCount, 'books');
+  console.log('[PARSE] ✓ Complete:', verseCount, 'verses,', bookCount, 'books,', Object.keys(colophons).length, 'colophons');
   return data;
 }
 

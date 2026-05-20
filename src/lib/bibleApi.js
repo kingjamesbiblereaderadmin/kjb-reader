@@ -38,6 +38,7 @@ export async function fetchChapter(bookApiName, chapter) {
     }
   }
   
+  // Get colophon from parsed data (stored as "book:chapter" -> text)
   const colophon = bible.__colophons?.[`${bookApiName}:${chapter}`] || null;
   console.log(`[COLOPHON RETRIEVE] ${bookApiName}:${chapter} ->`, colophon);
   console.log('[COLOPHON DEBUG] All colophon keys:', Object.keys(bible.__colophons || {}));
@@ -90,4 +91,11 @@ export function renderColophonText(text) {
   return parts.map((part, i) =>
     i % 2 === 1 ? `<em>${part}</em>` : part
   ).join('');
+}
+
+// Extract colophon from verse text (removes <<[...]]>> marker)
+export function extractColophonFromVerse(text) {
+  if (!text || typeof text !== 'string') return null;
+  const match = text.match(/<<\[([^\]]+)\]>>$/);
+  return match ? match[1] : null;
 }
