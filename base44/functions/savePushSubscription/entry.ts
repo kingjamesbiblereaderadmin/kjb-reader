@@ -14,15 +14,29 @@ Deno.serve(async (req) => {
       // Save push subscription
       const subscription = await req.json();
       
-      // Store subscription in database
-      await base44.entities.PushSubscription.create({
-        endpoint: subscription.endpoint,
-        keys: JSON.stringify(subscription.keys),
+      // Check for existing subscription for this user
+      const existing = await base44.entities.PushSubscription.filter({
         user_email: user.email,
-        active: true
+        endpoint: subscription.endpoint
       });
       
-      return Response.json({ success: true, message: 'Subscription saved' });
+      // Update existing or create new
+      if (existing && existing.length > 0) {
+        await base44.entities.PushSubscription.update(existing[0].id, {
+          keys: JSON.stringify(subscription.keys),
+          active: true
+        });
+        return Response.json({ success: true, message: 'Subscription updated' });
+      } else {
+        await base44.entities.PushSubscription.create({
+          endpoint: subscription.endpoint,
+          keys: JSON.stringify(subscription.keys),
+          user_email: user.email,
+          active: true,
+          type: subscription.type || 'web-push'
+        });
+        return Response.json({ success: true, message: 'Subscription saved' });
+      }
     }
     
     return Response.json({ error: 'Method not allowed' }, { status: 405 });
