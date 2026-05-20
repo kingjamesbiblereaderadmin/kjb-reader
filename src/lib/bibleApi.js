@@ -54,7 +54,7 @@ export function renderVerseText(text) {
     .replace(/\u201D/g, '"')   // right double quote
     .replace(/\u2032/g, "'");  // prime
   // Render pilcrow as a styled span (muted, slightly smaller, non-selectable)
-  cleaned = cleaned.replace(/\u00B6\s*/g, '<span class="pilcrow">¶ </span>');
+  cleaned = cleaned.replace(/\u00B6\s*/g, '<span class="pilcrow">¶</span> ');
   // Turn [bracketed] text into italics
   const parts = cleaned.split(/\[([^\]]+)\]/g);
   const result = parts.map((part, i) =>
