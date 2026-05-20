@@ -56,10 +56,10 @@ export default function SearchPage() {
 
     try {
       const bible = await getBibleData();
-      const terms = [kw.trim()];
+      const searchTerm = kw.trim();
       setExpandedTerms([]);
       
-      const kwLower = kw.trim().toLowerCase();
+      const kwLower = searchTerm.toLowerCase();
       
       // Check if query is a verse range (e.g., "Romans 1:20-22")
       const rangeMatch = kwLower.match(/^([a-z0-9\s]+)\s+(\d+):(\d+)-(\d+)$/);
@@ -73,7 +73,6 @@ export default function SearchPage() {
           b.abbr.toLowerCase() === bookStr
         );
         if (matchingBook && ch >= 1 && ch <= matchingBook.chapters && v1 <= v2) {
-          // Navigate directly to the range
           goToVerse(matchingBook.abbr, ch, v1, v2);
           setLoading(false);
           return;
@@ -99,8 +98,7 @@ export default function SearchPage() {
 
       const matches = [];
       const seen = new Set();
-      const searchTerm = terms[0]; // Only one term now
-      const searchTermLower = searchTerm.toLowerCase();
+      // Use searchTerm and searchTermLower from line 59-62
 
       for (const bookName in bible) {
         if (bookName === '__colophons') continue;
@@ -120,28 +118,35 @@ export default function SearchPage() {
         const chapters = bible[bookName];
         for (const chapterNum in chapters) {
           const verses = chapters[chapterNum];
-          for (const verseObj of verses) {
-            const verseText = verseObj.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
+          // Pre-process verses array to avoid repeated operations
+          const processedVerses = verses.map(v => ({
+            verse: v.verse,
+            text: v.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '')
+          }));
+          
+          for (const verseObj of processedVerses) {
             let found = false;
             
             if (exactMatch) {
               if (caseSensitive) {
-                found = (verseText === searchTerm);
+                found = (verseObj.text === searchTerm);
               } else {
-                found = (verseText.toLowerCase() === searchTermLower);
+                found = (verseObj.text.toLowerCase() === searchTermLower);
               }
             } else if (caseSensitive) {
               if (wholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                found = new RegExp(`\\b${escapedTerm}\\b`).test(verseText);
+                const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
+                found = wordRegex.test(verseObj.text);
               } else {
-                found = verseText.includes(searchTerm);
+                found = verseObj.text.includes(searchTerm);
               }
             } else {
-              const verseTextLower = verseText.toLowerCase();
+              const verseTextLower = verseObj.text.toLowerCase();
               if (wholeWord) {
                 const escapedTerm = searchTermLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                found = new RegExp(`\\b${escapedTerm}\\b`).test(verseTextLower);
+                const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
+                found = wordRegex.test(verseTextLower);
               } else {
                 found = verseTextLower.includes(searchTermLower);
               }
@@ -156,7 +161,7 @@ export default function SearchPage() {
                 book: bookName,
                 chapter: parseInt(chapterNum),
                 verse: verseObj.verse,
-                text: verseObj.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, ''),
+                text: verseObj.text,
                 abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
               });
             }

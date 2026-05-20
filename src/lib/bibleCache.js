@@ -253,8 +253,8 @@ export async function getBibleData() {
       
       if (cached) {
         parsedData = cached;
-        console.log('[CACHE] Using cached version — checking for updates in background');
-        // Check for updates silently in the background, don't block rendering
+        console.log('[CACHE] Using cached version');
+        // Check for updates silently in the background
         checkForUpdates().then(async (needsUpdate) => {
           if (needsUpdate) {
             console.log('[UPDATE] Fetching updated Bible data in background...');
@@ -285,6 +285,13 @@ export async function getBibleData() {
   })();
 
   return fetchInProgress;
+}
+
+// Preload Bible data on app startup
+export function preloadBibleData() {
+  if (!parsedData) {
+    getBibleData();
+  }
 }
 
 // Check if Bible data is available offline

@@ -1,5 +1,5 @@
 // Service Worker for KJB Reader - Enhanced with aggressive pre-caching
-const CACHE_NAME = 'kjb-reader-v1';
+const CACHE_NAME = 'kjb-reader-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

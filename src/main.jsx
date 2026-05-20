@@ -21,10 +21,9 @@ if ('serviceWorker' in navigator) {
         setInterval(() => {
           registration.update().then(() => {
             console.log('[SW] Checked for updates');
-          }).catch(() => {}); // Silent fail on update check
-        }, 60000); // Check every minute
+          }).catch(() => {});
+        }, 60000);
         
-        // Listen for update messages from service worker
         navigator.serviceWorker.addEventListener('message', event => {
           if (event.data && event.data.type === 'UPDATE_AVAILABLE') {
             console.log('[SW] Update available, version:', event.data.cacheVersion);
@@ -45,20 +44,16 @@ if ('serviceWorker' in navigator) {
           }
         });
         
-        // Pre-fetch Bible data in background after app loads
-        setTimeout(() => {
-          import('@/lib/bibleCache').then(({ getBibleData }) => {
-            console.log('[APP] Pre-fetching Bible data in background...');
-            getBibleData().catch(() => {});
-          });
-        }, 2000);
+        // Pre-fetch Bible data immediately
+        import('@/lib/bibleCache').then(({ preloadBibleData }) => {
+          console.log('[APP] Preloading Bible data...');
+          preloadBibleData();
+        });
         
-        // Re-arm daily notification scheduler on every app load
         initNotifications(getDailyVerse());
       })
       .catch(err => {
-        console.warn('[SW] Registration failed (this is ok for development):', err.message);
-        // Still initialize notifications even if SW fails
+        console.warn('[SW] Registration failed (ok for dev):', err.message);
         initNotifications(getDailyVerse());
       });
   });
