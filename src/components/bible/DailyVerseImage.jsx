@@ -291,29 +291,33 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   return (
     <div className="w-full">
       {/* Verse card */}
-      <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-6 md:px-8 py-8 md:py-10 text-center text-white relative cursor-pointer min-h-[280px] md:min-h-[340px]`} style={bgStyle}>
-        {/* Bell button */}
-        {showButtons && onToggleNotif && (
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onToggleNotif();
-            }}
-            className="absolute top-3 left-3 p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors z-10 shadow-md"
-            title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
-            type="button"
-          >
-            {notifEnabled ? (
-              <Bell className="w-4 h-4 text-slate-800" />
-            ) : (
-              <BellOff className="w-4 h-4 text-slate-600" />
-            )}
-          </button>
-        )}
+      <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-6 md:px-8 py-8 md:py-10 text-center text-white relative cursor-pointer min-h-[280px] md:min-h-[340px] flex flex-col`} style={bgStyle}>
+        {/* Top row with buttons */}
+        <div className="flex justify-between items-start mb-4">
+          {/* Bell button */}
+          {showButtons && onToggleNotif && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onToggleNotif();
+              }}
+              className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors z-10 shadow-md"
+              title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
+              type="button"
+            >
+              {notifEnabled ? (
+                <Bell className="w-4 h-4 text-slate-800" />
+              ) : (
+                <BellOff className="w-4 h-4 text-slate-600" />
+              )}
+            </button>
+          )}
+          {/* Spacer to balance layout */}
+          {!showButtons || !onToggleNotif ? <div className="w-8" /> : <div className="w-8" />}
 
-        {/* Action buttons */}
-        <div className="absolute top-3 right-3 flex gap-1 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
+          {/* Action buttons */}
+          <div className="flex gap-1" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
           {showButtons ? (
           <>
             <button
@@ -486,9 +490,10 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             <ChevronsDown className="w-3.5 h-3.5 text-slate-800" />
           </button>
         )}
+        </div>
         
-        {/* Verse content centered inside the orange box */}
-        <div className="h-full flex flex-col justify-center">
+        {/* Verse content centered */}
+        <div className="flex-1 flex flex-col justify-center">
         {showVersePanel && (
           <p 
             className={`font-sans text-xs md:text-sm font-bold tracking-wide uppercase mb-4 md:mb-5 ${accentClass}`}
