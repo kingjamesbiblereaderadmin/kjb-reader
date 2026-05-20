@@ -12,19 +12,19 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
 // Service worker registration for offline support
 if ('serviceWorker' in navigator) {
-  // In development, unregister any existing service workers to prevent stale cache
-  if (import.meta.env.DEV) {
-    navigator.serviceWorker.getRegistrations().then(registrations => {
-      registrations.forEach(reg => reg.unregister());
-    });
-    // Clear all caches
-    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
-  } else {
-    // Production: register service worker
+  // Always check for service worker updates in production
+  if (!import.meta.env.DEV) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js')
         .then(registration => {
           console.log('[SW] Registered:', registration.scope);
+          
+          // Check for updates periodically
+          setInterval(() => {
+            registration.update().then(() => {
+              console.log('[SW] Checked for updates');
+            });
+          }, 60000); // Check every minute
           
           // Listen for update messages from service worker
           navigator.serviceWorker.addEventListener('message', event => {

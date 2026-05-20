@@ -66,17 +66,6 @@ export default function AppLayout() {
       }
     } catch {}
 
-    // Register service worker for PWA functionality
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-        .then((registration) => {
-          console.log('[SW] Registered:', registration.scope);
-        })
-        .catch((err) => {
-          console.error('[SW] Registration failed:', err);
-        });
-    }
-
     // Silently pre-cache all 66 books in the background on first load
     isBibleCached().then(cached => {
       if (!cached) {
