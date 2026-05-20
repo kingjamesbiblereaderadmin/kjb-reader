@@ -299,6 +299,7 @@ async function registerPeriodicSync() {
 }
 
 // On page focus/visibility, check if we need to show a notification for today's verse
+// Only show if user missed the daily verse (new day, never opened app to see it)
 function checkOverdueNotification(verse) {
   if (!getNotificationsEnabled()) return;
   // On Android, we just need service worker - Notification API is optional
@@ -306,17 +307,31 @@ function checkOverdueNotification(verse) {
   const nextTs = parseInt(localStorage.getItem(NOTIF_NEXT_KEY) || '0', 10);
   if (!nextTs) return;
   const today = todayString();
-  // If it's past the notification time and we haven't sent today
-  if (Date.now() >= nextTs && localStorage.getItem(NOTIF_LAST_KEY) !== today) {
-    localStorage.setItem(NOTIF_LAST_KEY, today);
-    // Get fresh verse for today
-    const freshVerse = getDailyVerse();
-    showLocalNotification(
-      'King James Bible — Daily Verse',
-      `"${freshVerse.text.slice(0, 120)}${freshVerse.text.length > 120 ? '…' : ''}" — ${freshVerse.ref}`,
-      null // Will use stored kjb-notif-image
-    );
-    saveNextFireTime(freshVerse);
+  const lastNotifDate = localStorage.getItem(NOTIF_LAST_KEY);
+  
+  // Only show recovery notification if:
+  // 1. It's a new day (today != last notification date)
+  // 2. The scheduled time has passed
+  // 3. User hasn't been notified yet today
+  if (lastNotifDate !== today && Date.now() >= nextTs) {
+    // Check if user already opened app today and saw the verse (no recovery needed)
+    const lastAppOpen = localStorage.getItem('kjb-last-app-open');
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2,'0')}-${String(yesterday.getDate()).padStart(2,'0')}`;
+    
+    // Only show recovery if user didn't open app yesterday or today
+    if (lastAppOpen !== today && lastAppOpen !== yesterdayStr) {
+      localStorage.setItem(NOTIF_LAST_KEY, today);
+      // Get fresh verse for today
+      const freshVerse = getDailyVerse();
+      showLocalNotification(
+        'King James Bible — Daily Verse',
+        `"${freshVerse.text.slice(0, 120)}${freshVerse.text.length > 120 ? '…' : ''}" — ${freshVerse.ref}`,
+        null // Will use stored kjb-notif-image
+      );
+      saveNextFireTime(freshVerse);
+    }
   }
 }
 
@@ -339,7 +354,11 @@ export function initNotifications(verse) {
   if (_notificationsInitialized) return;
   _notificationsInitialized = true;
 
-  // Always check if we need to notify for today's verse when app opens
+  // Track app open date for recovery notification logic
+  const today = todayString();
+  localStorage.setItem('kjb-last-app-open', today);
+
+  // Only check for missed daily verse (not every app open)
   checkOverdueNotification(verse);
 
   // Arm the in-page timer for future notifications
@@ -348,6 +367,8 @@ export function initNotifications(verse) {
   // Re-check on visibility change (e.g. user switches back to the app)
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
+      // Update last open date
+      localStorage.setItem('kjb-last-app-open', todayString());
       // Get fresh verse when app becomes visible
       const freshVerse = getDailyVerse();
       checkOverdueNotification(freshVerse);
