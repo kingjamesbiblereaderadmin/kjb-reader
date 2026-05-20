@@ -392,9 +392,18 @@ export default function BibleReader() {
                   <VerseSelector
                     totalVerses={verseCount}
                     currentVerse={highlightVerse}
-                    onSelect={(v) => { navigate(pos.abbr, pos.chapter, v); setShowVersePicker(false); }}
+                    multiSelect={true}
+                    onSelect={(v) => {
+                      const first = Array.isArray(v) ? v[0] : v;
+                      if (Array.isArray(v) && v.length > 1) {
+                        setSelectedVerses(new Set(v));
+                        setSelectMode(false);
+                        setFilterMode(true);
+                      }
+                      navigate(pos.abbr, pos.chapter, first);
+                      setShowVersePicker(false);
+                    }}
                     onClose={() => setShowVersePicker(false)}
-                    autoSelect={true}
                   />
                 </div>
               )}
@@ -402,9 +411,18 @@ export default function BibleReader() {
                 <VerseSelector
                   totalVerses={verseCount}
                   currentVerse={highlightVerse}
-                  onSelect={(v) => { navigate(pos.abbr, pos.chapter, v); setShowVersePicker(false); }}
+                  multiSelect={true}
+                  onSelect={(v) => {
+                    const first = Array.isArray(v) ? v[0] : v;
+                    if (Array.isArray(v) && v.length > 1) {
+                      setSelectedVerses(new Set(v));
+                      setSelectMode(false);
+                      setFilterMode(true);
+                    }
+                    navigate(pos.abbr, pos.chapter, first);
+                    setShowVersePicker(false);
+                  }}
                   onClose={() => setShowVersePicker(false)}
-                  autoSelect={true}
                 />
               </SelectorSheet>
 
