@@ -329,10 +329,15 @@ export function scheduleDailyNotification(verse) {
 }
 
 // Call once on app load - checks for missed notifications and arms timer
+let _notificationsInitialized = false;
 export function initNotifications(verse) {
   if (!getNotificationsEnabled()) return;
   // On Android, we just need service worker - Notification API is optional
   if (!('serviceWorker' in navigator)) return;
+  
+  // Prevent multiple initializations
+  if (_notificationsInitialized) return;
+  _notificationsInitialized = true;
 
   // Always check if we need to notify for today's verse when app opens
   checkOverdueNotification(verse);
