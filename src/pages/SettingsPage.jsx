@@ -890,6 +890,14 @@ export default function SettingsPage() {
               )}
             </span>
           </div>
+          <div className="flex justify-between items-center font-sans text-sm gap-4">
+            <span className="text-muted-foreground shrink-0">Daily Verse Panel</span>
+            <span className="text-foreground font-medium text-right">Hidden by default</span>
+          </div>
+          <div className="flex justify-between items-center font-sans text-sm gap-4">
+            <span className="text-muted-foreground shrink-0">Scroll to Top Button</span>
+            <span className="text-foreground font-medium text-right">Compact size</span>
+          </div>
         </div>
       </div>
 
