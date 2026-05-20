@@ -353,8 +353,10 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {/* Date display */}
-      <div className="absolute bottom-2 left-3 text-xs font-sans font-medium opacity-60" style={{ color: textColor }}>
-        {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+      <div className="absolute bottom-3 left-3 bg-black/30 backdrop-blur-sm rounded-lg px-2.5 py-1.5">
+        <p className="text-xs font-sans font-medium" style={{ color: '#ffffff' }}>
+          {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+        </p>
       </div>
 
       {/* Action buttons */}
