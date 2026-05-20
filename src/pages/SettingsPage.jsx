@@ -306,11 +306,7 @@ export default function SettingsPage() {
             localStorage.setItem('kjb-verse-font-family', 'serif');
             window.dispatchEvent(new Event('storage'));
           }}
-          className={`w-full py-3 rounded-xl font-sans text-sm font-medium transition-all text-center border-2 ${
-            verseFontFamily === 'serif'
-              ? 'bg-primary text-primary-foreground border-primary'
-              : 'bg-transparent text-foreground border-border hover:border-accent'
-          }`}
+          className="w-full py-3 rounded-xl font-sans text-sm font-medium transition-all text-center bg-secondary text-secondary-foreground border-2 border-border hover:border-accent"
         >
           Reset to Default
         </button>
@@ -895,6 +891,56 @@ export default function SettingsPage() {
         <p>• <strong className="text-foreground">Merriweather:</strong> Google Fonts (SIL Open Font License)</p>
         <p className="pt-2 text-[10px] opacity-75">All fonts are open source and freely available under the SIL Open Font License.</p>
       </div>
+      </div>
+
+      {/* Advanced */}
+      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-4">
+        <h2 className="font-serif text-lg font-semibold text-foreground">Advanced</h2>
+        <p className="font-sans text-xs text-muted-foreground">Reset settings and check for updates</p>
+        
+        <div className="flex gap-3 pt-2">
+          <button
+            onClick={() => {
+              if (confirm('Reset all settings to default? This cannot be undone.')) {
+                // Reset all localStorage settings
+                localStorage.removeItem('kjb-daily-verse-bg');
+                localStorage.removeItem('kjb-verse-text-color');
+                localStorage.removeItem('kjb-verse-text-opacity');
+                localStorage.removeItem('kjb-verse-font-family');
+                localStorage.removeItem('kjb-verse-panel-visible');
+                localStorage.removeItem('kjb-zoom');
+                localStorage.removeItem('kjb-notif-image');
+                // Reload to apply defaults
+                window.location.reload();
+              }
+            }}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-destructive/10 text-destructive font-sans text-sm font-medium hover:bg-destructive/20 transition-colors"
+          >
+            <Trash2 className="w-4 h-4" />
+            Reset All Settings
+          </button>
+          <button
+            onClick={() => {
+              // Check for updates by reloading the service worker
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistration().then(reg => {
+                  if (reg) {
+                    reg.update();
+                    alert('Checking for updates... Refresh the page to apply any updates.');
+                  } else {
+                    alert('No updates available.');
+                  }
+                });
+              } else {
+                alert('Service workers not supported in this browser.');
+              }
+            }}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+          >
+            <CheckCircle2 className="w-4 h-4" />
+            Check for Updates
+          </button>
+        </div>
       </div>
     </div>
   );
