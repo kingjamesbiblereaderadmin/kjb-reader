@@ -723,19 +723,19 @@ export default function BibleReader() {
 
       {/* Show header chevron when hidden — aligned with top border */}
       {hideHeader && (
-        <div className="fixed top-0 left-0 right-0 h-[49px] border-b border-border bg-background/95 backdrop-blur z-50">
+        <div className="fixed top-0 left-0 right-0 h-[49px] border-b border-border bg-background/95 backdrop-blur z-[60]">
           <div className="max-w-5xl mx-auto px-4 h-full flex items-center justify-end">
             <div className="flex items-center gap-1">
               <button
                 onClick={toggleFullscreen}
                 title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-                className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
+                className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
               >
                 {fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
               </button>
               <button
                 onClick={() => setHideHeader(false)}
-                className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors"
+                className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
                 title="Show header"
               >
                 <ChevronDown className="w-4 h-4 rotate-180" />
@@ -887,6 +887,12 @@ export default function BibleReader() {
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
           >
             <CheckSquare className="w-3.5 h-3.5" /> All
+          </button>
+          <button
+            onClick={toggleSelectMode}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+          >
+            <X className="w-3.5 h-3.5" /> Cancel
           </button>
           {selectedVerses.size > 0 && (
             <>
