@@ -676,30 +676,28 @@ export default function BibleReader() {
                 {selectMode ? 'Done' : 'Select'}
               </button>
               </div>
-            )}
 
-            {/* Fullscreen + Hide header — wrap dynamically */}
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <button
-                onClick={toggleFullscreen}
-                onTouchEnd={(e) => { e.preventDefault(); toggleFullscreen(); }}
-                title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-                className="p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors touch-manipulation min-h-[48px] min-w-[48px] flex items-center justify-center flex-shrink-0"
-              >
-                {fullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
-              </button>
-              <button
-                onClick={() => setHideHeader(true)}
-                onTouchEnd={(e) => { e.preventDefault(); setHideHeader(true); }}
-                title="Hide header"
-                className="p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors touch-manipulation min-h-[48px] min-w-[48px] flex items-center justify-center flex-shrink-0"
-              >
-                <ChevronDown className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              {/* Fullscreen + Hide header — wrap dynamically */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <button
+                  onClick={toggleFullscreen}
+                  onTouchEnd={(e) => { e.preventDefault(); toggleFullscreen(); }}
+                  title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+                  className="p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors touch-manipulation min-h-[48px] min-w-[48px] flex items-center justify-center flex-shrink-0"
+                >
+                  {fullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+                </button>
+                <button
+                  onClick={() => setHideHeader(true)}
+                  onTouchEnd={(e) => { e.preventDefault(); setHideHeader(true); }}
+                  title="Hide header"
+                  className="p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors touch-manipulation min-h-[48px] min-w-[48px] flex items-center justify-center flex-shrink-0"
+                >
+                  <ChevronDown className="w-5 h-5" />
+                </button>
+              </div>
+              </>
+            )}
 
       {/* Show header chevron when hidden — aligned with top border */}
       {hideHeader && (
