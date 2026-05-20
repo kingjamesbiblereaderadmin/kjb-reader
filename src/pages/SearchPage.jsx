@@ -3,13 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Search, BookOpen, Loader2, Filter } from 'lucide-react';
 import { getBibleData } from '@/lib/bibleCache';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
+import { expandSearchTerms } from '@/lib/searchSynonyms';
 
 const OT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'OT' || BIBLE_BOOKS.indexOf(b) < 39).map(b => b.apiName));
 const NT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'NT' || BIBLE_BOOKS.indexOf(b) >= 39).map(b => b.apiName));
 
-function highlightText(text, keyword) {
-  if (!keyword) return text;
-  const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function highlightText(text, terms) {
+  if (!terms || terms.length === 0) return text;
+  const escaped = terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
   const regex = new RegExp(`(${escaped})`, 'gi');
   const parts = text.split(regex);
   return parts.map((part, i) =>
@@ -27,6 +28,7 @@ export default function SearchPage() {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [expandedTerms, setExpandedTerms] = useState([]);
   const [testament, setTestament] = useState('all'); // 'all' | 'ot' | 'nt'
   const [wholeWord, setWholeWord] = useState(false);
   const navigate = useNavigate();
@@ -44,13 +46,13 @@ export default function SearchPage() {
 
     try {
       const bible = await getBibleData();
-      const keyword = kw.toLowerCase();
+      const terms = expandSearchTerms(kw);
+      setExpandedTerms(terms.length > 1 ? terms : []);
       const matches = [];
+      const seen = new Set();
 
       for (const bookName in bible) {
         if (bookName === '__colophons') continue;
-
-        // Testament filter
         if (testament === 'ot' && !OT_BOOKS.has(bookName)) continue;
         if (testament === 'nt' && !NT_BOOKS.has(bookName)) continue;
 
@@ -60,15 +62,19 @@ export default function SearchPage() {
           for (const verseObj of verses) {
             const verseTextLower = verseObj.text.toLowerCase();
             let found = false;
-            if (wholeWord) {
-              // Match whole word boundary
-              const escapedKw = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-              found = new RegExp(`\\b${escapedKw}\\b`).test(verseTextLower);
-            } else {
-              found = verseTextLower.includes(keyword);
+            for (const term of terms) {
+              if (wholeWord) {
+                const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                if (new RegExp(`\\b${escapedTerm}\\b`).test(verseTextLower)) { found = true; break; }
+              } else {
+                if (verseTextLower.includes(term)) { found = true; break; }
+              }
             }
 
             if (found) {
+              const key = `${bookName}-${chapterNum}-${verseObj.verse}`;
+              if (seen.has(key)) continue;
+              seen.add(key);
               const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
               matches.push({
                 book: bookName,
@@ -176,7 +182,14 @@ export default function SearchPage() {
 
       {!loading && results.length > 0 && (
         <div className="space-y-3">
-          <p className="font-sans text-xs text-muted-foreground mb-4">{results.length}{results.length >= 200 ? '+' : ''} result{results.length !== 1 ? 's' : ''} for "{initialQuery || query}"</p>
+          <div className="mb-4">
+            <p className="font-sans text-xs text-muted-foreground">{results.length}{results.length >= 200 ? '+' : ''} result{results.length !== 1 ? 's' : ''} for "{initialQuery || query}"</p>
+            {expandedTerms.length > 1 && (
+              <p className="font-sans text-xs text-accent mt-1">
+                Also searching: {expandedTerms.filter(t => t !== query.toLowerCase()).join(', ')}
+              </p>
+            )}
+          </div>
           {results.map((r, i) => (
             <button
               key={i}
@@ -188,7 +201,7 @@ export default function SearchPage() {
                 {r.book} {r.chapter}:{r.verse}
               </p>
               <p className="font-serif text-base text-foreground leading-relaxed">
-                "{highlightText(r.text, query)}"
+                "{highlightText(r.text, expandedTerms.length > 1 ? expandedTerms : [query])}"
               </p>
             </button>
           ))}
