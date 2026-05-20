@@ -294,7 +294,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-6 md:px-8 py-8 md:py-10 text-center text-white relative cursor-pointer min-h-[280px] md:min-h-[340px] flex flex-col`} style={bgStyle}>
         {/* Action buttons */}
         {showButtons ? (
-          <div className="relative">
+          <div className="absolute inset-0">
             {/* Bell button - top left */}
             {onToggleNotif && (
               <button
@@ -471,7 +471,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 </div>
               )}
             </div>
-          </div>
+          </>
         ) : (
           <button
             onClick={(e) => {
