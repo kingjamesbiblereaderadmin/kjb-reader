@@ -98,12 +98,14 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         localStorage.setItem('kjb-notif-image', croppedDataUrl);
         setNotifImage(croppedDataUrl);
       } else {
+        // Save to localStorage
         localStorage.setItem('kjb-daily-verse-bg', croppedDataUrl);
+        // Verify it was saved correctly
+        const saved = localStorage.getItem('kjb-daily-verse-bg');
+        if (saved !== croppedDataUrl) {
+          throw new Error('Save verification failed');
+        }
         setCustomBg(croppedDataUrl);
-        // Force immediate re-render by updating a key state
-        setTimeout(() => {
-          setCustomBg(localStorage.getItem('kjb-daily-verse-bg') || '');
-        }, 100);
         // Auto-detect if background is light or dark and adjust text color
         const img = new Image();
         img.onload = () => {
