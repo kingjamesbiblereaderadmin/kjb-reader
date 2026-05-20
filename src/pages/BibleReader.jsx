@@ -738,6 +738,7 @@ export default function BibleReader() {
                 selectMode={selectMode}
                 isSelected={selectedVerses.has(v.verse)}
                 onSelect={toggleVerseSelect}
+                dyslexicFont={dyslexicFont}
               />
             ))}
           </div>
