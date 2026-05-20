@@ -829,25 +829,7 @@ export default function BibleReader() {
         )}
       </div>
 
-      {/* End-of-section markers — shown as a text footer below the verses */}
-      {!loading && !error && pos.abbr === 'MAL' && pos.chapter === 4 && (
-        <div className="text-center mt-12 mb-4">
-          <div className="section-flourish">❦ ❧ ❦</div>
-          <p className="font-serif text-sm text-muted-foreground tracking-widest uppercase">
-            End of the Prophets
-          </p>
-          <div className="section-flourish">❦ ❧ ❦</div>
-        </div>
-      )}
-      {!loading && !error && pos.abbr === 'REV' && pos.chapter === 22 && (
-        <div className="text-center mt-12 mb-4">
-          <div className="section-flourish">❦ ❧ ❦</div>
-          <p className="font-serif text-sm text-muted-foreground tracking-widest uppercase">
-            The End
-          </p>
-          <div className="section-flourish">❦ ❧ ❦</div>
-        </div>
-      )}
+
 
       {/* Filter mode banner */}
       {filterMode && (
