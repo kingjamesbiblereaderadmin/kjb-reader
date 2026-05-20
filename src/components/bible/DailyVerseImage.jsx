@@ -177,8 +177,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     setShowButtons(false);
     setShowStyleEditor(false);
     setShowMenu(false);
+    // Wait for state to update before capturing
+    await new Promise(resolve => setTimeout(resolve, 150));
     try {
-      await new Promise(resolve => setTimeout(resolve, 300));
       const canvas = await html2canvas(verseRef.current, {
         backgroundColor: null,
         scale: 2,
@@ -194,8 +195,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       console.error('Failed to download image:', err);
     } finally {
       setTimeout(() => {
-        setShowButtons(true);
         setCapturing(false);
+        setShowButtons(true);
       }, 100);
     }
   };
@@ -268,8 +269,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     setShowButtons(false);
     setShowStyleEditor(false);
     setShowMenu(false);
+    // Wait for state to update before capturing
+    await new Promise(resolve => setTimeout(resolve, 150));
     try {
-      await new Promise(resolve => setTimeout(resolve, 100));
       // Try to share/copy image first
       const canvas = await html2canvas(verseRef.current, {
         backgroundColor: null,
@@ -307,8 +309,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       }
     } finally {
       setTimeout(() => {
-        setShowButtons(true);
         setCapturing(false);
+        setShowButtons(true);
       }, 100);
     }
   };
@@ -426,32 +428,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                   >
                     <Copy className="w-4 h-4" />
                     Copy Verse
-                  </button>
-                  <button
-                    onClick={async (e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      try {
-                        const shareText = `"${verse.text}" — ${verse.ref} (KJB)`;
-                        if (navigator.share) {
-                          await navigator.share({
-                            title: 'Daily Verse',
-                            text: shareText,
-                          });
-                        } else {
-                          await navigator.clipboard.writeText(shareText);
-                          alert('Verse text copied to clipboard!');
-                        }
-                      } catch (err) {
-                        console.error('Share failed:', err);
-                        alert('Failed to share verse');
-                      }
-                      setShowMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
-                  >
-                    <Share2 className="w-4 h-4" />
-                    Share Text
                   </button>
                   <button
                     onClick={(e) => {
