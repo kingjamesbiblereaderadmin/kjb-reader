@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
 import { Download, Share2 } from 'lucide-react';
 import html2canvas from 'html2canvas';
@@ -15,9 +15,28 @@ const VERSE_BACKGROUNDS = [
 
 export default function DailyVerseImage({ verse }) {
   const dow = new Date().getDay();
-  const { gradient, accent } = VERSE_BACKGROUNDS[dow];
+  const defaultBg = VERSE_BACKGROUNDS[dow];
+  const [customBg, setCustomBg] = useState(() => {
+    try { return localStorage.getItem('kjb-daily-verse-bg') || ''; } catch { return ''; }
+  });
+  
+  useEffect(() => {
+    const handleStorage = () => {
+      try { setCustomBg(localStorage.getItem('kjb-daily-verse-bg') || ''); } catch {}
+    };
+    window.addEventListener('storage', handleStorage);
+    handleStorage();
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+  
   const verseRef = useRef(null);
   const [capturing, setCapturing] = useState(false);
+  
+  const bgStyle = customBg
+    ? { backgroundImage: `url(${customBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+    : { background: `linear-gradient(to bottom right, var(--tw-gradient-stops))` };
+  const gradientClass = customBg ? '' : `bg-gradient-to-br ${defaultBg.gradient}`;
+  const accentClass = customBg ? 'text-white' : defaultBg.accent;
 
   const handleDownload = async (e) => {
     e.stopPropagation();
@@ -72,7 +91,7 @@ export default function DailyVerseImage({ verse }) {
   };
 
   return (
-    <div ref={verseRef} className={`w-full bg-gradient-to-br ${gradient} rounded-2xl shadow-lg px-8 pt-5 pb-8 text-center text-white relative`}>
+    <div ref={verseRef} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-8 pt-5 pb-8 text-center text-white relative`} style={bgStyle}>
       {/* Action buttons */}
       <div className="absolute top-3 left-3 flex gap-2 z-10">
         <button
@@ -103,14 +122,14 @@ export default function DailyVerseImage({ verse }) {
         </button>
       </div>
       
-      <p className={`font-sans text-xs font-semibold tracking-widest uppercase mb-4 opacity-80 ${accent}`}>
+      <p className={`font-sans text-xs font-semibold tracking-widest uppercase mb-4 opacity-80 ${accentClass}`}>
         Verse of the Day
       </p>
       <blockquote className="font-serif text-2xl md:text-3xl font-bold leading-relaxed mb-6">
         "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
       </blockquote>
       <p className="font-sans text-base font-semibold opacity-95">— {verse.ref} (KJB)</p>
-      <div className={`mt-5 w-12 h-1 ${accent} mx-auto opacity-75`} />
+      <div className={`mt-5 w-12 h-1 ${accentClass} mx-auto opacity-75`} />
     </div>
   );
 }
