@@ -21,11 +21,18 @@ let VAPID_PUBLIC_KEY = null;
 async function getVapidPublicKey() {
   if (VAPID_PUBLIC_KEY) return VAPID_PUBLIC_KEY;
   try {
-    const { base44 } = await import('@/api/base44Client');
-    const response = await base44.functions.invoke('getVapidPublicKey', {});
-    if (response.data?.publicKey) {
-      VAPID_PUBLIC_KEY = response.data.publicKey;
-      return VAPID_PUBLIC_KEY;
+    // Call directly without SDK to avoid auth requirement
+    const response = await fetch('/api/functions/getVapidPublicKey', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    });
+    if (response.ok) {
+      const data = await response.json();
+      if (data.publicKey) {
+        VAPID_PUBLIC_KEY = data.publicKey;
+        return VAPID_PUBLIC_KEY;
+      }
     }
   } catch (err) {
     console.error('Failed to get VAPID key:', err);
