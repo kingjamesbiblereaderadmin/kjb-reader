@@ -35,8 +35,8 @@ export default function DailyVerseImage({ verse }) {
     e.stopPropagation();
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Image must be less than 5MB');
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Image must be less than 2MB for storage');
       return;
     }
     setUploading(true);
@@ -44,9 +44,14 @@ export default function DailyVerseImage({ verse }) {
     reader.onload = (event) => {
       const base64 = event.target?.result;
       if (typeof base64 === 'string') {
-        setCustomBg(base64);
-        localStorage.setItem('kjb-daily-verse-bg', base64);
-        window.dispatchEvent(new Event('storage'));
+        try {
+          localStorage.setItem('kjb-daily-verse-bg', base64);
+          setCustomBg(base64);
+          window.dispatchEvent(new Event('storage'));
+        } catch (err) {
+          alert('Storage full! Please remove other data or try a smaller image.');
+          console.error('localStorage quota exceeded:', err);
+        }
       }
       setUploading(false);
     };
