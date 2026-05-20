@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Download, Share2, Upload, Palette, Type, Eye } from 'lucide-react';
+import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Monitor } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import ImageCropper from './ImageCropper';
 
@@ -150,6 +150,59 @@ export default function DailyVerseImage({ verse, onClick }) {
     setCapturing(false);
   };
 
+  const handleSetWallpaper = async (e) => {
+    e.stopPropagation();
+    setCapturing(true);
+    try {
+      const canvas = await html2canvas(verseRef.current, {
+        backgroundColor: null,
+        scale: 2,
+        useCORS: true,
+      });
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+      
+      // Try File System Access API (desktop Chrome/Edge)
+      if (window.showSaveFilePicker) {
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName: `daily-verse-${new Date().toISOString().slice(0, 10)}.png`,
+            types: [{ description: 'PNG Image', accept: { 'image/png': ['.png'] } }],
+          });
+          const writable = await handle.createWritable();
+          await writable.write(blob);
+          await writable.close();
+          alert('Image saved! Now set it as your wallpaper from your file manager.');
+          setCapturing(false);
+          return;
+        } catch {}
+      }
+      
+      // Fallback: download with instructions
+      const link = document.createElement('a');
+      link.download = `daily-verse-${new Date().toISOString().slice(0, 10)}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      
+      // Show platform-specific instructions
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isAndroid = /Android/.test(navigator.userAgent);
+      
+      setTimeout(() => {
+        if (isIOS) {
+          alert('📱 iPhone:\n1. Open Photos app\n2. Tap the downloaded image\n3. Tap Share → "Use as Wallpaper"');
+        } else if (isAndroid) {
+          alert('📱 Android:\n1. Open Gallery/Photos\n2. Long-press the image\n3. Tap "Set as" → "Wallpaper"');
+        } else {
+          alert('💻 Desktop:\n1. Right-click the downloaded image\n2. Choose "Set as desktop background"\n   (or right-click desktop → Personalize)');
+        }
+      }, 500);
+    } catch (err) {
+      console.error('Failed to set wallpaper:', err);
+      alert('Failed to generate image. Please try again.');
+    }
+    setCapturing(false);
+  };
+
   const handleShare = async (e) => {
     e.stopPropagation();
     try {
@@ -255,6 +308,27 @@ export default function DailyVerseImage({ verse, onClick }) {
             <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin block" />
           ) : (
             <Share2 className="w-4 h-4 text-white" />
+          )}
+        </button>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleSetWallpaper(e);
+          }}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            handleSetWallpaper(e);
+          }}
+          disabled={capturing}
+          className="p-1.5 rounded-md bg-white/20 hover:bg-white/30 backdrop-blur transition-colors disabled:opacity-50"
+          title="Set as wallpaper"
+          type="button"
+        >
+          {capturing ? (
+            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin block" />
+          ) : (
+            <Monitor className="w-4 h-4 text-white" />
           )}
         </button>
         <button
