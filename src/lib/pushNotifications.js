@@ -332,6 +332,7 @@ export async function showLocalNotification(title, body) {
       badge: logoUrl,
       tag: 'daily-verse',
       renotify: true,
+      vibrate: [200, 100, 200],
     });
     return;
   } catch (err) {
@@ -343,7 +344,9 @@ export async function showLocalNotification(title, body) {
     try {
       new Notification(title, { 
         body,
-        icon: logoUrl
+        icon: logoUrl,
+        badge: logoUrl,
+        tag: 'daily-verse',
       });
     } catch (err) {
       console.error('Standard notification failed:', err);
@@ -399,7 +402,8 @@ function checkOverdueNotification(verse) {
   const nextTs = parseInt(localStorage.getItem(NOTIF_NEXT_KEY) || '0', 10);
   if (!nextTs) return;
   const today = todayString();
-  // If it's past the notification time and we haven't sent today
+  // Only notify if it's past the notification time and we haven't sent today
+  // AND the notification time has already passed (not just opened app before notification time)
   if (Date.now() >= nextTs && localStorage.getItem(NOTIF_LAST_KEY) !== today) {
     localStorage.setItem(NOTIF_LAST_KEY, today);
     // Get fresh verse for today
@@ -426,6 +430,12 @@ export function initNotifications(verse) {
   // On Android, we just need service worker - Notification API is optional
   if (!('serviceWorker' in navigator)) return;
 
+  // Debug: log notification state
+  console.log('[Notif] initNotifications called');
+  console.log('[Notif] Enabled:', getNotificationsEnabled());
+  console.log('[Notif] Last notified:', localStorage.getItem(NOTIF_LAST_KEY));
+  console.log('[Notif] Next fire:', localStorage.getItem(NOTIF_NEXT_KEY));
+
   // Always check if we need to notify for today's verse when app opens
   checkOverdueNotification(verse);
 
@@ -437,6 +447,7 @@ export function initNotifications(verse) {
     if (document.visibilityState === 'visible') {
       // Get fresh verse when app becomes visible
       const freshVerse = getDailyVerse();
+      console.log('[Notif] App became visible, checking overdue notification');
       checkOverdueNotification(freshVerse);
     }
   }, { once: false });
