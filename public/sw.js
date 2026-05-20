@@ -131,12 +131,12 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// Handle notification clicks to open app properly
+// Handle notification clicks to open app properly (no share functionality)
 self.addEventListener('notificationclick', (event) => {
   console.log('[SW] Notification clicked:', event.notification.tag);
   event.notification.close();
   
-  // Open the app when notification is clicked
+  // Open the app when notification is clicked - no share, just open app
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
       // If app is already open, focus it
