@@ -457,8 +457,8 @@ export default function BibleReader() {
                   <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
-            {/* Chapter selector */}
-            <div className="p-1">
+              {/* Chapter selector */}
+              <div className="p-1">
             <button
               onClick={() => { setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); }}
               onTouchEnd={(e) => { e.preventDefault(); setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); }}
@@ -554,15 +554,16 @@ export default function BibleReader() {
 
               {/* Zoom control */}
               <div className="p-1">
-              <button
-                onClick={() => { setShowZoomPopover(p => !p); }}
-                onTouchEnd={(e) => { e.preventDefault(); setShowZoomPopover(p => !p); }}
-                title={`Zoom: ${zoomLevel}%`}
-                className="flex items-center gap-1 px-3 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors touch-manipulation min-h-[48px]"
-              >
-                <ZoomIn className="w-3.5 h-3.5" />
-                {zoomLevel}%
-              </button>
+                <button
+                  onClick={() => { setShowZoomPopover(p => !p); }}
+                  onTouchEnd={(e) => { e.preventDefault(); setShowZoomPopover(p => !p); }}
+                  title={`Zoom: ${zoomLevel}%`}
+                  className="flex items-center gap-1 px-3 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors touch-manipulation min-h-[48px]"
+                >
+                  <ZoomIn className="w-3.5 h-3.5" />
+                  {zoomLevel}%
+                </button>
+              </div>
               {/* Desktop popover */}
               {showZoomPopover && !isMobile() && (
                 <div className="absolute top-full right-0 mt-1 z-50">
@@ -696,7 +697,7 @@ export default function BibleReader() {
                   <ChevronDown className="w-5 h-5" />
                 </button>
               </div>
-              </>
+            </>
             )}
 
       {/* Show header chevron when hidden — aligned with top border */}
