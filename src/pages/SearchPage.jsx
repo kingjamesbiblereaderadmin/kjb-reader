@@ -7,10 +7,11 @@ import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
 const OT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'OT' || BIBLE_BOOKS.indexOf(b) < 39).map(b => b.apiName));
 const NT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'NT' || BIBLE_BOOKS.indexOf(b) >= 39).map(b => b.apiName));
 
-function highlightText(text, terms) {
-  if (!terms || terms.length === 0) return text;
-  const escaped = terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
-  const regex = new RegExp(`(${escaped})`, 'gi');
+function highlightText(text, searchTerm, caseSensitive) {
+  if (!searchTerm) return text;
+  const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const flags = caseSensitive ? 'g' : 'gi';
+  const regex = new RegExp(`(${escaped})`, flags);
   const parts = text.split(regex);
   return parts.map((part, i) =>
     regex.test(part)
@@ -98,19 +99,19 @@ export default function SearchPage() {
 
       const matches = [];
       const seen = new Set();
+      const searchTerm = terms[0]; // Only one term now
+      const searchTermLower = searchTerm.toLowerCase();
 
       for (const bookName in bible) {
         if (bookName === '__colophons') continue;
         if (testament === 'ot' && !OT_BOOKS.has(bookName)) continue;
         if (testament === 'nt' && !NT_BOOKS.has(bookName)) continue;
         
-        // If specific books selected, only search those
         if (selectedBooks.size > 0) {
           const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
           if (!bookEntry || !selectedBooks.has(bookEntry.abbr)) continue;
         }
         
-        // If searching for a numbered book, only show results from that specific book
         if (targetBookAbbr) {
           const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
           if (!bookEntry || bookEntry.abbr !== targetBookAbbr) continue;
@@ -123,49 +124,44 @@ export default function SearchPage() {
             const verseText = verseObj.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
             let found = false;
             
-            for (const term of terms) {
-              if (exactMatch) {
-                // Exact match: entire verse text must equal the search term
-                if (caseSensitive) {
-                  if (verseText === term) { found = true; break; }
-                } else {
-                  if (verseText.toLowerCase() === term.toLowerCase()) { found = true; break; }
-                }
-              } else if (caseSensitive) {
-                // Case-sensitive substring search
-                if (wholeWord) {
-                  const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                  if (new RegExp(`\\b${escapedTerm}\\b`).test(verseText)) { found = true; break; }
-                } else {
-                  if (verseText.includes(term)) { found = true; break; }
-                }
+            if (exactMatch) {
+              if (caseSensitive) {
+                found = (verseText === searchTerm);
               } else {
-                // Case-insensitive search (original behavior)
-                const verseTextLower = verseText.toLowerCase();
-                if (wholeWord) {
-                  const escapedTerm = term.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                  if (new RegExp(`\\b${escapedTerm}\\b`).test(verseTextLower)) { found = true; break; }
-                } else {
-                  if (verseTextLower.includes(term.toLowerCase())) { found = true; break; }
-                }
+                found = (verseText.toLowerCase() === searchTermLower);
+              }
+            } else if (caseSensitive) {
+              if (wholeWord) {
+                const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                found = new RegExp(`\\b${escapedTerm}\\b`).test(verseText);
+              } else {
+                found = verseText.includes(searchTerm);
+              }
+            } else {
+              const verseTextLower = verseText.toLowerCase();
+              if (wholeWord) {
+                const escapedTerm = searchTermLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                found = new RegExp(`\\b${escapedTerm}\\b`).test(verseTextLower);
+              } else {
+                found = verseTextLower.includes(searchTermLower);
               }
             }
 
             if (found) {
-            const key = `${bookName}-${chapterNum}-${verseObj.verse}`;
-            if (seen.has(key)) continue;
-            seen.add(key);
-            const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
-            matches.push({
-              book: bookName,
-              chapter: parseInt(chapterNum),
-              verse: verseObj.verse,
-              text: verseObj.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, ''),
-              abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
-            });
+              const key = `${bookName}-${chapterNum}-${verseObj.verse}`;
+              if (seen.has(key)) continue;
+              seen.add(key);
+              const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+              matches.push({
+                book: bookName,
+                chapter: parseInt(chapterNum),
+                verse: verseObj.verse,
+                text: verseObj.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, ''),
+                abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
+              });
             }
-            }
-            }
+          }
+        }
       }
 
       setResults(matches);
@@ -519,7 +515,7 @@ export default function SearchPage() {
                       {BIBLE_BOOKS.find(b => b.apiName === r.book)?.shortName || r.book} {r.chapter}:{r.verse}
                     </p>
                     <p className="font-serif text-base text-foreground leading-relaxed">
-                      "{highlightText(r.text, expandedTerms.length > 1 ? expandedTerms : [query])}"
+                      "{highlightText(r.text, query, caseSensitive)}"
                     </p>
                   </div>
                 </div>
