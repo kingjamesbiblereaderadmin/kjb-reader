@@ -290,44 +290,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
   return (
     <div className="w-full">
-      {/* Upload button outside the box */}
-      {showButtons && (
-        <div className="flex justify-end mb-2">
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              e.nativeEvent.stopImmediatePropagation();
-              setCropImageForNotif(false);
-              if (fileInputRef.current) {
-                fileInputRef.current.click();
-              }
-            }}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              e.nativeEvent.stopImmediatePropagation();
-            }}
-            onTouchStart={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              e.nativeEvent.stopImmediatePropagation();
-            }}
-            disabled={uploading}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors disabled:opacity-50 shadow-md"
-            title="Change background image"
-            type="button"
-          >
-            {uploading ? (
-              <span className="w-3.5 h-3.5 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
-            ) : (
-              <Image className="w-3.5 h-3.5" />
-            )}
-            {uploading ? 'Uploading...' : 'Upload Image'}
-          </button>
-        </div>
-      )}
-
       {/* Verse card */}
       <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-6 md:px-8 pt-4 md:pt-5 pb-6 md:pb-8 text-center text-white relative cursor-pointer`} style={bgStyle}>
         {/* Bell button */}
