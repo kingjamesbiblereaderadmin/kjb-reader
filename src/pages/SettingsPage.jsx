@@ -28,9 +28,7 @@ export default function SettingsPage() {
   const [uploading, setUploading] = useState(false);
   const [cropImage, setCropImage] = useState(null);
   const [cropImageForNotif, setCropImageForNotif] = useState(false);
-  const [notifImage, setNotifImage] = useState(() => {
-    try { return localStorage.getItem('kjb-notif-image') || ''; } catch { return ''; }
-  });
+
   
   const [verseTextColor, setVerseTextColor] = useState(() => {
     try { return localStorage.getItem('kjb-verse-text-color') || '#ffffff'; } catch { return '#ffffff'; }
@@ -359,16 +357,10 @@ export default function SettingsPage() {
             image={cropImage}
             onCrop={(croppedDataUrl) => {
               try {
-                if (cropImageForNotif) {
-                  localStorage.setItem('kjb-notif-image', croppedDataUrl);
-                  setNotifImage(croppedDataUrl);
-                } else {
-                  localStorage.setItem('kjb-daily-verse-bg', croppedDataUrl);
-                  setCustomBg(croppedDataUrl);
-                }
+                localStorage.setItem('kjb-daily-verse-bg', croppedDataUrl);
+                setCustomBg(croppedDataUrl);
                 window.dispatchEvent(new Event('storage'));
                 setCropImage(null);
-                setCropImageForNotif(false);
               } catch (err) {
                 alert('Storage full! Please clear browser data or try a smaller image.');
                 console.error('localStorage quota exceeded:', err);
@@ -380,86 +372,7 @@ export default function SettingsPage() {
             }}
           />
         )}
-        {/* Notification Image */}
-        <div className="pt-4 border-t border-border space-y-3">
-          <h3 className="font-serif text-base font-semibold text-foreground">Notification Image</h3>
-          <p className="font-sans text-xs text-muted-foreground">Custom image for daily verse notifications</p>
-          
-          {notifImage ? (
-            <div className="space-y-2">
-              <div className="h-32 rounded-xl bg-cover bg-center border border-border" style={{ backgroundImage: `url(${notifImage})` }} />
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    setNotifImage('');
-                    localStorage.removeItem('kjb-notif-image');
-                    window.dispatchEvent(new Event('storage'));
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive font-sans text-xs font-medium hover:bg-destructive/20 transition-colors"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  Remove
-                </button>
-                <button
-                  onClick={() => {
-                    const current = localStorage.getItem('kjb-notif-image');
-                    if (current) {
-                      setCropImage(current);
-                      setCropImageForNotif(true);
-                    }
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
-                >
-                  <Crop className="w-3.5 h-3.5" />
-                  Re-crop
-                </button>
-              </div>
-            </div>
-          ) : (
-            <label className="block">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files[0];
-                  if (!file) return;
-                  if (file.size > 2 * 1024 * 1024) {
-                    alert('Image must be less than 2MB for storage');
-                    return;
-                  }
-                  const reader = new FileReader();
-                  reader.onload = (event) => {
-                    const base64 = event.target?.result;
-                    if (typeof base64 === 'string') {
-                      setCropImage(base64);
-                      setCropImageForNotif(true);
-                    }
-                  };
-                  reader.onerror = () => {
-                    alert('Failed to read image');
-                  };
-                  reader.readAsDataURL(file);
-                }}
-                disabled={uploading}
-                className="hidden"
-              />
-              <div className="flex items-center justify-center w-full px-4 py-8 border-2 border-dashed border-border rounded-xl bg-secondary/50 hover:bg-secondary/70 transition-colors cursor-pointer">
-                {uploading ? (
-                  <div className="text-center">
-                    <Loader2 className="w-6 h-6 animate-spin text-accent mx-auto mb-2" />
-                    <p className="font-sans text-xs text-muted-foreground">Processing...</p>
-                  </div>
-                ) : (
-                  <div className="text-center">
-                    <Bell className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
-                    <p className="font-sans text-xs text-muted-foreground">Click to upload notification image</p>
-                    <p className="font-sans text-xs text-muted-foreground mt-1">PNG, JPG up to 2MB</p>
-                  </div>
-                )}
-              </div>
-            </label>
-          )}
-        </div>
+
 
         <div className="grid grid-cols-4 gap-2">
           {[
