@@ -794,7 +794,7 @@ export default function BibleReader() {
 
       {/* Title pages or verses */}
       <div 
-        className="font-serif leading-loose text-foreground/90"
+        className={`leading-loose text-foreground/90 ${dyslexicFont ? 'font-dyslexic' : 'font-serif'}`}
         style={{ fontSize: `${zoomLevel / 100}rem`, lineHeight: zoomLevel > 100 ? '1.8' : '1.6' }}
       >
         {loading && (
