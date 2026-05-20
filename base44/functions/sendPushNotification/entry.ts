@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import webPush from 'npm:web-push@3.6.0';
 
 Deno.serve(async (req) => {
   try {
@@ -13,6 +14,23 @@ Deno.serve(async (req) => {
     if (req.method === 'POST') {
       const { title, body, url } = await req.json();
       
+      // Get VAPID keys from secrets
+      const vapidPublicKey = Deno.env.get('VAPID_PUBLIC_KEY');
+      const vapidPrivateKey = Deno.env.get('VAPID_PRIVATE_KEY');
+      
+      if (!vapidPublicKey || !vapidPrivateKey) {
+        return Response.json({ 
+          error: 'VAPID keys not configured. Please set VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY secrets.' 
+        }, { status: 500 });
+      }
+      
+      // Configure web-push with VAPID
+      webPush.setVapidDetails(
+        'mailto:Godisgracious1031@outlook.com',
+        vapidPublicKey,
+        vapidPrivateKey
+      );
+      
       // Get all active subscriptions
       const subscriptions = await base44.entities.PushSubscription.filter({ active: true });
       
@@ -23,14 +41,50 @@ Deno.serve(async (req) => {
         }, { status: 404 });
       }
       
-      // Note: Browser push requires a push service (Firebase, OneSignal, etc.)
-      // This endpoint stores subscriptions - actual sending needs external service
-      // For now, return subscriber info
+      // Send push notification to all subscribers
+      const notificationPayload = JSON.stringify({
+        title,
+        body,
+        url: url || '/'
+      });
+      
+      const results = {
+        success: 0,
+        failed: 0,
+        errors: []
+      };
+      
+      // Send to each subscription
+      for (const sub of subscriptions) {
+        try {
+          const subscriptionData = JSON.parse(sub.keys);
+          await webPush.sendNotification(
+            {
+              endpoint: sub.endpoint,
+              keys: {
+                p256dh: subscriptionData.p256dh,
+                auth: subscriptionData.auth
+              }
+            },
+            notificationPayload
+          );
+          results.success++;
+        } catch (error) {
+          console.error('Failed to send to subscription:', sub.user_email, error.message);
+          results.failed++;
+          results.errors.push({ email: sub.user_email, error: error.message });
+          
+          // Mark subscription as inactive if it failed
+          if (error.statusCode === 410 || error.statusCode === 404) {
+            await base44.entities.PushSubscription.update(sub.id, { active: false });
+          }
+        }
+      }
+      
       return Response.json({
         success: true,
-        message: `Found ${subscriptions.length} subscribers`,
-        subscriberCount: subscriptions.length,
-        note: 'Browser push requires Firebase/OneSignal. Configure external service to send.'
+        message: `Sent to ${results.success} subscribers`,
+        results
       });
     }
     
