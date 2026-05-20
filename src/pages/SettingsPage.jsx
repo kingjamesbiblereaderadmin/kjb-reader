@@ -648,7 +648,6 @@ export default function SettingsPage() {
         </button>
         {expandedSections.install && (
         <div className="p-5 pt-0 space-y-3">
-        <h2 className="font-serif text-lg font-semibold text-foreground">Install App</h2>
         <p className="font-sans text-sm text-muted-foreground leading-relaxed">
           Add the KJB Reader to your home screen for quick access and to receive daily verse notifications even when the app is closed.
         </p>
@@ -692,14 +691,11 @@ export default function SettingsPage() {
                 </p>
               </div>
             </div>
-            </div>
-            </div>
-            </div>
             )}
-            </div>
+        </div>
 
-            {/* Offline Library */}
-            <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+        {/* Offline Library */}
+        <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
             <button
             onClick={() => toggleSection('offline')}
             className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
