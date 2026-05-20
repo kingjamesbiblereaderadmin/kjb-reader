@@ -293,8 +293,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       {/* Verse card */}
       <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-6 md:px-8 py-8 md:py-10 text-center text-white relative cursor-pointer min-h-[280px] md:min-h-[340px] flex flex-col`} style={bgStyle}>
         {/* Action buttons - top right */}
-        {showButtons && (
-          <div className="absolute top-3 right-3 flex gap-1 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
+        {showButtons ? (
+          <div className="absolute top-4 right-4 flex gap-1.5 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
             {/* Bell button */}
             {onToggleNotif && (
               <button
