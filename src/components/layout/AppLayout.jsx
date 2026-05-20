@@ -43,6 +43,7 @@ export default function AppLayout() {
   const { isDark, mode, toggleTheme } = useTheme();
   const { hideHeader } = useHeaderHide();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   // Footer is always visible on desktop, controlled by bottom nav on mobile
   const navigate = useNavigate();
   const isRoot = pathname === '/';
@@ -134,24 +135,31 @@ export default function AppLayout() {
           <div className="flex items-center gap-1 sm:gap-2 pointer-events-none shrink-0">
             <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
               onClick={async (e) => {
+                if (refreshing) return;
                 e.preventDefault();
                 e.stopPropagation();
-                // Clear cache and reload
-                if ('caches' in window) {
-                  const cacheNames = await caches.keys();
-                  await Promise.all(cacheNames.map(name => caches.delete(name)));
+                setRefreshing(true);
+                try {
+                  // Clear cache and reload
+                  if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(name => caches.delete(name)));
+                  }
+                  if ('serviceWorker' in navigator) {
+                    const registration = await navigator.serviceWorker.ready;
+                    await registration.unregister();
+                  }
+                  window.location.reload();
+                } catch (err) {
+                  console.error('Refresh failed:', err);
+                  setRefreshing(false);
                 }
-                if ('serviceWorker' in navigator) {
-                  const registration = await navigator.serviceWorker.ready;
-                  await registration.unregister();
-                }
-                window.location.reload();
               }}
               style={{ touchAction: 'manipulation' }}
               role="button"
               aria-label="Refresh and update cache"
             >
-              <RotateCw className="w-4 h-4" />
+              <RotateCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             </div>
             <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
