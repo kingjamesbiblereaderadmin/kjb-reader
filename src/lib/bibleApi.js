@@ -54,7 +54,7 @@ export async function isBibleAvailableOffline() {
 }
 
 // Render verse text: turn [word] into <em>word</em> for KJB italics
-// Render pilcrow (¶) as a styled muted glyph inline
+// Render pilcrow (¶) ONLY at beginning of verses, not inside words
 export function renderVerseText(text) {
   // Strip "Made in Australia" if it somehow appears in verse text
   let cleaned = text.replace(/\s*made\s+in\s+australia\.?\s*/gi, '');
@@ -69,8 +69,9 @@ export function renderVerseText(text) {
   // Fix pilcrow characters used as apostrophes within words (e.g., "Christ¶s" → "Christ's")
   cleaned = cleaned.replace(/(\w)\u00B6(\w)/g, '$1\'$2');
   cleaned = cleaned.replace(/(\w)\uFFFD(\w)/g, '$1\'$2');
-  // Render remaining pilcrows (including \uFFFD replacement chars used as pilcrow markers) as styled spans
-  cleaned = cleaned.replace(/[\u00B6\uFFFD]\s*/g, '<span class="pilcrow">¶</span> ');
+  // Only render pilcrow if it appears at the START of the text (after trimming)
+  // This ensures pilcrows are paragraph markers, not mid-word characters
+  cleaned = cleaned.replace(/^[\u00B6\uFFFD]\s*/, '<span class="pilcrow">¶</span> ');
   // Turn [bracketed] text into italics
   const parts = cleaned.split(/\[([^\]]+)\]/g);
   const result = parts.map((part, i) =>
