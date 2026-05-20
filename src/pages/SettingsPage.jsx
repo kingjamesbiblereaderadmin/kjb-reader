@@ -1159,8 +1159,16 @@ export default function SettingsPage() {
                 Reset All Settings
               </button>
               <button
-                onClick={() => {
-                  // Hard refresh to load latest code changes
+                onClick={async () => {
+                  // Clear all caches first, then hard reload
+                  if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(name => caches.delete(name)));
+                  }
+                  if ('serviceWorker' in navigator) {
+                    const registration = await navigator.serviceWorker.ready;
+                    await registration.unregister();
+                  }
                   window.location.reload();
                 }}
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
