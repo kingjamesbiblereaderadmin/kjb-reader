@@ -162,8 +162,30 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     </>
   );
 
-  // ── PARAGRAPH MODE: verses flow inline, pilcrow shown inline ──
+  // ── PARAGRAPH MODE: verses flow inline; pilcrow verses break to a new line ──
+  const hasPilcrow = verse.text.includes('\u00B6') || verse.text.includes('\u000F');
   if (paragraphMode) {
+    // Pilcrow verse: render as a block (new paragraph), matching line-mode indentation
+    if (hasPilcrow && !isFirstVerse) {
+      return (
+        <span id={id} className="block relative mt-2">
+          <span
+            onClick={() => setSelected(s => !s)}
+            className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-1 py-0.5 gap-3 ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
+          >
+            <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-1 mr-2">{verse.verse}</sup>
+            <span className="flex-1 min-w-0">
+              <span
+                className={`font-serif leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify`}
+                dangerouslySetInnerHTML={{ __html: html }}
+              />
+            </span>
+          </span>
+          {actionPopover}
+        </span>
+      );
+    }
+    // Normal inline verse
     return (
       <span id={id} className="inline relative">
         <span
