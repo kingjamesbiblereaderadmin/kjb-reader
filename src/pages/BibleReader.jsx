@@ -475,74 +475,154 @@ export default function BibleReader() {
               </SelectorSheet>
 
               {/* Font toggle */}
-              <div className="p-1 relative">
+              <div className="p-1">
               <button
-                onClick={() => setShowFontPopover(p => !p)}
-                onTouchEnd={(e) => { e.preventDefault(); setShowFontPopover(p => !p); }}
+                onClick={() => { setShowFontPopover(p => !p); setShowZoomPopover(false); }}
+                onTouchEnd={(e) => { e.preventDefault(); setShowFontPopover(p => !p); setShowZoomPopover(false); }}
                 title={dyslexicFont ? 'Using dyslexic font' : 'Using standard font'}
                 className={`flex items-center gap-1 px-3 py-3 rounded-lg font-sans text-xs font-medium transition-colors touch-manipulation min-h-[48px] ${dyslexicFont ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'}`}
               >
                 <Type className="w-3.5 h-3.5" />
                 {dyslexicFont ? 'Dyslexic' : 'Font'}
               </button>
-              {showFontPopover && (
-                <div className="absolute top-full right-0 mt-2 z-50 bg-card border border-border rounded-xl shadow-xl p-4 w-56">
-                  <div className="space-y-2">
-                    <p className="font-sans text-xs font-medium text-foreground mb-2">Font Style</p>
-                    <button
-                      onClick={() => {
-                        if (!dyslexicFont) toggleDyslexicFont();
-                        setShowFontPopover(false);
-                      }}
-                      className={`w-full px-3 py-2 rounded-lg font-sans text-xs font-medium transition-colors ${
-                        !dyslexicFont
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-                      }`}
-                    >
-                      Standard (Cormorant)
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (dyslexicFont) toggleDyslexicFont();
-                        setShowFontPopover(false);
-                      }}
-                      className={`w-full px-3 py-2 rounded-lg font-sans text-xs font-medium transition-colors ${
-                        dyslexicFont
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-                      }`}
-                    >
-                      OpenDyslexic
-                    </button>
+              {/* Desktop popover */}
+              {showFontPopover && !isMobile() && (
+                <div className="absolute top-full right-0 mt-1 z-50">
+                  <div className="bg-card border border-border rounded-xl shadow-xl p-4 w-56">
+                    <div className="space-y-2">
+                      <p className="font-sans text-xs font-medium text-foreground mb-2">Font Style</p>
+                      <button
+                        onClick={() => {
+                          if (!dyslexicFont) toggleDyslexicFont();
+                          setShowFontPopover(false);
+                        }}
+                        className={`w-full px-3 py-2 rounded-lg font-sans text-xs font-medium transition-colors ${
+                          !dyslexicFont
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                        }`}
+                      >
+                        Standard (Cormorant)
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (dyslexicFont) toggleDyslexicFont();
+                          setShowFontPopover(false);
+                        }}
+                        className={`w-full px-3 py-2 rounded-lg font-sans text-xs font-medium transition-colors ${
+                          dyslexicFont
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                        }`}
+                      >
+                        OpenDyslexic
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
+              {/* Mobile bottom sheet */}
+              <SelectorSheet open={showFontPopover && isMobile()} onClose={() => setShowFontPopover(false)} title="Font Style">
+                <div className="space-y-3 p-2">
+                  <button
+                    onClick={() => {
+                      if (!dyslexicFont) toggleDyslexicFont();
+                      setShowFontPopover(false);
+                    }}
+                    className={`w-full px-4 py-3 rounded-lg font-sans text-sm font-medium transition-colors ${
+                      !dyslexicFont
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                    }`}
+                  >
+                    Standard (Cormorant)
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (dyslexicFont) toggleDyslexicFont();
+                      setShowFontPopover(false);
+                    }}
+                    className={`w-full px-4 py-3 rounded-lg font-sans text-sm font-medium transition-colors ${
+                      dyslexicFont
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                    }`}
+                  >
+                    OpenDyslexic
+                  </button>
+                </div>
+              </SelectorSheet>
               </div>
 
               {/* Zoom control */}
-              <div className="p-1 relative">
+              <div className="p-1">
               <button
-                onClick={() => setShowZoomPopover(p => !p)}
-                onTouchEnd={(e) => { e.preventDefault(); setShowZoomPopover(p => !p); }}
+                onClick={() => { setShowZoomPopover(p => !p); setShowFontPopover(false); }}
+                onTouchEnd={(e) => { e.preventDefault(); setShowZoomPopover(p => !p); setShowFontPopover(false); }}
                 title={`Zoom: ${zoomLevel}%`}
                 className="flex items-center gap-1 px-3 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors touch-manipulation min-h-[48px]"
               >
                 <ZoomIn className="w-3.5 h-3.5" />
                 {zoomLevel}%
               </button>
-              {showZoomPopover && (
-                <div className="absolute top-full right-0 mt-2 z-50 bg-card border border-border rounded-xl shadow-xl p-4 w-64">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-sans text-xs font-medium text-foreground">Text Size</span>
-                    <span className="font-sans text-xs font-semibold text-primary">{zoomLevel}%</span>
+              {/* Desktop popover */}
+              {showZoomPopover && !isMobile() && (
+                <div className="absolute top-full right-0 mt-1 z-50">
+                  <div className="bg-card border border-border rounded-xl shadow-xl p-4 w-64">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-sans text-xs font-medium text-foreground">Text Size</span>
+                      <span className="font-sans text-xs font-semibold text-primary">{zoomLevel}%</span>
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <button
+                        onClick={() => adjustZoom(-5)}
+                        className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 transition-colors"
+                      >
+                        <Minus className="w-3.5 h-3.5" />
+                      </button>
+                      <input
+                        type="range"
+                        min="75"
+                        max="150"
+                        step="5"
+                        value={zoomLevel}
+                        onChange={handleZoomChange}
+                        className="flex-1 h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                      />
+                      <button
+                        onClick={() => adjustZoom(5)}
+                        className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 transition-colors"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    {zoomLevel !== 100 && (
+                      <button
+                        onClick={() => {
+                          setZoomLevel(100);
+                          try { localStorage.setItem('kjb-zoom', '100'); } catch {}
+                        }}
+                        className="w-full mt-2 px-2 py-1.5 rounded-lg bg-primary/10 text-primary font-sans text-xs font-medium hover:bg-primary/20 transition-colors"
+                      >
+                        Reset to 100%
+                      </button>
+                    )}
                   </div>
-                  <div className="flex items-center gap-2 mb-2">
+                </div>
+              )}
+              {/* Mobile bottom sheet */}
+              <SelectorSheet open={showZoomPopover && isMobile()} onClose={() => setShowZoomPopover(false)} title="Text Size">
+                <div className="space-y-4 p-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-sans text-sm font-medium text-foreground">Zoom Level</span>
+                    <span className="font-sans text-sm font-semibold text-primary">{zoomLevel}%</span>
+                  </div>
+                  <div className="flex items-center gap-3">
                     <button
                       onClick={() => adjustZoom(-5)}
-                      className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 transition-colors"
+                      className="p-2 rounded-lg bg-secondary hover:bg-accent/20 transition-colors"
                     >
-                      <Minus className="w-3.5 h-3.5" />
+                      <Minus className="w-4 h-4" />
                     </button>
                     <input
                       type="range"
@@ -551,13 +631,13 @@ export default function BibleReader() {
                       step="5"
                       value={zoomLevel}
                       onChange={handleZoomChange}
-                      className="flex-1 h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                      className="flex-1 h-3 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
                     />
                     <button
                       onClick={() => adjustZoom(5)}
-                      className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 transition-colors"
+                      className="p-2 rounded-lg bg-secondary hover:bg-accent/20 transition-colors"
                     >
-                      <Plus className="w-3.5 h-3.5" />
+                      <Plus className="w-4 h-4" />
                     </button>
                   </div>
                   {zoomLevel !== 100 && (
@@ -566,13 +646,13 @@ export default function BibleReader() {
                         setZoomLevel(100);
                         try { localStorage.setItem('kjb-zoom', '100'); } catch {}
                       }}
-                      className="w-full mt-2 px-2 py-1.5 rounded-lg bg-primary/10 text-primary font-sans text-xs font-medium hover:bg-primary/20 transition-colors"
+                      className="w-full px-4 py-3 rounded-lg bg-primary/10 text-primary font-sans text-sm font-medium hover:bg-primary/20 transition-colors"
                     >
                       Reset to 100%
                     </button>
                   )}
                 </div>
-              )}
+              </SelectorSheet>
               </div>
 
               {/* Layout toggle */}
