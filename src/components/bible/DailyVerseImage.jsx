@@ -1,8 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Monitor, Bell } from 'lucide-react';
+import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Monitor, Bell, BellOff } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import ImageCropper from './ImageCropper';
+import { getNotificationsEnabled, requestNotificationPermission, disableNotifications, scheduleDailyNotification } from '@/lib/notifications';
 
 const VERSE_BACKGROUNDS = [
   { gradient: 'from-blue-600 to-purple-600', accent: 'text-blue-200' },
@@ -27,6 +28,7 @@ export default function DailyVerseImage({ verse, onClick }) {
   const [notifImage, setNotifImage] = useState(() => {
     try { return localStorage.getItem('kjb-notif-image') || ''; } catch { return ''; }
   });
+  const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [showStyleEditor, setShowStyleEditor] = useState(false);
   const [textColor, setTextColor] = useState(() => localStorage.getItem('kjb-verse-text-color') || '#ffffff');
   const [textOpacity, setTextOpacity] = useState(() => parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '0.95'));
@@ -39,6 +41,7 @@ export default function DailyVerseImage({ verse, onClick }) {
       try { setTextOpacity(parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '1')); } catch {}
       try { setFontFamily(localStorage.getItem('kjb-verse-font-family') || 'serif'); } catch {}
       try { setNotifImage(localStorage.getItem('kjb-notif-image') || ''); } catch {}
+      try { setNotifEnabled(getNotificationsEnabled()); } catch {}
     };
     window.addEventListener('storage', handleStorage);
     handleStorage();
@@ -131,6 +134,34 @@ export default function DailyVerseImage({ verse, onClick }) {
     setFontFamily(font);
     localStorage.setItem('kjb-verse-font-family', font);
     window.dispatchEvent(new Event('storage'));
+  };
+
+  const handleToggleNotifications = async () => {
+    if (notifEnabled) {
+      disableNotifications();
+      setNotifEnabled(false);
+      window.dispatchEvent(new Event('storage'));
+      return;
+    }
+    
+    if (!('Notification' in window)) {
+      alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
+      return;
+    }
+    
+    try {
+      const result = await requestNotificationPermission();
+      if (result === 'granted') {
+        setNotifEnabled(true);
+        scheduleDailyNotification(verse);
+        window.dispatchEvent(new Event('storage'));
+      } else if (result === 'denied') {
+        alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
+      }
+    } catch (err) {
+      console.error('Notification permission error:', err);
+      alert('Failed to request notification permission. Please try again.');
+    }
   };
   
 
@@ -302,18 +333,16 @@ export default function DailyVerseImage({ verse, onClick }) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            setCropImageForNotif(true);
-            fileInputRef.current?.click();
+            handleToggleNotifications();
           }}
-          disabled={uploading}
-          className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
-          title="Set notification image"
+          className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+          title={notifEnabled ? 'Daily verse reminders on' : 'Enable daily verse reminders'}
           type="button"
         >
-          {uploading ? (
-            <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
-          ) : (
+          {notifEnabled ? (
             <Bell className="w-4 h-4 text-slate-800" />
+          ) : (
+            <BellOff className="w-4 h-4 text-slate-800/60" />
           )}
         </button>
         <button
