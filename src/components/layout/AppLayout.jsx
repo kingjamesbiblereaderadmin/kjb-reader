@@ -9,7 +9,7 @@ import ScrollToTop from '@/components/ScrollToTop';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, showLocalNotification } from '@/lib/notifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
-import { getBibleData, isBibleCached, initPeriodicCacheRefresh } from '@/lib/bibleCache';
+import { getBibleData, isBibleCached, initPeriodicCacheRefresh, downloadBibleForOffline } from '@/lib/bibleCache';
 import { toast } from 'sonner';
 
 const NAV_ITEMS = [
@@ -67,27 +67,30 @@ export default function AppLayout() {
       }
     } catch {}
 
-    // Silently pre-cache all 66 books in the background on first load
-    isBibleCached().then(cached => {
-      if (!cached) {
-        console.log('[CACHE] Not cached yet — pre-fetching in background...');
-        getBibleData()
-          .then(data => {
-            const bookCount = Object.keys(data).filter(k => k !== '__colophons').length;
-            if (bookCount >= 66) {
-              toast.success('Bible cached for offline use', {
-                description: 'All 66 books are now available offline.',
-                duration: 4000,
-              });
-              // Also show a system notification if permission is granted
-              if (getNotificationsEnabled()) {
-                showLocalNotification('KJB Reader — Offline Ready', 'All 66 books are now cached and available offline.');
-              }
-            }
-          })
-          .catch(err => console.warn('[CACHE] Background fetch failed:', err));
+    // Auto-update cache on every app load
+    const updateCacheOnLoad = async () => {
+      try {
+        console.log('[CACHE] Checking for updates on app load...');
+        // Clear old cache and download fresh data
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map(name => caches.delete(name)));
+        
+        await downloadBibleForOffline((pct, msg) => {
+          console.log(`[CACHE] Update progress: ${pct}% - ${msg}`);
+        });
+        
+        toast.success('Bible cache updated', {
+          description: 'Latest version downloaded successfully.',
+          duration: 3000,
+        });
+      } catch (err) {
+        console.error('[CACHE] Auto-update failed:', err);
+        // Fallback: try to load from existing cache
+        getBibleData().catch(() => {});
       }
-    });
+    };
+
+    updateCacheOnLoad();
 
     // Initialize periodic cache refresh (checks every 24 hours)
     initPeriodicCacheRefresh();
