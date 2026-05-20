@@ -54,15 +54,17 @@ export default function SearchPage() {
       const terms = expandSearchTerms(kw);
       setExpandedTerms(terms.length > 1 ? terms : []);
       
-      // Check if query is a numbered book (e.g., "1 john", "2 timothy")
-      const numberedBookMatch = kw.trim().toLowerCase().match(/^(\d+)\s+([a-z]+)$/);
+      // Check if query is a numbered book (e.g., "1 john", "2 timothy") or contains one
+      const kwLower = kw.trim().toLowerCase();
+      const numberedBookMatch = kwLower.match(/(\d+)\s+([a-z]+)/);
       let targetBookAbbr = null;
       if (numberedBookMatch) {
         const num = numberedBookMatch[1];
         const bookPart = numberedBookMatch[2];
         const matchingBook = BIBLE_BOOKS.find(b => 
           b.shortName.toLowerCase() === `${num} ${bookPart}` ||
-          b.shortName.toLowerCase().startsWith(`${num} ${bookPart}`)
+          b.shortName.toLowerCase().startsWith(`${num} ${bookPart}`) ||
+          b.shortName.toLowerCase().includes(`${num} ${bookPart}`)
         );
         if (matchingBook) {
           targetBookAbbr = matchingBook.abbr;
@@ -165,7 +167,10 @@ export default function SearchPage() {
 
   const formatVerses = (indices) =>
     [...indices].sort((a, b) => a - b)
-      .map(i => `"${results[i].text}" — ${results[i].book} ${results[i].chapter}:${results[i].verse} (KJB)`)
+      .map(i => {
+        const r = results[i];
+        return `"${r.text}" — ${r.book} ${r.chapter}:${r.verse} (KJB)`;
+      })
       .join('\n\n');
 
   const handleCopySelected = async () => {
@@ -194,7 +199,7 @@ export default function SearchPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
-      <h1 className="font-serif text-2xl font-bold text-foreground mb-4">Keyword Search</h1>
+      <h1 className="font-serif text-2xl font-bold text-foreground mb-4">Search Bible</h1>
 
       <form onSubmit={handleSubmit} className="flex gap-2 mb-3">
         <div className="relative flex-1">
