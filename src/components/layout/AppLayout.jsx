@@ -134,20 +134,16 @@ export default function AppLayout() {
           {/* Actions - responsive button sizes with visible square touch targets */}
           <div className="flex items-center gap-1 sm:gap-2 pointer-events-none shrink-0">
             <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
-              onClick={async (e) => {
-                if (refreshing) return;
+              onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                setRefreshing(true);
-                // Small delay to show the spinning animation
-                await new Promise(resolve => setTimeout(resolve, 800));
                 window.location.reload();
               }}
               style={{ touchAction: 'manipulation' }}
               role="button"
               aria-label="Refresh and update cache"
             >
-              <RotateCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+              <RotateCw className="w-4 h-4" />
             </div>
             <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
