@@ -405,8 +405,14 @@ export default function DailyVerseImage({ verse, onClick }) {
             </label>
             <div className="flex flex-wrap gap-2">
               {[
-                '#ffffff', '#f8f8f8', '#fef3c7', '#dbeafe',
-                '#fecaca', '#ddd6fe', '#bbf7d0', '#fde68a'
+                '#000000', '#1a1a1a', '#ffffff', '#f8f8f8',
+                '#fef3c7', '#fde68a', '#fbbf24', '#f59e0b',
+                '#dbeafe', '#93c5fd', '#3b82f6', '#1e40af',
+                '#fecaca', '#fca5a5', '#ef4444', '#b91c1c',
+                '#ddd6fe', '#a78bfa', '#8b5cf6', '#5b21b6',
+                '#bbf7d0', '#6ee7b7', '#10b981', '#047857',
+                '#ffe4e6', '#fda4af', '#ec4899', '#9d174d',
+                '#e0f2fe', '#7dd3fc', '#0ea5e9', '#0369a1'
               ].map(color => (
                 <button
                   key={color}
