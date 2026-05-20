@@ -293,7 +293,8 @@ async function registerPeriodicSync() {
 // On page focus/visibility, check if a notification is overdue
 function checkOverdueNotification(verse) {
   if (!getNotificationsEnabled()) return;
-  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  // On Android, we just need service worker - Notification API is optional
+  if (!('serviceWorker' in navigator)) return;
   const nextTs = parseInt(localStorage.getItem(NOTIF_NEXT_KEY) || '0', 10);
   if (!nextTs) return;
   const today = todayString();
@@ -318,7 +319,8 @@ export function scheduleDailyNotification(verse) {
 // Call once on app load
 export function initNotifications(verse) {
   if (!getNotificationsEnabled()) return;
-  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  // On Android, we just need service worker - Notification API is optional
+  if (!('serviceWorker' in navigator)) return;
 
   // Check if we missed a notification while closed
   checkOverdueNotification(verse);
