@@ -18,7 +18,7 @@ import {
   getReadingReminderEnabled, getReadingReminderTime, setReadingReminderTime,
   enableReadingReminder, disableReadingReminder, scheduleReadingReminder
 } from '@/lib/notifications';
-import { subscribeToPush, unsubscribeFromPush } from '@/lib/pushNotifications';
+
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { downloadBibleForOffline, clearBibleCache, isBibleCached } from '@/lib/bibleCache';
 
@@ -93,8 +93,6 @@ export default function SettingsPage() {
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
   const [readingReminderEnabled, setReadingReminderEnabled] = useState(getReadingReminderEnabled);
   const [readingReminderTime, setReadingReminderTimeState] = useState(getReadingReminderTime);
-  const [pushSubscribed, setPushSubscribed] = useState(false);
-  const [subscribing, setSubscribing] = useState(false);
 
   const { isInstallable, isInstalled, promptInstall } = useInstallPrompt();
   const [cached, setCached] = useState(false);
@@ -173,87 +171,7 @@ export default function SettingsPage() {
     showLocalNotification('King James Bible — Verse of the Day', `"${v.text.slice(0, 100)}${v.text.length > 100 ? '…' : ''}" — ${v.ref}`);
   };
 
-  const handleSubscribeToPush = async () => {
-    if (pushSubscribed) {
-      // Unsubscribe
-      try {
-        await unsubscribeFromPush();
-        // Remove subscription from database
-        const user = await base44.auth.me();
-        if (user) {
-          const subs = await base44.entities.PushSubscription.filter({ user_email: user.email });
-          for (const sub of subs) {
-            await base44.entities.PushSubscription.update(sub.id, { active: false });
-          }
-        }
-        setPushSubscribed(false);
-        alert('Unsubscribed from push notifications');
-      } catch (err) {
-        console.error('Unsubscribe error:', err);
-        alert('Failed to unsubscribe');
-      }
-      return;
-    }
 
-    // Subscribe
-    setSubscribing(true);
-    try {
-      // Check if user is logged in first
-      const user = await base44.auth.me();
-      if (!user) {
-        alert('Please log in to subscribe to notifications');
-        setSubscribing(false);
-        return;
-      }
-
-      // Check if running in preview environment
-      const isPreview = window.location.hostname.includes('preview-sandbox') || 
-                        window.location.hostname.includes('base44.app');
-      if (isPreview) {
-        alert('Push notifications are not available in preview mode.\n\nPlease deploy the app and install it from the deployed URL to test push notifications.');
-        setSubscribing(false);
-        return;
-      }
-
-      const subscription = await subscribeToPush();
-      if (!subscription) {
-        alert('Failed to subscribe. Make sure you have installed the app and granted notification permission.');
-        setSubscribing(false);
-        return;
-      }
-
-      // Save subscription to database
-      await base44.entities.PushSubscription.create({
-        endpoint: subscription.endpoint,
-        keys: JSON.stringify({
-          p256dh: subscription.getKey('p256dh') ? btoa(String.fromCharCode(...subscription.getKey('p256dh'))) : '',
-          auth: subscription.getKey('auth') ? btoa(String.fromCharCode(...subscription.getKey('auth'))) : ''
-        }),
-        user_email: user.email,
-        active: true
-      });
-
-      setPushSubscribed(true);
-      setSubscribing(false);
-      alert('Successfully subscribed to push notifications!');
-    } catch (err) {
-      console.error('Subscribe error:', err);
-      setSubscribing(false);
-      
-      // Provide helpful error message based on error type
-      let errorMsg = 'Failed to subscribe: ' + err.message;
-      if (err.name === 'NotAllowedError') {
-        errorMsg += '\n\nNotification permission was denied. Please allow notifications in your browser settings.';
-      } else if (err.name === 'InvalidStateError') {
-        errorMsg += '\n\nYou may already be subscribed or the app is not properly installed.';
-      } else if (err.message.includes('applicationServerKey')) {
-        errorMsg += '\n\nPush notifications require a valid VAPID key configuration.';
-      } else {
-        errorMsg += '\n\nNote: Push notifications require the app to be installed (PWA) on a deployed domain (not preview).';
-      }
-      alert(errorMsg);
-    }
-  };
 
   const handleToggleReadingReminder = async () => {
     if (readingReminderEnabled) {
@@ -931,60 +849,23 @@ export default function SettingsPage() {
               />
             </div>
             {notifEnabled && (
-              <div className="space-y-3 pt-1">
-                <div className="flex items-center gap-3">
-                  <label className="font-sans text-sm text-muted-foreground shrink-0">Notify at</label>
-                  <input
-                    type="time"
-                    value={notifTime}
-                    onChange={handleTimeChange}
-                    className="flex-1 px-3 py-1.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground focus:outline-none focus:border-accent"
-                  />
-                  <button
-                    onClick={handleTestNotif}
-                    className="shrink-0 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
-                  >
-                    Test
-                  </button>
-                </div>
-
-                {/* Push Notification Subscription */}
-                <div className="pt-3 border-t border-border">
-                  <div className="flex items-center justify-between gap-3 mb-2">
-                    <div className="flex-1">
-                      <p className="font-sans text-sm text-foreground font-medium flex items-center gap-2">
-                        <Bell className="w-4 h-4 text-primary" />
-                        Push Notifications
-                      </p>
-                      <p className="font-sans text-xs text-muted-foreground mt-0.5">
-                        {pushSubscribed 
-                          ? 'Receiving push notifications (works even when app is closed)' 
-                          : 'Enable to receive daily verses even when app is closed'}
-                      </p>
-                    </div>
-                    <button
-                      onClick={handleSubscribeToPush}
-                      disabled={subscribing}
-                      className={`px-4 py-2 rounded-lg font-sans text-xs font-medium transition-colors flex items-center gap-2 ${
-                        pushSubscribed
-                          ? 'bg-destructive/10 text-destructive hover:bg-destructive/20'
-                          : 'bg-primary text-primary-foreground hover:opacity-90'
-                      } ${subscribing ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      {subscribing ? (
-                        <>
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          {pushSubscribed ? 'Unsubscribing...' : 'Subscribing...'}
-                        </>
-                      ) : (
-                        <>
-                          {pushSubscribed ? 'Unsubscribe' : 'Subscribe'}
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
+            <div className="space-y-3 pt-1">
+            <div className="flex items-center gap-3">
+              <label className="font-sans text-sm text-muted-foreground shrink-0">Notify at</label>
+              <input
+                type="time"
+                value={notifTime}
+                onChange={handleTimeChange}
+                className="flex-1 px-3 py-1.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground focus:outline-none focus:border-accent"
+              />
+              <button
+                onClick={handleTestNotif}
+                className="shrink-0 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+              >
+                Test
+              </button>
+            </div>
+            </div>
             )}
 
             {/* Reading Reminder */}
