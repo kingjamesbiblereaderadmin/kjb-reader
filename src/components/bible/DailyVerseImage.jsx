@@ -291,7 +291,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   return (
     <div className="w-full">
       {/* Verse card */}
-      <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-6 md:px-8 pt-4 md:pt-5 pb-6 md:pb-8 text-center text-white relative cursor-pointer`} style={bgStyle}>
+      <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-6 md:px-8 pt-6 md:pt-8 pb-8 md:pb-10 text-center text-white relative cursor-pointer min-h-[280px] md:min-h-[320px] flex flex-col justify-center`} style={bgStyle}>
         {/* Bell button */}
         {showButtons && onToggleNotif && (
           <button
