@@ -111,7 +111,23 @@ function parseBibleText(rawText) {
   console.log('[PARSE] Raw text length:', rawText.length);
 
   const data = {};
-  const colophons = {};
+  // Colophons — final verse marker: these chapters' last verse IS the colophon in the PCE text
+  const colophons = {
+    'Malachi:4': 6,
+    'Romans:16': 24,
+    '1 Corinthians:16': 24,
+    '2 Corinthians:13': 14,
+    'Ephesians:6': 24,
+    'Philippians:4': 23,
+    'Colossians:4': 18,
+    '1 Thessalonians:5': 28,
+    '2 Thessalonians:3': 18,
+    '1 Timothy:6': 21,
+    '2 Timothy:4': 22,
+    'Titus:3': 15,
+    'Philemon:1': 25,
+    'Hebrews:13': 25,
+  };
   const lines = rawText.split('\n');
   console.log('[PARSE] Split into', lines.length, 'lines');
 
