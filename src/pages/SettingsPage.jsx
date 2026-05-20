@@ -9,9 +9,9 @@ import {
   getNotificationsEnabled, getNotificationTime, setNotificationTime,
   requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification,
   getReadingReminderEnabled, getReadingReminderTime, setReadingReminderTime,
-  enableReadingReminder, disableReadingReminder, scheduleReadingReminder,
-  subscribeToPush, unsubscribeFromPush
+  enableReadingReminder, disableReadingReminder, scheduleReadingReminder
 } from '@/lib/notifications';
+import { subscribeToPush, unsubscribeFromPush } from '@/lib/pushNotifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { downloadBibleForOffline, clearBibleCache, isBibleCached } from '@/lib/bibleCache';
 
