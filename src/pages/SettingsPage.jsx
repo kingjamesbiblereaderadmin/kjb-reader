@@ -308,7 +308,7 @@ export default function SettingsPage() {
             </div>
             <div className="flex items-center gap-2 text-primary">
               <Bell className="w-4 h-4 shrink-0" />
-              <span className="font-sans text-xs font-medium">Notifications will work even when the app is closed</span>
+              <span className="font-sans text-xs font-medium">Notifications work when the app is open or in background</span>
             </div>
           </div>
         ) : (
@@ -336,7 +336,7 @@ export default function SettingsPage() {
               <div className="mt-3 pt-3 border-t border-border">
                 <p className="font-sans text-xs text-primary font-medium flex items-center gap-1.5">
                   <Bell className="w-3.5 h-3.5" />
-                  After installing, enable notifications below to receive daily verses even when the app is closed
+                  After installing, enable notifications below to receive daily verses when you open the app
                 </p>
               </div>
             </div>
