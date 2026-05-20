@@ -695,94 +695,96 @@ export default function SettingsPage() {
         )}
         </div>
         )}
+      </div>
 
-        {/* Offline Library */}
-        <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
-            <button
-            onClick={() => toggleSection('offline')}
-            className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
-            >
-            <div>
+      {/* Offline Library */}
+      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+        <button
+          onClick={() => toggleSection('offline')}
+          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+        >
+          <div>
             <h2 className="font-serif text-lg font-semibold text-foreground">Bible Cache</h2>
             <p className="font-sans text-xs text-muted-foreground">Download for offline reading</p>
-            </div>
-            <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.offline ? 'rotate-180' : ''}`} />
-            </button>
-            {expandedSections.offline && (
-            <div className="p-5 pt-0">
-        <p className="font-sans text-sm text-muted-foreground mb-4">
-          Download all 66 books to your device for offline reading. Once downloaded, the Bible is available without an internet connection.
-        </p>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.offline ? 'rotate-180' : ''}`} />
+        </button>
+        {expandedSections.offline && (
+          <div className="p-5 pt-0">
+            <p className="font-sans text-sm text-muted-foreground mb-4">
+              Download all 66 books to your device for offline reading. Once downloaded, the Bible is available without an internet connection.
+            </p>
 
-        {cached ? (
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-              <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-              <span className="font-sans text-sm font-medium">The Bible is cached — available offline</span>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={async () => {
-                  await handleClearCache();
-                  // Auto-download fresh data with pilcrows
-                  setTimeout(() => handleDownload(), 500);
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
-              >
-                <Download className="w-3.5 h-3.5" />
-                Refresh with Latest
-              </button>
-              <button
-                onClick={handleClearCache}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive font-sans text-xs font-medium hover:bg-destructive/20 transition-colors"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                Clear Cache
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {!downloading && !dlStatus && (
-              <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 mb-3">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span className="font-sans text-sm">Not downloaded — Bible loads from network each visit</span>
-              </div>
-            )}
-            <button
-              onClick={handleDownload}
-              onTouchEnd={(e) => { e.preventDefault(); handleDownload(e); }}
-              disabled={downloading}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 disabled:opacity-60 transition-opacity"
-            >
-              {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-              {downloading ? 'Downloading…' : 'Download All 66 Books (Offline)'}
-            </button>
-            {downloading && (
-              <div className="space-y-2">
-                <div className="w-full bg-secondary rounded-full h-2">
-                  <div
-                    className="bg-primary h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${dlProgress}%` }}
-                  />
+            {cached ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                  <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+                  <span className="font-sans text-sm font-medium">The Bible is cached — available offline</span>
                 </div>
-                <p className="font-sans text-xs text-muted-foreground">{dlStatus}</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={async () => {
+                      await handleClearCache();
+                      // Auto-download fresh data with pilcrows
+                      setTimeout(() => handleDownload(), 500);
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    Refresh with Latest
+                  </button>
+                  <button
+                    onClick={handleClearCache}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive font-sans text-xs font-medium hover:bg-destructive/20 transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Clear Cache
+                  </button>
+                </div>
               </div>
-            )}
-            {dlStatus && !downloading && (
-              <p className="font-sans text-sm text-green-600 dark:text-green-400 flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4" /> {dlStatus}
-              </p>
-            )}
-            {dlError && (
-              <p className="font-sans text-sm text-destructive flex items-center gap-1.5">
-                <AlertCircle className="w-4 h-4" /> {dlError}
-              </p>
+            ) : (
+              <div className="space-y-3">
+                {!downloading && !dlStatus && (
+                  <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 mb-3">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    <span className="font-sans text-sm">Not downloaded — Bible loads from network each visit</span>
+                  </div>
+                )}
+                <button
+                  onClick={handleDownload}
+                  onTouchEnd={(e) => { e.preventDefault(); handleDownload(e); }}
+                  disabled={downloading}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 disabled:opacity-60 transition-opacity"
+                >
+                  {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                  {downloading ? 'Downloading…' : 'Download All 66 Books (Offline)'}
+                </button>
+                {downloading && (
+                  <div className="space-y-2">
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div
+                        className="bg-primary h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${dlProgress}%` }}
+                      />
+                    </div>
+                    <p className="font-sans text-xs text-muted-foreground">{dlStatus}</p>
+                  </div>
+                )}
+                {dlStatus && !downloading && (
+                  <p className="font-sans text-sm text-green-600 text-green-600 dark:text-green-400 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4" /> {dlStatus}
+                  </p>
+                )}
+                {dlError && (
+                  <p className="font-sans text-sm text-destructive flex items-center gap-1.5">
+                    <AlertCircle className="w-4 h-4" /> {dlError}
+                  </p>
+                )}
+              </div>
             )}
           </div>
         )}
-        </div>
-        )}
+      </div>
 
       {/* Notifications */}
       <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
