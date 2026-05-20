@@ -298,12 +298,18 @@ export default function SettingsPage() {
       <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
         <h2 className="font-serif text-lg font-semibold text-foreground">Install App</h2>
         <p className="font-sans text-sm text-muted-foreground leading-relaxed">
-          Add the KJB Reader to your home screen for quick access and to enable daily verse notifications when the app is closed.
+          Add the KJB Reader to your home screen for quick access and to receive daily verse notifications even when the app is closed.
         </p>
         {isInstalled ? (
-          <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-            <CheckCircle2 className="w-5 h-5 shrink-0" />
-            <span className="font-sans text-sm font-medium">App is installed on your home screen</span>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+              <CheckCircle2 className="w-5 h-5 shrink-0" />
+              <span className="font-sans text-sm font-medium">App is installed on your home screen</span>
+            </div>
+            <div className="flex items-center gap-2 text-primary">
+              <Bell className="w-4 h-4 shrink-0" />
+              <span className="font-sans text-xs font-medium">Notifications will work even when the app is closed</span>
+            </div>
           </div>
         ) : (
           <div className="space-y-3">
@@ -319,17 +325,21 @@ export default function SettingsPage() {
               <Smartphone className="w-4 h-4" />
               Add to Home Screen
             </button>
-            {!isInstallable && (
-              <div className="space-y-2 bg-secondary/50 rounded-xl p-4">
-                <p className="font-sans text-xs text-muted-foreground mb-2">
-                  <strong>Manual install:</strong>
-                </p>
-                <div className="font-sans text-xs text-muted-foreground space-y-1">
-                  <p>• <strong>iPhone (Safari):</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">⎕ Share</span> then <span className="text-foreground font-medium">"Add to Home Screen"</span></p>
-                  <p>• <strong>Android (Chrome):</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">⋮ Menu</span> then <span className="text-foreground font-medium">"Install app"</span> or <span className="text-foreground font-medium">"Add to Home screen"</span></p>
-                </div>
+            <div className="space-y-2 bg-secondary/50 rounded-xl p-4">
+              <p className="font-sans text-xs text-muted-foreground mb-2">
+                <strong>Install instructions:</strong>
+              </p>
+              <div className="font-sans text-xs text-muted-foreground space-y-1.5">
+                <p>• <strong>iPhone (Safari):</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Share</span> button at bottom, then <span className="text-foreground font-medium">"Add to Home Screen"</span></p>
+                <p>• <strong>Android (Chrome):</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">⋮ Menu</span> (top right), then <span className="text-foreground font-medium">"Install app"</span> or <span className="text-foreground font-medium">"Add to Home screen"</span></p>
               </div>
-            )}
+              <div className="mt-3 pt-3 border-t border-border">
+                <p className="font-sans text-xs text-primary font-medium flex items-center gap-1.5">
+                  <Bell className="w-3.5 h-3.5" />
+                  After installing, enable notifications below to receive daily verses even when the app is closed
+                </p>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -413,8 +423,19 @@ export default function SettingsPage() {
       {/* Notifications */}
       <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-4">
         <h2 className="font-serif text-lg font-semibold text-foreground">Daily Notifications</h2>
+        <p className="font-sans text-xs text-muted-foreground">
+          Receive daily verses and reading reminders even when the app is closed. Works best when installed to home screen.
+        </p>
         {notifPermission === 'unsupported' ? (
-          <p className="font-sans text-sm text-muted-foreground">Notifications are not supported in this browser. To enable them, add this app to your home screen (install as a PWA) using Chrome on Android or Safari on iPhone.</p>
+          <div className="space-y-3">
+            <p className="font-sans text-sm text-muted-foreground">
+              Notifications are not supported in this browser. To enable them, install this app to your home screen:
+            </p>
+            <div className="font-sans text-xs text-muted-foreground space-y-1.5 bg-secondary/50 rounded-xl p-4">
+              <p>• <strong>iPhone (Safari):</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Share</span> then <span className="text-foreground font-medium">"Add to Home Screen"</span></p>
+              <p>• <strong>Android (Chrome):</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">⋮ Menu</span> then <span className="text-foreground font-medium">"Install app"</span></p>
+            </div>
+          </div>
         ) : (
           <>
             {/* Verse of the Day */}

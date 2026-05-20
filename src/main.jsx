@@ -10,44 +10,41 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <App />
 )
 
-// Service worker registration for offline support
+// Service worker registration for offline support and notifications
 if ('serviceWorker' in navigator) {
-  // Always check for service worker updates in production
-  if (!import.meta.env.DEV) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(registration => {
-          console.log('[SW] Registered:', registration.scope);
-          
-          // Check for updates periodically
-          setInterval(() => {
-            registration.update().then(() => {
-              console.log('[SW] Checked for updates');
-            });
-          }, 60000); // Check every minute
-          
-          // Listen for update messages from service worker
-          navigator.serviceWorker.addEventListener('message', event => {
-            if (event.data && event.data.type === 'UPDATE_AVAILABLE') {
-              console.log('[SW] Update available, version:', event.data.cacheVersion);
-              toast.info('App update available', {
-                description: 'New features are ready. Refresh to update.',
-                action: {
-                  label: 'Refresh',
-                  onClick: () => {
-                    registration.waiting?.postMessage({ type: 'SKIP_WAITING' });
-                    window.location.reload();
-                  }
-                },
-                duration: 8000,
-              });
-            }
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(registration => {
+        console.log('[SW] Registered:', registration.scope);
+        
+        // Check for updates periodically
+        setInterval(() => {
+          registration.update().then(() => {
+            console.log('[SW] Checked for updates');
           });
-          
-          // Re-arm daily notification scheduler on every app load
-          initNotifications(getDailyVerse());
-        })
-        .catch(err => console.error('[SW] Registration failed:', err));
-    });
-  }
+        }, 60000); // Check every minute
+        
+        // Listen for update messages from service worker
+        navigator.serviceWorker.addEventListener('message', event => {
+          if (event.data && event.data.type === 'UPDATE_AVAILABLE') {
+            console.log('[SW] Update available, version:', event.data.cacheVersion);
+            toast.info('App update available', {
+              description: 'New features are ready. Refresh to update.',
+              action: {
+                label: 'Refresh',
+                onClick: () => {
+                  registration.waiting?.postMessage({ type: 'SKIP_WAITING' });
+                  window.location.reload();
+                }
+              },
+              duration: 8000,
+            });
+          }
+        });
+        
+        // Re-arm daily notification scheduler on every app load
+        initNotifications(getDailyVerse());
+      })
+      .catch(err => console.error('[SW] Registration failed:', err));
+  });
 }
