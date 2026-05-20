@@ -139,9 +139,16 @@
     -webkit-user-select: none;
     user-select: none;
   }
-  /* Pilcrow paragraph mark — visible in both light and dark mode, non-selectable, serif */
-  .pilcrow {
-    color: hsl(var(--foreground));
+  /* Pilcrow paragraph mark — white in dark mode, muted in light mode, non-selectable, serif */
+  :root .pilcrow {
+    color: hsl(var(--muted-foreground));
+    opacity: 0.7;
+    font-style: normal;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .dark .pilcrow {
+    color: #ffffff;
     opacity: 0.5;
     font-style: normal;
     user-select: none;
