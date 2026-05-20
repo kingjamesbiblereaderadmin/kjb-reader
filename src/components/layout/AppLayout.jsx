@@ -139,24 +139,9 @@ export default function AppLayout() {
                 e.preventDefault();
                 e.stopPropagation();
                 setRefreshing(true);
-                try {
-                  // Clear cache and reload
-                  if ('caches' in window) {
-                    const cacheNames = await caches.keys();
-                    await Promise.all(cacheNames.map(name => caches.delete(name)));
-                  }
-                  if ('serviceWorker' in navigator) {
-                    const registration = await navigator.serviceWorker.ready;
-                    await registration.unregister();
-                  }
-                  // Small delay to show the spinning animation
-                  await new Promise(resolve => setTimeout(resolve, 800));
-                  window.location.reload();
-                } catch (err) {
-                  console.error('Refresh failed:', err);
-                  setRefreshing(false);
-                  window.location.reload();
-                }
+                // Small delay to show the spinning animation
+                await new Promise(resolve => setTimeout(resolve, 800));
+                window.location.reload();
               }}
               style={{ touchAction: 'manipulation' }}
               role="button"
