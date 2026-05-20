@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff } from 'lucide-react';
+import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import ImageCropper from './ImageCropper';
 import { getNotificationsEnabled, requestNotificationPermission, disableNotifications, scheduleDailyNotification } from '@/lib/notifications';
@@ -30,6 +30,7 @@ export default function DailyVerseImage({ verse, onClick }) {
   });
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [showStyleEditor, setShowStyleEditor] = useState(false);
+  const [showLightbox, setShowLightbox] = useState(false);
   const [textColor, setTextColor] = useState(() => localStorage.getItem('kjb-verse-text-color') || '#ffffff');
   const [textOpacity, setTextOpacity] = useState(() => parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '0.95'));
   const [fontFamily, setFontFamily] = useState(() => localStorage.getItem('kjb-verse-font-family') || 'serif');
@@ -303,6 +304,18 @@ export default function DailyVerseImage({ verse, onClick }) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
+            setShowLightbox(true);
+          }}
+          className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+          title="View in lightbox"
+          type="button"
+        >
+          <Maximize2 className="w-4 h-4 text-slate-800" />
+        </button>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
             setShowStyleEditor(!showStyleEditor);
           }}
           className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
@@ -526,6 +539,61 @@ export default function DailyVerseImage({ verse, onClick }) {
             setCropImageForNotif(false);
           }}
         />
+      )}
+
+      {/* Lightbox Modal */}
+      {showLightbox && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+          onClick={() => setShowLightbox(false)}
+        >
+          <div
+            className="relative max-w-4xl w-full mx-4 p-8 md:p-12 rounded-2xl shadow-2xl"
+            style={bgStyle}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowLightbox(false)}
+              className="absolute top-4 right-4 p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors"
+              type="button"
+            >
+              <Upload className="w-5 h-5 text-white rotate-45" />
+            </button>
+            <p 
+              className={`font-sans text-xs font-semibold tracking-widest uppercase mb-6 ${accentClass}`}
+              style={{ opacity: 0.8 * textOpacity, color: textColor, fontFamily }}
+            >
+              Verse of the Day
+            </p>
+            <blockquote 
+              className="text-3xl md:text-5xl leading-relaxed mb-8"
+              style={{ 
+                color: textColor, 
+                opacity: textOpacity, 
+                fontFamily,
+                fontWeight: '700',
+                textShadow: '0 2px 8px rgba(0,0,0,0.3)'
+              }}
+            >
+              "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
+            </blockquote>
+            <p 
+              className="font-sans text-xl md:text-2xl font-semibold"
+              style={{ 
+                opacity: Math.min(1, textOpacity + 0.05), 
+                color: textColor, 
+                fontFamily,
+                textShadow: '0 1px 4px rgba(0,0,0,0.3)'
+              }}
+            >
+              — {verse.ref} (KJB)
+            </p>
+            <div 
+              className={`mt-8 w-16 h-1 mx-auto ${accentClass}`}
+              style={{ opacity: 0.75 * textOpacity, backgroundColor: textColor }}
+            />
+          </div>
+        </div>
       )}
     </div>
   );
