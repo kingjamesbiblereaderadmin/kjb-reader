@@ -308,15 +308,17 @@ function BottomNav({ pathname, navigate }) {
   const [showMode, setShowMode] = useState(() => {
     try {
       const saved = localStorage.getItem('kjb-footer-mode');
-      return saved === 'two' ? 'two' : 'one';
+      return saved === 'two' ? 'two' : saved === 'none' ? 'none' : 'one';
     } catch { return 'one'; }
   });
 
   const cycleShowMode = () => {
-    const next = showMode === 'one' ? 'two' : 'one';
+    const next = showMode === 'one' ? 'two' : showMode === 'two' ? 'none' : 'one';
     setShowMode(next);
     try { localStorage.setItem('kjb-footer-mode', next); } catch {}
   };
+
+  if (showMode === 'none') return null;
 
   return (
     <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border safe-area-pb">
@@ -348,7 +350,7 @@ function BottomNav({ pathname, navigate }) {
             className="w-8 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-colors shrink-0 border-l border-border"
             title="Toggle navigation rows"
           >
-            {showMode === 'two' ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5 rotate-180" />}
+            {showMode === 'two' ? <ChevronDown className="w-3.5 h-3.5" /> : showMode === 'one' ? <ChevronDown className="w-3.5 h-3.5 rotate-180" /> : <ChevronDown className="w-3.5 h-3.5" />}
           </button>
         </div>
 
