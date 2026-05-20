@@ -508,8 +508,8 @@ export default function SettingsPage() {
            mode === 'dark' ? '🌙 Dark mode always on' : '☀️ Light mode always on'}
         </p>
 
-        {/* Colour palette */}
-        <div className="pt-4 border-t border-border space-y-2">
+        {/* Accent Colour */}
+        <div className="pt-4 space-y-2">
           <p className="font-sans text-sm text-foreground font-medium">Accent Colour</p>
           <div className="flex flex-wrap gap-2">
             {COLOUR_PALETTES.map(p => (
