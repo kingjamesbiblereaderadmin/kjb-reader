@@ -549,19 +549,14 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             </label>
             <div className="flex flex-wrap gap-2 mb-2">
               {[
-                '#000000', '#1a1a1a', '#2d2d2d', '#4a4a4a', '#6b6b6b',
-                '#ffffff', '#f8f8f8', '#e8e8e8', '#d4d4d4',
-                '#fef3c7', '#fde68a', '#fbbf24', '#f59e0b', '#d97706',
-                '#dbeafe', '#93c5fd', '#3b82f6', '#1e40af', '#1e3a8a',
-                '#fecaca', '#fca5a5', '#ef4444', '#b91c1c', '#991b1b',
-                '#ddd6fe', '#a78bfa', '#8b5cf6', '#5b21b6', '#4c1d95',
-                '#bbf7d0', '#6ee7b7', '#10b981', '#047857', '#065f46',
-                '#ffe4e6', '#fda4af', '#ec4899', '#9d174d', '#831843',
-                '#e0f2fe', '#7dd3fc', '#0ea5e9', '#0369a1', '#075985',
-                '#faf5ff', '#e9d5ff', '#c084fc', '#a855f7', '#7e22ce',
-                '#fef9c3', '#facc15', '#eab308', '#ca8a04', '#a16207',
-                '#dcfce7', '#4ade80', '#22c55e', '#16a34a', '#15803d',
-                '#f0f9ff', '#38bdf8', '#0284c7', '#0e7490', '#155e75'
+                '#000000', '#1a1a1a', '#ffffff', '#f8f8f8',
+                '#fef3c7', '#fde68a', '#fbbf24', '#f59e0b',
+                '#dbeafe', '#93c5fd', '#3b82f6', '#1e40af',
+                '#fecaca', '#fca5a5', '#ef4444', '#b91c1c',
+                '#ddd6fe', '#a78bfa', '#8b5cf6', '#5b21b6',
+                '#bbf7d0', '#6ee7b7', '#10b981', '#047857',
+                '#ffe4e6', '#fda4af', '#ec4899', '#9d174d',
+                '#e0f2fe', '#7dd3fc', '#0ea5e9', '#0369a1'
               ].map(color => (
                 <button
                   key={color}
@@ -573,27 +568,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 />
               ))}
             </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="color"
-                value={textColor}
-                onChange={(e) => handleTextColorChange(e.target.value)}
-                className="w-8 h-8 rounded-lg border border-slate-300 cursor-pointer"
-              />
-              <input
-                type="text"
-                placeholder="#ffffff"
-                value={textColor}
-                onChange={(e) => {
-                  const hex = e.target.value;
-                  if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
-                    handleTextColorChange(hex);
-                  }
-                }}
-                className="flex-1 px-2 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 font-sans text-xs font-mono"
-              />
-            </div>
-            <p className="font-sans text-[10px] text-slate-500 dark:text-slate-400 mt-1">Enter a hex colour code (e.g., #ffffff)</p>
           </div>
 
           {/* Text Opacity */}
