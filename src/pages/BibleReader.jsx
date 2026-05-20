@@ -676,7 +676,6 @@ export default function BibleReader() {
                 {selectMode ? 'Done' : 'Select'}
               </button>
               </div>
-              </>
             )}
 
             {/* Fullscreen + Hide header — wrap dynamically */}

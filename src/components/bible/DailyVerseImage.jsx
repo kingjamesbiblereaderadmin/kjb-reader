@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2, ChevronsDown, MoreVertical, Trash2, Image } from 'lucide-react';
+import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2, ChevronsDown, MoreVertical, Trash2, Image, Copy } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import ImageCropper from './ImageCropper';
 import { getNotificationsEnabled, requestNotificationPermission, disableNotifications, scheduleDailyNotification } from '@/lib/notifications';
@@ -173,7 +173,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const handleDownload = async (e) => {
     e.stopPropagation();
     setCapturing(true);
+    setShowButtons(false);
     try {
+      await new Promise(resolve => setTimeout(resolve, 100));
       const canvas = await html2canvas(verseRef.current, {
         backgroundColor: null,
         scale: 2,
@@ -183,8 +185,10 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       link.download = `daily-verse-${new Date().toISOString().slice(0, 10)}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
+      setShowButtons(true);
     } catch (err) {
       console.error('Failed to download image:', err);
+      setShowButtons(true);
     }
     setCapturing(false);
   };
@@ -192,6 +196,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const handleSetWallpaper = async (e) => {
     e.stopPropagation();
     setCapturing(true);
+    setShowButtons(false);
     try {
       // If custom background image exists, use it directly for wallpaper
       if (customBg) {
@@ -213,8 +218,10 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             alert('💻 Desktop:\n1. Right-click the downloaded image\n2. Choose "Set as desktop background"\n   (or right-click desktop → Personalize)');
           }
         }, 500);
+        setShowButtons(true);
       } else {
         // No custom image, capture verse card as before
+        await new Promise(resolve => setTimeout(resolve, 100));
         const canvas = await html2canvas(verseRef.current, {
           backgroundColor: null,
           scale: 2,
@@ -224,6 +231,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         link.download = `daily-verse-${new Date().toISOString().slice(0, 10)}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
+        setShowButtons(true);
         
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         const isAndroid = /Android/.test(navigator.userAgent);
@@ -241,13 +249,17 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     } catch (err) {
       console.error('Failed to set wallpaper:', err);
       alert('Failed to generate image. Please try again.');
+      setShowButtons(true);
     }
     setCapturing(false);
   };
 
   const handleShare = async (e) => {
     e.stopPropagation();
+    setCapturing(true);
+    setShowButtons(false);
     try {
+      await new Promise(resolve => setTimeout(resolve, 100));
       // Try to share/copy image first
       const canvas = await html2canvas(verseRef.current, {
         backgroundColor: null,
@@ -262,6 +274,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           text: `"${verse.text}" — ${verse.ref}`,
           files: [new File([blob], `daily-verse-${new Date().toISOString().slice(0, 10)}.png`, { type: 'image/png' })],
         });
+        setShowButtons(true);
+        setCapturing(false);
         return;
       }
       
@@ -269,6 +283,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       try {
         await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
         alert('Image copied to clipboard!');
+        setShowButtons(true);
+        setCapturing(false);
         return;
       } catch {}
     } catch (err) {
@@ -287,6 +303,21 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     } else {
       await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
       alert('Verse text copied to clipboard!');
+    }
+    setShowButtons(true);
+    setCapturing(false);
+  };
+
+  const handleCopyVerse = async (e) => {
+    e.stopPropagation();
+    try {
+      const verseText = `"${verse.text}" — ${verse.ref}`;
+      await navigator.clipboard.writeText(verseText);
+      alert('Verse copied to clipboard!');
+      setShowMenu(false);
+    } catch (err) {
+      console.error('Failed to copy verse:', err);
+      alert('Failed to copy verse');
     }
   };
 
@@ -384,6 +415,13 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                   className="absolute right-0 top-8 z-30 bg-white rounded-lg shadow-xl border border-slate-200 py-1 w-48"
                   onClick={(e) => e.stopPropagation()}
                 >
+                  <button
+                    onClick={handleCopyVerse}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                  >
+                    <Copy className="w-4 h-4" />
+                    Copy Verse
+                  </button>
                   <button
                     onClick={(e) => {
                       e.preventDefault();
