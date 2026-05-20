@@ -414,6 +414,17 @@ export async function clearBibleCache() {
   console.log('[CLEAR] ✓ All cache cleared');
 }
 
+// Force reload Bible data from network (bypass cache)
+export async function forceReloadBibleData() {
+  console.log('[FORCE RELOAD] Clearing cache and fetching fresh...');
+  await clearBibleCache();
+  const data = await fetchAndParse();
+  parsedData = data;
+  await saveToCache(data);
+  console.log('[FORCE RELOAD] ✓ Complete with', Object.keys(data.__colophons || {}).length, 'colophons');
+  return data;
+}
+
 // Download all Bible data and cache it for offline use
 export async function downloadBibleForOffline(onProgress) {
   // Clear existing cache to force a fresh download

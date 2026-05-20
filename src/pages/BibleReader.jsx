@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type } from 'lucide-react';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText } from '@/lib/bibleApi';
-import { getBibleData } from '@/lib/bibleCache';
+import { getBibleData, forceReloadBibleData } from '@/lib/bibleCache';
 import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
 import BookSelector from '@/components/bible/BookSelector';
 import ChapterSelector from '@/components/bible/ChapterSelector';
@@ -207,7 +207,11 @@ export default function BibleReader() {
       setVerseCount(data.verses.length);
       setHighlightVerse(jumpVerse || null);
       savePosition(bookAbbr, chapter);
+      
+      // Debug: log colophon info
+      console.log('[BibleReader] Colophon for', b.apiName, chapter, ':', data.colophon);
     } catch (err) {
+      console.error('Load chapter error:', err);
       setError('Failed to load chapter. Please check your connection.');
     }
     setLoading(false);
@@ -278,6 +282,19 @@ export default function BibleReader() {
   const isLastChapterLastBook = pos.abbr === 'REV' && pos.chapter === 22;
   const isFirstChapterFirstBook = pos.abbr === 'GEN' && pos.chapter === 0;
   const isGenesisChapterOne = pos.abbr === 'GEN' && pos.chapter === 1;
+
+  // Force reload Bible data (for debugging colophons)
+  const handleForceReload = async () => {
+    setLoading(true);
+    try {
+      await forceReloadBibleData();
+      window.location.reload();
+    } catch (err) {
+      console.error('Force reload failed:', err);
+      setError('Failed to reload. Please try again.');
+      setLoading(false);
+    }
+  };
 
   // Auto-track reading when chapter loads
   useEffect(() => {
@@ -833,6 +850,17 @@ export default function BibleReader() {
             </p>
           </div>
         )}
+      </div>
+
+      {/* Debug: Force reload button (can remove later) */}
+      <div className="fixed bottom-4 right-4 z-50">
+        <button
+          onClick={handleForceReload}
+          className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity shadow-lg"
+          title="Force reload Bible data with colophons"
+        >
+          🔄 Reload Cache
+        </button>
       </div>
 
       {/* End-of-section text footers */}
