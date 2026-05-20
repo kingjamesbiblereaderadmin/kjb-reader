@@ -226,57 +226,144 @@ export default function SettingsPage() {
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
       </div>
 
-      {/* Text Zoom */}
-      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
-        <h2 className="font-serif text-lg font-semibold text-foreground">Text Size</h2>
-        <p className="font-sans text-sm text-muted-foreground">Default zoom level for Bible text</p>
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="font-sans text-sm text-foreground font-medium">Current: {zoomLevel}%</p>
-            <p className="font-sans text-xs text-muted-foreground mt-0.5">
-              {zoomLevel < 100 ? 'Smaller text' : zoomLevel > 100 ? 'Larger text' : 'Default size'}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                const newZoom = Math.max(75, zoomLevel - 25);
-                setZoomLevel(newZoom);
-                try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch {}
-              }}
-              className="p-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-colors"
-            >
-              <ZoomOut className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => {
-                const newZoom = Math.min(150, zoomLevel + 25);
-                setZoomLevel(newZoom);
-                try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch {}
-              }}
-              className="p-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-colors"
-            >
-              <ZoomIn className="w-4 h-4" />
-            </button>
-            {zoomLevel !== 100 && (
+      {/* Text Settings */}
+      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-4">
+        <h2 className="font-serif text-lg font-semibold text-foreground">Text</h2>
+        <p className="font-sans text-xs text-muted-foreground">Customize text size and font</p>
+        
+        {/* Zoom Level */}
+        <div className="pt-2 space-y-3">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="font-sans text-sm text-foreground font-medium">Text Size: {zoomLevel}%</p>
+              <p className="font-sans text-xs text-muted-foreground mt-0.5">
+                {zoomLevel < 100 ? 'Smaller text' : zoomLevel > 100 ? 'Larger text' : 'Default size'}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => {
-                  setZoomLevel(100);
-                  try { localStorage.setItem('kjb-zoom', '100'); } catch {}
+                  const newZoom = Math.max(75, zoomLevel - 25);
+                  setZoomLevel(newZoom);
+                  try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch {}
                 }}
-                className="px-3 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+                className="p-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-colors"
               >
-                Reset
+                <ZoomOut className="w-4 h-4" />
               </button>
-            )}
+              <button
+                onClick={() => {
+                  const newZoom = Math.min(150, zoomLevel + 25);
+                  setZoomLevel(newZoom);
+                  try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch {}
+                }}
+                className="p-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-colors"
+              >
+                <ZoomIn className="w-4 h-4" />
+              </button>
+              {zoomLevel !== 100 && (
+                <button
+                  onClick={() => {
+                    setZoomLevel(100);
+                    try { localStorage.setItem('kjb-zoom', '100'); } catch {}
+                  }}
+                  className="px-3 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Font Family */}
+        <div className="pt-4 border-t border-border space-y-3">
+          <div className="flex items-center gap-2">
+            <Type className="w-4 h-4 text-muted-foreground" />
+            <p className="font-sans text-sm text-foreground font-medium">Font Family</p>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {VERSE_FONTS.map(font => (
+              <button
+                key={font.value}
+                onClick={() => {
+                  setVerseFontFamily(font.value);
+                  localStorage.setItem('kjb-verse-font-family', font.value);
+                  window.dispatchEvent(new Event('storage'));
+                }}
+                className={`px-4 py-3 rounded-xl font-sans text-sm font-medium transition-all ${
+                  verseFontFamily === font.value
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                }`}
+                style={{ fontFamily: font.value }}
+              >
+                {font.label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
       {/* Appearance */}
-      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
+      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-4">
         <h2 className="font-serif text-lg font-semibold text-foreground">Appearance</h2>
-        <p className="font-sans text-xs text-muted-foreground">Choose how the app looks</p>
+        <p className="font-sans text-xs text-muted-foreground">Customize the look and feel</p>
+        
+        {/* Theme Mode */}
+        <div className="space-y-3">
+          <h3 className="font-serif text-base font-semibold text-foreground">Theme</h3>
+          <div className="grid grid-cols-4 gap-2">
+            {[
+              { id: 'light', label: '☀️ Light' },
+              { id: 'dark', label: '🌙 Dark' },
+              { id: 'auto', label: '🕐 Auto' },
+              { id: 'system', label: '📱 System' },
+            ].map(opt => (
+              <button
+                key={opt.id}
+                onClick={() => setMode(opt.id)}
+                className={`py-2 rounded-xl font-sans text-sm font-medium transition-colors ${
+                  mode === opt.id
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+          <p className="font-sans text-xs text-muted-foreground">
+            {mode === 'auto' ? '🕐 Auto: light 6am–6pm, dark 6pm–6am' :
+             mode === 'system' ? '📱 System: follows your device setting' :
+             mode === 'dark' ? '🌙 Dark mode always on' : '☀️ Light mode always on'}
+          </p>
+
+          {/* Accent Colour */}
+          <div className="pt-3 border-t border-border space-y-2">
+            <p className="font-sans text-sm text-foreground font-medium">Accent Colour</p>
+            <div className="flex flex-wrap gap-2">
+              {COLOUR_PALETTES.map(p => (
+                <button
+                  key={p.id}
+                  onClick={() => setColourId(p.id)}
+                  title={p.name}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-sans text-xs font-medium border-2 transition-all ${
+                    colourId === p.id
+                      ? 'border-foreground scale-105 bg-secondary'
+                      : 'border-transparent bg-secondary hover:border-border'
+                  }`}
+                >
+                  <span
+                    className="w-3.5 h-3.5 rounded-full shrink-0"
+                    style={{ backgroundColor: p.swatch }}
+                  />
+                  {p.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
         
         {/* Custom Daily Verse Background */}
         <div className="pt-4 border-t border-border space-y-3">
@@ -478,62 +565,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Theme */}
-      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
-        <h2 className="font-serif text-lg font-semibold text-foreground">Theme</h2>
-        <p className="font-sans text-xs text-muted-foreground">Choose how the app looks</p>
-        
-        <div className="grid grid-cols-4 gap-2 pt-4">
-          {[
-            { id: 'light', label: '☀️ Light' },
-            { id: 'dark', label: '🌙 Dark' },
-            { id: 'auto', label: '🕐 Auto' },
-            { id: 'system', label: '📱 System' },
-          ].map(opt => (
-            <button
-              key={opt.id}
-              onClick={() => setMode(opt.id)}
-              className={`py-2 rounded-xl font-sans text-sm font-medium transition-colors ${
-                mode === opt.id
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-        <p className="font-sans text-xs text-muted-foreground">
-          {mode === 'auto' ? '🕐 Auto: light 6am–6pm, dark 6pm–6am' :
-           mode === 'system' ? '📱 System: follows your device setting' :
-           mode === 'dark' ? '🌙 Dark mode always on' : '☀️ Light mode always on'}
-        </p>
 
-        {/* Accent Colour */}
-        <div className="pt-4 space-y-2">
-          <p className="font-sans text-sm text-foreground font-medium">Accent Colour</p>
-          <div className="flex flex-wrap gap-2">
-            {COLOUR_PALETTES.map(p => (
-              <button
-                key={p.id}
-                onClick={() => setColourId(p.id)}
-                title={p.name}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-sans text-xs font-medium border-2 transition-all ${
-                  colourId === p.id
-                    ? 'border-foreground scale-105 bg-secondary'
-                    : 'border-transparent bg-secondary hover:border-border'
-                }`}
-              >
-                <span
-                  className="w-3.5 h-3.5 rounded-full shrink-0"
-                  style={{ backgroundColor: p.swatch }}
-                />
-                {p.name}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
 
 
 

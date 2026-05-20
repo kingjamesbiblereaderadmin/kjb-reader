@@ -689,7 +689,13 @@ export default function BibleReader() {
       {/* Title pages or verses */}
       <div 
         className="leading-loose text-foreground/90 font-serif"
-        style={{ fontSize: `${zoomLevel / 100}rem`, lineHeight: zoomLevel > 100 ? '1.8' : '1.6' }}
+        style={{ 
+          fontSize: `${zoomLevel / 100}rem`, 
+          lineHeight: zoomLevel > 100 ? '1.8' : '1.6',
+          fontFamily: (() => {
+            try { return localStorage.getItem('kjb-verse-font-family') || 'serif'; } catch { return 'serif'; }
+          })()
+        }}
       >
         {loading && (
           <div className="flex justify-center py-16">
