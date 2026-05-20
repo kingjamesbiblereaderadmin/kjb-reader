@@ -693,7 +693,7 @@ export default function BibleReader() {
           fontSize: `${zoomLevel / 100}rem`, 
           lineHeight: zoomLevel > 100 ? '1.8' : '1.6',
           fontFamily: (() => {
-            try { return localStorage.getItem('kjb-verse-font-family') || 'serif'; } catch { return 'serif'; }
+            try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
           })()
         }}
       >

@@ -47,7 +47,7 @@ export default function SettingsPage() {
     try { return parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '0.95'); } catch { return 0.95; }
   });
   const [verseFontFamily, setVerseFontFamily] = useState(() => {
-    try { return localStorage.getItem('kjb-verse-font-family') || 'serif'; } catch { return 'serif'; }
+    try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
   });
   const [showVersePanel, setShowVersePanel] = useState(() => {
     try { return localStorage.getItem('kjb-verse-panel-visible') !== 'false'; } catch { return true; }
@@ -333,7 +333,7 @@ export default function SettingsPage() {
             key={font.value}
             onClick={() => {
               setVerseFontFamily(font.value);
-              localStorage.setItem('kjb-verse-font-family', font.value);
+              localStorage.setItem('kjb-reader-font-family', font.value);
               window.dispatchEvent(new Event('storage'));
             }}
             className={`w-full py-3 rounded-xl font-sans text-sm font-medium transition-all text-center border-2 ${
@@ -349,7 +349,7 @@ export default function SettingsPage() {
         <button
           onClick={() => {
             setVerseFontFamily('serif');
-            localStorage.setItem('kjb-verse-font-family', 'serif');
+            localStorage.setItem('kjb-reader-font-family', 'serif');
             window.dispatchEvent(new Event('storage'));
           }}
           className="w-full py-3 rounded-xl font-sans text-sm font-medium transition-all text-center bg-secondary text-secondary-foreground border-2 border-border hover:border-accent"
