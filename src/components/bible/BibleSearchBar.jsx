@@ -117,7 +117,7 @@ export default function BibleSearchBar({ onClose }) {
   return (
     <div className="relative w-full">
       <form onSubmit={handleSubmit} className="relative">
-        <div className="relative flex items-center min-h-[80px]">
+        <div className="relative flex items-center">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none flex-shrink-0" />
           <input
             ref={inputRef}
@@ -126,18 +126,18 @@ export default function BibleSearchBar({ onClose }) {
             onChange={e => { setQuery(e.target.value); setOpen(true); }}
             onFocus={() => setOpen(true)}
             placeholder="Search..."
-            className="w-full pl-9 pr-16 py-3 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors min-h-[72px] truncate"
+            className="w-full pl-9 pr-8 py-2 h-10 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors truncate"
           />
           {query && (
             <button
               type="button"
               onClick={() => { setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
               onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); setQuery(''); setSuggestions([]); setOpen(false); inputRef.current?.focus(); }}
-              className="absolute right-0 top-0 bottom-0 w-20 flex items-center justify-center text-muted-foreground hover:text-foreground active:opacity-60"
+              className="absolute right-0 top-0 bottom-0 w-10 flex items-center justify-center text-muted-foreground hover:text-foreground active:opacity-60"
               style={{ touchAction: 'manipulation' }}
               aria-label="Clear search"
             >
-              <X className="w-6 h-6" />
+              <X className="w-4 h-4" />
             </button>
           )}
         </div>

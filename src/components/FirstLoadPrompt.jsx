@@ -106,7 +106,8 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             <div>
               <button
                 type="button"
-                onPointerDown={handleInstallClick}
+                onClick={handleInstallClick}
+                onPointerDown={e => e.stopPropagation()}
                 className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 active:opacity-80 transition-opacity touch-manipulation"
               >
                 {isIOS() ? <Share className="w-4 h-4 shrink-0" /> : isMobile() ? <Download className="w-4 h-4 shrink-0" /> : <MonitorSmartphone className="w-4 h-4 shrink-0" />}
@@ -131,7 +132,8 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
           {showNotif && (
             <button
               type="button"
-              onPointerDown={handleNotifClick}
+              onClick={handleNotifClick}
+              onPointerDown={e => e.stopPropagation()}
               className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary font-sans text-sm font-medium hover:bg-primary/20 active:bg-primary/25 transition-colors text-left touch-manipulation"
             >
               <Bell className="w-4 h-4 shrink-0" />
