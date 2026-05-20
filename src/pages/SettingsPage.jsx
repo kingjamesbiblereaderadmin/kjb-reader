@@ -282,7 +282,7 @@ export default function SettingsPage() {
           <Type className="w-4 h-4 text-muted-foreground" />
           <p className="font-sans text-sm text-foreground font-medium">Font Family</p>
         </div>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="flex flex-col gap-2">
           {VERSE_FONTS.map(font => (
             <button
               key={font.value}
