@@ -138,13 +138,15 @@ export default function BibleReader() {
 
   const handleCopySelected = async () => {
     const toUse = selectedVerses.size > 0 ? selectedVerses : new Set(verses.map(v => v.verse));
-    const lines = verses
-      .filter(v => toUse.has(v.verse))
-      .map(v => {
-        const clean = v.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
-        return `"${clean}" — ${book.name} ${pos.chapter}:${v.verse} (KJB)`;
-      })
-      .join('\n\n');
+    const selectedVersesList = verses.filter(v => toUse.has(v.verse)).sort((a, b) => a.verse - b.verse);
+    const versesText = selectedVersesList.map(v => {
+      const clean = v.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
+      return `"${clean}"`;
+    }).join(' ');
+    const verseRange = selectedVersesList.length > 1
+      ? `${book.name} ${pos.chapter}:${selectedVersesList[0].verse}-${selectedVersesList[selectedVersesList.length - 1].verse}`
+      : `${book.name} ${pos.chapter}:${selectedVersesList[0].verse}`;
+    const lines = `${versesText} — ${verseRange} (KJB)`;
     await navigator.clipboard.writeText(lines);
     setCopyFeedback(true);
     setTimeout(() => setCopyFeedback(false), 1800);
