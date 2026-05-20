@@ -72,6 +72,12 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     if (onEnableNotif) {
       await onEnableNotif();
       setNotifDone(true);
+      // If there's nothing else to show, dismiss the whole prompt
+      if (!showInstall) {
+        setDismissed(true);
+        try { localStorage.setItem(DISMISSED_KEY, 'true'); } catch {}
+        if (onDismiss) onDismiss();
+      }
     }
   };
 
