@@ -104,21 +104,30 @@ export function ThemeProvider({ children }) {
 
   // Apply 1611 vs Modern theme and dyslexic font
   useEffect(() => {
-    const root = document.documentElement;
-    const use1611 = localStorage.getItem('kjb-theme-1611') !== 'false';
-    if (!use1611) {
-      root.setAttribute('data-theme-modern', 'true');
-    } else {
-      root.removeAttribute('data-theme-modern');
-    }
+    const applyTheme = () => {
+      const root = document.documentElement;
+      const use1611 = localStorage.getItem('kjb-theme-1611') !== 'false';
+      if (!use1611) {
+        root.setAttribute('data-theme-modern', 'true');
+      } else {
+        root.removeAttribute('data-theme-modern');
+      }
+      
+      // Apply dyslexic font globally
+      const useDyslexic = localStorage.getItem('kjb-dyslexic-font') === 'true';
+      if (useDyslexic) {
+        root.setAttribute('data-dyslexic-font', 'true');
+      } else {
+        root.removeAttribute('data-dyslexic-font');
+      }
+    };
+
+    applyTheme();
     
-    // Apply dyslexic font globally
-    const useDyslexic = localStorage.getItem('kjb-dyslexic-font') === 'true';
-    if (useDyslexic) {
-      root.setAttribute('data-dyslexic-font', 'true');
-    } else {
-      root.removeAttribute('data-dyslexic-font');
-    }
+    // Listen for storage changes to sync theme across tabs
+    const handleStorage = () => applyTheme();
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
   // Listen for dyslexic font changes and update globally
