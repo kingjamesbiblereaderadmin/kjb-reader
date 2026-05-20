@@ -40,7 +40,18 @@ if ('serviceWorker' in navigator) {
               duration: 8000,
             });
           }
+          if (event.data && event.data.type === 'CACHE_REFRESHED') {
+            console.log('[SW] Cache refreshed');
+          }
         });
+        
+        // Pre-fetch Bible data in background after app loads
+        setTimeout(() => {
+          import('@/lib/bibleCache').then(({ getBibleData }) => {
+            console.log('[APP] Pre-fetching Bible data in background...');
+            getBibleData().catch(() => {});
+          });
+        }, 2000);
         
         // Re-arm daily notification scheduler on every app load
         initNotifications(getDailyVerse());
