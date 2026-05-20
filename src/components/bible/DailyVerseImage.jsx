@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2 } from 'lucide-react';
+import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2, ChevronsDown } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import ImageCropper from './ImageCropper';
 import { getNotificationsEnabled, requestNotificationPermission, disableNotifications, scheduleDailyNotification } from '@/lib/notifications';
@@ -32,6 +32,7 @@ export default function DailyVerseImage({ verse, onClick }) {
   const [showStyleEditor, setShowStyleEditor] = useState(false);
   const [showLightbox, setShowLightbox] = useState(false);
   const [showVersePanel, setShowVersePanel] = useState(() => localStorage.getItem('kjb-verse-panel-visible') !== 'false');
+  const [showButtons, setShowButtons] = useState(true);
   const [textColor, setTextColor] = useState(() => localStorage.getItem('kjb-verse-text-color') || '#ffffff');
   const [textOpacity, setTextOpacity] = useState(() => parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '0.95'));
   const [fontFamily, setFontFamily] = useState(() => localStorage.getItem('kjb-verse-font-family') || 'serif');
@@ -302,113 +303,142 @@ export default function DailyVerseImage({ verse, onClick }) {
     <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-8 pt-5 pb-8 text-center text-white relative cursor-pointer`} style={bgStyle}>
       {/* Action buttons */}
       <div className="absolute top-2 right-2 flex gap-1.5 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setShowLightbox(true);
-          }}
-          className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
-          title="View in lightbox"
-          type="button"
-        >
-          <Maximize2 className="w-4 h-4 text-slate-800" />
-        </button>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const newValue = !showVersePanel;
-            setShowVersePanel(newValue);
-            localStorage.setItem('kjb-verse-panel-visible', String(newValue));
-            window.dispatchEvent(new Event('storage'));
-          }}
-          className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
-          title={showVersePanel ? 'Hide panel' : 'Show panel'}
-          type="button"
-        >
-          <Eye className="w-4 h-4 text-slate-800" />
-        </button>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setShowStyleEditor(!showStyleEditor);
-          }}
-          className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
-          title="Customize text style"
-          type="button"
-        >
-          <Palette className="w-4 h-4 text-slate-800" />
-        </button>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setCropImageForNotif(false);
-            fileInputRef.current?.click();
-          }}
-          disabled={uploading}
-          className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
-          title="Change background image"
-          type="button"
-        >
-          {uploading ? (
-            <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
-          ) : (
-            <Upload className="w-4 h-4 text-slate-800" />
-          )}
-        </button>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            handleToggleNotifications();
-          }}
-          className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
-          title={notifEnabled ? 'Daily verse reminders on' : 'Enable daily verse reminders'}
-          type="button"
-        >
-          {notifEnabled ? (
-            <Bell className="w-4 h-4 text-slate-800" />
-          ) : (
-            <BellOff className="w-4 h-4 text-slate-800/60" />
-          )}
-        </button>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            handleShare(e);
-          }}
-          disabled={capturing}
-          className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
-          title="Share verse image"
-          type="button"
-        >
-          {capturing ? (
-            <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
-          ) : (
-            <Share2 className="w-4 h-4 text-slate-800" />
-          )}
-        </button>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            handleDownload(e);
-          }}
-          disabled={capturing}
-          className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
-          title="Download verse image"
-          type="button"
-        >
-          {capturing ? (
-            <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
-          ) : (
-            <Download className="w-4 h-4 text-slate-800" />
-          )}
-        </button>
+        {showButtons ? (
+          <>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowLightbox(true);
+              }}
+              className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+              title="View in lightbox"
+              type="button"
+            >
+              <Maximize2 className="w-4 h-4 text-slate-800" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const newValue = !showVersePanel;
+                setShowVersePanel(newValue);
+                localStorage.setItem('kjb-verse-panel-visible', String(newValue));
+                window.dispatchEvent(new Event('storage'));
+              }}
+              className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+              title={showVersePanel ? 'Hide panel' : 'Show panel'}
+              type="button"
+            >
+              <Eye className="w-4 h-4 text-slate-800" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowStyleEditor(!showStyleEditor);
+              }}
+              className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+              title="Customize text style"
+              type="button"
+            >
+              <Palette className="w-4 h-4 text-slate-800" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setCropImageForNotif(false);
+                fileInputRef.current?.click();
+              }}
+              disabled={uploading}
+              className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
+              title="Change background image"
+              type="button"
+            >
+              {uploading ? (
+                <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
+              ) : (
+                <Upload className="w-4 h-4 text-slate-800" />
+              )}
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleToggleNotifications();
+              }}
+              className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+              title={notifEnabled ? 'Daily verse reminders on' : 'Enable daily verse reminders'}
+              type="button"
+            >
+              {notifEnabled ? (
+                <Bell className="w-4 h-4 text-slate-800" />
+              ) : (
+                <BellOff className="w-4 h-4 text-slate-800/60" />
+              )}
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleShare(e);
+              }}
+              disabled={capturing}
+              className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
+              title="Share verse image"
+              type="button"
+            >
+              {capturing ? (
+                <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
+              ) : (
+                <Share2 className="w-4 h-4 text-slate-800" />
+              )}
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleDownload(e);
+              }}
+              disabled={capturing}
+              className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
+              title="Download verse image"
+              type="button"
+            >
+              {capturing ? (
+                <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
+              ) : (
+                <Download className="w-4 h-4 text-slate-800" />
+              )}
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowButtons(false);
+              }}
+              className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+              title="Hide buttons"
+              type="button"
+            >
+              <ChevronsDown className="w-4 h-4 text-slate-800 rotate-180" />
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowButtons(true);
+            }}
+            className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+            title="Show buttons"
+            type="button"
+          >
+            <ChevronsDown className="w-4 h-4 text-slate-800" />
+          </button>
+        )}
       </div>
 
       {/* Style Editor Panel */}
