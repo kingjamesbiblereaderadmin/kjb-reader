@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
+import { Download, Share2 } from 'lucide-react';
+import html2canvas from 'html2canvas';
 
 const VERSE_BACKGROUNDS = [
   { gradient: 'from-blue-600 to-purple-600', accent: 'text-blue-200' },
@@ -14,9 +16,93 @@ const VERSE_BACKGROUNDS = [
 export default function DailyVerseImage({ verse }) {
   const dow = new Date().getDay();
   const { gradient, accent } = VERSE_BACKGROUNDS[dow];
+  const verseRef = useRef(null);
+  const [capturing, setCapturing] = useState(false);
+
+  const handleDownload = async (e) => {
+    e.stopPropagation();
+    setCapturing(true);
+    try {
+      const canvas = await html2canvas(verseRef.current, {
+        backgroundColor: null,
+        scale: 2,
+        useCORS: true,
+      });
+      const link = document.createElement('a');
+      link.download = `daily-verse-${new Date().toISOString().slice(0, 10)}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (err) {
+      console.error('Failed to download image:', err);
+    }
+    setCapturing(false);
+  };
+
+  const handleShare = async (e) => {
+    e.stopPropagation();
+    setCapturing(true);
+    try {
+      const canvas = await html2canvas(verseRef.current, {
+        backgroundColor: null,
+        scale: 2,
+        useCORS: true,
+      });
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+      const file = new File([blob], `daily-verse-${new Date().toISOString().slice(0, 10)}.png`, { type: 'image/png' });
+      
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: 'Daily Verse - KJB Reader',
+          text: `"${verse.text}" — ${verse.ref}`,
+          files: [file],
+        });
+      } else {
+        // Fallback: copy image to clipboard
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob }),
+        ]);
+        alert('Image copied to clipboard!');
+      }
+    } catch (err) {
+      console.error('Failed to share image:', err);
+      // Fallback to download
+      handleDownload(e);
+    }
+    setCapturing(false);
+  };
 
   return (
-    <div className={`w-full bg-gradient-to-br ${gradient} rounded-2xl shadow-lg px-8 pt-5 pb-8 text-center text-white`}>
+    <div ref={verseRef} className={`w-full bg-gradient-to-br ${gradient} rounded-2xl shadow-lg px-8 pt-5 pb-8 text-center text-white relative`}>
+      {/* Action buttons */}
+      <div className="absolute top-3 left-3 flex gap-2 z-10">
+        <button
+          onClick={handleShare}
+          disabled={capturing}
+          className="p-2 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur transition-colors disabled:opacity-50"
+          title="Share verse image"
+          type="button"
+        >
+          {capturing ? (
+            <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin block" />
+          ) : (
+            <Share2 className="w-5 h-5 text-white" />
+          )}
+        </button>
+        <button
+          onClick={handleDownload}
+          disabled={capturing}
+          className="p-2 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur transition-colors disabled:opacity-50"
+          title="Download verse image"
+          type="button"
+        >
+          {capturing ? (
+            <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin block" />
+          ) : (
+            <Download className="w-5 h-5 text-white" />
+          )}
+        </button>
+      </div>
+      
       <p className={`font-sans text-xs font-semibold tracking-widest uppercase mb-4 opacity-80 ${accent}`}>
         Verse of the Day
       </p>
