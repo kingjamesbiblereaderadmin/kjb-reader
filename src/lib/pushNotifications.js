@@ -241,7 +241,7 @@ function armReadingReminderTimer() {
     }
     localStorage.setItem(READING_REMINDER_LAST_KEY, today);
     await showLocalNotification(
-      'KJB Reader — Daily Reading Reminder',
+      'KJB — Reading Reminder',
       'Time to read your daily chapter! Open the app to continue your reading journey.'
     );
     saveNextReadingReminderFireTime();
@@ -267,7 +267,7 @@ function checkOverdueReadingReminder() {
   if (Date.now() >= nextTs && localStorage.getItem(READING_REMINDER_LAST_KEY) !== today) {
     localStorage.setItem(READING_REMINDER_LAST_KEY, today);
     showLocalNotification(
-      'KJB Reader — Daily Reading Reminder',
+      'KJB — Reading Reminder',
       'Time to read your daily chapter! Open the app to continue your reading journey.'
     );
     saveNextReadingReminderFireTime();
@@ -366,8 +366,8 @@ function armTimer(verse) {
     }
     localStorage.setItem(NOTIF_LAST_KEY, today);
     await showLocalNotification(
-      'King James Bible — Verse of the Day',
-      `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref}`
+      'KJB — Verse of the Day',
+      `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — KJB ${verse.ref}`
     );
     scheduleAndSave(verse);
   }, ms);
@@ -405,8 +405,8 @@ function checkOverdueNotification(verse) {
     // Get fresh verse for today
     const freshVerse = getDailyVerse();
     showLocalNotification(
-      'King James Bible — Daily Verse',
-      `"${freshVerse.text.slice(0, 120)}${freshVerse.text.length > 120 ? '…' : ''}" — ${freshVerse.ref}`
+      'KJB — Daily Verse',
+      `"${freshVerse.text.slice(0, 120)}${freshVerse.text.length > 120 ? '…' : ''}" — KJB ${freshVerse.ref}`
     );
     saveNextFireTime(freshVerse);
   }
