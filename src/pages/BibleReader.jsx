@@ -829,7 +829,21 @@ export default function BibleReader() {
         )}
       </div>
 
-
+      {/* End-of-section text footers */}
+      {!loading && !error && pos.abbr === 'MAL' && pos.chapter === 4 && (
+        <div className="text-center mt-12 mb-4">
+          <p className="font-serif text-sm text-muted-foreground tracking-widest uppercase">
+            End of the Prophets
+          </p>
+        </div>
+      )}
+      {!loading && !error && pos.abbr === 'REV' && pos.chapter === 22 && (
+        <div className="text-center mt-12 mb-4">
+          <p className="font-serif text-sm text-muted-foreground tracking-widest uppercase">
+            The End
+          </p>
+        </div>
+      )}
 
       {/* Filter mode banner */}
       {filterMode && (
