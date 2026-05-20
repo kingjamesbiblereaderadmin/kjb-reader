@@ -126,7 +126,7 @@ export default function BibleSearchBar({ onClose }) {
             onChange={e => { setQuery(e.target.value); setOpen(true); }}
             onFocus={() => setOpen(true)}
             placeholder="Search..."
-            className="w-full pl-9 pr-8 py-2 h-10 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors truncate"
+            className="w-full pl-9 pr-8 py-1.5 h-9 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors truncate"
           />
           {query && (
             <button
