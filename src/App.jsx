@@ -21,6 +21,7 @@ import SearchPage from '@/pages/SearchPage.jsx';
 import SavedVersesPage from '@/pages/SavedVersesPage.jsx';
 import DailyReadingPage from '@/pages/DailyReadingPage.jsx';
 import RefreshCache from '@/pages/RefreshCache.jsx';
+import VapidKeysPage from '@/pages/VapidKeysPage.jsx';
 
 const PageWrapper = ({ children }) => (
   <motion.div
@@ -69,6 +70,7 @@ const AuthenticatedApp = () => {
           <Route path="/saved" element={<PageWrapper><SavedVersesPage /></PageWrapper>} />
           <Route path="/daily-reading" element={<PageWrapper><DailyReadingPage /></PageWrapper>} />
           <Route path="/refresh-cache" element={<PageWrapper><RefreshCache /></PageWrapper>} />
+          <Route path="/vapid-keys" element={<PageWrapper><VapidKeysPage /></PageWrapper>} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
       </Routes>
