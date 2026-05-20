@@ -767,11 +767,8 @@ export default function BibleReader() {
 
       {/* Book title — hidden when showing title page */}
       {!isViewingTitlePage && (
-        <div className="text-center mb-6 pt-4 relative">
-          {/* Historical ornamentation for 1611 theme */}
-          <div className="historical-ornament mb-2">
-            <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-1 leading-tight">{book.name}</h1>
-          </div>
+        <div className="text-center mb-6 pt-4">
+          <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-1 leading-tight">{book.name}</h1>
           <p className="font-sans text-sm text-muted-foreground tracking-widest uppercase mt-1">
             Chapter {pos.chapter}
           </p>
@@ -781,12 +778,6 @@ export default function BibleReader() {
               {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]}
             </p>
           )}
-          {/* Ornamental divider */}
-          <div className="mt-3 flex items-center justify-center gap-2">
-            <span className="text-accent opacity-60">❦</span>
-            <div className="w-12 h-px bg-accent opacity-60" />
-            <span className="text-accent opacity-60">❦</span>
-          </div>
         </div>
       )}
 
