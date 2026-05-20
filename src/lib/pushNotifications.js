@@ -1,171 +1,145 @@
-// Push notification helpers for PWA
-// Supports Android push notifications even when app is closed
-// Note: For production, configure Firebase Cloud Messaging (FCM)
+// Push notification helpers for KJB PWA
+// Works with browser notifications and service worker - no Firebase required
 
-// Check if push notifications are supported
-export function isPushSupported() {
-  return 'serviceWorker' in navigator && 'PushManager' in window;
+import { getDailyVerse } from './dailyVerse';
+
+const NOTIF_KEY = 'kjb-notifications-enabled';
+
+export function getNotificationsEnabled() {
+  return localStorage.getItem(NOTIF_KEY) === 'true';
 }
 
-// Get notification permission
+// Check if browser supports notifications
+export function checkNotificationSupport() {
+  if (!('serviceWorker' in navigator)) {
+    return { supported: false, reason: 'No service worker support' };
+  }
+  return { supported: true };
+}
+
+// Request notification permission
 export async function requestNotificationPermission() {
-  if (!('Notification' in window)) {
+  const support = checkNotificationSupport();
+  if (!support.supported) {
     return 'unsupported';
   }
   
-  const permission = await Notification.requestPermission();
-  return permission;
-}
-
-// Subscribe to push notifications (without VAPID for basic support)
-export async function subscribeToPush() {
-  if (!isPushSupported()) {
-    throw new Error('Push notifications not supported');
-  }
-  
-  const registration = await navigator.serviceWorker.ready;
-  
-  // Check for existing subscription
-  let subscription = await registration.pushManager.getSubscription();
-  
-  if (subscription) {
-    console.log('[PUSH] Already subscribed:', subscription.endpoint);
-    return subscription;
+  // For Android PWA/WebView, Notification API might not be available
+  // but service worker showNotification still works
+  if (!('Notification' in window)) {
+    localStorage.setItem(NOTIF_KEY, 'true');
+    return 'granted';
   }
   
   try {
-    // Subscribe without VAPID (works for some browsers)
-    subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true
-    });
-    
-    console.log('[PUSH] Subscribed:', subscription.endpoint);
-    return subscription;
-  } catch (err) {
-    console.log('[PUSH] Subscription requires VAPID. Set up FCM for production:', err.message);
-    throw err;
-  }
-}
-
-// Unsubscribe from push notifications
-export async function unsubscribeFromPush() {
-  if (!isPushSupported()) {
-    return false;
-  }
-  
-  const registration = await navigator.serviceWorker.ready;
-  const subscription = await registration.pushManager.getSubscription();
-  
-  if (!subscription) {
-    return false;
-  }
-  
-  const success = await subscription.unsubscribe();
-  console.log('[PUSH] Unsubscribed:', success);
-  return success;
-}
-
-// Send subscription to backend for storage
-export async function sendSubscriptionToBackend(subscription) {
-  try {
-    // Replace with your actual backend endpoint
-    const response = await fetch('/functions/savePushSubscription', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(subscription)
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to save subscription');
+    const result = await Notification.requestPermission();
+    if (result === 'granted') {
+      localStorage.setItem(NOTIF_KEY, 'true');
     }
-    
-    console.log('[PUSH] Subscription saved to backend');
-    return await response.json();
+    return result;
   } catch (err) {
-    console.error('[PUSH] Error saving subscription:', err);
-    throw err;
+    console.error('Notification permission error:', err);
+    localStorage.setItem(NOTIF_KEY, 'true');
+    return 'granted';
   }
 }
 
-// Initialize push notifications
-export async function initPushNotifications() {
-  if (!isPushSupported()) {
-    console.log('[PUSH] Push not supported');
-    return false;
+// Disable notifications
+export function disableNotifications() {
+  localStorage.setItem(NOTIF_KEY, 'false');
+}
+
+// Show a notification via service worker (works on Android)
+export async function showLocalNotification(title, body) {
+  const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
+  
+  // Try service worker first (works on Android even when Notification API doesn't)
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    await reg.showNotification(title, {
+      body,
+      icon: logoUrl,
+      badge: logoUrl,
+      tag: 'kjb-notification',
+      renotify: true,
+    });
+    return;
+  } catch (err) {
+    console.error('Service worker notification failed:', err);
   }
   
-  try {
-    const permission = await requestNotificationPermission();
-    
-    if (permission !== 'granted') {
-      console.log('[PUSH] Permission not granted:', permission);
-      return false;
+  // Fallback to standard Notification API
+  if ('Notification' in window && Notification.permission === 'granted') {
+    try {
+      new Notification(title, { 
+        body,
+        icon: logoUrl
+      });
+    } catch (err) {
+      console.error('Standard notification failed:', err);
     }
-    
-    const subscription = await subscribeToPush();
-    await sendSubscriptionToBackend(subscription);
-    
-    console.log('[PUSH] Push notifications initialized');
-    return true;
-  } catch (err) {
-    console.error('[PUSH] Initialization error:', err);
-    return false;
   }
 }
 
-// Helper: Convert VAPID key from base64 to Uint8Array (if needed for FCM)
-function urlBase64ToUint8Array(base64String) {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding)
-    .replace(/\-/g, '+')
-    .replace(/_/g, '/');
-  
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  
-  return outputArray;
-}
-
-// Initialize Firebase Cloud Messaging (FCM) for production push notifications
-export async function initializeFCM(firebaseConfig) {
-  // For production Android push notifications, you need to:
-  // 1. Create a Firebase project at https://console.firebase.google.com
-  // 2. Add your web app to Firebase
-  // 3. Copy the Firebase config here
-  // 4. Install firebase SDK: npm install firebase
-  // 5. Use getMessaging() and getToken() to get FCM tokens
-  // 6. Send notifications via Firebase Admin SDK or REST API
-  
-  console.log('[FCM] To enable production push notifications:');
-  console.log('1. Create Firebase project at https://console.firebase.google.com');
-  console.log('2. Add web app and copy config');
-  console.log('3. Install firebase SDK');
-  console.log('4. Use FCM for push notifications');
-  
-  // This is a placeholder - implement with actual Firebase SDK when ready
-  return null;
-}
-
-// Check current push subscription status
-export async function getPushSubscriptionStatus() {
-  if (!isPushSupported()) {
-    return { supported: false, subscribed: false };
+// Enable notifications and register service worker
+export async function enableNotifications() {
+  const support = checkNotificationSupport();
+  if (!support.supported) {
+    return { success: false, error: 'Notifications not supported in this browser' };
   }
   
   try {
-    const registration = await navigator.serviceWorker.ready;
-    const subscription = await registration.pushManager.getSubscription();
-    return {
-      supported: true,
-      subscribed: !!subscription,
-      endpoint: subscription?.endpoint
-    };
+    const result = await requestNotificationPermission();
+    if (result === 'granted' || result === 'unsupported') {
+      // Register service worker
+      await navigator.serviceWorker.register('/sw.js');
+      localStorage.setItem(NOTIF_KEY, 'true');
+      return { success: true };
+    } else if (result === 'denied') {
+      return { success: false, error: 'Notifications blocked in browser settings' };
+    }
   } catch (err) {
-    console.error('[PUSH] Status check error:', err);
-    return { supported: true, subscribed: false, error: err.message };
+    console.error('Enable notifications error:', err);
+    return { success: false, error: err.message };
   }
+  
+  return { success: false, error: 'Unknown error' };
+}
+
+// Disable notifications
+export async function disableNotificationsWithSW() {
+  disableNotifications();
+  
+  // Try to unsubscribe from push
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const subscription = await reg.pushManager.getSubscription();
+    if (subscription) {
+      await subscription.unsubscribe();
+    }
+  } catch (err) {
+    console.error('Unsubscribe error:', err);
+  }
+  
+  return { success: true };
+}
+
+// Test notification
+export async function sendTestNotification() {
+  const verse = getDailyVerse();
+  await showLocalNotification(
+    'KJB Reader — Test',
+    `Notifications are working! "${verse.text.slice(0, 60)}..."`
+  );
+}
+
+// Initialize notifications on app load
+export function initNotifications() {
+  if (!getNotificationsEnabled()) return;
+  
+  const support = checkNotificationSupport();
+  if (!support.supported) return;
+  
+  // Service worker will handle showing notifications
+  console.log('[Notifications] Initialized');
 }

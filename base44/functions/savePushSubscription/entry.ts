@@ -4,23 +4,21 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     
-    // Authenticate user (any logged-in user can save their own subscription)
+    // Authenticate user
     const user = await base44.auth.me();
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     if (req.method === 'POST') {
-      // Save push subscription
       const subscription = await req.json();
       
-      // Check for existing subscription for this user
+      // Check for existing subscription
       const existing = await base44.entities.PushSubscription.filter({
         user_email: user.email,
         endpoint: subscription.endpoint
       });
       
-      // Update existing or create new
       if (existing && existing.length > 0) {
         await base44.entities.PushSubscription.update(existing[0].id, {
           keys: JSON.stringify(subscription.keys),
@@ -32,8 +30,7 @@ Deno.serve(async (req) => {
           endpoint: subscription.endpoint,
           keys: JSON.stringify(subscription.keys),
           user_email: user.email,
-          active: true,
-          type: subscription.type || 'web-push'
+          active: true
         });
         return Response.json({ success: true, message: 'Subscription saved' });
       }
