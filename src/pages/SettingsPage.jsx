@@ -220,6 +220,35 @@ export default function SettingsPage() {
            mode === 'dark' ? '🌙 Dark mode always on' : '☀️ Light mode always on'}
         </p>
 
+        {/* 1611 vs Modern Theme Toggle */}
+        <div className="pt-3 border-t border-border">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex-1">
+              <p className="font-sans text-sm text-foreground font-medium">1611 Historical Theme</p>
+              <p className="font-sans text-xs text-muted-foreground mt-0.5">
+                {theme1611 ? 'Aged parchment & leather aesthetic' : 'Clean modern design'}
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                const newVal = !theme1611;
+                setTheme1611(newVal);
+                try { localStorage.setItem('kjb-theme-1611', String(newVal)); } catch {}
+                // Reload to apply theme change
+                setTimeout(() => window.location.reload(), 300);
+              }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl font-sans text-sm font-medium transition-colors ${
+                theme1611
+                  ? 'bg-primary text-primary-foreground hover:opacity-90'
+                  : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+              }`}
+            >
+              <Palette className="w-4 h-4" />
+              {theme1611 ? '1611' : 'Modern'}
+            </button>
+          </div>
+        </div>
+
         {/* Colour palette */}
         <div className="pt-2 border-t border-border space-y-2">
           <p className="font-sans text-sm text-foreground font-medium">Accent Colour</p>

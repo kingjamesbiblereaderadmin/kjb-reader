@@ -102,7 +102,7 @@ export function ThemeProvider({ children }) {
     applyPalette(colourId, isDark);
   }, [colourId, isDark]);
 
-  // Apply 1611 vs Modern theme
+  // Apply 1611 vs Modern theme and dyslexic font
   useEffect(() => {
     const root = document.documentElement;
     const use1611 = localStorage.getItem('kjb-theme-1611') !== 'false';
@@ -111,6 +111,30 @@ export function ThemeProvider({ children }) {
     } else {
       root.removeAttribute('data-theme-modern');
     }
+    
+    // Apply dyslexic font globally
+    const useDyslexic = localStorage.getItem('kjb-dyslexic-font') === 'true';
+    if (useDyslexic) {
+      root.setAttribute('data-dyslexic-font', 'true');
+    } else {
+      root.removeAttribute('data-dyslexic-font');
+    }
+  }, []);
+
+  // Listen for dyslexic font changes and update globally
+  useEffect(() => {
+    const handleFontChange = () => {
+      const root = document.documentElement;
+      const useDyslexic = localStorage.getItem('kjb-dyslexic-font') === 'true';
+      if (useDyslexic) {
+        root.setAttribute('data-dyslexic-font', 'true');
+      } else {
+        root.removeAttribute('data-dyslexic-font');
+      }
+    };
+    
+    window.addEventListener('dyslexic-font-change', handleFontChange);
+    return () => window.removeEventListener('dyslexic-font-change', handleFontChange);
   }, []);
 
   return (

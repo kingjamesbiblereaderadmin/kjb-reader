@@ -3,7 +3,7 @@ import { renderVerseText } from '@/lib/bibleApi';
 import { Copy, Share2, X, Highlighter, ChevronDown, Bookmark, BookmarkCheck, CheckSquare, Square } from 'lucide-react';
 import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
 
-export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, dyslexicFont = false }) {
+export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect }) {
   const [selected, setSelected] = useState(false);
   const [showHighlight, setShowHighlight] = useState(highlight);
   const [highlightColor, setHighlightColor] = useState('accent');
@@ -183,7 +183,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-1 mr-2">{verse.verse}</sup>
             <span className="flex-1 min-w-0">
               <span
-                className={`${dyslexicFont ? 'font-[var(--font-dyslexic)]' : 'font-serif'} leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify`}
+                className="font-serif leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify"
                 dangerouslySetInnerHTML={{ __html: html }}
               />
             </span>
@@ -208,7 +208,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           )}
           <sup className="text-accent font-sans font-semibold text-xs mr-3 select-none">{verse.verse}</sup>
           <span
-            className={`${dyslexicFont ? 'font-[var(--font-dyslexic)]' : 'font-serif'} leading-loose [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify`}
+            className="font-serif leading-loose [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify"
             dangerouslySetInnerHTML={{ __html: html }}
           />
           {' '}
@@ -235,7 +235,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-1 mr-2">{verse.verse}</sup>
         <span className="flex-1 min-w-0">
           <span
-            className={`${dyslexicFont ? 'font-[var(--font-dyslexic)]' : 'font-serif'} leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify`}
+            className="font-serif leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify"
             dangerouslySetInnerHTML={{ __html: html }}
           />
         </span>

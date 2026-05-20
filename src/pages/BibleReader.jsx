@@ -706,7 +706,7 @@ export default function BibleReader() {
 
       {/* Title pages or verses */}
       <div 
-        className={`${dyslexicFont ? 'font-[var(--font-dyslexic)]' : 'font-serif'} leading-loose text-foreground/90`}
+        className="font-serif leading-loose text-foreground/90"
         style={{ fontSize: `${zoomLevel / 100}rem`, lineHeight: zoomLevel > 100 ? '1.8' : '1.6' }}
       >
         {loading && (
@@ -738,7 +738,6 @@ export default function BibleReader() {
                 selectMode={selectMode}
                 isSelected={selectedVerses.has(v.verse)}
                 onSelect={toggleVerseSelect}
-                dyslexicFont={dyslexicFont}
               />
             ))}
           </div>
