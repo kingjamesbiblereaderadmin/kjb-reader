@@ -79,7 +79,7 @@ export default function ContentsPage() {
           <span>
             {selectedBook ? `${currentBook?.name} ${selectedChapter}${selectedVerse ? `:${selectedVerse}` : ''}` : 'Select a passage'}
           </span>
-          <ChevronRight className={`w-4 h-4 transition-transform ${showPicker ? 'rotate-90' : ''}`} />
+          <ChevronDown className={`w-4 h-4 transition-transform ${showPicker ? 'rotate-180' : ''}`} />
         </button>
 
         {showPicker && (

@@ -535,7 +535,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             title="Show buttons"
             type="button"
           >
-            <ChevronsDown className="w-3.5 h-3.5 text-slate-800" />
+            <ChevronsDown className="w-3.5 h-3.5 text-slate-800 rotate-90" />
           </button>
         ) : null}
       </div>
