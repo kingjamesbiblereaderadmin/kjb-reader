@@ -625,7 +625,8 @@ export default function SettingsPage() {
           <h3 className="font-serif text-sm font-semibold text-foreground mb-2">Public Sources</h3>
           <div className="space-y-2 font-sans text-xs text-muted-foreground">
             <p>• <strong className="text-foreground">Bible Text:</strong> Public Domain Edition (PCE) of the King James Bible</p>
-            <p>• <strong className="text-foreground">OpenDyslexic Font:</strong> <a href="https://opendyslexic.org/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">opendyslexic.org</a></p>
+            <p>• <strong className="text-foreground">OpenDyslexic Font:</strong> <a href="https://opendyslexic.org/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">opendyslexic.org</a> by Abelardo Gonzalez</p>
+            <p>• <strong className="text-foreground">Support OpenDyslexic:</strong> <a href="https://antijingoist.itch.io/open-dyslexic" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">itch.io (donations)</a></p>
             <p>• <strong className="text-foreground">Cormorant Garamond:</strong> Google Fonts (SIL Open Font License)</p>
             <p>• <strong className="text-foreground">Inter Font:</strong> Google Fonts (SIL Open Font License)</p>
           </div>
