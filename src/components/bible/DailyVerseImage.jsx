@@ -291,7 +291,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   return (
     <div className="w-full">
       {/* Verse card */}
-      <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-6 md:px-8 py-8 md:py-10 text-center text-white relative cursor-pointer min-h-[280px] md:min-h-[340px] flex flex-col justify-center`} style={bgStyle}>
+      <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-6 md:px-8 py-8 md:py-10 text-center text-white relative cursor-pointer min-h-[280px] md:min-h-[340px]`} style={bgStyle}>
         {/* Bell button */}
         {showButtons && onToggleNotif && (
           <button
@@ -300,7 +300,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               e.stopPropagation();
               onToggleNotif();
             }}
-            className="absolute top-2 left-2 p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors z-10 shadow-md"
+            className="absolute top-3 left-3 p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors z-10 shadow-md"
             title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
             type="button"
           >
@@ -313,7 +313,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         )}
 
         {/* Action buttons */}
-        <div className="absolute top-2 right-2 flex gap-1 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
+        <div className="absolute top-3 right-3 flex gap-1 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
           {showButtons ? (
           <>
             <button
@@ -486,7 +486,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             <ChevronsDown className="w-3.5 h-3.5 text-slate-800" />
           </button>
         )}
-        {/* Verse content inside the orange box */}
+        
+        {/* Verse content centered inside the orange box */}
+        <div className="h-full flex flex-col justify-center">
         {showVersePanel && (
           <p 
             className={`font-sans text-xs md:text-sm font-bold tracking-wide uppercase mb-4 md:mb-5 ${accentClass}`}
@@ -522,6 +524,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           className={`w-12 h-1 mx-auto ${accentClass}`}
           style={{ opacity: 0.75 * textOpacity, backgroundColor: textColor }}
         />
+        </div>
       </div>
 
       {/* Style Editor Panel */}
