@@ -25,7 +25,7 @@ export default function DailyVerseImage({ verse, onClick }) {
   const fileInputRef = useRef(null);
   const [showStyleEditor, setShowStyleEditor] = useState(false);
   const [textColor, setTextColor] = useState(() => localStorage.getItem('kjb-verse-text-color') || '#ffffff');
-  const [textOpacity, setTextOpacity] = useState(() => parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '1'));
+  const [textOpacity, setTextOpacity] = useState(() => parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '0.95'));
   const [fontFamily, setFontFamily] = useState(() => localStorage.getItem('kjb-verse-font-family') || 'serif');
   
   useEffect(() => {
@@ -355,19 +355,25 @@ export default function DailyVerseImage({ verse, onClick }) {
         Verse of the Day
       </p>
       <blockquote 
-        className="text-2xl md:text-3xl font-bold leading-relaxed mb-6"
+        className="text-2xl md:text-3xl leading-relaxed mb-6"
         style={{ 
           color: textColor, 
           opacity: textOpacity, 
           fontFamily,
-          fontWeight: 'bold'
+          fontWeight: '700',
+          textShadow: '0 2px 8px rgba(0,0,0,0.3)'
         }}
       >
         "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
       </blockquote>
       <p 
         className="font-sans text-base font-semibold"
-        style={{ opacity: 0.95 * textOpacity, color: textColor, fontFamily }}
+        style={{ 
+          opacity: Math.min(1, textOpacity + 0.05), 
+          color: textColor, 
+          fontFamily,
+          textShadow: '0 1px 4px rgba(0,0,0,0.3)'
+        }}
       >
         — {verse.ref} (KJB)
       </p>
