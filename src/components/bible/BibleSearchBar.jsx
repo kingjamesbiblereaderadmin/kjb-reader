@@ -3,9 +3,25 @@ import { Search, X } from 'lucide-react';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { useNavigate } from 'react-router-dom';
 
-// Parse input like "John 3:16", "Romans 8", "Genesis", or plain keyword
+// Parse input like "John 3:16", "Romans 8", "Romans 1:20-22", "Genesis", or plain keyword
 function parseReference(input) {
   const trimmed = input.trim();
+
+  // Try to match "Book Chapter:Verse-Verse" range e.g. Romans 1:20-22
+  const rangeMatch = trimmed.match(/^(\d?\s?[a-zA-Z]+(?:\s+[a-zA-Z]+)?)\s+(\d+):(\d+)-(\d+)$/);
+  if (rangeMatch) {
+    const bookStr = rangeMatch[1].trim();
+    const chapter = parseInt(rangeMatch[2]);
+    const verseStart = parseInt(rangeMatch[3]);
+    const verseEnd = parseInt(rangeMatch[4]);
+    const book = BIBLE_BOOKS.find(b =>
+      b.shortName.toLowerCase().startsWith(bookStr.toLowerCase()) ||
+      b.abbr.toLowerCase() === bookStr.toLowerCase()
+    );
+    if (book && chapter >= 1 && chapter <= book.chapters && verseStart <= verseEnd) {
+      return { type: 'reference', book, chapter, verse: verseStart, verseEnd };
+    }
+  }
 
   // Try to match "Book Chapter:Verse" or "Book Chapter"
   // Handles books that start with a number like "1 John"
@@ -52,10 +68,31 @@ export default function BibleSearchBar({ onClose }) {
       b.shortName.toLowerCase().includes(q) || b.abbr.toLowerCase().startsWith(q)
     ).slice(0, 5).map(b => ({ type: 'book', book: b, label: b.shortName, sub: `${b.chapters} chapters` }));
 
-    // Reference hint if they typed book + number
-    const refMatch = query.match(/^(\d?\s?[a-zA-Z]+(?:\s+[a-zA-Z]+)?)\s+(\d+)(?::(\d+))?$/);
+    // Reference hint if they typed book + number (including ranges)
     const refSuggestions = [];
-    if (refMatch) {
+    // Range: Book Ch:V1-V2
+    const rangeMatch = query.match(/^(\d?\s?[a-zA-Z]+(?:\s+[a-zA-Z]+)?)\s+(\d+):(\d+)-(\d+)$/);
+    if (rangeMatch) {
+      const bookStr = rangeMatch[1].trim();
+      const ch = parseInt(rangeMatch[2]);
+      const v1 = parseInt(rangeMatch[3]);
+      const v2 = parseInt(rangeMatch[4]);
+      const book = BIBLE_BOOKS.find(b => b.shortName.toLowerCase().startsWith(bookStr.toLowerCase()));
+      if (book && ch >= 1 && ch <= book.chapters && v1 <= v2) {
+        refSuggestions.push({
+          type: 'ref',
+          book,
+          chapter: ch,
+          verse: v1,
+          verseEnd: v2,
+          label: `${book.shortName} ${ch}:${v1}–${v2}`,
+          sub: `Go to passage (${v2 - v1 + 1} verses)`,
+        });
+      }
+    }
+    // Single ref or chapter
+    const refMatch = query.match(/^(\d?\s?[a-zA-Z]+(?:\s+[a-zA-Z]+)?)\s+(\d+)(?::(\d+))?$/);
+    if (!rangeMatch && refMatch) {
       const bookStr = refMatch[1].trim();
       const ch = parseInt(refMatch[2]);
       const v = refMatch[3] ? parseInt(refMatch[3]) : null;
@@ -80,8 +117,8 @@ export default function BibleSearchBar({ onClose }) {
     setSuggestions([...refSuggestions, ...bookMatches, ...kwSuggestions]);
   }, [query]);
 
-  const goTo = (abbr, chapter, verse) => {
-    try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null })); } catch {}
+  const goTo = (abbr, chapter, verse, verseEnd) => {
+    try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null, verseEnd: verseEnd || null })); } catch {}
     setQuery('');
     setSuggestions([]);
     setOpen(false);
@@ -99,7 +136,7 @@ export default function BibleSearchBar({ onClose }) {
 
   const handleSelect = (s) => {
     if (s.type === 'book') goTo(s.book.abbr, 1, null);
-    else if (s.type === 'ref') goTo(s.book.abbr, s.chapter, s.verse);
+    else if (s.type === 'ref') goTo(s.book.abbr, s.chapter, s.verse, s.verseEnd);
     else if (s.type === 'keyword') goKeyword(s.query || query.trim());
   };
 
@@ -108,7 +145,7 @@ export default function BibleSearchBar({ onClose }) {
     if (!query.trim()) return;
     const parsed = parseReference(query);
     if (parsed?.type === 'reference') {
-      goTo(parsed.book.abbr, parsed.chapter, parsed.verse);
+      goTo(parsed.book.abbr, parsed.chapter, parsed.verse, parsed.verseEnd);
     } else if (query.trim().length >= 3) {
       goKeyword(query.trim());
     }

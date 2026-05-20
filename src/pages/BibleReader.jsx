@@ -168,6 +168,13 @@ export default function BibleReader() {
     // Preload Bible data on first mount so it's cached for offline access
     getBibleData().catch(() => {});
     loadChapter(pos.abbr, pos.chapter, pos.verse);
+    // If a verse range was passed, pre-select those verses and enter filter mode
+    if (pos.verse && pos.verseEnd && pos.verseEnd > pos.verse) {
+      const range = new Set();
+      for (let v = pos.verse; v <= pos.verseEnd; v++) range.add(v);
+      setSelectedVerses(range);
+      setFilterMode(true);
+    }
   }, []);
 
   useEffect(() => {
