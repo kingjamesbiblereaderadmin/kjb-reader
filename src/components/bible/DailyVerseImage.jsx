@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Download, Share2, Upload } from 'lucide-react';
+import { Download, Share2, Upload, Palette, Type, Eye } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import ImageCropper from './ImageCropper';
 
@@ -23,10 +23,17 @@ export default function DailyVerseImage({ verse, onClick }) {
   const [uploading, setUploading] = useState(false);
   const [cropImage, setCropImage] = useState(null);
   const fileInputRef = useRef(null);
+  const [showStyleEditor, setShowStyleEditor] = useState(false);
+  const [textColor, setTextColor] = useState(() => localStorage.getItem('kjb-verse-text-color') || '#ffffff');
+  const [textOpacity, setTextOpacity] = useState(() => parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '1'));
+  const [fontFamily, setFontFamily] = useState(() => localStorage.getItem('kjb-verse-font-family') || 'serif');
   
   useEffect(() => {
     const handleStorage = () => {
       try { setCustomBg(localStorage.getItem('kjb-daily-verse-bg') || ''); } catch {}
+      try { setTextColor(localStorage.getItem('kjb-verse-text-color') || '#ffffff'); } catch {}
+      try { setTextOpacity(parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '1')); } catch {}
+      try { setFontFamily(localStorage.getItem('kjb-verse-font-family') || 'serif'); } catch {}
     };
     window.addEventListener('storage', handleStorage);
     handleStorage();
@@ -65,6 +72,24 @@ export default function DailyVerseImage({ verse, onClick }) {
       alert('Storage full! Please remove other data or try a smaller image.');
       console.error('localStorage quota exceeded:', err);
     }
+  };
+
+  const handleTextColorChange = (color) => {
+    setTextColor(color);
+    localStorage.setItem('kjb-verse-text-color', color);
+    window.dispatchEvent(new Event('storage'));
+  };
+
+  const handleTextOpacityChange = (opacity) => {
+    setTextOpacity(opacity);
+    localStorage.setItem('kjb-verse-text-opacity', String(opacity));
+    window.dispatchEvent(new Event('storage'));
+  };
+
+  const handleFontFamilyChange = (font) => {
+    setFontFamily(font);
+    localStorage.setItem('kjb-verse-font-family', font);
+    window.dispatchEvent(new Event('storage'));
   };
   
 
@@ -137,6 +162,17 @@ export default function DailyVerseImage({ verse, onClick }) {
         <button
           onClick={(e) => {
             e.stopPropagation();
+            setShowStyleEditor(!showStyleEditor);
+          }}
+          className="p-1.5 rounded-md bg-white/20 hover:bg-white/30 backdrop-blur transition-colors"
+          title="Customize text style"
+          type="button"
+        >
+          <Palette className="w-4 h-4 text-white" />
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
             fileInputRef.current?.click();
           }}
           disabled={uploading}
@@ -183,6 +219,92 @@ export default function DailyVerseImage({ verse, onClick }) {
           )}
         </button>
       </div>
+
+      {/* Style Editor Panel */}
+      {showStyleEditor && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="absolute top-12 right-2 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur rounded-xl shadow-xl p-4 w-72 border border-white/20"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-sans text-sm font-semibold text-slate-800 dark:text-slate-200">Text Style</h3>
+            <button
+              onClick={() => setShowStyleEditor(false)}
+              className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+            >
+              <Upload className="w-4 h-4 rotate-45 text-slate-600 dark:text-slate-400" />
+            </button>
+          </div>
+
+          {/* Text Color */}
+          <div className="mb-4">
+            <label className="flex items-center gap-2 font-sans text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <Palette className="w-3.5 h-3.5" />
+              Text Color
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {[
+                '#ffffff', '#f8f8f8', '#fef3c7', '#dbeafe',
+                '#fecaca', '#ddd6fe', '#bbf7d0', '#fde68a'
+              ].map(color => (
+                <button
+                  key={color}
+                  onClick={() => handleTextColorChange(color)}
+                  className={`w-7 h-7 rounded-lg border-2 transition-all ${
+                    textColor === color ? 'border-slate-800 scale-110' : 'border-slate-300 hover:border-slate-500'
+                  }`}
+                  style={{ backgroundColor: color }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Text Opacity */}
+          <div className="mb-4">
+            <label className="flex items-center gap-2 font-sans text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <Eye className="w-3.5 h-3.5" />
+              Opacity: {Math.round(textOpacity * 100)}%
+            </label>
+            <input
+              type="range"
+              min="0.3"
+              max="1"
+              step="0.05"
+              value={textOpacity}
+              onChange={(e) => handleTextOpacityChange(parseFloat(e.target.value))}
+              className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-slate-800 dark:accent-slate-200"
+            />
+          </div>
+
+          {/* Font Family */}
+          <div className="mb-2">
+            <label className="flex items-center gap-2 font-sans text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <Type className="w-3.5 h-3.5" />
+              Font Family
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { value: 'serif', label: 'Serif' },
+                { value: 'sans-serif', label: 'Sans Serif' },
+                { value: 'monospace', label: 'Mono' },
+                { value: 'cursive', label: 'Cursive' },
+              ].map(font => (
+                <button
+                  key={font.value}
+                  onClick={() => handleFontFamilyChange(font.value)}
+                  className={`px-3 py-2 rounded-lg font-sans text-xs font-medium transition-all ${
+                    fontFamily === font.value
+                      ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900'
+                      : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  {font.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Hidden file input */}
       <input
@@ -193,14 +315,33 @@ export default function DailyVerseImage({ verse, onClick }) {
         className="hidden"
       />
       
-      <p className={`font-sans text-xs font-semibold tracking-widest uppercase mb-4 opacity-80 ${accentClass}`}>
+      <p 
+        className={`font-sans text-xs font-semibold tracking-widest uppercase mb-4 ${accentClass}`}
+        style={{ opacity: 0.8 * textOpacity, color: textColor, fontFamily }}
+      >
         Verse of the Day
       </p>
-      <blockquote className="font-serif text-2xl md:text-3xl font-bold leading-relaxed mb-6">
+      <blockquote 
+        className="text-2xl md:text-3xl font-bold leading-relaxed mb-6"
+        style={{ 
+          color: textColor, 
+          opacity: textOpacity, 
+          fontFamily,
+          fontWeight: 'bold'
+        }}
+      >
         "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
       </blockquote>
-      <p className="font-sans text-base font-semibold opacity-95">— {verse.ref} (KJB)</p>
-      <div className={`mt-5 w-12 h-1 ${accentClass} mx-auto opacity-75`} />
+      <p 
+        className="font-sans text-base font-semibold"
+        style={{ opacity: 0.95 * textOpacity, color: textColor, fontFamily }}
+      >
+        — {verse.ref} (KJB)
+      </p>
+      <div 
+        className={`mt-5 w-12 h-1 mx-auto ${accentClass}`}
+        style={{ opacity: 0.75 * textOpacity, backgroundColor: textColor }}
+      />
       
       {/* Crop Modal */}
       {cropImage && (
