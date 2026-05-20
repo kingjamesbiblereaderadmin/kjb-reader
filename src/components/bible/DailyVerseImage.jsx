@@ -352,6 +352,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         </button>
       )}
 
+      {/* Date display */}
+      <div className="absolute bottom-2 left-3 text-xs font-sans font-medium opacity-60" style={{ color: textColor }}>
+        {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+      </div>
+
       {/* Action buttons */}
       <div className="absolute top-2 right-2 flex gap-1 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
         {!capturing && showButtons ? (
