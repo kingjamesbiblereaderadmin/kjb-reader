@@ -171,22 +171,20 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         <span id={id} className="block relative pt-6 pl-0">
           <span
             onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
-            className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-1 py-0.5 gap-3 ${
+            className={`inline leading-relaxed transition-colors duration-200 rounded cursor-pointer px-0.5 py-0.5 ${
               selectMode && isSelected ? 'bg-primary/10 border border-primary/30 rounded-lg' : isHighlighted ? highlightBg : 'hover:bg-secondary/60'
             }`}
           >
             {selectMode && (
-              <span className="shrink-0 mt-1 text-primary">
-                {isSelected ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4 text-muted-foreground" />}
+              <span className="inline-flex items-center mr-1 text-primary align-middle">
+                {isSelected ? <CheckSquare className="w-3.5 h-3.5" /> : <Square className="w-3.5 h-3.5 text-muted-foreground" />}
               </span>
             )}
-            <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-1 mr-3">{verse.verse}</sup>
-            <span className="flex-1 min-w-0">
-              <span
-                className="leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify"
-                dangerouslySetInnerHTML={{ __html: html }}
-              />
-            </span>
+            <sup className="text-accent font-sans font-semibold text-xs mr-3 select-none">{verse.verse}</sup>
+            <span
+              className="leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify inline"
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
           </span>
           {!selectMode && actionPopover}
         </span>
