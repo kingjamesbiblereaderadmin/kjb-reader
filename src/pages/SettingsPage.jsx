@@ -198,16 +198,17 @@ export default function SettingsPage() {
     // Subscribe
     setSubscribing(true);
     try {
-      const subscription = await subscribeToPush();
-      if (!subscription) {
-        alert('Failed to subscribe. Make sure you have installed the app and granted notification permission.');
+      // Check if user is logged in first
+      const user = await base44.auth.me();
+      if (!user) {
+        alert('Please log in to subscribe to notifications');
         setSubscribing(false);
         return;
       }
 
-      const user = await base44.auth.me();
-      if (!user) {
-        alert('Please log in to subscribe to notifications');
+      const subscription = await subscribeToPush();
+      if (!subscription) {
+        alert('Failed to subscribe. Make sure you have installed the app and granted notification permission.');
         setSubscribing(false);
         return;
       }
@@ -229,7 +230,7 @@ export default function SettingsPage() {
     } catch (err) {
       console.error('Subscribe error:', err);
       setSubscribing(false);
-      alert('Failed to subscribe: ' + err.message);
+      alert('Failed to subscribe: ' + err.message + '\n\nNote: Push notifications require the app to be installed (PWA) and may not work in all browsers.');
     }
   };
 
