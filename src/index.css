@@ -171,8 +171,9 @@
   [data-dyslexic-font="true"] .font-serif,
   [data-dyslexic-font="true"] span.font-serif,
   [data-dyslexic-font="true"] p.font-serif,
-  [data-dyslexic-font="true"] .font-serif * {
-    font-family: 'Open Dyslexic', 'OpenDyslexic', 'Comic Sans MS', 'Arial', sans-serif !important;
+  [data-dyslexic-font="true"] .font-serif *,
+  [data-dyslexic-font="true"] .font-dyslexic {
+    font-family: 'OpenDyslexic', 'Comic Sans MS', 'Arial', sans-serif !important;
   }
   button, a, nav, header {
     -webkit-user-select: none;
