@@ -98,7 +98,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         localStorage.setItem('kjb-notif-image', croppedDataUrl);
         setNotifImage(croppedDataUrl);
       } else {
-        // Save to localStorage
+        // Clear any existing background first to free up space
+        localStorage.removeItem('kjb-daily-verse-bg');
+        // Save new background
         localStorage.setItem('kjb-daily-verse-bg', croppedDataUrl);
         // Verify it was saved correctly
         const saved = localStorage.getItem('kjb-daily-verse-bg');
@@ -492,6 +494,10 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                         e.stopPropagation();
                         setCustomBg('');
                         localStorage.removeItem('kjb-daily-verse-bg');
+                        // Reset text color and opacity to defaults
+                        handleTextColorChange('#ffffff');
+                        handleTextOpacityChange(0.95);
+                        handleFontFamilyChange('serif');
                         window.dispatchEvent(new Event('storage'));
                         setShowMenu(false);
                       }}
