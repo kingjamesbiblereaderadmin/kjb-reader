@@ -234,6 +234,7 @@ export async function showLocalNotification(title, body) {
       tag: 'daily-verse',
       renotify: true,
       silent: true,
+      data: { url: window.location.href }
     });
     return;
   } catch (err) {
@@ -243,7 +244,11 @@ export async function showLocalNotification(title, body) {
   // Fallback to standard Notification API
   if ('Notification' in window && Notification.permission === 'granted') {
     try {
-      new Notification(title, { body, icon: logoUrl });
+      new Notification(title, { 
+        body, 
+        icon: logoUrl,
+        data: { url: window.location.href }
+      });
     } catch (err) {
       console.error('Standard notification failed:', err);
     }
