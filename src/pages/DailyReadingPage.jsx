@@ -134,7 +134,7 @@ export default function DailyReadingPage() {
             {todayProgress ? (
               <div className="space-y-3">
                 <p className="font-sans text-base text-foreground">
-                  <span className="font-semibold">{todayProgress.book}</span> Chapter {todayProgress.chapter} {verseCount ? `(v.1${verseCount > 1 ? '-' + verseCount : ''})` : ''}
+                  <span className="font-semibold">{getBookByApiName(todayProgress.book)?.shortName || todayProgress.book}</span> Chapter {todayProgress.chapter} {verseCount ? `(v.1${verseCount > 1 ? '-' + verseCount : ''})` : ''}
                 </p>
                 {!completedToday ? (
                   <>

@@ -194,15 +194,24 @@ export default function SearchPage() {
   const selectAll = () => setSelected(new Set(results.map((_, i) => i)));
   const clearSelection = () => { setSelected(new Set()); setSelectMode(false); };
 
-  const formatVerses = (indices) =>
-    [...indices].sort((a, b) => a - b)
-      .map(i => {
-        const r = results[i];
-        const bookEntry = BIBLE_BOOKS.find(b => b.apiName === r.book);
-        const bookName = bookEntry ? bookEntry.shortName : r.book;
-        return `"${r.text}" — ${bookName} ${r.chapter}:${r.verse} (KJB)`;
-      })
-      .join('\n\n');
+  const formatVerses = (indices) => {
+    const sorted = [...indices].sort((a, b) => a - b);
+    const verses = sorted.map(i => {
+      const r = results[i];
+      const bookEntry = BIBLE_BOOKS.find(b => b.apiName === r.book);
+      const bookName = bookEntry ? bookEntry.shortName : r.book;
+      const clean = r.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
+      return clean;
+    });
+    const first = results[sorted[0]];
+    const last = results[sorted[sorted.length - 1]];
+    const firstBookEntry = BIBLE_BOOKS.find(b => b.apiName === first.book);
+    const firstBookName = firstBookEntry ? firstBookEntry.shortName : first.book;
+    const verseRange = sorted.length > 1
+      ? `${firstBookName} ${first.chapter}:${first.verse}-${last.verse}`
+      : `${firstBookName} ${first.chapter}:${first.verse}`;
+    return `${verses.join(' ')} — ${verseRange} (KJB)`;
+  };
 
   const handleCopySelected = async () => {
     const text = selected.size > 0 ? formatVerses(selected) : formatVerses(results.map((_, i) => i));
