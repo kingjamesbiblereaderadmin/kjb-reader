@@ -330,21 +330,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                const newValue = !showVersePanel;
-                setShowVersePanel(newValue);
-                localStorage.setItem('kjb-verse-panel-visible', String(newValue));
-                window.dispatchEvent(new Event('storage'));
-              }}
-              className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
-              title={showVersePanel ? 'Hide panel' : 'Show panel'}
-              type="button"
-            >
-              <Eye className="w-3.5 h-3.5 text-slate-800" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
                 handleShare(e);
               }}
               disabled={capturing}
@@ -395,6 +380,21 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                   className="absolute right-0 top-8 z-30 bg-white rounded-lg shadow-xl border border-slate-200 py-1 w-48"
                   onClick={(e) => e.stopPropagation()}
                 >
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const newValue = !showVersePanel;
+                      setShowVersePanel(newValue);
+                      localStorage.setItem('kjb-verse-panel-visible', String(newValue));
+                      window.dispatchEvent(new Event('storage'));
+                      setShowMenu(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                  >
+                    <Eye className="w-4 h-4" />
+                    {showVersePanel ? 'Hide Panel' : 'Show Panel'}
+                  </button>
                   <button
                     onClick={(e) => {
                       e.preventDefault();
