@@ -102,13 +102,14 @@
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
   }
-  /* Dyslexic font mode — applied globally when data-dyslexic-font is set */
+  /* Dyslexic font mode — applied globally when data-dyslexic-font is set OR font-dyslexic class is present */
   [data-dyslexic-font="true"],
   [data-dyslexic-font="true"] *,
   [data-dyslexic-font="true"] body,
   [data-dyslexic-font="true"] html,
   [data-dyslexic-font="true"] .font-serif,
   [data-dyslexic-font="true"] .font-sans,
+  [data-dyslexic-font="true"] .font-dyslexic,
   [data-dyslexic-font="true"] span,
   [data-dyslexic-font="true"] p,
   [data-dyslexic-font="true"] h1,
@@ -127,7 +128,11 @@
   [data-dyslexic-font="true"] section,
   [data-dyslexic-font="true"] header,
   [data-dyslexic-font="true"] footer,
-  [data-dyslexic-font="true"] nav {
+  [data-dyslexic-font="true"] nav,
+  .font-dyslexic,
+  .font-dyslexic *,
+  .font-dyslexic .font-serif,
+  .font-dyslexic .font-sans {
     font-family: 'OpenDyslexic', 'Comic Sans MS', 'Arial', sans-serif !important;
   }
   button, a, nav, header {
