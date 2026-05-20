@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop } from 'lucide-react';
+import ImageCropper from '@/components/bible/ImageCropper';
 import { Switch } from '@/components/ui/switch';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { base44 } from '@/api/base44Client';
@@ -25,6 +26,7 @@ export default function SettingsPage() {
     try { return localStorage.getItem('kjb-daily-verse-bg') || ''; } catch { return ''; }
   });
   const [uploading, setUploading] = useState(false);
+  const [cropImage, setCropImage] = useState(null);
   
 
 
@@ -264,6 +266,16 @@ export default function SettingsPage() {
                   <Trash2 className="w-3.5 h-3.5" />
                   Remove Image
                 </button>
+                <button
+                  onClick={() => {
+                    const current = localStorage.getItem('kjb-daily-verse-bg');
+                    if (current) setCropImage(current);
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+                >
+                  <Crop className="w-3.5 h-3.5" />
+                  Re-crop
+                </button>
               </div>
             </div>
           ) : (
@@ -271,32 +283,22 @@ export default function SettingsPage() {
               <input
                 type="file"
                 accept="image/*"
-                onChange={async (e) => {
+                onChange={(e) => {
                   const file = e.target.files[0];
                   if (!file) return;
                   if (file.size > 2 * 1024 * 1024) {
                     alert('Image must be less than 2MB for storage');
                     return;
                   }
-                  setUploading(true);
                   const reader = new FileReader();
                   reader.onload = (event) => {
                     const base64 = event.target?.result;
                     if (typeof base64 === 'string') {
-                      try {
-                        localStorage.setItem('kjb-daily-verse-bg', base64);
-                        setCustomBg(base64);
-                        window.dispatchEvent(new Event('storage'));
-                      } catch (err) {
-                        alert('Storage full! Please clear browser data or try a smaller image.');
-                        console.error('localStorage quota exceeded:', err);
-                      }
+                      setCropImage(base64); // Open cropper
                     }
-                    setUploading(false);
                   };
                   reader.onerror = () => {
                     alert('Failed to read image');
-                    setUploading(false);
                   };
                   reader.readAsDataURL(file);
                 }}
@@ -320,6 +322,25 @@ export default function SettingsPage() {
             </label>
           )}
         </div>
+        
+        {/* Crop Modal */}
+        {cropImage && (
+          <ImageCropper
+            image={cropImage}
+            onCrop={(croppedDataUrl) => {
+              try {
+                localStorage.setItem('kjb-daily-verse-bg', croppedDataUrl);
+                setCustomBg(croppedDataUrl);
+                window.dispatchEvent(new Event('storage'));
+                setCropImage(null);
+              } catch (err) {
+                alert('Storage full! Please clear browser data or try a smaller image.');
+                console.error('localStorage quota exceeded:', err);
+              }
+            }}
+            onCancel={() => setCropImage(null)}
+          />
+        )}
         <div className="grid grid-cols-4 gap-2">
           {[
             { id: 'light', label: '☀️ Light' },

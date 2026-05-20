@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
 import { Download, Share2, Upload } from 'lucide-react';
 import html2canvas from 'html2canvas';
+import ImageCropper from './ImageCropper';
 
 const VERSE_BACKGROUNDS = [
   { gradient: 'from-blue-600 to-purple-600', accent: 'text-blue-200' },
@@ -20,6 +21,7 @@ export default function DailyVerseImage({ verse }) {
     try { return localStorage.getItem('kjb-daily-verse-bg') || ''; } catch { return ''; }
   });
   const [uploading, setUploading] = useState(false);
+  const [cropImage, setCropImage] = useState(null);
   const fileInputRef = useRef(null);
   
   useEffect(() => {
@@ -39,28 +41,30 @@ export default function DailyVerseImage({ verse }) {
       alert('Image must be less than 2MB for storage');
       return;
     }
-    setUploading(true);
     const reader = new FileReader();
     reader.onload = (event) => {
       const base64 = event.target?.result;
       if (typeof base64 === 'string') {
-        try {
-          localStorage.setItem('kjb-daily-verse-bg', base64);
-          setCustomBg(base64);
-          window.dispatchEvent(new Event('storage'));
-        } catch (err) {
-          alert('Storage full! Please remove other data or try a smaller image.');
-          console.error('localStorage quota exceeded:', err);
-        }
+        setCropImage(base64); // Open cropper instead of saving directly
       }
-      setUploading(false);
     };
     reader.onerror = () => {
       alert('Failed to read image');
-      setUploading(false);
     };
     reader.readAsDataURL(file);
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+  
+  const handleCropComplete = (croppedDataUrl) => {
+    try {
+      localStorage.setItem('kjb-daily-verse-bg', croppedDataUrl);
+      setCustomBg(croppedDataUrl);
+      window.dispatchEvent(new Event('storage'));
+      setCropImage(null);
+    } catch (err) {
+      alert('Storage full! Please remove other data or try a smaller image.');
+      console.error('localStorage quota exceeded:', err);
+    }
   };
   
 
@@ -191,6 +195,15 @@ export default function DailyVerseImage({ verse }) {
       </blockquote>
       <p className="font-sans text-base font-semibold opacity-95">— {verse.ref} (KJB)</p>
       <div className={`mt-5 w-12 h-1 ${accentClass} mx-auto opacity-75`} />
+      
+      {/* Crop Modal */}
+      {cropImage && (
+        <ImageCropper
+          image={cropImage}
+          onCrop={handleCropComplete}
+          onCancel={() => setCropImage(null)}
+        />
+      )}
     </div>
   );
 }
