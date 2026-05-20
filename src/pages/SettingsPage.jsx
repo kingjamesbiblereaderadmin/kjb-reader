@@ -890,6 +890,7 @@ export default function SettingsPage() {
         )}
         </div>
         )}
+      </div>
 
       {/* App Info */}
       <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
@@ -904,79 +905,80 @@ export default function SettingsPage() {
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.info ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.info && (
-        <div className="p-5 pt-0 space-y-3">
-        <div className="space-y-2">
-          <div className="flex justify-between items-center font-sans text-sm gap-4">
-            <span className="text-muted-foreground shrink-0">Bible Text</span>
-            <span className="text-foreground font-medium text-right">King James Bible (PCE)</span>
-          </div>
-          <div className="flex justify-between items-center font-sans text-sm gap-4">
-            <span className="text-muted-foreground shrink-0">Version</span>
-            <span className="text-foreground font-medium text-right">1.0.0</span>
-          </div>
-          <div className="flex justify-between items-center font-sans text-sm gap-4">
-            <span className="text-muted-foreground shrink-0">Last App Revision</span>
-            <span className="text-foreground font-medium text-right">{LAST_REVISED}</span>
-          </div>
-          <div className="flex justify-between items-center font-sans text-sm gap-4">
-            <span className="text-muted-foreground shrink-0">Offline Support</span>
-            <span className="text-foreground font-medium text-right flex items-center gap-1">
-              {cached ? (
-                <>
-                  <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
-                  Enabled
-                </>
-              ) : (
-                <>
-                  <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
-                  Not Downloaded
-                </>
-              )}
-            </span>
-          </div>
-          <div className="flex justify-between items-center font-sans text-sm gap-4">
-            <span className="text-muted-foreground shrink-0">Notifications</span>
-            <span className="text-foreground font-medium text-right flex items-center gap-1">
-              {notifEnabled ? (
-                <>
-                  <Bell className="w-3.5 h-3.5 text-primary" />
-                  Enabled
-                </>
-              ) : (
-                <>
-                  <BellOff className="w-3.5 h-3.5 text-muted-foreground" />
-                  Disabled
-                </>
-              )}
-            </span>
-          </div>
-          <div className="flex justify-between items-center font-sans text-sm gap-4">
-            <span className="text-muted-foreground shrink-0">PWA Status</span>
-            <span className="text-foreground font-medium text-right flex items-center gap-1">
-              {isInstalled ? (
-                <>
-                  <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
-                  Installed
-                </>
-              ) : (
-                <>
-                  <Smartphone className="w-3.5 h-3.5 text-muted-foreground" />
-                  Browser
-                </>
-              )}
-            </span>
-          </div>
-          <div className="flex justify-between items-center font-sans text-sm gap-4">
-            <span className="text-muted-foreground shrink-0">Daily Verse Panel</span>
-            <span className="text-foreground font-medium text-right">Customizable</span>
-          </div>
-          <div className="flex justify-between items-center font-sans text-sm gap-4">
-            <span className="text-muted-foreground shrink-0">Theme</span>
-            <span className="text-foreground font-medium text-right">Light / Dark / Auto / System</span>
+          <div className="p-5 pt-0 space-y-3">
+            <div className="space-y-2">
+              <div className="flex justify-between items-center font-sans text-sm gap-4">
+                <span className="text-muted-foreground shrink-0">Bible Text</span>
+                <span className="text-foreground font-medium text-right">King James Bible (PCE)</span>
+              </div>
+              <div className="flex justify-between items-center font-sans text-sm gap-4">
+                <span className="text-muted-foreground shrink-0">Version</span>
+                <span className="text-foreground font-medium text-right">1.0.0</span>
+              </div>
+              <div className="flex justify-between items-center font-sans text-sm gap-4">
+                <span className="text-muted-foreground shrink-0">Last App Revision</span>
+                <span className="text-foreground font-medium text-right">{LAST_REVISED}</span>
+              </div>
+              <div className="flex justify-between items-center font-sans text-sm gap-4">
+                <span className="text-muted-foreground shrink-0">Offline Support</span>
+                <span className="text-foreground font-medium text-right flex items-center gap-1">
+                  {cached ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+                      Enabled
+                    </>
+                  ) : (
+                    <>
+                      <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                      Not Downloaded
+                    </>
+                  )}
+                </span>
+              </div>
+              <div className="flex justify-between items-center font-sans text-sm gap-4">
+                <span className="text-muted-foreground shrink-0">Notifications</span>
+                <span className="text-foreground font-medium text-right flex items-center gap-1">
+                  {notifEnabled ? (
+                    <>
+                      <Bell className="w-3.5 h-3.5 text-primary" />
+                      Enabled
+                    </>
+                  ) : (
+                    <>
+                      <BellOff className="w-3.5 h-3.5 text-muted-foreground" />
+                      Disabled
+                    </>
+                  )}
+                </span>
+              </div>
+              <div className="flex justify-between items-center font-sans text-sm gap-4">
+                <span className="text-muted-foreground shrink-0">PWA Status</span>
+                <span className="text-foreground font-medium text-right flex items-center gap-1">
+                  {isInstalled ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+                      Installed
+                    </>
+                  ) : (
+                    <>
+                      <Smartphone className="w-3.5 h-3.5 text-muted-foreground" />
+                      Browser
+                    </>
+                  )}
+                </span>
+              </div>
+              <div className="flex justify-between items-center font-sans text-sm gap-4">
+                <span className="text-muted-foreground shrink-0">Daily Verse Panel</span>
+                <span className="text-foreground font-medium text-right">Customizable</span>
+              </div>
+              <div className="flex justify-between items-center font-sans text-sm gap-4">
+                <span className="text-muted-foreground shrink-0">Theme</span>
+                <span className="text-foreground font-medium text-right">Light / Dark / Auto / System</span>
+              </div>
+            </div>
           </div>
         )}
-        </div>
-        )}
+      </div>
 
       {/* Credits */}
       <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
@@ -1059,7 +1061,6 @@ export default function SettingsPage() {
             <CheckCircle2 className="w-4 h-4" />
             Check for Updates
           </button>
-        </div>
         </div>
         )}
       </div>
