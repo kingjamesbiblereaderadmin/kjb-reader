@@ -116,13 +116,22 @@ export function disableNotifications() {
 
 // Subscribe to push notifications with VAPID
 export async function subscribeToPush() {
-  if (!('serviceWorker' in navigator)) return null;
+  console.log('[Push] Starting subscription process...');
+  
+  if (!('serviceWorker' in navigator)) {
+    console.error('[Push] Service worker not supported');
+    throw new Error('Service worker not supported');
+  }
   
   const reg = await navigator.serviceWorker.ready;
+  console.log('[Push] Service worker ready:', reg);
   
   // Get VAPID key dynamically
   const vapidKeyString = await getVapidPublicKey();
+  console.log('[Push] VAPID key string:', vapidKeyString?.substring(0, 20) + '...');
+  
   if (!vapidKeyString) {
+    console.error('[Push] Failed to retrieve VAPID public key');
     throw new Error('Failed to retrieve VAPID public key');
   }
   
@@ -130,20 +139,30 @@ export async function subscribeToPush() {
   let vapidKey;
   try {
     vapidKey = urlBase64ToUint8Array(vapidKeyString);
+    console.log('[Push] VAPID key converted, length:', vapidKey.length);
   } catch (err) {
+    console.error('[Push] VAPID key conversion failed:', err);
     throw new Error('Invalid VAPID key format: ' + err.message);
   }
   
   if (!vapidKey || vapidKey.length === 0) {
+    console.error('[Push] VAPID key is empty after conversion');
     throw new Error('VAPID key conversion resulted in empty array');
   }
   
-  const subscription = await reg.pushManager.subscribe({
-    userVisibleOnly: true,
-    applicationServerKey: vapidKey
-  });
-  
-  return subscription;
+  console.log('[Push] Attempting to subscribe...');
+  try {
+    const subscription = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: vapidKey
+    });
+    console.log('[Push] Subscription successful:', subscription.endpoint?.substring(0, 50) + '...');
+    return subscription;
+  } catch (err) {
+    console.error('[Push] Subscription failed:', err.message);
+    console.error('[Push] Error details:', err);
+    throw err;
+  }
 }
 
 export function unsubscribeFromPush() {
