@@ -291,7 +291,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   return (
     <div className="w-full">
       {/* Verse card */}
-      <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-6 md:px-8 pt-6 md:pt-8 pb-8 md:pb-10 text-center text-white relative cursor-pointer min-h-[280px] md:min-h-[320px] flex flex-col justify-center`} style={bgStyle}>
+      <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-6 md:px-8 pt-6 md:pt-8 pb-8 md:pb-10 text-center text-white relative cursor-pointer`} style={bgStyle}>
         {/* Bell button */}
         {showButtons && onToggleNotif && (
           <button
@@ -486,7 +486,44 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             <ChevronsDown className="w-3.5 h-3.5 text-slate-800" />
           </button>
         )}
-        </div>
+        {/* Verse content inside the orange box */}
+        {showVersePanel && (
+          <div className="mt-8 md:mt-10">
+            <p 
+              className={`font-sans text-xs md:text-sm font-bold tracking-wide uppercase mb-3 md:mb-4 ${accentClass}`}
+              style={{ opacity: textOpacity, color: textColor, fontFamily }}
+            >
+              Verse of the Day
+            </p>
+          </div>
+        )}
+        <blockquote 
+          className={`text-lg md:text-xl lg:text-2xl leading-relaxed break-words mb-3 md:mb-4 ${showVersePanel ? 'mt-0' : 'mt-6 md:mt-8'}`}
+          style={{ 
+            color: textColor, 
+            opacity: textOpacity, 
+            fontFamily,
+            fontWeight: '700',
+            textShadow: '0 2px 8px rgba(0,0,0,0.3)'
+          }}
+        >
+          "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
+        </blockquote>
+        <p 
+          className="font-sans text-sm md:text-base font-semibold"
+          style={{ 
+            opacity: Math.min(1, textOpacity + 0.05), 
+            color: textColor, 
+            fontFamily,
+            textShadow: '0 1px 4px rgba(0,0,0,0.3)'
+          }}
+        >
+          — {verse.ref} (KJB)
+        </p>
+        <div 
+          className={`w-12 h-1 mx-auto mt-4 md:mt-6 ${accentClass}`}
+          style={{ opacity: 0.75 * textOpacity, backgroundColor: textColor }}
+        />
       </div>
 
       {/* Style Editor Panel */}
@@ -595,70 +632,74 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         }}
         className="hidden"
       />
-      
-      {showVersePanel ? (
-        <div className="w-full bg-white/15 backdrop-blur-sm rounded-xl px-5 md:px-8 py-5 md:py-6 mb-5 min-h-[120px] md:min-h-[140px]">
-          <p 
-            className={`font-sans text-xs md:text-sm font-bold tracking-wide uppercase mb-3 md:mb-4 ${accentClass}`}
-            style={{ opacity: textOpacity, color: textColor, fontFamily }}
+
+      {/* Crop Modal */}
+      {cropImage && (
+        <ImageCropper
+          image={cropImage}
+          onCrop={(cropped) => handleCropComplete(cropped, cropImageForNotif)}
+          onCancel={() => {
+            setCropImage(null);
+            setCropImageForNotif(false);
+          }}
+        />
+      )}
+
+      {/* Lightbox Modal */}
+      {showLightbox && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+          onClick={() => setShowLightbox(false)}
+        >
+          <div
+            className="relative max-w-4xl w-full mx-4 p-8 md:p-12 rounded-2xl shadow-2xl"
+            style={bgStyle}
+            onClick={(e) => e.stopPropagation()}
           >
-            Verse of the Day
-          </p>
-          <blockquote 
-            className="text-lg md:text-xl lg:text-2xl leading-relaxed break-words"
-            style={{ 
-              color: textColor, 
-              opacity: textOpacity, 
-              fontFamily,
-              fontWeight: '700',
-              textShadow: '0 2px 8px rgba(0,0,0,0.3)'
-            }}
-          >
-            "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
-          </blockquote>
-          <p 
-            className="font-sans text-sm md:text-base font-semibold mt-3 md:mt-4"
-            style={{ 
-              opacity: Math.min(1, textOpacity + 0.05), 
-              color: textColor, 
-              fontFamily,
-              textShadow: '0 1px 4px rgba(0,0,0,0.3)'
-            }}
-          >
-            — {verse.ref} (KJB)
-          </p>
-        </div>
-      ) : (
-        <div className="w-full px-5 md:px-8 py-5 md:py-6 mb-5 min-h-[100px] md:min-h-[120px]">
-          <blockquote 
-            className="text-lg md:text-xl lg:text-2xl leading-relaxed break-words"
-            style={{ 
-              color: textColor, 
-              opacity: textOpacity, 
-              fontFamily,
-              fontWeight: '700',
-              textShadow: '0 2px 8px rgba(0,0,0,0.3)'
-            }}
-          >
-            "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
-          </blockquote>
-          <p 
-            className="font-sans text-sm md:text-base font-semibold mt-3 md:mt-4"
-            style={{ 
-              opacity: Math.min(1, textOpacity + 0.05), 
-              color: textColor, 
-              fontFamily,
-              textShadow: '0 1px 4px rgba(0,0,0,0.3)'
-            }}
-          >
-            — {verse.ref} (KJB)
-          </p>
+            <button
+              onClick={() => setShowLightbox(false)}
+              className="absolute top-4 right-4 p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors"
+              type="button"
+            >
+              <Upload className="w-5 h-5 text-white rotate-45" />
+            </button>
+            <p 
+              className={`font-sans text-xs font-semibold tracking-widest uppercase mb-6 ${accentClass}`}
+              style={{ opacity: 0.8 * textOpacity, color: textColor, fontFamily }}
+            >
+              Verse of the Day
+            </p>
+            <blockquote 
+              className="text-3xl md:text-5xl leading-relaxed mb-8"
+              style={{ 
+                color: textColor, 
+                opacity: textOpacity, 
+                fontFamily,
+                fontWeight: '700',
+                textShadow: '0 2px 8px rgba(0,0,0,0.3)'
+              }}
+            >
+              "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
+            </blockquote>
+            <p 
+              className="font-sans text-xl md:text-2xl font-semibold"
+              style={{ 
+                opacity: Math.min(1, textOpacity + 0.05), 
+                color: textColor, 
+                fontFamily,
+                textShadow: '0 1px 4px rgba(0,0,0,0.3)'
+              }}
+            >
+              — {verse.ref} (KJB)
+            </p>
+            <div 
+              className={`mt-8 w-16 h-1 mx-auto ${accentClass}`}
+              style={{ opacity: 0.75 * textOpacity, backgroundColor: textColor }}
+            />
+          </div>
         </div>
       )}
-      <div 
-        className={`w-12 h-1 mx-auto ${accentClass}`}
-        style={{ opacity: 0.75 * textOpacity, backgroundColor: textColor }}
-      />
+    </div>
       
       {/* Crop Modal */}
       {cropImage && (
