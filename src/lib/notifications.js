@@ -233,7 +233,8 @@ export async function showLocalNotification(title, body) {
       badge: logoUrl,
       tag: 'daily-verse',
       renotify: true,
-      silent: true
+      silent: false,
+      vibrate: [200, 100, 200]
     });
     return;
   } catch (err) {
@@ -245,7 +246,9 @@ export async function showLocalNotification(title, body) {
     try {
       new Notification(title, { 
         body, 
-        icon: logoUrl
+        icon: logoUrl,
+        badge: logoUrl,
+        vibrate: [200, 100, 200]
       });
     } catch (err) {
       console.error('Standard notification failed:', err);
