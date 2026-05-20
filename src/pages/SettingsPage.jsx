@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { base44 } from '@/api/base44Client';
@@ -22,6 +22,9 @@ export default function SettingsPage() {
   const { isDark, mode, setMode, colourId, setColourId } = useTheme();
   const [footerHidden, setFooterHidden] = useState(() => {
     try { return localStorage.getItem('kjb-footer-hidden') === 'true'; } catch { return false; }
+  });
+  const [zoomLevel, setZoomLevel] = useState(() => {
+    try { return parseInt(localStorage.getItem('kjb-zoom') || '100'); } catch { return 100; }
   });
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);
@@ -233,6 +236,53 @@ export default function SettingsPage() {
                 {p.name}
               </button>
             ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Text Zoom */}
+      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
+        <h2 className="font-serif text-lg font-semibold text-foreground">Text Size</h2>
+        <p className="font-sans text-sm text-muted-foreground">Default zoom level for Bible text</p>
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="font-sans text-sm text-foreground font-medium">Current: {zoomLevel}%</p>
+            <p className="font-sans text-xs text-muted-foreground mt-0.5">
+              {zoomLevel < 100 ? 'Smaller text' : zoomLevel > 100 ? 'Larger text' : 'Default size'}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                const newZoom = Math.max(75, zoomLevel - 25);
+                setZoomLevel(newZoom);
+                try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch {}
+              }}
+              className="p-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-colors"
+            >
+              <ZoomOut className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => {
+                const newZoom = Math.min(150, zoomLevel + 25);
+                setZoomLevel(newZoom);
+                try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch {}
+              }}
+              className="p-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-colors"
+            >
+              <ZoomIn className="w-4 h-4" />
+            </button>
+            {zoomLevel !== 100 && (
+              <button
+                onClick={() => {
+                  setZoomLevel(100);
+                  try { localStorage.setItem('kjb-zoom', '100'); } catch {}
+                }}
+                className="px-3 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+              >
+                Reset
+              </button>
+            )}
           </div>
         </div>
       </div>

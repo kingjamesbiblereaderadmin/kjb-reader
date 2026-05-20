@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn } from 'lucide-react';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText } from '@/lib/bibleApi';
 import { getBibleData } from '@/lib/bibleCache';
@@ -60,6 +60,9 @@ export default function BibleReader() {
     try { return localStorage.getItem('kjb-layout') === 'paragraph'; } catch { return false; }
   });
   const [fullscreen, setFullscreen] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(() => {
+    try { return parseInt(localStorage.getItem('kjb-zoom') || '100'); } catch { return 100; }
+  });
 
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
@@ -87,6 +90,12 @@ export default function BibleReader() {
     const next = !paragraphMode;
     setParagraphMode(next);
     try { localStorage.setItem('kjb-layout', next ? 'paragraph' : 'line'); } catch {}
+  };
+
+  const adjustZoom = (delta) => {
+    const newZoom = Math.max(75, Math.min(150, zoomLevel + delta));
+    setZoomLevel(newZoom);
+    try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch {}
   };
 
   const toggleSelectMode = () => {
@@ -437,6 +446,19 @@ export default function BibleReader() {
                 />
               </SelectorSheet>
 
+              {/* Zoom control */}
+              <div className="p-1">
+              <button
+                onClick={() => adjustZoom(25)}
+                onTouchEnd={(e) => { e.preventDefault(); adjustZoom(25); }}
+                title={`Zoom: ${zoomLevel}%`}
+                className="flex items-center gap-1 px-3 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors touch-manipulation min-h-[48px]"
+              >
+                <ZoomIn className="w-3.5 h-3.5" />
+                {zoomLevel}%
+              </button>
+              </div>
+
               {/* Layout toggle */}
               <div className="p-1">
               <button
@@ -567,7 +589,10 @@ export default function BibleReader() {
       )}
 
       {/* Title pages or verses */}
-      <div className="font-serif text-lg leading-loose text-foreground/90">
+      <div 
+        className="font-serif leading-loose text-foreground/90"
+        style={{ fontSize: `${zoomLevel / 100}rem`, lineHeight: zoomLevel > 100 ? '1.8' : '1.6' }}
+      >
         {loading && (
           <div className="flex justify-center py-16">
             <Loader2 className="w-8 h-8 animate-spin text-accent" />
