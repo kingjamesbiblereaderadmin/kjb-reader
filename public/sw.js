@@ -1,220 +1,176 @@
-const CACHE_VERSION = 'v5-push-support';
-const CACHE_NAME = `kjb-reader-${CACHE_VERSION}`;
-const NOTIF_CACHE = 'kjb-notif-config';
+// KJB Reader Service Worker
+// Handles: asset caching, background notifications via periodicsync + push
 
-const STATIC_ASSETS = [
+const CACHE_NAME = 'kjb-app-v4';
+const NOTIF_CONFIG_CACHE = 'kjb-notif-config';
+
+const PRECACHE_URLS = [
   '/',
   '/index.html',
-  '/manifest.json',
 ];
 
-// Install - cache static assets
-self.addEventListener('install', event => {
-  console.log('[SW] Install event, version:', CACHE_VERSION);
+// ── Install ──────────────────────────────────────────────────────────────────
+self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      console.log('[SW] Caching static assets');
-      return cache.addAll(STATIC_ASSETS).catch(err => {
-        console.warn('[SW] Some assets failed to cache:', err);
-      });
-    })
+    caches.open(CACHE_NAME).then(cache => cache.addAll(PRECACHE_URLS))
   );
-  // Activate immediately
   self.skipWaiting();
 });
 
-// Activate - clean old caches
-self.addEventListener('activate', event => {
-  console.log('[SW] Activate event');
+// ── Activate ─────────────────────────────────────────────────────────────────
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(names => {
-      return Promise.all(
-        names.filter(name => name.startsWith('kjb-reader-') && name !== CACHE_NAME).map(name => {
-          console.log('[SW] Deleting old cache:', name);
-          return caches.delete(name);
-        })
-      );
-    })
+    caches.keys().then(keys =>
+      Promise.all(
+        keys.filter(k => k !== CACHE_NAME && k !== NOTIF_CONFIG_CACHE)
+          .map(k => caches.delete(k))
+      )
+    )
   );
-  // Claim all clients immediately
   self.clients.claim();
 });
 
-// Fetch - network first for HTML, cache first for assets
-self.addEventListener('fetch', event => {
-  const { request } = event;
-  const url = new URL(request.url);
-
-  // HTML pages - network first with cache fallback
-  if (request.mode === 'navigate' || request.headers.get('accept')?.includes('text/html')) {
+// ── Fetch (network-first for JS/CSS, cache-first for HTML) ───────────────────
+self.addEventListener('fetch', (event) => {
+  // Don't intercept non-GET requests
+  if (event.request.method !== 'GET') return;
+  
+  const url = new URL(event.request.url);
+  const isSameOrigin = url.origin === self.location.origin;
+  
+  // Skip external requests
+  if (!isSameOrigin) return;
+  
+  // Skip Vite/React chunks - always fetch fresh
+  const isChunk = url.pathname.includes('/node_modules/') || 
+                  url.pathname.includes('/@vite') || 
+                  url.pathname.includes('/@react-refresh') ||
+                  url.pathname.includes('/chunk-') ||
+                  url.pathname.endsWith('.js') ||
+                  url.pathname.endsWith('.css');
+  
+  if (isChunk) {
     event.respondWith(
-      fetch(request).catch(() => caches.match('/index.html'))
+      fetch(event.request).then(response => {
+        // Cache successful responses
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        }
+        return response;
+      }).catch(() => caches.match(event.request))
     );
     return;
   }
-
-  // API calls - network first
-  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/functions/')) {
-    event.respondWith(fetch(request));
-    return;
-  }
-
-  // Static assets - cache first
+  
+  // Cache-first for HTML and other assets
   event.respondWith(
-    caches.match(request).then(cached => {
-      if (cached) return cached;
-      return fetch(request).then(response => {
-        if (response.ok) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
+    caches.match(event.request).then(cached => {
+      return cached || fetch(event.request).then(response => {
+        // Cache successful HTML responses
+        if (response && response.status === 200) {
+          const ct = response.headers.get('content-type') || '';
+          if (ct.includes('text/html')) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          }
         }
         return response;
       });
-    }).catch(() => {
-      // Offline fallback for images
-      if (request.destination === 'image') {
-        return caches.match('/manifest.json'); // Return something valid
+    })
+  );
+});
+
+// ── Helper: read notification config from cache ───────────────────────────────
+async function getNotifConfig() {
+  try {
+    const cache = await caches.open(NOTIF_CONFIG_CACHE);
+    const res = await cache.match('/notif-config');
+    if (!res) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+// ── Helper: show daily verse notification ─────────────────────────────────────
+async function showDailyVerseNotif() {
+  const config = await getNotifConfig();
+  if (!config) return;
+
+  const now = Date.now();
+  const today = new Date().toISOString().slice(0, 10);
+
+  // Don't fire if already fired today
+  if (config.lastDate === today) return;
+  // Don't fire if not yet time
+  if (config.nextTs && now < config.nextTs) return;
+
+  const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
+
+  await self.registration.showNotification('King James Bible — Verse of the Day', {
+    body: config.verseText
+      ? `"${config.verseText}" — ${config.verseRef}`
+      : 'Open the app to read today\'s verse.',
+    icon: logoUrl,
+    badge: logoUrl,
+    tag: 'daily-verse',
+    renotify: true,
+  });
+
+  // Update lastDate in config so we don't double-fire
+  try {
+    const cache = await caches.open(NOTIF_CONFIG_CACHE);
+    const updated = { ...config, lastDate: today };
+    await cache.put('/notif-config', new Response(JSON.stringify(updated), {
+      headers: { 'Content-Type': 'application/json' }
+    }));
+  } catch {}
+}
+
+// ── Periodic Background Sync ──────────────────────────────────────────────────
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'daily-verse-notif') {
+    event.waitUntil(showDailyVerseNotif());
+  }
+});
+
+// ── Push notifications (optional, if push is set up) ─────────────────────────
+self.addEventListener('push', (event) => {
+  const data = event.data ? event.data.json() : {};
+  const title = data.title || 'King James Bible';
+  const body = data.body || 'Your daily verse is ready.';
+  const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body,
+      icon: logoUrl,
+      badge: logoUrl,
+      tag: 'daily-verse',
+    })
+  );
+});
+
+// ── Notification click ────────────────────────────────────────────────────────
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow('/');
       }
     })
   );
 });
 
-// Periodic background sync - only works on some Android devices when app is installed
-// Falls back to checking on app open if not supported
-self.addEventListener('periodicsync', event => {
-  console.log('[SW] Periodic sync triggered:', event.tag);
-  
-  if (event.tag === 'daily-verse-notif') {
-    event.waitUntil(
-      (async () => {
-        try {
-          // Fetch notification config from cache
-          const cache = await caches.open(NOTIF_CACHE);
-          const response = await cache.match('/notif-config');
-          if (!response) {
-            console.log('[SW] No notification config found');
-            return;
-          }
-          
-          const config = await response.json();
-          const now = Date.now();
-          const today = new Date().toISOString().split('T')[0];
-          
-          console.log('[SW] Checking notification time:', {
-            now,
-            nextTs: config.nextTs,
-            lastDate: config.lastDate || '',
-            today
-          });
-          
-          // Check if it's time to send notification and not already sent today
-          if (now >= config.nextTs && config.lastDate !== today) {
-            const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
-            
-            console.log('[SW] Sending notification:', config.verseRef);
-            
-            // Show notification
-            await self.registration.showNotification('King James Bible — Daily Verse', {
-              body: `"${config.verseText}" — ${config.verseRef}`,
-              icon: logoUrl,
-              badge: logoUrl,
-              tag: 'daily-verse',
-              renotify: true,
-              data: {
-                url: '/'
-              }
-            });
-            
-            // Update last sent date in cache
-            config.lastDate = today;
-            await cache.put('/notif-config', new Response(JSON.stringify(config), {
-              headers: { 'Content-Type': 'application/json' }
-            }));
-            
-            console.log('[SW] Notification sent successfully');
-          } else {
-            console.log('[SW] Skipping - not time yet or already sent today');
-          }
-        } catch (err) {
-          console.error('[SW] Periodic sync error:', err);
-        }
-      })()
-    );
-  }
-});
-
-// Push notification event - receives messages from server even when app is closed
-self.addEventListener('push', event => {
-  console.log('[SW] Push event received:', event.data ? event.data.text() : 'no data');
-  
-  event.waitUntil(
-    (async () => {
-      try {
-        let data = {};
-        if (event.data) {
-          try {
-            data = event.data.json();
-          } catch {
-            data = { title: 'KJB Reader', body: event.data.text() };
-          }
-        }
-        
-        const title = data.title || 'King James Bible';
-        const body = data.body || 'New notification';
-        const icon = data.icon || 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
-        const badge = data.badge || icon;
-        const url = data.url || '/';
-        const tag = data.tag || 'daily-verse';
-        
-        console.log('[SW] Showing notification:', { title, body, tag });
-        
-        await self.registration.showNotification(title, {
-          body,
-          icon,
-          badge,
-          tag,
-          renotify: true,
-          data: { url },
-          actions: data.actions || []
-        });
-        
-        console.log('[SW] Notification shown successfully');
-      } catch (err) {
-        console.error('[SW] Push notification error:', err);
-      }
-    })()
-  );
-});
-
-// Handle notification click
-self.addEventListener('notificationclick', event => {
-  console.log('[SW] Notification clicked');
-  event.notification.close();
-  
-  if (event.notification.data && event.notification.data.url) {
-    event.waitUntil(
-      clients.matchAll({ type: 'window' }).then(windowClients => {
-        // If app is already open, focus it
-        for (let client of windowClients) {
-          if (client.url === event.notification.data.url && 'focus' in client) {
-            console.log('[SW] Focusing existing window');
-            return client.focus();
-          }
-        }
-        // Otherwise, open a new window
-        if (clients.openWindow) {
-          console.log('[SW] Opening new window');
-          return clients.openWindow(event.notification.data.url);
-        }
-      })
-    );
-  }
-});
-
-// Handle skip waiting message
-self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    console.log('[SW] Skipping waiting');
-    self.skipWaiting();
+// ── Message from app (e.g. "check and fire now if overdue") ──────────────────
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'CHECK_NOTIF') {
+    event.waitUntil(showDailyVerseNotif());
   }
 });
