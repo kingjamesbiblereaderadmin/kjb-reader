@@ -131,21 +131,18 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// Handle notification clicks to open app properly (no share functionality)
+// Handle notification clicks - ONLY open the app, never trigger share
 self.addEventListener('notificationclick', (event) => {
   console.log('[SW] Notification clicked:', event.notification.tag);
   event.notification.close();
   
-  // Open the app when notification is clicked - no share, just open app
+  // Simply open/focus the app - no share, no data passed
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
-      // If app is already open, focus it
       if (clients.length > 0) {
         return clients[0].focus();
       }
-      // Otherwise open a new window
-      const urlToOpen = event.notification.data?.url || '/';
-      return self.clients.openWindow(urlToOpen);
+      return self.clients.openWindow('/');
     })
   );
 });
