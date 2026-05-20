@@ -33,6 +33,8 @@ export default function SearchPage() {
   const [expandedTerms, setExpandedTerms] = useState([]);
   const [testament, setTestament] = useState('all');
   const [wholeWord, setWholeWord] = useState(false);
+  const [caseSensitive, setCaseSensitive] = useState(false);
+  const [exactMatch, setExactMatch] = useState(false);
   const [numberedBookFilter, setNumberedBookFilter] = useState(null);
   const [showBookFilter, setShowBookFilter] = useState(false);
   const [selectedBooks, setSelectedBooks] = useState(new Set());
@@ -119,14 +121,20 @@ export default function SearchPage() {
         for (const chapterNum in chapters) {
           const verses = chapters[chapterNum];
           for (const verseObj of verses) {
-            const verseTextLower = verseObj.text.toLowerCase();
+            const verseText = verseObj.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
+            const verseTextLower = verseText.toLowerCase();
             let found = false;
             for (const term of terms) {
-              if (wholeWord) {
-                const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                if (new RegExp(`\\b${escapedTerm}\\b`).test(verseTextLower)) { found = true; break; }
+              const searchTerm = caseSensitive ? term : term.toLowerCase();
+              const searchText = caseSensitive ? verseText : verseTextLower;
+              
+              if (exactMatch) {
+                if (searchText === searchTerm) { found = true; break; }
+              } else if (wholeWord) {
+                const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                if (new RegExp(`\\b${escapedTerm}\\b`).test(searchText)) { found = true; break; }
               } else {
-                if (verseTextLower.includes(term)) { found = true; break; }
+                if (searchText.includes(searchTerm)) { found = true; break; }
               }
             }
 
@@ -153,7 +161,7 @@ export default function SearchPage() {
       setResults([]);
     }
     setLoading(false);
-  }, [testament, wholeWord]);
+  }, [testament, wholeWord, caseSensitive, exactMatch]);
 
   // Re-run search whenever URL changes (fixes header search bar)
   useEffect(() => {
@@ -293,7 +301,27 @@ export default function SearchPage() {
             onChange={e => setWholeWord(e.target.checked)}
             className="w-3.5 h-3.5 accent-[hsl(var(--accent))] cursor-pointer"
           />
-          <label htmlFor="whole-word" className="font-sans text-xs text-muted-foreground cursor-pointer select-none">Whole word only</label>
+          <label htmlFor="whole-word" className="font-sans text-xs text-muted-foreground cursor-pointer select-none">Whole word</label>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <input
+            id="case-sensitive"
+            type="checkbox"
+            checked={caseSensitive}
+            onChange={e => setCaseSensitive(e.target.checked)}
+            className="w-3.5 h-3.5 accent-[hsl(var(--accent))] cursor-pointer"
+          />
+          <label htmlFor="case-sensitive" className="font-sans text-xs text-muted-foreground cursor-pointer select-none">Match case</label>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <input
+            id="exact-match"
+            type="checkbox"
+            checked={exactMatch}
+            onChange={e => setExactMatch(e.target.checked)}
+            className="w-3.5 h-3.5 accent-[hsl(var(--accent))] cursor-pointer"
+          />
+          <label htmlFor="exact-match" className="font-sans text-xs text-muted-foreground cursor-pointer select-none">Exact match</label>
         </div>
       </div>
 
