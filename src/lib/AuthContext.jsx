@@ -15,7 +15,18 @@ export const AuthProvider = ({ children }) => {
   const [appPublicSettings, setAppPublicSettings] = useState(null); // Contains only { id, public_settings }
 
   useEffect(() => {
+    const timeout = setTimeout(() => {
+      // Fallback: if loading takes too long, allow app to continue
+      if (isLoadingAuth || isLoadingPublicSettings) {
+        console.warn('[Auth] Loading timeout - allowing app to continue');
+        setIsLoadingAuth(false);
+        setIsLoadingPublicSettings(false);
+      }
+    }, 10000); // 10 second timeout
+    
     checkAppState();
+    
+    return () => clearTimeout(timeout);
   }, []);
 
   const checkAppState = async () => {
