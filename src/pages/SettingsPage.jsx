@@ -422,9 +422,9 @@ export default function SettingsPage() {
 
       {/* Notifications */}
       <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-4">
-        <h2 className="font-serif text-lg font-semibold text-foreground">Daily Notifications</h2>
+        <h2 className="font-serif text-lg font-semibold text-foreground">Daily Verse Reminders</h2>
         <p className="font-sans text-xs text-muted-foreground">
-          Receive daily verses and reading reminders even when the app is closed. Works best when installed to home screen.
+          Get reminded to read your daily verse when you open the app. Notifications will update the verse when the app is opened.
         </p>
         {notifPermission === 'unsupported' ? (
           <div className="space-y-3">
@@ -448,7 +448,7 @@ export default function SettingsPage() {
                 <p className="font-sans text-xs text-muted-foreground">
                   {notifPermission === 'denied'
                     ? 'Blocked — go to your browser/app settings and allow notifications for this site'
-                    : 'Get a daily verse at your chosen time, even when the app is closed'}
+                    : 'Daily verse reminder when you open the app'}
                 </p>
               </div>
               <Switch
@@ -486,7 +486,7 @@ export default function SettingsPage() {
                       {readingReminderEnabled && <Bell className="w-3.5 h-3.5 text-primary" />}
                     </div>
                     <p className="font-sans text-xs text-muted-foreground">
-                      Daily reminder to read your assigned chapter
+                      Reminder when you open the app
                     </p>
                   </div>
                   {readingReminderEnabled && (
@@ -510,7 +510,7 @@ export default function SettingsPage() {
               </div>
               {readingReminderEnabled && (
                 <p className="font-sans text-xs text-muted-foreground bg-secondary/50 rounded-lg p-2">
-                  ⏰ You will be reminded daily to read your assigned chapter at {readingReminderTime}
+                  ⏰ You will be reminded when you open the app
                 </p>
               )}
             </div>

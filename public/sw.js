@@ -79,7 +79,8 @@ self.addEventListener('fetch', event => {
   );
 });
 
-// Periodic background sync - fires even when app is closed (Android)
+// Periodic background sync - only works on some Android devices when app is installed
+// Falls back to checking on app open if not supported
 self.addEventListener('periodicsync', event => {
   console.log('[SW] Periodic sync triggered:', event.tag);
   
@@ -97,48 +98,42 @@ self.addEventListener('periodicsync', event => {
           
           const config = await response.json();
           const now = Date.now();
+          const today = new Date().toISOString().split('T')[0];
           
           console.log('[SW] Checking notification time:', {
             now,
             nextTs: config.nextTs,
-            lastDate: config.lastDate
+            lastDate: config.lastDate || '',
+            today
           });
           
-          // Check if it's time to send notification
-          if (now >= config.nextTs) {
-            const today = new Date().toISOString().split('T')[0];
-            const lastDate = config.lastDate || '';
+          // Check if it's time to send notification and not already sent today
+          if (now >= config.nextTs && config.lastDate !== today) {
+            const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
             
-            // Don't send if already sent today
-            if (lastDate !== today) {
-              const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
-              
-              console.log('[SW] Sending notification:', config.verseRef);
-              
-              // Show notification
-              await self.registration.showNotification('King James Bible — Daily Verse', {
-                body: `"${config.verseText}" — ${config.verseRef}`,
-                icon: logoUrl,
-                badge: logoUrl,
-                tag: 'daily-verse',
-                renotify: true,
-                data: {
-                  url: '/'
-                }
-              });
-              
-              // Update last sent date in cache
-              config.lastDate = today;
-              await cache.put('/notif-config', new Response(JSON.stringify(config), {
-                headers: { 'Content-Type': 'application/json' }
-              }));
-              
-              console.log('[SW] Notification sent successfully');
-            } else {
-              console.log('[SW] Already sent today, skipping');
-            }
+            console.log('[SW] Sending notification:', config.verseRef);
+            
+            // Show notification
+            await self.registration.showNotification('King James Bible — Daily Verse', {
+              body: `"${config.verseText}" — ${config.verseRef}`,
+              icon: logoUrl,
+              badge: logoUrl,
+              tag: 'daily-verse',
+              renotify: true,
+              data: {
+                url: '/'
+              }
+            });
+            
+            // Update last sent date in cache
+            config.lastDate = today;
+            await cache.put('/notif-config', new Response(JSON.stringify(config), {
+              headers: { 'Content-Type': 'application/json' }
+            }));
+            
+            console.log('[SW] Notification sent successfully');
           } else {
-            console.log('[SW] Not time yet, next fire at:', new Date(config.nextTs));
+            console.log('[SW] Skipping - not time yet or already sent today');
           }
         } catch (err) {
           console.error('[SW] Periodic sync error:', err);

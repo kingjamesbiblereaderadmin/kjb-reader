@@ -76,6 +76,9 @@ export default function HomePage() {
   });
 
   useEffect(() => {
+    // Sync notification state on mount and whenever verse changes
+    setNotifEnabled(getNotificationsEnabled());
+    
     registerSW();
     if (getNotificationsEnabled()) {
       initNotifications(verse);
@@ -83,7 +86,8 @@ export default function HomePage() {
     initReadingReminder();
 
     const handleStorageChange = () => {
-      setNotifEnabled(getNotificationsEnabled());
+      const enabled = getNotificationsEnabled();
+      setNotifEnabled(enabled);
       if (!('serviceWorker' in navigator)) {
         setNotifPermission('unsupported');
       } else if (!('Notification' in window)) {
@@ -92,11 +96,23 @@ export default function HomePage() {
         setNotifPermission(Notification.permission);
       }
     };
+    
+    // Listen for storage events (syncs across tabs/pages)
     window.addEventListener('storage', handleStorageChange);
+    
+    // Also check on focus (when user returns to the app)
+    const handleFocus = () => {
+      setNotifEnabled(getNotificationsEnabled());
+    };
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleFocus);
+    
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleFocus);
     };
-  }, []);
+  }, [verse]);
 
   const handleVerseClick = () => {
     // Ensure we have valid verse data before navigating
@@ -185,7 +201,7 @@ export default function HomePage() {
             handleToggleNotif();
           }}
           className="absolute top-3 right-3 p-2 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur transition-colors z-10"
-          title={notifEnabled ? 'Reminders on' : 'Reminders off'}
+          title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
           type="button"
         >
           {notifEnabled ? (

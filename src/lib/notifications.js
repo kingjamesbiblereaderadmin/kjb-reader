@@ -1,6 +1,8 @@
 // Notification helpers for KJB PWA
 // Strategy: store next-fire timestamp, check on page load/focus + SW periodic sync
 
+import { getDailyVerse } from './dailyVerse';
+
 const NOTIF_KEY = 'kjb-notifications-enabled';
 const NOTIF_TIME_KEY = 'kjb-notification-time'; // HH:MM
 const NOTIF_LAST_KEY = 'kjb-notification-last'; // YYYY-MM-DD
@@ -290,7 +292,7 @@ async function registerPeriodicSync() {
   } catch {}
 }
 
-// On page focus/visibility, check if a notification is overdue
+// On page focus/visibility, check if we need to show a notification for today's verse
 function checkOverdueNotification(verse) {
   if (!getNotificationsEnabled()) return;
   // On Android, we just need service worker - Notification API is optional
@@ -298,13 +300,16 @@ function checkOverdueNotification(verse) {
   const nextTs = parseInt(localStorage.getItem(NOTIF_NEXT_KEY) || '0', 10);
   if (!nextTs) return;
   const today = todayString();
+  // If it's past the notification time and we haven't sent today
   if (Date.now() >= nextTs && localStorage.getItem(NOTIF_LAST_KEY) !== today) {
     localStorage.setItem(NOTIF_LAST_KEY, today);
+    // Get fresh verse for today
+    const freshVerse = getDailyVerse();
     showLocalNotification(
       'King James Bible — Daily Verse',
-      `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref}`
+      `"${freshVerse.text.slice(0, 120)}${freshVerse.text.length > 120 ? '…' : ''}" — ${freshVerse.ref}`
     );
-    saveNextFireTime();
+    saveNextFireTime(freshVerse);
   }
 }
 
@@ -316,22 +321,24 @@ export function scheduleDailyNotification(verse) {
   registerPeriodicSync();
 }
 
-// Call once on app load
+// Call once on app load - checks for missed notifications and arms timer
 export function initNotifications(verse) {
   if (!getNotificationsEnabled()) return;
   // On Android, we just need service worker - Notification API is optional
   if (!('serviceWorker' in navigator)) return;
 
-  // Check if we missed a notification while closed
+  // Always check if we need to notify for today's verse when app opens
   checkOverdueNotification(verse);
 
-  // Arm the in-page timer
+  // Arm the in-page timer for future notifications
   scheduleDailyNotification(verse);
 
   // Re-check on visibility change (e.g. user switches back to the app)
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
-      checkOverdueNotification(verse);
+      // Get fresh verse when app becomes visible
+      const freshVerse = getDailyVerse();
+      checkOverdueNotification(freshVerse);
     }
   }, { once: false });
 }
