@@ -56,8 +56,9 @@ export default function SearchPage() {
 
     try {
       const bible = await getBibleData();
-      const terms = expandSearchTerms(kw);
-      setExpandedTerms(terms.length > 1 ? terms : []);
+      // Only expand synonyms for normal searches, not exact/case-sensitive
+      const terms = (exactMatch || caseSensitive) ? [kw.trim()] : expandSearchTerms(kw);
+      setExpandedTerms((exactMatch || caseSensitive) ? [] : terms.length > 1 ? terms : []);
       
       const kwLower = kw.trim().toLowerCase();
       
@@ -122,19 +123,33 @@ export default function SearchPage() {
           const verses = chapters[chapterNum];
           for (const verseObj of verses) {
             const verseText = verseObj.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
-            const verseTextLower = verseText.toLowerCase();
             let found = false;
+            
             for (const term of terms) {
-              const searchTerm = caseSensitive ? term : term.toLowerCase();
-              const searchText = caseSensitive ? verseText : verseTextLower;
-              
               if (exactMatch) {
-                if (searchText === searchTerm) { found = true; break; }
-              } else if (wholeWord) {
-                const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                if (new RegExp(`\\b${escapedTerm}\\b`).test(searchText)) { found = true; break; }
+                // Exact match: entire verse text must equal the search term
+                if (caseSensitive) {
+                  if (verseText === term) { found = true; break; }
+                } else {
+                  if (verseText.toLowerCase() === term.toLowerCase()) { found = true; break; }
+                }
+              } else if (caseSensitive) {
+                // Case-sensitive substring search
+                if (wholeWord) {
+                  const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                  if (new RegExp(`\\b${escapedTerm}\\b`).test(verseText)) { found = true; break; }
+                } else {
+                  if (verseText.includes(term)) { found = true; break; }
+                }
               } else {
-                if (searchText.includes(searchTerm)) { found = true; break; }
+                // Case-insensitive search (original behavior)
+                const verseTextLower = verseText.toLowerCase();
+                if (wholeWord) {
+                  const escapedTerm = term.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                  if (new RegExp(`\\b${escapedTerm}\\b`).test(verseTextLower)) { found = true; break; }
+                } else {
+                  if (verseTextLower.includes(term.toLowerCase())) { found = true; break; }
+                }
               }
             }
 
