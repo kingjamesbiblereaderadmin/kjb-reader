@@ -635,15 +635,15 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       />
       
       {showVersePanel ? (
-        <div className="w-full bg-white/15 backdrop-blur-sm rounded-xl px-4 md:px-6 py-4 md:py-5 mb-5">
+        <div className="w-full bg-white/15 backdrop-blur-sm rounded-xl px-5 md:px-8 py-5 md:py-6 mb-5 min-h-[120px] md:min-h-[140px]">
           <p 
-            className={`font-sans text-xs md:text-sm font-bold tracking-wide uppercase mb-2 md:mb-3 ${accentClass}`}
+            className={`font-sans text-xs md:text-sm font-bold tracking-wide uppercase mb-3 md:mb-4 ${accentClass}`}
             style={{ opacity: textOpacity, color: textColor, fontFamily }}
           >
             Verse of the Day
           </p>
           <blockquote 
-            className="text-lg md:text-2xl lg:text-3xl leading-relaxed break-words"
+            className="text-lg md:text-xl lg:text-2xl leading-relaxed break-words"
             style={{ 
               color: textColor, 
               opacity: textOpacity, 
@@ -667,9 +667,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           </p>
         </div>
       ) : (
-        <div className="w-full px-4 md:px-6 py-4 md:py-5 mb-5">
+        <div className="w-full px-5 md:px-8 py-5 md:py-6 mb-5 min-h-[100px] md:min-h-[120px]">
           <blockquote 
-            className="text-lg md:text-2xl lg:text-3xl leading-relaxed break-words"
+            className="text-lg md:text-xl lg:text-2xl leading-relaxed break-words"
             style={{ 
               color: textColor, 
               opacity: textOpacity, 
