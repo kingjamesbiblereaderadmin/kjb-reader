@@ -103,13 +103,31 @@
     padding-right: env(safe-area-inset-right);
   }
   /* Dyslexic font mode — applied globally when data-dyslexic-font is set */
+  [data-dyslexic-font="true"],
   [data-dyslexic-font="true"] *,
   [data-dyslexic-font="true"] body,
+  [data-dyslexic-font="true"] html,
   [data-dyslexic-font="true"] .font-serif,
-  [data-dyslexic-font="true"] span.font-serif,
-  [data-dyslexic-font="true"] p.font-serif,
-  [data-dyslexic-font="true"] .font-serif *,
-  [data-dyslexic-font="true"] .font-dyslexic {
+  [data-dyslexic-font="true"] .font-sans,
+  [data-dyslexic-font="true"] span,
+  [data-dyslexic-font="true"] p,
+  [data-dyslexic-font="true"] h1,
+  [data-dyslexic-font="true"] h2,
+  [data-dyslexic-font="true"] h3,
+  [data-dyslexic-font="true"] h4,
+  [data-dyslexic-font="true"] h5,
+  [data-dyslexic-font="true"] h6,
+  [data-dyslexic-font="true"] a,
+  [data-dyslexic-font="true"] button,
+  [data-dyslexic-font="true"] input,
+  [data-dyslexic-font="true"] textarea,
+  [data-dyslexic-font="true"] select,
+  [data-dyslexic-font="true"] label,
+  [data-dyslexic-font="true"] div,
+  [data-dyslexic-font="true"] section,
+  [data-dyslexic-font="true"] header,
+  [data-dyslexic-font="true"] footer,
+  [data-dyslexic-font="true"] nav {
     font-family: 'OpenDyslexic', 'Comic Sans MS', 'Arial', sans-serif !important;
   }
   button, a, nav, header {

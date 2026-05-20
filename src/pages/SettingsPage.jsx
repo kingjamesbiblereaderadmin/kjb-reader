@@ -56,6 +56,11 @@ export default function SettingsPage() {
     return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
+  // Set dyslexic font attribute on mount
+  useEffect(() => {
+    document.documentElement.setAttribute('data-dyslexic-font', String(dyslexicFont));
+  }, [dyslexicFont]);
+
   // Refresh notification state on focus
   useEffect(() => {
     const handleFocus = () => {
@@ -293,6 +298,8 @@ export default function SettingsPage() {
               const newVal = !dyslexicFont;
               setDyslexicFont(newVal);
               try { localStorage.setItem('kjb-dyslexic-font', String(newVal)); } catch {}
+              // Set attribute on document root for global CSS to detect
+              document.documentElement.setAttribute('data-dyslexic-font', String(newVal));
               // Dispatch event to notify other components
               window.dispatchEvent(new Event('dyslexic-font-change'));
             }}
