@@ -122,9 +122,21 @@ export async function subscribeToPush() {
   
   // Get VAPID key dynamically
   const vapidKeyString = await getVapidPublicKey();
+  if (!vapidKeyString) {
+    throw new Error('Failed to retrieve VAPID public key');
+  }
   
   // Convert VAPID key from base64 url-safe to Uint8Array
-  const vapidKey = urlBase64ToUint8Array(vapidKeyString);
+  let vapidKey;
+  try {
+    vapidKey = urlBase64ToUint8Array(vapidKeyString);
+  } catch (err) {
+    throw new Error('Invalid VAPID key format: ' + err.message);
+  }
+  
+  if (!vapidKey || vapidKey.length === 0) {
+    throw new Error('VAPID key conversion resulted in empty array');
+  }
   
   const subscription = await reg.pushManager.subscribe({
     userVisibleOnly: true,
