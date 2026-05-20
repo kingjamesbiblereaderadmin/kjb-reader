@@ -174,6 +174,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     e.stopPropagation();
     setCapturing(true);
     setShowButtons(false);
+    setShowStyleEditor(false);
+    setShowMenu(false);
     try {
       await new Promise(resolve => setTimeout(resolve, 100));
       const canvas = await html2canvas(verseRef.current, {
@@ -185,12 +187,12 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       link.download = `daily-verse-${new Date().toISOString().slice(0, 10)}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
-      setShowButtons(true);
     } catch (err) {
       console.error('Failed to download image:', err);
+    } finally {
       setShowButtons(true);
+      setCapturing(false);
     }
-    setCapturing(false);
   };
 
   const handleSetWallpaper = async (e) => {
@@ -258,6 +260,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     e.stopPropagation();
     setCapturing(true);
     setShowButtons(false);
+    setShowStyleEditor(false);
+    setShowMenu(false);
     try {
       await new Promise(resolve => setTimeout(resolve, 100));
       // Try to share/copy image first
@@ -274,8 +278,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           text: `"${verse.text}" — ${verse.ref}`,
           files: [new File([blob], `daily-verse-${new Date().toISOString().slice(0, 10)}.png`, { type: 'image/png' })],
         });
-        setShowButtons(true);
-        setCapturing(false);
         return;
       }
       
@@ -283,12 +285,13 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       try {
         await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
         alert('Image copied to clipboard!');
-        setShowButtons(true);
-        setCapturing(false);
         return;
       } catch {}
     } catch (err) {
       console.error('Image share failed:', err);
+    } finally {
+      setShowButtons(true);
+      setCapturing(false);
     }
     
     // Fallback: share text only
@@ -298,14 +301,16 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       url: window.location.href,
     };
     
-    if (navigator.share) {
-      await navigator.share(shareData);
-    } else {
-      await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
-      alert('Verse text copied to clipboard!');
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
+        alert('Verse text copied to clipboard!');
+      }
+    } catch (err) {
+      console.error('Share failed:', err);
     }
-    setShowButtons(true);
-    setCapturing(false);
   };
 
   const handleCopyVerse = async (e) => {
