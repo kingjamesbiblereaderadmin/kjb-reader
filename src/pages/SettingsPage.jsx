@@ -1160,24 +1160,13 @@ export default function SettingsPage() {
               </button>
               <button
                 onClick={() => {
-                  // Check for updates by reloading the service worker
-                  if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.getRegistration().then(reg => {
-                      if (reg) {
-                        reg.update();
-                        alert('Checking for updates... Refresh the page to apply any updates.');
-                      } else {
-                        alert('No updates available.');
-                      }
-                    });
-                  } else {
-                    alert('Service workers not supported in this browser.');
-                  }
+                  // Hard refresh to load latest code changes
+                  window.location.reload();
                 }}
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                Check for Updates
+                Refresh Page
               </button>
             </div>
           </div>
