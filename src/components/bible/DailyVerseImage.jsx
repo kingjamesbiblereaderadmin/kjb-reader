@@ -289,30 +289,70 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   };
 
   return (
-    <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-8 pt-5 pb-8 text-center text-white relative cursor-pointer`} style={bgStyle}>
-      {/* Bell button */}
-      {showButtons && onToggleNotif && (
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onToggleNotif();
-          }}
-          className="absolute top-2 left-2 p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors z-10 shadow-md"
-          title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
-          type="button"
-        >
-          {notifEnabled ? (
-            <Bell className="w-4 h-4 text-slate-800" />
-          ) : (
-            <BellOff className="w-4 h-4 text-slate-600" />
-          )}
-        </button>
+    <div className="w-full">
+      {/* Upload button outside the box */}
+      {showButtons && (
+        <div className="flex justify-end mb-2">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+              setCropImageForNotif(false);
+              if (fileInputRef.current) {
+                fileInputRef.current.click();
+              }
+            }}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+            }}
+            onTouchStart={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+            }}
+            disabled={uploading}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors disabled:opacity-50 shadow-md"
+            title="Change background image"
+            type="button"
+          >
+            {uploading ? (
+              <span className="w-3.5 h-3.5 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
+            ) : (
+              <Image className="w-3.5 h-3.5" />
+            )}
+            {uploading ? 'Uploading...' : 'Upload Image'}
+          </button>
+        </div>
       )}
 
-      {/* Action buttons */}
-      <div className="absolute top-2 right-2 flex gap-1 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
-        {showButtons ? (
+      {/* Verse card */}
+      <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-8 pt-5 pb-8 text-center text-white relative cursor-pointer`} style={bgStyle}>
+        {/* Bell button */}
+        {showButtons && onToggleNotif && (
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onToggleNotif();
+            }}
+            className="absolute top-2 left-2 p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors z-10 shadow-md"
+            title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
+            type="button"
+          >
+            {notifEnabled ? (
+              <Bell className="w-4 h-4 text-slate-800" />
+            ) : (
+              <BellOff className="w-4 h-4 text-slate-600" />
+            )}
+          </button>
+        )}
+
+        {/* Action buttons */}
+        <div className="absolute top-2 right-2 flex gap-1 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
+          {showButtons ? (
           <>
             <button
               onClick={(e) => {
@@ -432,7 +472,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                     className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-50"
                   >
                     <Image className="w-4 h-4" />
-                    {uploading ? 'Uploading...' : 'Change Background'}
+                    Change Background
                   </button>
                   {customBg && (
                     <button
@@ -480,6 +520,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             <ChevronsDown className="w-3.5 h-3.5 text-slate-800" />
           </button>
         )}
+        </div>
       </div>
 
       {/* Style Editor Panel */}
