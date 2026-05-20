@@ -100,8 +100,11 @@ export default function ContentsPage() {
 
       {/* Book Selector Popup */}
       {showBookSelector && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="relative">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={() => setShowBookSelector(false)}
+        >
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
             <BookSelector
               currentAbbr={selectedBook}
               onSelect={handleSelectBook}
@@ -113,8 +116,15 @@ export default function ContentsPage() {
 
       {/* Chapter Selector Popup */}
       {showChapterSelector && currentBook && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="relative">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={() => {
+            setShowChapterSelector(false);
+            setSelectedBook(null);
+            setSelectedChapter(null);
+          }}
+        >
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
             <ChapterSelector
               totalChapters={currentBook.chapters}
               currentChapter={selectedChapter}
@@ -131,8 +141,11 @@ export default function ContentsPage() {
 
       {/* Verse Selector Popup */}
       {showVerseSelector && verseCount > 0 && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="relative">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={() => setShowVerseSelector(false)}
+        >
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
             <VerseSelector
               totalVerses={verseCount}
               currentVerse={selectedVerse}
