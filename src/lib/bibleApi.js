@@ -1,13 +1,18 @@
 import { base44 } from '@/api/base44Client';
 import { getBibleData, isBibleCached } from '@/lib/bibleCache';
 
-// Strip trailing end markers from the last verse of Malachi 4 and Revelation 22
-// The PCE text file includes "¶ THE END." and "¶ END OF THE PROPHETS" inline in verse text
+// Strip trailing end markers and "Made in Australia" from verse text
 function stripEndMarker(text) {
   return text
     .replace(/\s*[\u00B6\uFFFD]\s*THE END\.?\s*$/i, '')
     .replace(/\s*[\u00B6\uFFFD]\s*END OF THE PROPHETS\.?\s*$/i, '')
+    .replace(/\s*made\s+in\s+australia\.?\s*$/i, '')
     .trim();
+}
+
+// Strip "Made in Australia" from any verse text globally
+function stripMadeInAustralia(text) {
+  return text.replace(/\s*made\s+in\s+australia\.?\s*/gi, '').trim();
 }
 
 export async function fetchChapter(bookApiName, chapter) {
@@ -16,6 +21,12 @@ export async function fetchChapter(bookApiName, chapter) {
   
   let verses = bible[bookApiName]?.[chapter] || [];
   if (!verses.length) throw new Error(`No verses found for ${bookApiName} ${chapter}`);
+
+  // Strip "Made in Australia" from all verses globally
+  verses = verses.map(v => {
+    const cleaned = stripMadeInAustralia(v.text);
+    return cleaned !== v.text ? { ...v, text: cleaned } : v;
+  });
 
   // Strip end markers from the final verse of Malachi 4 and Revelation 22
   const isEndChapter = (bookApiName === 'Malachi' && chapter === 4) || (bookApiName === 'Revelation' && chapter === 22);
@@ -45,7 +56,9 @@ export async function isBibleAvailableOffline() {
 // Render verse text: turn [word] into <em>word</em> for KJB italics
 // Render pilcrow (¶) as a styled muted glyph inline
 export function renderVerseText(text) {
-  let cleaned = text.replace(/[<>]|>>/g, '');
+  // Strip "Made in Australia" if it somehow appears in verse text
+  let cleaned = text.replace(/\s*made\s+in\s+australia\.?\s*/gi, '');
+  cleaned = cleaned.replace(/[<>]|>>/g, '');
   // Normalize smart/curly apostrophes and quotes to plain ASCII to fix Edge rendering
   cleaned = cleaned
     .replace(/\u2019/g, "'")   // right single quotation mark → apostrophe
@@ -55,8 +68,9 @@ export function renderVerseText(text) {
     .replace(/\u2032/g, "'");  // prime
   // Fix pilcrow characters used as apostrophes within words (e.g., "Christ¶s" → "Christ's")
   cleaned = cleaned.replace(/(\w)\u00B6(\w)/g, '$1\'$2');
-  // Render remaining pilcrows as styled spans (paragraph markers at verse start)
-  cleaned = cleaned.replace(/\u00B6\s*/g, '<span class="pilcrow">¶</span> ');
+  cleaned = cleaned.replace(/(\w)\uFFFD(\w)/g, '$1\'$2');
+  // Render remaining pilcrows (including \uFFFD replacement chars used as pilcrow markers) as styled spans
+  cleaned = cleaned.replace(/[\u00B6\uFFFD]\s*/g, '<span class="pilcrow">¶</span> ');
   // Turn [bracketed] text into italics
   const parts = cleaned.split(/\[([^\]]+)\]/g);
   const result = parts.map((part, i) =>

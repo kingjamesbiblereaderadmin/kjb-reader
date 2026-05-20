@@ -760,11 +760,13 @@ export default function BibleReader() {
           <p className="font-sans text-sm text-muted-foreground tracking-widest uppercase mt-1">
             Chapter {pos.chapter}
           </p>
-          {/* Subscript — centred below chapter number, plain (not italic) */}
+          {/* Subscript — centred below chapter name, non-italic by default, [bracketed] words italic */}
           {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
-            <p style={{ fontStyle: 'normal' }} className="font-serif text-sm text-muted-foreground mt-2 max-w-lg mx-auto leading-relaxed text-center">
-              {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]}
-            </p>
+            <p
+              className="font-serif text-sm text-muted-foreground mt-2 max-w-lg mx-auto leading-relaxed text-center [&_em]:italic [&_em]:text-muted-foreground"
+              style={{ fontStyle: 'normal' }}
+              dangerouslySetInnerHTML={{ __html: renderColophonText(SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]) }}
+            />
           )}
         </div>
       )}
@@ -818,13 +820,17 @@ export default function BibleReader() {
             ))}
           </div>
         )}
-        {/* Colophon footer - centred, plain text, only [bracketed] words italic */}
+        {/* Colophon footer - centred, pilcrow prefix, [bracketed] words italic */}
         {!loading && !error && colophon && (
           <div className="mt-12 mb-4 border-t border-border pt-6 text-center">
             <p
-              className="font-serif text-sm text-muted-foreground leading-relaxed not-italic [&_em]:italic [&_em]:text-muted-foreground"
-              dangerouslySetInnerHTML={{ __html: '¶&nbsp;&nbsp;' + renderColophonText(colophon) }}
-            />
+              className="font-serif text-sm text-muted-foreground leading-relaxed [&_em]:italic [&_em]:text-muted-foreground"
+              style={{ fontStyle: 'normal' }}
+            >
+              <span className="pilcrow">¶</span>
+              {' '}
+              <span dangerouslySetInnerHTML={{ __html: renderColophonText(colophon) }} />
+            </p>
           </div>
         )}
       </div>
