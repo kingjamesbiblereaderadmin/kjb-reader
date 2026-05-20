@@ -274,11 +274,11 @@ export default function DailyVerseImage({ verse, onClick }) {
             e.preventDefault();
             setShowStyleEditor(!showStyleEditor);
           }}
-          className="p-1.5 rounded-md bg-white/20 hover:bg-white/30 backdrop-blur transition-colors"
+          className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
           title="Customize text style"
           type="button"
         >
-          <Palette className="w-4 h-4 text-white" />
+          <Palette className="w-4 h-4 text-slate-800" />
         </button>
         <button
           onClick={(e) => {
@@ -291,14 +291,14 @@ export default function DailyVerseImage({ verse, onClick }) {
             fileInputRef.current?.click();
           }}
           disabled={uploading}
-          className="p-1.5 rounded-md bg-white/20 hover:bg-white/30 backdrop-blur transition-colors disabled:opacity-50"
+          className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
           title="Change background image"
           type="button"
         >
           {uploading ? (
-            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin block" />
+            <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
           ) : (
-            <Upload className="w-4 h-4 text-white" />
+            <Upload className="w-4 h-4 text-slate-800" />
           )}
         </button>
         <button
@@ -314,14 +314,14 @@ export default function DailyVerseImage({ verse, onClick }) {
             fileInputRef.current?.click();
           }}
           disabled={uploading}
-          className="p-1.5 rounded-md bg-white/20 hover:bg-white/30 backdrop-blur transition-colors disabled:opacity-50"
+          className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
           title="Set notification image"
           type="button"
         >
           {uploading ? (
-            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin block" />
+            <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
           ) : (
-            <Bell className="w-4 h-4 text-white" />
+            <Bell className="w-4 h-4 text-slate-800" />
           )}
         </button>
         <button
@@ -335,14 +335,14 @@ export default function DailyVerseImage({ verse, onClick }) {
             handleShare(e);
           }}
           disabled={capturing}
-          className="p-1.5 rounded-md bg-white/20 hover:bg-white/30 backdrop-blur transition-colors disabled:opacity-50"
+          className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
           title="Share verse image"
           type="button"
         >
           {capturing ? (
-            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin block" />
+            <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
           ) : (
-            <Share2 className="w-4 h-4 text-white" />
+            <Share2 className="w-4 h-4 text-slate-800" />
           )}
         </button>
         <button
@@ -356,14 +356,14 @@ export default function DailyVerseImage({ verse, onClick }) {
             handleSetWallpaper(e);
           }}
           disabled={capturing}
-          className="p-1.5 rounded-md bg-white/20 hover:bg-white/30 backdrop-blur transition-colors disabled:opacity-50"
+          className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
           title="Set as wallpaper"
           type="button"
         >
           {capturing ? (
-            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin block" />
+            <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
           ) : (
-            <Monitor className="w-4 h-4 text-white" />
+            <Monitor className="w-4 h-4 text-slate-800" />
           )}
         </button>
         <button
@@ -377,14 +377,14 @@ export default function DailyVerseImage({ verse, onClick }) {
             handleDownload(e);
           }}
           disabled={capturing}
-          className="p-1.5 rounded-md bg-white/20 hover:bg-white/30 backdrop-blur transition-colors disabled:opacity-50"
+          className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
           title="Download verse image"
           type="button"
         >
           {capturing ? (
-            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin block" />
+            <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
           ) : (
-            <Download className="w-4 h-4 text-white" />
+            <Download className="w-4 h-4 text-slate-800" />
           )}
         </button>
       </div>
