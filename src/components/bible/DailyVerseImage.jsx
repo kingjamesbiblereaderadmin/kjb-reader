@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2, MoreVertical, Trash2, Image, ChevronDown } from 'lucide-react';
+import { Download, Share2, Upload, Palette, Type, Eye, Bell, BellOff, Trash2, Image, ChevronDown } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import ImageCropper from './ImageCropper';
 import { getNotificationsEnabled, requestNotificationPermission, disableNotifications, scheduleDailyNotification } from '@/lib/notifications';
@@ -32,8 +32,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const [showLightbox, setShowLightbox] = useState(false);
   const [showVersePanel, setShowVersePanel] = useState(() => localStorage.getItem('kjb-verse-panel-visible') !== 'false');
   const [showButtons, setShowButtons] = useState(true);
-  const [showMenu, setShowMenu] = useState(false);
-  const menuRef = useRef(null);
   const [textColor, setTextColor] = useState(() => localStorage.getItem('kjb-verse-text-color') || '#ffffff');
   const [textOpacity, setTextOpacity] = useState(() => parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '0.95'));
   const [fontFamily, setFontFamily] = useState(() => localStorage.getItem('kjb-verse-font-family') || 'serif');
@@ -52,20 +50,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setShowMenu(false);
-      }
-    };
-    if (showMenu) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showMenu]);
+
   
   const handleUpload = (e) => {
     e.stopPropagation();
@@ -291,205 +276,32 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   return (
     <div className="w-full">
       {/* Verse card */}
-      <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-6 md:px-8 py-8 md:py-10 text-center text-white relative cursor-pointer min-h-[280px] md:min-h-[340px] flex flex-col`} style={bgStyle}>
-        {/* Action buttons */}
-        {showButtons ? (
-          <>
-            {/* Bell button - top left */}
-            {onToggleNotif && (
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onToggleNotif();
-                }}
-                className="absolute top-4 left-4 p-1 rounded-md bg-white/90 hover:bg-white transition-colors shadow-md z-10"
-                title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
-                type="button"
-              >
-                {notifEnabled ? (
-                  <Bell className="w-3 h-3 text-slate-800" />
-                ) : (
-                  <BellOff className="w-3 h-3 text-slate-600" />
-                )}
-              </button>
-            )}
-            {/* Other buttons - top right */}
-            <div className="absolute top-4 right-4 flex gap-2 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
+      <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-6 md:px-8 py-8 md:py-10 text-center text-white relative cursor-pointer min-h-[280px] md:min-h-[340px] flex flex-col justify-between`} style={bgStyle}>
+        {/* Top section - notification toggle */}
+        <div className="flex justify-between items-start">
+          <div className="flex-1" />
+          {onToggleNotif && (
             <button
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                setShowLightbox(true);
+                onToggleNotif();
               }}
-              className="p-1.5 rounded-lg bg-primary/90 hover:bg-primary transition-colors shadow-md"
-              title="View in full screen"
+              className="p-2 rounded-full bg-white/90 hover:bg-white transition-colors shadow-md z-10"
+              title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
               type="button"
             >
-              <Maximize2 className="w-4 h-4 text-primary-foreground" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleShare(e);
-              }}
-              disabled={capturing}
-              className="p-1.5 rounded-lg bg-white/90 hover:bg-white transition-colors shadow-md disabled:opacity-50"
-              title="Share verse image"
-              type="button"
-            >
-              {capturing ? (
-                <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
+              {notifEnabled ? (
+                <Bell className="w-5 h-5 text-slate-800" />
               ) : (
-                <Share2 className="w-4 h-4 text-slate-800" />
+                <BellOff className="w-5 h-5 text-slate-600" />
               )}
             </button>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleDownload(e);
-              }}
-              disabled={capturing}
-              className="p-1.5 rounded-lg bg-white/90 hover:bg-white transition-colors shadow-md disabled:opacity-50"
-              title="Download verse image"
-              type="button"
-            >
-              {capturing ? (
-                <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
-              ) : (
-                <Download className="w-4 h-4 text-slate-800" />
-              )}
-            </button>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
-                setCropImageForNotif(false);
-                if (fileInputRef.current) {
-                  fileInputRef.current.click();
-                }
-              }}
-              onMouseDown={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
-              }}
-              onTouchStart={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
-              }}
-              disabled={uploading}
-              className="p-1.5 rounded-lg bg-white/90 hover:bg-white transition-colors shadow-md disabled:opacity-50"
-              title="Upload custom background"
-              type="button"
-            >
-              {uploading ? (
-                <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
-              ) : (
-                <Image className="w-4 h-4 text-slate-800" />
-              )}
-            </button>
-            {/* Unified menu button */}
-            <div ref={menuRef} className="relative">
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setShowMenu(!showMenu);
-                }}
-                className="p-1.5 rounded-lg bg-white/90 hover:bg-white transition-colors shadow-md"
-                title="More options"
-                type="button"
-              >
-                <MoreVertical className="w-4 h-4 text-slate-800" />
-              </button>
-              {/* Dropdown menu */}
-              {showMenu && (
-                <div
-                  className="absolute right-0 top-8 z-30 bg-white rounded-lg shadow-xl border border-slate-200 py-1 w-48"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      const newValue = !showVersePanel;
-                      setShowVersePanel(newValue);
-                      localStorage.setItem('kjb-verse-panel-visible', String(newValue));
-                      window.dispatchEvent(new Event('storage'));
-                      setShowMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
-                  >
-                    <Eye className="w-4 h-4" />
-                    {showVersePanel ? 'Hide Panel' : 'Show Panel'}
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setShowStyleEditor(true);
-                      setShowMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
-                  >
-                    <Palette className="w-4 h-4" />
-                    Text Style
-                  </button>
-                  {customBg && (
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setCustomBg('');
-                        localStorage.removeItem('kjb-daily-verse-bg');
-                        window.dispatchEvent(new Event('storage'));
-                        setShowMenu(false);
-                      }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Remove Custom Background
-                    </button>
-                  )}
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setShowButtons(false);
-                      setShowMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
-                  >
-                    <ChevronDown className="w-4 h-4 rotate-180" />
-                    Hide All Buttons
-                  </button>
-                </div>
-              )}
-            </div>
-            </div>
-          </>
-        ) : (
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setShowButtons(true);
-            }}
-            className="absolute top-4 right-4 p-1.5 rounded-lg bg-white/90 hover:bg-white transition-colors shadow-md"
-            title="Show buttons"
-            type="button"
-          >
-            <ChevronDown className="w-4 h-4 text-slate-800" />
-          </button>
-        )}
+          )}
+        </div>
         
         {/* Verse content centered */}
-        <div className="flex-1 flex flex-col justify-center items-center text-center px-4">
+        <div className="flex-1 flex flex-col justify-center items-center text-center px-4 py-4">
         {showVersePanel && (
           <p 
             className={`font-sans text-[10px] md:text-xs font-bold tracking-wider uppercase mb-3 md:mb-4 ${accentClass}`}
@@ -526,13 +338,96 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           style={{ opacity: 0.75 * textOpacity, backgroundColor: textColor }}
         />
         </div>
+        
+        {/* Bottom button bar */}
+        {showButtons && (
+          <div className="flex justify-center gap-3 mt-4" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowStyleEditor(true);
+              }}
+              className="p-2.5 rounded-full bg-white/90 hover:bg-white transition-colors shadow-md"
+              title="Text style"
+              type="button"
+            >
+              <Palette className="w-5 h-5 text-slate-800" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+                setCropImageForNotif(false);
+                if (fileInputRef.current) {
+                  fileInputRef.current.click();
+                }
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+              }}
+              onTouchStart={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+              }}
+              disabled={uploading}
+              className="p-2.5 rounded-full bg-white/90 hover:bg-white transition-colors shadow-md disabled:opacity-50"
+              title="Upload custom background"
+              type="button"
+            >
+              {uploading ? (
+                <span className="w-5 h-5 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
+              ) : (
+                <Image className="w-5 h-5 text-slate-800" />
+              )}
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleShare(e);
+              }}
+              disabled={capturing}
+              className="p-2.5 rounded-full bg-white/90 hover:bg-white transition-colors shadow-md disabled:opacity-50"
+              title="Share verse image"
+              type="button"
+            >
+              {capturing ? (
+                <span className="w-5 h-5 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
+              ) : (
+                <Share2 className="w-5 h-5 text-slate-800" />
+              )}
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleDownload(e);
+              }}
+              disabled={capturing}
+              className="p-2.5 rounded-full bg-white/90 hover:bg-white transition-colors shadow-md disabled:opacity-50"
+              title="Download verse image"
+              type="button"
+            >
+              {capturing ? (
+                <span className="w-5 h-5 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
+              ) : (
+                <Download className="w-5 h-5 text-slate-800" />
+              )}
+            </button>
+          </div>
+        )}
         </div>
 
       {/* Style Editor Panel */}
       {showStyleEditor && (
         <div
           onClick={(e) => e.stopPropagation()}
-          className="absolute top-12 right-2 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur rounded-xl shadow-xl p-4 w-72 border border-white/20"
+          className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur rounded-xl shadow-xl p-4 w-72 border border-white/20"
         >
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-sans text-sm font-semibold text-slate-800 dark:text-slate-200">Text Style</h3>
