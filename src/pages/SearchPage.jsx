@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked, ChevronDown } from 'lucide-react';
 import { getBibleData } from '@/lib/bibleCache';
 import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
-import { expandSearchTerms } from '@/lib/searchSynonyms';
 
 const OT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'OT' || BIBLE_BOOKS.indexOf(b) < 39).map(b => b.apiName));
 const NT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'NT' || BIBLE_BOOKS.indexOf(b) >= 39).map(b => b.apiName));
@@ -56,9 +55,8 @@ export default function SearchPage() {
 
     try {
       const bible = await getBibleData();
-      // Only expand synonyms for normal searches, not exact/case-sensitive
-      const terms = (exactMatch || caseSensitive) ? [kw.trim()] : expandSearchTerms(kw);
-      setExpandedTerms((exactMatch || caseSensitive) ? [] : terms.length > 1 ? terms : []);
+      const terms = [kw.trim()];
+      setExpandedTerms([]);
       
       const kwLower = kw.trim().toLowerCase();
       
@@ -410,11 +408,7 @@ export default function SearchPage() {
               <p className="font-sans text-xs text-muted-foreground">
                 {results.length} result{results.length !== 1 ? 's' : ''} for "{getQueryFromUrl() || query}"
               </p>
-              {expandedTerms.length > 1 && (
-                <p className="font-sans text-xs text-accent mt-0.5">
-                  Also searching: {expandedTerms.filter(t => t !== query.toLowerCase()).join(', ')}
-                </p>
-              )}
+
               {numberedBookFilter && (
                 <p className="font-sans text-xs text-primary font-semibold mt-0.5 flex items-center gap-1">
                   <BookOpen className="w-3 h-3" />
