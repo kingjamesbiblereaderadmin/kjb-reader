@@ -5,8 +5,8 @@ module.exports = {
   theme: {
   	extend: {
   	    fontFamily: {
-  	      serif: ['Cormorant Garamond', 'Georgia', 'serif'],
-  	      sans: ['Inter', 'system-ui', 'sans-serif'],
+  	      serif: ['Merriweather', 'Cormorant Garamond', 'Georgia', 'serif'],
+  	      sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
   	    },
   		borderRadius: {
   			lg: 'var(--radius)',
