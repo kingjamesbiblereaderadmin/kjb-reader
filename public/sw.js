@@ -1,184 +1,150 @@
-// KJB Reader Service Worker
-// Handles: asset caching, background notifications, automatic updates
+const CACHE_VERSION = 'kjb-v1';
 
-const CACHE_NAME = 'kjb-app-v4'; // Incremented version for cache busting
-const NOTIF_CONFIG_CACHE = 'kjb-notif-config';
-
-const PRECACHE_URLS = [
-  '/',
-  '/index.html',
-];
-
-// ── Install ──────────────────────────────────────────────────────────────────
+// Cache strategies
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(PRECACHE_URLS))
-  );
+  console.log('[SW] Install');
   self.skipWaiting();
 });
 
-// ── Activate ─────────────────────────────────────────────────────────────────
 self.addEventListener('activate', (event) => {
+  console.log('[SW] Activate');
   event.waitUntil(
-    caches.keys().then(keys =>
+    caches.keys().then(names =>
       Promise.all(
-        keys.filter(k => k !== CACHE_NAME && k !== NOTIF_CONFIG_CACHE)
-          .map(k => caches.delete(k))
+        names
+          .filter(name => name.startsWith('kjb-') && name !== CACHE_VERSION)
+          .map(name => caches.delete(name))
       )
-    ).then(() => {
-      // Notify all clients to reload
-      return self.clients.matchAll({ type: 'window' }).then(clients => {
-        clients.forEach(client => client.navigate(client.url));
-      });
-    })
+    )
   );
   self.clients.claim();
 });
 
-// ── Fetch (network-first for JS/CSS, cache-first for HTML) ──────────────────
+// Network-first for HTML/JS, cache-first for static assets
 self.addEventListener('fetch', (event) => {
-  // Don't intercept non-GET or external requests
-  if (event.request.method !== 'GET') return;
-  const url = new URL(event.request.url);
-  if (url.origin !== self.location.origin) return;
+  const { request } = event;
+  const url = new URL(request.url);
 
-  // Skip caching for Vite/React chunks - always fetch fresh
-  const pathname = url.pathname;
-  if (
-    pathname.includes('/@vite') ||
-    pathname.includes('/@react-refresh') ||
-    pathname.includes('chunk-') ||
-    pathname.includes('.vite/deps') ||
-    pathname.includes('node_modules')
-  ) {
+  // Skip cross-origin and non-GET requests
+  if (url.origin !== self.location.origin || request.method !== 'GET') {
     return;
   }
 
-  // Network-first for CSS and JS (to get updates), cache-first for HTML
-  const isStaticAsset = pathname.endsWith('.css') || pathname.endsWith('.js');
-  
-  if (isStaticAsset) {
-    // Network-first: try to fetch fresh, fall back to cache
+  // HTML/JS: network-first, fallback to cache
+  if (url.pathname === '/' || url.pathname.match(/\.(js|html)$/)) {
     event.respondWith(
-      fetch(event.request)
+      fetch(request)
         .then(response => {
-          if (response && response.status === 200) {
+          if (response.ok) {
             const clone = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+            caches.open(CACHE_VERSION).then(cache => cache.put(request, clone));
           }
           return response;
         })
-        .catch(() => caches.match(event.request))
+        .catch(() => caches.match(request))
     );
-  } else {
-    // Cache-first for HTML and other assets
+    return;
+  }
+
+  // Static assets: cache-first, fallback to network
+  if (url.pathname.match(/\.(css|woff2|woff|ttf|png|jpg|svg|json)$/)) {
     event.respondWith(
-      caches.match(event.request).then(cached => {
-        return cached || fetch(event.request).then(response => {
-          if (response && response.status === 200) {
-            const ct = response.headers.get('content-type') || '';
-            if (ct.includes('text/html')) {
-              const clone = response.clone();
-              caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-            }
+      caches.match(request).then(response =>
+        response || fetch(request).then(response => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_VERSION).then(cache => cache.put(request, clone));
           }
           return response;
-        });
-      })
+        })
+      )
     );
+    return;
   }
-});
 
-// ── Helper: read notification config from cache ───────────────────────────────
-async function getNotifConfig() {
-  try {
-    const cache = await caches.open(NOTIF_CONFIG_CACHE);
-    const res = await cache.match('/notif-config');
-    if (!res) return null;
-    return await res.json();
-  } catch {
-    return null;
-  }
-}
-
-// ── Helper: show daily verse notification ─────────────────────────────────────
-async function showDailyVerseNotif() {
-  const config = await getNotifConfig();
-  if (!config) return;
-
-  const now = Date.now();
-  const today = new Date().toISOString().slice(0, 10);
-
-  // Don't fire if already fired today
-  if (config.lastDate === today) return;
-  // Don't fire if not yet time
-  if (config.nextTs && now < config.nextTs) return;
-
-  const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
-
-  await self.registration.showNotification('King James Bible — Verse of the Day', {
-    body: config.verseText
-      ? `"${config.verseText}" — ${config.verseRef}`
-      : 'Open the app to read today\'s verse.',
-    icon: logoUrl,
-    badge: logoUrl,
-    tag: 'daily-verse',
-    renotify: true,
-  });
-
-  // Update lastDate in config so we don't double-fire
-  try {
-    const cache = await caches.open(NOTIF_CONFIG_CACHE);
-    const updated = { ...config, lastDate: today };
-    await cache.put('/notif-config', new Response(JSON.stringify(updated), {
-      headers: { 'Content-Type': 'application/json' }
-    }));
-  } catch {}
-}
-
-// ── Periodic Background Sync ──────────────────────────────────────────────────
-self.addEventListener('periodicsync', (event) => {
-  if (event.tag === 'daily-verse-notif') {
-    event.waitUntil(showDailyVerseNotif());
-  }
-});
-
-// ── Push notifications (optional, if push is set up) ─────────────────────────
-self.addEventListener('push', (event) => {
-  const data = event.data ? event.data.json() : {};
-  const title = data.title || 'King James Bible';
-  const body = data.body || 'Your daily verse is ready.';
-  const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
-  event.waitUntil(
-    self.registration.showNotification(title, {
-      body,
-      icon: logoUrl,
-      badge: logoUrl,
-      tag: 'daily-verse',
-    })
+  // API requests: network-first with offline fallback
+  event.respondWith(
+    fetch(request)
+      .then(response => {
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_VERSION).then(cache => cache.put(request, clone));
+        }
+        return response;
+      })
+      .catch(() => caches.match(request) || new Response('Offline', { status: 503 }))
   );
 });
 
-// ── Notification click ────────────────────────────────────────────────────────
+// Handle notifications
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
-      for (const client of clientList) {
-        if (client.url.includes(self.location.origin) && 'focus' in client) {
-          return client.focus();
+    self.clients
+      .matchAll({ type: 'window', includeUncontrolled: true })
+      .then(clientList => {
+        // Focus existing window
+        for (const client of clientList) {
+          if (client.url === '/' && 'focus' in client) {
+            return client.focus();
+          }
         }
-      }
-      if (clients.openWindow) {
-        return clients.openWindow('/');
-      }
-    })
+        // Open new window
+        if (self.clients.openWindow) {
+          return self.clients.openWindow('/');
+        }
+      })
   );
 });
 
-// ── Message from app (e.g. "check and fire now if overdue") ──────────────────
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'CHECK_NOTIF') {
-    event.waitUntil(showDailyVerseNotif());
+// Periodic sync for notifications (fires ~hourly on Android)
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'daily-verse-notif') {
+    event.waitUntil(fireNotificationIfDue());
   }
 });
+
+async function fireNotificationIfDue() {
+  try {
+    const config = await caches.open(CACHE_VERSION).then(cache =>
+      cache.match('/notif-config').then(r => r ? r.json() : {})
+    );
+
+    if (!config.nextTs || Date.now() < config.nextTs) return;
+    if (config.lastDate === getTodayString()) return; // Already fired
+
+    // Fetch fresh verse for today
+    const verseUrl = 'https://kjb-api.tinyverses.com/api/verses/daily';
+    const verse = await fetch(verseUrl).then(r => r.json());
+    
+    await self.registration.showNotification('King James Bible — Verse of the Day', {
+      body: `"${verse.text.slice(0, 100)}${verse.text.length > 100 ? '…' : ''}" — ${verse.reference}`,
+      icon: 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png',
+      badge: 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png',
+      tag: 'daily-verse',
+      renotify: true,
+    });
+
+    // Update config with new fire time
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const [hh, mm] = (localStorage.getItem('kjb-notification-time') || '08:00').split(':');
+    tomorrow.setHours(parseInt(hh), parseInt(mm), 0, 0);
+
+    await caches.open(CACHE_VERSION).then(cache =>
+      cache.put('/notif-config', new Response(JSON.stringify({
+        nextTs: tomorrow.getTime(),
+        lastDate: getTodayString(),
+        verseText: verse.text.slice(0, 120),
+        verseRef: verse.reference,
+      })))
+    );
+  } catch (err) {
+    console.error('[SW] Periodic sync error:', err);
+  }
+}
+
+function getTodayString() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}

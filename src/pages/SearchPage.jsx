@@ -54,6 +54,8 @@ export default function SearchPage() {
       const terms = expandSearchTerms(kw);
       setExpandedTerms(terms.length > 1 ? terms : []);
       
+      const kwLower = kw.trim().toLowerCase();
+      
       // Check if query is a verse range (e.g., "Romans 1:20-22")
       const rangeMatch = kwLower.match(/^([a-z0-9\s]+)\s+(\d+):(\d+)-(\d+)$/);
       if (rangeMatch) {
@@ -74,7 +76,6 @@ export default function SearchPage() {
       }
 
       // Check if query is a numbered book (e.g., "1 john", "2 timothy") or contains one
-      const kwLower = kw.trim().toLowerCase();
       const numberedBookMatch = kwLower.match(/(\d+)\s+([a-z]+)/);
       let targetBookAbbr = null;
       if (numberedBookMatch) {
