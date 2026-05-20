@@ -355,8 +355,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {/* Date display */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/30 backdrop-blur-sm rounded-lg px-3 py-1.5">
-        <p className="text-xs font-sans font-medium whitespace-nowrap" style={{ color: '#ffffff' }}>
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/30 backdrop-blur-sm rounded-lg px-2 py-1">
+        <p className="text-xs font-sans font-medium whitespace-nowrap leading-none" style={{ color: '#ffffff' }}>
           {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
         </p>
       </div>
