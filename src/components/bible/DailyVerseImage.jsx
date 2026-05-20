@@ -174,6 +174,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     e.stopPropagation();
     e.preventDefault();
     setCapturing(true);
+    setShowButtons(false);
     setShowStyleEditor(false);
     setShowMenu(false);
     try {
@@ -192,7 +193,10 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     } catch (err) {
       console.error('Failed to download image:', err);
     } finally {
-      setCapturing(false);
+      setTimeout(() => {
+        setShowButtons(true);
+        setCapturing(false);
+      }, 100);
     }
   };
 
@@ -261,6 +265,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     e.stopPropagation();
     e.preventDefault();
     setCapturing(true);
+    setShowButtons(false);
     setShowStyleEditor(false);
     setShowMenu(false);
     try {
@@ -301,7 +306,10 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         alert('Verse text copied to clipboard!');
       }
     } finally {
-      setCapturing(false);
+      setTimeout(() => {
+        setShowButtons(true);
+        setCapturing(false);
+      }, 100);
     }
   };
 
