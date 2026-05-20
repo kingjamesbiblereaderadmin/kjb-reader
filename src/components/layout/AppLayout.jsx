@@ -6,9 +6,10 @@ import { useHeaderHide } from '@/lib/HeaderHideContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
-import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled } from '@/lib/notifications';
+import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, showLocalNotification } from '@/lib/notifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { getBibleData, isBibleCached } from '@/lib/bibleCache';
+import { toast } from 'sonner';
 
 const NAV_ITEMS = [
   { path: '/', icon: Home, label: 'Home' },
@@ -65,7 +66,21 @@ export default function AppLayout() {
     isBibleCached().then(cached => {
       if (!cached) {
         console.log('[CACHE] Not cached yet — pre-fetching in background...');
-        getBibleData().catch(err => console.warn('[CACHE] Background fetch failed:', err));
+        getBibleData()
+          .then(data => {
+            const bookCount = Object.keys(data).filter(k => k !== '__colophons').length;
+            if (bookCount >= 66) {
+              toast.success('Bible cached for offline use', {
+                description: 'All 66 books are now available offline.',
+                duration: 4000,
+              });
+              // Also show a system notification if permission is granted
+              if (getNotificationsEnabled()) {
+                showLocalNotification('KJB Reader — Offline Ready', 'All 66 books are now cached and available offline.');
+              }
+            }
+          })
+          .catch(err => console.warn('[CACHE] Background fetch failed:', err));
       }
     });
 

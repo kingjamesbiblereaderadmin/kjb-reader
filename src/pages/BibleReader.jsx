@@ -466,9 +466,9 @@ export default function BibleReader() {
           <p className="font-sans text-sm text-muted-foreground tracking-widest uppercase mt-1">
             Chapter {pos.chapter}
           </p>
-          {/* Subscript — shown below chapter heading on the relevant final chapter */}
+          {/* Subscript — shown below chapter heading, centred, not italic */}
           {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
-            <p className="font-serif text-sm text-muted-foreground mt-3 max-w-md mx-auto leading-relaxed">
+            <p className="font-serif text-sm text-muted-foreground mt-2 max-w-lg mx-auto leading-relaxed text-center not-italic">
               {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]}
             </p>
           )}
