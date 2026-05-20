@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { base44 } from '@/api/base44Client';
 import { useTheme, COLOUR_PALETTES } from '@/lib/themeContext';
@@ -390,26 +391,23 @@ export default function SettingsPage() {
           <>
             {/* Verse of the Day */}
             <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="font-sans text-sm text-foreground font-medium">Verse of the Day</p>
-                <p className="font-sans text-xs text-muted-foreground mt-0.5">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <p className="font-sans text-sm text-foreground font-medium">Verse of the Day</p>
+                  {notifEnabled && <Bell className="w-3.5 h-3.5 text-primary" />}
+                </div>
+                <p className="font-sans text-xs text-muted-foreground">
                   {notifPermission === 'denied'
                     ? 'Blocked — go to your browser/app settings and allow notifications for this site'
                     : 'Get a daily verse at your chosen time, even when the app is closed'}
                 </p>
               </div>
-              <button
-                onClick={handleToggleNotifications}
+              <Switch
+                checked={notifEnabled}
+                onCheckedChange={handleToggleNotifications}
                 disabled={notifPermission === 'denied'}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl font-sans text-sm font-medium transition-colors ${
-                  notifEnabled
-                    ? 'bg-primary text-primary-foreground hover:opacity-90'
-                    : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-                } disabled:opacity-40`}
-              >
-                {notifEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
-                {notifEnabled ? 'On' : 'Off'}
-              </button>
+                className="shrink-0"
+              />
             </div>
             {notifEnabled && (
               <div className="flex items-center gap-3 pt-1">
@@ -433,9 +431,12 @@ export default function SettingsPage() {
             <div className="pt-4 border-t border-border">
               <div className="flex items-center justify-between gap-3 mb-3">
                 <div className="flex items-center gap-3 flex-1">
-                  <div>
-                    <p className="font-sans text-sm text-foreground font-medium">Reading Reminder</p>
-                    <p className="font-sans text-xs text-muted-foreground mt-0.5">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <p className="font-sans text-sm text-foreground font-medium">Reading Reminder</p>
+                      {readingReminderEnabled && <Bell className="w-3.5 h-3.5 text-primary" />}
+                    </div>
+                    <p className="font-sans text-xs text-muted-foreground">
                       Daily reminder to read your assigned chapter
                     </p>
                   </div>
@@ -451,18 +452,12 @@ export default function SettingsPage() {
                     </div>
                   )}
                 </div>
-                <button
-                  onClick={handleToggleReadingReminder}
+                <Switch
+                  checked={readingReminderEnabled}
+                  onCheckedChange={handleToggleReadingReminder}
                   disabled={notifPermission === 'denied'}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl font-sans text-sm font-medium transition-colors shrink-0 ${
-                    readingReminderEnabled
-                      ? 'bg-primary text-primary-foreground hover:opacity-90'
-                      : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-                  } disabled:opacity-40`}
-                >
-                  {readingReminderEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
-                  {readingReminderEnabled ? 'On' : 'Off'}
-                </button>
+                  className="shrink-0"
+                />
               </div>
               {readingReminderEnabled && (
                 <p className="font-sans text-xs text-muted-foreground bg-secondary/50 rounded-lg p-2">
