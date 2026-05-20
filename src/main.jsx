@@ -4,6 +4,7 @@ import App from '@/App.jsx'
 import '@/index.css'
 import { initNotifications } from '@/lib/notifications'
 import { getDailyVerse } from '@/lib/dailyVerse'
+import { toast } from 'sonner'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <App />
@@ -21,9 +22,32 @@ if ('serviceWorker' in navigator) {
   } else {
     // Production: register service worker
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
-      // Re-arm daily notification scheduler on every app load
-      initNotifications(getDailyVerse());
+      navigator.serviceWorker.register('/sw.js')
+        .then(registration => {
+          console.log('[SW] Registered:', registration.scope);
+          
+          // Listen for update messages from service worker
+          navigator.serviceWorker.addEventListener('message', event => {
+            if (event.data && event.data.type === 'UPDATE_AVAILABLE') {
+              console.log('[SW] Update available, version:', event.data.cacheVersion);
+              toast.info('App update available', {
+                description: 'New features are ready. Refresh to update.',
+                action: {
+                  label: 'Refresh',
+                  onClick: () => {
+                    registration.waiting?.postMessage({ type: 'SKIP_WAITING' });
+                    window.location.reload();
+                  }
+                },
+                duration: 8000,
+              });
+            }
+          });
+          
+          // Re-arm daily notification scheduler on every app load
+          initNotifications(getDailyVerse());
+        })
+        .catch(err => console.error('[SW] Registration failed:', err));
     });
   }
 }
