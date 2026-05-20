@@ -329,7 +329,7 @@ function BottomNav({ pathname, navigate }) {
             className="px-4 py-3 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-colors"
             title="Show navigation"
           >
-            <ChevronDown className="w-3.5 h-3.5" />
+            <ChevronDown className="w-3.5 h-3.5 rotate-180" />
           </button>
         </div>
       </nav>
