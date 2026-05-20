@@ -400,6 +400,37 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 <Download className="w-3.5 h-3.5 text-slate-800" />
               )}
             </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+                setCropImageForNotif(false);
+                if (fileInputRef.current) {
+                  fileInputRef.current.click();
+                }
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+              }}
+              onTouchStart={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+              }}
+              disabled={uploading}
+              className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
+              title="Upload custom background"
+              type="button"
+            >
+              {uploading ? (
+                <span className="w-3.5 h-3.5 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
+              ) : (
+                <Image className="w-3.5 h-3.5 text-slate-800" />
+              )}
+            </button>
             {/* Unified menu button */}
             <div ref={menuRef} className="relative">
               <button
@@ -446,33 +477,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                   >
                     <Palette className="w-4 h-4" />
                     Text Style
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      e.nativeEvent.stopImmediatePropagation();
-                      setCropImageForNotif(false);
-                      if (fileInputRef.current) {
-                        fileInputRef.current.click();
-                      }
-                      setShowMenu(false);
-                    }}
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      e.nativeEvent.stopImmediatePropagation();
-                    }}
-                    onTouchStart={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      e.nativeEvent.stopImmediatePropagation();
-                    }}
-                    disabled={uploading}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-50"
-                  >
-                    <Image className="w-4 h-4" />
-                    Change Background
                   </button>
                   {customBg && (
                     <button
