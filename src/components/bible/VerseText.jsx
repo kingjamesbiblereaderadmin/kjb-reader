@@ -180,7 +180,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
                 {isSelected ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4 text-muted-foreground" />}
               </span>
             )}
-            <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-1 mr-2">{verse.verse}</sup>
+            <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-1 mr-3">{verse.verse}</sup>
             <span className="flex-1 min-w-0">
               <span
                 className="leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify"
