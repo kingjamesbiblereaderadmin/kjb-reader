@@ -106,3 +106,77 @@ self.addEventListener('message', event => {
     self.skipWaiting();
   }
 });
+
+// Periodic background sync - fires even when app is closed (Android)
+self.addEventListener('periodicsync', event => {
+  console.log('[SW] Periodic sync triggered:', event.tag);
+  
+  if (event.tag === 'daily-verse-notif') {
+    event.waitUntil(
+      (async () => {
+        try {
+          // Fetch notification config from cache
+          const cache = await caches.open('kjb-notif-config');
+          const response = await cache.match('/notif-config');
+          if (!response) return;
+          
+          const config = await response.json();
+          const now = Date.now();
+          
+          // Check if it's time to send notification
+          if (now >= config.nextTs) {
+            const today = new Date().toISOString().split('T')[0];
+            const lastDate = config.lastDate || '';
+            
+            // Don't send if already sent today
+            if (lastDate !== today) {
+              const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
+              
+              // Show notification
+              await self.registration.showNotification('King James Bible — Daily Verse', {
+                body: `"${config.verseText}" — ${config.verseRef}`,
+                icon: logoUrl,
+                badge: logoUrl,
+                tag: 'daily-verse',
+                renotify: true,
+                data: {
+                  url: '/'
+                }
+              });
+              
+              // Update last sent date in cache
+              config.lastDate = today;
+              await cache.put('/notif-config', new Response(JSON.stringify(config), {
+                headers: { 'Content-Type': 'application/json' }
+              }));
+            }
+          }
+        } catch (err) {
+          console.error('[SW] Periodic sync error:', err);
+        }
+      })()
+    );
+  }
+});
+
+// Handle notification click
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  
+  if (event.notification.data && event.notification.data.url) {
+    event.waitUntil(
+      clients.matchAll({ type: 'window' }).then(windowClients => {
+        // If app is already open, focus it
+        for (let client of windowClients) {
+          if (client.url === event.notification.data.url && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        // Otherwise, open a new window
+        if (clients.openWindow) {
+          return clients.openWindow(event.notification.data.url);
+        }
+      })
+    );
+  }
+});
