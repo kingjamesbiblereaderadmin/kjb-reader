@@ -501,31 +501,33 @@ export default function DailyVerseImage({ verse, onClick }) {
       >
         Verse of the Day
       </p>
-      <blockquote 
-        className="text-2xl md:text-3xl leading-relaxed mb-6"
-        style={{ 
-          color: textColor, 
-          opacity: textOpacity, 
-          fontFamily,
-          fontWeight: '700',
-          textShadow: '0 2px 8px rgba(0,0,0,0.3)'
-        }}
-      >
-        "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
-      </blockquote>
-      <p 
-        className="font-sans text-base font-semibold"
-        style={{ 
-          opacity: Math.min(1, textOpacity + 0.05), 
-          color: textColor, 
-          fontFamily,
-          textShadow: '0 1px 4px rgba(0,0,0,0.3)'
-        }}
-      >
-        — {verse.ref} (KJB)
-      </p>
+      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-5">
+        <blockquote 
+          className="text-2xl md:text-3xl leading-relaxed"
+          style={{ 
+            color: textColor, 
+            opacity: textOpacity, 
+            fontFamily,
+            fontWeight: '700',
+            textShadow: '0 2px 8px rgba(0,0,0,0.3)'
+          }}
+        >
+          "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
+        </blockquote>
+        <p 
+          className="font-sans text-base font-semibold mt-4"
+          style={{ 
+            opacity: Math.min(1, textOpacity + 0.05), 
+            color: textColor, 
+            fontFamily,
+            textShadow: '0 1px 4px rgba(0,0,0,0.3)'
+          }}
+        >
+          — {verse.ref} (KJB)
+        </p>
+      </div>
       <div 
-        className={`mt-5 w-12 h-1 mx-auto ${accentClass}`}
+        className={`w-12 h-1 mx-auto ${accentClass}`}
         style={{ opacity: 0.75 * textOpacity, backgroundColor: textColor }}
       />
       
