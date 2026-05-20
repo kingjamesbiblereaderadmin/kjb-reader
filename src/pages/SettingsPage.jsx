@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { base44 } from '@/api/base44Client';
@@ -20,6 +20,11 @@ export default function SettingsPage() {
   const [deleteInput, setDeleteInput] = useState('');
   const [deleting, setDeleting] = useState(false);
   const { isDark, mode, setMode, colourId, setColourId } = useTheme();
+  
+  const [customBg, setCustomBg] = useState(() => {
+    try { return localStorage.getItem('kjb-daily-verse-bg') || ''; } catch { return ''; }
+  });
+  const [uploading, setUploading] = useState(false);
   
 
 
@@ -239,6 +244,77 @@ export default function SettingsPage() {
         <h2 className="font-serif text-lg font-semibold text-foreground">Appearance</h2>
         <p className="font-sans text-xs text-muted-foreground">Choose how the app looks</p>
         
+        {/* Custom Daily Verse Background */}
+        <div className="pt-4 border-t border-border space-y-3">
+          <h3 className="font-serif text-base font-semibold text-foreground">Daily Verse Background</h3>
+          <p className="font-sans text-xs text-muted-foreground">Upload a custom image (stored locally, no credits)</p>
+          
+          {customBg ? (
+            <div className="space-y-2">
+              <div className="h-32 rounded-xl bg-cover bg-center border border-border" style={{ backgroundImage: `url(${customBg})` }} />
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setCustomBg('');
+                    localStorage.removeItem('kjb-daily-verse-bg');
+                    window.dispatchEvent(new Event('storage'));
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive font-sans text-xs font-medium hover:bg-destructive/20 transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Remove Image
+                </button>
+              </div>
+            </div>
+          ) : (
+            <label className="block">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  if (file.size > 5 * 1024 * 1024) {
+                    alert('Image must be less than 5MB');
+                    return;
+                  }
+                  setUploading(true);
+                  const reader = new FileReader();
+                  reader.onload = (event) => {
+                    const base64 = event.target?.result;
+                    if (typeof base64 === 'string') {
+                      setCustomBg(base64);
+                      localStorage.setItem('kjb-daily-verse-bg', base64);
+                      window.dispatchEvent(new Event('storage'));
+                    }
+                    setUploading(false);
+                  };
+                  reader.onerror = () => {
+                    alert('Failed to read image');
+                    setUploading(false);
+                  };
+                  reader.readAsDataURL(file);
+                }}
+                disabled={uploading}
+                className="hidden"
+              />
+              <div className="flex items-center justify-center w-full px-4 py-8 border-2 border-dashed border-border rounded-xl bg-secondary/50 hover:bg-secondary/70 transition-colors cursor-pointer">
+                {uploading ? (
+                  <div className="text-center">
+                    <Loader2 className="w-6 h-6 animate-spin text-accent mx-auto mb-2" />
+                    <p className="font-sans text-xs text-muted-foreground">Processing...</p>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
+                    <p className="font-sans text-xs text-muted-foreground">Click to upload image</p>
+                    <p className="font-sans text-xs text-muted-foreground mt-1">PNG, JPG up to 5MB</p>
+                  </div>
+                )}
+              </div>
+            </label>
+          )}
+        </div>
         <div className="grid grid-cols-4 gap-2">
           {[
             { id: 'light', label: '☀️ Light' },

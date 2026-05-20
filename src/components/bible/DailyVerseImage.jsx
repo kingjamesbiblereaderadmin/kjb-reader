@@ -1,6 +1,6 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Download, Share2 } from 'lucide-react';
+import { Download, Share2, Upload } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
 const VERSE_BACKGROUNDS = [
@@ -16,15 +16,58 @@ const VERSE_BACKGROUNDS = [
 export default function DailyVerseImage({ verse }) {
   const dow = new Date().getDay();
   const defaultBg = VERSE_BACKGROUNDS[dow];
+  const [customBg, setCustomBg] = useState(() => {
+    try { return localStorage.getItem('kjb-daily-verse-bg') || ''; } catch { return ''; }
+  });
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
+  
+  useEffect(() => {
+    const handleStorage = () => {
+      try { setCustomBg(localStorage.getItem('kjb-daily-verse-bg') || ''); } catch {}
+    };
+    window.addEventListener('storage', handleStorage);
+    handleStorage();
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+  
+  const handleUpload = (e) => {
+    e.stopPropagation();
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image must be less than 5MB');
+      return;
+    }
+    setUploading(true);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result;
+      if (typeof base64 === 'string') {
+        setCustomBg(base64);
+        localStorage.setItem('kjb-daily-verse-bg', base64);
+        window.dispatchEvent(new Event('storage'));
+      }
+      setUploading(false);
+    };
+    reader.onerror = () => {
+      alert('Failed to read image');
+      setUploading(false);
+    };
+    reader.readAsDataURL(file);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
   
 
   
   const verseRef = useRef(null);
   const [capturing, setCapturing] = useState(false);
   
-  const bgStyle = {};
-  const gradientClass = `bg-gradient-to-br ${defaultBg.gradient}`;
-  const accentClass = defaultBg.accent;
+  const bgStyle = customBg
+    ? { backgroundImage: `url(${customBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+    : {};
+  const gradientClass = customBg ? '' : `bg-gradient-to-br ${defaultBg.gradient}`;
+  const accentClass = customBg ? 'text-white' : defaultBg.accent;
 
   const handleDownload = async (e) => {
     e.stopPropagation();
@@ -83,6 +126,19 @@ export default function DailyVerseImage({ verse }) {
       {/* Action buttons */}
       <div className="absolute top-2 right-2 flex gap-1.5 z-10">
         <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          className="p-1.5 rounded-md bg-white/20 hover:bg-white/30 backdrop-blur transition-colors disabled:opacity-50"
+          title="Change background image"
+          type="button"
+        >
+          {uploading ? (
+            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin block" />
+          ) : (
+            <Upload className="w-4 h-4 text-white" />
+          )}
+        </button>
+        <button
           onClick={handleShare}
           disabled={capturing}
           className="p-1.5 rounded-md bg-white/20 hover:bg-white/30 backdrop-blur transition-colors disabled:opacity-50"
@@ -109,6 +165,15 @@ export default function DailyVerseImage({ verse }) {
           )}
         </button>
       </div>
+      
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleUpload}
+        className="hidden"
+      />
       
       <p className={`font-sans text-xs font-semibold tracking-widest uppercase mb-4 opacity-80 ${accentClass}`}>
         Verse of the Day
