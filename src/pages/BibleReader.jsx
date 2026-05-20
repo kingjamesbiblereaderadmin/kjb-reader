@@ -698,7 +698,8 @@ export default function BibleReader() {
             </>
             )}
           </div>
-        )}
+        </div>
+      )}
 
       {/* Show header chevron when hidden — aligned with top border */}
       {hideHeader && (
