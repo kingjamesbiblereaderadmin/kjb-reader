@@ -291,7 +291,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   return (
     <div className="w-full">
       {/* Verse card */}
-      <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-6 md:px-8 pt-6 md:pt-8 pb-8 md:pb-10 text-center text-white relative cursor-pointer`} style={bgStyle}>
+      <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-6 md:px-8 py-8 md:py-10 text-center text-white relative cursor-pointer min-h-[280px] md:min-h-[340px] flex flex-col justify-center`} style={bgStyle}>
         {/* Bell button */}
         {showButtons && onToggleNotif && (
           <button
@@ -488,17 +488,15 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         )}
         {/* Verse content inside the orange box */}
         {showVersePanel && (
-          <div className="mt-8 md:mt-10">
-            <p 
-              className={`font-sans text-xs md:text-sm font-bold tracking-wide uppercase mb-3 md:mb-4 ${accentClass}`}
-              style={{ opacity: textOpacity, color: textColor, fontFamily }}
-            >
-              Verse of the Day
-            </p>
-          </div>
+          <p 
+            className={`font-sans text-xs md:text-sm font-bold tracking-wide uppercase mb-4 md:mb-5 ${accentClass}`}
+            style={{ opacity: textOpacity, color: textColor, fontFamily }}
+          >
+            Verse of the Day
+          </p>
         )}
         <blockquote 
-          className={`text-lg md:text-xl lg:text-2xl leading-relaxed break-words mb-3 md:mb-4 ${showVersePanel ? 'mt-0' : 'mt-6 md:mt-8'}`}
+          className="text-lg md:text-2xl lg:text-3xl leading-relaxed break-words mb-4"
           style={{ 
             color: textColor, 
             opacity: textOpacity, 
@@ -510,7 +508,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
         </blockquote>
         <p 
-          className="font-sans text-sm md:text-base font-semibold"
+          className="font-sans text-base md:text-lg font-semibold mb-3"
           style={{ 
             opacity: Math.min(1, textOpacity + 0.05), 
             color: textColor, 
@@ -521,7 +519,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           — {verse.ref} (KJB)
         </p>
         <div 
-          className={`w-12 h-1 mx-auto mt-4 md:mt-6 ${accentClass}`}
+          className={`w-12 h-1 mx-auto ${accentClass}`}
           style={{ opacity: 0.75 * textOpacity, backgroundColor: textColor }}
         />
       </div>
