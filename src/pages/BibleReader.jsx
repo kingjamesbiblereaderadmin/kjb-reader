@@ -390,7 +390,11 @@ export default function BibleReader() {
                 className="flex items-center gap-1.5 px-4 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors min-w-fit touch-manipulation min-h-[48px]"
                 disabled={verseCount === 0}
               >
-                {highlightVerse ? `v.${highlightVerse}` : 'Verse'}
+                {filterMode && selectedVerses.size > 1
+                  ? `vv.${Math.min(...selectedVerses)}-${Math.max(...selectedVerses)}`
+                  : highlightVerse
+                  ? `v.${highlightVerse}`
+                  : 'Verse'}
                 <ChevronRight className="w-3 h-3 opacity-70" />
               </button>
               </div>
@@ -629,7 +633,9 @@ export default function BibleReader() {
         <div className="sticky top-[56px] sm:top-[72px] z-40 mb-3 px-3 py-2 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-between gap-2">
           <p className="font-sans text-xs text-primary font-semibold flex items-center gap-1.5">
             <BookMarked className="w-3.5 h-3.5" />
-            Showing {selectedVerses.size} selected verse{selectedVerses.size !== 1 ? 's' : ''}
+            {selectedVerses.size > 1
+              ? `Reading ${book.shortName} ${pos.chapter}:${Math.min(...selectedVerses)}-${Math.max(...selectedVerses)}`
+              : `Showing ${selectedVerses.size} selected verse${selectedVerses.size !== 1 ? 's' : ''}`}
           </p>
           <div className="flex items-center gap-1.5">
             <button
