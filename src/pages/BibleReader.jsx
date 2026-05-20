@@ -833,7 +833,7 @@ export default function BibleReader() {
       {!loading && !error && pos.abbr === 'MAL' && pos.chapter === 4 && (
         <div className="text-center mt-12 mb-4">
           <p className="font-serif text-sm text-muted-foreground tracking-widest uppercase">
-            End of the Prophets
+            The End of the Prophets
           </p>
         </div>
       )}
