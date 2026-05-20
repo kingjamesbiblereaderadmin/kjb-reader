@@ -278,30 +278,30 @@ export default function SettingsPage() {
 
         {/* Font Family */}
         <div className="pt-4 border-t border-border space-y-3">
-          <div className="flex items-center gap-2">
-            <Type className="w-4 h-4 text-muted-foreground" />
-            <p className="font-sans text-sm text-foreground font-medium">Font Family</p>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {VERSE_FONTS.map(font => (
-              <button
-                key={font.value}
-                onClick={() => {
-                  setVerseFontFamily(font.value);
-                  localStorage.setItem('kjb-verse-font-family', font.value);
-                  window.dispatchEvent(new Event('storage'));
-                }}
-                className={`px-4 py-3 rounded-xl font-sans text-sm font-medium transition-all ${
-                  verseFontFamily === font.value
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-                }`}
-                style={{ fontFamily: font.value }}
-              >
-                {font.label}
-              </button>
-            ))}
-          </div>
+        <div className="flex items-center gap-2">
+          <Type className="w-4 h-4 text-muted-foreground" />
+          <p className="font-sans text-sm text-foreground font-medium">Font Family</p>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {VERSE_FONTS.map(font => (
+            <button
+              key={font.value}
+              onClick={() => {
+                setVerseFontFamily(font.value);
+                localStorage.setItem('kjb-verse-font-family', font.value);
+                window.dispatchEvent(new Event('storage'));
+              }}
+              className={`w-full py-3 rounded-xl font-sans text-sm font-medium transition-all text-center ${
+                verseFontFamily === font.value
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+              }`}
+              style={{ fontFamily: font.value }}
+            >
+              {font.label}
+            </button>
+          ))}
+        </div>
         </div>
       </div>
 
