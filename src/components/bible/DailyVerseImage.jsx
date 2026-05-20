@@ -14,7 +14,7 @@ const VERSE_BACKGROUNDS = [
   { gradient: 'from-cyan-600 to-blue-600', accent: 'text-cyan-200' }
 ];
 
-export default function DailyVerseImage({ verse }) {
+export default function DailyVerseImage({ verse, onClick }) {
   const dow = new Date().getDay();
   const defaultBg = VERSE_BACKGROUNDS[dow];
   const [customBg, setCustomBg] = useState(() => {
@@ -131,7 +131,7 @@ export default function DailyVerseImage({ verse }) {
   };
 
   return (
-    <div ref={verseRef} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-8 pt-5 pb-8 text-center text-white relative`} style={bgStyle}>
+    <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-8 pt-5 pb-8 text-center text-white relative cursor-pointer`} style={bgStyle}>
       {/* Action buttons */}
       <div className="absolute top-2 right-2 flex gap-1.5 z-10">
         <button

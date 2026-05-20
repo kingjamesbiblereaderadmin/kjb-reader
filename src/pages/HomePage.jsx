@@ -191,9 +191,7 @@ export default function HomePage() {
 
       {/* Daily verse card */}
       <div className="w-full mb-6 relative">
-        <div onClick={handleVerseClick} className="cursor-pointer">
-          <DailyVerseImage verse={verse} />
-        </div>
+        <DailyVerseImage verse={verse} onClick={handleVerseClick} />
         {/* Bell button */}
         <button
           onClick={() => {
