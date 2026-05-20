@@ -526,7 +526,7 @@ export default function DailyVerseImage({ verse, onClick }) {
         className="hidden"
       />
       
-      {showVersePanel && (
+      {showVersePanel ? (
         <div className="bg-white/15 backdrop-blur-sm rounded-xl px-6 py-4 mb-5">
           <p 
             className={`font-sans text-sm font-bold tracking-wide uppercase mb-3 ${accentClass}`}
@@ -534,6 +534,32 @@ export default function DailyVerseImage({ verse, onClick }) {
           >
             Verse of the Day
           </p>
+          <blockquote 
+            className="text-2xl md:text-3xl leading-relaxed"
+            style={{ 
+              color: textColor, 
+              opacity: textOpacity, 
+              fontFamily,
+              fontWeight: '700',
+              textShadow: '0 2px 8px rgba(0,0,0,0.3)'
+            }}
+          >
+            "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
+          </blockquote>
+          <p 
+            className="font-sans text-base font-semibold mt-4"
+            style={{ 
+              opacity: Math.min(1, textOpacity + 0.05), 
+              color: textColor, 
+              fontFamily,
+              textShadow: '0 1px 4px rgba(0,0,0,0.3)'
+            }}
+          >
+            — {verse.ref} (KJB)
+          </p>
+        </div>
+      ) : (
+        <div className="px-6 py-4 mb-5">
           <blockquote 
             className="text-2xl md:text-3xl leading-relaxed"
             style={{ 
