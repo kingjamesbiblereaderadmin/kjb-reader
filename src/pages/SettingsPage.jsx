@@ -887,9 +887,9 @@ export default function SettingsPage() {
               )}
             </div>
           </>
+        )}
         </div>
         )}
-      </div>
 
       {/* App Info */}
       <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
@@ -974,9 +974,9 @@ export default function SettingsPage() {
             <span className="text-muted-foreground shrink-0">Theme</span>
             <span className="text-foreground font-medium text-right">Light / Dark / Auto / System</span>
           </div>
+        )}
         </div>
         )}
-      </div>
 
       {/* Credits */}
       <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
