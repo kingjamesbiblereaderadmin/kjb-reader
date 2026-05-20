@@ -27,7 +27,11 @@ export default function SettingsPage() {
     try { return parseInt(localStorage.getItem('kjb-zoom') || '100'); } catch { return 100; }
   });
   const [dyslexicFont, setDyslexicFont] = useState(() => {
-    try { return localStorage.getItem('kjb-dyslexic-font') === 'true'; } catch { return false; }
+    try { 
+      const saved = localStorage.getItem('kjb-dyslexic-font');
+      // Default to false (standard font) if not set
+      return saved === 'true'; 
+    } catch { return false; }
   });
 
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);

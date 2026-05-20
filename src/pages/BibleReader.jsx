@@ -66,6 +66,14 @@ export default function BibleReader() {
   const [dyslexicFont, setDyslexicFont] = useState(() => {
     try { return localStorage.getItem('kjb-dyslexic-font') === 'true'; } catch { return false; }
   });
+  // Ensure default is false (standard font) on first load
+  useEffect(() => {
+    try {
+      if (localStorage.getItem('kjb-dyslexic-font') === null) {
+        localStorage.setItem('kjb-dyslexic-font', 'false');
+      }
+    } catch {}
+  }, []);
   const [showZoomPopover, setShowZoomPopover] = useState(false);
   const [showFontPopover, setShowFontPopover] = useState(false);
 

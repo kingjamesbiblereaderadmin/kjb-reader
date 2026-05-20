@@ -51,11 +51,18 @@ export default function AppLayout() {
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
-    // Set dyslexic font on mount if enabled
+    // Ensure default is standard font (not dyslexic)
     try {
-      const dyslexicFont = localStorage.getItem('kjb-dyslexic-font') === 'true';
-      if (dyslexicFont) {
+      const saved = localStorage.getItem('kjb-dyslexic-font');
+      if (saved === null) {
+        // First time user - set to standard font
+        localStorage.setItem('kjb-dyslexic-font', 'false');
+      }
+      // Only set attribute if explicitly enabled
+      if (saved === 'true') {
         document.documentElement.setAttribute('data-dyslexic-font', 'true');
+      } else {
+        document.documentElement.removeAttribute('data-dyslexic-font');
       }
     } catch {}
 
