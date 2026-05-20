@@ -53,7 +53,9 @@ export function renderVerseText(text) {
     .replace(/\u201C/g, '"')   // left double quote
     .replace(/\u201D/g, '"')   // right double quote
     .replace(/\u2032/g, "'");  // prime
-  // Render pilcrow as a styled span (muted, slightly smaller, non-selectable)
+  // Fix pilcrow characters used as apostrophes within words (e.g., "Christ¶s" → "Christ's")
+  cleaned = cleaned.replace(/(\w)\u00B6(\w)/g, '$1\'$2');
+  // Render remaining pilcrows as styled spans (paragraph markers at verse start)
   cleaned = cleaned.replace(/\u00B6\s*/g, '<span class="pilcrow">¶</span> ');
   // Turn [bracketed] text into italics
   const parts = cleaned.split(/\[([^\]]+)\]/g);
