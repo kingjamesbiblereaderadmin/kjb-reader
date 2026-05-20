@@ -15,7 +15,7 @@ const VERSE_BACKGROUNDS = [
   { gradient: 'from-cyan-600 to-blue-600', accent: 'text-cyan-200' }
 ];
 
-export default function DailyVerseImage({ verse, onClick }) {
+export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEnabled }) {
   const dow = new Date().getDay();
   const defaultBg = VERSE_BACKGROUNDS[dow];
   const [customBg, setCustomBg] = useState(() => {
@@ -28,12 +28,12 @@ export default function DailyVerseImage({ verse, onClick }) {
   const [notifImage, setNotifImage] = useState(() => {
     try { return localStorage.getItem('kjb-notif-image') || ''; } catch { return ''; }
   });
-  const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [showStyleEditor, setShowStyleEditor] = useState(false);
   const [showLightbox, setShowLightbox] = useState(false);
   const [showVersePanel, setShowVersePanel] = useState(() => localStorage.getItem('kjb-verse-panel-visible') !== 'false');
   const [showButtons, setShowButtons] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef(null);
   const [textColor, setTextColor] = useState(() => localStorage.getItem('kjb-verse-text-color') || '#ffffff');
   const [textOpacity, setTextOpacity] = useState(() => parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '0.95'));
   const [fontFamily, setFontFamily] = useState(() => localStorage.getItem('kjb-verse-font-family') || 'serif');
@@ -45,13 +45,27 @@ export default function DailyVerseImage({ verse, onClick }) {
       try { setTextOpacity(parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '1')); } catch {}
       try { setFontFamily(localStorage.getItem('kjb-verse-font-family') || 'serif'); } catch {}
       try { setNotifImage(localStorage.getItem('kjb-notif-image') || ''); } catch {}
-      try { setNotifEnabled(getNotificationsEnabled()); } catch {}
       try { setShowVersePanel(localStorage.getItem('kjb-verse-panel-visible') !== 'false'); } catch {}
     };
     window.addEventListener('storage', handleStorage);
     handleStorage();
     return () => window.removeEventListener('storage', handleStorage);
   }, []);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowMenu(false);
+      }
+    };
+    if (showMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showMenu]);
   
   const handleUpload = (e) => {
     e.stopPropagation();
@@ -141,33 +155,7 @@ export default function DailyVerseImage({ verse, onClick }) {
     window.dispatchEvent(new Event('storage'));
   };
 
-  const handleToggleNotifications = async () => {
-    if (notifEnabled) {
-      disableNotifications();
-      setNotifEnabled(false);
-      window.dispatchEvent(new Event('storage'));
-      return;
-    }
-    
-    if (!('Notification' in window)) {
-      alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
-      return;
-    }
-    
-    try {
-      const result = await requestNotificationPermission();
-      if (result === 'granted') {
-        setNotifEnabled(true);
-        scheduleDailyNotification(verse);
-        window.dispatchEvent(new Event('storage'));
-      } else if (result === 'denied') {
-        alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
-      }
-    } catch (err) {
-      console.error('Notification permission error:', err);
-      alert('Failed to request notification permission. Please try again.');
-    }
-  };
+
   
 
   
@@ -302,6 +290,26 @@ export default function DailyVerseImage({ verse, onClick }) {
 
   return (
     <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-8 pt-5 pb-8 text-center text-white relative cursor-pointer`} style={bgStyle}>
+      {/* Bell button */}
+      {showButtons && onToggleNotif && (
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onToggleNotif();
+          }}
+          className="absolute top-2 left-2 p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors z-10 shadow-md"
+          title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
+          type="button"
+        >
+          {notifEnabled ? (
+            <Bell className="w-4 h-4 text-slate-800" />
+          ) : (
+            <BellOff className="w-4 h-4 text-slate-600" />
+          )}
+        </button>
+      )}
+
       {/* Action buttons */}
       <div className="absolute top-2 right-2 flex gap-1 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
         {showButtons ? (
@@ -368,7 +376,7 @@ export default function DailyVerseImage({ verse, onClick }) {
               )}
             </button>
             {/* Unified menu button */}
-            <div className="relative">
+            <div ref={menuRef} className="relative">
               <button
                 onClick={(e) => {
                   e.preventDefault();
@@ -452,7 +460,7 @@ export default function DailyVerseImage({ verse, onClick }) {
                     className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
                   >
                     <ChevronsDown className="w-4 h-4 rotate-180" />
-                    Hide Buttons
+                    Hide All Buttons
                   </button>
                 </div>
               )}
