@@ -33,6 +33,7 @@ export default function SearchPage() {
   const [expandedTerms, setExpandedTerms] = useState([]);
   const [testament, setTestament] = useState('all');
   const [wholeWord, setWholeWord] = useState(false);
+  const [numberedBookFilter, setNumberedBookFilter] = useState(null);
 
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
@@ -46,11 +47,29 @@ export default function SearchPage() {
     setResults([]);
     setSelected(new Set());
     setSelectMode(false);
+    setNumberedBookFilter(null);
 
     try {
       const bible = await getBibleData();
       const terms = expandSearchTerms(kw);
       setExpandedTerms(terms.length > 1 ? terms : []);
+      
+      // Check if query is a numbered book (e.g., "1 john", "2 timothy")
+      const numberedBookMatch = kw.trim().toLowerCase().match(/^(\d+)\s+([a-z]+)$/);
+      let targetBookAbbr = null;
+      if (numberedBookMatch) {
+        const num = numberedBookMatch[1];
+        const bookPart = numberedBookMatch[2];
+        const matchingBook = BIBLE_BOOKS.find(b => 
+          b.shortName.toLowerCase() === `${num} ${bookPart}` ||
+          b.shortName.toLowerCase().startsWith(`${num} ${bookPart}`)
+        );
+        if (matchingBook) {
+          targetBookAbbr = matchingBook.abbr;
+          setNumberedBookFilter(targetBookAbbr);
+        }
+      }
+
       const matches = [];
       const seen = new Set();
 
@@ -58,6 +77,12 @@ export default function SearchPage() {
         if (bookName === '__colophons') continue;
         if (testament === 'ot' && !OT_BOOKS.has(bookName)) continue;
         if (testament === 'nt' && !NT_BOOKS.has(bookName)) continue;
+        
+        // If searching for a numbered book, only show results from that specific book
+        if (targetBookAbbr) {
+          const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+          if (!bookEntry || bookEntry.abbr !== targetBookAbbr) continue;
+        }
 
         const chapters = bible[bookName];
         for (const chapterNum in chapters) {
@@ -245,6 +270,12 @@ export default function SearchPage() {
               {expandedTerms.length > 1 && (
                 <p className="font-sans text-xs text-accent mt-0.5">
                   Also searching: {expandedTerms.filter(t => t !== query.toLowerCase()).join(', ')}
+                </p>
+              )}
+              {numberedBookFilter && (
+                <p className="font-sans text-xs text-primary font-semibold mt-0.5 flex items-center gap-1">
+                  <BookOpen className="w-3 h-3" />
+                  Showing only {BIBLE_BOOKS.find(b => b.abbr === numberedBookFilter)?.shortName}
                 </p>
               )}
             </div>
