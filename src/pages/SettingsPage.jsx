@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink } from 'lucide-react';
 import ImageCropper from '@/components/bible/ImageCropper';
 import { Switch } from '@/components/ui/switch';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
@@ -29,6 +29,7 @@ export default function SettingsPage() {
     info: true,
     credits: true,
     advanced: true,
+    contact: true,
   });
   const { isDark, mode, setMode, colourId, setColourId } = useTheme();
   
@@ -239,6 +240,7 @@ export default function SettingsPage() {
       info: newState,
       credits: newState,
       advanced: newState,
+      contact: newState,
     });
   };
 
@@ -1068,6 +1070,47 @@ export default function SettingsPage() {
                 Check for Updates
               </button>
             </div>
+          </div>
+        )}
+      </div>
+
+      {/* Contact & Feedback */}
+      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+        <button
+          onClick={() => toggleSection('contact')}
+          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+        >
+          <div>
+            <h2 className="font-serif text-lg font-semibold text-foreground">Contact & Feedback</h2>
+            <p className="font-sans text-xs text-muted-foreground">Report bugs or share feedback</p>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.contact ? 'rotate-180' : ''}`} />
+        </button>
+        {expandedSections.contact && (
+          <div className="p-5 pt-0 space-y-2">
+            <a
+              href="mailto:Godisgracious1031@outlook.com"
+              className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
+            >
+              <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Email for Support</p>
+                <p className="font-sans text-xs text-muted-foreground">Godisgracious1031@outlook.com</p>
+              </div>
+            </a>
+            <a
+              href="https://godisgracious1031ministriescom.odoo.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
+            >
+              <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Ministry Website</p>
+                <p className="font-sans text-xs text-muted-foreground">godisgracious1031ministries.com</p>
+              </div>
+              <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+            </a>
           </div>
         )}
       </div>
