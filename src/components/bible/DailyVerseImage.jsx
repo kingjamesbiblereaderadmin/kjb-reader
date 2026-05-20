@@ -395,18 +395,20 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                     <Eye className="w-4 h-4" />
                     {showVersePanel ? 'Hide Panel' : 'Show Panel'}
                   </button>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setShowStyleEditor(true);
-                      setShowMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
-                  >
-                    <Palette className="w-4 h-4" />
-                    Text Style
-                  </button>
+                  {!showStyleEditor && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setShowStyleEditor(true);
+                        setShowMenu(false);
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                    >
+                      <Palette className="w-4 h-4" />
+                      Text Style
+                    </button>
+                  )}
                   <button
                     onClick={(e) => {
                       e.preventDefault();
