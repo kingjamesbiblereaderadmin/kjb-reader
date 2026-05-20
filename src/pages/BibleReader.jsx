@@ -323,7 +323,6 @@ export default function BibleReader() {
           <div className="relative flex flex-wrap items-center gap-1.5 pt-1">
 
             {/* Book selector */}
-            <div className="flex items-center gap-1.5 flex-wrap">
             <div className="flex-shrink-0">
             <button
               onClick={() => { setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); }}
@@ -439,6 +438,25 @@ export default function BibleReader() {
 
             {!isViewingTitlePage && (
               <>
+              {/* Prev/Next arrows - positioned right after book selector */}
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <button
+                  onClick={goPrev}
+                  onTouchEnd={(e) => { e.preventDefault(); goPrev(); }}
+                  disabled={isFirstChapterFirstBook}
+                  className="p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-colors touch-manipulation min-h-[48px] min-w-[48px] flex items-center justify-center"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={goNext}
+                  onTouchEnd={(e) => { e.preventDefault(); goNext(); }}
+                  disabled={isLastChapterLastBook}
+                  className="p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-colors touch-manipulation min-h-[48px] min-w-[48px] flex items-center justify-center"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             {/* Chapter selector */}
             <div className="p-1">
             <button
@@ -633,7 +651,6 @@ export default function BibleReader() {
                   )}
                 </div>
               </SelectorSheet>
-              </div>
 
               {/* Layout toggle */}
               <div className="p-1">
@@ -661,26 +678,9 @@ export default function BibleReader() {
               </div>
               </>
             )}
-            </div>
 
-            {/* Prev/Next + Fullscreen + Hide header — wrap dynamically */}
+            {/* Fullscreen + Hide header — wrap dynamically */}
             <div className="flex items-center gap-1.5 flex-wrap">
-              <button
-                onClick={goPrev}
-                onTouchEnd={(e) => { e.preventDefault(); goPrev(); }}
-                disabled={isFirstChapterFirstBook}
-                className="p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-colors touch-manipulation min-h-[48px] min-w-[48px] flex items-center justify-center flex-shrink-0"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                onClick={goNext}
-                onTouchEnd={(e) => { e.preventDefault(); goNext(); }}
-                disabled={isLastChapterLastBook}
-                className="p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-colors touch-manipulation min-h-[48px] min-w-[48px] flex items-center justify-center flex-shrink-0"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
               <button
                 onClick={toggleFullscreen}
                 onTouchEnd={(e) => { e.preventDefault(); toggleFullscreen(); }}
