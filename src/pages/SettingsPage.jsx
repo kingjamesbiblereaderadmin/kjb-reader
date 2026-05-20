@@ -1223,7 +1223,7 @@ export default function SettingsPage() {
               </div>
             </div>
             <a
-              href="https://www.tiktok.com/@svdbyfaithinr325av"
+              href="https://www.tiktok.com/@svdbyfaithinr325av?_r=1&_t=ZS-96WRhWSLUoe"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
