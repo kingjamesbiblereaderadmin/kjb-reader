@@ -146,7 +146,7 @@ export default function BibleReader() {
     const verseRange = selectedVersesList.length > 1
       ? `${book.shortName} ${pos.chapter}:${selectedVersesList[0].verse}-${selectedVersesList[selectedVersesList.length - 1].verse}`
       : `${book.shortName} ${pos.chapter}:${selectedVersesList[0].verse}`;
-    const lines = `${versesText} — ${verseRange} (KJB)`;
+    const lines = `"${versesText}" — ${verseRange} (KJB)`;
     await navigator.clipboard.writeText(lines);
     setCopyFeedback(true);
     setTimeout(() => setCopyFeedback(false), 1800);

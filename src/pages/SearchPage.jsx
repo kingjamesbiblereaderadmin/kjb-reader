@@ -198,8 +198,6 @@ export default function SearchPage() {
     const sorted = [...indices].sort((a, b) => a - b);
     const verses = sorted.map(i => {
       const r = results[i];
-      const bookEntry = BIBLE_BOOKS.find(b => b.apiName === r.book);
-      const bookName = bookEntry ? bookEntry.shortName : r.book;
       const clean = r.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
       return clean;
     });
@@ -210,7 +208,7 @@ export default function SearchPage() {
     const verseRange = sorted.length > 1
       ? `${firstBookName} ${first.chapter}:${first.verse}-${last.verse}`
       : `${firstBookName} ${first.chapter}:${first.verse}`;
-    return `${verses.join(' ')} — ${verseRange} (KJB)`;
+    return `"${verses.join(' ')}" — ${verseRange} (KJB)`;
   };
 
   const handleCopySelected = async () => {
