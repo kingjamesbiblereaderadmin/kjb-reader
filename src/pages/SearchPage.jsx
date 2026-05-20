@@ -198,7 +198,9 @@ export default function SearchPage() {
     [...indices].sort((a, b) => a - b)
       .map(i => {
         const r = results[i];
-        return `"${r.text}" — ${r.book} ${r.chapter}:${r.verse} (KJB)`;
+        const bookEntry = BIBLE_BOOKS.find(b => b.apiName === r.book);
+        const bookName = bookEntry ? bookEntry.shortName : r.book;
+        return `"${r.text}" — ${bookName} ${r.chapter}:${r.verse} (KJB)`;
       })
       .join('\n\n');
 
@@ -439,7 +441,7 @@ export default function SearchPage() {
                 {selectedList.map(i => (
                   <div key={i} className="text-sm">
                     <span className="font-sans text-xs text-accent font-semibold mr-2">
-                      {results[i].book} {results[i].chapter}:{results[i].verse}
+                      {BIBLE_BOOKS.find(b => b.apiName === results[i].book)?.shortName || results[i].book} {results[i].chapter}:{results[i].verse}
                     </span>
                     <span className="font-serif text-foreground leading-relaxed">{results[i].text}</span>
                   </div>
@@ -473,7 +475,7 @@ export default function SearchPage() {
                   <div className="flex-1 min-w-0">
                     <p className="font-sans text-xs text-accent font-semibold mb-1 flex items-center gap-1">
                       <BookOpen className="w-3 h-3" />
-                      {r.book} {r.chapter}:{r.verse}
+                      {BIBLE_BOOKS.find(b => b.apiName === r.book)?.shortName || r.book} {r.chapter}:{r.verse}
                     </p>
                     <p className="font-serif text-base text-foreground leading-relaxed">
                       "{highlightText(r.text, expandedTerms.length > 1 ? expandedTerms : [query])}"
