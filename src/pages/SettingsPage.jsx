@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Type } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Type, Palette } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { base44 } from '@/api/base44Client';
@@ -28,6 +28,9 @@ export default function SettingsPage() {
   });
   const [dyslexicFont, setDyslexicFont] = useState(() => {
     try { return localStorage.getItem('kjb-dyslexic-font') === 'true'; } catch { return false; }
+  });
+  const [theme1611, setTheme1611] = useState(() => {
+    try { return localStorage.getItem('kjb-theme-1611') !== 'false'; } catch { return true; }
   });
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);

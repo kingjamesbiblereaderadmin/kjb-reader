@@ -102,6 +102,17 @@ export function ThemeProvider({ children }) {
     applyPalette(colourId, isDark);
   }, [colourId, isDark]);
 
+  // Apply 1611 vs Modern theme
+  useEffect(() => {
+    const root = document.documentElement;
+    const use1611 = localStorage.getItem('kjb-theme-1611') !== 'false';
+    if (!use1611) {
+      root.setAttribute('data-theme-modern', 'true');
+    } else {
+      root.removeAttribute('data-theme-modern');
+    }
+  }, []);
+
   return (
     <ThemeContext.Provider value={{ isDark, mode, setMode, colourId, setColourId, toggleTheme }}>
       {children}
