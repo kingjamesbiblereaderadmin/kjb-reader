@@ -98,7 +98,7 @@ export default function SearchPage() {
 
       const matches = [];
       const seen = new Set();
-      // Use searchTerm and searchTermLower from line 59-62
+      const searchTermLower = searchTerm.toLowerCase();
 
       for (const bookName in bible) {
         if (bookName === '__colophons') continue;
