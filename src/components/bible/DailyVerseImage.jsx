@@ -174,7 +174,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     e.stopPropagation();
     e.preventDefault();
     setCapturing(true);
-    setShowButtons(false);
     setShowStyleEditor(false);
     setShowMenu(false);
     try {
@@ -193,10 +192,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     } catch (err) {
       console.error('Failed to download image:', err);
     } finally {
-      setTimeout(() => {
-        setShowButtons(true);
-        setCapturing(false);
-      }, 100);
+      setCapturing(false);
     }
   };
 
@@ -265,7 +261,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     e.stopPropagation();
     e.preventDefault();
     setCapturing(true);
-    setShowButtons(false);
     setShowStyleEditor(false);
     setShowMenu(false);
     try {
@@ -306,7 +301,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         alert('Verse text copied to clipboard!');
       }
     } finally {
-      setShowButtons(true);
       setCapturing(false);
     }
   };
@@ -424,6 +418,32 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                   >
                     <Copy className="w-4 h-4" />
                     Copy Verse
+                  </button>
+                  <button
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      try {
+                        const shareText = `"${verse.text}" — ${verse.ref} (KJB)`;
+                        if (navigator.share) {
+                          await navigator.share({
+                            title: 'Daily Verse',
+                            text: shareText,
+                          });
+                        } else {
+                          await navigator.clipboard.writeText(shareText);
+                          alert('Verse text copied to clipboard!');
+                        }
+                      } catch (err) {
+                        console.error('Share failed:', err);
+                        alert('Failed to share verse');
+                      }
+                      setShowMenu(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Share Text
                   </button>
                   <button
                     onClick={(e) => {
