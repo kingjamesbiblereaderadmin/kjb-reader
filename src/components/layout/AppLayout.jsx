@@ -51,6 +51,14 @@ export default function AppLayout() {
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
+    // Set dyslexic font on mount if enabled
+    try {
+      const dyslexicFont = localStorage.getItem('kjb-dyslexic-font') === 'true';
+      if (dyslexicFont) {
+        document.documentElement.setAttribute('data-dyslexic-font', 'true');
+      }
+    } catch {}
+
     // Register service worker for PWA functionality
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js')
