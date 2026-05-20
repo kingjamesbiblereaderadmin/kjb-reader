@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2, ChevronsDown, MoreVertical, Trash2, Image } from 'lucide-react';
+import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2, MoreVertical, Trash2, Image, ChevronDown } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import ImageCropper from './ImageCropper';
 import { getNotificationsEnabled, requestNotificationPermission, disableNotifications, scheduleDailyNotification } from '@/lib/notifications';
@@ -463,7 +463,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                     }}
                     className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
                   >
-                    <ChevronsDown className="w-4 h-4 rotate-180" />
+                    <ChevronDown className="w-4 h-4 rotate-180" />
                     Hide All Buttons
                   </button>
                 </div>
@@ -481,7 +481,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             title="Show buttons"
             type="button"
           >
-            <ChevronsDown className="w-3.5 h-3.5 text-slate-800" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-800" />
           </button>
         )}
         
