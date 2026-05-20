@@ -277,6 +277,36 @@ export default function SettingsPage() {
         <h2 className="font-serif text-lg font-semibold text-foreground">Appearance</h2>
         <p className="font-sans text-xs text-muted-foreground">Choose how the app looks</p>
         
+        {/* Theme Mode */}
+        <div className="pt-4 border-t border-border space-y-3">
+          <h3 className="font-serif text-base font-semibold text-foreground">Theme Mode</h3>
+          <div className="grid grid-cols-4 gap-2">
+            {[
+              { id: 'light', label: '☀️ Light' },
+              { id: 'dark', label: '🌙 Dark' },
+              { id: 'auto', label: '🕐 Auto' },
+              { id: 'system', label: '📱 System' },
+            ].map(opt => (
+              <button
+                key={opt.id}
+                onClick={() => setMode(opt.id)}
+                className={`py-2 rounded-xl font-sans text-sm font-medium transition-colors ${
+                  mode === opt.id
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+          <p className="font-sans text-xs text-muted-foreground">
+            {mode === 'auto' ? '🕐 Auto: light 6am–6pm, dark 6pm–6am' :
+             mode === 'system' ? '📱 System: follows your device setting' :
+             mode === 'dark' ? '🌙 Dark mode always on' : '☀️ Light mode always on'}
+          </p>
+        </div>
+
         {/* Custom Daily Verse Background */}
         <div className="pt-4 border-t border-border space-y-3">
           <h3 className="font-serif text-base font-semibold text-foreground">Daily Verse Background</h3>
@@ -477,60 +507,30 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Theme */}
+      {/* Accent Colour */}
       <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
-        <h2 className="font-serif text-lg font-semibold text-foreground">Theme</h2>
-        <p className="font-sans text-xs text-muted-foreground">Choose how the app looks</p>
+        <h2 className="font-serif text-lg font-semibold text-foreground">Accent Colour</h2>
+        <p className="font-sans text-xs text-muted-foreground">Choose your accent colour</p>
         
-        <div className="grid grid-cols-4 gap-2 pt-4">
-          {[
-            { id: 'light', label: '☀️ Light' },
-            { id: 'dark', label: '🌙 Dark' },
-            { id: 'auto', label: '🕐 Auto' },
-            { id: 'system', label: '📱 System' },
-          ].map(opt => (
+        <div className="flex flex-wrap gap-2 pt-4">
+          {COLOUR_PALETTES.map(p => (
             <button
-              key={opt.id}
-              onClick={() => setMode(opt.id)}
-              className={`py-2 rounded-xl font-sans text-sm font-medium transition-colors ${
-                mode === opt.id
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+              key={p.id}
+              onClick={() => setColourId(p.id)}
+              title={p.name}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-sans text-xs font-medium border-2 transition-all ${
+                colourId === p.id
+                  ? 'border-foreground scale-105 bg-secondary'
+                  : 'border-transparent bg-secondary hover:border-border'
               }`}
             >
-              {opt.label}
+              <span
+                className="w-3.5 h-3.5 rounded-full shrink-0"
+                style={{ backgroundColor: p.swatch }}
+              />
+              {p.name}
             </button>
           ))}
-        </div>
-        <p className="font-sans text-xs text-muted-foreground">
-          {mode === 'auto' ? '🕐 Auto: light 6am–6pm, dark 6pm–6am' :
-           mode === 'system' ? '📱 System: follows your device setting' :
-           mode === 'dark' ? '🌙 Dark mode always on' : '☀️ Light mode always on'}
-        </p>
-
-        {/* Colour palette */}
-        <div className="pt-2 border-t border-border space-y-2">
-          <p className="font-sans text-sm text-foreground font-medium">Accent Colour</p>
-          <div className="flex flex-wrap gap-2">
-            {COLOUR_PALETTES.map(p => (
-              <button
-                key={p.id}
-                onClick={() => setColourId(p.id)}
-                title={p.name}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-sans text-xs font-medium border-2 transition-all ${
-                  colourId === p.id
-                    ? 'border-foreground scale-105 bg-secondary'
-                    : 'border-transparent bg-secondary hover:border-border'
-                }`}
-              >
-                <span
-                  className="w-3.5 h-3.5 rounded-full shrink-0"
-                  style={{ backgroundColor: p.swatch }}
-                />
-                {p.name}
-              </button>
-            ))}
-          </div>
         </div>
       </div>
 
