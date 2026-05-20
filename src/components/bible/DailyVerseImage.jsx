@@ -126,7 +126,10 @@ export default function DailyVerseImage({ verse }) {
       {/* Action buttons */}
       <div className="absolute top-2 right-2 flex gap-1.5 z-10">
         <button
-          onClick={() => fileInputRef.current?.click()}
+          onClick={(e) => {
+            e.stopPropagation();
+            fileInputRef.current?.click();
+          }}
           disabled={uploading}
           className="p-1.5 rounded-md bg-white/20 hover:bg-white/30 backdrop-blur transition-colors disabled:opacity-50"
           title="Change background image"
