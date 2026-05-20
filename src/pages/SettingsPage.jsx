@@ -277,6 +277,105 @@ export default function SettingsPage() {
         <h2 className="font-serif text-lg font-semibold text-foreground">Appearance</h2>
         <p className="font-sans text-xs text-muted-foreground">Choose how the app looks</p>
         
+        {/* Custom Daily Verse Background */}
+        <div className="pt-4 border-t border-border space-y-3">
+          <h3 className="font-serif text-base font-semibold text-foreground">Daily Verse Background</h3>
+          <p className="font-sans text-xs text-muted-foreground">Upload a custom image (stored locally, no credits)</p>
+          
+          {customBg ? (
+            <div className="space-y-2">
+              <div className="h-32 rounded-xl bg-cover bg-center border border-border" style={{ backgroundImage: `url(${customBg})` }} />
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setCustomBg('');
+                    localStorage.removeItem('kjb-daily-verse-bg');
+                    window.dispatchEvent(new Event('storage'));
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive font-sans text-xs font-medium hover:bg-destructive/20 transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Remove Image
+                </button>
+                <button
+                  onClick={() => {
+                    const current = localStorage.getItem('kjb-daily-verse-bg');
+                    if (current) setCropImage(current);
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+                >
+                  <Crop className="w-3.5 h-3.5" />
+                  Re-crop
+                </button>
+              </div>
+            </div>
+          ) : (
+            <label className="block">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  if (file.size > 2 * 1024 * 1024) {
+                    alert('Image must be less than 2MB for storage');
+                    return;
+                  }
+                  const reader = new FileReader();
+                  reader.onload = (event) => {
+                    const base64 = event.target?.result;
+                    if (typeof base64 === 'string') {
+                      setCropImage(base64);
+                    }
+                  };
+                  reader.onerror = () => {
+                    alert('Failed to read image');
+                  };
+                  reader.readAsDataURL(file);
+                }}
+                disabled={uploading}
+                className="hidden"
+              />
+              <div className="flex items-center justify-center w-full px-4 py-8 border-2 border-dashed border-border rounded-xl bg-secondary/50 hover:bg-secondary/70 transition-colors cursor-pointer">
+                {uploading ? (
+                  <div className="text-center">
+                    <Loader2 className="w-6 h-6 animate-spin text-accent mx-auto mb-2" />
+                    <p className="font-sans text-xs text-muted-foreground">Processing...</p>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
+                    <p className="font-sans text-xs text-muted-foreground">Click to upload image</p>
+                    <p className="font-sans text-xs text-muted-foreground mt-1">PNG, JPG up to 5MB</p>
+                  </div>
+                )}
+              </div>
+            </label>
+          )}
+        </div>
+        
+        {/* Crop Modal */}
+        {cropImage && (
+          <ImageCropper
+            image={cropImage}
+            onCrop={(croppedDataUrl) => {
+              try {
+                localStorage.setItem('kjb-daily-verse-bg', croppedDataUrl);
+                setCustomBg(croppedDataUrl);
+                window.dispatchEvent(new Event('storage'));
+                setCropImage(null);
+              } catch (err) {
+                alert('Storage full! Please clear browser data or try a smaller image.');
+                console.error('localStorage quota exceeded:', err);
+              }
+            }}
+            onCancel={() => {
+              setCropImage(null);
+              setCropImageForNotif(false);
+            }}
+          />
+        )}
+
         {/* Daily Verse Text Style */}
         <div className="pt-4 border-t border-border space-y-4">
           <h3 className="font-serif text-base font-semibold text-foreground flex items-center gap-2">
@@ -376,108 +475,14 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Custom Daily Verse Background */}
-        <div className="pt-4 border-t border-border space-y-3">
-          <h3 className="font-serif text-base font-semibold text-foreground">Daily Verse Background</h3>
-          <p className="font-sans text-xs text-muted-foreground">Upload a custom image (stored locally, no credits)</p>
-          
-          {customBg ? (
-            <div className="space-y-2">
-              <div className="h-32 rounded-xl bg-cover bg-center border border-border" style={{ backgroundImage: `url(${customBg})` }} />
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    setCustomBg('');
-                    localStorage.removeItem('kjb-daily-verse-bg');
-                    window.dispatchEvent(new Event('storage'));
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive font-sans text-xs font-medium hover:bg-destructive/20 transition-colors"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  Remove Image
-                </button>
-                <button
-                  onClick={() => {
-                    const current = localStorage.getItem('kjb-daily-verse-bg');
-                    if (current) setCropImage(current);
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
-                >
-                  <Crop className="w-3.5 h-3.5" />
-                  Re-crop
-                </button>
-              </div>
-            </div>
-          ) : (
-            <label className="block">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files[0];
-                  if (!file) return;
-                  if (file.size > 2 * 1024 * 1024) {
-                    alert('Image must be less than 2MB for storage');
-                    return;
-                  }
-                  const reader = new FileReader();
-                  reader.onload = (event) => {
-                    const base64 = event.target?.result;
-                    if (typeof base64 === 'string') {
-                      setCropImage(base64); // Open cropper
-                    }
-                  };
-                  reader.onerror = () => {
-                    alert('Failed to read image');
-                  };
-                  reader.readAsDataURL(file);
-                }}
-                disabled={uploading}
-                className="hidden"
-              />
-              <div className="flex items-center justify-center w-full px-4 py-8 border-2 border-dashed border-border rounded-xl bg-secondary/50 hover:bg-secondary/70 transition-colors cursor-pointer">
-                {uploading ? (
-                  <div className="text-center">
-                    <Loader2 className="w-6 h-6 animate-spin text-accent mx-auto mb-2" />
-                    <p className="font-sans text-xs text-muted-foreground">Processing...</p>
-                  </div>
-                ) : (
-                  <div className="text-center">
-                    <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
-                    <p className="font-sans text-xs text-muted-foreground">Click to upload image</p>
-                    <p className="font-sans text-xs text-muted-foreground mt-1">PNG, JPG up to 5MB</p>
-                  </div>
-                )}
-              </div>
-            </label>
-          )}
-        </div>
+      {/* Theme */}
+      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
+        <h2 className="font-serif text-lg font-semibold text-foreground">Theme</h2>
+        <p className="font-sans text-xs text-muted-foreground">Choose how the app looks</p>
         
-        {/* Crop Modal */}
-        {cropImage && (
-          <ImageCropper
-            image={cropImage}
-            onCrop={(croppedDataUrl) => {
-              try {
-                localStorage.setItem('kjb-daily-verse-bg', croppedDataUrl);
-                setCustomBg(croppedDataUrl);
-                window.dispatchEvent(new Event('storage'));
-                setCropImage(null);
-              } catch (err) {
-                alert('Storage full! Please clear browser data or try a smaller image.');
-                console.error('localStorage quota exceeded:', err);
-              }
-            }}
-            onCancel={() => {
-              setCropImage(null);
-              setCropImageForNotif(false);
-            }}
-          />
-        )}
-
-
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-4 gap-2 pt-4">
           {[
             { id: 'light', label: '☀️ Light' },
             { id: 'dark', label: '🌙 Dark' },
@@ -527,7 +532,6 @@ export default function SettingsPage() {
             ))}
           </div>
         </div>
-
       </div>
 
 
