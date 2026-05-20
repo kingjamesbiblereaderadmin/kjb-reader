@@ -290,10 +290,10 @@ export default function SettingsPage() {
               localStorage.setItem('kjb-verse-font-family', font.value);
               window.dispatchEvent(new Event('storage'));
             }}
-            className={`w-full py-3 rounded-xl font-sans text-sm font-medium transition-all text-center ${
+            className={`w-full py-3 rounded-xl font-sans text-sm font-medium transition-all text-center border-2 ${
               verseFontFamily === font.value
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-transparent text-foreground border-border hover:border-accent'
             }`}
             style={{ fontFamily: font.value }}
           >
@@ -306,10 +306,10 @@ export default function SettingsPage() {
             localStorage.setItem('kjb-verse-font-family', 'serif');
             window.dispatchEvent(new Event('storage'));
           }}
-          className={`w-full py-3 rounded-xl font-sans text-sm font-medium transition-all text-center ${
+          className={`w-full py-3 rounded-xl font-sans text-sm font-medium transition-all text-center border-2 ${
             verseFontFamily === 'serif'
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+              ? 'bg-primary text-primary-foreground border-primary'
+              : 'bg-transparent text-foreground border-border hover:border-accent'
           }`}
         >
           Reset to Default
