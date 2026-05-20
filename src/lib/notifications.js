@@ -221,15 +221,19 @@ async function saveNextFireTime(verse) {
 
 // Show a notification via SW (required on Android PWA)
 export async function showLocalNotification(title, body) {
+  const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
+  
   // Always try service worker first (works on Android even when Notification API doesn't)
   try {
     const reg = await navigator.serviceWorker.ready;
     console.log('Service worker ready, showing notification via SW');
     await reg.showNotification(title, {
       body,
+      icon: logoUrl,
+      badge: logoUrl,
       tag: 'daily-verse',
       renotify: true,
-      silent: true, // No action buttons
+      silent: true,
     });
     return;
   } catch (err) {
@@ -239,7 +243,7 @@ export async function showLocalNotification(title, body) {
   // Fallback to standard Notification API
   if ('Notification' in window && Notification.permission === 'granted') {
     try {
-      new Notification(title, { body, silent: true });
+      new Notification(title, { body, icon: logoUrl });
     } catch (err) {
       console.error('Standard notification failed:', err);
     }
