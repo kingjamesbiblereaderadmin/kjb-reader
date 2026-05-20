@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Monitor, Bell, BellOff } from 'lucide-react';
+import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import ImageCropper from './ImageCropper';
 import { getNotificationsEnabled, requestNotificationPermission, disableNotifications, scheduleDailyNotification } from '@/lib/notifications';
@@ -360,23 +360,6 @@ export default function DailyVerseImage({ verse, onClick }) {
             <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
           ) : (
             <Share2 className="w-4 h-4 text-slate-800" />
-          )}
-        </button>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            handleSetWallpaper(e);
-          }}
-          disabled={capturing}
-          className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
-          title="Set as wallpaper"
-          type="button"
-        >
-          {capturing ? (
-            <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
-          ) : (
-            <Monitor className="w-4 h-4 text-slate-800" />
           )}
         </button>
         <button
