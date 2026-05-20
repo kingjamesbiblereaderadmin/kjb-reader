@@ -348,8 +348,13 @@ export default function DailyVerseImage({ verse, onClick }) {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
                 setCropImageForNotif(false);
                 fileInputRef.current?.click();
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
               }}
               disabled={uploading}
               className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
@@ -522,7 +527,13 @@ export default function DailyVerseImage({ verse, onClick }) {
         ref={fileInputRef}
         type="file"
         accept="image/*"
-        onChange={handleUpload}
+        onChange={(e) => {
+          e.stopPropagation();
+          handleUpload(e);
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
         className="hidden"
       />
       
