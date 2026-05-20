@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type } from 'lucide-react';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText } from '@/lib/bibleApi';
 import { getBibleData } from '@/lib/bibleCache';
@@ -67,6 +67,7 @@ export default function BibleReader() {
     try { return localStorage.getItem('kjb-dyslexic-font') === 'true'; } catch { return false; }
   });
   const [showZoomPopover, setShowZoomPopover] = useState(false);
+  const [showFontPopover, setShowFontPopover] = useState(false);
 
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
@@ -99,6 +100,13 @@ export default function BibleReader() {
     window.addEventListener('dyslexic-font-change', handleFontChange);
     return () => window.removeEventListener('dyslexic-font-change', handleFontChange);
   }, []);
+
+  const toggleDyslexicFont = () => {
+    const newVal = !dyslexicFont;
+    setDyslexicFont(newVal);
+    try { localStorage.setItem('kjb-dyslexic-font', String(newVal)); } catch {}
+    window.dispatchEvent(new Event('dyslexic-font-change'));
+  };
 
   const toggleLayout = () => {
     const next = !paragraphMode;
@@ -466,6 +474,52 @@ export default function BibleReader() {
                 />
               </SelectorSheet>
 
+              {/* Font toggle */}
+              <div className="p-1 relative">
+              <button
+                onClick={() => setShowFontPopover(p => !p)}
+                onTouchEnd={(e) => { e.preventDefault(); setShowFontPopover(p => !p); }}
+                title={dyslexicFont ? 'Using dyslexic font' : 'Using standard font'}
+                className={`flex items-center gap-1 px-3 py-3 rounded-lg font-sans text-xs font-medium transition-colors touch-manipulation min-h-[48px] ${dyslexicFont ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'}`}
+              >
+                <Type className="w-3.5 h-3.5" />
+                {dyslexicFont ? 'Dyslexic' : 'Font'}
+              </button>
+              {showFontPopover && (
+                <div className="absolute top-full right-0 mt-2 z-50 bg-card border border-border rounded-xl shadow-xl p-4 w-56">
+                  <div className="space-y-2">
+                    <p className="font-sans text-xs font-medium text-foreground mb-2">Font Style</p>
+                    <button
+                      onClick={() => {
+                        if (!dyslexicFont) toggleDyslexicFont();
+                        setShowFontPopover(false);
+                      }}
+                      className={`w-full px-3 py-2 rounded-lg font-sans text-xs font-medium transition-colors ${
+                        !dyslexicFont
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                      }`}
+                    >
+                      Standard (Cormorant)
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (dyslexicFont) toggleDyslexicFont();
+                        setShowFontPopover(false);
+                      }}
+                      className={`w-full px-3 py-2 rounded-lg font-sans text-xs font-medium transition-colors ${
+                        dyslexicFont
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                      }`}
+                    >
+                      OpenDyslexic
+                    </button>
+                  </div>
+                </div>
+              )}
+              </div>
+
               {/* Zoom control */}
               <div className="p-1 relative">
               <button
@@ -621,10 +675,10 @@ export default function BibleReader() {
       )}
 
       {/* Click outside to close desktop dropdowns */}
-      {(showBookPicker || showChapterPicker || showVersePicker || showZoomPopover) && (
+      {(showBookPicker || showChapterPicker || showVersePicker || showZoomPopover || showFontPopover) && (
         <div
           className="fixed inset-0 z-30"
-          onClick={() => { setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); }}
+          onClick={() => { setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
         />
       )}
 

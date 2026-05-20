@@ -19,64 +19,66 @@
     --font-sans: 'Inter', system-ui, sans-serif;
     --font-dyslexic: 'OpenDyslexic', 'Cormorant Garamond', Georgia, serif;
 
-    --background: 40 20% 98%;
-    --foreground: 220 20% 10%;
-    --card: 40 25% 97%;
-    --card-foreground: 220 20% 10%;
-    --popover: 40 25% 97%;
-    --popover-foreground: 220 20% 10%;
-    --primary: 220 60% 20%;
-    --primary-foreground: 40 20% 98%;
-    --secondary: 40 15% 92%;
-    --secondary-foreground: 220 20% 15%;
-    --muted: 40 10% 93%;
-    --muted-foreground: 220 10% 45%;
-    --accent: 38 70% 50%;
-    --accent-foreground: 220 20% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 40 15% 88%;
-    --input: 40 15% 88%;
-    --ring: 220 60% 20%;
+    /* 1611 King James Bible - Aged parchment & leather aesthetic */
+    --background: 35 25% 94%;
+    --foreground: 30 15% 18%;
+    --card: 35 30% 92%;
+    --card-foreground: 30 15% 18%;
+    --popover: 35 30% 92%;
+    --popover-foreground: 30 15% 18%;
+    --primary: 30 40% 25%;
+    --primary-foreground: 35 25% 94%;
+    --secondary: 35 20% 86%;
+    --secondary-foreground: 30 15% 25%;
+    --muted: 35 15% 88%;
+    --muted-foreground: 30 10% 45%;
+    --accent: 45 65% 45%;
+    --accent-foreground: 30 15% 15%;
+    --destructive: 0 60% 45%;
+    --destructive-foreground: 35 25% 94%;
+    --border: 35 20% 80%;
+    --input: 35 20% 80%;
+    --ring: 45 65% 45%;
     --radius: 0.5rem;
-    --sidebar-background: 40 20% 96%;
-    --sidebar-foreground: 220 20% 15%;
-    --sidebar-primary: 220 60% 20%;
-    --sidebar-primary-foreground: 40 20% 98%;
-    --sidebar-accent: 40 15% 92%;
-    --sidebar-accent-foreground: 220 20% 15%;
-    --sidebar-border: 40 15% 88%;
-    --sidebar-ring: 220 60% 20%;
+    --sidebar-background: 35 25% 90%;
+    --sidebar-foreground: 30 15% 20%;
+    --sidebar-primary: 30 40% 25%;
+    --sidebar-primary-foreground: 35 25% 94%;
+    --sidebar-accent: 35 20% 86%;
+    --sidebar-accent-foreground: 30 15% 20%;
+    --sidebar-border: 35 20% 80%;
+    --sidebar-ring: 45 65% 45%;
   }
 
   .dark {
-    --background: 220 20% 7%;
-    --foreground: 40 15% 90%;
-    --card: 220 18% 10%;
-    --card-foreground: 40 15% 90%;
-    --popover: 220 18% 10%;
-    --popover-foreground: 40 15% 90%;
-    --primary: 38 70% 55%;
-    --primary-foreground: 220 20% 7%;
-    --secondary: 220 15% 15%;
-    --secondary-foreground: 40 15% 85%;
-    --muted: 220 15% 15%;
-    --muted-foreground: 40 10% 55%;
-    --accent: 38 70% 55%;
-    --accent-foreground: 220 20% 7%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 220 15% 18%;
-    --input: 220 15% 18%;
-    --ring: 38 70% 55%;
-    --sidebar-background: 220 20% 8%;
-    --sidebar-foreground: 40 15% 85%;
-    --sidebar-primary: 38 70% 55%;
-    --sidebar-primary-foreground: 220 20% 7%;
-    --sidebar-accent: 220 15% 15%;
-    --sidebar-accent-foreground: 40 15% 85%;
-    --sidebar-border: 220 15% 18%;
-    --sidebar-ring: 38 70% 55%;
+    /* 1611 Dark mode - Aged leather & gold leaf */
+    --background: 30 25% 12%;
+    --foreground: 35 20% 88%;
+    --card: 30 30% 15%;
+    --card-foreground: 35 20% 88%;
+    --popover: 30 30% 15%;
+    --popover-foreground: 35 20% 88%;
+    --primary: 45 65% 50%;
+    --primary-foreground: 30 25% 12%;
+    --secondary: 30 20% 20%;
+    --secondary-foreground: 35 20% 85%;
+    --muted: 30 15% 18%;
+    --muted-foreground: 35 15% 60%;
+    --accent: 45 70% 55%;
+    --accent-foreground: 30 25% 12%;
+    --destructive: 0 55% 50%;
+    --destructive-foreground: 35 20% 88%;
+    --border: 30 20% 25%;
+    --input: 30 20% 25%;
+    --ring: 45 65% 50%;
+    --sidebar-background: 30 25% 14%;
+    --sidebar-foreground: 35 20% 85%;
+    --sidebar-primary: 45 65% 50%;
+    --sidebar-primary-foreground: 30 25% 12%;
+    --sidebar-accent: 30 20% 20%;
+    --sidebar-accent-foreground: 35 20% 85%;
+    --sidebar-border: 30 20% 25%;
+    --sidebar-ring: 45 65% 50%;
   }
 }
 
@@ -103,5 +105,10 @@
     font-style: normal;
     user-select: none;
     -webkit-user-select: none;
+  }
+
+  /* 1611 decorative elements */
+  .chapter-divider {
+    background: linear-gradient(to right, transparent, hsl(var(--accent)), transparent);
   }
 }

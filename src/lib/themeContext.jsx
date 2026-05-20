@@ -6,13 +6,14 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 const ThemeContext = createContext();
 
 // Each palette: { name, accent (HSL), primary_light (HSL), primary_dark (HSL) }
+// 1611-inspired historical color schemes
 export const COLOUR_PALETTES = [
-  { id: 'gold',      name: 'Gold',      swatch: '#c8922a', accent: '38 70% 50%',  primary_light: '220 60% 20%', primary_dark: '38 70% 55%'  },
-  { id: 'sapphire',  name: 'Sapphire',  swatch: '#2563eb', accent: '217 91% 55%', primary_light: '217 91% 30%', primary_dark: '217 91% 60%' },
-  { id: 'forest',    name: 'Forest',    swatch: '#16a34a', accent: '142 70% 38%', primary_light: '142 70% 22%', primary_dark: '142 60% 45%' },
-  { id: 'rose',      name: 'Rose',      swatch: '#e11d48', accent: '345 80% 52%', primary_light: '345 80% 28%', primary_dark: '345 80% 58%' },
-  { id: 'amethyst',  name: 'Amethyst',  swatch: '#7c3aed', accent: '262 80% 55%', primary_light: '262 80% 30%', primary_dark: '262 70% 62%' },
-  { id: 'slate',     name: 'Slate',     swatch: '#475569', accent: '215 25% 45%', primary_light: '215 25% 18%', primary_dark: '215 20% 60%' },
+  { id: 'antique',   name: 'Antique',   swatch: '#8B4513', accent: '30 40% 35%',  primary_light: '30 35% 25%', primary_dark: '45 65% 50%'  },
+  { id: 'parchment', name: 'Parchment', swatch: '#D2B48C', accent: '35 35% 60%',  primary_light: '30 30% 20%', primary_dark: '35 40% 65%' },
+  { id: 'leather',   name: 'Leather',   swatch: '#654321', accent: '25 35% 30%',  primary_light: '25 40% 25%', primary_dark: '30 45% 35%' },
+  { id: 'gold',      name: 'Gold Leaf', swatch: '#B8860B', accent: '45 70% 45%',  primary_light: '30 35% 20%', primary_dark: '45 75% 50%' },
+  { id: 'burgundy',  name: 'Burgundy',  swatch: '#800020', accent: '350 60% 30%', primary_light: '350 55% 25%', primary_dark: '350 65% 35%' },
+  { id: 'forest',    name: 'Forest',    swatch: '#2D5016', accent: '120 45% 25%', primary_light: '120 40% 20%', primary_dark: '120 50% 30%' },
 ];
 
 function getAutoIsDark() {
