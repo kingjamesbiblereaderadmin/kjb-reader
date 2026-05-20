@@ -550,8 +550,6 @@ export default function BibleReader() {
                 />
               </SelectorSheet>
 
-
-
               {/* Zoom control */}
               <div className="p-1">
                 <button
@@ -699,6 +697,9 @@ export default function BibleReader() {
               </div>
             </>
             )}
+          </div>
+        </div>
+      )}
 
       {/* Show header chevron when hidden — aligned with top border */}
       {hideHeader && (
