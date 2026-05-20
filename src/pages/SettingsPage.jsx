@@ -920,10 +920,6 @@ export default function SettingsPage() {
               </div>
               <div className="flex justify-between items-center font-sans text-sm gap-4">
                 <span className="text-muted-foreground shrink-0">Version</span>
-                <span className="text-foreground font-medium text-right">1.0.0</span>
-              </div>
-              <div className="flex justify-between items-center font-sans text-sm gap-4">
-                <span className="text-muted-foreground shrink-0">Last App Revision</span>
                 <span className="text-foreground font-medium text-right">{LAST_REVISED}</span>
               </div>
               <div className="flex justify-between items-center font-sans text-sm gap-4">
