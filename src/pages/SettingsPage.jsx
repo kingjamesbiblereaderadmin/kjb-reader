@@ -694,6 +694,7 @@ export default function SettingsPage() {
           </div>
         )}
         </div>
+        )}
 
         {/* Offline Library */}
         <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
@@ -779,9 +780,9 @@ export default function SettingsPage() {
               </p>
             )}
           </div>
+        )}
         </div>
         )}
-      </div>
 
       {/* Notifications */}
       <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
