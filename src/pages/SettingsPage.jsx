@@ -445,6 +445,37 @@ export default function SettingsPage() {
                 </button>
               ))}
             </div>
+            <div className="pt-2 border-t border-border space-y-2">
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={colourId === 'custom' ? localStorage.getItem('kjb-custom-accent') || '#B8860B' : '#B8860B'}
+                  onChange={(e) => {
+                    localStorage.setItem('kjb-custom-accent', e.target.value);
+                    setColourId('custom');
+                    localStorage.setItem('kjb-colour', 'custom');
+                    window.dispatchEvent(new Event('storage'));
+                  }}
+                  className="w-10 h-10 rounded-lg border border-border cursor-pointer"
+                />
+                <input
+                  type="text"
+                  placeholder="#B8860B"
+                  value={localStorage.getItem('kjb-custom-accent') || ''}
+                  onChange={(e) => {
+                    const hex = e.target.value;
+                    if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+                      localStorage.setItem('kjb-custom-accent', hex);
+                      setColourId('custom');
+                      localStorage.setItem('kjb-colour', 'custom');
+                      window.dispatchEvent(new Event('storage'));
+                    }
+                  }}
+                  className="flex-1 px-3 py-2 rounded-lg bg-secondary border border-border font-sans text-sm font-mono"
+                />
+              </div>
+              <p className="font-sans text-xs text-muted-foreground">Enter a hex colour code (e.g., #B8860B)</p>
+            </div>
           </div>
         </div>
         
