@@ -177,7 +177,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     setShowStyleEditor(false);
     setShowMenu(false);
     try {
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 300));
       const canvas = await html2canvas(verseRef.current, {
         backgroundColor: null,
         scale: 2,
@@ -190,8 +190,10 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     } catch (err) {
       console.error('Failed to download image:', err);
     } finally {
-      setShowButtons(true);
-      setCapturing(false);
+      setTimeout(() => {
+        setShowButtons(true);
+        setCapturing(false);
+      }, 100);
     }
   };
 
