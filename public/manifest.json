@@ -1,7 +1,7 @@
 {
-  "name": "KJB Reader — Pure Cambridge Edition",
+  "name": "KJB Reader — King James Bible Pure Cambridge Edition",
   "short_name": "KJB Reader",
-  "description": "Read the King James Bible (Pure Cambridge Edition) — the pure, infallible Word of God.",
+  "description": "Read the King James Bible (Pure Cambridge Edition) — the pure, infallible Word of God",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#fef9f3",
