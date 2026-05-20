@@ -607,7 +607,6 @@ export default function BibleReader() {
                     )}
                   </div>
                 </div>
-              </div>
               )}
               {/* Mobile bottom sheet */}
               <SelectorSheet open={showZoomPopover && isMobile()} onClose={() => setShowZoomPopover(false)} title="Text Size">
