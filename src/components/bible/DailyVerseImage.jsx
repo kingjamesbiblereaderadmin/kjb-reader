@@ -351,11 +351,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 e.stopPropagation();
                 setShowLightbox(true);
               }}
-              className="p-1 rounded-md bg-primary hover:bg-primary/90 transition-colors shadow-md"
+              className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
               title="View in full screen"
               type="button"
             >
-              <Maximize2 className="w-3.5 h-3.5 text-primary-foreground" />
+              <Maximize2 className="w-3.5 h-3.5 text-slate-800" />
             </button>
             <button
               onClick={(e) => {
