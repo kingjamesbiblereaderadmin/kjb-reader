@@ -149,10 +149,13 @@ export default function AppLayout() {
                     const registration = await navigator.serviceWorker.ready;
                     await registration.unregister();
                   }
+                  // Small delay to show the spinning animation
+                  await new Promise(resolve => setTimeout(resolve, 800));
                   window.location.reload();
                 } catch (err) {
                   console.error('Refresh failed:', err);
                   setRefreshing(false);
+                  window.location.reload();
                 }
               }}
               style={{ touchAction: 'manipulation' }}
