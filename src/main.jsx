@@ -11,7 +11,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 )
 
 // Service worker registration for offline support and notifications
-if ('serviceWorker' in navigator) {
+// Skip registration in development mode to avoid caching stale bundles
+if ('serviceWorker' in navigator && !import.meta.env.DEV) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
       .then(registration => {
@@ -56,5 +57,13 @@ if ('serviceWorker' in navigator) {
         console.warn('[SW] Registration failed (ok for dev):', err.message);
         initNotifications(getDailyVerse());
       });
+  });
+} else if ('serviceWorker' in navigator && import.meta.env.DEV) {
+  // In development mode, unregister any existing service workers to prevent stale cache
+  navigator.serviceWorker.getRegistrations().then(registrations => {
+    for (const registration of registrations) {
+      registration.unregister();
+      console.log('[SW] Unregistered service worker in dev mode');
+    }
   });
 }

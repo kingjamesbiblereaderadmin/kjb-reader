@@ -252,7 +252,9 @@ export default function AppLayout() {
 }
 
 function useAppLayoutPrompt() {
-  const { isInstallable, isInstalled, promptInstall, dismiss } = useInstallPrompt();
+  const installPromptResult = useInstallPrompt();
+  const { isInstallable, isInstalled, promptInstall, dismiss } = installPromptResult;
+  
   const [notifPermission, setNotifPermission] = useState(() => {
     if (!('serviceWorker' in navigator)) return 'unsupported';
     if (!('Notification' in window)) return 'supported';
