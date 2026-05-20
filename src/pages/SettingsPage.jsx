@@ -1018,50 +1018,51 @@ export default function SettingsPage() {
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.advanced ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.advanced && (
-        <div className="p-5 pt-0 space-y-4">
-        <div className="flex gap-3 pt-2">
-          <button
-            onClick={() => {
-              if (confirm('Reset all settings to default? This cannot be undone.')) {
-                // Reset all localStorage settings
-                localStorage.removeItem('kjb-daily-verse-bg');
-                localStorage.removeItem('kjb-verse-text-color');
-                localStorage.removeItem('kjb-verse-text-opacity');
-                localStorage.removeItem('kjb-verse-font-family');
-                localStorage.removeItem('kjb-verse-panel-visible');
-                localStorage.removeItem('kjb-zoom');
-                localStorage.removeItem('kjb-notif-image');
-                // Reload to apply defaults
-                window.location.reload();
-              }
-            }}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-destructive/10 text-destructive font-sans text-sm font-medium hover:bg-destructive/20 transition-colors"
-          >
-            <Trash2 className="w-4 h-4" />
-            Reset All Settings
-          </button>
-          <button
-            onClick={() => {
-              // Check for updates by reloading the service worker
-              if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistration().then(reg => {
-                  if (reg) {
-                    reg.update();
-                    alert('Checking for updates... Refresh the page to apply any updates.');
-                  } else {
-                    alert('No updates available.');
+          <div className="p-5 pt-0 space-y-4">
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => {
+                  if (confirm('Reset all settings to default? This cannot be undone.')) {
+                    // Reset all localStorage settings
+                    localStorage.removeItem('kjb-daily-verse-bg');
+                    localStorage.removeItem('kjb-verse-text-color');
+                    localStorage.removeItem('kjb-verse-text-opacity');
+                    localStorage.removeItem('kjb-verse-font-family');
+                    localStorage.removeItem('kjb-verse-panel-visible');
+                    localStorage.removeItem('kjb-zoom');
+                    localStorage.removeItem('kjb-notif-image');
+                    // Reload to apply defaults
+                    window.location.reload();
                   }
-                });
-              } else {
-                alert('Service workers not supported in this browser.');
-              }
-            }}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-          >
-            <CheckCircle2 className="w-4 h-4" />
-            Check for Updates
-          </button>
-        </div>
+                }}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-destructive/10 text-destructive font-sans text-sm font-medium hover:bg-destructive/20 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                Reset All Settings
+              </button>
+              <button
+                onClick={() => {
+                  // Check for updates by reloading the service worker
+                  if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistration().then(reg => {
+                      if (reg) {
+                        reg.update();
+                        alert('Checking for updates... Refresh the page to apply any updates.');
+                      } else {
+                        alert('No updates available.');
+                      }
+                    });
+                  } else {
+                    alert('Service workers not supported in this browser.');
+                  }
+                }}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                Check for Updates
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </div>
