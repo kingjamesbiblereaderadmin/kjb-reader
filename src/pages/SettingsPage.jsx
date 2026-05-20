@@ -20,9 +20,7 @@ export default function SettingsPage() {
   const [deleteInput, setDeleteInput] = useState('');
   const [deleting, setDeleting] = useState(false);
   const { isDark, mode, setMode, colourId, setColourId } = useTheme();
-  const [footerHidden, setFooterHidden] = useState(() => {
-    try { return localStorage.getItem('kjb-footer-hidden') === 'true'; } catch { return false; }
-  });
+
   const [zoomLevel, setZoomLevel] = useState(() => {
     try { return parseInt(localStorage.getItem('kjb-zoom') || '100'); } catch { return 100; }
   });
@@ -335,34 +333,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Footer Visibility */}
-      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
-        <h2 className="font-serif text-lg font-semibold text-foreground">Footer Menu</h2>
-        <p className="font-sans text-sm text-muted-foreground">Bottom navigation auto-hides when reading and shows after 3 seconds of inactivity</p>
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="font-sans text-sm text-foreground font-medium">Auto-hide Footer</p>
-            <p className="font-sans text-xs text-muted-foreground mt-0.5">
-              {footerHidden ? 'Currently hidden' : 'Currently visible'}
-            </p>
-          </div>
-          <button
-            onClick={() => {
-              const newVal = !footerHidden;
-              setFooterHidden(newVal);
-              try { localStorage.setItem('kjb-footer-hidden', String(newVal)); } catch {}
-            }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-sans text-sm font-medium transition-colors ${
-              footerHidden
-                ? 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-                : 'bg-primary text-primary-foreground hover:opacity-90'
-            }`}
-          >
-            {footerHidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            {footerHidden ? 'Show' : 'Hide'}
-          </button>
-        </div>
-      </div>
+
 
       {/* Install App */}
       <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
