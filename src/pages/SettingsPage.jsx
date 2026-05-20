@@ -599,6 +599,38 @@ export default function SettingsPage() {
           <span className="text-foreground font-medium text-right">{LAST_REVISED}</span>
         </div>
       </div>
+
+      {/* Font & Credits */}
+      <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
+        <h2 className="font-serif text-lg font-semibold text-foreground">Font & Credits</h2>
+        <div className="space-y-3">
+          <div className="flex justify-between items-center font-sans text-sm gap-4">
+            <span className="text-muted-foreground shrink-0">Standard Font</span>
+            <span className="text-foreground font-medium text-right">Cormorant Garamond</span>
+          </div>
+          <div className="flex justify-between items-center font-sans text-sm gap-4">
+            <span className="text-muted-foreground shrink-0">Dyslexic Font</span>
+            <span className="text-foreground font-medium text-right">OpenDyslexic</span>
+          </div>
+          <div className="flex justify-between items-center font-sans text-sm gap-4">
+            <span className="text-muted-foreground shrink-0">OpenDyslexic Author</span>
+            <span className="text-foreground font-medium text-right">Abelardo Gonzalez</span>
+          </div>
+          <div className="flex justify-between items-center font-sans text-sm gap-4">
+            <span className="text-muted-foreground shrink-0">OpenDyslexic License</span>
+            <span className="text-foreground font-medium text-right">SIL Open Font License</span>
+          </div>
+        </div>
+        <div className="pt-3 mt-3 border-t border-border">
+          <h3 className="font-serif text-sm font-semibold text-foreground mb-2">Public Sources</h3>
+          <div className="space-y-2 font-sans text-xs text-muted-foreground">
+            <p>• <strong className="text-foreground">Bible Text:</strong> Public Domain Edition (PCE) of the King James Bible</p>
+            <p>• <strong className="text-foreground">OpenDyslexic Font:</strong> <a href="https://opendyslexic.org/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">opendyslexic.org</a></p>
+            <p>• <strong className="text-foreground">Cormorant Garamond:</strong> Google Fonts (SIL Open Font License)</p>
+            <p>• <strong className="text-foreground">Inter Font:</strong> Google Fonts (SIL Open Font License)</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
