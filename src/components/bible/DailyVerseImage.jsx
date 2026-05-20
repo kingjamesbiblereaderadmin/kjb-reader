@@ -366,7 +366,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  setShowMenu(!showMenu);
+                  if (!showStyleEditor) {
+                    setShowMenu(!showMenu);
+                  }
                 }}
                 className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
                 title="More options"
