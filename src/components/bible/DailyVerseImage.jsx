@@ -76,6 +76,10 @@ export default function DailyVerseImage({ verse, onClick }) {
       } else {
         localStorage.setItem('kjb-daily-verse-bg', croppedDataUrl);
         setCustomBg(croppedDataUrl);
+        // Force immediate re-render by updating a key state
+        setTimeout(() => {
+          setCustomBg(localStorage.getItem('kjb-daily-verse-bg') || '');
+        }, 100);
         // Auto-open style editor for customization
         setShowStyleEditor(true);
         // Auto-detect if background is light or dark and adjust text color
