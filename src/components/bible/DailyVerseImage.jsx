@@ -311,11 +311,11 @@ export default function DailyVerseImage({ verse, onClick }) {
                 e.stopPropagation();
                 setShowLightbox(true);
               }}
-              className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
-              title="View in lightbox"
+              className="p-1.5 rounded-md bg-primary hover:bg-primary/90 transition-colors shadow-md"
+              title="View in full screen"
               type="button"
             >
-              <Maximize2 className="w-4 h-4 text-slate-800" />
+              <Maximize2 className="w-5 h-5 text-primary-foreground" />
             </button>
             <button
               onClick={(e) => {
@@ -360,22 +360,6 @@ export default function DailyVerseImage({ verse, onClick }) {
                 <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
               ) : (
                 <Upload className="w-4 h-4 text-slate-800" />
-              )}
-            </button>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleToggleNotifications();
-              }}
-              className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
-              title={notifEnabled ? 'Daily verse reminders on' : 'Enable daily verse reminders'}
-              type="button"
-            >
-              {notifEnabled ? (
-                <Bell className="w-4 h-4 text-slate-800" />
-              ) : (
-                <BellOff className="w-4 h-4 text-slate-800/60" />
               )}
             </button>
             <button
