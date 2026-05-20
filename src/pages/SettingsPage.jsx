@@ -830,22 +830,23 @@ export default function SettingsPage() {
           </div>
           <div className="flex justify-between items-center font-sans text-sm gap-4">
             <span className="text-muted-foreground shrink-0">Daily Verse Panel</span>
-            <span className="text-foreground font-medium text-right">Hidden by default</span>
+            <span className="text-foreground font-medium text-right">Customizable</span>
           </div>
           <div className="flex justify-between items-center font-sans text-sm gap-4">
-            <span className="text-muted-foreground shrink-0">Scroll to Top Button</span>
-            <span className="text-foreground font-medium text-right">Compact size</span>
+            <span className="text-muted-foreground shrink-0">Theme</span>
+            <span className="text-foreground font-medium text-right">Light / Dark / Auto / System</span>
           </div>
         </div>
       </div>
 
-      {/* App Info */}
+      {/* Credits */}
       <div className="bg-card border border-border rounded-2xl p-5 mb-6 space-y-3">
         <h2 className="font-serif text-lg font-semibold text-foreground">Credits</h2>
         <div className="space-y-2 font-sans text-xs text-muted-foreground">
           <p>• <strong className="text-foreground">Bible Text:</strong> Public Domain Edition (PCE) of the King James Bible</p>
           <p>• <strong className="text-foreground">Cormorant Garamond:</strong> Google Fonts (SIL Open Font License)</p>
           <p>• <strong className="text-foreground">Inter Font:</strong> Google Fonts (SIL Open Font License)</p>
+          <p>• <strong className="text-foreground">Merriweather Font:</strong> Google Fonts (SIL Open Font License)</p>
         </div>
       </div>
     </div>
