@@ -180,4 +180,72 @@
   .chapter-divider {
     background: linear-gradient(to right, transparent, hsl(var(--accent)), transparent);
   }
+  
+  /* Historical ornamentation - 1611 theme only */
+  :root:not([data-theme-modern]) {
+    /* Ornamental border pattern */
+    --ornament-color: hsl(var(--accent));
+  }
+  
+  .historical-ornament {
+    position: relative;
+  }
+  
+  .historical-ornament::before,
+  .historical-ornament::after {
+    content: '❧';
+    position: absolute;
+    color: hsl(var(--accent));
+    font-size: 1.5rem;
+    opacity: 0.6;
+  }
+  
+  .historical-ornament::before {
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  .historical-ornament::after {
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%) scaleX(-1);
+  }
+  
+  .drop-cap {
+    float: left;
+    font-size: 3.5rem;
+    line-height: 0.8;
+    padding-right: 0.5rem;
+    padding-bottom: 0.5rem;
+    font-family: var(--font-serif);
+    font-weight: 600;
+    color: hsl(var(--primary));
+  }
+  
+  .initial-letter {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: hsl(var(--primary));
+    display: inline-block;
+    line-height: 1;
+    margin-right: 0.25rem;
+  }
+  
+  .verse-divider {
+    display: inline-block;
+    margin: 0 0.5rem;
+    color: hsl(var(--accent));
+    opacity: 0.5;
+    font-style: normal;
+  }
+  
+  .section-flourish {
+    text-align: center;
+    margin: 2rem 0;
+    color: hsl(var(--accent));
+    opacity: 0.6;
+    font-size: 1.25rem;
+    letter-spacing: 0.5rem;
+  }
 }

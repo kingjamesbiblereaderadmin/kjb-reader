@@ -764,8 +764,11 @@ export default function BibleReader() {
 
       {/* Book title — hidden when showing title page */}
       {!isViewingTitlePage && (
-        <div className="text-center mb-6 pt-4">
-          <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-1 leading-tight">{book.name}</h1>
+        <div className="text-center mb-6 pt-4 relative">
+          {/* Historical ornamentation for 1611 theme */}
+          <div className="historical-ornament mb-2">
+            <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-1 leading-tight">{book.name}</h1>
+          </div>
           <p className="font-sans text-sm text-muted-foreground tracking-widest uppercase mt-1">
             Chapter {pos.chapter}
           </p>
@@ -775,7 +778,12 @@ export default function BibleReader() {
               {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]}
             </p>
           )}
-          <div className="mt-3 w-16 h-px bg-accent mx-auto" />
+          {/* Ornamental divider */}
+          <div className="mt-3 flex items-center justify-center gap-2">
+            <span className="text-accent opacity-60">❦</span>
+            <div className="w-12 h-px bg-accent opacity-60" />
+            <span className="text-accent opacity-60">❦</span>
+          </div>
         </div>
       )}
 
@@ -836,16 +844,20 @@ export default function BibleReader() {
       {/* End-of-section markers — shown as a text footer below the verses */}
       {!loading && !error && pos.abbr === 'MAL' && pos.chapter === 4 && (
         <div className="text-center mt-12 mb-4">
+          <div className="section-flourish">❦ ❧ ❦</div>
           <p className="font-serif text-sm text-muted-foreground tracking-widest uppercase">
             End of the Prophets
           </p>
+          <div className="section-flourish">❦ ❧ ❦</div>
         </div>
       )}
       {!loading && !error && pos.abbr === 'REV' && pos.chapter === 22 && (
         <div className="text-center mt-12 mb-4">
+          <div className="section-flourish">❦ ❧ ❦</div>
           <p className="font-serif text-sm text-muted-foreground tracking-widest uppercase">
             The End
           </p>
+          <div className="section-flourish">❦ ❧ ❦</div>
         </div>
       )}
 
