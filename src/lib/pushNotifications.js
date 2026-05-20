@@ -15,8 +15,24 @@ const READING_REMINDER_TIME_KEY = 'kjb-reading-reminder-time'; // HH:MM
 const READING_REMINDER_LAST_KEY = 'kjb-reading-reminder-last'; // YYYY-MM-DD
 const READING_REMINDER_NEXT_KEY = 'kjb-reading-reminder-next'; // Unix ms timestamp
 
-// VAPID public key for push subscriptions
-const VAPID_PUBLIC_KEY = 'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEADf-ZFJOkUx4a_BR4RPtWt4Ve4raBMl7TnQhwvkHhRUc_ZliOirS7pQlcUZFJXxZe6zizcpRZrTqhqJJInQkvw';
+// VAPID public key for push subscriptions - loaded dynamically
+let VAPID_PUBLIC_KEY = null;
+
+async function getVapidPublicKey() {
+  if (VAPID_PUBLIC_KEY) return VAPID_PUBLIC_KEY;
+  try {
+    const { base44 } = await import('@/api/base44Client');
+    const response = await base44.functions.invoke('getVapidPublicKey', {});
+    if (response.data?.publicKey) {
+      VAPID_PUBLIC_KEY = response.data.publicKey;
+      return VAPID_PUBLIC_KEY;
+    }
+  } catch (err) {
+    console.error('Failed to get VAPID key:', err);
+  }
+  // Fallback to default if endpoint fails
+  return 'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEADf-ZFJOkUx4a_BR4RPtWt4Ve4raBMl7TnQhwvkHhRUc_ZliOirS7pQlcUZFJXxZe6zizcpRZrTqhqJJInQkvw';
+}
 
 export function getNotificationsEnabled() {
   return localStorage.getItem(NOTIF_KEY) === 'true';
@@ -99,8 +115,11 @@ export async function subscribeToPush() {
   
   const reg = await navigator.serviceWorker.ready;
   
+  // Get VAPID key dynamically
+  const vapidKeyString = await getVapidPublicKey();
+  
   // Convert VAPID key from base64 url-safe to Uint8Array
-  const vapidKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+  const vapidKey = urlBase64ToUint8Array(vapidKeyString);
   
   const subscription = await reg.pushManager.subscribe({
     userVisibleOnly: true,
