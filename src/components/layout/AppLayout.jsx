@@ -8,7 +8,7 @@ import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, showLocalNotification } from '@/lib/notifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
-import { getBibleData, isBibleCached } from '@/lib/bibleCache';
+import { getBibleData, isBibleCached, initPeriodicCacheRefresh } from '@/lib/bibleCache';
 import { toast } from 'sonner';
 
 const NAV_ITEMS = [
@@ -87,6 +87,9 @@ export default function AppLayout() {
           .catch(err => console.warn('[CACHE] Background fetch failed:', err));
       }
     });
+
+    // Initialize periodic cache refresh (checks every 24 hours)
+    initPeriodicCacheRefresh();
 
     // Only show prompt once per session, after a delay, if not dismissed
     const alreadyInstalled = window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;

@@ -334,3 +334,52 @@ export async function downloadBibleForOffline(onProgress) {
   console.log('[DOWNLOAD] ✓ Complete -', Object.keys(data).filter(k => k !== '__colophons').length, 'books');
   return data;
 }
+
+// Periodic cache refresh - check for updates every 24 hours
+const CACHE_REFRESH_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
+const LAST_REFRESH_KEY = 'bible_last_refresh';
+
+export async function refreshCacheIfDue() {
+  const lastRefresh = parseInt(localStorage.getItem(LAST_REFRESH_KEY) || '0', 10);
+  const now = Date.now();
+  
+  if (now - lastRefresh < CACHE_REFRESH_INTERVAL) {
+    return false; // Not due yet
+  }
+  
+  console.log('[REFRESH] Cache refresh due, checking for updates...');
+  const needsUpdate = await checkForUpdates();
+  
+  if (needsUpdate) {
+    console.log('[REFRESH] Update available, refreshing cache...');
+    try {
+      const fresh = await fetchAndParse();
+      await saveToCache(fresh);
+      parsedData = fresh;
+      localStorage.setItem(LAST_REFRESH_KEY, String(now));
+      console.log('[REFRESH] ✓ Cache refreshed successfully');
+      // Dispatch storage event to notify other tabs
+      window.dispatchEvent(new Event('storage'));
+      return true;
+    } catch (e) {
+      console.error('[REFRESH] Failed to refresh cache:', e.message);
+      return false;
+    }
+  }
+  
+  // No update needed, but still update last refresh time
+  localStorage.setItem(LAST_REFRESH_KEY, String(now));
+  return false;
+}
+
+export function initPeriodicCacheRefresh() {
+  // Check on app load
+  refreshCacheIfDue();
+  
+  // Also check when app comes to foreground
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      refreshCacheIfDue();
+    }
+  });
+}
