@@ -318,6 +318,21 @@ export default function DailyVerseImage({ verse, onClick }) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
+            const newValue = !showVersePanel;
+            setShowVersePanel(newValue);
+            localStorage.setItem('kjb-verse-panel-visible', String(newValue));
+            window.dispatchEvent(new Event('storage'));
+          }}
+          className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+          title={showVersePanel ? 'Hide panel' : 'Show panel'}
+          type="button"
+        >
+          <Eye className="w-4 h-4 text-slate-800" />
+        </button>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
             setShowStyleEditor(!showStyleEditor);
           }}
           className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
@@ -404,27 +419,12 @@ export default function DailyVerseImage({ verse, onClick }) {
         >
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-sans text-sm font-semibold text-slate-800 dark:text-slate-200">Text Style</h3>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  const newValue = !showVersePanel;
-                  setShowVersePanel(newValue);
-                  localStorage.setItem('kjb-verse-panel-visible', String(newValue));
-                  window.dispatchEvent(new Event('storage'));
-                }}
-                className="p-1.5 rounded-md bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
-                title={showVersePanel ? 'Hide panel' : 'Show panel'}
-                type="button"
-              >
-                <Eye className="w-4 h-4 text-slate-800 dark:text-slate-200" />
-              </button>
-              <button
-                onClick={() => setShowStyleEditor(false)}
-                className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-              >
-                <Upload className="w-4 h-4 rotate-45 text-slate-600 dark:text-slate-400" />
-              </button>
-            </div>
+            <button
+              onClick={() => setShowStyleEditor(false)}
+              className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+            >
+              <Upload className="w-4 h-4 rotate-45 text-slate-600 dark:text-slate-400" />
+            </button>
           </div>
 
           {/* Text Color */}
