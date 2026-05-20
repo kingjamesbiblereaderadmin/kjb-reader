@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Monitor } from 'lucide-react';
+import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Monitor, Bell } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import ImageCropper from './ImageCropper';
 
@@ -22,7 +22,11 @@ export default function DailyVerseImage({ verse, onClick }) {
   });
   const [uploading, setUploading] = useState(false);
   const [cropImage, setCropImage] = useState(null);
+  const [cropImageForNotif, setCropImageForNotif] = useState(false);
   const fileInputRef = useRef(null);
+  const [notifImage, setNotifImage] = useState(() => {
+    try { return localStorage.getItem('kjb-notif-image') || ''; } catch { return ''; }
+  });
   const [showStyleEditor, setShowStyleEditor] = useState(false);
   const [textColor, setTextColor] = useState(() => localStorage.getItem('kjb-verse-text-color') || '#ffffff');
   const [textOpacity, setTextOpacity] = useState(() => parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '0.95'));
@@ -34,6 +38,7 @@ export default function DailyVerseImage({ verse, onClick }) {
       try { setTextColor(localStorage.getItem('kjb-verse-text-color') || '#ffffff'); } catch {}
       try { setTextOpacity(parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '1')); } catch {}
       try { setFontFamily(localStorage.getItem('kjb-verse-font-family') || 'serif'); } catch {}
+      try { setNotifImage(localStorage.getItem('kjb-notif-image') || ''); } catch {}
     };
     window.addEventListener('storage', handleStorage);
     handleStorage();
@@ -63,39 +68,43 @@ export default function DailyVerseImage({ verse, onClick }) {
     reader.readAsDataURL(file);
   };
   
-  const handleCropComplete = (croppedDataUrl) => {
+  const handleCropComplete = (croppedDataUrl, forNotification = false) => {
     try {
-      localStorage.setItem('kjb-daily-verse-bg', croppedDataUrl);
-      setCustomBg(croppedDataUrl);
+      if (forNotification) {
+        localStorage.setItem('kjb-notif-image', croppedDataUrl);
+        setNotifImage(croppedDataUrl);
+      } else {
+        localStorage.setItem('kjb-daily-verse-bg', croppedDataUrl);
+        setCustomBg(croppedDataUrl);
+        // Auto-open style editor for customization
+        setShowStyleEditor(true);
+        // Auto-detect if background is light or dark and adjust text color
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imageData.data;
+          let r = 0, g = 0, b = 0;
+          for (let i = 0; i < data.length; i += 4) {
+            r += data[i];
+            g += data[i + 1];
+            b += data[i + 2];
+          }
+          const avg = (r + g + b) / (3 * (data.length / 4));
+          if (avg > 128) {
+            handleTextColorChange('#1a1a1a');
+          } else {
+            handleTextColorChange('#ffffff');
+          }
+        };
+        img.src = croppedDataUrl;
+      }
       window.dispatchEvent(new Event('storage'));
       setCropImage(null);
-      // Auto-open style editor for customization
-      setShowStyleEditor(true);
-      // Auto-detect if background is light or dark and adjust text color
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-        let r = 0, g = 0, b = 0;
-        for (let i = 0; i < data.length; i += 4) {
-          r += data[i];
-          g += data[i + 1];
-          b += data[i + 2];
-        }
-        const avg = (r + g + b) / (3 * (data.length / 4));
-        // If background is light (>128), use dark text; otherwise use light text
-        if (avg > 128) {
-          handleTextColorChange('#1a1a1a');
-        } else {
-          handleTextColorChange('#ffffff');
-        }
-      };
-      img.src = croppedDataUrl;
     } catch (err) {
       alert('Storage full! Please remove other data or try a smaller image.');
       console.error('localStorage quota exceeded:', err);
@@ -287,6 +296,29 @@ export default function DailyVerseImage({ verse, onClick }) {
             <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin block" />
           ) : (
             <Upload className="w-4 h-4 text-white" />
+          )}
+        </button>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setCropImageForNotif(true);
+            fileInputRef.current?.click();
+          }}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            setCropImageForNotif(true);
+            fileInputRef.current?.click();
+          }}
+          disabled={uploading}
+          className="p-1.5 rounded-md bg-white/20 hover:bg-white/30 backdrop-blur transition-colors disabled:opacity-50"
+          title="Set notification image"
+          type="button"
+        >
+          {uploading ? (
+            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin block" />
+          ) : (
+            <Bell className="w-4 h-4 text-white" />
           )}
         </button>
         <button
@@ -487,8 +519,11 @@ export default function DailyVerseImage({ verse, onClick }) {
       {cropImage && (
         <ImageCropper
           image={cropImage}
-          onCrop={handleCropComplete}
-          onCancel={() => setCropImage(null)}
+          onCrop={(cropped) => handleCropComplete(cropped, cropImageForNotif)}
+          onCancel={() => {
+            setCropImage(null);
+            setCropImageForNotif(false);
+          }}
         />
       )}
     </div>

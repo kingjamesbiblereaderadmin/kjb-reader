@@ -220,8 +220,11 @@ async function saveNextFireTime(verse) {
 }
 
 // Show a notification via SW (required on Android PWA)
-export async function showLocalNotification(title, body) {
+export async function showLocalNotification(title, body, imageUrl = null) {
   const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
+  
+  // Get custom notification image from localStorage
+  const customImage = imageUrl || (typeof localStorage !== 'undefined' ? localStorage.getItem('kjb-notif-image') : null);
   
   // Always try service worker first (works on Android even when Notification API doesn't)
   try {
@@ -229,8 +232,9 @@ export async function showLocalNotification(title, body) {
     console.log('Service worker ready, showing notification via SW');
     await reg.showNotification(title, {
       body,
-      icon: logoUrl,
+      icon: customImage || logoUrl,
       badge: logoUrl,
+      image: customImage || undefined,
       tag: 'daily-verse',
       renotify: true,
     });
@@ -244,7 +248,8 @@ export async function showLocalNotification(title, body) {
     try {
       new Notification(title, { 
         body,
-        icon: logoUrl
+        icon: customImage || logoUrl,
+        image: customImage || undefined
       });
     } catch (err) {
       console.error('Standard notification failed:', err);
@@ -268,7 +273,8 @@ function armTimer(verse) {
     localStorage.setItem(NOTIF_LAST_KEY, today);
     await showLocalNotification(
       'King James Bible — Verse of the Day',
-      `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref}`
+      `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref}`,
+      null // Will use stored kjb-notif-image
     );
     scheduleAndSave(verse);
   }, ms);
@@ -307,7 +313,8 @@ function checkOverdueNotification(verse) {
     const freshVerse = getDailyVerse();
     showLocalNotification(
       'King James Bible — Daily Verse',
-      `"${freshVerse.text.slice(0, 120)}${freshVerse.text.length > 120 ? '…' : ''}" — ${freshVerse.ref}`
+      `"${freshVerse.text.slice(0, 120)}${freshVerse.text.length > 120 ? '…' : ''}" — ${freshVerse.ref}`,
+      null // Will use stored kjb-notif-image
     );
     saveNextFireTime(freshVerse);
   }
