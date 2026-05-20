@@ -136,6 +136,10 @@ export default function BibleReader() {
     });
   };
 
+  const selectAllVerses = () => {
+    setSelectedVerses(new Set(verses.map(v => v.verse)));
+  };
+
   const handleCopySelected = async () => {
     const toUse = selectedVerses.size > 0 ? selectedVerses : new Set(verses.map(v => v.verse));
     const selectedVersesList = verses.filter(v => toUse.has(v.verse)).sort((a, b) => a.verse - b.verse);
@@ -143,10 +147,24 @@ export default function BibleReader() {
       const clean = v.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
       return clean;
     }).join(' ');
+    
+    // Check if last verse of chapter is selected and if there's a colophon
+    const isLastVerseSelected = selectedVersesList.length > 0 && 
+      selectedVersesList[selectedVersesList.length - 1].verse === verses.length && 
+      verses.length > 0;
+    const includeColophon = isLastVerseSelected && colophon;
+    
     const verseRange = selectedVersesList.length > 1
       ? `${book.shortName} ${pos.chapter}:${selectedVersesList[0].verse}-${selectedVersesList[selectedVersesList.length - 1].verse}`
       : `${book.shortName} ${pos.chapter}:${selectedVersesList[0].verse}`;
-    const lines = `"${versesText}" — ${verseRange} (KJB)`;
+    
+    let lines = `"${versesText}`;
+    if (includeColophon) {
+      const cleanColophon = colophon.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '');
+      lines += ` ${cleanColophon}`;
+    }
+    lines += `" — ${verseRange} (KJB)`;
+    
     await navigator.clipboard.writeText(lines);
     setCopyFeedback(true);
     setTimeout(() => setCopyFeedback(false), 1800);
@@ -858,22 +876,34 @@ export default function BibleReader() {
       )}
 
       {/* Floating select action bar */}
-      {selectMode && selectedVerses.size > 0 && (
+      {selectMode && (
         <div className="fixed bottom-24 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-card border border-border shadow-2xl">
-          <span className="font-sans text-xs text-muted-foreground font-medium">{selectedVerses.size} selected</span>
+          <span className="font-sans text-xs text-muted-foreground font-medium">
+            {selectedVerses.size === 0 ? '0' : selectedVerses.size}{selectedVerses.size === 0 ? '' : `/${verses.length}`} selected
+          </span>
           <div className="w-px h-4 bg-border" />
           <button
-            onClick={handleCopySelected}
+            onClick={selectAllVerses}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
           >
-            <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy'}
+            <CheckSquare className="w-3.5 h-3.5" /> All
           </button>
-          <button
-            onClick={handleReadSelected}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
-          >
-            <BookMarked className="w-3.5 h-3.5" /> Read Selected
-          </button>
+          {selectedVerses.size > 0 && (
+            <>
+              <button
+                onClick={handleCopySelected}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+              >
+                <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy'}
+              </button>
+              <button
+                onClick={handleReadSelected}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+              >
+                <BookMarked className="w-3.5 h-3.5" /> Read Selected
+              </button>
+            </>
+          )}
         </div>
       )}
 
