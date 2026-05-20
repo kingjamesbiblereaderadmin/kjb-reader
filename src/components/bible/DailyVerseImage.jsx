@@ -320,11 +320,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 e.stopPropagation();
                 setShowLightbox(true);
               }}
-              className="p-1 rounded-md bg-primary hover:bg-primary/90 transition-colors shadow-md"
+              className="p-1.5 rounded-md bg-primary hover:bg-primary/90 transition-colors shadow-md"
               title="View in full screen"
               type="button"
             >
-              <Maximize2 className="w-3.5 h-3.5 text-primary-foreground" />
+              <Maximize2 className="w-4 h-4 text-primary-foreground" />
             </button>
             <button
               onClick={(e) => {
@@ -333,14 +333,14 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 handleShare(e);
               }}
               disabled={capturing}
-              className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
+              className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
               title="Share verse image"
               type="button"
             >
               {capturing ? (
-                <span className="w-3.5 h-3.5 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
+                <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
               ) : (
-                <Share2 className="w-3.5 h-3.5 text-slate-800" />
+                <Share2 className="w-4 h-4 text-slate-800" />
               )}
             </button>
             <button
@@ -350,14 +350,14 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 handleDownload(e);
               }}
               disabled={capturing}
-              className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
+              className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
               title="Download verse image"
               type="button"
             >
               {capturing ? (
-                <span className="w-3.5 h-3.5 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
+                <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
               ) : (
-                <Download className="w-3.5 h-3.5 text-slate-800" />
+                <Download className="w-4 h-4 text-slate-800" />
               )}
             </button>
             {/* Unified menu button */}
@@ -368,11 +368,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                   e.stopPropagation();
                   setShowMenu(!showMenu);
                 }}
-                className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+                className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
                 title="More options"
                 type="button"
               >
-                <MoreVertical className="w-3.5 h-3.5 text-slate-800" />
+                <MoreVertical className="w-4 h-4 text-slate-800" />
               </button>
               {/* Dropdown menu */}
               {showMenu && (
@@ -473,11 +473,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               e.stopPropagation();
               setShowButtons(true);
             }}
-            className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+            className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
             title="Show buttons"
             type="button"
           >
-            <ChevronsDown className="w-3.5 h-3.5 text-slate-800" />
+            <ChevronsDown className="w-4 h-4 text-slate-800" />
           </button>
         )}
       </div>
