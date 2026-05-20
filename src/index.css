@@ -1,22 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* OpenDyslexic font */
-@font-face {
-  font-family: 'OpenDyslexic';
-  src: url('https://cdn.jsdelivr.net/gh/open-dyslexic/open-dyslexic@master/fonts/OpenDyslexic-Regular.woff2') format('woff2');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'OpenDyslexic';
-  src: url('https://cdn.jsdelivr.net/gh/open-dyslexic/open-dyslexic@master/fonts/OpenDyslexic-Bold.woff2') format('woff2');
-  font-weight: bold;
-  font-style: normal;
-  font-display: swap;
-}
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -25,7 +8,6 @@
   :root {
     --font-serif: 'Cormorant Garamond', Georgia, serif;
     --font-sans: 'Inter', system-ui, sans-serif;
-    --font-dyslexic: 'OpenDyslexic', 'Cormorant Garamond', Georgia, serif;
 
     /* Modern/Clean theme */
     --background: 0 0% 100%;
@@ -102,47 +84,15 @@
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
   }
-  /* Dyslexic font mode — applied globally when data-dyslexic-font is set OR font-dyslexic class is present */
-  [data-dyslexic-font="true"],
-  [data-dyslexic-font="true"] *,
-  [data-dyslexic-font="true"] body,
-  [data-dyslexic-font="true"] html,
-  [data-dyslexic-font="true"] .font-serif,
-  [data-dyslexic-font="true"] .font-sans,
-  [data-dyslexic-font="true"] .font-dyslexic,
-  [data-dyslexic-font="true"] span,
-  [data-dyslexic-font="true"] p,
-  [data-dyslexic-font="true"] h1,
-  [data-dyslexic-font="true"] h2,
-  [data-dyslexic-font="true"] h3,
-  [data-dyslexic-font="true"] h4,
-  [data-dyslexic-font="true"] h5,
-  [data-dyslexic-font="true"] h6,
-  [data-dyslexic-font="true"] a,
-  [data-dyslexic-font="true"] button,
-  [data-dyslexic-font="true"] input,
-  [data-dyslexic-font="true"] textarea,
-  [data-dyslexic-font="true"] select,
-  [data-dyslexic-font="true"] label,
-  [data-dyslexic-font="true"] div,
-  [data-dyslexic-font="true"] section,
-  [data-dyslexic-font="true"] header,
-  [data-dyslexic-font="true"] footer,
-  [data-dyslexic-font="true"] nav,
-  .font-dyslexic,
-  .font-dyslexic *,
-  .font-dyslexic .font-serif,
-  .font-dyslexic .font-sans {
-    font-family: 'OpenDyslexic', 'Comic Sans MS', 'Arial', sans-serif !important;
-  }
+
   button, a, nav, header {
     -webkit-user-select: none;
     user-select: none;
   }
-  /* Pilcrow paragraph mark — white in dark mode, muted in light mode, non-selectable, serif */
+  /* Pilcrow paragraph mark — black in light mode, white in dark mode, non-selectable, serif */
   :root .pilcrow {
-    color: hsl(var(--muted-foreground));
-    opacity: 0.7;
+    color: #000000;
+    opacity: 0.5;
     font-style: normal;
     user-select: none;
     -webkit-user-select: none;
