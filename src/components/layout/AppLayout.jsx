@@ -130,10 +130,23 @@ export default function AppLayout() {
           {/* Actions - responsive button sizes with visible square touch targets */}
           <div className="flex items-center gap-1 sm:gap-2 pointer-events-none shrink-0">
             <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
+              onClick={async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                // Clear cache and reload
+                if ('caches' in window) {
+                  const cacheNames = await caches.keys();
+                  await Promise.all(cacheNames.map(name => caches.delete(name)));
+                }
+                if ('serviceWorker' in navigator) {
+                  const registration = await navigator.serviceWorker.ready;
+                  await registration.unregister();
+                }
+                window.location.reload();
+              }}
               style={{ touchAction: 'manipulation' }}
               role="button"
-              aria-label="Refresh"
+              aria-label="Refresh and update cache"
             >
               <RotateCw className="w-4 h-4" />
             </div>
