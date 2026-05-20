@@ -233,8 +233,7 @@ export async function showLocalNotification(title, body) {
       badge: logoUrl,
       tag: 'daily-verse',
       renotify: true,
-      silent: true,
-      data: { url: window.location.href }
+      silent: true
     });
     return;
   } catch (err) {
@@ -246,8 +245,7 @@ export async function showLocalNotification(title, body) {
     try {
       new Notification(title, { 
         body, 
-        icon: logoUrl,
-        data: { url: window.location.href }
+        icon: logoUrl
       });
     } catch (err) {
       console.error('Standard notification failed:', err);
