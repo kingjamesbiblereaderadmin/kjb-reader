@@ -9,6 +9,14 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Validate key format (should be base64url, ~65 chars for P-256)
+    if (!/^[A-Za-z0-9_-]{40,90}$/.test(publicKey)) {
+      return Response.json(
+        { error: 'VAPID_PUBLIC_KEY has invalid format', keyLength: publicKey.length },
+        { status: 500 }
+      );
+    }
+
     // Return plain text to avoid SDK auth requirement
     return new Response(publicKey, {
       status: 200,
