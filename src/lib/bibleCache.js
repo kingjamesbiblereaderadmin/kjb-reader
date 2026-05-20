@@ -251,17 +251,28 @@ export async function getBibleData() {
     try {
       const cached = await loadFromCache();
       
-      // Check for updates in background
-      const needsUpdate = await checkForUpdates();
-      
-      if (cached && !needsUpdate) {
+      if (cached) {
         parsedData = cached;
-        console.log('[CACHE] Using cached version');
+        console.log('[CACHE] Using cached version — checking for updates in background');
+        // Check for updates silently in the background, don't block rendering
+        checkForUpdates().then(async (needsUpdate) => {
+          if (needsUpdate) {
+            console.log('[UPDATE] Fetching updated Bible data in background...');
+            try {
+              const fresh = await fetchAndParse();
+              await saveToCache(fresh);
+              parsedData = fresh;
+              console.log('[UPDATE] ✓ Background update complete');
+            } catch (e) {
+              console.warn('[UPDATE] Background update failed:', e.message);
+            }
+          }
+        });
         return parsedData;
       }
 
-      // Auto-update: fetch fresh data
-      console.log('[UPDATE] Fetching updated Bible data...');
+      // No cache — must fetch fresh
+      console.log('[FETCH] No cache, fetching fresh Bible data...');
       parsedData = await fetchAndParse();
       await saveToCache(parsedData);
       return parsedData;

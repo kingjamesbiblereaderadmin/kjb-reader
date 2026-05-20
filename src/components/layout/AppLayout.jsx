@@ -115,7 +115,7 @@ export default function AppLayout() {
           </Link>
 
           {/* Search - expands to fill space, capped on desktop */}
-          <div className="flex-1 min-w-0 max-w-xs sm:max-w-sm pointer-events-auto">
+          <div className="flex-1 min-w-0 pointer-events-auto">
             <BibleSearchBar onClose={() => setMenuOpen(false)} />
           </div>
 
