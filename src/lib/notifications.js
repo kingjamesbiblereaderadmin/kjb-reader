@@ -220,8 +220,8 @@ async function saveNextFireTime(verse) {
 }
 
 // Show a notification via SW (required on Android PWA)
-export async function showLocalNotification(title, body) {
-  const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
+export async function showLocalNotification(title, body, imageUrl = null) {
+  const logoUrl = imageUrl || 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
   
   // Always try service worker first (works on Android even when Notification API doesn't)
   try {
@@ -234,7 +234,8 @@ export async function showLocalNotification(title, body) {
       tag: 'daily-verse',
       renotify: true,
       silent: false,
-      vibrate: [200, 100, 200]
+      vibrate: [200, 100, 200],
+      image: imageUrl || undefined
     });
     return;
   } catch (err) {
