@@ -198,14 +198,14 @@ export default function HomePage() {
             console.log('Bell button clicked!');
             handleToggleNotif();
           }}
-          className="absolute top-2 left-2 p-1.5 rounded-md bg-white/20 hover:bg-white/30 backdrop-blur transition-colors z-10"
+          className="absolute top-2 left-2 p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors z-10 shadow-md"
           title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
           type="button"
         >
           {notifEnabled ? (
-            <Bell className="w-4 h-4 text-white" />
+            <Bell className="w-4 h-4 text-slate-800" />
           ) : (
-            <BellOff className="w-4 h-4 text-white/60" />
+            <BellOff className="w-4 h-4 text-slate-600" />
           )}
         </button>
       </div>
