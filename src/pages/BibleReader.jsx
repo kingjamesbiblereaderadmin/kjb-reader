@@ -103,8 +103,11 @@ export default function BibleReader() {
 
   const toggleDyslexicFont = () => {
     const newVal = !dyslexicFont;
+    console.log('Toggling dyslexic font to:', newVal);
     setDyslexicFont(newVal);
     try { localStorage.setItem('kjb-dyslexic-font', String(newVal)); } catch {}
+    // Force immediate re-render
+    document.documentElement.setAttribute('data-dyslexic-font', String(newVal));
     window.dispatchEvent(new Event('dyslexic-font-change'));
   };
 
@@ -493,7 +496,9 @@ export default function BibleReader() {
                       <p className="font-sans text-xs font-medium text-foreground mb-2">Font Style</p>
                       <button
                         onClick={() => {
-                          if (!dyslexicFont) toggleDyslexicFont();
+                          if (!dyslexicFont) {
+                            toggleDyslexicFont();
+                          }
                           setShowFontPopover(false);
                         }}
                         className={`w-full px-3 py-2 rounded-lg font-sans text-xs font-medium transition-colors ${
@@ -506,7 +511,9 @@ export default function BibleReader() {
                       </button>
                       <button
                         onClick={() => {
-                          if (dyslexicFont) toggleDyslexicFont();
+                          if (dyslexicFont) {
+                            toggleDyslexicFont();
+                          }
                           setShowFontPopover(false);
                         }}
                         className={`w-full px-3 py-2 rounded-lg font-sans text-xs font-medium transition-colors ${
@@ -526,7 +533,7 @@ export default function BibleReader() {
                 <div className="space-y-3 p-2">
                   <button
                     onClick={() => {
-                      if (!dyslexicFont) toggleDyslexicFont();
+                      toggleDyslexicFont();
                       setShowFontPopover(false);
                     }}
                     className={`w-full px-4 py-3 rounded-lg font-sans text-sm font-medium transition-colors ${
@@ -539,7 +546,7 @@ export default function BibleReader() {
                   </button>
                   <button
                     onClick={() => {
-                      if (dyslexicFont) toggleDyslexicFont();
+                      toggleDyslexicFont();
                       setShowFontPopover(false);
                     }}
                     className={`w-full px-4 py-3 rounded-lg font-sans text-sm font-medium transition-colors ${
