@@ -10,7 +10,6 @@ import {
   getReadingReminderEnabled, getReadingReminderTime, setReadingReminderTime,
   enableReadingReminder, disableReadingReminder, scheduleReadingReminder
 } from '@/lib/notifications';
-import { enableNotifications, disableNotificationsWithSW, sendTestNotification } from '@/lib/pushNotifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { downloadBibleForOffline, clearBibleCache, isBibleCached } from '@/lib/bibleCache';
 
@@ -69,26 +68,32 @@ export default function SettingsPage() {
 
   const handleToggleNotifications = async () => {
     if (notifEnabled) {
-      await disableNotificationsWithSW();
+      disableNotifications();
       setNotifEnabled(false);
       setNotifPermission('Notification' in window ? Notification.permission : 'unsupported');
       window.dispatchEvent(new Event('storage'));
       return;
     }
     
+    if (!('Notification' in window)) {
+      alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
+      return;
+    }
+    
     try {
-      const result = await enableNotifications();
-      if (result.success) {
+      const result = await requestNotificationPermission();
+      setNotifPermission(result);
+      
+      if (result === 'granted') {
         setNotifEnabled(true);
-        setNotifPermission('granted');
         scheduleDailyNotification(getDailyVerse());
         window.dispatchEvent(new Event('storage'));
-      } else {
-        alert(result.error || 'Failed to enable notifications');
+      } else if (result === 'denied') {
+        alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
       }
     } catch (err) {
       console.error('Notification permission error:', err);
-      alert('Failed to enable notifications. Please try again.');
+      alert('Failed to request notification permission. Please try again.');
     }
   };
 
@@ -98,8 +103,9 @@ export default function SettingsPage() {
     if (notifEnabled) scheduleDailyNotification(getDailyVerse());
   };
 
-  const handleTestNotif = async () => {
-    await sendTestNotification();
+  const handleTestNotif = () => {
+    const v = getDailyVerse();
+    showLocalNotification('King James Bible — Verse of the Day', `"${v.text.slice(0, 100)}${v.text.length > 100 ? '…' : ''}" — ${v.ref}`);
   };
 
   const handleToggleReadingReminder = async () => {
