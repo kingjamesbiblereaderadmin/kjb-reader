@@ -352,7 +352,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
       {/* Action buttons */}
       <div className="absolute top-2 right-2 flex gap-1 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
-        {showButtons ? (
+        {!capturing && showButtons ? (
           <>
             <button
               onClick={(e) => {
@@ -518,7 +518,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             </div>
 
           </>
-        ) : (
+        ) : !capturing ? (
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -531,7 +531,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           >
             <ChevronsDown className="w-3.5 h-3.5 text-slate-800" />
           </button>
-        )}
+        ) : null}
       </div>
 
       {/* Style Editor Panel */}
