@@ -151,7 +151,10 @@ export default function DailyVerseImage({ verse, onClick }) {
           )}
         </button>
         <button
-          onClick={handleShare}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleShare(e);
+          }}
           disabled={capturing}
           className="p-1.5 rounded-md bg-white/20 hover:bg-white/30 backdrop-blur transition-colors disabled:opacity-50"
           title="Share verse image"
@@ -164,7 +167,10 @@ export default function DailyVerseImage({ verse, onClick }) {
           )}
         </button>
         <button
-          onClick={handleDownload}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDownload(e);
+          }}
           disabled={capturing}
           className="p-1.5 rounded-md bg-white/20 hover:bg-white/30 backdrop-blur transition-colors disabled:opacity-50"
           title="Download verse image"
