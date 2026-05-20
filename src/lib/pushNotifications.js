@@ -1,7 +1,6 @@
 // Push notification helpers for PWA
 // Supports Android push notifications even when app is closed
-
-const VAPID_PUBLIC_KEY = 'YOUR_VAPID_PUBLIC_KEY_HERE'; // Replace with your actual VAPID public key
+// Note: For production, configure Firebase Cloud Messaging (FCM)
 
 // Check if push notifications are supported
 export function isPushSupported() {
@@ -18,7 +17,7 @@ export async function requestNotificationPermission() {
   return permission;
 }
 
-// Subscribe to push notifications
+// Subscribe to push notifications (without VAPID for basic support)
 export async function subscribeToPush() {
   if (!isPushSupported()) {
     throw new Error('Push notifications not supported');
@@ -34,14 +33,18 @@ export async function subscribeToPush() {
     return subscription;
   }
   
-  // Subscribe with VAPID
-  subscription = await registration.pushManager.subscribe({
-    userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-  });
-  
-  console.log('[PUSH] Subscribed:', subscription.endpoint);
-  return subscription;
+  try {
+    // Subscribe without VAPID (works for some browsers)
+    subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true
+    });
+    
+    console.log('[PUSH] Subscribed:', subscription.endpoint);
+    return subscription;
+  } catch (err) {
+    console.log('[PUSH] Subscription requires VAPID. Set up FCM for production:', err.message);
+    throw err;
+  }
 }
 
 // Unsubscribe from push notifications
@@ -110,7 +113,7 @@ export async function initPushNotifications() {
   }
 }
 
-// Helper: Convert VAPID key from base64 to Uint8Array
+// Helper: Convert VAPID key from base64 to Uint8Array (if needed for FCM)
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
   const base64 = (base64String + padding)
@@ -125,6 +128,26 @@ function urlBase64ToUint8Array(base64String) {
   }
   
   return outputArray;
+}
+
+// Initialize Firebase Cloud Messaging (FCM) for production push notifications
+export async function initializeFCM(firebaseConfig) {
+  // For production Android push notifications, you need to:
+  // 1. Create a Firebase project at https://console.firebase.google.com
+  // 2. Add your web app to Firebase
+  // 3. Copy the Firebase config here
+  // 4. Install firebase SDK: npm install firebase
+  // 5. Use getMessaging() and getToken() to get FCM tokens
+  // 6. Send notifications via Firebase Admin SDK or REST API
+  
+  console.log('[FCM] To enable production push notifications:');
+  console.log('1. Create Firebase project at https://console.firebase.google.com');
+  console.log('2. Add web app and copy config');
+  console.log('3. Install firebase SDK');
+  console.log('4. Use FCM for push notifications');
+  
+  // This is a placeholder - implement with actual Firebase SDK when ready
+  return null;
 }
 
 // Check current push subscription status

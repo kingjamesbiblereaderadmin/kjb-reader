@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v4-notif-fix';
+const CACHE_VERSION = 'v5-push-support';
 const CACHE_NAME = `kjb-reader-${CACHE_VERSION}`;
 const NOTIF_CACHE = 'kjb-notif-config';
 

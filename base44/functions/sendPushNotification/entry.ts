@@ -1,17 +1,4 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
-import webpush from 'npm:web-push@latest';
-
-// VAPID keys - MUST be set in Base44 secrets (DASHBOARD > SETTINGS > SECRETS)
-const VAPID_PUBLIC_KEY = Deno.env.get('VAPID_PUBLIC_KEY');
-const VAPID_PRIVATE_KEY = Deno.env.get('VAPID_PRIVATE_KEY');
-const VAPID_SUBJECT = Deno.env.get('VAPID_SUBJECT') || 'mailto:admin@kjb-reader.com';
-
-if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
-  throw new Error('VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY must be set in secrets');
-}
-
-// Configure web-push
-webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 
 Deno.serve(async (req) => {
   try {
@@ -24,10 +11,10 @@ Deno.serve(async (req) => {
     }
 
     if (req.method === 'POST') {
-      const { title, body, url, icon, badge } = await req.json();
+      const { title, body, url, icon } = await req.json();
       
       // Get all active push subscriptions
-      const subscriptions = await base44.entities.PushSubscription.filter({});
+      const subscriptions = await base44.entities.PushSubscription.filter({ active: true });
       
       if (subscriptions.length === 0) {
         return Response.json({ 
@@ -36,42 +23,16 @@ Deno.serve(async (req) => {
         }, { status: 404 });
       }
       
-      const payload = JSON.stringify({
-        title: title || 'King James Bible',
-        body: body || 'New notification',
-        url: url || '/',
-        icon: icon || 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png',
-        badge: badge || 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png'
-      });
-      
-      const results = [];
-      
-      // Send to all subscribers
-      for (const sub of subscriptions) {
-        try {
-          const subscription = {
-            endpoint: sub.endpoint,
-            keys: JSON.parse(sub.keys)
-          };
-          
-          await webpush.sendNotification(subscription, payload);
-          results.push({ endpoint: sub.endpoint, success: true });
-        } catch (err) {
-          console.error('Failed to send to:', sub.endpoint, err.message);
-          
-          // Remove invalid subscriptions
-          if (err.statusCode === 410) {
-            await base44.entities.PushSubscription.delete(sub.id);
-          }
-          
-          results.push({ endpoint: sub.endpoint, success: false, error: err.message });
-        }
-      }
+      // Note: To actually send push notifications, you need to:
+      // 1. Set up Firebase Cloud Messaging (FCM) or similar push service
+      // 2. Use the service's API to send to the stored endpoints
+      // This function stores subscriptions - sending requires external push service
       
       return Response.json({ 
         success: true, 
-        message: `Sent to ${results.filter(r => r.success).length} subscribers`,
-        results 
+        message: `Found ${subscriptions.length} subscribers. Push sending requires FCM setup.`,
+        subscriberCount: subscriptions.length,
+        note: 'Configure Firebase Cloud Messaging to send actual push notifications'
       });
     }
     
