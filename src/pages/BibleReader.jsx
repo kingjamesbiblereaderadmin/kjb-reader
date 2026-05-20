@@ -350,7 +350,7 @@ export default function BibleReader() {
               className="flex items-center gap-1.5 px-4 py-3 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-colors min-w-fit touch-manipulation min-h-[48px]"
             >
               {isViewingTitlePage ? 'Title Page' : book.shortName}
-              <ChevronRight className="w-3 h-3 opacity-70" />
+              <ChevronRight className={`w-3 h-3 opacity-70 transition-transform ${showBookPicker ? 'rotate-90' : ''}`} />
             </button>
             </div>
 
@@ -485,7 +485,7 @@ export default function BibleReader() {
               className="flex items-center gap-1.5 px-4 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors min-w-fit touch-manipulation min-h-[48px]"
             >
               Ch. {pos.chapter}
-              <ChevronRight className="w-3 h-3 opacity-70" />
+              <ChevronRight className={`w-3 h-3 opacity-70 transition-transform ${showChapterPicker ? 'rotate-90' : ''}`} />
             </button>
             </div>
               {showChapterPicker && !isMobile() && (
@@ -528,7 +528,7 @@ export default function BibleReader() {
                   : highlightVerse
                   ? `v.${highlightVerse}`
                   : 'Verse'}
-                <ChevronRight className="w-3 h-3 opacity-70" />
+                <ChevronRight className={`w-3 h-3 opacity-70 transition-transform ${showVersePicker ? 'rotate-90' : ''}`} />
               </button>
               </div>
               {showVersePicker && verseCount > 0 && !isMobile() && (
@@ -738,7 +738,7 @@ export default function BibleReader() {
                 className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
                 title="Show header"
               >
-                <ChevronDown className="w-4 h-4 rotate-180" />
+                <ChevronDown className="w-4 h-4" />
               </button>
             </div>
           </div>
