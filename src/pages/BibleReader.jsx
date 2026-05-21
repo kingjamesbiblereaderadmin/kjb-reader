@@ -911,7 +911,7 @@ export default function BibleReader() {
 
       {/* Book title — hidden when showing title page */}
       {!isViewingTitlePage && (
-        <div className="text-center mb-6 pt-4">
+        <div className="text-center mb-6 pt-4" style={{ fontSize: `${zoomLevel / 100}rem` }}>
           <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-1 leading-tight">{book.name}</h1>
           <p className="font-sans text-sm text-muted-foreground tracking-widest uppercase mt-1">
             Chapter {pos.chapter}
@@ -921,7 +921,8 @@ export default function BibleReader() {
             <p
               className={`text-sm text-muted-foreground mt-2 max-w-lg mx-auto leading-relaxed text-center [&_em]:italic [&_em]:text-muted-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
               style={{ 
-                fontStyle: 'normal'
+                fontStyle: 'normal',
+                fontSize: `${zoomLevel / 100}rem`
               }}
               dangerouslySetInnerHTML={{ __html: renderColophonText(SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]) }}
             />
@@ -954,7 +955,7 @@ export default function BibleReader() {
           <TitlePage type={pos.abbr === 'GEN' ? 'testament-old' : 'testament-new'} />
         )}
         {!loading && !error && verses.length > 0 && (
-          <div className={paragraphMode ? 'text-justify hyphens-auto px-2 sm:px-4' : ''}>
+          <div className={paragraphMode ? 'text-justify hyphens-auto px-2 sm:px-4' : ''} style={{ fontSize: 'inherit' }}>
             {verses
               .filter(v => !filterMode || selectedVerses.has(v.verse))
               .map((v, idx) => (
@@ -984,7 +985,8 @@ export default function BibleReader() {
             <p
               className={`text-sm text-muted-foreground leading-relaxed [&_em]:italic [&_em]:text-muted-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
               style={{ 
-                fontStyle: 'normal'
+                fontStyle: 'normal',
+                fontSize: `${zoomLevel / 100}rem`
               }}
               dangerouslySetInnerHTML={{ __html: renderColophonText(colophon) }}
             />
@@ -999,6 +1001,7 @@ export default function BibleReader() {
         <div className="text-center mt-12 mb-4">
           <p 
             className={`text-sm text-muted-foreground tracking-widest uppercase ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
+            style={{ fontSize: `${zoomLevel / 100}rem` }}
           >
             The End of the Prophets
           </p>
@@ -1008,6 +1011,7 @@ export default function BibleReader() {
         <div className="text-center mt-12 mb-4">
           <p 
             className={`text-sm text-muted-foreground tracking-widest uppercase ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
+            style={{ fontSize: `${zoomLevel / 100}rem` }}
           >
             The End
           </p>
