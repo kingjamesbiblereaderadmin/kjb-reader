@@ -357,7 +357,7 @@ export default function BibleReader() {
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
         <div ref={topRef} className="sticky top-[56px] sm:top-[72px] z-40 bg-background/95 backdrop-blur border-b border-border pb-1 mb-2">
-          <div className="relative flex items-center gap-1.5 pt-1 overflow-x-auto scrollbar-none pb-0.5">
+          <div className="relative flex flex-wrap items-center gap-1.5 pt-1">
 
             {/* Book selector */}
             <div className="flex-shrink-0">
@@ -697,7 +697,7 @@ export default function BibleReader() {
               </div>
 
               {/* Prev/Next + Fullscreen + Hide header — grouped at end */}
-              <div className="flex items-center gap-1.5 flex-shrink-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 <button
                   onClick={goPrev}
                   onTouchEnd={(e) => { e.preventDefault(); goPrev(); }}
