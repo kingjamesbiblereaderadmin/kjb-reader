@@ -112,7 +112,7 @@ export default function HomePage() {
       window.removeEventListener('focus', handleFocus);
       document.removeEventListener('visibilitychange', handleFocus);
     };
-  }, [verse]);
+  }, []);
 
   const handleVerseClick = () => {
     // Ensure we have valid verse data before navigating
