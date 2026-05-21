@@ -405,7 +405,7 @@ function isValidBibleData(data) {
   return bookCount >= EXPECTED_BOOK_COUNT;
 }
 
-async function fetchWithRetry(url, retries = 3, expectAbbrevFormat = false) {
+async function fetchWithRetry(url, retries = 3, isAbbrevFile = false) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       // Bypass cache to ensure fresh data with brackets
@@ -415,12 +415,19 @@ async function fetchWithRetry(url, retries = 3, expectAbbrevFormat = false) {
       const buf = await res.arrayBuffer();
       const text = new TextDecoder('windows-1252').decode(buf);
       console.log('[FETCH] Received', text.length, 'characters');
-      // Verify we got actual Bible text
-      // RTF file should start with "Ge 1:1", abbreviated file also starts with "Ge 1:1"
-      if (!text.startsWith('Ge 1:1')) {
-        console.error('[FETCH] Invalid content - does not start with "Ge 1:1", first 100 chars:', text.substring(0, 100));
+      
+      // Only validate RTF file format (abbreviated file has different structure)
+      if (!isAbbrevFile && !text.startsWith('Ge 1:1')) {
+        console.error('[FETCH] Invalid RTF content - does not start with "Ge 1:1", first 100 chars:', text.substring(0, 100));
         throw new Error('Invalid Bible data received');
       }
+      
+      // For abbreviated file, just check it has some content
+      if (isAbbrevFile && text.length < 1000) {
+        console.error('[FETCH] Abbreviated file too small:', text.length, 'chars');
+        throw new Error('Invalid abbreviated Bible file');
+      }
+      
       return text;
     } catch (err) {
       console.error('Fetch attempt ' + attempt + '/' + retries + ' failed:', err.message);
@@ -493,8 +500,8 @@ async function loadFromCache() {
 async function fetchAndParse() {
   // Fetch both files in parallel
   const [rtfText, abbrevText] = await Promise.all([
-    fetchWithRetry(RTF_URL),
-    fetchWithRetry(ABBREV_URL)
+    fetchWithRetry(RTF_URL, 3, false),
+    fetchWithRetry(ABBREV_URL, 3, true)
   ]);
   
   const data = parseBibleText(rtfText, abbrevText);
@@ -575,8 +582,8 @@ export async function downloadBibleForOffline(onProgress) {
 
   // Fetch both RTF and abbreviated files for italics merging
   const [rtfText, abbrevText] = await Promise.all([
-    fetchWithRetry(RTF_URL),
-    fetchWithRetry(ABBREV_URL)
+    fetchWithRetry(RTF_URL, 3, false),
+    fetchWithRetry(ABBREV_URL, 3, true)
   ]);
   
   onProgress && onProgress(50, 'Parsing 66 books with italics...');
