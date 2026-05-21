@@ -12,24 +12,34 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
 // Service worker registration for offline support and notifications
 window.addEventListener('load', async () => {
+  // Clear ALL caches on every load to prevent stale React chunks
+  if ('caches' in window) {
+    try {
+      const cacheNames = await caches.keys();
+      await Promise.all(cacheNames.map(name => caches.delete(name)));
+      console.log('[APP] Cleared all caches');
+    } catch (err) {
+      console.warn('[APP] Failed to clear caches:', err);
+    }
+  }
+  
+  // Unregister any existing service workers in dev mode
+  if ('serviceWorker' in navigator && import.meta.env.DEV) {
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map(reg => reg.unregister()));
+      console.log('[APP] Unregistered all service workers (dev mode)');
+    } catch (err) {
+      console.warn('[APP] Failed to unregister service workers:', err);
+    }
+    return; // Don't register in dev mode
+  }
+  
   // Register fresh service worker (production only)
   if ('serviceWorker' in navigator && !import.meta.env.DEV) {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js');
       console.log('[SW] Registered:', registration.scope);
-      
-      // Clear old caches on startup to prevent stale code
-      if ('caches' in window) {
-        const cacheNames = await caches.keys();
-        await Promise.all(
-          cacheNames
-            .filter(name => name !== 'kjb-reader-v1')
-            .map(name => {
-              console.log('[SW] Deleting old cache:', name);
-              return caches.delete(name);
-            })
-        );
-      }
       
       // Check for updates periodically
       setInterval(() => {
@@ -76,6 +86,7 @@ window.addEventListener('load', async () => {
       initNotifications(getDailyVerse());
     }
   } else {
+    // Still initialize notifications even without SW
     initNotifications(getDailyVerse());
   }
 });
