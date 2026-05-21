@@ -145,17 +145,29 @@ export default function GospelPage() {
       <div className="rounded-xl overflow-hidden border border-border mb-6">
         <div className="aspect-video w-full">
           <iframe
-            src="https://www.youtube.com/embed/znP9Dr6tOzU"
+            src="https://www.youtube-nocookie.com/embed/znP9Dr6tOzU?rel=0&modestbranding=1&playsinline=1"
             title="THE GOSPEL THAT SAVES"
             frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
+            loading="lazy"
             className="w-full h-full"
           />
         </div>
-        <div className="p-3 bg-card">
-          <p className="font-sans font-medium text-sm text-foreground">THE GOSPEL THAT SAVES</p>
-          <p className="font-sans text-xs text-muted-foreground">Robert Breaker</p>
+        <div className="p-3 bg-card flex items-center justify-between gap-3">
+          <div>
+            <p className="font-sans font-medium text-sm text-foreground">THE GOSPEL THAT SAVES</p>
+            <p className="font-sans text-xs text-muted-foreground">Robert Breaker</p>
+          </div>
+          <a
+            href="https://www.youtube.com/watch?v=znP9Dr6tOzU"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-sans text-xs text-accent hover:underline whitespace-nowrap"
+          >
+            Watch on YouTube ↗
+          </a>
         </div>
       </div>
 
