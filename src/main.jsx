@@ -56,10 +56,16 @@ if ('serviceWorker' in navigator && !import.meta.env.DEV) {
         }
       });
       
-      // Pre-fetch Bible data immediately
-      import('@/lib/bibleCache').then(({ preloadBibleData }) => {
-        console.log('[APP] Preloading Bible data...');
-        preloadBibleData();
+      // Pre-fetch Bible data only if not already cached
+      import('@/lib/bibleCache').then(({ isBibleCached, preloadBibleData }) => {
+        isBibleCached().then(cached => {
+          if (!cached) {
+            console.log('[APP] Preloading Bible data...');
+            preloadBibleData();
+          } else {
+            console.log('[APP] Bible data already cached, skipping preload');
+          }
+        });
       }).catch(() => {});
       
       initNotifications(getDailyVerse());

@@ -401,9 +401,11 @@ export async function refreshCacheIfDue() {
   return false;
 }
 
+let _cacheRefreshInitialized = false;
 export function initPeriodicCacheRefresh() {
+  if (_cacheRefreshInitialized) return;
+  _cacheRefreshInitialized = true;
+  
+  // Only check on first load, not on every visibility change
   refreshCacheIfDue();
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') refreshCacheIfDue();
-  });
 }
