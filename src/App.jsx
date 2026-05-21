@@ -8,6 +8,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { ThemeProvider } from '@/lib/themeContext';
 import { HeaderHideProvider } from '@/lib/HeaderHideContext';
 import AppLayout from '@/components/layout/AppLayout';
+import ServiceWorkerUpdater from '@/components/ServiceWorkerUpdater';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { lazy, Suspense } from 'react';
 
@@ -93,6 +94,7 @@ function App() {
         <HeaderHideProvider>
           <QueryClientProvider client={queryClientInstance}>
             <Router>
+              <ServiceWorkerUpdater />
               <AuthenticatedApp />
             </Router>
             <Toaster />

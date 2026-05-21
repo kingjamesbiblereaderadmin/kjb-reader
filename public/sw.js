@@ -52,6 +52,23 @@ self.addEventListener('fetch', (event) => {
   // Skip chrome-extension and other non-http requests
   if (!url.protocol.startsWith('http')) return;
 
+  // NEVER cache React/Vite source files, node_modules, or dev files - always fetch fresh
+  const isSourceFile = url.pathname.includes('/src/') || 
+                       url.pathname.includes('/node_modules/') ||
+                       url.pathname.includes('/@vite/') ||
+                       url.pathname.includes('/@react-refresh/') ||
+                       url.pathname.endsWith('.js') ||
+                       url.pathname.endsWith('.jsx') ||
+                       url.pathname.endsWith('.ts') ||
+                       url.pathname.endsWith('.tsx') ||
+                       url.pathname.endsWith('.css');
+  
+  if (isSourceFile) {
+    console.log('[SW] Skipping cache for source file:', request.url);
+    event.respondWith(fetch(request));
+    return;
+  }
+
   // Cache-first strategy for static assets
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
