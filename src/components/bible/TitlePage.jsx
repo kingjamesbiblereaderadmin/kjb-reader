@@ -97,5 +97,49 @@ export default function TitlePage({ type }) {
     );
   }
 
+  if (type === 'main') {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
+        <div className="max-w-lg text-center space-y-6">
+          <p className="font-serif text-sm tracking-[0.2em] text-foreground font-normal">THE</p>
+          
+          <h1 className="font-serif text-6xl md:text-7xl lg:text-8xl font-bold text-foreground leading-tight">
+            HOLY BIBLE
+          </h1>
+          
+          <p className="font-serif text-base md:text-lg tracking-[0.05em] text-foreground font-normal">
+            CONTAINING THE
+          </p>
+
+          <p className="font-serif text-lg md:text-xl tracking-[0.05em] text-foreground font-normal">
+            OLD AND NEW TESTAMENTS
+          </p>
+
+          <div className="py-6">
+            <p className="font-serif text-xs md:text-sm tracking-[0.05em] text-foreground leading-relaxed font-normal">
+              TRANSLATED OUT OF THE ORIGINAL TONGUES; AND WITH<br />
+              THE FORMER TRANSLATIONS DILIGENTLY COMPARED<br />
+              AND REVISED, BY HIS MAJESTY'S SPECIAL COMMAND
+            </p>
+          </div>
+
+          <p className="font-serif text-xs md:text-sm tracking-[0.05em] text-foreground font-normal">
+            APPOINTED TO BE READ IN CHURCHES
+          </p>
+
+          <div className="flex-1" />
+
+          <div className="pt-12">
+            <p className="font-serif text-xs md:text-sm tracking-[0.05em] text-foreground leading-relaxed font-normal">
+              AUTHORIZED KING JAMES VERSION<br />
+              PURE CAMBRIDGE EDITION<br />
+              MADE IN AUSTRALIA
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return null;
 }
