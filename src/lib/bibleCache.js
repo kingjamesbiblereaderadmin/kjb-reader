@@ -6,9 +6,9 @@ import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB } from '@/lib/bibleI
 import { COLOPHONS } from '@/lib/bibleSubscripts';
 
 const CACHE_KEY = 'bible_data_pce_v66_RTF_MERGED';
-// RTF file has pilcrows (¶), abbreviated file has [brackets] for italics
+// RTF file has pilcrows (¶), WHARTON file has [brackets] for italics
 const RTF_FILE_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/075077e5d_KJB-PCE-RTF.txt';
-const ABBREV_FILE_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/72b826511_TEXT-PCE.txt';
+const ABBREV_FILE_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/97c6073f7_WHARTON_PCE.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
 const EXPECTED_BOOK_COUNT = 66;
@@ -142,8 +142,8 @@ let parsedData = null;
 let fetchInProgress = null;
 let remoteVersion = null;
 
-// Parse abbreviated file to extract italic markers [brackets]
-// Returns map: "Book Chapter:Verse" -> { italics: [{text, index}], plain: text }
+// Parse WHARTON file to extract italic markers [brackets]
+// Returns map: "Book Chapter:Verse" -> { italics: [{text}], plain: text without brackets }
 function parseItalicMarkers(text) {
   const italicMap = new Map();
   const lines = text.split('\n');
@@ -152,6 +152,7 @@ function parseItalicMarkers(text) {
     const trimmed = line.trim();
     if (!trimmed) continue;
 
+    // Match format: Ge 1:1 In the beginning...
     const m = trimmed.match(/^(\d?[A-Za-z]{1,4})\s+(\d+):(\d+)\s+(.+)$/);
     if (!m) continue;
 
@@ -163,17 +164,17 @@ function parseItalicMarkers(text) {
     const bookName = ABBREV_TO_API[abbrev];
     if (!bookName) continue;
 
-    // Extract bracketed words (italics markers)
+    // Extract bracketed words (italics markers) - remove brackets but keep the words
     const italics = [];
-    const cleaned = verseText.replace(/^¶\s*/, '').replace(/^[\u00B6]\s*/, '');
     const regex = /\[([^\]]+)\]/g;
     let match;
-    while ((match = regex.exec(cleaned)) !== null) {
-      italics.push({ text: match[1], index: match.index });
+    while ((match = regex.exec(verseText)) !== null) {
+      italics.push({ text: match[1] });
     }
 
+    // Store with plain text (brackets removed)
     const key = `${bookName} ${ch}:${vs}`;
-    italicMap.set(key, { italics, plain: cleaned.replace(/\[([^\]]+)\]/g, '$1') });
+    italicMap.set(key, { italics, plain: verseText.replace(/\[([^\]]+)\]/g, '$1') });
   }
 
   console.log('[PARSE] Italic markers:', italicMap.size, 'verses');
@@ -198,7 +199,7 @@ function parseRTFWithItalics(rtfText, italicMap) {
       .trim();
   };
 
-  // Apply italic brackets from PCE to RTF text
+  // Apply italic brackets from WHARTON to RTF text
   const applyItalics = (rtfVerseText, italics) => {
     if (!italics || italics.length === 0) return rtfVerseText;
     
@@ -266,12 +267,17 @@ function parseRTFWithItalics(rtfText, italicMap) {
       const verseNum = parseInt(verseMatch[1], 10);
       let verseText = stripColophon(verseMatch[2]);
 
-      // Apply italic markers from PCE
+      // Apply italic markers from WHARTON
       const key = `${currentBook} ${currentChapter}:${verseNum}`;
       const italicData = italicMap.get(key);
       if (italicData && italicData.italics.length > 0) {
         verseText = applyItalics(verseText, italicData.italics);
         versesWithItalics++;
+      }
+
+      // Special fix: Change "John" to "JOHN" in Rev 1:4
+      if (currentBook === 'Revelation' && currentChapter === 1 && verseNum === 4) {
+        verseText = verseText.replace(/\bJohn\b/g, 'JOHN');
       }
 
       data[currentBook][currentChapter].push({ verse: verseNum, text: verseText });
