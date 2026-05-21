@@ -1049,7 +1049,7 @@ export default function BibleReader() {
 
       {/* Floating select action bar */}
       {selectMode && (
-        <div className="fixed bottom-24 sm:bottom-8 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-2xl bg-card border border-border shadow-2xl max-w-[95vw] w-auto overflow-x-auto">
+        <div className="fixed bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-2xl bg-card border border-border shadow-2xl max-w-[95vw] w-auto overflow-x-auto">
           <span className="font-sans text-xs text-muted-foreground font-medium">
             {selectedVerses.size === 0 ? '0' : selectedVerses.size}{selectedVerses.size === 0 ? '' : `/${verses.length}`} selected
           </span>
