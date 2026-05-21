@@ -12,12 +12,20 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
 // Service worker registration for offline support and notifications
 window.addEventListener('load', async () => {
-  // Register fresh service worker (production only)
-  if ('serviceWorker' in navigator && !import.meta.env.DEV) {
+  // Register fresh service worker (production only - skip in dev/preview to avoid stale cache)
+  const isPreview = window.location.hostname.includes('preview-sandbox');
+  if ('serviceWorker' in navigator && !import.meta.env.DEV && !isPreview) {
     try {
+      // Unregister any existing service workers first to clear stale cache
+      const existingRegistrations = await navigator.serviceWorker.getRegistrations();
+      for (const reg of existingRegistrations) {
+        await reg.unregister();
+        console.log('[SW] Unregistered old service worker');
+      }
+
       const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
       console.log('[SW] Registered:', registration.scope);
-      
+
       // Check for updates periodically (every 5 minutes when app is open)
       setInterval(() => {
         registration.update().then(() => {
