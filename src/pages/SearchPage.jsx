@@ -583,27 +583,6 @@ export default function SearchPage() {
               ))}
             </div>
           </div>
-
-          {/* Step 3: Results limit */}
-          {results.length > 50 && (
-            <div>
-              <p className="font-sans text-xs font-medium text-muted-foreground mb-2">3. Limit Results</p>
-              <div className="flex gap-2 flex-wrap">
-                {[50, 100, 200, 500].filter(limit => limit <= results.length).map(limit => (
-                  <button
-                    key={limit}
-                    type="button"
-                    onClick={() => { setResultsLimit(limit); setCurrentPage(1); }}
-                    className={`px-3 py-1.5 rounded-lg font-sans text-xs font-medium transition-colors ${
-                      resultsLimit === limit ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground hover:bg-accent/20'
-                    }`}
-                  >
-                    {limit}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       )}
 
