@@ -892,12 +892,12 @@ export default function BibleReader() {
               </button>
               {/* Hide header */}
               <button
-                onClick={(e) => { e.stopPropagation(); setHideHeader(true); }}
-                onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setHideHeader(true); }}
-                title="Hide header"
+                onClick={(e) => { e.stopPropagation(); setHideHeader(!hideHeader); }}
+                onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setHideHeader(!hideHeader); }}
+                title={hideHeader ? "Show header" : "Hide header"}
                 className="flex items-center justify-center p-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors touch-manipulation min-h-[44px] min-w-[44px]"
               >
-                <ChevronDown className="w-5 h-5" />
+                <ChevronDown className={`w-5 h-5 transition-transform ${hideHeader ? 'rotate-180' : ''}`} />
               </button>
             </>
             )}
@@ -922,7 +922,7 @@ export default function BibleReader() {
                 className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
                 title="Show header"
               >
-                <ChevronDown className="w-4 h-4" />
+                <ChevronDown className="w-4 h-4 rotate-180" />
               </button>
             </div>
           </div>
