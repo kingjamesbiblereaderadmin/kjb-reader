@@ -135,10 +135,11 @@ export default function SearchPage() {
             const searchTextLower = searchText.toLowerCase();
             
             if (exactMatch) {
+              // Exact match = exact phrase contains (case sensitive or insensitive)
               if (caseSensitive) {
-                found = (searchText === searchTerm);
+                found = searchText.includes(searchTerm);
               } else {
-                found = (searchTextLower === searchTermLower);
+                found = searchTextLower.includes(searchTermLower);
               }
             } else if (caseSensitive) {
               if (wholeWord) {
@@ -181,7 +182,8 @@ export default function SearchPage() {
             let colophonFound = false;
             
             if (exactMatch) {
-              colophonFound = caseSensitive ? (colophonText === searchTerm) : (colophonLower === searchTermLower);
+              // Exact match = exact phrase contains (case sensitive or insensitive)
+              colophonFound = caseSensitive ? colophonText.includes(searchTerm) : colophonLower.includes(searchTermLower);
             } else if (caseSensitive) {
               if (wholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
