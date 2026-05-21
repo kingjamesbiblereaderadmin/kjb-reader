@@ -271,19 +271,28 @@ function armTimer(verse) {
   const ms = getNextFireDate() - Date.now();
   const fireDate = getNextFireDate();
   
-  console.log('[Notif] Arming timer to fire in', ms, 'ms at', fireDate);
-  console.log('[Notif] Timer will fire at:', fireDate.toLocaleString());
+  console.log('[Notif] ========== TIMER ARMED ==========');
+  console.log('[Notif] Will fire in:', ms, 'ms');
+  console.log('[Notif] Fire time:', fireDate.toLocaleString());
   console.log('[Notif] Current time:', new Date().toLocaleString());
+  console.log('[Notif] Minutes until fire:', Math.floor(ms / 60000));
   console.log('[Notif] Notifications enabled:', getNotificationsEnabled());
   console.log('[Notif] Last notified:', localStorage.getItem(NOTIF_LAST_KEY));
+  console.log('[Notif] Next timestamp:', localStorage.getItem(NOTIF_NEXT_KEY));
+  console.log('[Notif] =================================');
   
   // Check if we should fire immediately (for testing/debugging)
   if (ms < 0) {
-    console.log('[Notif] Scheduled time is in the past, will fire on next app open');
+    console.log('[Notif] ⚠️ Scheduled time is in the PAST - will fire on next app open');
+    console.log('[Notif] Past by:', Math.abs(Math.floor(ms / 60000)), 'minutes');
+  } else if (ms < 60000) {
+    console.log('[Notif] ⏰ Will fire in LESS THAN 1 MINUTE!');
+  } else if (ms < 300000) {
+    console.log('[Notif] ⏰ Will fire in', Math.floor(ms / 60000), 'minutes - KEEP APP OPEN');
   }
   
   _notifTimer = setTimeout(async () => {
-    console.log('[Notif] Timer callback executed');
+    console.log('[Notif] ⏰⏰⏰ TIMER CALLBACK EXECUTED ⏰⏰⏰');
     const today = todayString();
     if (localStorage.getItem(NOTIF_LAST_KEY) === today) {
       console.log('[Notif] Already notified today, rescheduling');
@@ -304,13 +313,14 @@ function armTimer(verse) {
   const checkInterval = 60000; // 1 minute
   const timeToCheck = ms - 300000; // Start checking 5 minutes before
   if (timeToCheck > 0 && timeToCheck < 24 * 60 * 60 * 1000) {
-    console.log('[Notif] Setting wake-up checks starting in', timeToCheck, 'ms');
+    console.log('[Notif] Setting wake-up checks starting in', Math.floor(timeToCheck / 60000), 'minutes');
     _alarmTimer = setTimeout(() => {
-      console.log('[Notif] Starting wake-up checks');
+      console.log('[Notif] Starting wake-up checks (every minute)');
       const checkTimer = setInterval(() => {
         const now = Date.now();
         const target = fireDate.getTime();
-        console.log('[Notif] Wake-up check: now=', now, 'target=', target, 'diff=', target - now);
+        const diff = target - now;
+        console.log('[Notif] Wake-up check: diff=', diff, 'ms (', Math.floor(diff / 60000), 'min )');
         if (now >= target) {
           clearInterval(checkTimer);
           console.log('[Notif] Wake-up check triggered notification');
@@ -333,6 +343,35 @@ function armTimer(verse) {
         console.log('[Notif] Stopped wake-up checks');
       }, 10 * 60 * 1000);
     }, timeToCheck);
+  } else if (ms >= 0 && ms <= 300000) {
+    // Already within 5 minutes - start checking immediately
+    console.log('[Notif] Already within 5 minutes - starting immediate checks');
+    const checkTimer = setInterval(() => {
+      const now = Date.now();
+      const target = fireDate.getTime();
+      const diff = target - now;
+      console.log('[Notif] Immediate check: diff=', diff, 'ms');
+      if (now >= target) {
+        clearInterval(checkTimer);
+        console.log('[Notif] Immediate check triggered notification');
+        const today = todayString();
+        if (localStorage.getItem(NOTIF_LAST_KEY) !== today) {
+          localStorage.setItem(NOTIF_LAST_KEY, today);
+          showLocalNotification(
+            'King James Bible — Daily Verse',
+            `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref}`,
+            null
+          );
+          scheduleAndSave(verse);
+        }
+      }
+    }, checkInterval);
+    
+    // Clear after 10 minutes
+    setTimeout(() => {
+      clearInterval(checkTimer);
+      console.log('[Notif] Stopped immediate checks');
+    }, 10 * 60 * 1000);
   }
 }
 

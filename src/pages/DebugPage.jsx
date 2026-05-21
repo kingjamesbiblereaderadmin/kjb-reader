@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Wifi, WifiOff, Bell, BellOff, CheckCircle2, AlertCircle, Loader2, RefreshCw, Smartphone } from 'lucide-react';
+import { Settings, Wifi, WifiOff, Bell, BellOff, CheckCircle2, AlertCircle, Loader2, RefreshCw, Smartphone, Clock, Timer } from 'lucide-react';
 
 export default function DebugPage() {
   const navigate = useNavigate();
@@ -9,6 +9,8 @@ export default function DebugPage() {
   const [notifPermission, setNotifPermission] = useState('checking');
   const [notifEnabled, setNotifEnabled] = useState(false);
   const [logs, setLogs] = useState([]);
+  const [timerStatus, setTimerStatus] = useState(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   const addLog = (message, type = 'info') => {
     setLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), message, type }]);
@@ -17,6 +19,22 @@ export default function DebugPage() {
   useEffect(() => {
     addLog('Debug page loaded');
     checkStatus();
+    checkTimerStatus();
+    
+    // Update current time every second
+    const timeInterval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    
+    // Check timer status every 5 seconds
+    const timerInterval = setInterval(() => {
+      checkTimerStatus();
+    }, 5000);
+    
+    return () => {
+      clearInterval(timeInterval);
+      clearInterval(timerInterval);
+    };
   }, []);
 
   const checkStatus = async () => {
@@ -65,6 +83,28 @@ export default function DebugPage() {
     addLog(`Notification time: ${localStorage.getItem('kjb-notification-time') || 'not set'}`);
     addLog(`Last notified: ${localStorage.getItem('kjb-notification-last') || 'never'}`);
     addLog(`Next fire timestamp: ${localStorage.getItem('kjb-notification-next') || 'not set'}`);
+  };
+
+  const checkTimerStatus = () => {
+    const nextTs = parseInt(localStorage.getItem('kjb-notification-next') || '0', 10);
+    const notifTime = localStorage.getItem('kjb-notification-time') || 'not set';
+    
+    if (nextTs) {
+      const nextFire = new Date(nextTs);
+      const now = new Date();
+      const msUntilFire = nextTs - now.getTime();
+      const minutesUntilFire = Math.floor(msUntilFire / 60000);
+      
+      setTimerStatus({
+        nextFire,
+        msUntilFire,
+        minutesUntilFire,
+        scheduledTime: notifTime,
+        isActive: msUntilFire > 0
+      });
+    } else {
+      setTimerStatus(null);
+    }
   };
 
   const testNotification = async () => {
@@ -220,7 +260,7 @@ export default function DebugPage() {
           </div>
           <div className="font-sans text-xs text-muted-foreground space-y-1 mb-3">
             <p>Enabled: {notifEnabled ? 'Yes' : 'No'}</p>
-            <p>Time: {localStorage.getItem('kjb-notification-time') || 'not set'}</p>
+            <p>Scheduled time: {localStorage.getItem('kjb-notification-time') || 'not set'}</p>
             <p>Last notified: {localStorage.getItem('kjb-notification-last') || 'never'}</p>
           </div>
           {notifPermission !== 'granted' && (
@@ -233,6 +273,49 @@ export default function DebugPage() {
             </button>
           )}
         </div>
+
+        {/* Timer Status */}
+        {timerStatus && (
+        <div className="bg-card border border-border rounded-2xl p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-serif text-lg font-semibold flex items-center gap-2">
+              <Timer className={`w-5 h-5 ${timerStatus.isActive ? 'text-green-600 animate-pulse' : 'text-muted-foreground'}`} />
+              Scheduled Timer
+            </h2>
+            <span className={`font-sans text-xs font-medium px-2 py-1 rounded ${
+              timerStatus.isActive ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-slate-100 text-slate-800'
+            }`}>
+              {timerStatus.isActive ? 'Active' : 'Inactive'}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-3 font-sans text-xs">
+            <div className="bg-secondary/50 rounded-lg p-3">
+              <p className="text-muted-foreground mb-1">Current Time</p>
+              <p className="text-foreground font-mono text-sm">{currentTime.toLocaleString()}</p>
+            </div>
+            <div className="bg-secondary/50 rounded-lg p-3">
+              <p className="text-muted-foreground mb-1">Next Fire Time</p>
+              <p className="text-foreground font-mono text-sm">{timerStatus.nextFire.toLocaleString()}</p>
+            </div>
+            <div className="bg-secondary/50 rounded-lg p-3">
+              <p className="text-muted-foreground mb-1">Time Until Fire</p>
+              <p className={`font-mono text-sm ${timerStatus.minutesUntilFire < 5 ? 'text-red-600' : 'text-foreground'}`}>
+                {timerStatus.minutesUntilFire < 1 ? '< 1 minute' : `${timerStatus.minutesUntilFire} minutes`}
+              </p>
+            </div>
+            <div className="bg-secondary/50 rounded-lg p-3">
+              <p className="text-muted-foreground mb-1">Scheduled Time</p>
+              <p className="text-foreground font-mono text-sm">{timerStatus.scheduledTime}</p>
+            </div>
+          </div>
+          {timerStatus.minutesUntilFire < 5 && timerStatus.isActive && (
+            <div className="mt-3 flex items-center gap-2 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg p-3">
+              <Clock className="w-4 h-4" />
+              <span className="font-sans text-xs font-medium">Notification will fire in less than 5 minutes! Keep the app open.</span>
+            </div>
+          )}
+        </div>
+        )}
       </div>
 
       {/* Actions */}
