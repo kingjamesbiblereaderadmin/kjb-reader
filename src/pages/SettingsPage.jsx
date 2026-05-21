@@ -236,6 +236,7 @@ export default function SettingsPage() {
     setDlStatus('');
     setDlError('');
     // Force reload to re-fetch with fresh parsing
+    console.log('[Settings] Clearing cache and reloading to fetch fresh Bible data with pilcrows...');
     window.location.reload();
   };
 

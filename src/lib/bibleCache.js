@@ -416,12 +416,30 @@ async function fetchAndParse() {
     throw new Error('Parsed data only has ' + Object.keys(data).filter(k => k !== '__colophons').length + ' books');
   }
   
-  // Log sample verse to verify RTF base + italics
+  // Log sample verse to verify RTF base + italics + pilcrows
   const genesis1 = data['Genesis']?.[1];
   if (genesis1 && genesis1[1]) {
     console.log('[VERIFY] Genesis 1:1 (RTF base + PCE italics):', genesis1[1].text.substring(0, 200));
     console.log('[VERIFY] Has brackets?', genesis1[1].text.includes('['));
+    console.log('[VERIFY] Has pilcrows?', genesis1[1].text.includes('¶') || genesis1[1].text.includes('\u00B6'));
   }
+  
+  // Count verses with pilcrows
+  let versesWithPilcrows = 0;
+  Object.values(data).forEach(book => {
+    if (typeof book === 'object') {
+      Object.values(book).forEach(chapter => {
+        if (Array.isArray(chapter)) {
+          chapter.forEach(v => {
+            if (v.text && (v.text.includes('¶') || v.text.includes('\u00B6'))) {
+              versesWithPilcrows++;
+            }
+          });
+        }
+      });
+    }
+  });
+  console.log('[VERIFY] Total verses with pilcrows:', versesWithPilcrows);
   
   return data;
 }

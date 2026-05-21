@@ -60,9 +60,11 @@ export async function isBibleAvailableOffline() {
 // Render verse text: turn [word] into <em>word</em> for KJB italics
 // Render pilcrow (¶) ONLY at beginning of verses, not inside words
 export function renderVerseText(text) {
-  // Debug: log first few verses to check for brackets
-  if (text && text.includes('[') && Math.random() < 0.01) {
+  // Debug: log verses to check for brackets and pilcrows
+  if (text && Math.random() < 0.05) {
     console.log('[RENDER] Sample verse with brackets:', text.substring(0, 200));
+    console.log('[RENDER] Has pilcrow (¶)?', text.includes('¶') || text.includes('\u00B6'));
+    console.log('[RENDER] Pilcrow count:', (text.match(/¶/g) || []).length);
   }
   // Strip "Made in Australia" if it somehow appears in verse text
   let cleaned = text.replace(/\s*made\s+in\s+australia\.?\s*/gi, '');
