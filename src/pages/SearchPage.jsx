@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getBibleData } from '@/lib/bibleCache';
@@ -60,8 +60,18 @@ export default function SearchPage() {
   const [selected, setSelected] = useState(new Set());
   const [copyFeedback, setCopyFeedback] = useState(false);
 
+  // Debounce search to prevent rapid re-execution
+  const debounceRef = React.useRef(null);
+  
   const runSearch = useCallback(async (kw) => {
     if (!kw || kw.trim().length < 2) return;
+    
+    // Clear previous debounce timer
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    
+    // Show loading immediately for better UX
     setLoading(true);
     setSearched(true);
     setResults([]);
@@ -71,253 +81,227 @@ export default function SearchPage() {
     setSelectedBooks(new Set());
     setCurrentPage(1);
 
-    try {
-      console.log('[Search] Starting search for:', kw);
-      const bible = await getBibleData();
-      console.log('[Search] Bible data loaded, keys:', Object.keys(bible || {}).filter(k => k !== '__colophons').length);
-      // Strip quotes from search term for actual searching
-      let searchTerm = kw.trim();
-      if (searchTerm.startsWith('"') && searchTerm.endsWith('"') && searchTerm.length >= 3) {
-        searchTerm = searchTerm.slice(1, -1);
-      }
-      setExpandedTerms([]);
-      
-      const kwLower = searchTerm.toLowerCase();
-      
-      // Check if query is a verse range (e.g., "Romans 1:20-22")
-      const rangeMatch = kwLower.match(/^([a-z0-9\s]+)\s+(\d+):(\d+)-(\d+)$/);
-      if (rangeMatch) {
-        const bookStr = rangeMatch[1].trim();
-        const ch = parseInt(rangeMatch[2]);
-        const v1 = parseInt(rangeMatch[3]);
-        const v2 = parseInt(rangeMatch[4]);
-        const matchingBook = BIBLE_BOOKS.find(b => 
-          b.shortName.toLowerCase().includes(bookStr) ||
-          b.abbr.toLowerCase() === bookStr
-        );
-        if (matchingBook && ch >= 1 && ch <= matchingBook.chapters && v1 <= v2) {
-          goToVerse(matchingBook.abbr, ch, v1, v2);
+    // Debounce the actual search execution
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const bible = await getBibleData();
+        // Strip quotes from search term for actual searching
+        let searchTerm = kw.trim();
+        if (searchTerm.startsWith('"') && searchTerm.endsWith('"') && searchTerm.length >= 3) {
+          searchTerm = searchTerm.slice(1, -1);
+        }
+        setExpandedTerms([]);
+        
+        const kwLower = searchTerm.toLowerCase();
+        
+        // Check if query is a verse range (e.g., "Romans 1:20-22")
+        const rangeMatch = kwLower.match(/^([a-z0-9\s]+)\s+(\d+):(\d+)-(\d+)$/);
+        if (rangeMatch) {
+          const bookStr = rangeMatch[1].trim();
+          const ch = parseInt(rangeMatch[2]);
+          const v1 = parseInt(rangeMatch[3]);
+          const v2 = parseInt(rangeMatch[4]);
+          const matchingBook = BIBLE_BOOKS.find(b => 
+            b.shortName.toLowerCase().includes(bookStr) ||
+            b.abbr.toLowerCase() === bookStr
+          );
+          if (matchingBook && ch >= 1 && ch <= matchingBook.chapters && v1 <= v2) {
+            goToVerse(matchingBook.abbr, ch, v1, v2);
+            setLoading(false);
+            return;
+          }
+        }
+
+        // Check for "end of [book]" or "[book] end" queries
+        const endMatch = kwLower.match(/(?:^|\s)(?:end of|end)\s+([a-z0-9\s]+)|(?:^|\s)([a-z0-9\s]+)\s+(?:end)$/);
+        if (endMatch) {
+          const bookStr = (endMatch[1] || endMatch[2] || '').trim();
+          const matchingBook = BIBLE_BOOKS.find(b => 
+            b.shortName.toLowerCase().includes(bookStr) ||
+            b.abbr.toLowerCase().includes(bookStr) ||
+            b.shortName.toLowerCase() === bookStr
+          );
+          if (matchingBook) {
+            goToVerse(matchingBook.abbr, matchingBook.chapters, null);
+            setLoading(false);
+            return;
+          }
+        }
+
+        // Check for "pilcrows" search - show verses with pilcrow marks
+        if (kwLower === 'pilcrows' || kwLower === 'pilcrow' || kwLower === '¶') {
+          const pilcrowResults = [];
+          const seen = new Set();
+          for (const bookName in bible) {
+            if (bookName === '__colophons') continue;
+            if (testament === 'ot' && !OT_BOOKS.has(bookName)) continue;
+            if (testament === 'nt' && !NT_BOOKS.has(bookName)) continue;
+            if (selectedBooks.size > 0) {
+              const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+              if (!bookEntry || !selectedBooks.has(bookEntry.abbr)) continue;
+            }
+            const chapters = bible[bookName];
+            for (const chapterNum in chapters) {
+              const verses = chapters[chapterNum];
+              for (const verseObj of verses) {
+                if (verseObj.text.includes('¶')) {
+                  const key = `${bookName}-${chapterNum}-${verseObj.verse}`;
+                  if (seen.has(key)) continue;
+                  seen.add(key);
+                  const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+                  pilcrowResults.push({
+                    book: bookName,
+                    chapter: parseInt(chapterNum),
+                    verse: verseObj.verse,
+                    text: verseObj.text,
+                    abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
+                  });
+                }
+              }
+            }
+          }
+          setResults(pilcrowResults);
           setLoading(false);
           return;
         }
-      }
 
-      // Check for "end of [book]" or "[book] end" queries
-      const endMatch = kwLower.match(/(?:^|\s)(?:end of|end)\s+([a-z0-9\s]+)|(?:^|\s)([a-z0-9\s]+)\s+(?:end)$/);
-      if (endMatch) {
-        const bookStr = (endMatch[1] || endMatch[2] || '').trim();
-        const matchingBook = BIBLE_BOOKS.find(b => 
-          b.shortName.toLowerCase().includes(bookStr) ||
-          b.abbr.toLowerCase().includes(bookStr) ||
-          b.shortName.toLowerCase() === bookStr
-        );
-        if (matchingBook) {
-          // Navigate to last chapter of the book
-          goToVerse(matchingBook.abbr, matchingBook.chapters, null);
-          setLoading(false);
-          return;
+        // Check if query is a numbered book (e.g., "1 john", "2 timothy") or contains one
+        const numberedBookMatch = kwLower.match(/(\d+)\s+([a-z]+)/);
+        let targetBookAbbr = null;
+        if (numberedBookMatch) {
+          const num = numberedBookMatch[1];
+          const bookPart = numberedBookMatch[2];
+          const matchingBook = BIBLE_BOOKS.find(b => 
+            b.shortName.toLowerCase() === `${num} ${bookPart}` ||
+            b.shortName.toLowerCase().startsWith(`${num} ${bookPart}`) ||
+            b.shortName.toLowerCase().includes(`${num} ${bookPart}`)
+          );
+          if (matchingBook) {
+            targetBookAbbr = matchingBook.abbr;
+            setNumberedBookFilter(targetBookAbbr);
+          }
         }
-      }
 
-      // Check for "pilcrows" search - show verses with pilcrow marks
-      if (kwLower === 'pilcrows' || kwLower === 'pilcrow' || kwLower === '¶') {
-        const pilcrowResults = [];
+        // Check for "prophets end of [book]" queries
+        const prophetsEndMatch = kwLower.match(/prophets?\s+(?:end\s+of\s+)?([a-z0-9\s]+)/);
+        if (prophetsEndMatch) {
+          const bookStr = prophetsEndMatch[1].trim();
+          const matchingBook = BIBLE_BOOKS.find(b => 
+            b.shortName.toLowerCase().includes(bookStr) ||
+            b.abbr.toLowerCase().includes(bookStr)
+          );
+          if (matchingBook) {
+            targetBookAbbr = matchingBook.abbr;
+            setNumberedBookFilter(targetBookAbbr);
+          }
+        }
+
+        const matches = [];
         const seen = new Set();
-        for (const bookName in bible) {
-          if (bookName === '__colophons') continue;
-          if (testament === 'ot' && !OT_BOOKS.has(bookName)) continue;
-          if (testament === 'nt' && !NT_BOOKS.has(bookName)) continue;
+        const searchTermLower = searchTerm.toLowerCase();
+        
+        // Pre-compile regex patterns for better performance
+        const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const wholeWordRegex = caseSensitive 
+          ? new RegExp(`\\b${escapeRegex(searchTerm)}\\b`, 'g')
+          : new RegExp(`\\b${escapeRegex(searchTermLower)}\\b`, 'gi');
+
+        // Filter books once before looping
+        const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
+        const filteredBooks = bookNames.filter(bookName => {
+          if (testament === 'ot' && !OT_BOOKS.has(bookName)) return false;
+          if (testament === 'nt' && !NT_BOOKS.has(bookName)) return false;
           if (selectedBooks.size > 0) {
             const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
-            if (!bookEntry || !selectedBooks.has(bookEntry.abbr)) continue;
+            if (!bookEntry || !selectedBooks.has(bookEntry.abbr)) return false;
           }
+          if (targetBookAbbr) {
+            const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+            if (!bookEntry || bookEntry.abbr !== targetBookAbbr) return false;
+          }
+          return true;
+        });
+
+        // Search only filtered books
+        for (const bookName of filteredBooks) {
           const chapters = bible[bookName];
+          const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+          const abbr = bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase();
+          
           for (const chapterNum in chapters) {
             const verses = chapters[chapterNum];
+            
+            // Search in verses
             for (const verseObj of verses) {
-              if (verseObj.text.includes('¶')) {
+              const searchText = verseObj.text.replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
+              let found = false;
+              
+              if (exactMatch) {
+                found = caseSensitive ? searchText.includes(searchTerm) : searchText.toLowerCase().includes(searchTermLower);
+              } else if (caseSensitive) {
+                found = wholeWord ? wholeWordRegex.test(searchText) : searchText.includes(searchTerm);
+              } else {
+                const searchTextLower = searchText.toLowerCase();
+                found = wholeWord ? wholeWordRegex.test(searchTextLower) : searchTextLower.includes(searchTermLower);
+              }
+
+              if (found) {
                 const key = `${bookName}-${chapterNum}-${verseObj.verse}`;
-                if (seen.has(key)) continue;
-                seen.add(key);
-                const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
-                pilcrowResults.push({
-                  book: bookName,
-                  chapter: parseInt(chapterNum),
-                  verse: verseObj.verse,
-                  text: verseObj.text,
-                  abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
-                });
+                if (!seen.has(key)) {
+                  seen.add(key);
+                  matches.push({
+                    book: bookName,
+                    chapter: parseInt(chapterNum),
+                    verse: verseObj.verse,
+                    text: verseObj.text,
+                    abbr,
+                  });
+                }
+              }
+            }
+            
+            // Search in colophons
+            const colophon = bible.__colophons?.[bookName]?.[chapterNum];
+            if (colophon) {
+              const colophonText = colophon.replace(/¶\s*/g, '');
+              let colophonFound = false;
+              
+              if (exactMatch) {
+                colophonFound = caseSensitive ? colophonText.includes(searchTerm) : colophonText.toLowerCase().includes(searchTermLower);
+              } else if (caseSensitive) {
+                colophonFound = wholeWord ? wholeWordRegex.test(colophonText) : colophonText.includes(searchTerm);
+              } else {
+                const colophonLower = colophonText.toLowerCase();
+                colophonFound = wholeWord ? wholeWordRegex.test(colophonLower) : colophonLower.includes(searchTermLower);
+              }
+              
+              if (colophonFound) {
+                const key = `${bookName}-${chapterNum}-colophon`;
+                if (!seen.has(key)) {
+                  seen.add(key);
+                  matches.push({
+                    book: bookName,
+                    chapter: parseInt(chapterNum),
+                    verse: 0,
+                    text: colophonText,
+                    isColophon: true,
+                    abbr,
+                  });
+                }
               }
             }
           }
         }
-        setResults(pilcrowResults);
+
+        setResults(matches);
+      } catch (err) {
+        console.error('Search error:', err);
+        setResults([]);
+      } finally {
         setLoading(false);
-        return;
       }
-
-      // Check if query is a numbered book (e.g., "1 john", "2 timothy") or contains one
-      const numberedBookMatch = kwLower.match(/(\d+)\s+([a-z]+)/);
-      let targetBookAbbr = null;
-      if (numberedBookMatch) {
-        const num = numberedBookMatch[1];
-        const bookPart = numberedBookMatch[2];
-        const matchingBook = BIBLE_BOOKS.find(b => 
-          b.shortName.toLowerCase() === `${num} ${bookPart}` ||
-          b.shortName.toLowerCase().startsWith(`${num} ${bookPart}`) ||
-          b.shortName.toLowerCase().includes(`${num} ${bookPart}`)
-        );
-        if (matchingBook) {
-          targetBookAbbr = matchingBook.abbr;
-          setNumberedBookFilter(targetBookAbbr);
-        }
-      }
-
-      // Check for "prophets end of [book]" queries
-      const prophetsEndMatch = kwLower.match(/prophets?\s+(?:end\s+of\s+)?([a-z0-9\s]+)/);
-      if (prophetsEndMatch) {
-        const bookStr = prophetsEndMatch[1].trim();
-        const matchingBook = BIBLE_BOOKS.find(b => 
-          b.shortName.toLowerCase().includes(bookStr) ||
-          b.abbr.toLowerCase().includes(bookStr)
-        );
-        if (matchingBook) {
-          targetBookAbbr = matchingBook.abbr;
-          setNumberedBookFilter(targetBookAbbr);
-        }
-      }
-
-      const matches = [];
-      const seen = new Set();
-      const searchTermLower = searchTerm.toLowerCase();
-
-      for (const bookName in bible) {
-        if (bookName === '__colophons') continue;
-        if (testament === 'ot' && !OT_BOOKS.has(bookName)) continue;
-        if (testament === 'nt' && !NT_BOOKS.has(bookName)) continue;
-        
-        if (selectedBooks.size > 0) {
-          const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
-          if (!bookEntry || !selectedBooks.has(bookEntry.abbr)) continue;
-        }
-        
-        if (targetBookAbbr) {
-          const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
-          if (!bookEntry || bookEntry.abbr !== targetBookAbbr) continue;
-        }
-
-        const chapters = bible[bookName];
-        for (const chapterNum in chapters) {
-          const verses = chapters[chapterNum];
-          // Keep italics in brackets for search and display
-          const processedVerses = verses.map(v => ({
-            verse: v.verse,
-            text: v.text.replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '')
-          }));
-          
-          // Search in verses
-          for (const verseObj of processedVerses) {
-            let found = false;
-            const searchText = verseObj.text;
-            const searchTextLower = searchText.toLowerCase();
-            
-            if (exactMatch) {
-              // Exact match = exact phrase contains (case sensitive or insensitive)
-              if (caseSensitive) {
-                found = searchText.includes(searchTerm);
-              } else {
-                found = searchTextLower.includes(searchTermLower);
-              }
-            } else if (caseSensitive) {
-              if (wholeWord) {
-                const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
-                found = wordRegex.test(searchText);
-              } else {
-                found = searchText.includes(searchTerm);
-              }
-            } else {
-              if (wholeWord) {
-                const escapedTerm = searchTermLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
-                found = wordRegex.test(searchTextLower);
-              } else {
-                found = searchTextLower.includes(searchTermLower);
-              }
-            }
-
-            if (found) {
-              const key = `${bookName}-${chapterNum}-${verseObj.verse}`;
-              if (seen.has(key)) continue;
-              seen.add(key);
-              const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
-              matches.push({
-                book: bookName,
-                chapter: parseInt(chapterNum),
-                verse: verseObj.verse,
-                text: verseObj.text,
-                abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
-              });
-            }
-          }
-          
-          // Search in colophons for this chapter
-          const colophon = bible.__colophons?.[bookName]?.[chapterNum];
-          if (colophon) {
-            const colophonText = colophon.replace(/¶\s*/g, '');
-            const colophonLower = colophonText.toLowerCase();
-            let colophonFound = false;
-            
-            if (exactMatch) {
-              // Exact match = exact phrase contains (case sensitive or insensitive)
-              colophonFound = caseSensitive ? colophonText.includes(searchTerm) : colophonLower.includes(searchTermLower);
-            } else if (caseSensitive) {
-              if (wholeWord) {
-                const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
-                colophonFound = wordRegex.test(colophonText);
-              } else {
-                colophonFound = colophonText.includes(searchTerm);
-              }
-            } else {
-              if (wholeWord) {
-                const escapedTerm = searchTermLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
-                colophonFound = wordRegex.test(colophonLower);
-              } else {
-                colophonFound = colophonLower.includes(searchTermLower);
-              }
-            }
-            
-            if (colophonFound) {
-              const key = `${bookName}-${chapterNum}-colophon`;
-              if (!seen.has(key)) {
-                seen.add(key);
-                const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
-                matches.push({
-                  book: bookName,
-                  chapter: parseInt(chapterNum),
-                  verse: 0, // Mark as colophon
-                  text: colophonText,
-                  isColophon: true,
-                  abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
-                });
-              }
-            }
-          }
-        }
-      }
-
-      setResults(matches);
-      console.log('[Search] Found', matches.length, 'results');
-      console.log('[Search] Found', matches.length, 'results');
-    } catch (err) {
-      console.error('Search error:', err);
-      setResults([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [testament, wholeWord, caseSensitive, exactMatch]);
+    }, 150); // 150ms debounce
+  }, [testament, wholeWord, caseSensitive, exactMatch, selectedBooks]);
 
   // Re-run search whenever URL changes (fixes header search bar)
   useEffect(() => {
