@@ -100,9 +100,11 @@ export default function SettingsPage() {
   useEffect(() => {
     isBibleCached().then(setCached);
 
-    // Listen for storage events to sync with FirstLoadPrompt
+    // Listen for storage events to sync settings across tabs
     const handleStorage = () => {
       isBibleCached().then(setCached);
+      try { setReaderFontFamily(localStorage.getItem('kjb-reader-font-family') || 'serif'); } catch {}
+      try { setZoomLevel(parseInt(localStorage.getItem('kjb-zoom') || '100')); } catch {}
     };
     window.addEventListener('storage', handleStorage);
     return () => window.removeEventListener('storage', handleStorage);
