@@ -144,8 +144,8 @@ export default function BibleReader() {
     const toUse = selectedVerses.size > 0 ? selectedVerses : new Set(verses.map(v => v.verse));
     const selectedVersesList = verses.filter(v => toUse.has(v.verse)).sort((a, b) => a.verse - b.verse);
     const versesText = selectedVersesList.map(v => {
-      const clean = v.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
-      return clean;
+      const text = v.text.replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
+      return text;
     }).join(' ');
     
     // Check if last verse of chapter is selected and if there's a colophon
@@ -160,8 +160,7 @@ export default function BibleReader() {
     
     let lines = `"${versesText}`;
     if (includeColophon) {
-      const cleanColophon = colophon.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '');
-      lines += ` ${cleanColophon}`;
+      lines += ` ${colophon}`;
     }
     lines += `" — ${verseRange} (KJB)`;
     

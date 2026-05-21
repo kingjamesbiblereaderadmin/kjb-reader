@@ -37,14 +37,14 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   const html = renderVerseText(displayVerseText);
 
   const verseRef = `${shortBookName} ${chapter}:${verse.verse}`;
-  const cleanText = verse.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '');
+  const textWithItalics = verse.text.replace(/¶\s*/g, '');
   const isLastVerse = totalVerses > 0 && verse.verse === totalVerses;
-  const cleanColophon = isLastVerse && colophon
-    ? colophon.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').trim()
+  const colophonWithItalics = isLastVerse && colophon
+    ? colophon.replace(/¶\s*/g, '').trim()
     : null;
-  const verseText = cleanColophon
-    ? `"${cleanText}" — ${verseRef} (KJB)\n\n¶ ${cleanColophon}`
-    : `"${cleanText}" — ${verseRef} (KJB)`;
+  const verseText = colophonWithItalics
+    ? `"${textWithItalics}" — ${verseRef} (KJB)\n\n¶ ${colophonWithItalics}`
+    : `"${textWithItalics}" — ${verseRef} (KJB)`;
 
   const highlightBg = highlightColors.find(c => c.name === highlightColor)?.bg;
   const isHighlighted = selected || showHighlight;
