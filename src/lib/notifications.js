@@ -29,6 +29,9 @@ export function setNotificationTime(time) {
 export async function registerSW() {
   if (!('serviceWorker' in navigator)) return null;
   try {
+    // If already registered, return existing registration without re-registering
+    const existing = await navigator.serviceWorker.getRegistration('/');
+    if (existing) return existing;
     return await navigator.serviceWorker.register('/sw.js');
   } catch { return null; }
 }
