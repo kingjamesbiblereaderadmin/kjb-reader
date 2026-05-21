@@ -204,15 +204,15 @@ function isValidBibleData(data) {
 async function fetchWithRetry(url, retries = 3) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      const cacheBustedUrl = `${url}?t=${Date.now()}`;
-      const res = await fetch(cacheBustedUrl, { cache: 'reload' });
+      // Use cache-first strategy, only bust cache on explicit refresh
+      const res = await fetch(url, { cache: 'force-cache' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const buf = await res.arrayBuffer();
       return new TextDecoder('windows-1252').decode(buf);
     } catch (err) {
       console.error('Fetch attempt ' + attempt + '/' + retries + ' failed:', err.message);
       if (attempt === retries) throw err;
-      await new Promise(r => setTimeout(r, 1000 * attempt));
+      await new Promise(r => setTimeout(r, 500 * attempt));
     }
   }
 }
@@ -297,21 +297,7 @@ export async function getBibleData() {
 
       if (cached) {
         parsedData = cached;
-        console.log('[CACHE] Using cached version');
-        // Check for updates silently in background
-        checkForUpdates().then(async (needsUpdate) => {
-          if (needsUpdate) {
-            console.log('[UPDATE] Fetching updated Bible data in background...');
-            try {
-              const fresh = await fetchAndParse();
-              await saveToCache(fresh);
-              parsedData = fresh;
-              console.log('[UPDATE] ✓ Background update complete');
-            } catch (e) {
-              console.warn('[UPDATE] Background update failed:', e.message);
-            }
-          }
-        });
+        console.log('[CACHE] Using cached version - instant load');
         return parsedData;
       }
 
@@ -321,6 +307,7 @@ export async function getBibleData() {
       return parsedData;
     } catch (error) {
       console.error('All fetch attempts failed:', error.message);
+      // Return minimal data with colophons for offline mode
       return { __colophons: { ...COLOPHONS } };
     } finally {
       fetchInProgress = null;
@@ -404,6 +391,8 @@ export async function refreshCacheIfDue() {
       return true;
     } catch (e) {
       console.error('[REFRESH] Failed to refresh cache:', e.message);
+      // Silently fail - keep using cached version
+      localStorage.setItem(LAST_REFRESH_KEY, String(now));
       return false;
     }
   }
