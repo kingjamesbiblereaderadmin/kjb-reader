@@ -251,9 +251,9 @@ export default function BibleReader() {
     setLoading(true);
     setError(null);
     setVerses([]);
-    // Don't scroll to top when jumping to a specific verse
+    // Don't scroll to top when jumping to a specific verse (highlighting)
     if (!jumpVerse) {
-      window.scrollTo({ top: 0 });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     const b = BIBLE_BOOKS.find(bk => bk.abbr === bookAbbr);
     if (!b) { setError('Book not found'); setLoading(false); return; }
