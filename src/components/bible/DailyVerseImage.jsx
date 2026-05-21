@@ -371,6 +371,22 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             e.nativeEvent.stopImmediatePropagation();
             onToggleNotif();
           }}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation();
+          }}
+          onTouchStart={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation();
+          }}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation();
+            onToggleNotif();
+          }}
           className="absolute top-2 left-2 p-1.5 rounded-md bg-white/90 hover:bg-white transition-colors z-10 shadow-md"
           title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
           type="button"
@@ -397,6 +413,22 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 e.nativeEvent.stopImmediatePropagation();
                 setShowLightbox(true);
               }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+              }}
+              onTouchStart={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+                setShowLightbox(true);
+              }}
               className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
               title="View in full screen"
               type="button"
@@ -405,6 +437,22 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             </button>
             <button
               onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+                handleShare(e);
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+              }}
+              onTouchStart={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+              }}
+              onTouchEnd={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 e.nativeEvent.stopImmediatePropagation();
@@ -428,6 +476,22 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 e.nativeEvent.stopImmediatePropagation();
                 handleDownload(e);
               }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+              }}
+              onTouchStart={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+                handleDownload(e);
+              }}
               disabled={capturing}
               className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
               title="Download verse image"
@@ -443,6 +507,24 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             <div ref={menuRef} className="relative">
               <button
                 onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  e.nativeEvent.stopImmediatePropagation();
+                  if (!showStyleEditor) {
+                    setShowMenu(!showMenu);
+                  }
+                }}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  e.nativeEvent.stopImmediatePropagation();
+                }}
+                onTouchStart={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  e.nativeEvent.stopImmediatePropagation();
+                }}
+                onTouchEnd={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   e.nativeEvent.stopImmediatePropagation();
@@ -603,6 +685,22 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               e.nativeEvent.stopImmediatePropagation();
               setShowButtons(true);
             }}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+            }}
+            onTouchStart={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+              setShowButtons(true);
+            }}
             className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
             title="Show buttons"
             type="button"
@@ -624,7 +722,28 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-sans text-sm font-semibold text-slate-800 dark:text-slate-200">Text Style</h3>
             <button
-              onClick={() => setShowStyleEditor(false)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+                setShowStyleEditor(false);
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+              }}
+              onTouchStart={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+                setShowStyleEditor(false);
+              }}
               className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
             >
               <Upload className="w-4 h-4 rotate-45 text-slate-600 dark:text-slate-400" />
@@ -650,7 +769,28 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               ].map(color => (
                 <button
                   key={color}
-                  onClick={() => handleTextColorChange(color)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.nativeEvent.stopImmediatePropagation();
+                    handleTextColorChange(color);
+                  }}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.nativeEvent.stopImmediatePropagation();
+                  }}
+                  onTouchStart={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.nativeEvent.stopImmediatePropagation();
+                  }}
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.nativeEvent.stopImmediatePropagation();
+                    handleTextColorChange(color);
+                  }}
                   className={`w-7 h-7 rounded-lg border-2 transition-all ${
                     textColor === color ? 'border-slate-800 scale-110' : 'border-slate-300 hover:border-slate-500'
                   }`}
@@ -692,7 +832,28 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               ].map(font => (
                 <button
                   key={font.value}
-                  onClick={() => handleFontFamilyChange(font.value)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.nativeEvent.stopImmediatePropagation();
+                    handleFontFamilyChange(font.value);
+                  }}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.nativeEvent.stopImmediatePropagation();
+                  }}
+                  onTouchStart={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.nativeEvent.stopImmediatePropagation();
+                  }}
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.nativeEvent.stopImmediatePropagation();
+                    handleFontFamilyChange(font.value);
+                  }}
                   className={`px-3 py-2 rounded-lg font-sans text-xs font-medium transition-all ${
                     fontFamily === font.value
                       ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900'
