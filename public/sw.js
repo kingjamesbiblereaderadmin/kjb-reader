@@ -16,6 +16,7 @@ const PRECACHE_URLS = [
   '/index.html',
   '/offline.html',
   '/manifest.json',
+  APP_LOGO,
 ];
 
 // ─── Install ───────────────────────────────────────────────
