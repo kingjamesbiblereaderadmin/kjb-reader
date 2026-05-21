@@ -126,18 +126,20 @@ export default function AppLayout() {
                 e.preventDefault();
                 e.stopPropagation();
                 try {
-                  // Always check for updates and apply immediately
-                  const remoteVer = await fetch('https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt?t=' + Date.now()).then(r => r.text()).then(t => t.trim());
+                  // Check version first - only recache if changed
+                  const remoteVer = await fetch('https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt?t=' + Date.now())
+                    .then(r => r.text())
+                    .then(t => t.trim());
                   const localVer = localStorage.getItem('bible_cache_version');
 
                   if (remoteVer !== localVer) {
-                    toast.success('New version available, updating...');
-                    // Clear cache and reload to fetch fresh
+                    toast.success('New version found, updating cache...');
+                    // Clear old cache and reload to fetch fresh
                     localStorage.removeItem('bible_cache_version');
                     localStorage.removeItem('bible_last_refresh');
                     setTimeout(() => window.location.reload(), 1000);
                   } else {
-                    toast.message('Already using latest version');
+                    toast.success('✅ Already up to date - no changes needed');
                   }
                 } catch (err) {
                   console.error('Refresh failed:', err);
