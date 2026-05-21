@@ -1,19 +1,9 @@
-/**
- * mergeItalics: Reads the abbreviated TEXT-PCE-127.txt (source of italic [brackets])
- * and the title-format KJB-PCE-RTF.txt (clean prose text), then produces a new version
- * of the RTF file where italic words from the abbreviated file are inserted as [brackets].
- *
- * Strategy:
- * 1. Parse TEXT-PCE-127.txt into a map: "Book:Chapter:Verse" -> verse text (with [brackets])
- * 2. Parse KJB-PCE-RTF.txt line by line, identify chapter/verse structure
- * 3. For each verse in the RTF file, look up the italic version, extract [bracketed] spans,
- *    and insert them into the RTF text using word-level matching.
- * 4. Strip colophon text from verses using hardcoded colophons as reference.
- */
-
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
-// Hardcoded colophons from bibleSubscripts.js - used to strip from verse text
+const ABBREV_FILE = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/e8f9529e6_TEXT-PCE.txt';
+const RTF_FILE = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/075077e5d_KJB-PCE-RTF.txt';
+
+// Hardcoded colophons for stripping
 const COLOPHONS = {
   'Romans:16':          'Written to the Romans from Corinthus, [and sent] by Phebe servant of the church at Cenchrea.',
   '1 Corinthians:16':   'The first [epistle] to the Corinthians was written from Philippi by Stephanas, and Fortunatus, and Achaicus, and Timotheus.',
@@ -31,9 +21,7 @@ const COLOPHONS = {
   'Hebrews:13':         'Written to the Hebrews from Italy by Timothy.',
 };
 
-// Build regex patterns from colophon texts for stripping
 const COLOPHON_PATTERNS = Object.entries(COLOPHONS).map(([key, text]) => {
-  // Escape special regex chars and make case-insensitive
   const escaped = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return new RegExp(escaped, 'gi');
 });
@@ -43,7 +31,6 @@ function stripColophonFromVerse(verseText) {
   for (const pattern of COLOPHON_PATTERNS) {
     cleaned = cleaned.replace(pattern, '');
   }
-  // Also strip common colophon fragments
   cleaned = cleaned
     .replace(/\s*Written\s+to\s+[^.]*\.?/gi, '')
     .replace(/\s*It\s+was\s+written\s+[^.]*\.?/gi, '')
@@ -52,10 +39,7 @@ function stripColophonFromVerse(verseText) {
   return cleaned;
 }
 
-const ABBREV_FILE = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/dacf369e2_TEXT-PCE-127.txt';
-const RTF_FILE = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/075077e5d_KJB-PCE-RTF.txt';
-
-// Abbreviation -> canonical book name (for matching)
+// Abbreviation -> canonical book name
 const ABBREV_TO_BOOK = {
   'Ge': 'Genesis', 'Ex': 'Exodus', 'Le': 'Leviticus', 'Nu': 'Numbers', 'De': 'Deuteronomy',
   'Jos': 'Joshua', 'Jg': 'Judges', 'Ru': 'Ruth',
@@ -96,9 +80,9 @@ const ABBREV_TO_BOOK = {
   'Jud': 'Jude', 'Jude': 'Jude', 'Re': 'Revelation', 'Rev': 'Revelation', 'Reve': 'Revelation'
 };
 
-// Book title patterns in the RTF file -> canonical book name
+// Book title patterns in RTF -> canonical book name
 const RTF_TITLE_MAP = {
-  'THE FIRST BOOK OF MOSES': 'Genesis', 'CALLED\nGENESIS': 'Genesis',
+  'THE FIRST BOOK OF MOSES': 'Genesis',
   'THE SECOND BOOK OF MOSES': 'Exodus',
   'THE THIRD BOOK OF MOSES': 'Leviticus',
   'THE FOURTH BOOK OF MOSES': 'Numbers',
@@ -173,7 +157,7 @@ function matchBookTitle(upper) {
 }
 
 /**
- * Parse TEXT-PCE-127.txt into a map: "Book Chapter:Verse" -> text with [brackets]
+ * Parse TEXT-PCE.txt into a map: "Book Chapter:Verse" -> text with [brackets]
  */
 function parseAbbrevFile(text) {
   const map = new Map();
@@ -199,52 +183,44 @@ function parseAbbrevFile(text) {
 
 /**
  * Extract italic spans from a verse text that has [brackets].
- * Returns array of {start, end, word} where word is the bracketed content.
- * Also returns a "normalized" version without brackets for matching.
  */
 function extractItalicInfo(bracketedText) {
-  // Strip ¶ paragraph marks and colophon markers for comparison
-  const cleaned = bracketedText
-    .replace(/^¶\s*/, '')
-    .replace(/^[\u00B6]\s*/, '');
-  
-  // Build list of italic spans
+  const cleaned = bracketedText.replace(/^¶\s*/, '').replace(/^[\u00B6]\s*/, '');
   const italics = [];
   const regex = /\[([^\]]+)\]/g;
   let m;
   while ((m = regex.exec(cleaned)) !== null) {
     italics.push({ text: m[1], index: m.index });
   }
-  
-  // Plain text (no brackets, for word matching)
   const plain = cleaned.replace(/\[([^\]]+)\]/g, '$1');
-  
   return { italics, plain, cleaned };
 }
 
 /**
  * Given RTF verse text (clean, no brackets) and italic info from abbreviated file,
  * attempt to insert [brackets] around the italic words.
- * Uses a simple approach: find each italic phrase in the clean RTF text and wrap it.
  */
 function applyItalics(rtfText, italics) {
   if (!italics || italics.length === 0) return rtfText;
   
   let result = rtfText;
+  const existingBrackets = result.match(/\[[^\]]+\]/g) || [];
   
-  // Sort by length descending to avoid partial matches on substrings
+  // Sort by length descending to avoid partial matches
   const sorted = [...italics].sort((a, b) => b.text.length - a.text.length);
   
   for (const italic of sorted) {
-    const phrase = italic.text;
-    // Case-insensitive search, but preserve original case in RTF
-    // We need to find the phrase in result and wrap it
-    // Use word-boundary aware approach
+    let phrase = italic.text;
+    
+    // Strip leading "(but)" or similar parenthetical additions
+    phrase = phrase.replace(/^\([^)]+\)\s*/, '');
+    
+    if (!phrase.trim()) continue;
+    
     try {
-      // Escape special regex chars in phrase
       const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      // Match the phrase but NOT if already inside brackets
-      const re = new RegExp(`(?<!\\[)\\b${escaped}\\b(?![^[]*\\])`, 'i');
+      // Match case-insensitively, but NOT if already inside brackets
+      const re = new RegExp(`(?<!\\[)\\b${escaped}\\b(?!\\])`, 'i');
       const match = re.exec(result);
       if (match) {
         const before = result.slice(0, match.index);
@@ -406,7 +382,6 @@ Deno.serve(async (req) => {
 
       // First verse (chapter opener — no verse number, starts with capital text)
       if (currentBook && currentChapter !== null && /^[A-Z]/.test(trimmed) && !/^CHAPTER/.test(trimmed)) {
-        // This could be verse 1 (no number prefix in RTF opener verses)
         const key = `${currentBook} ${currentChapter}:1`;
         const italicVersion = italicMap.get(key);
         
@@ -414,7 +389,6 @@ Deno.serve(async (req) => {
           const { italics } = extractItalicInfo(italicVersion);
           if (italics.length > 0) {
             const mergedText = applyItalics(trimmed, italics);
-            // Preserve original line indentation
             const leadingSpace = line.match(/^(\s*)/)[1];
             outputLines.push(leadingSpace + mergedText);
             versesMerged++;
@@ -469,9 +443,7 @@ Deno.serve(async (req) => {
         outputLength: result.length
       },
       mergedFileUrl,
-      // Return first 5000 chars of result as preview
       preview: result.substring(0, 5000),
-      // Sample output for requested book/chapter
       sample: sampleOutput.slice(0, 20)
     });
 
