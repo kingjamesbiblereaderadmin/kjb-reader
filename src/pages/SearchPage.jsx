@@ -732,19 +732,9 @@ export default function SearchPage() {
                 <span className="hidden sm:inline">Previous</span>
                 <span className="sm:hidden">Prev</span>
               </button>
-              <div className="flex items-center gap-1.5 flex-shrink-0">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let pageNum;
-                  if (totalPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNum = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
-                  } else {
-                    pageNum = currentPage - 2 + i;
-                  }
-                  return (
+              {totalPages <= 5 ? (
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
                     <button
                       key={pageNum}
                       onClick={() => goToPage(pageNum)}
@@ -756,9 +746,25 @@ export default function SearchPage() {
                     >
                       {pageNum}
                     </button>
-                  );
-                })}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="relative flex-shrink-0">
+                  <select
+                    value={currentPage}
+                    onChange={(e) => goToPage(Number(e.target.value))}
+                    className="w-20 h-8 sm:h-10 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs sm:text-sm font-semibold px-2 border border-border focus:outline-none focus:border-accent appearance-none cursor-pointer"
+                    style={{ backgroundImage: 'none' }}
+                  >
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                      <option key={pageNum} value={pageNum}>
+                        Page {pageNum}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+                </div>
+              )}
               <button
                 onClick={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
