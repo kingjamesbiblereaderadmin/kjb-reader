@@ -603,34 +603,33 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                       e.preventDefault();
                       e.stopPropagation();
                       e.nativeEvent.stopImmediatePropagation();
+                      // Don't close menu - let user continue interacting
                       setCropImageForNotif(false);
-                      setShowMenu(false);
+                      // Trigger file input immediately
+                      if (fileInputRef.current) {
+                        fileInputRef.current.click();
+                      }
                     }}
                     onMouseDown={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
                       e.nativeEvent.stopImmediatePropagation();
-                      setCropImageForNotif(false);
-                      setShowMenu(false);
-                      // Trigger file input after menu closes
-                      setTimeout(() => {
-                        if (fileInputRef.current) {
-                          fileInputRef.current.click();
-                        }
-                      }, 50);
+                    }}
+                    onTouchStart={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      e.nativeEvent.stopImmediatePropagation();
                     }}
                     onTouchEnd={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
                       e.nativeEvent.stopImmediatePropagation();
+                      // Don't close menu - let user continue interacting
                       setCropImageForNotif(false);
-                      setShowMenu(false);
-                      // Trigger file input after menu closes on mobile
-                      setTimeout(() => {
-                        if (fileInputRef.current) {
-                          fileInputRef.current.click();
-                        }
-                      }, 50);
+                      // Trigger file input immediately on mobile
+                      if (fileInputRef.current) {
+                        fileInputRef.current.click();
+                      }
                     }}
                     disabled={uploading}
                     className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-50"
