@@ -7,11 +7,14 @@ import { getDailyVerse } from '@/lib/dailyVerse'
 import { toast } from 'sonner'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <App />
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
 )
 
 // Service worker registration for offline support and notifications
 window.addEventListener('load', async () => {
+  
   // Register fresh service worker (production only)
   if ('serviceWorker' in navigator && !import.meta.env.DEV) {
     try {
