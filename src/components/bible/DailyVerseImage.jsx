@@ -689,7 +689,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       />
       
       {showVersePanel ? (
-        <div className="bg-white/15 backdrop-blur-sm rounded-xl px-6 py-4 mb-5 shadow-none">
+        <div className="bg-white/25 backdrop-blur-sm rounded-xl px-6 py-4 mb-5 shadow-none">
           <p 
             className={`font-sans text-sm font-bold tracking-wide uppercase mb-3 ${accentClass}`}
             style={{ opacity: textOpacity, color: textColor, fontFamily }}
