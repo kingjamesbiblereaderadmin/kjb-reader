@@ -181,8 +181,25 @@ export default function BibleReader() {
     lines += `" — ${reference} (KJB)`;
     
     console.log('[BibleReader] Copying to clipboard:', lines.substring(0, 100) + '...');
-    await navigator.clipboard.writeText(lines);
-    console.log('[BibleReader] ✅ Clipboard write successful');
+    
+    // Use deprecated execCommand to avoid Chrome toast notification
+    try {
+      const textarea = document.createElement('textarea');
+      textarea.value = lines;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      console.log('[BibleReader] ✅ Copy via execCommand (no toast)');
+    } catch (err) {
+      // Fallback to modern API
+      await navigator.clipboard.writeText(lines);
+      console.log('[BibleReader] ✅ Clipboard write successful (fallback)');
+    }
+    
     setCopyFeedback(true);
     console.log('[BibleReader] Copy feedback state after:', true);
     setTimeout(() => {

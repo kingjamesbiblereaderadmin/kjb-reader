@@ -49,12 +49,27 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   const highlightBg = highlightColors.find(c => c.name === highlightColor)?.bg;
   const isHighlighted = selected || showHighlight;
 
-  const handleCopy = (e) => {
+  const handleCopy = async (e) => {
     e.stopPropagation();
     console.log('[VerseText] handleCopy called for', verseRef);
     console.log('[VerseText] Text to copy:', verseText.substring(0, 100) + '...');
-    navigator.clipboard.writeText(verseText);
-    console.log('[VerseText] ✅ Clipboard write successful');
+    try {
+      // Use deprecated execCommand to avoid Chrome toast notification
+      const textarea = document.createElement('textarea');
+      textarea.value = verseText;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      console.log('[VerseText] ✅ Copy via execCommand (no toast)');
+    } catch (err) {
+      // Fallback to modern API
+      await navigator.clipboard.writeText(verseText);
+      console.log('[VerseText] ✅ Clipboard write successful (fallback)');
+    }
     setSelected(false);
   };
 
