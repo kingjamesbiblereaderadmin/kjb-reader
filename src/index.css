@@ -114,6 +114,7 @@
   .cursive-em-style em {
     font-family: 'Great Vibes', cursive !important;
     font-style: italic !important;
+    font-weight: 400 !important;
   }
 
 
