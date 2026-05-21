@@ -410,7 +410,7 @@ export default function BibleReader() {
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
         <div ref={topRef} className="sticky top-[56px] sm:top-[72px] z-40 bg-background/95 backdrop-blur border-b border-border pb-1 mb-2">
-          <div className="relative flex flex-wrap items-center gap-1.5 pt-1 overflow-x-auto">
+          <div className="flex flex-nowrap items-center gap-1.5 pt-1 overflow-x-auto pb-2 -mx-2 px-2">
 
             {/* Book selector */}
             <button
