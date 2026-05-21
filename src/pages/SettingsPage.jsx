@@ -800,14 +800,11 @@ export default function SettingsPage() {
                   Reload Bible Data
                 </button>
                 {downloading && (
-                  <div className="space-y-2">
-                    <div className="w-full bg-secondary rounded-full h-2">
-                      <div
-                        className="bg-primary h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${dlProgress}%` }}
-                      />
-                    </div>
-                    <p className="font-sans text-xs text-muted-foreground">{dlStatus}</p>
+                  <div className="w-full bg-secondary rounded-full h-2">
+                    <div
+                      className="bg-primary h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${dlProgress}%` }}
+                    />
                   </div>
                 )}
               </div>
