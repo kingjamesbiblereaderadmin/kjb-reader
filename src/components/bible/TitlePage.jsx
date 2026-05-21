@@ -130,18 +130,12 @@ export default function TitlePage({ type }) {
               APPOINTED TO BE READ IN CHURCHES
             </p>
           </div>
-        </div>
 
-        <div className="text-center space-y-2">
-          <p className="font-serif text-sm md:text-base font-normal text-foreground tracking-[0.02em]">
-            AUTHORIZED KING JAMES VERSION
-          </p>
-          <p className="font-serif text-sm md:text-base font-normal text-foreground tracking-[0.02em]">
-            PURE CAMBRIDGE EDITION
-          </p>
-          <p className="font-serif text-sm md:text-base font-normal text-foreground tracking-[0.02em]">
-            MADE IN AUSTRALIA
-          </p>
+          <div className="pt-8">
+            <p className="font-serif text-base md:text-lg font-normal text-foreground tracking-[0.1em]">
+              AUTHORIZED KING JAMES BIBLE
+            </p>
+          </div>
         </div>
       </div>
     );
