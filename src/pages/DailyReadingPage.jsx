@@ -195,12 +195,16 @@ export default function DailyReadingPage() {
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
                   day.completed
                     ? 'bg-primary text-primary-foreground'
+                    : day.isFuture
+                    ? 'bg-secondary/50 text-muted-foreground/50 border-2 border-border'
                     : day.hasReading
                     ? 'bg-orange-100 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 border-2 border-orange-300 dark:border-orange-700'
                     : 'bg-red-50 dark:bg-red-900/20 text-red-400 dark:text-red-500 border-2 border-red-200 dark:border-red-800'
                 }`}>
                   {day.completed ? (
                     <CheckCircle2 className="w-5 h-5" />
+                  ) : day.isFuture ? (
+                    <span className="font-sans text-sm font-medium">{day.day.charAt(0)}</span>
                   ) : day.hasReading ? (
                     <span className="font-sans text-sm font-medium">{day.day.charAt(0)}</span>
                   ) : (

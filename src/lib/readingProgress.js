@@ -28,6 +28,7 @@ export async function getWeeklyProgress() {
       const date = new Date(now);
       date.setDate(now.getDate() - (now.getDay() === 0 ? 6 : now.getDay()) + i);
       const dateStr = date.toISOString().split('T')[0];
+      const isFuture = dateStr > today;
       const dayProgress = progress.find(p => p.date === dateStr);
       
       weekData.push({
@@ -35,6 +36,7 @@ export async function getWeeklyProgress() {
         day: days[date.getDay()],
         completed: !!dayProgress?.completed,
         hasReading: !!dayProgress,
+        isFuture,
       });
     }
     
