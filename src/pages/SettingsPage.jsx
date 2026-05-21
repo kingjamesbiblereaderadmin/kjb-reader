@@ -973,10 +973,11 @@ export default function SettingsPage() {
         {expandedSections.credits && (
         <div className="p-5 pt-0 space-y-3">
           <div className="space-y-2 font-sans text-xs text-muted-foreground">
-        <p>• <strong className="text-foreground">Bible Text:</strong> Public Domain Edition (PCE) of the King James Bible</p>
+        <p>• <strong className="text-foreground">Bible Text:</strong> King James Bible: Pure Cambridge Edition: Wharton Text Format</p>
         <p>• <strong className="text-foreground">Cormorant Garamond:</strong> Google Fonts (SIL Open Font License)</p>
         <p>• <strong className="text-foreground">Inter:</strong> Google Fonts (SIL Open Font License)</p>
         <p>• <strong className="text-foreground">Merriweather:</strong> Google Fonts (SIL Open Font License)</p>
+        <p>• <strong className="text-foreground">Dancing Script:</strong> Google Fonts (SIL Open Font License)</p>
         <p className="pt-2 text-[10px] opacity-75">All fonts are open source and freely available under the SIL Open Font License.</p>
       </div>
         </div>
