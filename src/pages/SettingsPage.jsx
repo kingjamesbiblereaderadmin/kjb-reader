@@ -741,7 +741,7 @@ export default function SettingsPage() {
         >
           <div>
             <h2 className="font-serif text-lg font-semibold text-foreground">Daily Verse Reminders</h2>
-            <p className="font-sans text-xs text-muted-foreground">Get reminded to read your daily verse</p>
+            <p className="font-sans text-xs text-muted-foreground">Get daily verse notifications</p>
           </div>
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.notifications ? 'rotate-180' : ''}`} />
         </button>
