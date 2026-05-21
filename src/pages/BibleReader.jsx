@@ -832,6 +832,8 @@ export default function BibleReader() {
                 selectMode={selectMode}
                 isSelected={selectedVerses.has(v.verse)}
                 onSelect={toggleVerseSelect}
+                totalVerses={verseCount}
+                colophon={colophon}
               />
             ))}
           </div>

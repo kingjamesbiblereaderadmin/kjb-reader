@@ -4,7 +4,7 @@ import { Copy, Share2, X, Highlighter, ChevronDown, Bookmark, BookmarkCheck, Che
 import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 
-export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect }) {
+export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null }) {
   const bookEntry = BIBLE_BOOKS.find(b => b.abbr === abbr);
   const shortBookName = bookEntry ? bookEntry.shortName : bookName;
   const [selected, setSelected] = useState(false);
@@ -38,7 +38,11 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
 
   const verseRef = `${shortBookName} ${chapter}:${verse.verse}`;
   const cleanText = verse.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '');
-  const verseText = `"${cleanText}" — ${verseRef} (KJB)`;
+  const isLastVerse = totalVerses > 0 && verse.verse === totalVerses;
+  const colophonSuffix = isLastVerse && colophon
+    ? ' ' + colophon.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '')
+    : '';
+  const verseText = `"${cleanText}${colophonSuffix}" — ${verseRef} (KJB)`;
 
   const highlightBg = highlightColors.find(c => c.name === highlightColor)?.bg;
   const isHighlighted = selected || showHighlight;
