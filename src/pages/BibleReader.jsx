@@ -346,18 +346,16 @@ export default function BibleReader() {
     }
   }, []);
 
+  // Scroll to verse when highlight is set
   useEffect(() => {
-    if (!loading) {
-      if (highlightVerse) {
-        // Center on the specific verse (no overlay shown by default)
-        setTimeout(() => {
-          const el = document.getElementById(`v${highlightVerse}`);
-          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 100);
-      } else {
-        // No verse target — ensure we're at the top
-        window.scrollTo({ top: 0 });
-      }
+    if (!loading && highlightVerse) {
+      const timer = setTimeout(() => {
+        const el = document.getElementById(`v${highlightVerse}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+      return () => clearTimeout(timer);
     }
   }, [verses, loading, highlightVerse]);
 
