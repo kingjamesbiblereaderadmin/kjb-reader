@@ -466,21 +466,25 @@ export default function SearchPage() {
           Books {selectedBooks.size > 0 && `(${selectedBooks.size})`}
           <ChevronDown className={`w-3 h-3 transition-transform ${showBookFilter ? 'rotate-180' : ''}`} />
         </button>
-        <div className="w-px h-4 bg-border" />
-        <span className="font-sans text-xs text-muted-foreground">Limit:</span>
-        {[50, 100, 200, 500].filter(limit => limit <= results.length).map(limit => (
-          <button
-            key={limit}
-            type="button"
-            onClick={() => { setResultsLimit(limit); setCurrentPage(1); }}
-            className={`px-2.5 py-1 rounded-lg font-sans text-xs font-medium transition-colors ${
-              resultsLimit === limit ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-            }`}
-          >
-            {limit}
-          </button>
-        ))}
-        <div className="w-px h-4 bg-border" />
+        {results.length > 50 && (
+          <>
+            <div className="w-px h-4 bg-border" />
+            <span className="font-sans text-xs text-muted-foreground">Limit:</span>
+            <div className="relative">
+              <select
+                value={resultsLimit}
+                onChange={(e) => { setResultsLimit(Number(e.target.value)); setCurrentPage(1); }}
+                className="appearance-none bg-secondary text-secondary-foreground font-sans text-xs font-medium px-3 py-1 pr-8 rounded-lg border border-border focus:outline-none focus:border-accent cursor-pointer"
+              >
+                {[50, 100, 200, 500].filter(limit => limit <= results.length).map(limit => (
+                  <option key={limit} value={limit}>{limit}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground pointer-events-none" />
+            </div>
+            <div className="w-px h-4 bg-border" />
+          </>
+        )}
         <div className="flex items-center gap-1.5">
           <input
             id="whole-word"
