@@ -75,6 +75,7 @@ export default function BibleReader() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [highlightVerse, setHighlightVerse] = useState(pos.verse || null);
+  const [manualHighlight, setManualHighlight] = useState(false);
   const [verseCount, setVerseCount] = useState(0);
 
   const [showBookPicker, setShowBookPicker] = useState(false);
@@ -360,9 +361,9 @@ export default function BibleReader() {
     }
   }, [verses, loading, highlightVerse]);
 
-  // Auto-hide highlights after 5 seconds and reset header verse status
+  // Auto-hide highlights after 5 seconds (only if not manually selected)
   useEffect(() => {
-    if (highlightVerse) {
+    if (highlightVerse && !manualHighlight) {
       const timer = setTimeout(() => {
         setHighlightVerse(null);
         // Clear the verse from position storage to reset header display
@@ -375,7 +376,7 @@ export default function BibleReader() {
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [highlightVerse]);
+  }, [highlightVerse, manualHighlight]);
 
   // Reset verse status when exiting filter mode or clearing selection
   useEffect(() => {
@@ -397,6 +398,7 @@ export default function BibleReader() {
     // Clear highlights when navigating without a specific verse (random chapter)
     if (!jumpVerse) {
       setHighlightVerse(null);
+      setManualHighlight(false);
     }
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);
@@ -649,6 +651,7 @@ export default function BibleReader() {
                         setSelectMode(false);
                         setFilterMode(true);
                       }
+                      setManualHighlight(true);
                       navigate(pos.abbr, pos.chapter, first);
                       setShowVersePicker(false);
                     }}
@@ -668,6 +671,7 @@ export default function BibleReader() {
                       setSelectMode(false);
                       setFilterMode(true);
                     }
+                    setManualHighlight(true);
                     navigate(pos.abbr, pos.chapter, first);
                     setShowVersePicker(false);
                   }}
