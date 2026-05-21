@@ -200,7 +200,7 @@ export default function SettingsPage() {
     const v = getDailyVerse();
     console.log('[Settings] Showing test notification...');
     try {
-      await showLocalNotification('KJB — Daily Verse Test', `"${v.text.slice(0, 100)}${v.text.length > 100 ? '…' : ''}" — ${v.ref}`);
+      await showLocalNotification('KJB — Daily Verse Test', `"${v.text.slice(0, 100)}${v.text.length > 100 ? '…' : ''}" — ${v.ref} (KJB)`);
       console.log('[Settings] Test notification completed');
     } catch (err) {
       console.error('[Settings] Test notification failed:', err);
