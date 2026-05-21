@@ -186,6 +186,8 @@ export default function SearchPage() {
       const matches = [];
       const seen = new Set();
       const searchTermLower = searchTerm.toLowerCase();
+      const MAX_RESULTS = 500; // Limit to prevent freezing on common words
+      let resultCount = 0;
 
       for (const bookName in bible) {
         if (bookName === '__colophons') continue;
@@ -254,6 +256,10 @@ export default function SearchPage() {
                 text: verseObj.text,
                 abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
               });
+              resultCount++;
+              if (resultCount >= MAX_RESULTS) {
+                break;
+              }
             }
           }
           
@@ -302,9 +308,11 @@ export default function SearchPage() {
             }
           }
         }
+        if (resultCount >= MAX_RESULTS) break;
       }
 
       setResults(matches);
+      console.log('[Search] Found', matches.length, 'results', resultCount >= MAX_RESULTS ? '(limited to ' + MAX_RESULTS + ')' : '');
       console.log('[Search] Found', matches.length, 'results');
     } catch (err) {
       console.error('Search error:', err);
