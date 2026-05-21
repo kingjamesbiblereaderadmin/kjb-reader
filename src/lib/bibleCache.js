@@ -6,9 +6,9 @@
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB } from '@/lib/bibleIndexedDB';
 import { COLOPHONS } from '@/lib/bibleSubscripts';
 
-const CACHE_KEY = 'bible_data_pce_v62_STRIP_COLOPHONS';
-// Use the merged file from mergeItalics function (has brackets, colophons stripped)
-const RTF_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/PLACEHOLDER_MERGED_FILE.txt';
+const CACHE_KEY = 'bible_data_pce_v63_STRIP_COLOPHONS';
+// Use the abbreviated file (TEXT-PCE-127.txt) which has [brackets] for italics
+const RTF_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/dacf369e2_TEXT-PCE-127.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
 const EXPECTED_BOOK_COUNT = 66;
