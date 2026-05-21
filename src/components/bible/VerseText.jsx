@@ -25,7 +25,11 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   useEffect(() => {
     if (highlight) {
       setShowHighlight(true);
-      const timer = setTimeout(() => setShowHighlight(false), 5000);
+      setSelected(true);
+      const timer = setTimeout(() => {
+        setShowHighlight(false);
+        setSelected(false);
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, [highlight]);
