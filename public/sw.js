@@ -5,8 +5,10 @@
 //  - Cross-origin (fonts, images CDN): cache-first runtime cache
 //  - On page load, the client sends a PREWARM_ASSETS message with all <script>/<link>
 //    URLs from the current page. The SW fetches+caches them so every route works offline.
-const CACHE_NAME = 'kjb-cache-v6';
-const RUNTIME_CACHE = 'kjb-runtime-v6';
+// IMPORTANT: bump these version numbers on every deploy so browsers detect
+// the new service worker and prompt the user to refresh.
+const CACHE_NAME = 'kjb-cache-v7';
+const RUNTIME_CACHE = 'kjb-runtime-v7';
 const OFFLINE_URL = '/offline.html';
 const APP_SHELL_URL = '/';
 const APP_LOGO = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
@@ -21,7 +23,7 @@ const PRECACHE_URLS = [
 
 // ─── Install ───────────────────────────────────────────────
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing v6');
+  console.log('[SW] Installing v7');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => Promise.all(
@@ -35,7 +37,7 @@ self.addEventListener('install', (event) => {
 
 // ─── Activate ──────────────────────────────────────────────
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating v6');
+  console.log('[SW] Activating v7');
   event.waitUntil(
     caches.keys()
       .then(keys => Promise.all(

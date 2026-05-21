@@ -47,6 +47,42 @@ window.addEventListener('load', async () => {
       const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
       console.log('[SW] Registered:', registration.scope);
 
+      // Show update toast whenever a new SW is installed and waiting.
+      // This fires after every deploy (sw.js or new JS chunks → new SW state).
+      const promptUpdate = (waitingWorker) => {
+        toast.info('App update available', {
+          description: 'New version ready. Refresh to apply.',
+          action: {
+            label: 'Refresh',
+            onClick: () => {
+              waitingWorker?.postMessage({ type: 'SKIP_WAITING' });
+              // Reload once the new SW takes control
+              navigator.serviceWorker.addEventListener('controllerchange', () => {
+                window.location.reload();
+              }, { once: true });
+            },
+          },
+          duration: 0, // sticky until user acts
+        });
+      };
+
+      // If a worker is already waiting when we register, prompt immediately
+      if (registration.waiting && navigator.serviceWorker.controller) {
+        promptUpdate(registration.waiting);
+      }
+
+      // Listen for newly-found workers
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        if (!newWorker) return;
+        newWorker.addEventListener('statechange', () => {
+          // Only prompt if there's an existing controller (i.e. this is an update, not first install)
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            promptUpdate(newWorker);
+          }
+        });
+      });
+
       // Prewarm: tell SW to cache every <script> and <link rel=stylesheet> on the page
       // so all lazy-loaded routes work offline, even if the user never visited them online.
       const prewarmAssets = () => {
