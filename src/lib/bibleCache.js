@@ -6,8 +6,8 @@
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB } from '@/lib/bibleIndexedDB';
 import { COLOPHONS } from '@/lib/bibleSubscripts';
 
-const CACHE_KEY = 'bible_data_pce_v45_WITH_BRACKETS';
-const RTF_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/dacf369e2_TEXT-PICLE-127.txt';
+const CACHE_KEY = 'bible_data_pce_v44';
+const RTF_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/dacf369e2_TEXT-PCE-127.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
 const EXPECTED_BOOK_COUNT = 66;
@@ -327,15 +327,18 @@ export async function isBibleCached() {
 }
 
 export async function clearBibleCache() {
-  for (let i = 1; i <= 50; i++) {
+  // Clear ALL possible cache keys
+  for (let i = 1; i <= 100; i++) {
     localStorage.removeItem(`bible_data_pce_v${i}`);
+    localStorage.removeItem(`bible_data_pce_v${i}_WITH_BRACKETS`);
   }
   localStorage.removeItem('bible_data_complete');
   localStorage.removeItem('bible_data_complete_v2');
   localStorage.removeItem('bible_cache_version');
+  localStorage.removeItem('bible_last_refresh');
   await clearIndexedDB();
   parsedData = null;
-  console.log('[CLEAR] ✓ All cache cleared');
+  console.log('[CLEAR] ✓✓✓ ALL cache cleared - will fetch fresh with brackets');
 }
 
 export async function forceReloadBibleData() {
