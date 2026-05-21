@@ -505,17 +505,31 @@ export default function BibleReader() {
               <button
                 onClick={() => { setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); }}
                 onTouchEnd={(e) => { e.preventDefault(); setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); }}
-                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors touch-manipulation min-h-[44px]"
+                className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg font-sans text-sm font-medium transition-colors touch-manipulation min-h-[44px] ${
+                  selectMode
+                    ? 'bg-primary text-primary-foreground'
+                    : filterMode && selectedVerses.size > 0
+                    ? 'bg-accent/20 text-accent'
+                    : highlightVerse
+                    ? 'bg-accent/20 text-accent'
+                    : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                }`}
                 disabled={verseCount === 0}
               >
                 <span>
-                  {filterMode && selectedVerses.size > 0
+                  {selectMode
+                    ? `${selectedVerses.size > 0 ? selectedVerses.size : '0'} selected`
+                    : filterMode && selectedVerses.size > 0
                     ? `vv.${formatVerseRange([...selectedVerses])}`
                     : highlightVerse
                     ? `v.${highlightVerse}`
                     : 'Verse'}
                 </span>
-                <ChevronRight className={`w-3 h-3 opacity-70 transition-transform flex-shrink-0 ${showVersePicker ? 'rotate-90' : ''}`} />
+                {selectMode ? (
+                  <CheckSquare className="w-3.5 h-3.5 opacity-70 flex-shrink-0" />
+                ) : (
+                  <ChevronRight className={`w-3 h-3 opacity-70 transition-transform flex-shrink-0 ${showVersePicker ? 'rotate-90' : ''}`} />
+                )}
               </button>
               {showVersePicker && verseCount > 0 && !isMobile() && (
                 <div className="absolute top-full left-0 mt-1 z-50">
