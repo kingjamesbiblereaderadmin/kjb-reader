@@ -6,9 +6,11 @@
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB } from '@/lib/bibleIndexedDB';
 import { COLOPHONS } from '@/lib/bibleSubscripts';
 
-const CACHE_KEY = 'bible_data_pce_v63_STRIP_COLOPHONS';
-// Use the abbreviated file (TEXT-PCE-127.txt) which has [brackets] for italics
-const RTF_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/dacf369e2_TEXT-PCE-127.txt';
+const CACHE_KEY = 'bible_data_pce_v65_MERGED';
+// Use the RTF file (clean prose text) - italics will be merged from abbreviated file
+const RTF_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/075077e5d_KJB-PCE-RTF.txt';
+// Abbreviated file for extracting [brackets]
+const ABBREV_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/dacf369e2_TEXT-PCE-127.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
 const EXPECTED_BOOK_COUNT = 66;
@@ -169,66 +171,109 @@ const ABBREV_TO_API = {
   'Re': 'Revelation', 'Rev': 'Revelation', 'Reve': 'Revelation'
 };
 
-// Title-based parser for KJB-PCE-RTF.txt (supports both title format and abbreviated format)
-function parseBibleText(rawText) {
-  console.log('[PARSE] Raw text length:', rawText.length);
-  const lines = rawText.split('\n');
-  console.log('[PARSE] Split into', lines.length, 'lines');
+// Parse abbreviated file (TEXT-PCE-127.txt) into italic map: "Book Chapter:Verse" -> text with [brackets]
+function parseAbbrevFile(text) {
+  const italicMap = new Map();
+  const lines = text.split('\n');
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    const m = trimmed.match(/^(\d?[A-Za-z]{1,4})\s+(\d+):(\d+)\s+(.+)$/);
+    if (!m) continue;
+    const abbrev = m[1];
+    const ch = parseInt(m[2], 10);
+    const vs = parseInt(m[3], 10);
+    // Strip colophon markers <<...>>
+    const verseText = m[4].replace(/\s*<<[^>]*>>\s*$/, '');
+    const bookName = ABBREV_TO_API[abbrev];
+    if (bookName) {
+      const key = `${bookName} ${ch}:${vs}`;
+      italicMap.set(key, verseText);
+    }
+  }
+  console.log('[ABBREV] Parsed', italicMap.size, 'verses with italics');
+  return italicMap;
+}
+
+// Extract italic spans from verse text that has [brackets]
+function extractItalicInfo(bracketedText) {
+  const cleaned = bracketedText.replace(/^¶\s*/, '').replace(/^[\u00B6]\s*/, '');
+  const italics = [];
+  const regex = /\[([^\]]+)\]/g;
+  let m;
+  while ((m = regex.exec(cleaned)) !== null) {
+    italics.push({ text: m[1], index: m.index });
+  }
+  const plain = cleaned.replace(/\[([^\]]+)\]/g, '$1');
+  return { italics, plain, cleaned };
+}
+
+// Apply italics to clean RTF text by finding italic phrases and wrapping them in [brackets]
+function applyItalics(rtfText, italics) {
+  if (!italics || italics.length === 0) return rtfText;
+  let result = rtfText;
+  // Sort by length descending to avoid partial matches
+  const sorted = [...italics].sort((a, b) => b.text.length - a.text.length);
+  for (const italic of sorted) {
+    const phrase = italic.text;
+    try {
+      const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const re = new RegExp(`(?<!\\[)\\b${escaped}\\b(?![^[]*\\])`, 'i');
+      const match = re.exec(result);
+      if (match) {
+        const before = result.slice(0, match.index);
+        const after = result.slice(match.index + match[0].length);
+        result = before + '[' + match[0] + ']' + after;
+      }
+    } catch (e) {
+      // Skip problematic phrases
+    }
+  }
+  return result;
+}
+
+// Strip colophon text from verse using hardcoded patterns
+function stripColophonFromVerse(verseText) {
+  let cleaned = verseText
+    .replace(/\s*<<[^>]*>>\s*/g, '')
+    .replace(/Written\s+to\s+[^.]*\.?/gi, '')
+    .replace(/It\s+was\s+written\s+[^.]*\.?/gi, '')
+    .replace(/Unto\s+the\s+[^.]*\.?/gi, '')
+    .replace(/The\s+(first|second)\s+\[?epistle\]?[^.]*\.?/gi, '')
+    .replace(/This\s+(first|second)\s+epistle\s+[^.]*\.?/gi, '')
+    .replace(/[A-Z][A-Za-z\s]+\s+\[?epistle\]?\s+written\s+[^.]*\.?/gi, '')
+    .replace(/from\s+[A-Z][a-z]+\s+by\s+[A-Z][a-z]+\.?$/gi, '')
+    .trim();
+  
+  if (cleaned.match(/\s+Written\s+to\s+/i) || cleaned.match(/\s+from\s+[A-Z]/i)) {
+    cleaned = cleaned.split(/Written\s+to\s+/i)[0].trim();
+    cleaned = cleaned.split(/from\s+[A-Z][a-z]+\s+by\s+/i)[0].trim();
+  }
+  
+  return cleaned;
+}
+
+// Merge RTF text with italics from abbreviated file, strip colophons
+function parseBibleText(rtfText, abbrevText) {
+  console.log('[PARSE] RTF length:', rtfText.length, ', Abbrev length:', abbrevText.length);
+  
+  // Parse abbreviated file for italics
+  const italicMap = parseAbbrevFile(abbrevText);
+  
+  const rtfLines = rtfText.split('\n');
+  console.log('[PARSE] RTF has', rtfLines.length, 'lines');
 
   const data = {};
   let currentBook = null;
   let currentChapter = null;
   let verseCount = 0;
   let pendingTitle = null;
+  let versesMerged = 0;
 
-  // Comprehensive colophon patterns - these are hardcoded in bibleSubscripts.js
-  const isColophonLine = (line) => {
-    const patterns = [
-      /^\s*Written\s+to\s+/i,
-      /^\s*It\s+was\s+written\s+to\s+/i,
-      /^\s*Unto\s+the\s+/i,
-      /^\s+The\s+(first|second)\s+\[?epistle\]?/i,
-      /^\s+[A-Z]+\s+\[?epistle\]?\s+written\s+/i,
-      /^\s+This\s+(first|second)\s+epistle\s+/i,
-    ];
-    return patterns.some(p => p.test(line));
-  };
-
-  const stripColophonFromText = (text) => {
-    let cleaned = text
-      .replace(/\s*<<[^>]*>>\s*/g, '')
-      // "Written to..." patterns (with or without leading space)
-      .replace(/Written\s+to\s+[^.]*\.?/gi, '')
-      .replace(/It\s+was\s+written\s+[^.]*\.?/gi, '')
-      .replace(/Unto\s+the\s+[^.]*\.?/gi, '')
-      // "The first/second epistle" patterns
-      .replace(/The\s+(first|second)\s+\[?epistle\]?[^.]*\.?/gi, '')
-      // "This first/second epistle" patterns
-      .replace(/This\s+(first|second)\s+epistle\s+[^.]*\.?/gi, '')
-      // General "[Book] epistle written" patterns
-      .replace(/[A-Z][A-Za-z\s]+\s+\[?epistle\]?\s+written\s+[^.]*\.?/gi, '')
-      // Catch remaining fragments like "from Italy by Timothy"
-      .replace(/from\s+[A-Z][a-z]+\s+by\s+[A-Z][a-z]+\.?$/gi, '')
-      .trim();
-    
-    // Final catch-all: if text ends with typical colophon phrases, remove them
-    if (cleaned.match(/\s+Written\s+to\s+/i) || cleaned.match(/\s+from\s+[A-Z]/i)) {
-      cleaned = cleaned.split(/Written\s+to\s+/i)[0].trim();
-      cleaned = cleaned.split(/from\s+[A-Z][a-z]+\s+by\s+/i)[0].trim();
-    }
-    
-    return cleaned;
-  };
-
-  for (let i = 0; i < lines.length; i++) {
-    const trimmed = lines[i].trim();
+  for (let i = 0; i < rtfLines.length; i++) {
+    const trimmed = rtfLines[i].trim();
     if (!trimmed) {
       pendingTitle = null;
-      continue;
-    }
-
-    // Skip standalone colophon lines
-    if (isColophonLine(lines[i])) {
       continue;
     }
 
@@ -273,80 +318,71 @@ function parseBibleText(rawText) {
       continue;
     }
 
-    // ABBREVIATED FORMAT: "Ge 1:1", "1Sa 2:3", etc. - preserve brackets in verse text
-    // Matches both plain (Ge, Ex) and numbered (1Sa, 2Ki, 1Co) abbreviations
-    const abbrevMatch = trimmed.match(/^(\d?[A-Za-z]{1,4})\s+(\d+):(\d+)\s+(.+)$/);
-    if (abbrevMatch) {
-      const abbrev = abbrevMatch[1];
-      const chapterNum = parseInt(abbrevMatch[2], 10);
-      const verseNum = parseInt(abbrevMatch[3], 10);
-      // Strip colophon markers from verse text - these are hardcoded in bibleSubscripts.js
-      let verseText = stripColophonFromText(abbrevMatch[4]);
-      
-      // Map abbreviation to full book name
-      const bookName = ABBREV_TO_API[abbrev];
-      if (bookName) {
-        if (currentBook !== bookName) {
-          currentBook = bookName;
-          currentChapter = chapterNum;
-          data[currentBook] = {};
-          data[currentBook][currentChapter] = [];
-        } else if (currentChapter !== chapterNum) {
-          currentChapter = chapterNum;
-          data[currentBook][currentChapter] = [];
-        }
-        
-        if (verseNum > 0 && verseNum <= 200 && verseText.length > 0) {
-          data[currentBook][currentChapter].push({ verse: verseNum, text: verseText.trim() });
-          verseCount++;
-          continue;
-        }
-      }
-    }
-
     pendingTitle = null;
     if (!currentBook || currentChapter === null) continue;
 
-    // Skip indented colophon lines (tab-indented lines after a chapter — these are hardcoded in bibleSubscripts.js)
-    if (lines[i].startsWith('\t') || lines[i].match(/^    /)) continue;
+    // Skip indented colophon lines
+    if (rtfLines[i].startsWith('\t') || rtfLines[i].match(/^    /)) continue;
 
     // Verse line: starts with a number
     const verseNumMatch = trimmed.match(/^(\d+)\s+(.+)$/);
     if (verseNumMatch) {
       const verseNum = parseInt(verseNumMatch[1], 10);
-      // Strip colophon text from verse - these are hardcoded in bibleSubscripts.js
-      let verseText = stripColophonFromText(verseNumMatch[2]);
-      if (verseNum > 0 && verseNum <= 200 && verseText.length > 0) {
-        data[currentBook][currentChapter].push({ verse: verseNum, text: verseText });
-        verseCount++;
+      let rtfVerseText = verseNumMatch[2];
+      
+      if (verseNum > 0 && verseNum <= 200) {
+        const key = `${currentBook} ${currentChapter}:${verseNum}`;
+        const italicVersion = italicMap.get(key);
+        
+        if (italicVersion) {
+          const { italics } = extractItalicInfo(italicVersion);
+          // Strip colophon from RTF text before applying italics
+          rtfVerseText = stripColophonFromVerse(rtfVerseText);
+          
+          if (italics.length > 0) {
+            const mergedText = applyItalics(rtfVerseText, italics);
+            data[currentBook][currentChapter].push({ verse: verseNum, text: mergedText });
+            verseCount++;
+            versesMerged++;
+            continue;
+          }
+        }
+        
+        // Fallback: use RTF text with colophons stripped
+        const cleanText = stripColophonFromVerse(rtfVerseText);
+        if (cleanText.length > 0) {
+          data[currentBook][currentChapter].push({ verse: verseNum, text: cleanText });
+          verseCount++;
+        }
         continue;
       }
     }
 
     // Fallback: first line of a chapter with no verse number
     const chapterVerses = data[currentBook][currentChapter];
-    if (chapterVerses && chapterVerses.length === 0) {
-      data[currentBook][currentChapter].push({ verse: 1, text: trimmed });
+    if (chapterVerses && chapterVerses.length === 0 && /^[A-Z]/.test(trimmed)) {
+      const key = `${currentBook} ${currentChapter}:1`;
+      const italicVersion = italicMap.get(key);
+      if (italicVersion) {
+        const { italics } = extractItalicInfo(italicVersion);
+        if (italics.length > 0) {
+          const mergedText = applyItalics(trimmed, italics);
+          data[currentBook][currentChapter].push({ verse: 1, text: mergedText });
+          verseCount++;
+          versesMerged++;
+          continue;
+        }
+      }
+      data[currentBook][currentChapter].push({ verse: 1, text: stripColophonFromVerse(trimmed) });
       verseCount++;
     }
   }
 
-  // Attach hardcoded colophons (from bibleSubscripts.js, sourced from TEXT-PCE-127.txt)
+  // Attach hardcoded colophons
   data.__colophons = { ...COLOPHONS };
 
   const bookCount = Object.keys(data).filter(k => k !== '__colophons').length;
-  console.log('[PARSE] ✓ Complete:', verseCount, 'verses,', bookCount, 'books');
-  console.log('[PARSE] ALL books found:', Object.keys(data).filter(k => k !== '__colophons').join(', '));
-  
-  // Debug: check if Genesis has chapters
-  if (data.Genesis) {
-    console.log('[PARSE] Genesis chapters:', Object.keys(data.Genesis).length);
-    console.log('[PARSE] Genesis 1 verses:', data.Genesis[1]?.length || 0);
-    if (data.Genesis[1]?.length > 0) {
-      console.log('[PARSE] Genesis 1:1 text:', data.Genesis[1][0]?.text?.substring(0, 100));
-      console.log('[PARSE] Has brackets?', data.Genesis[1][0]?.text?.includes('['));
-    }
-  }
+  console.log('[PARSE] ✓ Complete:', verseCount, 'verses,', bookCount, 'books,', versesMerged, 'with italics');
   
   return data;
 }
@@ -442,8 +478,13 @@ async function loadFromCache() {
 }
 
 async function fetchAndParse() {
-  const text = await fetchWithRetry(RTF_URL);
-  const data = parseBibleText(text);
+  // Fetch both files in parallel
+  const [rtfText, abbrevText] = await Promise.all([
+    fetchWithRetry(RTF_URL),
+    fetchWithRetry(ABBREV_URL)
+  ]);
+  
+  const data = parseBibleText(rtfText, abbrevText);
   if (!isValidBibleData(data)) {
     throw new Error('Parsed data only has ' + Object.keys(data).filter(k => k !== '__colophons').length + ' books');
   }
