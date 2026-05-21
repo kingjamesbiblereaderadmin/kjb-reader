@@ -116,6 +116,15 @@
     font-style: italic !important;
     font-weight: 300 !important;
   }
+  
+  /* Ensure cursive-em-style applies to all nested elements including em */
+  .cursive-em-style {
+    font-family: 'Dancing Script', cursive !important;
+  }
+  
+  .cursive-em-style * {
+    font-family: 'Dancing Script', cursive !important;
+  }
 
 
 }
