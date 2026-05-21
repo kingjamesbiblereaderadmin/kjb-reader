@@ -11,7 +11,6 @@ const READ_LINK = { path: '/read', icon: BookOpen, label: 'Read the Bible', desc
 
 const QUICK_LINKS = [
   { path: '/contents', icon: List, label: 'Table of Contents', desc: 'Browse all 66 books', color: 'bg-secondary text-secondary-foreground' },
-  { path: '/daily-reading', icon: BookMarked, label: 'Daily Reading', desc: 'Track your progress', color: 'bg-secondary text-secondary-foreground' },
   { path: null, icon: null, label: '__RANDOM__', desc: '', color: '' },
   { path: '/saved', icon: Bookmark, label: 'Saved Verses', desc: 'Your bookmarked verses', color: 'bg-secondary text-secondary-foreground' },
   { path: '/gospel', icon: Heart, label: 'Gospel', desc: 'Learn how to be saved', color: 'bg-secondary text-secondary-foreground' },
