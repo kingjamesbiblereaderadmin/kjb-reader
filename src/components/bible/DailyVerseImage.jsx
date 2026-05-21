@@ -111,8 +111,13 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           console.warn('[Notif] Failed to save image to cache:', cacheErr.message);
         }
       } else {
-        // Clear any existing background first to free up space
+        // Clear any existing images first to free up space
         localStorage.removeItem('kjb-daily-verse-bg');
+        localStorage.removeItem('kjb-notif-image');
+        try {
+          const cache = await caches.open('kjb-notif-images');
+          await cache.delete('/notif-image');
+        } catch {}
         // Save new background
         localStorage.setItem('kjb-daily-verse-bg', croppedDataUrl);
         // Verify it was saved correctly
