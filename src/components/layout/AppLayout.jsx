@@ -10,7 +10,7 @@ import AutoUpdateHandler from '@/components/AutoUpdateHandler';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, showLocalNotification } from '@/lib/notifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
-import { getBibleData, isBibleCached, initPeriodicCacheRefresh, downloadBibleForOffline } from '@/lib/bibleCache';
+import { getBibleData, isBibleCached, initPeriodicCacheRefresh, downloadBibleForOffline, refreshCacheIfDue } from '@/lib/bibleCache';
 import { toast } from 'sonner';
 
 const NAV_ITEMS = [
@@ -110,10 +110,21 @@ export default function AppLayout() {
           {/* Actions - responsive button sizes with visible square touch targets */}
           <div className="flex items-center gap-1 sm:gap-2 pointer-events-none shrink-0">
             <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                window.location.reload();
+                try {
+                  const updated = await refreshCacheIfDue();
+                  if (updated) {
+                    toast.success('Cache updated with latest version');
+                    setTimeout(() => window.location.reload(), 1000);
+                  } else {
+                    toast.message('Cache is already up to date');
+                  }
+                } catch (err) {
+                  console.error('Refresh failed:', err);
+                  toast.error('Failed to refresh cache');
+                }
               }}
               style={{ touchAction: 'manipulation' }}
               role="button"
