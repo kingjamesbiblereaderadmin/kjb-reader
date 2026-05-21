@@ -425,10 +425,10 @@ function DesktopFooter({ pathname, navigate, setMenuOpen }) {
 
 function BottomNav({ pathname, navigate }) {
   return (
-    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 0px)' }}>
+    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <div className="max-w-5xl mx-auto px-2 py-2">
         <div className="grid grid-cols-4 gap-1">
-          {NAV_ITEMS.map(item => {
+          {BOTTOM_NAV_PRIMARY.map(item => {
             const Icon = item.icon;
             const active = item.path === '/' ? pathname === '/' : pathname === item.path;
             return (
