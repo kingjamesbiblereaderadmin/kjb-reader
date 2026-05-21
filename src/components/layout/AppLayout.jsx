@@ -38,11 +38,6 @@ const BOTTOM_NAV_SECONDARY = [
   { path: '/settings', icon: Settings, label: 'Settings' },
 ];
 
-// Helper to calculate footer padding class based on mode
-const getFooterPaddingClass = (mode) => {
-  return mode === 'two' ? 'pb-[112px]' : mode === 'one' ? 'pb-[56px]' : 'pb-[40px]';
-};
-
 export default function AppLayout() {
   const { pathname } = useLocation();
   const { isDark, mode, toggleTheme } = useTheme();
@@ -52,25 +47,6 @@ export default function AppLayout() {
   // Footer is always visible on desktop, controlled by bottom nav on mobile
   const navigate = useNavigate();
   const isRoot = pathname === '/';
-  const [footerMode, setFooterMode] = useState(() => {
-    try {
-      const saved = localStorage.getItem('kjb-footer-mode');
-      return saved === 'two' ? 'two' : saved === 'none' ? 'none' : 'one';
-    } catch { return 'one'; }
-  });
-
-  // Sync footer mode with storage events
-  useEffect(() => {
-    const handleStorage = () => {
-      try {
-        const saved = localStorage.getItem('kjb-footer-mode');
-        setFooterMode(saved === 'two' ? 'two' : saved === 'none' ? 'none' : 'one');
-      } catch {}
-    };
-    window.addEventListener('storage', handleStorage);
-    handleStorage();
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
 
   // FirstLoadPrompt state (centralized in AppLayout)
   const { isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss } = useAppLayoutPrompt();
@@ -246,7 +222,7 @@ export default function AppLayout() {
               className="fixed inset-0 top-14 z-40 bg-background/95"
               onClick={() => setMenuOpen(false)}
             />
-            <div className="fixed top-14 right-0 left-0 z-50 bg-card backdrop-blur-md border-b border-border shadow-lg">
+            <div className="absolute top-full right-0 left-0 z-50 bg-card backdrop-blur-md border-b border-border shadow-lg">
               <div className="max-w-4xl mx-auto px-4 py-3 grid grid-cols-2 sm:grid-cols-4 gap-1">
                 {NAV_ITEMS.map(item => {
                   const Icon = item.icon;
@@ -277,7 +253,7 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main className="flex-1 sm:pb-[100px] pb-[100px]">
+      <main className="flex-1 pb-20 sm:pb-0">
         <Outlet />
       </main>
 
@@ -297,8 +273,8 @@ export default function AppLayout() {
         />
       )}
 
-      <footer className="hidden sm:flex fixed bottom-0 left-0 right-0 border-t border-border bg-card/95 backdrop-blur-md py-3 z-50">
-        <div className="max-w-5xl mx-auto px-4 w-full">
+      <footer className="hidden sm:block border-t border-border bg-card/80 py-3 mt-8">
+        <div className="max-w-5xl mx-auto px-4">
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mb-3">
             {NAV_ITEMS.map(item => {
               const Icon = item.icon;
@@ -409,7 +385,7 @@ function BottomNav({ pathname, navigate }) {
   }
 
   return (
-    <nav className="sm:hidden left-0 right-0 z-[70] bg-card/95 backdrop-blur-md border-t border-border safe-area-pb">
+    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border safe-area-pb">
       <div className="w-full">
         {/* Primary row: 5 nav items + chevron toggle button */}
         <div className="flex items-stretch">

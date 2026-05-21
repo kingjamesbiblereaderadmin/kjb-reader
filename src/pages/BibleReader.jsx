@@ -247,16 +247,19 @@ export default function BibleReader() {
   // Determine if viewing a title page (chapter 0)
   const isViewingTitlePage = pos.chapter === 0 && (pos.abbr === 'GEN' || pos.abbr === 'MAT');
 
-  const loadChapter = useCallback(async (bookAbbr, chapter, jumpVerse, scrollToTop = false) => {
+  const loadChapter = useCallback(async (bookAbbr, chapter, jumpVerse) => {
     setLoading(true);
     setError(null);
     setVerses([]);
-    // Scroll to top only when explicitly requested (e.g., random chapter navigation)
-    if (scrollToTop) {
-      window.scrollTo({ top: 0 });
-    }
+    // Always scroll to top first; verse centering happens after load
+    window.scrollTo({ top: 0 });
     const b = BIBLE_BOOKS.find(bk => bk.abbr === bookAbbr);
     if (!b) { setError('Book not found'); setLoading(false); return; }
+    
+    // Reset highlight when no specific verse is targeted
+    if (!jumpVerse) {
+      setHighlightVerse(null);
+    }
     
     // Skip API fetch for title pages (chapter 0)
     if (chapter === 0) {
@@ -272,11 +275,9 @@ export default function BibleReader() {
       setVerses(data.verses);
       setColophon(data.colophon || null);
       setVerseCount(data.verses.length);
-      // Set highlight if jumpVerse was explicitly provided, otherwise clear it
+      // Only set highlight if jumpVerse was explicitly provided
       if (jumpVerse) {
         setHighlightVerse(jumpVerse);
-      } else {
-        setHighlightVerse(null);
       }
       savePosition(bookAbbr, chapter);
       
@@ -330,10 +331,10 @@ export default function BibleReader() {
       const chapterNum = parseInt(urlChapter, 10);
       const verseNum = urlVerse ? parseInt(urlVerse, 10) : null;
       setPos({ abbr: urlBook, chapter: chapterNum, verse: null });
-      loadChapter(urlBook, chapterNum, verseNum, true);
+      loadChapter(urlBook, chapterNum, verseNum);
     } else {
       // Load from saved position WITH highlight if verse is specified
-      loadChapter(pos.abbr, pos.chapter, pos.verse || null, true);
+      loadChapter(pos.abbr, pos.chapter, pos.verse || null);
     }
     
     // If a verse range was passed, pre-select those verses and enter filter mode
@@ -387,7 +388,7 @@ export default function BibleReader() {
     }
   }, [filterMode, selectedVerses]);
 
-  const navigate = (newAbbr, newChapter, jumpVerse = null, scrollToTop = false) => {
+  const navigate = (newAbbr, newChapter, jumpVerse = null) => {
     // Prevent chapter 0 for non-GEN/MAT books
     if (newChapter === 0 && newAbbr !== 'GEN' && newAbbr !== 'MAT') {
       return;
@@ -399,30 +400,30 @@ export default function BibleReader() {
     }
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);
-    loadChapter(newAbbr, newChapter, jumpVerse, scrollToTop);
+    loadChapter(newAbbr, newChapter, jumpVerse);
   };
 
   const goNext = () => {
     if (pos.chapter < book.chapters) {
-      navigate(pos.abbr, pos.chapter + 1, null, true);
+      navigate(pos.abbr, pos.chapter + 1);
     } else {
       const next = getNextBook(pos.abbr);
       if (next) {
-        navigate(next.abbr, 1, null, true);
+        navigate(next.abbr, 1);
       }
     }
   };
 
   const goPrev = () => {
     if (pos.chapter > 1) {
-      navigate(pos.abbr, pos.chapter - 1, null, true);
+      navigate(pos.abbr, pos.chapter - 1);
     } else if (pos.chapter === 1 && (pos.abbr === 'GEN' || pos.abbr === 'MAT')) {
       // For GEN/MAT, allow going to chapter 0 (title page)
-      navigate(pos.abbr, 0, null, true);
+      navigate(pos.abbr, 0);
     } else {
       // Go to previous book's last chapter
       const prev = getPrevBook(pos.abbr);
-      if (prev) navigate(prev.abbr, prev.chapters, null, true);
+      if (prev) navigate(prev.abbr, prev.chapters);
     }
   };
 
@@ -509,11 +510,11 @@ export default function BibleReader() {
   }, [verses, loading, book.name, pos.chapter, isViewingTitlePage]);
 
   return (
-    <div className={`max-w-5xl mx-auto px-5 sm:px-8 py-3 ${hideHeader ? 'pt-16' : 'pt-[120px] sm:pt-[140px]'}`}>
+    <div className={`max-w-5xl mx-auto px-5 sm:px-8 py-3 ${hideHeader ? 'pt-16' : ''}`}>
 
-      {/* Fixed nav bar — hidden when hideHeader is on */}
+      {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
-        <div ref={topRef} className="fixed top-[56px] sm:top-[72px] left-0 right-0 z-40 bg-background/95 backdrop-blur border-b border-border pb-1 mb-2">
+        <div ref={topRef} className="sticky top-[56px] sm:top-[72px] z-40 bg-background/95 backdrop-blur border-b border-border pb-1 mb-2">
           <div className="flex flex-wrap items-center gap-1.5 pt-1">
 
             {/* Book selector */}
@@ -929,7 +930,7 @@ export default function BibleReader() {
       {/* Click/tap outside to close desktop dropdowns and mobile sheets */}
       {(showBookPicker || showChapterPicker || showVersePicker || showZoomPopover || showFontPopover) && (
         <div
-          className="fixed inset-0 z-[39]"
+          className="fixed inset-0 z-[35]"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
