@@ -772,25 +772,39 @@ export default function SettingsPage() {
                 </div>
                 <button
                   onClick={async () => {
-                    setCached(false);
-                    await downloadBibleForOffline((pct, msg) => {
-                      setDownloading(true);
-                      setDlProgress(pct);
-                      setDlStatus(msg);
-                    }).then(() => {
+                    setDownloading(true);
+                    setDlError('');
+                    setDlProgress(0);
+                    setDlStatus('Starting reload...');
+                    try {
+                      await downloadBibleForOffline((pct, msg) => {
+                        setDlProgress(pct);
+                        setDlStatus(msg);
+                      });
                       setCached(true);
-                      setDownloading(false);
                       window.dispatchEvent(new Event('storage'));
-                    }).catch((err) => {
-                      setDownloading(false);
+                    } catch (err) {
                       setDlError('Refresh failed: ' + err.message);
-                    });
+                    }
+                    setDownloading(false);
                   }}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+                  disabled={downloading}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-60 transition-colors"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  Reload Bible Data
+                  {downloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                  {downloading ? 'Reloading…' : 'Reload Bible Data'}
                 </button>
+                {downloading && (
+                  <div className="space-y-2">
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div
+                        className="bg-primary h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${dlProgress}%` }}
+                      />
+                    </div>
+                    <p className="font-sans text-xs text-muted-foreground">{dlStatus}</p>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="space-y-3">
