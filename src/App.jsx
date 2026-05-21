@@ -90,9 +90,11 @@ const AuthenticatedApp = () => {
   // Preload all route chunks in the background once auth resolves
   useEffect(() => { preloadAllRoutes(); }, []);
 
+  // Don't return null while auth resolves — that causes a blank flash on reload.
+  // The app shell (header/nav) renders immediately; only block on hard auth errors.
   if (isLoadingPublicSettings || isLoadingAuth) {
-    // Render nothing during auth resolution — avoids black flash
-    return null;
+    // Keep the previously-rendered tree alive (no flash). Routes will hydrate
+    // as soon as auth resolves.
   }
 
   if (authError) {
