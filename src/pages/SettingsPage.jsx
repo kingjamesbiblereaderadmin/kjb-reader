@@ -796,7 +796,7 @@ export default function SettingsPage() {
                   disabled={downloading}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-60 transition-colors"
                 >
-                  {downloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                  <Trash2 className="w-3.5 h-3.5" />
                   Reload Bible Data
                 </button>
                 {downloading && (
