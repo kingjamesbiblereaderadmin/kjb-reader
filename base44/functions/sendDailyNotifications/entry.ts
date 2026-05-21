@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
         const verseData = await verseResponse.json();
         if (verseData?.verse) {
           const text = (verseData.verse.text || '').slice(0, 120);
-          verseBody = `"${text}${verseData.verse.text?.length > 120 ? '…' : ''}" — ${verseData.verse.ref || ''}`;
+          verseBody = `"${text}${verseData.verse.text?.length > 120 ? '…' : ''}" — ${verseData.verse.ref || ''} (KJB)`;
         }
       }
     } catch (err) {
