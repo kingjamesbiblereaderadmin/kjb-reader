@@ -60,7 +60,8 @@ export default function SearchPage() {
   const [selected, setSelected] = useState(new Set());
   const [copyFeedback, setCopyFeedback] = useState(false);
 
-  // Debounce search to prevent rapid re-execution
+  // Search result cache for instant repeat searches
+  const searchCacheRef = React.useRef(new Map());
   const debounceRef = React.useRef(null);
   
   const runSearch = useCallback(async (kw) => {
@@ -81,9 +82,27 @@ export default function SearchPage() {
     setSelectedBooks(new Set());
     setCurrentPage(1);
 
-    // Debounce the actual search execution
+    // Debounce the actual search execution (reduced to 100ms)
     debounceRef.current = setTimeout(async () => {
       try {
+        // Create cache key from all search parameters
+        const cacheKey = JSON.stringify({
+          kw,
+          testament,
+          wholeWord,
+          caseSensitive,
+          exactMatch,
+          selectedBooks: [...selectedBooks].sort(),
+        });
+        
+        // Check cache first
+        const cached = searchCacheRef.current.get(cacheKey);
+        if (cached) {
+          setResults(cached);
+          setLoading(false);
+          return;
+        }
+        
         const bible = await getBibleData();
         // Strip quotes from search term for actual searching
         let searchTerm = kw.trim();
@@ -161,6 +180,7 @@ export default function SearchPage() {
             }
           }
           setResults(pilcrowResults);
+          searchCacheRef.current.set(cacheKey, pilcrowResults);
           setLoading(false);
           return;
         }
@@ -203,8 +223,8 @@ export default function SearchPage() {
         // Pre-compile regex patterns for better performance
         const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const wholeWordRegex = caseSensitive 
-          ? new RegExp(`\\b${escapeRegex(searchTerm)}\\b`, 'g')
-          : new RegExp(`\\b${escapeRegex(searchTermLower)}\\b`, 'gi');
+          ? new RegExp(`\\b${escapeRegex(searchTerm)}\\b`)
+          : new RegExp(`\\b${escapeRegex(searchTermLower)}\\b`);
 
         // Filter books once before looping
         const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
@@ -222,11 +242,14 @@ export default function SearchPage() {
           return true;
         });
 
-        // Search only filtered books
+        // Build lookup maps for O(1) access
+        const bookAbbrMap = new Map();
+        BIBLE_BOOKS.forEach(b => bookAbbrMap.set(b.apiName, b.abbr));
+
+        // Search only filtered books with optimized inner loops
         for (const bookName of filteredBooks) {
           const chapters = bible[bookName];
-          const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
-          const abbr = bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase();
+          const abbr = bookAbbrMap.get(bookName) || bookName.slice(0, 3).toUpperCase();
           
           for (const chapterNum in chapters) {
             const verses = chapters[chapterNum];
@@ -236,13 +259,17 @@ export default function SearchPage() {
               const searchText = verseObj.text.replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
               let found = false;
               
-              if (exactMatch) {
+              // Fast path: simple includes check (most common case)
+              if (!exactMatch && !caseSensitive && !wholeWord) {
+                found = searchText.toLowerCase().includes(searchTermLower);
+              } else if (exactMatch) {
                 found = caseSensitive ? searchText.includes(searchTerm) : searchText.toLowerCase().includes(searchTermLower);
-              } else if (caseSensitive) {
-                found = wholeWord ? wholeWordRegex.test(searchText) : searchText.includes(searchTerm);
+              } else if (caseSensitive && wholeWord) {
+                found = wholeWordRegex.test(searchText);
+              } else if (wholeWord) {
+                found = wholeWordRegex.test(searchText.toLowerCase());
               } else {
-                const searchTextLower = searchText.toLowerCase();
-                found = wholeWord ? wholeWordRegex.test(searchTextLower) : searchTextLower.includes(searchTermLower);
+                found = caseSensitive ? searchText.includes(searchTerm) : searchText.toLowerCase().includes(searchTermLower);
               }
 
               if (found) {
@@ -266,13 +293,16 @@ export default function SearchPage() {
               const colophonText = colophon.replace(/¶\s*/g, '');
               let colophonFound = false;
               
-              if (exactMatch) {
+              if (!exactMatch && !caseSensitive && !wholeWord) {
+                colophonFound = colophonText.toLowerCase().includes(searchTermLower);
+              } else if (exactMatch) {
                 colophonFound = caseSensitive ? colophonText.includes(searchTerm) : colophonText.toLowerCase().includes(searchTermLower);
-              } else if (caseSensitive) {
-                colophonFound = wholeWord ? wholeWordRegex.test(colophonText) : colophonText.includes(searchTerm);
+              } else if (caseSensitive && wholeWord) {
+                colophonFound = wholeWordRegex.test(colophonText);
+              } else if (wholeWord) {
+                colophonFound = wholeWordRegex.test(colophonText.toLowerCase());
               } else {
-                const colophonLower = colophonText.toLowerCase();
-                colophonFound = wholeWord ? wholeWordRegex.test(colophonLower) : colophonLower.includes(searchTermLower);
+                colophonFound = caseSensitive ? colophonText.includes(searchTerm) : colophonText.toLowerCase().includes(searchTermLower);
               }
               
               if (colophonFound) {
@@ -294,13 +324,15 @@ export default function SearchPage() {
         }
 
         setResults(matches);
+        // Cache the results
+        searchCacheRef.current.set(cacheKey, matches);
       } catch (err) {
         console.error('Search error:', err);
         setResults([]);
       } finally {
         setLoading(false);
       }
-    }, 150); // 150ms debounce
+    }, 100);
   }, [testament, wholeWord, caseSensitive, exactMatch, selectedBooks]);
 
   // Re-run search whenever URL changes (fixes header search bar)
