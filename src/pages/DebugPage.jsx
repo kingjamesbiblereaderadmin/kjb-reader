@@ -617,29 +617,32 @@ export default function DebugPage() {
 
         {/* Test Logs */}
         {testLogs.length > 0 && (
-        <div className="bg-card border border-border rounded-2xl p-5">
-          <h2 className="font-serif text-lg font-semibold mb-4">Scheduled Test Logs</h2>
-          <div className="bg-slate-900 dark:bg-black rounded-xl p-4 font-mono text-xs text-slate-100 max-h-96 overflow-y-auto">
-            {testLogs.map((log, i) => (
-              <div key={i} className={`mb-1 ${
-                log.type === 'success' ? 'text-green-400' :
-                log.type === 'error' ? 'text-red-400' :
-                log.type === 'warning' ? 'text-amber-400' :
-                'text-slate-300'
-              }`}>
-                <span className="text-slate-500">[{log.time}]</span> {log.message}
-              </div>
-            ))}
+          <div className="bg-card border border-border rounded-2xl p-5 mb-6">
+            <h2 className="font-serif text-lg font-semibold mb-4">Scheduled Test Logs</h2>
+            <div className="bg-slate-900 dark:bg-black rounded-xl p-4 font-mono text-xs text-slate-100 max-h-96 overflow-y-auto">
+              {testLogs.map((log, i) => (
+                <div key={i} className={`mb-1 ${
+                  log.type === 'success' ? 'text-green-400' :
+                  log.type === 'error' ? 'text-red-400' :
+                  log.type === 'warning' ? 'text-amber-400' :
+                  'text-slate-300'
+                }`}>
+                  <span className="text-slate-500">[{log.time}]</span> {log.message}
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => setTestLogs([])}
+              className="mt-3 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+            >
+              <AlertCircle className="w-3.5 h-3.5" />
+              Clear Test Logs
+            </button>
           </div>
-          <button
-            onClick={() => setTestLogs([])}
-            className="mt-3 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
-          >
-            <AlertCircle className="w-3.5 h-3.5" />
-            Clear Test Logs
-          </button>
-        </div>
         )}
+
+        {/* Timer Status */}
+        <div className="bg-card border border-border rounded-2xl p-5 mb-6">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-serif text-lg font-semibold flex items-center gap-2">
               <Timer className={`w-5 h-5 ${timerStatus.isActive ? 'text-green-600 animate-pulse' : 'text-muted-foreground'}`} />
@@ -678,7 +681,6 @@ export default function DebugPage() {
             </div>
           )}
         </div>
-        )}
 
         {/* Actions */}
         <div className="bg-card border border-border rounded-2xl p-5 mb-6">

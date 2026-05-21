@@ -1,8 +1,21 @@
-const CACHE_NAME = 'kjb-cache-v1';
+const CACHE_NAME = 'kjb-cache-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
+];
+
+// Never cache these - always use network
+const NEVER_CACHE_PATTERNS = [
+  /\/src\//,
+  /\/node_modules\//,
+  /\/@vite/,
+  /\/@react-refresh/,
+  /\.js$/,
+  /\.jsx$/,
+  /\.ts$/,
+  /\.tsx$/,
+  /\.mjs$/,
 ];
 
 // Install event - cache static assets
@@ -29,8 +42,22 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - network-first for code, cache-first for static assets
 self.addEventListener('fetch', (event) => {
+  const url = event.request.url;
+  
+  // Never cache JS/TS/Vite chunks - always use network
+  if (NEVER_CACHE_PATTERNS.some(pattern => pattern.test(url))) {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        // If network fails, try cache as last resort
+        return caches.match(event.request);
+      })
+    );
+    return;
+  }
+  
+  // Cache-first for static assets (HTML, CSS, images, manifest)
   event.respondWith(
     caches.match(event.request).then((response) => {
       if (response) {

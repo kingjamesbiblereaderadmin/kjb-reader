@@ -74,11 +74,20 @@ if ('serviceWorker' in navigator && !import.meta.env.DEV) {
     }
   });
 } else if ('serviceWorker' in navigator && import.meta.env.DEV) {
-  // In development mode, unregister any existing service workers to prevent stale cache
-  navigator.serviceWorker.getRegistrations().then(registrations => {
-    for (const registration of registrations) {
+  // In development mode, unregister any existing service workers and clear all caches
+  Promise.all([
+    navigator.serviceWorker.getRegistrations(),
+    caches.keys()
+  ]).then(([registrations, cacheNames]) => {
+    // Unregister all service workers
+    registrations.forEach(registration => {
       registration.unregister();
       console.log('[SW] Unregistered service worker in dev mode');
-    }
+    });
+    // Delete all caches
+    cacheNames.forEach(cacheName => {
+      caches.delete(cacheName);
+      console.log('[Cache] Deleted cache:', cacheName);
+    });
   });
 }
