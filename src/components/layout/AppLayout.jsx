@@ -164,7 +164,7 @@ export default function AppLayout() {
 
   return (
     <AutoUpdateHandler>
-    <div className="min-h-screen bg-background flex flex-col" style={{ contain: 'layout style paint' }}>
+    <div className="min-h-screen bg-background flex flex-col">
       <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-2 sm:gap-3">
           {/* Logo */}
