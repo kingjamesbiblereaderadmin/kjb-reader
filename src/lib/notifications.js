@@ -124,21 +124,21 @@ async function saveNextFireTime(verse) {
 export async function showLocalNotification(title, body, imageUrl = null) {
   // Don't show notification if app is currently in the foreground
   if (document.visibilityState === 'visible') return;
-  const logoUrl = imageUrl || 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
+  const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
   
   // Always try service worker first (works on Android even when Notification API doesn't)
   try {
     const reg = await navigator.serviceWorker.ready;
     console.log('Service worker ready, showing notification via SW');
+    console.log('Notification body:', body);
     await reg.showNotification(title, {
-      body,
+      body: body,
       icon: logoUrl,
       badge: logoUrl,
       tag: 'daily-verse',
       renotify: true,
       silent: false,
       vibrate: [200, 100, 200],
-      image: imageUrl || undefined,
       data: { url: self?.location?.origin || '/' }
     });
     return;

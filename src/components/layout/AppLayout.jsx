@@ -67,32 +67,7 @@ export default function AppLayout() {
       }
     } catch {}
 
-    // Auto-update cache on every app load
-    const updateCacheOnLoad = async () => {
-      try {
-        console.log('[CACHE] Checking for updates on app load...');
-        // Clear old cache and download fresh data
-        const cacheNames = await caches.keys();
-        await Promise.all(cacheNames.map(name => caches.delete(name)));
-        
-        await downloadBibleForOffline((pct, msg) => {
-          console.log(`[CACHE] Update progress: ${pct}% - ${msg}`);
-        });
-        
-        toast.success('Bible cache updated', {
-          description: 'Latest version downloaded successfully.',
-          duration: 3000,
-        });
-      } catch (err) {
-        console.error('[CACHE] Auto-update failed:', err);
-        // Fallback: try to load from existing cache
-        getBibleData().catch(() => {});
-      }
-    };
-
-    updateCacheOnLoad();
-
-    // Initialize periodic cache refresh (checks every 24 hours)
+    // Initialize periodic cache refresh (checks every 24 hours when user opens app)
     initPeriodicCacheRefresh();
 
     // Only show prompt once per session, after a delay, if not dismissed
