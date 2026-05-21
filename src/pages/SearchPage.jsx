@@ -223,6 +223,17 @@ export default function SearchPage() {
     setLoading(false);
   }, [testament, wholeWord, caseSensitive, exactMatch]);
 
+  // Debounced search for typing
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      const q = query.trim();
+      if (q.length >= 2 && !location.search) {
+        runSearch(q);
+      }
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [query]);
+
   // Re-run search whenever URL changes (fixes header search bar)
   useEffect(() => {
     const q = getQueryFromUrl();
