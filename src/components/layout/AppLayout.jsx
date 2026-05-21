@@ -273,7 +273,7 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main className={`flex-1 sm:pb-0 ${footerMode === 'two' ? 'pb-36' : footerMode === 'none' ? 'pb-12' : 'pb-20'}`}>
+      <main className="flex-1 sm:pb-0">
         <Outlet />
       </main>
 
