@@ -455,8 +455,8 @@ export function initNotifications(verse) {
   const today = todayString();
   localStorage.setItem('kjb-last-app-open', today);
 
-  // Always check if notification is due when app opens (for missed notifications)
-  checkOverdueNotification(verse);
+  // Disable overdue check on app open to prevent "copy to URL" browser notification
+  // checkOverdueNotification(verse);
 
   // Arm the in-page timer for future notifications at the scheduled time
   scheduleDailyNotification(verse);
