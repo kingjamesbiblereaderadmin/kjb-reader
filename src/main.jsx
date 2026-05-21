@@ -68,9 +68,15 @@ if ('serviceWorker' in navigator && !import.meta.env.DEV) {
         });
       }).catch(() => {});
       
-      initNotifications(getDailyVerse());
+      // Delay notification initialization to prevent browser "copy to URL" notification
+      setTimeout(() => {
+        initNotifications(getDailyVerse());
+      }, 3000);
     } else {
-      initNotifications(getDailyVerse());
+      // Delay notification initialization to prevent browser "copy to URL" notification
+      setTimeout(() => {
+        initNotifications(getDailyVerse());
+      }, 3000);
     }
   });
 } else if ('serviceWorker' in navigator && import.meta.env.DEV) {
