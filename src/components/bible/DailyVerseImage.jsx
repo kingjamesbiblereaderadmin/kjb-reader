@@ -346,13 +346,14 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   };
 
   return (
-    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete) onClick(e); }} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-8 pt-5 pb-8 text-center text-white relative ${uploadingComplete ? 'cursor-default' : 'cursor-pointer'}`} style={bgStyle}>
+    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete) onClick(e); }} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-8 pt-5 pb-8 text-center text-white relative ${uploadingComplete ? 'cursor-default' : 'cursor-pointer'}`} style={bgStyle} onTouchEnd={(e) => { if (!uploadingComplete) onClick(e); }}>
       {/* Notification bell indicator button */}
       {showButtons && onToggleNotif && (
         <button
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation();
             onToggleNotif();
           }}
           className="absolute top-2 left-2 p-1.5 rounded-md bg-white/90 hover:bg-white transition-colors z-10 shadow-md"
@@ -378,6 +379,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
                 setShowLightbox(true);
               }}
               className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
@@ -390,6 +392,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
                 handleShare(e);
               }}
               disabled={capturing}
@@ -407,6 +410,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
                 handleDownload(e);
               }}
               disabled={capturing}
@@ -426,6 +430,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
+                  e.nativeEvent.stopImmediatePropagation();
                   if (!showStyleEditor) {
                     setShowMenu(!showMenu);
                   }
@@ -443,7 +448,12 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                   onClick={(e) => e.stopPropagation()}
                 >
                   <button
-                    onClick={handleCopyVerse}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      e.nativeEvent.stopImmediatePropagation();
+                      handleCopyVerse(e);
+                    }}
                     className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
                   >
                     <Copy className="w-4 h-4" />
@@ -453,6 +463,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
+                      e.nativeEvent.stopImmediatePropagation();
                       const newValue = !showVersePanel;
                       setShowVersePanel(newValue);
                       localStorage.setItem('kjb-verse-panel-visible', String(newValue));
@@ -469,6 +480,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
+                        e.nativeEvent.stopImmediatePropagation();
                         setShowStyleEditor(true);
                         setShowMenu(false);
                       }}
@@ -499,6 +511,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                       e.stopPropagation();
                       e.nativeEvent.stopImmediatePropagation();
                     }}
+                    onTouchEnd={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      e.nativeEvent.stopImmediatePropagation();
+                    }}
                     disabled={uploading}
                     className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-50"
                   >
@@ -510,6 +527,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
+                        e.nativeEvent.stopImmediatePropagation();
                         setCustomBg('');
                         localStorage.removeItem('kjb-daily-verse-bg');
                         // Reset text color and opacity to defaults
@@ -529,6 +547,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
+                      e.nativeEvent.stopImmediatePropagation();
                       setShowButtons(false);
                       setShowMenu(false);
                     }}
@@ -547,6 +566,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
               setShowButtons(true);
             }}
             className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
@@ -561,7 +581,10 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       {/* Style Editor Panel */}
       {showStyleEditor && (
         <div
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation();
+          }}
           className="absolute top-12 right-2 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur rounded-xl shadow-xl p-4 w-72 border border-white/20"
         >
           <div className="flex items-center justify-between mb-3">
@@ -753,7 +776,12 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             onClick={(e) => e.stopPropagation()}
           >
             <button
-              onClick={() => setShowLightbox(false)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+                setShowLightbox(false);
+              }}
               className="absolute top-4 right-4 p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors"
               type="button"
             >
