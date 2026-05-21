@@ -11,9 +11,16 @@ export default function DebugPage() {
   const [logs, setLogs] = useState([]);
   const [timerStatus, setTimerStatus] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [notifDebugInfo, setNotifDebugInfo] = useState(null);
+  const [scheduledTest, setScheduledTest] = useState(null);
+  const [testLogs, setTestLogs] = useState([]);
 
   const addLog = (message, type = 'info') => {
     setLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), message, type }]);
+  };
+
+  const addTestLog = (message, type = 'info') => {
+    setTestLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), message, type }]);
   };
 
   useEffect(() => {
@@ -31,9 +38,15 @@ export default function DebugPage() {
       checkTimerStatus();
     }, 5000);
     
+    // Check notification debug info every 2 seconds
+    const notifDebugInterval = setInterval(() => {
+      checkNotifDebugInfo();
+    }, 2000);
+    
     return () => {
       clearInterval(timeInterval);
       clearInterval(timerInterval);
+      clearInterval(notifDebugInterval);
     };
   }, []);
 
@@ -105,6 +118,34 @@ export default function DebugPage() {
     } else {
       setTimerStatus(null);
     }
+  };
+
+  const checkNotifDebugInfo = async () => {
+    const info = {
+      enabled: localStorage.getItem('kjb-notifications-enabled') === 'true',
+      time: localStorage.getItem('kjb-notification-time') || 'not set',
+      last: localStorage.getItem('kjb-notification-last') || 'never',
+      next: localStorage.getItem('kjb-notification-next') || 'not set',
+      lastAppOpen: localStorage.getItem('kjb-last-app-open') || 'never',
+      swReady: 'serviceWorker' in navigator,
+      notifApiAvailable: 'Notification' in window,
+      notifPermission: 'Notification' in window ? Notification.permission : 'unsupported',
+    };
+    
+    if (info.next !== 'not set') {
+      const nextTs = parseInt(info.next, 10);
+      const now = Date.now();
+      info.msUntilFire = nextTs - now;
+      info.minutesUntilFire = Math.floor(info.msUntilFire / 60000);
+      info.shouldFireNow = info.msUntilFire <= 0 && info.last !== todayString();
+    }
+    
+    setNotifDebugInfo(info);
+  };
+
+  const todayString = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   };
 
   const testNotification = async () => {
@@ -277,6 +318,142 @@ export default function DebugPage() {
         {/* Timer Status */}
         {timerStatus && (
         <div className="bg-card border border-border rounded-2xl p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-serif text-lg font-semibold flex items-center gap-2">
+              <Timer className={`w-5 h-5 ${timerStatus.isActive ? 'text-green-600 animate-pulse' : 'text-muted-foreground'}`} />
+              Scheduled Timer
+            </h2>
+            <span className={`font-sans text-xs font-medium px-2 py-1 rounded ${
+              timerStatus.isActive ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-slate-100 text-slate-800'
+            }`}>
+              {timerStatus.isActive ? 'Active' : 'Inactive'}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-3 font-sans text-xs">
+            <div className="bg-secondary/50 rounded-lg p-3">
+              <p className="text-muted-foreground mb-1">Current Time</p>
+              <p className="text-foreground font-mono text-sm">{currentTime.toLocaleString()}</p>
+            </div>
+            <div className="bg-secondary/50 rounded-lg p-3">
+              <p className="text-muted-foreground mb-1">Next Fire Time</p>
+              <p className="text-foreground font-mono text-sm">{timerStatus.nextFire.toLocaleString()}</p>
+            </div>
+            <div className="bg-secondary/50 rounded-lg p-3">
+              <p className="text-muted-foreground mb-1">Time Until Fire</p>
+              <p className={`font-mono text-sm ${timerStatus.minutesUntilFire < 5 ? 'text-red-600' : 'text-foreground'}`}>
+                {timerStatus.minutesUntilFire < 1 ? '< 1 minute' : `${timerStatus.minutesUntilFire} minutes`}
+              </p>
+            </div>
+            <div className="bg-secondary/50 rounded-lg p-3">
+              <p className="text-muted-foreground mb-1">Scheduled Time</p>
+              <p className="text-foreground font-mono text-sm">{timerStatus.scheduledTime}</p>
+            </div>
+          </div>
+          {timerStatus.minutesUntilFire < 5 && timerStatus.isActive && (
+            <div className="mt-3 flex items-center gap-2 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg p-3">
+              <Clock className="w-4 h-4" />
+              <span className="font-sans text-xs font-medium">Notification will fire in less than 5 minutes! Keep the app open.</span>
+            </div>
+          )}
+        </div>
+        )}
+
+        {/* Notification Debug Info */}
+        {notifDebugInfo && (
+        <div className="bg-card border border-border rounded-2xl p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-serif text-lg font-semibold flex items-center gap-2">
+              <Settings className="w-5 h-5 text-accent" />
+              Notification Debug Console
+            </h2>
+            <span className={`font-sans text-xs font-medium px-2 py-1 rounded ${
+              notifDebugInfo.enabled && notifDebugInfo.swReady ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
+            }`}>
+              {notifDebugInfo.enabled ? 'Enabled' : 'Disabled'}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-3 font-sans text-xs mb-4">
+            <div className="bg-secondary/50 rounded-lg p-3">
+              <p className="text-muted-foreground mb-1">Notifications Enabled</p>
+              <p className={`font-mono text-sm ${notifDebugInfo.enabled ? 'text-green-600' : 'text-red-600'}`}>
+                {notifDebugInfo.enabled ? 'YES' : 'NO'}
+              </p>
+            </div>
+            <div className="bg-secondary/50 rounded-lg p-3">
+              <p className="text-muted-foreground mb-1">Service Worker Ready</p>
+              <p className={`font-mono text-sm ${notifDebugInfo.swReady ? 'text-green-600' : 'text-red-600'}`}>
+                {notifDebugInfo.swReady ? 'YES' : 'NO'}
+              </p>
+            </div>
+            <div className="bg-secondary/50 rounded-lg p-3">
+              <p className="text-muted-foreground mb-1">Notification API</p>
+              <p className={`font-mono text-sm ${notifDebugInfo.notifApiAvailable ? 'text-green-600' : 'text-red-600'}`}>
+                {notifDebugInfo.notifApiAvailable ? 'Available' : 'Unavailable'}
+              </p>
+            </div>
+            <div className="bg-secondary/50 rounded-lg p-3">
+              <p className="text-muted-foreground mb-1">Permission Status</p>
+              <p className={`font-mono text-sm ${notifDebugInfo.notifPermission === 'granted' ? 'text-green-600' : notifDebugInfo.notifPermission === 'denied' ? 'text-red-600' : 'text-amber-600'}`}>
+                {notifDebugInfo.notifPermission}
+              </p>
+            </div>
+            <div className="bg-secondary/50 rounded-lg p-3">
+              <p className="text-muted-foreground mb-1">Scheduled Time</p>
+              <p className="font-mono text-sm">{notifDebugInfo.time}</p>
+            </div>
+            <div className="bg-secondary/50 rounded-lg p-3">
+              <p className="text-muted-foreground mb-1">Last Notified</p>
+              <p className="font-mono text-sm">{notifDebugInfo.last}</p>
+            </div>
+            <div className="bg-secondary/50 rounded-lg p-3">
+              <p className="text-muted-foreground mb-1">Last App Open</p>
+              <p className="font-mono text-sm">{notifDebugInfo.lastAppOpen}</p>
+            </div>
+            <div className="bg-secondary/50 rounded-lg p-3">
+              <p className="text-muted-foreground mb-1">Next Fire Timestamp</p>
+              <p className="font-mono text-sm truncate">{notifDebugInfo.next}</p>
+            </div>
+          </div>
+          {notifDebugInfo.minutesUntilFire !== undefined && (
+            <div className="bg-slate-900 dark:bg-black rounded-xl p-4 mb-3">
+              <div className="grid grid-cols-2 gap-3 font-sans text-xs">
+                <div>
+                  <p className="text-muted-foreground mb-1">Minutes Until Fire</p>
+                  <p className={`font-mono text-lg ${notifDebugInfo.minutesUntilFire < 0 ? 'text-red-400' : notifDebugInfo.minutesUntilFire < 5 ? 'text-amber-400' : 'text-green-400'}`}>
+                    {notifDebugInfo.minutesUntilFire < 0 ? `${Math.abs(notifDebugInfo.minutesUntilFire)} min OVERDUE` : 
+                     notifDebugInfo.minutesUntilFire < 1 ? '< 1 minute' : 
+                     `${notifDebugInfo.minutesUntilFire} minutes`}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground mb-1">Should Fire Now</p>
+                  <p className={`font-mono text-lg ${notifDebugInfo.shouldFireNow ? 'text-green-400' : 'text-slate-400'}`}>
+                    {notifDebugInfo.shouldFireNow ? 'YES' : 'NO'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => checkNotifDebugInfo()}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              Refresh
+            </button>
+            {notifDebugInfo.shouldFireNow && (
+              <button
+                onClick={testNotification}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+              >
+                <Bell className="w-3.5 h-3.5" />
+                Fire Test Notification
+              </button>
+            )}
+          </div>
+        </div>
+        )}
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-serif text-lg font-semibold flex items-center gap-2">
               <Timer className={`w-5 h-5 ${timerStatus.isActive ? 'text-green-600 animate-pulse' : 'text-muted-foreground'}`} />
