@@ -647,30 +647,32 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       {showVersePanel ? (
         <div className="bg-white/15 backdrop-blur-sm rounded-xl px-6 py-4 mb-5 shadow-none">
           <p 
-            className={`font-sans text-sm font-bold tracking-wide uppercase mb-3 ${accentClass}`}
-            style={{ opacity: textOpacity, color: textColor, fontFamily }}
+            className={`font-sans text-xs font-bold tracking-widest uppercase mb-4 ${accentClass}`}
+            style={{ opacity: textOpacity, color: textColor, fontFamily, textShadow: '0 2px 4px rgba(0,0,0,0.4)' }}
           >
             Verse of the Day
           </p>
           <blockquote 
-            className="text-2xl md:text-3xl leading-relaxed [&_em]:italic"
+            className="text-3xl md:text-4xl lg:text-5xl leading-tight [&_em]:italic"
             style={{ 
               color: textColor, 
               opacity: textOpacity, 
               fontFamily,
-              fontWeight: '700',
-              textShadow: '0 2px 8px rgba(0,0,0,0.3)'
+              fontWeight: '800',
+              textShadow: '0 3px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.3)',
+              letterSpacing: '-0.02em'
             }}
           >
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
           </blockquote>
           <p 
-            className="font-sans text-base font-semibold mt-4"
+            className="font-sans text-lg md:text-xl font-bold mt-5"
             style={{ 
               opacity: Math.min(1, textOpacity + 0.05), 
               color: textColor, 
               fontFamily,
-              textShadow: '0 1px 4px rgba(0,0,0,0.3)'
+              textShadow: '0 2px 8px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.2)',
+              letterSpacing: '0.02em'
             }}
           >
             — {verse.ref} (KJB)
@@ -679,24 +681,26 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       ) : (
         <div className="px-6 py-4 mb-5">
           <blockquote 
-            className="text-2xl md:text-3xl leading-relaxed [&_em]:italic"
+            className="text-3xl md:text-4xl lg:text-5xl leading-tight [&_em]:italic"
             style={{ 
               color: textColor, 
               opacity: textOpacity, 
               fontFamily,
-              fontWeight: '700',
-              textShadow: '0 2px 8px rgba(0,0,0,0.3)'
+              fontWeight: '800',
+              textShadow: '0 3px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.3)',
+              letterSpacing: '-0.02em'
             }}
           >
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
           </blockquote>
           <p 
-            className="font-sans text-base font-semibold mt-4"
+            className="font-sans text-lg md:text-xl font-bold mt-5"
             style={{ 
               opacity: Math.min(1, textOpacity + 0.05), 
               color: textColor, 
               fontFamily,
-              textShadow: '0 1px 4px rgba(0,0,0,0.3)'
+              textShadow: '0 2px 8px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.2)',
+              letterSpacing: '0.02em'
             }}
           >
             — {verse.ref} (KJB)
@@ -739,30 +743,32 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               <Upload className="w-5 h-5 text-white rotate-45" />
             </button>
             <p 
-              className={`font-sans text-xs font-semibold tracking-widest uppercase mb-6 ${accentClass}`}
-              style={{ opacity: 0.8 * textOpacity, color: textColor, fontFamily }}
+              className={`font-sans text-xs font-bold tracking-widest uppercase mb-8 ${accentClass}`}
+              style={{ opacity: 0.8 * textOpacity, color: textColor, fontFamily, textShadow: '0 2px 4px rgba(0,0,0,0.4)' }}
             >
               Verse of the Day
             </p>
             <blockquote 
-              className="text-3xl md:text-5xl leading-relaxed mb-8 [&_em]:italic"
+              className="text-4xl md:text-6xl lg:text-7xl leading-tight mb-10 [&_em]:italic"
               style={{ 
                 color: textColor, 
                 opacity: textOpacity, 
                 fontFamily,
-                fontWeight: '700',
-                textShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                fontWeight: '800',
+                textShadow: '0 4px 16px rgba(0,0,0,0.6), 0 2px 4px rgba(0,0,0,0.3)',
+                letterSpacing: '-0.02em'
               }}
             >
               "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
             </blockquote>
             <p 
-              className="font-sans text-xl md:text-2xl font-semibold"
+              className="font-sans text-2xl md:text-3xl font-bold"
               style={{ 
                 opacity: Math.min(1, textOpacity + 0.05), 
                 color: textColor, 
                 fontFamily,
-                textShadow: '0 1px 4px rgba(0,0,0,0.3)'
+                textShadow: '0 3px 10px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.2)',
+                letterSpacing: '0.02em'
               }}
             >
               — {verse.ref} (KJB)
