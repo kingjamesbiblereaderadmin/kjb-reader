@@ -813,7 +813,7 @@ export default function BibleReader() {
           <TitlePage type={pos.abbr === 'GEN' ? 'testament-old' : 'testament-new'} />
         )}
         {!loading && !error && verses.length > 0 && (
-          <div className={paragraphMode ? 'text-justify hyphens-auto' : ''}>
+          <div className={paragraphMode ? 'text-justify hyphens-auto px-2 sm:px-4' : ''}>
             {verses
               .filter(v => !filterMode || selectedVerses.has(v.verse))
               .map((v, idx) => (
