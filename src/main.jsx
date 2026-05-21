@@ -15,22 +15,30 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 // Service worker registration for offline support and notifications
 window.addEventListener('load', async () => {
   
-  // DEV: Unregister all service workers and clear caches (prevents stale code)
+  // DEV: Aggressive cleanup - unregister all service workers and clear ALL caches
   if (import.meta.env.DEV) {
     try {
+      console.log('[SW] DEV mode - cleaning up all service workers and caches...');
       const registrations = await navigator.serviceWorker.getRegistrations();
       for (const reg of registrations) {
         await reg.unregister();
-        console.log('[SW] Unregistered dev service worker:', reg.scope);
+        console.log('[SW] Unregistered:', reg.scope);
       }
       const cacheNames = await caches.keys();
+      console.log('[SW] Found caches to delete:', cacheNames);
       for (const cacheName of cacheNames) {
         await caches.delete(cacheName);
         console.log('[SW] Deleted cache:', cacheName);
       }
+      // Force reload to ensure fresh React code
+      if (cacheNames.length > 0 || registrations.length > 0) {
+        console.log('[SW] Reloading to clear stale code...');
+        window.location.reload();
+      }
     } catch (err) {
-      console.warn('[SW] Dev cleanup failed:', err);
+      console.error('[SW] Dev cleanup failed:', err);
     }
+    return; // Don't register SW in dev mode
   }
   
   // Register fresh service worker (production only)

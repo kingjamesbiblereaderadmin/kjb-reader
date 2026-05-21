@@ -1,29 +1,28 @@
-// KJB Reader Service Worker - Optimized for offline support and performance
-const CACHE_NAME = 'kjb-reader-v1';
+const CACHE_NAME = 'kjb-cache-v1';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/offline.html',
   '/manifest.json',
-  '/offline.html'
 ];
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
-  console.log('[SW] Install event');
+  console.log('[SW] Installing...');
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[SW] Caching static assets');
       return cache.addAll(STATIC_ASSETS);
-    }).catch(err => {
-      console.error('[SW] Cache failed:', err.message);
+    }).then(() => {
+      console.log('[SW] Install complete, skipping waiting');
+      return self.skipWaiting();
     })
   );
-  self.skipWaiting();
 });
 
-// Activate event - clean old caches
+// Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activate event');
+  console.log('[SW] Activating...');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -35,7 +34,7 @@ self.addEventListener('activate', (event) => {
           })
       );
     }).then(() => {
-      console.log('[SW] Claiming clients');
+      console.log('[SW] Activate complete, claiming clients');
       return self.clients.claim();
     })
   );
@@ -102,29 +101,27 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Push notification event
+// Push event - handle push notifications
 self.addEventListener('push', (event) => {
-  console.log('[SW] Push received');
+  console.log('[SW] Push received:', event.data ? event.data.text() : 'No data');
   
   let data = {};
-  if (event.data) {
-    try {
-      data = event.data.json();
-    } catch (e) {
-      data = { title: 'Daily Verse', body: event.data.text() };
-    }
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (e) {
+    console.error('[SW] Failed to parse push data:', e);
+    data = { title: 'Daily Verse', body: event.data ? event.data.text() : 'New notification' };
   }
 
-  const title = data.title || 'KJB Reader';
+  const title = data.title || 'Daily Verse';
   const options = {
     body: data.body || 'Your daily verse is ready',
-    icon: 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png',
-    badge: 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png',
-    vibrate: [200, 100, 200],
+    icon: data.icon || '/favicon.ico',
+    badge: data.badge || '/favicon.ico',
     data: data.data || {},
     actions: [
-      { action: 'open', title: 'Read Now' },
-      { action: 'dismiss', title: 'Later' }
+      { action: 'open', title: 'Read' },
+      { action: 'dismiss', title: 'Dismiss' }
     ],
     tag: 'daily-verse',
     renotify: true
@@ -140,80 +137,76 @@ self.addEventListener('notificationclick', (event) => {
   console.log('[SW] Notification clicked:', event.action);
   event.notification.close();
 
-  if (event.action === 'dismiss') {
-    return;
-  }
+  if (event.action === 'dismiss') return;
 
   // Open or focus the app
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      // Check if app is already open
+      // Try to focus existing window
       for (const client of clientList) {
         if (client.url === '/' && 'focus' in client) {
           return client.focus();
         }
       }
-      // Open new window if not already open
+      // Open new window if none exists
       if (clients.openWindow) {
-        return clients.openWindow('/');
+        return clients.openWindow(event.notification.data?.verseUrl || '/');
       }
     })
   );
 });
 
-// Message event - handle skip waiting and cache version
+// Message event - handle messages from main thread
 self.addEventListener('message', (event) => {
   console.log('[SW] Message received:', event.data);
   
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
+    console.log('[SW] Skipping waiting...');
+    event.waitUntil(
+      self.skipWaiting().then(() => {
+        console.log('[SW] Skipped waiting, claiming clients');
+        return self.clients.claim();
+      })
+    );
   }
   
-  if (event.data && event.data.type === 'GET_VERSION') {
-    event.ports[0].postMessage({
-      type: 'CACHE_VERSION',
-      cacheVersion: CACHE_NAME
-    });
+  if (event.data && event.data.type === 'GET_CACHE_VERSION') {
+    event.ports[0].postMessage({ type: 'CACHE_VERSION', cacheVersion: CACHE_NAME });
   }
 });
 
-// Background sync for daily notifications
+// Background sync for daily verse
 self.addEventListener('sync', (event) => {
   console.log('[SW] Sync event:', event.tag);
   
-  if (event.tag === 'daily-verse') {
+  if (event.tag === 'daily-verse-sync') {
     event.waitUntil(
-      // Fetch and cache daily verse
-      fetch('https://media.base44.com/files/public/6a05d76723afe58d80c589e8/daily-verse.json')
+      fetch('/api/daily-verse')
         .then(response => response.json())
         .then(data => {
           console.log('[SW] Daily verse synced:', data);
           return caches.open(CACHE_NAME).then(cache => {
-            return cache.put('/daily-verse.json', new Response(JSON.stringify(data)));
+            return cache.put('/api/daily-verse', new Response(JSON.stringify(data)));
           });
         })
-        .catch(err => {
-          console.error('[SW] Sync failed:', err.message);
-        })
+        .catch(err => console.error('[SW] Sync failed:', err))
     );
   }
 });
 
-// Periodic background sync (if supported)
+// Periodic background sync
 self.addEventListener('periodicsync', (event) => {
   console.log('[SW] Periodic sync:', event.tag);
   
-  if (event.tag === 'daily-verse') {
+  if (event.tag === 'daily-verse-periodic') {
     event.waitUntil(
-      // Schedule daily notification
-      self.registration.showNotification('KJB Reader', {
-        body: 'Your daily verse is ready!',
-        icon: 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png',
-        badge: 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png',
-        tag: 'daily-verse'
+      self.registration.showNotification('Daily Verse', {
+        body: 'Your daily verse is ready to read',
+        icon: '/favicon.ico',
+        badge: '/favicon.ico',
+        tag: 'daily-verse',
+        data: { verseUrl: '/' }
       })
     );
   }
 });
-
-console.log('[SW] Service worker loaded');
