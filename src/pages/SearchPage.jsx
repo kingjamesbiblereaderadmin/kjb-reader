@@ -51,6 +51,8 @@ export default function SearchPage() {
   const [numberedBookFilter, setNumberedBookFilter] = useState(null);
   const [showBookFilter, setShowBookFilter] = useState(false);
   const [selectedBooks, setSelectedBooks] = useState(new Set());
+  const [currentPage, setCurrentPage] = useState(1);
+  const RESULTS_PER_PAGE = 50;
 
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
@@ -66,6 +68,7 @@ export default function SearchPage() {
     setSelectMode(false);
     setNumberedBookFilter(null);
     setSelectedBooks(new Set());
+    setCurrentPage(1);
 
     try {
       console.log('[Search] Starting search for:', kw);
@@ -186,8 +189,6 @@ export default function SearchPage() {
       const matches = [];
       const seen = new Set();
       const searchTermLower = searchTerm.toLowerCase();
-      const MAX_RESULTS = 500; // Limit to prevent freezing on common words
-      let resultCount = 0;
 
       for (const bookName in bible) {
         if (bookName === '__colophons') continue;
@@ -256,10 +257,6 @@ export default function SearchPage() {
                 text: verseObj.text,
                 abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
               });
-              resultCount++;
-              if (resultCount >= MAX_RESULTS) {
-                break;
-              }
             }
           }
           
@@ -308,11 +305,10 @@ export default function SearchPage() {
             }
           }
         }
-        if (resultCount >= MAX_RESULTS) break;
       }
 
       setResults(matches);
-      console.log('[Search] Found', matches.length, 'results', resultCount >= MAX_RESULTS ? '(limited to ' + MAX_RESULTS + ')' : '');
+      console.log('[Search] Found', matches.length, 'results');
       console.log('[Search] Found', matches.length, 'results');
     } catch (err) {
       console.error('Search error:', err);
@@ -415,6 +411,17 @@ export default function SearchPage() {
   };
 
   const selectedList = [...selected].sort((a, b) => a - b);
+
+  // Pagination
+  const totalPages = Math.ceil(results.length / RESULTS_PER_PAGE);
+  const startIndex = (currentPage - 1) * RESULTS_PER_PAGE;
+  const endIndex = startIndex + RESULTS_PER_PAGE;
+  const paginatedResults = results.slice(startIndex, endIndex);
+
+  const goToPage = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
@@ -576,6 +583,9 @@ export default function SearchPage() {
                   return q.startsWith('"') && q.endsWith('"') ? q.slice(1, -1) : q;
                 })()}"
               </p>
+              <p className="font-sans text-xs text-muted-foreground mt-0.5">
+                Page {currentPage} of {totalPages}
+              </p>
 
               {numberedBookFilter && (
                 <p className="font-sans text-xs text-primary font-semibold mt-0.5 flex items-center gap-1">
@@ -661,15 +671,16 @@ export default function SearchPage() {
 
           {/* Verse list */}
           <div className="space-y-2">
-            {results.map((r, i) => {
-              const isSelected = selected.has(i);
+            {paginatedResults.map((r, i) => {
+              const originalIndex = startIndex + i;
+              const isSelected = selected.has(originalIndex);
               const isColophon = r.isColophon || r.verse === 0;
               return (
                 <div
-                  key={i}
+                  key={originalIndex}
                   onClick={() => {
                     if (selectMode) {
-                      toggleSelect(i);
+                      toggleSelect(originalIndex);
                     } else if (isColophon) {
                       goToVerse(r.abbr, r.chapter, null);
                     } else {
@@ -677,14 +688,14 @@ export default function SearchPage() {
                     }
                   }}
                   className={`w-full text-left p-4 rounded-xl border transition-colors cursor-pointer flex items-start gap-3 ${
-                    isSelected
+                    selected.has(originalIndex)
                       ? 'bg-primary/10 border-primary/40'
                       : 'bg-card border-border hover:border-accent/40 hover:bg-accent/5'
                   }`}
                 >
                   {selectMode && (
                     <div className="shrink-0 mt-0.5">
-                      {isSelected
+                      {selected.has(originalIndex)
                         ? <CheckSquare className="w-4 h-4 text-primary" />
                         : <Square className="w-4 h-4 text-muted-foreground" />
                       }
@@ -708,6 +719,53 @@ export default function SearchPage() {
               );
             })}
           </div>
+
+          {/* Pagination controls */}
+          {totalPages > 1 && (
+            <div className="mt-6 flex items-center justify-center gap-2">
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-40 transition-colors"
+              >
+                Previous
+              </button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => goToPage(pageNum)}
+                      className={`w-10 h-10 rounded-lg font-sans text-sm font-medium transition-colors ${
+                        currentPage === pageNum
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-40 transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       )}
 
