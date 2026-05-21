@@ -455,21 +455,25 @@ export default function SearchPage() {
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-2 mb-5">
-        <Filter className="w-3.5 h-3.5 text-muted-foreground" />
-        <span className="font-sans text-xs text-muted-foreground">Limit:</span>
-        {[50, 100, 200, 500].map(limit => (
-          <button
-            key={limit}
-            type="button"
-            onClick={() => { setResultsLimit(limit); setCurrentPage(1); }}
-            className={`px-2.5 py-1 rounded-lg font-sans text-xs font-medium transition-colors ${
-              resultsLimit === limit ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-            }`}
-          >
-            {limit}
-          </button>
-        ))}
-        <div className="w-px h-4 bg-border mx-1" />
+        {results.length > 50 && (
+          <>
+            <Filter className="w-3.5 h-3.5 text-muted-foreground" />
+            <span className="font-sans text-xs text-muted-foreground">Limit:</span>
+            {[50, 100, 200, 500].map(limit => (
+              <button
+                key={limit}
+                type="button"
+                onClick={() => { setResultsLimit(limit); setCurrentPage(1); }}
+                className={`px-2.5 py-1 rounded-lg font-sans text-xs font-medium transition-colors ${
+                  resultsLimit === limit ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                }`}
+              >
+                {limit}
+              </button>
+            ))}
+            <div className="w-px h-4 bg-border mx-1" />
+          </>
+        )}
         <span className="font-sans text-xs text-muted-foreground">Testament:</span>
         {[['all', 'All'], ['ot', 'Old Testament'], ['nt', 'New Testament']].map(([val, label]) => (
           <button
