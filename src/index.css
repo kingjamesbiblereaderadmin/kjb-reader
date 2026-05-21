@@ -110,24 +110,23 @@
     font-style: italic;
   }
   
-  /* In cursive mode ONLY, use Dancing Script font for ALL text including italic words */
+  /* In cursive mode ONLY, use Dancing Script font for ALL text */
   .cursive-em-style {
     font-family: 'Dancing Script', cursive !important;
-    font-style: italic !important;
+    font-style: normal !important;
     font-weight: 400 !important;
   }
   
   .cursive-em-style * {
     font-family: 'Dancing Script', cursive !important;
-    font-style: italic !important;
     font-weight: 400 !important;
   }
   
-  /* Italic words ([bracketed]) in cursive mode - lighter weight */
+  /* Italic words ([bracketed]) in cursive mode - bold weight */
   .cursive-em-style em {
     font-family: 'Dancing Script', cursive !important;
     font-style: italic !important;
-    font-weight: 300 !important;
+    font-weight: 700 !important;
   }
 
 
