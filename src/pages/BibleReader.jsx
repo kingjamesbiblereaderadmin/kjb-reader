@@ -930,7 +930,7 @@ export default function BibleReader() {
       {/* Click/tap outside to close desktop dropdowns and mobile sheets */}
       {(showBookPicker || showChapterPicker || showVersePicker || showZoomPopover || showFontPopover) && (
         <div
-          className="fixed inset-0 z-[35]"
+          className="fixed inset-0 z-[39]"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
