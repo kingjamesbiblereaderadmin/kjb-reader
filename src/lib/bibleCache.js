@@ -137,7 +137,7 @@ function parseRTFWithItalics(rtfText, italicMap) {
       .trim();
   };
 
-  // Apply italic brackets to RTF text
+  // Apply italic brackets to RTF text - only mark words that exist in PCE italic data
   const applyItalics = (rtfVerseText, italics) => {
     if (!italics || italics.length === 0) return rtfVerseText;
     
@@ -150,6 +150,7 @@ function parseRTFWithItalics(rtfText, italicMap) {
       
       try {
         const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        // Only add brackets if the word/phrase exists in RTF text
         const re = new RegExp(`(?<!\\[)\\b${escaped}\\b(?!\\])`, 'i');
         const match = re.exec(result);
         if (match) {
@@ -157,7 +158,9 @@ function parseRTFWithItalics(rtfText, italicMap) {
           const after = result.slice(match.index + match[0].length);
           result = before + '[' + match[0] + ']' + after;
         }
-      } catch (e) {}
+      } catch (e) {
+        // Skip phrases that don't match or cause regex errors
+      }
     }
     
     return result;
