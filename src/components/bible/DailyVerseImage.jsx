@@ -326,7 +326,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
   return (
     <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-8 pt-5 pb-8 text-center text-white relative cursor-pointer`} style={bgStyle}>
-      {/* Logo/Notification indicator button */}
+      {/* Notification bell indicator button */}
       {showButtons && onToggleNotif && (
         <button
           onClick={(e) => {
@@ -338,11 +338,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
           type="button"
         >
-          <img 
-            src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" 
-            alt="KJB Logo"
-            className="w-4 h-4 object-contain"
-          />
+          {notifEnabled ? <Bell className="w-4 h-4 text-slate-800" /> : <BellOff className="w-4 h-4 text-slate-800" />}
         </button>
       )}
 
