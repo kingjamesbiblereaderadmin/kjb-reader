@@ -27,12 +27,27 @@
     <meta name="keywords" content="Bible, King James Version, KJV, Pure Cambridge Edition, offline Bible, Christian, scripture" />
     <!-- PWA manifest -->
     <link rel="manifest" href="/manifest.json" />
-    <!-- Prevent black flash before React mounts: match theme background -->
+    <!-- Prevent flash of wrong theme: apply saved theme BEFORE React mounts -->
+    <script>
+      (function() {
+        try {
+          var mode = localStorage.getItem('kjb-theme-mode') || 'system';
+          var isDark;
+          if (mode === 'dark') isDark = true;
+          else if (mode === 'light') isDark = false;
+          else if (mode === 'auto') {
+            var h = new Date().getHours();
+            isDark = h < 6 || h >= 18;
+          } else {
+            isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          }
+          if (isDark) document.documentElement.classList.add('dark');
+        } catch (e) {}
+      })();
+    </script>
     <style>
       html, body { background-color: #ffffff; margin: 0; }
-      @media (prefers-color-scheme: dark) {
-        html, body { background-color: #0f1718; }
-      }
+      html.dark, html.dark body { background-color: #0f1718; }
       #root { min-height: 100vh; background-color: inherit; }
     </style>
   </head>
