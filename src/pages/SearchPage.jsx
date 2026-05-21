@@ -52,6 +52,7 @@ export default function SearchPage() {
   const [showBookFilter, setShowBookFilter] = useState(false);
   const [selectedBooks, setSelectedBooks] = useState(new Set());
   const [currentPage, setCurrentPage] = useState(1);
+  const [resultsLimit, setResultsLimit] = useState(100);
   const RESULTS_PER_PAGE = 50;
 
   // Multi-select state
@@ -412,11 +413,14 @@ export default function SearchPage() {
 
   const selectedList = [...selected].sort((a, b) => a - b);
 
+  // Apply results limit
+  const limitedResults = results.slice(0, resultsLimit);
+
   // Pagination
-  const totalPages = Math.ceil(results.length / RESULTS_PER_PAGE);
+  const totalPages = Math.ceil(limitedResults.length / RESULTS_PER_PAGE);
   const startIndex = (currentPage - 1) * RESULTS_PER_PAGE;
   const endIndex = startIndex + RESULTS_PER_PAGE;
-  const paginatedResults = results.slice(startIndex, endIndex);
+  const paginatedResults = limitedResults.slice(startIndex, endIndex);
 
   const goToPage = (page) => {
     setCurrentPage(page);
@@ -452,6 +456,20 @@ export default function SearchPage() {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-2 mb-5">
         <Filter className="w-3.5 h-3.5 text-muted-foreground" />
+        <span className="font-sans text-xs text-muted-foreground">Limit:</span>
+        {[50, 100, 200, 500].map(limit => (
+          <button
+            key={limit}
+            type="button"
+            onClick={() => { setResultsLimit(limit); setCurrentPage(1); }}
+            className={`px-2.5 py-1 rounded-lg font-sans text-xs font-medium transition-colors ${
+              resultsLimit === limit ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+            }`}
+          >
+            {limit}
+          </button>
+        ))}
+        <div className="w-px h-4 bg-border mx-1" />
         <span className="font-sans text-xs text-muted-foreground">Testament:</span>
         {[['all', 'All'], ['ot', 'Old Testament'], ['nt', 'New Testament']].map(([val, label]) => (
           <button
@@ -578,7 +596,7 @@ export default function SearchPage() {
           <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div>
               <p className="font-sans text-xs text-muted-foreground">
-                {results.length} result{results.length !== 1 ? 's' : ''} for "{(() => {
+                {limitedResults.length} of {results.length} results for "{(() => {
                   const q = getQueryFromUrl() || query;
                   return q.startsWith('"') && q.endsWith('"') ? q.slice(1, -1) : q;
                 })()}"
