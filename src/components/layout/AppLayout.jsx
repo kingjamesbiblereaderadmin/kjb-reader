@@ -6,6 +6,7 @@ import { useHeaderHide } from '@/lib/HeaderHideContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import ScrollToTop from '@/components/ScrollToTop';
+import AutoUpdateHandler from '@/components/AutoUpdateHandler';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, showLocalNotification } from '@/lib/notifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
@@ -43,9 +44,28 @@ export default function AppLayout() {
   const { hideHeader } = useHeaderHide();
   const [menuOpen, setMenuOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   // Footer is always visible on desktop, controlled by bottom nav on mobile
   const navigate = useNavigate();
   const isRoot = pathname === '/';
+
+  const handleRefresh = async () => {
+    setIsUpdating(true);
+    try {
+      await downloadBibleForOffline((progress, message) => {
+        toast.loading(`Updating: ${message}`, { duration: 1000 });
+      });
+      toast.success('Cache refreshed successfully');
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } catch (error) {
+      console.error('Refresh failed:', error);
+      toast.error('Failed to refresh cache');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   // FirstLoadPrompt state (centralized in AppLayout)
   const { isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss } = useAppLayoutPrompt();
@@ -85,6 +105,7 @@ export default function AppLayout() {
   };
 
   return (
+    <AutoUpdateHandler>
     <div className="min-h-screen bg-background flex flex-col">
       <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-2 sm:gap-3">
@@ -111,13 +132,13 @@ export default function AppLayout() {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                window.location.reload();
+                handleRefresh();
               }}
               style={{ touchAction: 'manipulation' }}
               role="button"
               aria-label="Refresh and update cache"
             >
-              <RotateCw className="w-4 h-4" />
+              <RotateCw className={`w-4 h-4 ${isUpdating ? 'animate-spin' : ''}`} />
             </div>
             <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
@@ -230,6 +251,7 @@ export default function AppLayout() {
         </div>
       </footer>
     </div>
+    </AutoUpdateHandler>
   );
 }
 
