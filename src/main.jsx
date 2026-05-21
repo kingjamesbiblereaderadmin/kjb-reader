@@ -12,24 +12,24 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   </React.StrictMode>
 )
 
-// Service worker cleanup and registration
+// Service worker registration for offline support and notifications
 window.addEventListener('load', async () => {
-  // Aggressive cleanup in development to prevent stale React cache errors
-  if ('serviceWorker' in navigator && import.meta.env.DEV) {
+  
+  // DEV: Unregister all service workers and clear caches (prevents stale code)
+  if (import.meta.env.DEV) {
     try {
       const registrations = await navigator.serviceWorker.getRegistrations();
-      for (const registration of registrations) {
-        await registration.unregister();
-        console.log('[SW] Unregistered dev service worker:', registration.scope);
+      for (const reg of registrations) {
+        await reg.unregister();
+        console.log('[SW] Unregistered dev service worker:', reg.scope);
       }
       const cacheNames = await caches.keys();
-      for (const name of cacheNames) {
-        await caches.delete(name);
-        console.log('[SW] Cleared dev cache:', name);
+      for (const cacheName of cacheNames) {
+        await caches.delete(cacheName);
+        console.log('[SW] Deleted cache:', cacheName);
       }
-      console.log('[SW] Cleaned up all dev service workers and caches');
     } catch (err) {
-      console.warn('[SW] Cleanup error:', err);
+      console.warn('[SW] Dev cleanup failed:', err);
     }
   }
   

@@ -929,7 +929,20 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       {cropImage && (
         <ImageCropper
           image={cropImage}
-          onCrop={(cropped) => handleCropComplete(cropped, cropImageForNotif)}
+          onCrop={(cropped) => {
+            handleCropComplete(cropped, cropImageForNotif);
+            if (!cropImageForNotif) {
+              // Auto-save non-notification backgrounds after crop
+              setTimeout(() => {
+                if (pendingBg || cropImage) {
+                  localStorage.setItem('kjb-daily-verse-bg', cropImage);
+                  setCustomBg(cropImage);
+                  setPendingBg(null);
+                  setCropImage(null);
+                }
+              }, 100);
+            }
+          }}
           onCancel={() => {
             setCropImage(null);
             setCropImageForNotif(false);
@@ -938,8 +951,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         />
       )}
 
-      {/* Save/Cancel buttons for pending background */}
-      {pendingBg && !cropImage && (
+      {/* Save/Cancel buttons for pending background (only for crop-to-background flow) */}
+      {pendingBg && !cropImage && !cropImageForNotif && (
         <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-30 flex gap-2">
           <button
             onClick={(e) => {
