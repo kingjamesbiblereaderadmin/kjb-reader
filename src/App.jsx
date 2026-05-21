@@ -41,7 +41,33 @@ let _preloaded = false;
 function preloadAllRoutes() {
   if (_preloaded) return;
   _preloaded = true;
-  const run = () => Object.values(loaders).forEach(fn => { fn().catch(() => {}); });
+  const run = () => {
+    // Skip preloading when offline — chunks not yet cached would 404 and
+    // pollute the browser's failed-module map. Already-cached chunks still
+    // load fine on demand via the SW.
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
+
+    const imports = Object.values(loaders).map(fn => fn().catch(() => {}));
+
+    // After all chunks load, ask the SW to cache the newly-injected <script>
+    // tags so every route works fully offline next time.
+    Promise.all(imports).then(() => {
+      try {
+        if (navigator.serviceWorker?.controller) {
+          const urls = [];
+          document.querySelectorAll('script[src]').forEach(s => {
+            try { urls.push(new URL(s.src, location.href).href); } catch {}
+          });
+          document.querySelectorAll('link[rel="modulepreload"], link[rel="preload"]').forEach(l => {
+            try { if (l.href) urls.push(new URL(l.href, location.href).href); } catch {}
+          });
+          if (urls.length) {
+            navigator.serviceWorker.controller.postMessage({ type: 'PREWARM_ASSETS', urls });
+          }
+        }
+      } catch {}
+    });
+  };
   if ('requestIdleCallback' in window) {
     requestIdleCallback(run, { timeout: 2000 });
   } else {
