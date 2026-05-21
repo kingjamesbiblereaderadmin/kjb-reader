@@ -3,7 +3,7 @@ import { ChevronUp } from 'lucide-react';
 
 export default function ScrollToTop() {
   const [visible, setVisible] = useState(false);
-  const [footerHeight, setFooterHeight] = useState(80);
+  const [footerHeight, setFooterHeight] = useState(60);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -11,17 +11,17 @@ export default function ScrollToTop() {
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
 
-    // Calculate footer height based on nav mode
+    // Calculate footer height - always account for the toggle bar at bottom
     const updateFooterHeight = () => {
       try {
         const showMode = localStorage.getItem('kjb-footer-mode') || 'one';
-        // Mobile footer: one row = ~56px, two rows = ~112px, none = 0
+        // Mobile footer: toggle bar = ~56px, one row = ~56px, two rows = ~112px
         // Add safe area inset for bottom
         const safeArea = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sat-bottom') || '0');
-        const baseHeight = showMode === 'two' ? 112 : showMode === 'one' ? 56 : 0;
+        const baseHeight = showMode === 'two' ? 112 : 56; // Always at least toggle bar height
         setFooterHeight(baseHeight + safeArea + 16); // 16px extra padding
       } catch {
-        setFooterHeight(80);
+        setFooterHeight(60);
       }
     };
 
