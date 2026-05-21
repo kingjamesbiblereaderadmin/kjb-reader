@@ -610,17 +610,17 @@ export default function ResourcesPage() {
           <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
           <div>
             <h2 className="font-serif text-lg font-bold text-foreground mb-1">KJBI.org — Free Online Bible College</h2>
-            <p className="font-sans text-sm text-muted-foreground leading-relaxed">
-              King James Bible Institute — a free online Bible college for those who want to go deeper in God's Word.{' '}
-              <a
-                href="https://kjbi.org"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 font-medium text-accent hover:text-accent/80 transition-colors underline underline-offset-2"
-              >
-                Visit KJBI.org <ExternalLink className="w-3 h-3" />
-              </a>
+            <p className="font-sans text-sm text-muted-foreground leading-relaxed mb-3">
+              King James Bible Institute — a free online Bible college for those who want to go deeper in God's Word.
             </p>
+            <a
+              href="https://kjbi.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              Visit KJBI.org <ExternalLink className="w-3.5 h-3.5" />
+            </a>
           </div>
         </div>
       </div>
