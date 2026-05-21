@@ -161,9 +161,9 @@ export default function SettingsPage() {
     if (notifEnabled) scheduleDailyNotification(getDailyVerse());
   };
 
-  const handleTestNotif = () => {
+  const handleTestNotif = async () => {
     const v = getDailyVerse();
-    showLocalNotification('King James Bible — Verse of the Day', `"${v.text.slice(0, 100)}${v.text.length > 100 ? '…' : ''}" — ${v.ref}`);
+    await showLocalNotification('King James Bible — Verse of the Day', `"${v.text.slice(0, 100)}${v.text.length > 100 ? '…' : ''}" — ${v.ref}`, null, true);
   };
 
 
