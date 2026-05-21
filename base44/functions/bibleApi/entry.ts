@@ -122,6 +122,39 @@ Deno.serve(async (req) => {
       return Response.json({ colophons: bible.__colophons });
     }
 
+    if (action === 'daily_verse') {
+      // Date-seeded daily verse (same verse for all users on a given UTC day)
+      const today = new Date();
+      const seed = today.getUTCFullYear() * 10000 + (today.getUTCMonth() + 1) * 100 + today.getUTCDate();
+
+      const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
+      if (!bookNames.length) {
+        return Response.json({ error: 'No bible data' }, { status: 500 });
+      }
+
+      // Deterministic pick based on seed
+      const bookName = bookNames[seed % bookNames.length];
+      const chapters = Object.keys(bible[bookName]);
+      const chapterNum = chapters[seed % chapters.length];
+      const verses = bible[bookName][chapterNum];
+      const verseObj = verses[seed % verses.length];
+
+      // Preserve [italics] brackets; strip only pilcrow + superscription markers
+      const text = verseObj.text
+        .replace(/¶\s*/g, '')
+        .replace(/^<<[^>]*>>\s*/, '');
+
+      return Response.json({
+        verse: {
+          book: bookName,
+          chapter: parseInt(chapterNum),
+          verse: verseObj.verse,
+          text,
+          ref: `${bookName} ${chapterNum}:${verseObj.verse}`
+        }
+      });
+    }
+
     return Response.json({ error: 'Unknown action' }, { status: 400 });
 
   } catch (error) {
