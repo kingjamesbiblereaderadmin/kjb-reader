@@ -109,6 +109,12 @@
   em {
     font-style: italic;
   }
+  
+  /* In cursive mode, keep italics in standard serif font for readability */
+  .cursive-em-style em {
+    font-family: var(--font-serif);
+    font-style: italic;
+  }
 
 
 }
