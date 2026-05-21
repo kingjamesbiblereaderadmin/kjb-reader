@@ -226,6 +226,11 @@ export default function SettingsPage() {
 
   const handleClearCache = async () => {
     await clearBibleCache();
+    // Also clear service worker cache
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      await Promise.all(cacheNames.map(name => caches.delete(name)));
+    }
     setCached(false);
     setDlProgress(0);
     setDlStatus('');
@@ -1014,15 +1019,17 @@ export default function SettingsPage() {
               </button>
               <button
                 onClick={async () => {
-                  // Clear all caches first, then hard reload
+                  // Clear ALL caches and reload
+                  await clearBibleCache();
                   if ('caches' in window) {
                     const cacheNames = await caches.keys();
                     await Promise.all(cacheNames.map(name => caches.delete(name)));
                   }
                   if ('serviceWorker' in navigator) {
-                    const registration = await navigator.serviceWorker.ready;
-                    await registration.unregister();
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(regs.map(reg => reg.unregister()));
                   }
+                  localStorage.clear();
                   window.location.reload();
                 }}
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
