@@ -558,7 +558,7 @@ export async function downloadBibleForOffline(onProgress) {
   await clearIndexedDB();
   onProgress && onProgress(0, 'Fetching Bible text...');
 
-  onProgress && onProgress(50, 'Parsing 66 books with italics...');
+  onProgress && onProgress(50, 'Parsing 66 books...');
 
   const data = await fetchAndParse();
   if (!isValidBibleData(data)) {
