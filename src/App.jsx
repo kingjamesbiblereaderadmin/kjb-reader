@@ -79,9 +79,11 @@ function preloadAllRoutes() {
 const PageLoader = () => null;
 
 // Wraps each route in a fast CSS fade so transitions feel smooth, not blank.
-const FadeIn = ({ children }) => (
-  <div className="kjb-fade-in">{children}</div>
-);
+// Keyed by pathname so the animation replays on every navigation.
+const FadeIn = ({ children }) => {
+  const { pathname } = useLocation();
+  return <div key={pathname} className="kjb-fade-in">{children}</div>;
+};
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();

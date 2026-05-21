@@ -91,9 +91,25 @@
     user-select: none;
   }
   
-  /* Page transitions: instant, no fade — prevents flashing on route changes */
+  /* Page transitions: smooth fade + slight upward slide on every route change */
   .kjb-fade-in {
-    animation: none;
+    animation: kjb-page-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: opacity, transform;
+  }
+  @keyframes kjb-page-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .kjb-fade-in {
+      animation: none;
+    }
   }
 
   /* Hide scrollbar for horizontal scrolling nav */
