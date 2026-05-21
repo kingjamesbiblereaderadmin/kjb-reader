@@ -38,50 +38,77 @@ export function todayString() {
 }
 
 export async function requestNotificationPermission() {
-  console.log('requestNotificationPermission called');
-  console.log('serviceWorker in navigator:', 'serviceWorker' in navigator);
-  console.log('Notification in window:', 'Notification' in window);
+  console.log('[Notif] requestNotificationPermission called');
+  console.log('[Notif] serviceWorker in navigator:', 'serviceWorker' in navigator);
+  console.log('[Notif] Notification in window:', 'Notification' in window);
+  console.log('[Notif] permissions API:', 'permissions' in navigator);
   
-  // Check for Service Worker support (required for Android notifications)
-  if (!('serviceWorker' in navigator)) {
-    console.log('No service worker support');
-    return 'unsupported';
-  }
+  let hasPermission = false;
   
-  // Get existing SW registration (don't re-register to avoid Chrome "tap to copy URL" banner)
-  let reg;
-  try {
-    reg = await navigator.serviceWorker.getRegistration('/');
-    if (!reg) reg = await navigator.serviceWorker.register('/sw.js');
-    console.log('Service worker ready:', reg.scope);
-  } catch (err) {
-    console.error('Service worker registration failed:', err);
-    return 'unsupported';
-  }
-  
-  // For Android PWA/WebView, Notification API might not be available
-  // but service worker showNotification still works
-  if (!('Notification' in window)) {
-    console.log('Notification API not available, but SW may work - returning granted');
-    localStorage.setItem(NOTIF_KEY, 'true');
-    return 'granted';
-  }
-  
-  // Try standard permission request
-  try {
-    console.log('Calling Notification.requestPermission()...');
-    const result = await Notification.requestPermission();
-    console.log('Notification permission result:', result);
-    if (result === 'granted') {
-      localStorage.setItem(NOTIF_KEY, 'true');
+  // Step 1: Try standard Notification API permission (iOS 16.4+, desktop browsers)
+  if ('Notification' in window) {
+    try {
+      console.log('[Notif] Requesting Notification permission...');
+      const result = await Notification.requestPermission();
+      console.log('[Notif] Notification permission result:', result);
+      if (result === 'granted') {
+        hasPermission = true;
+        localStorage.setItem(NOTIF_KEY, 'true');
+      }
+    } catch (err) {
+      console.warn('[Notif] Notification.requestPermission failed:', err.message);
     }
-    return result;
-  } catch (err) {
-    console.error('Notification.requestPermission error:', err);
-    // On Android WebView, this might fail but SW notifications still work
-    localStorage.setItem(NOTIF_KEY, 'true');
-    return 'granted';
   }
+  
+  // Step 2: Register service worker (Android, PWA, all platforms)
+  if ('serviceWorker' in navigator) {
+    try {
+      let reg = await navigator.serviceWorker.getRegistration('/');
+      if (!reg) {
+        reg = await navigator.serviceWorker.register('/sw.js');
+        console.log('[Notif] Service worker registered:', reg.scope);
+      } else {
+        console.log('[Notif] Service worker already registered:', reg.scope);
+      }
+      
+      // Request persistent permission for push notifications
+      if ('pushManager' in reg) {
+        try {
+          const subscription = await reg.pushManager.getSubscription();
+          if (!subscription && hasPermission) {
+            console.log('[Notif] No push subscription, user enabled notifications');
+          }
+        } catch (pushErr) {
+          console.warn('[Notif] Push manager check failed:', pushErr.message);
+        }
+      }
+      
+      // On Android, SW notifications work even without Notification API permission
+      if (!hasPermission) {
+        console.log('[Notif] Enabling notifications via service worker');
+        localStorage.setItem(NOTIF_KEY, 'true');
+        hasPermission = true;
+      }
+    } catch (err) {
+      console.error('[Notif] Service worker registration failed:', err.message);
+    }
+  } else {
+    console.warn('[Notif] Service worker not supported');
+  }
+  
+  // Step 3: Check periodic sync support (Android Chrome only)
+  if ('serviceWorker' in navigator && hasPermission) {
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      if ('periodicSync' in reg) {
+        console.log('[Notif] Periodic sync supported');
+      } else {
+        console.log('[Notif] Periodic sync not supported (expected on most browsers)');
+      }
+    } catch {}
+  }
+  
+  return hasPermission ? 'granted' : 'denied';
 }
 
 export function disableNotifications() {
@@ -124,38 +151,49 @@ async function saveNextFireTime(verse) {
 export async function showLocalNotification(title, body, imageUrl = null) {
   const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
   
-  // Always try service worker first (works on Android even when Notification API doesn't)
-  try {
-    const reg = await navigator.serviceWorker.ready;
-    console.log('Service worker ready, showing notification via SW');
-    console.log('Notification body:', body);
-    await reg.showNotification(title, {
-      body: body,
-      icon: logoUrl,
-      badge: logoUrl,
-      tag: 'daily-verse',
-      renotify: true,
-      silent: false,
-      vibrate: [200, 100, 200],
-      data: { url: self?.location?.origin || '/' }
-    });
-    return;
-  } catch (err) {
-    console.error('Service worker notification failed:', err);
+  console.log('[Notif] showLocalNotification called:', title);
+  
+  // Try service worker first (works on Android, PWA, all platforms)
+  if ('serviceWorker' in navigator) {
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      console.log('[Notif] Service worker ready, showing notification');
+      await reg.showNotification(title, {
+        body: body,
+        icon: logoUrl,
+        badge: logoUrl,
+        tag: 'daily-verse',
+        renotify: true,
+        vibrate: [200, 100, 200],
+        data: { url: window.location.origin || '/' },
+        silent: false,
+        requireInteraction: false
+      });
+      console.log('[Notif] Service worker notification sent successfully');
+      return;
+    } catch (err) {
+      console.error('[Notif] Service worker notification failed:', err.message);
+    }
   }
   
-  // Fallback to standard Notification API
+  // Fallback to standard Notification API (iOS 16.4+, desktop)
   if ('Notification' in window && Notification.permission === 'granted') {
     try {
+      console.log('[Notif] Using standard Notification API');
       new Notification(title, { 
         body, 
         icon: logoUrl,
         badge: logoUrl,
-        vibrate: [200, 100, 200]
+        vibrate: [200, 100, 200],
+        tag: 'daily-verse',
+        renotify: true
       });
+      console.log('[Notif] Standard notification sent');
     } catch (err) {
-      console.error('Standard notification failed:', err);
+      console.error('[Notif] Standard notification failed:', err.message);
     }
+  } else {
+    console.warn('[Notif] No notification method available');
   }
 }
 
@@ -193,17 +231,17 @@ async function registerPeriodicSync() {
     const reg = await navigator.serviceWorker.ready;
     if ('periodicSync' in reg) {
       try {
-        await reg.periodicSync.register('daily-verse-notif', { minInterval: 24 * 60 * 60 * 1000 }); // 24 hours
-        console.log('[Notif] Periodic sync registered successfully');
+        // Try to register with 24-hour interval (minimum allowed)
+        await reg.periodicSync.register('daily-verse-notif', { minInterval: 24 * 60 * 60 * 1000 });
+        console.log('[Notif] Periodic sync registered (24h interval)');
       } catch (syncErr) {
-        console.warn('[Notif] Periodic sync registration failed (permission not granted):', syncErr.message);
-        // This is expected on most browsers - fallback to in-page timer
+        console.warn('[Notif] Periodic sync not available:', syncErr.message);
       }
-    } else {
-      console.warn('[Notif] Periodic sync not supported in this browser');
     }
+    // Note: periodicSync is only supported on Chrome for Android
+    // Most browsers will use in-page timer or push notifications instead
   } catch (err) {
-    console.error('[Notif] Failed to register periodic sync:', err);
+    console.warn('[Notif] Periodic sync registration failed:', err.message);
   }
 }
 
@@ -255,15 +293,18 @@ export function scheduleDailyNotification(verse) {
 // Call once on app load - checks for missed notifications and arms timer
 let _notificationsInitialized = false;
 export function initNotifications(verse) {
-  if (!getNotificationsEnabled()) return;
-  // On Android, we just need service worker - Notification API is optional
-  if (!('serviceWorker' in navigator)) return;
+  if (!getNotificationsEnabled()) {
+    console.log('[Notif] Notifications not enabled, skipping init');
+    return;
+  }
   
   // Prevent multiple initializations
-  if (_notificationsInitialized) return;
+  if (_notificationsInitialized) {
+    console.log('[Notif] Already initialized, skipping');
+    return;
+  }
   _notificationsInitialized = true;
 
-  // Debug logging
   console.log('[Notif] initNotifications called');
   console.log('[Notif] Enabled:', getNotificationsEnabled());
   console.log('[Notif] Last notified:', localStorage.getItem(NOTIF_LAST_KEY));
@@ -282,16 +323,14 @@ export function initNotifications(verse) {
   // Re-check on visibility change (e.g. user switches back to the app)
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
-      // Update last open date
       localStorage.setItem('kjb-last-app-open', todayString());
-      // Get fresh verse when app becomes visible
       const freshVerse = getDailyVerse();
-      console.log('[Notif] App became visible, checking overdue notification');
+      console.log('[Notif] App became visible, checking overdue');
       checkOverdueNotification(freshVerse);
     }
-  }, { once: false });
+  });
   
-  // Also check on window focus
+  // Check on window focus
   window.addEventListener('focus', () => {
     const freshVerse = getDailyVerse();
     checkOverdueNotification(freshVerse);
