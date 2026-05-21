@@ -146,13 +146,21 @@ async function saveNextFireTime(verse) {
 export async function showLocalNotification(title, body, imageUrl = null) {
   console.log('[Notif] showLocalNotification called:', title);
   console.log('[Notif] Body:', body);
+  console.log('[Notif] Service Worker available:', 'serviceWorker' in navigator);
+  console.log('[Notif] Notification API available:', 'Notification' in window);
+  if ('Notification' in window) {
+    console.log('[Notif] Notification permission:', Notification.permission);
+  }
   
   // Try service worker first (works on Android, PWA, all platforms)
   if ('serviceWorker' in navigator) {
     try {
       console.log('[Notif] Waiting for service worker to be ready...');
       const reg = await navigator.serviceWorker.ready;
-      console.log('[Notif] Service worker ready, showing notification');
+      console.log('[Notif] Service worker ready:', reg);
+      console.log('[Notif] SW registration scope:', reg.scope);
+      console.log('[Notif] SW active:', reg.active ? 'yes' : 'no');
+      console.log('[Notif] showNotification method exists:', typeof reg.showNotification);
       
       // Show notification using service worker - NO icon, NO badge (pure text)
       await reg.showNotification(title, {
@@ -196,7 +204,7 @@ export async function showLocalNotification(title, body, imageUrl = null) {
       console.error('[Notif] ❌ Standard notification failed:', err.message);
     }
   } else {
-    console.warn('[Notif] No notification method available');
+    console.warn('[Notif] No notification method available - permission:', 'Notification' in window ? Notification.permission : 'API not available');
   }
 }
 
@@ -431,12 +439,15 @@ export function scheduleDailyNotification(verse) {
 // Call once on app load - checks for missed notifications and arms timer
 let _notificationsInitialized = false;
 export function initNotifications(verse) {
+  console.log('[Notif] ========== initNotifications START ==========');
   console.log('[Notif] initNotifications called');
   console.log('[Notif] Service Worker supported:', 'serviceWorker' in navigator);
-  console.log('[Notif] Notifications enabled:', getNotificationsEnabled());
+  console.log('[Notif] Notifications enabled (from localStorage):', getNotificationsEnabled());
+  console.log('[Notif] localStorage value:', localStorage.getItem(NOTIF_KEY));
   
   if (!getNotificationsEnabled()) {
     console.log('[Notif] Notifications not enabled, skipping init');
+    console.log('[Notif] ========== initNotifications END (early exit) ==========');
     return;
   }
   
@@ -456,9 +467,11 @@ export function initNotifications(verse) {
   localStorage.setItem('kjb-last-app-open', today);
 
   // Always check if notification is due when app opens (for missed notifications)
+  console.log('[Notif] Checking overdue notification...');
   checkOverdueNotification(verse);
 
   // Arm the in-page timer for future notifications at the scheduled time
+  console.log('[Notif] Scheduling daily notification...');
   scheduleDailyNotification(verse);
 
   // Re-check on visibility change (e.g. user switches back to the app)
@@ -478,6 +491,7 @@ export function initNotifications(verse) {
   });
   
   console.log('[Notif] Notifications initialized successfully');
+  console.log('[Notif] ========== initNotifications END ==========');
 }
 
 // Manual trigger for debugging/testing
