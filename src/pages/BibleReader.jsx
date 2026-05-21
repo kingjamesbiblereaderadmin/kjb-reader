@@ -897,7 +897,7 @@ export default function BibleReader() {
                 title={hideHeader ? "Show header" : "Hide header"}
                 className="flex items-center justify-center p-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors touch-manipulation min-h-[44px] min-w-[44px]"
               >
-                <ChevronDown className={`w-5 h-5 transition-transform ${hideHeader ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-5 h-5 transition-transform ${hideHeader ? '' : 'rotate-180'}`} />
               </button>
             </>
             )}
