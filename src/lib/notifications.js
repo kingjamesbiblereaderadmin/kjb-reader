@@ -147,6 +147,12 @@ export async function showLocalNotification(title, body, imageUrl = null) {
   console.log('[Notif] showLocalNotification called:', title);
   console.log('[Notif] Body:', body);
   
+  // Ensure body is a valid string
+  if (!body || typeof body !== 'string') {
+    console.error('[Notif] Invalid notification body:', body);
+    body = 'Daily verse notification';
+  }
+  
   // Try service worker first (works on Android, PWA, all platforms)
   if ('serviceWorker' in navigator) {
     try {
@@ -161,10 +167,7 @@ export async function showLocalNotification(title, body, imageUrl = null) {
         renotify: true,
         vibrate: [200, 100, 200],
         silent: false,
-        requireInteraction: false,
-        data: {
-          url: window.location.origin ? (window.location.origin + '/') : '/'
-        }
+        requireInteraction: false
       });
       console.log('[Notif] ✅ Service worker notification sent successfully');
       return;
@@ -185,10 +188,7 @@ export async function showLocalNotification(title, body, imageUrl = null) {
         tag: 'daily-verse',
         renotify: true,
         vibrate: [200, 100, 200],
-        silent: false,
-        data: {
-          url: window.location.origin ? (window.location.origin + '/') : '/'
-        }
+        silent: false
       });
       
       console.log('[Notif] ✅ Standard notification sent');

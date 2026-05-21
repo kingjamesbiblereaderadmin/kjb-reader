@@ -30,7 +30,7 @@ if ('serviceWorker' in navigator && !import.meta.env.DEV) {
       registration = await navigator.serviceWorker.getRegistration('/');
       if (!registration && shouldRegister) {
         // Delay SW registration to prevent browser "copy to URL" notification
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 3000));
         registration = await navigator.serviceWorker.register('/sw.js');
         sessionStorage.setItem('kjb-sw-registered', 'true');
       }
@@ -82,12 +82,12 @@ if ('serviceWorker' in navigator && !import.meta.env.DEV) {
       // Delay notification initialization to prevent browser "copy to URL" notification
       setTimeout(() => {
         initNotifications(getDailyVerse());
-      }, 3000);
+      }, 5000);
     } else {
       // Delay notification initialization to prevent browser "copy to URL" notification
       setTimeout(() => {
         initNotifications(getDailyVerse());
-      }, 3000);
+      }, 5000);
     }
   });
 } else if ('serviceWorker' in navigator && import.meta.env.DEV) {
