@@ -6,7 +6,7 @@
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB } from '@/lib/bibleIndexedDB';
 import { COLOPHONS } from '@/lib/bibleSubscripts';
 
-const CACHE_KEY = 'bible_data_pce_v57_MERGED';
+const CACHE_KEY = 'bible_data_pce_v58_NO_INLINE_COLOPHONS';
 // Use the merged file from mergeItalics function (has brackets, no inline colophons)
 const RTF_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/PLACEHOLDER_MERGED_FILE.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
@@ -188,9 +188,15 @@ function parseBibleText(rawText) {
       continue;
     }
 
-    // Skip standalone colophon lines in RTF (tab-indented lines like "Written to the Hebrews from Italy by Timothy.")
+    // Skip standalone colophon lines in RTF (any variation of "Written to..." or "It was written...")
     // These are hardcoded in bibleSubscripts.js and should not be included in verse text
-    if (/^\s+Written\s+to\s+/i.test(lines[i]) || /^\s+It\s+was\s+written\s+to\s+/i.test(lines[i])) {
+    const colophonPatterns = [
+      /^\s*Written\s+to\s+/i,
+      /^\s*It\s+was\s+written\s+to\s+/i,
+      /^\s*The\s+(first|second)\s+\[?epistle\]?(\s+to|\s+of)/i,
+      /^\s+Unto\s+the\s+/i,
+    ];
+    if (colophonPatterns.some(pattern => pattern.test(lines[i]))) {
       continue;
     }
 
@@ -242,8 +248,12 @@ function parseBibleText(rawText) {
       const abbrev = abbrevMatch[1];
       const chapterNum = parseInt(abbrevMatch[2], 10);
       const verseNum = parseInt(abbrevMatch[3], 10);
-      // Strip colophon (<<...>>) from verse text - these are hardcoded in bibleSubscripts.js
-      const verseText = abbrevMatch[4].replace(/\s*<<[^>]*>>\s*$/, '');
+      // Strip colophon markers from verse text - these are hardcoded in bibleSubscripts.js
+      let verseText = abbrevMatch[4]
+        .replace(/\s*<<[^>]*>>\s*$/, '')  // <<...>> format
+        .replace(/\s*Written\s+to\s+.*$/i, '')  // "Written to..." at end
+        .replace(/\s*It\s+was\s+written\s+.*$/i, '')  // "It was written..." at end
+        .trim();
       
       // Map abbreviation to full book name
       const bookName = ABBREV_TO_API[abbrev];
@@ -276,7 +286,13 @@ function parseBibleText(rawText) {
     const verseNumMatch = trimmed.match(/^(\d+)\s+(.+)$/);
     if (verseNumMatch) {
       const verseNum = parseInt(verseNumMatch[1], 10);
-      const verseText = verseNumMatch[2].trim();
+      // Strip colophon text from verse - these are hardcoded in bibleSubscripts.js
+      let verseText = verseNumMatch[2]
+        .replace(/\s+Written\s+to\s+.*$/i, '')  // "Written to..." at end
+        .replace(/\s+It\s+was\s+written\s+.*$/i, '')  // "It was written..." at end
+        .replace(/\s+The\s+first\s+\[?epistle\]?.*$/i, '')  // "The first epistle..." at end
+        .replace(/\s+The\s+second\s+\[?epistle\]?.*$/i, '')  // "The second epistle..." at end
+        .trim();
       if (verseNum > 0 && verseNum <= 200 && verseText.length > 0) {
         data[currentBook][currentChapter].push({ verse: verseNum, text: verseText });
         verseCount++;
