@@ -11,22 +11,28 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 )
 
 // Service worker registration for offline support and notifications
-// Skip registration in development mode to avoid caching stale bundles
-if ('serviceWorker' in navigator && !import.meta.env.DEV) {
-  // Only register once per browser session to avoid Chrome "tap to copy URL" banner
-  const shouldRegister = !sessionStorage.getItem('kjb-sw-registered');
-  window.addEventListener('load', async () => {
-    let registration;
-    try {
-      registration = await navigator.serviceWorker.getRegistration('/');
-      if (!registration && shouldRegister) {
-        registration = await navigator.serviceWorker.register('/sw.js');
-        sessionStorage.setItem('kjb-sw-registered', 'true');
-      }
-    } catch (err) {
-      console.warn('[SW] Registration failed:', err);
+// Clear all caches on load to prevent stale bundle issues
+window.addEventListener('load', async () => {
+  try {
+    // Unregister all service workers
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map(reg => reg.unregister()));
+      console.log('[SW] Unregistered all service workers');
+      
+      // Clear all caches
+      const cacheNames = await caches.keys();
+      await Promise.all(cacheNames.map(name => caches.delete(name)));
+      console.log('[Cache] Cleared all caches');
     }
-    if (registration) {
+  } catch (err) {
+    console.warn('[SW] Cleanup failed:', err);
+  }
+  
+  // Register fresh service worker (production only)
+  if ('serviceWorker' in navigator && !import.meta.env.DEV) {
+    try {
+      const registration = await navigator.serviceWorker.register('/sw.js');
       console.log('[SW] Ready:', registration.scope);
       
       // Check for updates periodically
@@ -69,25 +75,11 @@ if ('serviceWorker' in navigator && !import.meta.env.DEV) {
       }).catch(() => {});
       
       initNotifications(getDailyVerse());
-    } else {
+    } catch (err) {
+      console.warn('[SW] Registration failed:', err);
       initNotifications(getDailyVerse());
     }
-  });
-} else if ('serviceWorker' in navigator && import.meta.env.DEV) {
-  // In development mode, unregister any existing service workers and clear all caches
-  Promise.all([
-    navigator.serviceWorker.getRegistrations(),
-    caches.keys()
-  ]).then(([registrations, cacheNames]) => {
-    // Unregister all service workers
-    registrations.forEach(registration => {
-      registration.unregister();
-      console.log('[SW] Unregistered service worker in dev mode');
-    });
-    // Delete all caches
-    cacheNames.forEach(cacheName => {
-      caches.delete(cacheName);
-      console.log('[Cache] Deleted cache:', cacheName);
-    });
-  });
-}
+  } else {
+    initNotifications(getDailyVerse());
+  }
+});

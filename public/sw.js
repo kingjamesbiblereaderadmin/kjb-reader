@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kjb-cache-v2';
+const CACHE_NAME = 'kjb-cache-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -16,6 +16,8 @@ const NEVER_CACHE_PATTERNS = [
   /\.ts$/,
   /\.tsx$/,
   /\.mjs$/,
+  /chunk-/,
+  /-legacy/,
 ];
 
 // Install event - cache static assets

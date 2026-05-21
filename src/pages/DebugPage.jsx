@@ -641,81 +641,40 @@ export default function DebugPage() {
           </div>
         )}
 
-        {/* Timer Status */}
-        <div className="bg-card border border-border rounded-2xl p-5 mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-serif text-lg font-semibold flex items-center gap-2">
-              <Timer className={`w-5 h-5 ${timerStatus.isActive ? 'text-green-600 animate-pulse' : 'text-muted-foreground'}`} />
-              Scheduled Timer
-            </h2>
-            <span className={`font-sans text-xs font-medium px-2 py-1 rounded ${
-              timerStatus.isActive ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-slate-100 text-slate-800'
-            }`}>
-              {timerStatus.isActive ? 'Active' : 'Inactive'}
-            </span>
-          </div>
-          <div className="grid grid-cols-2 gap-3 font-sans text-xs">
-            <div className="bg-secondary/50 rounded-lg p-3">
-              <p className="text-muted-foreground mb-1">Current Time</p>
-              <p className="text-foreground font-mono text-sm">{currentTime.toLocaleString()}</p>
-            </div>
-            <div className="bg-secondary/50 rounded-lg p-3">
-              <p className="text-muted-foreground mb-1">Next Fire Time</p>
-              <p className="text-foreground font-mono text-sm">{timerStatus.nextFire.toLocaleString()}</p>
-            </div>
-            <div className="bg-secondary/50 rounded-lg p-3">
-              <p className="text-muted-foreground mb-1">Time Until Fire</p>
-              <p className={`font-mono text-sm ${timerStatus.minutesUntilFire < 5 ? 'text-red-600' : 'text-foreground'}`}>
-                {timerStatus.minutesUntilFire < 1 ? '< 1 minute' : `${timerStatus.minutesUntilFire} minutes`}
-              </p>
-            </div>
-            <div className="bg-secondary/50 rounded-lg p-3">
-              <p className="text-muted-foreground mb-1">Scheduled Time</p>
-              <p className="text-foreground font-mono text-sm">{timerStatus.scheduledTime}</p>
-            </div>
-          </div>
-          {timerStatus.minutesUntilFire < 5 && timerStatus.isActive && (
-            <div className="mt-3 flex items-center gap-2 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg p-3">
-              <Clock className="w-4 h-4" />
-              <span className="font-sans text-xs font-medium">Notification will fire in less than 5 minutes! Keep the app open.</span>
-            </div>
-          )}
-        </div>
-
         {/* Actions */}
         <div className="bg-card border border-border rounded-2xl p-5 mb-6">
-        <h2 className="font-serif text-lg font-semibold mb-4">Actions</h2>
-        <div className="flex flex-wrap gap-3">
-          <button
-            onClick={testNotification}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-          >
-            <Bell className="w-4 h-4" />
-            Test Now
-          </button>
-          <button
-            onClick={testScheduledNotification}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
-          >
-            <Bell className="w-4 h-4" />
-            Test Scheduled
-          </button>
-          <button
-            onClick={checkStatus}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Refresh Status
-          </button>
-          <button
-            onClick={clearAllData}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-destructive/10 text-destructive font-sans text-sm font-medium hover:bg-destructive/20 transition-colors"
-          >
-            <AlertCircle className="w-4 h-4" />
-            Clear All Data
-          </button>
+          <h2 className="font-serif text-lg font-semibold mb-4">Actions</h2>
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={testNotification}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+            >
+              <Bell className="w-4 h-4" />
+              Test Now
+            </button>
+            <button
+              onClick={testScheduledNotification}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              <Bell className="w-4 h-4" />
+              Test Scheduled
+            </button>
+            <button
+              onClick={checkStatus}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Refresh Status
+            </button>
+            <button
+              onClick={clearAllData}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-destructive/10 text-destructive font-sans text-sm font-medium hover:bg-destructive/20 transition-colors"
+            >
+              <AlertCircle className="w-4 h-4" />
+              Clear All Data
+            </button>
+          </div>
         </div>
-      </div>
 
       {/* Logs */}
       <div className="bg-card border border-border rounded-2xl p-5">
