@@ -22,14 +22,13 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     { name: 'purple', bg: 'bg-purple-300/40', label: 'Purple', color: '#d8b4fe' },
   ];
 
+  // Only show highlight effect, not the action popover - popover appears only on manual click
   useEffect(() => {
     if (highlight) {
       setShowHighlight(true);
-      setSelected(true);
       const timer = setTimeout(() => {
         setShowHighlight(false);
-        setSelected(false);
-      }, 5000);
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, [highlight]);
@@ -52,7 +51,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     : `"${textWithItalics}" — ${verseRef} (KJB)`;
 
   const highlightBg = highlightColors.find(c => c.name === highlightColor)?.bg;
-  const isHighlighted = selected || showHighlight;
+  const isHighlighted = showHighlight;
 
   const handleCopy = async (e) => {
     e.stopPropagation();
@@ -108,7 +107,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // No fixed text class - let parent control font size via zoom
   const textClass = '';
 
-  const actionPopover = selected && (
+  const actionPopover = selected && !highlight && (
     <>
       <div 
         className="fixed inset-0 z-40" 
