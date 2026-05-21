@@ -10,8 +10,8 @@ export default function ChapterSelector({ totalChapters, currentChapter, onSelec
   };
 
   return (
-    <div className="bg-card border border-border rounded-xl shadow-xl overflow-hidden w-[90vw] max-w-sm max-h-[70vh] flex flex-col">
-      <div className="px-4 py-3 border-b border-border">
+    <div className="bg-card rounded-2xl shadow-2xl overflow-hidden w-[90vw] max-w-sm max-h-[70vh] flex flex-col">
+      <div className="px-4 py-3">
         <p className="font-serif font-semibold text-foreground text-center">Select Chapter</p>
       </div>
       <div className="overflow-y-auto flex-1 p-3">

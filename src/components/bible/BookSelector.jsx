@@ -25,8 +25,8 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
   };
 
   return (
-    <div className="bg-card border border-border rounded-xl shadow-xl overflow-hidden w-[95vw] max-w-md max-h-[80vh] flex flex-col">
-      <div className="px-4 py-3 border-b border-border">
+    <div className="bg-card rounded-2xl shadow-2xl overflow-hidden w-[95vw] max-w-md max-h-[80vh] flex flex-col">
+      <div className="px-4 py-3">
         <p className="font-serif font-semibold text-foreground text-center">Select Book</p>
       </div>
       <div className="overflow-y-auto flex-1 p-3 space-y-1">
