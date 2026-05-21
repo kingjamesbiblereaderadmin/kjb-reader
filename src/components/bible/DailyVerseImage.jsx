@@ -34,6 +34,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const [showButtons, setShowButtons] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
+  const [justUploaded, setJustUploaded] = useState(false);
   const [textColor, setTextColor] = useState(() => localStorage.getItem('kjb-verse-text-color') || '#ffffff');
   const [textOpacity, setTextOpacity] = useState(() => parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '0.95'));
   const [fontFamily, setFontFamily] = useState(() => {
@@ -126,6 +127,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           throw new Error('Save verification failed');
         }
         setCustomBg(croppedDataUrl);
+        // Prevent navigation for 2 seconds after upload
+        setJustUploaded(true);
+        setTimeout(() => setJustUploaded(false), 2000);
         // Auto-detect if background is light or dark and adjust text color
         const img = new Image();
         img.onload = () => {
@@ -343,7 +347,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   };
 
   return (
-    <div ref={verseRef} onClick={onClick} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-8 pt-5 pb-8 text-center text-white relative cursor-pointer`} style={bgStyle}>
+    <div ref={verseRef} onClick={(e) => { if (!justUploaded) onClick(e); }} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-8 pt-5 pb-8 text-center text-white relative ${justUploaded ? 'cursor-default' : 'cursor-pointer'}`} style={bgStyle}>
       {/* Notification bell indicator button */}
       {showButtons && onToggleNotif && (
         <button
