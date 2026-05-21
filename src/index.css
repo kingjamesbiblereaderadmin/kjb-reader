@@ -110,12 +110,9 @@
     font-style: italic;
   }
   
-  /* In cursive mode ONLY, use Dancing Script font for italics but NON-italic style */
+  /* In cursive mode ONLY, use same cursive font but NON-italic style */
   .cursive-em-style em {
-    font-family: 'Dancing Script', cursive !important;
     font-style: normal !important;
-    font-weight: 300 !important;
-    color: rgba(128, 128, 128, 0.7) !important;
   }
 
 
