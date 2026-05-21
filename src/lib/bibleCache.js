@@ -6,7 +6,7 @@
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB } from '@/lib/bibleIndexedDB';
 import { COLOPHONS } from '@/lib/bibleSubscripts';
 
-const CACHE_KEY = 'bible_data_pce_v60_STRIP_COLOPHONS';
+const CACHE_KEY = 'bible_data_pce_v61_STRIP_COLOPHONS';
 // Use the merged file from mergeItalics function (has brackets, no inline colophons)
 const RTF_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/PLACEHOLDER_MERGED_FILE.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
@@ -195,21 +195,29 @@ function parseBibleText(rawText) {
   };
 
   const stripColophonFromText = (text) => {
-    return text
+    let cleaned = text
       .replace(/\s*<<[^>]*>>\s*/g, '')
-      // "Written to..." patterns
-      .replace(/\s*Written\s+to\s+.+?(?=\.|$)/gi, '')
-      .replace(/\s*It\s+was\s+written\s+.+?(?=\.|$)/gi, '')
-      .replace(/\s*Unto\s+the\s+.+?(?=\.|$)/gi, '')
+      // "Written to..." patterns (with or without leading space)
+      .replace(/Written\s+to\s+[^.]*\.?/gi, '')
+      .replace(/It\s+was\s+written\s+[^.]*\.?/gi, '')
+      .replace(/Unto\s+the\s+[^.]*\.?/gi, '')
       // "The first/second epistle" patterns
-      .replace(/\s*The\s+(first|second)\s+\[?epistle\]?.+?(?=\.|$)/gi, '')
+      .replace(/The\s+(first|second)\s+\[?epistle\]?[^.]*\.?/gi, '')
       // "This first/second epistle" patterns
-      .replace(/\s*This\s+(first|second)\s+epistle\s+.+?(?=\.|$)/gi, '')
+      .replace(/This\s+(first|second)\s+epistle\s+[^.]*\.?/gi, '')
       // General "[Book] epistle written" patterns
-      .replace(/\s+[A-Z][A-Za-z\s]+\s+\[?epistle\]?\s+written\s+.+?(?=\.|$)/gi, '')
-      // Catch remaining fragments like "from Italy by Timothy" that might be leftover
-      .replace(/\s+from\s+[A-Z][a-z]+\s+by\s+[A-Z][a-z]+\.?$/gi, '')
+      .replace(/[A-Z][A-Za-z\s]+\s+\[?epistle\]?\s+written\s+[^.]*\.?/gi, '')
+      // Catch remaining fragments like "from Italy by Timothy"
+      .replace(/from\s+[A-Z][a-z]+\s+by\s+[A-Z][a-z]+\.?$/gi, '')
       .trim();
+    
+    // Final catch-all: if text ends with typical colophon phrases, remove them
+    if (cleaned.match(/\s+Written\s+to\s+/i) || cleaned.match(/\s+from\s+[A-Z]/i)) {
+      cleaned = cleaned.split(/Written\s+to\s+/i)[0].trim();
+      cleaned = cleaned.split(/from\s+[A-Z][a-z]+\s+by\s+/i)[0].trim();
+    }
+    
+    return cleaned;
   };
 
   for (let i = 0; i < lines.length; i++) {
