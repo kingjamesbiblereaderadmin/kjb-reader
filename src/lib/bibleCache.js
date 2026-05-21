@@ -6,7 +6,7 @@
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB } from '@/lib/bibleIndexedDB';
 import { COLOPHONS } from '@/lib/bibleSubscripts';
 
-const CACHE_KEY = 'bible_data_pce_v52_REGEX_ITALIC_FIX';
+const CACHE_KEY = 'bible_data_pce_v53_MR_LU_FIX';
 const RTF_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/dacf369e2_TEXT-PCE-127.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
@@ -140,8 +140,8 @@ const ABBREV_TO_API = {
   'Zec': 'Zechariah', 'Zech': 'Zechariah',
   'Mal': 'Malachi',
   'Mt': 'Matthew', 'Mat': 'Matthew', 'Matt': 'Matthew',
-  'Mk': 'Mark', 'Mar': 'Mark',
-  'Lk': 'Luke', 'Luk': 'Luke',
+  'Mr': 'Mark', 'Mk': 'Mark', 'Mar': 'Mark',
+  'Lu': 'Luke', 'Lk': 'Luke', 'Luk': 'Luke',
   'Jn': 'John', 'Joh': 'John',
   'Ac': 'Acts', 'Act': 'Acts',
   'Ro': 'Romans', 'Rom': 'Romans',
