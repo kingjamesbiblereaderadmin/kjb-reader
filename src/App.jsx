@@ -8,7 +8,6 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { ThemeProvider } from '@/lib/themeContext';
 import { HeaderHideProvider } from '@/lib/HeaderHideContext';
 import AppLayout from '@/components/layout/AppLayout';
-import { AnimatePresence, motion } from 'framer-motion';
 import React, { lazy, Suspense } from 'react';
 
 // Lazy load pages for faster initial load
@@ -23,35 +22,16 @@ const SearchPage = lazy(() => import('@/pages/SearchPage.jsx'));
 const SavedVersesPage = lazy(() => import('@/pages/SavedVersesPage.jsx'));
 const RefreshCache = lazy(() => import('@/pages/RefreshCache.jsx'));
 
-// Loading component for lazy routes
-const PageLoader = () => (
-  <div className="fixed inset-0 flex items-center justify-center bg-background">
-    <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
-  </div>
-);
-
-
-const PageWrapper = ({ children }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 8 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -8 }}
-    transition={{ duration: 0.18, ease: 'easeOut' }}
-  >
-    {children}
-  </motion.div>
-);
+// No spinner — render nothing while a chunk loads (usually instant once cached)
+const PageLoader = () => null;
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const location = useLocation();
 
   if (isLoadingPublicSettings || isLoadingAuth) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
-      </div>
-    );
+    // No spinner — show empty background while auth resolves
+    return <div className="fixed inset-0 bg-background" />;
   }
 
   if (authError) {
@@ -64,25 +44,21 @@ const AuthenticatedApp = () => {
   }
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
-      <Routes location={location} key={location.pathname}>
-        <Route element={<AppLayout />}>
-          <Route path="/" element={<PageWrapper><Suspense fallback={<PageLoader />}><HomePage /></Suspense></PageWrapper>} />
-          <Route path="/read" element={<PageWrapper><Suspense fallback={<PageLoader />}><BibleReader /></Suspense></PageWrapper>} />
-          <Route path="/gospel" element={<PageWrapper><Suspense fallback={<PageLoader />}><GospelPage /></Suspense></PageWrapper>} />
-          <Route path="/resources" element={<PageWrapper><Suspense fallback={<PageLoader />}><ResourcesPage /></Suspense></PageWrapper>} />
-          <Route path="/about" element={<PageWrapper><Suspense fallback={<PageLoader />}><AboutPage /></Suspense></PageWrapper>} />
-          <Route path="/contents" element={<PageWrapper><Suspense fallback={<PageLoader />}><ContentsPage /></Suspense></PageWrapper>} />
-          <Route path="/settings" element={<PageWrapper><Suspense fallback={<PageLoader />}><SettingsPage /></Suspense></PageWrapper>} />
-          <Route path="/search" element={<PageWrapper><Suspense fallback={<PageLoader />}><SearchPage /></Suspense></PageWrapper>} />
-          <Route path="/saved" element={<PageWrapper><Suspense fallback={<PageLoader />}><SavedVersesPage /></Suspense></PageWrapper>} />
-
-          <Route path="/refresh-cache" element={<PageWrapper><Suspense fallback={<PageLoader />}><RefreshCache /></Suspense></PageWrapper>} />
-
-        </Route>
-        <Route path="*" element={<PageNotFound />} />
-      </Routes>
-    </AnimatePresence>
+    <Routes location={location}>
+      <Route element={<AppLayout />}>
+        <Route path="/" element={<Suspense fallback={<PageLoader />}><HomePage /></Suspense>} />
+        <Route path="/read" element={<Suspense fallback={<PageLoader />}><BibleReader /></Suspense>} />
+        <Route path="/gospel" element={<Suspense fallback={<PageLoader />}><GospelPage /></Suspense>} />
+        <Route path="/resources" element={<Suspense fallback={<PageLoader />}><ResourcesPage /></Suspense>} />
+        <Route path="/about" element={<Suspense fallback={<PageLoader />}><AboutPage /></Suspense>} />
+        <Route path="/contents" element={<Suspense fallback={<PageLoader />}><ContentsPage /></Suspense>} />
+        <Route path="/settings" element={<Suspense fallback={<PageLoader />}><SettingsPage /></Suspense>} />
+        <Route path="/search" element={<Suspense fallback={<PageLoader />}><SearchPage /></Suspense>} />
+        <Route path="/saved" element={<Suspense fallback={<PageLoader />}><SavedVersesPage /></Suspense>} />
+        <Route path="/refresh-cache" element={<Suspense fallback={<PageLoader />}><RefreshCache /></Suspense>} />
+      </Route>
+      <Route path="*" element={<PageNotFound />} />
+    </Routes>
   );
 };
 
