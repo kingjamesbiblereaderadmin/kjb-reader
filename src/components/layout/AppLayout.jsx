@@ -424,11 +424,43 @@ function DesktopFooter({ pathname, navigate, setMenuOpen }) {
 }
 
 function BottomNav({ pathname, navigate }) {
+  const [showMode, setShowMode] = useState(() => {
+    try {
+      const saved = localStorage.getItem('kjb-footer-mode');
+      return saved === 'two' ? 'two' : saved === 'none' ? 'none' : 'one';
+    } catch { return 'one'; }
+  });
+
+  const cycleShowMode = () => {
+    const next = showMode === 'one' ? 'two' : showMode === 'two' ? 'none' : 'one';
+    setShowMode(next);
+    try { localStorage.setItem('kjb-footer-mode', next); } catch {}
+  };
+
+  // Hidden mode - show toggle button only
+  if (showMode === 'none') {
+    return (
+      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border safe-area-pb">
+        <div className="w-full flex justify-end">
+          <button
+            onClick={cycleShowMode}
+            onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
+            className="px-4 py-3 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95"
+            title="Show navigation"
+          >
+            <ChevronDown className="w-3.5 h-3.5 rotate-180 transition-transform duration-200" />
+          </button>
+        </div>
+      </nav>
+    );
+  }
+
   return (
     <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border safe-area-pb">
-      <div className="max-w-5xl mx-auto px-2 py-2">
-        <div className="grid grid-cols-4 gap-1">
-          {NAV_ITEMS.map(item => {
+      <div className="w-full">
+        {/* Primary row: 4 nav items + chevron toggle button */}
+        <div className="flex items-stretch">
+          {NAV_ITEMS.slice(0, 4).map(item => {
             const Icon = item.icon;
             const active = item.path === '/' ? pathname === '/' : pathname === item.path;
             return (
@@ -439,18 +471,47 @@ function BottomNav({ pathname, navigate }) {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                   navigate(item.path);
                 }}
-                className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 ${
-                  active
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:bg-secondary'
-                }`}
+                className="flex flex-col items-center justify-center flex-1 h-14 active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95"
               >
-                <Icon className="w-5 h-5 transition-transform duration-200" />
-                <span className="font-sans text-[10px] font-medium">{item.label}</span>
+                <Icon className={`w-5 h-5 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'} transition-transform duration-200`} />
+                <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
               </button>
             );
           })}
+          {/* Chevron toggle - inline in primary row */}
+          <button
+            onClick={cycleShowMode}
+            onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
+            className="w-8 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95 shrink-0 border-l border-border"
+            title="Toggle navigation rows"
+          >
+            {showMode === 'two' ? <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200" /> : <ChevronDown className="w-3.5 h-3.5 rotate-180 transition-transform duration-200" />}
+          </button>
         </div>
+
+        {/* Secondary row - shown when two rows */}
+        {showMode === 'two' && (
+          <div className="grid grid-cols-4 border-t border-border">
+            {NAV_ITEMS.slice(4, 8).map(item => {
+              const Icon = item.icon;
+              const active = pathname === item.path;
+              return (
+                <button
+                  key={item.path}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    navigate(item.path);
+                  }}
+                  className="flex flex-col items-center justify-center w-full h-14 active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95"
+                >
+                  <Icon className={`w-5 h-5 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'} transition-transform duration-200`} />
+                  <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
     </nav>
   );
