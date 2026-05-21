@@ -66,37 +66,31 @@ export default function AppLayout() {
       }
     } catch {}
 
-    // Auto-update check on app load - only reload if version changed
-    const checkAutoUpdate = async () => {
+    // Auto-update and offline download on app load
+    const initializeApp = async () => {
       try {
+        // Check for version updates first
         const remoteVer = await fetch('https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt?t=' + Date.now())
           .then(r => r.text())
           .then(t => t.trim());
         const localVer = localStorage.getItem('bible_cache_version');
         
         if (remoteVer !== localVer && localVer !== null) {
-          console.log('[AutoUpdate] New version available on load, reloading...');
+          console.log('[AutoUpdate] New version available, clearing old cache...');
           localStorage.removeItem('bible_cache_version');
           localStorage.removeItem('bible_last_refresh');
-          setTimeout(() => window.location.reload(), 500);
         }
+        
+        // Auto-download Bible data for offline access (only fetches if not cached or outdated)
+        const { autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
+        await autoDownloadBibleOnFirstLoad();
+        
+        console.log('[AppLayout] App initialized with offline Bible data');
       } catch (err) {
-        console.error('[AutoUpdate] Check failed:', err);
+        console.error('[AppLayout] Initialization failed:', err);
       }
     };
-    checkAutoUpdate();
-
-    // Preload Bible cache immediately for fast offline access
-    const preloadCache = async () => {
-      try {
-        const { getBibleData } = await import('@/lib/bibleCache');
-        await getBibleData();
-        console.log('[AppLayout] Bible cache preloaded for fast offline access');
-      } catch (err) {
-        console.error('[AppLayout] Cache preload failed:', err);
-      }
-    };
-    preloadCache();
+    initializeApp();
 
     // Initialize periodic cache refresh (checks every 24 hours when user opens app)
     initPeriodicCacheRefresh();
