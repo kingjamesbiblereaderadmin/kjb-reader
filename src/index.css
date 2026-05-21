@@ -123,10 +123,14 @@
     font-weight: 300 !important;
   }
   
-  /* Italic words ([bracketed]) in cursive mode - bold italic */
+  /* Italic words ([bracketed]) in cursive mode - bold italic, darker */
   .cursive-em-style em {
     font-style: italic !important;
     font-weight: 900 !important;
+    color: #1a1a1a !important;
+  }
+  .dark .cursive-em-style em {
+    color: #ffffff !important;
   }
 
 
