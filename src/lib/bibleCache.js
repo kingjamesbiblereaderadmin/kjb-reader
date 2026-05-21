@@ -384,7 +384,9 @@ async function loadFromCache() {
 }
 
 async function fetchAndParse() {
-  console.log('[FETCH] Fetching RTF (base text) and PCE (italics)...');
+  console.log('[FETCH] Fetching RTF (base text with pilcrows) and PCE (italics)...');
+  console.log('[FETCH] RTF URL:', RTF_FILE_URL);
+  console.log('[FETCH] PCE URL:', ABBREV_FILE_URL);
   
   // Fetch both files in parallel
   const [rtfText, abbrevText] = await Promise.all([
@@ -392,10 +394,20 @@ async function fetchAndParse() {
     fetchWithRetry(ABBREV_FILE_URL, 3)
   ]);
 
-  console.log('[FETCH] RTF:', rtfText.length, 'chars, Abbrev:', abbrevText.length, 'chars');
+  console.log('[FETCH] ✓ RTF:', rtfText.length, 'chars');
+  console.log('[FETCH] ✓ PCE:', abbrevText.length, 'chars');
+  
+  // Verify RTF has pilcrows
+  const pilcrowCount = (rtfText.match(/¶/g) || []).length;
+  console.log('[FETCH] RTF pilcrow count:', pilcrowCount);
+  
+  // Verify PCE has brackets
+  const bracketCount = (abbrevText.match(/\[/g) || []).length;
+  console.log('[FETCH] PCE bracket count:', bracketCount);
 
   // Parse italic markers from PCE file
   const italicMap = parseItalicMarkers(abbrevText);
+  console.log('[PARSE] Italic map size:', italicMap.size, 'verses');
   
   // Parse RTF as base text and apply italics from PCE
   const data = parseRTFWithItalics(rtfText, italicMap);
@@ -403,6 +415,14 @@ async function fetchAndParse() {
   if (!isValidBibleData(data)) {
     throw new Error('Parsed data only has ' + Object.keys(data).filter(k => k !== '__colophons').length + ' books');
   }
+  
+  // Log sample verse to verify RTF base + italics
+  const genesis1 = data['Genesis']?.[1];
+  if (genesis1 && genesis1[1]) {
+    console.log('[VERIFY] Genesis 1:1 (RTF base + PCE italics):', genesis1[1].text.substring(0, 200));
+    console.log('[VERIFY] Has brackets?', genesis1[1].text.includes('['));
+  }
+  
   return data;
 }
 

@@ -858,11 +858,17 @@ export default function BibleReader() {
         </div>
       )}
 
-      {/* Click outside to close desktop dropdowns */}
+      {/* Click outside to close desktop dropdowns and mobile sheets */}
       {(showBookPicker || showChapterPicker || showVersePicker || showZoomPopover || showFontPopover) && (
         <div
           className="fixed inset-0 z-30"
-          onClick={() => { setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
+          onClick={() => { 
+            setShowBookPicker(false); 
+            setShowChapterPicker(false); 
+            setShowVersePicker(false); 
+            setShowZoomPopover(false); 
+            setShowFontPopover(false); 
+          }}
         />
       )}
 
