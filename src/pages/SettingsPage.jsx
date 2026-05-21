@@ -772,15 +772,24 @@ export default function SettingsPage() {
                 </div>
                 <button
                   onClick={async () => {
-                    try { localStorage.setItem('kjb-auto-redownload', 'true'); } catch {}
-                    await clearBibleCache();
                     setCached(false);
-                    window.location.reload();
+                    await downloadBibleForOffline((pct, msg) => {
+                      setDownloading(true);
+                      setDlProgress(pct);
+                      setDlStatus(msg);
+                    }).then(() => {
+                      setCached(true);
+                      setDownloading(false);
+                      window.dispatchEvent(new Event('storage'));
+                    }).catch((err) => {
+                      setDownloading(false);
+                      setDlError('Refresh failed: ' + err.message);
+                    });
                   }}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  Clear Cache & Reload
+                  Reload Bible Data
                 </button>
               </div>
             ) : (
