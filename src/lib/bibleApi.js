@@ -81,16 +81,17 @@ export function renderVerseText(text) {
   return result;
 }
 
-// Render colophon text: [bracketed] words become italic, rest is plain
+// Render colophon text: pilcrow prefix, [bracketed] words become italic, rest is plain
 export function renderColophonText(text) {
   if (!text || typeof text !== 'string') return '';
   const normalized = text
     .replace(/\u2019/g, "'").replace(/\u2018/g, "'")
     .replace(/\u201C/g, '"').replace(/\u201D/g, '"');
   const parts = normalized.split(/\[([^\]]+)\]/g);
-  return parts.map((part, i) =>
+  const rendered = parts.map((part, i) =>
     i % 2 === 1 ? `<em>${part}</em>` : part
   ).join('');
+  return `<span class="pilcrow">¶</span> ${rendered}`;
 }
 
 // Extract colophon from verse text (removes <<[...]]>> marker)
