@@ -763,11 +763,16 @@ export default function SettingsPage() {
 
             {cached ? (
               <div className="space-y-3">
-                <div className="flex items-start gap-2 text-green-600 dark:text-green-400">
-                  <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <div className={`flex items-start gap-2 ${downloading ? 'text-amber-600 dark:text-amber-400' : 'text-green-600 dark:text-green-400'}`}>
+                  {downloading ? (
+                    <Loader2 className="w-5 h-5 flex-shrink-0 mt-0.5 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  )}
                   <div>
-                    <span className="font-sans text-sm font-medium">The Bible is cached — available offline</span>
-
+                    <span className="font-sans text-sm font-medium">
+                      {downloading ? 'Reloading Bible data…' : 'The Bible is cached — available offline'}
+                    </span>
                   </div>
                 </div>
                 <button
