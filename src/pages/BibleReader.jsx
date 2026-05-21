@@ -282,8 +282,25 @@ export default function BibleReader() {
   }, []);
 
   useEffect(() => {
-    // Preload Bible data on first mount so it's cached for offline access
-    getBibleData().catch(() => {});
+    // Preload and cache ALL Bible data with italics on first mount
+    const preloadAndCache = async () => {
+      try {
+        console.log('[BibleReader] Preloading and caching all Bible data with italics...');
+        const data = await getBibleData();
+        // Verify cache has italics by checking for brackets
+        const sampleBook = data['1 John'];
+        if (sampleBook && sampleBook[2]) {
+          const verse23 = sampleBook[2].find(v => v.verse === 23);
+          if (verse23) {
+            console.log('[BibleReader] Cache verification - 1 John 2:23 has brackets?', verse23.text.includes('['));
+          }
+        }
+        console.log('[BibleReader] Bible cache ready with italics');
+      } catch (err) {
+        console.error('[BibleReader] Cache preload failed:', err);
+      }
+    };
+    preloadAndCache();
     
     // Check for URL parameters (from Daily Reading page)
     const urlParams = new URLSearchParams(window.location.search);
