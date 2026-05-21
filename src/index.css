@@ -125,7 +125,7 @@
   /* Italic words ([bracketed]) in cursive mode - bold italic */
   .cursive-em-style em {
     font-style: italic !important;
-    font-weight: 700 !important;
+    font-weight: 900 !important;
   }
 
 
