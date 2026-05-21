@@ -26,12 +26,11 @@ const BOTTOM_NAV_PRIMARY = [
   { path: '/', icon: Home, label: 'Home' },
   { path: '/read', icon: BookOpen, label: 'Read' },
   { path: '/gospel', icon: Heart, label: 'Gospel' },
-  { path: '/saved', icon: Bookmark, label: 'Saved' },
+  { path: '/resources', icon: Library, label: 'Resources' },
 ];
 
 const BOTTOM_NAV_SECONDARY = [
-  { path: '/contents', icon: BookMarked, label: 'Contents' },
-  { path: '/resources', icon: Library, label: 'Resources' },
+  { path: '/saved', icon: Bookmark, label: 'Saved' },
   { path: '/about', icon: Info, label: 'About' },
   { path: '/settings', icon: Settings, label: 'Settings' },
 ];
