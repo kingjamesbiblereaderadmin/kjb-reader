@@ -253,7 +253,7 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main className="flex-1 pb-20 sm:pb-0">
+      <main className="flex-1 pb-36 sm:pb-0">
         <Outlet />
       </main>
 
@@ -425,7 +425,7 @@ function DesktopFooter({ pathname, navigate, setMenuOpen }) {
 
 function BottomNav({ pathname, navigate }) {
   return (
-    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border safe-area-pb">
+    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <div className="max-w-5xl mx-auto px-2 py-2">
         <div className="grid grid-cols-4 gap-1">
           {NAV_ITEMS.map(item => {
