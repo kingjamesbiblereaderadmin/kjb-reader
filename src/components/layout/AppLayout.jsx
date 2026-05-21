@@ -18,7 +18,6 @@ const NAV_ITEMS = [
   { path: '/gospel', icon: Heart, label: 'Gospel' },
   { path: '/resources', icon: Library, label: 'Resources' },
   { path: '/saved', icon: Bookmark, label: 'Saved' },
-  { path: '/daily-reading', icon: BookMarked, label: 'Daily Reading' },
   { path: '/about', icon: Info, label: 'About' },
   { path: '/settings', icon: Settings, label: 'Settings' },
 ];
@@ -32,7 +31,6 @@ const BOTTOM_NAV_PRIMARY = [
 ];
 
 const BOTTOM_NAV_SECONDARY = [
-  { path: '/daily-reading', icon: BookMarked, label: 'Daily Reading' },
   { path: '/resources', icon: Library, label: 'Resources' },
   { path: '/about', icon: Info, label: 'About' },
   { path: '/settings', icon: Settings, label: 'Settings' },
