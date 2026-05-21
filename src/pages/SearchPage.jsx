@@ -459,7 +459,7 @@ export default function SearchPage() {
           <>
             <Filter className="w-3.5 h-3.5 text-muted-foreground" />
             <span className="font-sans text-xs text-muted-foreground">Limit:</span>
-            {[50, 100, 200, 500].map(limit => (
+            {[50, 100, 200, 500].filter(limit => limit <= results.length).map(limit => (
               <button
                 key={limit}
                 type="button"
