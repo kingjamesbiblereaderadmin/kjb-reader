@@ -110,7 +110,16 @@ export default function SettingsPage() {
   const [dlError, setDlError] = useState('');
 
   useEffect(() => {
-    isBibleCached().then(setCached);
+    isBibleCached().then(async (isCached) => {
+      setCached(isCached);
+      // If user just triggered "Clear Cache & Reload", auto-start the download now
+      try {
+        if (!isCached && localStorage.getItem('kjb-auto-redownload') === 'true') {
+          localStorage.removeItem('kjb-auto-redownload');
+          handleDownload();
+        }
+      } catch {}
+    });
 
     // Listen for storage events to sync settings across tabs
     const handleStorage = () => {
@@ -120,6 +129,7 @@ export default function SettingsPage() {
     };
     window.addEventListener('storage', handleStorage);
     return () => window.removeEventListener('storage', handleStorage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 
@@ -762,6 +772,7 @@ export default function SettingsPage() {
                 </div>
                 <button
                   onClick={async () => {
+                    try { localStorage.setItem('kjb-auto-redownload', 'true'); } catch {}
                     await clearBibleCache();
                     setCached(false);
                     window.location.reload();
@@ -1069,6 +1080,8 @@ export default function SettingsPage() {
                     await Promise.all(regs.map(reg => reg.unregister()));
                   }
                   localStorage.clear();
+                  // Re-set the auto-redownload flag after localStorage.clear()
+                  try { localStorage.setItem('kjb-auto-redownload', 'true'); } catch {}
                   window.location.reload();
                 }}
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
