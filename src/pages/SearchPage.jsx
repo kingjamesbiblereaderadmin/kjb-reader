@@ -455,38 +455,6 @@ export default function SearchPage() {
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-2 mb-5">
-        {results.length > 50 && (
-          <>
-            <Filter className="w-3.5 h-3.5 text-muted-foreground" />
-            <span className="font-sans text-xs text-muted-foreground">Limit:</span>
-            {[50, 100, 200, 500].filter(limit => limit <= results.length).map(limit => (
-              <button
-                key={limit}
-                type="button"
-                onClick={() => { setResultsLimit(limit); setCurrentPage(1); }}
-                className={`px-2.5 py-1 rounded-lg font-sans text-xs font-medium transition-colors ${
-                  resultsLimit === limit ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-                }`}
-              >
-                {limit}
-              </button>
-            ))}
-            <div className="w-px h-4 bg-border mx-1" />
-          </>
-        )}
-        <span className="font-sans text-xs text-muted-foreground">Testament:</span>
-        {[['all', 'All'], ['ot', 'Old Testament'], ['nt', 'New Testament']].map(([val, label]) => (
-          <button
-            key={val}
-            type="button"
-            onClick={() => setTestament(val)}
-            className={`px-2.5 py-1 rounded-lg font-sans text-xs font-medium transition-colors ${
-              testament === val ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-            }`}
-          >
-            {label}
-          </button>
-        ))}
         <button
           type="button"
           onClick={() => setShowBookFilter(!showBookFilter)}
@@ -498,7 +466,7 @@ export default function SearchPage() {
           Books {selectedBooks.size > 0 && `(${selectedBooks.size})`}
           <ChevronDown className={`w-3 h-3 transition-transform ${showBookFilter ? 'rotate-180' : ''}`} />
         </button>
-        <div className="ml-2 flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5">
           <input
             id="whole-word"
             type="checkbox"
@@ -533,7 +501,7 @@ export default function SearchPage() {
       {/* Book filter panel */}
       {showBookFilter && (
         <div className="mb-5 p-4 rounded-xl bg-secondary/50 border border-border">
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-4">
             <p className="font-sans text-sm font-semibold text-foreground">Select Books</p>
             <div className="flex gap-2">
               <button
@@ -554,28 +522,73 @@ export default function SearchPage() {
               </button>
             </div>
           </div>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 max-h-64 overflow-y-auto">
-            {(testament === 'ot' ? OLD_TESTAMENT : testament === 'nt' ? NEW_TESTAMENT : BIBLE_BOOKS).map(book => (
-              <button
-                key={book.abbr}
-                onClick={() => {
-                  setSelectedBooks(prev => {
-                    const next = new Set(prev);
-                    next.has(book.abbr) ? next.delete(book.abbr) : next.add(book.abbr);
-                    return next;
-                  });
-                }}
-                className={`px-2 py-1.5 rounded-lg font-sans text-xs font-medium transition-colors text-left truncate ${
-                  selectedBooks.has(book.abbr)
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-card text-foreground hover:bg-accent/20'
-                }`}
-                title={book.shortName}
-              >
-                {book.shortName.length > 12 ? book.abbr : book.shortName}
-              </button>
-            ))}
+          
+          {/* Step 1: Testament selection */}
+          <div className="mb-4">
+            <p className="font-sans text-xs font-medium text-muted-foreground mb-2">1. Choose Testament</p>
+            <div className="flex gap-2">
+              {[['all', 'All'], ['ot', 'Old Testament'], ['nt', 'New Testament']].map(([val, label]) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => setTestament(val)}
+                  className={`px-3 py-1.5 rounded-lg font-sans text-xs font-medium transition-colors ${
+                    testament === val ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground hover:bg-accent/20'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
+
+          {/* Step 2: Book selection */}
+          <div className="mb-4">
+            <p className="font-sans text-xs font-medium text-muted-foreground mb-2">2. Select Books</p>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 max-h-48 overflow-y-auto">
+              {(testament === 'ot' ? OLD_TESTAMENT : testament === 'nt' ? NEW_TESTAMENT : BIBLE_BOOKS).map(book => (
+                <button
+                  key={book.abbr}
+                  onClick={() => {
+                    setSelectedBooks(prev => {
+                      const next = new Set(prev);
+                      next.has(book.abbr) ? next.delete(book.abbr) : next.add(book.abbr);
+                      return next;
+                    });
+                  }}
+                  className={`px-2 py-1.5 rounded-lg font-sans text-xs font-medium transition-colors text-left truncate ${
+                    selectedBooks.has(book.abbr)
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-card text-foreground hover:bg-accent/20'
+                  }`}
+                  title={book.shortName}
+                >
+                  {book.shortName.length > 12 ? book.abbr : book.shortName}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Step 3: Results limit */}
+          {results.length > 50 && (
+            <div>
+              <p className="font-sans text-xs font-medium text-muted-foreground mb-2">3. Limit Results</p>
+              <div className="flex gap-2 flex-wrap">
+                {[50, 100, 200, 500].filter(limit => limit <= results.length).map(limit => (
+                  <button
+                    key={limit}
+                    type="button"
+                    onClick={() => { setResultsLimit(limit); setCurrentPage(1); }}
+                    className={`px-3 py-1.5 rounded-lg font-sans text-xs font-medium transition-colors ${
+                      resultsLimit === limit ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground hover:bg-accent/20'
+                    }`}
+                  >
+                    {limit}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
