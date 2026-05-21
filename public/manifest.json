@@ -1,13 +1,12 @@
 {
-  "name": "KJB Reader — King James Bible Pure Cambridge Edition",
+  "name": "KJB Reader — Pure Cambridge Edition",
   "short_name": "KJB Reader",
   "description": "Read the King James Bible (Pure Cambridge Edition) — the pure, infallible Word of God.",
   "start_url": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#fef9f3",
   "theme_color": "#fef9f3",
-  "orientation": "portrait-primary",
-  "scope": "/",
   "icons": [
     {
       "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png",
@@ -16,21 +15,6 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["books", "education", "reference"],
+  "categories": ["education", "reference"],
   "shortcuts": [
     {
-      "name": "Read Today",
-      "short_name": "Read",
-      "description": "Open Bible reader",
-      "url": "/read",
-      "icons": [{ "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png", "sizes": "512x512" }]
-    },
-    {
-      "name": "Daily Verse",
-      "short_name": "Verse",
-      "description": "View today's verse",
-      "url": "/",
-      "icons": [{ "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png", "sizes": "512x512" }]
-    }
-  ]
-}
