@@ -456,7 +456,7 @@ function BottomNav({ pathname, navigate }) {
             className="w-8 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95 shrink-0 border-l border-border"
             title="Toggle navigation rows"
           >
-            {showMode === 'two' ? <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200" /> : <ChevronDown className="w-3.5 h-3.5 rotate-180 transition-transform duration-200" />}
+            <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200" />
           </button>
         </div>
 
