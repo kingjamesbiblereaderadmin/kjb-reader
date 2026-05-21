@@ -363,9 +363,9 @@ function BottomNav({ pathname, navigate }) {
           </button>
         </div>
 
-        {/* Secondary row - shown when two rows */}
+        {/* Secondary row - shown when two rows - 4 per line */}
         {showMode === 'two' && (
-          <div className="grid grid-cols-4 gap-0 border-t border-border">
+          <div className="grid grid-cols-4 border-t border-border">
             {BOTTOM_NAV_SECONDARY.map(item => {
               const Icon = item.icon;
               const active = pathname === item.path;
@@ -377,7 +377,7 @@ function BottomNav({ pathname, navigate }) {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     navigate(item.path);
                   }}
-                  className="flex flex-col items-center justify-center w-full h-12 active:bg-secondary/50 transition-colors"
+                  className="flex flex-col items-center justify-center w-full h-14 active:bg-secondary/50 transition-colors"
                 >
                   <Icon className={`w-5 h-5 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
                   <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
