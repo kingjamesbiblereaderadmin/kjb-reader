@@ -46,6 +46,17 @@ export default function SettingsPage() {
   const [uploading, setUploading] = useState(false);
   const [cropImage, setCropImage] = useState(null);
   const [cropImageForNotif, setCropImageForNotif] = useState(false);
+  const [pendingBg, setPendingBg] = useState(null);
+
+  // Clear pending image when storage changes (sync across tabs)
+  useEffect(() => {
+    const handleStorage = () => {
+      try { setCustomBg(localStorage.getItem('kjb-daily-verse-bg') || ''); } catch {}
+      setPendingBg(null);
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   
   const [verseTextColor, setVerseTextColor] = useState(() => {
@@ -433,32 +444,64 @@ export default function SettingsPage() {
           <h3 className="font-serif text-base font-semibold text-foreground">Daily Verse Background</h3>
           <p className="font-sans text-xs text-muted-foreground">Upload a custom image for the daily verse card</p>
           
-          {customBg ? (
+          {pendingBg || customBg ? (
             <div className="space-y-2">
-              <div className="w-full max-w-2xl mx-auto rounded-xl bg-cover bg-center border border-border shadow-lg" style={{ backgroundImage: `url(${customBg})`, minHeight: '400px', backgroundSize: 'contain', backgroundRepeat: 'no-repeat' }} />
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    setCustomBg('');
-                    localStorage.removeItem('kjb-daily-verse-bg');
-                    window.dispatchEvent(new Event('storage'));
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive font-sans text-xs font-medium hover:bg-destructive/20 transition-colors"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  Remove Image
-                </button>
-                <button
-                  onClick={() => {
-                    const current = localStorage.getItem('kjb-daily-verse-bg');
-                    if (current) setCropImage(current);
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
-                >
-                  <Crop className="w-3.5 h-3.5" />
-                  Re-crop
-                </button>
-              </div>
+              <div className="w-full max-w-2xl mx-auto rounded-xl bg-cover bg-center border border-border shadow-lg" style={{ backgroundImage: `url(${pendingBg || customBg})`, minHeight: '400px', backgroundSize: 'contain', backgroundRepeat: 'no-repeat' }} />
+              {pendingBg && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setPendingBg(null);
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+                  >
+                    <Upload className="w-3.5 h-3.5 rotate-180" />
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      try {
+                        localStorage.setItem('kjb-daily-verse-bg', pendingBg);
+                        setCustomBg(pendingBg);
+                        setPendingBg(null);
+                        window.dispatchEvent(new Event('storage'));
+                      } catch (err) {
+                        alert('Storage full! Please clear browser data or try a smaller image.');
+                        console.error('localStorage quota exceeded:', err);
+                      }
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+                  >
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    Save Image
+                  </button>
+                </div>
+              )}
+              {!pendingBg && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setCustomBg('');
+                      localStorage.removeItem('kjb-daily-verse-bg');
+                      window.dispatchEvent(new Event('storage'));
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive font-sans text-xs font-medium hover:bg-destructive/20 transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Remove Image
+                  </button>
+                  <button
+                    onClick={() => {
+                      const current = localStorage.getItem('kjb-daily-verse-bg');
+                      if (current) setCropImage(current);
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+                  >
+                    <Crop className="w-3.5 h-3.5" />
+                    Re-crop
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <label className="block">
@@ -477,6 +520,7 @@ export default function SettingsPage() {
                     const base64 = event.target?.result;
                     if (typeof base64 === 'string') {
                       setCropImage(base64);
+                      setPendingBg(base64);
                     }
                   };
                   reader.onerror = () => {
@@ -497,7 +541,7 @@ export default function SettingsPage() {
                   <div className="text-center">
                     <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
                     <p className="font-sans text-xs text-muted-foreground">Click to upload image</p>
-                    <p className="font-sans text-xs text-muted-foreground mt-1">PNG, JPG up to 5MB</p>
+                    <p className="font-sans text-xs text-muted-foreground mt-1">PNG, JPG up to 2MB</p>
                   </div>
                 )}
               </div>
@@ -510,19 +554,13 @@ export default function SettingsPage() {
           <ImageCropper
             image={cropImage}
             onCrop={(croppedDataUrl) => {
-              try {
-                localStorage.setItem('kjb-daily-verse-bg', croppedDataUrl);
-                setCustomBg(croppedDataUrl);
-                window.dispatchEvent(new Event('storage'));
-                setCropImage(null);
-              } catch (err) {
-                alert('Storage full! Please clear browser data or try a smaller image.');
-                console.error('localStorage quota exceeded:', err);
-              }
+              setPendingBg(croppedDataUrl);
+              setCropImage(null);
             }}
             onCancel={() => {
               setCropImage(null);
               setCropImageForNotif(false);
+              setPendingBg(null);
             }}
           />
         )}
