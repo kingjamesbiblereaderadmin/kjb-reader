@@ -466,6 +466,24 @@ export default function SearchPage() {
           Books {selectedBooks.size > 0 && `(${selectedBooks.size})`}
           <ChevronDown className={`w-3 h-3 transition-transform ${showBookFilter ? 'rotate-180' : ''}`} />
         </button>
+        {results.length > 50 && (
+          <>
+            <Filter className="w-3.5 h-3.5 text-muted-foreground" />
+            <span className="font-sans text-xs text-muted-foreground">Limit:</span>
+            {[50, 100, 200, 500].filter(limit => limit <= results.length).map(limit => (
+              <button
+                key={limit}
+                type="button"
+                onClick={() => { setResultsLimit(limit); setCurrentPage(1); }}
+                className={`px-2.5 py-1 rounded-lg font-sans text-xs font-medium transition-colors ${
+                  resultsLimit === limit ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                }`}
+              >
+                {limit}
+              </button>
+            ))}
+          </>
+        )}
         <div className="flex items-center gap-1.5">
           <input
             id="whole-word"
