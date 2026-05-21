@@ -197,11 +197,13 @@ function parseBibleText(rawText) {
   const stripColophonFromText = (text) => {
     return text
       .replace(/\s*<<[^>]*>>\s*/g, '')
-      .replace(/\s+Written\s+to\s+[^.]*\.?/gi, '')
-      .replace(/\s+It\s+was\s+written\s+[^.]*\.?/gi, '')
-      .replace(/\s+Unto\s+the\s+[^.]*\.?/gi, '')
-      .replace(/\s+The\s+first\s+\[?epistle\]?[^.]*\.?/gi, '')
-      .replace(/\s+The\s+second\s+\[?epistle\]?[^.]*\.?/gi, '')
+      .replace(/\s*Written\s+to\s+[^.]*\.?/gi, '')
+      .replace(/\s*It\s+was\s+written\s+[^.]*\.?/gi, '')
+      .replace(/\s*Unto\s+the\s+[^.]*\.?/gi, '')
+      .replace(/\s*The\s+first\s+\[?epistle\]?[^.]*\.?/gi, '')
+      .replace(/\s*The\s+second\s+\[?epistle\]?[^.]*\.?/gi, '')
+      .replace(/\s*This\s+(first|second)\s+epistle\s+[^.]*\.?/gi, '')
+      .replace(/\s*[A-Z]+\s+\[?epistle\]?\s+written\s+[^.]*\.?/gi, '')
       .trim();
   };
 
