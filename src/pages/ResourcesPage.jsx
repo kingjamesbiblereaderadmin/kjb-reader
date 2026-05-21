@@ -530,7 +530,6 @@ function PreachersSection({ openPreachers, togglePreacher }) {
 
 export default function ResourcesPage() {
   const [expandedSections, setExpandedSections] = useState({
-    kjbi: true,
     whyKjb: true,
     preachers: true,
     ministry: true,
@@ -540,7 +539,6 @@ export default function ResourcesPage() {
   });
 
   const allExpanded =
-    expandedSections.kjbi &&
     expandedSections.whyKjb &&
     expandedSections.preachers &&
     expandedSections.ministry &&
@@ -560,7 +558,6 @@ export default function ResourcesPage() {
     });
     setExpandedSections(prev => ({
       ...prev,
-      kjbi: newState,
       whyKjb: newState,
       preachers: newState,
       ministry: newState,
@@ -605,28 +602,25 @@ export default function ResourcesPage() {
         </button>
       </div>
 
-      {/* KJBI — Free Online Bible College (above everything) */}
-      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
-        <button
-          onClick={() => toggleSection('kjbi')}
-          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
-        >
-          <div className="flex items-start gap-3">
-            <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-            <div>
-              <h2 className="font-serif text-lg font-bold text-foreground mb-1">KJBI.org — Free Online Bible College</h2>
-              <p className="font-sans text-sm text-muted-foreground mb-3">King James Bible Institute — a free online Bible college for those who want to go deeper in God's Word.</p>
-            </div>
+      {/* KJBI — Free Online Bible College */}
+      <div className="bg-card border border-border rounded-2xl mb-6 p-5">
+        <div className="flex items-start gap-3">
+          <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+          <div>
+            <h2 className="font-serif text-lg font-bold text-foreground mb-1">KJBI.org — Free Online Bible College</h2>
+            <p className="font-sans text-sm text-muted-foreground leading-relaxed">
+              King James Bible Institute — a free online Bible college for those who want to go deeper in God's Word.{' '}
+              <a
+                href="https://kjbi.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 font-medium text-accent hover:text-accent/80 transition-colors underline underline-offset-2"
+              >
+                Visit KJBI.org <ExternalLink className="w-3 h-3" />
+              </a>
+            </p>
           </div>
-          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.kjbi ? 'rotate-180' : ''}`} />
-        </button>
-        {expandedSections.kjbi && (
-        <div className="p-5 pt-0">
-          <a href="https://kjbi.org" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity">
-            Visit KJBI.org <ExternalLink className="w-3.5 h-3.5" />
-          </a>
         </div>
-        )}
       </div>
 
       {/* Why KJB is God's Word section */}
