@@ -454,6 +454,28 @@ export default function BibleReader() {
     }
   };
 
+  // Handle navigation from bottom menu
+  useEffect(() => {
+    const handlePrev = () => {
+      if (!isFirstChapterFirstBook) {
+        goPrev();
+      }
+    };
+    const handleNext = () => {
+      if (!isLastChapterLastBook) {
+        goNext();
+      }
+    };
+
+    window.addEventListener('kjb-nav-prev', handlePrev);
+    window.addEventListener('kjb-nav-next', handleNext);
+
+    return () => {
+      window.removeEventListener('kjb-nav-prev', handlePrev);
+      window.removeEventListener('kjb-nav-next', handleNext);
+    };
+  }, [goPrev, goNext, isFirstChapterFirstBook, isLastChapterLastBook]);
+
   // Auto-track reading when chapter loads
   useEffect(() => {
     const autoTrackReading = async () => {

@@ -424,5 +424,35 @@ function DesktopFooter({ pathname, navigate, setMenuOpen }) {
 }
 
 function BottomNav({ pathname, navigate }) {
-  return null;
+  return (
+    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border safe-area-pb">
+      <div className="max-w-5xl mx-auto px-4 py-2">
+        <div className="flex justify-between gap-2">
+          <button
+            onClick={() => {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              // Navigate handled by BibleReader
+              window.dispatchEvent(new CustomEvent('kjb-nav-prev'));
+            }}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors min-h-[48px] touch-manipulation"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span>Prev</span>
+          </button>
+
+          <button
+            onClick={() => {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              // Navigate handled by BibleReader
+              window.dispatchEvent(new CustomEvent('kjb-nav-next'));
+            }}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors min-h-[48px] touch-manipulation"
+          >
+            <span>Next</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </nav>
+  );
 }
