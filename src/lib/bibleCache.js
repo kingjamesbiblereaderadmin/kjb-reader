@@ -9,7 +9,7 @@ import { COLOPHONS } from '@/lib/bibleSubscripts';
 const CACHE_KEY = 'bible_data_pce_v66_MERGED_STRIP';
 // Use RTF file and abbreviated file - merge italics client-side, strip colophons
 const RTF_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/075077e5d_KJB-PCE-RTF.txt';
-const ABBREV_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/dacf369e2_TEXT-PCE-127.txt';
+const ABBREV_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/72b826511_TEXT-PCE.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
 const EXPECTED_BOOK_COUNT = 66;

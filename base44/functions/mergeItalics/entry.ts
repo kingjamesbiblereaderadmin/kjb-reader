@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
-const ABBREV_FILE = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/e8f9529e6_TEXT-PCE.txt';
+const ABBREV_FILE = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/72b826511_TEXT-PCE.txt';
 const RTF_FILE = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/075077e5d_KJB-PCE-RTF.txt';
 
 // Hardcoded colophons for stripping
