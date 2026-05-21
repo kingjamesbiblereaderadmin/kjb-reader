@@ -125,22 +125,31 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         }
       } else {
         // Clear any existing images first to free up space
-        localStorage.removeItem('kjb-daily-verse-bg');
-        localStorage.removeItem('kjb-notif-image');
+        try {
+          localStorage.removeItem('kjb-daily-verse-bg');
+          localStorage.removeItem('kjb-notif-image');
+        } catch {}
         try {
           const cache = await caches.open('kjb-notif-images');
           await cache.delete('/notif-image');
         } catch {}
+        
         // Save new background
-        localStorage.setItem('kjb-daily-verse-bg', croppedDataUrl);
-        // Verify it was saved correctly
-        const saved = localStorage.getItem('kjb-daily-verse-bg');
-        if (saved !== croppedDataUrl) {
-          throw new Error('Save verification failed');
+        try {
+          localStorage.setItem('kjb-daily-verse-bg', croppedDataUrl);
+        } catch (storageErr) {
+          if (storageErr.name === 'QuotaExceededError') {
+            alert('Storage full! Please clear browser data or try a smaller image.');
+            console.error('localStorage quota exceeded:', storageErr);
+            return;
+          }
+          throw storageErr;
         }
+        
         setCustomBg(croppedDataUrl);
         // Prevent any clicks from triggering navigation
         setUploadingComplete(true);
+        
         // Auto-detect if background is light or dark and adjust text color
         const img = new Image();
         img.onload = () => {
@@ -169,8 +178,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       window.dispatchEvent(new Event('storage'));
       setCropImage(null);
     } catch (err) {
-      alert('Storage full! Please remove other data or try a smaller image.');
-      console.error('localStorage quota exceeded:', err);
+      console.error('Unexpected error:', err);
     }
   };
 
