@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getBibleData } from '@/lib/bibleCache';
@@ -60,19 +60,8 @@ export default function SearchPage() {
   const [selected, setSelected] = useState(new Set());
   const [copyFeedback, setCopyFeedback] = useState(false);
 
-  // Search result cache for instant repeat searches
-  const searchCacheRef = React.useRef(new Map());
-  const debounceRef = React.useRef(null);
-  
   const runSearch = useCallback(async (kw) => {
     if (!kw || kw.trim().length < 2) return;
-    
-    // Clear previous debounce timer
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-    
-    // Show loading immediately for better UX
     setLoading(true);
     setSearched(true);
     setResults([]);
@@ -82,258 +71,253 @@ export default function SearchPage() {
     setSelectedBooks(new Set());
     setCurrentPage(1);
 
-    // Debounce the actual search execution (reduced to 100ms)
-    debounceRef.current = setTimeout(async () => {
-      try {
-        // Create cache key from all search parameters
-        const cacheKey = JSON.stringify({
-          kw,
-          testament,
-          wholeWord,
-          caseSensitive,
-          exactMatch,
-          selectedBooks: [...selectedBooks].sort(),
-        });
-        
-        // Check cache first
-        const cached = searchCacheRef.current.get(cacheKey);
-        if (cached) {
-          setResults(cached);
+    try {
+      console.log('[Search] Starting search for:', kw);
+      const bible = await getBibleData();
+      console.log('[Search] Bible data loaded, keys:', Object.keys(bible || {}).filter(k => k !== '__colophons').length);
+      // Strip quotes from search term for actual searching
+      let searchTerm = kw.trim();
+      if (searchTerm.startsWith('"') && searchTerm.endsWith('"') && searchTerm.length >= 3) {
+        searchTerm = searchTerm.slice(1, -1);
+      }
+      setExpandedTerms([]);
+      
+      const kwLower = searchTerm.toLowerCase();
+      
+      // Check if query is a verse range (e.g., "Romans 1:20-22")
+      const rangeMatch = kwLower.match(/^([a-z0-9\s]+)\s+(\d+):(\d+)-(\d+)$/);
+      if (rangeMatch) {
+        const bookStr = rangeMatch[1].trim();
+        const ch = parseInt(rangeMatch[2]);
+        const v1 = parseInt(rangeMatch[3]);
+        const v2 = parseInt(rangeMatch[4]);
+        const matchingBook = BIBLE_BOOKS.find(b => 
+          b.shortName.toLowerCase().includes(bookStr) ||
+          b.abbr.toLowerCase() === bookStr
+        );
+        if (matchingBook && ch >= 1 && ch <= matchingBook.chapters && v1 <= v2) {
+          goToVerse(matchingBook.abbr, ch, v1, v2);
           setLoading(false);
           return;
         }
-        
-        const bible = await getBibleData();
-        // Strip quotes from search term for actual searching
-        let searchTerm = kw.trim();
-        if (searchTerm.startsWith('"') && searchTerm.endsWith('"') && searchTerm.length >= 3) {
-          searchTerm = searchTerm.slice(1, -1);
-        }
-        setExpandedTerms([]);
-        
-        const kwLower = searchTerm.toLowerCase();
-        
-        // Check if query is a verse range (e.g., "Romans 1:20-22")
-        const rangeMatch = kwLower.match(/^([a-z0-9\s]+)\s+(\d+):(\d+)-(\d+)$/);
-        if (rangeMatch) {
-          const bookStr = rangeMatch[1].trim();
-          const ch = parseInt(rangeMatch[2]);
-          const v1 = parseInt(rangeMatch[3]);
-          const v2 = parseInt(rangeMatch[4]);
-          const matchingBook = BIBLE_BOOKS.find(b => 
-            b.shortName.toLowerCase().includes(bookStr) ||
-            b.abbr.toLowerCase() === bookStr
-          );
-          if (matchingBook && ch >= 1 && ch <= matchingBook.chapters && v1 <= v2) {
-            goToVerse(matchingBook.abbr, ch, v1, v2);
-            setLoading(false);
-            return;
-          }
-        }
+      }
 
-        // Check for "end of [book]" or "[book] end" queries
-        const endMatch = kwLower.match(/(?:^|\s)(?:end of|end)\s+([a-z0-9\s]+)|(?:^|\s)([a-z0-9\s]+)\s+(?:end)$/);
-        if (endMatch) {
-          const bookStr = (endMatch[1] || endMatch[2] || '').trim();
-          const matchingBook = BIBLE_BOOKS.find(b => 
-            b.shortName.toLowerCase().includes(bookStr) ||
-            b.abbr.toLowerCase().includes(bookStr) ||
-            b.shortName.toLowerCase() === bookStr
-          );
-          if (matchingBook) {
-            goToVerse(matchingBook.abbr, matchingBook.chapters, null);
-            setLoading(false);
-            return;
-          }
-        }
-
-        // Check for "pilcrows" search - show verses with pilcrow marks
-        if (kwLower === 'pilcrows' || kwLower === 'pilcrow' || kwLower === '¶') {
-          const pilcrowResults = [];
-          const seen = new Set();
-          for (const bookName in bible) {
-            if (bookName === '__colophons') continue;
-            if (testament === 'ot' && !OT_BOOKS.has(bookName)) continue;
-            if (testament === 'nt' && !NT_BOOKS.has(bookName)) continue;
-            if (selectedBooks.size > 0) {
-              const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
-              if (!bookEntry || !selectedBooks.has(bookEntry.abbr)) continue;
-            }
-            const chapters = bible[bookName];
-            for (const chapterNum in chapters) {
-              const verses = chapters[chapterNum];
-              for (const verseObj of verses) {
-                if (verseObj.text.includes('¶')) {
-                  const key = `${bookName}-${chapterNum}-${verseObj.verse}`;
-                  if (seen.has(key)) continue;
-                  seen.add(key);
-                  const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
-                  pilcrowResults.push({
-                    book: bookName,
-                    chapter: parseInt(chapterNum),
-                    verse: verseObj.verse,
-                    text: verseObj.text,
-                    abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
-                  });
-                }
-              }
-            }
-          }
-          setResults(pilcrowResults);
-          searchCacheRef.current.set(cacheKey, pilcrowResults);
+      // Check for "end of [book]" or "[book] end" queries
+      const endMatch = kwLower.match(/(?:^|\s)(?:end of|end)\s+([a-z0-9\s]+)|(?:^|\s)([a-z0-9\s]+)\s+(?:end)$/);
+      if (endMatch) {
+        const bookStr = (endMatch[1] || endMatch[2] || '').trim();
+        const matchingBook = BIBLE_BOOKS.find(b => 
+          b.shortName.toLowerCase().includes(bookStr) ||
+          b.abbr.toLowerCase().includes(bookStr) ||
+          b.shortName.toLowerCase() === bookStr
+        );
+        if (matchingBook) {
+          // Navigate to last chapter of the book
+          goToVerse(matchingBook.abbr, matchingBook.chapters, null);
           setLoading(false);
           return;
         }
+      }
 
-        // Check if query is a numbered book (e.g., "1 john", "2 timothy") or contains one
-        const numberedBookMatch = kwLower.match(/(\d+)\s+([a-z]+)/);
-        let targetBookAbbr = null;
-        if (numberedBookMatch) {
-          const num = numberedBookMatch[1];
-          const bookPart = numberedBookMatch[2];
-          const matchingBook = BIBLE_BOOKS.find(b => 
-            b.shortName.toLowerCase() === `${num} ${bookPart}` ||
-            b.shortName.toLowerCase().startsWith(`${num} ${bookPart}`) ||
-            b.shortName.toLowerCase().includes(`${num} ${bookPart}`)
-          );
-          if (matchingBook) {
-            targetBookAbbr = matchingBook.abbr;
-            setNumberedBookFilter(targetBookAbbr);
-          }
-        }
-
-        // Check for "prophets end of [book]" queries
-        const prophetsEndMatch = kwLower.match(/prophets?\s+(?:end\s+of\s+)?([a-z0-9\s]+)/);
-        if (prophetsEndMatch) {
-          const bookStr = prophetsEndMatch[1].trim();
-          const matchingBook = BIBLE_BOOKS.find(b => 
-            b.shortName.toLowerCase().includes(bookStr) ||
-            b.abbr.toLowerCase().includes(bookStr)
-          );
-          if (matchingBook) {
-            targetBookAbbr = matchingBook.abbr;
-            setNumberedBookFilter(targetBookAbbr);
-          }
-        }
-
-        const matches = [];
+      // Check for "pilcrows" search - show verses with pilcrow marks
+      if (kwLower === 'pilcrows' || kwLower === 'pilcrow' || kwLower === '¶') {
+        const pilcrowResults = [];
         const seen = new Set();
-        const searchTermLower = searchTerm.toLowerCase();
-        
-        // Pre-compile regex patterns for better performance
-        const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const wholeWordRegex = caseSensitive 
-          ? new RegExp(`\\b${escapeRegex(searchTerm)}\\b`)
-          : new RegExp(`\\b${escapeRegex(searchTermLower)}\\b`);
-
-        // Filter books once before looping
-        const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
-        const filteredBooks = bookNames.filter(bookName => {
-          if (testament === 'ot' && !OT_BOOKS.has(bookName)) return false;
-          if (testament === 'nt' && !NT_BOOKS.has(bookName)) return false;
+        for (const bookName in bible) {
+          if (bookName === '__colophons') continue;
+          if (testament === 'ot' && !OT_BOOKS.has(bookName)) continue;
+          if (testament === 'nt' && !NT_BOOKS.has(bookName)) continue;
           if (selectedBooks.size > 0) {
             const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
-            if (!bookEntry || !selectedBooks.has(bookEntry.abbr)) return false;
+            if (!bookEntry || !selectedBooks.has(bookEntry.abbr)) continue;
           }
-          if (targetBookAbbr) {
-            const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
-            if (!bookEntry || bookEntry.abbr !== targetBookAbbr) return false;
-          }
-          return true;
-        });
-
-        // Build lookup maps for O(1) access
-        const bookAbbrMap = new Map();
-        BIBLE_BOOKS.forEach(b => bookAbbrMap.set(b.apiName, b.abbr));
-
-        // Search only filtered books with optimized inner loops
-        for (const bookName of filteredBooks) {
           const chapters = bible[bookName];
-          const abbr = bookAbbrMap.get(bookName) || bookName.slice(0, 3).toUpperCase();
-          
           for (const chapterNum in chapters) {
             const verses = chapters[chapterNum];
-            
-            // Search in verses
             for (const verseObj of verses) {
-              const searchText = verseObj.text.replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
-              let found = false;
-              
-              // Fast path: simple includes check (most common case)
-              if (!exactMatch && !caseSensitive && !wholeWord) {
-                found = searchText.toLowerCase().includes(searchTermLower);
-              } else if (exactMatch) {
-                found = caseSensitive ? searchText.includes(searchTerm) : searchText.toLowerCase().includes(searchTermLower);
-              } else if (caseSensitive && wholeWord) {
-                found = wholeWordRegex.test(searchText);
-              } else if (wholeWord) {
-                found = wholeWordRegex.test(searchText.toLowerCase());
-              } else {
-                found = caseSensitive ? searchText.includes(searchTerm) : searchText.toLowerCase().includes(searchTermLower);
-              }
-
-              if (found) {
+              if (verseObj.text.includes('¶')) {
                 const key = `${bookName}-${chapterNum}-${verseObj.verse}`;
-                if (!seen.has(key)) {
-                  seen.add(key);
-                  matches.push({
-                    book: bookName,
-                    chapter: parseInt(chapterNum),
-                    verse: verseObj.verse,
-                    text: verseObj.text,
-                    abbr,
-                  });
-                }
-              }
-            }
-            
-            // Search in colophons
-            const colophon = bible.__colophons?.[bookName]?.[chapterNum];
-            if (colophon) {
-              const colophonText = colophon.replace(/¶\s*/g, '');
-              let colophonFound = false;
-              
-              if (!exactMatch && !caseSensitive && !wholeWord) {
-                colophonFound = colophonText.toLowerCase().includes(searchTermLower);
-              } else if (exactMatch) {
-                colophonFound = caseSensitive ? colophonText.includes(searchTerm) : colophonText.toLowerCase().includes(searchTermLower);
-              } else if (caseSensitive && wholeWord) {
-                colophonFound = wholeWordRegex.test(colophonText);
-              } else if (wholeWord) {
-                colophonFound = wholeWordRegex.test(colophonText.toLowerCase());
-              } else {
-                colophonFound = caseSensitive ? colophonText.includes(searchTerm) : colophonText.toLowerCase().includes(searchTermLower);
-              }
-              
-              if (colophonFound) {
-                const key = `${bookName}-${chapterNum}-colophon`;
-                if (!seen.has(key)) {
-                  seen.add(key);
-                  matches.push({
-                    book: bookName,
-                    chapter: parseInt(chapterNum),
-                    verse: 0,
-                    text: colophonText,
-                    isColophon: true,
-                    abbr,
-                  });
-                }
+                if (seen.has(key)) continue;
+                seen.add(key);
+                const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+                pilcrowResults.push({
+                  book: bookName,
+                  chapter: parseInt(chapterNum),
+                  verse: verseObj.verse,
+                  text: verseObj.text,
+                  abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
+                });
               }
             }
           }
         }
-
-        setResults(matches);
-        // Cache the results
-        searchCacheRef.current.set(cacheKey, matches);
-      } catch (err) {
-        console.error('Search error:', err);
-        setResults([]);
-      } finally {
+        setResults(pilcrowResults);
         setLoading(false);
+        return;
       }
-    }, 100);
-  }, [testament, wholeWord, caseSensitive, exactMatch, selectedBooks]);
+
+      // Check if query is a numbered book (e.g., "1 john", "2 timothy") or contains one
+      const numberedBookMatch = kwLower.match(/(\d+)\s+([a-z]+)/);
+      let targetBookAbbr = null;
+      if (numberedBookMatch) {
+        const num = numberedBookMatch[1];
+        const bookPart = numberedBookMatch[2];
+        const matchingBook = BIBLE_BOOKS.find(b => 
+          b.shortName.toLowerCase() === `${num} ${bookPart}` ||
+          b.shortName.toLowerCase().startsWith(`${num} ${bookPart}`) ||
+          b.shortName.toLowerCase().includes(`${num} ${bookPart}`)
+        );
+        if (matchingBook) {
+          targetBookAbbr = matchingBook.abbr;
+          setNumberedBookFilter(targetBookAbbr);
+        }
+      }
+
+      // Check for "prophets end of [book]" queries
+      const prophetsEndMatch = kwLower.match(/prophets?\s+(?:end\s+of\s+)?([a-z0-9\s]+)/);
+      if (prophetsEndMatch) {
+        const bookStr = prophetsEndMatch[1].trim();
+        const matchingBook = BIBLE_BOOKS.find(b => 
+          b.shortName.toLowerCase().includes(bookStr) ||
+          b.abbr.toLowerCase().includes(bookStr)
+        );
+        if (matchingBook) {
+          targetBookAbbr = matchingBook.abbr;
+          setNumberedBookFilter(targetBookAbbr);
+        }
+      }
+
+      const matches = [];
+      const seen = new Set();
+      const searchTermLower = searchTerm.toLowerCase();
+
+      for (const bookName in bible) {
+        if (bookName === '__colophons') continue;
+        if (testament === 'ot' && !OT_BOOKS.has(bookName)) continue;
+        if (testament === 'nt' && !NT_BOOKS.has(bookName)) continue;
+        
+        if (selectedBooks.size > 0) {
+          const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+          if (!bookEntry || !selectedBooks.has(bookEntry.abbr)) continue;
+        }
+        
+        if (targetBookAbbr) {
+          const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+          if (!bookEntry || bookEntry.abbr !== targetBookAbbr) continue;
+        }
+
+        const chapters = bible[bookName];
+        for (const chapterNum in chapters) {
+          const verses = chapters[chapterNum];
+          // Keep italics in brackets for search and display
+          const processedVerses = verses.map(v => ({
+            verse: v.verse,
+            text: v.text.replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '')
+          }));
+          
+          // Search in verses
+          for (const verseObj of processedVerses) {
+            let found = false;
+            const searchText = verseObj.text;
+            const searchTextLower = searchText.toLowerCase();
+            
+            if (exactMatch) {
+              // Exact match = exact phrase contains (case sensitive or insensitive)
+              if (caseSensitive) {
+                found = searchText.includes(searchTerm);
+              } else {
+                found = searchTextLower.includes(searchTermLower);
+              }
+            } else if (caseSensitive) {
+              if (wholeWord) {
+                const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
+                found = wordRegex.test(searchText);
+              } else {
+                found = searchText.includes(searchTerm);
+              }
+            } else {
+              if (wholeWord) {
+                const escapedTerm = searchTermLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
+                found = wordRegex.test(searchTextLower);
+              } else {
+                found = searchTextLower.includes(searchTermLower);
+              }
+            }
+
+            if (found) {
+              const key = `${bookName}-${chapterNum}-${verseObj.verse}`;
+              if (seen.has(key)) continue;
+              seen.add(key);
+              const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+              matches.push({
+                book: bookName,
+                chapter: parseInt(chapterNum),
+                verse: verseObj.verse,
+                text: verseObj.text,
+                abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
+              });
+            }
+          }
+          
+          // Search in colophons for this chapter
+          const colophon = bible.__colophons?.[bookName]?.[chapterNum];
+          if (colophon) {
+            const colophonText = colophon.replace(/¶\s*/g, '');
+            const colophonLower = colophonText.toLowerCase();
+            let colophonFound = false;
+            
+            if (exactMatch) {
+              // Exact match = exact phrase contains (case sensitive or insensitive)
+              colophonFound = caseSensitive ? colophonText.includes(searchTerm) : colophonLower.includes(searchTermLower);
+            } else if (caseSensitive) {
+              if (wholeWord) {
+                const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
+                colophonFound = wordRegex.test(colophonText);
+              } else {
+                colophonFound = colophonText.includes(searchTerm);
+              }
+            } else {
+              if (wholeWord) {
+                const escapedTerm = searchTermLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
+                colophonFound = wordRegex.test(colophonLower);
+              } else {
+                colophonFound = colophonLower.includes(searchTermLower);
+              }
+            }
+            
+            if (colophonFound) {
+              const key = `${bookName}-${chapterNum}-colophon`;
+              if (!seen.has(key)) {
+                seen.add(key);
+                const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+                matches.push({
+                  book: bookName,
+                  chapter: parseInt(chapterNum),
+                  verse: 0, // Mark as colophon
+                  text: colophonText,
+                  isColophon: true,
+                  abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
+                });
+              }
+            }
+          }
+        }
+      }
+
+      setResults(matches);
+      console.log('[Search] Found', matches.length, 'results');
+      console.log('[Search] Found', matches.length, 'results');
+    } catch (err) {
+      console.error('Search error:', err);
+      setResults([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [testament, wholeWord, caseSensitive, exactMatch]);
 
   // Re-run search whenever URL changes (fixes header search bar)
   useEffect(() => {
@@ -482,25 +466,6 @@ export default function SearchPage() {
           Books {selectedBooks.size > 0 && `(${selectedBooks.size})`}
           <ChevronDown className={`w-3 h-3 transition-transform ${showBookFilter ? 'rotate-180' : ''}`} />
         </button>
-        {results.length > 50 && (
-          <>
-            <div className="w-px h-4 bg-border" />
-            <span className="font-sans text-xs text-muted-foreground">Limit:</span>
-            <div className="relative">
-              <select
-                value={resultsLimit}
-                onChange={(e) => { setResultsLimit(Number(e.target.value)); setCurrentPage(1); }}
-                className="appearance-none bg-card text-foreground font-sans text-xs font-medium px-3 py-1 pr-8 rounded-lg border border-border focus:outline-none focus:border-accent cursor-pointer hover:bg-accent/5 transition-colors"
-              >
-                {[50, 100, 200, 500].filter(limit => limit <= results.length).map(limit => (
-                  <option key={limit} value={limit}>{limit} results</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground pointer-events-none" />
-            </div>
-            <div className="w-px h-4 bg-border" />
-          </>
-        )}
         <div className="flex items-center gap-1.5">
           <input
             id="whole-word"
@@ -603,6 +568,27 @@ export default function SearchPage() {
               ))}
             </div>
           </div>
+
+          {/* Step 3: Results limit */}
+          {results.length > 50 && (
+            <div>
+              <p className="font-sans text-xs font-medium text-muted-foreground mb-2">3. Limit Results</p>
+              <div className="flex gap-2 flex-wrap">
+                {[50, 100, 200, 500].filter(limit => limit <= results.length).map(limit => (
+                  <button
+                    key={limit}
+                    type="button"
+                    onClick={() => { setResultsLimit(limit); setCurrentPage(1); }}
+                    className={`px-3 py-1.5 rounded-lg font-sans text-xs font-medium transition-colors ${
+                      resultsLimit === limit ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground hover:bg-accent/20'
+                    }`}
+                  >
+                    {limit}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -771,11 +757,11 @@ export default function SearchPage() {
 
           {/* Pagination controls */}
           {totalPages > 1 && (
-            <div className="mt-8 mb-8 px-4 flex items-center justify-center gap-2 flex-wrap">
+            <div className="mt-6 mb-20 px-4 flex items-center justify-center gap-2 flex-wrap">
               <button
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-card text-foreground border border-border font-sans text-xs font-medium hover:bg-accent/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 shrink-0"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 shrink-0"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Previous</span>
@@ -787,10 +773,10 @@ export default function SearchPage() {
                     <button
                       key={pageNum}
                       onClick={() => goToPage(pageNum)}
-                      className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-sans text-xs sm:text-sm font-semibold transition-all active:scale-95 border ${
+                      className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-sans text-xs sm:text-sm font-semibold transition-all active:scale-95 ${
                         currentPage === pageNum
-                          ? 'bg-primary text-primary-foreground border-primary shadow-md'
-                          : 'bg-card text-foreground border-border hover:bg-accent/5 hover:border-accent/40'
+                          ? 'bg-primary text-primary-foreground shadow-md'
+                          : 'bg-secondary text-secondary-foreground hover:bg-accent/20 hover:shadow-sm'
                       }`}
                     >
                       {pageNum}
@@ -802,7 +788,7 @@ export default function SearchPage() {
                   <select
                     value={currentPage}
                     onChange={(e) => goToPage(Number(e.target.value))}
-                    className="w-24 h-10 rounded-lg bg-card text-foreground border border-border font-sans text-sm font-semibold px-3 focus:outline-none focus:border-accent appearance-none cursor-pointer hover:bg-accent/5 transition-colors"
+                    className="w-20 h-8 sm:h-10 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs sm:text-sm font-semibold px-2 border border-border focus:outline-none focus:border-accent appearance-none cursor-pointer"
                     style={{ backgroundImage: 'none' }}
                   >
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
@@ -811,13 +797,13 @@ export default function SearchPage() {
                       </option>
                     ))}
                   </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
                 </div>
               )}
               <button
                 onClick={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-card text-foreground border border-border font-sans text-xs font-medium hover:bg-accent/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 shrink-0"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 shrink-0"
               >
                 <span className="hidden sm:inline">Next</span>
                 <span className="sm:hidden">Next</span>
