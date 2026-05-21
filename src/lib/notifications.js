@@ -192,12 +192,19 @@ async function registerPeriodicSync() {
   try {
     const reg = await navigator.serviceWorker.ready;
     if ('periodicSync' in reg) {
-      const status = await navigator.permissions.query({ name: 'periodic-background-sync' });
-      if (status.state === 'granted') {
-        await reg.periodicSync.register('daily-verse-notif', { minInterval: 60 * 60 * 1000 }); // 1 hour min
+      try {
+        await reg.periodicSync.register('daily-verse-notif', { minInterval: 24 * 60 * 60 * 1000 }); // 24 hours
+        console.log('[Notif] Periodic sync registered successfully');
+      } catch (syncErr) {
+        console.warn('[Notif] Periodic sync registration failed (permission not granted):', syncErr.message);
+        // This is expected on most browsers - fallback to in-page timer
       }
+    } else {
+      console.warn('[Notif] Periodic sync not supported in this browser');
     }
-  } catch {}
+  } catch (err) {
+    console.error('[Notif] Failed to register periodic sync:', err);
+  }
 }
 
 // On page focus/visibility, check if we need to show a notification for today's verse
@@ -256,11 +263,17 @@ export function initNotifications(verse) {
   if (_notificationsInitialized) return;
   _notificationsInitialized = true;
 
+  // Debug logging
+  console.log('[Notif] initNotifications called');
+  console.log('[Notif] Enabled:', getNotificationsEnabled());
+  console.log('[Notif] Last notified:', localStorage.getItem(NOTIF_LAST_KEY));
+  console.log('[Notif] Next fire timestamp:', localStorage.getItem(NOTIF_NEXT_KEY));
+  
   // Track app open date for recovery notification logic
   const today = todayString();
   localStorage.setItem('kjb-last-app-open', today);
 
-  // Only check for missed daily verse (not every app open)
+  // Always check if notification is due when app opens
   checkOverdueNotification(verse);
 
   // Arm the in-page timer for future notifications
@@ -273,7 +286,14 @@ export function initNotifications(verse) {
       localStorage.setItem('kjb-last-app-open', todayString());
       // Get fresh verse when app becomes visible
       const freshVerse = getDailyVerse();
+      console.log('[Notif] App became visible, checking overdue notification');
       checkOverdueNotification(freshVerse);
     }
   }, { once: false });
+  
+  // Also check on window focus
+  window.addEventListener('focus', () => {
+    const freshVerse = getDailyVerse();
+    checkOverdueNotification(freshVerse);
+  });
 }
