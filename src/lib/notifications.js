@@ -132,6 +132,7 @@ function getNextFireDate() {
 async function saveNextFireTime(verse) {
   const t = getNextFireDate();
   localStorage.setItem(NOTIF_NEXT_KEY, String(t.getTime()));
+  console.log('[Notif] Next notification scheduled for:', t, '(', t.toLocaleString(), ')');
   // Write config to SW-accessible cache for background periodicsync
   try {
     const cache = await caches.open('kjb-notif-config');
@@ -144,7 +145,10 @@ async function saveNextFireTime(verse) {
     await cache.put('/notif-config', new Response(JSON.stringify(config), {
       headers: { 'Content-Type': 'application/json' }
     }));
-  } catch {}
+    console.log('[Notif] Config saved to SW cache');
+  } catch (err) {
+    console.warn('[Notif] Failed to save config to cache:', err);
+  }
 }
 
 // Show a notification via SW (required on Android PWA)
@@ -209,14 +213,17 @@ let _notifTimer = null;
 function armTimer(verse) {
   if (_notifTimer) { clearTimeout(_notifTimer); _notifTimer = null; }
   const ms = getNextFireDate() - Date.now();
+  console.log('[Notif] Arming timer to fire in', ms, 'ms at', getNextFireDate());
   _notifTimer = setTimeout(async () => {
     const today = todayString();
     if (localStorage.getItem(NOTIF_LAST_KEY) === today) {
       // Already fired today, schedule for tomorrow
+      console.log('[Notif] Already notified today, rescheduling');
       scheduleAndSave(verse);
       return;
     }
     localStorage.setItem(NOTIF_LAST_KEY, today);
+    console.log('[Notif] Firing notification at scheduled time');
     await showLocalNotification(
       'King James Bible — Verse of the Day',
       `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref}`,
@@ -315,15 +322,16 @@ export function initNotifications(verse) {
   console.log('[Notif] Enabled:', getNotificationsEnabled());
   console.log('[Notif] Last notified:', localStorage.getItem(NOTIF_LAST_KEY));
   console.log('[Notif] Next fire timestamp:', localStorage.getItem(NOTIF_NEXT_KEY));
+  console.log('[Notif] Notification time setting:', getNotificationTime());
   
   // Track app open date for recovery notification logic
   const today = todayString();
   localStorage.setItem('kjb-last-app-open', today);
 
-  // Always check if notification is due when app opens
+  // Always check if notification is due when app opens (for missed notifications)
   checkOverdueNotification(verse);
 
-  // Arm the in-page timer for future notifications
+  // Arm the in-page timer for future notifications at the scheduled time
   scheduleDailyNotification(verse);
 
   // Re-check on visibility change (e.g. user switches back to the app)
