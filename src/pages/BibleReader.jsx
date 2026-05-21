@@ -371,27 +371,7 @@ export default function BibleReader() {
             </button>
             </div>
 
-            {/* Prev/Next arrows — right after book selector */}
-            {!isViewingTitlePage && (
-              <div className="flex items-center gap-1 flex-shrink-0">
-                <button
-                  onClick={goPrev}
-                  onTouchEnd={(e) => { e.preventDefault(); goPrev(); }}
-                  disabled={isFirstChapterFirstBook}
-                  className="p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-colors touch-manipulation min-h-[48px] min-w-[48px] flex items-center justify-center"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={goNext}
-                  onTouchEnd={(e) => { e.preventDefault(); goNext(); }}
-                  disabled={isLastChapterLastBook}
-                  className="p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-colors touch-manipulation min-h-[48px] min-w-[48px] flex items-center justify-center"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
-            )}
+
 
             {/* Font selector */}
             <div className="flex-shrink-0">
@@ -716,8 +696,24 @@ export default function BibleReader() {
               </button>
               </div>
 
-              {/* Fullscreen + Hide header — wrap dynamically */}
+              {/* Prev/Next + Fullscreen + Hide header — grouped at end */}
               <div className="flex items-center gap-1.5 flex-wrap">
+                <button
+                  onClick={goPrev}
+                  onTouchEnd={(e) => { e.preventDefault(); goPrev(); }}
+                  disabled={isFirstChapterFirstBook}
+                  className="p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-colors touch-manipulation min-h-[48px] min-w-[48px] flex items-center justify-center flex-shrink-0"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={goNext}
+                  onTouchEnd={(e) => { e.preventDefault(); goNext(); }}
+                  disabled={isLastChapterLastBook}
+                  className="p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-colors touch-manipulation min-h-[48px] min-w-[48px] flex items-center justify-center flex-shrink-0"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
                 <button
                   onClick={toggleFullscreen}
                   onTouchEnd={(e) => { e.preventDefault(); toggleFullscreen(); }}
