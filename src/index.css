@@ -110,9 +110,9 @@
     font-style: italic;
   }
   
-  /* In cursive mode, use a lighter, different cursive font for italics */
+  /* In cursive mode ONLY, use a lighter, different cursive font for italics */
   .cursive-em-style em {
-    font-family: 'Dancing Script', cursive;
+    font-family: 'Dancing Script', cursive !important;
     font-style: italic;
     font-weight: 300;
     opacity: 0.85;
