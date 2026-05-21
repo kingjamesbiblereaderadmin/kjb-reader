@@ -64,7 +64,7 @@ export default function TitlePage({ type }) {
           </p>
 
           <div className="py-8">
-            <p className="font-serif text-sm md:text-base font-normal text-foreground leading-relaxed tracking-[0.02em]">
+            <p className="font-serif text-sm md:text-base font-normal text-foreground leading-relaxed tracking-[0.02em]" style={{ fontFamily: 'cursive' }}>
               TRANSLATED OUT OF THE ORIGINAL GREEK: AND WITH<br />
               THE FORMER TRANSLATIONS DILIGENTLY COMPARED<br />
               AND REVISED, BY HIS MAJESTY'S SPECIAL COMMAND
@@ -72,7 +72,7 @@ export default function TitlePage({ type }) {
           </div>
 
           <div className="py-4">
-            <p className="font-serif text-sm md:text-base font-normal text-foreground tracking-[0.02em]">
+            <p className="font-serif text-sm md:text-base font-normal text-foreground tracking-[0.02em]" style={{ fontFamily: 'cursive' }}>
               APPOINTED TO BE READ IN CHURCHES
             </p>
           </div>
