@@ -18,6 +18,13 @@
       "type": "boolean",
       "default": true,
       "description": "Whether the subscription is active"
+    },
+    "preferred_hour_utc": {
+      "type": "integer",
+      "description": "Hour of day (0-23 UTC) to send the daily verse",
+      "minimum": 0,
+      "maximum": 23,
+      "default": 0
     }
   },
   "required": [

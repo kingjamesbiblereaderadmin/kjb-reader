@@ -1,4 +1,5 @@
-const CACHE_NAME = 'kjb-cache-v1';
+const CACHE_NAME = 'kjb-cache-v2';
+const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -27,7 +28,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
-          .filter((name) => name !== CACHE_NAME)
+          .filter((name) => name !== CACHE_NAME && !name.startsWith('kjb-notif'))
           .map((name) => {
             console.log('[SW] Deleting old cache:', name);
             return caches.delete(name);
@@ -45,13 +46,9 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET requests
   if (request.method !== 'GET') return;
-
-  // Skip chrome-extension and other non-http requests
   if (!url.protocol.startsWith('http')) return;
 
-  // NEVER cache these in development or hot-reload scenarios
   if (
     url.pathname.includes('/src/') ||
     url.pathname.includes('/node_modules/.vite/') ||
@@ -60,9 +57,8 @@ self.addEventListener('fetch', (event) => {
     url.pathname.endsWith('.js') ||
     url.pathname.endsWith('.jsx') ||
     url.pathname.endsWith('.css') ||
-    url.search.includes('v=') // Vite cache-busting param
+    url.search.includes('v=')
   ) {
-    // Network-only for JS/CSS chunks to prevent stale React errors
     return event.respondWith(
       fetch(request).catch((err) => {
         console.error('[SW] Fetch failed for dynamic asset:', err.message);
@@ -71,17 +67,10 @@ self.addEventListener('fetch', (event) => {
     );
   }
 
-  // Cache-first strategy for static assets (HTML, images, etc.)
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
-      if (cachedResponse) {
-        console.log('[SW] Cache hit:', request.url);
-        return cachedResponse;
-      }
-
-      // Network fallback
+      if (cachedResponse) return cachedResponse;
       return fetch(request).then((networkResponse) => {
-        // Only cache successful responses
         if (networkResponse && networkResponse.status === 200) {
           const responseClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -89,9 +78,7 @@ self.addEventListener('fetch', (event) => {
           });
         }
         return networkResponse;
-      }).catch((err) => {
-        console.error('[SW] Fetch failed:', err.message);
-        // Return offline page for navigation requests
+      }).catch(() => {
         if (request.mode === 'navigate') {
           return caches.match('/offline.html');
         }
@@ -101,30 +88,28 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Push event - handle push notifications
+// Push event - handle push notifications from the server
 self.addEventListener('push', (event) => {
-  console.log('[SW] Push received:', event.data ? event.data.text() : 'No data');
-  
+  console.log('[SW] Push received');
+
   let data = {};
   try {
     data = event.data ? event.data.json() : {};
   } catch (e) {
-    console.error('[SW] Failed to parse push data:', e);
-    data = { title: 'Daily Verse', body: event.data ? event.data.text() : 'New notification' };
+    data = { title: 'KJB Reader', body: event.data ? event.data.text() : 'Daily verse ready' };
   }
 
-  const title = data.title || 'Daily Verse';
+  const title = data.title || 'KJB Reader';
   const options = {
     body: data.body || 'Your daily verse is ready',
-    icon: data.icon || '/favicon.ico',
-    badge: data.badge || '/favicon.ico',
-    data: data.data || {},
-    actions: [
-      { action: 'open', title: 'Read' },
-      { action: 'dismiss', title: 'Dismiss' }
-    ],
-    tag: 'daily-verse',
-    renotify: true
+    icon: data.icon || LOGO_URL,
+    badge: data.badge || LOGO_URL,
+    image: data.image || undefined,
+    data: { url: data.url || '/', ...(data.data || {}) },
+    tag: data.tag || 'daily-verse',
+    renotify: true,
+    vibrate: [200, 100, 200],
+    requireInteraction: false,
   };
 
   event.waitUntil(
@@ -132,25 +117,23 @@ self.addEventListener('push', (event) => {
   );
 });
 
-// Notification click event
+// Notification click - open or focus the app
 self.addEventListener('notificationclick', (event) => {
-  console.log('[SW] Notification clicked:', event.action);
   event.notification.close();
-
   if (event.action === 'dismiss') return;
 
-  // Open or focus the app
+  const targetUrl = event.notification.data?.url || '/';
+
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      // Try to focus existing window
       for (const client of clientList) {
-        if (client.url === '/' && 'focus' in client) {
+        if ('focus' in client) {
+          client.navigate?.(targetUrl).catch(() => {});
           return client.focus();
         }
       }
-      // Open new window if none exists
       if (clients.openWindow) {
-        return clients.openWindow(event.notification.data?.verseUrl || '/');
+        return clients.openWindow(targetUrl);
       }
     })
   );
@@ -158,55 +141,47 @@ self.addEventListener('notificationclick', (event) => {
 
 // Message event - handle messages from main thread
 self.addEventListener('message', (event) => {
-  console.log('[SW] Message received:', event.data);
-  
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    console.log('[SW] Skipping waiting...');
     event.waitUntil(
-      self.skipWaiting().then(() => {
-        console.log('[SW] Skipped waiting, claiming clients');
-        return self.clients.claim();
-      })
+      self.skipWaiting().then(() => self.clients.claim())
     );
   }
-  
   if (event.data && event.data.type === 'GET_CACHE_VERSION') {
-    event.ports[0].postMessage({ type: 'CACHE_VERSION', cacheVersion: CACHE_NAME });
+    event.ports[0]?.postMessage({ type: 'CACHE_VERSION', cacheVersion: CACHE_NAME });
   }
 });
 
-// Background sync for daily verse
-self.addEventListener('sync', (event) => {
-  console.log('[SW] Sync event:', event.tag);
-  
-  if (event.tag === 'daily-verse-sync') {
-    event.waitUntil(
-      fetch('/api/daily-verse')
-        .then(response => response.json())
-        .then(data => {
-          console.log('[SW] Daily verse synced:', data);
-          return caches.open(CACHE_NAME).then(cache => {
-            return cache.put('/api/daily-verse', new Response(JSON.stringify(data)));
-          });
-        })
-        .catch(err => console.error('[SW] Sync failed:', err))
-    );
-  }
-});
-
-// Periodic background sync
+// Periodic background sync (Chrome Android only, when installed as PWA)
 self.addEventListener('periodicsync', (event) => {
-  console.log('[SW] Periodic sync:', event.tag);
-  
-  if (event.tag === 'daily-verse-periodic') {
-    event.waitUntil(
-      self.registration.showNotification('Daily Verse', {
-        body: 'Your daily verse is ready to read',
-        icon: '/favicon.ico',
-        badge: '/favicon.ico',
-        tag: 'daily-verse',
-        data: { verseUrl: '/' }
-      })
-    );
+  if (event.tag === 'daily-verse-notif') {
+    event.waitUntil(checkAndFireDailyVerse());
   }
 });
+
+async function checkAndFireDailyVerse() {
+  try {
+    const cache = await caches.open('kjb-notif-config');
+    const res = await cache.match('/notif-config');
+    if (!res) return;
+    const config = await res.json();
+    const today = new Date().toISOString().slice(0, 10);
+    if (config.lastDate === today) return; // already shown today
+    if (Date.now() < config.nextTs) return; // not time yet
+    await self.registration.showNotification('KJB — Daily Verse', {
+      body: config.verseText ? `"${config.verseText}" — ${config.verseRef}` : 'Your daily verse is ready',
+      icon: LOGO_URL,
+      badge: LOGO_URL,
+      tag: 'daily-verse',
+      renotify: true,
+      vibrate: [200, 100, 200],
+      data: { url: '/' },
+    });
+    config.lastDate = today;
+    config.nextTs = config.nextTs + 24 * 60 * 60 * 1000;
+    await cache.put('/notif-config', new Response(JSON.stringify(config), {
+      headers: { 'Content-Type': 'application/json' }
+    }));
+  } catch (err) {
+    console.error('[SW] Daily verse check failed:', err);
+  }
+}

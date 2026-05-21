@@ -14,7 +14,8 @@ import { useTheme, COLOUR_PALETTES } from '@/lib/themeContext';
 import { useNavigate } from 'react-router-dom';
 import {
   getNotificationsEnabled, getNotificationTime, setNotificationTime,
-  requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification
+  requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification,
+  updatePushPreferredHour
 } from '@/lib/notifications';
 
 import { getDailyVerse } from '@/lib/dailyVerse';
@@ -171,7 +172,11 @@ export default function SettingsPage() {
   const handleTimeChange = (e) => {
     setNotifTimeState(e.target.value);
     setNotificationTime(e.target.value);
-    if (notifEnabled) scheduleDailyNotification(getDailyVerse());
+    if (notifEnabled) {
+      scheduleDailyNotification(getDailyVerse());
+      // Update server-side preferred hour so background push fires at the new time
+      updatePushPreferredHour();
+    }
   };
 
   const handleTestNotif = async () => {

@@ -74,20 +74,21 @@ export async function requestNotificationPermission() {
       if (!reg) {
         console.log('[Notif] Registering service worker...');
         reg = await navigator.serviceWorker.register('/sw.js');
-        console.log('[Notif] Service worker registered:', reg.scope);
-      } else {
-        console.log('[Notif] Service worker already registered:', reg.scope);
-        console.log('[Notif] Service worker state:', reg.active ? 'active' : 'installing/activating');
-        if (reg.active) {
-          console.log('[Notif] Active SW script URL:', reg.active.scriptURL);
-        }
       }
       
       // On Android, SW notifications work even without Notification API permission
       if (!hasPermission) {
-        console.log('[Notif] Enabling notifications via service worker (no Notification API needed)');
         localStorage.setItem(NOTIF_KEY, 'true');
         hasPermission = true;
+      }
+      
+      // Subscribe to web push so the server can deliver notifications when app is closed
+      if (hasPermission) {
+        try {
+          await subscribeToPush();
+        } catch (err) {
+          console.warn('[Notif] Push subscription failed:', err.message);
+        }
       }
     } catch (err) {
       console.error('[Notif] Service worker registration failed:', err.message);
@@ -142,6 +143,88 @@ async function saveNextFireTime(verse) {
   }
 }
 
+const APP_LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
+
+// Subscribe device to web push (called when notifications are enabled)
+export async function subscribeToPush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    console.warn('[Push] Push not supported');
+    return null;
+  }
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (sub) {
+      console.log('[Push] Already subscribed');
+      return sub;
+    }
+    // Fetch VAPID public key from backend
+    const res = await fetch('/api/functions/getVapidPublicKey');
+    if (!res.ok) {
+      console.error('[Push] Failed to fetch VAPID key');
+      return null;
+    }
+    const vapidPublic = (await res.text()).trim();
+    if (!vapidPublic) {
+      console.error('[Push] Empty VAPID key');
+      return null;
+    }
+    sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(vapidPublic),
+    });
+    // Save to server with the user's preferred UTC hour
+    await savePushSubscriptionToServer(sub);
+    return sub;
+  } catch (err) {
+    console.error('[Push] Subscribe failed:', err);
+    return null;
+  }
+}
+
+// Save subscription + preferred hour (converted to UTC) to the server
+async function savePushSubscriptionToServer(sub) {
+  try {
+    const [hh] = getNotificationTime().split(':').map(Number);
+    // Convert local hour -> UTC hour
+    const now = new Date();
+    const local = new Date(now);
+    local.setHours(hh, 0, 0, 0);
+    const preferred_hour_utc = local.getUTCHours();
+
+    const { base44 } = await import('@/api/base44Client');
+    await base44.functions.invoke('savePushSubscription', {
+      endpoint: sub.endpoint,
+      keys: sub.toJSON().keys,
+      preferred_hour_utc,
+    });
+    console.log('[Push] Subscription saved (UTC hour:', preferred_hour_utc, ')');
+  } catch (err) {
+    console.error('[Push] Failed to save subscription:', err);
+  }
+}
+
+// Update the preferred hour on the server (call when user changes notification time)
+export async function updatePushPreferredHour() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (sub) await savePushSubscriptionToServer(sub);
+  } catch (err) {
+    console.error('[Push] Failed to update preferred hour:', err);
+  }
+}
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = atob(base64);
+  const arr = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) arr[i] = rawData.charCodeAt(i);
+  return arr;
+}
+
 // Show a notification via SW (required on Android PWA)
 export async function showLocalNotification(title, body, imageUrl = null) {
   console.log('[Notif] showLocalNotification called:', title);
@@ -162,9 +245,11 @@ export async function showLocalNotification(title, body, imageUrl = null) {
       console.log('[Notif] SW active:', reg.active ? 'yes' : 'no');
       console.log('[Notif] showNotification method exists:', typeof reg.showNotification);
       
-      // Show notification using service worker - NO icon, NO badge (pure text)
+      // Show notification using service worker with app logo
       await reg.showNotification(title, {
         body: body,
+        icon: APP_LOGO_URL,
+        badge: APP_LOGO_URL,
         tag: 'daily-verse',
         renotify: true,
         vibrate: [200, 100, 200],
@@ -190,6 +275,8 @@ export async function showLocalNotification(title, body, imageUrl = null) {
       console.log('[Notif] Using standard Notification API');
       const notif = new Notification(title, { 
         body: body,
+        icon: APP_LOGO_URL,
+        badge: APP_LOGO_URL,
         tag: 'daily-verse',
         renotify: true,
         vibrate: [200, 100, 200],
