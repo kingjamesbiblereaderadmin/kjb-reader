@@ -181,6 +181,7 @@ export default function AppLayout() {
                 }
 
                 setRefreshing(true);
+                const checkToastId = toast.loading('Checking for updates…');
                 try {
                   // Check version first - only recache if changed
                   const remoteVer = await fetch('https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt?t=' + Date.now())
@@ -190,17 +191,19 @@ export default function AppLayout() {
 
                   if (localVer && remoteVer !== localVer) {
                     // Actual new version available
-                    toast.success('New version found, updating cache...');
+                    toast.loading('New version found — updating Bible data…', { id: checkToastId });
                     localStorage.removeItem('bible_cache_version');
                     localStorage.removeItem('bible_last_refresh');
                     await downloadBibleForOffline();
+                    toast.loading('Reloading…', { id: checkToastId });
+                    setTimeout(() => toast.dismiss(checkToastId), 1200);
                     softReload('Bible updated, refreshing…');
                   } else {
-                    toast.success('✅ Already up to date - no changes needed');
+                    toast.success('✅ Already up to date', { id: checkToastId });
                   }
                 } catch (err) {
                   console.error('Refresh failed:', err);
-                  toast.error('Failed to check for updates');
+                  toast.error('Failed to check for updates', { id: checkToastId });
                 }
                 setRefreshing(false);
               }}
