@@ -90,6 +90,15 @@
     -webkit-user-select: none;
     user-select: none;
   }
+  
+  /* Hide scrollbar for horizontal scrolling nav */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
   /* Pilcrow paragraph mark — black in light mode, white in dark mode, non-selectable, serif */
   :root .pilcrow {
     color: #000000;
