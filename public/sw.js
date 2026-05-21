@@ -1,5 +1,4 @@
-// Service Worker for KJB Reader - Full Offline Support
-const CACHE_NAME = 'kjb-reader-v1';
+const CACHE_NAME = 'kjb-cache-v1';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -8,105 +7,44 @@ const STATIC_ASSETS = [
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
-  console.log('[SW] Install');
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[SW] Caching static assets');
-      return cache.addAll(STATIC_ASSETS).catch(err => {
-        console.warn('[SW] Some assets failed to cache:', err);
-      });
+      return cache.addAll(STATIC_ASSETS);
     })
   );
   self.skipWaiting();
 });
 
-// Activate event - clean old caches
+// Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activate');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
           .filter((name) => name !== CACHE_NAME)
-          .map((name) => {
-            console.log('[SW] Deleting old cache:', name);
-            return caches.delete(name);
-          })
+          .map((name) => caches.delete(name))
       );
     })
   );
   self.clients.claim();
 });
 
-// Fetch event - cache-first strategy for assets, network-first for API
+// Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
-
-  // Skip non-GET requests
-  if (request.method !== 'GET') return;
-
-  // Skip chrome-extension and other non-http requests
-  if (!url.protocol.startsWith('http')) return;
-
-  // For Bible data and media files - cache-first
-  if (url.hostname === 'media.base44.com' || 
-      url.pathname.includes('.txt') ||
-      url.pathname.includes('.png') ||
-      url.pathname.includes('.jpg') ||
-      url.pathname.includes('.jpeg') ||
-      url.pathname.includes('.css') ||
-      url.pathname.includes('.js')) {
-    event.respondWith(
-      caches.open(CACHE_NAME).then(async (cache) => {
-        const cachedResponse = await cache.match(request);
-        if (cachedResponse) {
-          console.log('[SW] Cache hit:', request.url);
-          // Return cached version immediately
-          return cachedResponse;
-        }
-        
-        // Not in cache - fetch from network
-        try {
-          const networkResponse = await fetch(request);
-          if (networkResponse.ok) {
-            cache.put(request, networkResponse.clone());
-          }
-          return networkResponse;
-        } catch (err) {
-          console.warn('[SW] Network fetch failed:', err);
-          // Return offline fallback if available
-          return new Response('Offline', { status: 503 });
-        }
-      })
-    );
-    return;
-  }
-
-  // For app routes - cache-first with network fallback
   event.respondWith(
-    caches.match(request).then((cachedResponse) => {
-      if (cachedResponse) {
-        console.log('[SW] Serving from cache:', request.url);
-        return cachedResponse;
+    caches.match(event.request).then((response) => {
+      if (response) {
+        return response;
       }
-      
-      // Not in cache - try network
-      return fetch(request).then((networkResponse) => {
-        // Cache successful responses
-        if (networkResponse && networkResponse.status === 200) {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseToCache);
-          });
+      return fetch(event.request).then((response) => {
+        if (!response || response.status !== 200 || response.type !== 'basic') {
+          return response;
         }
-        return networkResponse;
-      }).catch(() => {
-        // Offline - return index.html for navigation requests (SPA support)
-        if (request.mode === 'navigate') {
-          return caches.match('/index.html');
-        }
-        return new Response('Offline', { status: 503 });
+        const responseToCache = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseToCache);
+        });
+        return response;
       });
     })
   );
@@ -115,48 +53,53 @@ self.addEventListener('fetch', (event) => {
 // Handle messages from main thread
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    console.log('[SW] Skipping waiting');
     self.skipWaiting();
   }
 });
 
-// Background sync for notifications (Android)
+// Periodic background sync for daily verse notifications
 self.addEventListener('periodicsync', (event) => {
-  console.log('[SW] Periodic sync:', event.tag);
   if (event.tag === 'daily-verse-notif') {
-    event.waitUntil(
-      (async () => {
-        try {
-          // Read config from cache
-          const cache = await caches.open('kjb-notif-config');
-          const response = await cache.match('/notif-config');
-          if (!response) return;
-          
-          const config = await response.json();
-          const now = Date.now();
-          
-          // Check if notification is due
-          if (config.nextTs && now >= config.nextTs) {
-            const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
-            
-            // Show notification via service worker
-            await self.registration.showNotification('King James Bible — Daily Verse', {
-              body: `"${config.verseText}" — ${config.verseRef}`,
-              icon: logoUrl,
-              badge: logoUrl,
-              tag: 'daily-verse',
-              renotify: true,
-              silent: false,
-              vibrate: [200, 100, 200],
-              data: { url: self.location.origin }
-            });
-            
-            console.log('[SW] Daily verse notification shown');
-          }
-        } catch (err) {
-          console.error('[SW] Periodic sync error:', err);
-        }
-      })()
-    );
+    event.waitUntil(sendDailyVerseNotification());
   }
 });
+
+async function sendDailyVerseNotification() {
+  try {
+    // Get config from cache
+    const cache = await caches.open('kjb-notif-config');
+    const response = await cache.match('/notif-config');
+    if (!response) return;
+    
+    const config = await response.json();
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Check if we already notified today
+    if (config.lastDate === today) return;
+    
+    // Check if it's time to notify
+    if (Date.now() < config.nextTs) return;
+    
+    const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
+    
+    await self.registration.showNotification('KJB — Daily Verse', {
+      body: `"${config.verseText}" — KJB ${config.verseRef}`,
+      icon: logoUrl,
+      badge: logoUrl,
+      tag: 'daily-verse',
+      renotify: true,
+      vibrate: [200, 100, 200],
+      data: {
+        url: '/'
+      }
+    });
+    
+    // Update last notified date
+    config.lastDate = today;
+    await cache.put('/notif-config', new Response(JSON.stringify(config), {
+      headers: { 'Content-Type': 'application/json' }
+    }));
+  } catch (err) {
+    console.error('Daily verse notification error:', err);
+  }
+}
