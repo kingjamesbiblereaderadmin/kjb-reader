@@ -21,6 +21,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const [customBg, setCustomBg] = useState(() => {
     try { return localStorage.getItem('kjb-daily-verse-bg') || ''; } catch { return ''; }
   });
+  const [originalBg, setOriginalBg] = useState(() => {
+    try { return localStorage.getItem('kjb-daily-verse-bg-original') || ''; } catch { return ''; }
+  });
   const [uploading, setUploading] = useState(false);
   const [cropImage, setCropImage] = useState(null);
   const [cropImageForNotif, setCropImageForNotif] = useState(false);
@@ -97,6 +100,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     reader.onload = (event) => {
       const base64 = event.target?.result;
       if (typeof base64 === 'string') {
+        // Store original for future re-cropping
+        try { localStorage.setItem('kjb-daily-verse-bg-original', base64); } catch {}
+        setOriginalBg(base64);
         setCropImage(base64); // Open cropper instead of saving directly
       }
     };
@@ -598,14 +604,15 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                     <Image className="w-4 h-4" />
                     {uploading ? 'Uploading...' : 'Change Background'}
                   </button>
-                  {(customBg || pendingBg) && (
+                  {(originalBg || customBg || pendingBg) && (
                     <button
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         e.nativeEvent.stopImmediatePropagation();
                         setCropImageForNotif(false);
-                        setCropImage(pendingBg || customBg);
+                        // Prefer original (uncropped) image when re-cropping
+                        setCropImage(originalBg || pendingBg || customBg);
                         setShowMenu(false);
                       }}
                       className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
@@ -624,7 +631,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                           setPendingBg(null);
                         } else {
                           setCustomBg('');
+                          setOriginalBg('');
                           localStorage.removeItem('kjb-daily-verse-bg');
+                          localStorage.removeItem('kjb-daily-verse-bg-original');
                           // Reset text color and opacity to defaults
                           handleTextColorChange('#ffffff');
                           handleTextOpacityChange(0.95);
