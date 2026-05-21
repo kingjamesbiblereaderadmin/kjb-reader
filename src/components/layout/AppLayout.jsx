@@ -425,8 +425,8 @@ function BottomNav({ pathname, navigate }) {
       <nav className="sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/95 backdrop-blur-md border-t border-border" style={{ paddingBottom: 'env(safe-area-inset-bottom)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
         <div className="w-full flex justify-end">
           <button
-            onClick={cycleShowMode}
-            onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
+            type="button"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); cycleShowMode(); }}
             className="px-4 py-3 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95"
             title="Show navigation"
           >
@@ -442,8 +442,8 @@ function BottomNav({ pathname, navigate }) {
     return (
       <nav className="sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/95 backdrop-blur-md border-t border-border" style={{ paddingBottom: 'env(safe-area-inset-bottom)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
         <button
-          onClick={cycleShowMode}
-          onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
+          type="button"
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); cycleShowMode(); }}
           className="w-full h-6 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-all duration-200"
           title="Toggle navigation"
         >
@@ -478,8 +478,8 @@ function BottomNav({ pathname, navigate }) {
           })}
           {/* Chevron toggle - inline in primary row */}
           <button
-            onClick={cycleShowMode}
-            onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
+            type="button"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); cycleShowMode(); }}
             className="w-8 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95 shrink-0 border-l border-border"
             title="Toggle navigation rows"
           >
