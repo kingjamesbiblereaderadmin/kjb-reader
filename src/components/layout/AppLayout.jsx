@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked } from 'lucide-react';
+import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked, List } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 
 const NAV_ITEMS = [
   { path: '/', icon: Home, label: 'Home' },
+  { path: '/contents', icon: List, label: 'Contents' },
   { path: '/read', icon: BookOpen, label: 'Read' },
   { path: '/gospel', icon: Heart, label: 'Gospel' },
   { path: '/resources', icon: Library, label: 'Resources' },
@@ -24,12 +25,13 @@ const NAV_ITEMS = [
 
 const BOTTOM_NAV_PRIMARY = [
   { path: '/', icon: Home, label: 'Home' },
+  { path: '/contents', icon: List, label: 'Contents' },
   { path: '/read', icon: BookOpen, label: 'Read' },
   { path: '/gospel', icon: Heart, label: 'Gospel' },
-  { path: '/resources', icon: Library, label: 'Resources' },
 ];
 
 const BOTTOM_NAV_SECONDARY = [
+  { path: '/resources', icon: Library, label: 'Resources' },
   { path: '/saved', icon: Bookmark, label: 'Saved' },
   { path: '/about', icon: Info, label: 'About' },
   { path: '/settings', icon: Settings, label: 'Settings' },
