@@ -21,7 +21,6 @@ import SearchPage from '@/pages/SearchPage.jsx';
 import SavedVersesPage from '@/pages/SavedVersesPage.jsx';
 
 import RefreshCache from '@/pages/RefreshCache.jsx';
-import DebugPage from '@/pages/DebugPage.jsx';
 
 
 const PageWrapper = ({ children }) => (
@@ -71,7 +70,6 @@ const AuthenticatedApp = () => {
           <Route path="/saved" element={<PageWrapper><SavedVersesPage /></PageWrapper>} />
 
           <Route path="/refresh-cache" element={<PageWrapper><RefreshCache /></PageWrapper>} />
-          <Route path="/debug" element={<PageWrapper><DebugPage /></PageWrapper>} />
 
         </Route>
         <Route path="*" element={<PageNotFound />} />
