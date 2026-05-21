@@ -228,8 +228,9 @@ function parseBibleText(rawText) {
       continue;
     }
 
-    // ABBREVIATED FORMAT: "Ge 1:1", "Ex 2:3", etc. - preserve brackets in verse text
-    const abbrevMatch = trimmed.match(/^([A-Za-z]{2,3})\s+(\d+):(\d+)\s+(.+)$/);
+    // ABBREVIATED FORMAT: "Ge 1:1", "1Sa 2:3", etc. - preserve brackets in verse text
+    // Matches both plain (Ge, Ex) and numbered (1Sa, 2Ki, 1Co) abbreviations
+    const abbrevMatch = trimmed.match(/^(\d?[A-Za-z]{1,4})\s+(\d+):(\d+)\s+(.+)$/);
     if (abbrevMatch) {
       const abbrev = abbrevMatch[1];
       const chapterNum = parseInt(abbrevMatch[2], 10);
