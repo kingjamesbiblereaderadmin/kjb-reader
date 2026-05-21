@@ -460,7 +460,18 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               {showMenu && (
                 <div
                   className="absolute right-0 top-8 z-30 bg-white rounded-lg shadow-xl border border-slate-200 py-1 w-48"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.nativeEvent.stopImmediatePropagation();
+                  }}
+                  onTouchEnd={(e) => {
+                    e.stopPropagation();
+                    e.nativeEvent.stopImmediatePropagation();
+                  }}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    e.nativeEvent.stopImmediatePropagation();
+                  }}
                 >
                   <button
                     onClick={(e) => {
@@ -703,10 +714,24 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         accept="image/*"
         onChange={(e) => {
           e.stopPropagation();
+          e.nativeEvent.stopImmediatePropagation();
           handleUpload(e);
         }}
         onClick={(e) => {
           e.stopPropagation();
+          e.nativeEvent.stopImmediatePropagation();
+        }}
+        onMouseDown={(e) => {
+          e.stopPropagation();
+          e.nativeEvent.stopImmediatePropagation();
+        }}
+        onTouchStart={(e) => {
+          e.stopPropagation();
+          e.nativeEvent.stopImmediatePropagation();
+        }}
+        onTouchEnd={(e) => {
+          e.stopPropagation();
+          e.nativeEvent.stopImmediatePropagation();
         }}
         className="hidden"
       />
