@@ -28,6 +28,10 @@ export default function HomePage() {
 
   useEffect(() => {
     setVerse(getDailyVerse());
+    // Preload Bible cache on home page mount to ensure italics are ready
+    import('@/lib/bibleCache').then(({ getBibleData }) => {
+      getBibleData().catch(() => {});
+    });
   }, []);
 
   const handleRefresh = async () => {
