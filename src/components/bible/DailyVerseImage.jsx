@@ -287,8 +287,10 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   };
 
   const handleShare = async (e) => {
-    e.stopPropagation();
-    e.preventDefault();
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
     setCapturing(true);
     setShowButtons(false);
     setShowStyleEditor(false);
@@ -305,7 +307,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
       
       const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
-      if (navigator.share && navigator.canShare({ files: [new File([blob], 'verse.png', { type: 'image/png' })] })) {
+      // Only use Web Share API if explicitly triggered by user (not on app open)
+      if (e && navigator.share && navigator.canShare({ files: [new File([blob], 'verse.png', { type: 'image/png' })] })) {
         await navigator.share({
           title: 'Daily Verse - KJB Reader',
           text: `"${verse.text}" — ${verse.ref}`,
@@ -768,12 +771,21 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       {showLightbox && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
-          onClick={() => setShowLightbox(false)}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation();
+            setShowLightbox(false);
+          }}
         >
           <div
             className="relative max-w-4xl w-full mx-4 p-8 md:p-12 rounded-2xl shadow-2xl"
             style={bgStyle}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+            }}
           >
             <button
               onClick={(e) => {
