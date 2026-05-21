@@ -360,11 +360,11 @@ export default function BibleReader() {
     }
   }, [verses, loading, highlightVerse]);
 
-  // Reset header verse status when highlight disappears (5 second timeout)
-  // Also reset when filterMode is active with selected verses
+  // Auto-hide highlights after 5 seconds and reset header verse status
   useEffect(() => {
     if (highlightVerse) {
       const timer = setTimeout(() => {
+        setHighlightVerse(null);
         // Clear the verse from position storage to reset header display
         try {
           const current = JSON.parse(localStorage.getItem('kjb-position') || '{}');
@@ -372,7 +372,7 @@ export default function BibleReader() {
             localStorage.setItem('kjb-position', JSON.stringify({ ...current, verse: null, verseEnd: null }));
           }
         } catch {}
-      }, 5500); // Slightly longer than the 5s highlight timeout
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, [highlightVerse]);
@@ -393,6 +393,10 @@ export default function BibleReader() {
     // Prevent chapter 0 for non-GEN/MAT books
     if (newChapter === 0 && newAbbr !== 'GEN' && newAbbr !== 'MAT') {
       return;
+    }
+    // Clear highlights when navigating without a specific verse (random chapter)
+    if (!jumpVerse) {
+      setHighlightVerse(null);
     }
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);
