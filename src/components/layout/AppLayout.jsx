@@ -38,6 +38,11 @@ const BOTTOM_NAV_SECONDARY = [
   { path: '/settings', icon: Settings, label: 'Settings' },
 ];
 
+// Helper to calculate footer padding class based on mode
+const getFooterPaddingClass = (mode) => {
+  return mode === 'two' ? 'pb-[112px]' : mode === 'one' ? 'pb-[56px]' : 'pb-[40px]';
+};
+
 export default function AppLayout() {
   const { pathname } = useLocation();
   const { isDark, mode, toggleTheme } = useTheme();
@@ -47,6 +52,25 @@ export default function AppLayout() {
   // Footer is always visible on desktop, controlled by bottom nav on mobile
   const navigate = useNavigate();
   const isRoot = pathname === '/';
+  const [footerMode, setFooterMode] = useState(() => {
+    try {
+      const saved = localStorage.getItem('kjb-footer-mode');
+      return saved === 'two' ? 'two' : saved === 'none' ? 'none' : 'one';
+    } catch { return 'one'; }
+  });
+
+  // Sync footer mode with storage events
+  useEffect(() => {
+    const handleStorage = () => {
+      try {
+        const saved = localStorage.getItem('kjb-footer-mode');
+        setFooterMode(saved === 'two' ? 'two' : saved === 'none' ? 'none' : 'one');
+      } catch {}
+    };
+    window.addEventListener('storage', handleStorage);
+    handleStorage();
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   // FirstLoadPrompt state (centralized in AppLayout)
   const { isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss } = useAppLayoutPrompt();
@@ -253,7 +277,7 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main className="flex-1 pb-20 sm:pb-0">
+      <main className={`flex-1 sm:pb-0 ${getFooterPaddingClass(footerMode)}`}>
         <Outlet />
       </main>
 
@@ -385,7 +409,7 @@ function BottomNav({ pathname, navigate }) {
   }
 
   return (
-    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border safe-area-pb">
+    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-[60] bg-card/95 backdrop-blur-md border-t border-border safe-area-pb">
       <div className="w-full">
         {/* Primary row: 5 nav items + chevron toggle button */}
         <div className="flex items-stretch">
