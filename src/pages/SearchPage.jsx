@@ -7,17 +7,50 @@ import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
 const OT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'OT' || BIBLE_BOOKS.indexOf(b) < 39).map(b => b.apiName));
 const NT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'NT' || BIBLE_BOOKS.indexOf(b) >= 39).map(b => b.apiName));
 
-function highlightText(text, searchTerm, caseSensitive) {
-  if (!searchTerm) return text;
-  const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const flags = caseSensitive ? 'g' : 'gi';
-  const regex = new RegExp(`(${escaped})`, flags);
-  const parts = text.split(regex);
-  return parts.map((part, i) =>
-    regex.test(part)
-      ? <mark key={i} className="bg-accent/40 text-foreground rounded px-0.5">{part}</mark>
-      : part
+// Render [bracketed] words as <em> italics, with optional search-term highlighting
+function renderWithItalics(text, searchTerm, caseSensitive) {
+  // Split text into segments: italic ([...]) vs normal
+  const segments = [];
+  const italicRegex = /\[([^\]]+)\]/g;
+  let lastIdx = 0;
+  let m;
+  while ((m = italicRegex.exec(text)) !== null) {
+    if (m.index > lastIdx) segments.push({ italic: false, text: text.slice(lastIdx, m.index) });
+    segments.push({ italic: true, text: m[1] });
+    lastIdx = m.index + m[0].length;
+  }
+  if (lastIdx < text.length) segments.push({ italic: false, text: text.slice(lastIdx) });
+
+  const renderHighlighted = (str, keyBase) => {
+    if (!searchTerm) return str;
+    const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const flags = caseSensitive ? 'g' : 'gi';
+    const regex = new RegExp(`(${escaped})`, flags);
+    const testRegex = new RegExp(escaped, flags);
+    const parts = str.split(regex);
+    return parts.map((part, i) =>
+      testRegex.test(part)
+        ? <mark key={`${keyBase}-${i}`} className="bg-accent/40 text-foreground rounded px-0.5">{part}</mark>
+        : <React.Fragment key={`${keyBase}-${i}`}>{part}</React.Fragment>
+    );
+  };
+
+  return segments.map((seg, i) =>
+    seg.italic
+      ? <em key={i} className="text-foreground/75">{renderHighlighted(seg.text, `i${i}`)}</em>
+      : <React.Fragment key={i}>{renderHighlighted(seg.text, `n${i}`)}</React.Fragment>
   );
+}
+
+// Strip surrounding quotes from a display query (for "results for" labels)
+function stripQuotes(s) {
+  if (!s) return s;
+  const t = s.trim();
+  if ((t.startsWith('"') && t.endsWith('"') && t.length >= 2) ||
+      (t.startsWith('\u201C') && t.endsWith('\u201D') && t.length >= 2)) {
+    return t.slice(1, -1).trim();
+  }
+  return t;
 }
 
 export default function SearchPage() {
@@ -476,7 +509,7 @@ export default function SearchPage() {
       )}
 
       {!loading && searched && results.length === 0 && (
-        <p className="font-sans text-sm text-muted-foreground text-center py-12">No results found for "{query}".</p>
+        <p className="font-sans text-sm text-muted-foreground text-center py-12">No results found for "{stripQuotes(query)}".</p>
       )}
 
       {!loading && results.length > 0 && (
@@ -485,7 +518,7 @@ export default function SearchPage() {
           <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div>
               <p className="font-sans text-xs text-muted-foreground">
-                {results.length} result{results.length !== 1 ? 's' : ''} for "{getQueryFromUrl() || query}"
+                {results.length} result{results.length !== 1 ? 's' : ''} for "{stripQuotes(getQueryFromUrl() || query)}"
               </p>
 
               {numberedBookFilter && (
@@ -609,9 +642,9 @@ export default function SearchPage() {
                     </p>
                     <p className="font-serif text-base text-foreground leading-relaxed">
                       {isColophon ? (
-                      <span className="italic text-muted-foreground">¶ {highlightText(r.text, highlightTerm || query, highlightCaseSensitive)}</span>
+                      <span className="italic text-muted-foreground">¶ {renderWithItalics(r.text, highlightTerm || stripQuotes(query), highlightCaseSensitive)}</span>
                       ) : (
-                      <span>"{highlightText(r.text, highlightTerm || query, highlightCaseSensitive)}"</span>
+                      <span>"{renderWithItalics(r.text, highlightTerm || stripQuotes(query), highlightCaseSensitive)}"</span>
                       )}
                     </p>
                   </div>
