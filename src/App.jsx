@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation, Navigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -9,18 +9,26 @@ import { ThemeProvider } from '@/lib/themeContext';
 import { HeaderHideProvider } from '@/lib/HeaderHideContext';
 import AppLayout from '@/components/layout/AppLayout';
 import { AnimatePresence, motion } from 'framer-motion';
-// Add page imports here
-import HomePage from '@/pages/HomePage';
-import BibleReader from '@/pages/BibleReader';
-import GospelPage from '@/pages/GospelPage';
-import ResourcesPage from '@/pages/ResourcesPage';
-import AboutPage from '@/pages/AboutPage';
-import ContentsPage from '@/pages/ContentsPage.jsx';
-import SettingsPage from '@/pages/SettingsPage.jsx';
-import SearchPage from '@/pages/SearchPage.jsx';
-import SavedVersesPage from '@/pages/SavedVersesPage.jsx';
+import React, { lazy, Suspense } from 'react';
 
-import RefreshCache from '@/pages/RefreshCache.jsx';
+// Lazy load pages for faster initial load
+const HomePage = lazy(() => import('@/pages/HomePage'));
+const BibleReader = lazy(() => import('@/pages/BibleReader'));
+const GospelPage = lazy(() => import('@/pages/GospelPage'));
+const ResourcesPage = lazy(() => import('@/pages/ResourcesPage'));
+const AboutPage = lazy(() => import('@/pages/AboutPage'));
+const ContentsPage = lazy(() => import('@/pages/ContentsPage.jsx'));
+const SettingsPage = lazy(() => import('@/pages/SettingsPage.jsx'));
+const SearchPage = lazy(() => import('@/pages/SearchPage.jsx'));
+const SavedVersesPage = lazy(() => import('@/pages/SavedVersesPage.jsx'));
+const RefreshCache = lazy(() => import('@/pages/RefreshCache.jsx'));
+
+// Loading component for lazy routes
+const PageLoader = () => (
+  <div className="fixed inset-0 flex items-center justify-center bg-background">
+    <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+  </div>
+);
 
 
 const PageWrapper = ({ children }) => (
@@ -59,17 +67,17 @@ const AuthenticatedApp = () => {
     <AnimatePresence mode="wait" initial={false}>
       <Routes location={location} key={location.pathname}>
         <Route element={<AppLayout />}>
-          <Route path="/" element={<PageWrapper><HomePage /></PageWrapper>} />
-          <Route path="/read" element={<PageWrapper><BibleReader /></PageWrapper>} />
-          <Route path="/gospel" element={<PageWrapper><GospelPage /></PageWrapper>} />
-          <Route path="/resources" element={<PageWrapper><ResourcesPage /></PageWrapper>} />
-          <Route path="/about" element={<PageWrapper><AboutPage /></PageWrapper>} />
-          <Route path="/contents" element={<PageWrapper><ContentsPage /></PageWrapper>} />
-          <Route path="/settings" element={<PageWrapper><SettingsPage /></PageWrapper>} />
-          <Route path="/search" element={<PageWrapper><SearchPage /></PageWrapper>} />
-          <Route path="/saved" element={<PageWrapper><SavedVersesPage /></PageWrapper>} />
+          <Route path="/" element={<PageWrapper><Suspense fallback={<PageLoader />}><HomePage /></Suspense></PageWrapper>} />
+          <Route path="/read" element={<PageWrapper><Suspense fallback={<PageLoader />}><BibleReader /></Suspense></PageWrapper>} />
+          <Route path="/gospel" element={<PageWrapper><Suspense fallback={<PageLoader />}><GospelPage /></Suspense></PageWrapper>} />
+          <Route path="/resources" element={<PageWrapper><Suspense fallback={<PageLoader />}><ResourcesPage /></Suspense></PageWrapper>} />
+          <Route path="/about" element={<PageWrapper><Suspense fallback={<PageLoader />}><AboutPage /></Suspense></PageWrapper>} />
+          <Route path="/contents" element={<PageWrapper><Suspense fallback={<PageLoader />}><ContentsPage /></Suspense></PageWrapper>} />
+          <Route path="/settings" element={<PageWrapper><Suspense fallback={<PageLoader />}><SettingsPage /></Suspense></PageWrapper>} />
+          <Route path="/search" element={<PageWrapper><Suspense fallback={<PageLoader />}><SearchPage /></Suspense></PageWrapper>} />
+          <Route path="/saved" element={<PageWrapper><Suspense fallback={<PageLoader />}><SavedVersesPage /></Suspense></PageWrapper>} />
 
-          <Route path="/refresh-cache" element={<PageWrapper><RefreshCache /></PageWrapper>} />
+          <Route path="/refresh-cache" element={<PageWrapper><Suspense fallback={<PageLoader />}><RefreshCache /></Suspense></PageWrapper>} />
 
         </Route>
         <Route path="*" element={<PageNotFound />} />

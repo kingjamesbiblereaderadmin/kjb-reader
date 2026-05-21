@@ -316,7 +316,18 @@ async function fetchWithRetry(url, retries = 3, expectPilcrows = false) {
       // Add timestamp to bypass browser/CDN cache
       const separator = url.includes('?') ? '&' : '?';
       const cacheBusterUrl = `${url}${separator}t=${Date.now()}`;
-      const res = await fetch(cacheBusterUrl, { cache: 'no-store', mode: 'cors' });
+      
+      // Use AbortSignal for timeout (10 seconds per attempt)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
+      const res = await fetch(cacheBusterUrl, { 
+        cache: 'no-store', 
+        mode: 'cors',
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      
       console.log('[FETCH] Attempt', attempt, '- Status:', res.status, '- URL:', url.substring(0, 80));
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const buf = await res.arrayBuffer();
@@ -346,7 +357,8 @@ async function fetchWithRetry(url, retries = 3, expectPilcrows = false) {
     } catch (err) {
       console.error('Fetch attempt ' + attempt + '/' + retries + ' failed:', err.message);
       if (attempt === retries) throw err;
-      await new Promise(r => setTimeout(r, 500 * attempt));
+      // Exponential backoff: 500ms, 1000ms, 2000ms
+      await new Promise(r => setTimeout(r, 500 * Math.pow(2, attempt - 1)));
     }
   }
 }
@@ -479,8 +491,14 @@ async function fetchAndParse() {
 
 // Load Bible data — cache-first with network fallback and auto-update
 export async function getBibleData() {
-  if (parsedData && isValidBibleData(parsedData)) return parsedData;
-  if (fetchInProgress) return fetchInProgress;
+  if (parsedData && isValidBibleData(parsedData)) {
+    console.log('[CACHE] Returning in-memory cached data');
+    return parsedData;
+  }
+  if (fetchInProgress) {
+    console.log('[CACHE] Fetch in progress, waiting...');
+    return fetchInProgress;
+  }
 
   fetchInProgress = (async () => {
     try {
@@ -490,7 +508,7 @@ export async function getBibleData() {
 
       if (cached && !needsUpdate) {
         parsedData = cached;
-        console.log('[CACHE] Using cached version - instant load');
+        console.log('[CACHE] ✓ Using cached version - instant load');
         return parsedData;
       }
       
@@ -501,6 +519,7 @@ export async function getBibleData() {
       console.log('[FETCH] No cache, fetching fresh Bible data...');
       parsedData = await fetchAndParse();
       await saveToCache(parsedData);
+      console.log('[CACHE] ✓ Fresh data saved');
       return parsedData;
     } catch (error) {
       console.error('All fetch attempts failed:', error.message);
@@ -515,7 +534,13 @@ export async function getBibleData() {
 }
 
 export function preloadBibleData() {
-  if (!parsedData) getBibleData();
+  // Only preload if not already loaded
+  if (!parsedData) {
+    console.log('[PRELOAD] Starting Bible data preload...');
+    getBibleData();
+  } else {
+    console.log('[PRELOAD] Bible data already loaded, skipping');
+  }
 }
 
 export async function isBibleCached() {

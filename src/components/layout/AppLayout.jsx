@@ -74,23 +74,37 @@ export default function AppLayout() {
         let needsUpdate = false;
         
         if (!isPreview) {
-          const remoteVer = await fetch('https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt?t=' + Date.now())
-            .then(r => r.text())
-            .then(t => t.trim());
-          const localVer = localStorage.getItem('bible_cache_version');
-          
-          if (remoteVer !== localVer && localVer !== null) {
-            console.log('[AutoUpdate] New version available, clearing old cache...');
-            localStorage.removeItem('bible_cache_version');
-            localStorage.removeItem('bible_last_refresh');
-            needsUpdate = true;
+          try {
+            const remoteVer = await fetch('https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt?t=' + Date.now(), {
+              cache: 'no-store',
+              signal: AbortSignal.timeout(5000)
+            })
+              .then(r => r.text())
+              .then(t => t.trim());
+            const localVer = localStorage.getItem('bible_cache_version');
+            
+            if (remoteVer !== localVer && localVer !== null) {
+              console.log('[AutoUpdate] New version available, clearing old cache...');
+              localStorage.removeItem('bible_cache_version');
+              localStorage.removeItem('bible_last_refresh');
+              needsUpdate = true;
+            }
+          } catch (err) {
+            console.warn('[AutoUpdate] Version check failed:', err.message);
           }
         }
         
-        // Auto-download Bible data for offline access
+        // Auto-download Bible data for offline access with timeout
         const { autoDownloadBibleOnFirstLoad, isBibleCached } = await import('@/lib/bibleCache');
         const wasCached = await isBibleCached();
-        await autoDownloadBibleOnFirstLoad();
+        
+        // Use Promise.race to timeout after 30 seconds
+        const downloadPromise = autoDownloadBibleOnFirstLoad();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Download timeout')), 30000)
+        );
+        
+        await Promise.race([downloadPromise, timeoutPromise]);
         
         // Show toast only on first download or update
         if (!wasCached || needsUpdate) {
@@ -99,10 +113,17 @@ export default function AppLayout() {
         
         console.log('[AppLayout] App initialized with offline Bible data');
       } catch (err) {
-        console.error('[AppLayout] Initialization failed:', err);
+        console.error('[AppLayout] Initialization failed:', err.message);
+        // Don't show error to user - app can still work with cached data
       }
     };
-    initializeApp();
+    
+    // Run initialization in background to avoid blocking UI
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(initializeApp, { timeout: 10000 });
+    } else {
+      setTimeout(initializeApp, 500);
+    }
 
     // Initialize periodic cache refresh (checks every 24 hours when user opens app)
     initPeriodicCacheRefresh();
@@ -123,7 +144,7 @@ export default function AppLayout() {
 
   return (
     <AutoUpdateHandler>
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col" style={{ contain: 'layout style paint' }}>
       <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-2 sm:gap-3">
           {/* Logo */}
@@ -145,7 +166,7 @@ export default function AppLayout() {
 
           {/* Actions - responsive button sizes with visible square touch targets */}
           <div className="flex items-center gap-1 sm:gap-2 pointer-events-none shrink-0">
-            <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
+            <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
               onClick={async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -174,23 +195,23 @@ export default function AppLayout() {
               role="button"
               aria-label="Refresh and update cache"
             >
-              <RotateCw className="w-4 h-4" />
+              <RotateCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             </div>
-            <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
+            <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
               style={{ touchAction: 'manipulation' }}
               role="button"
               aria-label="Toggle theme"
             >
-              {mode === 'auto' ? <SunMoon className="w-4 h-4" /> : isDark ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+              {mode === 'auto' ? <SunMoon className="w-4 h-4 transition-transform duration-200" /> : isDark ? <Moon className="w-4 h-4 transition-transform duration-200" /> : <Sun className="w-4 h-4 transition-transform duration-200" />}
             </div>
-            <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
+            <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
               style={{ touchAction: 'manipulation' }}
               role="button"
               aria-label="Open menu"
             >
-              {menuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              {menuOpen ? <X className="w-4 h-4 transition-transform duration-200" /> : <Menu className="w-4 h-4 transition-transform duration-200" />}
             </div>
           </div>
         </div>
@@ -215,13 +236,13 @@ export default function AppLayout() {
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                         navigate(item.path);
                       }}
-                      className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg font-sans text-sm font-medium transition-colors ${
+                      className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg font-sans text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 ${
                         active
                           ? 'bg-primary text-primary-foreground'
                           : 'text-foreground hover:bg-secondary'
                       }`}
                     >
-                      <Icon className="w-4 h-4 flex-shrink-0" />
+                      <Icon className="w-4 h-4 flex-shrink-0 transition-transform duration-200" />
                       {item.label}
                     </Link>
                   );
@@ -266,9 +287,9 @@ export default function AppLayout() {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     navigate(item.path);
                   }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-sans text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-sans text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95"
                 >
-                  <Icon className="w-3.5 h-3.5" />
+                  <Icon className="w-3.5 h-3.5 transition-transform duration-200" />
                   {item.label}
                 </Link>
               );
@@ -353,10 +374,10 @@ function BottomNav({ pathname, navigate }) {
           <button
             onClick={cycleShowMode}
             onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
-            className="px-4 py-3 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-colors"
+            className="px-4 py-3 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95"
             title="Show navigation"
           >
-            <ChevronDown className="w-3.5 h-3.5 rotate-180" />
+            <ChevronDown className="w-3.5 h-3.5 rotate-180 transition-transform duration-200" />
           </button>
         </div>
       </nav>
@@ -379,9 +400,9 @@ function BottomNav({ pathname, navigate }) {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                   setTimeout(() => navigate(item.path), 150);
                 }}
-                className="flex flex-col items-center justify-center flex-1 h-14 active:bg-secondary/50 transition-colors"
+                className="flex flex-col items-center justify-center flex-1 h-14 active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95"
               >
-                <Icon className={`w-5 h-5 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
+                <Icon className={`w-5 h-5 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'} transition-transform duration-200`} />
                 <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
               </button>
             );
@@ -390,10 +411,10 @@ function BottomNav({ pathname, navigate }) {
           <button
             onClick={cycleShowMode}
             onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
-            className="w-8 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-colors shrink-0 border-l border-border"
+            className="w-8 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95 shrink-0 border-l border-border"
             title="Toggle navigation rows"
           >
-            {showMode === 'two' ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5 rotate-180" />}
+            {showMode === 'two' ? <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200" /> : <ChevronDown className="w-3.5 h-3.5 rotate-180 transition-transform duration-200" />}
           </button>
         </div>
 
@@ -411,9 +432,9 @@ function BottomNav({ pathname, navigate }) {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     navigate(item.path);
                   }}
-                  className="flex flex-col items-center justify-center w-full h-14 active:bg-secondary/50 transition-colors"
+                  className="flex flex-col items-center justify-center w-full h-14 active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95"
                 >
-                  <Icon className={`w-5 h-5 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <Icon className={`w-5 h-5 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'} transition-transform duration-200`} />
                   <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
                 </button>
               );

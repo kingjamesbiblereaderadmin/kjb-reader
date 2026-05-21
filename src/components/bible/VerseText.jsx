@@ -22,14 +22,13 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     { name: 'purple', bg: 'bg-purple-300/40', label: 'Purple', color: '#d8b4fe' },
   ];
 
+  // Only show highlight effect, not the action popover - popover appears only on manual click
   useEffect(() => {
     if (highlight) {
       setShowHighlight(true);
-      setSelected(true);
       const timer = setTimeout(() => {
         setShowHighlight(false);
-        setSelected(false);
-      }, 5000);
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, [highlight]);
@@ -52,7 +51,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     : `"${textWithItalics}" — ${verseRef} (KJB)`;
 
   const highlightBg = highlightColors.find(c => c.name === highlightColor)?.bg;
-  const isHighlighted = selected || showHighlight;
+  const isHighlighted = showHighlight;
 
   const handleCopy = async (e) => {
     e.stopPropagation();
@@ -108,7 +107,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // No fixed text class - let parent control font size via zoom
   const textClass = '';
 
-  const actionPopover = selected && (
+  const actionPopover = selected && !highlight && (
     <>
       <div 
         className="fixed inset-0 z-40" 
@@ -254,7 +253,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
                 {isSelected ? <CheckSquare className="w-[1em] h-[1em]" /> : <Square className="w-[1em] h-[1em] text-muted-foreground" />}
               </span>
             )}
-            <sup className="text-accent font-sans font-semibold text-[0.75em] mr-3 select-none">{verse.verse}</sup>
+            <sup className="text-accent font-sans font-semibold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
             <span
               className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-justify inline ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
               dangerouslySetInnerHTML={{ __html: html }}
@@ -278,7 +277,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
               {isSelected ? <CheckSquare className="w-[1em] h-[1em]" /> : <Square className="w-[1em] h-[1em] text-muted-foreground" />}
             </span>
           )}
-          <sup className="text-accent font-sans font-semibold text-[0.75em] mr-3 select-none">{verse.verse}</sup>
+          <sup className="text-accent font-sans font-semibold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
           <span
             className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-justify ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
             dangerouslySetInnerHTML={{ __html: html }}
@@ -295,7 +294,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     <span id={id} className={`block relative ${hasPilcrow && !isFirstVerse ? 'pt-6' : 'mt-2'}`}>
       <span
         onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
-        className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.4em] py-[0.25em] gap-[0.6em] ${
+        className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.4em] py-[0.25em] gap-[0.6em] w-full ${
           selectMode && isSelected ? 'bg-primary/10 border border-primary/30 rounded-[0.5em]' : isHighlighted ? `${highlightBg} box-decoration-clone` : 'hover:bg-secondary/60'
         }`}
       >
@@ -304,7 +303,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             {isSelected ? <CheckSquare className="w-[1.1em] h-[1.1em]" /> : <Square className="w-[1.1em] h-[1.1em] text-muted-foreground" />}
           </span>
         )}
-        <sup className="text-accent font-sans font-semibold text-[0.7em] shrink-0 select-none mt-[0.2em] mr-[0.4em]">{verse.verse}</sup>
+        <sup className="text-accent font-sans font-semibold text-[0.6em] shrink-0 select-none mt-[0.2em] mr-[0.3em]">{verse.verse}</sup>
         <span className="flex-1 min-w-0">
           <span
             className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-justify ${isCursive ? 'cursive-em-style' : 'font-serif'}`}

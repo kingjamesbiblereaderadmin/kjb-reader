@@ -12,41 +12,18 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
 // Service worker registration for offline support and notifications
 window.addEventListener('load', async () => {
-  // Clear ALL caches on every load to prevent stale React chunks
-  if ('caches' in window) {
-    try {
-      const cacheNames = await caches.keys();
-      await Promise.all(cacheNames.map(name => caches.delete(name)));
-      console.log('[APP] Cleared all caches');
-    } catch (err) {
-      console.warn('[APP] Failed to clear caches:', err);
-    }
-  }
-  
-  // Unregister any existing service workers in dev mode
-  if ('serviceWorker' in navigator && import.meta.env.DEV) {
-    try {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(registrations.map(reg => reg.unregister()));
-      console.log('[APP] Unregistered all service workers (dev mode)');
-    } catch (err) {
-      console.warn('[APP] Failed to unregister service workers:', err);
-    }
-    return; // Don't register in dev mode
-  }
-  
   // Register fresh service worker (production only)
   if ('serviceWorker' in navigator && !import.meta.env.DEV) {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js');
+      const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
       console.log('[SW] Registered:', registration.scope);
       
-      // Check for updates periodically
+      // Check for updates periodically (every 5 minutes when app is open)
       setInterval(() => {
         registration.update().then(() => {
           console.log('[SW] Checked for updates');
         }).catch(() => {});
-      }, 60000);
+      }, 300000);
       
       navigator.serviceWorker.addEventListener('message', event => {
         if (event.data && event.data.type === 'UPDATE_AVAILABLE') {
@@ -68,12 +45,17 @@ window.addEventListener('load', async () => {
         }
       });
       
-      // Pre-fetch Bible data only if not already cached
+      // Pre-fetch Bible data with priority
       import('@/lib/bibleCache').then(({ isBibleCached, preloadBibleData }) => {
         isBibleCached().then(cached => {
           if (!cached) {
-            console.log('[APP] Preloading Bible data...');
-            preloadBibleData();
+            console.log('[APP] Preloading Bible data (high priority)...');
+            // Use requestIdleCallback to avoid blocking main thread
+            if ('requestIdleCallback' in window) {
+              requestIdleCallback(() => preloadBibleData(), { timeout: 5000 });
+            } else {
+              setTimeout(() => preloadBibleData(), 100);
+            }
           } else {
             console.log('[APP] Bible data already cached, skipping preload');
           }
@@ -86,7 +68,6 @@ window.addEventListener('load', async () => {
       initNotifications(getDailyVerse());
     }
   } else {
-    // Still initialize notifications even without SW
     initNotifications(getDailyVerse());
   }
 });
