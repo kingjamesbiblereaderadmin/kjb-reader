@@ -435,7 +435,7 @@ export default function SettingsPage() {
           
           {customBg ? (
             <div className="space-y-2">
-              <div className="h-32 rounded-xl bg-cover bg-center border border-border" style={{ backgroundImage: `url(${customBg})` }} />
+              <div className="h-64 sm:h-80 md:h-96 rounded-xl bg-cover bg-center border border-border" style={{ backgroundImage: `url(${customBg})` }} />
               <div className="flex gap-2">
                 <button
                   onClick={() => {
