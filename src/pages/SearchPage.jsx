@@ -56,7 +56,11 @@ export default function SearchPage() {
 
     try {
       const bible = await getBibleData();
-      const searchTerm = kw.trim();
+      // Strip quotes from search term for actual searching
+      let searchTerm = kw.trim();
+      if (searchTerm.startsWith('"') && searchTerm.endsWith('"') && searchTerm.length >= 3) {
+        searchTerm = searchTerm.slice(1, -1);
+      }
       setExpandedTerms([]);
       
       const kwLower = searchTerm.toLowerCase();
@@ -235,7 +239,7 @@ export default function SearchPage() {
       }
       runSearch(q);
     }
-  }, [location.search]);
+  }, [location.search, runSearch]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
