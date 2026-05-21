@@ -867,13 +867,12 @@ export default function BibleReader() {
 
       {/* Title pages or verses */}
       <div 
-        className="leading-loose text-foreground/90 font-serif"
+        className={`leading-loose text-foreground/90 font-serif ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`}
         style={{ 
           fontSize: `${zoomLevel / 100}rem`, 
           lineHeight: zoomLevel > 100 ? '1.8' : '1.6',
           fontFamily
         }}
-        className={fontFamily === 'cursive' ? '[&_em]:font-sans [&_em]:not-italic [&_em]:font-semibold [&_em]:text-primary' : ''}
       >
         {loading && (
           <div className="flex justify-center py-16">
