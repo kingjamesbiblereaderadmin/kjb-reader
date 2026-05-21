@@ -44,6 +44,26 @@ export default function AppLayout() {
   const { hideHeader } = useHeaderHide();
   const [menuOpen, setMenuOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [footerMode, setFooterMode] = useState(() => {
+    try {
+      const saved = localStorage.getItem('kjb-footer-mode');
+      return saved === 'two' ? 'two' : saved === 'none' ? 'none' : 'one';
+    } catch { return 'one'; }
+  });
+  useEffect(() => {
+    const onStorage = () => {
+      try {
+        const saved = localStorage.getItem('kjb-footer-mode');
+        setFooterMode(saved === 'two' ? 'two' : saved === 'none' ? 'none' : 'one');
+      } catch {}
+    };
+    window.addEventListener('kjb-footer-mode-change', onStorage);
+    window.addEventListener('storage', onStorage);
+    return () => {
+      window.removeEventListener('kjb-footer-mode-change', onStorage);
+      window.removeEventListener('storage', onStorage);
+    };
+  }, []);
   // Footer is always visible on desktop, controlled by bottom nav on mobile
   const navigate = useNavigate();
   const isRoot = pathname === '/';
@@ -253,7 +273,7 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main className="flex-1 pb-20 sm:pb-0">
+      <main className={`flex-1 sm:pb-0 ${footerMode === 'two' ? 'pb-36' : footerMode === 'none' ? 'pb-12' : 'pb-20'}`}>
         <Outlet />
       </main>
 
@@ -364,6 +384,7 @@ function BottomNav({ pathname, navigate }) {
     const next = showMode === 'one' ? 'two' : showMode === 'two' ? 'none' : 'one';
     setShowMode(next);
     try { localStorage.setItem('kjb-footer-mode', next); } catch {}
+    try { window.dispatchEvent(new Event('kjb-footer-mode-change')); } catch {}
   };
 
   // Hidden mode - show minimal bar with just chevron
