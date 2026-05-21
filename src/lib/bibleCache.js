@@ -1,13 +1,14 @@
 // Client-side Bible data caching for offline access
-// Uses single TEXT-PCE.txt file with italics already marked with [brackets]
+// Uses RTF file (with pilcrows) + abbreviated file (for italics) - merged client-side
 // Uses IndexedDB for large data storage (~50MB+ capacity)
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB } from '@/lib/bibleIndexedDB';
 import { COLOPHONS } from '@/lib/bibleSubscripts';
 
-const CACHE_KEY = 'bible_data_pce_v66_TEXT';
-// Single file with italics already marked
-const BIBLE_TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/7cf6362f2_TEXT-PCE.txt';
+const CACHE_KEY = 'bible_data_pce_v66_RTF_MERGED';
+// RTF file has pilcrows (¶), abbreviated file has [brackets] for italics
+const RTF_FILE_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/075077e5d_KJB-PCE-RTF.txt';
+const ABBREV_FILE_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/72b826511_TEXT-PCE.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
 const EXPECTED_BOOK_COUNT = 66;
@@ -80,53 +81,137 @@ let parsedData = null;
 let fetchInProgress = null;
 let remoteVersion = null;
 
-// Parse abbreviated file format (Ge 1:1 ...) directly - text already has [brackets] for italics
-function parseAbbrevFile(text) {
-  const data = {};
+// Parse abbreviated file to extract italic markers [brackets]
+// Returns map: "Book Chapter:Verse" -> { italics: [{text, index}], plain: text }
+function parseItalicMarkers(text) {
+  const italicMap = new Map();
   const lines = text.split('\n');
-  let verseCount = 0;
-  let versesWithItalics = 0;
 
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed) continue;
 
-    // Parse line format: "Ge 1:1 In the beginning..."
     const m = trimmed.match(/^(\d?[A-Za-z]{1,4})\s+(\d+):(\d+)\s+(.+)$/);
     if (!m) continue;
 
     const abbrev = m[1];
     const ch = parseInt(m[2], 10);
     const vs = parseInt(m[3], 10);
-    let verseText = m[4];
-
-    // Strip colophon markers <<...>>
-    verseText = verseText.replace(/\s*<<[^>]*>>\s*$/, '');
+    let verseText = m[4].replace(/\s*<<[^>]*>>\s*$/, '');
 
     const bookName = ABBREV_TO_API[abbrev];
     if (!bookName) continue;
 
-    if (!data[bookName]) {
-      data[bookName] = {};
-    }
-    if (!data[bookName][ch]) {
-      data[bookName][ch] = [];
+    // Extract bracketed words (italics markers)
+    const italics = [];
+    const cleaned = verseText.replace(/^¶\s*/, '').replace(/^[\u00B6]\s*/, '');
+    const regex = /\[([^\]]+)\]/g;
+    let match;
+    while ((match = regex.exec(cleaned)) !== null) {
+      italics.push({ text: match[1], index: match.index });
     }
 
-    data[bookName][ch].push({ verse: vs, text: verseText });
-    verseCount++;
+    const key = `${bookName} ${ch}:${vs}`;
+    italicMap.set(key, { italics, plain: cleaned.replace(/\[([^\]]+)\]/g, '$1') });
+  }
 
-    // Track verses with italics
-    if (verseText.includes('[')) {
-      versesWithItalics++;
+  console.log('[PARSE] Italic markers:', italicMap.size, 'verses');
+  return italicMap;
+}
+
+// Parse RTF file with pilcrows and merge italic markers
+function parseRTFWithItalics(rtfText, italicMap) {
+  const data = {};
+  const lines = rtfText.split('\n');
+  let currentBook = null;
+  let currentChapter = null;
+  let verseCount = 0;
+  let versesWithItalics = 0;
+
+  // Strip colophon text from verses
+  const stripColophon = (text) => {
+    return text
+      .replace(/\s*Written\s+to\s+[^.]*\.?/gi, '')
+      .replace(/\s*It\s+was\s+written\s+[^.]*\.?/gi, '')
+      .replace(/\s+from\s+[A-Z][a-z]+\s+by\s+[A-Z][a-z]+\.?$/gi, '')
+      .trim();
+  };
+
+  // Apply italic brackets to RTF text
+  const applyItalics = (rtfVerseText, italics) => {
+    if (!italics || italics.length === 0) return rtfVerseText;
+    
+    let result = rtfVerseText;
+    const sorted = [...italics].sort((a, b) => b.text.length - a.text.length);
+    
+    for (const italic of sorted) {
+      let phrase = italic.text.replace(/^\([^)]+\)\s*/, '');
+      if (!phrase.trim()) continue;
+      
+      try {
+        const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp(`(?<!\\[)\\b${escaped}\\b(?!\\])`, 'i');
+        const match = re.exec(result);
+        if (match) {
+          const before = result.slice(0, match.index);
+          const after = result.slice(match.index + match[0].length);
+          result = before + '[' + match[0] + ']' + after;
+        }
+      } catch (e) {}
+    }
+    
+    return result;
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    // Detect book title (all caps lines)
+    if (trimmed === trimmed.toUpperCase() && /[A-Z]/.test(trimmed) && !/^\d/.test(trimmed) && !/^CHAPTER/.test(trimmed)) {
+      const bookName = Object.entries(ABBREV_TO_API).find(([abbrev, name]) => 
+        trimmed.includes(abbrev) || name.split(' ').some(word => word.length > 3 && trimmed.includes(word))
+      )?.[1];
+      if (bookName) {
+        currentBook = bookName;
+        currentChapter = null;
+        if (!data[bookName]) data[bookName] = {};
+      }
+      continue;
+    }
+
+    // Detect chapter heading
+    const chapterMatch = trimmed.match(/^CHAPTER\s+(\d+)$/i);
+    if (chapterMatch) {
+      currentChapter = parseInt(chapterMatch[1], 10);
+      if (currentBook && !data[currentBook][currentChapter]) {
+        data[currentBook][currentChapter] = [];
+      }
+      continue;
+    }
+
+    // Parse verse line
+    const verseMatch = trimmed.match(/^(\d+)\s+(.+)$/);
+    if (verseMatch && currentBook && currentChapter) {
+      const verseNum = parseInt(verseMatch[1], 10);
+      let verseText = stripColophon(verseMatch[2]);
+
+      // Merge italic markers
+      const key = `${currentBook} ${currentChapter}:${verseNum}`;
+      const italicData = italicMap.get(key);
+      if (italicData && italicData.italics.length > 0) {
+        verseText = applyItalics(verseText, italicData.italics);
+        versesWithItalics++;
+      }
+
+      data[currentBook][currentChapter].push({ verse: verseNum, text: verseText });
+      verseCount++;
     }
   }
 
-  // Attach hardcoded colophons
   data.__colophons = { ...COLOPHONS };
-
   const bookCount = Object.keys(data).filter(k => k !== '__colophons').length;
-  console.log('[PARSE] ✓ Complete:', verseCount, 'verses,', bookCount, 'books,', versesWithItalics, 'with italics');
+  console.log('[PARSE] ✓ Complete:', verseCount, 'verses,', bookCount, 'books,', versesWithItalics, 'with italics & pilcrows');
   
   return data;
 }
@@ -229,9 +314,22 @@ async function loadFromCache() {
 }
 
 async function fetchAndParse() {
-  console.log('[FETCH] Fetching Bible text from:', BIBLE_TEXT_URL);
-  const text = await fetchWithRetry(BIBLE_TEXT_URL, 3);
-  const data = parseAbbrevFile(text);
+  console.log('[FETCH] Fetching RTF file (pilcrows) and abbreviated file (italics)...');
+  
+  // Fetch both files in parallel
+  const [rtfText, abbrevText] = await Promise.all([
+    fetchWithRetry(RTF_FILE_URL, 3),
+    fetchWithRetry(ABBREV_FILE_URL, 3)
+  ]);
+
+  console.log('[FETCH] RTF:', rtfText.length, 'chars, Abbrev:', abbrevText.length, 'chars');
+
+  // Parse italic markers from abbreviated file
+  const italicMap = parseItalicMarkers(abbrevText);
+  
+  // Parse RTF and merge italics
+  const data = parseRTFWithItalics(rtfText, italicMap);
+  
   if (!isValidBibleData(data)) {
     throw new Error('Parsed data only has ' + Object.keys(data).filter(k => k !== '__colophons').length + ' books');
   }
