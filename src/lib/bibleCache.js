@@ -6,7 +6,7 @@
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB } from '@/lib/bibleIndexedDB';
 import { COLOPHONS } from '@/lib/bibleSubscripts';
 
-const CACHE_KEY = 'bible_data_pce_v53_MR_LU_FIX';
+const CACHE_KEY = 'bible_data_pce_v54_1JO_2JO_3JO_FIX';
 const RTF_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/dacf369e2_TEXT-PCE-127.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
@@ -161,9 +161,9 @@ const ABBREV_TO_API = {
   'Jas': 'James', 'Jam': 'James', 'Jame': 'James',
   '1Pe': '1 Peter', '1Pet': '1 Peter',
   '2Pe': '2 Peter', '2Pet': '2 Peter',
-  '1Jn': '1 John', '1Joh': '1 John',
-  '2Jn': '2 John', '2Joh': '2 John',
-  '3Jn': '3 John', '3Joh': '3 John',
+  '1Jn': '1 John', '1Joh': '1 John', '1Jo': '1 John',
+  '2Jn': '2 John', '2Joh': '2 John', '2Jo': '2 John',
+  '3Jn': '3 John', '3Joh': '3 John', '3Jo': '3 John',
   'Jud': 'Jude', 'Jude': 'Jude',
   'Re': 'Revelation', 'Rev': 'Revelation', 'Reve': 'Revelation'
 };
