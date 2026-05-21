@@ -6,7 +6,7 @@
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB } from '@/lib/bibleIndexedDB';
 import { COLOPHONS } from '@/lib/bibleSubscripts';
 
-const CACHE_KEY = 'bible_data_pce_v59_STRIP_COLOPHONS';
+const CACHE_KEY = 'bible_data_pce_v60_STRIP_COLOPHONS';
 // Use the merged file from mergeItalics function (has brackets, no inline colophons)
 const RTF_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/PLACEHOLDER_MERGED_FILE.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
@@ -197,13 +197,18 @@ function parseBibleText(rawText) {
   const stripColophonFromText = (text) => {
     return text
       .replace(/\s*<<[^>]*>>\s*/g, '')
-      .replace(/\s*Written\s+to\s+[^.]*\.?/gi, '')
-      .replace(/\s*It\s+was\s+written\s+[^.]*\.?/gi, '')
-      .replace(/\s*Unto\s+the\s+[^.]*\.?/gi, '')
-      .replace(/\s*The\s+first\s+\[?epistle\]?[^.]*\.?/gi, '')
-      .replace(/\s*The\s+second\s+\[?epistle\]?[^.]*\.?/gi, '')
-      .replace(/\s*This\s+(first|second)\s+epistle\s+[^.]*\.?/gi, '')
-      .replace(/\s*[A-Z]+\s+\[?epistle\]?\s+written\s+[^.]*\.?/gi, '')
+      // "Written to..." patterns
+      .replace(/\s*Written\s+to\s+.+?(?=\.|$)/gi, '')
+      .replace(/\s*It\s+was\s+written\s+.+?(?=\.|$)/gi, '')
+      .replace(/\s*Unto\s+the\s+.+?(?=\.|$)/gi, '')
+      // "The first/second epistle" patterns
+      .replace(/\s*The\s+(first|second)\s+\[?epistle\]?.+?(?=\.|$)/gi, '')
+      // "This first/second epistle" patterns
+      .replace(/\s*This\s+(first|second)\s+epistle\s+.+?(?=\.|$)/gi, '')
+      // General "[Book] epistle written" patterns
+      .replace(/\s+[A-Z][A-Za-z\s]+\s+\[?epistle\]?\s+written\s+.+?(?=\.|$)/gi, '')
+      // Catch remaining fragments like "from Italy by Timothy" that might be leftover
+      .replace(/\s+from\s+[A-Z][a-z]+\s+by\s+[A-Z][a-z]+\.?$/gi, '')
       .trim();
   };
 
