@@ -156,11 +156,9 @@ export async function showLocalNotification(title, body, imageUrl = null) {
       const reg = await navigator.serviceWorker.ready;
       console.log('[Notif] Service worker ready, showing notification');
       
-      // Show notification using service worker - NO custom image to avoid blob issues
+      // Show notification using service worker - verse text in body, no icon to avoid issues
       await reg.showNotification(title, {
         body: body,
-        icon: logoUrl,
-        badge: logoUrl,
         tag: 'daily-verse',
         renotify: true,
         vibrate: [200, 100, 200],
@@ -186,11 +184,9 @@ export async function showLocalNotification(title, body, imageUrl = null) {
       console.log('[Notif] Using standard Notification API');
       const notif = new Notification(title, { 
         body: body,
-        icon: logoUrl,
-        badge: logoUrl,
-        vibrate: [200, 100, 200],
         tag: 'daily-verse',
         renotify: true,
+        vibrate: [200, 100, 200],
         silent: false,
         data: {
           url: window.location.origin ? (window.location.origin + '/') : '/'

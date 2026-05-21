@@ -128,19 +128,15 @@ async function sendDailyVerseNotification() {
       return;
     }
     
-    const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
-    
     console.log('[SW] Showing notification:', {
       title: 'KJB — Daily Verse',
       body: config.verseText,
       ref: config.verseRef
     });
     
-    // Use only the logo URL - no custom images to avoid blob/cache issues
+    // No icon - just show the verse text
     await self.registration.showNotification('KJB — Daily Verse', {
       body: `"${config.verseText}" — ${config.verseRef}`,
-      icon: logoUrl,
-      badge: logoUrl,
       tag: 'daily-verse',
       renotify: true,
       vibrate: [200, 100, 200],
