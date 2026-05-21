@@ -284,8 +284,8 @@ function parseWithPilcrowsAndItalics(whartonText, italicMap) {
         verseText = verseText.replace(/\bJohn\b/g, 'JOHN');
       }
 
-      // Add pilcrow marker at start of verses that had it in original
-      if (trimmed.includes('¶') || trimmed.includes('\u00B6')) {
+      // Add pilcrow marker at start of verses that had it in original (check if not already present)
+      if ((trimmed.includes('¶') || trimmed.includes('\u00B6')) && !verseText.trim().startsWith('¶')) {
         verseText = '¶ ' + verseText;
       }
 
