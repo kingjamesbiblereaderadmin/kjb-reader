@@ -529,22 +529,24 @@ function PreachersSection({ openPreachers, togglePreacher }) {
 }
 
 export default function ResourcesPage() {
-  const [expandedSections, setExpandedSections] = useState({
+  const [expandedSections, setExpandedSections] = useState(() => ({
     whyKjb: true,
     preachers: true,
     ministry: true,
     disclaimer: true,
-    resources: {},
-    preacherLinks: {},
-  });
+    resources: Object.fromEntries(RESOURCES.map((_, idx) => [idx, true])),
+    preacherLinks: Object.fromEntries(PREACHERS.map((p) => [p.name, true])),
+  }));
 
+  // Tracks whether the last toggleAll set everything to expanded.
+  // Resets to false as soon as the user collapses anything individually.
   const allExpanded =
     expandedSections.whyKjb &&
     expandedSections.preachers &&
     expandedSections.ministry &&
     expandedSections.disclaimer &&
-    RESOURCES.every((_, idx) => expandedSections.resources[idx] !== false) &&
-    PREACHERS.every((p) => expandedSections.preacherLinks[p.name]);
+    RESOURCES.every((_, idx) => expandedSections.resources[idx] === true) &&
+    PREACHERS.every((p) => expandedSections.preacherLinks[p.name] === true);
 
   const toggleAll = () => {
     const newState = !allExpanded;
