@@ -952,7 +952,7 @@ export default function BibleReader() {
       {!isViewingTitlePage && (
         <div className="text-center mb-6 pt-8" style={{ fontSize: `${zoomLevel / 100}rem` }}>
           <h1 className={`${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} font-bold text-foreground mb-2 leading-tight ${fontFamily === 'cursive' ? 'text-6xl md:text-7xl' : 'text-4xl md:text-5xl'}`} style={{ fontStyle: 'normal', fontWeight: '900' }}>{book.name}</h1>
-          <p className={`font-sans text-[10px] text-muted-foreground tracking-widest uppercase mt-2 ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`} style={{ fontStyle: 'normal', fontSize: fontFamily === 'cursive' ? `${zoomLevel / 100 * 0.5}rem` : undefined, fontWeight: fontFamily === 'cursive' ? '400' : undefined }}>
+          <p className={`font-sans text-muted-foreground tracking-widest uppercase mt-2 ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100 * 0.5}rem`, fontWeight: fontFamily === 'cursive' ? '400' : undefined }}>
             Chapter {pos.chapter}
           </p>
           {/* Subscript — centred below chapter name, non-italic by default, [bracketed] words italic */}
