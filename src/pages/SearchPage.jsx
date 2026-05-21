@@ -9,7 +9,13 @@ const NT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'NT' || BIBLE_B
 
 function highlightText(text, searchTerm, caseSensitive) {
   if (!searchTerm) return text;
-  const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // Strip quotes from search term for highlighting
+  let term = searchTerm.trim();
+  if (term.startsWith('"') && term.endsWith('"') && term.length >= 3) {
+    term = term.slice(1, -1);
+  }
+  if (!term) return text;
+  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const flags = caseSensitive ? 'g' : 'gi';
   const regex = new RegExp(`(${escaped})`, flags);
   const parts = text.split(regex);
