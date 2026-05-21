@@ -296,7 +296,7 @@ export default function SettingsPage() {
           <Settings className="w-7 h-7 text-accent" />
         </div>
         <h1 className="font-serif text-4xl font-bold text-foreground mb-2">Settings</h1>
-        <p className="font-sans text-sm text-muted-foreground">Offline downloads & app information</p>
+        <p className="font-sans text-sm text-muted-foreground">Customize your experience</p>
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         <button
           onClick={toggleAll}
