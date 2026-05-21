@@ -390,7 +390,7 @@ function BottomNav({ pathname, navigate }) {
   // Hidden mode - show minimal bar with just chevron
   if (showMode === 'none') {
     return (
-      <nav className="sm:hidden fixed bottom-3 left-3 right-3 z-50 bg-card/95 backdrop-blur-md border border-border rounded-2xl shadow-2xl">
+      <nav className="sm:hidden fixed left-4 right-4 z-50 bg-card/95 backdrop-blur-md border border-border rounded-2xl shadow-2xl" style={{ bottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}>
         <div className="w-full flex justify-end">
           <button
             onClick={cycleShowMode}
@@ -406,7 +406,7 @@ function BottomNav({ pathname, navigate }) {
   }
 
   return (
-    <nav className="sm:hidden fixed bottom-3 left-3 right-3 z-50 bg-card/95 backdrop-blur-md border border-border rounded-2xl shadow-2xl overflow-hidden">
+    <nav className="sm:hidden fixed left-4 right-4 z-50 bg-card/95 backdrop-blur-md border border-border rounded-2xl shadow-2xl overflow-hidden" style={{ bottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}>
       <div className="w-full">
         {/* Primary row: 5 nav items + chevron toggle button */}
         <div className="flex items-stretch">
