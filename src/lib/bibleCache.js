@@ -4,7 +4,7 @@
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
 
-const CACHE_KEY = 'bible_data_pce_v41'; // v40: TEXT-PCE-127 with <<[colophons]]>
+const CACHE_KEY = 'bible_data_pce_v42'; // v40: TEXT-PCE-127 with <<[colophons]]>
 const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/5db4f0433_TEXT-PCE-127.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
@@ -137,8 +137,8 @@ function parseBibleText(rawText) {
 
   let verseCount = 0;
 
-  // Format: "Abbr C:V verse text" e.g. "Gen 1:1 In the beginning..."
-  const verseLineRe = /^([A-Z][a-z0-9]{1,2})\s+(\d+):(\d+)\s+(.+)$/;
+  // Format: "Abbr C:V verse text" e.g. "Gen 1:1 In the beginning..." or "1Sa 1:1 ..."
+  const verseLineRe = /^([A-Z0-9][a-zA-Z]{1,2})\s+(\d+):(\d+)\s+(.+)$/;
 
   for (let i = 0; i < lines.length; i++) {
     const trimmed = lines[i].trim();
