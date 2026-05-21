@@ -362,9 +362,9 @@ function BottomNav({ pathname, navigate }) {
           </button>
         </div>
 
-        {/* Secondary row - shown when two rows - 4 per line */}
+        {/* Secondary row - shown when two rows - 3 per line */}
         {showMode === 'two' && (
-          <div className="grid grid-cols-4 border-t border-border">
+          <div className="grid grid-cols-3 border-t border-border">
             {BOTTOM_NAV_SECONDARY.map(item => {
               const Icon = item.icon;
               const active = pathname === item.path;
