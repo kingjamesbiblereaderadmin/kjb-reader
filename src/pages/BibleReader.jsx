@@ -352,6 +352,22 @@ export default function BibleReader() {
     }
   }, [verses, loading, highlightVerse]);
 
+  // Reset header verse status when highlight disappears (5 second timeout)
+  useEffect(() => {
+    if (highlightVerse) {
+      const timer = setTimeout(() => {
+        // Clear the verse from position storage to reset header display
+        try {
+          const current = JSON.parse(localStorage.getItem('kjb-position') || '{}');
+          if (current.verse) {
+            localStorage.setItem('kjb-position', JSON.stringify({ ...current, verse: null, verseEnd: null }));
+          }
+        } catch {}
+      }, 5500); // Slightly longer than the 5s highlight timeout
+      return () => clearTimeout(timer);
+    }
+  }, [highlightVerse]);
+
   const navigate = (newAbbr, newChapter, jumpVerse = null) => {
     // Prevent chapter 0 for non-GEN/MAT books
     if (newChapter === 0 && newAbbr !== 'GEN' && newAbbr !== 'MAT') {

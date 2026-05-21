@@ -128,8 +128,8 @@ export default function HomePage() {
     } catch (err) {
       console.error('Failed to save verse position:', err);
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => navigate('/read'), 150);
+    // Navigate immediately - BibleReader will handle scroll and highlight
+    navigate('/read');
   };
 
   const handleToggleNotif = async () => {
