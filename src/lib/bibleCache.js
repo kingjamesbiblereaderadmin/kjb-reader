@@ -1,16 +1,18 @@
 // Client-side Bible data caching for offline access
-// Uses the KJB PCE RTF text from uploaded file
+// Verse text: KJB-PCE-RTF.txt (title-based parser, same as backend)
+// Colophons: hardcoded in bibleSubscripts.js (extracted from TEXT-PCE-127.txt)
 // Uses IndexedDB for large data storage (~50MB+ capacity)
 
-import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
+import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB } from '@/lib/bibleIndexedDB';
+import { COLOPHONS } from '@/lib/bibleSubscripts';
 
-const CACHE_KEY = 'bible_data_pce_v43'; // v40: TEXT-PCE-127 with <<[colophons]]>
-const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/5db4f0433_TEXT-PCE-127.txt';
+const CACHE_KEY = 'bible_data_pce_v44';
+const RTF_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/3cec01ce1_KJB-PCE-RTF.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
 const EXPECTED_BOOK_COUNT = 66;
 
-// Maps canonical book title patterns (from file) to apiName
+// Maps canonical book title patterns to apiName (same as backend parseBibleText function)
 const BOOK_TITLE_MAP = {
   'THE FIRST BOOK OF MOSES': 'Genesis',
   'THE SECOND BOOK OF MOSES': 'Exodus',
@@ -37,7 +39,6 @@ const BOOK_TITLE_MAP = {
   'THE BOOK OF THE PROPHET ISAIAH': 'Isaiah',
   'THE BOOK OF THE PROPHET JEREMIAH': 'Jeremiah',
   'THE LAMENTATIONS OF JEREMIAH': 'Lamentations',
-  'THE LAMENTATIONS OF JEREMIAH': 'Lamentations',
   'THE BOOK OF THE PROPHET EZEKIEL': 'Ezekiel',
   'THE BOOK OF DANIEL': 'Daniel',
   'HOSEA': 'Hosea',
@@ -52,7 +53,6 @@ const BOOK_TITLE_MAP = {
   'HAGGAI': 'Haggai',
   'ZECHARIAH': 'Zechariah',
   'MALACHI': 'Malachi',
-  // Gospels use "ST." abbreviation in this file
   'THE GOSPEL ACCORDING TO ST MATTHEW': 'Matthew',
   'THE GOSPEL ACCORDING TO SAINT MATTHEW': 'Matthew',
   'THE GOSPEL ACCORDING TO ST MARK': 'Mark',
@@ -87,16 +87,13 @@ const BOOK_TITLE_MAP = {
   'THE REVELATION OF SAINT JOHN THE DIVINE': 'Revelation',
 };
 
-// Single-word books that appear alone on a line (all caps)
 const SINGLE_WORD_BOOKS = new Set([
   'EZRA', 'HOSEA', 'JOEL', 'AMOS', 'OBADIAH', 'JONAH', 'MICAH',
   'NAHUM', 'HABAKKUK', 'ZEPHANIAH', 'HAGGAI', 'ZECHARIAH', 'MALACHI'
 ]);
 
 function matchBookTitle(upper) {
-  // Try exact match first
   if (BOOK_TITLE_MAP[upper]) return BOOK_TITLE_MAP[upper];
-  // Try prefix match
   for (const [key, val] of Object.entries(BOOK_TITLE_MAP)) {
     if (upper.startsWith(key)) return val;
   }
@@ -107,77 +104,94 @@ let parsedData = null;
 let fetchInProgress = null;
 let remoteVersion = null;
 
-// Map file abbreviations to apiName (TEXT-PCE-127.txt uses short 2-3 char codes)
-const ABBR_TO_API = {
-  // Old Testament
-  'Ge': 'Genesis', 'Ex': 'Exodus', 'Le': 'Leviticus', 'Nu': 'Numbers', 'De': 'Deuteronomy',
-  'Jos': 'Joshua', 'Jud': 'Judges', 'Ru': 'Ruth', '1Sa': '1 Samuel', '2Sa': '2 Samuel',
-  '1Ki': '1 Kings', '2Ki': '2 Kings', '1Ch': '1 Chronicles', '2Ch': '2 Chronicles',
-  'Ezr': 'Ezra', 'Ne': 'Nehemiah', 'Es': 'Esther', 'Job': 'Job', 'Ps': 'Psalms',
-  'Pr': 'Proverbs', 'Ec': 'Ecclesiastes', 'So': 'Song of Solomon', 'Isa': 'Isaiah',
-  'Jer': 'Jeremiah', 'La': 'Lamentations', 'Eze': 'Ezekiel', 'Da': 'Daniel',
-  'Ho': 'Hosea', 'Joe': 'Joel', 'Am': 'Amos', 'Ob': 'Obadiah', 'Jon': 'Jonah',
-  'Mic': 'Micah', 'Na': 'Nahum', 'Hab': 'Habakkuk', 'Zep': 'Zephaniah', 'Hag': 'Haggai',
-  'Zec': 'Zechariah', 'Mal': 'Malachi',
-  // New Testament
-  'Mt': 'Matthew', 'Mr': 'Mark', 'Lu': 'Luke', 'Joh': 'John', 'Ac': 'Acts',
-  'Ro': 'Romans', '1Co': '1 Corinthians', '2Co': '2 Corinthians', 'Ga': 'Galatians',
-  'Eph': 'Ephesians', 'Php': 'Philippians', 'Col': 'Colossians',
-  '1Th': '1 Thessalonians', '2Th': '2 Thessalonians', '1Ti': '1 Timothy', '2Ti': '2 Timothy',
-  'Tit': 'Titus', 'Phm': 'Philemon', 'Heb': 'Hebrews', 'Jas': 'James',
-  '1Pe': '1 Peter', '2Pe': '2 Peter', '1Jo': '1 John', '2Jo': '2 John', '3Jo': '3 John',
-  'Jude': 'Jude', 'Re': 'Revelation',
-};
-
+// Title-based parser for KJB-PCE-RTF.txt (same logic as backend parseBibleText function)
 function parseBibleText(rawText) {
   console.log('[PARSE] Raw text length:', rawText.length);
-
-  const data = {};
-  const colophons = {};
   const lines = rawText.split('\n');
   console.log('[PARSE] Split into', lines.length, 'lines');
 
+  const data = {};
+  let currentBook = null;
+  let currentChapter = null;
   let verseCount = 0;
-
-  // Format: "Abbr C:V verse text" e.g. "Ge 1:1", "1Sa 1:1", "Jude 1:1"
-  const verseLineRe = /^([0-9]?[A-Z][a-z]{0,3})\s+(\d+):(\d+)\s+(.+)$/;
+  let pendingTitle = null;
 
   for (let i = 0; i < lines.length; i++) {
     const trimmed = lines[i].trim();
-    if (!trimmed) continue;
-
-    const m = trimmed.match(verseLineRe);
-    if (!m) continue;
-
-    const [, abbr, chStr, vStr, rawVerseText] = m;
-    const bookName = ABBR_TO_API[abbr];
-    if (!bookName) continue;
-
-    const chapter = parseInt(chStr, 10);
-    const verseNum = parseInt(vStr, 10);
-
-    if (!data[bookName]) data[bookName] = {};
-    if (!data[bookName][chapter]) data[bookName][chapter] = [];
-
-    let verseText = rawVerseText.trim();
-
-    // Check for colophon marker <<[...]]>> at end of verse
-    const colophonMatch = verseText.match(/<<\[([^\]]+)\]>>\s*$/);
-    if (colophonMatch) {
-      const colophonText = colophonMatch[1];
-      verseText = verseText.replace(/\s*<<\[([^\]]+)\]>>\s*$/, '').trim();
-      const key = `${bookName}:${chapter}`;
-      colophons[key] = colophonText;
-      console.log('[PARSE] Colophon found:', key, '->', colophonText);
+    if (!trimmed) {
+      pendingTitle = null;
+      continue;
     }
 
-    data[bookName][chapter].push({ verse: verseNum, text: verseText });
-    verseCount++;
+    const upper = trimmed.toUpperCase().replace(/[.,]/g, '').trim();
+
+    // Chapter heading
+    const chapterMatch = trimmed.match(/^CHAPTER\s+(\d+)$/i);
+    if (chapterMatch) {
+      pendingTitle = null;
+      if (currentBook) {
+        currentChapter = parseInt(chapterMatch[1], 10);
+        if (!data[currentBook][currentChapter]) {
+          data[currentBook][currentChapter] = [];
+        }
+      }
+      continue;
+    }
+
+    // All-caps line — possible book title
+    if (trimmed === trimmed.toUpperCase() && /[A-Z]/.test(trimmed)) {
+      const cleanUpper = upper.replace(/[.,;:]/g, '').trim();
+      if (SINGLE_WORD_BOOKS.has(cleanUpper)) {
+        const bookName = BOOK_TITLE_MAP[cleanUpper];
+        if (bookName) {
+          currentBook = bookName;
+          currentChapter = null;
+          data[currentBook] = {};
+          pendingTitle = null;
+          continue;
+        }
+      }
+      const combined = pendingTitle ? (pendingTitle + ' ' + upper) : upper;
+      const bookName = matchBookTitle(combined);
+      if (bookName) {
+        currentBook = bookName;
+        currentChapter = null;
+        data[currentBook] = {};
+        pendingTitle = null;
+        continue;
+      }
+      pendingTitle = combined;
+      continue;
+    }
+
+    pendingTitle = null;
+    if (!currentBook || currentChapter === null) continue;
+
+    // Verse line: starts with a number
+    const verseNumMatch = trimmed.match(/^(\d+)\s+(.+)$/);
+    if (verseNumMatch) {
+      const verseNum = parseInt(verseNumMatch[1], 10);
+      const verseText = verseNumMatch[2].trim();
+      if (verseNum > 0 && verseNum <= 200 && verseText.length > 0) {
+        data[currentBook][currentChapter].push({ verse: verseNum, text: verseText });
+        verseCount++;
+        continue;
+      }
+    }
+
+    // Fallback: first line of a chapter with no verse number
+    const chapterVerses = data[currentBook][currentChapter];
+    if (chapterVerses && chapterVerses.length === 0) {
+      data[currentBook][currentChapter].push({ verse: 1, text: trimmed });
+      verseCount++;
+    }
   }
 
-  data.__colophons = colophons;
+  // Attach hardcoded colophons (from bibleSubscripts.js, sourced from TEXT-PCE-127.txt)
+  data.__colophons = { ...COLOPHONS };
+
   const bookCount = Object.keys(data).filter(k => k !== '__colophons').length;
-  console.log('[PARSE] ✓ Complete:', verseCount, 'verses,', bookCount, 'books,', Object.keys(colophons).length, 'colophons');
+  console.log('[PARSE] ✓ Complete:', verseCount, 'verses,', bookCount, 'books,', Object.keys(data.__colophons).length, 'colophons');
   return data;
 }
 
@@ -190,13 +204,9 @@ function isValidBibleData(data) {
 async function fetchWithRetry(url, retries = 3) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      // Add cache-busting timestamp to bypass service worker cache
       const cacheBustedUrl = `${url}?t=${Date.now()}`;
       const res = await fetch(cacheBustedUrl, { cache: 'reload' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      // Decode as windows-1252: the source file uses this encoding (not UTF-8).
-      // Apostrophes are byte 0x92 which is invalid UTF-8 and would decode as U+FFFD,
-      // then get wrongly converted to ¶ by the normalization step.
       const buf = await res.arrayBuffer();
       return new TextDecoder('windows-1252').decode(buf);
     } catch (err) {
@@ -207,7 +217,6 @@ async function fetchWithRetry(url, retries = 3) {
   }
 }
 
-// Fetch remote version to check for updates
 async function fetchRemoteVersion() {
   try {
     const versionText = await fetchWithRetry(VERSION_URL);
@@ -218,14 +227,11 @@ async function fetchRemoteVersion() {
   }
 }
 
-// Check if cache needs update by comparing versions
 async function checkForUpdates() {
   const remoteVer = await fetchRemoteVersion();
   if (!remoteVer) return false;
-  
   remoteVersion = remoteVer;
   const localVersion = localStorage.getItem('bible_cache_version');
-  
   if (localVersion !== remoteVer) {
     console.log('[UPDATE] Remote version', remoteVer, 'differs from local', localVersion);
     return true;
@@ -235,17 +241,14 @@ async function checkForUpdates() {
 
 async function saveToCache(data) {
   try {
-    // Clear IndexedDB first to avoid stale data
     await clearIndexedDB();
-    // Clear ALL old localStorage keys to force fresh data
-    localStorage.removeItem('bible_data_complete');
-    localStorage.removeItem('bible_data_complete_v2');
-    for (let i = 1; i <= 38; i++) {
+    // Clear old localStorage keys
+    for (let i = 1; i <= 50; i++) {
       localStorage.removeItem(`bible_data_pce_v${i}`);
     }
-    // Save to IndexedDB (supports ~50MB+)
+    localStorage.removeItem('bible_data_complete');
+    localStorage.removeItem('bible_data_complete_v2');
     await saveToIndexedDB(data);
-    // Save version marker
     if (remoteVersion) {
       localStorage.setItem('bible_cache_version', remoteVersion);
     }
@@ -258,21 +261,12 @@ async function saveToCache(data) {
 
 async function loadFromCache() {
   try {
-    // Load from IndexedDB
     const data = await loadFromIndexedDB();
     if (data && isValidBibleData(data)) {
-      const pilcrowCount = Object.values(data).filter(book => typeof book === 'object').reduce((sum, book) => 
-        sum + Object.values(book).reduce((s, ch) => 
-          s + (Array.isArray(ch) ? ch.filter(v => v.text.includes('\u00B6')).length : 0), 0), 0);
-      const colophonCount = data.__colophons ? Object.keys(data.__colophons).length : 0;
-      console.log('[CACHE] ✓ Loaded from IndexedDB,', pilcrowCount, 'pilcrows,', colophonCount, 'colophons');
-      
-      // If 0 pilcrows, cache is stale - force refresh
-      if (pilcrowCount === 0) {
-        console.log('[CACHE] ⚠️ Stale cache detected (0 pilcrows) - will fetch fresh');
-        return null;
-      }
-      
+      // Always attach the latest hardcoded colophons (in case they were updated in code)
+      data.__colophons = { ...COLOPHONS };
+      const bookCount = Object.keys(data).filter(k => k !== '__colophons').length;
+      console.log('[CACHE] ✓ Loaded from IndexedDB,', bookCount, 'books,', Object.keys(data.__colophons).length, 'colophons');
       return data;
     }
     console.log('[CACHE] No valid cache, will fetch fresh');
@@ -284,7 +278,7 @@ async function loadFromCache() {
 }
 
 async function fetchAndParse() {
-  const text = await fetchWithRetry(TEXT_URL);
+  const text = await fetchWithRetry(RTF_URL);
   const data = parseBibleText(text);
   if (!isValidBibleData(data)) {
     throw new Error('Parsed data only has ' + Object.keys(data).filter(k => k !== '__colophons').length + ' books');
@@ -295,18 +289,16 @@ async function fetchAndParse() {
 // Load Bible data — cache-first with network fallback and auto-update
 export async function getBibleData() {
   if (parsedData && isValidBibleData(parsedData)) return parsedData;
-
-  // Deduplicate concurrent calls
   if (fetchInProgress) return fetchInProgress;
 
   fetchInProgress = (async () => {
     try {
       const cached = await loadFromCache();
-      
+
       if (cached) {
         parsedData = cached;
         console.log('[CACHE] Using cached version');
-        // Check for updates silently in the background
+        // Check for updates silently in background
         checkForUpdates().then(async (needsUpdate) => {
           if (needsUpdate) {
             console.log('[UPDATE] Fetching updated Bible data in background...');
@@ -323,14 +315,13 @@ export async function getBibleData() {
         return parsedData;
       }
 
-      // No cache — must fetch fresh
-      console.log('[FETCH] No cache, fetching fresh Bible data...');
+      console.log('[FETCH] No cache, fetching fresh Bible data from RTF...');
       parsedData = await fetchAndParse();
       await saveToCache(parsedData);
       return parsedData;
     } catch (error) {
       console.error('All fetch attempts failed:', error.message);
-      return { __colophons: {} };
+      return { __colophons: { ...COLOPHONS } };
     } finally {
       fetchInProgress = null;
     }
@@ -339,35 +330,27 @@ export async function getBibleData() {
   return fetchInProgress;
 }
 
-// Preload Bible data on app startup
 export function preloadBibleData() {
-  if (!parsedData) {
-    getBibleData();
-  }
+  if (!parsedData) getBibleData();
 }
 
-// Check if Bible data is available offline
 export async function isBibleCached() {
   const cached = await loadFromIndexedDB();
   return !!cached || (!!parsedData && isValidBibleData(parsedData));
 }
 
-// Clear cached Bible data
 export async function clearBibleCache() {
-  // Clear ALL version keys (1-30)
   for (let i = 1; i <= 50; i++) {
     localStorage.removeItem(`bible_data_pce_v${i}`);
   }
   localStorage.removeItem('bible_data_complete');
   localStorage.removeItem('bible_data_complete_v2');
   localStorage.removeItem('bible_cache_version');
-  localStorage.removeItem('bible_data_pce_v23');
   await clearIndexedDB();
   parsedData = null;
   console.log('[CLEAR] ✓ All cache cleared');
 }
 
-// Force reload Bible data from network (bypass cache)
 export async function forceReloadBibleData() {
   console.log('[FORCE RELOAD] Clearing cache and fetching fresh...');
   await clearBibleCache();
@@ -378,16 +361,11 @@ export async function forceReloadBibleData() {
   return data;
 }
 
-// Download all Bible data and cache it for offline use
 export async function downloadBibleForOffline(onProgress) {
-  // Clear existing cache to force a fresh download
   await clearBibleCache();
   onProgress && onProgress(0, 'Fetching Bible text...');
-  console.log('[DOWNLOAD] Fetching from:', TEXT_URL);
 
-  const text = await fetchWithRetry(TEXT_URL);
-  console.log('[DOWNLOAD] Raw text length:', text.length);
-  console.log('[DOWNLOAD] U+FFFD chars in raw:', (text.match(/\uFFFD/g) || []).length);
+  const text = await fetchWithRetry(RTF_URL);
   onProgress && onProgress(50, 'Parsing 66 books...');
 
   const data = parseBibleText(text);
@@ -403,30 +381,25 @@ export async function downloadBibleForOffline(onProgress) {
   return data;
 }
 
-// Periodic cache refresh - check for updates every 24 hours
-const CACHE_REFRESH_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
+const CACHE_REFRESH_INTERVAL = 24 * 60 * 60 * 1000;
 const LAST_REFRESH_KEY = 'bible_last_refresh';
 
 export async function refreshCacheIfDue() {
   const lastRefresh = parseInt(localStorage.getItem(LAST_REFRESH_KEY) || '0', 10);
   const now = Date.now();
-  
-  if (now - lastRefresh < CACHE_REFRESH_INTERVAL) {
-    return false; // Not due yet
-  }
-  
+
+  if (now - lastRefresh < CACHE_REFRESH_INTERVAL) return false;
+
   console.log('[REFRESH] Cache refresh due, checking for updates...');
   const needsUpdate = await checkForUpdates();
-  
+
   if (needsUpdate) {
-    console.log('[REFRESH] Update available, refreshing cache...');
     try {
       const fresh = await fetchAndParse();
       await saveToCache(fresh);
       parsedData = fresh;
       localStorage.setItem(LAST_REFRESH_KEY, String(now));
       console.log('[REFRESH] ✓ Cache refreshed successfully');
-      // Dispatch storage event to notify other tabs
       window.dispatchEvent(new Event('storage'));
       return true;
     } catch (e) {
@@ -434,20 +407,14 @@ export async function refreshCacheIfDue() {
       return false;
     }
   }
-  
-  // No update needed, but still update last refresh time
+
   localStorage.setItem(LAST_REFRESH_KEY, String(now));
   return false;
 }
 
 export function initPeriodicCacheRefresh() {
-  // Check on app load
   refreshCacheIfDue();
-  
-  // Also check when app comes to foreground
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-      refreshCacheIfDue();
-    }
+    if (document.visibilityState === 'visible') refreshCacheIfDue();
   });
 }

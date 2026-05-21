@@ -1,5 +1,5 @@
-import { base44 } from '@/api/base44Client';
 import { getBibleData, isBibleCached } from '@/lib/bibleCache';
+import { COLOPHONS } from '@/lib/bibleSubscripts';
 
 // Strip trailing end markers and "Made in Australia" from verse text
 function stripEndMarker(text) {
@@ -38,10 +38,8 @@ export async function fetchChapter(bookApiName, chapter) {
     }
   }
   
-  // Get colophon from parsed data (stored as "book:chapter" -> text)
-  const colophon = bible.__colophons?.[`${bookApiName}:${chapter}`] || null;
-  console.log(`[COLOPHON RETRIEVE] ${bookApiName}:${chapter} ->`, colophon);
-  console.log('[COLOPHON DEBUG] All colophon keys:', Object.keys(bible.__colophons || {}));
+  // Colophons are hardcoded in bibleSubscripts.js (sourced from TEXT-PCE-127.txt)
+  const colophon = COLOPHONS[`${bookApiName}:${chapter}`] || null;
   return { verses, colophon };
 }
 
@@ -92,11 +90,4 @@ export function renderColophonText(text) {
     i % 2 === 1 ? `<em>${part}</em>` : part
   ).join('');
   return `<span class="pilcrow">¶</span> ${rendered}`;
-}
-
-// Extract colophon from verse text (removes <<[...]]>> marker)
-export function extractColophonFromVerse(text) {
-  if (!text || typeof text !== 'string') return null;
-  const match = text.match(/<<\[([^\]]+)\]>>$/);
-  return match ? match[1] : null;
 }
