@@ -41,6 +41,9 @@ export default function DebugPage() {
     // Check notification debug info every 2 seconds
     const notifDebugInterval = setInterval(() => {
       checkNotifDebugInfo();
+      if (scheduledTest?.active) {
+        checkScheduledTestProgress();
+      }
     }, 2000);
     
     return () => {
@@ -146,6 +149,93 @@ export default function DebugPage() {
   const todayString = () => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  };
+
+  const startScheduledTest = async () => {
+    addTestLog('Starting scheduled notification test...');
+    
+    const currentTime = new Date();
+    const [targetHour, targetMin] = (localStorage.getItem('kjb-notification-time') || '08:00').split(':').map(Number);
+    
+    // Calculate target time (next occurrence)
+    const targetTime = new Date();
+    targetTime.setHours(targetHour, targetMin, 0, 0);
+    
+    // If already passed today, schedule for tomorrow
+    if (targetTime <= currentTime) {
+      targetTime.setDate(targetTime.getDate() + 1);
+      addTestLog('Scheduled time already passed today, testing for tomorrow');
+    }
+    
+    const msUntilTest = targetTime.getTime() - currentTime.getTime();
+    const minutesUntilTest = Math.floor(msUntilTest / 60000);
+    
+    addTestLog(`Test scheduled for: ${targetTime.toLocaleString()}`);
+    addTestLog(`Waiting ${minutesUntilTest} minutes (${msUntilTest}ms)`);
+    
+    setScheduledTest({
+      active: true,
+      startTime: currentTime,
+      targetTime,
+      msUntilTest,
+      status: 'waiting',
+      expectedFireTime: targetTime,
+    });
+    
+    // Wait for the scheduled time
+    setTimeout(async () => {
+      addTestLog('⏰ Scheduled time reached! Checking if notification fired...');
+      
+      // Wait 5 seconds for notification to potentially fire
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      
+      const lastNotif = localStorage.getItem('kjb-notification-last');
+      const today = todayString();
+      
+      if (lastNotif === today) {
+        addTestLog('✅ SUCCESS: Notification fired at scheduled time!', 'success');
+        setScheduledTest(prev => ({ ...prev, status: 'success', fired: true }));
+      } else {
+        addTestLog('❌ FAILED: Notification did not fire at scheduled time', 'error');
+        addTestLog(`Last notified: ${lastNotif || 'never'}`, 'error');
+        addTestLog(`Expected: ${today}`, 'error');
+        setScheduledTest(prev => ({ ...prev, status: 'failed', fired: false }));
+      }
+      
+      // Check for errors in console
+      addTestLog('Checking for potential errors...');
+      const notifEnabled = localStorage.getItem('kjb-notifications-enabled') === 'true';
+      const swReady = 'serviceWorker' in navigator && await navigator.serviceWorker.getRegistration('/') !== null;
+      
+      if (!notifEnabled) {
+        addTestLog('⚠️ Error: Notifications not enabled in localStorage', 'error');
+      }
+      if (!swReady) {
+        addTestLog('⚠️ Error: Service Worker not ready', 'error');
+      }
+      
+      setScheduledTest(prev => ({ ...prev, active: false, completed: true }));
+    }, msUntilTest);
+  };
+
+  const checkScheduledTestProgress = () => {
+    if (!scheduledTest?.active) return;
+    
+    const now = new Date();
+    const msRemaining = scheduledTest.targetTime.getTime() - now.getTime();
+    const minutesRemaining = Math.floor(msRemaining / 60000);
+    
+    setScheduledTest(prev => ({
+      ...prev,
+      msRemaining,
+      minutesRemaining,
+      currentTime: now
+    }));
+  };
+
+  const cancelScheduledTest = () => {
+    setScheduledTest(null);
+    addTestLog('Scheduled test cancelled');
   };
 
   const testNotification = async () => {
@@ -434,7 +524,7 @@ export default function DebugPage() {
               </div>
             </div>
           )}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mb-4">
             <button
               onClick={() => checkNotifDebugInfo()}
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
@@ -452,6 +542,102 @@ export default function DebugPage() {
               </button>
             )}
           </div>
+
+          {/* Scheduled Test Section */}
+          <div className="border-t border-border pt-4 mt-4">
+            <h3 className="font-serif text-base font-semibold mb-3 flex items-center gap-2">
+              <Timer className="w-4 h-4 text-accent" />
+              Scheduled Notification Test
+            </h3>
+            <p className="font-sans text-xs text-muted-foreground mb-3">
+              This test waits for the scheduled notification time and verifies if the notification fires correctly.
+            </p>
+            
+            {!scheduledTest && (
+              <button
+                onClick={startScheduledTest}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+              >
+                <Timer className="w-4 h-4" />
+                Start Scheduled Test
+              </button>
+            )}
+
+            {scheduledTest && (
+              <div className="space-y-3">
+                <div className="bg-slate-900 dark:bg-black rounded-xl p-4 font-mono text-xs">
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                      <p className="text-slate-500 mb-1">Status</p>
+                      <p className={`text-lg ${
+                        scheduledTest.status === 'waiting' ? 'text-amber-400' :
+                        scheduledTest.status === 'success' ? 'text-green-400' :
+                        scheduledTest.status === 'failed' ? 'text-red-400' :
+                        'text-slate-300'
+                      }`}>
+                        {scheduledTest.status === 'waiting' && '⏳ Waiting...'}
+                        {scheduledTest.status === 'success' && '✅ SUCCESS'}
+                        {scheduledTest.status === 'failed' && '❌ FAILED'}
+                        {scheduledTest.status === 'cancelled' && '⚠️ Cancelled'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-slate-500 mb-1">Time Remaining</p>
+                      <p className="text-lg text-slate-300">
+                        {scheduledTest.minutesRemaining !== undefined
+                          ? scheduledTest.minutesRemaining < 1
+                            ? '< 1 minute'
+                            : `${scheduledTest.minutesRemaining} minutes`
+                          : 'Calculating...'}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-1 text-slate-400">
+                    <p>Target Time: {scheduledTest.targetTime?.toLocaleString()}</p>
+                    <p>Current Time: {scheduledTest.currentTime?.toLocaleString() || new Date().toLocaleString()}</p>
+                    <p>Scheduled Time Setting: {localStorage.getItem('kjb-notification-time') || 'not set'}</p>
+                  </div>
+                </div>
+
+                {scheduledTest.active && (
+                  <button
+                    onClick={cancelScheduledTest}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive font-sans text-xs font-medium hover:bg-destructive/20 transition-colors"
+                  >
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    Cancel Test
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+        )}
+
+        {/* Test Logs */}
+        {testLogs.length > 0 && (
+        <div className="bg-card border border-border rounded-2xl p-5">
+          <h2 className="font-serif text-lg font-semibold mb-4">Scheduled Test Logs</h2>
+          <div className="bg-slate-900 dark:bg-black rounded-xl p-4 font-mono text-xs text-slate-100 max-h-96 overflow-y-auto">
+            {testLogs.map((log, i) => (
+              <div key={i} className={`mb-1 ${
+                log.type === 'success' ? 'text-green-400' :
+                log.type === 'error' ? 'text-red-400' :
+                log.type === 'warning' ? 'text-amber-400' :
+                'text-slate-300'
+              }`}>
+                <span className="text-slate-500">[{log.time}]</span> {log.message}
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => setTestLogs([])}
+            className="mt-3 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+          >
+            <AlertCircle className="w-3.5 h-3.5" />
+            Clear Test Logs
+          </button>
         </div>
         )}
           <div className="flex items-center justify-between mb-3">
@@ -493,10 +679,9 @@ export default function DebugPage() {
           )}
         </div>
         )}
-      </div>
 
-      {/* Actions */}
-      <div className="bg-card border border-border rounded-2xl p-5 mb-6">
+        {/* Actions */}
+        <div className="bg-card border border-border rounded-2xl p-5 mb-6">
         <h2 className="font-serif text-lg font-semibold mb-4">Actions</h2>
         <div className="flex flex-wrap gap-3">
           <button
