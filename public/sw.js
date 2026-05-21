@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kjb-cache-v3';
+const CACHE_NAME = 'kjb-cache-v4';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -22,26 +22,36 @@ const NEVER_CACHE_PATTERNS = [
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
+  console.log('[SW] Installing...');
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
+      console.log('[SW] Caching static assets');
       return cache.addAll(STATIC_ASSETS);
+    }).then(() => {
+      console.log('[SW] Installation complete, skipping waiting');
+      self.skipWaiting();
     })
   );
-  self.skipWaiting();
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
+  console.log('[SW] Activating...');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
           .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
+          .map((name) => {
+            console.log('[SW] Deleting old cache:', name);
+            return caches.delete(name);
+          })
       );
+    }).then(() => {
+      console.log('[SW] Activation complete, claiming clients');
+      self.clients.claim();
     })
   );
-  self.clients.claim();
 });
 
 // Fetch event - network-first for code, cache-first for static assets
@@ -61,19 +71,34 @@ self.addEventListener('fetch', (event) => {
   
   // Cache-first for static assets (HTML, CSS, images, manifest)
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      if (response) {
-        return response;
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) {
+        console.log('[SW] Serving from cache:', url);
+        return cachedResponse;
       }
-      return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
+      
+      // Not in cache - fetch from network
+      console.log('[SW] Fetching from network:', url);
+      return fetch(event.request).then((networkResponse) => {
+        // Don't cache non-successful responses
+        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+          return networkResponse;
         }
-        const responseToCache = response.clone();
+        
+        // Clone the response for caching
+        const responseToCache = networkResponse.clone();
         caches.open(CACHE_NAME).then((cache) => {
           cache.put(event.request, responseToCache);
         });
-        return response;
+        
+        return networkResponse;
+      }).catch((error) => {
+        console.error('[SW] Fetch failed, no cache available:', url, error);
+        // Return offline fallback for navigation requests
+        if (event.request.mode === 'navigate') {
+          return caches.match('/index.html');
+        }
+        throw error;
       });
     })
   );
@@ -111,6 +136,9 @@ self.addEventListener('notificationclick', (event) => {
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
+  }
+  if (event.data && event.data.type === 'CACHE_VERSION') {
+    event.ports[0].postMessage({ cacheVersion: CACHE_NAME });
   }
 });
 

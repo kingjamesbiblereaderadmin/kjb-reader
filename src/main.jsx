@@ -11,29 +11,12 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 )
 
 // Service worker registration for offline support and notifications
-// Clear all caches on load to prevent stale bundle issues
 window.addEventListener('load', async () => {
-  try {
-    // Unregister all service workers
-    if ('serviceWorker' in navigator) {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(registrations.map(reg => reg.unregister()));
-      console.log('[SW] Unregistered all service workers');
-      
-      // Clear all caches
-      const cacheNames = await caches.keys();
-      await Promise.all(cacheNames.map(name => caches.delete(name)));
-      console.log('[Cache] Cleared all caches');
-    }
-  } catch (err) {
-    console.warn('[SW] Cleanup failed:', err);
-  }
-  
   // Register fresh service worker (production only)
   if ('serviceWorker' in navigator && !import.meta.env.DEV) {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js');
-      console.log('[SW] Ready:', registration.scope);
+      console.log('[SW] Registered:', registration.scope);
       
       // Check for updates periodically
       setInterval(() => {
@@ -57,8 +40,8 @@ window.addEventListener('load', async () => {
             duration: 8000,
           });
         }
-        if (event.data && event.data.type === 'CACHE_REFRESHED') {
-          console.log('[SW] Cache refreshed');
+        if (event.data && event.data.type === 'CACHE_VERSION') {
+          console.log('[SW] Cache version:', event.data.cacheVersion);
         }
       });
       
