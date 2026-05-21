@@ -196,13 +196,15 @@ export default function DailyReadingPage() {
                   day.completed
                     ? 'bg-primary text-primary-foreground'
                     : day.hasReading
-                    ? 'bg-accent/20 text-accent'
-                    : 'bg-secondary text-muted-foreground'
+                    ? 'bg-orange-100 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 border-2 border-orange-300 dark:border-orange-700'
+                    : 'bg-red-50 dark:bg-red-900/20 text-red-400 dark:text-red-500 border-2 border-red-200 dark:border-red-800'
                 }`}>
                   {day.completed ? (
                     <CheckCircle2 className="w-5 h-5" />
-                  ) : (
+                  ) : day.hasReading ? (
                     <span className="font-sans text-sm font-medium">{day.day.charAt(0)}</span>
+                  ) : (
+                    <span className="font-sans text-xs font-bold">×</span>
                   )}
                 </div>
                 <span className="font-sans text-[10px] text-muted-foreground">{day.day}</span>
