@@ -204,16 +204,16 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         <span id={id} className="block relative pt-6">
           <span
             onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
-            className={`inline leading-relaxed transition-colors duration-200 rounded cursor-pointer px-0 py-0.5 ${
-              selectMode && isSelected ? 'bg-primary/10 border border-primary/30 rounded-lg' : isHighlighted ? highlightBg : 'hover:bg-secondary/60'
+            className={`inline leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.3em] py-[0.2em] ${
+              selectMode && isSelected ? 'bg-primary/10 border border-primary/30 rounded-[0.4em]' : isHighlighted ? highlightBg : 'hover:bg-secondary/60'
             }`}
           >
             {selectMode && (
               <span className="inline-flex items-center mr-1 text-primary align-middle">
-                {isSelected ? <CheckSquare className="w-3.5 h-3.5" /> : <Square className="w-3.5 h-3.5 text-muted-foreground" />}
+                {isSelected ? <CheckSquare className="w-[1em] h-[1em]" /> : <Square className="w-[1em] h-[1em] text-muted-foreground" />}
               </span>
             )}
-            <sup className="text-accent font-sans font-semibold text-xs mr-3 select-none">{verse.verse}</sup>
+            <sup className="text-accent font-sans font-semibold text-[0.75em] mr-3 select-none">{verse.verse}</sup>
             <span
               className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-justify inline ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
               dangerouslySetInnerHTML={{ __html: html }}
@@ -228,16 +228,16 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
       <span id={id} className="inline relative">
         <span
           onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
-          className={`inline leading-loose transition-colors duration-200 rounded cursor-pointer px-0.5 py-0.5 ${
+          className={`inline leading-loose transition-colors duration-200 rounded cursor-pointer px-[0.3em] py-[0.2em] ${
             selectMode && isSelected ? 'bg-primary/10' : isHighlighted ? highlightBg : 'hover:bg-secondary/60'
           }`}
         >
           {selectMode && (
             <span className="inline-flex items-center mr-1 text-primary align-middle">
-              {isSelected ? <CheckSquare className="w-3.5 h-3.5" /> : <Square className="w-3.5 h-3.5 text-muted-foreground" />}
+              {isSelected ? <CheckSquare className="w-[1em] h-[1em]" /> : <Square className="w-[1em] h-[1em] text-muted-foreground" />}
             </span>
           )}
-          <sup className="text-accent font-sans font-semibold text-xs mr-3 select-none">{verse.verse}</sup>
+          <sup className="text-accent font-sans font-semibold text-[0.75em] mr-3 select-none">{verse.verse}</sup>
           <span
             className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-justify ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
             dangerouslySetInnerHTML={{ __html: html }}
@@ -254,16 +254,16 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     <span id={id} className={`block relative ${hasPilcrow && !isFirstVerse ? 'pt-6' : 'mt-2'}`}>
       <span
         onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
-        className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-1 py-0.5 gap-3 ${
-          selectMode && isSelected ? 'bg-primary/10 border border-primary/30 rounded-lg' : isHighlighted ? highlightBg : 'hover:bg-secondary/60'
+        className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.4em] py-[0.25em] gap-[0.6em] ${
+          selectMode && isSelected ? 'bg-primary/10 border border-primary/30 rounded-[0.5em]' : isHighlighted ? highlightBg : 'hover:bg-secondary/60'
         }`}
       >
         {selectMode && (
-          <span className="shrink-0 mt-1 text-primary">
-            {isSelected ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4 text-muted-foreground" />}
+          <span className="shrink-0 mt-[0.2em] text-primary">
+            {isSelected ? <CheckSquare className="w-[1.1em] h-[1.1em]" /> : <Square className="w-[1.1em] h-[1.1em] text-muted-foreground" />}
           </span>
         )}
-        <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-1 mr-2">{verse.verse}</sup>
+        <sup className="text-accent font-sans font-semibold text-[0.7em] shrink-0 select-none mt-[0.2em] mr-[0.4em]">{verse.verse}</sup>
         <span className="flex-1 min-w-0">
           <span
             className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-justify ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
