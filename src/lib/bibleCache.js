@@ -4,7 +4,7 @@
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
 
-const CACHE_KEY = 'bible_data_pce_v40'; // v40: TEXT-PCE-127 with <<[colophons]]>
+const CACHE_KEY = 'bible_data_pce_v41'; // v40: TEXT-PCE-127 with <<[colophons]]>
 const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/5db4f0433_TEXT-PCE-127.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
@@ -107,116 +107,70 @@ let parsedData = null;
 let fetchInProgress = null;
 let remoteVersion = null;
 
+// Map file abbreviations to apiName
+const ABBR_TO_API = {
+  'Gen': 'Genesis', 'Exo': 'Exodus', 'Lev': 'Leviticus', 'Num': 'Numbers', 'Deu': 'Deuteronomy',
+  'Jos': 'Joshua', 'Jdg': 'Judges', 'Rut': 'Ruth', '1Sa': '1 Samuel', '2Sa': '2 Samuel',
+  '1Ki': '1 Kings', '2Ki': '2 Kings', '1Ch': '1 Chronicles', '2Ch': '2 Chronicles',
+  'Ezr': 'Ezra', 'Neh': 'Nehemiah', 'Est': 'Esther', 'Job': 'Job', 'Psa': 'Psalms',
+  'Pro': 'Proverbs', 'Ecc': 'Ecclesiastes', 'Son': 'Song of Solomon', 'Isa': 'Isaiah',
+  'Jer': 'Jeremiah', 'Lam': 'Lamentations', 'Eze': 'Ezekiel', 'Dan': 'Daniel',
+  'Hos': 'Hosea', 'Joe': 'Joel', 'Amo': 'Amos', 'Oba': 'Obadiah', 'Jon': 'Jonah',
+  'Mic': 'Micah', 'Nah': 'Nahum', 'Hab': 'Habakkuk', 'Zep': 'Zephaniah', 'Hag': 'Haggai',
+  'Zec': 'Zechariah', 'Mal': 'Malachi',
+  'Mat': 'Matthew', 'Mar': 'Mark', 'Luk': 'Luke', 'Joh': 'John', 'Act': 'Acts',
+  'Rom': 'Romans', '1Co': '1 Corinthians', '2Co': '2 Corinthians', 'Gal': 'Galatians',
+  'Eph': 'Ephesians', 'Php': 'Philippians', 'Col': 'Colossians',
+  '1Th': '1 Thessalonians', '2Th': '2 Thessalonians', '1Ti': '1 Timothy', '2Ti': '2 Timothy',
+  'Tit': 'Titus', 'Phm': 'Philemon', 'Heb': 'Hebrews', 'Jas': 'James',
+  '1Pe': '1 Peter', '2Pe': '2 Peter', '1Jo': '1 John', '2Jo': '2 John', '3Jo': '3 John',
+  'Jud': 'Jude', 'Rev': 'Revelation',
+};
+
 function parseBibleText(rawText) {
   console.log('[PARSE] Raw text length:', rawText.length);
 
   const data = {};
-  const colophons = {}; // Will be populated from <<[...]]>> markers
+  const colophons = {};
   const lines = rawText.split('\n');
   console.log('[PARSE] Split into', lines.length, 'lines');
 
-  let currentBook = null;
-  let currentChapter = null;
   let verseCount = 0;
 
-  // Accumulate multi-line book headings
-  let pendingTitle = null;
+  // Format: "Abbr C:V verse text" e.g. "Gen 1:1 In the beginning..."
+  const verseLineRe = /^([A-Z][a-z0-9]{1,2})\s+(\d+):(\d+)\s+(.+)$/;
 
   for (let i = 0; i < lines.length; i++) {
-    const raw = lines[i];
-    const trimmed = raw.trim();
-    if (!trimmed) {
-      pendingTitle = null;
-      continue;
+    const trimmed = lines[i].trim();
+    if (!trimmed) continue;
+
+    const m = trimmed.match(verseLineRe);
+    if (!m) continue;
+
+    const [, abbr, chStr, vStr, rawVerseText] = m;
+    const bookName = ABBR_TO_API[abbr];
+    if (!bookName) continue;
+
+    const chapter = parseInt(chStr, 10);
+    const verseNum = parseInt(vStr, 10);
+
+    if (!data[bookName]) data[bookName] = {};
+    if (!data[bookName][chapter]) data[bookName][chapter] = [];
+
+    let verseText = rawVerseText.trim();
+
+    // Check for colophon marker <<[...]]>> at end of verse
+    const colophonMatch = verseText.match(/<<\[([^\]]+)\]>>\s*$/);
+    if (colophonMatch) {
+      const colophonText = colophonMatch[1];
+      verseText = verseText.replace(/\s*<<\[([^\]]+)\]>>\s*$/, '').trim();
+      const key = `${bookName}:${chapter}`;
+      colophons[key] = colophonText;
+      console.log('[PARSE] Colophon found:', key, '->', colophonText);
     }
 
-    const upper = trimmed.toUpperCase().replace(/[.,]/g, '').trim();
-
-    // Check for CHAPTER N heading
-    const chapterMatch = trimmed.match(/^CHAPTER\s+(\d+)$/i);
-    if (chapterMatch) {
-      pendingTitle = null;
-      if (currentBook) {
-        currentChapter = parseInt(chapterMatch[1], 10);
-        if (!data[currentBook][currentChapter]) {
-          data[currentBook][currentChapter] = [];
-        }
-      }
-      continue;
-    }
-
-    // Check if this line could be (part of) a book title
-    // Book titles are all-uppercase lines
-    if (trimmed === trimmed.toUpperCase() && /[A-Z]/.test(trimmed)) {
-      // Check for single-word books
-      const cleanUpper = upper.replace(/[.,;:]/g, '').trim();
-      if (SINGLE_WORD_BOOKS.has(cleanUpper)) {
-        const bookName = BOOK_TITLE_MAP[cleanUpper];
-        if (bookName) {
-          currentBook = bookName;
-          currentChapter = null;
-          data[currentBook] = {};
-          pendingTitle = null;
-          console.log('[PARSE] Book:', currentBook);
-          continue;
-        }
-      }
-
-      // Multi-line title accumulation
-      const combined = pendingTitle ? (pendingTitle + ' ' + upper) : upper;
-      const bookName = matchBookTitle(combined);
-      if (bookName) {
-        currentBook = bookName;
-        currentChapter = null;
-        data[currentBook] = {};
-        pendingTitle = null;
-        console.log('[PARSE] Book:', currentBook);
-        continue;
-      }
-      // Store as pending and continue accumulating
-      pendingTitle = combined;
-      continue;
-    }
-
-    pendingTitle = null;
-
-    // Must be in a book and chapter to parse verses
-    if (!currentBook || currentChapter === null) continue;
-
-    // Verse 1: line starts with a capital letter (no verse number)
-    // Verses 2+: line starts with a number
-    const verseNumMatch = trimmed.match(/^(\d+)\s+(.+)$/);
-    if (verseNumMatch) {
-      const verseNum = parseInt(verseNumMatch[1], 10);
-      let verseText = verseNumMatch[2].trim();
-      
-      // Check for colophon marker <<[...]]>> at end of verse
-      const colophonMatch = verseText.match(/<<\[([^\]]+)\]>>$/);
-      if (colophonMatch) {
-        // Extract colophon and remove from verse text
-        const colophonText = colophonMatch[1];
-        verseText = verseText.replace(/<<\[([^\]]+)\]>>$/, '').trim();
-        // Store colophon: "book:chapter" -> verse number
-        const key = `${currentBook}:${currentChapter}`;
-        colophons[key] = colophonText;
-        console.log('[PARSE] Colophon found:', key, '->', colophonText);
-      }
-      
-      // Sanity: verse numbers shouldn't be > 200
-      if (verseNum > 0 && verseNum <= 200 && verseText.length > 0) {
-        data[currentBook][currentChapter].push({ verse: verseNum, text: verseText });
-        verseCount++;
-        continue;
-      }
-    }
-
-    // Verse 1 (no number at start) - only if chapter has no verses yet
-    const chapterVerses = data[currentBook][currentChapter];
-    if (chapterVerses && chapterVerses.length === 0) {
-      // It's the first verse
-      data[currentBook][currentChapter].push({ verse: 1, text: trimmed });
-      verseCount++;
-    }
+    data[bookName][chapter].push({ verse: verseNum, text: verseText });
+    verseCount++;
   }
 
   data.__colophons = colophons;
