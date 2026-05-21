@@ -74,23 +74,37 @@ export default function AppLayout() {
         let needsUpdate = false;
         
         if (!isPreview) {
-          const remoteVer = await fetch('https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt?t=' + Date.now())
-            .then(r => r.text())
-            .then(t => t.trim());
-          const localVer = localStorage.getItem('bible_cache_version');
-          
-          if (remoteVer !== localVer && localVer !== null) {
-            console.log('[AutoUpdate] New version available, clearing old cache...');
-            localStorage.removeItem('bible_cache_version');
-            localStorage.removeItem('bible_last_refresh');
-            needsUpdate = true;
+          try {
+            const remoteVer = await fetch('https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt?t=' + Date.now(), {
+              cache: 'no-store',
+              signal: AbortSignal.timeout(5000)
+            })
+              .then(r => r.text())
+              .then(t => t.trim());
+            const localVer = localStorage.getItem('bible_cache_version');
+            
+            if (remoteVer !== localVer && localVer !== null) {
+              console.log('[AutoUpdate] New version available, clearing old cache...');
+              localStorage.removeItem('bible_cache_version');
+              localStorage.removeItem('bible_last_refresh');
+              needsUpdate = true;
+            }
+          } catch (err) {
+            console.warn('[AutoUpdate] Version check failed:', err.message);
           }
         }
         
-        // Auto-download Bible data for offline access
+        // Auto-download Bible data for offline access with timeout
         const { autoDownloadBibleOnFirstLoad, isBibleCached } = await import('@/lib/bibleCache');
         const wasCached = await isBibleCached();
-        await autoDownloadBibleOnFirstLoad();
+        
+        // Use Promise.race to timeout after 30 seconds
+        const downloadPromise = autoDownloadBibleOnFirstLoad();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Download timeout')), 30000)
+        );
+        
+        await Promise.race([downloadPromise, timeoutPromise]);
         
         // Show toast only on first download or update
         if (!wasCached || needsUpdate) {
@@ -99,10 +113,17 @@ export default function AppLayout() {
         
         console.log('[AppLayout] App initialized with offline Bible data');
       } catch (err) {
-        console.error('[AppLayout] Initialization failed:', err);
+        console.error('[AppLayout] Initialization failed:', err.message);
+        // Don't show error to user - app can still work with cached data
       }
     };
-    initializeApp();
+    
+    // Run initialization in background to avoid blocking UI
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(initializeApp, { timeout: 10000 });
+    } else {
+      setTimeout(initializeApp, 500);
+    }
 
     // Initialize periodic cache refresh (checks every 24 hours when user opens app)
     initPeriodicCacheRefresh();
@@ -123,7 +144,7 @@ export default function AppLayout() {
 
   return (
     <AutoUpdateHandler>
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col" style={{ contain: 'layout style paint' }}>
       <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-2 sm:gap-3">
           {/* Logo */}
