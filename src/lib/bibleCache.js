@@ -641,28 +641,43 @@ export function initPeriodicCacheRefresh() {
 }
 
 // Auto-download Bible data on first app load (also handles updates)
+// Returns: { downloaded: bool, updated: bool } — so callers know whether to show a toast
 let _autoDownloadInitialized = false;
 export async function autoDownloadBibleOnFirstLoad() {
-  if (_autoDownloadInitialized) return;
+  if (_autoDownloadInitialized) return { downloaded: false, updated: false };
   _autoDownloadInitialized = true;
-  
+
+  // Skip entirely when offline — keep using whatever cache we have
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    console.log('[AUTO-DOWNLOAD] Offline — skipping version check, using cached data');
+    return { downloaded: false, updated: false };
+  }
+
   try {
     const cached = await loadFromIndexedDB();
-    const needsUpdate = await checkForUpdates();
-    
-    if (!cached || !isValidBibleData(cached) || needsUpdate) {
-      if (needsUpdate) {
-        console.log('[AUTO-DOWNLOAD] Cache outdated, downloading fresh Bible data...');
-      } else {
-        console.log('[AUTO-DOWNLOAD] No cache found, downloading Bible data...');
+    const hasValidCache = cached && isValidBibleData(cached);
+
+    // Only check the version when we actually have a cache (otherwise we must download)
+    let needsUpdate = false;
+    if (hasValidCache) {
+      needsUpdate = await checkForUpdates();
+      if (!needsUpdate) {
+        console.log('[AUTO-DOWNLOAD] Cache up-to-date, skipping download');
+        return { downloaded: false, updated: false };
       }
-      const data = await fetchAndParse();
-      await saveToCache(data);
-      console.log('[AUTO-DOWNLOAD] ✓ Bible auto-downloaded for offline access');
+      console.log('[AUTO-DOWNLOAD] New version detected, downloading fresh Bible data...');
     } else {
-      console.log('[AUTO-DOWNLOAD] Cache already exists and up-to-date, skipping download');
+      console.log('[AUTO-DOWNLOAD] No cache found, downloading Bible data...');
+      // Still need the remote version so saveToCache can record it
+      await checkForUpdates();
     }
+
+    const data = await fetchAndParse();
+    await saveToCache(data);
+    console.log('[AUTO-DOWNLOAD] ✓ Bible saved for offline access');
+    return { downloaded: true, updated: hasValidCache };
   } catch (err) {
     console.error('[AUTO-DOWNLOAD] Failed to auto-download:', err);
+    return { downloaded: false, updated: false };
   }
 }

@@ -88,50 +88,30 @@ export default function AppLayout() {
 
     // Auto-update and offline download on app load
     const initializeApp = async () => {
+      // Skip entirely when offline — keep using cached data
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        console.log('[AppLayout] Offline — skipping Bible update check');
+        return;
+      }
       try {
-        // Check for version updates first (skip in preview to avoid 403)
-        const isPreview = window.location.hostname.includes('preview-sandbox');
-        let needsUpdate = false;
-        
-        if (!isPreview) {
-          try {
-            const remoteVer = await fetch('https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt?t=' + Date.now(), {
-              cache: 'no-store',
-              signal: AbortSignal.timeout(5000)
-            })
-              .then(r => r.text())
-              .then(t => t.trim());
-            const localVer = localStorage.getItem('bible_cache_version');
-            
-            if (remoteVer !== localVer && localVer !== null) {
-              console.log('[AutoUpdate] New version available, clearing old cache...');
-              localStorage.removeItem('bible_cache_version');
-              localStorage.removeItem('bible_last_refresh');
-              needsUpdate = true;
-            }
-          } catch (err) {
-            console.warn('[AutoUpdate] Version check failed:', err.message);
-          }
-        }
-        
-        // Auto-download Bible data for offline access with timeout
-        const { autoDownloadBibleOnFirstLoad, isBibleCached } = await import('@/lib/bibleCache');
-        const wasCached = await isBibleCached();
-        
+        const { autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
+
         // Use Promise.race to timeout after 30 seconds
         const downloadPromise = autoDownloadBibleOnFirstLoad();
-        const timeoutPromise = new Promise((_, reject) => 
+        const timeoutPromise = new Promise((_, reject) =>
           setTimeout(() => reject(new Error('Download timeout')), 30000)
         );
-        
-        await Promise.race([downloadPromise, timeoutPromise]);
-        
-        // Show toast only on first download or update
-        if (!wasCached || needsUpdate) {
+
+        const result = await Promise.race([downloadPromise, timeoutPromise]);
+
+        // Only show toast when something actually changed
+        if (result?.updated) {
+          toast.success('📖 Bible updated to latest version');
+        } else if (result?.downloaded) {
           toast.success('📖 Bible downloaded for offline access');
         }
-        
-        console.log('[AppLayout] App initialized with offline Bible data');
+
+        console.log('[AppLayout] App initialized');
       } catch (err) {
         console.error('[AppLayout] Initialization failed:', err.message);
         // Don't show error to user - app can still work with cached data
