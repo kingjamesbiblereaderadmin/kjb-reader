@@ -251,14 +251,17 @@ export default function BibleReader() {
     setLoading(true);
     setError(null);
     setVerses([]);
-    // Always scroll to top first; verse centering happens after load
-    window.scrollTo({ top: 0 });
+    // Don't scroll to top when jumping to a specific verse
+    if (!jumpVerse) {
+      window.scrollTo({ top: 0 });
+    }
     const b = BIBLE_BOOKS.find(bk => bk.abbr === bookAbbr);
     if (!b) { setError('Book not found'); setLoading(false); return; }
     
     // Reset highlight when no specific verse is targeted
     if (!jumpVerse) {
       setHighlightVerse(null);
+      setManualHighlight(false);
     }
     
     // Skip API fetch for title pages (chapter 0)
@@ -275,9 +278,10 @@ export default function BibleReader() {
       setVerses(data.verses);
       setColophon(data.colophon || null);
       setVerseCount(data.verses.length);
-      // Only set highlight if jumpVerse was explicitly provided
+      // Set highlight if jumpVerse was explicitly provided
       if (jumpVerse) {
         setHighlightVerse(jumpVerse);
+        setManualHighlight(true);
       }
       savePosition(bookAbbr, chapter);
       
@@ -346,9 +350,9 @@ export default function BibleReader() {
     }
   }, []);
 
-  // Scroll to verse when highlight is set
+  // Scroll to verse when highlight is set (only for manual highlights)
   useEffect(() => {
-    if (!loading && highlightVerse) {
+    if (!loading && highlightVerse && manualHighlight) {
       const timer = setTimeout(() => {
         const el = document.getElementById(`v${highlightVerse}`);
         if (el) {
@@ -357,7 +361,7 @@ export default function BibleReader() {
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [verses, loading, highlightVerse]);
+  }, [verses, loading, highlightVerse, manualHighlight]);
 
   // Auto-hide highlights after 3 seconds (only if not manually selected)
   useEffect(() => {
@@ -397,6 +401,9 @@ export default function BibleReader() {
     if (!jumpVerse) {
       setHighlightVerse(null);
       setManualHighlight(false);
+    } else {
+      // Mark as manual highlight when navigating to a specific verse
+      setManualHighlight(true);
     }
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);
