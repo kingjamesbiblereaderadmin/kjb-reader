@@ -98,6 +98,60 @@ export default function SearchPage() {
         }
       }
 
+      // Check for "end of [book]" or "[book] end" queries
+      const endMatch = kwLower.match(/(?:^|\s)(?:end of|end)\s+([a-z0-9\s]+)|(?:^|\s)([a-z0-9\s]+)\s+(?:end)$/);
+      if (endMatch) {
+        const bookStr = (endMatch[1] || endMatch[2] || '').trim();
+        const matchingBook = BIBLE_BOOKS.find(b => 
+          b.shortName.toLowerCase().includes(bookStr) ||
+          b.abbr.toLowerCase().includes(bookStr) ||
+          b.shortName.toLowerCase() === bookStr
+        );
+        if (matchingBook) {
+          // Navigate to last chapter of the book
+          goToVerse(matchingBook.abbr, matchingBook.chapters, null);
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Check for "pilcrows" search - show verses with pilcrow marks
+      if (kwLower === 'pilcrows' || kwLower === 'pilcrow' || kwLower === '¶') {
+        const pilcrowResults = [];
+        const seen = new Set();
+        for (const bookName in bible) {
+          if (bookName === '__colophons') continue;
+          if (testament === 'ot' && !OT_BOOKS.has(bookName)) continue;
+          if (testament === 'nt' && !NT_BOOKS.has(bookName)) continue;
+          if (selectedBooks.size > 0) {
+            const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+            if (!bookEntry || !selectedBooks.has(bookEntry.abbr)) continue;
+          }
+          const chapters = bible[bookName];
+          for (const chapterNum in chapters) {
+            const verses = chapters[chapterNum];
+            for (const verseObj of verses) {
+              if (verseObj.text.includes('¶')) {
+                const key = `${bookName}-${chapterNum}-${verseObj.verse}`;
+                if (seen.has(key)) continue;
+                seen.add(key);
+                const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+                pilcrowResults.push({
+                  book: bookName,
+                  chapter: parseInt(chapterNum),
+                  verse: verseObj.verse,
+                  text: verseObj.text,
+                  abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
+                });
+              }
+            }
+          }
+        }
+        setResults(pilcrowResults);
+        setLoading(false);
+        return;
+      }
+
       // Check if query is a numbered book (e.g., "1 john", "2 timothy") or contains one
       const numberedBookMatch = kwLower.match(/(\d+)\s+([a-z]+)/);
       let targetBookAbbr = null;
@@ -108,6 +162,20 @@ export default function SearchPage() {
           b.shortName.toLowerCase() === `${num} ${bookPart}` ||
           b.shortName.toLowerCase().startsWith(`${num} ${bookPart}`) ||
           b.shortName.toLowerCase().includes(`${num} ${bookPart}`)
+        );
+        if (matchingBook) {
+          targetBookAbbr = matchingBook.abbr;
+          setNumberedBookFilter(targetBookAbbr);
+        }
+      }
+
+      // Check for "prophets end of [book]" queries
+      const prophetsEndMatch = kwLower.match(/prophets?\s+(?:end\s+of\s+)?([a-z0-9\s]+)/);
+      if (prophetsEndMatch) {
+        const bookStr = prophetsEndMatch[1].trim();
+        const matchingBook = BIBLE_BOOKS.find(b => 
+          b.shortName.toLowerCase().includes(bookStr) ||
+          b.abbr.toLowerCase().includes(bookStr)
         );
         if (matchingBook) {
           targetBookAbbr = matchingBook.abbr;
