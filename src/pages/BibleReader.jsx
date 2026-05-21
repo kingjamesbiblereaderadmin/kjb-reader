@@ -251,13 +251,14 @@ export default function BibleReader() {
     setLoading(true);
     setError(null);
     setVerses([]);
+    // Always scroll to top first; verse centering happens after load
+    window.scrollTo({ top: 0 });
     const b = BIBLE_BOOKS.find(bk => bk.abbr === bookAbbr);
     if (!b) { setError('Book not found'); setLoading(false); return; }
     
     // Reset highlight when no specific verse is targeted
     if (!jumpVerse) {
       setHighlightVerse(null);
-      setManualHighlight(false);
     }
     
     // Skip API fetch for title pages (chapter 0)
@@ -274,7 +275,7 @@ export default function BibleReader() {
       setVerses(data.verses);
       setColophon(data.colophon || null);
       setVerseCount(data.verses.length);
-      // Set highlight if jumpVerse was explicitly provided (manualHighlight is only set by verse picker)
+      // Only set highlight if jumpVerse was explicitly provided
       if (jumpVerse) {
         setHighlightVerse(jumpVerse);
       }
@@ -345,9 +346,9 @@ export default function BibleReader() {
     }
   }, []);
 
-  // Scroll to verse when highlight is set (only for manual highlights)
+  // Scroll to verse when highlight is set
   useEffect(() => {
-    if (!loading && highlightVerse && manualHighlight) {
+    if (!loading && highlightVerse) {
       const timer = setTimeout(() => {
         const el = document.getElementById(`v${highlightVerse}`);
         if (el) {
@@ -356,14 +357,13 @@ export default function BibleReader() {
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [verses, loading, highlightVerse, manualHighlight]);
+  }, [verses, loading, highlightVerse]);
 
   // Auto-hide highlights after 3 seconds (only if not manually selected)
   useEffect(() => {
     if (highlightVerse && !manualHighlight) {
       const timer = setTimeout(() => {
         setHighlightVerse(null);
-        setManualHighlight(false);
         // Clear the verse from position storage to reset header display
         try {
           const current = JSON.parse(localStorage.getItem('kjb-position') || '{}');

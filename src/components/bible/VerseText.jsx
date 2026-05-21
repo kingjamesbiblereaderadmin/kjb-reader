@@ -22,10 +22,14 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     { name: 'purple', bg: 'bg-purple-300/40', label: 'Purple', color: '#d8b4fe' },
   ];
 
-  // Show highlight effect and keep it visible for manual highlights
+  // Only show highlight effect, not the action popover - popover appears only on manual click
   useEffect(() => {
     if (highlight) {
       setShowHighlight(true);
+      const timer = setTimeout(() => {
+        setShowHighlight(false);
+      }, 3000);
+      return () => clearTimeout(timer);
     }
   }, [highlight]);
 
@@ -103,7 +107,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // No fixed text class - let parent control font size via zoom
   const textClass = '';
 
-  const actionPopover = selected && (
+  const actionPopover = selected && !highlight && (
     <>
       <div 
         className="fixed inset-0 z-40" 
