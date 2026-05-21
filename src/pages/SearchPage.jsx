@@ -474,10 +474,10 @@ export default function SearchPage() {
               <select
                 value={resultsLimit}
                 onChange={(e) => { setResultsLimit(Number(e.target.value)); setCurrentPage(1); }}
-                className="appearance-none bg-secondary text-secondary-foreground font-sans text-xs font-medium px-3 py-1 pr-8 rounded-lg border border-border focus:outline-none focus:border-accent cursor-pointer"
+                className="appearance-none bg-card text-foreground font-sans text-xs font-medium px-3 py-1 pr-8 rounded-lg border border-border focus:outline-none focus:border-accent cursor-pointer hover:bg-accent/5 transition-colors"
               >
                 {[50, 100, 200, 500].filter(limit => limit <= results.length).map(limit => (
-                  <option key={limit} value={limit}>{limit}</option>
+                  <option key={limit} value={limit}>{limit} results</option>
                 ))}
               </select>
               <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground pointer-events-none" />
@@ -755,11 +755,11 @@ export default function SearchPage() {
 
           {/* Pagination controls */}
           {totalPages > 1 && (
-            <div className="mt-6 mb-20 px-4 flex items-center justify-center gap-2 flex-wrap">
+            <div className="mt-8 mb-8 px-4 flex items-center justify-center gap-2 flex-wrap">
               <button
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 shrink-0"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-card text-foreground border border-border font-sans text-xs font-medium hover:bg-accent/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 shrink-0"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Previous</span>
@@ -771,10 +771,10 @@ export default function SearchPage() {
                     <button
                       key={pageNum}
                       onClick={() => goToPage(pageNum)}
-                      className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-sans text-xs sm:text-sm font-semibold transition-all active:scale-95 ${
+                      className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-sans text-xs sm:text-sm font-semibold transition-all active:scale-95 border ${
                         currentPage === pageNum
-                          ? 'bg-primary text-primary-foreground shadow-md'
-                          : 'bg-secondary text-secondary-foreground hover:bg-accent/20 hover:shadow-sm'
+                          ? 'bg-primary text-primary-foreground border-primary shadow-md'
+                          : 'bg-card text-foreground border-border hover:bg-accent/5 hover:border-accent/40'
                       }`}
                     >
                       {pageNum}
@@ -786,7 +786,7 @@ export default function SearchPage() {
                   <select
                     value={currentPage}
                     onChange={(e) => goToPage(Number(e.target.value))}
-                    className="w-20 h-8 sm:h-10 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs sm:text-sm font-semibold px-2 border border-border focus:outline-none focus:border-accent appearance-none cursor-pointer"
+                    className="w-24 h-10 rounded-lg bg-card text-foreground border border-border font-sans text-sm font-semibold px-3 focus:outline-none focus:border-accent appearance-none cursor-pointer hover:bg-accent/5 transition-colors"
                     style={{ backgroundImage: 'none' }}
                   >
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
@@ -795,13 +795,13 @@ export default function SearchPage() {
                       </option>
                     ))}
                   </select>
-                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
                 </div>
               )}
               <button
                 onClick={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 shrink-0"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-card text-foreground border border-border font-sans text-xs font-medium hover:bg-accent/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 shrink-0"
               >
                 <span className="hidden sm:inline">Next</span>
                 <span className="sm:hidden">Next</span>
