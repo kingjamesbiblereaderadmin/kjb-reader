@@ -124,7 +124,6 @@
   .cursive-em-style,
   .cursive-em-style * {
     font-family: 'Dancing Script', cursive !important;
-    font-size: inherit !important;
     font-weight: inherit !important;
   }
   
