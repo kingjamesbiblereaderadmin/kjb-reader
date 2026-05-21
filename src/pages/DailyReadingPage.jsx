@@ -1,20 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, CheckCircle2, Circle, Flame, TrendingUp } from 'lucide-react';
+import { CheckCircle2, Circle, TrendingUp } from 'lucide-react';
 import { getWeeklyProgress, markReadingComplete, getTodayProgress, initializeReadingProgress } from '@/lib/readingProgress';
 import { useNavigate } from 'react-router-dom';
 import { getBookByApiName } from '@/lib/bibleData';
-import { fetchVerseCount } from '@/lib/bibleApi';
-import { getReadingReminderEnabled, getReadingReminderTime, requestNotificationPermission, scheduleReadingReminder, enableReadingReminder, setReadingReminderTime } from '@/lib/notifications';
 
 export default function DailyReadingPage() {
   const navigate = useNavigate();
   const [weeklyProgress, setWeeklyProgress] = useState(null);
   const [todayProgress, setTodayProgress] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [verseCount, setVerseCount] = useState(null);
-  const [readingReminderEnabled, setReadingReminderEnabled] = useState(getReadingReminderEnabled);
-  const [readingReminderTime, setReadingReminderTimeState] = useState(getReadingReminderTime);
-  const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
 
   useEffect(() => {
     loadProgress();
@@ -29,21 +23,6 @@ export default function DailyReadingPage() {
     ]);
     setWeeklyProgress(weekly);
     setTodayProgress(today);
-    
-    // Fetch verse count for today's chapter
-    if (today && today.book) {
-      const bookData = getBookByApiName(today.book);
-      if (bookData) {
-        try {
-          const count = await fetchVerseCount(bookData.abbr, today.chapter);
-          setVerseCount(count);
-        } catch (err) {
-          console.error('Failed to fetch verse count:', err);
-          setVerseCount(null);
-        }
-      }
-    }
-    
     setLoading(false);
   };
 
@@ -60,38 +39,11 @@ export default function DailyReadingPage() {
     if (todayProgress && todayProgress.book) {
       const bookData = getBookByApiName(todayProgress.book);
       if (bookData) {
-        // Navigate directly to today's assigned chapter
         setTimeout(() => navigate(`/read?book=${bookData.abbr}&chapter=${todayProgress.chapter}`), 150);
         return;
       }
     }
-    // Fallback to reader home
     setTimeout(() => navigate('/read'), 150);
-  };
-
-  const handleToggleReadingReminder = async () => {
-    if (readingReminderEnabled) {
-      // Disable reminder
-      const { disableReadingReminder } = await import('@/lib/notifications');
-      disableReadingReminder();
-      setReadingReminderEnabled(false);
-    } else {
-      // Enable reminder
-      const result = await requestNotificationPermission();
-      setNotifPermission(result);
-      if (result === 'granted') {
-        enableReadingReminder();
-        setReadingReminderEnabled(true);
-        scheduleReadingReminder();
-      }
-    }
-  };
-
-  const handleReadingReminderTimeChange = (e) => {
-    const newTime = e.target.value;
-    setReadingReminderTimeState(newTime);
-    setReadingReminderTime(newTime);
-    if (readingReminderEnabled) scheduleReadingReminder();
   };
 
   if (loading) {
@@ -143,7 +95,7 @@ export default function DailyReadingPage() {
             {todayProgress ? (
               <div className="space-y-3">
                 <p className="font-sans text-base text-foreground">
-                  <span className="font-semibold">{getBookByApiName(todayProgress.book)?.shortName || todayProgress.book}</span> Chapter {todayProgress.chapter} {verseCount ? `(v.1${verseCount > 1 ? '-' + verseCount : ''})` : ''}
+                  <span className="font-semibold">{getBookByApiName(todayProgress.book)?.shortName || todayProgress.book}</span> Chapter {todayProgress.chapter}
                 </p>
                 {!completedToday ? (
                   <>
@@ -226,64 +178,6 @@ export default function DailyReadingPage() {
               <p className="font-serif text-2xl font-bold text-foreground">{completionRate}%</p>
             </div>
           </div>
-        </div>
-
-        {/* Streak */}
-        {weeklyProgress?.streak > 0 && (
-          <div className="bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800 rounded-xl p-4">
-            <div className="flex items-center gap-3">
-              <Flame className="w-6 h-6 text-orange-500" />
-              <div>
-                <p className="font-sans text-sm font-semibold text-orange-700 dark:text-orange-400">
-                  {weeklyProgress.streak} Day Streak!
-                </p>
-                <p className="font-sans text-xs text-orange-600 dark:text-orange-500">
-                  Keep up the great work
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Reading Reminder */}
-        <div className="mt-6 bg-card border border-border rounded-xl p-4 space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex-1">
-              <p className="font-sans text-sm font-medium text-foreground">Daily Reading Reminder</p>
-              <p className="font-sans text-xs text-muted-foreground mt-0.5">
-                {readingReminderEnabled 
-                  ? `You will receive a daily reminder at ${readingReminderTime}` 
-                  : 'Enable to get daily reminders'}
-              </p>
-            </div>
-            <button
-              onClick={handleToggleReadingReminder}
-              disabled={notifPermission === 'denied'}
-              className={`px-4 py-2 rounded-lg font-sans text-sm font-medium transition-colors shrink-0 ${
-                readingReminderEnabled
-                  ? 'bg-primary text-primary-foreground hover:opacity-90'
-                  : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-              } disabled:opacity-40`}
-            >
-              {readingReminderEnabled ? 'On' : 'Off'}
-            </button>
-          </div>
-          {readingReminderEnabled && (
-            <div className="flex items-center gap-3 pt-3 border-t border-border">
-              <label className="font-sans text-sm text-muted-foreground shrink-0">Remind at</label>
-              <input
-                type="time"
-                value={readingReminderTime}
-                onChange={handleReadingReminderTimeChange}
-                className="flex-1 max-w-xs px-3 py-1.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground focus:outline-none focus:border-accent"
-              />
-            </div>
-          )}
-          {notifPermission === 'denied' && (
-            <p className="font-sans text-xs text-muted-foreground">
-              Notifications are blocked. Please allow notifications in your browser settings.
-            </p>
-          )}
         </div>
       </div>
     </div>
