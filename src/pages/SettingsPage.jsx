@@ -691,7 +691,7 @@ export default function SettingsPage() {
         >
           <div>
             <h2 className="font-serif text-lg font-semibold text-foreground">Bible Cache</h2>
-            <p className="font-sans text-xs text-muted-foreground">Download for offline reading</p>
+            <p className="font-sans text-xs text-muted-foreground">Download for offline reading with italics</p>
           </div>
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.offline ? 'rotate-180' : ''}`} />
         </button>
@@ -703,24 +703,41 @@ export default function SettingsPage() {
 
             {cached ? (
               <div className="space-y-3">
-                <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                  <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-                  <span className="font-sans text-sm font-medium">The Bible is cached — available offline</span>
+                <div className="flex items-start gap-2 text-green-600 dark:text-green-400">
+                  <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-sans text-sm font-medium">The Bible is cached — available offline</span>
+                    <p className="font-sans text-xs text-muted-foreground mt-1">
+                      ✅ Italics are now included in the cached data
+                    </p>
+                  </div>
                 </div>
                 <button
-                  onClick={() => navigate('/refresh-cache')}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+                  onClick={async () => {
+                    await clearBibleCache();
+                    setCached(false);
+                    window.location.reload();
+                  }}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
                 >
-                  <Download className="w-3.5 h-3.5" />
-                  Update Cache Now
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Clear Cache & Reload with Italics
                 </button>
               </div>
             ) : (
               <div className="space-y-3">
                 {!downloading && !dlStatus && (
-                  <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 mb-3">
-                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                    <span className="font-sans text-sm">Not downloaded — Bible loads from network each visit</span>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+                      <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                      <span className="font-sans text-sm">Not downloaded — Bible loads from network each visit</span>
+                    </div>
+                    <div className="flex items-start gap-2 bg-primary/10 border border-primary/30 rounded-lg p-3">
+                      <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                      <p className="font-sans text-xs text-primary font-medium">
+                        Fresh downloads now include italicized words (marked with [brackets] in the source)
+                      </p>
+                    </div>
                   </div>
                 )}
                 <button
@@ -730,7 +747,7 @@ export default function SettingsPage() {
                   className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 disabled:opacity-60 transition-opacity"
                 >
                   {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                  {downloading ? 'Downloading…' : 'Download All 66 Books (Offline)'}
+                  {downloading ? 'Downloading…' : 'Download All 66 Books with Italics'}
                 </button>
                 {downloading && (
                   <div className="space-y-2">
