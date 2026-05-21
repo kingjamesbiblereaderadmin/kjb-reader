@@ -168,7 +168,7 @@ export default function AppLayout() {
 
   return (
     <AutoUpdateHandler>
-    <div className="min-h-screen bg-background" style={{ contain: 'layout style paint' }}>
+    <div className="min-h-screen bg-background flex flex-col" style={{ contain: 'layout style paint' }}>
       <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-2 sm:gap-3">
           {/* Logo */}
@@ -277,7 +277,7 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main className="flex-1 sm:pb-0 pb-0">
+      <main className="flex-1 sm:pb-0 pb-[100px]">
         <Outlet />
       </main>
 
@@ -297,8 +297,8 @@ export default function AppLayout() {
         />
       )}
 
-      <footer className="hidden sm:block border-t border-border bg-card/80 py-3">
-        <div className="max-w-5xl mx-auto px-4">
+      <footer className="hidden sm:flex fixed bottom-0 left-0 right-0 border-t border-border bg-card/95 backdrop-blur-md py-3 z-50">
+        <div className="max-w-5xl mx-auto px-4 w-full">
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mb-3">
             {NAV_ITEMS.map(item => {
               const Icon = item.icon;
