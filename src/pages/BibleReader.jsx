@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus } from 'lucide-react';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText } from '@/lib/bibleApi';
 import { getBibleData, forceReloadBibleData } from '@/lib/bibleCache';
@@ -88,17 +88,6 @@ export default function BibleReader() {
     try { return parseInt(localStorage.getItem('kjb-zoom') || '100'); } catch { return 100; }
   });
   const [showZoomPopover, setShowZoomPopover] = useState(false);
-  const [showFontPopover, setShowFontPopover] = useState(false);
-  const [readerFontFamily, setReaderFontFamily] = useState(() => {
-    try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
-  });
-
-  const READER_FONTS = [
-    { value: 'serif', label: 'Serif' },
-    { value: 'sans-serif', label: 'Sans' },
-    { value: 'monospace', label: 'Mono' },
-    { value: 'cursive', label: 'Cursive' },
-  ];
 
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
@@ -408,65 +397,7 @@ export default function BibleReader() {
 
 
 
-            {/* Font selector */}
-            <button
-              onClick={() => { setShowFontPopover(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); }}
-              onTouchEnd={(e) => { e.preventDefault(); setShowFontPopover(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); }}
-              className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors touch-manipulation min-h-[44px]"
-              title="Font family"
-            >
-              <Type className="w-3.5 h-3.5 flex-shrink-0" />
-            </button>
-            {/* Desktop popover */}
-            {showFontPopover && !isMobile() && (
-              <div className="absolute top-full left-0 mt-1 z-50">
-                <div className="bg-card border border-border rounded-xl shadow-xl p-3 w-40">
-                  {READER_FONTS.map(font => (
-                    <button
-                      key={font.value}
-                      onClick={() => {
-                        setReaderFontFamily(font.value);
-                        localStorage.setItem('kjb-reader-font-family', font.value);
-                        window.dispatchEvent(new Event('storage'));
-                        setShowFontPopover(false);
-                      }}
-                      className={`w-full text-left px-3 py-2 rounded-lg font-sans text-sm font-medium transition-colors ${
-                        readerFontFamily === font.value
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-                      }`}
-                      style={{ fontFamily: font.value }}
-                    >
-                      {font.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-            {/* Mobile bottom sheet */}
-            <SelectorSheet open={showFontPopover && isMobile()} onClose={() => setShowFontPopover(false)} title="Font Family">
-              <div className="space-y-2 p-2">
-                {READER_FONTS.map(font => (
-                  <button
-                    key={font.value}
-                    onClick={() => {
-                      setReaderFontFamily(font.value);
-                      localStorage.setItem('kjb-reader-font-family', font.value);
-                      window.dispatchEvent(new Event('storage'));
-                      setShowFontPopover(false);
-                    }}
-                    className={`w-full px-4 py-3 rounded-xl font-sans text-sm font-medium transition-all ${
-                      readerFontFamily === font.value
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-                    }`}
-                    style={{ fontFamily: font.value }}
-                  >
-                    {font.label}
-                  </button>
-                ))}
-              </div>
-            </SelectorSheet>
+
 
             {/* Desktop popover */}
             {showBookPicker && !isMobile() && (
@@ -783,10 +714,10 @@ export default function BibleReader() {
       )}
 
       {/* Click outside to close desktop dropdowns */}
-      {(showBookPicker || showChapterPicker || showVersePicker || showZoomPopover || showFontPopover) && (
+      {(showBookPicker || showChapterPicker || showVersePicker || showZoomPopover) && (
         <div
           className="fixed inset-0 z-30"
-          onClick={() => { setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
+          onClick={() => { setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); }}
         />
       )}
 
