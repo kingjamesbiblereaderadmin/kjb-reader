@@ -17,6 +17,30 @@ const isMobile = () => window.innerWidth < 640;
 
 const STORAGE_KEY = 'kjb-position';
 
+// Format verses with dashes for consecutive, commas for gaps
+function formatVerseRange(verses) {
+  if (!verses || verses.length === 0) return '';
+  if (verses.length === 1) return String(verses[0]);
+  
+  const sorted = [...verses].sort((a, b) => a - b);
+  const ranges = [];
+  let start = sorted[0];
+  let end = sorted[0];
+  
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i] === end + 1) {
+      end = sorted[i];
+    } else {
+      ranges.push(start === end ? String(start) : `${start}-${end}`);
+      start = sorted[i];
+      end = sorted[i];
+    }
+  }
+  ranges.push(start === end ? String(start) : `${start}-${end}`);
+  
+  return ranges.join(',');
+}
+
 function loadPosition() {
   try {
     const s = localStorage.getItem(STORAGE_KEY);
@@ -154,15 +178,14 @@ export default function BibleReader() {
       verses.length > 0;
     const includeColophon = isLastVerseSelected && colophon;
     
-    const verseRange = selectedVersesList.length > 1
-      ? `${book.shortName} ${pos.chapter}:${selectedVersesList[0].verse}-${selectedVersesList[selectedVersesList.length - 1].verse}`
-      : `${book.shortName} ${pos.chapter}:${selectedVersesList[0].verse}`;
+    const verseRange = formatVerseRange(selectedVersesList.map(v => v.verse));
+    const reference = `${book.shortName} ${pos.chapter}:${verseRange}`;
     
     let lines = `"${versesText}`;
     if (includeColophon) {
       lines += ` ${colophon}`;
     }
-    lines += `" — ${verseRange} (KJB)`;
+    lines += `" — ${reference} (KJB)`;
     
     await navigator.clipboard.writeText(lines);
     setCopyFeedback(true);
@@ -528,8 +551,8 @@ export default function BibleReader() {
                 disabled={verseCount === 0}
               >
                 <span>
-                  {filterMode && selectedVerses.size > 1
-                    ? `vv.${Math.min(...selectedVerses)}-${Math.max(...selectedVerses)}`
+                  {filterMode && selectedVerses.size > 0
+                    ? `vv.${formatVerseRange([...selectedVerses])}`
                     : highlightVerse
                     ? `v.${highlightVerse}`
                     : 'Verse'}
@@ -871,8 +894,8 @@ export default function BibleReader() {
         <div className="sticky top-[56px] sm:top-[72px] z-40 mb-3 px-3 py-2 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-between gap-2">
           <p className="font-sans text-xs text-primary font-semibold flex items-center gap-1.5">
             <BookMarked className="w-3.5 h-3.5" />
-            {selectedVerses.size > 1
-              ? `Reading ${book.shortName} ${pos.chapter}:${Math.min(...selectedVerses)}-${Math.max(...selectedVerses)}`
+            {selectedVerses.size > 0
+              ? `Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
               : `Showing ${selectedVerses.size} selected verse${selectedVerses.size !== 1 ? 's' : ''}`}
           </p>
           <div className="flex items-center gap-1.5">

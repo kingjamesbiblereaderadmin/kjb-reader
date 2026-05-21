@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Check } from 'lucide-react';
+import { Check, Layers } from 'lucide-react';
 
 export default function VerseSelector({ totalVerses, currentVerse, onSelect, onClose, multiSelect = false }) {
-  const [selected, setSelected] = useState(() => new Set(currentVerse ? [currentVerse] : []));
+  const [selected, setSelected] = useState(() => new Set(currentVerse ? (Array.isArray(currentVerse) ? currentVerse : [currentVerse]) : []));
+  const [multiMode, setMultiMode] = useState(multiSelect);
 
   const toggle = (v) => {
-    if (!multiSelect) {
+    if (!multiMode) {
       onSelect(v);
       onClose();
       return;
@@ -20,16 +21,23 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
   const handleConfirm = () => {
     if (selected.size === 0) { onClose(); return; }
     const sorted = [...selected].sort((a, b) => a - b);
-    onSelect(multiSelect ? sorted : sorted[0]);
+    onSelect(sorted);
     onClose();
   };
 
   return (
     <div className="bg-card border border-border rounded-xl shadow-xl overflow-hidden w-[90vw] max-w-sm max-h-[70vh] flex flex-col">
-      <div className="px-4 py-3 border-b border-border">
-        <p className="font-serif font-semibold text-foreground text-center">
-          {multiSelect ? `Select Verses${selected.size > 0 ? ` (${selected.size})` : ''}` : 'Select Verse'}
+      <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+        <p className="font-serif font-semibold text-foreground text-center flex-1">
+          {multiMode ? `Select Verses${selected.size > 0 ? ` (${selected.size})` : ''}` : 'Select Verse'}
         </p>
+        <button
+          onClick={() => setMultiMode(!multiMode)}
+          className={`p-1.5 rounded-lg transition-colors ${multiMode ? 'bg-accent text-accent-foreground' : 'bg-secondary text-muted-foreground'}`}
+          title="Toggle multi-select"
+        >
+          <Layers className="w-4 h-4" />
+        </button>
       </div>
       <div className="overflow-y-auto flex-1 p-3">
         <div className="grid grid-cols-6 sm:grid-cols-8 gap-2">

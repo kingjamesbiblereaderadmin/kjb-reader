@@ -7,6 +7,30 @@ import BookSelector from '@/components/bible/BookSelector';
 import ChapterSelector from '@/components/bible/ChapterSelector';
 import VerseSelector from '@/components/bible/VerseSelector';
 
+// Format verses with dashes for consecutive, commas for gaps
+function formatVerses(verses) {
+  if (!verses || verses.length === 0) return '';
+  if (verses.length === 1) return String(verses[0]);
+  
+  const sorted = [...verses].sort((a, b) => a - b);
+  const ranges = [];
+  let start = sorted[0];
+  let end = sorted[0];
+  
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i] === end + 1) {
+      end = sorted[i];
+    } else {
+      ranges.push(start === end ? String(start) : `${start}-${end}`);
+      start = sorted[i];
+      end = sorted[i];
+    }
+  }
+  ranges.push(start === end ? String(start) : `${start}-${end}`);
+  
+  return ranges.join(',');
+}
+
 export default function ContentsPage() {
   const navigate = useNavigate();
   const [showBookSelector, setShowBookSelector] = useState(false);
@@ -15,7 +39,7 @@ export default function ContentsPage() {
   
   const [selectedBook, setSelectedBook] = useState(null);
   const [selectedChapter, setSelectedChapter] = useState(null);
-  const [selectedVerse, setSelectedVerse] = useState(null);
+  const [selectedVerses, setSelectedVerses] = useState([]);
   const [verseCount, setVerseCount] = useState(0);
 
   const currentBook = selectedBook ? BIBLE_BOOKS.find(b => b.abbr === selectedBook) : null;
@@ -30,12 +54,12 @@ export default function ContentsPage() {
     if (isTitlePage) {
       setSelectedBook(book.abbr);
       setSelectedChapter(0);
-      setSelectedVerse(null);
+      setSelectedVerses([]);
       setTimeout(() => goTo(book.abbr, 0, null), 150);
     } else {
       setSelectedBook(book.abbr);
       setSelectedChapter(null);
-      setSelectedVerse(null);
+      setSelectedVerses([]);
       setShowBookSelector(false);
       setShowChapterSelector(true);
     }
@@ -57,10 +81,11 @@ export default function ContentsPage() {
     }
   };
 
-  const handleSelectVerse = (verse) => {
-    setSelectedVerse(verse);
+  const handleSelectVerse = (verses) => {
+    const verseArray = Array.isArray(verses) ? verses : [verses];
+    setSelectedVerses(verseArray);
     setShowVerseSelector(false);
-    setTimeout(() => goTo(selectedBook, selectedChapter, verse), 150);
+    setTimeout(() => goTo(selectedBook, selectedChapter, verseArray), 150);
   };
 
   useEffect(() => {
@@ -91,7 +116,7 @@ export default function ContentsPage() {
         >
           <span>
             {selectedBook && selectedChapter 
-              ? `${currentBook?.name} ${selectedChapter}${selectedVerse ? `:${selectedVerse}` : ''}` 
+              ? `${currentBook?.name} ${selectedChapter}${selectedVerses.length > 0 ? `:${formatVerses(selectedVerses)}` : ''}` 
               : 'Select a Book'}
           </span>
           <ChevronDown className="w-4 h-4" />
@@ -148,9 +173,10 @@ export default function ContentsPage() {
           <div className="relative" onClick={(e) => e.stopPropagation()}>
             <VerseSelector
               totalVerses={verseCount}
-              currentVerse={selectedVerse}
+              currentVerse={selectedVerses}
               onSelect={handleSelectVerse}
               onClose={() => setShowVerseSelector(false)}
+              multiSelect={true}
             />
           </div>
         </div>
