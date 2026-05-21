@@ -5,28 +5,20 @@
     "date": {
       "type": "string",
       "format": "date",
-      "description": "The date of the reading session (YYYY-MM-DD)"
+      "description": "Date of the reading (YYYY-MM-DD)"
     },
     "book": {
       "type": "string",
-      "description": "Book abbreviation (e.g., 'GEN', 'MAT')"
+      "description": "Book name"
     },
     "chapter": {
       "type": "integer",
-      "description": "Chapter number read"
-    },
-    "verse_start": {
-      "type": "integer",
-      "description": "Starting verse"
-    },
-    "verse_end": {
-      "type": "integer",
-      "description": "Ending verse"
+      "description": "Chapter number"
     },
     "completed": {
       "type": "boolean",
       "default": false,
-      "description": "Whether the daily goal was completed"
+      "description": "Whether the reading is completed"
     }
   },
   "required": [

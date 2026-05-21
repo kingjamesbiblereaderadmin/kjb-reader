@@ -1,17 +1,16 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw, ChevronRight, BookMarked } from 'lucide-react';
+import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw, ChevronRight } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { getDailyVerse } from '@/lib/dailyVerse';
-import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications, initNotifications, initReadingReminder } from '@/lib/notifications';
+import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications, initNotifications } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 
 const READ_LINK = { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', color: 'bg-primary text-primary-foreground' };
 
 const QUICK_LINKS = [
   { path: '/contents', icon: List, label: 'Table of Contents', desc: 'Browse all 66 books', color: 'bg-secondary text-secondary-foreground' },
-  { path: '/daily-reading', icon: BookMarked, label: 'Daily Reading', desc: 'Track your progress', color: 'bg-secondary text-secondary-foreground' },
   { path: null, icon: null, label: '__RANDOM__', desc: '', color: '' },
   { path: '/saved', icon: Bookmark, label: 'Saved Verses', desc: 'Your bookmarked verses', color: 'bg-secondary text-secondary-foreground' },
   { path: '/gospel', icon: Heart, label: 'Gospel', desc: 'Learn how to be saved', color: 'bg-secondary text-secondary-foreground' },
@@ -83,7 +82,6 @@ export default function HomePage() {
     if (getNotificationsEnabled()) {
       initNotifications(verse);
     }
-    initReadingReminder();
 
     const handleStorageChange = () => {
       const enabled = getNotificationsEnabled();
@@ -112,7 +110,7 @@ export default function HomePage() {
       window.removeEventListener('focus', handleFocus);
       document.removeEventListener('visibilitychange', handleFocus);
     };
-  }, [verse]);
+  }, []);
 
   const handleVerseClick = () => {
     // Ensure we have valid verse data before navigating

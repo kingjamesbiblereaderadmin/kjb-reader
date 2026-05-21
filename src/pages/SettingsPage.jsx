@@ -14,11 +14,9 @@ import { useTheme, COLOUR_PALETTES } from '@/lib/themeContext';
 import { useNavigate } from 'react-router-dom';
 import {
   getNotificationsEnabled, getNotificationTime, setNotificationTime,
-  requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification,
-  getReadingReminderEnabled, getReadingReminderTime, setReadingReminderTime,
-  enableReadingReminder, disableReadingReminder, scheduleReadingReminder
+  requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification
 } from '@/lib/notifications';
-import { subscribeToPush, unsubscribeFromPush } from '@/lib/pushNotifications';
+
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { downloadBibleForOffline, clearBibleCache, isBibleCached } from '@/lib/bibleCache';
 
@@ -91,10 +89,6 @@ export default function SettingsPage() {
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
-  const [readingReminderEnabled, setReadingReminderEnabled] = useState(getReadingReminderEnabled);
-  const [readingReminderTime, setReadingReminderTimeState] = useState(getReadingReminderTime);
-  const [pushSubscribed, setPushSubscribed] = useState(false);
-  const [subscribing, setSubscribing] = useState(false);
 
   const { isInstallable, isInstalled, promptInstall } = useInstallPrompt();
   const [cached, setCached] = useState(false);
@@ -121,7 +115,6 @@ export default function SettingsPage() {
     const handleFocus = () => {
       setNotifEnabled(getNotificationsEnabled());
       setNotifPermission('Notification' in window ? Notification.permission : 'unsupported');
-      setReadingReminderEnabled(getReadingReminderEnabled());
     };
     window.addEventListener('focus', handleFocus);
     document.addEventListener('visibilitychange', handleFocus);
@@ -173,92 +166,9 @@ export default function SettingsPage() {
     showLocalNotification('King James Bible — Verse of the Day', `"${v.text.slice(0, 100)}${v.text.length > 100 ? '…' : ''}" — ${v.ref}`);
   };
 
-  const handleSubscribeToPush = async () => {
-    if (pushSubscribed) {
-      // Unsubscribe
-      try {
-        await unsubscribeFromPush();
-        // Remove subscription from database
-        const user = await base44.auth.me();
-        if (user) {
-          const subs = await base44.entities.PushSubscription.filter({ user_email: user.email });
-          for (const sub of subs) {
-            await base44.entities.PushSubscription.update(sub.id, { active: false });
-          }
-        }
-        setPushSubscribed(false);
-        alert('Unsubscribed from push notifications');
-      } catch (err) {
-        console.error('Unsubscribe error:', err);
-        alert('Failed to unsubscribe');
-      }
-      return;
-    }
 
-    // Subscribe
-    setSubscribing(true);
-    try {
-      const subscription = await subscribeToPush();
-      if (!subscription) {
-        alert('Failed to subscribe. Make sure you have installed the app and granted notification permission.');
-        setSubscribing(false);
-        return;
-      }
 
-      const user = await base44.auth.me();
-      if (!user) {
-        alert('Please log in to subscribe to notifications');
-        setSubscribing(false);
-        return;
-      }
 
-      // Save subscription to database
-      await base44.entities.PushSubscription.create({
-        endpoint: subscription.endpoint,
-        keys: JSON.stringify({
-          p256dh: subscription.getKey('p256dh') ? btoa(String.fromCharCode(...subscription.getKey('p256dh'))) : '',
-          auth: subscription.getKey('auth') ? btoa(String.fromCharCode(...subscription.getKey('auth'))) : ''
-        }),
-        user_email: user.email,
-        active: true
-      });
-
-      setPushSubscribed(true);
-      setSubscribing(false);
-      alert('Successfully subscribed to push notifications!');
-    } catch (err) {
-      console.error('Subscribe error:', err);
-      setSubscribing(false);
-      alert('Failed to subscribe: ' + err.message);
-    }
-  };
-
-  const handleToggleReadingReminder = async () => {
-    if (readingReminderEnabled) {
-      disableReadingReminder();
-      setReadingReminderEnabled(false);
-    } else {
-      if (!('Notification' in window)) {
-        alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
-        return;
-      }
-      const result = await requestNotificationPermission();
-      setNotifPermission(result);
-      if (result === 'granted') {
-        enableReadingReminder();
-        setReadingReminderEnabled(true);
-        scheduleReadingReminder();
-      } else if (result === 'denied') {
-        alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
-      }
-    }
-  };
-
-  const handleReadingReminderTimeChange = (e) => {
-    setReadingReminderTimeState(e.target.value);
-    setReadingReminderTime(e.target.value);
-    if (readingReminderEnabled) scheduleReadingReminder();
-  };
 
   const handleDownload = async (e) => {
     if (e) {
@@ -482,30 +392,7 @@ export default function SettingsPage() {
              mode === 'dark' ? '🌙 Dark mode always on' : '☀️ Light mode always on'}
           </p>
 
-          {/* Accent Colour */}
-          <div className="pt-3 border-t border-border space-y-2">
-            <p className="font-sans text-sm text-foreground font-medium">Accent Colour</p>
-            <div className="flex flex-wrap gap-2">
-              {COLOUR_PALETTES.map(p => (
-                <button
-                  key={p.id}
-                  onClick={() => setColourId(p.id)}
-                  title={p.name}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-sans text-xs font-medium border-2 transition-all ${
-                    colourId === p.id
-                      ? 'border-foreground scale-105 bg-secondary'
-                      : 'border-transparent bg-secondary hover:border-border'
-                  }`}
-                >
-                  <span
-                    className="w-3.5 h-3.5 rounded-full shrink-0"
-                    style={{ backgroundColor: p.swatch }}
-                  />
-                  {p.name}
-                </button>
-              ))}
-            </div>
-          </div>
+
         </div>
         
         {/* Custom Daily Verse Background */}
@@ -631,12 +518,9 @@ export default function SettingsPage() {
             />
           </div>
           
-          {/* Text Color with Hex */}
+          {/* Text Color */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="font-sans text-sm text-foreground font-medium">Text Color</p>
-              <code className="font-mono text-xs bg-secondary px-2 py-1 rounded">{verseTextColor}</code>
-            </div>
+            <p className="font-sans text-sm text-foreground font-medium">Text Color</p>
             <div className="flex flex-wrap gap-2">
               {VERSE_COLORS.map(color => (
                 <button
@@ -797,26 +681,13 @@ export default function SettingsPage() {
                   <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
                   <span className="font-sans text-sm font-medium">The Bible is cached — available offline</span>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={async () => {
-                      await handleClearCache();
-                      // Auto-download fresh data with pilcrows
-                      setTimeout(() => handleDownload(), 500);
-                    }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    Refresh with Latest
-                  </button>
-                  <button
-                    onClick={handleClearCache}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive font-sans text-xs font-medium hover:bg-destructive/20 transition-colors"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    Clear Cache
-                  </button>
-                </div>
+                <button
+                  onClick={() => navigate('/refresh-cache')}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  Update Cache Now
+                </button>
               </div>
             ) : (
               <div className="space-y-3">
@@ -870,7 +741,7 @@ export default function SettingsPage() {
         >
           <div>
             <h2 className="font-serif text-lg font-semibold text-foreground">Daily Verse Reminders</h2>
-            <p className="font-sans text-xs text-muted-foreground">Get reminded to read your daily verse</p>
+            <p className="font-sans text-xs text-muted-foreground">Get daily verse notifications</p>
           </div>
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.notifications ? 'rotate-180' : ''}`} />
         </button>
@@ -909,100 +780,26 @@ export default function SettingsPage() {
               />
             </div>
             {notifEnabled && (
-              <div className="space-y-3 pt-1">
-                <div className="flex items-center gap-3">
-                  <label className="font-sans text-sm text-muted-foreground shrink-0">Notify at</label>
-                  <input
-                    type="time"
-                    value={notifTime}
-                    onChange={handleTimeChange}
-                    className="flex-1 px-3 py-1.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground focus:outline-none focus:border-accent"
-                  />
-                  <button
-                    onClick={handleTestNotif}
-                    className="shrink-0 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
-                  >
-                    Test
-                  </button>
-                </div>
-
-                {/* Push Notification Subscription */}
-                <div className="pt-3 border-t border-border">
-                  <div className="flex items-center justify-between gap-3 mb-2">
-                    <div className="flex-1">
-                      <p className="font-sans text-sm text-foreground font-medium flex items-center gap-2">
-                        <Bell className="w-4 h-4 text-primary" />
-                        Push Notifications
-                      </p>
-                      <p className="font-sans text-xs text-muted-foreground mt-0.5">
-                        {pushSubscribed 
-                          ? 'Receiving push notifications (works even when app is closed)' 
-                          : 'Enable to receive daily verses even when app is closed'}
-                      </p>
-                    </div>
-                    <button
-                      onClick={handleSubscribeToPush}
-                      disabled={subscribing}
-                      className={`px-4 py-2 rounded-lg font-sans text-xs font-medium transition-colors flex items-center gap-2 ${
-                        pushSubscribed
-                          ? 'bg-destructive/10 text-destructive hover:bg-destructive/20'
-                          : 'bg-primary text-primary-foreground hover:opacity-90'
-                      } ${subscribing ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      {subscribing ? (
-                        <>
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          {pushSubscribed ? 'Unsubscribing...' : 'Subscribing...'}
-                        </>
-                      ) : (
-                        <>
-                          {pushSubscribed ? 'Unsubscribe' : 'Subscribe'}
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
+            <div className="space-y-3 pt-1">
+            <div className="flex items-center gap-3">
+              <label className="font-sans text-sm text-muted-foreground shrink-0">Notify at</label>
+              <input
+                type="time"
+                value={notifTime}
+                onChange={handleTimeChange}
+                className="flex-1 px-3 py-1.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground focus:outline-none focus:border-accent"
+              />
+              <button
+                onClick={handleTestNotif}
+                className="shrink-0 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+              >
+                Test
+              </button>
+            </div>
+            </div>
             )}
 
-            {/* Reading Reminder */}
-            <div className="pt-4 border-t border-border">
-              <div className="flex items-center justify-between gap-3 mb-3">
-                <div className="flex items-center gap-3 flex-1">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <p className="font-sans text-sm text-foreground font-medium">Reading Reminder</p>
-                      {readingReminderEnabled && <Bell className="w-3.5 h-3.5 text-primary" />}
-                    </div>
-                    <p className="font-sans text-xs text-muted-foreground">
-                      Reminder when you open the app
-                    </p>
-                  </div>
-                  {readingReminderEnabled && (
-                    <div className="flex items-center gap-2">
-                      <label className="font-sans text-xs text-muted-foreground">at</label>
-                      <input
-                        type="time"
-                        value={readingReminderTime}
-                        onChange={handleReadingReminderTimeChange}
-                        className="px-2 py-1.5 rounded-lg bg-secondary border border-border text-xs font-sans text-foreground focus:outline-none focus:border-accent"
-                      />
-                    </div>
-                  )}
-                </div>
-                <Switch
-                  checked={readingReminderEnabled}
-                  onCheckedChange={handleToggleReadingReminder}
-                  disabled={notifPermission === 'denied'}
-                  className="shrink-0"
-                />
-              </div>
-              {readingReminderEnabled && (
-                <p className="font-sans text-xs text-muted-foreground bg-secondary/50 rounded-lg p-2">
-                  ⏰ You will be reminded when you open the app
-                </p>
-              )}
-            </div>
+
           </>
         )}
         </div>
@@ -1030,10 +827,6 @@ export default function SettingsPage() {
               </div>
               <div className="flex justify-between items-center font-sans text-sm gap-4">
                 <span className="text-muted-foreground shrink-0">Version</span>
-                <span className="text-foreground font-medium text-right">1.0.0</span>
-              </div>
-              <div className="flex justify-between items-center font-sans text-sm gap-4">
-                <span className="text-muted-foreground shrink-0">Last App Revision</span>
                 <span className="text-foreground font-medium text-right">{LAST_REVISED}</span>
               </div>
               <div className="flex justify-between items-center font-sans text-sm gap-4">
@@ -1090,7 +883,11 @@ export default function SettingsPage() {
               </div>
               <div className="flex justify-between items-center font-sans text-sm gap-4">
                 <span className="text-muted-foreground shrink-0">Theme</span>
-                <span className="text-foreground font-medium text-right">Light / Dark / Auto / System</span>
+                <span className="text-foreground font-medium text-right">
+                  {mode === 'auto' ? '🕐 Auto' :
+                   mode === 'system' ? '📱 System' :
+                   mode === 'dark' ? '🌙 Dark' : '☀️ Light'}
+                </span>
               </div>
             </div>
           </div>
@@ -1159,14 +956,22 @@ export default function SettingsPage() {
                 Reset All Settings
               </button>
               <button
-                onClick={() => {
-                  // Hard refresh to load latest code changes
+                onClick={async () => {
+                  // Clear all caches first, then hard reload
+                  if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(name => caches.delete(name)));
+                  }
+                  if ('serviceWorker' in navigator) {
+                    const registration = await navigator.serviceWorker.ready;
+                    await registration.unregister();
+                  }
                   window.location.reload();
                 }}
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
               >
-                <CheckCircle2 className="w-4 h-4" />
-                Refresh Page
+                <Trash2 className="w-4 h-4" />
+                Clear Cache & Reload
               </button>
             </div>
           </div>

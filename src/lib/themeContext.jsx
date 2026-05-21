@@ -14,6 +14,7 @@ export const COLOUR_PALETTES = [
   { id: 'gold',      name: 'Gold Leaf', swatch: '#B8860B', accent: '45 70% 45%',  primary_light: '30 35% 20%', primary_dark: '45 75% 50%' },
   { id: 'burgundy',  name: 'Burgundy',  swatch: '#800020', accent: '350 60% 30%', primary_light: '350 55% 25%', primary_dark: '350 65% 35%' },
   { id: 'forest',    name: 'Forest',    swatch: '#2D5016', accent: '120 45% 25%', primary_light: '120 40% 20%', primary_dark: '120 50% 30%' },
+  { id: 'custom',    name: 'Custom',    swatch: localStorage.getItem('kjb-custom-accent') || '#B8860B', accent: 'auto', primary_light: 'auto', primary_dark: 'auto' },
 ];
 
 function getAutoIsDark() {
@@ -32,17 +33,53 @@ function resolveIsDark(mode) {
   return getSystemIsDark(); // 'system'
 }
 
+function hexToHsl(hex) {
+  // Convert hex to RGB
+  let r = parseInt(hex.substring(1, 3), 16) / 255;
+  let g = parseInt(hex.substring(3, 5), 16) / 255;
+  let b = parseInt(hex.substring(5, 7), 16) / 255;
+  
+  // Find min and max values of r, g, b
+  let max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h, s, l = (max + min) / 2;
+
+  if (max === min) {
+    h = s = 0; // achromatic
+  } else {
+    let d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h /= 6;
+  }
+
+  return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+}
+
 function applyPalette(paletteId, isDark) {
   const p = COLOUR_PALETTES.find(c => c.id === paletteId) || COLOUR_PALETTES[0];
   const root = document.documentElement;
-  root.style.setProperty('--accent', p.accent);
+  
+  if (p.id === 'custom') {
+    const customHex = localStorage.getItem('kjb-custom-accent') || '#B8860B';
+    const hsl = hexToHsl(customHex);
+    root.style.setProperty('--accent', hsl);
+    root.style.setProperty('--primary', isDark ? hexToHsl('#6B4E05') : hexToHsl('#D4A017'));
+    root.style.setProperty('--ring', isDark ? hexToHsl('#6B4E05') : hexToHsl('#D4A017'));
+    root.style.setProperty('--sidebar-primary', isDark ? hexToHsl('#6B4E05') : hexToHsl('#D4A017'));
+    root.style.setProperty('--sidebar-ring', isDark ? hexToHsl('#6B4E05') : hexToHsl('#D4A017'));
+  } else {
+    root.style.setProperty('--accent', p.accent);
+    root.style.setProperty('--primary', isDark ? p.primary_dark : p.primary_light);
+    root.style.setProperty('--ring', isDark ? p.primary_dark : p.primary_light);
+    root.style.setProperty('--sidebar-primary', isDark ? p.primary_dark : p.primary_light);
+    root.style.setProperty('--sidebar-ring', isDark ? p.primary_dark : p.primary_light);
+  }
   root.style.setProperty('--accent-foreground', isDark ? '220 20% 7%' : '220 20% 10%');
-  root.style.setProperty('--primary', isDark ? p.primary_dark : p.primary_light);
   root.style.setProperty('--primary-foreground', isDark ? '220 20% 7%' : '40 20% 98%');
-  root.style.setProperty('--ring', isDark ? p.primary_dark : p.primary_light);
-  // sidebar sync
-  root.style.setProperty('--sidebar-primary', isDark ? p.primary_dark : p.primary_light);
-  root.style.setProperty('--sidebar-ring', isDark ? p.primary_dark : p.primary_light);
 }
 
 export function ThemeProvider({ children }) {

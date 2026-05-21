@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked, ChevronDown } from 'lucide-react';
+import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getBibleData } from '@/lib/bibleCache';
 import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
 
@@ -9,14 +9,27 @@ const NT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'NT' || BIBLE_B
 
 function highlightText(text, searchTerm, caseSensitive) {
   if (!searchTerm) return text;
-  const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // Strip quotes from search term for highlighting
+  let term = searchTerm.trim();
+  if (term.startsWith('"') && term.endsWith('"') && term.length >= 3) {
+    term = term.slice(1, -1);
+  }
+  if (!term) return text;
+  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const flags = caseSensitive ? 'g' : 'gi';
   const regex = new RegExp(`(${escaped})`, flags);
   const parts = text.split(regex);
-  return parts.map((part, i) =>
-    regex.test(part)
-      ? <mark key={i} className="bg-accent/40 text-foreground rounded px-0.5">{part}</mark>
-      : part
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (!part) return null;
+        // Check if this part matches the search term (case sensitive or not)
+        const matches = caseSensitive ? part === term : part.toLowerCase() === term.toLowerCase();
+        return matches
+          ? <mark key={i} className="bg-accent/40 text-foreground rounded px-0.5">{part}</mark>
+          : <span key={i}>{part}</span>;
+      })}
+    </>
   );
 }
 
@@ -38,6 +51,9 @@ export default function SearchPage() {
   const [numberedBookFilter, setNumberedBookFilter] = useState(null);
   const [showBookFilter, setShowBookFilter] = useState(false);
   const [selectedBooks, setSelectedBooks] = useState(new Set());
+  const [currentPage, setCurrentPage] = useState(1);
+  const [resultsLimit, setResultsLimit] = useState(100);
+  const RESULTS_PER_PAGE = 50;
 
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
@@ -53,10 +69,17 @@ export default function SearchPage() {
     setSelectMode(false);
     setNumberedBookFilter(null);
     setSelectedBooks(new Set());
+    setCurrentPage(1);
 
     try {
+      console.log('[Search] Starting search for:', kw);
       const bible = await getBibleData();
-      const searchTerm = kw.trim();
+      console.log('[Search] Bible data loaded, keys:', Object.keys(bible || {}).filter(k => k !== '__colophons').length);
+      // Strip quotes from search term for actual searching
+      let searchTerm = kw.trim();
+      if (searchTerm.startsWith('"') && searchTerm.endsWith('"') && searchTerm.length >= 3) {
+        searchTerm = searchTerm.slice(1, -1);
+      }
       setExpandedTerms([]);
       
       const kwLower = searchTerm.toLowerCase();
@@ -79,6 +102,60 @@ export default function SearchPage() {
         }
       }
 
+      // Check for "end of [book]" or "[book] end" queries
+      const endMatch = kwLower.match(/(?:^|\s)(?:end of|end)\s+([a-z0-9\s]+)|(?:^|\s)([a-z0-9\s]+)\s+(?:end)$/);
+      if (endMatch) {
+        const bookStr = (endMatch[1] || endMatch[2] || '').trim();
+        const matchingBook = BIBLE_BOOKS.find(b => 
+          b.shortName.toLowerCase().includes(bookStr) ||
+          b.abbr.toLowerCase().includes(bookStr) ||
+          b.shortName.toLowerCase() === bookStr
+        );
+        if (matchingBook) {
+          // Navigate to last chapter of the book
+          goToVerse(matchingBook.abbr, matchingBook.chapters, null);
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Check for "pilcrows" search - show verses with pilcrow marks
+      if (kwLower === 'pilcrows' || kwLower === 'pilcrow' || kwLower === '¶') {
+        const pilcrowResults = [];
+        const seen = new Set();
+        for (const bookName in bible) {
+          if (bookName === '__colophons') continue;
+          if (testament === 'ot' && !OT_BOOKS.has(bookName)) continue;
+          if (testament === 'nt' && !NT_BOOKS.has(bookName)) continue;
+          if (selectedBooks.size > 0) {
+            const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+            if (!bookEntry || !selectedBooks.has(bookEntry.abbr)) continue;
+          }
+          const chapters = bible[bookName];
+          for (const chapterNum in chapters) {
+            const verses = chapters[chapterNum];
+            for (const verseObj of verses) {
+              if (verseObj.text.includes('¶')) {
+                const key = `${bookName}-${chapterNum}-${verseObj.verse}`;
+                if (seen.has(key)) continue;
+                seen.add(key);
+                const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+                pilcrowResults.push({
+                  book: bookName,
+                  chapter: parseInt(chapterNum),
+                  verse: verseObj.verse,
+                  text: verseObj.text,
+                  abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
+                });
+              }
+            }
+          }
+        }
+        setResults(pilcrowResults);
+        setLoading(false);
+        return;
+      }
+
       // Check if query is a numbered book (e.g., "1 john", "2 timothy") or contains one
       const numberedBookMatch = kwLower.match(/(\d+)\s+([a-z]+)/);
       let targetBookAbbr = null;
@@ -89,6 +166,20 @@ export default function SearchPage() {
           b.shortName.toLowerCase() === `${num} ${bookPart}` ||
           b.shortName.toLowerCase().startsWith(`${num} ${bookPart}`) ||
           b.shortName.toLowerCase().includes(`${num} ${bookPart}`)
+        );
+        if (matchingBook) {
+          targetBookAbbr = matchingBook.abbr;
+          setNumberedBookFilter(targetBookAbbr);
+        }
+      }
+
+      // Check for "prophets end of [book]" queries
+      const prophetsEndMatch = kwLower.match(/prophets?\s+(?:end\s+of\s+)?([a-z0-9\s]+)/);
+      if (prophetsEndMatch) {
+        const bookStr = prophetsEndMatch[1].trim();
+        const matchingBook = BIBLE_BOOKS.find(b => 
+          b.shortName.toLowerCase().includes(bookStr) ||
+          b.abbr.toLowerCase().includes(bookStr)
         );
         if (matchingBook) {
           targetBookAbbr = matchingBook.abbr;
@@ -118,37 +209,40 @@ export default function SearchPage() {
         const chapters = bible[bookName];
         for (const chapterNum in chapters) {
           const verses = chapters[chapterNum];
-          // Pre-process verses array to avoid repeated operations
+          // Keep italics in brackets for search and display
           const processedVerses = verses.map(v => ({
             verse: v.verse,
-            text: v.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '')
+            text: v.text.replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '')
           }));
           
+          // Search in verses
           for (const verseObj of processedVerses) {
             let found = false;
+            const searchText = verseObj.text;
+            const searchTextLower = searchText.toLowerCase();
             
             if (exactMatch) {
+              // Exact match = exact phrase contains (case sensitive or insensitive)
               if (caseSensitive) {
-                found = (verseObj.text === searchTerm);
+                found = searchText.includes(searchTerm);
               } else {
-                found = (verseObj.text.toLowerCase() === searchTermLower);
+                found = searchTextLower.includes(searchTermLower);
               }
             } else if (caseSensitive) {
               if (wholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
-                found = wordRegex.test(verseObj.text);
+                found = wordRegex.test(searchText);
               } else {
-                found = verseObj.text.includes(searchTerm);
+                found = searchText.includes(searchTerm);
               }
             } else {
-              const verseTextLower = verseObj.text.toLowerCase();
               if (wholeWord) {
                 const escapedTerm = searchTermLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
-                found = wordRegex.test(verseTextLower);
+                found = wordRegex.test(searchTextLower);
               } else {
-                found = verseTextLower.includes(searchTermLower);
+                found = searchTextLower.includes(searchTermLower);
               }
             }
 
@@ -166,15 +260,63 @@ export default function SearchPage() {
               });
             }
           }
+          
+          // Search in colophons for this chapter
+          const colophon = bible.__colophons?.[bookName]?.[chapterNum];
+          if (colophon) {
+            const colophonText = colophon.replace(/¶\s*/g, '');
+            const colophonLower = colophonText.toLowerCase();
+            let colophonFound = false;
+            
+            if (exactMatch) {
+              // Exact match = exact phrase contains (case sensitive or insensitive)
+              colophonFound = caseSensitive ? colophonText.includes(searchTerm) : colophonLower.includes(searchTermLower);
+            } else if (caseSensitive) {
+              if (wholeWord) {
+                const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
+                colophonFound = wordRegex.test(colophonText);
+              } else {
+                colophonFound = colophonText.includes(searchTerm);
+              }
+            } else {
+              if (wholeWord) {
+                const escapedTerm = searchTermLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
+                colophonFound = wordRegex.test(colophonLower);
+              } else {
+                colophonFound = colophonLower.includes(searchTermLower);
+              }
+            }
+            
+            if (colophonFound) {
+              const key = `${bookName}-${chapterNum}-colophon`;
+              if (!seen.has(key)) {
+                seen.add(key);
+                const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+                matches.push({
+                  book: bookName,
+                  chapter: parseInt(chapterNum),
+                  verse: 0, // Mark as colophon
+                  text: colophonText,
+                  isColophon: true,
+                  abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
+                });
+              }
+            }
+          }
         }
       }
 
       setResults(matches);
+      console.log('[Search] Found', matches.length, 'results');
+      console.log('[Search] Found', matches.length, 'results');
     } catch (err) {
       console.error('Search error:', err);
       setResults([]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [testament, wholeWord, caseSensitive, exactMatch]);
 
   // Re-run search whenever URL changes (fixes header search bar)
@@ -182,14 +324,24 @@ export default function SearchPage() {
     const q = getQueryFromUrl();
     if (q) {
       setQuery(q);
+      // Auto-detect quoted searches: enable case-sensitive and exact match
+      if (q.startsWith('"') && q.endsWith('"') && q.length >= 3) {
+        setCaseSensitive(true);
+        setExactMatch(true);
+      }
       runSearch(q);
     }
-  }, [location.search]);
+  }, [location.search, runSearch]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const kw = query.trim();
     if (kw.length >= 2) {
+      // Auto-detect quoted searches: enable case-sensitive and exact match
+      if (kw.startsWith('"') && kw.endsWith('"') && kw.length >= 3) {
+        setCaseSensitive(true);
+        setExactMatch(true);
+      }
       window.history.replaceState({}, '', `/search?q=${encodeURIComponent(kw)}`);
       runSearch(kw);
     }
@@ -217,13 +369,19 @@ export default function SearchPage() {
     const sorted = [...indices].sort((a, b) => a - b);
     const verses = sorted.map(i => {
       const r = results[i];
-      const clean = r.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
-      return clean;
+      const text = r.text.replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
+      return text;
     });
     const first = results[sorted[0]];
     const last = results[sorted[sorted.length - 1]];
     const firstBookEntry = BIBLE_BOOKS.find(b => b.apiName === first.book);
     const firstBookName = firstBookEntry ? firstBookEntry.shortName : first.book;
+    
+    // Handle colophon results
+    if (first.isColophon) {
+      return `"${verses.join(' ')}" — ${firstBookName} ${first.chapter} colophon (KJB)`;
+    }
+    
     const verseRange = sorted.length > 1
       ? `${firstBookName} ${first.chapter}:${first.verse}-${last.verse}`
       : `${firstBookName} ${first.chapter}:${first.verse}`;
@@ -239,7 +397,8 @@ export default function SearchPage() {
 
   const handleExport = () => {
     const indices = selected.size > 0 ? selected : new Set(results.map((_, i) => i));
-    const q = getQueryFromUrl() || query;
+    const qRaw = getQueryFromUrl() || query;
+    const q = qRaw.startsWith('"') && qRaw.endsWith('"') ? qRaw.slice(1, -1) : qRaw;
     const header = `KJB Search Results — "${q}"\n${'='.repeat(50)}\n\n`;
     const body = formatVerses(indices);
     const footer = `\n\n${'='.repeat(50)}\n${indices.size} verse${indices.size !== 1 ? 's' : ''} — King James Bible (PCE)`;
@@ -253,6 +412,20 @@ export default function SearchPage() {
   };
 
   const selectedList = [...selected].sort((a, b) => a - b);
+
+  // Apply results limit
+  const limitedResults = results.slice(0, resultsLimit);
+
+  // Pagination
+  const totalPages = Math.ceil(limitedResults.length / RESULTS_PER_PAGE);
+  const startIndex = (currentPage - 1) * RESULTS_PER_PAGE;
+  const endIndex = startIndex + RESULTS_PER_PAGE;
+  const paginatedResults = limitedResults.slice(startIndex, endIndex);
+
+  const goToPage = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
@@ -282,20 +455,6 @@ export default function SearchPage() {
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-2 mb-5">
-        <Filter className="w-3.5 h-3.5 text-muted-foreground" />
-        <span className="font-sans text-xs text-muted-foreground">Testament:</span>
-        {[['all', 'All'], ['ot', 'Old Testament'], ['nt', 'New Testament']].map(([val, label]) => (
-          <button
-            key={val}
-            type="button"
-            onClick={() => setTestament(val)}
-            className={`px-2.5 py-1 rounded-lg font-sans text-xs font-medium transition-colors ${
-              testament === val ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-            }`}
-          >
-            {label}
-          </button>
-        ))}
         <button
           type="button"
           onClick={() => setShowBookFilter(!showBookFilter)}
@@ -307,7 +466,26 @@ export default function SearchPage() {
           Books {selectedBooks.size > 0 && `(${selectedBooks.size})`}
           <ChevronDown className={`w-3 h-3 transition-transform ${showBookFilter ? 'rotate-180' : ''}`} />
         </button>
-        <div className="ml-2 flex items-center gap-1.5">
+        {results.length > 50 && (
+          <>
+            <div className="w-px h-4 bg-border" />
+            <span className="font-sans text-xs text-muted-foreground">Limit:</span>
+            <div className="relative">
+              <select
+                value={resultsLimit}
+                onChange={(e) => { setResultsLimit(Number(e.target.value)); setCurrentPage(1); }}
+                className="appearance-none bg-secondary text-secondary-foreground font-sans text-xs font-medium px-3 py-1 pr-8 rounded-lg border border-border focus:outline-none focus:border-accent cursor-pointer"
+              >
+                {[50, 100, 200, 500].filter(limit => limit <= results.length).map(limit => (
+                  <option key={limit} value={limit}>{limit}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground pointer-events-none" />
+            </div>
+            <div className="w-px h-4 bg-border" />
+          </>
+        )}
+        <div className="flex items-center gap-1.5">
           <input
             id="whole-word"
             type="checkbox"
@@ -342,7 +520,7 @@ export default function SearchPage() {
       {/* Book filter panel */}
       {showBookFilter && (
         <div className="mb-5 p-4 rounded-xl bg-secondary/50 border border-border">
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-4">
             <p className="font-sans text-sm font-semibold text-foreground">Select Books</p>
             <div className="flex gap-2">
               <button
@@ -363,27 +541,51 @@ export default function SearchPage() {
               </button>
             </div>
           </div>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 max-h-64 overflow-y-auto">
-            {(testament === 'ot' ? OLD_TESTAMENT : testament === 'nt' ? NEW_TESTAMENT : BIBLE_BOOKS).map(book => (
-              <button
-                key={book.abbr}
-                onClick={() => {
-                  setSelectedBooks(prev => {
-                    const next = new Set(prev);
-                    next.has(book.abbr) ? next.delete(book.abbr) : next.add(book.abbr);
-                    return next;
-                  });
-                }}
-                className={`px-2 py-1.5 rounded-lg font-sans text-xs font-medium transition-colors text-left truncate ${
-                  selectedBooks.has(book.abbr)
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-card text-foreground hover:bg-accent/20'
-                }`}
-                title={book.shortName}
-              >
-                {book.shortName.length > 12 ? book.abbr : book.shortName}
-              </button>
-            ))}
+          
+          {/* Step 1: Testament selection */}
+          <div className="mb-4">
+            <p className="font-sans text-xs font-medium text-muted-foreground mb-2">1. Choose Testament</p>
+            <div className="flex gap-2">
+              {[['all', 'All'], ['ot', 'Old Testament'], ['nt', 'New Testament']].map(([val, label]) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => setTestament(val)}
+                  className={`px-3 py-1.5 rounded-lg font-sans text-xs font-medium transition-colors ${
+                    testament === val ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground hover:bg-accent/20'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Step 2: Book selection */}
+          <div className="mb-4">
+            <p className="font-sans text-xs font-medium text-muted-foreground mb-2">2. Select Books</p>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 max-h-48 overflow-y-auto">
+              {(testament === 'ot' ? OLD_TESTAMENT : testament === 'nt' ? NEW_TESTAMENT : BIBLE_BOOKS).map(book => (
+                <button
+                  key={book.abbr}
+                  onClick={() => {
+                    setSelectedBooks(prev => {
+                      const next = new Set(prev);
+                      next.has(book.abbr) ? next.delete(book.abbr) : next.add(book.abbr);
+                      return next;
+                    });
+                  }}
+                  className={`px-2 py-1.5 rounded-lg font-sans text-xs font-medium transition-colors text-left truncate ${
+                    selectedBooks.has(book.abbr)
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-card text-foreground hover:bg-accent/20'
+                  }`}
+                  title={book.shortName}
+                >
+                  {book.shortName.length > 12 ? book.abbr : book.shortName}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -398,7 +600,9 @@ export default function SearchPage() {
       )}
 
       {!loading && searched && results.length === 0 && (
-        <p className="font-sans text-sm text-muted-foreground text-center py-12">No results found for "{query}".</p>
+        <p className="font-sans text-sm text-muted-foreground text-center py-12">
+          No results found for "{query.startsWith('"') && query.endsWith('"') ? query.slice(1, -1) : query}".
+        </p>
       )}
 
       {!loading && results.length > 0 && (
@@ -407,7 +611,13 @@ export default function SearchPage() {
           <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div>
               <p className="font-sans text-xs text-muted-foreground">
-                {results.length} result{results.length !== 1 ? 's' : ''} for "{getQueryFromUrl() || query}"
+                {limitedResults.length} of {results.length} results for "{(() => {
+                  const q = getQueryFromUrl() || query;
+                  return q.startsWith('"') && q.endsWith('"') ? q.slice(1, -1) : q;
+                })()}"
+              </p>
+              <p className="font-sans text-xs text-muted-foreground mt-0.5">
+                Page {currentPage} of {totalPages}
               </p>
 
               {numberedBookFilter && (
@@ -494,21 +704,31 @@ export default function SearchPage() {
 
           {/* Verse list */}
           <div className="space-y-2">
-            {results.map((r, i) => {
-              const isSelected = selected.has(i);
+            {paginatedResults.map((r, i) => {
+              const originalIndex = startIndex + i;
+              const isSelected = selected.has(originalIndex);
+              const isColophon = r.isColophon || r.verse === 0;
               return (
                 <div
-                  key={i}
-                  onClick={() => selectMode ? toggleSelect(i) : goToVerse(r.abbr, r.chapter, r.verse)}
+                  key={originalIndex}
+                  onClick={() => {
+                    if (selectMode) {
+                      toggleSelect(originalIndex);
+                    } else if (isColophon) {
+                      goToVerse(r.abbr, r.chapter, null);
+                    } else {
+                      goToVerse(r.abbr, r.chapter, r.verse);
+                    }
+                  }}
                   className={`w-full text-left p-4 rounded-xl border transition-colors cursor-pointer flex items-start gap-3 ${
-                    isSelected
+                    selected.has(originalIndex)
                       ? 'bg-primary/10 border-primary/40'
                       : 'bg-card border-border hover:border-accent/40 hover:bg-accent/5'
                   }`}
                 >
                   {selectMode && (
                     <div className="shrink-0 mt-0.5">
-                      {isSelected
+                      {selected.has(originalIndex)
                         ? <CheckSquare className="w-4 h-4 text-primary" />
                         : <Square className="w-4 h-4 text-muted-foreground" />
                       }
@@ -517,16 +737,78 @@ export default function SearchPage() {
                   <div className="flex-1 min-w-0">
                     <p className="font-sans text-xs text-accent font-semibold mb-1 flex items-center gap-1">
                       <BookOpen className="w-3 h-3" />
-                      {BIBLE_BOOKS.find(b => b.apiName === r.book)?.shortName || r.book} {r.chapter}:{r.verse}
+                      {BIBLE_BOOKS.find(b => b.apiName === r.book)?.shortName || r.book} {r.chapter}
+                      {isColophon ? ' (Colophon)' : `:${r.verse}`}
                     </p>
                     <p className="font-serif text-base text-foreground leading-relaxed">
-                      "{highlightText(r.text, query, caseSensitive)}"
+                      {isColophon ? (
+                        <span className="italic text-muted-foreground">¶ {highlightText(r.text, query, caseSensitive)}</span>
+                      ) : (
+                        <span>"{highlightText(r.text, query, caseSensitive)}"</span>
+                      )}
                     </p>
                   </div>
                 </div>
               );
             })}
           </div>
+
+          {/* Pagination controls */}
+          {totalPages > 1 && (
+            <div className="mt-6 mb-20 px-4 flex items-center justify-center gap-2 flex-wrap">
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 shrink-0"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Previous</span>
+                <span className="sm:hidden">Prev</span>
+              </button>
+              {totalPages <= 5 ? (
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                    <button
+                      key={pageNum}
+                      onClick={() => goToPage(pageNum)}
+                      className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-sans text-xs sm:text-sm font-semibold transition-all active:scale-95 ${
+                        currentPage === pageNum
+                          ? 'bg-primary text-primary-foreground shadow-md'
+                          : 'bg-secondary text-secondary-foreground hover:bg-accent/20 hover:shadow-sm'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="relative flex-shrink-0">
+                  <select
+                    value={currentPage}
+                    onChange={(e) => goToPage(Number(e.target.value))}
+                    className="w-20 h-8 sm:h-10 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs sm:text-sm font-semibold px-2 border border-border focus:outline-none focus:border-accent appearance-none cursor-pointer"
+                    style={{ backgroundImage: 'none' }}
+                  >
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                      <option key={pageNum} value={pageNum}>
+                        Page {pageNum}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+                </div>
+              )}
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 shrink-0"
+              >
+                <span className="hidden sm:inline">Next</span>
+                <span className="sm:hidden">Next</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
         </div>
       )}
 

@@ -98,7 +98,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         localStorage.setItem('kjb-notif-image', croppedDataUrl);
         setNotifImage(croppedDataUrl);
       } else {
-        // Save to localStorage
+        // Clear any existing background first to free up space
+        localStorage.removeItem('kjb-daily-verse-bg');
+        // Save new background
         localStorage.setItem('kjb-daily-verse-bg', croppedDataUrl);
         // Verify it was saved correctly
         const saved = localStorage.getItem('kjb-daily-verse-bg');
@@ -172,26 +174,33 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
   const handleDownload = async (e) => {
     e.stopPropagation();
+    e.preventDefault();
     setCapturing(true);
     setShowButtons(false);
     setShowStyleEditor(false);
     setShowMenu(false);
+    // Wait for state to update before capturing
+    await new Promise(resolve => setTimeout(resolve, 150));
     try {
-      await new Promise(resolve => setTimeout(resolve, 100));
       const canvas = await html2canvas(verseRef.current, {
         backgroundColor: null,
         scale: 2,
         useCORS: true,
       });
       const link = document.createElement('a');
-      link.download = `daily-verse-${new Date().toISOString().slice(0, 10)}.png`;
+      const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
+      link.download = `daily-verse-${dateStr}.png`;
       link.href = canvas.toDataURL('image/png');
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
     } catch (err) {
       console.error('Failed to download image:', err);
     } finally {
-      setShowButtons(true);
-      setCapturing(false);
+      setTimeout(() => {
+        setCapturing(false);
+        setShowButtons(true);
+      }, 100);
     }
   };
 
@@ -258,12 +267,14 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
   const handleShare = async (e) => {
     e.stopPropagation();
+    e.preventDefault();
     setCapturing(true);
     setShowButtons(false);
     setShowStyleEditor(false);
     setShowMenu(false);
+    // Wait for state to update before capturing
+    await new Promise(resolve => setTimeout(resolve, 150));
     try {
-      await new Promise(resolve => setTimeout(resolve, 100));
       // Try to share/copy image first
       const canvas = await html2canvas(verseRef.current, {
         backgroundColor: null,
@@ -272,11 +283,12 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       });
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
       
+      const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
       if (navigator.share && navigator.canShare({ files: [new File([blob], 'verse.png', { type: 'image/png' })] })) {
         await navigator.share({
           title: 'Daily Verse - KJB Reader',
           text: `"${verse.text}" — ${verse.ref}`,
-          files: [new File([blob], `daily-verse-${new Date().toISOString().slice(0, 10)}.png`, { type: 'image/png' })],
+          files: [new File([blob], `daily-verse-${dateStr}.png`, { type: 'image/png' })],
         });
       } else {
         // Try clipboard image
@@ -287,22 +299,15 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       }
     } catch (err) {
       console.error('Image share failed:', err);
-      // Fallback: share text only
-      const shareData = {
-        title: 'Daily Verse',
-        text: `"${verse.text}" — ${verse.ref} (KJB)`,
-        url: window.location.href,
-      };
-      
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
-        alert('Verse text copied to clipboard!');
-      }
+      // Fallback: copy text to clipboard
+      const shareText = `"${verse.text}" — ${verse.ref} (KJB)`;
+      await navigator.clipboard.writeText(shareText);
+      alert('Verse copied to clipboard!');
     } finally {
-      setShowButtons(true);
-      setCapturing(false);
+      setTimeout(() => {
+        setCapturing(false);
+        setShowButtons(true);
+      }, 100);
     }
   };
 
@@ -341,9 +346,16 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         </button>
       )}
 
+      {/* Date display */}
+      <div className="absolute bottom-3 left-3 bg-black/30 backdrop-blur-sm rounded-lg px-2 py-1">
+        <p className="text-xs font-sans font-medium whitespace-nowrap leading-none" style={{ color: '#ffffff' }}>
+          {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+        </p>
+      </div>
+
       {/* Action buttons */}
       <div className="absolute top-2 right-2 flex gap-1 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
-        {showButtons ? (
+        {!capturing && showButtons ? (
           <>
             <button
               onClick={(e) => {
@@ -351,11 +363,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 e.stopPropagation();
                 setShowLightbox(true);
               }}
-              className="p-1 rounded-md bg-primary hover:bg-primary/90 transition-colors shadow-md"
+              className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
               title="View in full screen"
               type="button"
             >
-              <Maximize2 className="w-3.5 h-3.5 text-primary-foreground" />
+              <Maximize2 className="w-3.5 h-3.5 text-slate-800" />
             </button>
             <button
               onClick={(e) => {
@@ -483,6 +495,10 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                         e.stopPropagation();
                         setCustomBg('');
                         localStorage.removeItem('kjb-daily-verse-bg');
+                        // Reset text color and opacity to defaults
+                        handleTextColorChange('#ffffff');
+                        handleTextOpacityChange(0.95);
+                        handleFontFamilyChange('serif');
                         window.dispatchEvent(new Event('storage'));
                         setShowMenu(false);
                       }}
@@ -509,7 +525,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             </div>
 
           </>
-        ) : (
+        ) : !capturing ? (
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -520,9 +536,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             title="Show buttons"
             type="button"
           >
-            <ChevronsDown className="w-3.5 h-3.5 text-slate-800" />
+            <ChevronsDown className="w-3.5 h-3.5 text-slate-800 rotate-90" />
           </button>
-        )}
+        ) : null}
       </div>
 
       {/* Style Editor Panel */}
@@ -547,7 +563,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               <Palette className="w-3.5 h-3.5" />
               Text Color
             </label>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mb-2">
               {[
                 '#000000', '#1a1a1a', '#ffffff', '#f8f8f8',
                 '#fef3c7', '#fde68a', '#fbbf24', '#f59e0b',
@@ -641,7 +657,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             Verse of the Day
           </p>
           <blockquote 
-            className="text-2xl md:text-3xl leading-relaxed"
+            className="text-2xl md:text-3xl leading-relaxed [&_em]:italic"
             style={{ 
               color: textColor, 
               opacity: textOpacity, 
@@ -667,7 +683,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       ) : (
         <div className="px-6 py-4 mb-5">
           <blockquote 
-            className="text-2xl md:text-3xl leading-relaxed"
+            className="text-2xl md:text-3xl leading-relaxed [&_em]:italic"
             style={{ 
               color: textColor, 
               opacity: textOpacity, 
@@ -733,7 +749,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               Verse of the Day
             </p>
             <blockquote 
-              className="text-3xl md:text-5xl leading-relaxed mb-8"
+              className="text-3xl md:text-5xl leading-relaxed mb-8 [&_em]:italic"
               style={{ 
                 color: textColor, 
                 opacity: textOpacity, 
