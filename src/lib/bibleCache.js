@@ -107,16 +107,25 @@ let remoteVersion = null;
 // Abbreviated book name mapping (Ge, Ex, Le, etc. → apiName)
 const ABBREV_TO_API = {
   'Ge': 'Genesis', 'Ex': 'Exodus', 'Le': 'Leviticus', 'Nu': 'Numbers', 'De': 'Deuteronomy',
-  'Jos': 'Joshua', 'Jg': 'Judges', 'Ru': 'Ruth', '1S': '1 Samuel', '2S': '2 Samuel',
-  '1K': '1 Kings', '2K': '2 Kings', '1Ch': '1 Chronicles', '2Ch': '2 Chronicles',
-  'Ezr': 'Ezra', 'Ez': 'Ezra', 'Ne': 'Nehemiah', 'Neh': 'Nehemiah', 'Es': 'Esther', 'Est': 'Esther',
-  'Jb': 'Job', 'Job': 'Job', 'Ps': 'Psalms', 'Psa': 'Psalms',
-  'Pr': 'Proverbs', 'Pro': 'Proverbs', 'Ec': 'Ecclesiastes', 'Ecc': 'Ecclesiastes',
-  'So': 'Song of Solomon', 'Sos': 'Song of Solomon', 'Sg': 'Song of Solomon',
+  'Jos': 'Joshua', 'Jg': 'Judges', 'Ru': 'Ruth',
+  '1Sa': '1 Samuel', '1Sam': '1 Samuel', '1S': '1 Samuel',
+  '2Sa': '2 Samuel', '2Sam': '2 Samuel', '2S': '2 Samuel',
+  '1Ki': '1 Kings', '1K': '1 Kings',
+  '2Ki': '2 Kings', '2K': '2 Kings',
+  '1Ch': '1 Chronicles', '1Chr': '1 Chronicles',
+  '2Ch': '2 Chronicles', '2Chr': '2 Chronicles',
+  'Ezr': 'Ezra', 'Ez': 'Ezra',
+  'Ne': 'Nehemiah', 'Neh': 'Nehemiah',
+  'Es': 'Esther', 'Est': 'Esther',
+  'Jb': 'Job', 'Job': 'Job',
+  'Ps': 'Psalms', 'Psa': 'Psalms', 'Psm': 'Psalms',
+  'Pr': 'Proverbs', 'Pro': 'Proverbs', 'Prov': 'Proverbs',
+  'Ec': 'Ecclesiastes', 'Ecc': 'Ecclesiastes', 'Eccl': 'Ecclesiastes',
+  'So': 'Song of Solomon', 'Sos': 'Song of Solomon', 'Sg': 'Song of Solomon', 'Song': 'Song of Solomon',
   'Is': 'Isaiah', 'Isa': 'Isaiah',
   'Je': 'Jeremiah', 'Jer': 'Jeremiah',
   'La': 'Lamentations', 'Lam': 'Lamentations',
-  'Eze': 'Ezekiel', 'Ezr': 'Ezekiel',
+  'Eze': 'Ezekiel', 'Ezek': 'Ezekiel',
   'Da': 'Daniel', 'Dan': 'Daniel',
   'Ho': 'Hosea', 'Hos': 'Hosea',
   'Jl': 'Joel', 'Joe': 'Joel',
@@ -219,13 +228,13 @@ function parseBibleText(rawText) {
       continue;
     }
 
-    // ABBREVIATED FORMAT: "Ge 1:1", "Ex 2:3", etc.
+    // ABBREVIATED FORMAT: "Ge 1:1", "Ex 2:3", etc. - preserve brackets in verse text
     const abbrevMatch = trimmed.match(/^([A-Za-z]{2,3})\s+(\d+):(\d+)\s+(.+)$/);
     if (abbrevMatch) {
       const abbrev = abbrevMatch[1];
       const chapterNum = parseInt(abbrevMatch[2], 10);
       const verseNum = parseInt(abbrevMatch[3], 10);
-      const verseText = abbrevMatch[4].trim();
+      const verseText = abbrevMatch[4]; // Don't trim - preserve leading/trailing spaces in brackets
       
       // Map abbreviation to full book name
       const bookName = ABBREV_TO_API[abbrev];
@@ -241,7 +250,7 @@ function parseBibleText(rawText) {
         }
         
         if (verseNum > 0 && verseNum <= 200 && verseText.length > 0) {
-          data[currentBook][currentChapter].push({ verse: verseNum, text: verseText });
+          data[currentBook][currentChapter].push({ verse: verseNum, text: verseText.trim() });
           verseCount++;
           continue;
         }
