@@ -354,12 +354,6 @@ export default function BibleReader() {
           const el = document.getElementById(`v${highlightVerse}`);
           if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 100);
-        
-        // Auto-hide highlight after 3 seconds
-        const timer = setTimeout(() => {
-          setHighlightVerse(null);
-        }, 3000);
-        return () => clearTimeout(timer);
       } else {
         // No verse target — ensure we're at the top
         window.scrollTo({ top: 0 });
