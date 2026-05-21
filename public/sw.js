@@ -82,11 +82,13 @@ self.addEventListener('fetch', (event) => {
 // Handle notification click - navigate to app when user clicks notification
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
+  event.preventDefault();
+  event.stopImmediatePropagation();
   event.waitUntil(
     clients.matchAll({ type: 'window' }).then((clientList) => {
       // If app is already open, focus it
       for (const client of clientList) {
-        if (client.url === '/' && 'focus' in client) {
+        if (client.url.includes(window.location.origin || '/') && 'focus' in client) {
           return client.focus();
         }
       }
