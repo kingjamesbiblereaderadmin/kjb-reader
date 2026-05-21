@@ -57,6 +57,15 @@ export default function DailyReadingPage() {
 
   const handleStartReading = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (todayProgress && todayProgress.book) {
+      const bookData = getBookByApiName(todayProgress.book);
+      if (bookData) {
+        // Navigate directly to today's assigned chapter
+        setTimeout(() => navigate(`/read?book=${bookData.abbr}&chapter=${todayProgress.chapter}`), 150);
+        return;
+      }
+    }
+    // Fallback to reader home
     setTimeout(() => navigate('/read'), 150);
   };
 

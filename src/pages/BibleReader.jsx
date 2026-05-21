@@ -219,7 +219,22 @@ export default function BibleReader() {
   useEffect(() => {
     // Preload Bible data on first mount so it's cached for offline access
     getBibleData().catch(() => {});
-    loadChapter(pos.abbr, pos.chapter, pos.verse);
+    
+    // Check for URL parameters (from Daily Reading page)
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlBook = urlParams.get('book');
+    const urlChapter = urlParams.get('chapter');
+    
+    if (urlBook && urlChapter) {
+      // Navigate to specified chapter from URL
+      const chapterNum = parseInt(urlChapter, 10);
+      setPos({ abbr: urlBook, chapter: chapterNum, verse: null });
+      loadChapter(urlBook, chapterNum, null);
+    } else {
+      // Load from saved position
+      loadChapter(pos.abbr, pos.chapter, pos.verse);
+    }
+    
     // If a verse range was passed, pre-select those verses and enter filter mode
     if (pos.verse && pos.verseEnd && pos.verseEnd > pos.verse) {
       const range = new Set();
