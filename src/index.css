@@ -105,14 +105,9 @@
     -webkit-user-select: none;
   }
   
-  /* Cursive font mode: make [italic] text stand out with sans-serif, primary color */
+  /* Cursive font mode: make [italic] text stand out with italic styling */
   .cursive-em-style em {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    font-style: normal;
-    color: hsl(var(--primary));
-  }
-  .dark .cursive-em-style em {
-    color: hsl(var(--primary));
+    font-style: italic;
   }
 
 
