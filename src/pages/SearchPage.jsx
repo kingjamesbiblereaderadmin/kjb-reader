@@ -68,6 +68,10 @@ export default function SearchPage() {
       setHighlightTerm(searchTerm);
       setExpandedTerms([]);
       
+      // Quoted phrases force case-sensitive matching
+      const effectiveCaseSensitive = isQuotedPhrase ? true : caseSensitive;
+      if (isQuotedPhrase && !caseSensitive) setCaseSensitive(true);
+      
       const kwLower = searchTerm.toLowerCase();
       
       // Check if query is a verse range (e.g., "Romans 1:20-22")
@@ -140,12 +144,12 @@ export default function SearchPage() {
             const searchTextLower = searchText.toLowerCase();
             
             if (exactMatch) {
-              if (caseSensitive) {
+              if (effectiveCaseSensitive) {
                 found = (searchText === searchTerm);
               } else {
                 found = (searchTextLower === searchTermLower);
               }
-            } else if (caseSensitive) {
+            } else if (effectiveCaseSensitive) {
               if (wholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
@@ -186,8 +190,8 @@ export default function SearchPage() {
             let colophonFound = false;
             
             if (exactMatch) {
-              colophonFound = caseSensitive ? (colophonText === searchTerm) : (colophonLower === searchTermLower);
-            } else if (caseSensitive) {
+              colophonFound = effectiveCaseSensitive ? (colophonText === searchTerm) : (colophonLower === searchTermLower);
+            } else if (effectiveCaseSensitive) {
               if (wholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
