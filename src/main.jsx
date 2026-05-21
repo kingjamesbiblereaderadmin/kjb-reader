@@ -18,6 +18,19 @@ window.addEventListener('load', async () => {
       const registration = await navigator.serviceWorker.register('/sw.js');
       console.log('[SW] Registered:', registration.scope);
       
+      // Clear old caches on startup to prevent stale code
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(
+          cacheNames
+            .filter(name => name !== 'kjb-reader-v1')
+            .map(name => {
+              console.log('[SW] Deleting old cache:', name);
+              return caches.delete(name);
+            })
+        );
+      }
+      
       // Check for updates periodically
       setInterval(() => {
         registration.update().then(() => {

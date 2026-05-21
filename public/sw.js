@@ -42,11 +42,30 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
+  const url = event.request.url;
+  
   // Skip cross-origin requests
-  if (!event.request.url.startsWith(self.location.origin)) {
+  if (!url.startsWith(self.location.origin)) {
     return;
   }
-
+  
+  // Never cache Vite/React chunks, node_modules, or dev assets - always fetch fresh
+  if (
+    url.includes('/node_modules/') ||
+    url.includes('/@vite/') ||
+    url.includes('/@react-refresh') ||
+    url.includes('.vite/deps/') ||
+    url.includes('chunk-') ||
+    event.request.destination === 'script' ||
+    event.request.destination === 'style'
+  ) {
+    // Always fetch from network for JS/CSS chunks
+    return fetch(event.request).catch(err => {
+      console.error('[SW] Fetch failed for asset:', err);
+      return caches.match(event.request);
+    });
+  }
+  
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
