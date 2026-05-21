@@ -171,6 +171,13 @@ export default function AppLayout() {
                 e.preventDefault();
                 e.stopPropagation();
                 if (refreshing) return;
+
+                // Offline: don't try to fetch — just confirm cached data is in use
+                if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+                  toast.info('Offline — using cached Bible');
+                  return;
+                }
+
                 setRefreshing(true);
                 try {
                   // Check version first - only recache if changed
