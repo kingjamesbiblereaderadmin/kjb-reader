@@ -6,7 +6,7 @@
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB } from '@/lib/bibleIndexedDB';
 import { COLOPHONS } from '@/lib/bibleSubscripts';
 
-const CACHE_KEY = 'bible_data_pce_v55_NO_COLOPHONS';
+const CACHE_KEY = 'bible_data_pce_v56_NO_COLOPHONS';
 const RTF_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/dacf369e2_TEXT-PCE-127.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
@@ -187,6 +187,12 @@ function parseBibleText(rawText) {
       continue;
     }
 
+    // Skip standalone colophon lines in RTF (tab-indented lines like "Written to the Hebrews from Italy by Timothy.")
+    // These are hardcoded in bibleSubscripts.js and should not be included in verse text
+    if (/^\s+Written\s+to\s+/i.test(lines[i]) || /^\s+It\s+was\s+written\s+to\s+/i.test(lines[i])) {
+      continue;
+    }
+
     const upper = trimmed.toUpperCase().replace(/[.,]/g, '').trim();
 
     // Chapter heading
@@ -261,6 +267,9 @@ function parseBibleText(rawText) {
 
     pendingTitle = null;
     if (!currentBook || currentChapter === null) continue;
+
+    // Skip indented colophon lines (tab-indented lines after a chapter — these are hardcoded in bibleSubscripts.js)
+    if (lines[i].startsWith('\t') || lines[i].match(/^    /)) continue;
 
     // Verse line: starts with a number
     const verseNumMatch = trimmed.match(/^(\d+)\s+(.+)$/);
