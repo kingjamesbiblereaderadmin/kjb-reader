@@ -41,7 +41,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - cache-first strategy with network fallback
+// Fetch event - cache-first with exclusions for dev/hot-reload assets
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -52,7 +52,27 @@ self.addEventListener('fetch', (event) => {
   // Skip chrome-extension and other non-http requests
   if (!url.protocol.startsWith('http')) return;
 
-  // Cache-first strategy for static assets
+  // NEVER cache these in development or hot-reload scenarios
+  if (
+    url.pathname.includes('/src/') ||
+    url.pathname.includes('/node_modules/.vite/') ||
+    url.pathname.includes('/@vite') ||
+    url.pathname.includes('/@react-refresh') ||
+    url.pathname.endsWith('.js') ||
+    url.pathname.endsWith('.jsx') ||
+    url.pathname.endsWith('.css') ||
+    url.search.includes('v=') // Vite cache-busting param
+  ) {
+    // Network-only for JS/CSS chunks to prevent stale React errors
+    return event.respondWith(
+      fetch(request).catch((err) => {
+        console.error('[SW] Fetch failed for dynamic asset:', err.message);
+        return new Response('Offline', { status: 503 });
+      })
+    );
+  }
+
+  // Cache-first strategy for static assets (HTML, images, etc.)
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       if (cachedResponse) {

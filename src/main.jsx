@@ -12,8 +12,26 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   </React.StrictMode>
 )
 
-// Service worker registration for offline support and notifications
+// Service worker cleanup and registration
 window.addEventListener('load', async () => {
+  // Aggressive cleanup in development to prevent stale React cache errors
+  if ('serviceWorker' in navigator && import.meta.env.DEV) {
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const registration of registrations) {
+        await registration.unregister();
+        console.log('[SW] Unregistered dev service worker:', registration.scope);
+      }
+      const cacheNames = await caches.keys();
+      for (const name of cacheNames) {
+        await caches.delete(name);
+        console.log('[SW] Cleared dev cache:', name);
+      }
+      console.log('[SW] Cleaned up all dev service workers and caches');
+    } catch (err) {
+      console.warn('[SW] Cleanup error:', err);
+    }
+  }
   
   // Register fresh service worker (production only)
   if ('serviceWorker' in navigator && !import.meta.env.DEV) {
