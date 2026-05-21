@@ -299,17 +299,10 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       }
     } catch (err) {
       console.error('Image share failed:', err);
-      // Fallback: share text only (no URL to avoid "tap to share URL" message)
+      // Fallback: copy text to clipboard
       const shareText = `"${verse.text}" — ${verse.ref} (KJB)`;
-      
-      if (navigator.share) {
-        await navigator.share({
-          text: shareText,
-        });
-      } else {
-        await navigator.clipboard.writeText(shareText);
-        alert('Verse text copied to clipboard!');
-      }
+      await navigator.clipboard.writeText(shareText);
+      alert('Verse copied to clipboard!');
     } finally {
       setTimeout(() => {
         setCapturing(false);
