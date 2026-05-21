@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2, ChevronsDown, MoreVertical, Trash2, Image, Copy } from 'lucide-react';
+import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2, ChevronsDown, MoreVertical, Trash2, Image, Copy, Crop } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import ImageCropper from './ImageCropper';
 import { getNotificationsEnabled, requestNotificationPermission, disableNotifications, scheduleDailyNotification } from '@/lib/notifications';
@@ -598,6 +598,22 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                     <Image className="w-4 h-4" />
                     {uploading ? 'Uploading...' : 'Change Background'}
                   </button>
+                  {(customBg || pendingBg) && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.nativeEvent.stopImmediatePropagation();
+                        setCropImageForNotif(false);
+                        setCropImage(pendingBg || customBg);
+                        setShowMenu(false);
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                    >
+                      <Crop className="w-4 h-4" />
+                      Crop Background
+                    </button>
+                  )}
                   {(customBg || pendingBg) && (
                     <button
                       onClick={(e) => {
