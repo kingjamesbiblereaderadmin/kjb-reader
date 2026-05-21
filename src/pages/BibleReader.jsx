@@ -320,21 +320,25 @@ export default function BibleReader() {
     };
     preloadAndCache();
     
-    // Check for URL parameters (from Daily Reading page)
+    // Check for URL parameters (from Daily Reading page or search)
     const urlParams = new URLSearchParams(window.location.search);
     const urlBook = urlParams.get('book');
     const urlChapter = urlParams.get('chapter');
     const urlVerse = urlParams.get('verse');
     
     if (urlBook && urlChapter) {
-      // Navigate to specified chapter from URL
+      // Navigate to specified chapter from URL (search/daily verse)
       const chapterNum = parseInt(urlChapter, 10);
       const verseNum = urlVerse ? parseInt(urlVerse, 10) : null;
-      setPos({ abbr: urlBook, chapter: chapterNum, verse: null });
+      setPos({ abbr: urlBook, chapter: chapterNum, verse: verseNum });
       loadChapter(urlBook, chapterNum, verseNum);
+      // Mark as manual highlight so it persists
+      if (verseNum) {
+        setManualHighlight(true);
+      }
     } else {
-      // Load from saved position WITH highlight if verse is specified
-      loadChapter(pos.abbr, pos.chapter, pos.verse || null);
+      // Load from saved position WITHOUT auto-highlight
+      loadChapter(pos.abbr, pos.chapter, null);
     }
     
     // If a verse range was passed, pre-select those verses and enter filter mode
