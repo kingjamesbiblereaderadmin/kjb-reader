@@ -614,3 +614,24 @@ export function initPeriodicCacheRefresh() {
   // Only check on first load, not on every visibility change
   refreshCacheIfDue();
 }
+
+// Auto-download Bible data on first app load
+let _autoDownloadInitialized = false;
+export async function autoDownloadBibleOnFirstLoad() {
+  if (_autoDownloadInitialized) return;
+  _autoDownloadInitialized = true;
+  
+  try {
+    const cached = await loadFromIndexedDB();
+    if (!cached || !isValidBibleData(cached)) {
+      console.log('[AUTO-DOWNLOAD] No cache found, downloading Bible data...');
+      const data = await fetchAndParse();
+      await saveToCache(data);
+      console.log('[AUTO-DOWNLOAD] ✓ Bible auto-downloaded on first load');
+    } else {
+      console.log('[AUTO-DOWNLOAD] Cache already exists, skipping auto-download');
+    }
+  } catch (err) {
+    console.error('[AUTO-DOWNLOAD] Failed to auto-download:', err);
+  }
+}
