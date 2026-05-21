@@ -55,6 +55,18 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
+  // Prevent body scroll when lightbox is open
+  useEffect(() => {
+    if (showLightbox) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [showLightbox]);
+
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -777,11 +789,22 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             e.nativeEvent.stopImmediatePropagation();
             setShowLightbox(false);
           }}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation();
+            setShowLightbox(false);
+          }}
         >
           <div
             className="relative max-w-4xl w-full mx-4 p-8 md:p-12 rounded-2xl shadow-2xl"
             style={bgStyle}
             onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+            }}
+            onTouchEnd={(e) => {
               e.preventDefault();
               e.stopPropagation();
               e.nativeEvent.stopImmediatePropagation();
