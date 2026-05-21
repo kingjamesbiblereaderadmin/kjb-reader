@@ -69,21 +69,33 @@ export default function AppLayout() {
     // Auto-update and offline download on app load
     const initializeApp = async () => {
       try {
-        // Check for version updates first
-        const remoteVer = await fetch('https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt?t=' + Date.now())
-          .then(r => r.text())
-          .then(t => t.trim());
-        const localVer = localStorage.getItem('bible_cache_version');
+        // Check for version updates first (skip in preview to avoid 403)
+        const isPreview = window.location.hostname.includes('preview-sandbox');
+        let needsUpdate = false;
         
-        if (remoteVer !== localVer && localVer !== null) {
-          console.log('[AutoUpdate] New version available, clearing old cache...');
-          localStorage.removeItem('bible_cache_version');
-          localStorage.removeItem('bible_last_refresh');
+        if (!isPreview) {
+          const remoteVer = await fetch('https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt?t=' + Date.now())
+            .then(r => r.text())
+            .then(t => t.trim());
+          const localVer = localStorage.getItem('bible_cache_version');
+          
+          if (remoteVer !== localVer && localVer !== null) {
+            console.log('[AutoUpdate] New version available, clearing old cache...');
+            localStorage.removeItem('bible_cache_version');
+            localStorage.removeItem('bible_last_refresh');
+            needsUpdate = true;
+          }
         }
         
-        // Auto-download Bible data for offline access (only fetches if not cached or outdated)
-        const { autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
+        // Auto-download Bible data for offline access
+        const { autoDownloadBibleOnFirstLoad, isBibleCached } = await import('@/lib/bibleCache');
+        const wasCached = await isBibleCached();
         await autoDownloadBibleOnFirstLoad();
+        
+        // Show toast only on first download or update
+        if (!wasCached || needsUpdate) {
+          toast.success('📖 Bible downloaded for offline access');
+        }
         
         console.log('[AppLayout] App initialized with offline Bible data');
       } catch (err) {
