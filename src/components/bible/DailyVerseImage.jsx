@@ -281,7 +281,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const handleShare = async (e) => {
     e.stopPropagation();
     e.preventDefault();
-    console.log('[DailyVerseImage] handleShare called');
     setCapturing(true);
     setShowButtons(false);
     setShowStyleEditor(false);
@@ -299,30 +298,23 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       
       const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
       if (navigator.share && navigator.canShare({ files: [new File([blob], 'verse.png', { type: 'image/png' })] })) {
-        console.log('[DailyVerseImage] Using native share');
         await navigator.share({
           title: 'Daily Verse - KJB Reader',
           text: `"${verse.text}" — ${verse.ref}`,
           files: [new File([blob], `daily-verse-${dateStr}.png`, { type: 'image/png' })],
         });
       } else {
-        console.log('[DailyVerseImage] Using clipboard image fallback');
         // Try clipboard image
         try {
           await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-          console.log('[DailyVerseImage] ✅ Image copied to clipboard');
           alert('Image copied to clipboard!');
-        } catch (clipErr) {
-          console.warn('[DailyVerseImage] ❌ Image clipboard failed:', clipErr);
-        }
+        } catch {}
       }
     } catch (err) {
-      console.error('[DailyVerseImage] Image share failed:', err);
+      console.error('Image share failed:', err);
       // Fallback: copy text to clipboard
-      console.log('[DailyVerseImage] Using text clipboard fallback');
       const shareText = `"${verse.text}" — ${verse.ref} (KJB)`;
       await navigator.clipboard.writeText(shareText);
-      console.log('[DailyVerseImage] ✅ Text copied to clipboard');
       alert('Verse copied to clipboard!');
     } finally {
       setTimeout(() => {
@@ -334,16 +326,13 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
   const handleCopyVerse = async (e) => {
     e.stopPropagation();
-    console.log('[DailyVerseImage] handleCopyVerse called');
-    console.log('[DailyVerseImage] Verse to copy:', verse.ref);
     try {
       const verseText = `"${verse.text}" — ${verse.ref} (KJB)`;
       await navigator.clipboard.writeText(verseText);
-      console.log('[DailyVerseImage] ✅ Clipboard write successful');
       alert('Verse copied to clipboard!');
       setShowMenu(false);
     } catch (err) {
-      console.error('[DailyVerseImage] ❌ Failed to copy verse:', err);
+      console.error('Failed to copy verse:', err);
       alert('Failed to copy verse');
     }
   };

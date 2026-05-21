@@ -13,24 +13,13 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 // Service worker registration for offline support and notifications
 // Skip registration in development mode to avoid caching stale bundles
 if ('serviceWorker' in navigator && !import.meta.env.DEV) {
-  // Clear old caches to prevent stale React/Vite code errors
+  // Only register once per browser session to avoid Chrome "tap to copy URL" banner
+  const shouldRegister = !sessionStorage.getItem('kjb-sw-registered');
   window.addEventListener('load', async () => {
-    try {
-      const cacheNames = await caches.keys();
-      await Promise.all(cacheNames.map(name => caches.delete(name)));
-      console.log('[SW] Cleared old caches');
-    } catch (err) {
-      console.warn('[SW] Cache clear failed:', err);
-    }
-    
-    // Only register once per browser session to avoid Chrome "tap to copy URL" banner
-    const shouldRegister = !sessionStorage.getItem('kjb-sw-registered');
     let registration;
     try {
       registration = await navigator.serviceWorker.getRegistration('/');
       if (!registration && shouldRegister) {
-        // Delay SW registration to prevent browser "copy to URL" notification
-        await new Promise(resolve => setTimeout(resolve, 3000));
         registration = await navigator.serviceWorker.register('/sw.js');
         sessionStorage.setItem('kjb-sw-registered', 'true');
       }
@@ -79,15 +68,9 @@ if ('serviceWorker' in navigator && !import.meta.env.DEV) {
         });
       }).catch(() => {});
       
-      // Delay notification initialization to prevent browser "copy to URL" notification
-      setTimeout(() => {
-        initNotifications(getDailyVerse());
-      }, 5000);
+      initNotifications(getDailyVerse());
     } else {
-      // Delay notification initialization to prevent browser "copy to URL" notification
-      setTimeout(() => {
-        initNotifications(getDailyVerse());
-      }, 5000);
+      initNotifications(getDailyVerse());
     }
   });
 } else if ('serviceWorker' in navigator && import.meta.env.DEV) {

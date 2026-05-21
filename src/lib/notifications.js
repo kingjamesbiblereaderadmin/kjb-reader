@@ -147,12 +147,6 @@ export async function showLocalNotification(title, body, imageUrl = null) {
   console.log('[Notif] showLocalNotification called:', title);
   console.log('[Notif] Body:', body);
   
-  // Ensure body is a valid string
-  if (!body || typeof body !== 'string') {
-    console.error('[Notif] Invalid notification body:', body);
-    body = 'Daily verse notification';
-  }
-  
   // Try service worker first (works on Android, PWA, all platforms)
   if ('serviceWorker' in navigator) {
     try {
@@ -167,7 +161,10 @@ export async function showLocalNotification(title, body, imageUrl = null) {
         renotify: true,
         vibrate: [200, 100, 200],
         silent: false,
-        requireInteraction: false
+        requireInteraction: false,
+        data: {
+          url: window.location.origin ? (window.location.origin + '/') : '/'
+        }
       });
       console.log('[Notif] ✅ Service worker notification sent successfully');
       return;
@@ -188,7 +185,10 @@ export async function showLocalNotification(title, body, imageUrl = null) {
         tag: 'daily-verse',
         renotify: true,
         vibrate: [200, 100, 200],
-        silent: false
+        silent: false,
+        data: {
+          url: window.location.origin ? (window.location.origin + '/') : '/'
+        }
       });
       
       console.log('[Notif] ✅ Standard notification sent');
@@ -455,8 +455,8 @@ export function initNotifications(verse) {
   const today = todayString();
   localStorage.setItem('kjb-last-app-open', today);
 
-  // Disable overdue check on app open to prevent "copy to URL" browser notification
-  // checkOverdueNotification(verse);
+  // Always check if notification is due when app opens (for missed notifications)
+  checkOverdueNotification(verse);
 
   // Arm the in-page timer for future notifications at the scheduled time
   scheduleDailyNotification(verse);

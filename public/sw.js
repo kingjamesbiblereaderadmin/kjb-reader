@@ -30,19 +30,7 @@ self.addEventListener('activate', (event) => {
 });
 
 // Fetch event - serve from cache, fallback to network
-// IMPORTANT: Never cache Vite/React dev code to prevent stale bundle errors
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
-  
-  // Never cache: Vite dev code, React, node_modules, source maps
-  if (url.pathname.includes('/@vite') || 
-      url.pathname.includes('/@react-refresh') ||
-      url.pathname.includes('/node_modules/') ||
-      url.pathname.endsWith('.map') ||
-      url.pathname.includes('/src/')) {
-    return fetch(event.request);
-  }
-  
   event.respondWith(
     caches.match(event.request).then((response) => {
       if (response) {
@@ -69,7 +57,7 @@ self.addEventListener('notificationclick', (event) => {
     clients.matchAll({ type: 'window' }).then((clientList) => {
       // If app is already open, focus it
       for (const client of clientList) {
-        if ('focus' in client) {
+        if (client.url === '/' && 'focus' in client) {
           return client.focus();
         }
       }
@@ -146,14 +134,17 @@ async function sendDailyVerseNotification() {
       ref: config.verseRef
     });
     
-    // No icon, no data - just show the verse text
+    // No icon - just show the verse text
     await self.registration.showNotification('KJB — Daily Verse', {
       body: `"${config.verseText}" — ${config.verseRef}`,
       tag: 'daily-verse',
       renotify: true,
       vibrate: [200, 100, 200],
       silent: false,
-      requireInteraction: false
+      requireInteraction: false,
+      data: {
+        url: '/'
+      }
     });
     
     console.log('[SW] Notification shown successfully');
