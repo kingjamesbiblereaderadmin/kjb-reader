@@ -20,6 +20,11 @@ export async function fetchChapter(bookApiName, chapter) {
   const bible = await getBibleData();
   
   let verses = bible[bookApiName]?.[chapter] || [];
+  console.log('[fetchChapter] Got', verses.length, 'verses for', bookApiName, chapter);
+  if (verses.length > 0) {
+    console.log('[fetchChapter] Sample verse 1:', verses[0]?.text?.substring(0, 150));
+    console.log('[fetchChapter] Has brackets?', verses.some(v => v.text.includes('[')));
+  }
   if (!verses.length) throw new Error(`No verses found for ${bookApiName} ${chapter}`);
 
   // Strip "Made in Australia" from all verses globally
