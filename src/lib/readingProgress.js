@@ -138,8 +138,29 @@ export async function initializeReadingProgress() {
       
       if (sorted.length > 0) {
         const last = sorted[0];
-        nextBook = last.book;
-        nextChapter = (last.chapter || 1) + 1;
+        const { getNextBook, getBookByApiName } = await import('@/lib/bibleData');
+        const { BIBLE_BOOKS } = await import('@/lib/bibleData');
+        
+        // Find the book data to check if we need to advance to next book
+        const currentBookData = BIBLE_BOOKS.find(b => b.name === last.book);
+        if (currentBookData) {
+          if (last.chapter >= currentBookData.chapters) {
+            // Move to next book
+            const nextBookData = getNextBook(currentBookData.abbr);
+            if (nextBookData) {
+              nextBook = nextBookData.name;
+              nextChapter = 1;
+            } else {
+              // End of Bible, stay at Revelation 22
+              nextBook = 'Revelation';
+              nextChapter = 22;
+            }
+          } else {
+            // Next chapter in same book
+            nextBook = last.book;
+            nextChapter = last.chapter + 1;
+          }
+        }
       }
       
       await base44.entities.ReadingProgress.create({
