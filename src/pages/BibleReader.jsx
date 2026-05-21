@@ -405,12 +405,12 @@ export default function BibleReader() {
   }, [verses, loading, book.name, pos.chapter, isViewingTitlePage]);
 
   return (
-    <div className={`max-w-5xl mx-auto px-4 sm:px-6 py-3 ${hideHeader ? 'pt-16' : ''}`}>
+    <div className={`max-w-5xl mx-auto px-4 sm:px-6 pr-4 sm:pr-6 py-3 ${hideHeader ? 'pt-16' : ''}`}>
 
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
         <div ref={topRef} className="sticky top-[56px] sm:top-[72px] z-40 bg-background/95 backdrop-blur border-b border-border pb-1 mb-2">
-          <div className="flex flex-nowrap items-center gap-1.5 pt-1 overflow-x-auto pb-2 -mx-2 px-2">
+          <div className="relative flex flex-wrap items-center gap-1.5 pt-1 overflow-x-auto">
 
             {/* Book selector */}
             <button
