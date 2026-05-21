@@ -14,9 +14,7 @@ import { useTheme, COLOUR_PALETTES } from '@/lib/themeContext';
 import { useNavigate } from 'react-router-dom';
 import {
   getNotificationsEnabled, getNotificationTime, setNotificationTime,
-  requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification,
-  getReadingReminderEnabled, getReadingReminderTime, setReadingReminderTime,
-  enableReadingReminder, disableReadingReminder, scheduleReadingReminder
+  requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification
 } from '@/lib/notifications';
 
 import { getDailyVerse } from '@/lib/dailyVerse';
@@ -91,8 +89,6 @@ export default function SettingsPage() {
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
-  const [readingReminderEnabled, setReadingReminderEnabled] = useState(getReadingReminderEnabled);
-  const [readingReminderTime, setReadingReminderTimeState] = useState(getReadingReminderTime);
 
   const { isInstallable, isInstalled, promptInstall } = useInstallPrompt();
   const [cached, setCached] = useState(false);
@@ -119,7 +115,6 @@ export default function SettingsPage() {
     const handleFocus = () => {
       setNotifEnabled(getNotificationsEnabled());
       setNotifPermission('Notification' in window ? Notification.permission : 'unsupported');
-      setReadingReminderEnabled(getReadingReminderEnabled());
     };
     window.addEventListener('focus', handleFocus);
     document.addEventListener('visibilitychange', handleFocus);
@@ -173,32 +168,7 @@ export default function SettingsPage() {
 
 
 
-  const handleToggleReadingReminder = async () => {
-    if (readingReminderEnabled) {
-      disableReadingReminder();
-      setReadingReminderEnabled(false);
-    } else {
-      if (!('Notification' in window)) {
-        alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
-        return;
-      }
-      const result = await requestNotificationPermission();
-      setNotifPermission(result);
-      if (result === 'granted') {
-        enableReadingReminder();
-        setReadingReminderEnabled(true);
-        scheduleReadingReminder();
-      } else if (result === 'denied') {
-        alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
-      }
-    }
-  };
 
-  const handleReadingReminderTimeChange = (e) => {
-    setReadingReminderTimeState(e.target.value);
-    setReadingReminderTime(e.target.value);
-    if (readingReminderEnabled) scheduleReadingReminder();
-  };
 
   const handleDownload = async (e) => {
     if (e) {
@@ -829,44 +799,7 @@ export default function SettingsPage() {
             </div>
             )}
 
-            {/* Reading Reminder */}
-            <div className="pt-4 border-t border-border">
-              <div className="flex items-center justify-between gap-3 mb-3">
-                <div className="flex items-center gap-3 flex-1">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <p className="font-sans text-sm text-foreground font-medium">Reading Reminder</p>
-                      {readingReminderEnabled && <Bell className="w-3.5 h-3.5 text-primary" />}
-                    </div>
-                    <p className="font-sans text-xs text-muted-foreground">
-                      Reminder when you open the app
-                    </p>
-                  </div>
-                  {readingReminderEnabled && (
-                    <div className="flex items-center gap-2">
-                      <label className="font-sans text-xs text-muted-foreground">at</label>
-                      <input
-                        type="time"
-                        value={readingReminderTime}
-                        onChange={handleReadingReminderTimeChange}
-                        className="px-2 py-1.5 rounded-lg bg-secondary border border-border text-xs font-sans text-foreground focus:outline-none focus:border-accent"
-                      />
-                    </div>
-                  )}
-                </div>
-                <Switch
-                  checked={readingReminderEnabled}
-                  onCheckedChange={handleToggleReadingReminder}
-                  disabled={notifPermission === 'denied'}
-                  className="shrink-0"
-                />
-              </div>
-              {readingReminderEnabled && (
-                <p className="font-sans text-xs text-muted-foreground bg-secondary/50 rounded-lg p-2">
-                  ⏰ You will be reminded when you open the app
-                </p>
-              )}
-            </div>
+
           </>
         )}
         </div>
