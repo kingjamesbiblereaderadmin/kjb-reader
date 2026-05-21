@@ -381,7 +381,7 @@ function armTimer(verse) {
     console.log('[Notif] Firing notification at scheduled time');
     await showLocalNotification(
       'King James Bible — Daily Verse',
-      `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref}`,
+      `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref} (KJB)`,
       null
     );
     scheduleAndSave(verse);
@@ -407,7 +407,7 @@ function armTimer(verse) {
             localStorage.setItem(NOTIF_LAST_KEY, today);
             showLocalNotification(
               'King James Bible — Daily Verse',
-              `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref}`,
+              `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref} (KJB)`,
               null
             );
             scheduleAndSave(verse);
@@ -437,7 +437,7 @@ function armTimer(verse) {
           localStorage.setItem(NOTIF_LAST_KEY, today);
           showLocalNotification(
             'King James Bible — Daily Verse',
-            `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref}`,
+            `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref} (KJB)`,
             null
           );
           scheduleAndSave(verse);
@@ -507,7 +507,7 @@ function checkOverdueNotification(verse) {
       const freshVerse = getDailyVerse();
       showLocalNotification(
         'King James Bible — Daily Verse',
-        `"${freshVerse.text.slice(0, 120)}${freshVerse.text.length > 120 ? '…' : ''}" — ${freshVerse.ref}`,
+        `"${freshVerse.text.slice(0, 120)}${freshVerse.text.length > 120 ? '…' : ''}" — ${freshVerse.ref} (KJB)`,
         null // Will use stored kjb-notif-image
       );
       saveNextFireTime(freshVerse);
@@ -593,7 +593,7 @@ export async function triggerScheduledNotification() {
   localStorage.setItem(NOTIF_LAST_KEY, today);
   await showLocalNotification(
     'KJB — Manual Test',
-    `"${verse.text.slice(0, 100)}${verse.text.length > 100 ? '…' : ''}" — ${verse.ref}`,
+    `"${verse.text.slice(0, 100)}${verse.text.length > 100 ? '…' : ''}" — ${verse.ref} (KJB)`,
     null
   );
   scheduleAndSave(verse);
