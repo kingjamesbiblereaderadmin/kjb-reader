@@ -912,8 +912,8 @@ export default function BibleReader() {
       {/* Book title — hidden when showing title page */}
       {!isViewingTitlePage && (
         <div className="text-center mb-6 pt-4" style={{ fontSize: `${zoomLevel / 100}rem` }}>
-          <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-1 leading-tight">{book.name}</h1>
-          <p className="font-sans text-sm text-muted-foreground tracking-widest uppercase mt-1">
+          <h1 className={`text-2xl md:text-3xl font-bold text-foreground mb-1 leading-tight ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`} style={{ fontStyle: 'normal' }}>{book.name}</h1>
+          <p className={`font-sans text-sm text-muted-foreground tracking-widest uppercase mt-1 ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`} style={{ fontStyle: 'normal' }}>
             Chapter {pos.chapter}
           </p>
           {/* Subscript — centred below chapter name, non-italic by default, [bracketed] words italic */}
@@ -1001,7 +1001,7 @@ export default function BibleReader() {
         <div className="text-center mt-12 mb-4">
           <p 
             className={`text-sm text-muted-foreground tracking-widest uppercase ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
-            style={{ fontSize: `${zoomLevel / 100}rem` }}
+            style={{ fontSize: `${zoomLevel / 100}rem`, fontStyle: 'normal' }}
           >
             The End of the Prophets
           </p>
@@ -1011,7 +1011,7 @@ export default function BibleReader() {
         <div className="text-center mt-12 mb-4">
           <p 
             className={`text-sm text-muted-foreground tracking-widest uppercase ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
-            style={{ fontSize: `${zoomLevel / 100}rem` }}
+            style={{ fontSize: `${zoomLevel / 100}rem`, fontStyle: 'normal' }}
           >
             The End
           </p>
