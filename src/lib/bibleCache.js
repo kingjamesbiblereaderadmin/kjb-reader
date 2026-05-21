@@ -5,9 +5,9 @@
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB } from '@/lib/bibleIndexedDB';
 import { COLOPHONS } from '@/lib/bibleSubscripts';
 
-const CACHE_KEY = 'bible_data_pce_v66_MERGED';
-// WHARTON file has pilcrows (¶), RTF file has [brackets] for italics
-const PILCROW_FILE_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/badea04f1_WHARTON_PCE.txt';
+const CACHE_KEY = 'bible_data_pce_v66_WHARTON_MAIN';
+// WHARTON file is main text (with pilcrows ¶), RTF file has [brackets] for italics
+const MAIN_TEXT_FILE_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/badea04f1_WHARTON_PCE.txt';
 const ITALICS_FILE_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/075077e5d_KJB-PCE-RTF.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
@@ -400,21 +400,21 @@ async function loadFromCache() {
 }
 
 async function fetchAndParse() {
-  console.log('[FETCH] Fetching WHARTON (pilcrows) and RTF (italics)...');
-  console.log('[FETCH] WHARTON URL:', PILCROW_FILE_URL);
-  console.log('[FETCH] RTF URL:', ITALICS_FILE_URL);
+  console.log('[FETCH] Fetching WHARTON (main text with pilcrows) and RTF (italics)...');
+  console.log('[FETCH] MAIN TEXT (WHARTON) URL:', MAIN_TEXT_FILE_URL);
+  console.log('[FETCH] ITALICS (RTF) URL:', ITALICS_FILE_URL);
   
   // Fetch both files in parallel
-  const [pilcrowText, italicsText] = await Promise.all([
-    fetchWithRetry(PILCROW_FILE_URL, 3, true),  // expect pilcrows
+  const [mainText, italicsText] = await Promise.all([
+    fetchWithRetry(MAIN_TEXT_FILE_URL, 3, true),  // expect pilcrows
     fetchWithRetry(ITALICS_FILE_URL, 3, false)  // expect brackets
   ]);
 
-  console.log('[FETCH] ✓ WHARTON:', pilcrowText.length, 'chars');
-  console.log('[FETCH] ✓ RTF:', italicsText.length, 'chars');
+  console.log('[FETCH] ✓ MAIN (WHARTON):', mainText.length, 'chars');
+  console.log('[FETCH] ✓ ITALICS (RTF):', italicsText.length, 'chars');
   
   // Verify WHARTON has pilcrows
-  const pilcrowCount = (pilcrowText.match(/¶/g) || []).length;
+  const pilcrowCount = (mainText.match(/¶/g) || []).length;
   console.log('[FETCH] WHARTON pilcrow count:', pilcrowCount);
   
   // Verify RTF has brackets
@@ -426,7 +426,7 @@ async function fetchAndParse() {
   console.log('[PARSE] Italic map size:', italicMap.size, 'verses');
   
   // Parse WHARTON as base text (with pilcrows) and apply italics from RTF
-  const data = parseWithPilcrowsAndItalics(pilcrowText, italicMap);
+  const data = parseWithPilcrowsAndItalics(mainText, italicMap);
   
   if (!isValidBibleData(data)) {
     throw new Error('Parsed data only has ' + Object.keys(data).filter(k => k !== '__colophons').length + ' books');
@@ -542,7 +542,8 @@ export async function forceReloadBibleData() {
 }
 
 export async function downloadBibleForOffline(onProgress) {
-  await clearBibleCache();
+  // Clear IndexedDB only (don't reload page)
+  await clearIndexedDB();
   onProgress && onProgress(0, 'Fetching Bible text...');
 
   onProgress && onProgress(50, 'Parsing 66 books with italics...');

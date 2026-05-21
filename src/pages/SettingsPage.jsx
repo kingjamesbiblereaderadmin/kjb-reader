@@ -219,6 +219,7 @@ export default function SettingsPage() {
         localStorage.setItem('kjb-prompt-dismissed', 'true');
       } catch {}
     } catch (err) {
+      console.error('Download error:', err);
       setDlError('Download failed: ' + err.message + '. Please check your connection and try again.');
     }
     setDownloading(false);
