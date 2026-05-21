@@ -145,7 +145,7 @@ export default function AppLayout() {
 
           {/* Actions - responsive button sizes with visible square touch targets */}
           <div className="flex items-center gap-1 sm:gap-2 pointer-events-none shrink-0">
-            <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
+            <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
               onClick={async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -174,23 +174,23 @@ export default function AppLayout() {
               role="button"
               aria-label="Refresh and update cache"
             >
-              <RotateCw className="w-4 h-4" />
+              <RotateCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             </div>
-            <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
+            <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
               style={{ touchAction: 'manipulation' }}
               role="button"
               aria-label="Toggle theme"
             >
-              {mode === 'auto' ? <SunMoon className="w-4 h-4" /> : isDark ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+              {mode === 'auto' ? <SunMoon className="w-4 h-4 transition-transform duration-200" /> : isDark ? <Moon className="w-4 h-4 transition-transform duration-200" /> : <Sun className="w-4 h-4 transition-transform duration-200" />}
             </div>
-            <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
+            <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
               style={{ touchAction: 'manipulation' }}
               role="button"
               aria-label="Open menu"
             >
-              {menuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              {menuOpen ? <X className="w-4 h-4 transition-transform duration-200" /> : <Menu className="w-4 h-4 transition-transform duration-200" />}
             </div>
           </div>
         </div>
@@ -215,13 +215,13 @@ export default function AppLayout() {
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                         navigate(item.path);
                       }}
-                      className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg font-sans text-sm font-medium transition-colors ${
+                      className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg font-sans text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 ${
                         active
                           ? 'bg-primary text-primary-foreground'
                           : 'text-foreground hover:bg-secondary'
                       }`}
                     >
-                      <Icon className="w-4 h-4 flex-shrink-0" />
+                      <Icon className="w-4 h-4 flex-shrink-0 transition-transform duration-200" />
                       {item.label}
                     </Link>
                   );
@@ -266,9 +266,9 @@ export default function AppLayout() {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     navigate(item.path);
                   }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-sans text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-sans text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95"
                 >
-                  <Icon className="w-3.5 h-3.5" />
+                  <Icon className="w-3.5 h-3.5 transition-transform duration-200" />
                   {item.label}
                 </Link>
               );
@@ -353,10 +353,10 @@ function BottomNav({ pathname, navigate }) {
           <button
             onClick={cycleShowMode}
             onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
-            className="px-4 py-3 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-colors"
+            className="px-4 py-3 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95"
             title="Show navigation"
           >
-            <ChevronDown className="w-3.5 h-3.5 rotate-180" />
+            <ChevronDown className="w-3.5 h-3.5 rotate-180 transition-transform duration-200" />
           </button>
         </div>
       </nav>
@@ -379,9 +379,9 @@ function BottomNav({ pathname, navigate }) {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                   setTimeout(() => navigate(item.path), 150);
                 }}
-                className="flex flex-col items-center justify-center flex-1 h-14 active:bg-secondary/50 transition-colors"
+                className="flex flex-col items-center justify-center flex-1 h-14 active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95"
               >
-                <Icon className={`w-5 h-5 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
+                <Icon className={`w-5 h-5 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'} transition-transform duration-200`} />
                 <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
               </button>
             );
@@ -390,10 +390,10 @@ function BottomNav({ pathname, navigate }) {
           <button
             onClick={cycleShowMode}
             onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
-            className="w-8 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-colors shrink-0 border-l border-border"
+            className="w-8 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95 shrink-0 border-l border-border"
             title="Toggle navigation rows"
           >
-            {showMode === 'two' ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5 rotate-180" />}
+            {showMode === 'two' ? <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200" /> : <ChevronDown className="w-3.5 h-3.5 rotate-180 transition-transform duration-200" />}
           </button>
         </div>
 
@@ -411,9 +411,9 @@ function BottomNav({ pathname, navigate }) {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     navigate(item.path);
                   }}
-                  className="flex flex-col items-center justify-center w-full h-14 active:bg-secondary/50 transition-colors"
+                  className="flex flex-col items-center justify-center w-full h-14 active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95"
                 >
-                  <Icon className={`w-5 h-5 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <Icon className={`w-5 h-5 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'} transition-transform duration-200`} />
                   <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
                 </button>
               );
