@@ -130,28 +130,16 @@ async function sendDailyVerseNotification() {
     
     const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
     
-    // Get custom notification image from cache
-    let customImage = null;
-    try {
-      const dbCache = await caches.open('kjb-notif-images');
-      const imgResponse = await dbCache.match('/notif-image');
-      if (imgResponse) {
-        customImage = await imgResponse.blob();
-        console.log('[SW] Using custom image from cache');
-      }
-    } catch (imgErr) {
-      console.log('[SW] Failed to get custom image:', imgErr);
-    }
-    
     console.log('[SW] Showing notification:', {
       title: 'KJB — Daily Verse',
       body: config.verseText,
       ref: config.verseRef
     });
     
+    // Use only the logo URL - no custom images to avoid blob/cache issues
     await self.registration.showNotification('KJB — Daily Verse', {
       body: `"${config.verseText}" — ${config.verseRef}`,
-      icon: customImage || logoUrl,
+      icon: logoUrl,
       badge: logoUrl,
       tag: 'daily-verse',
       renotify: true,

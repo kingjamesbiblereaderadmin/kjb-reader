@@ -146,15 +146,8 @@ async function saveNextFireTime(verse) {
 export async function showLocalNotification(title, body, imageUrl = null) {
   const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
   
-  // Get custom notification image from localStorage if available
-  let customImage = null;
-  try {
-    customImage = localStorage.getItem('kjb-notif-image');
-  } catch {}
-  
   console.log('[Notif] showLocalNotification called:', title);
   console.log('[Notif] Body:', body);
-  console.log('[Notif] Custom image available:', !!customImage);
   
   // Try service worker first (works on Android, PWA, all platforms)
   if ('serviceWorker' in navigator) {
@@ -162,13 +155,11 @@ export async function showLocalNotification(title, body, imageUrl = null) {
       console.log('[Notif] Waiting for service worker to be ready...');
       const reg = await navigator.serviceWorker.ready;
       console.log('[Notif] Service worker ready, showing notification');
-      console.log('[Notif] Registration scope:', reg.scope);
-      console.log('[Notif] Active worker:', reg.active?.scriptURL);
       
-      // Show notification using service worker
+      // Show notification using service worker - NO custom image to avoid blob issues
       await reg.showNotification(title, {
         body: body,
-        icon: customImage || logoUrl,
+        icon: logoUrl,
         badge: logoUrl,
         tag: 'daily-verse',
         renotify: true,
@@ -179,11 +170,11 @@ export async function showLocalNotification(title, body, imageUrl = null) {
           url: window.location.origin ? (window.location.origin + '/') : '/'
         }
       });
-      console.log('[Notif] Service worker notification sent successfully');
+      console.log('[Notif] ✅ Service worker notification sent successfully');
       return;
     } catch (err) {
-      console.error('[Notif] Service worker notification failed:', err.message);
-      console.error('[Notif] Error details:', err);
+      console.error('[Notif] ❌ Service worker notification failed:', err.message);
+      console.error('[Notif] Error stack:', err.stack);
     }
   } else {
     console.error('[Notif] Service Worker not available');
@@ -195,7 +186,7 @@ export async function showLocalNotification(title, body, imageUrl = null) {
       console.log('[Notif] Using standard Notification API');
       const notif = new Notification(title, { 
         body: body,
-        icon: customImage || logoUrl,
+        icon: logoUrl,
         badge: logoUrl,
         vibrate: [200, 100, 200],
         tag: 'daily-verse',
@@ -206,14 +197,12 @@ export async function showLocalNotification(title, body, imageUrl = null) {
         }
       });
       
-      console.log('[Notif] Standard notification sent');
+      console.log('[Notif] ✅ Standard notification sent');
     } catch (err) {
-      console.error('[Notif] Standard notification failed:', err.message);
+      console.error('[Notif] ❌ Standard notification failed:', err.message);
     }
   } else {
     console.warn('[Notif] No notification method available');
-    console.warn('[Notif] Notification API available:', 'Notification' in window);
-    console.warn('[Notif] Notification permission:', 'Notification' in window ? Notification.permission : 'N/A');
   }
 }
 
