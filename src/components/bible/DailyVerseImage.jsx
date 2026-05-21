@@ -49,7 +49,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       try { setFontFamily(localStorage.getItem('kjb-verse-font-family') || 'serif'); } catch {}
       try { setNotifImage(localStorage.getItem('kjb-notif-image') || ''); } catch {}
       try { setShowVersePanel(localStorage.getItem('kjb-verse-panel-visible') !== 'false'); } catch {}
-      setPendingBg(null);
     };
     window.addEventListener('storage', handleStorage);
     handleStorage();
@@ -966,7 +965,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           onCancel={() => {
             setCropImage(null);
             setCropImageForNotif(false);
-            setPendingBg(null);
           }}
         />
       )}
