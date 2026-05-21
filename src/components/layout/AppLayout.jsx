@@ -273,40 +273,7 @@ export default function AppLayout() {
         />
       )}
 
-      <footer className="hidden sm:block border-t border-border bg-card/80 py-3 mt-8">
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mb-3">
-            {NAV_ITEMS.map(item => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => {
-                    setMenuOpen(false);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    navigate(item.path);
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-sans text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95"
-                >
-                  <Icon className="w-3.5 h-3.5 transition-transform duration-200" />
-                  {item.label}
-                </Link>
-              );
-            })}
-          </div>
-          <p className="text-center font-sans text-xs text-muted-foreground">
-            Bible text from{' '}
-            <a href="https://bibleprotector.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
-              bibleprotector.com
-            </a>
-            {' '}· Created with{' '}
-            <a href="https://base44.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
-              Base44
-            </a>
-          </p>
-        </div>
-      </footer>
+      <DesktopFooter pathname={pathname} navigate={navigate} setMenuOpen={setMenuOpen} />
     </div>
     </AutoUpdateHandler>
   );
@@ -350,6 +317,83 @@ function useAppLayoutPrompt() {
   };
 
   return { isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss };
+}
+
+function DesktopFooter({ pathname, navigate, setMenuOpen }) {
+  const [showFooter, setShowFooter] = useState(() => {
+    try {
+      const saved = localStorage.getItem('kjb-desktop-footer');
+      return saved === 'false' ? false : true;
+    } catch { return true; }
+  });
+
+  const toggleFooter = () => {
+    const next = !showFooter;
+    setShowFooter(next);
+    try { localStorage.setItem('kjb-desktop-footer', String(next)); } catch {}
+  };
+
+  if (!showFooter) {
+    return (
+      <div className="hidden sm:block fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border">
+        <div className="max-w-5xl mx-auto px-4 py-2 flex items-center justify-end">
+          <button
+            onClick={toggleFooter}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95"
+          >
+            <ChevronDown className="w-3.5 h-3.5 rotate-180 transition-transform duration-200" />
+            Show Footer
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <footer className="hidden sm:block border-t border-border bg-card/80 py-3 mt-8 mb-16">
+      <div className="max-w-5xl mx-auto px-4">
+        <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mb-3">
+          {NAV_ITEMS.map(item => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => {
+                  setMenuOpen(false);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  navigate(item.path);
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-sans text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95"
+              >
+                <Icon className="w-3.5 h-3.5 transition-transform duration-200" />
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
+        <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
+          <p className="text-center font-sans text-xs text-muted-foreground">
+            Bible text from{' '}
+            <a href="https://bibleprotector.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
+              bibleprotector.com
+            </a>
+            {' '}· Created with{' '}
+            <a href="https://base44.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
+              Base44
+            </a>
+          </p>
+          <button
+            onClick={toggleFooter}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95"
+          >
+            <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200" />
+            Hide Footer
+          </button>
+        </div>
+      </div>
+    </footer>
+  );
 }
 
 function BottomNav({ pathname, navigate }) {
