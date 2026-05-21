@@ -39,16 +39,25 @@ export function todayString() {
 
 export async function requestNotificationPermission() {
   console.log('[Notif] requestNotificationPermission called');
+  console.log('[Notif] Service Worker supported:', 'serviceWorker' in navigator);
+  console.log('[Notif] Notification API supported:', 'Notification' in window);
   
   let hasPermission = false;
   
   // Step 1: Try standard Notification API permission (iOS 16.4+, desktop browsers)
   if ('Notification' in window) {
     try {
-      console.log('[Notif] Requesting Notification permission...');
-      const result = await Notification.requestPermission();
-      console.log('[Notif] Notification permission result:', result);
-      if (result === 'granted') {
+      console.log('[Notif] Current Notification permission:', Notification.permission);
+      if (Notification.permission !== 'granted') {
+        console.log('[Notif] Requesting Notification permission...');
+        const result = await Notification.requestPermission();
+        console.log('[Notif] Notification permission result:', result);
+        if (result === 'granted') {
+          hasPermission = true;
+          localStorage.setItem(NOTIF_KEY, 'true');
+        }
+      } else {
+        console.log('[Notif] Notification permission already granted');
         hasPermission = true;
         localStorage.setItem(NOTIF_KEY, 'true');
       }
@@ -60,24 +69,35 @@ export async function requestNotificationPermission() {
   // Step 2: Register service worker (Android, PWA, all platforms)
   if ('serviceWorker' in navigator) {
     try {
+      console.log('[Notif] Checking service worker registration...');
       let reg = await navigator.serviceWorker.getRegistration('/');
       if (!reg) {
+        console.log('[Notif] Registering service worker...');
         reg = await navigator.serviceWorker.register('/sw.js');
         console.log('[Notif] Service worker registered:', reg.scope);
       } else {
         console.log('[Notif] Service worker already registered:', reg.scope);
+        console.log('[Notif] Service worker state:', reg.active ? 'active' : 'installing/activating');
+        if (reg.active) {
+          console.log('[Notif] Active SW script URL:', reg.active.scriptURL);
+        }
       }
       
       // On Android, SW notifications work even without Notification API permission
       if (!hasPermission) {
-        console.log('[Notif] Enabling notifications via service worker');
+        console.log('[Notif] Enabling notifications via service worker (no Notification API needed)');
         localStorage.setItem(NOTIF_KEY, 'true');
         hasPermission = true;
       }
     } catch (err) {
       console.error('[Notif] Service worker registration failed:', err.message);
     }
+  } else {
+    console.error('[Notif] Service Worker NOT supported in this browser');
   }
+  
+  console.log('[Notif] Final permission status:', hasPermission ? 'granted' : 'denied');
+  console.log('[Notif] Notifications enabled in localStorage:', getNotificationsEnabled());
   
   return hasPermission ? 'granted' : 'denied';
 }
@@ -134,12 +154,16 @@ export async function showLocalNotification(title, body, imageUrl = null) {
   
   console.log('[Notif] showLocalNotification called:', title);
   console.log('[Notif] Body:', body);
+  console.log('[Notif] Custom image available:', !!customImage);
   
   // Try service worker first (works on Android, PWA, all platforms)
   if ('serviceWorker' in navigator) {
     try {
+      console.log('[Notif] Waiting for service worker to be ready...');
       const reg = await navigator.serviceWorker.ready;
       console.log('[Notif] Service worker ready, showing notification');
+      console.log('[Notif] Registration scope:', reg.scope);
+      console.log('[Notif] Active worker:', reg.active?.scriptURL);
       
       // Show notification using service worker
       await reg.showNotification(title, {
@@ -159,7 +183,10 @@ export async function showLocalNotification(title, body, imageUrl = null) {
       return;
     } catch (err) {
       console.error('[Notif] Service worker notification failed:', err.message);
+      console.error('[Notif] Error details:', err);
     }
+  } else {
+    console.error('[Notif] Service Worker not available');
   }
   
   // Fallback to standard Notification API (iOS 16.4+, desktop)
@@ -184,7 +211,9 @@ export async function showLocalNotification(title, body, imageUrl = null) {
       console.error('[Notif] Standard notification failed:', err.message);
     }
   } else {
-    console.warn('[Notif] No notification method available - permission:', Notification.permission);
+    console.warn('[Notif] No notification method available');
+    console.warn('[Notif] Notification API available:', 'Notification' in window);
+    console.warn('[Notif] Notification permission:', 'Notification' in window ? Notification.permission : 'N/A');
   }
 }
 
@@ -287,6 +316,10 @@ export function scheduleDailyNotification(verse) {
 // Call once on app load - checks for missed notifications and arms timer
 let _notificationsInitialized = false;
 export function initNotifications(verse) {
+  console.log('[Notif] initNotifications called');
+  console.log('[Notif] Service Worker supported:', 'serviceWorker' in navigator);
+  console.log('[Notif] Notifications enabled:', getNotificationsEnabled());
+  
   if (!getNotificationsEnabled()) {
     console.log('[Notif] Notifications not enabled, skipping init');
     return;
@@ -299,8 +332,6 @@ export function initNotifications(verse) {
   }
   _notificationsInitialized = true;
 
-  console.log('[Notif] initNotifications called');
-  console.log('[Notif] Enabled:', getNotificationsEnabled());
   console.log('[Notif] Last notified:', localStorage.getItem(NOTIF_LAST_KEY));
   console.log('[Notif] Next fire timestamp:', localStorage.getItem(NOTIF_NEXT_KEY));
   console.log('[Notif] Notification time setting:', getNotificationTime());
@@ -330,4 +361,6 @@ export function initNotifications(verse) {
     const freshVerse = getDailyVerse();
     checkOverdueNotification(freshVerse);
   });
+  
+  console.log('[Notif] Notifications initialized successfully');
 }

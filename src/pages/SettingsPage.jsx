@@ -162,8 +162,32 @@ export default function SettingsPage() {
   };
 
   const handleTestNotif = async () => {
+    console.log('[Settings] Test notification button clicked');
+    console.log('[Settings] Notifications enabled:', getNotificationsEnabled());
+    console.log('[Settings] Service Worker available:', 'serviceWorker' in navigator);
+    console.log('[Settings] Notification API available:', 'Notification' in window);
+    console.log('[Settings] Notification permission:', 'Notification' in window ? Notification.permission : 'N/A');
+    
+    // Check SW registration
+    if ('serviceWorker' in navigator) {
+      try {
+        const reg = await navigator.serviceWorker.getRegistration('/');
+        console.log('[Settings] SW registered:', !!reg);
+        console.log('[Settings] SW active:', reg?.active?.scriptURL);
+      } catch (err) {
+        console.error('[Settings] SW check failed:', err);
+      }
+    }
+    
     const v = getDailyVerse();
-    await showLocalNotification('King James Bible — Verse of the Day', `"${v.text.slice(0, 100)}${v.text.length > 100 ? '…' : ''}" — ${v.ref}`);
+    console.log('[Settings] Showing test notification...');
+    try {
+      await showLocalNotification('KJB — Daily Verse Test', `"${v.text.slice(0, 100)}${v.text.length > 100 ? '…' : ''}" — ${v.ref}`);
+      console.log('[Settings] Test notification completed');
+    } catch (err) {
+      console.error('[Settings] Test notification failed:', err);
+      alert('Test failed! Check console for details.');
+    }
   };
 
 
@@ -972,6 +996,13 @@ export default function SettingsPage() {
               >
                 <Trash2 className="w-4 h-4" />
                 Clear Cache & Reload
+              </button>
+              <button
+                onClick={() => navigate('/debug')}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+              >
+                <Settings className="w-4 h-4" />
+                Debug Page
               </button>
             </div>
           </div>
