@@ -47,14 +47,14 @@ export default function AppLayout() {
   const [footerMode, setFooterMode] = useState(() => {
     try {
       const saved = localStorage.getItem('kjb-footer-mode');
-      return saved === 'two' ? 'two' : saved === 'none' ? 'none' : 'one';
+      return ['two', 'one', 'bar', 'none'].includes(saved) ? saved : 'one';
     } catch { return 'one'; }
   });
   useEffect(() => {
     const onStorage = () => {
       try {
         const saved = localStorage.getItem('kjb-footer-mode');
-        setFooterMode(saved === 'two' ? 'two' : saved === 'none' ? 'none' : 'one');
+        setFooterMode(['two', 'one', 'bar', 'none'].includes(saved) ? saved : 'one');
       } catch {}
     };
     window.addEventListener('kjb-footer-mode-change', onStorage);
@@ -376,13 +376,17 @@ function BottomNav({ pathname, navigate }) {
   const [showMode, setShowMode] = useState(() => {
     try {
       const saved = localStorage.getItem('kjb-footer-mode');
-      return saved === 'two' ? 'two' : saved === 'none' ? 'none' : 'one';
+      return ['two', 'one', 'bar', 'none'].includes(saved) ? saved : 'one';
     } catch { return 'one'; }
   });
 
   const cycleShowMode = () => {
-    // Cycle: two rows → one row → none → two rows
-    const next = showMode === 'two' ? 'one' : showMode === 'one' ? 'none' : 'two';
+    // Cycle: two rows → one row → bar (no icons) → none → two rows
+    const next =
+      showMode === 'two' ? 'one' :
+      showMode === 'one' ? 'bar' :
+      showMode === 'bar' ? 'none' :
+      'two';
     setShowMode(next);
     try { localStorage.setItem('kjb-footer-mode', next); } catch {}
     try { window.dispatchEvent(new Event('kjb-footer-mode-change')); } catch {}
@@ -402,6 +406,22 @@ function BottomNav({ pathname, navigate }) {
             <ChevronDown className="w-3.5 h-3.5 rotate-180 transition-transform duration-200" />
           </button>
         </div>
+      </nav>
+    );
+  }
+
+  // Bar mode - thin footer strip with only the chevron toggle (no icons)
+  if (showMode === 'bar') {
+    return (
+      <nav className="sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/95 backdrop-blur-md border-t border-border" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <button
+          onClick={cycleShowMode}
+          onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
+          className="w-full h-6 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-all duration-200"
+          title="Toggle navigation"
+        >
+          <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200" />
+        </button>
       </nav>
     );
   }
