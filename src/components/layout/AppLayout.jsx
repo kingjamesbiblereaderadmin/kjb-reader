@@ -437,19 +437,68 @@ function BottomNav({ pathname, navigate }) {
     try { localStorage.setItem('kjb-footer-mode', next); } catch {}
   };
 
-  // Hidden mode - show minimal bar with just chevron
+  // Hidden mode - show navigation menu with hide button
   if (showMode === 'none') {
     return (
       <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border safe-area-pb">
-        <div className="w-full flex justify-end">
-          <button
-            onClick={cycleShowMode}
-            onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
-            className="px-4 py-3 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95"
-            title="Show navigation"
-          >
-            <ChevronDown className="w-3.5 h-3.5 rotate-180 transition-transform duration-200" />
-          </button>
+        <div className="w-full">
+          <div className="flex flex-wrap justify-center gap-x-3 gap-y-2 py-3 px-2">
+            {BOTTOM_NAV_PRIMARY.map(item => {
+              const Icon = item.icon;
+              const active = item.path === '/' ? pathname === '/' : pathname === item.path;
+              return (
+                <button
+                  key={item.path}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    navigate(item.path);
+                  }}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg font-sans text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 ${
+                    active
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                  }`}
+                >
+                  <Icon className="w-4 h-4 transition-transform duration-200" />
+                  {item.label}
+                </button>
+              );
+            })}
+            {BOTTOM_NAV_SECONDARY.map(item => {
+              const Icon = item.icon;
+              const active = pathname === item.path;
+              return (
+                <button
+                  key={item.path}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    navigate(item.path);
+                  }}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg font-sans text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 ${
+                    active
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                  }`}
+                >
+                  <Icon className="w-4 h-4 transition-transform duration-200" />
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+          <div className="flex items-center justify-end pb-2 pr-3">
+            <button
+              onClick={cycleShowMode}
+              onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95"
+              title="Hide navigation"
+            >
+              <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200" />
+              Hide
+            </button>
+          </div>
         </div>
       </nav>
     );
