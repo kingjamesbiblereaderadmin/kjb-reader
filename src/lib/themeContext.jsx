@@ -89,9 +89,11 @@ export function ThemeProvider({ children }) {
   const [colourId, setColourIdState] = useState(() => {
     try { return localStorage.getItem('kjb-colour') || 'gold'; } catch { return 'gold'; }
   });
-  const [isDark, setIsDark] = useState(() => resolveIsDark(
-    (() => { try { return localStorage.getItem('kjb-theme-mode') || 'system'; } catch { return 'system'; } })()
-  ));
+  const [isDark, setIsDark] = useState(() => {
+    const savedMode = (() => { try { return localStorage.getItem('kjb-theme-mode') || 'system'; } catch { return 'system'; } })();
+    return resolveIsDark(savedMode);
+  });
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const setColourId = (id) => {
     setColourIdState(id);
@@ -129,10 +131,22 @@ export function ThemeProvider({ children }) {
     return () => clearInterval(interval);
   }, [mode]);
 
-  // Apply dark class to <html>
+  // Apply dark class to <html> - run immediately on mount
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark);
   }, [isDark]);
+
+  // Force theme application on mount to prevent flicker
+  useEffect(() => {
+    if (!isInitialized) {
+      const savedMode = localStorage.getItem('kjb-theme-mode') || 'system';
+      const savedColour = localStorage.getItem('kjb-colour') || 'gold';
+      const dark = resolveIsDark(savedMode);
+      document.documentElement.classList.toggle('dark', dark);
+      applyPalette(savedColour, dark);
+      setIsInitialized(true);
+    }
+  }, []);
 
   // Apply colour palette whenever palette or dark mode changes
   useEffect(() => {
