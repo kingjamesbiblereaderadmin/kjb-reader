@@ -405,12 +405,12 @@ export default function BibleReader() {
   }, [verses, loading, book.name, pos.chapter, isViewingTitlePage]);
 
   return (
-    <div className={`max-w-5xl mx-auto px-6 sm:px-8 py-3 ${hideHeader ? 'pt-16' : ''}`}>
+    <div className={`max-w-5xl mx-auto px-4 sm:px-6 py-3 ${hideHeader ? 'pt-16' : ''}`}>
 
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
         <div ref={topRef} className="sticky top-[56px] sm:top-[72px] z-40 bg-background/95 backdrop-blur border-b border-border pb-1 mb-2">
-          <div className="relative flex flex-wrap items-center gap-1.5 pt-1">
+          <div className="relative flex flex-wrap items-center gap-1.5 pt-1 overflow-x-auto">
 
             {/* Book selector */}
             <button
@@ -568,7 +568,7 @@ export default function BibleReader() {
               </button>
               {/* Desktop popover */}
               {showZoomPopover && !isMobile() && (
-                <div className="absolute top-full right-0 mt-1 z-50">
+                <div className="absolute top-full left-0 mt-1 z-50">
                   <div className="bg-card border border-border rounded-xl shadow-xl p-4 w-64">
                     <div className="flex items-center justify-between mb-3">
                       <span className="font-sans text-xs font-medium text-foreground">Text Size</span>
@@ -719,7 +719,7 @@ export default function BibleReader() {
       {/* Show header chevron when hidden — aligned with top border */}
       {hideHeader && (
         <div className="fixed top-0 left-0 right-0 h-[49px] border-b border-border bg-background/95 backdrop-blur z-[60]">
-          <div className="max-w-5xl mx-auto px-4 h-full flex items-center justify-end">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 h-full flex items-center justify-end">
             <div className="flex items-center gap-1">
               <button
                 onClick={toggleFullscreen}
@@ -873,7 +873,7 @@ export default function BibleReader() {
 
       {/* Filter mode banner */}
       {filterMode && (
-        <div className="sticky top-[56px] sm:top-[72px] z-40 mb-3 px-3 py-2 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-between gap-2">
+        <div className="sticky top-[56px] sm:top-[72px] z-40 mb-3 px-3 py-2 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-between gap-2 max-w-full overflow-x-auto">
           <p className="font-sans text-xs text-primary font-semibold flex items-center gap-1.5">
             <BookMarked className="w-3.5 h-3.5" />
             {selectedVerses.size > 0
@@ -899,7 +899,7 @@ export default function BibleReader() {
 
       {/* Floating select action bar */}
       {selectMode && (
-        <div className="fixed bottom-24 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-card border border-border shadow-2xl">
+        <div className="fixed bottom-24 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-2xl bg-card border border-border shadow-2xl max-w-[95vw] w-auto overflow-x-auto">
           <span className="font-sans text-xs text-muted-foreground font-medium">
             {selectedVerses.size === 0 ? '0' : selectedVerses.size}{selectedVerses.size === 0 ? '' : `/${verses.length}`} selected
           </span>
