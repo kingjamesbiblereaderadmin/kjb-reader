@@ -112,7 +112,7 @@ async function sendDailyVerseNotification() {
     } catch {}
     
     await self.registration.showNotification('KJB — Daily Verse', {
-      body: `"${config.verseText}" — KJB ${config.verseRef}`,
+      body: `"${config.verseText}" — ${config.verseRef}`,
       icon: customImage || logoUrl,
       badge: logoUrl,
       tag: 'daily-verse',

@@ -235,7 +235,7 @@ function armTimer(verse) {
     localStorage.setItem(NOTIF_LAST_KEY, today);
     console.log('[Notif] Firing notification at scheduled time');
     await showLocalNotification(
-      'King James Bible — Verse of the Day',
+      'King James Bible — Daily Verse',
       `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref}`,
       null // Will use stored kjb-notif-image
     );
