@@ -3,7 +3,7 @@ import { Check, Layers } from 'lucide-react';
 
 export default function VerseSelector({ totalVerses, currentVerse, onSelect, onClose, multiSelect = false }) {
   const [selected, setSelected] = useState(() => new Set(currentVerse ? (Array.isArray(currentVerse) ? currentVerse : [currentVerse]) : []));
-  const [multiMode, setMultiMode] = useState(multiSelect);
+  const [multiMode, setMultiMode] = useState(false); // Default to single-select mode
 
   const toggle = (v) => {
     if (!multiMode) {

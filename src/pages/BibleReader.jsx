@@ -570,7 +570,7 @@ export default function BibleReader() {
                 <VerseSelector
                   totalVerses={verseCount}
                   currentVerse={highlightVerse}
-                  multiSelect={true}
+                  multiSelect={false}
                   onSelect={(v) => {
                     const first = Array.isArray(v) ? v[0] : v;
                     if (Array.isArray(v) && v.length > 1) {
