@@ -295,8 +295,10 @@ function isValidBibleData(data) {
 async function fetchWithRetry(url, retries = 3) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      // Bypass cache to ensure fresh data with brackets
-      const res = await fetch(url, { cache: 'no-cache', mode: 'cors' });
+      // Add timestamp to bypass browser/CDN cache
+      const separator = url.includes('?') ? '&' : '?';
+      const cacheBusterUrl = `${url}${separator}t=${Date.now()}`;
+      const res = await fetch(cacheBusterUrl, { cache: 'no-store', mode: 'cors' });
       console.log('[FETCH] Attempt', attempt, '- Status:', res.status);
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const buf = await res.arrayBuffer();
@@ -451,12 +453,18 @@ export async function getBibleData() {
 
   fetchInProgress = (async () => {
     try {
+      // Always check for remote updates first
+      const needsUpdate = await checkForUpdates();
       const cached = await loadFromCache();
 
-      if (cached) {
+      if (cached && !needsUpdate) {
         parsedData = cached;
         console.log('[CACHE] Using cached version - instant load');
         return parsedData;
+      }
+      
+      if (cached && needsUpdate) {
+        console.log('[CACHE] Cache outdated, fetching fresh...');
       }
 
       console.log('[FETCH] No cache, fetching fresh Bible data...');
@@ -494,8 +502,13 @@ export async function clearBibleCache() {
   localStorage.removeItem('bible_data_complete_v2');
   localStorage.removeItem('bible_cache_version');
   localStorage.removeItem('bible_last_refresh');
+  localStorage.removeItem('kjb-theme-preference');
   await clearIndexedDB();
   parsedData = null;
+  // Force reload to clear in-memory cache
+  if (typeof window !== 'undefined') {
+    window.location.reload();
+  }
   console.log('[CLEAR] ✓✓✓ ALL cache cleared - will fetch fresh with brackets');
 }
 
