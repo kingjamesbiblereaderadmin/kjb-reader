@@ -40,11 +40,11 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   const html = renderVerseText(displayVerseText);
 
   const verseRef = `${shortBookName} ${chapter}:${verse.verse}`;
-  // Replace [italic] markers with (italic) for copy/share
-  const textWithItalics = verse.text.replace(/¶\s*/g, '').replace(/\[([^\]]+)\]/g, '($1)');
+  // Keep [italic] markers as-is for copy/share
+  const textWithItalics = verse.text.replace(/¶\s*/g, '');
   const isLastVerse = totalVerses > 0 && verse.verse === totalVerses;
   const colophonWithItalics = isLastVerse && colophon
-    ? colophon.replace(/¶\s*/g, '').replace(/\[([^\]]+)\]/g, '($1)').trim()
+    ? colophon.replace(/¶\s*/g, '').trim()
     : null;
   const verseText = colophonWithItalics
     ? `"${textWithItalics}" — ${verseRef} (KJB)\n\n¶ ${colophonWithItalics}`
