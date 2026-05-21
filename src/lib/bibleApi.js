@@ -84,7 +84,9 @@ export function renderColophonText(text) {
   if (!text || typeof text !== 'string') return '';
   const normalized = text
     .replace(/\u2019/g, "'").replace(/\u2018/g, "'")
-    .replace(/\u201C/g, '"').replace(/\u201D/g, '"');
+    .replace(/\u201C/g, '"').replace(/\u201D/g, '"')
+    // Strip any leading pilcrow from the text itself to avoid doubling
+    .replace(/^[\u00B6\uFFFD]\s*/, '');
   const parts = normalized.split(/\[([^\]]+)\]/g);
   const rendered = parts.map((part, i) =>
     i % 2 === 1 ? `<em>${part}</em>` : part

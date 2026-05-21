@@ -842,11 +842,8 @@ export default function BibleReader() {
             <p
               className="font-serif text-sm text-muted-foreground leading-relaxed [&_em]:italic [&_em]:text-muted-foreground"
               style={{ fontStyle: 'normal' }}
-            >
-              <span className="pilcrow">¶</span>
-              {' '}
-              <span dangerouslySetInnerHTML={{ __html: renderColophonText(colophon) }} />
-            </p>
+              dangerouslySetInnerHTML={{ __html: renderColophonText(colophon) }}
+            />
           </div>
         )}
       </div>
