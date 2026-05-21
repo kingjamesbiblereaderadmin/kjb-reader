@@ -118,37 +118,39 @@ export default function SearchPage() {
         const chapters = bible[bookName];
         for (const chapterNum in chapters) {
           const verses = chapters[chapterNum];
-          // Pre-process verses array to avoid repeated operations
+          // Keep italics in brackets for search and display
           const processedVerses = verses.map(v => ({
             verse: v.verse,
-            text: v.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '')
+            text: v.text.replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '')
           }));
           
+          // Search in verses
           for (const verseObj of processedVerses) {
             let found = false;
+            const searchText = verseObj.text;
+            const searchTextLower = searchText.toLowerCase();
             
             if (exactMatch) {
               if (caseSensitive) {
-                found = (verseObj.text === searchTerm);
+                found = (searchText === searchTerm);
               } else {
-                found = (verseObj.text.toLowerCase() === searchTermLower);
+                found = (searchTextLower === searchTermLower);
               }
             } else if (caseSensitive) {
               if (wholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
-                found = wordRegex.test(verseObj.text);
+                found = wordRegex.test(searchText);
               } else {
-                found = verseObj.text.includes(searchTerm);
+                found = searchText.includes(searchTerm);
               }
             } else {
-              const verseTextLower = verseObj.text.toLowerCase();
               if (wholeWord) {
                 const escapedTerm = searchTermLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
-                found = wordRegex.test(verseTextLower);
+                found = wordRegex.test(searchTextLower);
               } else {
-                found = verseTextLower.includes(searchTermLower);
+                found = searchTextLower.includes(searchTermLower);
               }
             }
 
@@ -164,6 +166,50 @@ export default function SearchPage() {
                 text: verseObj.text,
                 abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
               });
+            }
+          }
+          
+          // Search in colophons for this chapter
+          const colophon = bible.__colophons?.[bookName]?.[chapterNum];
+          if (colophon) {
+            const colophonText = colophon.replace(/¶\s*/g, '');
+            const colophonLower = colophonText.toLowerCase();
+            let colophonFound = false;
+            
+            if (exactMatch) {
+              colophonFound = caseSensitive ? (colophonText === searchTerm) : (colophonLower === searchTermLower);
+            } else if (caseSensitive) {
+              if (wholeWord) {
+                const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
+                colophonFound = wordRegex.test(colophonText);
+              } else {
+                colophonFound = colophonText.includes(searchTerm);
+              }
+            } else {
+              if (wholeWord) {
+                const escapedTerm = searchTermLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
+                colophonFound = wordRegex.test(colophonLower);
+              } else {
+                colophonFound = colophonLower.includes(searchTermLower);
+              }
+            }
+            
+            if (colophonFound) {
+              const key = `${bookName}-${chapterNum}-colophon`;
+              if (!seen.has(key)) {
+                seen.add(key);
+                const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+                matches.push({
+                  book: bookName,
+                  chapter: parseInt(chapterNum),
+                  verse: 0, // Mark as colophon
+                  text: colophonText,
+                  isColophon: true,
+                  abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
+                });
+              }
             }
           }
         }
@@ -217,13 +263,19 @@ export default function SearchPage() {
     const sorted = [...indices].sort((a, b) => a - b);
     const verses = sorted.map(i => {
       const r = results[i];
-      const clean = r.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
-      return clean;
+      const text = r.text.replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
+      return text;
     });
     const first = results[sorted[0]];
     const last = results[sorted[sorted.length - 1]];
     const firstBookEntry = BIBLE_BOOKS.find(b => b.apiName === first.book);
     const firstBookName = firstBookEntry ? firstBookEntry.shortName : first.book;
+    
+    // Handle colophon results
+    if (first.isColophon) {
+      return `"${verses.join(' ')}" — ${firstBookName} ${first.chapter} colophon (KJB)`;
+    }
+    
     const verseRange = sorted.length > 1
       ? `${firstBookName} ${first.chapter}:${first.verse}-${last.verse}`
       : `${firstBookName} ${first.chapter}:${first.verse}`;
@@ -496,10 +548,19 @@ export default function SearchPage() {
           <div className="space-y-2">
             {results.map((r, i) => {
               const isSelected = selected.has(i);
+              const isColophon = r.isColophon || r.verse === 0;
               return (
                 <div
                   key={i}
-                  onClick={() => selectMode ? toggleSelect(i) : goToVerse(r.abbr, r.chapter, r.verse)}
+                  onClick={() => {
+                    if (selectMode) {
+                      toggleSelect(i);
+                    } else if (isColophon) {
+                      goToVerse(r.abbr, r.chapter, null);
+                    } else {
+                      goToVerse(r.abbr, r.chapter, r.verse);
+                    }
+                  }}
                   className={`w-full text-left p-4 rounded-xl border transition-colors cursor-pointer flex items-start gap-3 ${
                     isSelected
                       ? 'bg-primary/10 border-primary/40'
@@ -517,10 +578,15 @@ export default function SearchPage() {
                   <div className="flex-1 min-w-0">
                     <p className="font-sans text-xs text-accent font-semibold mb-1 flex items-center gap-1">
                       <BookOpen className="w-3 h-3" />
-                      {BIBLE_BOOKS.find(b => b.apiName === r.book)?.shortName || r.book} {r.chapter}:{r.verse}
+                      {BIBLE_BOOKS.find(b => b.apiName === r.book)?.shortName || r.book} {r.chapter}
+                      {isColophon ? ' (Colophon)' : `:${r.verse}`}
                     </p>
                     <p className="font-serif text-base text-foreground leading-relaxed">
-                      "{highlightText(r.text, query, caseSensitive)}"
+                      {isColophon ? (
+                        <span className="italic text-muted-foreground">¶ {highlightText(r.text, query, caseSensitive)}</span>
+                      ) : (
+                        `"${highlightText(r.text, query, caseSensitive)}"`
+                      )}
                     </p>
                   </div>
                 </div>
