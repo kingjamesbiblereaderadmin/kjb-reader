@@ -147,7 +147,7 @@ export default function AppLayout() {
   return (
     <AutoUpdateHandler>
     <div className="min-h-screen bg-background flex flex-col">
-      <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
         <div className="max-w-5xl mx-auto px-5 sm:px-8 h-14 flex items-center gap-2 sm:gap-3">
           {/* Logo */}
           <Link
@@ -393,7 +393,7 @@ function BottomNav({ pathname, navigate }) {
   // Hidden mode - show minimal bar with just chevron
   if (showMode === 'none') {
     return (
-      <nav className="sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/95 backdrop-blur-md border-t border-border" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <nav className="sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/95 backdrop-blur-md border-t border-border" style={{ paddingBottom: 'env(safe-area-inset-bottom)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
         <div className="w-full flex justify-end">
           <button
             onClick={cycleShowMode}
@@ -411,7 +411,7 @@ function BottomNav({ pathname, navigate }) {
   // Bar mode - thin footer strip with only the chevron toggle (no icons)
   if (showMode === 'bar') {
     return (
-      <nav className="sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/95 backdrop-blur-md border-t border-border" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <nav className="sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/95 backdrop-blur-md border-t border-border" style={{ paddingBottom: 'env(safe-area-inset-bottom)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
         <button
           onClick={cycleShowMode}
           onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
@@ -425,7 +425,7 @@ function BottomNav({ pathname, navigate }) {
   }
 
   return (
-    <nav className="sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/95 backdrop-blur-md border-t border-border overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+    <nav className="sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/95 backdrop-blur-md border-t border-border overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
       <div className="w-full">
         {/* Primary row: 5 nav items + chevron toggle button */}
         <div className="flex items-stretch">
