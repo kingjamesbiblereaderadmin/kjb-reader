@@ -624,7 +624,7 @@ export default function SearchPage() {
                       {isColophon ? (
                         <span className="italic text-muted-foreground">¶ {highlightText(r.text, query, caseSensitive)}</span>
                       ) : (
-                        `"${highlightText(r.text, query, caseSensitive)}"`
+                        <span>"{highlightText(r.text, query, caseSensitive)}"</span>
                       )}
                     </p>
                   </div>
