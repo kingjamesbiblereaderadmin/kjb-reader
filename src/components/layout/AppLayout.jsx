@@ -253,7 +253,7 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main className="flex-1 pb-[88px] sm:pb-0">
+      <main className="flex-1 pb-[56px] sm:pb-0">
         <Outlet />
       </main>
 
