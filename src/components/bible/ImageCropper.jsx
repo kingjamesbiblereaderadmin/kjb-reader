@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import Cropper from 'react-easy-crop';
 import { X, Check, Square, Crop } from 'lucide-react';
 
-export default function ImageCropper({ image, onCrop, onCancel }) {
+export default function ImageCropper({ image, onCrop, onCancel, positionMode = 'center' }) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [aspect, setAspect] = useState(1); // 1:1 default
@@ -41,13 +41,21 @@ export default function ImageCropper({ image, onCrop, onCancel }) {
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      className={`fixed z-[200] bg-black/80 backdrop-blur-sm ${
+        positionMode === 'overlay' 
+          ? 'inset-0 flex items-center justify-center'
+          : 'inset-0'
+      }`}
       onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
       onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
       onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
     >
       <div 
-        className="bg-card rounded-2xl p-4 w-full max-w-lg mx-4"
+        className={`bg-card rounded-2xl p-4 ${
+          positionMode === 'overlay' 
+            ? 'w-full max-w-lg mx-4'
+            : 'absolute top-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-[400px] max-h-[80vh] overflow-y-auto'
+        }`}
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
         onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
         onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
@@ -131,7 +139,9 @@ export default function ImageCropper({ image, onCrop, onCancel }) {
         </div>
         
         {/* Cropper */}
-        <div className="relative h-64 mb-4 rounded-xl overflow-hidden bg-secondary">
+        <div className={`relative mb-4 rounded-xl overflow-hidden bg-secondary ${
+          positionMode === 'overlay' ? 'h-64' : 'h-[300px]'
+        }`}>
           <Cropper
             image={image}
             crop={crop}

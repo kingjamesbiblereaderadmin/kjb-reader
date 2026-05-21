@@ -925,10 +925,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         style={{ opacity: 0.75 * textOpacity, backgroundColor: textColor }}
       />
       
-      {/* Crop Modal */}
+      {/* Crop Modal - positioned near verse card */}
       {cropImage && (
         <ImageCropper
           image={cropImage}
+          positionMode="overlay"
           onCrop={(cropped) => {
             handleCropComplete(cropped, cropImageForNotif);
             if (!cropImageForNotif) {
