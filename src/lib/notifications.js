@@ -8,7 +8,11 @@ const NOTIF_TIME_KEY = 'kjb-notification-time'; // HH:MM
 const NOTIF_LAST_KEY = 'kjb-notification-last'; // YYYY-MM-DD
 const NOTIF_NEXT_KEY = 'kjb-notification-next'; // Unix ms timestamp
 
-
+// Reading reminder keys
+const READING_REMINDER_KEY = 'kjb-reading-reminder-enabled';
+const READING_REMINDER_TIME_KEY = 'kjb-reading-reminder-time'; // HH:MM
+const READING_REMINDER_LAST_KEY = 'kjb-reading-reminder-last'; // YYYY-MM-DD
+const READING_REMINDER_NEXT_KEY = 'kjb-reading-reminder-next'; // Unix ms timestamp
 
 export function getNotificationsEnabled() {
   return localStorage.getItem(NOTIF_KEY) === 'true';
@@ -25,9 +29,6 @@ export function setNotificationTime(time) {
 export async function registerSW() {
   if (!('serviceWorker' in navigator)) return null;
   try {
-    // If already registered, return existing registration without re-registering
-    const existing = await navigator.serviceWorker.getRegistration('/');
-    if (existing) return existing;
     return await navigator.serviceWorker.register('/sw.js');
   } catch { return null; }
 }
@@ -48,12 +49,11 @@ export async function requestNotificationPermission() {
     return 'unsupported';
   }
   
-  // Get existing SW registration (don't re-register to avoid Chrome "tap to copy URL" banner)
+  // Try to register service worker first
   let reg;
   try {
-    reg = await navigator.serviceWorker.getRegistration('/');
-    if (!reg) reg = await navigator.serviceWorker.register('/sw.js');
-    console.log('Service worker ready:', reg.scope);
+    reg = await navigator.serviceWorker.register('/sw.js');
+    console.log('Service worker registered:', reg.scope);
   } catch (err) {
     console.error('Service worker registration failed:', err);
     return 'unsupported';
@@ -89,7 +89,106 @@ export function disableNotifications() {
   localStorage.removeItem(NOTIF_NEXT_KEY);
 }
 
+// Reading reminder functions
+export function getReadingReminderEnabled() {
+  return localStorage.getItem(READING_REMINDER_KEY) === 'true';
+}
 
+export function getReadingReminderTime() {
+  return localStorage.getItem(READING_REMINDER_TIME_KEY) || '20:00';
+}
+
+export function setReadingReminderTime(time) {
+  localStorage.setItem(READING_REMINDER_TIME_KEY, time);
+}
+
+export function enableReadingReminder() {
+  localStorage.setItem(READING_REMINDER_KEY, 'true');
+}
+
+export function disableReadingReminder() {
+  localStorage.setItem(READING_REMINDER_KEY, 'false');
+  localStorage.removeItem(READING_REMINDER_NEXT_KEY);
+}
+
+// Compute the next fire time for reading reminder
+function getNextReadingReminderFireDate() {
+  const [hh, mm] = getReadingReminderTime().split(':').map(Number);
+  const now = new Date();
+  const target = new Date();
+  target.setHours(hh, mm, 0, 0);
+  if (target <= now) target.setDate(target.getDate() + 1);
+  return target;
+}
+
+// Save next reading reminder fire timestamp
+async function saveNextReadingReminderFireTime() {
+  const t = getNextReadingReminderFireDate();
+  localStorage.setItem(READING_REMINDER_NEXT_KEY, String(t.getTime()));
+}
+
+// Reading reminder timer
+let _readingReminderTimer = null;
+
+function armReadingReminderTimer() {
+  if (_readingReminderTimer) { clearTimeout(_readingReminderTimer); _readingReminderTimer = null; }
+  const ms = getNextReadingReminderFireDate() - Date.now();
+  _readingReminderTimer = setTimeout(async () => {
+    const today = todayString();
+    if (localStorage.getItem(READING_REMINDER_LAST_KEY) === today) {
+      saveNextReadingReminderFireTime();
+      armReadingReminderTimer();
+      return;
+    }
+    localStorage.setItem(READING_REMINDER_LAST_KEY, today);
+    await showLocalNotification(
+      'KJB Reader — Daily Reading Reminder',
+      'Time to read your daily chapter! Open the app to continue your reading journey.'
+    );
+    saveNextReadingReminderFireTime();
+    armReadingReminderTimer();
+  }, ms);
+}
+
+export function scheduleReadingReminder() {
+  if (!getReadingReminderEnabled()) return;
+  // On Android, we just need service worker - Notification API is optional
+  if (!('serviceWorker' in navigator)) return;
+  saveNextReadingReminderFireTime();
+  armReadingReminderTimer();
+}
+
+// Check if reading reminder is overdue
+function checkOverdueReadingReminder() {
+  if (!getReadingReminderEnabled()) return;
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  const nextTs = parseInt(localStorage.getItem(READING_REMINDER_NEXT_KEY) || '0', 10);
+  if (!nextTs) return;
+  const today = todayString();
+  if (Date.now() >= nextTs && localStorage.getItem(READING_REMINDER_LAST_KEY) !== today) {
+    localStorage.setItem(READING_REMINDER_LAST_KEY, today);
+    showLocalNotification(
+      'KJB Reader — Daily Reading Reminder',
+      'Time to read your daily chapter! Open the app to continue your reading journey.'
+    );
+    saveNextReadingReminderFireTime();
+  }
+}
+
+export function initReadingReminder() {
+  if (!getReadingReminderEnabled()) return;
+  // On Android, we just need service worker - Notification API is optional
+  if (!('serviceWorker' in navigator)) return;
+
+  checkOverdueReadingReminder();
+  scheduleReadingReminder();
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      checkOverdueReadingReminder();
+    }
+  }, { once: false });
+}
 
 // Compute the next fire time (today or tomorrow) as a Date
 function getNextFireDate() {
@@ -121,25 +220,16 @@ async function saveNextFireTime(verse) {
 }
 
 // Show a notification via SW (required on Android PWA)
-export async function showLocalNotification(title, body, imageUrl = null) {
-  // Don't show notification if app is currently in the foreground
-  if (document.visibilityState === 'visible') return;
-  const logoUrl = imageUrl || 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
-  
+export async function showLocalNotification(title, body) {
   // Always try service worker first (works on Android even when Notification API doesn't)
   try {
     const reg = await navigator.serviceWorker.ready;
     console.log('Service worker ready, showing notification via SW');
     await reg.showNotification(title, {
       body,
-      icon: logoUrl,
-      badge: logoUrl,
       tag: 'daily-verse',
       renotify: true,
-      silent: false,
-      vibrate: [200, 100, 200],
-      image: imageUrl || undefined,
-      data: { url: self?.location?.origin || '/' }
+      silent: true, // No action buttons
     });
     return;
   } catch (err) {
@@ -149,12 +239,7 @@ export async function showLocalNotification(title, body, imageUrl = null) {
   // Fallback to standard Notification API
   if ('Notification' in window && Notification.permission === 'granted') {
     try {
-      new Notification(title, { 
-        body, 
-        icon: logoUrl,
-        badge: logoUrl,
-        vibrate: [200, 100, 200]
-      });
+      new Notification(title, { body, silent: true });
     } catch (err) {
       console.error('Standard notification failed:', err);
     }
@@ -203,7 +288,6 @@ async function registerPeriodicSync() {
 }
 
 // On page focus/visibility, check if we need to show a notification for today's verse
-// Only show if user missed the daily verse (new day, never opened app to see it)
 function checkOverdueNotification(verse) {
   if (!getNotificationsEnabled()) return;
   // On Android, we just need service worker - Notification API is optional
@@ -211,31 +295,17 @@ function checkOverdueNotification(verse) {
   const nextTs = parseInt(localStorage.getItem(NOTIF_NEXT_KEY) || '0', 10);
   if (!nextTs) return;
   const today = todayString();
-  const lastNotifDate = localStorage.getItem(NOTIF_LAST_KEY);
-  
-  // Only show recovery notification if:
-  // 1. It's a new day (today != last notification date)
-  // 2. The scheduled time has passed
-  // 3. User hasn't been notified yet today
-  if (lastNotifDate !== today && Date.now() >= nextTs) {
-    // Check if user already opened app today and saw the verse (no recovery needed)
-    const lastAppOpen = localStorage.getItem('kjb-last-app-open');
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2,'0')}-${String(yesterday.getDate()).padStart(2,'0')}`;
-    
-    // Only show recovery if user didn't open app yesterday or today
-    if (lastAppOpen !== today && lastAppOpen !== yesterdayStr) {
-      localStorage.setItem(NOTIF_LAST_KEY, today);
-      // Get fresh verse for today
-      const freshVerse = getDailyVerse();
-      showLocalNotification(
-        'King James Bible — Daily Verse',
-        `"${freshVerse.text.slice(0, 120)}${freshVerse.text.length > 120 ? '…' : ''}" — ${freshVerse.ref}`,
-        null // Will use stored kjb-notif-image
-      );
-      saveNextFireTime(freshVerse);
-    }
+  // If it's past the notification time and we haven't sent today
+  if (Date.now() >= nextTs && localStorage.getItem(NOTIF_LAST_KEY) !== today) {
+    localStorage.setItem(NOTIF_LAST_KEY, today);
+    // Get fresh verse for today
+    const freshVerse = getDailyVerse();
+    showLocalNotification(
+      'King James Bible — Daily Verse',
+      `"${freshVerse.text.slice(0, 120)}${freshVerse.text.length > 120 ? '…' : ''}" — ${freshVerse.ref}`,
+      null // Will use stored kjb-notif-image
+    );
+    saveNextFireTime(freshVerse);
   }
 }
 
@@ -248,21 +318,12 @@ export function scheduleDailyNotification(verse) {
 }
 
 // Call once on app load - checks for missed notifications and arms timer
-let _notificationsInitialized = false;
 export function initNotifications(verse) {
   if (!getNotificationsEnabled()) return;
   // On Android, we just need service worker - Notification API is optional
   if (!('serviceWorker' in navigator)) return;
-  
-  // Prevent multiple initializations
-  if (_notificationsInitialized) return;
-  _notificationsInitialized = true;
 
-  // Track app open date for recovery notification logic
-  const today = todayString();
-  localStorage.setItem('kjb-last-app-open', today);
-
-  // Only check for missed daily verse (not every app open)
+  // Always check if we need to notify for today's verse when app opens
   checkOverdueNotification(verse);
 
   // Arm the in-page timer for future notifications
@@ -271,8 +332,6 @@ export function initNotifications(verse) {
   // Re-check on visibility change (e.g. user switches back to the app)
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
-      // Update last open date
-      localStorage.setItem('kjb-last-app-open', todayString());
       // Get fresh verse when app becomes visible
       const freshVerse = getDailyVerse();
       checkOverdueNotification(freshVerse);

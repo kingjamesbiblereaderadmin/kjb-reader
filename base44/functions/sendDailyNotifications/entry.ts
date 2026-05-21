@@ -84,8 +84,7 @@ Deno.serve(async (req) => {
       title: readingTitle,
       body: readingBody,
       url: readingUrl,
-      type: 'daily-reading',
-      icon: 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png'
+      type: 'daily-reading'
     });
     
     // Get daily verse
@@ -113,8 +112,7 @@ Deno.serve(async (req) => {
       title: verseTitle,
       body: verseBody,
       url: null,
-      type: 'daily-verse',
-      icon: 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png'
+      type: 'daily-verse'
     });
     
     // Send both notifications to all subscribers

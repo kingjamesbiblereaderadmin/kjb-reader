@@ -20,16 +20,25 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
   const handleConfirm = () => {
     if (selected.size === 0) { onClose(); return; }
     const sorted = [...selected].sort((a, b) => a - b);
-    onSelect(multiSelect ? sorted : sorted[0]);
+    onSelect(sorted);
     onClose();
   };
 
   return (
     <div className="bg-card border border-border rounded-xl shadow-xl overflow-hidden w-[90vw] max-w-sm max-h-[70vh] flex flex-col">
-      <div className="px-4 py-3 border-b border-border">
-        <p className="font-serif font-semibold text-foreground text-center">
+      <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+        <p className="font-serif font-semibold text-foreground">
           {multiSelect ? `Select Verses${selected.size > 0 ? ` (${selected.size})` : ''}` : 'Select Verse'}
         </p>
+        {multiSelect && (
+          <button
+            onClick={handleConfirm}
+            disabled={selected.size === 0}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium disabled:opacity-40 hover:opacity-90 transition-opacity"
+          >
+            <Check className="w-3.5 h-3.5" /> Go
+          </button>
+        )}
       </div>
       <div className="overflow-y-auto flex-1 p-3">
         <div className="grid grid-cols-6 sm:grid-cols-8 gap-2">
@@ -50,21 +59,6 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
             );
           })}
         </div>
-      </div>
-      <div className="p-3 border-t border-border flex gap-2">
-        <button
-          onClick={onClose}
-          className="flex-1 px-4 py-2.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={handleConfirm}
-          disabled={selected.size === 0}
-          className="flex-1 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 disabled:opacity-30 transition-opacity"
-        >
-          Go
-        </button>
       </div>
     </div>
   );

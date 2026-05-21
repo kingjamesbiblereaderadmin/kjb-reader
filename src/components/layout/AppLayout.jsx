@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked, List } from 'lucide-react';
+import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
@@ -9,30 +9,31 @@ import ScrollToTop from '@/components/ScrollToTop';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, showLocalNotification } from '@/lib/notifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
-import { getBibleData, isBibleCached, initPeriodicCacheRefresh, downloadBibleForOffline } from '@/lib/bibleCache';
+import { getBibleData, isBibleCached, initPeriodicCacheRefresh } from '@/lib/bibleCache';
 import { toast } from 'sonner';
 
 const NAV_ITEMS = [
   { path: '/', icon: Home, label: 'Home' },
-  { path: '/contents', icon: List, label: 'Contents' },
   { path: '/read', icon: BookOpen, label: 'Read' },
   { path: '/gospel', icon: Heart, label: 'Gospel' },
   { path: '/resources', icon: Library, label: 'Resources' },
   { path: '/saved', icon: Bookmark, label: 'Saved' },
+  { path: '/daily-reading', icon: BookMarked, label: 'Daily Reading' },
   { path: '/about', icon: Info, label: 'About' },
   { path: '/settings', icon: Settings, label: 'Settings' },
 ];
 
 const BOTTOM_NAV_PRIMARY = [
   { path: '/', icon: Home, label: 'Home' },
-  { path: '/contents', icon: List, label: 'Contents' },
   { path: '/read', icon: BookOpen, label: 'Read' },
   { path: '/gospel', icon: Heart, label: 'Gospel' },
+  { path: '/resources', icon: Library, label: 'Resources' },
+  { path: '/saved', icon: Bookmark, label: 'Saved' },
 ];
 
 const BOTTOM_NAV_SECONDARY = [
+  { path: '/daily-reading', icon: BookMarked, label: 'Daily Reading' },
   { path: '/resources', icon: Library, label: 'Resources' },
-  { path: '/saved', icon: Bookmark, label: 'Saved' },
   { path: '/about', icon: Info, label: 'About' },
   { path: '/settings', icon: Settings, label: 'Settings' },
 ];
@@ -42,7 +43,6 @@ export default function AppLayout() {
   const { isDark, mode, toggleTheme } = useTheme();
   const { hideHeader } = useHeaderHide();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
   // Footer is always visible on desktop, controlled by bottom nav on mobile
   const navigate = useNavigate();
   const isRoot = pathname === '/';
@@ -67,30 +67,27 @@ export default function AppLayout() {
       }
     } catch {}
 
-    // Auto-update cache on every app load
-    const updateCacheOnLoad = async () => {
-      try {
-        console.log('[CACHE] Checking for updates on app load...');
-        // Clear old cache and download fresh data
-        const cacheNames = await caches.keys();
-        await Promise.all(cacheNames.map(name => caches.delete(name)));
-        
-        await downloadBibleForOffline((pct, msg) => {
-          console.log(`[CACHE] Update progress: ${pct}% - ${msg}`);
-        });
-        
-        toast.success('Bible cache updated', {
-          description: 'Latest version downloaded successfully.',
-          duration: 3000,
-        });
-      } catch (err) {
-        console.error('[CACHE] Auto-update failed:', err);
-        // Fallback: try to load from existing cache
-        getBibleData().catch(() => {});
+    // Silently pre-cache all 66 books in the background on first load
+    isBibleCached().then(cached => {
+      if (!cached) {
+        console.log('[CACHE] Not cached yet — pre-fetching in background...');
+        getBibleData()
+          .then(data => {
+            const bookCount = Object.keys(data).filter(k => k !== '__colophons').length;
+            if (bookCount >= 66) {
+              toast.success('Bible cached for offline use', {
+                description: 'All 66 books are now available offline.',
+                duration: 4000,
+              });
+              // Also show a system notification if permission is granted
+              if (getNotificationsEnabled()) {
+                showLocalNotification('KJB Reader — Offline Ready', 'All 66 books are now cached and available offline.');
+              }
+            }
+          })
+          .catch(err => console.warn('[CACHE] Background fetch failed:', err));
       }
-    };
-
-    updateCacheOnLoad();
+    });
 
     // Initialize periodic cache refresh (checks every 24 hours)
     initPeriodicCacheRefresh();
@@ -133,14 +130,10 @@ export default function AppLayout() {
           {/* Actions - responsive button sizes with visible square touch targets */}
           <div className="flex items-center gap-1 sm:gap-2 pointer-events-none shrink-0">
             <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors flex items-center justify-center cursor-pointer"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                window.location.reload();
-              }}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.reload(); }}
               style={{ touchAction: 'manipulation' }}
               role="button"
-              aria-label="Refresh and update cache"
+              aria-label="Refresh"
             >
               <RotateCw className="w-4 h-4" />
             </div>
@@ -302,33 +295,15 @@ function BottomNav({ pathname, navigate }) {
   const [showMode, setShowMode] = useState(() => {
     try {
       const saved = localStorage.getItem('kjb-footer-mode');
-      return saved === 'two' ? 'two' : saved === 'none' ? 'none' : 'one';
+      return saved === 'two' ? 'two' : 'one';
     } catch { return 'one'; }
   });
 
   const cycleShowMode = () => {
-    const next = showMode === 'one' ? 'two' : showMode === 'two' ? 'none' : 'one';
+    const next = showMode === 'one' ? 'two' : 'one';
     setShowMode(next);
     try { localStorage.setItem('kjb-footer-mode', next); } catch {}
   };
-
-  // Hidden mode - show minimal bar with just chevron
-  if (showMode === 'none') {
-    return (
-      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border safe-area-pb">
-        <div className="w-full flex justify-end">
-          <button
-            onClick={cycleShowMode}
-            onTouchStart={(e) => { e.preventDefault(); cycleShowMode(); }}
-            className="px-4 py-3 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-colors"
-            title="Show navigation"
-          >
-            <ChevronDown className="w-3.5 h-3.5 rotate-180" />
-          </button>
-        </div>
-      </nav>
-    );
-  }
 
   return (
     <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border safe-area-pb">
@@ -364,9 +339,9 @@ function BottomNav({ pathname, navigate }) {
           </button>
         </div>
 
-        {/* Secondary row - shown when two rows - 4 per line */}
+        {/* Secondary row - shown when two rows */}
         {showMode === 'two' && (
-          <div className="grid grid-cols-4 border-t border-border">
+          <div className="grid grid-cols-4 gap-0 border-t border-border">
             {BOTTOM_NAV_SECONDARY.map(item => {
               const Icon = item.icon;
               const active = pathname === item.path;
@@ -378,7 +353,7 @@ function BottomNav({ pathname, navigate }) {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     navigate(item.path);
                   }}
-                  className="flex flex-col items-center justify-center w-full h-14 active:bg-secondary/50 transition-colors"
+                  className="flex flex-col items-center justify-center w-full h-12 active:bg-secondary/50 transition-colors"
                 >
                   <Icon className={`w-5 h-5 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
                   <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>

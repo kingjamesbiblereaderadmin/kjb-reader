@@ -125,22 +125,22 @@ export const SUBSCRIPTS = {
   'Psalms:145': 'David\'s Psalm of praise.',
 };
 
-// Colophons — extracted from TEXT-PCE-127.txt (<<[...]>> markers), hardcoded here.
-// Key: "BookApiName:chapter", value: colophon text string.
-// These are rendered as a separate paragraph below the last verse, in italic.
+// Colophons — final verse marker: these chapters' last verse IS the colophon in the PCE text.
+// We mark them so they can be rendered in italic/smaller style.
+// Key: "BookApiName:chapter", value: verse number of colophon
 export const COLOPHONS = {
-  'Romans:16':          'Written to the Romans from Corinthus, [and sent] by Phebe servant of the church at Cenchrea.',
-  '1 Corinthians:16':   'The first [epistle] to the Corinthians was written from Philippi by Stephanas, and Fortunatus, and Achaicus, and Timotheus.',
-  '2 Corinthians:13':   'The second [epistle] to the Corinthians was written from Philippi, [a city] of Macedonia, by Titus and Lucas.',
-  'Galatians:6':        'Unto the Galatians written from Rome.',
-  'Ephesians:6':        'Written from Rome unto the Ephesians by Tychicus.',
-  'Philippians:4':      'It was written to the Philippians from Rome by Epaphroditus.',
-  'Colossians:4':       'Written from Rome to the Colossians by Tychicus and Onesimus.',
-  '1 Thessalonians:5':  'The first [epistle] unto the Thessalonians was written from Athens.',
-  '2 Thessalonians:3':  'The second [epistle] to the Thessalonians was written from Athens.',
-  '1 Timothy:6':        'The first to Timothy was written from Laodicea, which is the chiefest city of Phrygia Pacatiana.',
-  '2 Timothy:4':        'The second [epistle] unto Timotheus, ordained the first bishop of the church of the Ephesians, was written from Rome, when Paul was brought before Nero the second time.',
-  'Titus:3':            'It was written to Titus, ordained the first bishop of the church of the Cretians, from Nicopolis of Macedonia.',
-  'Philemon:1':         'Written from Rome to Philemon, by Onesimus a servant.',
-  'Hebrews:13':         'Written to the Hebrews from Italy by Timothy.',
+   'Malachi:4':         6,
+   'Romans:16':         24,
+   '1 Corinthians:16':  24,
+   '2 Corinthians:13':  14,
+   'Ephesians:6':       24,
+   'Philippians:4':     23,
+   'Colossians:4':      18,
+   '1 Thessalonians:5': 28,
+   '2 Thessalonians:3': 18,
+   '1 Timothy:6':       21,
+   '2 Timothy:4':       22,
+   'Titus:3':           15,
+   'Philemon:1':        25,
+   'Hebrews:13':        25,
 };

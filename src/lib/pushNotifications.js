@@ -15,29 +15,8 @@ const READING_REMINDER_TIME_KEY = 'kjb-reading-reminder-time'; // HH:MM
 const READING_REMINDER_LAST_KEY = 'kjb-reading-reminder-last'; // YYYY-MM-DD
 const READING_REMINDER_NEXT_KEY = 'kjb-reading-reminder-next'; // Unix ms timestamp
 
-// VAPID public key for push subscriptions - loaded dynamically
-let VAPID_PUBLIC_KEY = null;
-
-async function getVapidPublicKey() {
-  if (VAPID_PUBLIC_KEY) return VAPID_PUBLIC_KEY;
-  try {
-    // Call directly without SDK to avoid auth requirement
-    const response = await fetch('/api/functions/getVapidPublicKey', {
-      method: 'GET',
-    });
-    if (response.ok) {
-      const publicKey = await response.text();
-      if (publicKey) {
-        VAPID_PUBLIC_KEY = publicKey;
-        return VAPID_PUBLIC_KEY;
-      }
-    }
-  } catch (err) {
-    console.error('Failed to get VAPID key:', err);
-  }
-  // Fallback to default if endpoint fails
-  return 'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEADf-ZFJOkUx4a_BR4RPtWt4Ve4raBMl7TnQhwvkHhRUc_ZliOirS7pQlcUZFJXxZe6zizcpRZrTqhqJJInQkvw';
-}
+// VAPID public key for push subscriptions
+const VAPID_PUBLIC_KEY = 'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEADf-ZFJOkUx4a_BR4RPtWt4Ve4raBMl7TnQhwvkHhRUc_ZliOirS7pQlcUZFJXxZe6zizcpRZrTqhqJJInQkvw';
 
 export function getNotificationsEnabled() {
   return localStorage.getItem(NOTIF_KEY) === 'true';
@@ -116,53 +95,19 @@ export function disableNotifications() {
 
 // Subscribe to push notifications with VAPID
 export async function subscribeToPush() {
-  console.log('[Push] Starting subscription process...');
-  
-  if (!('serviceWorker' in navigator)) {
-    console.error('[Push] Service worker not supported');
-    throw new Error('Service worker not supported');
-  }
+  if (!('serviceWorker' in navigator)) return null;
   
   const reg = await navigator.serviceWorker.ready;
-  console.log('[Push] Service worker ready:', reg);
-  
-  // Get VAPID key dynamically
-  const vapidKeyString = await getVapidPublicKey();
-  console.log('[Push] VAPID key string:', vapidKeyString?.substring(0, 20) + '...');
-  
-  if (!vapidKeyString) {
-    console.error('[Push] Failed to retrieve VAPID public key');
-    throw new Error('Failed to retrieve VAPID public key');
-  }
   
   // Convert VAPID key from base64 url-safe to Uint8Array
-  let vapidKey;
-  try {
-    vapidKey = urlBase64ToUint8Array(vapidKeyString);
-    console.log('[Push] VAPID key converted, length:', vapidKey.length);
-  } catch (err) {
-    console.error('[Push] VAPID key conversion failed:', err);
-    throw new Error('Invalid VAPID key format: ' + err.message);
-  }
+  const vapidKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
   
-  if (!vapidKey || vapidKey.length === 0) {
-    console.error('[Push] VAPID key is empty after conversion');
-    throw new Error('VAPID key conversion resulted in empty array');
-  }
+  const subscription = await reg.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: vapidKey
+  });
   
-  console.log('[Push] Attempting to subscribe...');
-  try {
-    const subscription = await reg.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: vapidKey
-    });
-    console.log('[Push] Subscription successful:', subscription.endpoint?.substring(0, 50) + '...');
-    return subscription;
-  } catch (err) {
-    console.error('[Push] Subscription failed:', err.message);
-    console.error('[Push] Error details:', err);
-    throw err;
-  }
+  return subscription;
 }
 
 export function unsubscribeFromPush() {
@@ -241,7 +186,7 @@ function armReadingReminderTimer() {
     }
     localStorage.setItem(READING_REMINDER_LAST_KEY, today);
     await showLocalNotification(
-      'KJB — Reading Reminder',
+      'KJB Reader — Daily Reading Reminder',
       'Time to read your daily chapter! Open the app to continue your reading journey.'
     );
     saveNextReadingReminderFireTime();
@@ -267,7 +212,7 @@ function checkOverdueReadingReminder() {
   if (Date.now() >= nextTs && localStorage.getItem(READING_REMINDER_LAST_KEY) !== today) {
     localStorage.setItem(READING_REMINDER_LAST_KEY, today);
     showLocalNotification(
-      'KJB — Reading Reminder',
+      'KJB Reader — Daily Reading Reminder',
       'Time to read your daily chapter! Open the app to continue your reading journey.'
     );
     saveNextReadingReminderFireTime();
@@ -332,7 +277,6 @@ export async function showLocalNotification(title, body) {
       badge: logoUrl,
       tag: 'daily-verse',
       renotify: true,
-      vibrate: [200, 100, 200],
     });
     return;
   } catch (err) {
@@ -344,9 +288,7 @@ export async function showLocalNotification(title, body) {
     try {
       new Notification(title, { 
         body,
-        icon: logoUrl,
-        badge: logoUrl,
-        tag: 'daily-verse',
+        icon: logoUrl
       });
     } catch (err) {
       console.error('Standard notification failed:', err);
@@ -369,8 +311,8 @@ function armTimer(verse) {
     }
     localStorage.setItem(NOTIF_LAST_KEY, today);
     await showLocalNotification(
-      'KJB — Verse of the Day',
-      `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — KJB ${verse.ref}`
+      'King James Bible — Verse of the Day',
+      `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref}`
     );
     scheduleAndSave(verse);
   }, ms);
@@ -402,15 +344,14 @@ function checkOverdueNotification(verse) {
   const nextTs = parseInt(localStorage.getItem(NOTIF_NEXT_KEY) || '0', 10);
   if (!nextTs) return;
   const today = todayString();
-  // Only notify if it's past the notification time and we haven't sent today
-  // AND the notification time has already passed (not just opened app before notification time)
+  // If it's past the notification time and we haven't sent today
   if (Date.now() >= nextTs && localStorage.getItem(NOTIF_LAST_KEY) !== today) {
     localStorage.setItem(NOTIF_LAST_KEY, today);
     // Get fresh verse for today
     const freshVerse = getDailyVerse();
     showLocalNotification(
-      'KJB — Daily Verse',
-      `"${freshVerse.text.slice(0, 120)}${freshVerse.text.length > 120 ? '…' : ''}" — KJB ${freshVerse.ref}`
+      'King James Bible — Daily Verse',
+      `"${freshVerse.text.slice(0, 120)}${freshVerse.text.length > 120 ? '…' : ''}" — ${freshVerse.ref}`
     );
     saveNextFireTime(freshVerse);
   }
@@ -430,12 +371,6 @@ export function initNotifications(verse) {
   // On Android, we just need service worker - Notification API is optional
   if (!('serviceWorker' in navigator)) return;
 
-  // Debug: log notification state
-  console.log('[Notif] initNotifications called');
-  console.log('[Notif] Enabled:', getNotificationsEnabled());
-  console.log('[Notif] Last notified:', localStorage.getItem(NOTIF_LAST_KEY));
-  console.log('[Notif] Next fire:', localStorage.getItem(NOTIF_NEXT_KEY));
-
   // Always check if we need to notify for today's verse when app opens
   checkOverdueNotification(verse);
 
@@ -447,7 +382,6 @@ export function initNotifications(verse) {
     if (document.visibilityState === 'visible') {
       // Get fresh verse when app becomes visible
       const freshVerse = getDailyVerse();
-      console.log('[Notif] App became visible, checking overdue notification');
       checkOverdueNotification(freshVerse);
     }
   }, { once: false });
