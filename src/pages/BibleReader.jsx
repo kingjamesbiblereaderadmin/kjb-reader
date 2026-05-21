@@ -349,11 +349,17 @@ export default function BibleReader() {
   useEffect(() => {
     if (!loading) {
       if (highlightVerse) {
-        // Center on the specific verse
+        // Center on the specific verse (no overlay shown by default)
         setTimeout(() => {
           const el = document.getElementById(`v${highlightVerse}`);
           if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 100);
+        
+        // Auto-hide highlight after 3 seconds
+        const timer = setTimeout(() => {
+          setHighlightVerse(null);
+        }, 3000);
+        return () => clearTimeout(timer);
       } else {
         // No verse target — ensure we're at the top
         window.scrollTo({ top: 0 });
@@ -361,7 +367,7 @@ export default function BibleReader() {
     }
   }, [verses, loading, highlightVerse]);
 
-  // Auto-hide highlights after 5 seconds (only if not manually selected)
+  // Auto-hide highlights after 3 seconds (only if not manually selected)
   useEffect(() => {
     if (highlightVerse && !manualHighlight) {
       const timer = setTimeout(() => {
@@ -373,7 +379,7 @@ export default function BibleReader() {
             localStorage.setItem('kjb-position', JSON.stringify({ ...current, verse: null, verseEnd: null }));
           }
         } catch {}
-      }, 5000);
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, [highlightVerse, manualHighlight]);
