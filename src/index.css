@@ -105,8 +105,8 @@
     -webkit-user-select: none;
   }
   
-  /* Cursive font mode: make [italic] text stand out with italic styling */
-  .cursive-em-style em {
+  /* KJB italic text styling - [bracketed] words rendered as <em> */
+  em {
     font-style: italic;
   }
 
