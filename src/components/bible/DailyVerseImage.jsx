@@ -92,11 +92,24 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     reader.readAsDataURL(file);
   };
   
-  const handleCropComplete = (croppedDataUrl, forNotification = false) => {
+  const handleCropComplete = async (croppedDataUrl, forNotification = false) => {
     try {
       if (forNotification) {
+        // Save to localStorage for main thread access
         localStorage.setItem('kjb-notif-image', croppedDataUrl);
         setNotifImage(croppedDataUrl);
+        
+        // Also save to cache for service worker access
+        try {
+          const cache = await caches.open('kjb-notif-images');
+          const response = new Response(croppedDataUrl, {
+            headers: { 'Content-Type': 'image/png' }
+          });
+          await cache.put('/notif-image', response);
+          console.log('[Notif] Custom image saved to SW cache');
+        } catch (cacheErr) {
+          console.warn('[Notif] Failed to save image to cache:', cacheErr.message);
+        }
       } else {
         // Clear any existing background first to free up space
         localStorage.removeItem('kjb-daily-verse-bg');

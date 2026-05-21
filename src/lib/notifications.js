@@ -151,6 +151,12 @@ async function saveNextFireTime(verse) {
 export async function showLocalNotification(title, body, imageUrl = null) {
   const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
   
+  // Get custom notification image from localStorage if available
+  let customImage = null;
+  try {
+    customImage = localStorage.getItem('kjb-notif-image');
+  } catch {}
+  
   console.log('[Notif] showLocalNotification called:', title);
   
   // Try service worker first (works on Android, PWA, all platforms)
@@ -160,7 +166,7 @@ export async function showLocalNotification(title, body, imageUrl = null) {
       console.log('[Notif] Service worker ready, showing notification');
       await reg.showNotification(title, {
         body: body,
-        icon: logoUrl,
+        icon: customImage || logoUrl,
         badge: logoUrl,
         tag: 'daily-verse',
         renotify: true,
@@ -182,7 +188,7 @@ export async function showLocalNotification(title, body, imageUrl = null) {
       console.log('[Notif] Using standard Notification API');
       new Notification(title, { 
         body, 
-        icon: logoUrl,
+        icon: customImage || logoUrl,
         badge: logoUrl,
         vibrate: [200, 100, 200],
         tag: 'daily-verse',

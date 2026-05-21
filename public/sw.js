@@ -82,9 +82,19 @@ async function sendDailyVerseNotification() {
     
     const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
     
+    // Get custom notification image from IndexedDB
+    let customImage = null;
+    try {
+      const dbCache = await caches.open('kjb-notif-images');
+      const imgResponse = await dbCache.match('/notif-image');
+      if (imgResponse) {
+        customImage = await imgResponse.blob();
+      }
+    } catch {}
+    
     await self.registration.showNotification('KJB — Daily Verse', {
       body: `"${config.verseText}" — KJB ${config.verseRef}`,
-      icon: logoUrl,
+      icon: customImage || logoUrl,
       badge: logoUrl,
       tag: 'daily-verse',
       renotify: true,
