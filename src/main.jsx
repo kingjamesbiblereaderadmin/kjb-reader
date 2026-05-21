@@ -13,8 +13,13 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 // Service worker registration for offline support and notifications
 // Skip registration in development mode to avoid caching stale bundles
 if ('serviceWorker' in navigator && !import.meta.env.DEV) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
+  window.addEventListener('load', async () => {
+    // Don't re-register if already registered — avoids Chrome "tap to copy URL" banner
+    const existing = await navigator.serviceWorker.getRegistration('/').catch(() => null);
+    const regPromise = existing
+      ? Promise.resolve(existing)
+      : navigator.serviceWorker.register('/sw.js');
+    regPromise
       .then(registration => {
         console.log('[SW] Registered:', registration.scope);
         

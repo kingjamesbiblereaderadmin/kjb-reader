@@ -52,11 +52,12 @@ export async function requestNotificationPermission() {
     return 'unsupported';
   }
   
-  // Try to register service worker first
+  // Get existing SW registration (don't re-register to avoid Chrome "tap to copy URL" banner)
   let reg;
   try {
-    reg = await navigator.serviceWorker.register('/sw.js');
-    console.log('Service worker registered:', reg.scope);
+    reg = await navigator.serviceWorker.getRegistration('/');
+    if (!reg) reg = await navigator.serviceWorker.register('/sw.js');
+    console.log('Service worker ready:', reg.scope);
   } catch (err) {
     console.error('Service worker registration failed:', err);
     return 'unsupported';
