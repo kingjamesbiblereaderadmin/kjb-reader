@@ -162,12 +162,17 @@ export async function showLocalNotification(title, body, imageUrl = null) {
   } catch {}
   
   console.log('[Notif] showLocalNotification called:', title);
+  console.log('[Notif] Body:', body);
   
   // Try service worker first (works on Android, PWA, all platforms)
   if ('serviceWorker' in navigator) {
     try {
       const reg = await navigator.serviceWorker.ready;
       console.log('[Notif] Service worker ready, showing notification');
+      console.log('[Notif] SW registration scope:', reg.scope);
+      console.log('[Notif] Notification options:', { body, icon: customImage || logoUrl, tag: 'daily-verse' });
+      
+      // Show notification using service worker
       await reg.showNotification(title, {
         body: body,
         icon: customImage || logoUrl,
@@ -175,14 +180,17 @@ export async function showLocalNotification(title, body, imageUrl = null) {
         tag: 'daily-verse',
         renotify: true,
         vibrate: [200, 100, 200],
-        data: { url: window.location.origin || '/' },
         silent: false,
-        requireInteraction: false
+        requireInteraction: false,
+        data: {
+          url: window.location.origin ? (window.location.origin + '/') : '/'
+        }
       });
       console.log('[Notif] Service worker notification sent successfully');
       return;
     } catch (err) {
       console.error('[Notif] Service worker notification failed:', err.message);
+      console.error('[Notif] Error stack:', err.stack);
     }
   }
   
@@ -190,20 +198,31 @@ export async function showLocalNotification(title, body, imageUrl = null) {
   if ('Notification' in window && Notification.permission === 'granted') {
     try {
       console.log('[Notif] Using standard Notification API');
-      new Notification(title, { 
-        body, 
+      const notif = new Notification(title, { 
+        body: body,
         icon: customImage || logoUrl,
         badge: logoUrl,
         vibrate: [200, 100, 200],
         tag: 'daily-verse',
-        renotify: true
+        renotify: true,
+        silent: false
       });
+      
+      // Handle click event
+      notif.onclick = function(event) {
+        event.preventDefault();
+        window.focus();
+        if (this.data && this.data.url) {
+          window.location.href = this.data.url;
+        }
+      };
+      
       console.log('[Notif] Standard notification sent');
     } catch (err) {
       console.error('[Notif] Standard notification failed:', err.message);
     }
   } else {
-    console.warn('[Notif] No notification method available');
+    console.warn('[Notif] No notification method available - permission:', Notification.permission);
   }
 }
 
