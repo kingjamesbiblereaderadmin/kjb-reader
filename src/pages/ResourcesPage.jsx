@@ -470,7 +470,7 @@ function WhyKJBSection({ expanded, toggle }) {
 
 }
 
-function PreachersSection({ expandedState, toggle }) {
+function PreachersSection({ openPreachers, togglePreacher }) {
   return (
     <div className="mb-10">
       <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 mb-4">
@@ -482,11 +482,11 @@ function PreachersSection({ expandedState, toggle }) {
       </p>
       <div className="space-y-2">
         {PREACHERS.map((preacher, idx) => {
-          const isOpen = expandedState === preacher.name;
+          const isOpen = !!openPreachers[preacher.name];
           return (
             <div key={preacher.name} className="bg-card border border-border rounded-xl overflow-hidden transition-all">
               <button
-                onClick={() => toggle(isOpen ? null : preacher.name)}
+                onClick={() => togglePreacher(preacher.name)}
                 className="w-full flex items-center gap-3 p-4 hover:bg-accent/5 transition-colors text-left">
                 
                 <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
@@ -536,15 +536,27 @@ export default function ResourcesPage() {
     ministry: true,
     disclaimer: true,
     resources: {},
+    preacherLinks: {},
   });
-  
-  const allResourceSectionsExpanded = RESOURCES.every((_, idx) => expandedSections.resources[idx]);
-  
+
+  const allExpanded =
+    expandedSections.kjbi &&
+    expandedSections.whyKjb &&
+    expandedSections.preachers &&
+    expandedSections.ministry &&
+    expandedSections.disclaimer &&
+    RESOURCES.every((_, idx) => expandedSections.resources[idx] !== false) &&
+    PREACHERS.every((p) => expandedSections.preacherLinks[p.name]);
+
   const toggleAll = () => {
-    const newState = !allResourceSectionsExpanded;
+    const newState = !allExpanded;
     const newResourcesState = {};
     RESOURCES.forEach((_, idx) => {
       newResourcesState[idx] = newState;
+    });
+    const newPreacherLinksState = {};
+    PREACHERS.forEach((p) => {
+      newPreacherLinksState[p.name] = newState;
     });
     setExpandedSections(prev => ({
       ...prev,
@@ -554,9 +566,17 @@ export default function ResourcesPage() {
       ministry: newState,
       disclaimer: newState,
       resources: newResourcesState,
+      preacherLinks: newPreacherLinksState,
     }));
   };
-  
+
+  const togglePreacher = (name) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      preacherLinks: { ...prev.preacherLinks, [name]: !prev.preacherLinks[name] },
+    }));
+  };
+
   const toggleSection = (section, idx = null) => {
     if (section === 'resources' && idx !== null) {
       setExpandedSections(prev => ({
@@ -581,7 +601,7 @@ export default function ResourcesPage() {
           onClick={toggleAll}
           className="mt-4 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
         >
-          {allResourceSectionsExpanded ? 'Collapse All' : 'Expand All'}
+          {allExpanded ? 'Collapse All' : 'Expand All'}
         </button>
       </div>
 
@@ -613,7 +633,9 @@ export default function ResourcesPage() {
       <WhyKJBSection expanded={expandedSections.whyKjb} toggle={() => toggleSection('whyKjb')} />
 
       {/* Verified Preachers section */}
-      <PreachersSection expandedState={expandedSections.preachers} toggle={(val) => toggleSection('preachers', val)} />
+      {expandedSections.preachers && (
+        <PreachersSection openPreachers={expandedSections.preacherLinks} togglePreacher={togglePreacher} />
+      )}
 
       {/* Ministry Links */}
       <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
