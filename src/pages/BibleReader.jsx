@@ -98,6 +98,15 @@ export default function BibleReader() {
     try { localStorage.setItem('kjb-reader-font-family', font); } catch {}
   };
 
+  // Map font family values to actual CSS font families
+  const getFontFamilyValue = (family) => {
+    if (family === 'cursive') return "'Dancing Script', cursive";
+    if (family === 'serif') return "'Merriweather', 'Cormorant Garamond', Georgia, serif";
+    if (family === 'sans-serif') return "'Inter', system-ui, -apple-system, sans-serif";
+    if (family === 'monospace') return "monospace";
+    return family;
+  };
+
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
   const [selectedVerses, setSelectedVerses] = useState(new Set());
@@ -930,11 +939,11 @@ export default function BibleReader() {
 
       {/* Title pages or verses */}
       <div 
-        className={`leading-loose text-foreground/90 font-serif ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`}
+        className={`leading-loose text-foreground/90 ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
         style={{ 
           fontSize: `${zoomLevel / 100}rem`, 
           lineHeight: zoomLevel > 100 ? '1.8' : '1.6',
-          fontFamily
+          fontFamily: getFontFamilyValue(fontFamily)
         }}
       >
         {loading && (
