@@ -51,7 +51,10 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
 
   const handleCopy = (e) => {
     e.stopPropagation();
+    console.log('[VerseText] handleCopy called for', verseRef);
+    console.log('[VerseText] Text to copy:', verseText.substring(0, 100) + '...');
     navigator.clipboard.writeText(verseText);
+    console.log('[VerseText] ✅ Clipboard write successful');
     setSelected(false);
   };
 
@@ -70,10 +73,14 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
 
   const handleShare = (e) => {
     e.stopPropagation();
+    console.log('[VerseText] handleShare called for', verseRef);
     if (navigator.share) {
+      console.log('[VerseText] Using native share');
       navigator.share({ text: verseText });
     } else {
+      console.log('[VerseText] Using clipboard fallback');
       navigator.clipboard.writeText(verseText);
+      console.log('[VerseText] ✅ Clipboard write successful');
     }
     setSelected(false);
   };

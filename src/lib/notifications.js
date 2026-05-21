@@ -144,8 +144,6 @@ async function saveNextFireTime(verse) {
 
 // Show a notification via SW (required on Android PWA)
 export async function showLocalNotification(title, body, imageUrl = null) {
-  const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
-  
   console.log('[Notif] showLocalNotification called:', title);
   console.log('[Notif] Body:', body);
   
@@ -156,7 +154,7 @@ export async function showLocalNotification(title, body, imageUrl = null) {
       const reg = await navigator.serviceWorker.ready;
       console.log('[Notif] Service worker ready, showing notification');
       
-      // Show notification using service worker - verse text in body, no icon to avoid issues
+      // Show notification using service worker - NO icon, NO badge (pure text)
       await reg.showNotification(title, {
         body: body,
         tag: 'daily-verse',

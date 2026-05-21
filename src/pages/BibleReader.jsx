@@ -154,6 +154,10 @@ export default function BibleReader() {
   };
 
   const handleCopySelected = async () => {
+    console.log('[BibleReader] handleCopySelected called');
+    console.log('[BibleReader] Selected verses:', selectedVerses.size);
+    console.log('[BibleReader] Copy feedback state before:', copyFeedback);
+    
     const toUse = selectedVerses.size > 0 ? selectedVerses : new Set(verses.map(v => v.verse));
     const selectedVersesList = verses.filter(v => toUse.has(v.verse)).sort((a, b) => a.verse - b.verse);
     const versesText = selectedVersesList.map(v => {
@@ -176,9 +180,15 @@ export default function BibleReader() {
     }
     lines += `" — ${reference} (KJB)`;
     
+    console.log('[BibleReader] Copying to clipboard:', lines.substring(0, 100) + '...');
     await navigator.clipboard.writeText(lines);
+    console.log('[BibleReader] ✅ Clipboard write successful');
     setCopyFeedback(true);
-    setTimeout(() => setCopyFeedback(false), 1800);
+    console.log('[BibleReader] Copy feedback state after:', true);
+    setTimeout(() => {
+      console.log('[BibleReader] Copy feedback timeout cleared');
+      setCopyFeedback(false);
+    }, 1800);
   };
 
   const handleReadSelected = () => {
