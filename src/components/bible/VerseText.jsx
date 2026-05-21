@@ -4,7 +4,7 @@ import { Copy, Share2, X, Highlighter, ChevronDown, Bookmark, BookmarkCheck, Che
 import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 
-export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null }) {
+export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, isCursive = false }) {
   const bookEntry = BIBLE_BOOKS.find(b => b.abbr === abbr);
   const shortBookName = bookEntry ? bookEntry.shortName : bookName;
   const [selected, setSelected] = useState(false);
@@ -214,7 +214,8 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             )}
             <sup className="text-accent font-sans font-semibold text-xs mr-3 select-none">{verse.verse}</sup>
             <span
-              className="leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify inline cursive-em-style"
+              className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify inline ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
+              style={isCursive ? { fontFamily: "'Dancing Script', cursive !important" } : {}}
               dangerouslySetInnerHTML={{ __html: html }}
             />
           </span>
@@ -238,7 +239,8 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           )}
           <sup className="text-accent font-sans font-semibold text-xs mr-3 select-none">{verse.verse}</sup>
           <span
-            className="leading-loose [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify cursive-em-style"
+            className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
+            style={isCursive ? { fontFamily: "'Dancing Script', cursive !important" } : {}}
             dangerouslySetInnerHTML={{ __html: html }}
           />
           {' '}
@@ -265,7 +267,8 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         <sup className="text-accent font-sans font-semibold text-xs shrink-0 select-none mt-1 mr-2">{verse.verse}</sup>
         <span className="flex-1 min-w-0">
           <span
-            className="leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify cursive-em-style"
+            className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
+            style={isCursive ? { fontFamily: "'Dancing Script', cursive !important" } : {}}
             dangerouslySetInnerHTML={{ __html: html }}
           />
         </span>

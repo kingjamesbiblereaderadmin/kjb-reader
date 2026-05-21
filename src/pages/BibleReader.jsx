@@ -976,6 +976,7 @@ export default function BibleReader() {
                 onSelect={toggleVerseSelect}
                 totalVerses={verseCount}
                 colophon={colophon}
+                isCursive={fontFamily === 'cursive'}
               />
             ))}
           </div>
