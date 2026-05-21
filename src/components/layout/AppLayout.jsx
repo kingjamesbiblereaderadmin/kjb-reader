@@ -151,9 +151,17 @@ export default function AppLayout() {
     // Initialize periodic cache refresh (checks every 24 hours when user opens app)
     initPeriodicCacheRefresh();
 
-    // Only show prompt once per session, after a delay, if not dismissed
+    // Show prompt once per session, after a delay
     const alreadyInstalled = window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
+    const notifGranted = 'Notification' in window && Notification.permission === 'granted';
     const dismissed = localStorage.getItem('kjb-prompt-dismissed') === 'true' || localStorage.getItem('kjb-install-dismissed') === 'true';
+
+    // If installed but notifications not enabled, always prompt (ignore dismissal)
+    if (alreadyInstalled && !notifGranted) {
+      const timer = setTimeout(() => setShowPrompt(true), 2000);
+      return () => clearTimeout(timer);
+    }
+    // Otherwise, respect dismissal and skip when already installed
     if (!alreadyInstalled && !dismissed) {
       const timer = setTimeout(() => setShowPrompt(true), 2000);
       return () => clearTimeout(timer);

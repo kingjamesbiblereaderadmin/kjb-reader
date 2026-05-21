@@ -40,7 +40,10 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   const showInstall = !alreadyInstalled && (isInstallable || isIOS() || isAndroid() || !isMobile());
   const showNotif = !notifDone;
 
-  const shouldShow = !dismissed && (showInstall || showNotif);
+  // When the app is installed but notifications are off, always show the prompt
+  // (ignore previous dismissal) so the user is reminded to turn them on.
+  const forceShow = alreadyInstalled && showNotif;
+  const shouldShow = forceShow || (!dismissed && (showInstall || showNotif));
 
   if (!shouldShow) return null;
 
