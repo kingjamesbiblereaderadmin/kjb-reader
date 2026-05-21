@@ -324,8 +324,8 @@ export default function BibleReader() {
       setPos({ abbr: urlBook, chapter: chapterNum, verse: null });
       loadChapter(urlBook, chapterNum, verseNum);
     } else {
-      // Load from saved position WITHOUT highlight (reset on reader show)
-      loadChapter(pos.abbr, pos.chapter, null);
+      // Load from saved position WITH highlight if verse is specified
+      loadChapter(pos.abbr, pos.chapter, pos.verse || null);
     }
     
     // If a verse range was passed, pre-select those verses and enter filter mode
