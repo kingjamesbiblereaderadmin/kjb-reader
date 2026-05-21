@@ -514,9 +514,9 @@ export default function BibleReader() {
   return (
     <div className={`max-w-5xl mx-auto px-5 sm:px-8 py-3 ${hideHeader ? 'pt-16' : ''}`}>
 
-      {/* Sticky nav bar — always visible when not explicitly hidden */}
+      {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
-        <div ref={topRef} className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border pb-1 mb-2 shadow-sm">
+        <div ref={topRef} className="sticky top-[56px] sm:top-[72px] z-40 bg-background/95 backdrop-blur border-b border-border pb-1 mb-2">
           <div className="flex flex-wrap items-center gap-1.5 pt-1">
 
             {/* Book selector */}
