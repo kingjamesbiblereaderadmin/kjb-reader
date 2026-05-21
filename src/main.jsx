@@ -22,6 +22,13 @@ window.addEventListener('load', async () => {
         await reg.unregister();
         console.log('[SW] Unregistered old service worker');
       }
+      
+      // Clear all caches to prevent serving stale React chunks
+      const cacheNames = await caches.keys();
+      for (const cacheName of cacheNames) {
+        await caches.delete(cacheName);
+        console.log('[SW] Cleared cache:', cacheName);
+      }
 
       const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
       console.log('[SW] Registered:', registration.scope);
