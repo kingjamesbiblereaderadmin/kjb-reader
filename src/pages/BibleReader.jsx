@@ -991,7 +991,9 @@ export default function BibleReader() {
           <div className="text-center py-16 text-destructive font-sans">{error}</div>
         )}
         {!loading && !error && isViewingTitlePage && (
-          <TitlePage type={pos.abbr === 'GEN' ? 'testament-old' : 'testament-new'} />
+          <div style={{ fontFamily: "'Merriweather', 'Cormorant Garamond', Georgia, serif" }} className="[&_*]:!font-serif">
+            <TitlePage type={pos.abbr === 'GEN' ? 'testament-old' : 'testament-new'} />
+          </div>
         )}
         {!loading && !error && verses.length > 0 && (
           <div className={paragraphMode ? 'text-justify hyphens-auto px-2 sm:px-4' : ''} style={{ fontSize: 'inherit' }}>
