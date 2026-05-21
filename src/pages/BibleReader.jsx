@@ -1014,6 +1014,7 @@ export default function BibleReader() {
                 totalVerses={verseCount}
                 colophon={colophon}
                 isCursive={fontFamily === 'cursive'}
+                zoomLevel={zoomLevel}
               />
             ))}
           </div>

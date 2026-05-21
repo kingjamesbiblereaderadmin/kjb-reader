@@ -4,7 +4,7 @@ import { Copy, Share2, X, Highlighter, ChevronDown, Bookmark, BookmarkCheck, Che
 import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 
-export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, isCursive = false }) {
+export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, isCursive = false, zoomLevel = 100 }) {
   const bookEntry = BIBLE_BOOKS.find(b => b.abbr === abbr);
   const shortBookName = bookEntry ? bookEntry.shortName : bookName;
   const [selected, setSelected] = useState(false);
@@ -105,7 +105,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   };
 
   // Apply zoom level from parent via inline style
-  const textStyle = { fontSize: 'inherit' };
+  const textStyle = { fontSize: 'inherit', fontScale: String(zoomLevel / 100) };
 
   const actionPopover = selected && !highlight && (
     <>
@@ -256,7 +256,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             <sup className="text-accent font-sans font-semibold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
             <span
               className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-justify inline ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
-              style={textStyle}
+              style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
               dangerouslySetInnerHTML={{ __html: html }}
             />
           </span>
@@ -281,7 +281,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           <sup className="text-accent font-sans font-semibold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
           <span
             className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-justify ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
-            style={textStyle}
+            style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
             dangerouslySetInnerHTML={{ __html: html }}
           />
           {' '}
@@ -309,7 +309,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         <span className="flex-1 min-w-0">
           <span
             className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-justify ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
-            style={textStyle}
+            style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
             dangerouslySetInnerHTML={{ __html: html }}
           />
         </span>
