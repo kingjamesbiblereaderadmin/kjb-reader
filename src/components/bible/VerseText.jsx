@@ -123,32 +123,43 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             <ChevronDown className="w-2.5 h-2.5" />
           </button>
           {showColorPicker && (
-            <div className="absolute top-full left-0 mt-1.5 z-50 flex flex-col gap-1.5 bg-card border border-border rounded-xl p-3 shadow-xl min-w-[140px]">
-              <p className="font-sans text-xs font-medium text-muted-foreground mb-0.5">Choose color</p>
-              {highlightColors.map(color => (
-                <button
-                  key={color.name}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setHighlightColor(color.name);
-                    setShowHighlight(true);
-                    setShowColorPicker(false);
-                  }}
-                  className="flex items-center gap-2.5 w-full p-1.5 rounded-lg hover:bg-secondary transition-colors"
-                >
-                  <span
-                    className="w-5 h-5 rounded-full border-2 border-border shadow-sm"
-                    style={{ backgroundColor: color.color }}
-                  />
-                  <span className={`font-sans text-sm ${highlightColor === color.name ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
-                    {color.label}
-                  </span>
-                  {highlightColor === color.name && showHighlight && (
-                    <span className="ml-auto text-xs text-primary font-medium">Active</span>
-                  )}
-                </button>
-              ))}
-            </div>
+            <>
+              <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setShowColorPicker(false); }} />
+              <div className="absolute top-full left-0 mt-1.5 z-50 flex flex-col gap-1.5 bg-card border border-border rounded-xl p-3 shadow-xl min-w-[140px]">
+                <div className="flex items-center justify-between mb-0.5">
+                  <p className="font-sans text-xs font-medium text-muted-foreground">Choose color</p>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setShowColorPicker(false); }}
+                    className="p-1 rounded hover:bg-secondary text-muted-foreground transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+                {highlightColors.map(color => (
+                  <button
+                    key={color.name}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setHighlightColor(color.name);
+                      setShowHighlight(true);
+                      setShowColorPicker(false);
+                    }}
+                    className="flex items-center gap-2.5 w-full p-1.5 rounded-lg hover:bg-secondary transition-colors"
+                  >
+                    <span
+                      className="w-5 h-5 rounded-full border-2 border-border shadow-sm"
+                      style={{ backgroundColor: color.color }}
+                    />
+                    <span className={`font-sans text-sm ${highlightColor === color.name ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
+                      {color.label}
+                    </span>
+                    {highlightColor === color.name && showHighlight && (
+                      <span className="ml-auto text-xs text-primary font-medium">Active</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </>
           )}
         </div>
         {showHighlight ? (

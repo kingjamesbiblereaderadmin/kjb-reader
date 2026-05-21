@@ -113,13 +113,21 @@ export default function BibleReader() {
   const [filterMode, setFilterMode] = useState(false); // show only selected verses
   const [copyFeedback, setCopyFeedback] = useState(false);
 
-  const toggleFullscreen = () => {
+  const toggleFullscreen = async () => {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen?.().catch(() => {});
-      setFullscreen(true);
+      try {
+        await document.documentElement.requestFullscreen?.();
+        setFullscreen(true);
+      } catch (err) {
+        console.error('Fullscreen error:', err);
+      }
     } else {
-      document.exitFullscreen?.().catch(() => {});
-      setFullscreen(false);
+      try {
+        await document.exitFullscreen?.();
+        setFullscreen(false);
+      } catch (err) {
+        console.error('Exit fullscreen error:', err);
+      }
     }
   };
 
@@ -876,8 +884,8 @@ export default function BibleReader() {
               </button>
               {/* Hide header */}
               <button
-                onClick={() => setHideHeader(true)}
-                onTouchEnd={(e) => { e.preventDefault(); setHideHeader(true); }}
+                onClick={(e) => { e.stopPropagation(); setHideHeader(true); }}
+                onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setHideHeader(true); }}
                 title="Hide header"
                 className="flex items-center justify-center p-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors touch-manipulation min-h-[44px] min-w-[44px]"
               >
