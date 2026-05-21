@@ -68,6 +68,18 @@ export default function AppLayout() {
       }
     } catch {}
 
+    // Preload Bible cache immediately for fast offline access
+    const preloadCache = async () => {
+      try {
+        const { getBibleData } = await import('@/lib/bibleCache');
+        await getBibleData();
+        console.log('[AppLayout] Bible cache preloaded for fast offline access');
+      } catch (err) {
+        console.error('[AppLayout] Cache preload failed:', err);
+      }
+    };
+    preloadCache();
+
     // Initialize periodic cache refresh (checks every 24 hours when user opens app)
     initPeriodicCacheRefresh();
 
@@ -114,16 +126,22 @@ export default function AppLayout() {
                 e.preventDefault();
                 e.stopPropagation();
                 try {
-                  const updated = await refreshCacheIfDue();
-                  if (updated) {
-                    toast.success('Cache updated with latest version');
+                  // Always check for updates and apply immediately
+                  const remoteVer = await fetch('https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt?t=' + Date.now()).then(r => r.text()).then(t => t.trim());
+                  const localVer = localStorage.getItem('bible_cache_version');
+
+                  if (remoteVer !== localVer) {
+                    toast.success('New version available, updating...');
+                    // Clear cache and reload to fetch fresh
+                    localStorage.removeItem('bible_cache_version');
+                    localStorage.removeItem('bible_last_refresh');
                     setTimeout(() => window.location.reload(), 1000);
                   } else {
-                    toast.message('Cache is already up to date');
+                    toast.message('Already using latest version');
                   }
                 } catch (err) {
                   console.error('Refresh failed:', err);
-                  toast.error('Failed to refresh cache');
+                  toast.error('Failed to check for updates');
                 }
               }}
               style={{ touchAction: 'manipulation' }}
