@@ -104,7 +104,26 @@ let parsedData = null;
 let fetchInProgress = null;
 let remoteVersion = null;
 
-// Title-based parser for KJB-PCE-RTF.txt (same logic as backend parseBibleText function)
+// Abbreviated book name mapping (Ge, Ex, Le, etc. → apiName)
+const ABBREV_TO_API = {
+  'Ge': 'Genesis', 'Ex': 'Exodus', 'Le': 'Leviticus', 'Nu': 'Numbers', 'De': 'Deuteronomy',
+  'Jos': 'Joshua', 'Jg': 'Judges', 'Ru': 'Ruth', '1S': '1 Samuel', '2S': '2 Samuel',
+  '1K': '1 Kings', '2K': '2 Kings', '1Ch': '1 Chronicles', '2Ch': '2 Chronicles',
+  'Ezr': 'Ezra', 'Ne': 'Nehemiah', 'Es': 'Esther', 'Jb': 'Job', 'Ps': 'Psalms',
+  'Pr': 'Proverbs', 'Ec': 'Ecclesiastes', 'So': 'Song of Solomon', 'Is': 'Isaiah',
+  'Je': 'Jeremiah', 'La': 'Lamentations', 'Eze': 'Ezekiel', 'Da': 'Daniel',
+  'Ho': 'Hosea', 'Jl': 'Joel', 'Am': 'Amos', 'Ob': 'Obadiah', 'Jon': 'Jonah',
+  'Mi': 'Micah', 'Na': 'Nahum', 'Hab': 'Habakkuk', 'Zep': 'Zephaniah', 'Hg': 'Haggai',
+  'Zec': 'Zechariah', 'Mal': 'Malachi',
+  'Mt': 'Matthew', 'Mk': 'Mark', 'Lk': 'Luke', 'Jn': 'John', 'Ac': 'Acts',
+  'Ro': 'Romans', '1Co': '1 Corinthians', '2Co': '2 Corinthians', 'Ga': 'Galatians',
+  'Eph': 'Ephesians', 'Php': 'Philippians', 'Col': 'Colossians', '1Th': '1 Thessalonians',
+  '2Th': '2 Thessalonians', '1Ti': '1 Timothy', '2Ti': '2 Timothy', 'Tit': 'Titus',
+  'Phm': 'Philemon', 'Heb': 'Hebrews', 'Jas': 'James', '1Pe': '1 Peter', '2Pe': '2 Peter',
+  '1Jn': '1 John', '2Jn': '2 John', '3Jn': '3 John', 'Jud': 'Jude', 'Re': 'Revelation'
+};
+
+// Title-based parser for KJB-PCE-RTF.txt (supports both title format and abbreviated format)
 function parseBibleText(rawText) {
   console.log('[PARSE] Raw text length:', rawText.length);
   const lines = rawText.split('\n');
@@ -162,6 +181,35 @@ function parseBibleText(rawText) {
       }
       pendingTitle = combined;
       continue;
+    }
+
+    // ABBREVIATED FORMAT: "Ge 1:1", "Ex 2:3", etc.
+    const abbrevMatch = trimmed.match(/^([A-Za-z]{2,3})\s+(\d+):(\d+)\s+(.+)$/);
+    if (abbrevMatch) {
+      const abbrev = abbrevMatch[1];
+      const chapterNum = parseInt(abbrevMatch[2], 10);
+      const verseNum = parseInt(abbrevMatch[3], 10);
+      const verseText = abbrevMatch[4].trim();
+      
+      // Map abbreviation to full book name
+      const bookName = ABBREV_TO_API[abbrev];
+      if (bookName) {
+        if (currentBook !== bookName) {
+          currentBook = bookName;
+          currentChapter = chapterNum;
+          data[currentBook] = {};
+          data[currentBook][currentChapter] = [];
+        } else if (currentChapter !== chapterNum) {
+          currentChapter = chapterNum;
+          data[currentBook][currentChapter] = [];
+        }
+        
+        if (verseNum > 0 && verseNum <= 200 && verseText.length > 0) {
+          data[currentBook][currentChapter].push({ verse: verseNum, text: verseText });
+          verseCount++;
+          continue;
+        }
+      }
     }
 
     pendingTitle = null;
