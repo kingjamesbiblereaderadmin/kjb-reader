@@ -951,7 +951,7 @@ export default function BibleReader() {
       {/* Book title — hidden when showing title page */}
       {!isViewingTitlePage && (
         <div className="text-center mb-6 pt-8" style={{ fontSize: `${zoomLevel / 100}rem` }}>
-          <h1 className={`${fontFamily === 'cursive' ? 'cursive-em-style text-3xl md:text-4xl' : 'font-serif text-4xl md:text-5xl'} font-bold text-foreground mb-2 leading-tight`} style={{ fontStyle: 'normal', fontWeight: '900' }}>{book.name}</h1>
+          <h1 className={`${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} text-3xl md:text-4xl font-bold text-foreground mb-2 leading-tight`} style={{ fontStyle: 'normal', fontWeight: '900' }}>{book.name}</h1>
           <p className={`font-sans text-muted-foreground tracking-widest uppercase mt-2 ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100 * 0.875}rem`, fontWeight: fontFamily === 'cursive' ? '400' : undefined }}>
             Chapter {pos.chapter}
           </p>
