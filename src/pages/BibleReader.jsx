@@ -478,16 +478,14 @@ export default function BibleReader() {
             {!isViewingTitlePage && (
               <>
               {/* Chapter selector */}
-              <div className="p-1">
-            <button
-              onClick={() => { setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); }}
-              onTouchEnd={(e) => { e.preventDefault(); setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); }}
-              className="flex items-center gap-1.5 px-4 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors min-w-fit touch-manipulation min-h-[48px]"
-            >
-              Ch. {pos.chapter}
-              <ChevronRight className={`w-3 h-3 opacity-70 transition-transform ${showChapterPicker ? 'rotate-90' : ''}`} />
-            </button>
-            </div>
+              <button
+                onClick={() => { setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); }}
+                onTouchEnd={(e) => { e.preventDefault(); setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); }}
+                className="flex items-center gap-1.5 px-4 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors min-w-fit touch-manipulation min-h-[48px]"
+              >
+                Ch. {pos.chapter}
+                <ChevronRight className={`w-3 h-3 opacity-70 transition-transform ${showChapterPicker ? 'rotate-90' : ''}`} />
+              </button>
               {showChapterPicker && !isMobile() && (
                 <div className="absolute top-full left-0 mt-1 z-50">
                   <ChapterSelector
@@ -516,7 +514,6 @@ export default function BibleReader() {
               </SelectorSheet>
 
               {/* Verse selector */}
-              <div className="p-1">
               <button
                 onClick={() => { setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); }}
                 onTouchEnd={(e) => { e.preventDefault(); setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); }}
@@ -530,7 +527,6 @@ export default function BibleReader() {
                   : 'Verse'}
                 <ChevronRight className={`w-3 h-3 opacity-70 transition-transform ${showVersePicker ? 'rotate-90' : ''}`} />
               </button>
-              </div>
               {showVersePicker && verseCount > 0 && !isMobile() && (
                 <div className="absolute top-full left-0 mt-1 z-50">
                   <VerseSelector
@@ -571,17 +567,15 @@ export default function BibleReader() {
               </SelectorSheet>
 
               {/* Zoom control */}
-              <div className="p-1">
-                <button
-                  onClick={() => { setShowZoomPopover(p => !p); }}
-                  onTouchEnd={(e) => { e.preventDefault(); setShowZoomPopover(p => !p); }}
-                  title={`Zoom: ${zoomLevel}%`}
-                  className="flex items-center gap-1 px-3 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors touch-manipulation min-h-[48px]"
-                >
-                  <ZoomIn className="w-3.5 h-3.5" />
-                  {zoomLevel}%
-                </button>
-              </div>
+              <button
+                onClick={() => { setShowZoomPopover(p => !p); }}
+                onTouchEnd={(e) => { e.preventDefault(); setShowZoomPopover(p => !p); }}
+                title={`Zoom: ${zoomLevel}%`}
+                className="flex items-center gap-1 px-3 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors touch-manipulation min-h-[48px]"
+              >
+                <ZoomIn className="w-3.5 h-3.5" />
+                {zoomLevel}%
+              </button>
               {/* Desktop popover */}
               {showZoomPopover && !isMobile() && (
                 <div className="absolute top-full right-0 mt-1 z-50">
@@ -672,7 +666,6 @@ export default function BibleReader() {
               </SelectorSheet>
 
               {/* Layout toggle */}
-              <div className="p-1">
               <button
                 onClick={toggleLayout}
                 onTouchEnd={(e) => { e.preventDefault(); toggleLayout(); }}
@@ -682,9 +675,7 @@ export default function BibleReader() {
                 {paragraphMode ? <AlignJustify className="w-3.5 h-3.5" /> : <List className="w-3.5 h-3.5" />}
                 {paragraphMode ? 'Para' : 'Lines'}
               </button>
-              </div>
               {/* Select mode toggle */}
-              <div className="p-1">
               <button
                 onClick={toggleSelectMode}
                 onTouchEnd={(e) => { e.preventDefault(); toggleSelectMode(); }}
@@ -694,7 +685,6 @@ export default function BibleReader() {
                 <CheckSquare className="w-3.5 h-3.5" />
                 {selectMode ? 'Done' : 'Select'}
               </button>
-              </div>
 
               {/* Prev/Next + Fullscreen + Hide header — grouped at end */}
               <div className="flex items-center gap-1.5 flex-wrap">
