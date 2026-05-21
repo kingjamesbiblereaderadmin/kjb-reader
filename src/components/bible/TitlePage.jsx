@@ -54,20 +54,18 @@ export default function TitlePage({ type }) {
           </p>
           
           <h1 className="font-serif text-7xl md:text-8xl font-bold text-foreground leading-tight">
-            HOLY BIBLE
+            NEW TESTAMENT
           </h1>
           
-          <p className="font-serif text-base md:text-lg font-normal text-foreground tracking-[0.05em]">
-            CONTAINING THE
-          </p>
-
           <p className="font-serif text-lg md:text-xl font-normal text-foreground tracking-[0.05em]">
-            OLD AND NEW TESTAMENTS
+            OF<br />
+            OUR LORD AND SAVIOUR<br />
+            JESUS CHRIST
           </p>
 
           <div className="py-8">
             <p className="font-serif text-sm md:text-base font-normal text-foreground leading-relaxed tracking-[0.02em]">
-              TRANSLATED OUT OF THE ORIGINAL TONGUES: AND WITH<br />
+              TRANSLATED OUT OF THE ORIGINAL GREEK: AND WITH<br />
               THE FORMER TRANSLATIONS DILIGENTLY COMPARED<br />
               AND REVISED, BY HIS MAJESTY'S SPECIAL COMMAND
             </p>
@@ -76,12 +74,6 @@ export default function TitlePage({ type }) {
           <div className="py-4">
             <p className="font-serif text-sm md:text-base font-normal text-foreground tracking-[0.02em]">
               APPOINTED TO BE READ IN CHURCHES
-            </p>
-          </div>
-
-          <div className="pt-8">
-            <p className="font-serif text-base md:text-lg font-normal text-foreground tracking-[0.1em]">
-              AUTHORIZED KING JAMES BIBLE
             </p>
           </div>
         </div>
