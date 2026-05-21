@@ -228,6 +228,11 @@ export default function SearchPage() {
     const q = getQueryFromUrl();
     if (q) {
       setQuery(q);
+      // Auto-detect quoted searches: enable case-sensitive and exact match
+      if (q.startsWith('"') && q.endsWith('"') && q.length >= 3) {
+        setCaseSensitive(true);
+        setExactMatch(true);
+      }
       runSearch(q);
     }
   }, [location.search]);
@@ -236,6 +241,11 @@ export default function SearchPage() {
     e.preventDefault();
     const kw = query.trim();
     if (kw.length >= 2) {
+      // Auto-detect quoted searches: enable case-sensitive and exact match
+      if (kw.startsWith('"') && kw.endsWith('"') && kw.length >= 3) {
+        setCaseSensitive(true);
+        setExactMatch(true);
+      }
       window.history.replaceState({}, '', `/search?q=${encodeURIComponent(kw)}`);
       runSearch(kw);
     }
