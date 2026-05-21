@@ -105,7 +105,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   const actionPopover = selected && (
     <>
       <div className="fixed inset-0 z-40" onClick={() => setSelected(false)} />
-      <div className="absolute left-0 top-full mt-1.5 z-50 flex flex-wrap items-center gap-1.5 bg-card border border-border rounded-xl shadow-xl px-2.5 py-2">
+      <div className="absolute right-0 top-full mt-1.5 z-50 flex flex-wrap items-center gap-1.5 bg-card border border-border rounded-xl shadow-xl px-2.5 py-2">
         <div className="relative">
           <button
             onClick={(e) => { e.stopPropagation(); setShowColorPicker(!showColorPicker); }}
