@@ -405,7 +405,7 @@ function isValidBibleData(data) {
   return bookCount >= EXPECTED_BOOK_COUNT;
 }
 
-async function fetchWithRetry(url, retries = 3) {
+async function fetchWithRetry(url, retries = 3, expectAbbrevFormat = false) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       // Bypass cache to ensure fresh data with brackets
@@ -415,9 +415,10 @@ async function fetchWithRetry(url, retries = 3) {
       const buf = await res.arrayBuffer();
       const text = new TextDecoder('windows-1252').decode(buf);
       console.log('[FETCH] Received', text.length, 'characters');
-      // Verify we got actual Bible text (should start with "Ge 1:1")
+      // Verify we got actual Bible text
+      // RTF file should start with "Ge 1:1", abbreviated file also starts with "Ge 1:1"
       if (!text.startsWith('Ge 1:1')) {
-        console.error('[FETCH] Invalid content - does not start with "Ge 1:1"');
+        console.error('[FETCH] Invalid content - does not start with "Ge 1:1", first 100 chars:', text.substring(0, 100));
         throw new Error('Invalid Bible data received');
       }
       return text;
@@ -572,10 +573,15 @@ export async function downloadBibleForOffline(onProgress) {
   await clearBibleCache();
   onProgress && onProgress(0, 'Fetching Bible text...');
 
-  const text = await fetchWithRetry(RTF_URL);
-  onProgress && onProgress(50, 'Parsing 66 books...');
+  // Fetch both RTF and abbreviated files for italics merging
+  const [rtfText, abbrevText] = await Promise.all([
+    fetchWithRetry(RTF_URL),
+    fetchWithRetry(ABBREV_URL)
+  ]);
+  
+  onProgress && onProgress(50, 'Parsing 66 books with italics...');
 
-  const data = parseBibleText(text);
+  const data = parseBibleText(rtfText, abbrevText);
   if (!isValidBibleData(data)) {
     throw new Error('Download incomplete: only got ' + Object.keys(data).filter(k => k !== '__colophons').length + ' books');
   }
