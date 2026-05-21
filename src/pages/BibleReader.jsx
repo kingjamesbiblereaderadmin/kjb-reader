@@ -247,12 +247,14 @@ export default function BibleReader() {
   // Determine if viewing a title page (chapter 0)
   const isViewingTitlePage = pos.chapter === 0 && (pos.abbr === 'GEN' || pos.abbr === 'MAT');
 
-  const loadChapter = useCallback(async (bookAbbr, chapter, jumpVerse) => {
+  const loadChapter = useCallback(async (bookAbbr, chapter, jumpVerse, scrollToTop = false) => {
     setLoading(true);
     setError(null);
     setVerses([]);
-    // Always scroll to top first; verse centering happens after load
-    window.scrollTo({ top: 0 });
+    // Scroll to top only when explicitly requested (e.g., random chapter navigation)
+    if (scrollToTop) {
+      window.scrollTo({ top: 0 });
+    }
     const b = BIBLE_BOOKS.find(bk => bk.abbr === bookAbbr);
     if (!b) { setError('Book not found'); setLoading(false); return; }
     
@@ -328,10 +330,10 @@ export default function BibleReader() {
       const chapterNum = parseInt(urlChapter, 10);
       const verseNum = urlVerse ? parseInt(urlVerse, 10) : null;
       setPos({ abbr: urlBook, chapter: chapterNum, verse: null });
-      loadChapter(urlBook, chapterNum, verseNum);
+      loadChapter(urlBook, chapterNum, verseNum, true);
     } else {
       // Load from saved position WITH highlight if verse is specified
-      loadChapter(pos.abbr, pos.chapter, pos.verse || null);
+      loadChapter(pos.abbr, pos.chapter, pos.verse || null, true);
     }
     
     // If a verse range was passed, pre-select those verses and enter filter mode
@@ -385,7 +387,7 @@ export default function BibleReader() {
     }
   }, [filterMode, selectedVerses]);
 
-  const navigate = (newAbbr, newChapter, jumpVerse = null) => {
+  const navigate = (newAbbr, newChapter, jumpVerse = null, scrollToTop = false) => {
     // Prevent chapter 0 for non-GEN/MAT books
     if (newChapter === 0 && newAbbr !== 'GEN' && newAbbr !== 'MAT') {
       return;
@@ -397,30 +399,30 @@ export default function BibleReader() {
     }
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);
-    loadChapter(newAbbr, newChapter, jumpVerse);
+    loadChapter(newAbbr, newChapter, jumpVerse, scrollToTop);
   };
 
   const goNext = () => {
     if (pos.chapter < book.chapters) {
-      navigate(pos.abbr, pos.chapter + 1);
+      navigate(pos.abbr, pos.chapter + 1, null, true);
     } else {
       const next = getNextBook(pos.abbr);
       if (next) {
-        navigate(next.abbr, 1);
+        navigate(next.abbr, 1, null, true);
       }
     }
   };
 
   const goPrev = () => {
     if (pos.chapter > 1) {
-      navigate(pos.abbr, pos.chapter - 1);
+      navigate(pos.abbr, pos.chapter - 1, null, true);
     } else if (pos.chapter === 1 && (pos.abbr === 'GEN' || pos.abbr === 'MAT')) {
       // For GEN/MAT, allow going to chapter 0 (title page)
-      navigate(pos.abbr, 0);
+      navigate(pos.abbr, 0, null, true);
     } else {
       // Go to previous book's last chapter
       const prev = getPrevBook(pos.abbr);
-      if (prev) navigate(prev.abbr, prev.chapters);
+      if (prev) navigate(prev.abbr, prev.chapters, null, true);
     }
   };
 
