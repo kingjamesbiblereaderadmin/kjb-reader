@@ -722,16 +722,17 @@ export default function SearchPage() {
 
           {/* Pagination controls */}
           {totalPages > 1 && (
-            <div className="mt-6 mb-8 flex items-center justify-center gap-2">
+            <div className="mt-6 mb-20 px-4 flex items-center justify-center gap-2 flex-wrap">
               <button
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 shrink-0"
               >
-                <ChevronLeft className="w-4 h-4" />
-                Previous
+                <ChevronLeft className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Previous</span>
+                <span className="sm:hidden">Prev</span>
               </button>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 flex-shrink-0">
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                   let pageNum;
                   if (totalPages <= 5) {
@@ -747,7 +748,7 @@ export default function SearchPage() {
                     <button
                       key={pageNum}
                       onClick={() => goToPage(pageNum)}
-                      className={`w-10 h-10 rounded-xl font-sans text-sm font-semibold transition-all active:scale-95 ${
+                      className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-sans text-xs sm:text-sm font-semibold transition-all active:scale-95 ${
                         currentPage === pageNum
                           ? 'bg-primary text-primary-foreground shadow-md'
                           : 'bg-secondary text-secondary-foreground hover:bg-accent/20 hover:shadow-sm'
@@ -761,10 +762,11 @@ export default function SearchPage() {
               <button
                 onClick={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 shrink-0"
               >
-                Next
-                <ChevronRight className="w-4 h-4" />
+                <span className="hidden sm:inline">Next</span>
+                <span className="sm:hidden">Next</span>
+                <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
           )}
