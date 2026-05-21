@@ -255,7 +255,13 @@ export default function BibleReader() {
       setHighlightVerse(jumpVerse || null);
       savePosition(bookAbbr, chapter);
       
-      // Debug: log colophon info
+      // Debug: log sample verses to check for brackets
+      console.log('[BibleReader] Loaded', data.verses.length, 'verses for', b.apiName, chapter);
+      if (data.verses.length > 0) {
+        console.log('[BibleReader] Sample verse 1:', data.verses[0]?.text?.substring(0, 150));
+        console.log('[BibleReader] Sample verse 2:', data.verses[1]?.text?.substring(0, 150));
+        console.log('[BibleReader] Has brackets?', data.verses.some(v => v.text.includes('[')));
+      }
       console.log('[BibleReader] Colophon for', b.apiName, chapter, ':', data.colophon);
     } catch (err) {
       console.error('Load chapter error:', err);
