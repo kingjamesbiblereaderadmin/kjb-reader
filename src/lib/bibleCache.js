@@ -142,7 +142,7 @@ let parsedData = null;
 let fetchInProgress = null;
 let remoteVersion = null;
 
-// Parse file to extract italic markers [brackets]
+// Parse WHARTON file to extract italic markers \[brackets\] and verse references
 // Returns map: "Book Chapter:Verse" -> { italics: [{text}], plain: text without brackets }
 function parseItalicMarkers(text) {
   const italicMap = new Map();
@@ -152,7 +152,7 @@ function parseItalicMarkers(text) {
     const trimmed = line.trim();
     if (!trimmed) continue;
 
-    // Match format: Ge 1:1 In the beginning...
+    // Match format: Ge 1:1 In the beginning... (WHARTON format)
     const m = trimmed.match(/^(\d?[A-Za-z]{1,4})\s+(\d+):(\d+)\s+(.+)$/);
     if (!m) continue;
 
@@ -164,27 +164,38 @@ function parseItalicMarkers(text) {
     const bookName = ABBREV_TO_API[abbrev];
     if (!bookName) continue;
 
-    // Extract bracketed words (italics markers) - remove brackets but keep the words
+    // Extract bracketed words (italics markers) - handles both \[text\] and [text]
     const italics = [];
-    const regex = /\[([^\]]+)\]/g;
+    // First try escaped brackets \[text\]
+    const escapedRegex = /\\\[([^\]]+)\\\]/g;
     let match;
-    while ((match = regex.exec(verseText)) !== null) {
+    while ((match = escapedRegex.exec(verseText)) !== null) {
+      italics.push({ text: match[1] });
+    }
+    // Then try regular brackets [text]
+    const regularRegex = /(?<!\\)\[([^\]]+)\](?!\\)/g;
+    while ((match = regularRegex.exec(verseText)) !== null) {
       italics.push({ text: match[1] });
     }
 
     // Store with plain text (brackets removed)
     const key = `${bookName} ${ch}:${vs}`;
-    italicMap.set(key, { italics, plain: verseText.replace(/\[([^\]]+)\]/g, '$1') });
+    italicMap.set(key, { 
+      italics, 
+      plain: verseText
+        .replace(/\\\[([^\]]+)\\\]/g, '$1')
+        .replace(/(?<!\\)\[([^\]]+)\](?!\\)/g, '$1')
+    });
   }
 
   console.log('[PARSE] Italic markers:', italicMap.size, 'verses');
   return italicMap;
 }
 
-// Parse WHARTON file (with pilcrows) as base text and apply italic markers from RTF
-function parseWithPilcrowsAndItalics(pilcrowText, italicMap) {
+// Parse WHARTON file (with pilcrows and verse references) as base text and apply italic markers
+function parseWithPilcrowsAndItalics(whartonText, italicMap) {
   const data = {};
-  const lines = pilcrowText.split('\n');
+  const lines = whartonText.split('\n');
   let currentBook = null;
   let currentChapter = null;
   let verseCount = 0;
@@ -199,45 +210,18 @@ function parseWithPilcrowsAndItalics(pilcrowText, italicMap) {
       .trim();
   };
 
-  // Apply italic brackets to text
-  const applyItalics = (verseText, italics) => {
-    if (!italics || italics.length === 0) return verseText;
-    
-    let result = verseText;
-    const sorted = [...italics].sort((a, b) => b.text.length - a.text.length);
-    
-    for (const italic of sorted) {
-      let phrase = italic.text.replace(/^\([^)]+\)\s*/, '');
-      if (!phrase.trim()) continue;
-      
-      try {
-        const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const re = new RegExp(`(?<!\\[)\\b${escaped}\\b(?!\\])`, 'i');
-        const match = re.exec(result);
-        if (match) {
-          const before = result.slice(0, match.index);
-          const after = result.slice(match.index + match[0].length);
-          result = before + '[' + match[0] + ']' + after;
-        }
-      } catch (e) {}
-    }
-    
-    return result;
-  };
-
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed) continue;
 
-    // Detect book title (all caps lines) - WHARTON format
-    if (trimmed === trimmed.toUpperCase() && /[A-Z]/.test(trimmed) && !/^\d/.test(trimmed) && !/^CHAPTER/.test(trimmed)) {
-      const upper = trimmed.replace(/[.,]/g, '').trim();
-      // Direct RTF title match
-      let bookName = RTF_TITLE_MAP[upper];
-      // Partial match for multi-line titles
+    // Detect book header - WHARTON format: "Book Name: THE FIRST BOOK OF MOSES, CALLED GENESIS."
+    if (trimmed.startsWith('Book Name:')) {
+      const bookPart = trimmed.replace('Book Name:', '').trim();
+      let bookName = RTF_TITLE_MAP[bookPart.replace(/[.,]/g, '').trim()];
       if (!bookName) {
+        // Try partial match
         for (const [key, val] of Object.entries(RTF_TITLE_MAP)) {
-          if (upper.startsWith(key) || upper.includes(key)) {
+          if (bookPart.toUpperCase().includes(key)) {
             bookName = val;
             break;
           }
@@ -251,43 +235,74 @@ function parseWithPilcrowsAndItalics(pilcrowText, italicMap) {
       continue;
     }
 
-    // Detect chapter heading
-    const chapterMatch = trimmed.match(/^CHAPTER\s+(\d+)$/i);
+    // Detect chapter heading - WHARTON format: "GENESIS CHAPTER 1"
+    const chapterMatch = trimmed.match(/^([A-Z]+)\s+CHAPTER\s+(\d+)$/i);
     if (chapterMatch) {
-      currentChapter = parseInt(chapterMatch[1], 10);
+      currentChapter = parseInt(chapterMatch[2], 10);
       if (currentBook && !data[currentBook][currentChapter]) {
         data[currentBook][currentChapter] = [];
       }
       continue;
     }
 
-    // Parse verse line - WHARTON format has pilcrow (¶) at start
-    const verseMatch = trimmed.match(/^(\d+)\s+(.+)$/);
-    if (verseMatch && currentBook && currentChapter) {
-      const verseNum = parseInt(verseMatch[1], 10);
-      let verseText = stripColophon(verseMatch[2]);
+    // Parse verse line - WHARTON format: "Ge 1:1 In the beginning..."
+    const verseMatch = trimmed.match(/^(\d?[A-Za-z]{1,4})\s+(\d+):(\d+)\s+(.+)$/);
+    if (verseMatch) {
+      const abbrev = verseMatch[1];
+      const ch = parseInt(verseMatch[2], 10);
+      const vs = parseInt(verseMatch[3], 10);
+      let verseText = verseMatch[4].replace(/\s*<<[^>]*>>\s*$/, '');
 
-      // Apply italic markers from RTF file
-      const key = `${currentBook} ${currentChapter}:${verseNum}`;
-      const italicData = italicMap.get(key);
-      if (italicData && italicData.italics.length > 0) {
-        verseText = applyItalics(verseText, italicData.italics);
-        versesWithFormatting++;
+      // Verify chapter matches
+      if (ch !== currentChapter) {
+        currentChapter = ch;
+        if (currentBook && !data[currentBook][currentChapter]) {
+          data[currentBook][currentChapter] = [];
+        }
       }
 
+      // Extract and remove italic markers (both \[text\] and [text])
+      const italics = [];
+      // First try escaped brackets \[text\]
+      const escapedRegex = /\\\[([^\]]+)\\\]/g;
+      let match;
+      while ((match = escapedRegex.exec(verseText)) !== null) {
+        italics.push({ text: match[1] });
+      }
+      // Then try regular brackets [text]
+      const regularRegex = /(?<!\\)\[([^\]]+)\](?!\\)/g;
+      while ((match = regularRegex.exec(verseText)) !== null) {
+        italics.push({ text: match[1] });
+      }
+
+      // Remove brackets but keep the text
+      verseText = verseText
+        .replace(/\\\[([^\]]+)\\\]/g, '$1')
+        .replace(/(?<!\\)\[([^\]]+)\](?!\\)/g, '$1');
+
+      verseText = stripColophon(verseText);
+
       // Special fix: Change "John" to "JOHN" in Rev 1:4
-      if (currentBook === 'Revelation' && currentChapter === 1 && verseNum === 4) {
+      if (currentBook === 'Revelation' && currentChapter === 1 && vs === 4) {
         verseText = verseText.replace(/\bJohn\b/g, 'JOHN');
       }
 
-      data[currentBook][currentChapter].push({ verse: verseNum, text: verseText });
+      // Add pilcrow marker at start of verses that had it in original
+      if (trimmed.includes('¶') || trimmed.includes('\u00B6')) {
+        verseText = '¶ ' + verseText;
+      }
+
+      data[currentBook][currentChapter].push({ verse: vs, text: verseText });
       verseCount++;
+      if (italics.length > 0) {
+        versesWithFormatting++;
+      }
     }
   }
 
   data.__colophons = { ...COLOPHONS };
   const bookCount = Object.keys(data).filter(k => k !== '__colophons').length;
-  console.log('[PARSE] ✓ Complete:', verseCount, 'verses,', bookCount, 'books,', versesWithFormatting, 'with formatting');
+  console.log('[PARSE] ✓ Complete:', verseCount, 'verses,', bookCount, 'books,', versesWithFormatting, 'with italics');
   
   return data;
 }
