@@ -52,7 +52,6 @@ export default function SearchPage() {
   const [showBookFilter, setShowBookFilter] = useState(false);
   const [selectedBooks, setSelectedBooks] = useState(new Set());
   const [currentPage, setCurrentPage] = useState(1);
-  const [resultsLimit, setResultsLimit] = useState(100);
   const RESULTS_PER_PAGE = 50;
 
   // Multi-select state
@@ -413,14 +412,11 @@ export default function SearchPage() {
 
   const selectedList = [...selected].sort((a, b) => a - b);
 
-  // Apply results limit
-  const limitedResults = results.slice(0, resultsLimit);
-
   // Pagination
-  const totalPages = Math.ceil(limitedResults.length / RESULTS_PER_PAGE);
+  const totalPages = Math.ceil(results.length / RESULTS_PER_PAGE);
   const startIndex = (currentPage - 1) * RESULTS_PER_PAGE;
   const endIndex = startIndex + RESULTS_PER_PAGE;
-  const paginatedResults = limitedResults.slice(startIndex, endIndex);
+  const paginatedResults = results.slice(startIndex, endIndex);
 
   const goToPage = (page) => {
     setCurrentPage(page);
@@ -455,6 +451,20 @@ export default function SearchPage() {
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-2 mb-5">
+        <Filter className="w-3.5 h-3.5 text-muted-foreground" />
+        <span className="font-sans text-xs text-muted-foreground">Testament:</span>
+        {[['all', 'All'], ['ot', 'Old Testament'], ['nt', 'New Testament']].map(([val, label]) => (
+          <button
+            key={val}
+            type="button"
+            onClick={() => setTestament(val)}
+            className={`px-2.5 py-1 rounded-lg font-sans text-xs font-medium transition-colors ${
+              testament === val ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
         <button
           type="button"
           onClick={() => setShowBookFilter(!showBookFilter)}
@@ -466,7 +476,7 @@ export default function SearchPage() {
           Books {selectedBooks.size > 0 && `(${selectedBooks.size})`}
           <ChevronDown className={`w-3 h-3 transition-transform ${showBookFilter ? 'rotate-180' : ''}`} />
         </button>
-        <div className="flex items-center gap-1.5">
+        <div className="ml-2 flex items-center gap-1.5">
           <input
             id="whole-word"
             type="checkbox"
@@ -501,7 +511,7 @@ export default function SearchPage() {
       {/* Book filter panel */}
       {showBookFilter && (
         <div className="mb-5 p-4 rounded-xl bg-secondary/50 border border-border">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-3">
             <p className="font-sans text-sm font-semibold text-foreground">Select Books</p>
             <div className="flex gap-2">
               <button
@@ -522,73 +532,28 @@ export default function SearchPage() {
               </button>
             </div>
           </div>
-          
-          {/* Step 1: Testament selection */}
-          <div className="mb-4">
-            <p className="font-sans text-xs font-medium text-muted-foreground mb-2">1. Choose Testament</p>
-            <div className="flex gap-2">
-              {[['all', 'All'], ['ot', 'Old Testament'], ['nt', 'New Testament']].map(([val, label]) => (
-                <button
-                  key={val}
-                  type="button"
-                  onClick={() => setTestament(val)}
-                  className={`px-3 py-1.5 rounded-lg font-sans text-xs font-medium transition-colors ${
-                    testament === val ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground hover:bg-accent/20'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 max-h-64 overflow-y-auto">
+            {(testament === 'ot' ? OLD_TESTAMENT : testament === 'nt' ? NEW_TESTAMENT : BIBLE_BOOKS).map(book => (
+              <button
+                key={book.abbr}
+                onClick={() => {
+                  setSelectedBooks(prev => {
+                    const next = new Set(prev);
+                    next.has(book.abbr) ? next.delete(book.abbr) : next.add(book.abbr);
+                    return next;
+                  });
+                }}
+                className={`px-2 py-1.5 rounded-lg font-sans text-xs font-medium transition-colors text-left truncate ${
+                  selectedBooks.has(book.abbr)
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-card text-foreground hover:bg-accent/20'
+                }`}
+                title={book.shortName}
+              >
+                {book.shortName.length > 12 ? book.abbr : book.shortName}
+              </button>
+            ))}
           </div>
-
-          {/* Step 2: Book selection */}
-          <div className="mb-4">
-            <p className="font-sans text-xs font-medium text-muted-foreground mb-2">2. Select Books</p>
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 max-h-48 overflow-y-auto">
-              {(testament === 'ot' ? OLD_TESTAMENT : testament === 'nt' ? NEW_TESTAMENT : BIBLE_BOOKS).map(book => (
-                <button
-                  key={book.abbr}
-                  onClick={() => {
-                    setSelectedBooks(prev => {
-                      const next = new Set(prev);
-                      next.has(book.abbr) ? next.delete(book.abbr) : next.add(book.abbr);
-                      return next;
-                    });
-                  }}
-                  className={`px-2 py-1.5 rounded-lg font-sans text-xs font-medium transition-colors text-left truncate ${
-                    selectedBooks.has(book.abbr)
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-card text-foreground hover:bg-accent/20'
-                  }`}
-                  title={book.shortName}
-                >
-                  {book.shortName.length > 12 ? book.abbr : book.shortName}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Step 3: Results limit */}
-          {results.length > 50 && (
-            <div>
-              <p className="font-sans text-xs font-medium text-muted-foreground mb-2">3. Limit Results</p>
-              <div className="flex gap-2 flex-wrap">
-                {[50, 100, 200, 500].filter(limit => limit <= results.length).map(limit => (
-                  <button
-                    key={limit}
-                    type="button"
-                    onClick={() => { setResultsLimit(limit); setCurrentPage(1); }}
-                    className={`px-3 py-1.5 rounded-lg font-sans text-xs font-medium transition-colors ${
-                      resultsLimit === limit ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground hover:bg-accent/20'
-                    }`}
-                  >
-                    {limit}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       )}
 
@@ -613,7 +578,7 @@ export default function SearchPage() {
           <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div>
               <p className="font-sans text-xs text-muted-foreground">
-                {limitedResults.length} of {results.length} results for "{(() => {
+                {results.length} result{results.length !== 1 ? 's' : ''} for "{(() => {
                   const q = getQueryFromUrl() || query;
                   return q.startsWith('"') && q.endsWith('"') ? q.slice(1, -1) : q;
                 })()}"
@@ -767,9 +732,19 @@ export default function SearchPage() {
                 <span className="hidden sm:inline">Previous</span>
                 <span className="sm:hidden">Prev</span>
               </button>
-              {totalPages <= 5 ? (
-                <div className="flex items-center gap-1.5 flex-shrink-0">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  return (
                     <button
                       key={pageNum}
                       onClick={() => goToPage(pageNum)}
@@ -781,25 +756,9 @@ export default function SearchPage() {
                     >
                       {pageNum}
                     </button>
-                  ))}
-                </div>
-              ) : (
-                <div className="relative flex-shrink-0">
-                  <select
-                    value={currentPage}
-                    onChange={(e) => goToPage(Number(e.target.value))}
-                    className="w-20 h-8 sm:h-10 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs sm:text-sm font-semibold px-2 border border-border focus:outline-none focus:border-accent appearance-none cursor-pointer"
-                    style={{ backgroundImage: 'none' }}
-                  >
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
-                      <option key={pageNum} value={pageNum}>
-                        Page {pageNum}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
-                </div>
-              )}
+                  );
+                })}
+              </div>
               <button
                 onClick={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
