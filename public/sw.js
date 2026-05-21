@@ -1,31 +1,44 @@
 // King James Bible PWA Service Worker
-const CACHE_NAME = 'kjb-cache-v3';
+// Strategy:
+//  - Navigation requests: network-first, fall back to cached app shell ('/')
+//  - Same-origin static assets (JS/CSS/fonts/images): cache-first, populate on demand
+//  - Cross-origin (fonts, images CDN): cache-first runtime cache
+const CACHE_NAME = 'kjb-cache-v5';
+const RUNTIME_CACHE = 'kjb-runtime-v5';
 const OFFLINE_URL = '/offline.html';
+const APP_SHELL_URL = '/';
 const APP_LOGO = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
 
-const STATIC_ASSETS = [
+const PRECACHE_URLS = [
   '/',
+  '/index.html',
   '/offline.html',
   '/manifest.json',
 ];
 
 // ─── Install ───────────────────────────────────────────────
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing v3');
+  console.log('[SW] Installing v5');
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(STATIC_ASSETS).catch(err => console.warn('[SW] Cache add failed:', err)))
+      .then(cache => Promise.all(
+        PRECACHE_URLS.map(url =>
+          cache.add(new Request(url, { cache: 'reload' })).catch(err => console.warn('[SW] Precache failed:', url, err.message))
+        )
+      ))
       .then(() => self.skipWaiting())
   );
 });
 
 // ─── Activate ──────────────────────────────────────────────
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating v3');
+  console.log('[SW] Activating v5');
   event.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
-        keys.filter(k => k !== CACHE_NAME && k !== 'kjb-notif-config').map(k => caches.delete(k))
+        keys
+          .filter(k => k !== CACHE_NAME && k !== RUNTIME_CACHE && k !== 'kjb-notif-config')
+          .map(k => caches.delete(k))
       ))
       .then(() => self.clients.claim())
   );
@@ -35,24 +48,77 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
-  const url = new URL(request.url);
-  // Bypass dev/build assets
-  if (url.pathname.startsWith('/@') || url.pathname.startsWith('/src/') || url.pathname.includes('node_modules')) return;
-  // Bypass API/function calls
-  if (url.pathname.startsWith('/api/')) return;
 
+  const url = new URL(request.url);
+
+  // Bypass dev/build assets (dev only — shouldn't hit in prod)
+  if (url.pathname.startsWith('/@') || url.pathname.startsWith('/src/') || url.pathname.includes('node_modules')) return;
+
+  // Bypass API/function calls — always go to network, never cache
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/functions/')) return;
+
+  // ── Navigation requests (page loads) ──
+  // Network-first, fall back to cached app shell so the SPA can boot offline.
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          // Cache successful navigations as the app shell
+          if (response && response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(APP_SHELL_URL, copy)).catch(() => {});
+          }
+          return response;
+        })
+        .catch(async () => {
+          // Offline: return cached app shell so React can boot and route client-side
+          const cached = await caches.match(APP_SHELL_URL) || await caches.match('/index.html');
+          if (cached) return cached;
+          const offline = await caches.match(OFFLINE_URL);
+          if (offline) return offline;
+          return new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } });
+        })
+    );
+    return;
+  }
+
+  // ── Same-origin static assets: cache-first, populate on demand ──
+  if (url.origin === self.location.origin) {
+    event.respondWith(
+      caches.match(request).then(cached => {
+        if (cached) return cached;
+        return fetch(request).then(response => {
+          // Only cache successful, basic (same-origin) responses
+          if (response && response.ok && response.type === 'basic') {
+            const copy = response.clone();
+            caches.open(RUNTIME_CACHE).then(cache => cache.put(request, copy)).catch(() => {});
+          }
+          return response;
+        }).catch(() => {
+          // For failed JS/CSS, return empty response to avoid hard crash
+          return new Response('', { status: 503 });
+        });
+      })
+    );
+    return;
+  }
+
+  // ── Cross-origin (fonts.googleapis, media CDN, etc.): cache-first runtime cache ──
   event.respondWith(
     caches.match(request).then(cached => {
       if (cached) return cached;
-      return fetch(request).catch(() => {
-        if (request.mode === 'navigate') return caches.match(OFFLINE_URL);
-        return new Response('', { status: 503 });
-      });
+      return fetch(request).then(response => {
+        if (response && (response.ok || response.type === 'opaque')) {
+          const copy = response.clone();
+          caches.open(RUNTIME_CACHE).then(cache => cache.put(request, copy)).catch(() => {});
+        }
+        return response;
+      }).catch(() => new Response('', { status: 503 }));
     })
   );
 });
 
-// ─── Push Event (THIS is what fires when app is closed) ────
+// ─── Push Event ────────────────────────────────────────────
 self.addEventListener('push', (event) => {
   console.log('[SW] Push event received');
 
@@ -116,10 +182,8 @@ self.addEventListener('pushsubscriptionchange', (event) => {
       try {
         const reg = self.registration;
         const oldSub = event.oldSubscription;
-        // Re-subscribe with same options if available
         if (oldSub) {
           const newSub = await reg.pushManager.subscribe(oldSub.options);
-          // Inform clients to save new subscription server-side
           const clients = await self.clients.matchAll();
           clients.forEach(c => c.postMessage({ type: 'resubscribe', subscription: newSub.toJSON() }));
         }
