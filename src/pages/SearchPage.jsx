@@ -28,6 +28,7 @@ export default function SearchPage() {
 
   const [query, setQuery] = useState(getQueryFromUrl);
   const [highlightTerm, setHighlightTerm] = useState('');
+  const [highlightCaseSensitive, setHighlightCaseSensitive] = useState(false);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -70,6 +71,7 @@ export default function SearchPage() {
       
       // Quoted phrases force case-sensitive matching
       const effectiveCaseSensitive = isQuotedPhrase ? true : caseSensitive;
+      setHighlightCaseSensitive(effectiveCaseSensitive);
       if (isQuotedPhrase && !caseSensitive) setCaseSensitive(true);
       
       const kwLower = searchTerm.toLowerCase();
@@ -607,9 +609,9 @@ export default function SearchPage() {
                     </p>
                     <p className="font-serif text-base text-foreground leading-relaxed">
                       {isColophon ? (
-                      <span className="italic text-muted-foreground">¶ {highlightText(r.text, highlightTerm || query, caseSensitive)}</span>
+                      <span className="italic text-muted-foreground">¶ {highlightText(r.text, highlightTerm || query, highlightCaseSensitive)}</span>
                       ) : (
-                      <span>"{highlightText(r.text, highlightTerm || query, caseSensitive)}"</span>
+                      <span>"{highlightText(r.text, highlightTerm || query, highlightCaseSensitive)}"</span>
                       )}
                     </p>
                   </div>
