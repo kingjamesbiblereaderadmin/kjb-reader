@@ -113,8 +113,14 @@
   /* In cursive mode ONLY, use Dancing Script font for ALL text including italic words */
   .cursive-em-style,
   .cursive-em-style *,
+  .cursive-em-style span {
+    font-family: 'Dancing Script', cursive !important;
+    font-style: italic !important;
+    font-weight: 400 !important;
+  }
+  
+  /* Italic words ([bracketed]) in cursive mode - lighter weight */
   .cursive-em-style em,
-  .cursive-em-style span,
   .cursive-em-style span em {
     font-family: 'Dancing Script', cursive !important;
     font-style: italic !important;
