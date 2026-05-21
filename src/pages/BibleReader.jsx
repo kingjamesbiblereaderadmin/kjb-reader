@@ -919,12 +919,9 @@ export default function BibleReader() {
           {/* Subscript — centred below chapter name, non-italic by default, [bracketed] words italic */}
           {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
             <p
-              className="font-serif text-sm text-muted-foreground mt-2 max-w-lg mx-auto leading-relaxed text-center [&_em]:italic [&_em]:text-muted-foreground"
+              className={`text-sm text-muted-foreground mt-2 max-w-lg mx-auto leading-relaxed text-center [&_em]:italic [&_em]:text-muted-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
               style={{ 
-                fontStyle: 'normal',
-                fontFamily: (() => {
-                  try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
-                })()
+                fontStyle: 'normal'
               }}
               dangerouslySetInnerHTML={{ __html: renderColophonText(SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]) }}
             />
@@ -942,8 +939,7 @@ export default function BibleReader() {
         className={`leading-loose text-foreground/90 ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
         style={{ 
           fontSize: `${zoomLevel / 100}rem`, 
-          lineHeight: zoomLevel > 100 ? '1.8' : '1.6',
-          fontFamily: fontFamily === 'cursive' ? "'Dancing Script', cursive" : undefined
+          lineHeight: zoomLevel > 100 ? '1.8' : '1.6'
         }}
       >
         {loading && (
@@ -986,12 +982,9 @@ export default function BibleReader() {
         {!loading && !error && colophon && (
           <div className="mt-12 mb-4 border-t border-border pt-6 text-center">
             <p
-              className="font-serif text-sm text-muted-foreground leading-relaxed [&_em]:italic [&_em]:text-muted-foreground"
+              className={`text-sm text-muted-foreground leading-relaxed [&_em]:italic [&_em]:text-muted-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
               style={{ 
-                fontStyle: 'normal',
-                fontFamily: (() => {
-                  try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
-                })()
+                fontStyle: 'normal'
               }}
               dangerouslySetInnerHTML={{ __html: renderColophonText(colophon) }}
             />
@@ -1005,12 +998,7 @@ export default function BibleReader() {
       {!loading && !error && pos.abbr === 'MAL' && pos.chapter === 4 && (
         <div className="text-center mt-12 mb-4">
           <p 
-            className="font-serif text-sm text-muted-foreground tracking-widest uppercase"
-            style={{ 
-              fontFamily: (() => {
-                try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
-              })()
-            }}
+            className={`text-sm text-muted-foreground tracking-widest uppercase ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
           >
             The End of the Prophets
           </p>
@@ -1019,12 +1007,7 @@ export default function BibleReader() {
       {!loading && !error && pos.abbr === 'REV' && pos.chapter === 22 && (
         <div className="text-center mt-12 mb-4">
           <p 
-            className="font-serif text-sm text-muted-foreground tracking-widest uppercase"
-            style={{ 
-              fontFamily: (() => {
-                try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
-              })()
-            }}
+            className={`text-sm text-muted-foreground tracking-widest uppercase ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
           >
             The End
           </p>
