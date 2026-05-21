@@ -6,6 +6,7 @@ import { useHeaderHide } from '@/lib/HeaderHideContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import ScrollToTop from '@/components/ScrollToTop';
+import AutoUpdateHandler from '@/components/AutoUpdateHandler';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, showLocalNotification } from '@/lib/notifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
@@ -85,6 +86,7 @@ export default function AppLayout() {
   };
 
   return (
+    <AutoUpdateHandler>
     <div className="min-h-screen bg-background flex flex-col">
       <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-2 sm:gap-3">
@@ -230,6 +232,7 @@ export default function AppLayout() {
         </div>
       </footer>
     </div>
+    </AutoUpdateHandler>
   );
 }
 
