@@ -3,7 +3,7 @@ import { ChevronUp } from 'lucide-react';
 
 export default function ScrollToTop() {
   const [visible, setVisible] = useState(false);
-  const [footerHeight, setFooterHeight] = useState(72);
+  const [footerHeight, setFooterHeight] = useState(80);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -11,13 +11,17 @@ export default function ScrollToTop() {
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
 
-    // Calculate footer height for mobile bottom nav
+    // Calculate footer height based on nav mode
     const updateFooterHeight = () => {
       try {
+        const showMode = localStorage.getItem('kjb-footer-mode') || 'one';
+        // Mobile footer: one row = ~56px, two rows = ~112px, none = 0
+        // Add safe area inset for bottom
         const safeArea = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sat-bottom') || '0');
-        setFooterHeight(56 + safeArea + 16); // Bottom nav height + padding
+        const baseHeight = showMode === 'two' ? 112 : showMode === 'one' ? 56 : 0;
+        setFooterHeight(baseHeight + safeArea + 16); // 16px extra padding
       } catch {
-        setFooterHeight(72);
+        setFooterHeight(80);
       }
     };
 
@@ -43,7 +47,7 @@ export default function ScrollToTop() {
   return (
     <button
       onClick={scrollToTop}
-      className="fixed right-4 sm:right-6 z-[55] p-2 rounded-full bg-primary/90 text-primary-foreground shadow-lg hover:bg-primary transition-all duration-300 opacity-80 hover:opacity-100 backdrop-blur-sm sm:bottom-6"
+      className="fixed right-4 sm:right-6 z-[55] p-2 rounded-full bg-primary/90 text-primary-foreground shadow-lg hover:bg-primary transition-all duration-300 opacity-80 hover:opacity-100 backdrop-blur-sm"
       aria-label="Scroll to top"
       style={{ bottom: `${footerHeight}px` }}
     >
