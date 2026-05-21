@@ -305,7 +305,8 @@ export default function SearchPage() {
 
   const handleExport = () => {
     const indices = selected.size > 0 ? selected : new Set(results.map((_, i) => i));
-    const q = getQueryFromUrl() || query;
+    const qRaw = getQueryFromUrl() || query;
+    const q = qRaw.startsWith('"') && qRaw.endsWith('"') ? qRaw.slice(1, -1) : qRaw;
     const header = `KJB Search Results — "${q}"\n${'='.repeat(50)}\n\n`;
     const body = formatVerses(indices);
     const footer = `\n\n${'='.repeat(50)}\n${indices.size} verse${indices.size !== 1 ? 's' : ''} — King James Bible (PCE)`;
@@ -464,7 +465,9 @@ export default function SearchPage() {
       )}
 
       {!loading && searched && results.length === 0 && (
-        <p className="font-sans text-sm text-muted-foreground text-center py-12">No results found for "{query}".</p>
+        <p className="font-sans text-sm text-muted-foreground text-center py-12">
+          No results found for "{query.startsWith('"') && query.endsWith('"') ? query.slice(1, -1) : query}".
+        </p>
       )}
 
       {!loading && results.length > 0 && (
@@ -473,7 +476,10 @@ export default function SearchPage() {
           <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div>
               <p className="font-sans text-xs text-muted-foreground">
-                {results.length} result{results.length !== 1 ? 's' : ''} for "{getQueryFromUrl() || query}"
+                {results.length} result{results.length !== 1 ? 's' : ''} for "{(() => {
+                  const q = getQueryFromUrl() || query;
+                  return q.startsWith('"') && q.endsWith('"') ? q.slice(1, -1) : q;
+                })()}"
               </p>
 
               {numberedBookFilter && (
