@@ -104,8 +104,8 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     setSelected(false);
   };
 
-  // No fixed text class - let parent control font size via zoom
-  const textClass = '';
+  // Apply zoom level from parent via inline style
+  const textStyle = { fontSize: 'inherit' };
 
   const actionPopover = selected && !highlight && (
     <>
@@ -256,6 +256,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             <sup className="text-accent font-sans font-semibold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
             <span
               className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-justify inline ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
+              style={textStyle}
               dangerouslySetInnerHTML={{ __html: html }}
             />
           </span>
@@ -280,6 +281,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           <sup className="text-accent font-sans font-semibold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
           <span
             className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-justify ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
+            style={textStyle}
             dangerouslySetInnerHTML={{ __html: html }}
           />
           {' '}
@@ -307,6 +309,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         <span className="flex-1 min-w-0">
           <span
             className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-justify ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
+            style={textStyle}
             dangerouslySetInnerHTML={{ __html: html }}
           />
         </span>

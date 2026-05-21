@@ -978,7 +978,7 @@ export default function BibleReader() {
       <div 
         className={`leading-loose text-foreground/90 ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
         style={{ 
-          fontSize: `${zoomLevel}%`, 
+          fontSize: `${zoomLevel / 100 * 1.125}rem`, 
           lineHeight: zoomLevel > 100 ? '1.8' : '1.6'
         }}
       >
