@@ -79,25 +79,54 @@ self.addEventListener('message', (event) => {
 // Periodic background sync for daily verse notifications
 self.addEventListener('periodicsync', (event) => {
   if (event.tag === 'daily-verse-notif') {
+    console.log('[SW] Periodic sync triggered:', event.tag);
+    event.waitUntil(sendDailyVerseNotification());
+  }
+});
+
+// Background sync fallback (more widely supported than periodicSync)
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'daily-verse-sync') {
+    console.log('[SW] Background sync triggered:', event.tag);
     event.waitUntil(sendDailyVerseNotification());
   }
 });
 
 async function sendDailyVerseNotification() {
   try {
+    console.log('[SW] sendDailyVerseNotification called');
+    
     // Get config from cache
     const cache = await caches.open('kjb-notif-config');
     const response = await cache.match('/notif-config');
-    if (!response) return;
+    if (!response) {
+      console.log('[SW] No config found in cache');
+      return;
+    }
     
     const config = await response.json();
     const today = new Date().toISOString().split('T')[0];
+    const now = Date.now();
+    
+    console.log('[SW] Config:', {
+      nextTs: config.nextTs,
+      lastDate: config.lastDate,
+      today: today,
+      now: now,
+      shouldFire: now >= config.nextTs && config.lastDate !== today
+    });
     
     // Check if we already notified today
-    if (config.lastDate === today) return;
+    if (config.lastDate === today) {
+      console.log('[SW] Already notified today, skipping');
+      return;
+    }
     
     // Check if it's time to notify
-    if (Date.now() < config.nextTs) return;
+    if (now < config.nextTs) {
+      console.log('[SW] Not time yet, skipping');
+      return;
+    }
     
     const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
     
@@ -108,8 +137,17 @@ async function sendDailyVerseNotification() {
       const imgResponse = await dbCache.match('/notif-image');
       if (imgResponse) {
         customImage = await imgResponse.blob();
+        console.log('[SW] Using custom image from cache');
       }
-    } catch {}
+    } catch (imgErr) {
+      console.log('[SW] Failed to get custom image:', imgErr);
+    }
+    
+    console.log('[SW] Showing notification:', {
+      title: 'KJB — Daily Verse',
+      body: config.verseText,
+      ref: config.verseRef
+    });
     
     await self.registration.showNotification('KJB — Daily Verse', {
       body: `"${config.verseText}" — ${config.verseRef}`,
@@ -118,17 +156,23 @@ async function sendDailyVerseNotification() {
       tag: 'daily-verse',
       renotify: true,
       vibrate: [200, 100, 200],
+      silent: false,
+      requireInteraction: false,
       data: {
         url: '/'
       }
     });
+    
+    console.log('[SW] Notification shown successfully');
     
     // Update last notified date
     config.lastDate = today;
     await cache.put('/notif-config', new Response(JSON.stringify(config), {
       headers: { 'Content-Type': 'application/json' }
     }));
+    
+    console.log('[SW] Updated last notified date to', today);
   } catch (err) {
-    console.error('Daily verse notification error:', err);
+    console.error('[SW] Daily verse notification error:', err);
   }
 }

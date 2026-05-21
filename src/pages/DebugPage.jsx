@@ -80,6 +80,17 @@ export default function DebugPage() {
     }
   };
 
+  const testScheduledNotification = async () => {
+    addLog('Testing scheduled notification trigger...');
+    try {
+      const { triggerScheduledNotification } = await import('@/lib/notifications');
+      await triggerScheduledNotification();
+      addLog('Scheduled notification triggered', 'success');
+    } catch (err) {
+      addLog(`Scheduled trigger failed: ${err.message}`, 'error');
+    }
+  };
+
   const registerSW = async () => {
     addLog('Registering service worker...');
     try {
@@ -233,7 +244,14 @@ export default function DebugPage() {
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
           >
             <Bell className="w-4 h-4" />
-            Test Notification
+            Test Now
+          </button>
+          <button
+            onClick={testScheduledNotification}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+          >
+            <Bell className="w-4 h-4" />
+            Test Scheduled
           </button>
           <button
             onClick={checkStatus}

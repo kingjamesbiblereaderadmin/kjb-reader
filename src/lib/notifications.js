@@ -219,15 +219,73 @@ export async function showLocalNotification(title, body, imageUrl = null) {
 
 // In-page timer (fires while app is open / in background tab)
 let _notifTimer = null;
+let _alarmTimer = null;
+
+// Use Alarm API if available (Chrome/Edge) - more reliable than setTimeout
+async function armAlarm(verse) {
+  if (!('AlarmManager' in window)) {
+    console.log('[Notif] Alarm API not available, falling back to timer');
+    return false;
+  }
+  
+  try {
+    const alarmId = 'kjb-daily-verse';
+    const fireDate = getNextFireDate();
+    
+    // Clear existing alarm
+    await navigator.AlarmManager.clear(alarmId);
+    
+    // Set new alarm
+    await navigator.AlarmManager.set(
+      alarmId,
+      fireDate.getTime(),
+      async () => {
+        console.log('[Notif] Alarm fired!');
+        const today = todayString();
+        if (localStorage.getItem(NOTIF_LAST_KEY) === today) {
+          console.log('[Notif] Already notified today, rescheduling');
+          scheduleAndSave(verse);
+          return;
+        }
+        localStorage.setItem(NOTIF_LAST_KEY, today);
+        await showLocalNotification(
+          'King James Bible — Daily Verse',
+          `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref}`,
+          null
+        );
+        scheduleAndSave(verse);
+      }
+    );
+    console.log('[Notif] Alarm set for', fireDate);
+    return true;
+  } catch (err) {
+    console.error('[Notif] Alarm setup failed:', err);
+    return false;
+  }
+}
 
 function armTimer(verse) {
   if (_notifTimer) { clearTimeout(_notifTimer); _notifTimer = null; }
+  if (_alarmTimer) { clearTimeout(_alarmTimer); _alarmTimer = null; }
+  
   const ms = getNextFireDate() - Date.now();
-  console.log('[Notif] Arming timer to fire in', ms, 'ms at', getNextFireDate());
+  const fireDate = getNextFireDate();
+  
+  console.log('[Notif] Arming timer to fire in', ms, 'ms at', fireDate);
+  console.log('[Notif] Timer will fire at:', fireDate.toLocaleString());
+  console.log('[Notif] Current time:', new Date().toLocaleString());
+  console.log('[Notif] Notifications enabled:', getNotificationsEnabled());
+  console.log('[Notif] Last notified:', localStorage.getItem(NOTIF_LAST_KEY));
+  
+  // Check if we should fire immediately (for testing/debugging)
+  if (ms < 0) {
+    console.log('[Notif] Scheduled time is in the past, will fire on next app open');
+  }
+  
   _notifTimer = setTimeout(async () => {
+    console.log('[Notif] Timer callback executed');
     const today = todayString();
     if (localStorage.getItem(NOTIF_LAST_KEY) === today) {
-      // Already fired today, schedule for tomorrow
       console.log('[Notif] Already notified today, rescheduling');
       scheduleAndSave(verse);
       return;
@@ -237,10 +295,45 @@ function armTimer(verse) {
     await showLocalNotification(
       'King James Bible — Daily Verse',
       `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref}`,
-      null // Will use stored kjb-notif-image
+      null
     );
     scheduleAndSave(verse);
   }, ms);
+  
+  // Also set a wake-up alarm that checks every minute near the scheduled time
+  const checkInterval = 60000; // 1 minute
+  const timeToCheck = ms - 300000; // Start checking 5 minutes before
+  if (timeToCheck > 0 && timeToCheck < 24 * 60 * 60 * 1000) {
+    console.log('[Notif] Setting wake-up checks starting in', timeToCheck, 'ms');
+    _alarmTimer = setTimeout(() => {
+      console.log('[Notif] Starting wake-up checks');
+      const checkTimer = setInterval(() => {
+        const now = Date.now();
+        const target = fireDate.getTime();
+        console.log('[Notif] Wake-up check: now=', now, 'target=', target, 'diff=', target - now);
+        if (now >= target) {
+          clearInterval(checkTimer);
+          console.log('[Notif] Wake-up check triggered notification');
+          const today = todayString();
+          if (localStorage.getItem(NOTIF_LAST_KEY) !== today) {
+            localStorage.setItem(NOTIF_LAST_KEY, today);
+            showLocalNotification(
+              'King James Bible — Daily Verse',
+              `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref}`,
+              null
+            );
+            scheduleAndSave(verse);
+          }
+        }
+      }, checkInterval);
+      
+      // Clear check timer after 10 minutes
+      setTimeout(() => {
+        clearInterval(checkTimer);
+        console.log('[Notif] Stopped wake-up checks');
+      }, 10 * 60 * 1000);
+    }, timeToCheck);
+  }
 }
 
 function scheduleAndSave(verse) {
@@ -363,4 +456,21 @@ export function initNotifications(verse) {
   });
   
   console.log('[Notif] Notifications initialized successfully');
+}
+
+// Manual trigger for debugging/testing
+export async function triggerScheduledNotification() {
+  console.log('[Notif] Manual trigger called');
+  const verse = getDailyVerse();
+  const today = todayString();
+  
+  // Force fire for testing
+  localStorage.setItem(NOTIF_LAST_KEY, today);
+  await showLocalNotification(
+    'KJB — Manual Test',
+    `"${verse.text.slice(0, 100)}${verse.text.length > 100 ? '…' : ''}" — ${verse.ref}`,
+    null
+  );
+  scheduleAndSave(verse);
+  console.log('[Notif] Manual trigger completed');
 }
