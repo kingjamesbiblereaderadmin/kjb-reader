@@ -47,12 +47,19 @@ export default function HomePage() {
     }
   };
 
+  const swipedRef = useRef(false);
+
   const handleTouchStart = (e) => {
     touchStartY.current = e.touches[0].clientY;
+    touchEndY.current = e.touches[0].clientY;
+    swipedRef.current = false;
   };
 
   const handleTouchMove = (e) => {
     touchEndY.current = e.touches[0].clientY;
+    if (Math.abs(touchEndY.current - touchStartY.current) > 10) {
+      swipedRef.current = true;
+    }
   };
 
   const handleTouchEnd = () => {
@@ -61,6 +68,15 @@ export default function HomePage() {
     if (diff > 100 && window.scrollY === 0) {
       handleRefresh();
     }
+  };
+
+  const handleVerseCardClick = () => {
+    // Don't navigate if the user was swiping (pull-to-refresh or scroll gesture)
+    if (swipedRef.current) {
+      swipedRef.current = false;
+      return;
+    }
+    handleVerseClick();
   };
 
   const handleRandomVerse = () => {
@@ -193,7 +209,7 @@ export default function HomePage() {
 
       {/* Daily verse card */}
       <div className="w-full mb-6 relative">
-        <DailyVerseImage verse={verse} onClick={handleVerseClick} onToggleNotif={handleToggleNotif} notifEnabled={notifEnabled} />
+        <DailyVerseImage verse={verse} onClick={handleVerseCardClick} onToggleNotif={handleToggleNotif} notifEnabled={notifEnabled} />
       </div>
 
 
