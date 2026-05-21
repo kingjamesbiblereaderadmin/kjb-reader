@@ -30,8 +30,8 @@ const AuthenticatedApp = () => {
   const location = useLocation();
 
   if (isLoadingPublicSettings || isLoadingAuth) {
-    // No spinner — show empty background while auth resolves
-    return <div className="fixed inset-0 bg-background" />;
+    // Render nothing during auth resolution — avoids black flash
+    return null;
   }
 
   if (authError) {

@@ -27,6 +27,14 @@
     <meta name="keywords" content="Bible, King James Version, KJV, Pure Cambridge Edition, offline Bible, Christian, scripture" />
     <!-- PWA manifest -->
     <link rel="manifest" href="/manifest.json" />
+    <!-- Prevent black flash before React mounts: match theme background -->
+    <style>
+      html, body { background-color: #ffffff; margin: 0; }
+      @media (prefers-color-scheme: dark) {
+        html, body { background-color: #0f1718; }
+      }
+      #root { min-height: 100vh; background-color: inherit; }
+    </style>
   </head>
   <body>
     <div id="root"></div>
