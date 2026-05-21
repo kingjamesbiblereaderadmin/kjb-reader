@@ -12,6 +12,7 @@ import { requestNotificationPermission, scheduleDailyNotification, getNotificati
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { getBibleData, isBibleCached, initPeriodicCacheRefresh, downloadBibleForOffline, refreshCacheIfDue } from '@/lib/bibleCache';
 import { toast } from 'sonner';
+import { useSoftReload } from '@/lib/SoftReloadContext';
 
 const NAV_ITEMS = [
   { path: '/', icon: Home, label: 'Home' },
@@ -42,6 +43,7 @@ export default function AppLayout() {
   const { pathname } = useLocation();
   const { isDark, mode, toggleTheme } = useTheme();
   const { hideHeader } = useHeaderHide();
+  const { reloadKey, softReload } = useSoftReload();
   const [menuOpen, setMenuOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [footerMode, setFooterMode] = useState(() => {
@@ -192,7 +194,9 @@ export default function AppLayout() {
                     localStorage.removeItem('bible_cache_version');
                     localStorage.removeItem('bible_last_refresh');
                     await downloadBibleForOffline();
-                    toast.success('✅ Bible updated');
+                    // Soft-reload the page content so updated Bible data is visible
+                    // (header/footer stay in place — no full page reload).
+                    softReload('Bible updated, refreshing…');
                   } else {
                     toast.success('✅ Already up to date - no changes needed');
                   }
@@ -265,7 +269,9 @@ export default function AppLayout() {
       </header>
 
       <main className="flex-1 pb-24 sm:pb-0 px-1 sm:px-2">
-        <Outlet />
+        <div key={reloadKey}>
+          <Outlet />
+        </div>
       </main>
 
       <BottomNav pathname={pathname} navigate={navigate} />
