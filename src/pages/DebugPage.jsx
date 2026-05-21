@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Wifi, WifiOff, Bell, BellOff, CheckCircle2, AlertCircle, Loader2, RefreshCw, Smartphone, Clock, Timer } from 'lucide-react';
+import { Settings, Wifi, WifiOff, Bell, BellOff, CheckCircle2, AlertCircle, Loader2, RefreshCw, Smartphone, Clock, Timer, Trash2 } from 'lucide-react';
 
 export default function DebugPage() {
   const navigate = useNavigate();
@@ -11,6 +11,46 @@ export default function DebugPage() {
   const [logs, setLogs] = useState([]);
   const [timerStatus, setTimerStatus] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [clipboardEvents, setClipboardEvents] = useState([]);
+
+  // Monitor clipboard API calls globally
+  useEffect(() => {
+    // Override navigator.clipboard.writeText to track calls
+    const originalWriteText = navigator.clipboard?.writeText;
+    if (originalWriteText) {
+      navigator.clipboard.writeText = async function(text) {
+        const timestamp = new Date().toLocaleTimeString();
+        console.log('[DebugPage] Clipboard writeText detected:', text.substring(0, 80) + '...');
+        setClipboardEvents(prev => [...prev, { 
+          time: timestamp, 
+          type: 'writeText', 
+          preview: text.substring(0, 80) + (text.length > 80 ? '...' : '') 
+        }]);
+        return originalWriteText.call(this, text);
+      };
+    }
+
+    // Override navigator.clipboard.write to track calls
+    const originalWrite = navigator.clipboard?.write;
+    if (originalWrite) {
+      navigator.clipboard.write = async function(data) {
+        const timestamp = new Date().toLocaleTimeString();
+        console.log('[DebugPage] Clipboard write detected:', data);
+        setClipboardEvents(prev => [...prev, { 
+          time: timestamp, 
+          type: 'write', 
+          preview: 'Image/Data: ' + data.length + ' items' 
+        }]);
+        return originalWrite.call(this, data);
+      };
+    }
+
+    return () => {
+      // Restore original functions on cleanup
+      if (originalWriteText) navigator.clipboard.writeText = originalWriteText;
+      if (originalWrite) navigator.clipboard.write = originalWrite;
+    };
+  }, []);
 
   const addLog = (message, type = 'info') => {
     setLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), message, type }]);
@@ -190,6 +230,11 @@ export default function DebugPage() {
     checkStatus();
   };
 
+  const clearClipboardLog = () => {
+    setClipboardEvents([]);
+    addLog('Clipboard log cleared');
+  };
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
       <div className="text-center mb-8">
@@ -350,6 +395,33 @@ export default function DebugPage() {
             <AlertCircle className="w-4 h-4" />
             Clear All Data
           </button>
+        </div>
+      </div>
+
+      {/* Clipboard Events */}
+      <div className="bg-card border border-border rounded-2xl p-5 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-serif text-lg font-semibold">Clipboard Monitor</h2>
+          <button
+            onClick={clearClipboardLog}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            Clear
+          </button>
+        </div>
+        <div className="bg-slate-900 dark:bg-black rounded-xl p-4 font-mono text-xs text-slate-100 max-h-64 overflow-y-auto">
+          {clipboardEvents.length === 0 ? (
+            <p className="text-slate-500">No clipboard events detected</p>
+          ) : (
+            clipboardEvents.map((event, i) => (
+              <div key={i} className="mb-2 pb-2 border-b border-slate-800 last:border-0">
+                <span className="text-slate-500">[{event.time}]</span>
+                <span className="text-blue-400 ml-2">{event.type}</span>
+                <div className="text-slate-300 mt-1 break-all">{event.preview}</div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
