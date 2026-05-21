@@ -276,7 +276,7 @@ function parseBibleText(rawText) {
 
   const bookCount = Object.keys(data).filter(k => k !== '__colophons').length;
   console.log('[PARSE] ✓ Complete:', verseCount, 'verses,', bookCount, 'books');
-  console.log('[PARSE] Books found:', Object.keys(data).filter(k => k !== '__colophons').slice(0, 10).join(', '), '...');
+  console.log('[PARSE] ALL books found:', Object.keys(data).filter(k => k !== '__colophons').join(', '));
   
   // Debug: check if Genesis has chapters
   if (data.Genesis) {
