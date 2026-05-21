@@ -793,6 +793,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             e.preventDefault();
             e.stopPropagation();
             e.nativeEvent.stopImmediatePropagation();
+            setShowLightbox(false);
           }}
           onMouseDown={(e) => {
             e.preventDefault();
@@ -830,6 +831,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 e.preventDefault();
                 e.stopPropagation();
                 e.nativeEvent.stopImmediatePropagation();
+                setShowLightbox(false);
               }}
               onMouseDown={(e) => {
                 e.preventDefault();
