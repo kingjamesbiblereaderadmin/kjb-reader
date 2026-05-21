@@ -211,13 +211,25 @@ function extractItalicInfo(bracketedText) {
 function applyItalics(rtfText, italics) {
   if (!italics || italics.length === 0) return rtfText;
   let result = rtfText;
+  
+  // First, check if RTF already has brackets - if so, preserve them
+  const existingBrackets = result.match(/\[[^\]]+\]/g) || [];
+  
   // Sort by length descending to avoid partial matches
   const sorted = [...italics].sort((a, b) => b.text.length - a.text.length);
+  
   for (const italic of sorted) {
-    const phrase = italic.text;
+    let phrase = italic.text;
+    
+    // Strip leading "(but)" or similar parenthetical additions from abbreviated file
+    phrase = phrase.replace(/^\([^)]+\)\s*/, '');
+    
+    if (!phrase.trim()) continue;
+    
     try {
       const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const re = new RegExp(`(?<!\\[)\\b${escaped}\\b(?![^[]*\\])`, 'i');
+      // Match case-insensitively, but NOT if already inside brackets
+      const re = new RegExp(`(?<!\\[)\\b${escaped}\\b(?!\\])`, 'i');
       const match = re.exec(result);
       if (match) {
         const before = result.slice(0, match.index);
@@ -228,6 +240,7 @@ function applyItalics(rtfText, italics) {
       // Skip problematic phrases
     }
   }
+  
   return result;
 }
 
