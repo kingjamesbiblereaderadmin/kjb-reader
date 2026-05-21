@@ -512,8 +512,8 @@ export default function BibleReader() {
 
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
-        <div ref={topRef} className="sticky top-[56px] sm:top-[72px] z-50 bg-background/95 backdrop-blur border-b border-border pb-1 mb-2">
-          <div className="flex items-center gap-1.5 pt-1 overflow-x-auto scrollbar-hide -mx-2 px-2">
+        <div ref={topRef} className="sticky top-[56px] sm:top-[72px] z-[100] bg-background/95 backdrop-blur border-b border-border pb-1 mb-2">
+          <div className="flex items-center gap-1.5 pt-1 overflow-x-auto scrollbar-hide">
 
             {/* Book selector */}
             <button
@@ -901,7 +901,7 @@ export default function BibleReader() {
 
       {/* Show header chevron when hidden — aligned with top border */}
       {hideHeader && (
-        <div className="fixed top-0 left-0 right-0 h-[49px] border-b border-border bg-background/95 backdrop-blur z-[60]">
+        <div className="fixed top-0 left-0 right-0 h-[49px] border-b border-border bg-background/95 backdrop-blur z-[110]">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 h-full flex items-center justify-end">
             <div className="flex items-center gap-1">
               <button
@@ -1059,7 +1059,7 @@ export default function BibleReader() {
 
       {/* Filter mode banner */}
       {filterMode && (
-        <div className="sticky top-[56px] sm:top-[72px] z-40 mb-3 px-3 py-2 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-between gap-2 max-w-full overflow-x-auto">
+        <div className="sticky top-[56px] sm:top-[72px] z-[99] mb-3 px-3 py-2 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-between gap-2 max-w-full overflow-x-auto">
           <p className="font-sans text-xs text-primary font-semibold flex items-center gap-1.5">
             <BookMarked className="w-3.5 h-3.5" />
             {selectedVerses.size > 0
