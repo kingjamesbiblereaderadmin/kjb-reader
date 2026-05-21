@@ -46,7 +46,42 @@ window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
       console.log('[SW] Registered:', registration.scope);
-      
+
+      // Prewarm: tell SW to cache every <script> and <link rel=stylesheet> on the page
+      // so all lazy-loaded routes work offline, even if the user never visited them online.
+      const prewarmAssets = () => {
+        try {
+          const urls = new Set();
+          document.querySelectorAll('script[src]').forEach(s => {
+            try { urls.add(new URL(s.src, location.href).href); } catch {}
+          });
+          document.querySelectorAll('link[rel="stylesheet"], link[rel="modulepreload"], link[rel="preload"]').forEach(l => {
+            try { if (l.href) urls.add(new URL(l.href, location.href).href); } catch {}
+          });
+          const list = Array.from(urls);
+          if (list.length && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({ type: 'PREWARM_ASSETS', urls: list });
+            console.log('[SW] Prewarm requested for', list.length, 'assets');
+          }
+        } catch (err) {
+          console.warn('[SW] Prewarm failed:', err);
+        }
+      };
+
+      // Run prewarm when SW is controlling the page
+      if (navigator.serviceWorker.controller) {
+        // Already controlled — prewarm now (and after a delay to catch dynamic chunks)
+        prewarmAssets();
+        setTimeout(prewarmAssets, 3000);
+        setTimeout(prewarmAssets, 10000);
+      } else {
+        // First load — wait for controllerchange, then prewarm
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          setTimeout(prewarmAssets, 500);
+          setTimeout(prewarmAssets, 5000);
+        });
+      }
+
       // Check for updates periodically (every 5 minutes when app is open)
       setInterval(() => {
         registration.update().then(() => {

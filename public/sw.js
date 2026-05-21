@@ -3,8 +3,10 @@
 //  - Navigation requests: network-first, fall back to cached app shell ('/')
 //  - Same-origin static assets (JS/CSS/fonts/images): cache-first, populate on demand
 //  - Cross-origin (fonts, images CDN): cache-first runtime cache
-const CACHE_NAME = 'kjb-cache-v5';
-const RUNTIME_CACHE = 'kjb-runtime-v5';
+//  - On page load, the client sends a PREWARM_ASSETS message with all <script>/<link>
+//    URLs from the current page. The SW fetches+caches them so every route works offline.
+const CACHE_NAME = 'kjb-cache-v6';
+const RUNTIME_CACHE = 'kjb-runtime-v6';
 const OFFLINE_URL = '/offline.html';
 const APP_SHELL_URL = '/';
 const APP_LOGO = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
@@ -18,7 +20,7 @@ const PRECACHE_URLS = [
 
 // ─── Install ───────────────────────────────────────────────
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing v5');
+  console.log('[SW] Installing v6');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => Promise.all(
@@ -32,12 +34,12 @@ self.addEventListener('install', (event) => {
 
 // ─── Activate ──────────────────────────────────────────────
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating v5');
+  console.log('[SW] Activating v6');
   event.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
         keys
-          .filter(k => k !== CACHE_NAME && k !== RUNTIME_CACHE && k !== 'kjb-notif-config')
+          .filter(k => k !== CACHE_NAME && k !== RUNTIME_CACHE && k !== 'kjb-notif-config' && k !== 'kjb-notif-images')
           .map(k => caches.delete(k))
       ))
       .then(() => self.clients.claim())
@@ -196,5 +198,32 @@ self.addEventListener('pushsubscriptionchange', (event) => {
 
 // ─── Messages from page ────────────────────────────────────
 self.addEventListener('message', (event) => {
-  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+    return;
+  }
+
+  // Page sends list of asset URLs to prewarm (all <script> + <link rel=stylesheet>).
+  // SW fetches and caches them so every lazy route works offline.
+  if (event.data?.type === 'PREWARM_ASSETS' && Array.isArray(event.data.urls)) {
+    const urls = event.data.urls;
+    event.waitUntil(
+      caches.open(RUNTIME_CACHE).then(async (cache) => {
+        await Promise.all(urls.map(async (u) => {
+          try {
+            // Skip if already cached
+            const existing = await cache.match(u);
+            if (existing) return;
+            const res = await fetch(u, { cache: 'no-cache' });
+            if (res && (res.ok || res.type === 'opaque')) {
+              await cache.put(u, res.clone());
+            }
+          } catch (err) {
+            // Silent — best effort
+          }
+        }));
+        console.log('[SW] Prewarmed', urls.length, 'assets');
+      })
+    );
+  }
 });
