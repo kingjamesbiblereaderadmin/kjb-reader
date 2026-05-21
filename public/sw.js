@@ -69,7 +69,7 @@ self.addEventListener('notificationclick', (event) => {
     clients.matchAll({ type: 'window' }).then((clientList) => {
       // If app is already open, focus it
       for (const client of clientList) {
-        if (client.url === '/' && 'focus' in client) {
+        if ('focus' in client) {
           return client.focus();
         }
       }
@@ -146,17 +146,14 @@ async function sendDailyVerseNotification() {
       ref: config.verseRef
     });
     
-    // No icon - just show the verse text
+    // No icon, no data - just show the verse text
     await self.registration.showNotification('KJB — Daily Verse', {
       body: `"${config.verseText}" — ${config.verseRef}`,
       tag: 'daily-verse',
       renotify: true,
       vibrate: [200, 100, 200],
       silent: false,
-      requireInteraction: false,
-      data: {
-        url: '/'
-      }
+      requireInteraction: false
     });
     
     console.log('[SW] Notification shown successfully');
