@@ -278,10 +278,9 @@ export default function BibleReader() {
       setVerses(data.verses);
       setColophon(data.colophon || null);
       setVerseCount(data.verses.length);
-      // Set highlight if jumpVerse was explicitly provided
+      // Set highlight if jumpVerse was explicitly provided (manualHighlight is only set by verse picker)
       if (jumpVerse) {
         setHighlightVerse(jumpVerse);
-        setManualHighlight(true);
       }
       savePosition(bookAbbr, chapter);
       
@@ -368,6 +367,7 @@ export default function BibleReader() {
     if (highlightVerse && !manualHighlight) {
       const timer = setTimeout(() => {
         setHighlightVerse(null);
+        setManualHighlight(false);
         // Clear the verse from position storage to reset header display
         try {
           const current = JSON.parse(localStorage.getItem('kjb-position') || '{}');
@@ -401,9 +401,6 @@ export default function BibleReader() {
     if (!jumpVerse) {
       setHighlightVerse(null);
       setManualHighlight(false);
-    } else {
-      // Mark as manual highlight when navigating to a specific verse
-      setManualHighlight(true);
     }
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);
