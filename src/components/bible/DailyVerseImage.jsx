@@ -512,27 +512,32 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                       e.nativeEvent.stopImmediatePropagation();
                       setCropImageForNotif(false);
                       setShowMenu(false);
-                      // Use setTimeout to ensure menu closes before file picker opens
-                      setTimeout(() => {
-                        if (fileInputRef.current) {
-                          fileInputRef.current.click();
-                        }
-                      }, 10);
                     }}
                     onMouseDown={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
                       e.nativeEvent.stopImmediatePropagation();
-                    }}
-                    onTouchStart={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      e.nativeEvent.stopImmediatePropagation();
+                      setCropImageForNotif(false);
+                      setShowMenu(false);
+                      // Trigger file input after menu closes
+                      setTimeout(() => {
+                        if (fileInputRef.current) {
+                          fileInputRef.current.click();
+                        }
+                      }, 50);
                     }}
                     onTouchEnd={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
                       e.nativeEvent.stopImmediatePropagation();
+                      setCropImageForNotif(false);
+                      setShowMenu(false);
+                      // Trigger file input after menu closes on mobile
+                      setTimeout(() => {
+                        if (fileInputRef.current) {
+                          fileInputRef.current.click();
+                        }
+                      }, 50);
                     }}
                     disabled={uploading}
                     className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-50"
