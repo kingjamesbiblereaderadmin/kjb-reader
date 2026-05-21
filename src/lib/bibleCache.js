@@ -77,6 +77,67 @@ const ABBREV_TO_API = {
   'Re': 'Revelation', 'Rev': 'Revelation', 'Reve': 'Revelation'
 };
 
+// RTF book title mapping
+const RTF_TITLE_MAP = {
+  'THE FIRST BOOK OF MOSES': 'Genesis',
+  'THE SECOND BOOK OF MOSES': 'Exodus',
+  'THE THIRD BOOK OF MOSES': 'Leviticus',
+  'THE FOURTH BOOK OF MOSES': 'Numbers',
+  'THE FIFTH BOOK OF MOSES': 'Deuteronomy',
+  'THE BOOK OF JOSHUA': 'Joshua',
+  'THE BOOK OF JUDGES': 'Judges',
+  'THE BOOK OF RUTH': 'Ruth',
+  'THE FIRST BOOK OF SAMUEL': '1 Samuel',
+  'THE SECOND BOOK OF SAMUEL': '2 Samuel',
+  'THE FIRST BOOK OF THE KINGS': '1 Kings',
+  'THE SECOND BOOK OF THE KINGS': '2 Kings',
+  'THE FIRST BOOK OF THE CHRONICLES': '1 Chronicles',
+  'THE SECOND BOOK OF THE CHRONICLES': '2 Chronicles',
+  'EZRA': 'Ezra',
+  'THE BOOK OF NEHEMIAH': 'Nehemiah',
+  'THE BOOK OF ESTHER': 'Esther',
+  'THE BOOK OF JOB': 'Job',
+  'THE BOOK OF PSALMS': 'Psalms',
+  'THE PROVERBS': 'Proverbs',
+  'ECCLESIASTES': 'Ecclesiastes',
+  'THE SONG OF SOLOMON': 'Song of Solomon',
+  'THE BOOK OF THE PROPHET ISAIAH': 'Isaiah',
+  'THE BOOK OF THE PROPHET JEREMIAH': 'Jeremiah',
+  'THE LAMENTATIONS OF JEREMIAH': 'Lamentations',
+  'THE BOOK OF THE PROPHET EZEKIEL': 'Ezekiel',
+  'THE BOOK OF DANIEL': 'Daniel',
+  'HOSEA': 'Hosea', 'JOEL': 'Joel', 'AMOS': 'Amos', 'OBADIAH': 'Obadiah',
+  'JONAH': 'Jonah', 'MICAH': 'Micah', 'NAHUM': 'Nahum', 'HABAKKUK': 'Habakkuk',
+  'ZEPHANIAH': 'Zephaniah', 'HAGGAI': 'Haggai', 'ZECHARIAH': 'Zechariah', 'MALACHI': 'Malachi',
+  'THE GOSPEL ACCORDING TO ST MATTHEW': 'Matthew',
+  'THE GOSPEL ACCORDING TO ST MARK': 'Mark',
+  'THE GOSPEL ACCORDING TO ST LUKE': 'Luke',
+  'THE GOSPEL ACCORDING TO ST JOHN': 'John',
+  'THE ACTS OF THE APOSTLES': 'Acts',
+  'THE EPISTLE OF PAUL THE APOSTLE TO THE ROMANS': 'Romans',
+  'THE FIRST EPISTLE OF PAUL THE APOSTLE TO THE CORINTHIANS': '1 Corinthians',
+  'THE SECOND EPISTLE OF PAUL THE APOSTLE TO THE CORINTHIANS': '2 Corinthians',
+  'THE EPISTLE OF PAUL THE APOSTLE TO THE GALATIANS': 'Galatians',
+  'THE EPISTLE OF PAUL THE APOSTLE TO THE EPHESIANS': 'Ephesians',
+  'THE EPISTLE OF PAUL THE APOSTLE TO THE PHILIPPIANS': 'Philippians',
+  'THE EPISTLE OF PAUL THE APOSTLE TO THE COLOSSIANS': 'Colossians',
+  'THE FIRST EPISTLE OF PAUL THE APOSTLE TO THE THESSALONIANS': '1 Thessalonians',
+  'THE SECOND EPISTLE OF PAUL THE APOSTLE TO THE THESSALONIANS': '2 Thessalonians',
+  'THE FIRST EPISTLE OF PAUL THE APOSTLE TO TIMOTHY': '1 Timothy',
+  'THE SECOND EPISTLE OF PAUL THE APOSTLE TO TIMOTHY': '2 Timothy',
+  'THE EPISTLE OF PAUL TO TITUS': 'Titus',
+  'THE EPISTLE OF PAUL TO PHILEMON': 'Philemon',
+  'THE EPISTLE OF PAUL THE APOSTLE TO THE HEBREWS': 'Hebrews',
+  'THE GENERAL EPISTLE OF JAMES': 'James',
+  'THE FIRST EPISTLE GENERAL OF PETER': '1 Peter',
+  'THE SECOND EPISTLE GENERAL OF PETER': '2 Peter',
+  'THE FIRST EPISTLE GENERAL OF JOHN': '1 John',
+  'THE SECOND EPISTLE OF JOHN': '2 John',
+  'THE THIRD EPISTLE OF JOHN': '3 John',
+  'THE GENERAL EPISTLE OF JUDE': 'Jude',
+  'THE REVELATION OF ST JOHN THE DIVINE': 'Revelation',
+};
+
 let parsedData = null;
 let fetchInProgress = null;
 let remoteVersion = null;
@@ -169,9 +230,18 @@ function parseRTFWithItalics(rtfText, italicMap) {
 
     // Detect book title (all caps lines)
     if (trimmed === trimmed.toUpperCase() && /[A-Z]/.test(trimmed) && !/^\d/.test(trimmed) && !/^CHAPTER/.test(trimmed)) {
-      const bookName = Object.entries(ABBREV_TO_API).find(([abbrev, name]) => 
-        trimmed.includes(abbrev) || name.split(' ').some(word => word.length > 3 && trimmed.includes(word))
-      )?.[1];
+      const upper = trimmed.replace(/[.,]/g, '').trim();
+      // Direct RTF title match
+      let bookName = RTF_TITLE_MAP[upper];
+      // Partial match for multi-line titles
+      if (!bookName) {
+        for (const [key, val] of Object.entries(RTF_TITLE_MAP)) {
+          if (upper.startsWith(key) || upper.includes(key)) {
+            bookName = val;
+            break;
+          }
+        }
+      }
       if (bookName) {
         currentBook = bookName;
         currentChapter = null;
