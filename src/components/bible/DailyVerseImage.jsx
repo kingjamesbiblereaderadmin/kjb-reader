@@ -511,10 +511,13 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                       e.stopPropagation();
                       e.nativeEvent.stopImmediatePropagation();
                       setCropImageForNotif(false);
-                      if (fileInputRef.current) {
-                        fileInputRef.current.click();
-                      }
                       setShowMenu(false);
+                      // Use setTimeout to ensure menu closes before file picker opens
+                      setTimeout(() => {
+                        if (fileInputRef.current) {
+                          fileInputRef.current.click();
+                        }
+                      }, 10);
                     }}
                     onMouseDown={(e) => {
                       e.preventDefault();

@@ -110,11 +110,16 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
 
   const actionPopover = selected && (
     <>
-      <div className="fixed inset-0 z-40" onClick={() => setSelected(false)} />
+      <div 
+        className="fixed inset-0 z-40" 
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setSelected(false); }}
+        onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setSelected(false); }}
+      />
       <div className="absolute right-0 top-full mt-1.5 z-50 flex flex-wrap items-center gap-1.5 bg-card border border-border rounded-xl shadow-xl px-2.5 py-2">
         <div className="relative">
           <button
-            onClick={(e) => { e.stopPropagation(); setShowColorPicker(!showColorPicker); }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setShowColorPicker(!showColorPicker); }}
+            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setShowColorPicker(!showColorPicker); }}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
             title="Highlight color"
           >
@@ -124,12 +129,17 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           </button>
           {showColorPicker && (
             <>
-              <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setShowColorPicker(false); }} />
+              <div 
+                className="fixed inset-0 z-40" 
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setShowColorPicker(false); }}
+                onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setShowColorPicker(false); }}
+              />
               <div className="absolute top-full left-0 mt-1.5 z-50 flex flex-col gap-1.5 bg-card border border-border rounded-xl p-3 shadow-xl min-w-[140px]">
                 <div className="flex items-center justify-between mb-0.5">
                   <p className="font-sans text-xs font-medium text-muted-foreground">Choose color</p>
                   <button
-                    onClick={(e) => { e.stopPropagation(); setShowColorPicker(false); }}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setShowColorPicker(false); }}
+                    onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setShowColorPicker(false); }}
                     className="p-1 rounded hover:bg-secondary text-muted-foreground transition-colors"
                   >
                     <X className="w-3 h-3" />
@@ -139,7 +149,17 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
                   <button
                     key={color.name}
                     onClick={(e) => {
+                      e.preventDefault();
                       e.stopPropagation();
+                      e.nativeEvent.stopImmediatePropagation();
+                      setHighlightColor(color.name);
+                      setShowHighlight(true);
+                      setShowColorPicker(false);
+                    }}
+                    onTouchEnd={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      e.nativeEvent.stopImmediatePropagation();
                       setHighlightColor(color.name);
                       setShowHighlight(true);
                       setShowColorPicker(false);
@@ -164,7 +184,8 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         </div>
         {showHighlight ? (
           <button
-            onClick={(e) => { e.stopPropagation(); setShowHighlight(false); }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setShowHighlight(false); }}
+            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setShowHighlight(false); }}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-accent/20 text-accent hover:bg-accent/30 font-sans text-xs font-medium transition-colors"
             title="Remove highlight"
           >
@@ -173,7 +194,8 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           </button>
         ) : (
           <button
-            onClick={(e) => { e.stopPropagation(); setShowHighlight(true); }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setShowHighlight(true); }}
+            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setShowHighlight(true); }}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
             title="Apply highlight"
           >
@@ -182,26 +204,30 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           </button>
         )}
         <button
-          onClick={handleCopy}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); handleCopy(e); }}
+          onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); handleCopy(e); }}
           className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
         >
           <Copy className="w-3 h-3" /> Copy
         </button>
         <button
-          onClick={handleShare}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); handleShare(e); }}
+          onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); handleShare(e); }}
           className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-90 font-sans text-xs font-medium transition-colors"
         >
           <Share2 className="w-3 h-3" /> Share
         </button>
         <button
-          onClick={handleToggleSave}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); handleToggleSave(e); }}
+          onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); handleToggleSave(e); }}
           className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
         >
           {saved ? <BookmarkCheck className="w-3 h-3 text-accent" /> : <Bookmark className="w-3 h-3" />}
           {saved ? 'Saved' : 'Save'}
         </button>
         <button
-          onClick={(e) => { e.stopPropagation(); setSelected(false); }}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setSelected(false); }}
+          onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setSelected(false); }}
           className="p-1 rounded-lg hover:bg-secondary text-muted-foreground transition-colors"
         >
           <X className="w-3 h-3" />
