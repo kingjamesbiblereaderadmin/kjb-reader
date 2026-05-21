@@ -68,7 +68,9 @@ export default function SearchPage() {
     setSelectedBooks(new Set());
 
     try {
+      console.log('[Search] Starting search for:', kw);
       const bible = await getBibleData();
+      console.log('[Search] Bible data loaded, keys:', Object.keys(bible || {}).filter(k => k !== '__colophons').length);
       // Strip quotes from search term for actual searching
       let searchTerm = kw.trim();
       if (searchTerm.startsWith('"') && searchTerm.endsWith('"') && searchTerm.length >= 3) {
@@ -235,11 +237,13 @@ export default function SearchPage() {
       }
 
       setResults(matches);
+      console.log('[Search] Found', matches.length, 'results');
     } catch (err) {
       console.error('Search error:', err);
       setResults([]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [testament, wholeWord, caseSensitive, exactMatch]);
 
   // Re-run search whenever URL changes (fixes header search bar)
