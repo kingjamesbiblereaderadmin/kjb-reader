@@ -113,7 +113,9 @@
   /* In cursive mode ONLY, use Dancing Script font for ALL text including italic words */
   .cursive-em-style,
   .cursive-em-style *,
-  .cursive-em-style span {
+  .cursive-em-style span,
+  .cursive-em-style.font-serif,
+  .cursive-em-style .font-serif {
     font-family: 'Dancing Script', cursive !important;
     font-style: italic !important;
     font-weight: 400 !important;
@@ -125,12 +127,6 @@
     font-family: 'Dancing Script', cursive !important;
     font-style: italic !important;
     font-weight: 300 !important;
-  }
-  
-  /* Override any Tailwind font classes when cursive mode is active */
-  .cursive-em-style.font-serif,
-  .cursive-em-style .font-serif {
-    font-family: 'Dancing Script', cursive !important;
   }
 
 

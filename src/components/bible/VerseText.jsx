@@ -215,7 +215,6 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             <sup className="text-accent font-sans font-semibold text-xs mr-3 select-none">{verse.verse}</sup>
             <span
               className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify inline ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
-              style={isCursive ? { fontFamily: "'Dancing Script', cursive !important" } : {}}
               dangerouslySetInnerHTML={{ __html: html }}
             />
           </span>
@@ -240,7 +239,6 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           <sup className="text-accent font-sans font-semibold text-xs mr-3 select-none">{verse.verse}</sup>
           <span
             className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
-            style={isCursive ? { fontFamily: "'Dancing Script', cursive !important" } : {}}
             dangerouslySetInnerHTML={{ __html: html }}
           />
           {' '}
@@ -268,7 +266,6 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         <span className="flex-1 min-w-0">
           <span
             className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 ${textClass} break-words text-justify ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
-            style={isCursive ? { fontFamily: "'Dancing Script', cursive !important" } : {}}
             dangerouslySetInnerHTML={{ __html: html }}
           />
         </span>
