@@ -517,9 +517,11 @@ function checkOverdueNotification(verse) {
 
 export function scheduleDailyNotification(verse) {
   if (!getNotificationsEnabled()) return;
-  // On Android, we just need service worker - Notification API is optional
   if (!('serviceWorker' in navigator)) return;
-  scheduleAndSave(verse);
+  // Server-side push (sendDailyNotifications cron) is the sole delivery mechanism.
+  // We only persist the next-fire timestamp for the recovery-on-open check;
+  // no in-page timer is armed to avoid duplicate notifications.
+  saveNextFireTime(verse);
   registerPeriodicSync();
 }
 

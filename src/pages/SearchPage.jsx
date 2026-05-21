@@ -65,7 +65,6 @@ export default function SearchPage() {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
-  const [expandedTerms, setExpandedTerms] = useState([]);
   const [testament, setTestament] = useState('all');
   const [wholeWord, setWholeWord] = useState(false);
   const [caseSensitive, setCaseSensitive] = useState(false);
@@ -100,7 +99,6 @@ export default function SearchPage() {
         searchTerm = searchTerm.slice(1, -1).trim();
       }
       setHighlightTerm(searchTerm);
-      setExpandedTerms([]);
       
       // Quoted phrases force case-sensitive matching
       const effectiveCaseSensitive = isQuotedPhrase ? true : caseSensitive;
