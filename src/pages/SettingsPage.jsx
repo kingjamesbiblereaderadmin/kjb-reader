@@ -163,7 +163,7 @@ export default function SettingsPage() {
 
   const handleTestNotif = async () => {
     const v = getDailyVerse();
-    await showLocalNotification('King James Bible — Verse of the Day', `"${v.text.slice(0, 100)}${v.text.length > 100 ? '…' : ''}" — ${v.ref}`, null, true);
+    await showLocalNotification('King James Bible — Verse of the Day', `"${v.text.slice(0, 100)}${v.text.length > 100 ? '…' : ''}" — ${v.ref}`);
   };
 
 
