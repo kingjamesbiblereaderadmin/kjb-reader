@@ -8,26 +8,61 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { ThemeProvider } from '@/lib/themeContext';
 import { HeaderHideProvider } from '@/lib/HeaderHideContext';
 import AppLayout from '@/components/layout/AppLayout';
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 
-// Lazy load pages for faster initial load
-const HomePage = lazy(() => import('@/pages/HomePage'));
-const BibleReader = lazy(() => import('@/pages/BibleReader'));
-const GospelPage = lazy(() => import('@/pages/GospelPage'));
-const ResourcesPage = lazy(() => import('@/pages/ResourcesPage'));
-const AboutPage = lazy(() => import('@/pages/AboutPage'));
-const ContentsPage = lazy(() => import('@/pages/ContentsPage.jsx'));
-const SettingsPage = lazy(() => import('@/pages/SettingsPage.jsx'));
-const SearchPage = lazy(() => import('@/pages/SearchPage.jsx'));
-const SavedVersesPage = lazy(() => import('@/pages/SavedVersesPage.jsx'));
-const RefreshCache = lazy(() => import('@/pages/RefreshCache.jsx'));
+// Lazy-load pages. Each import() factory is kept as a reference so we can
+// also trigger it manually in the background to preload all routes.
+const loaders = {
+  Home: () => import('@/pages/HomePage'),
+  BibleReader: () => import('@/pages/BibleReader'),
+  Gospel: () => import('@/pages/GospelPage'),
+  Resources: () => import('@/pages/ResourcesPage'),
+  About: () => import('@/pages/AboutPage'),
+  Contents: () => import('@/pages/ContentsPage.jsx'),
+  Settings: () => import('@/pages/SettingsPage.jsx'),
+  Search: () => import('@/pages/SearchPage.jsx'),
+  Saved: () => import('@/pages/SavedVersesPage.jsx'),
+  RefreshCache: () => import('@/pages/RefreshCache.jsx'),
+};
+const HomePage = lazy(loaders.Home);
+const BibleReader = lazy(loaders.BibleReader);
+const GospelPage = lazy(loaders.Gospel);
+const ResourcesPage = lazy(loaders.Resources);
+const AboutPage = lazy(loaders.About);
+const ContentsPage = lazy(loaders.Contents);
+const SettingsPage = lazy(loaders.Settings);
+const SearchPage = lazy(loaders.Search);
+const SavedVersesPage = lazy(loaders.Saved);
+const RefreshCache = lazy(loaders.RefreshCache);
+
+// Preload all route chunks in the background after first paint so subsequent
+// navigations are instant (no Suspense delay = no blank page).
+let _preloaded = false;
+function preloadAllRoutes() {
+  if (_preloaded) return;
+  _preloaded = true;
+  const run = () => Object.values(loaders).forEach(fn => { fn().catch(() => {}); });
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(run, { timeout: 2000 });
+  } else {
+    setTimeout(run, 300);
+  }
+}
 
 // No spinner — render nothing while a chunk loads (usually instant once cached)
 const PageLoader = () => null;
 
+// Wraps each route in a fast CSS fade so transitions feel smooth, not blank.
+const FadeIn = ({ children }) => (
+  <div className="kjb-fade-in">{children}</div>
+);
+
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const location = useLocation();
+
+  // Preload all route chunks in the background once auth resolves
+  useEffect(() => { preloadAllRoutes(); }, []);
 
   if (isLoadingPublicSettings || isLoadingAuth) {
     // Render nothing during auth resolution — avoids black flash
@@ -46,16 +81,16 @@ const AuthenticatedApp = () => {
   return (
     <Routes location={location}>
       <Route element={<AppLayout />}>
-        <Route path="/" element={<Suspense fallback={<PageLoader />}><HomePage /></Suspense>} />
-        <Route path="/read" element={<Suspense fallback={<PageLoader />}><BibleReader /></Suspense>} />
-        <Route path="/gospel" element={<Suspense fallback={<PageLoader />}><GospelPage /></Suspense>} />
-        <Route path="/resources" element={<Suspense fallback={<PageLoader />}><ResourcesPage /></Suspense>} />
-        <Route path="/about" element={<Suspense fallback={<PageLoader />}><AboutPage /></Suspense>} />
-        <Route path="/contents" element={<Suspense fallback={<PageLoader />}><ContentsPage /></Suspense>} />
-        <Route path="/settings" element={<Suspense fallback={<PageLoader />}><SettingsPage /></Suspense>} />
-        <Route path="/search" element={<Suspense fallback={<PageLoader />}><SearchPage /></Suspense>} />
-        <Route path="/saved" element={<Suspense fallback={<PageLoader />}><SavedVersesPage /></Suspense>} />
-        <Route path="/refresh-cache" element={<Suspense fallback={<PageLoader />}><RefreshCache /></Suspense>} />
+        <Route path="/" element={<Suspense fallback={<PageLoader />}><FadeIn><HomePage /></FadeIn></Suspense>} />
+        <Route path="/read" element={<Suspense fallback={<PageLoader />}><FadeIn><BibleReader /></FadeIn></Suspense>} />
+        <Route path="/gospel" element={<Suspense fallback={<PageLoader />}><FadeIn><GospelPage /></FadeIn></Suspense>} />
+        <Route path="/resources" element={<Suspense fallback={<PageLoader />}><FadeIn><ResourcesPage /></FadeIn></Suspense>} />
+        <Route path="/about" element={<Suspense fallback={<PageLoader />}><FadeIn><AboutPage /></FadeIn></Suspense>} />
+        <Route path="/contents" element={<Suspense fallback={<PageLoader />}><FadeIn><ContentsPage /></FadeIn></Suspense>} />
+        <Route path="/settings" element={<Suspense fallback={<PageLoader />}><FadeIn><SettingsPage /></FadeIn></Suspense>} />
+        <Route path="/search" element={<Suspense fallback={<PageLoader />}><FadeIn><SearchPage /></FadeIn></Suspense>} />
+        <Route path="/saved" element={<Suspense fallback={<PageLoader />}><FadeIn><SavedVersesPage /></FadeIn></Suspense>} />
+        <Route path="/refresh-cache" element={<Suspense fallback={<PageLoader />}><FadeIn><RefreshCache /></FadeIn></Suspense>} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
