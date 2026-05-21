@@ -221,6 +221,8 @@ async function saveNextFireTime(verse) {
 
 // Show a notification via SW (required on Android PWA)
 export async function showLocalNotification(title, body, imageUrl = null) {
+  // Don't show notification if app is currently in the foreground
+  if (document.visibilityState === 'visible') return;
   const logoUrl = imageUrl || 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
   
   // Always try service worker first (works on Android even when Notification API doesn't)
@@ -235,7 +237,8 @@ export async function showLocalNotification(title, body, imageUrl = null) {
       renotify: true,
       silent: false,
       vibrate: [200, 100, 200],
-      image: imageUrl || undefined
+      image: imageUrl || undefined,
+      data: { url: self?.location?.origin || '/' }
     });
     return;
   } catch (err) {
