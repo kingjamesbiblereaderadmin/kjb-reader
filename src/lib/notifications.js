@@ -39,9 +39,6 @@ export function todayString() {
 
 export async function requestNotificationPermission() {
   console.log('[Notif] requestNotificationPermission called');
-  console.log('[Notif] serviceWorker in navigator:', 'serviceWorker' in navigator);
-  console.log('[Notif] Notification in window:', 'Notification' in window);
-  console.log('[Notif] permissions API:', 'permissions' in navigator);
   
   let hasPermission = false;
   
@@ -71,18 +68,6 @@ export async function requestNotificationPermission() {
         console.log('[Notif] Service worker already registered:', reg.scope);
       }
       
-      // Request persistent permission for push notifications
-      if ('pushManager' in reg) {
-        try {
-          const subscription = await reg.pushManager.getSubscription();
-          if (!subscription && hasPermission) {
-            console.log('[Notif] No push subscription, user enabled notifications');
-          }
-        } catch (pushErr) {
-          console.warn('[Notif] Push manager check failed:', pushErr.message);
-        }
-      }
-      
       // On Android, SW notifications work even without Notification API permission
       if (!hasPermission) {
         console.log('[Notif] Enabling notifications via service worker');
@@ -92,20 +77,6 @@ export async function requestNotificationPermission() {
     } catch (err) {
       console.error('[Notif] Service worker registration failed:', err.message);
     }
-  } else {
-    console.warn('[Notif] Service worker not supported');
-  }
-  
-  // Step 3: Check periodic sync support (Android Chrome only)
-  if ('serviceWorker' in navigator && hasPermission) {
-    try {
-      const reg = await navigator.serviceWorker.ready;
-      if ('periodicSync' in reg) {
-        console.log('[Notif] Periodic sync supported');
-      } else {
-        console.log('[Notif] Periodic sync not supported (expected on most browsers)');
-      }
-    } catch {}
   }
   
   return hasPermission ? 'granted' : 'denied';
