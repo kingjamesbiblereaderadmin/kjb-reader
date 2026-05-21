@@ -294,7 +294,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     <span id={id} className={`block relative ${hasPilcrow && !isFirstVerse ? 'pt-6' : 'mt-2'}`}>
       <span
         onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
-        className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.4em] py-[0.25em] gap-[0.6em] ${
+        className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.4em] py-[0.25em] gap-[0.6em] w-full ${
           selectMode && isSelected ? 'bg-primary/10 border border-primary/30 rounded-[0.5em]' : isHighlighted ? `${highlightBg} box-decoration-clone` : 'hover:bg-secondary/60'
         }`}
       >
