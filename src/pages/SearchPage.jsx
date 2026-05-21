@@ -27,6 +27,7 @@ export default function SearchPage() {
   const getQueryFromUrl = () => new URLSearchParams(window.location.search).get('q') || '';
 
   const [query, setQuery] = useState(getQueryFromUrl);
+  const [highlightTerm, setHighlightTerm] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -56,7 +57,15 @@ export default function SearchPage() {
 
     try {
       const bible = await getBibleData();
-      const searchTerm = kw.trim();
+      let searchTerm = kw.trim();
+      // If query is wrapped in quotes, treat as exact phrase: strip the quotes
+      // (the Bible text doesn't contain literal quote characters)
+      const isQuotedPhrase = (searchTerm.startsWith('"') && searchTerm.endsWith('"') && searchTerm.length >= 3) ||
+                              (searchTerm.startsWith('\u201C') && searchTerm.endsWith('\u201D') && searchTerm.length >= 3);
+      if (isQuotedPhrase) {
+        searchTerm = searchTerm.slice(1, -1).trim();
+      }
+      setHighlightTerm(searchTerm);
       setExpandedTerms([]);
       
       const kwLower = searchTerm.toLowerCase();
@@ -239,11 +248,6 @@ export default function SearchPage() {
     const q = getQueryFromUrl();
     if (q) {
       setQuery(q);
-      // Auto-detect quoted searches: enable case-sensitive and exact match
-      if (q.startsWith('"') && q.endsWith('"') && q.length >= 3) {
-        setCaseSensitive(true);
-        setExactMatch(true);
-      }
       runSearch(q);
     }
   }, [location.search]);
@@ -252,11 +256,6 @@ export default function SearchPage() {
     e.preventDefault();
     const kw = query.trim();
     if (kw.length >= 2) {
-      // Auto-detect quoted searches: enable case-sensitive and exact match
-      if (kw.startsWith('"') && kw.endsWith('"') && kw.length >= 3) {
-        setCaseSensitive(true);
-        setExactMatch(true);
-      }
       window.history.replaceState({}, '', `/search?q=${encodeURIComponent(kw)}`);
       runSearch(kw);
     }
@@ -604,10 +603,10 @@ export default function SearchPage() {
                     </p>
                     <p className="font-serif text-base text-foreground leading-relaxed">
                       {isColophon ? (
-                       <span className="italic text-muted-foreground">¶ {highlightText(r.text, query, caseSensitive)}</span>
-                     ) : (
-                       <span>"{highlightText(r.text, query, caseSensitive)}"</span>
-                     )}
+                      <span className="italic text-muted-foreground">¶ {highlightText(r.text, highlightTerm || query, caseSensitive)}</span>
+                      ) : (
+                      <span>"{highlightText(r.text, highlightTerm || query, caseSensitive)}"</span>
+                      )}
                     </p>
                   </div>
                 </div>
