@@ -8,11 +8,7 @@ const NOTIF_TIME_KEY = 'kjb-notification-time'; // HH:MM
 const NOTIF_LAST_KEY = 'kjb-notification-last'; // YYYY-MM-DD
 const NOTIF_NEXT_KEY = 'kjb-notification-next'; // Unix ms timestamp
 
-// Reading reminder keys
-const READING_REMINDER_KEY = 'kjb-reading-reminder-enabled';
-const READING_REMINDER_TIME_KEY = 'kjb-reading-reminder-time'; // HH:MM
-const READING_REMINDER_LAST_KEY = 'kjb-reading-reminder-last'; // YYYY-MM-DD
-const READING_REMINDER_NEXT_KEY = 'kjb-reading-reminder-next'; // Unix ms timestamp
+
 
 export function getNotificationsEnabled() {
   return localStorage.getItem(NOTIF_KEY) === 'true';
@@ -93,106 +89,7 @@ export function disableNotifications() {
   localStorage.removeItem(NOTIF_NEXT_KEY);
 }
 
-// Reading reminder functions
-export function getReadingReminderEnabled() {
-  return localStorage.getItem(READING_REMINDER_KEY) === 'true';
-}
 
-export function getReadingReminderTime() {
-  return localStorage.getItem(READING_REMINDER_TIME_KEY) || '20:00';
-}
-
-export function setReadingReminderTime(time) {
-  localStorage.setItem(READING_REMINDER_TIME_KEY, time);
-}
-
-export function enableReadingReminder() {
-  localStorage.setItem(READING_REMINDER_KEY, 'true');
-}
-
-export function disableReadingReminder() {
-  localStorage.setItem(READING_REMINDER_KEY, 'false');
-  localStorage.removeItem(READING_REMINDER_NEXT_KEY);
-}
-
-// Compute the next fire time for reading reminder
-function getNextReadingReminderFireDate() {
-  const [hh, mm] = getReadingReminderTime().split(':').map(Number);
-  const now = new Date();
-  const target = new Date();
-  target.setHours(hh, mm, 0, 0);
-  if (target <= now) target.setDate(target.getDate() + 1);
-  return target;
-}
-
-// Save next reading reminder fire timestamp
-async function saveNextReadingReminderFireTime() {
-  const t = getNextReadingReminderFireDate();
-  localStorage.setItem(READING_REMINDER_NEXT_KEY, String(t.getTime()));
-}
-
-// Reading reminder timer
-let _readingReminderTimer = null;
-
-function armReadingReminderTimer() {
-  if (_readingReminderTimer) { clearTimeout(_readingReminderTimer); _readingReminderTimer = null; }
-  const ms = getNextReadingReminderFireDate() - Date.now();
-  _readingReminderTimer = setTimeout(async () => {
-    const today = todayString();
-    if (localStorage.getItem(READING_REMINDER_LAST_KEY) === today) {
-      saveNextReadingReminderFireTime();
-      armReadingReminderTimer();
-      return;
-    }
-    localStorage.setItem(READING_REMINDER_LAST_KEY, today);
-    await showLocalNotification(
-      'KJB Reader — Daily Reading Reminder',
-      'Time to read your daily chapter! Open the app to continue your reading journey.'
-    );
-    saveNextReadingReminderFireTime();
-    armReadingReminderTimer();
-  }, ms);
-}
-
-export function scheduleReadingReminder() {
-  if (!getReadingReminderEnabled()) return;
-  // On Android, we just need service worker - Notification API is optional
-  if (!('serviceWorker' in navigator)) return;
-  saveNextReadingReminderFireTime();
-  armReadingReminderTimer();
-}
-
-// Check if reading reminder is overdue
-function checkOverdueReadingReminder() {
-  if (!getReadingReminderEnabled()) return;
-  if (!('Notification' in window) || Notification.permission !== 'granted') return;
-  const nextTs = parseInt(localStorage.getItem(READING_REMINDER_NEXT_KEY) || '0', 10);
-  if (!nextTs) return;
-  const today = todayString();
-  if (Date.now() >= nextTs && localStorage.getItem(READING_REMINDER_LAST_KEY) !== today) {
-    localStorage.setItem(READING_REMINDER_LAST_KEY, today);
-    showLocalNotification(
-      'KJB Reader — Daily Reading Reminder',
-      'Time to read your daily chapter! Open the app to continue your reading journey.'
-    );
-    saveNextReadingReminderFireTime();
-  }
-}
-
-export function initReadingReminder() {
-  if (!getReadingReminderEnabled()) return;
-  // On Android, we just need service worker - Notification API is optional
-  if (!('serviceWorker' in navigator)) return;
-
-  checkOverdueReadingReminder();
-  scheduleReadingReminder();
-
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-      checkOverdueReadingReminder();
-    }
-  }, { once: false });
-}
 
 // Compute the next fire time (today or tomorrow) as a Date
 function getNextFireDate() {

@@ -19,7 +19,7 @@ import ContentsPage from '@/pages/ContentsPage.jsx';
 import SettingsPage from '@/pages/SettingsPage.jsx';
 import SearchPage from '@/pages/SearchPage.jsx';
 import SavedVersesPage from '@/pages/SavedVersesPage.jsx';
-import DailyReadingPage from '@/pages/DailyReadingPage.jsx';
+
 import RefreshCache from '@/pages/RefreshCache.jsx';
 
 
@@ -68,7 +68,7 @@ const AuthenticatedApp = () => {
           <Route path="/settings" element={<PageWrapper><SettingsPage /></PageWrapper>} />
           <Route path="/search" element={<PageWrapper><SearchPage /></PageWrapper>} />
           <Route path="/saved" element={<PageWrapper><SavedVersesPage /></PageWrapper>} />
-          <Route path="/daily-reading" element={<PageWrapper><DailyReadingPage /></PageWrapper>} />
+
           <Route path="/refresh-cache" element={<PageWrapper><RefreshCache /></PageWrapper>} />
 
         </Route>
