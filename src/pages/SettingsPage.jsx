@@ -1011,13 +1011,7 @@ export default function SettingsPage() {
                 <Trash2 className="w-4 h-4" />
                 Clear Cache & Reload
               </button>
-              <button
-                onClick={() => navigate('/debug')}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-              >
-                <Settings className="w-4 h-4" />
-                Debug Page
-              </button>
+
             </div>
           </div>
         )}
