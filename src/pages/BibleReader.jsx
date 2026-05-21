@@ -357,36 +357,29 @@ export default function BibleReader() {
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
         <div ref={topRef} className="sticky top-[56px] sm:top-[72px] z-40 bg-background/95 backdrop-blur border-b border-border pb-1 mb-2">
-          <div className="relative flex flex-wrap items-center gap-1.5 pt-1">
+          <div className="relative flex items-center gap-1.5 pt-1 overflow-x-auto scrollbar-none">
 
             {/* Book selector */}
-            <div className="flex-shrink-0">
             <button
               onClick={() => { setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); }}
               onTouchEnd={(e) => { e.preventDefault(); setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); }}
-              className="flex items-center gap-1.5 px-4 py-3 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-colors min-w-fit touch-manipulation min-h-[48px]"
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-3 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-colors touch-manipulation min-h-[48px] min-w-0"
             >
-              {isViewingTitlePage ? 'Title Page' : book.shortName}
-              <ChevronRight className={`w-3 h-3 opacity-70 transition-transform ${showBookPicker ? 'rotate-90' : ''}`} />
+              <span className="truncate">{isViewingTitlePage ? 'Title Page' : book.shortName}</span>
+              <ChevronRight className={`w-3 h-3 opacity-70 transition-transform flex-shrink-0 ${showBookPicker ? 'rotate-90' : ''}`} />
             </button>
-            </div>
 
 
 
             {/* Font selector */}
-            <div className="flex-shrink-0">
             <button
               onClick={() => { setShowFontPopover(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); }}
               onTouchEnd={(e) => { e.preventDefault(); setShowFontPopover(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); }}
-              className="flex items-center gap-1.5 px-3 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors min-w-fit touch-manipulation min-h-[48px]"
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors touch-manipulation min-h-[48px] min-w-0"
               title="Font family"
             >
-              <Type className="w-3.5 h-3.5" />
-              <span className="hidden xs:inline">
-                {READER_FONTS.find(f => f.value === readerFontFamily)?.label || 'Font'}
-              </span>
+              <Type className="w-3.5 h-3.5 flex-shrink-0" />
             </button>
-            </div>
             {/* Desktop popover */}
             {showFontPopover && !isMobile() && (
               <div className="absolute top-full left-0 mt-1 z-50">
@@ -481,10 +474,10 @@ export default function BibleReader() {
               <button
                 onClick={() => { setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); }}
                 onTouchEnd={(e) => { e.preventDefault(); setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); }}
-                className="flex items-center gap-1.5 px-4 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors min-w-fit touch-manipulation min-h-[48px]"
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors touch-manipulation min-h-[48px] min-w-0"
               >
-                Ch. {pos.chapter}
-                <ChevronRight className={`w-3 h-3 opacity-70 transition-transform ${showChapterPicker ? 'rotate-90' : ''}`} />
+                <span className="truncate">Ch.{pos.chapter}</span>
+                <ChevronRight className={`w-3 h-3 opacity-70 transition-transform flex-shrink-0 ${showChapterPicker ? 'rotate-90' : ''}`} />
               </button>
               {showChapterPicker && !isMobile() && (
                 <div className="absolute top-full left-0 mt-1 z-50">
@@ -517,15 +510,17 @@ export default function BibleReader() {
               <button
                 onClick={() => { setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); }}
                 onTouchEnd={(e) => { e.preventDefault(); setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); }}
-                className="flex items-center gap-1.5 px-4 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors min-w-fit touch-manipulation min-h-[48px]"
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors touch-manipulation min-h-[48px] min-w-0"
                 disabled={verseCount === 0}
               >
-                {filterMode && selectedVerses.size > 1
-                  ? `vv.${Math.min(...selectedVerses)}-${Math.max(...selectedVerses)}`
-                  : highlightVerse
-                  ? `v.${highlightVerse}`
-                  : 'Verse'}
-                <ChevronRight className={`w-3 h-3 opacity-70 transition-transform ${showVersePicker ? 'rotate-90' : ''}`} />
+                <span className="truncate">
+                  {filterMode && selectedVerses.size > 1
+                    ? `vv.${Math.min(...selectedVerses)}-${Math.max(...selectedVerses)}`
+                    : highlightVerse
+                    ? `v.${highlightVerse}`
+                    : 'Verse'}
+                </span>
+                <ChevronRight className={`w-3 h-3 opacity-70 transition-transform flex-shrink-0 ${showVersePicker ? 'rotate-90' : ''}`} />
               </button>
               {showVersePicker && verseCount > 0 && !isMobile() && (
                 <div className="absolute top-full left-0 mt-1 z-50">
@@ -571,10 +566,10 @@ export default function BibleReader() {
                 onClick={() => { setShowZoomPopover(p => !p); }}
                 onTouchEnd={(e) => { e.preventDefault(); setShowZoomPopover(p => !p); }}
                 title={`Zoom: ${zoomLevel}%`}
-                className="flex items-center gap-1 px-3 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors touch-manipulation min-h-[48px]"
+                className="flex-1 flex items-center justify-center gap-1 px-3 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors touch-manipulation min-h-[48px] min-w-0"
               >
-                <ZoomIn className="w-3.5 h-3.5" />
-                {zoomLevel}%
+                <ZoomIn className="w-3.5 h-3.5 flex-shrink-0" />
+                <span className="truncate">{zoomLevel}%</span>
               </button>
               {/* Desktop popover */}
               {showZoomPopover && !isMobile() && (
@@ -670,20 +665,18 @@ export default function BibleReader() {
                 onClick={toggleLayout}
                 onTouchEnd={(e) => { e.preventDefault(); toggleLayout(); }}
                 title={paragraphMode ? 'Switch to line-by-line' : 'Switch to paragraph'}
-                className="flex items-center gap-1 px-3 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors touch-manipulation min-h-[48px]"
+                className="flex-1 flex items-center justify-center gap-1 px-3 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors touch-manipulation min-h-[48px] min-w-0"
               >
-                {paragraphMode ? <AlignJustify className="w-3.5 h-3.5" /> : <List className="w-3.5 h-3.5" />}
-                {paragraphMode ? 'Para' : 'Lines'}
+                {paragraphMode ? <AlignJustify className="w-3.5 h-3.5 flex-shrink-0" /> : <List className="w-3.5 h-3.5 flex-shrink-0" />}
               </button>
               {/* Select mode toggle */}
               <button
                 onClick={toggleSelectMode}
                 onTouchEnd={(e) => { e.preventDefault(); toggleSelectMode(); }}
                 title="Select verses"
-                className={`flex items-center gap-1 px-3 py-3 rounded-lg font-sans text-xs font-medium transition-colors touch-manipulation min-h-[48px] ${selectMode ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'}`}
+                className={`flex-1 flex items-center justify-center gap-1 px-3 py-3 rounded-lg font-sans text-xs font-medium transition-colors touch-manipulation min-h-[48px] min-w-0 ${selectMode ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'}`}
               >
-                <CheckSquare className="w-3.5 h-3.5" />
-                {selectMode ? 'Done' : 'Select'}
+                <CheckSquare className="w-3.5 h-3.5 flex-shrink-0" />
               </button>
 
               {/* Prev */}
@@ -691,7 +684,7 @@ export default function BibleReader() {
                 onClick={goPrev}
                 onTouchEnd={(e) => { e.preventDefault(); goPrev(); }}
                 disabled={isFirstChapterFirstBook}
-                className="p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-colors touch-manipulation min-h-[48px] min-w-[48px] flex items-center justify-center"
+                className="flex-1 flex items-center justify-center p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-colors touch-manipulation min-h-[48px] min-w-0"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
@@ -700,7 +693,7 @@ export default function BibleReader() {
                 onClick={goNext}
                 onTouchEnd={(e) => { e.preventDefault(); goNext(); }}
                 disabled={isLastChapterLastBook}
-                className="p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-colors touch-manipulation min-h-[48px] min-w-[48px] flex items-center justify-center"
+                className="flex-1 flex items-center justify-center p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-colors touch-manipulation min-h-[48px] min-w-0"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -709,7 +702,7 @@ export default function BibleReader() {
                 onClick={toggleFullscreen}
                 onTouchEnd={(e) => { e.preventDefault(); toggleFullscreen(); }}
                 title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-                className="p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors touch-manipulation min-h-[48px] min-w-[48px] flex items-center justify-center"
+                className="flex-1 flex items-center justify-center p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors touch-manipulation min-h-[48px] min-w-0"
               >
                 {fullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
               </button>
@@ -718,7 +711,7 @@ export default function BibleReader() {
                 onClick={() => setHideHeader(true)}
                 onTouchEnd={(e) => { e.preventDefault(); setHideHeader(true); }}
                 title="Hide header"
-                className="p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors touch-manipulation min-h-[48px] min-w-[48px] flex items-center justify-center"
+                className="flex-1 flex items-center justify-center p-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-colors touch-manipulation min-h-[48px] min-w-0"
               >
                 <ChevronDown className="w-5 h-5" />
               </button>
