@@ -190,6 +190,8 @@ export default function AppLayout() {
               onClick={async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                if (refreshing) return;
+                setRefreshing(true);
                 try {
                   // Check version first - only recache if changed
                   const remoteVer = await fetch('https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt?t=' + Date.now())
@@ -199,10 +201,11 @@ export default function AppLayout() {
 
                   if (remoteVer !== localVer) {
                     toast.success('New version found, updating cache...');
-                    // Clear old cache and reload to fetch fresh
+                    // Silently re-fetch and save in the background — no page reload
                     localStorage.removeItem('bible_cache_version');
                     localStorage.removeItem('bible_last_refresh');
-                    setTimeout(() => window.location.reload(), 1000);
+                    await downloadBibleForOffline();
+                    toast.success('✅ Bible updated');
                   } else {
                     toast.success('✅ Already up to date - no changes needed');
                   }
@@ -210,6 +213,7 @@ export default function AppLayout() {
                   console.error('Refresh failed:', err);
                   toast.error('Failed to check for updates');
                 }
+                setRefreshing(false);
               }}
               style={{ touchAction: 'manipulation' }}
               role="button"
