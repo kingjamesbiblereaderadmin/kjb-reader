@@ -381,7 +381,8 @@ function BottomNav({ pathname, navigate }) {
   });
 
   const cycleShowMode = () => {
-    const next = showMode === 'one' ? 'two' : showMode === 'two' ? 'none' : 'one';
+    // Cycle: two rows → one row → none → two rows
+    const next = showMode === 'two' ? 'one' : showMode === 'one' ? 'none' : 'two';
     setShowMode(next);
     try { localStorage.setItem('kjb-footer-mode', next); } catch {}
     try { window.dispatchEvent(new Event('kjb-footer-mode-change')); } catch {}
