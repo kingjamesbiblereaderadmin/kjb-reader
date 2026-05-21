@@ -63,7 +63,7 @@ self.addEventListener('notificationclick', (event) => {
       }
       // Otherwise, open a new window
       if (clients.openWindow) {
-        return clients.openWindow(event.notification.data?.url || '/');
+        return clients.openWindow('/');
       }
     })
   );
@@ -101,7 +101,7 @@ async function sendDailyVerseNotification() {
     
     const logoUrl = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
     
-    // Get custom notification image from IndexedDB
+    // Get custom notification image from cache
     let customImage = null;
     try {
       const dbCache = await caches.open('kjb-notif-images');
