@@ -1,6 +1,5 @@
 import { getBibleData } from '@/lib/bibleCache';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
-import { COLOPHONS } from '@/lib/bibleSubscripts';
 
 // Fallback pool used only when Bible data is not yet loaded (first visit, no cache)
 const FALLBACK_POOL = [
@@ -41,7 +40,7 @@ export async function getRandomVerseFromBible() {
     const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
     if (!bookNames.length) throw new Error('no data');
 
-    let bookName, chapter, verseObj, displayName, bookData, isColophonVerse;
+    let bookName, chapter, verseObj, displayName, bookData;
     let attempts = 0;
     do {
       bookName = bookNames[Math.floor(Math.random() * bookNames.length)];
@@ -51,10 +50,8 @@ export async function getRandomVerseFromBible() {
       verseObj = verses[Math.floor(Math.random() * verses.length)];
       bookData = BIBLE_BOOKS.find(b => b.apiName === bookName);
       displayName = bookData ? bookData.name : bookName;
-      isColophonVerse = COLOPHONS[`${bookName}:${chapter}`] !== undefined &&
-        verseObj.verse === bible[bookName][chapter].length;
       attempts++;
-    } while ((EXCLUDED_VERSES.has(`${displayName} ${chapter}:${verseObj.verse}`) || isColophonVerse) && attempts < 20);
+    } while (EXCLUDED_VERSES.has(`${displayName} ${chapter}:${verseObj.verse}`) && attempts < 20);
 
     const abbr = bookData ? bookData.abbr : bookName.slice(0, 3).toUpperCase();
 
