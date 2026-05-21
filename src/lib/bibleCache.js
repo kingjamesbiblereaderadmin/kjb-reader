@@ -7,7 +7,7 @@ import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB } from '@/lib/bibleI
 import { COLOPHONS } from '@/lib/bibleSubscripts';
 
 const CACHE_KEY = 'bible_data_pce_v44';
-const RTF_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/3cec01ce1_KJB-PCE-RTF.txt';
+const RTF_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/62f13adaf_KJB-PCE-RTF.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
 const EXPECTED_BOOK_COUNT = 66;

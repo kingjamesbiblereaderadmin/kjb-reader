@@ -345,7 +345,7 @@ export default function BibleReader() {
   const isFirstChapterFirstBook = pos.abbr === 'GEN' && pos.chapter === 0;
   const isGenesisChapterOne = pos.abbr === 'GEN' && pos.chapter === 1;
 
-  // Force reload Bible data (for debugging colophons)
+  // Force reload Bible data (for debugging colophons and italics)
   const handleForceReload = async () => {
     setLoading(true);
     try {
