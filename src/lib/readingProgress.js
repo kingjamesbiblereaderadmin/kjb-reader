@@ -129,8 +129,8 @@ export async function initializeReadingProgress() {
     const existing = await base44.entities.ReadingProgress.filter({ date: today });
     
     if (existing.length === 0) {
-      // Get the last completed reading to determine next chapter
-      const allProgress = await base44.entities.ReadingProgress.filter({ completed: true });
+      // Get the last reading (completed or not) to determine what to show
+      const allProgress = await base44.entities.ReadingProgress.filter({});
       const sorted = allProgress.sort((a, b) => new Date(b.date) - new Date(a.date));
       
       let nextBook = 'Genesis';
@@ -138,28 +138,32 @@ export async function initializeReadingProgress() {
       
       if (sorted.length > 0) {
         const last = sorted[0];
-        const { getNextBook, getBookByApiName } = await import('@/lib/bibleData');
-        const { BIBLE_BOOKS } = await import('@/lib/bibleData');
         
-        // Find the book data to check if we need to advance to next book
-        const currentBookData = BIBLE_BOOKS.find(b => b.name === last.book);
-        if (currentBookData) {
-          if (last.chapter >= currentBookData.chapters) {
-            // Move to next book
-            const nextBookData = getNextBook(currentBookData.abbr);
-            if (nextBookData) {
-              nextBook = nextBookData.name;
-              nextChapter = 1;
+        // Only advance if the last reading was completed
+        if (last.completed) {
+          const { getNextBook } = await import('@/lib/bibleData');
+          const { BIBLE_BOOKS } = await import('@/lib/bibleData');
+          
+          const currentBookData = BIBLE_BOOKS.find(b => b.name === last.book);
+          if (currentBookData) {
+            if (last.chapter >= currentBookData.chapters) {
+              const nextBookData = getNextBook(currentBookData.abbr);
+              if (nextBookData) {
+                nextBook = nextBookData.name;
+                nextChapter = 1;
+              } else {
+                nextBook = 'Revelation';
+                nextChapter = 22;
+              }
             } else {
-              // End of Bible, stay at Revelation 22
-              nextBook = 'Revelation';
-              nextChapter = 22;
+              nextBook = last.book;
+              nextChapter = last.chapter + 1;
             }
-          } else {
-            // Next chapter in same book
-            nextBook = last.book;
-            nextChapter = last.chapter + 1;
           }
+        } else {
+          // Last reading not completed - stay on the same chapter
+          nextBook = last.book;
+          nextChapter = last.chapter;
         }
       }
       
