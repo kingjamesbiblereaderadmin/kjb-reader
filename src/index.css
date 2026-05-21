@@ -113,9 +113,9 @@
   /* In cursive mode ONLY, use a lighter, different cursive font for italics */
   .cursive-em-style em {
     font-family: 'Dancing Script', cursive !important;
-    font-style: italic;
-    font-weight: 300;
-    opacity: 0.85;
+    font-style: italic !important;
+    font-weight: 300 !important;
+    opacity: 0.85 !important;
   }
 
 
