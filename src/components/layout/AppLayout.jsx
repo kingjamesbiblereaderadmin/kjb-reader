@@ -188,14 +188,12 @@ export default function AppLayout() {
                     .then(t => t.trim());
                   const localVer = localStorage.getItem('bible_cache_version');
 
-                  if (remoteVer !== localVer) {
+                  if (localVer && remoteVer !== localVer) {
+                    // Actual new version available
                     toast.success('New version found, updating cache...');
-                    // Silently re-fetch and save in the background — no page reload
                     localStorage.removeItem('bible_cache_version');
                     localStorage.removeItem('bible_last_refresh');
                     await downloadBibleForOffline();
-                    // Soft-reload the page content so updated Bible data is visible
-                    // (header/footer stay in place — no full page reload).
                     softReload('Bible updated, refreshing…');
                   } else {
                     toast.success('✅ Already up to date - no changes needed');
