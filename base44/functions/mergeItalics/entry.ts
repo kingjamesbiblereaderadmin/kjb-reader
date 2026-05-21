@@ -390,6 +390,24 @@ Deno.serve(async (req) => {
 
     const result = outputLines.join('\n');
 
+    // Upload the merged file to media storage
+    console.log('[mergeItalics] Uploading merged file...');
+    const blob = new Blob([result], { type: 'text/plain;charset=windows-1252' });
+    const uploadForm = new FormData();
+    uploadForm.append('file', blob, 'KJB-PCE-MERGED.txt');
+    
+    const uploadRes = await fetch('https://media.base44.com/api/upload', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get('BASE44_SERVICE_TOKEN')}`
+      },
+      body: uploadForm
+    });
+    
+    const uploadResult = await uploadRes.json();
+    const mergedFileUrl = uploadResult.file_url;
+    console.log('[mergeItalics] Uploaded to:', mergedFileUrl);
+
     return Response.json({
       success: true,
       stats: {
@@ -399,12 +417,11 @@ Deno.serve(async (req) => {
         italicMapSize: italicMap.size,
         outputLength: result.length
       },
+      mergedFileUrl,
       // Return first 5000 chars of result as preview
       preview: result.substring(0, 5000),
       // Sample output for requested book/chapter
-      sample: sampleOutput.slice(0, 20),
-      // For download - truncated here, need separate endpoint for full file
-      outputTruncated: result.length > 100000
+      sample: sampleOutput.slice(0, 20)
     });
 
   } catch (error) {
