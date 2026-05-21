@@ -759,7 +759,12 @@ export default function BibleReader() {
           {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
             <p
               className="font-serif text-sm text-muted-foreground mt-2 max-w-lg mx-auto leading-relaxed text-center [&_em]:italic [&_em]:text-muted-foreground"
-              style={{ fontStyle: 'normal' }}
+              style={{ 
+                fontStyle: 'normal',
+                fontFamily: (() => {
+                  try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
+                })()
+              }}
               dangerouslySetInnerHTML={{ __html: renderColophonText(SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]) }}
             />
           )}
@@ -822,7 +827,12 @@ export default function BibleReader() {
           <div className="mt-12 mb-4 border-t border-border pt-6 text-center">
             <p
               className="font-serif text-sm text-muted-foreground leading-relaxed [&_em]:italic [&_em]:text-muted-foreground"
-              style={{ fontStyle: 'normal' }}
+              style={{ 
+                fontStyle: 'normal',
+                fontFamily: (() => {
+                  try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
+                })()
+              }}
               dangerouslySetInnerHTML={{ __html: renderColophonText(colophon) }}
             />
           </div>
@@ -834,14 +844,28 @@ export default function BibleReader() {
       {/* End-of-section text footers */}
       {!loading && !error && pos.abbr === 'MAL' && pos.chapter === 4 && (
         <div className="text-center mt-12 mb-4">
-          <p className="font-serif text-sm text-muted-foreground tracking-widest uppercase">
+          <p 
+            className="font-serif text-sm text-muted-foreground tracking-widest uppercase"
+            style={{ 
+              fontFamily: (() => {
+                try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
+              })()
+            }}
+          >
             The End of the Prophets
           </p>
         </div>
       )}
       {!loading && !error && pos.abbr === 'REV' && pos.chapter === 22 && (
         <div className="text-center mt-12 mb-4">
-          <p className="font-serif text-sm text-muted-foreground tracking-widest uppercase">
+          <p 
+            className="font-serif text-sm text-muted-foreground tracking-widest uppercase"
+            style={{ 
+              fontFamily: (() => {
+                try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
+              })()
+            }}
+          >
             The End
           </p>
         </div>
