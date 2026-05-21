@@ -3,24 +3,24 @@ import React from 'react';
 export default function TitlePage({ type }) {
   if (type === 'testament-old') {
     return (
-      <div className="text-center px-4 py-12 md:py-16">
+      <div className="text-center px-4 py-6 md:py-8">
         <div className="max-w-lg mx-auto">
-          <div className="mb-6">
+          <div className="mb-4">
             <p className="font-serif text-sm tracking-[0.35em] text-muted-foreground font-light uppercase">The</p>
           </div>
           
-          <div className="mb-10">
+          <div className="mb-6">
             <h1 className="font-serif text-6xl md:text-7xl lg:text-8xl font-light text-foreground leading-none tracking-tight">
               Holy Bible
             </h1>
           </div>
           
-          <div className="mb-12 space-y-6">
+          <div className="mb-8 space-y-4">
             <p className="font-serif text-base tracking-[0.25em] text-muted-foreground font-light uppercase">containing the</p>
             <p className="font-serif text-2xl md:text-3xl font-light text-foreground tracking-wide">Old and New Testaments</p>
           </div>
           
-          <div className="border-t border-border/50 pt-10 pb-8 mb-8">
+          <div className="border-t border-border/50 pt-6 pb-5 mb-6">
             <p className="font-serif text-xs tracking-[0.2em] text-muted-foreground leading-loose font-light">
               Translated out of the original tongues: and with<br />
               the former translations diligently compared<br />
@@ -28,16 +28,16 @@ export default function TitlePage({ type }) {
             </p>
           </div>
           
-          <div className="mb-8">
+          <div className="mb-6">
             <p className="font-serif text-xs tracking-[0.2em] text-muted-foreground font-light uppercase">
               Appointed to be read in churches
             </p>
           </div>
 
-          <div className="pt-4">
+          <div className="pt-3">
             <p className="font-serif text-sm tracking-[0.15em] text-muted-foreground font-light leading-loose">
               Authorized King James Bible<br />
-              <span className="block mt-2">Pure Cambridge Edition</span>
+              <span className="block mt-1">Pure Cambridge Edition</span>
             </p>
           </div>
         </div>
@@ -47,27 +47,27 @@ export default function TitlePage({ type }) {
 
   if (type === 'testament-new') {
     return (
-      <div className="flex items-center justify-center text-center px-4 py-12 md:py-16">
+      <div className="flex items-center justify-center text-center px-4 py-6 md:py-8">
         <div className="max-w-lg">
-          <div className="mb-6">
+          <div className="mb-4">
             <p className="font-serif text-sm tracking-[0.35em] text-muted-foreground font-light uppercase">The</p>
           </div>
           
-          <div className="mb-10">
+          <div className="mb-6">
             <h1 className="font-serif text-6xl md:text-7xl lg:text-8xl font-light text-foreground leading-none tracking-tight">
               New Testament
             </h1>
           </div>
           
-          <div className="mb-12 space-y-6">
+          <div className="mb-8 space-y-4">
             <p className="font-serif text-base tracking-[0.25em] text-muted-foreground font-light uppercase">of</p>
             <p className="font-serif text-2xl md:text-3xl font-light text-foreground tracking-wide leading-loose">
               Our Lord and Saviour<br />
-              <span className="block mt-4">Jesus Christ</span>
+              <span className="block mt-3">Jesus Christ</span>
             </p>
           </div>
 
-          <div className="border-t border-border/50 pt-10 pb-8 mb-8">
+          <div className="border-t border-border/50 pt-6 pb-5 mb-6">
             <p className="font-serif text-xs tracking-[0.2em] text-muted-foreground leading-loose font-light">
               Translated out of the original greek: and with<br />
               the former translations diligently compared<br />
@@ -75,7 +75,7 @@ export default function TitlePage({ type }) {
             </p>
           </div>
           
-          <div className="mb-8">
+          <div className="mb-6">
             <p className="font-serif text-xs tracking-[0.2em] text-muted-foreground font-light uppercase">
               Appointed to be read in churches
             </p>
