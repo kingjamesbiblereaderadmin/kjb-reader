@@ -257,10 +257,13 @@ export default function BibleReader() {
       
       // Debug: log sample verses to check for brackets
       console.log('[BibleReader] Loaded', data.verses.length, 'verses for', b.apiName, chapter);
-      if (data.verses.length > 0) {
-        console.log('[BibleReader] Sample verse 1:', data.verses[0]?.text?.substring(0, 150));
-        console.log('[BibleReader] Sample verse 2:', data.verses[1]?.text?.substring(0, 150));
-        console.log('[BibleReader] Has brackets?', data.verses.some(v => v.text.includes('[')));
+      const versesWithBrackets = data.verses.filter(v => v.text.includes('['));
+      console.log('[BibleReader] Has brackets?', versesWithBrackets.length > 0, `(${versesWithBrackets.length}/${data.verses.length})`);
+      if (versesWithBrackets.length > 0) {
+        console.log('[BibleReader] Sample verse WITH brackets:', versesWithBrackets[0]?.text?.substring(0, 200));
+      }
+      if (data.verses.length > 0 && versesWithBrackets.length === 0) {
+        console.log('[BibleReader] ⚠️ NO BRACKETS FOUND - Sample verse 1:', data.verses[0]?.text?.substring(0, 200));
       }
       console.log('[BibleReader] Colophon for', b.apiName, chapter, ':', data.colophon);
     } catch (err) {
@@ -355,7 +358,17 @@ export default function BibleReader() {
   const handleForceReload = async () => {
     setLoading(true);
     try {
-      await forceReloadBibleData();
+      console.log('[BibleReader] Forcing Bible cache reload...');
+      const freshData = await forceReloadBibleData();
+      console.log('[BibleReader] Fresh data loaded - checking for brackets...');
+      const sampleBook = freshData['1 John'];
+      if (sampleBook && sampleBook[2]) {
+        const verse23 = sampleBook[2].find(v => v.verse === 23);
+        if (verse23) {
+          console.log('[BibleReader] 1 John 2:23 has brackets?', verse23.text.includes('['));
+          console.log('[BibleReader] 1 John 2:23 text:', verse23.text.substring(0, 300));
+        }
+      }
       window.location.reload();
     } catch (err) {
       console.error('Force reload failed:', err);
