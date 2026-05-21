@@ -657,7 +657,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             Verse of the Day
           </p>
           <blockquote 
-            className="text-2xl md:text-3xl leading-relaxed [&_em]:italic [&_em]:font-normal"
+            className="text-2xl md:text-3xl leading-relaxed [&_em]:italic"
             style={{ 
               color: textColor, 
               opacity: textOpacity, 
@@ -683,7 +683,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       ) : (
         <div className="px-6 py-4 mb-5">
           <blockquote 
-            className="text-2xl md:text-3xl leading-relaxed [&_em]:italic [&_em]:font-normal"
+            className="text-2xl md:text-3xl leading-relaxed [&_em]:italic"
             style={{ 
               color: textColor, 
               opacity: textOpacity, 
@@ -749,7 +749,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               Verse of the Day
             </p>
             <blockquote 
-              className="text-3xl md:text-5xl leading-relaxed mb-8 [&_em]:italic [&_em]:font-normal"
+              className="text-3xl md:text-5xl leading-relaxed mb-8 [&_em]:italic"
               style={{ 
                 color: textColor, 
                 opacity: textOpacity, 
