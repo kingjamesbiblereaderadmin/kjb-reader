@@ -873,6 +873,7 @@ export default function BibleReader() {
           lineHeight: zoomLevel > 100 ? '1.8' : '1.6',
           fontFamily
         }}
+        className={fontFamily === 'cursive' ? '[&_em]:font-sans [&_em]:italic [&_em]:text-foreground/60' : ''}
       >
         {loading && (
           <div className="flex justify-center py-16">
