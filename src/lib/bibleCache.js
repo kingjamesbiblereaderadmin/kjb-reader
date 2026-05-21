@@ -4,7 +4,7 @@
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB, isIndexedDBAvailable } from '@/lib/bibleIndexedDB';
 
-const CACHE_KEY = 'bible_data_pce_v42'; // v40: TEXT-PCE-127 with <<[colophons]]>
+const CACHE_KEY = 'bible_data_pce_v43'; // v40: TEXT-PCE-127 with <<[colophons]]>
 const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/5db4f0433_TEXT-PCE-127.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
@@ -107,24 +107,26 @@ let parsedData = null;
 let fetchInProgress = null;
 let remoteVersion = null;
 
-// Map file abbreviations to apiName
+// Map file abbreviations to apiName (TEXT-PCE-127.txt uses short 2-3 char codes)
 const ABBR_TO_API = {
-  'Gen': 'Genesis', 'Exo': 'Exodus', 'Lev': 'Leviticus', 'Num': 'Numbers', 'Deu': 'Deuteronomy',
-  'Jos': 'Joshua', 'Jdg': 'Judges', 'Rut': 'Ruth', '1Sa': '1 Samuel', '2Sa': '2 Samuel',
+  // Old Testament
+  'Ge': 'Genesis', 'Ex': 'Exodus', 'Le': 'Leviticus', 'Nu': 'Numbers', 'De': 'Deuteronomy',
+  'Jos': 'Joshua', 'Jud': 'Judges', 'Ru': 'Ruth', '1Sa': '1 Samuel', '2Sa': '2 Samuel',
   '1Ki': '1 Kings', '2Ki': '2 Kings', '1Ch': '1 Chronicles', '2Ch': '2 Chronicles',
-  'Ezr': 'Ezra', 'Neh': 'Nehemiah', 'Est': 'Esther', 'Job': 'Job', 'Psa': 'Psalms',
-  'Pro': 'Proverbs', 'Ecc': 'Ecclesiastes', 'Son': 'Song of Solomon', 'Isa': 'Isaiah',
-  'Jer': 'Jeremiah', 'Lam': 'Lamentations', 'Eze': 'Ezekiel', 'Dan': 'Daniel',
-  'Hos': 'Hosea', 'Joe': 'Joel', 'Amo': 'Amos', 'Oba': 'Obadiah', 'Jon': 'Jonah',
-  'Mic': 'Micah', 'Nah': 'Nahum', 'Hab': 'Habakkuk', 'Zep': 'Zephaniah', 'Hag': 'Haggai',
+  'Ezr': 'Ezra', 'Ne': 'Nehemiah', 'Es': 'Esther', 'Job': 'Job', 'Ps': 'Psalms',
+  'Pr': 'Proverbs', 'Ec': 'Ecclesiastes', 'So': 'Song of Solomon', 'Isa': 'Isaiah',
+  'Jer': 'Jeremiah', 'La': 'Lamentations', 'Eze': 'Ezekiel', 'Da': 'Daniel',
+  'Ho': 'Hosea', 'Joe': 'Joel', 'Am': 'Amos', 'Ob': 'Obadiah', 'Jon': 'Jonah',
+  'Mic': 'Micah', 'Na': 'Nahum', 'Hab': 'Habakkuk', 'Zep': 'Zephaniah', 'Hag': 'Haggai',
   'Zec': 'Zechariah', 'Mal': 'Malachi',
-  'Mat': 'Matthew', 'Mar': 'Mark', 'Luk': 'Luke', 'Joh': 'John', 'Act': 'Acts',
-  'Rom': 'Romans', '1Co': '1 Corinthians', '2Co': '2 Corinthians', 'Gal': 'Galatians',
+  // New Testament
+  'Mt': 'Matthew', 'Mr': 'Mark', 'Lu': 'Luke', 'Joh': 'John', 'Ac': 'Acts',
+  'Ro': 'Romans', '1Co': '1 Corinthians', '2Co': '2 Corinthians', 'Ga': 'Galatians',
   'Eph': 'Ephesians', 'Php': 'Philippians', 'Col': 'Colossians',
   '1Th': '1 Thessalonians', '2Th': '2 Thessalonians', '1Ti': '1 Timothy', '2Ti': '2 Timothy',
   'Tit': 'Titus', 'Phm': 'Philemon', 'Heb': 'Hebrews', 'Jas': 'James',
   '1Pe': '1 Peter', '2Pe': '2 Peter', '1Jo': '1 John', '2Jo': '2 John', '3Jo': '3 John',
-  'Jud': 'Jude', 'Rev': 'Revelation',
+  'Jude': 'Jude', 'Re': 'Revelation',
 };
 
 function parseBibleText(rawText) {
@@ -137,8 +139,8 @@ function parseBibleText(rawText) {
 
   let verseCount = 0;
 
-  // Format: "Abbr C:V verse text" e.g. "Gen 1:1 In the beginning..." or "1Sa 1:1 ..."
-  const verseLineRe = /^([A-Z0-9][a-zA-Z]{1,2})\s+(\d+):(\d+)\s+(.+)$/;
+  // Format: "Abbr C:V verse text" e.g. "Ge 1:1", "1Sa 1:1", "Jude 1:1"
+  const verseLineRe = /^([0-9]?[A-Z][a-z]{0,3})\s+(\d+):(\d+)\s+(.+)$/;
 
   for (let i = 0; i < lines.length; i++) {
     const trimmed = lines[i].trim();
@@ -353,7 +355,7 @@ export async function isBibleCached() {
 // Clear cached Bible data
 export async function clearBibleCache() {
   // Clear ALL version keys (1-30)
-  for (let i = 1; i <= 30; i++) {
+  for (let i = 1; i <= 50; i++) {
     localStorage.removeItem(`bible_data_pce_v${i}`);
   }
   localStorage.removeItem('bible_data_complete');
