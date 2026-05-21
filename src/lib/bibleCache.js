@@ -418,7 +418,8 @@ async function fetchWithRetry(url, retries = 3, isAbbrevFile = false) {
       
       // Only validate RTF file format (abbreviated file has different structure)
       // RTF file may start with title page, so check for either title or Genesis
-      if (!isAbbrevFile && !text.startsWith('Ge 1:1') && !text.includes('THE HOLY BIBLE') && !text.includes('Genesis')) {
+      const normalizedStart = text.substring(0, 50).replace(/\s+/g, ' ');
+      if (!isAbbrevFile && !text.startsWith('Ge 1:1') && !normalizedStart.includes('THE HOLY BIBLE') && !text.includes('Genesis')) {
         console.error('[FETCH] Invalid RTF content - missing expected Bible content, first 100 chars:', text.substring(0, 100));
         throw new Error('Invalid Bible data received');
       }
