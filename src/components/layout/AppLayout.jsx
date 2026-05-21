@@ -46,6 +46,27 @@ export default function AppLayout() {
   const { reloadKey, softReload } = useSoftReload();
   const [menuOpen, setMenuOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Close hamburger menu whenever the route changes
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  // Close hamburger menu on any outside tap/click (excluding the menu itself and the toggle button)
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleOutside = (e) => {
+      const target = e.target;
+      if (target.closest('[data-kjb-menu]') || target.closest('[data-kjb-menu-toggle]')) return;
+      setMenuOpen(false);
+    };
+    document.addEventListener('mousedown', handleOutside);
+    document.addEventListener('touchstart', handleOutside, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', handleOutside);
+      document.removeEventListener('touchstart', handleOutside);
+    };
+  }, [menuOpen]);
   const [footerMode, setFooterMode] = useState(() => {
     try {
       const saved = localStorage.getItem('kjb-footer-mode');
@@ -221,7 +242,7 @@ export default function AppLayout() {
             >
               {mode === 'auto' ? <SunMoon className="w-4 h-4 transition-transform duration-200" /> : isDark ? <Moon className="w-4 h-4 transition-transform duration-200" /> : <Sun className="w-4 h-4 transition-transform duration-200" />}
             </div>
-            <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
+            <div data-kjb-menu-toggle className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
               style={{ touchAction: 'manipulation' }}
               role="button"
@@ -238,7 +259,7 @@ export default function AppLayout() {
               className="fixed inset-0 top-14 z-40 bg-background/95"
               onClick={() => setMenuOpen(false)}
             />
-            <div className="absolute top-full right-0 left-0 z-50 bg-card backdrop-blur-md border-b border-border shadow-lg">
+            <div data-kjb-menu className="absolute top-full right-0 left-0 z-50 bg-card backdrop-blur-md border-b border-border shadow-lg">
               <div className="max-w-4xl mx-auto px-4 py-3 grid grid-cols-2 sm:grid-cols-4 gap-1">
                 {NAV_ITEMS.map(item => {
                   const Icon = item.icon;
