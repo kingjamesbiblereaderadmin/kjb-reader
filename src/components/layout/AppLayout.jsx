@@ -57,16 +57,34 @@ export default function AppLayout() {
     try {
       const saved = localStorage.getItem('kjb-dyslexic-font');
       if (saved === null) {
-        // First time user - set to standard font
         localStorage.setItem('kjb-dyslexic-font', 'false');
       }
-      // Only set attribute if explicitly enabled
       if (saved === 'true') {
         document.documentElement.setAttribute('data-dyslexic-font', 'true');
       } else {
         document.documentElement.removeAttribute('data-dyslexic-font');
       }
     } catch {}
+
+    // Auto-update check on app load - only reload if version changed
+    const checkAutoUpdate = async () => {
+      try {
+        const remoteVer = await fetch('https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt?t=' + Date.now())
+          .then(r => r.text())
+          .then(t => t.trim());
+        const localVer = localStorage.getItem('bible_cache_version');
+        
+        if (remoteVer !== localVer && localVer !== null) {
+          console.log('[AutoUpdate] New version available on load, reloading...');
+          localStorage.removeItem('bible_cache_version');
+          localStorage.removeItem('bible_last_refresh');
+          setTimeout(() => window.location.reload(), 500);
+        }
+      } catch (err) {
+        console.error('[AutoUpdate] Check failed:', err);
+      }
+    };
+    checkAutoUpdate();
 
     // Preload Bible cache immediately for fast offline access
     const preloadCache = async () => {
@@ -90,7 +108,7 @@ export default function AppLayout() {
       const timer = setTimeout(() => setShowPrompt(true), 2000);
       return () => clearTimeout(timer);
     }
-  }, []); // Only run once on mount
+  }, []);
 
   const handleDismissPrompt = () => {
     setShowPrompt(false);
