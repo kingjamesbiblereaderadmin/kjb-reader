@@ -20,6 +20,8 @@ if ('serviceWorker' in navigator && !import.meta.env.DEV) {
     try {
       registration = await navigator.serviceWorker.getRegistration('/');
       if (!registration && shouldRegister) {
+        // Delay SW registration to prevent browser "copy to URL" notification
+        await new Promise(resolve => setTimeout(resolve, 2000));
         registration = await navigator.serviceWorker.register('/sw.js');
         sessionStorage.setItem('kjb-sw-registered', 'true');
       }
