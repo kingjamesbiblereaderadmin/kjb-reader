@@ -726,7 +726,7 @@ export default function SettingsPage() {
                   className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  Clear Cache & Reload
+                  Clear Cache & Reload with Italics
                 </button>
               </div>
             ) : (
