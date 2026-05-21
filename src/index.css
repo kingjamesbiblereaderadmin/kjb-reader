@@ -110,11 +110,11 @@
     font-style: italic;
   }
   
-  /* In cursive mode ONLY, use Great Vibes font for bracketed text and keep it italic */
+  /* In cursive mode ONLY, use Dancing Script font for bracketed text (same as main text) but lighter weight */
   .cursive-em-style em {
-    font-family: 'Great Vibes', cursive !important;
+    font-family: 'Dancing Script', cursive !important;
     font-style: italic !important;
-    font-weight: 400 !important;
+    font-weight: 300 !important;
   }
 
 
