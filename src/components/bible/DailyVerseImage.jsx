@@ -304,7 +304,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       
       if (navigator.share) {
         await navigator.share({
-          title: 'Daily Verse',
           text: shareText,
         });
       } else {
