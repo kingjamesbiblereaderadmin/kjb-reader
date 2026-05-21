@@ -145,7 +145,7 @@ export default function AppLayout() {
   return (
     <AutoUpdateHandler>
     <div className="min-h-screen bg-background flex flex-col" style={{ contain: 'layout style paint' }}>
-      <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+      <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-2 sm:gap-3">
           {/* Logo */}
           <Link
@@ -253,7 +253,7 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main className="flex-1 pb-[72px] sm:pb-0">
+      <main className="flex-1 pb-[88px] sm:pb-0">
         <Outlet />
       </main>
 
@@ -425,9 +425,9 @@ function DesktopFooter({ pathname, navigate, setMenuOpen }) {
 
 function BottomNav({ pathname, navigate }) {
   return (
-    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-[70] bg-card/95 backdrop-blur-md border-t border-border" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      <div className="max-w-5xl mx-auto px-1 py-1">
-        <div className="grid grid-cols-4 gap-0.5">
+    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 0px)' }}>
+      <div className="max-w-5xl mx-auto px-2 py-2">
+        <div className="grid grid-cols-4 gap-1">
           {NAV_ITEMS.map(item => {
             const Icon = item.icon;
             const active = item.path === '/' ? pathname === '/' : pathname === item.path;
@@ -439,14 +439,14 @@ function BottomNav({ pathname, navigate }) {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                   navigate(item.path);
                 }}
-                className={`flex flex-col items-center justify-center gap-0.5 p-1.5 rounded-md transition-all duration-200 hover:scale-105 active:scale-95 ${
+                className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 ${
                   active
                     ? 'bg-primary text-primary-foreground'
                     : 'text-muted-foreground hover:bg-secondary'
                 }`}
               >
-                <Icon className="w-4 h-4 transition-transform duration-200" />
-                <span className="font-sans text-[9px] font-medium">{item.label}</span>
+                <Icon className="w-5 h-5 transition-transform duration-200" />
+                <span className="font-sans text-[10px] font-medium">{item.label}</span>
               </button>
             );
           })}
