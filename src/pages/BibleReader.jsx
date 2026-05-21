@@ -834,16 +834,7 @@ export default function BibleReader() {
         )}
       </div>
 
-      {/* Debug: Force reload button (can remove later) */}
-      <div className="fixed bottom-4 right-4 z-50">
-        <button
-          onClick={handleForceReload}
-          className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity shadow-lg"
-          title="Force reload Bible data with colophons"
-        >
-          🔄 Reload Cache
-        </button>
-      </div>
+
 
       {/* End-of-section text footers */}
       {!loading && !error && pos.abbr === 'MAL' && pos.chapter === 4 && (
