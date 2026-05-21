@@ -19,11 +19,14 @@ function highlightText(text, searchTerm, caseSensitive) {
   const flags = caseSensitive ? 'g' : 'gi';
   const regex = new RegExp(`(${escaped})`, flags);
   const parts = text.split(regex);
-  return parts.map((part, i) =>
-    regex.test(part)
+  return parts.map((part, i) => {
+    if (!part) return part;
+    // Check if this part matches the search term (case sensitive or not)
+    const matches = caseSensitive ? part === term : part.toLowerCase() === term.toLowerCase();
+    return matches
       ? <mark key={i} className="bg-accent/40 text-foreground rounded px-0.5">{part}</mark>
-      : part
-  );
+      : part;
+  });
 }
 
 export default function SearchPage() {
