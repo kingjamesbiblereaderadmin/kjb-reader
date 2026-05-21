@@ -289,15 +289,17 @@ export default function BibleReader() {
     const urlParams = new URLSearchParams(window.location.search);
     const urlBook = urlParams.get('book');
     const urlChapter = urlParams.get('chapter');
+    const urlVerse = urlParams.get('verse');
     
     if (urlBook && urlChapter) {
       // Navigate to specified chapter from URL
       const chapterNum = parseInt(urlChapter, 10);
+      const verseNum = urlVerse ? parseInt(urlVerse, 10) : null;
       setPos({ abbr: urlBook, chapter: chapterNum, verse: null });
-      loadChapter(urlBook, chapterNum, null);
+      loadChapter(urlBook, chapterNum, verseNum);
     } else {
-      // Load from saved position
-      loadChapter(pos.abbr, pos.chapter, pos.verse);
+      // Load from saved position WITHOUT highlight (reset on reader show)
+      loadChapter(pos.abbr, pos.chapter, null);
     }
     
     // If a verse range was passed, pre-select those verses and enter filter mode
