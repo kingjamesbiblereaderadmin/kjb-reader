@@ -5,10 +5,10 @@
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB } from '@/lib/bibleIndexedDB';
 import { COLOPHONS } from '@/lib/bibleSubscripts';
 
-const CACHE_KEY = 'bible_data_pce_v66_RTF_MERGED';
-// RTF file has pilcrows (¶), WHARTON file has [brackets] for italics
-const RTF_FILE_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/075077e5d_KJB-PCE-RTF.txt';
-const ABBREV_FILE_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/97c6073f7_WHARTON_PCE.txt';
+const CACHE_KEY = 'bible_data_pce_v66_MERGED';
+// WHARTON file has pilcrows (¶), RTF file has [brackets] for italics
+const PILCROW_FILE_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/badea04f1_WHARTON_PCE.txt';
+const ITALICS_FILE_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/075077e5d_KJB-PCE-RTF.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
 const EXPECTED_BOOK_COUNT = 66;
@@ -142,7 +142,7 @@ let parsedData = null;
 let fetchInProgress = null;
 let remoteVersion = null;
 
-// Parse WHARTON file to extract italic markers [brackets]
+// Parse file to extract italic markers [brackets]
 // Returns map: "Book Chapter:Verse" -> { italics: [{text}], plain: text without brackets }
 function parseItalicMarkers(text) {
   const italicMap = new Map();
@@ -181,14 +181,14 @@ function parseItalicMarkers(text) {
   return italicMap;
 }
 
-// Parse RTF file as base text and apply italic markers from PCE
-function parseRTFWithItalics(rtfText, italicMap) {
+// Parse WHARTON file (with pilcrows) as base text and apply italic markers from RTF
+function parseWithPilcrowsAndItalics(pilcrowText, italicMap) {
   const data = {};
-  const lines = rtfText.split('\n');
+  const lines = pilcrowText.split('\n');
   let currentBook = null;
   let currentChapter = null;
   let verseCount = 0;
-  let versesWithItalics = 0;
+  let versesWithFormatting = 0;
 
   // Strip colophon text from verses
   const stripColophon = (text) => {
@@ -199,11 +199,11 @@ function parseRTFWithItalics(rtfText, italicMap) {
       .trim();
   };
 
-  // Apply italic brackets from WHARTON to RTF text
-  const applyItalics = (rtfVerseText, italics) => {
-    if (!italics || italics.length === 0) return rtfVerseText;
+  // Apply italic brackets to text
+  const applyItalics = (verseText, italics) => {
+    if (!italics || italics.length === 0) return verseText;
     
-    let result = rtfVerseText;
+    let result = verseText;
     const sorted = [...italics].sort((a, b) => b.text.length - a.text.length);
     
     for (const italic of sorted) {
@@ -229,7 +229,7 @@ function parseRTFWithItalics(rtfText, italicMap) {
     const trimmed = line.trim();
     if (!trimmed) continue;
 
-    // Detect book title (all caps lines)
+    // Detect book title (all caps lines) - WHARTON format
     if (trimmed === trimmed.toUpperCase() && /[A-Z]/.test(trimmed) && !/^\d/.test(trimmed) && !/^CHAPTER/.test(trimmed)) {
       const upper = trimmed.replace(/[.,]/g, '').trim();
       // Direct RTF title match
@@ -261,18 +261,18 @@ function parseRTFWithItalics(rtfText, italicMap) {
       continue;
     }
 
-    // Parse verse line
+    // Parse verse line - WHARTON format has pilcrow (¶) at start
     const verseMatch = trimmed.match(/^(\d+)\s+(.+)$/);
     if (verseMatch && currentBook && currentChapter) {
       const verseNum = parseInt(verseMatch[1], 10);
       let verseText = stripColophon(verseMatch[2]);
 
-      // Apply italic markers from WHARTON
+      // Apply italic markers from RTF file
       const key = `${currentBook} ${currentChapter}:${verseNum}`;
       const italicData = italicMap.get(key);
       if (italicData && italicData.italics.length > 0) {
         verseText = applyItalics(verseText, italicData.italics);
-        versesWithItalics++;
+        versesWithFormatting++;
       }
 
       // Special fix: Change "John" to "JOHN" in Rev 1:4
@@ -287,7 +287,7 @@ function parseRTFWithItalics(rtfText, italicMap) {
 
   data.__colophons = { ...COLOPHONS };
   const bookCount = Object.keys(data).filter(k => k !== '__colophons').length;
-  console.log('[PARSE] ✓ Complete:', verseCount, 'verses,', bookCount, 'books,', versesWithItalics, 'with italics & pilcrows');
+  console.log('[PARSE] ✓ Complete:', verseCount, 'verses,', bookCount, 'books,', versesWithFormatting, 'with formatting');
   
   return data;
 }
@@ -298,23 +298,31 @@ function isValidBibleData(data) {
   return bookCount >= EXPECTED_BOOK_COUNT;
 }
 
-async function fetchWithRetry(url, retries = 3) {
+async function fetchWithRetry(url, retries = 3, expectPilcrows = false) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       // Add timestamp to bypass browser/CDN cache
       const separator = url.includes('?') ? '&' : '?';
       const cacheBusterUrl = `${url}${separator}t=${Date.now()}`;
       const res = await fetch(cacheBusterUrl, { cache: 'no-store', mode: 'cors' });
-      console.log('[FETCH] Attempt', attempt, '- Status:', res.status);
+      console.log('[FETCH] Attempt', attempt, '- Status:', res.status, '- URL:', url.substring(0, 80));
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const buf = await res.arrayBuffer();
       const text = new TextDecoder('windows-1252').decode(buf);
       console.log('[FETCH] Received', text.length, 'characters');
       
-      // Validate abbreviated file format (Ge 1:1 ...)
-      if (!text.startsWith('Ge 1:1') && !text.includes('Genesis')) {
-        console.error('[FETCH] Invalid Bible content - first 100 chars:', text.substring(0, 100));
-        throw new Error('Invalid Bible data received');
+      // Validate file format
+      if (expectPilcrows) {
+        // WHARTON file should have pilcrows (¶)
+        const pilcrowCount = (text.match(/¶/g) || []).length;
+        console.log('[FETCH] Pilcrow count:', pilcrowCount);
+        if (pilcrowCount === 0 && text.length > 1000) {
+          console.error('[FETCH] Expected pilcrows but found none - first 200 chars:', text.substring(0, 200));
+        }
+      } else {
+        // RTF file should have brackets for italics
+        const bracketCount = (text.match(/\[/g) || []).length;
+        console.log('[FETCH] Bracket count:', bracketCount);
       }
       
       if (text.length < 1000) {
@@ -392,48 +400,49 @@ async function loadFromCache() {
 }
 
 async function fetchAndParse() {
-  console.log('[FETCH] Fetching RTF (base text with pilcrows) and PCE (italics)...');
-  console.log('[FETCH] RTF URL:', RTF_FILE_URL);
-  console.log('[FETCH] PCE URL:', ABBREV_FILE_URL);
+  console.log('[FETCH] Fetching WHARTON (pilcrows) and RTF (italics)...');
+  console.log('[FETCH] WHARTON URL:', PILCROW_FILE_URL);
+  console.log('[FETCH] RTF URL:', ITALICS_FILE_URL);
   
   // Fetch both files in parallel
-  const [rtfText, abbrevText] = await Promise.all([
-    fetchWithRetry(RTF_FILE_URL, 3),
-    fetchWithRetry(ABBREV_FILE_URL, 3)
+  const [pilcrowText, italicsText] = await Promise.all([
+    fetchWithRetry(PILCROW_FILE_URL, 3, true),  // expect pilcrows
+    fetchWithRetry(ITALICS_FILE_URL, 3, false)  // expect brackets
   ]);
 
-  console.log('[FETCH] ✓ RTF:', rtfText.length, 'chars');
-  console.log('[FETCH] ✓ PCE:', abbrevText.length, 'chars');
+  console.log('[FETCH] ✓ WHARTON:', pilcrowText.length, 'chars');
+  console.log('[FETCH] ✓ RTF:', italicsText.length, 'chars');
   
-  // Verify RTF has pilcrows
-  const pilcrowCount = (rtfText.match(/¶/g) || []).length;
-  console.log('[FETCH] RTF pilcrow count:', pilcrowCount);
+  // Verify WHARTON has pilcrows
+  const pilcrowCount = (pilcrowText.match(/¶/g) || []).length;
+  console.log('[FETCH] WHARTON pilcrow count:', pilcrowCount);
   
-  // Verify PCE has brackets
-  const bracketCount = (abbrevText.match(/\[/g) || []).length;
-  console.log('[FETCH] PCE bracket count:', bracketCount);
+  // Verify RTF has brackets
+  const bracketCount = (italicsText.match(/\[/g) || []).length;
+  console.log('[FETCH] RTF bracket count:', bracketCount);
 
-  // Parse italic markers from PCE file
-  const italicMap = parseItalicMarkers(abbrevText);
+  // Parse italic markers from RTF file
+  const italicMap = parseItalicMarkers(italicsText);
   console.log('[PARSE] Italic map size:', italicMap.size, 'verses');
   
-  // Parse RTF as base text and apply italics from PCE
-  const data = parseRTFWithItalics(rtfText, italicMap);
+  // Parse WHARTON as base text (with pilcrows) and apply italics from RTF
+  const data = parseWithPilcrowsAndItalics(pilcrowText, italicMap);
   
   if (!isValidBibleData(data)) {
     throw new Error('Parsed data only has ' + Object.keys(data).filter(k => k !== '__colophons').length + ' books');
   }
   
-  // Log sample verse to verify RTF base + italics + pilcrows
+  // Log sample verse to verify pilcrows + italics
   const genesis1 = data['Genesis']?.[1];
   if (genesis1 && genesis1[1]) {
-    console.log('[VERIFY] Genesis 1:1 (RTF base + PCE italics):', genesis1[1].text.substring(0, 200));
+    console.log('[VERIFY] Genesis 1:1:', genesis1[1].text.substring(0, 200));
     console.log('[VERIFY] Has brackets?', genesis1[1].text.includes('['));
     console.log('[VERIFY] Has pilcrows?', genesis1[1].text.includes('¶') || genesis1[1].text.includes('\u00B6'));
   }
   
-  // Count verses with pilcrows
+  // Count verses with formatting
   let versesWithPilcrows = 0;
+  let versesWithBrackets = 0;
   Object.values(data).forEach(book => {
     if (typeof book === 'object') {
       Object.values(book).forEach(chapter => {
@@ -442,12 +451,16 @@ async function fetchAndParse() {
             if (v.text && (v.text.includes('¶') || v.text.includes('\u00B6'))) {
               versesWithPilcrows++;
             }
+            if (v.text && v.text.includes('[')) {
+              versesWithBrackets++;
+            }
           });
         }
       });
     }
   });
-  console.log('[VERIFY] Total verses with pilcrows:', versesWithPilcrows);
+  console.log('[VERIFY] Verses with pilcrows:', versesWithPilcrows);
+  console.log('[VERIFY] Verses with brackets (italics):', versesWithBrackets);
   
   return data;
 }
