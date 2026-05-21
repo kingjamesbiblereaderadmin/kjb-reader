@@ -256,11 +256,6 @@ export default function BibleReader() {
     const b = BIBLE_BOOKS.find(bk => bk.abbr === bookAbbr);
     if (!b) { setError('Book not found'); setLoading(false); return; }
     
-    // Reset highlight when no specific verse is targeted
-    if (!jumpVerse) {
-      setHighlightVerse(null);
-    }
-    
     // Skip API fetch for title pages (chapter 0)
     if (chapter === 0) {
       setVerseCount(0);
@@ -275,9 +270,11 @@ export default function BibleReader() {
       setVerses(data.verses);
       setColophon(data.colophon || null);
       setVerseCount(data.verses.length);
-      // Only set highlight if jumpVerse was explicitly provided
+      // Set highlight if jumpVerse was explicitly provided, otherwise clear it
       if (jumpVerse) {
         setHighlightVerse(jumpVerse);
+      } else {
+        setHighlightVerse(null);
       }
       savePosition(bookAbbr, chapter);
       
