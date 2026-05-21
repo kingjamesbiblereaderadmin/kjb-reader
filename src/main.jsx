@@ -13,9 +13,18 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 // Service worker registration for offline support and notifications
 // Skip registration in development mode to avoid caching stale bundles
 if ('serviceWorker' in navigator && !import.meta.env.DEV) {
-  // Only register once per browser session to avoid Chrome "tap to copy URL" banner
-  const shouldRegister = !sessionStorage.getItem('kjb-sw-registered');
+  // Clear old caches to prevent stale React/Vite code errors
   window.addEventListener('load', async () => {
+    try {
+      const cacheNames = await caches.keys();
+      await Promise.all(cacheNames.map(name => caches.delete(name)));
+      console.log('[SW] Cleared old caches');
+    } catch (err) {
+      console.warn('[SW] Cache clear failed:', err);
+    }
+    
+    // Only register once per browser session to avoid Chrome "tap to copy URL" banner
+    const shouldRegister = !sessionStorage.getItem('kjb-sw-registered');
     let registration;
     try {
       registration = await navigator.serviceWorker.getRegistration('/');

@@ -30,7 +30,19 @@ self.addEventListener('activate', (event) => {
 });
 
 // Fetch event - serve from cache, fallback to network
+// IMPORTANT: Never cache Vite/React dev code to prevent stale bundle errors
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+  
+  // Never cache: Vite dev code, React, node_modules, source maps
+  if (url.pathname.includes('/@vite') || 
+      url.pathname.includes('/@react-refresh') ||
+      url.pathname.includes('/node_modules/') ||
+      url.pathname.endsWith('.map') ||
+      url.pathname.includes('/src/')) {
+    return fetch(event.request);
+  }
+  
   event.respondWith(
     caches.match(event.request).then((response) => {
       if (response) {
