@@ -261,24 +261,21 @@ function parseWithPilcrowsAndItalics(whartonText, italicMap) {
         }
       }
 
-      // Extract and remove italic markers (both \[text\] and [text])
+      // Count italic markers for stats (both \[text\] and [text])
       const italics = [];
-      // First try escaped brackets \[text\]
       const escapedRegex = /\\\[([^\]]+)\\\]/g;
       let match;
       while ((match = escapedRegex.exec(verseText)) !== null) {
         italics.push({ text: match[1] });
       }
-      // Then try regular brackets [text]
       const regularRegex = /(?<!\\)\[([^\]]+)\](?!\\)/g;
       while ((match = regularRegex.exec(verseText)) !== null) {
         italics.push({ text: match[1] });
       }
 
-      // Remove brackets but keep the text
+      // Convert \[text\] to [text] for consistent rendering (keep brackets!)
       verseText = verseText
-        .replace(/\\\[([^\]]+)\\\]/g, '$1')
-        .replace(/(?<!\\)\[([^\]]+)\](?!\\)/g, '$1');
+        .replace(/\\\[([^\]]+)\\\]/g, '[$1]');
 
       verseText = stripColophon(verseText);
 
