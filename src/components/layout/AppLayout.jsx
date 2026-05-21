@@ -166,7 +166,7 @@ export default function AppLayout() {
     <AutoUpdateHandler>
     <div className="min-h-screen bg-background flex flex-col">
       <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-2 sm:gap-3">
+        <div className="max-w-5xl mx-auto px-5 sm:px-8 h-14 flex items-center gap-2 sm:gap-3">
           {/* Logo */}
           <Link
             to="/"
@@ -273,7 +273,7 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main className="flex-1 pb-28 sm:pb-0">
+      <main className="flex-1 pb-24 sm:pb-0 px-1 sm:px-2">
         <Outlet />
       </main>
 
@@ -421,9 +421,9 @@ function BottomNav({ pathname, navigate }) {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                   setTimeout(() => navigate(item.path), 150);
                 }}
-                className="flex flex-col items-center justify-center flex-1 h-14 active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95"
+                className="flex flex-col items-center justify-center flex-1 h-11 active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95"
               >
-                <Icon className={`w-5 h-5 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'} transition-transform duration-200`} />
+                <Icon className={`w-4 h-4 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'} transition-transform duration-200`} />
                 <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
               </button>
             );
@@ -453,9 +453,9 @@ function BottomNav({ pathname, navigate }) {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     navigate(item.path);
                   }}
-                  className="flex flex-col items-center justify-center w-full h-14 active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95"
+                  className="flex flex-col items-center justify-center w-full h-11 active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95"
                 >
-                  <Icon className={`w-5 h-5 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'} transition-transform duration-200`} />
+                  <Icon className={`w-4 h-4 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'} transition-transform duration-200`} />
                   <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
                 </button>
               );
