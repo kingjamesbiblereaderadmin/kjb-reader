@@ -173,7 +173,7 @@ export default function GospelPage() {
 
       {/* Full playlist */}
       <div className="bg-card border border-border rounded-xl p-5 mb-6">
-        <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Amazing Gospel Presentations by Verified Preachers</h3>
+        <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Playlist on Gospel Videos</h3>
         <a
           href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq"
           target="_blank"
