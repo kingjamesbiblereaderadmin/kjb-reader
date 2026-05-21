@@ -110,20 +110,13 @@
     font-style: italic;
   }
   
-  /* In cursive mode ONLY, use Dancing Script font for bracketed text (same as main text) but lighter weight */
+  /* In cursive mode ONLY, use Dancing Script font for ALL text including italic words */
+  .cursive-em-style,
+  .cursive-em-style *,
   .cursive-em-style em {
     font-family: 'Dancing Script', cursive !important;
     font-style: italic !important;
     font-weight: 300 !important;
-  }
-  
-  /* Ensure cursive-em-style applies to all nested elements including em */
-  .cursive-em-style {
-    font-family: 'Dancing Script', cursive !important;
-  }
-  
-  .cursive-em-style * {
-    font-family: 'Dancing Script', cursive !important;
   }
 
 
