@@ -722,7 +722,7 @@ export default function SearchPage() {
 
           {/* Pagination controls */}
           {totalPages > 1 && (
-            <div className="mt-6 flex items-center justify-center gap-2">
+            <div className="mt-6 mb-8 flex items-center justify-center gap-2">
               <button
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
