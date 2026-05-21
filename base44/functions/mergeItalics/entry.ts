@@ -8,9 +8,49 @@
  * 2. Parse KJB-PCE-RTF.txt line by line, identify chapter/verse structure
  * 3. For each verse in the RTF file, look up the italic version, extract [bracketed] spans,
  *    and insert them into the RTF text using word-level matching.
+ * 4. Strip colophon text from verses using hardcoded colophons as reference.
  */
 
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+
+// Hardcoded colophons from bibleSubscripts.js - used to strip from verse text
+const COLOPHONS = {
+  'Romans:16':          'Written to the Romans from Corinthus, [and sent] by Phebe servant of the church at Cenchrea.',
+  '1 Corinthians:16':   'The first [epistle] to the Corinthians was written from Philippi by Stephanas, and Fortunatus, and Achaicus, and Timotheus.',
+  '2 Corinthians:13':   'The second [epistle] to the Corinthians was written from Philippi, [a city] of Macedonia, by Titus and Lucas.',
+  'Galatians:6':        'Unto the Galatians written from Rome.',
+  'Ephesians:6':        'Written from Rome unto the Ephesians by Tychicus.',
+  'Philippians:4':      'It was written to the Philippians from Rome by Epaphroditus.',
+  'Colossians:4':       'Written from Rome to the Colossians by Tychicus and Onesimus.',
+  '1 Thessalonians:5':  'The first [epistle] unto the Thessalonians was written from Athens.',
+  '2 Thessalonians:3':  'The second [epistle] to the Thessalonians was written from Athens.',
+  '1 Timothy:6':        'The first to Timothy was written from Laodicea, which is the chiefest city of Phrygia Pacatiana.',
+  '2 Timothy:4':        'The second [epistle] unto Timotheus, ordained the first bishop of the church of the Ephesians, was written from Rome, when Paul was brought before Nero the second time.',
+  'Titus:3':            'It was written to Titus, ordained the first bishop of the church of the Cretians, from Nicopolis of Macedonia.',
+  'Philemon:1':         'Written from Rome to Philemon, by Onesimus a servant.',
+  'Hebrews:13':         'Written to the Hebrews from Italy by Timothy.',
+};
+
+// Build regex patterns from colophon texts for stripping
+const COLOPHON_PATTERNS = Object.entries(COLOPHONS).map(([key, text]) => {
+  // Escape special regex chars and make case-insensitive
+  const escaped = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(escaped, 'gi');
+});
+
+function stripColophonFromVerse(verseText) {
+  let cleaned = verseText;
+  for (const pattern of COLOPHON_PATTERNS) {
+    cleaned = cleaned.replace(pattern, '');
+  }
+  // Also strip common colophon fragments
+  cleaned = cleaned
+    .replace(/\s*Written\s+to\s+[^.]*\.?/gi, '')
+    .replace(/\s*It\s+was\s+written\s+[^.]*\.?/gi, '')
+    .replace(/\s+from\s+[A-Z][a-z]+\s+by\s+[A-Z][a-z]+\.?$/gi, '')
+    .trim();
+  return cleaned;
+}
 
 const ABBREV_FILE = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/dacf369e2_TEXT-PCE-127.txt';
 const RTF_FILE = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/075077e5d_KJB-PCE-RTF.txt';
@@ -317,7 +357,7 @@ Deno.serve(async (req) => {
       const verseMatch = trimmed.match(/^(\d+)\s+(.+)$/);
       if (verseMatch && currentBook && currentChapter !== null) {
         const verseNum = parseInt(verseMatch[1], 10);
-        const rtfVerseText = verseMatch[2];
+        let rtfVerseText = verseMatch[2];
         
         if (verseNum > 0 && verseNum <= 200) {
           const key = `${currentBook} ${currentChapter}:${verseNum}`;
@@ -326,9 +366,12 @@ Deno.serve(async (req) => {
           if (italicVersion) {
             const { italics } = extractItalicInfo(italicVersion);
             
+            // Strip colophon text from verse before applying italics
+            rtfVerseText = stripColophonFromVerse(rtfVerseText);
+            
             if (italics.length > 0) {
               const mergedText = applyItalics(rtfVerseText, italics);
-              const newLine = line.replace(rtfVerseText, mergedText);
+              const newLine = line.replace(verseMatch[2], mergedText);
               outputLines.push(newLine);
               versesMerged++;
               
@@ -337,17 +380,25 @@ Deno.serve(async (req) => {
                   currentBook === sampleBook && currentChapter === parseInt(sampleChapter)) {
                 sampleOutput.push({
                   verse: verseNum,
-                  original: rtfVerseText,
+                  original: verseMatch[2],
                   italic: italicVersion,
                   merged: mergedText
                 });
               }
             } else {
-              outputLines.push(line);
+              const cleanLine = line.replace(verseMatch[2], rtfVerseText);
+              outputLines.push(cleanLine);
             }
           } else {
+            // Still strip colophons even if no italic version found
+            const cleanText = stripColophonFromVerse(rtfVerseText);
+            if (cleanText !== rtfVerseText) {
+              const cleanLine = line.replace(rtfVerseText, cleanText);
+              outputLines.push(cleanLine);
+            } else {
+              outputLines.push(line);
+            }
             versesNotFound++;
-            outputLines.push(line);
           }
           continue;
         }

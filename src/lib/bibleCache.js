@@ -6,8 +6,8 @@
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB } from '@/lib/bibleIndexedDB';
 import { COLOPHONS } from '@/lib/bibleSubscripts';
 
-const CACHE_KEY = 'bible_data_pce_v61_STRIP_COLOPHONS';
-// Use the merged file from mergeItalics function (has brackets, no inline colophons)
+const CACHE_KEY = 'bible_data_pce_v62_STRIP_COLOPHONS';
+// Use the merged file from mergeItalics function (has brackets, colophons stripped)
 const RTF_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/PLACEHOLDER_MERGED_FILE.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
