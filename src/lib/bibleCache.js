@@ -191,7 +191,19 @@ function parseBibleText(rawText) {
   data.__colophons = { ...COLOPHONS };
 
   const bookCount = Object.keys(data).filter(k => k !== '__colophons').length;
-  console.log('[PARSE] ✓ Complete:', verseCount, 'verses,', bookCount, 'books,', Object.keys(data.__colophons).length, 'colophons');
+  console.log('[PARSE] ✓ Complete:', verseCount, 'verses,', bookCount, 'books');
+  console.log('[PARSE] Books found:', Object.keys(data).filter(k => k !== '__colophons').slice(0, 10).join(', '), '...');
+  
+  // Debug: check if Genesis has chapters
+  if (data.Genesis) {
+    console.log('[PARSE] Genesis chapters:', Object.keys(data.Genesis).length);
+    console.log('[PARSE] Genesis 1 verses:', data.Genesis[1]?.length || 0);
+    if (data.Genesis[1]?.length > 0) {
+      console.log('[PARSE] Genesis 1:1 text:', data.Genesis[1][0]?.text?.substring(0, 100));
+      console.log('[PARSE] Has brackets?', data.Genesis[1][0]?.text?.includes('['));
+    }
+  }
+  
   return data;
 }
 
@@ -204,11 +216,19 @@ function isValidBibleData(data) {
 async function fetchWithRetry(url, retries = 3) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      // Use cache-first strategy, only bust cache on explicit refresh
-      const res = await fetch(url, { cache: 'force-cache' });
+      // Bypass cache to ensure fresh data with brackets
+      const res = await fetch(url, { cache: 'no-cache', mode: 'cors' });
+      console.log('[FETCH] Attempt', attempt, '- Status:', res.status, 'Content-Type:', res.headers.get('content-type'));
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const buf = await res.arrayBuffer();
-      return new TextDecoder('windows-1252').decode(buf);
+      const text = new TextDecoder('windows-1252').decode(buf);
+      console.log('[FETCH] Received', text.length, 'characters');
+      // Verify we got actual Bible text (should start with "Ge 1:1")
+      if (!text.startsWith('Ge 1:1')) {
+        console.error('[FETCH] Invalid content - does not start with "Ge 1:1"');
+        throw new Error('Invalid Bible data received');
+      }
+      return text;
     } catch (err) {
       console.error('Fetch attempt ' + attempt + '/' + retries + ' failed:', err.message);
       if (attempt === retries) throw err;
