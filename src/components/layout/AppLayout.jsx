@@ -31,6 +31,7 @@ const BOTTOM_NAV_PRIMARY = [
 ];
 
 const BOTTOM_NAV_SECONDARY = [
+  { path: '/contents', icon: BookMarked, label: 'Contents' },
   { path: '/resources', icon: Library, label: 'Resources' },
   { path: '/about', icon: Info, label: 'About' },
   { path: '/settings', icon: Settings, label: 'Settings' },
