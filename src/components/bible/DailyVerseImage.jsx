@@ -793,7 +793,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             e.preventDefault();
             e.stopPropagation();
             e.nativeEvent.stopImmediatePropagation();
-            setShowLightbox(false);
+          }}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation();
           }}
         >
           <div
@@ -809,6 +813,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               e.stopPropagation();
               e.nativeEvent.stopImmediatePropagation();
             }}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+            }}
           >
             <button
               onClick={(e) => {
@@ -816,6 +825,16 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 e.stopPropagation();
                 e.nativeEvent.stopImmediatePropagation();
                 setShowLightbox(false);
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
               }}
               className="absolute top-4 right-4 p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors"
               type="button"
