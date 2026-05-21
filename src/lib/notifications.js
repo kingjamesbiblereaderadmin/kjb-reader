@@ -169,8 +169,6 @@ export async function showLocalNotification(title, body, imageUrl = null) {
     try {
       const reg = await navigator.serviceWorker.ready;
       console.log('[Notif] Service worker ready, showing notification');
-      console.log('[Notif] SW registration scope:', reg.scope);
-      console.log('[Notif] Notification options:', { body, icon: customImage || logoUrl, tag: 'daily-verse' });
       
       // Show notification using service worker
       await reg.showNotification(title, {
@@ -190,7 +188,6 @@ export async function showLocalNotification(title, body, imageUrl = null) {
       return;
     } catch (err) {
       console.error('[Notif] Service worker notification failed:', err.message);
-      console.error('[Notif] Error stack:', err.stack);
     }
   }
   
@@ -205,17 +202,11 @@ export async function showLocalNotification(title, body, imageUrl = null) {
         vibrate: [200, 100, 200],
         tag: 'daily-verse',
         renotify: true,
-        silent: false
-      });
-      
-      // Handle click event
-      notif.onclick = function(event) {
-        event.preventDefault();
-        window.focus();
-        if (this.data && this.data.url) {
-          window.location.href = this.data.url;
+        silent: false,
+        data: {
+          url: window.location.origin ? (window.location.origin + '/') : '/'
         }
-      };
+      });
       
       console.log('[Notif] Standard notification sent');
     } catch (err) {

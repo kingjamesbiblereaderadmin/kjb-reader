@@ -50,6 +50,25 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
+// Handle notification click - navigate to app when user clicks notification
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: 'window' }).then((clientList) => {
+      // If app is already open, focus it
+      for (const client of clientList) {
+        if (client.url === '/' && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      // Otherwise, open a new window
+      if (clients.openWindow) {
+        return clients.openWindow(event.notification.data?.url || '/');
+      }
+    })
+  );
+});
+
 // Handle messages from main thread
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
