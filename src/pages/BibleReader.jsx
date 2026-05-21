@@ -75,7 +75,6 @@ export default function BibleReader() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [highlightVerse, setHighlightVerse] = useState(pos.verse || null);
-  const [manualHighlight, setManualHighlight] = useState(false);
   const [verseCount, setVerseCount] = useState(0);
 
   const [showBookPicker, setShowBookPicker] = useState(false);
@@ -359,9 +358,9 @@ export default function BibleReader() {
     }
   }, [verses, loading, highlightVerse]);
 
-  // Auto-hide highlights after 3 seconds (only if not manually selected)
+  // Auto-hide highlights after 5 seconds
   useEffect(() => {
-    if (highlightVerse && !manualHighlight) {
+    if (highlightVerse) {
       const timer = setTimeout(() => {
         setHighlightVerse(null);
         // Clear the verse from position storage to reset header display
@@ -371,10 +370,10 @@ export default function BibleReader() {
             localStorage.setItem('kjb-position', JSON.stringify({ ...current, verse: null, verseEnd: null }));
           }
         } catch {}
-      }, 3000);
+      }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [highlightVerse, manualHighlight]);
+  }, [highlightVerse]);
 
   // Reset verse status when exiting filter mode or clearing selection
   useEffect(() => {
@@ -396,7 +395,6 @@ export default function BibleReader() {
     // Clear highlights when navigating without a specific verse (random chapter)
     if (!jumpVerse) {
       setHighlightVerse(null);
-      setManualHighlight(false);
     }
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);
@@ -649,7 +647,6 @@ export default function BibleReader() {
                         setSelectMode(false);
                         setFilterMode(true);
                       }
-                      setManualHighlight(true);
                       navigate(pos.abbr, pos.chapter, first);
                       setShowVersePicker(false);
                     }}
@@ -669,7 +666,6 @@ export default function BibleReader() {
                       setSelectMode(false);
                       setFilterMode(true);
                     }
-                    setManualHighlight(true);
                     navigate(pos.abbr, pos.chapter, first);
                     setShowVersePicker(false);
                   }}
