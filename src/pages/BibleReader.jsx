@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type } from 'lucide-react';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText } from '@/lib/bibleApi';
 import { getBibleData, forceReloadBibleData } from '@/lib/bibleCache';
@@ -88,6 +88,15 @@ export default function BibleReader() {
     try { return parseInt(localStorage.getItem('kjb-zoom') || '100'); } catch { return 100; }
   });
   const [showZoomPopover, setShowZoomPopover] = useState(false);
+  const [showFontPopover, setShowFontPopover] = useState(false);
+  const [fontFamily, setFontFamily] = useState(() => {
+    try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
+  });
+
+  const handleFontChange = (font) => {
+    setFontFamily(font);
+    try { localStorage.setItem('kjb-reader-font-family', font); } catch {}
+  };
 
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
@@ -669,6 +678,72 @@ export default function BibleReader() {
                 </div>
               </SelectorSheet>
 
+              {/* Font family toggle */}
+              <button
+                onClick={() => { setShowFontPopover(p => !p); }}
+                onTouchEnd={(e) => { e.preventDefault(); setShowFontPopover(p => !p); }}
+                title="Font family"
+                className="flex items-center justify-center gap-1 px-3 py-2.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors touch-manipulation min-h-[44px]"
+              >
+                <Type className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">{fontFamily === 'serif' ? 'Serif' : fontFamily === 'sans-serif' ? 'Sans' : fontFamily === 'monospace' ? 'Mono' : 'Cursive'}</span>
+              </button>
+              {/* Desktop popover */}
+              {showFontPopover && !isMobile() && (
+                <div className="absolute top-full left-0 mt-1 z-50">
+                  <div className="bg-card border border-border rounded-xl shadow-xl p-4 w-64">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-sans text-xs font-medium text-foreground">Font Family</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { value: 'serif', label: 'Serif' },
+                        { value: 'sans-serif', label: 'Sans' },
+                        { value: 'monospace', label: 'Mono' },
+                        { value: 'cursive', label: 'Cursive' },
+                      ].map(font => (
+                        <button
+                          key={font.value}
+                          onClick={() => { handleFontChange(font.value); setShowFontPopover(false); }}
+                          className={`px-3 py-2 rounded-lg font-sans text-xs font-medium transition-all ${
+                            fontFamily === font.value
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                          }`}
+                          style={{ fontFamily: font.value }}
+                        >
+                          {font.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/* Mobile bottom sheet */}
+              <SelectorSheet open={showFontPopover && isMobile()} onClose={() => setShowFontPopover(false)} title="Font Family">
+                <div className="space-y-2 p-2">
+                  {[
+                    { value: 'serif', label: 'Serif' },
+                    { value: 'sans-serif', label: 'Sans' },
+                    { value: 'monospace', label: 'Mono' },
+                    { value: 'cursive', label: 'Cursive' },
+                  ].map(font => (
+                    <button
+                      key={font.value}
+                      onClick={() => { handleFontChange(font.value); setShowFontPopover(false); }}
+                      className={`w-full px-4 py-3 rounded-lg font-sans text-sm font-medium transition-all ${
+                        fontFamily === font.value
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                      }`}
+                      style={{ fontFamily: font.value }}
+                    >
+                      {font.label}
+                    </button>
+                  ))}
+                </div>
+              </SelectorSheet>
+
               {/* Layout toggle */}
               <button
                 onClick={toggleLayout}
@@ -755,10 +830,10 @@ export default function BibleReader() {
       )}
 
       {/* Click outside to close desktop dropdowns */}
-      {(showBookPicker || showChapterPicker || showVersePicker || showZoomPopover) && (
+      {(showBookPicker || showChapterPicker || showVersePicker || showZoomPopover || showFontPopover) && (
         <div
           className="fixed inset-0 z-30"
-          onClick={() => { setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); }}
+          onClick={() => { setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
         />
       )}
 
@@ -796,9 +871,7 @@ export default function BibleReader() {
         style={{ 
           fontSize: `${zoomLevel / 100}rem`, 
           lineHeight: zoomLevel > 100 ? '1.8' : '1.6',
-          fontFamily: (() => {
-            try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
-          })()
+          fontFamily
         }}
       >
         {loading && (
