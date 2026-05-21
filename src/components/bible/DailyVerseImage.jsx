@@ -24,6 +24,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const [uploading, setUploading] = useState(false);
   const [cropImage, setCropImage] = useState(null);
   const [cropImageForNotif, setCropImageForNotif] = useState(false);
+  const [pendingBg, setPendingBg] = useState(null);
   const fileInputRef = useRef(null);
   const [notifImage, setNotifImage] = useState(() => {
     try { return localStorage.getItem('kjb-notif-image') || ''; } catch { return ''; }
@@ -49,6 +50,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       try { setFontFamily(localStorage.getItem('kjb-verse-font-family') || 'serif'); } catch {}
       try { setNotifImage(localStorage.getItem('kjb-notif-image') || ''); } catch {}
       try { setShowVersePanel(localStorage.getItem('kjb-verse-panel-visible') !== 'false'); } catch {}
+      setPendingBg(null);
     };
     window.addEventListener('storage', handleStorage);
     handleStorage();
@@ -124,58 +126,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           console.warn('[Notif] Failed to save image to cache:', cacheErr.message);
         }
       } else {
-        // Clear any existing images first to free up space
-        try {
-          localStorage.removeItem('kjb-daily-verse-bg');
-          localStorage.removeItem('kjb-notif-image');
-        } catch {}
-        try {
-          const cache = await caches.open('kjb-notif-images');
-          await cache.delete('/notif-image');
-        } catch {}
-        
-        // Save new background
-        try {
-          localStorage.setItem('kjb-daily-verse-bg', croppedDataUrl);
-        } catch (storageErr) {
-          if (storageErr.name === 'QuotaExceededError') {
-            alert('Storage full! Please clear browser data or try a smaller image.');
-            console.error('localStorage quota exceeded:', storageErr);
-            return;
-          }
-          throw storageErr;
-        }
-        
-        setCustomBg(croppedDataUrl);
-        // Prevent any clicks from triggering navigation
-        setUploadingComplete(true);
-        
-        // Auto-detect if background is light or dark and adjust text color
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0);
-          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const data = imageData.data;
-          let r = 0, g = 0, b = 0;
-          for (let i = 0; i < data.length; i += 4) {
-            r += data[i];
-            g += data[i + 1];
-            b += data[i + 2];
-          }
-          const avg = (r + g + b) / (3 * (data.length / 4));
-          if (avg > 128) {
-            handleTextColorChange('#1a1a1a');
-          } else {
-            handleTextColorChange('#ffffff');
-          }
-        };
-        img.src = croppedDataUrl;
+        // Just set pending state - don't save to localStorage yet
+        setPendingBg(croppedDataUrl);
       }
-      window.dispatchEvent(new Event('storage'));
       setCropImage(null);
     } catch (err) {
       console.error('Unexpected error:', err);
@@ -207,11 +160,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const verseRef = useRef(null);
   const [capturing, setCapturing] = useState(false);
   
-  const bgStyle = customBg
-    ? { backgroundImage: `url(${customBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+  const bgStyle = (pendingBg || customBg)
+    ? { backgroundImage: `url(${pendingBg || customBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }
     : {};
-  const gradientClass = customBg ? '' : `bg-gradient-to-br ${defaultBg.gradient}`;
-  const accentClass = customBg ? 'text-white' : defaultBg.accent;
+  const gradientClass = (pendingBg || customBg) ? '' : `bg-gradient-to-br ${defaultBg.gradient}`;
+  const accentClass = (pendingBg || customBg) ? 'text-white' : defaultBg.accent;
 
   const handleDownload = async (e) => {
     e.stopPropagation();
@@ -645,19 +598,23 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                     <Image className="w-4 h-4" />
                     {uploading ? 'Uploading...' : 'Change Background'}
                   </button>
-                  {customBg && (
+                  {(customBg || pendingBg) && (
                     <button
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         e.nativeEvent.stopImmediatePropagation();
-                        setCustomBg('');
-                        localStorage.removeItem('kjb-daily-verse-bg');
-                        // Reset text color and opacity to defaults
-                        handleTextColorChange('#ffffff');
-                        handleTextOpacityChange(0.95);
-                        handleFontFamilyChange('serif');
-                        window.dispatchEvent(new Event('storage'));
+                        if (pendingBg) {
+                          setPendingBg(null);
+                        } else {
+                          setCustomBg('');
+                          localStorage.removeItem('kjb-daily-verse-bg');
+                          // Reset text color and opacity to defaults
+                          handleTextColorChange('#ffffff');
+                          handleTextOpacityChange(0.95);
+                          handleFontFamilyChange('serif');
+                          window.dispatchEvent(new Event('storage'));
+                        }
                         setShowMenu(false);
                       }}
                       className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
@@ -976,8 +933,123 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           onCancel={() => {
             setCropImage(null);
             setCropImageForNotif(false);
+            setPendingBg(null);
           }}
         />
+      )}
+
+      {/* Save/Cancel buttons for pending background */}
+      {pendingBg && !cropImage && (
+        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-30 flex gap-2">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+              setPendingBg(null);
+            }}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+            }}
+            onTouchStart={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+              setPendingBg(null);
+            }}
+            className="px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors shadow-lg"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={async (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+              try {
+                // Clear any existing images first to free up space
+                try {
+                  localStorage.removeItem('kjb-daily-verse-bg');
+                  localStorage.removeItem('kjb-notif-image');
+                } catch {}
+                try {
+                  const cache = await caches.open('kjb-notif-images');
+                  await cache.delete('/notif-image');
+                } catch {}
+                
+                // Save new background
+                try {
+                  localStorage.setItem('kjb-daily-verse-bg', pendingBg);
+                } catch (storageErr) {
+                  if (storageErr.name === 'QuotaExceededError') {
+                    alert('Storage full! Please clear browser data or try a smaller image.');
+                    console.error('localStorage quota exceeded:', storageErr);
+                    return;
+                  }
+                  throw storageErr;
+                }
+                
+                setCustomBg(pendingBg);
+                setPendingBg(null);
+                setUploadingComplete(true);
+                
+                // Auto-detect if background is light or dark and adjust text color
+                const img = new Image();
+                img.onload = () => {
+                  const canvas = document.createElement('canvas');
+                  canvas.width = img.width;
+                  canvas.height = img.height;
+                  const ctx = canvas.getContext('2d');
+                  ctx.drawImage(img, 0, 0);
+                  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                  const data = imageData.data;
+                  let r = 0, g = 0, b = 0;
+                  for (let i = 0; i < data.length; i += 4) {
+                    r += data[i];
+                    g += data[i + 1];
+                    b += data[i + 2];
+                  }
+                  const avg = (r + g + b) / (3 * (data.length / 4));
+                  if (avg > 128) {
+                    handleTextColorChange('#1a1a1a');
+                  } else {
+                    handleTextColorChange('#ffffff');
+                  }
+                };
+                img.src = pendingBg;
+                
+                window.dispatchEvent(new Event('storage'));
+              } catch (err) {
+                console.error('Failed to save background:', err);
+              }
+            }}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+            }}
+            onTouchStart={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+            }}
+            className="px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity shadow-lg"
+          >
+            Save Image
+          </button>
+        </div>
       )}
 
       {/* Lightbox Modal */}
