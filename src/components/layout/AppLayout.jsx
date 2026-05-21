@@ -409,7 +409,7 @@ function BottomNav({ pathname, navigate }) {
   }
 
   return (
-    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-[70] bg-card/95 backdrop-blur-md border-t border-border safe-area-pb">
+    <nav className="sm:hidden left-0 right-0 z-[70] bg-card/95 backdrop-blur-md border-t border-border safe-area-pb">
       <div className="w-full">
         {/* Primary row: 5 nav items + chevron toggle button */}
         <div className="flex items-stretch">
