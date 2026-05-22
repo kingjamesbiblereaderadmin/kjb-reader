@@ -158,15 +158,20 @@ export async function subscribeToPush() {
       console.log('[Push] Already subscribed');
       return sub;
     }
-    // Fetch VAPID public key from backend
-    const res = await fetch('/api/functions/getVapidPublicKey');
-    if (!res.ok) {
-      console.error('[Push] Failed to fetch VAPID key');
-      return null;
+    // Fetch VAPID public key from backend via SDK
+    const { base44 } = await import('@/api/base44Client');
+    const res = await base44.functions.invoke('getVapidPublicKey', {});
+    // SDK returns axios-like response; key may be in .data as string or object
+    let vapidPublic = '';
+    if (typeof res?.data === 'string') {
+      vapidPublic = res.data.trim();
+    } else if (res?.data?.publicKey) {
+      vapidPublic = String(res.data.publicKey).trim();
+    } else if (res?.data) {
+      vapidPublic = String(res.data).trim();
     }
-    const vapidPublic = (await res.text()).trim();
-    if (!vapidPublic) {
-      console.error('[Push] Empty VAPID key');
+    if (!vapidPublic || vapidPublic.startsWith('{')) {
+      console.error('[Push] Empty or invalid VAPID key:', vapidPublic);
       return null;
     }
     sub = await reg.pushManager.subscribe({
