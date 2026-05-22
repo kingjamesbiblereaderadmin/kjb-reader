@@ -75,20 +75,11 @@ export async function requestNotificationPermission() {
         console.log('[Notif] Registering service worker...');
         reg = await navigator.serviceWorker.register('/sw.js');
       }
-      
+
       // On Android, SW notifications work even without Notification API permission
       if (!hasPermission) {
         localStorage.setItem(NOTIF_KEY, 'true');
         hasPermission = true;
-      }
-      
-      // Subscribe to web push so the server can deliver notifications when app is closed
-      if (hasPermission) {
-        try {
-          await subscribeToPush();
-        } catch (err) {
-          console.warn('[Notif] Push subscription failed:', err.message);
-        }
       }
     } catch (err) {
       console.error('[Notif] Service worker registration failed:', err.message);
@@ -145,89 +136,10 @@ async function saveNextFireTime(verse) {
 
 const APP_LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
 
-// Subscribe device to web push (called when notifications are enabled)
-export async function subscribeToPush() {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-    console.warn('[Push] Push not supported');
-    return null;
-  }
-  try {
-    const reg = await navigator.serviceWorker.ready;
-    let sub = await reg.pushManager.getSubscription();
-    if (sub) {
-      console.log('[Push] Already subscribed');
-      return sub;
-    }
-    // Fetch VAPID public key from backend via SDK
-    const { base44 } = await import('@/api/base44Client');
-    const res = await base44.functions.invoke('getVapidPublicKey', {});
-    // SDK returns axios-like response; key may be in .data as string or object
-    let vapidPublic = '';
-    if (typeof res?.data === 'string') {
-      vapidPublic = res.data.trim();
-    } else if (res?.data?.publicKey) {
-      vapidPublic = String(res.data.publicKey).trim();
-    } else if (res?.data) {
-      vapidPublic = String(res.data).trim();
-    }
-    if (!vapidPublic || vapidPublic.startsWith('{')) {
-      console.error('[Push] Empty or invalid VAPID key:', vapidPublic);
-      return null;
-    }
-    sub = await reg.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(vapidPublic),
-    });
-    // Save to server with the user's preferred UTC hour
-    await savePushSubscriptionToServer(sub);
-    return sub;
-  } catch (err) {
-    console.error('[Push] Subscribe failed:', err);
-    return null;
-  }
-}
-
-// Save subscription + preferred hour (converted to UTC) to the server
-async function savePushSubscriptionToServer(sub) {
-  try {
-    const [hh] = getNotificationTime().split(':').map(Number);
-    // Convert local hour -> UTC hour
-    const now = new Date();
-    const local = new Date(now);
-    local.setHours(hh, 0, 0, 0);
-    const preferred_hour_utc = local.getUTCHours();
-
-    const { base44 } = await import('@/api/base44Client');
-    await base44.functions.invoke('savePushSubscription', {
-      endpoint: sub.endpoint,
-      keys: sub.toJSON().keys,
-      preferred_hour_utc,
-    });
-    console.log('[Push] Subscription saved (UTC hour:', preferred_hour_utc, ')');
-  } catch (err) {
-    console.error('[Push] Failed to save subscription:', err);
-  }
-}
-
-// Update the preferred hour on the server (call when user changes notification time)
+// In-app notifications only — no server push.
+// updatePushPreferredHour kept as a no-op for backward compatibility with Settings page.
 export async function updatePushPreferredHour() {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-  try {
-    const reg = await navigator.serviceWorker.ready;
-    const sub = await reg.pushManager.getSubscription();
-    if (sub) await savePushSubscriptionToServer(sub);
-  } catch (err) {
-    console.error('[Push] Failed to update preferred hour:', err);
-  }
-}
-
-function urlBase64ToUint8Array(base64String) {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const rawData = atob(base64);
-  const arr = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; ++i) arr[i] = rawData.charCodeAt(i);
-  return arr;
+  // No-op: in-app notifications use the in-page timer (armed in scheduleDailyNotification).
 }
 
 // Show a notification via SW (required on Android PWA)
@@ -523,10 +435,10 @@ function checkOverdueNotification(verse) {
 export function scheduleDailyNotification(verse) {
   if (!getNotificationsEnabled()) return;
   if (!('serviceWorker' in navigator)) return;
-  // Server-side push (sendDailyNotifications cron) is the sole delivery mechanism.
-  // We only persist the next-fire timestamp for the recovery-on-open check;
-  // no in-page timer is armed to avoid duplicate notifications.
+  // In-app notifications only: persist next-fire time, arm the in-page timer,
+  // and try periodicSync (Chrome Android PWA) as a best-effort wake-up.
   saveNextFireTime(verse);
+  armTimer(verse);
   registerPeriodicSync();
 }
 
