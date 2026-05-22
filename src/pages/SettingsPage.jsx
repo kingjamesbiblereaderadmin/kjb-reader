@@ -916,20 +916,6 @@ export default function SettingsPage() {
                 Test
               </button>
             </div>
-            
-            {/* Important notice about background notifications */}
-            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3">
-              <p className="font-sans text-xs text-amber-800 dark:text-amber-200 font-medium mb-1">
-                📱 Important: Background Notifications
-              </p>
-              <p className="font-sans text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
-                For notifications to fire when the app is <strong>closed</strong>, you need to keep the app installed and allow background refresh. 
-                Most browsers only support notifications when the app is open or in the background tab.
-              </p>
-              <p className="font-sans text-xs text-amber-700 dark:text-amber-300 mt-2">
-                <strong>Workaround:</strong> Open the app once daily — it will show the verse immediately if you missed it at the scheduled time.
-              </p>
-            </div>
             </div>
             )}
 
