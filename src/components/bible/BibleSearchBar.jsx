@@ -118,14 +118,15 @@ export default function BibleSearchBar({ onClose }) {
   }, [query]);
 
   const goTo = (abbr, chapter, verse, verseEnd) => {
+    // Keep verseEnd in localStorage so the reader can enter range/filter mode.
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null, verseEnd: verseEnd || null })); } catch {}
     setQuery('');
     setSuggestions([]);
     setOpen(false);
     onClose?.();
-    navigate('/read');
-    // If already on /read, the reader is mounted and won't re-read position on
-    // its own — notify it to load the requested passage.
+    const url = verse ? `/read?book=${abbr}&chapter=${chapter}&verse=${verse}` : `/read?book=${abbr}&chapter=${chapter}`;
+    navigate(url);
+    // If already on /read with the same URL, notify the mounted reader to load it.
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   };
 

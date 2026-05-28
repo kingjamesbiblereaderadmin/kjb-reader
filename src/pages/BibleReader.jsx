@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2 } from 'lucide-react';
+import { buildVerseUrl } from '@/lib/formatDailyVerse';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText } from '@/lib/bibleApi';
 import { getBibleData, forceReloadBibleData } from '@/lib/bibleCache';
@@ -220,6 +221,10 @@ export default function BibleReader() {
       lines += ` ${colophon}`;
     }
     lines += `" — ${reference} (KJB)`;
+    // Append a shareable deep-link to the first selected verse / chapter.
+    const firstVerse = selectedVersesList[0]?.verse || null;
+    const url = buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: firstVerse });
+    if (url) lines += `\n\n${url}`;
     
     console.log('[BibleReader] Copying to clipboard:', lines.substring(0, 100) + '...');
     
@@ -253,6 +258,33 @@ export default function BibleReader() {
     setFilterMode(true);
     setSelectMode(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Share the current chapter (or selected verses) with a deep-link URL.
+  const [shareFeedback, setShareFeedback] = useState(false);
+  const handleShareChapter = async () => {
+    const hasSelection = selectedVerses.size > 0;
+    const firstVerse = hasSelection ? Math.min(...selectedVerses) : null;
+    const ref = hasSelection
+      ? `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
+      : `${book.shortName} ${pos.chapter}`;
+    const url = buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: firstVerse });
+    const shareText = `${ref} (KJB)\n${url}`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: `${ref} — KJB Reader`, text: `${ref} (KJB)`, url });
+        return;
+      }
+    } catch (err) {
+      if (err?.name === 'AbortError') return; // user cancelled
+    }
+    // Fallback: copy link + reference to clipboard
+    try {
+      await navigator.clipboard.writeText(shareText);
+      setShareFeedback(true);
+      setTimeout(() => setShareFeedback(false), 1800);
+    } catch {}
   };
 
   const topRef = useRef(null);
@@ -376,8 +408,21 @@ export default function BibleReader() {
     if (urlBookObj && urlChapter) {
       const chapterNum = parseInt(urlChapter, 10);
       const verseNum = urlParams.get('verse') ? parseInt(urlParams.get('verse'), 10) : null;
-      setFilterMode(false);
-      setSelectedVerses(new Set());
+      // A verse range (verseEnd) may be carried in localStorage for filter mode.
+      let verseEnd = null;
+      try {
+        const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        if (p.abbr === urlBookObj.abbr && p.chapter === chapterNum && p.verseEnd) verseEnd = p.verseEnd;
+      } catch {}
+      if (verseNum && verseEnd && verseEnd > verseNum) {
+        const range = new Set();
+        for (let v = verseNum; v <= verseEnd; v++) range.add(v);
+        setSelectedVerses(range);
+        setFilterMode(true);
+      } else {
+        setFilterMode(false);
+        setSelectedVerses(new Set());
+      }
       setPos({ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum });
       setHighlightVerse(verseNum || null);
       loadChapter(urlBookObj.abbr, chapterNum, verseNum);
@@ -968,6 +1013,15 @@ export default function BibleReader() {
               >
                 <CheckSquare className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
               </button>
+              {/* Share chapter / selected verses */}
+              <button
+                onClick={handleShareChapter}
+                onTouchEnd={(e) => { e.preventDefault(); handleShareChapter(); }}
+                title={shareFeedback ? 'Link copied!' : 'Share this chapter'}
+                className="flex items-center justify-center p-2.5 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation min-h-[44px] min-w-[44px] whitespace-nowrap flex-shrink-0"
+              >
+                <Share2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
+              </button>
 
               {/* Prev */}
               <button
@@ -1223,6 +1277,12 @@ export default function BibleReader() {
               className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
             >
               <Copy className="w-3 h-3" /> {copyFeedback ? 'Copied!' : 'Copy'}
+            </button>
+            <button
+              onClick={handleShareChapter}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-secondary text-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+            >
+              <Share2 className="w-3 h-3" /> {shareFeedback ? 'Copied!' : 'Share'}
             </button>
             <button
               onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); }}
