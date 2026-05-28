@@ -4,7 +4,7 @@ import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { getDailyVerse } from '@/lib/dailyVerse';
-import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications, initNotifications } from '@/lib/notifications';
+import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 
 const READ_LINK = { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', color: 'bg-primary text-primary-foreground' };
@@ -99,9 +99,8 @@ export default function HomePage() {
     setNotifEnabled(getNotificationsEnabled());
     
     registerSW();
-    if (getNotificationsEnabled()) {
-      initNotifications(verse);
-    }
+    // Notification init now runs app-wide in AppLayout, so we don't re-init here
+    // (avoids clearing/re-arming the poll timer on every HomePage mount).
 
     const handleStorageChange = () => {
       const enabled = getNotificationsEnabled();

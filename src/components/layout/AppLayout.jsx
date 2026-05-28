@@ -8,7 +8,7 @@ import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import ScrollToTop from '@/components/ScrollToTop';
 import AutoUpdateHandler from '@/components/AutoUpdateHandler';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
-import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, showLocalNotification } from '@/lib/notifications';
+import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, showLocalNotification, initNotifications } from '@/lib/notifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { getBibleData, isBibleCached, initPeriodicCacheRefresh, downloadBibleForOffline, refreshCacheIfDue } from '@/lib/bibleCache';
 import { toast } from 'sonner';
@@ -150,6 +150,12 @@ export default function AppLayout() {
 
     // Initialize periodic cache refresh (checks every 24 hours when user opens app)
     initPeriodicCacheRefresh();
+
+    // Initialize daily-verse notifications app-wide (not just on HomePage), so the
+    // in-page poll is armed regardless of which page the user is on.
+    if (getNotificationsEnabled()) {
+      initNotifications(getDailyVerse());
+    }
 
     // Show prompt once per session, after a delay
     const alreadyInstalled = window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
