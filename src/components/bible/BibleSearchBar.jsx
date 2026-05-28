@@ -124,6 +124,11 @@ export default function BibleSearchBar({ onClose }) {
     setOpen(false);
     onClose?.();
     navigate('/read');
+    // If already on /read, the reader is mounted and won't re-read position on
+    // its own — notify it to load the requested passage.
+    setTimeout(() => {
+      try { window.dispatchEvent(new Event('kjb-navigate')); } catch {}
+    }, 0);
   };
 
   const goKeyword = (kw) => {
