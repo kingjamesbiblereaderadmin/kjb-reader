@@ -45,7 +45,9 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     : `"${textWithItalics}" — ${verseRef} (KJB)`;
 
   const highlightBg = highlightColors.find(c => c.name === highlightColor)?.bg;
-  const isHighlighted = showHighlight;
+  // Show the overlay when the user manually highlights OR when the verse is the
+  // navigation target (the `highlight` prop, e.g. from daily verse / search).
+  const isHighlighted = showHighlight || highlight;
 
   const handleCopy = async (e) => {
     e.stopPropagation();
