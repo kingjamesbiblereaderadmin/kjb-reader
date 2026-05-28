@@ -4,6 +4,7 @@ import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff
 import html2canvas from 'html2canvas';
 import ImageCropper from './ImageCropper';
 import { getNotificationsEnabled, requestNotificationPermission, disableNotifications, scheduleDailyNotification } from '@/lib/notifications';
+import { formatDailyVerseForCopy } from '@/lib/formatDailyVerse';
 
 const VERSE_BACKGROUNDS = [
   { gradient: 'from-blue-600 to-purple-600', accent: 'text-blue-200' },
@@ -290,7 +291,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       if (e && navigator.share && navigator.canShare({ files: [new File([blob], 'verse.png', { type: 'image/png' })] })) {
         await navigator.share({
           title: 'Daily Verse - KJB Reader',
-          text: `"${verse.text}" — ${verse.ref}`,
+          text: formatDailyVerseForCopy(verse),
           files: [new File([blob], `daily-verse-${dateStr}.png`, { type: 'image/png' })],
         });
       } else {
@@ -303,8 +304,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     } catch (err) {
       console.error('Image share failed:', err);
       // Fallback: copy text to clipboard
-      const shareText = `"${verse.text}" — ${verse.ref} (KJB)`;
-      await navigator.clipboard.writeText(shareText);
+      await navigator.clipboard.writeText(formatDailyVerseForCopy(verse));
       alert('Verse copied to clipboard!');
     } finally {
       setTimeout(() => {
@@ -317,8 +317,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const handleCopyVerse = async (e) => {
     e.stopPropagation();
     try {
-      const verseText = `"${verse.text}" — ${verse.ref} (KJB)`;
-      await navigator.clipboard.writeText(verseText);
+      await navigator.clipboard.writeText(formatDailyVerseForCopy(verse));
       alert('Verse copied to clipboard!');
       setShowMenu(false);
     } catch (err) {
@@ -887,7 +886,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       />
       
       {showVersePanel ? (
-        <div className="bg-white/25 backdrop-blur-sm rounded-xl px-6 py-4 mb-5 shadow-none">
+        <div className="bg-white/25 backdrop-blur-sm rounded-xl px-6 py-4 mb-5 shadow-none text-center">
           <p 
             className={`font-sans text-sm font-bold tracking-wide uppercase mb-3 ${accentClass}`}
             style={{ opacity: textOpacity, color: textColor, fontFamily }}
@@ -1114,7 +1113,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           }}
         >
           <div
-            className="relative max-w-4xl w-full mx-4 p-8 md:p-12 rounded-2xl shadow-2xl"
+            className={`relative max-w-4xl w-full mx-4 p-8 md:p-12 rounded-2xl shadow-2xl text-center ${gradientClass}`}
             style={bgStyle}
             onClick={(e) => {
               e.preventDefault();

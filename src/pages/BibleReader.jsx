@@ -345,18 +345,60 @@ export default function BibleReader() {
     }
   }, []);
 
-  // Scroll to verse when highlight is set
+  // Scroll to verse when highlight is set; otherwise restore last scroll
+  // position for this chapter (so switching pages and back resumes reading).
   useEffect(() => {
-    if (!loading && highlightVerse) {
+    if (loading) return;
+    if (highlightVerse) {
       const timer = setTimeout(() => {
         const el = document.getElementById(`v${highlightVerse}`);
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [verses, loading, highlightVerse]);
+    // No highlight: restore saved scroll offset for this chapter
+    const timer = setTimeout(() => {
+      try {
+        const key = `kjb-scroll-${pos.abbr}-${pos.chapter}`;
+        const saved = parseInt(sessionStorage.getItem(key) || '0', 10);
+        if (saved > 0) window.scrollTo({ top: saved });
+      } catch {}
+    }, 80);
+    return () => clearTimeout(timer);
+  }, [verses, loading, highlightVerse, pos.abbr, pos.chapter]);
+
+  // Continuously save scroll position for the current chapter
+  useEffect(() => {
+    if (loading || isViewingTitlePage) return;
+    const key = `kjb-scroll-${pos.abbr}-${pos.chapter}`;
+    let raf = null;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = null;
+        try { sessionStorage.setItem(key, String(Math.round(window.scrollY))); } catch {}
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [loading, isViewingTitlePage, pos.abbr, pos.chapter]);
+
+  // Keep zoom + font in sync if changed elsewhere (e.g. Settings) after reload
+  useEffect(() => {
+    const sync = () => {
+      try { setZoomLevel(parseInt(localStorage.getItem('kjb-zoom') || '100')); } catch {}
+      try { setFontFamily(localStorage.getItem('kjb-reader-font-family') || 'serif'); } catch {}
+    };
+    window.addEventListener('storage', sync);
+    window.addEventListener('focus', sync);
+    return () => {
+      window.removeEventListener('storage', sync);
+      window.removeEventListener('focus', sync);
+    };
+  }, []);
 
   // Auto-hide highlights after 5 seconds
   useEffect(() => {
@@ -512,7 +554,7 @@ export default function BibleReader() {
 
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
-        <div ref={topRef} className="sticky top-[56px] sm:top-[72px] z-[100] bg-background/95 backdrop-blur border-b border-border pb-1 mb-2">
+        <div ref={topRef} className="sticky top-[56px] sm:top-[72px] z-[100] bg-background border-b border-border pb-1 mb-2">
           <div className="flex flex-wrap items-center gap-1.5 pt-1">
 
             {/* Book selector */}
@@ -1126,7 +1168,7 @@ export default function BibleReader() {
 
       {/* Bottom nav */}
       {!loading && !error && (
-        <div className="flex justify-between gap-2 mt-6 pt-6 border-t border-border pb-32 sm:pb-8">
+        <div className="flex justify-between gap-2 mt-6 pt-6 border-t border-border pb-24 sm:pb-6">
           <button
             onClick={goPrev}
             disabled={isFirstChapterFirstBook}

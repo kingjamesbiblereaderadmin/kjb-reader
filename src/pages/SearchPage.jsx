@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked, ChevronDown } from 'lucide-react';
 import { getBibleData } from '@/lib/bibleCache';
 import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
+import { parseReference } from '@/lib/parseReference';
 
 const OT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'OT' || BIBLE_BOOKS.indexOf(b) < 39).map(b => b.apiName));
 const NT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'NT' || BIBLE_BOOKS.indexOf(b) >= 39).map(b => b.apiName));
@@ -86,7 +87,6 @@ export default function SearchPage() {
     setSelected(new Set());
     setSelectMode(false);
     setNumberedBookFilter(null);
-    setSelectedBooks(new Set());
 
     try {
       const bible = await getBibleData();
@@ -106,20 +106,13 @@ export default function SearchPage() {
       if (isQuotedPhrase && !caseSensitive) setCaseSensitive(true);
       
       const kwLower = searchTerm.toLowerCase();
-      
-      // Check if query is a verse range (e.g., "Romans 1:20-22")
-      const rangeMatch = kwLower.match(/^([a-z0-9\s]+)\s+(\d+):(\d+)-(\d+)$/);
-      if (rangeMatch) {
-        const bookStr = rangeMatch[1].trim();
-        const ch = parseInt(rangeMatch[2]);
-        const v1 = parseInt(rangeMatch[3]);
-        const v2 = parseInt(rangeMatch[4]);
-        const matchingBook = BIBLE_BOOKS.find(b => 
-          b.shortName.toLowerCase().includes(bookStr) ||
-          b.abbr.toLowerCase() === bookStr
-        );
-        if (matchingBook && ch >= 1 && ch <= matchingBook.chapters && v1 <= v2) {
-          goToVerse(matchingBook.abbr, ch, v1, v2);
+
+      // Check if the query is a scripture reference (by name OR abbreviation),
+      // e.g. "jn 3:16", "gen 1", "1 cor 13:4-7", "psalm 23". If so, jump straight to it.
+      if (!isQuotedPhrase) {
+        const ref = parseReference(searchTerm);
+        if (ref) {
+          goToVerse(ref.abbr, ref.chapter, ref.verse, ref.verseEnd);
           setLoading(false);
           return;
         }
@@ -173,7 +166,8 @@ export default function SearchPage() {
           // Search in verses
           for (const verseObj of processedVerses) {
             let found = false;
-            const searchText = verseObj.text;
+            // Strip bracket markers so word boundaries match real words (e.g. [sin] -> sin)
+            const searchText = verseObj.text.replace(/[[\]]/g, '');
             const searchTextLower = searchText.toLowerCase();
             
             if (exactMatch) {
@@ -185,7 +179,7 @@ export default function SearchPage() {
             } else if (effectiveCaseSensitive) {
               if (wholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
+                const wordRegex = new RegExp(`(^|[^A-Za-z'])${escapedTerm}($|[^A-Za-z'])`);
                 found = wordRegex.test(searchText);
               } else {
                 found = searchText.includes(searchTerm);
@@ -193,8 +187,8 @@ export default function SearchPage() {
             } else {
               if (wholeWord) {
                 const escapedTerm = searchTermLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
-                found = wordRegex.test(searchTextLower);
+                const wordRegex = new RegExp(`(^|[^a-z'])${escapedTerm}($|[^a-z'])`, 'i');
+                found = wordRegex.test(searchText);
               } else {
                 found = searchTextLower.includes(searchTermLower);
               }
@@ -267,7 +261,16 @@ export default function SearchPage() {
       setResults([]);
     }
     setLoading(false);
-  }, [testament, wholeWord, caseSensitive, exactMatch]);
+  }, [testament, wholeWord, caseSensitive, exactMatch, selectedBooks]);
+
+  // Re-run the search whenever filters change (after an initial search has been done)
+  useEffect(() => {
+    const q = (getQueryFromUrl() || query).trim();
+    if (searched && q.length >= 2) {
+      runSearch(q);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [testament, wholeWord, caseSensitive, exactMatch, selectedBooks]);
 
   // Debounced search for typing
   useEffect(() => {
@@ -316,27 +319,24 @@ export default function SearchPage() {
   const selectAll = () => setSelected(new Set(results.map((_, i) => i)));
   const clearSelection = () => { setSelected(new Set()); setSelectMode(false); };
 
+  // Format selected verses — each verse on its own line with its own reference.
+  // Brackets are converted to nothing (plain text) for clean copy/export.
   const formatVerses = (indices) => {
     const sorted = [...indices].sort((a, b) => a - b);
-    const verses = sorted.map(i => {
+    const lines = sorted.map(i => {
       const r = results[i];
-      const text = r.text.replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
-      return text;
+      const text = r.text
+        .replace(/¶\s*/g, '')
+        .replace(/^<<[^>]*>>\s*/, '')
+        .replace(/\[([^\]]+)\]/g, '$1');
+      const bookEntry = BIBLE_BOOKS.find(b => b.apiName === r.book);
+      const bookName = bookEntry ? bookEntry.shortName : r.book;
+      const ref = (r.isColophon || r.verse === 0)
+        ? `${bookName} ${r.chapter} colophon`
+        : `${bookName} ${r.chapter}:${r.verse}`;
+      return `"${text}" — ${ref} (KJB)`;
     });
-    const first = results[sorted[0]];
-    const last = results[sorted[sorted.length - 1]];
-    const firstBookEntry = BIBLE_BOOKS.find(b => b.apiName === first.book);
-    const firstBookName = firstBookEntry ? firstBookEntry.shortName : first.book;
-    
-    // Handle colophon results
-    if (first.isColophon) {
-      return `"${verses.join(' ')}" — ${firstBookName} ${first.chapter} colophon (KJB)`;
-    }
-    
-    const verseRange = sorted.length > 1
-      ? `${firstBookName} ${first.chapter}:${first.verse}-${last.verse}`
-      : `${firstBookName} ${first.chapter}:${first.verse}`;
-    return `"${verses.join(' ')}" — ${verseRange} (KJB)`;
+    return lines.join('\n\n');
   };
 
   const handleCopySelected = async () => {
@@ -448,19 +448,32 @@ export default function SearchPage() {
         </div>
       </div>
 
-      {/* Book filter panel */}
+      {/* Book filter panel — modal with tap-out to dismiss */}
       {showBookFilter && (
-        <div className="mb-5 p-4 rounded-xl bg-secondary/50 border border-border">
-          <div className="flex items-center justify-between mb-3">
-            <p className="font-sans text-sm font-semibold text-foreground">Select Books</p>
-            <div className="flex gap-2">
+        <div
+          className="fixed inset-0 z-[60] bg-black/40 flex items-end sm:items-center justify-center p-0 sm:p-4"
+          onClick={() => setShowBookFilter(false)}
+        >
+          <div
+            className="w-full sm:max-w-lg max-h-[80vh] flex flex-col bg-card border border-border rounded-t-2xl sm:rounded-2xl shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <p className="font-sans text-sm font-semibold text-foreground">
+                Select Books {selectedBooks.size > 0 && `(${selectedBooks.size})`}
+              </p>
+              <button onClick={() => setShowBookFilter(false)} className="p-1 rounded-lg hover:bg-accent/20">
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+            <div className="flex gap-2 p-4 pb-2">
               <button
                 onClick={() => {
                   if (testament === 'ot') setSelectedBooks(new Set(OLD_TESTAMENT.map(b => b.abbr)));
                   else if (testament === 'nt') setSelectedBooks(new Set(NEW_TESTAMENT.map(b => b.abbr)));
                   else setSelectedBooks(new Set(BIBLE_BOOKS.map(b => b.abbr)));
                 }}
-                className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+                className="px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
               >
                 Select All
               </button>
@@ -471,28 +484,36 @@ export default function SearchPage() {
                 Clear
               </button>
             </div>
-          </div>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 max-h-64 overflow-y-auto">
-            {(testament === 'ot' ? OLD_TESTAMENT : testament === 'nt' ? NEW_TESTAMENT : BIBLE_BOOKS).map(book => (
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 px-4 overflow-y-auto flex-1">
+              {(testament === 'ot' ? OLD_TESTAMENT : testament === 'nt' ? NEW_TESTAMENT : BIBLE_BOOKS).map(book => (
+                <button
+                  key={book.abbr}
+                  onClick={() => {
+                    setSelectedBooks(prev => {
+                      const next = new Set(prev);
+                      next.has(book.abbr) ? next.delete(book.abbr) : next.add(book.abbr);
+                      return next;
+                    });
+                  }}
+                  className={`px-2 py-1.5 rounded-lg font-sans text-xs font-medium transition-colors text-left truncate ${
+                    selectedBooks.has(book.abbr)
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-secondary text-foreground hover:bg-accent/20'
+                  }`}
+                  title={book.shortName}
+                >
+                  {book.shortName.length > 12 ? book.abbr : book.shortName}
+                </button>
+              ))}
+            </div>
+            <div className="p-4 border-t border-border">
               <button
-                key={book.abbr}
-                onClick={() => {
-                  setSelectedBooks(prev => {
-                    const next = new Set(prev);
-                    next.has(book.abbr) ? next.delete(book.abbr) : next.add(book.abbr);
-                    return next;
-                  });
-                }}
-                className={`px-2 py-1.5 rounded-lg font-sans text-xs font-medium transition-colors text-left truncate ${
-                  selectedBooks.has(book.abbr)
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-card text-foreground hover:bg-accent/20'
-                }`}
-                title={book.shortName}
+                onClick={() => setShowBookFilter(false)}
+                className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
               >
-                {book.shortName.length > 12 ? book.abbr : book.shortName}
+                Go {selectedBooks.size > 0 ? `(${selectedBooks.size} book${selectedBooks.size !== 1 ? 's' : ''})` : '— All Books'}
               </button>
-            ))}
+            </div>
           </div>
         </div>
       )}
@@ -606,9 +627,20 @@ export default function SearchPage() {
             {results.map((r, i) => {
               const isSelected = selected.has(i);
               const isColophon = r.isColophon || r.verse === 0;
+              // Testament separator header
+              const isNT = NT_BOOKS.has(r.book);
+              const prevIsNT = i > 0 ? NT_BOOKS.has(results[i - 1].book) : null;
+              const showOTHeader = i === 0 && !isNT;
+              const showNTHeader = isNT && (i === 0 || !prevIsNT);
               return (
+              <React.Fragment key={`frag-${i}`}>
+                {showOTHeader && (
+                  <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground pt-2 pb-1 border-b border-border mb-1">Old Testament</p>
+                )}
+                {showNTHeader && (
+                  <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground pt-3 pb-1 border-b border-border mb-1">New Testament</p>
+                )}
                 <div
-                  key={i}
                   onClick={() => {
                     if (selectMode) {
                       toggleSelect(i);
@@ -647,6 +679,7 @@ export default function SearchPage() {
                     </p>
                   </div>
                 </div>
+              </React.Fragment>
               );
             })}
           </div>

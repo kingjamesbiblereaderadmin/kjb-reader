@@ -55,8 +55,9 @@ export async function getRandomVerseFromBible() {
 
     const abbr = bookData ? bookData.abbr : bookName.slice(0, 3).toUpperCase();
 
+    // Keep [bracketed] italics markers so the card can render italics and
+    // copy/share can include the brackets. Only strip pilcrows and titles.
     const cleanText = verseObj.text
-      .replace(/\[([^\]]+)\]/g, '$1')
       .replace(/¶\s*/g, '')
       .replace(/^<<[^>]*>>\s*/, '');
 
@@ -82,8 +83,7 @@ export function getDailyVerse() {
   const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
   const idx = seed % FALLBACK_POOL.length;
   const v = FALLBACK_POOL[idx];
-  const cleanText = v.text.replace(/\[([^\]]+)\]/g, '$1');
-  return { ...v, text: cleanText, ref: `${v.book} ${v.chapter}:${v.verse}` };
+  return { ...v, ref: `${v.book} ${v.chapter}:${v.verse}` };
 }
 
 // Synchronous fallback used for initial render / offline first load
