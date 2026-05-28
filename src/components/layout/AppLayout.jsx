@@ -191,13 +191,13 @@ export default function AppLayout() {
           </Link>
 
           {/* Search - expands to fill space, capped on desktop */}
-          <div className="flex-1 min-w-0 max-w-[200px] sm:max-w-xs pointer-events-auto">
+          <div className="flex-1 min-w-0 sm:max-w-xs pointer-events-auto">
             <BibleSearchBar onClose={() => setMenuOpen(false)} />
           </div>
 
           {/* Actions - responsive button sizes with visible square touch targets */}
-          <div className="flex items-center gap-1 sm:gap-2 pointer-events-none shrink-0">
-            <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
+          <div className="flex items-center gap-0.5 sm:gap-2 pointer-events-none shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
               onClick={async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -242,7 +242,7 @@ export default function AppLayout() {
             >
               <RotateCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             </div>
-            <div className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
+            <div className="w-9 h-9 sm:w-10 sm:h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme(); }}
               style={{ touchAction: 'manipulation' }}
               role="button"
@@ -250,7 +250,7 @@ export default function AppLayout() {
             >
               {mode === 'auto' ? <SunMoon className="w-4 h-4 transition-transform duration-200" /> : isDark ? <Moon className="w-4 h-4 transition-transform duration-200" /> : <Sun className="w-4 h-4 transition-transform duration-200" />}
             </div>
-            <div data-kjb-menu-toggle className="w-10 h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
+            <div data-kjb-menu-toggle className="w-9 h-9 sm:w-10 sm:h-10 pointer-events-auto shrink-0 rounded-lg bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
               style={{ touchAction: 'manipulation' }}
               role="button"
@@ -338,7 +338,7 @@ function DesktopFooter({ navigate, setMenuOpen }) {
     });
   };
   return (
-      <footer className="hidden sm:block border-t border-border bg-card/80 py-3 mt-8">
+      <footer className="hidden sm:block border-t border-border bg-card/80 py-3 mt-4">
         <div className="max-w-5xl mx-auto px-4">
           <div className="flex justify-center mb-2">
             <button

@@ -215,11 +215,11 @@ export default function HomePage() {
 
 
       {/* Quick links */}
-      {/* Full-width Read the Bible */}
+      {/* Read the Bible — full width on mobile, shares a row on desktop */}
       <Link
         to={READ_LINK.path}
         onClick={() => window.scrollTo({ top: 0 })}
-        className={`flex items-center gap-4 p-5 rounded-2xl shadow-sm hover:opacity-90 transition-opacity mb-4 ${READ_LINK.color}`}
+        className={`flex items-center gap-4 p-5 rounded-2xl shadow-sm hover:opacity-90 transition-opacity mb-4 sm:hidden ${READ_LINK.color}`}
       >
         <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-white/20">
           <BookOpen className="w-5 h-5" />
@@ -229,7 +229,21 @@ export default function HomePage() {
           <p className="font-sans text-xs opacity-75 mt-0.5">{READ_LINK.desc}</p>
         </div>
       </Link>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+        {/* Read the Bible inside the grid on desktop only, so rows stay even */}
+        <Link
+          to={READ_LINK.path}
+          onClick={() => window.scrollTo({ top: 0 })}
+          className={`hidden sm:flex items-center gap-4 p-5 rounded-2xl shadow-sm hover:opacity-90 transition-opacity ${READ_LINK.color}`}
+        >
+          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-white/20">
+            <BookOpen className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="font-serif font-bold text-lg leading-tight">{READ_LINK.label}</p>
+            <p className="font-sans text-xs opacity-75 mt-0.5">{READ_LINK.desc}</p>
+          </div>
+        </Link>
         {QUICK_LINKS.map(link => {
           if (link.label === '__RANDOM__') {
             return (
