@@ -915,7 +915,7 @@ export default function SettingsPage() {
                 title="Reset to 8:00 AM"
               >
                 <RotateCcw className="w-3 h-3" />
-                Reset to 8 AM
+                Reset
               </button>
               <button
                 onClick={handleTestNotif}
