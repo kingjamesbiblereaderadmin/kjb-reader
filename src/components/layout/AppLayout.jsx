@@ -298,7 +298,7 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main className="flex-1 pb-24 sm:pb-0 px-1 sm:px-2">
+      <main className="flex-1 pb-24 sm:pb-2 px-1 sm:px-2">
         <div key={reloadKey}>
           <Outlet />
         </div>
@@ -338,7 +338,7 @@ function DesktopFooter({ navigate, setMenuOpen }) {
     });
   };
   return (
-      <footer className="hidden sm:block border-t border-border bg-card/80 py-3 mt-4">
+      <footer className="hidden sm:block border-t border-border bg-card/80 py-3">
         <div className="max-w-5xl mx-auto px-4">
           <div className="flex justify-center mb-2">
             <button
