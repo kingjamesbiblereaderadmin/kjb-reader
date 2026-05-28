@@ -3,8 +3,8 @@ import React from 'react';
 export default function TitlePage({ type }) {
   if (type === 'testament-old') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-between px-4 py-12">
-        <div className="max-w-2xl text-center space-y-6 flex-1 flex flex-col justify-center">
+      <div className="flex flex-col items-center px-4 pb-12">
+        <div className="max-w-2xl text-center space-y-6">
           <p className="font-serif text-base tracking-[0.2em] text-foreground font-normal">
             THE
           </p>
@@ -47,7 +47,7 @@ export default function TitlePage({ type }) {
 
   if (type === 'testament-new') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
+      <div className="flex flex-col items-center px-4 pb-8">
         <div className="max-w-xl text-center space-y-4">
           <p className="font-serif text-base tracking-[0.3em] text-foreground font-normal">
             THE
@@ -83,8 +83,8 @@ export default function TitlePage({ type }) {
 
   if (type === 'main') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-between px-4 py-12">
-        <div className="max-w-2xl text-center space-y-6 flex-1 flex flex-col justify-center">
+      <div className="flex flex-col items-center px-4 pb-12">
+        <div className="max-w-2xl text-center space-y-6">
           <p className="font-serif text-base tracking-[0.2em] text-foreground font-normal">
             THE
           </p>

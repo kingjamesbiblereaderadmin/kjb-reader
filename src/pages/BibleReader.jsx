@@ -937,6 +937,45 @@ export default function BibleReader() {
               </button>
             </>
             )}
+
+            {/* Title page navigation — prev/next/fullscreen always available */}
+            {isViewingTitlePage && (
+              <>
+                <button
+                  onClick={goPrev}
+                  onTouchEnd={(e) => { e.preventDefault(); goPrev(); }}
+                  disabled={isFirstChapterFirstBook}
+                  title="Previous"
+                  className="flex items-center justify-center p-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-all duration-200 hover:scale-105 active:scale-95 disabled:hover:scale-100 touch-manipulation min-h-[44px] min-w-[44px] flex-shrink-0"
+                >
+                  <ChevronLeft className="w-5 h-5 flex-shrink-0" />
+                </button>
+                <button
+                  onClick={goNext}
+                  onTouchEnd={(e) => { e.preventDefault(); goNext(); }}
+                  title="Next"
+                  className="flex items-center justify-center p-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation min-h-[44px] min-w-[44px] flex-shrink-0"
+                >
+                  <ChevronRight className="w-5 h-5 flex-shrink-0" />
+                </button>
+                <button
+                  onClick={toggleFullscreen}
+                  onTouchEnd={(e) => { e.preventDefault(); toggleFullscreen(); }}
+                  title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+                  className="flex items-center justify-center p-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation min-h-[44px] min-w-[44px] flex-shrink-0"
+                >
+                  {fullscreen ? <Minimize2 className="w-5 h-5 flex-shrink-0" /> : <Maximize2 className="w-5 h-5 flex-shrink-0" />}
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setHideHeader(!hideHeader); }}
+                  onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setHideHeader(!hideHeader); }}
+                  title={hideHeader ? "Show header" : "Hide header"}
+                  className="flex items-center justify-center p-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation min-h-[44px] min-w-[44px] flex-shrink-0"
+                >
+                  <ChevronDown className={`w-5 h-5 flex-shrink-0 ${hideHeader ? '' : 'rotate-180'}`} />
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -1011,10 +1050,7 @@ export default function BibleReader() {
         </div>
       )}
 
-      {/* Title page only - no chapter info */}
-      {isViewingTitlePage && (
-        <div className="mb-8" />
-      )}
+
 
       {/* Title pages or verses */}
       <div 
