@@ -261,7 +261,9 @@ export default function SearchPage() {
   const goToVerse = useCallback((abbr, chapter, verse, verseEnd) => {
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null, verseEnd: verseEnd || null })); } catch {}
     window.scrollTo({ top: 0 });
-    navigate('/read');
+    // Navigate with URL params so the reader reliably scrolls to + highlights the verse.
+    const url = verse ? `/read?book=${abbr}&chapter=${chapter}&verse=${verse}` : `/read?book=${abbr}&chapter=${chapter}`;
+    navigate(url);
     // If already on /read, notify the mounted reader to load this passage.
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   }, [navigate]);
