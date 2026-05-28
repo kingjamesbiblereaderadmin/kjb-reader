@@ -551,7 +551,7 @@ export default function BibleReader() {
   }, [verses, loading, book.name, pos.chapter, isViewingTitlePage]);
 
   return (
-    <div className={`max-w-5xl mx-auto px-5 sm:px-8 py-3 ${hideHeader ? 'pt-16' : ''}`}>
+    <div className={`w-full max-w-5xl mx-auto px-5 sm:px-8 lg:px-16 py-3 ${hideHeader ? 'pt-16' : ''}`}>
 
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
@@ -984,7 +984,7 @@ export default function BibleReader() {
       {/* Show header chevron when hidden — aligned with top border */}
       {hideHeader && (
         <div className="fixed top-0 left-0 right-0 h-[49px] border-b border-border bg-background/95 backdrop-blur z-[110]">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 h-full flex items-center justify-end">
+          <div className="w-full max-w-5xl mx-auto px-4 sm:px-8 lg:px-16 h-full flex items-center justify-end">
             <div className="flex items-center gap-1">
               <button
                 onClick={toggleFullscreen}

@@ -32,7 +32,7 @@ function TikTokIcon({ className }) {
 
 export default function AboutPage() {
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10">
+    <div className="w-full max-w-5xl mx-auto px-4 sm:px-8 lg:px-16 py-10">
       {/* Header */}
       <div className="text-center mb-10">
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-secondary mb-4">

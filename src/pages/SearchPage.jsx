@@ -321,7 +321,7 @@ export default function SearchPage() {
   const selectedList = [...selected].sort((a, b) => a - b);
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6">
+    <div className="w-full max-w-5xl mx-auto px-4 sm:px-8 lg:px-16 py-6">
       <h1 className="font-serif text-2xl font-bold text-foreground mb-4">Search Bible</h1>
 
       <form onSubmit={handleSubmit} className="flex gap-2 mb-3">
