@@ -256,20 +256,20 @@ export default function SearchPage() {
     }
   };
 
-  const goToVerse = (abbr, chapter, verse, verseEnd) => {
+  const goToVerse = useCallback((abbr, chapter, verse, verseEnd) => {
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null, verseEnd: verseEnd || null })); } catch {}
     window.scrollTo({ top: 0 });
     navigate('/read');
-  };
+  }, [navigate]);
 
   // Selection helpers
-  const toggleSelect = (i) => {
+  const toggleSelect = useCallback((i) => {
     setSelected(prev => {
       const next = new Set(prev);
       next.has(i) ? next.delete(i) : next.add(i);
       return next;
     });
-  };
+  }, []);
 
   const selectAll = () => setSelected(new Set(results.map((_, i) => i)));
   const clearSelection = () => { setSelected(new Set()); setSelectMode(false); };
