@@ -142,88 +142,17 @@ async function saveNextFireTime(verse) {
 
 const APP_LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
 
-// ---- Server push (delivers notifications even when the app is CLOSED) ----
+// ---- App-based notifications only ----
+// Reminders are handled entirely on-device via the in-app timer + service
+// worker (showLocalNotification). No server push / VAPID is used.
 
-const SW_URL = '/sw.js';
-
-function urlBase64ToUint8Array(base64String) {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const raw = atob(base64);
-  const output = new Uint8Array(raw.length);
-  for (let i = 0; i < raw.length; i++) output[i] = raw.charCodeAt(i);
-  return output;
-}
-
-// Convert the user's selected local notification time to a UTC hour
-function getPreferredHourUtc() {
-  const [hh] = getNotificationTime().split(':').map(Number);
-  const now = new Date();
-  const local = new Date();
-  local.setHours(hh, 0, 0, 0);
-  return local.getUTCHours();
-}
-
-// Subscribe this device to server push and save it via savePushSubscription.
+// Kept as no-ops so existing callers keep working without server push.
 export async function subscribeToPush() {
-  try {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      console.warn('[Push] Push not supported on this browser');
-      return false;
-    }
-    const reg = await navigator.serviceWorker.ready;
-
-    // Fetch VAPID public key (plain text)
-    const keyRes = await fetch(`/api/apps/${getAppId()}/functions/getVapidPublicKey`);
-    const vapidKey = (await keyRes.text()).trim();
-    if (!vapidKey) {
-      console.error('[Push] No VAPID public key returned');
-      return false;
-    }
-
-    let sub = await reg.pushManager.getSubscription();
-    if (!sub) {
-      sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapidKey),
-      });
-    }
-
-    const raw = sub.toJSON();
-    const { base44 } = await import('@/api/base44Client');
-    await base44.functions.invoke('savePushSubscription', {
-      endpoint: raw.endpoint,
-      keys: raw.keys,
-      preferred_hour_utc: getPreferredHourUtc(),
-    });
-    console.log('[Push] Subscribed and saved to server');
-    return true;
-  } catch (err) {
-    console.error('[Push] Subscribe failed:', err.message);
-    return false;
-  }
+  return false;
 }
 
-// Helper to read the app id (used to build the function URL for VAPID key)
-function getAppId() {
-  try {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('app_id') || window.__BASE44_APP_ID__ || '6a05d76723afe58d80c589e8';
-  } catch {
-    return '6a05d76723afe58d80c589e8';
-  }
-}
-
-// Update the preferred hour on the server when the user changes the time.
 export async function updatePushPreferredHour() {
-  try {
-    if (!getNotificationsEnabled()) return;
-    // Re-subscribe (idempotent) — savePushSubscription upserts by endpoint and
-    // updates preferred_hour_utc to the new time.
-    await subscribeToPush();
-  } catch (err) {
-    console.warn('[Push] Failed to update preferred hour:', err.message);
-  }
+  // No server-side schedule to update — the in-app timer reschedules itself.
 }
 
 // Show a notification via SW (required on Android PWA)
