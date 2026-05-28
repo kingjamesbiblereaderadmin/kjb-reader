@@ -955,17 +955,23 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           image={cropImage}
           positionMode="overlay"
           onCrop={(cropped) => {
-            handleCropComplete(cropped, cropImageForNotif);
-            if (!cropImageForNotif) {
-              // Auto-save non-notification backgrounds after crop
-              setTimeout(() => {
-                if (pendingBg || cropImage) {
-                  localStorage.setItem('kjb-daily-verse-bg', cropImage);
-                  setCustomBg(cropImage);
-                  setPendingBg(null);
-                  setCropImage(null);
+            setCropImage(null);
+            if (cropImageForNotif) {
+              handleCropComplete(cropped, true);
+            } else {
+              // Save the actual cropped image as the background
+              try {
+                localStorage.setItem('kjb-daily-verse-bg', cropped);
+                setCustomBg(cropped);
+                setPendingBg(null);
+                window.dispatchEvent(new Event('storage'));
+              } catch (err) {
+                if (err.name === 'QuotaExceededError') {
+                  alert('Storage full! Please clear browser data or try a smaller image.');
+                } else {
+                  console.error('Failed to save cropped background:', err);
                 }
-              }, 100);
+              }
             }
           }}
           onCancel={() => {
