@@ -225,162 +225,44 @@ export async function showLocalNotification(title, body, imageUrl = null) {
   }
 }
 
-// In-page timer (fires while app is open / in background tab)
-let _notifTimer = null;
-let _alarmTimer = null;
+// In-page poll (fires while app is open / foreground).
+// A single long setTimeout is unreliable (browsers throttle/clear timers when
+// the device sleeps), so instead we poll every 30s and fire as soon as today's
+// scheduled time has passed and we haven't notified yet today.
+let _pollInterval = null;
 
-// Use Alarm API if available (Chrome/Edge) - more reliable than setTimeout
-async function armAlarm(verse) {
-  if (!('AlarmManager' in window)) {
-    console.log('[Notif] Alarm API not available, falling back to timer');
-    return false;
-  }
-  
-  try {
-    const alarmId = 'kjb-daily-verse';
-    const fireDate = getNextFireDate();
-    
-    // Clear existing alarm
-    await navigator.AlarmManager.clear(alarmId);
-    
-    // Set new alarm
-    await navigator.AlarmManager.set(
-      alarmId,
-      fireDate.getTime(),
-      async () => {
-        console.log('[Notif] Alarm fired!');
-        const today = todayString();
-        if (localStorage.getItem(NOTIF_LAST_KEY) === today) {
-          console.log('[Notif] Already notified today, rescheduling');
-          scheduleAndSave(verse);
-          return;
-        }
-        localStorage.setItem(NOTIF_LAST_KEY, today);
-        await showLocalNotification(
-          'King James Bible — Daily Verse',
-          `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref}`,
-          null
-        );
-        scheduleAndSave(verse);
-      }
-    );
-    console.log('[Notif] Alarm set for', fireDate);
-    return true;
-  } catch (err) {
-    console.error('[Notif] Alarm setup failed:', err);
-    return false;
-  }
+function fireNotificationNow(verse) {
+  const today = todayString();
+  localStorage.setItem(NOTIF_LAST_KEY, today);
+  showLocalNotification(
+    'King James Bible — Daily Verse',
+    `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref} (KJB)`,
+    null
+  );
+  saveNextFireTime(verse);
+}
+
+// Returns true if today's scheduled time has passed and we haven't notified today
+function isDueNow() {
+  if (localStorage.getItem(NOTIF_LAST_KEY) === todayString()) return false;
+  const [hh, mm] = getNotificationTime().split(':').map(Number);
+  const target = new Date();
+  target.setHours(hh, mm, 0, 0);
+  return Date.now() >= target.getTime();
 }
 
 function armTimer(verse) {
-  if (_notifTimer) { clearTimeout(_notifTimer); _notifTimer = null; }
-  if (_alarmTimer) { clearTimeout(_alarmTimer); _alarmTimer = null; }
-  
-  const ms = getNextFireDate() - Date.now();
-  const fireDate = getNextFireDate();
-  
-  console.log('[Notif] ========== TIMER ARMED ==========');
-  console.log('[Notif] Will fire in:', ms, 'ms');
-  console.log('[Notif] Fire time:', fireDate.toLocaleString());
-  console.log('[Notif] Current time:', new Date().toLocaleString());
-  console.log('[Notif] Minutes until fire:', Math.floor(ms / 60000));
-  console.log('[Notif] Notifications enabled:', getNotificationsEnabled());
-  console.log('[Notif] Last notified:', localStorage.getItem(NOTIF_LAST_KEY));
-  console.log('[Notif] Next timestamp:', localStorage.getItem(NOTIF_NEXT_KEY));
-  console.log('[Notif] =================================');
-  
-  // Check if we should fire immediately (for testing/debugging)
-  if (ms < 0) {
-    console.log('[Notif] ⚠️ Scheduled time is in the PAST - will fire on next app open');
-    console.log('[Notif] Past by:', Math.abs(Math.floor(ms / 60000)), 'minutes');
-  } else if (ms < 60000) {
-    console.log('[Notif] ⏰ Will fire in LESS THAN 1 MINUTE!');
-  } else if (ms < 300000) {
-    console.log('[Notif] ⏰ Will fire in', Math.floor(ms / 60000), 'minutes - KEEP APP OPEN');
-  }
-  
-  _notifTimer = setTimeout(async () => {
-    console.log('[Notif] ⏰⏰⏰ TIMER CALLBACK EXECUTED ⏰⏰⏰');
-    const today = todayString();
-    if (localStorage.getItem(NOTIF_LAST_KEY) === today) {
-      console.log('[Notif] Already notified today, rescheduling');
-      scheduleAndSave(verse);
-      return;
+  if (_pollInterval) { clearInterval(_pollInterval); _pollInterval = null; }
+
+  console.log('[Notif] Poll armed. Notify time:', getNotificationTime(), '| Last notified:', localStorage.getItem(NOTIF_LAST_KEY));
+
+  _pollInterval = setInterval(() => {
+    if (isDueNow()) {
+      console.log('[Notif] ⏰ Scheduled time reached — firing notification');
+      const freshVerse = getDailyVerse();
+      fireNotificationNow(freshVerse);
     }
-    localStorage.setItem(NOTIF_LAST_KEY, today);
-    console.log('[Notif] Firing notification at scheduled time');
-    await showLocalNotification(
-      'King James Bible — Daily Verse',
-      `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref} (KJB)`,
-      null
-    );
-    scheduleAndSave(verse);
-  }, ms);
-  
-  // Also set a wake-up alarm that checks every minute near the scheduled time
-  const checkInterval = 60000; // 1 minute
-  const timeToCheck = ms - 300000; // Start checking 5 minutes before
-  if (timeToCheck > 0 && timeToCheck < 24 * 60 * 60 * 1000) {
-    console.log('[Notif] Setting wake-up checks starting in', Math.floor(timeToCheck / 60000), 'minutes');
-    _alarmTimer = setTimeout(() => {
-      console.log('[Notif] Starting wake-up checks (every minute)');
-      const checkTimer = setInterval(() => {
-        const now = Date.now();
-        const target = fireDate.getTime();
-        const diff = target - now;
-        console.log('[Notif] Wake-up check: diff=', diff, 'ms (', Math.floor(diff / 60000), 'min )');
-        if (now >= target) {
-          clearInterval(checkTimer);
-          console.log('[Notif] Wake-up check triggered notification');
-          const today = todayString();
-          if (localStorage.getItem(NOTIF_LAST_KEY) !== today) {
-            localStorage.setItem(NOTIF_LAST_KEY, today);
-            showLocalNotification(
-              'King James Bible — Daily Verse',
-              `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref} (KJB)`,
-              null
-            );
-            scheduleAndSave(verse);
-          }
-        }
-      }, checkInterval);
-      
-      // Clear check timer after 10 minutes
-      setTimeout(() => {
-        clearInterval(checkTimer);
-        console.log('[Notif] Stopped wake-up checks');
-      }, 10 * 60 * 1000);
-    }, timeToCheck);
-  } else if (ms >= 0 && ms <= 300000) {
-    // Already within 5 minutes - start checking immediately
-    console.log('[Notif] Already within 5 minutes - starting immediate checks');
-    const checkTimer = setInterval(() => {
-      const now = Date.now();
-      const target = fireDate.getTime();
-      const diff = target - now;
-      console.log('[Notif] Immediate check: diff=', diff, 'ms');
-      if (now >= target) {
-        clearInterval(checkTimer);
-        console.log('[Notif] Immediate check triggered notification');
-        const today = todayString();
-        if (localStorage.getItem(NOTIF_LAST_KEY) !== today) {
-          localStorage.setItem(NOTIF_LAST_KEY, today);
-          showLocalNotification(
-            'King James Bible — Daily Verse',
-            `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref} (KJB)`,
-            null
-          );
-          scheduleAndSave(verse);
-        }
-      }
-    }, checkInterval);
-    
-    // Clear after 10 minutes
-    setTimeout(() => {
-      clearInterval(checkTimer);
-      console.log('[Notif] Stopped immediate checks');
-    }, 10 * 60 * 1000);
-  }
+  }, 30000); // check every 30 seconds
 }
 
 function scheduleAndSave(verse) {
@@ -414,27 +296,11 @@ function checkOverdueNotification(verse) {
   if (!getNotificationsEnabled()) return;
   if (!('serviceWorker' in navigator)) return;
 
-  const today = todayString();
-  const lastNotifDate = localStorage.getItem(NOTIF_LAST_KEY);
-
-  // Already notified today — nothing to recover
-  if (lastNotifDate === today) return;
-
-  // Compute TODAY's scheduled time (not next-fire, which may be tomorrow)
-  const [hh, mm] = getNotificationTime().split(':').map(Number);
-  const todayTarget = new Date();
-  todayTarget.setHours(hh, mm, 0, 0);
-
-  // If today's scheduled time has already passed and we haven't notified, fire now
-  if (Date.now() >= todayTarget.getTime()) {
-    localStorage.setItem(NOTIF_LAST_KEY, today);
+  // Fire on app open / focus if today's scheduled time has already passed
+  // and we haven't notified yet today (missed notification recovery).
+  if (isDueNow()) {
     const freshVerse = getDailyVerse();
-    showLocalNotification(
-      'King James Bible — Daily Verse',
-      `"${freshVerse.text.slice(0, 120)}${freshVerse.text.length > 120 ? '…' : ''}" — ${freshVerse.ref} (KJB)`,
-      null
-    );
-    saveNextFireTime(freshVerse);
+    fireNotificationNow(freshVerse);
   }
 }
 
@@ -519,6 +385,6 @@ export async function triggerScheduledNotification() {
     `"${verse.text.slice(0, 100)}${verse.text.length > 100 ? '…' : ''}" — ${verse.ref} (KJB)`,
     null
   );
-  scheduleAndSave(verse);
+  scheduleDailyNotification(verse);
   console.log('[Notif] Manual trigger completed');
 }
