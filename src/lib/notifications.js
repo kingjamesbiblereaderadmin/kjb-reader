@@ -359,6 +359,13 @@ export function initNotifications(verse) {
     const freshVerse = getDailyVerse();
     checkOverdueNotification(freshVerse);
   });
+
+  // Check on pageshow — covers PWA resume from back/forward cache on Android,
+  // which focus/visibilitychange sometimes don't fire for.
+  window.addEventListener('pageshow', () => {
+    const freshVerse = getDailyVerse();
+    checkOverdueNotification(freshVerse);
+  });
   
   console.log('[Notif] Notifications initialized successfully');
   console.log('[Notif] ========== initNotifications END ==========');
