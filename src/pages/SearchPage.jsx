@@ -262,6 +262,8 @@ export default function SearchPage() {
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null, verseEnd: verseEnd || null })); } catch {}
     window.scrollTo({ top: 0 });
     navigate('/read');
+    // If already on /read, notify the mounted reader to load this passage.
+    setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   }, [navigate]);
 
   // Selection helpers
