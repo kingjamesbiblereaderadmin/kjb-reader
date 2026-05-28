@@ -45,7 +45,10 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     : `"${textWithItalics}" — ${verseRef} (KJB)`;
 
   const highlightBg = highlightColors.find(c => c.name === highlightColor)?.bg;
-  const isHighlighted = showHighlight;
+  // Highlighted when the user manually applied it OR when this verse was the
+  // navigation target (search result / daily verse / verse picker).
+  const isHighlighted = showHighlight || highlight;
+  const activeHighlightBg = highlight && !showHighlight ? 'bg-accent/40 dark:bg-accent/30' : highlightBg;
 
   const handleCopy = async (e) => {
     e.stopPropagation();
@@ -249,7 +252,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             )}
             <sup className="text-accent font-sans font-semibold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
             <span
-              className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-justify inline ${isCursive ? 'cursive-em-style' : 'font-serif'} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+              className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-justify inline ${isCursive ? 'cursive-em-style' : 'font-serif'} ${isHighlighted ? `${activeHighlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
               style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
               dangerouslySetInnerHTML={{ __html: html }}
             />
@@ -274,7 +277,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           )}
           <sup className="text-accent font-sans font-semibold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
           <span
-            className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-justify ${isCursive ? 'cursive-em-style' : 'font-serif'} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+            className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-justify ${isCursive ? 'cursive-em-style' : 'font-serif'} ${isHighlighted ? `${activeHighlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
             style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
             dangerouslySetInnerHTML={{ __html: html }}
           />
@@ -302,7 +305,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         <sup className="text-accent font-sans font-semibold text-[0.6em] shrink-0 select-none mt-[0.2em] mr-[0.3em]">{verse.verse}</sup>
         <span className="flex-1 min-w-0">
           <span
-            className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-justify ${isCursive ? 'cursive-em-style' : 'font-serif'} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+            className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-justify ${isCursive ? 'cursive-em-style' : 'font-serif'} ${isHighlighted ? `${activeHighlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
             style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
             dangerouslySetInnerHTML={{ __html: html }}
           />
