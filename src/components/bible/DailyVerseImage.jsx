@@ -363,7 +363,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
       {/* Date display */}
       <div className="absolute bottom-3 left-3 bg-black/30 backdrop-blur-sm rounded-full px-3 h-7 flex items-center justify-center">
-        <span className="text-xs font-sans font-medium whitespace-nowrap leading-none" style={{ color: '#ffffff' }}>
+        <span className="text-xs font-medium whitespace-nowrap leading-none" style={{ color: '#ffffff', fontFamily: "'Inter', system-ui, sans-serif", lineHeight: 1, transform: 'translateY(0.5px)' }}>
           {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
         </span>
       </div>
