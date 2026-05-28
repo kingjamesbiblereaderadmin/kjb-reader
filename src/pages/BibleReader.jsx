@@ -353,8 +353,14 @@ export default function BibleReader() {
     if (highlightVerse) {
       const timer = setTimeout(() => {
         const el = document.getElementById(`v${highlightVerse}`);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 100);
+        if (el) {
+          // Offset for the sticky app header + reader toolbar so the verse
+          // isn't hidden underneath them. Scroll it just below the toolbar.
+          const stickyOffset = 130;
+          const top = el.getBoundingClientRect().top + window.scrollY - stickyOffset;
+          window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+        }
+      }, 150);
       return () => clearTimeout(timer);
     }
     // No highlight: restore saved scroll offset for this chapter
