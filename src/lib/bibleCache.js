@@ -7,11 +7,14 @@ import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB } from '@/lib/bibleI
 import { COLOPHONS } from '@/lib/bibleSubscripts';
 import { parsePceText } from '@/lib/biblePceParser';
 
-const CACHE_KEY = 'bible_data_pce_v68_SINGLE_FILE';
+// Bump this version string whenever the Bible text file changes — every client
+// will then re-download and re-parse fresh. Replaces the old remote VERSION.txt
+// check (which 404'd/403'd and broke auto-updates).
+const CACHE_VERSION = 'v69';
+const CACHE_KEY = 'bible_data_pce_v69_SINGLE_FILE';
 // Single clean PCE source file: book titles, CHAPTER headings, [bracketed] italics,
 // and double-space paragraph (pilcrow) markers. No separate italics file needed.
 const PCE_TEXT_FILE_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/b55b13158_KingJamesBible-PureCambridgeEditionTextfile1.txt';
-const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
 const EXPECTED_BOOK_COUNT = 66;
 
@@ -78,23 +81,13 @@ async function fetchWithRetry(url, retries = 3, expectPilcrows = false) {
   }
 }
 
-async function fetchRemoteVersion() {
-  try {
-    const versionText = await fetchWithRetry(VERSION_URL);
-    return versionText.trim();
-  } catch (err) {
-    console.error('Failed to fetch remote version:', err.message);
-    return null;
-  }
-}
-
+// Version is now an in-code constant — no network call. We compare it to the
+// version stored alongside the cached data; if they differ, we re-download.
 async function checkForUpdates() {
-  const remoteVer = await fetchRemoteVersion();
-  if (!remoteVer) return false;
-  remoteVersion = remoteVer;
+  remoteVersion = CACHE_VERSION;
   const localVersion = localStorage.getItem('bible_cache_version');
-  if (localVersion !== remoteVer) {
-    console.log('[UPDATE] Remote version', remoteVer, 'differs from local', localVersion);
+  if (localVersion !== CACHE_VERSION) {
+    console.log('[UPDATE] Code version', CACHE_VERSION, 'differs from cached', localVersion);
     return true;
   }
   return false;
