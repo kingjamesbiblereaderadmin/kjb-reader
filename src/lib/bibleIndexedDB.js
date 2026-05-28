@@ -4,7 +4,7 @@
 const DB_NAME = 'BibleReaderDB';
 const DB_VERSION = 1;
 const STORE_NAME = 'bibleData';
-const CACHE_KEY = 'pce_text_v2_apostrophe_fix';
+const CACHE_KEY = 'pce_text_v3_single_file';
 
 let dbInstance = null;
 let openRequest = null;

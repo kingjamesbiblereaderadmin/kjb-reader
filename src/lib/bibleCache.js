@@ -1,314 +1,23 @@
 // Client-side Bible data caching for offline access
-// Uses RTF file (with pilcrows) + abbreviated file (for italics) - merged client-side
+// Uses a single clean PCE text file (book titles, CHAPTER headings, [bracketed]
+// italics, and double-space paragraph/pilcrow markers), parsed by biblePceParser.
 // Uses IndexedDB for large data storage (~50MB+ capacity)
 
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB } from '@/lib/bibleIndexedDB';
 import { COLOPHONS } from '@/lib/bibleSubscripts';
+import { parsePceText } from '@/lib/biblePceParser';
 
-const CACHE_KEY = 'bible_data_pce_v67_WHARTON_APOSTROPHE_FIX';
-// WHARTON file is main text (with pilcrows ¶), RTF file has [brackets] for italics
-const MAIN_TEXT_FILE_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/badea04f1_WHARTON_PCE.txt';
-const ITALICS_FILE_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/075077e5d_KJB-PCE-RTF.txt';
+const CACHE_KEY = 'bible_data_pce_v68_SINGLE_FILE';
+// Single clean PCE source file: book titles, CHAPTER headings, [bracketed] italics,
+// and double-space paragraph (pilcrow) markers. No separate italics file needed.
+const PCE_TEXT_FILE_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/b55b13158_KingJamesBible-PureCambridgeEditionTextfile1.txt';
 const VERSION_URL = 'https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt';
 
 const EXPECTED_BOOK_COUNT = 66;
 
-// Abbreviated book name mapping (Ge, Ex, Le, etc. → apiName)
-const ABBREV_TO_API = {
-  'Ge': 'Genesis', 'Ex': 'Exodus', 'Le': 'Leviticus', 'Nu': 'Numbers', 'De': 'Deuteronomy',
-  'Jos': 'Joshua', 'Jg': 'Judges', 'Ru': 'Ruth',
-  '1Sa': '1 Samuel', '1Sam': '1 Samuel', '1S': '1 Samuel',
-  '2Sa': '2 Samuel', '2Sam': '2 Samuel', '2S': '2 Samuel',
-  '1Ki': '1 Kings', '1K': '1 Kings',
-  '2Ki': '2 Kings', '2K': '2 Kings',
-  '1Ch': '1 Chronicles', '1Chr': '1 Chronicles',
-  '2Ch': '2 Chronicles', '2Chr': '2 Chronicles',
-  'Ezr': 'Ezra', 'Ez': 'Ezra',
-  'Ne': 'Nehemiah', 'Neh': 'Nehemiah',
-  'Es': 'Esther', 'Est': 'Esther',
-  'Jb': 'Job', 'Job': 'Job',
-  'Ps': 'Psalms', 'Psa': 'Psalms', 'Psm': 'Psalms',
-  'Pr': 'Proverbs', 'Pro': 'Proverbs', 'Prov': 'Proverbs',
-  'Ec': 'Ecclesiastes', 'Ecc': 'Ecclesiastes', 'Eccl': 'Ecclesiastes',
-  'So': 'Song of Solomon', 'Sos': 'Song of Solomon', 'Sg': 'Song of Solomon', 'Song': 'Song of Solomon',
-  'Is': 'Isaiah', 'Isa': 'Isaiah',
-  'Je': 'Jeremiah', 'Jer': 'Jeremiah',
-  'La': 'Lamentations', 'Lam': 'Lamentations',
-  'Eze': 'Ezekiel', 'Ezek': 'Ezekiel',
-  'Da': 'Daniel', 'Dan': 'Daniel',
-  'Ho': 'Hosea', 'Hos': 'Hosea',
-  'Jl': 'Joel', 'Joe': 'Joel',
-  'Am': 'Amos', 'Amo': 'Amos',
-  'Ob': 'Obadiah', 'Oba': 'Obadiah',
-  'Jon': 'Jonah', 'Jona': 'Jonah',
-  'Mi': 'Micah', 'Mic': 'Micah',
-  'Na': 'Nahum', 'Nah': 'Nahum',
-  'Hab': 'Habakkuk',
-  'Zep': 'Zephaniah',
-  'Hg': 'Haggai', 'Hag': 'Haggai',
-  'Zec': 'Zechariah', 'Zech': 'Zechariah',
-  'Mal': 'Malachi',
-  'Mt': 'Matthew', 'Mat': 'Matthew', 'Matt': 'Matthew',
-  'Mr': 'Mark', 'Mk': 'Mark', 'Mar': 'Mark',
-  'Lu': 'Luke', 'Lk': 'Luke', 'Luk': 'Luke',
-  'Jn': 'John', 'Joh': 'John',
-  'Ac': 'Acts', 'Act': 'Acts',
-  'Ro': 'Romans', 'Rom': 'Romans',
-  '1Co': '1 Corinthians', '1Cor': '1 Corinthians',
-  '2Co': '2 Corinthians', '2Cor': '2 Corinthians',
-  'Ga': 'Galatians', 'Gal': 'Galatians',
-  'Eph': 'Ephesians',
-  'Php': 'Philippians', 'Phil': 'Philippians',
-  'Col': 'Colossians', 'Cols': 'Colossians',
-  '1Th': '1 Thessalonians', '1Thes': '1 Thessalonians',
-  '2Th': '2 Thessalonians', '2Thes': '2 Thessalonians',
-  '1Ti': '1 Timothy', '1Tim': '1 Timothy',
-  '2Ti': '2 Timothy', '2Tim': '2 Timothy',
-  'Tit': 'Titus',
-  'Phm': 'Philemon', 'Phile': 'Philemon',
-  'Heb': 'Hebrews',
-  'Jas': 'James', 'Jam': 'James', 'Jame': 'James',
-  '1Pe': '1 Peter', '1Pet': '1 Peter',
-  '2Pe': '2 Peter', '2Pet': '2 Peter',
-  '1Jn': '1 John', '1Joh': '1 John', '1Jo': '1 John',
-  '2Jn': '2 John', '2Joh': '2 John', '2Jo': '2 John',
-  '3Jn': '3 John', '3Joh': '3 John', '3Jo': '3 John',
-  'Jud': 'Jude', 'Jude': 'Jude',
-  'Re': 'Revelation', 'Rev': 'Revelation', 'Reve': 'Revelation'
-};
-
-// RTF book title mapping
-const RTF_TITLE_MAP = {
-  'THE FIRST BOOK OF MOSES': 'Genesis',
-  'THE SECOND BOOK OF MOSES': 'Exodus',
-  'THE THIRD BOOK OF MOSES': 'Leviticus',
-  'THE FOURTH BOOK OF MOSES': 'Numbers',
-  'THE FIFTH BOOK OF MOSES': 'Deuteronomy',
-  'THE BOOK OF JOSHUA': 'Joshua',
-  'THE BOOK OF JUDGES': 'Judges',
-  'THE BOOK OF RUTH': 'Ruth',
-  'THE FIRST BOOK OF SAMUEL': '1 Samuel',
-  'THE SECOND BOOK OF SAMUEL': '2 Samuel',
-  'THE FIRST BOOK OF THE KINGS': '1 Kings',
-  'THE SECOND BOOK OF THE KINGS': '2 Kings',
-  'THE FIRST BOOK OF THE CHRONICLES': '1 Chronicles',
-  'THE SECOND BOOK OF THE CHRONICLES': '2 Chronicles',
-  'EZRA': 'Ezra',
-  'THE BOOK OF NEHEMIAH': 'Nehemiah',
-  'THE BOOK OF ESTHER': 'Esther',
-  'THE BOOK OF JOB': 'Job',
-  'THE BOOK OF PSALMS': 'Psalms',
-  'THE PROVERBS': 'Proverbs',
-  'ECCLESIASTES': 'Ecclesiastes',
-  'THE SONG OF SOLOMON': 'Song of Solomon',
-  'THE BOOK OF THE PROPHET ISAIAH': 'Isaiah',
-  'THE BOOK OF THE PROPHET JEREMIAH': 'Jeremiah',
-  'THE LAMENTATIONS OF JEREMIAH': 'Lamentations',
-  'THE BOOK OF THE PROPHET EZEKIEL': 'Ezekiel',
-  'THE BOOK OF DANIEL': 'Daniel',
-  'HOSEA': 'Hosea', 'JOEL': 'Joel', 'AMOS': 'Amos', 'OBADIAH': 'Obadiah',
-  'JONAH': 'Jonah', 'MICAH': 'Micah', 'NAHUM': 'Nahum', 'HABAKKUK': 'Habakkuk',
-  'ZEPHANIAH': 'Zephaniah', 'HAGGAI': 'Haggai', 'ZECHARIAH': 'Zechariah', 'MALACHI': 'Malachi',
-  'THE GOSPEL ACCORDING TO ST MATTHEW': 'Matthew',
-  'THE GOSPEL ACCORDING TO ST MARK': 'Mark',
-  'THE GOSPEL ACCORDING TO ST LUKE': 'Luke',
-  'THE GOSPEL ACCORDING TO ST JOHN': 'John',
-  'THE ACTS OF THE APOSTLES': 'Acts',
-  'THE EPISTLE OF PAUL THE APOSTLE TO THE ROMANS': 'Romans',
-  'THE FIRST EPISTLE OF PAUL THE APOSTLE TO THE CORINTHIANS': '1 Corinthians',
-  'THE SECOND EPISTLE OF PAUL THE APOSTLE TO THE CORINTHIANS': '2 Corinthians',
-  'THE EPISTLE OF PAUL THE APOSTLE TO THE GALATIANS': 'Galatians',
-  'THE EPISTLE OF PAUL THE APOSTLE TO THE EPHESIANS': 'Ephesians',
-  'THE EPISTLE OF PAUL THE APOSTLE TO THE PHILIPPIANS': 'Philippians',
-  'THE EPISTLE OF PAUL THE APOSTLE TO THE COLOSSIANS': 'Colossians',
-  'THE FIRST EPISTLE OF PAUL THE APOSTLE TO THE THESSALONIANS': '1 Thessalonians',
-  'THE SECOND EPISTLE OF PAUL THE APOSTLE TO THE THESSALONIANS': '2 Thessalonians',
-  'THE FIRST EPISTLE OF PAUL THE APOSTLE TO TIMOTHY': '1 Timothy',
-  'THE SECOND EPISTLE OF PAUL THE APOSTLE TO TIMOTHY': '2 Timothy',
-  'THE EPISTLE OF PAUL TO TITUS': 'Titus',
-  'THE EPISTLE OF PAUL TO PHILEMON': 'Philemon',
-  'THE EPISTLE OF PAUL THE APOSTLE TO THE HEBREWS': 'Hebrews',
-  'THE GENERAL EPISTLE OF JAMES': 'James',
-  'THE FIRST EPISTLE GENERAL OF PETER': '1 Peter',
-  'THE SECOND EPISTLE GENERAL OF PETER': '2 Peter',
-  'THE FIRST EPISTLE GENERAL OF JOHN': '1 John',
-  'THE SECOND EPISTLE OF JOHN': '2 John',
-  'THE THIRD EPISTLE OF JOHN': '3 John',
-  'THE GENERAL EPISTLE OF JUDE': 'Jude',
-  'THE REVELATION OF ST JOHN THE DIVINE': 'Revelation',
-};
-
 let parsedData = null;
 let fetchInProgress = null;
 let remoteVersion = null;
-
-// Parse WHARTON file to extract italic markers \[brackets\] and verse references
-// Returns map: "Book Chapter:Verse" -> { italics: [{text}], plain: text without brackets }
-function parseItalicMarkers(text) {
-  const italicMap = new Map();
-  const lines = text.split('\n');
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-
-    // Match format: Ge 1:1 In the beginning... (WHARTON format)
-    const m = trimmed.match(/^(\d?[A-Za-z]{1,4})\s+(\d+):(\d+)\s+(.+)$/);
-    if (!m) continue;
-
-    const abbrev = m[1];
-    const ch = parseInt(m[2], 10);
-    const vs = parseInt(m[3], 10);
-    let verseText = m[4].replace(/\s*<<[^>]*>>\s*$/, '');
-
-    const bookName = ABBREV_TO_API[abbrev];
-    if (!bookName) continue;
-
-    // Extract bracketed words (italics markers) - handles both \[text\] and [text]
-    const italics = [];
-    // First try escaped brackets \[text\]
-    const escapedRegex = /\\\[([^\]]+)\\\]/g;
-    let match;
-    while ((match = escapedRegex.exec(verseText)) !== null) {
-      italics.push({ text: match[1] });
-    }
-    // Then try regular brackets [text]
-    const regularRegex = /(?<!\\)\[([^\]]+)\](?!\\)/g;
-    while ((match = regularRegex.exec(verseText)) !== null) {
-      italics.push({ text: match[1] });
-    }
-
-    // Store with plain text (brackets removed)
-    const key = `${bookName} ${ch}:${vs}`;
-    italicMap.set(key, { 
-      italics, 
-      plain: verseText
-        .replace(/\\\[([^\]]+)\\\]/g, '$1')
-        .replace(/(?<!\\)\[([^\]]+)\](?!\\)/g, '$1')
-    });
-  }
-
-  console.log('[PARSE] Italic markers:', italicMap.size, 'verses');
-  return italicMap;
-}
-
-// Parse WHARTON file (with pilcrows and verse references) as base text and apply italic markers
-function parseWithPilcrowsAndItalics(whartonText, italicMap) {
-  const data = {};
-  const lines = whartonText.split('\n');
-  let currentBook = null;
-  let currentChapter = null;
-  let verseCount = 0;
-  let versesWithFormatting = 0;
-
-  // Strip colophon text from verses
-  const stripColophon = (text) => {
-    return text
-      .replace(/\s*Written\s+to\s+[^.]*\.?/gi, '')
-      .replace(/\s*It\s+was\s+written\s+[^.]*\.?/gi, '')
-      .replace(/\s+from\s+[A-Z][a-z]+\s+by\s+[A-Z][a-z]+\.?$/gi, '')
-      .trim();
-  };
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-
-    // Detect book header - WHARTON format: "Book Name: THE FIRST BOOK OF MOSES, CALLED GENESIS."
-    if (trimmed.startsWith('Book Name:')) {
-      const bookPart = trimmed.replace('Book Name:', '').trim();
-      let bookName = RTF_TITLE_MAP[bookPart.replace(/[.,]/g, '').trim()];
-      if (!bookName) {
-        // Try partial match
-        for (const [key, val] of Object.entries(RTF_TITLE_MAP)) {
-          if (bookPart.toUpperCase().includes(key)) {
-            bookName = val;
-            break;
-          }
-        }
-      }
-      if (bookName) {
-        currentBook = bookName;
-        currentChapter = null;
-        if (!data[bookName]) data[bookName] = {};
-      }
-      continue;
-    }
-
-    // Detect chapter heading - WHARTON format: "GENESIS CHAPTER 1"
-    const chapterMatch = trimmed.match(/^([A-Z]+)\s+CHAPTER\s+(\d+)$/i);
-    if (chapterMatch) {
-      currentChapter = parseInt(chapterMatch[2], 10);
-      if (currentBook && !data[currentBook][currentChapter]) {
-        data[currentBook][currentChapter] = [];
-      }
-      continue;
-    }
-
-    // Parse verse line - WHARTON format: "Ge 1:1 In the beginning..."
-    const verseMatch = trimmed.match(/^(\d?[A-Za-z]{1,4})\s+(\d+):(\d+)\s+(.+)$/);
-    if (verseMatch) {
-      const abbrev = verseMatch[1];
-      const ch = parseInt(verseMatch[2], 10);
-      const vs = parseInt(verseMatch[3], 10);
-      let verseText = verseMatch[4].replace(/\s*<<[^>]*>>\s*$/, '');
-
-      // Verify chapter matches
-      if (ch !== currentChapter) {
-        currentChapter = ch;
-        if (currentBook && !data[currentBook][currentChapter]) {
-          data[currentBook][currentChapter] = [];
-        }
-      }
-
-      // Count italic markers for stats (both \[text\] and [text])
-      const italics = [];
-      const escapedRegex = /\\\[([^\]]+)\\\]/g;
-      let match;
-      while ((match = escapedRegex.exec(verseText)) !== null) {
-        italics.push({ text: match[1] });
-      }
-      const regularRegex = /(?<!\\)\[([^\]]+)\](?!\\)/g;
-      while ((match = regularRegex.exec(verseText)) !== null) {
-        italics.push({ text: match[1] });
-      }
-
-      // Convert \[text\] to [text] for consistent rendering (keep brackets!)
-      verseText = verseText
-        .replace(/\\\[([^\]]+)\\\]/g, '[$1]');
-
-      // Fix apostrophes that were stored as pilcrow chars (¶ / U+FFFD) WITHIN words.
-      // A pilcrow between two letters is always an apostrophe (e.g. "Christ¶s" → "Christ's").
-      // This is done in the parsed data so the fix is permanent in the offline cache.
-      verseText = verseText
-        .replace(/([A-Za-z])[\u00B6\uFFFD]([A-Za-z])/g, "$1'$2");
-
-      verseText = stripColophon(verseText);
-
-      // Special fix: Change "John" to "JOHN" in Rev 1:4
-      if (currentBook === 'Revelation' && currentChapter === 1 && vs === 4) {
-        verseText = verseText.replace(/\bJohn\b/g, 'JOHN');
-      }
-
-      // Add pilcrow marker at start of verses that had it in original (check if not already present)
-      if ((trimmed.includes('¶') || trimmed.includes('\u00B6')) && !verseText.trim().startsWith('¶')) {
-        verseText = '¶ ' + verseText;
-      }
-
-      data[currentBook][currentChapter].push({ verse: vs, text: verseText });
-      verseCount++;
-      if (italics.length > 0) {
-        versesWithFormatting++;
-      }
-    }
-  }
-
-  data.__colophons = { ...COLOPHONS };
-  const bookCount = Object.keys(data).filter(k => k !== '__colophons').length;
-  console.log('[PARSE] ✓ Complete:', verseCount, 'verses,', bookCount, 'books,', versesWithFormatting, 'with italics');
-  
-  return data;
-}
 
 function isValidBibleData(data) {
   if (!data || typeof data !== 'object') return false;
@@ -430,34 +139,18 @@ async function loadFromCache() {
 }
 
 async function fetchAndParse() {
-  console.log('[FETCH] Fetching WHARTON (main text with pilcrows) and RTF (italics)...');
-  console.log('[FETCH] MAIN TEXT (WHARTON) URL:', MAIN_TEXT_FILE_URL);
-  console.log('[FETCH] ITALICS (RTF) URL:', ITALICS_FILE_URL);
-  
-  // Fetch both files in parallel
-  const [mainText, italicsText] = await Promise.all([
-    fetchWithRetry(MAIN_TEXT_FILE_URL, 3, true),  // expect pilcrows
-    fetchWithRetry(ITALICS_FILE_URL, 3, false)  // expect brackets
-  ]);
+  console.log('[FETCH] Fetching single PCE text file...');
+  console.log('[FETCH] PCE URL:', PCE_TEXT_FILE_URL);
 
-  console.log('[FETCH] ✓ MAIN (WHARTON):', mainText.length, 'chars');
-  console.log('[FETCH] ✓ ITALICS (RTF):', italicsText.length, 'chars');
-  
-  // Verify WHARTON has pilcrows
-  const pilcrowCount = (mainText.match(/¶/g) || []).length;
-  console.log('[FETCH] WHARTON pilcrow count:', pilcrowCount);
-  
-  // Verify RTF has brackets
-  const bracketCount = (italicsText.match(/\[/g) || []).length;
-  console.log('[FETCH] RTF bracket count:', bracketCount);
+  const mainText = await fetchWithRetry(PCE_TEXT_FILE_URL, 3, false);
+  console.log('[FETCH] ✓ PCE text:', mainText.length, 'chars');
 
-  // Parse italic markers from RTF file
-  const italicMap = parseItalicMarkers(italicsText);
-  console.log('[PARSE] Italic map size:', italicMap.size, 'verses');
-  
-  // Parse WHARTON as base text (with pilcrows) and apply italics from RTF
-  const data = parseWithPilcrowsAndItalics(mainText, italicMap);
-  
+  const bracketCount = (mainText.match(/\[/g) || []).length;
+  console.log('[FETCH] Bracket (italics) count:', bracketCount);
+
+  // Parse the single file (titles, chapters, verses, [italics], double-space paragraphs)
+  const data = parsePceText(mainText);
+
   if (!isValidBibleData(data)) {
     throw new Error('Parsed data only has ' + Object.keys(data).filter(k => k !== '__colophons').length + ' books');
   }
