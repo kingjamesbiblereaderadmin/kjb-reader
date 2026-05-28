@@ -914,7 +914,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               textShadow: '0 1px 4px rgba(0,0,0,0.3)'
             }}
           >
-            — {verse.ref} (KJB)
+            — {verse.ref}
           </p>
         </div>
       ) : (
@@ -940,7 +940,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               textShadow: '0 1px 4px rgba(0,0,0,0.3)'
             }}
           >
-            — {verse.ref} (KJB)
+            — {verse.ref}
           </p>
         </div>
       )}
@@ -1188,7 +1188,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 textShadow: '0 1px 4px rgba(0,0,0,0.3)'
               }}
             >
-              — {verse.ref} (KJB)
+              — {verse.ref}
             </p>
             <div 
               className={`mt-8 w-16 h-1 mx-auto ${accentClass}`}
