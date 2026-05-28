@@ -4,7 +4,7 @@ import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { getDailyVerse } from '@/lib/dailyVerse';
-import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications } from '@/lib/notifications';
+import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications, showLocalNotification } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 
 const READ_LINK = { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', color: 'bg-primary text-primary-foreground' };
@@ -181,6 +181,13 @@ export default function HomePage() {
         setNotifEnabled(true);
         scheduleDailyNotification(verse);
         window.dispatchEvent(new Event('storage'));
+        // Fire an immediate confirmation notification so the user gets instant
+        // proof it works (and Android/Edge registers the notification channel).
+        showLocalNotification(
+          'Daily verse reminders on ✓',
+          `You'll get the daily verse at ${(localStorage.getItem('kjb-notification-time') || '08:00')} each day.`,
+          null
+        );
       } else if (result === 'denied') {
         console.log('Permission denied');
         alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');

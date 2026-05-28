@@ -67,6 +67,10 @@ export async function requestNotificationPermission() {
   }
   
   // Step 2: Register service worker (Android, PWA, all platforms)
+  // NOTE: On Android (Chrome/Edge), reg.showNotification() SILENTLY FAILS unless
+  // the real OS-level Notification.permission is 'granted'. So we must NOT force
+  // hasPermission=true just because a SW registered — that's why the toggle
+  // showed "enabled" but nothing ever fired. We only register the SW here.
   if ('serviceWorker' in navigator) {
     try {
       console.log('[Notif] Checking service worker registration...');
@@ -74,18 +78,6 @@ export async function requestNotificationPermission() {
       if (!reg) {
         console.log('[Notif] Registering service worker...');
         reg = await navigator.serviceWorker.register('/sw.js');
-      }
-
-      // On Android, SW notifications work even without Notification API permission
-      if (!hasPermission) {
-        localStorage.setItem(NOTIF_KEY, 'true');
-        hasPermission = true;
-      }
-
-      // Register this device for SERVER push so notifications arrive even when
-      // the app is closed (the in-page timer only fires while the app is open).
-      if (hasPermission) {
-        await subscribeToPush();
       }
     } catch (err) {
       console.error('[Notif] Service worker registration failed:', err.message);
