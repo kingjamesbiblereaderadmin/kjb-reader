@@ -346,58 +346,16 @@ export default function BibleReader() {
     }
   }, []);
 
-  // React to navigation requests (e.g. from the search bar) when already on
-  // this page. The search bar writes kjb-position then routes to /read, but if
-  // the component is already mounted the [] effect above won't re-run. We
-  // listen for an explicit event + storage changes and re-load the target.
-  useEffect(() => {
-    const applyRequestedPosition = () => {
-      let p;
-      try { p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return; }
-      if (!p || !p.abbr) return;
-      const bookExists = BIBLE_BOOKS.find(b => b.abbr === p.abbr);
-      if (!bookExists) return;
-
-      // Enter filter mode for a verse range, otherwise clear it
-      if (p.verse && p.verseEnd && p.verseEnd > p.verse) {
-        const range = new Set();
-        for (let v = p.verse; v <= p.verseEnd; v++) range.add(v);
-        setSelectedVerses(range);
-        setFilterMode(true);
-      } else {
-        setFilterMode(false);
-        setSelectedVerses(new Set());
-      }
-      setPos({ abbr: p.abbr, chapter: p.chapter, verse: p.verse || null });
-      setHighlightVerse(p.verse || null);
-      loadChapter(p.abbr, p.chapter, p.verse || null);
-    };
-    window.addEventListener('kjb-navigate', applyRequestedPosition);
-    return () => window.removeEventListener('kjb-navigate', applyRequestedPosition);
-  }, [loadChapter]);
-
   // Scroll to verse when highlight is set; otherwise restore last scroll
   // position for this chapter (so switching pages and back resumes reading).
   useEffect(() => {
     if (loading) return;
     if (highlightVerse) {
-      // Measure the actual sticky toolbar height so the verse start lands just
-      // below it (not hidden underneath, not in the middle of the verse).
-      const scrollToVerse = () => {
+      const timer = setTimeout(() => {
         const el = document.getElementById(`v${highlightVerse}`);
-        if (!el) return false;
-        const toolbarH = topRef.current ? topRef.current.getBoundingClientRect().height : 0;
-        // app header (~56px) + sticky toolbar + small breathing gap
-        const stickyOffset = 56 + toolbarH + 12;
-        const top = el.getBoundingClientRect().top + window.scrollY - stickyOffset;
-        window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
-        return true;
-      };
-      // First attempt after initial paint, then a second attempt after layout
-      // fully settles (fonts/reflow) so we don't land mid-verse.
-      const t1 = setTimeout(scrollToVerse, 200);
-      const t2 = setTimeout(scrollToVerse, 600);
-      return () => { clearTimeout(t1); clearTimeout(t2); };
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+      return () => clearTimeout(timer);
     }
     // No highlight: restore saved scroll offset for this chapter
     const timer = setTimeout(() => {
@@ -597,7 +555,7 @@ export default function BibleReader() {
 
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
-        <div ref={topRef} className="sticky top-[56px] z-[100] bg-background border-b border-border pb-2 pt-2 mb-2 before:content-[''] before:absolute before:top-[-16px] before:bottom-[-1px] before:left-[-100vw] before:right-[-100vw] before:bg-background before:border-b before:border-border before:-z-10">
+        <div ref={topRef} className="sticky top-[56px] sm:top-[72px] z-[100] bg-background border-b border-border pb-2 pt-2 mb-2 before:content-[''] before:absolute before:top-0 before:bottom-[-1px] before:left-[-100vw] before:right-[-100vw] before:bg-background before:border-b before:border-border before:-z-10">
           <div className="flex flex-wrap items-center gap-1.5">
 
             {/* Book selector */}
