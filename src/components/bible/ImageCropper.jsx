@@ -41,14 +41,14 @@ export default function ImageCropper({ image, onCrop, onCancel, positionMode = '
 
   return (
     <div 
-      className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+      className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-start sm:items-center justify-center p-4 overflow-y-auto"
       style={{ width: '100vw', height: '100vh', top: 0, left: 0 }}
       onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
       onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
       onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
     >
       <div 
-        className="bg-card rounded-2xl p-4 w-full max-w-lg max-h-[90vh] overflow-y-auto"
+        className="bg-card rounded-2xl p-4 w-full max-w-lg my-auto"
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
         onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
         onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
@@ -132,9 +132,7 @@ export default function ImageCropper({ image, onCrop, onCancel, positionMode = '
         </div>
         
         {/* Cropper */}
-        <div className={`relative mb-4 rounded-xl overflow-hidden bg-secondary ${
-          positionMode === 'overlay' ? 'h-64' : 'h-[300px]'
-        }`}>
+        <div className="relative mb-4 rounded-xl overflow-hidden bg-secondary h-[40vh] max-h-[300px] min-h-[200px]">
           <Cropper
             image={image}
             crop={crop}
