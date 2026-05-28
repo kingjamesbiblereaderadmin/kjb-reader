@@ -35,7 +35,8 @@ function resolveBook(bufferLines) {
 
 export function parsePceText(text) {
   const data = {};
-  const rawLines = text.split('\n');
+  // Normalise CRLF / CR line endings so regex anchors and double-space detection work.
+  const rawLines = text.replace(/\r\n?/g, '\n').split('\n');
 
   let currentBook = null;
   let currentChapter = null;
