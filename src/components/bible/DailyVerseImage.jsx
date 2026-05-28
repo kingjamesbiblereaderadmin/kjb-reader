@@ -1093,8 +1093,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       {/* Lightbox Modal */}
       {showLightbox && (
         <div
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm overflow-y-auto py-6"
-          style={{ paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}
+          className="fixed inset-0 z-[200] flex items-start sm:items-center justify-center bg-black/90 backdrop-blur-sm overflow-y-auto py-6"
+          style={{ width: '100vw', height: '100vh', top: 0, left: 0 }}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
