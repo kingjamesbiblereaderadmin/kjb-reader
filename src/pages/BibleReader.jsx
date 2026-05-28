@@ -250,6 +250,7 @@ export default function BibleReader() {
     setLoading(true);
     setError(null);
     setVerses([]);
+    setColophon(null);
     // Always scroll to top first; verse centering happens after load
     window.scrollTo({ top: 0 });
     const b = BIBLE_BOOKS.find(bk => bk.abbr === bookAbbr);
