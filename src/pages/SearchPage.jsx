@@ -272,17 +272,6 @@ export default function SearchPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [testament, wholeWord, caseSensitive, exactMatch, selectedBooks]);
 
-  // Debounced search for typing
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      const q = query.trim();
-      if (q.length >= 2 && !location.search) {
-        runSearch(q);
-      }
-    }, 500);
-    return () => clearTimeout(handler);
-  }, [query]);
-
   // Re-run search whenever URL changes (fixes header search bar)
   useEffect(() => {
     const q = getQueryFromUrl();
