@@ -910,6 +910,13 @@ export default function SettingsPage() {
                 className="flex-1 px-3 py-1.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground focus:outline-none focus:border-accent"
               />
               <button
+                onClick={() => handleTimeChange({ target: { value: '08:00' } })}
+                className="shrink-0 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+                title="Reset to 8:00 AM"
+              >
+                8 AM
+              </button>
+              <button
                 onClick={handleTestNotif}
                 className="shrink-0 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
               >

@@ -320,8 +320,37 @@ export default function AppLayout() {
         />
       )}
 
+      <DesktopFooter navigate={navigate} setMenuOpen={setMenuOpen} />
+    </div>
+    </AutoUpdateHandler>
+  );
+}
+
+function DesktopFooter({ navigate, setMenuOpen }) {
+  const [open, setOpen] = useState(() => {
+    try { return localStorage.getItem('kjb-desktop-footer-open') !== 'false'; } catch { return true; }
+  });
+  const toggle = () => {
+    setOpen(o => {
+      const next = !o;
+      try { localStorage.setItem('kjb-desktop-footer-open', String(next)); } catch {}
+      return next;
+    });
+  };
+  return (
       <footer className="hidden sm:block border-t border-border bg-card/80 py-3 mt-8">
         <div className="max-w-5xl mx-auto px-4">
+          <div className="flex justify-center mb-2">
+            <button
+              onClick={toggle}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-lg font-sans text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+            >
+              {open ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+              {open ? 'Hide menu' : 'Show menu'}
+            </button>
+          </div>
+          {open && (
+          <>
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mb-3">
             {NAV_ITEMS.map(item => {
               const Icon = item.icon;
@@ -352,10 +381,10 @@ export default function AppLayout() {
               Base44
             </a>
           </p>
+          </>
+          )}
         </div>
       </footer>
-    </div>
-    </AutoUpdateHandler>
   );
 }
 

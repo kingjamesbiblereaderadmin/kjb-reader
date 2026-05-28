@@ -79,9 +79,11 @@ export function renderVerseText(text) {
   // Fix pilcrow characters used as apostrophes within words (e.g., "Christ¶s" → "Christ's")
   cleaned = cleaned.replace(/(\w)\u00B6(\w)/g, '$1\'$2');
   cleaned = cleaned.replace(/(\w)\uFFFD(\w)/g, '$1\'$2');
-  // Only render pilcrow if it appears at the START of the text (after trimming)
-  // This ensures pilcrows are paragraph markers, not mid-word characters
+  // Render pilcrow as a paragraph marker when it appears at the START of the text…
   cleaned = cleaned.replace(/^[\u00B6\uFFFD]\s*/, '<span class="pilcrow">¶</span> ');
+  // …or mid-verse when preceded by a space or sentence punctuation (e.g. "houses. ¶But").
+  // This prevents the raw ¶ from gluing to the previous word (the "kings¶" → "kingspilcrow" bug).
+  cleaned = cleaned.replace(/([\s.,;:!?'")\]])[\u00B6\uFFFD]\s*/g, '$1 <span class="pilcrow">¶</span> ');
   // Turn [bracketed] text into italics
   const parts = cleaned.split(/\[([^\]]+)\]/g);
   const result = parts.map((part, i) =>
