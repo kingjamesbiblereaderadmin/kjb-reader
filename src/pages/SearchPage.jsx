@@ -27,10 +27,12 @@ export default function SearchPage() {
   const getQueryFromUrl = () => new URLSearchParams(window.location.search).get('q') || '';
 
   const [query, setQuery] = useState(getQueryFromUrl);
+  // Start in loading state if there's a query in the URL, so the empty/prompt
+  // states don't flash before the initial search kicks off.
+  const [loading, setLoading] = useState(() => getQueryFromUrl().trim().length >= 2);
   const [highlightTerm, setHighlightTerm] = useState('');
   const [highlightCaseSensitive, setHighlightCaseSensitive] = useState(false);
   const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [testament, setTestament] = useState('all');
   const [wholeWord, setWholeWord] = useState(false);
