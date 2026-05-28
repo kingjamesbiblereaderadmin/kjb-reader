@@ -158,6 +158,12 @@ const RESOURCES = [
     label: "bibleprotector.com"
   },
   {
+    title: "The Word of God Will Keep Its Infallibility (Archive.org)",
+    desc: "Historical book demonstrating that the King James Bible is infallible — full text available on Archive.org.",
+    url: "https://archive.org/details/wordgodwillkeepi0000faus/page/18/mode/1up?q=%22King+James+Bible+is+infallible%22",
+    label: "Read on Archive.org"
+  },
+  {
     title: "KJV Compare",
     desc: "Go through hundreds of changes made in modern versions of the Bible — verse-by-verse.",
     url: "https://kjvcompare.com/",

@@ -1145,7 +1145,7 @@ export default function SettingsPage() {
               <MessageCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground">Discord</p>
-                <p className="font-sans text-xs text-muted-foreground">shawn_svdbyfaithinhisbloodr325av</p>
+                <p className="font-sans text-xs text-muted-foreground">shawn_faithinhisbloodr325av</p>
               </div>
             </div>
             <a
