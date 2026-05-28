@@ -5,7 +5,7 @@
 import { saveToIndexedDB, loadFromIndexedDB, clearIndexedDB } from '@/lib/bibleIndexedDB';
 import { COLOPHONS } from '@/lib/bibleSubscripts';
 
-const CACHE_KEY = 'bible_data_pce_v66_WHARTON_MAIN';
+const CACHE_KEY = 'bible_data_pce_v67_WHARTON_APOSTROPHE_FIX';
 // WHARTON file is main text (with pilcrows ¶), RTF file has [brackets] for italics
 const MAIN_TEXT_FILE_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/badea04f1_WHARTON_PCE.txt';
 const ITALICS_FILE_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/075077e5d_KJB-PCE-RTF.txt';
@@ -276,6 +276,12 @@ function parseWithPilcrowsAndItalics(whartonText, italicMap) {
       // Convert \[text\] to [text] for consistent rendering (keep brackets!)
       verseText = verseText
         .replace(/\\\[([^\]]+)\\\]/g, '[$1]');
+
+      // Fix apostrophes that were stored as pilcrow chars (¶ / U+FFFD) WITHIN words.
+      // A pilcrow between two letters is always an apostrophe (e.g. "Christ¶s" → "Christ's").
+      // This is done in the parsed data so the fix is permanent in the offline cache.
+      verseText = verseText
+        .replace(/([A-Za-z])[\u00B6\uFFFD]([A-Za-z])/g, "$1'$2");
 
       verseText = stripColophon(verseText);
 
