@@ -4,44 +4,10 @@ import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square,
 import { getBibleData } from '@/lib/bibleCache';
 import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
 import { parseReference } from '@/lib/parseReference';
+import SearchResultsList from '@/components/bible/SearchResultsList';
 
 const OT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'OT' || BIBLE_BOOKS.indexOf(b) < 39).map(b => b.apiName));
 const NT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'NT' || BIBLE_BOOKS.indexOf(b) >= 39).map(b => b.apiName));
-
-// Render [bracketed] words as <em> italics, with optional search-term highlighting
-function renderWithItalics(text, searchTerm, caseSensitive) {
-  // Split text into segments: italic ([...]) vs normal
-  const segments = [];
-  const italicRegex = /\[([^\]]+)\]/g;
-  let lastIdx = 0;
-  let m;
-  while ((m = italicRegex.exec(text)) !== null) {
-    if (m.index > lastIdx) segments.push({ italic: false, text: text.slice(lastIdx, m.index) });
-    segments.push({ italic: true, text: m[1] });
-    lastIdx = m.index + m[0].length;
-  }
-  if (lastIdx < text.length) segments.push({ italic: false, text: text.slice(lastIdx) });
-
-  const renderHighlighted = (str, keyBase) => {
-    if (!searchTerm) return str;
-    const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const flags = caseSensitive ? 'g' : 'gi';
-    const regex = new RegExp(`(${escaped})`, flags);
-    const testRegex = new RegExp(escaped, flags);
-    const parts = str.split(regex);
-    return parts.map((part, i) =>
-      testRegex.test(part)
-        ? <mark key={`${keyBase}-${i}`} className="bg-accent/40 text-foreground rounded px-0.5">{part}</mark>
-        : <React.Fragment key={`${keyBase}-${i}`}>{part}</React.Fragment>
-    );
-  };
-
-  return segments.map((seg, i) =>
-    seg.italic
-      ? <em key={i} className="text-foreground/75">{renderHighlighted(seg.text, `i${i}`)}</em>
-      : <React.Fragment key={i}>{renderHighlighted(seg.text, `n${i}`)}</React.Fragment>
-  );
-}
 
 // Strip surrounding quotes from a display query (for "results for" labels)
 function stripQuotes(s) {
@@ -612,66 +578,15 @@ export default function SearchPage() {
           )}
 
           {/* Verse list */}
-          <div className="space-y-2">
-            {results.map((r, i) => {
-              const isSelected = selected.has(i);
-              const isColophon = r.isColophon || r.verse === 0;
-              // Testament separator header
-              const isNT = NT_BOOKS.has(r.book);
-              const prevIsNT = i > 0 ? NT_BOOKS.has(results[i - 1].book) : null;
-              const showOTHeader = i === 0 && !isNT;
-              const showNTHeader = isNT && (i === 0 || !prevIsNT);
-              return (
-              <React.Fragment key={`frag-${i}`}>
-                {showOTHeader && (
-                  <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground pt-2 pb-1 border-b border-border mb-1">Old Testament</p>
-                )}
-                {showNTHeader && (
-                  <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground pt-3 pb-1 border-b border-border mb-1">New Testament</p>
-                )}
-                <div
-                  onClick={() => {
-                    if (selectMode) {
-                      toggleSelect(i);
-                    } else if (isColophon) {
-                      goToVerse(r.abbr, r.chapter, null);
-                    } else {
-                      goToVerse(r.abbr, r.chapter, r.verse);
-                    }
-                  }}
-                  className={`w-full text-left p-4 rounded-xl border transition-colors cursor-pointer flex items-start gap-3 ${
-                    isSelected
-                      ? 'bg-primary/10 border-primary/40'
-                      : 'bg-card border-border hover:border-accent/40 hover:bg-accent/5'
-                  }`}
-                >
-                  {selectMode && (
-                    <div className="shrink-0 mt-0.5">
-                      {isSelected
-                        ? <CheckSquare className="w-4 h-4 text-primary" />
-                        : <Square className="w-4 h-4 text-muted-foreground" />
-                      }
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-sans text-xs text-accent font-semibold mb-1 flex items-center gap-1">
-                      <BookOpen className="w-3 h-3" />
-                      {BIBLE_BOOKS.find(b => b.apiName === r.book)?.shortName || r.book} {r.chapter}
-                      {isColophon ? ' (Colophon)' : `:${r.verse}`}
-                    </p>
-                    <p className="font-serif text-base text-foreground leading-relaxed">
-                      {isColophon ? (
-                      <span className="italic text-muted-foreground">¶ {renderWithItalics(r.text, highlightTerm || stripQuotes(query), highlightCaseSensitive)}</span>
-                      ) : (
-                      <span>"{renderWithItalics(r.text, highlightTerm || stripQuotes(query), highlightCaseSensitive)}"</span>
-                      )}
-                    </p>
-                  </div>
-                </div>
-              </React.Fragment>
-              );
-            })}
-          </div>
+          <SearchResultsList
+            results={results}
+            highlightTerm={highlightTerm}
+            highlightCaseSensitive={highlightCaseSensitive}
+            selectMode={selectMode}
+            selected={selected}
+            onToggleSelect={toggleSelect}
+            onGoToVerse={goToVerse}
+          />
         </div>
       )}
 
