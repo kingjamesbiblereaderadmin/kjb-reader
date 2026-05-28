@@ -190,8 +190,8 @@ export default function AppLayout() {
             <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB Reader" className="h-8 w-auto" />
           </Link>
 
-          {/* Search - expands to fill space, capped on desktop */}
-          <div className="flex-1 min-w-0 sm:max-w-xs pointer-events-auto">
+          {/* Search - expands to fill all available space so icons sit flush right */}
+          <div className="flex-1 min-w-0 pointer-events-auto">
             <BibleSearchBar onClose={() => setMenuOpen(false)} />
           </div>
 
