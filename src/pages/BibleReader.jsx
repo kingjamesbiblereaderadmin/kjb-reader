@@ -11,11 +11,25 @@ import VerseText from '@/components/bible/VerseText';
 import TitlePage from '@/components/bible/TitlePage';
 import SelectorSheet from '@/components/bible/SelectorSheet';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
+import { useLocation } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 
 const isMobile = () => window.innerWidth < 640;
 
 const STORAGE_KEY = 'kjb-position';
+
+// Resolve a book from a URL/string token — accepts abbr (e.g. "GEN"),
+// short name, or api name (case-insensitive, ignores spaces).
+function resolveBook(token) {
+  if (!token) return null;
+  const t = String(token).trim().toLowerCase().replace(/\s+/g, '');
+  return BIBLE_BOOKS.find(b =>
+    b.abbr.toLowerCase() === t ||
+    b.shortName.toLowerCase().replace(/\s+/g, '') === t ||
+    (b.apiName && b.apiName.toLowerCase().replace(/\s+/g, '') === t) ||
+    (b.name && b.name.toLowerCase().replace(/\s+/g, '') === t)
+  ) || null;
+}
 
 // Format verses with dashes for consecutive, commas for gaps
 function formatVerseRange(verses) {
@@ -69,6 +83,7 @@ function savePosition(abbr, chapter) {
 
 export default function BibleReader() {
   const { hideHeader, setHideHeader } = useHeaderHide();
+  const routerLocation = useLocation();
   const [pos, setPos] = useState(loadPosition);
   const [verses, setVerses] = useState([]);
   const [colophon, setColophon] = useState(null);
@@ -320,18 +335,20 @@ export default function BibleReader() {
     };
     preloadAndCache();
     
-    // Check for URL parameters (from Daily Reading page)
+    // Check for URL parameters: ?book=John&chapter=3&verse=16
+    // (book accepts abbr, short name, or full name)
     const urlParams = new URLSearchParams(window.location.search);
     const urlBook = urlParams.get('book');
     const urlChapter = urlParams.get('chapter');
     const urlVerse = urlParams.get('verse');
-    
-    if (urlBook && urlChapter) {
-      // Navigate to specified chapter from URL
+
+    const urlBookObj = resolveBook(urlBook);
+    if (urlBookObj && urlChapter) {
       const chapterNum = parseInt(urlChapter, 10);
       const verseNum = urlVerse ? parseInt(urlVerse, 10) : null;
-      setPos({ abbr: urlBook, chapter: chapterNum, verse: null });
-      loadChapter(urlBook, chapterNum, verseNum);
+      setPos({ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum });
+      setHighlightVerse(verseNum || null);
+      loadChapter(urlBookObj.abbr, chapterNum, verseNum);
     } else {
       // Load from saved position WITH highlight if verse is specified
       loadChapter(pos.abbr, pos.chapter, pos.verse || null);
@@ -346,16 +363,68 @@ export default function BibleReader() {
     }
   }, []);
 
+  // React to navigation requests when the reader is ALREADY mounted:
+  //  • search bar / daily verse / random verse dispatch a 'kjb-navigate' event
+  //    after writing kjb-position
+  //  • the URL query string changes (?book=&chapter=&verse=)
+  // Without this, navigating to /read while already on /read does nothing.
+  useEffect(() => {
+    // 1) URL params take priority when present
+    const urlParams = new URLSearchParams(routerLocation.search);
+    const urlBookObj = resolveBook(urlParams.get('book'));
+    const urlChapter = urlParams.get('chapter');
+    if (urlBookObj && urlChapter) {
+      const chapterNum = parseInt(urlChapter, 10);
+      const verseNum = urlParams.get('verse') ? parseInt(urlParams.get('verse'), 10) : null;
+      setFilterMode(false);
+      setSelectedVerses(new Set());
+      setPos({ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum });
+      setHighlightVerse(verseNum || null);
+      loadChapter(urlBookObj.abbr, chapterNum, verseNum);
+      return;
+    }
+
+    // 2) Otherwise honour an explicit navigate event (from saved position)
+    const applyRequestedPosition = () => {
+      let p;
+      try { p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return; }
+      if (!p || !resolveBook(p.abbr)) return;
+      if (p.verse && p.verseEnd && p.verseEnd > p.verse) {
+        const range = new Set();
+        for (let v = p.verse; v <= p.verseEnd; v++) range.add(v);
+        setSelectedVerses(range);
+        setFilterMode(true);
+      } else {
+        setFilterMode(false);
+        setSelectedVerses(new Set());
+      }
+      setPos({ abbr: p.abbr, chapter: p.chapter, verse: p.verse || null });
+      setHighlightVerse(p.verse || null);
+      loadChapter(p.abbr, p.chapter, p.verse || null);
+    };
+    window.addEventListener('kjb-navigate', applyRequestedPosition);
+    return () => window.removeEventListener('kjb-navigate', applyRequestedPosition);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routerLocation.search, loadChapter]);
+
   // Scroll to verse when highlight is set; otherwise restore last scroll
   // position for this chapter (so switching pages and back resumes reading).
   useEffect(() => {
     if (loading) return;
     if (highlightVerse) {
-      const timer = setTimeout(() => {
+      // Align the verse start just below the sticky app header + reader toolbar
+      // (not hidden underneath, not mid-verse). Retry once after layout settles.
+      const scrollToVerse = () => {
         const el = document.getElementById(`v${highlightVerse}`);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 100);
-      return () => clearTimeout(timer);
+        if (!el) return;
+        const toolbarH = topRef.current ? topRef.current.getBoundingClientRect().height : 0;
+        const stickyOffset = 56 + toolbarH + 12;
+        const top = el.getBoundingClientRect().top + window.scrollY - stickyOffset;
+        window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      };
+      const t1 = setTimeout(scrollToVerse, 200);
+      const t2 = setTimeout(scrollToVerse, 600);
+      return () => { clearTimeout(t1); clearTimeout(t2); };
     }
     // No highlight: restore saved scroll offset for this chapter
     const timer = setTimeout(() => {
