@@ -1195,19 +1195,19 @@ export default function BibleReader() {
       {/* Show header chevron when hidden — portaled to body so it stays truly
           fixed to the viewport (escapes the animated page wrapper) while text scrolls */}
       {hideHeader && createPortal(
-        <div className="fixed top-0 left-0 right-0 h-[49px] border-b border-border bg-background/95 backdrop-blur z-[110]" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-          <div className="w-full max-w-5xl mx-auto px-4 sm:px-8 lg:px-16 h-full flex items-center justify-end">
+        <div className="fixed top-0 left-0 right-0 border-b border-border bg-background/95 backdrop-blur z-[110]" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+          <div className="w-full max-w-5xl mx-auto px-4 sm:px-8 lg:px-16 py-1.5 flex items-center justify-end">
             <div className="flex items-center gap-1">
               <button
                 onClick={toggleFullscreen}
                 title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-                className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
+                className="p-2 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center"
               >
                 {fullscreen ? <Minimize2 className="w-4 h-4 transition-transform duration-200" /> : <Maximize2 className="w-4 h-4 transition-transform duration-200" />}
               </button>
               <button
                 onClick={() => setHideHeader(false)}
-                className="p-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
+                className="p-2 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center"
                 title="Show header"
               >
                 <ChevronDown className="w-4 h-4 rotate-180 transition-transform duration-200" />
