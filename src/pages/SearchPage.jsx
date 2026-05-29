@@ -56,6 +56,7 @@ export default function SearchPage() {
   const runSearch = useCallback(async (kw) => {
     if (!kw || kw.trim().length < 2) return;
     setLoading(true);
+    setSearched(true);
     setResults([]);
     setSelected(new Set());
     setSelectMode(false);
@@ -318,6 +319,8 @@ export default function SearchPage() {
     const kw = query.trim();
     if (kw.length >= 2) {
       window.history.replaceState({}, '', `/search?q=${encodeURIComponent(kw)}`);
+      setSearched(true);
+      setShowBookResult(null);
       runSearch(kw);
     }
   };
