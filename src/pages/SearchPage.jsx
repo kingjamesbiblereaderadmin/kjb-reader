@@ -56,7 +56,6 @@ export default function SearchPage() {
   const runSearch = useCallback(async (kw) => {
     if (!kw || kw.trim().length < 2) return;
     setLoading(true);
-    setSearched(true);
     setResults([]);
     setSelected(new Set());
     setSelectMode(false);
@@ -618,7 +617,7 @@ export default function SearchPage() {
           {showBookResult && (
             <div className="mb-4 p-4 rounded-xl bg-primary/5 border border-primary/20">
               <p className="font-sans text-xs text-muted-foreground mb-3">
-                "{stripQuotes(getQueryFromUrl() || query)}" matches the book of {showBookResult.bookName}. How would you like to search?
+                Found the book of <span className="font-semibold text-foreground">{showBookResult.bookName}</span>. How would you like to search?
               </p>
               <div className="grid sm:grid-cols-2 gap-2">
                 <button
@@ -636,12 +635,8 @@ export default function SearchPage() {
                 </button>
                 <button
                   onClick={() => {
-                    const q = getQueryFromUrl() || query;
                     setShowBookResult(null);
-                    setSearched(true);
-                    // Force re-run of search with the query
-                    window.history.replaceState({}, '', `/search?q=${encodeURIComponent(q)}`);
-                    runSearch(q);
+                    // Search is already running, just let it complete
                   }}
                   className="flex items-center gap-3 p-3 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-colors"
                 >
