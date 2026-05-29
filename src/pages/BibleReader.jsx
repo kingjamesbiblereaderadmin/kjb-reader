@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2 } from 'lucide-react';
 import { buildVerseUrl, formatVerseShare, cleanVerseText } from '@/lib/formatDailyVerse';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
@@ -1110,9 +1111,10 @@ export default function BibleReader() {
         </div>
       )}
 
-      {/* Show header chevron when hidden — aligned with top border */}
-      {hideHeader && (
-        <div className="fixed top-0 left-0 right-0 h-[49px] border-b border-border bg-background/95 backdrop-blur z-[110]">
+      {/* Show header chevron when hidden — portaled to body so it stays truly
+          fixed to the viewport (escapes the animated page wrapper) while text scrolls */}
+      {hideHeader && createPortal(
+        <div className="fixed top-0 left-0 right-0 h-[49px] border-b border-border bg-background/95 backdrop-blur z-[110]" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="w-full max-w-5xl mx-auto px-4 sm:px-8 lg:px-16 h-full flex items-center justify-end">
             <div className="flex items-center gap-1">
               <button
@@ -1131,7 +1133,8 @@ export default function BibleReader() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Click/tap outside to close desktop dropdowns and mobile sheets */}
