@@ -13,6 +13,7 @@ import { getDailyVerse } from '@/lib/dailyVerse';
 import { getBibleData, isBibleCached, initPeriodicCacheRefresh, downloadBibleForOffline, refreshCacheIfDue, CACHE_VERSION } from '@/lib/bibleCache';
 import { toast } from 'sonner';
 import { useSoftReload } from '@/lib/SoftReloadContext';
+import { getAccessibilityFont, applyAccessibilityFont } from '@/lib/accessibilityFont';
 
 const scrollMainToTop = () => {
   const el = document.getElementById('kjb-scroll');
@@ -110,18 +111,8 @@ export default function AppLayout() {
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
-    // Ensure default is standard font (not dyslexic)
-    try {
-      const saved = localStorage.getItem('kjb-dyslexic-font');
-      if (saved === null) {
-        localStorage.setItem('kjb-dyslexic-font', 'false');
-      }
-      if (saved === 'true') {
-        document.documentElement.setAttribute('data-dyslexic-font', 'true');
-      } else {
-        document.documentElement.removeAttribute('data-dyslexic-font');
-      }
-    } catch {}
+    // Apply app-wide accessibility font preference on load
+    applyAccessibilityFont(getAccessibilityFont());
 
     // Auto-update and offline download on app load
     const initializeApp = async () => {

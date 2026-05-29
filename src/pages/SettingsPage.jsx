@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Instagram, RotateCcw } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Instagram, RotateCcw, Accessibility } from 'lucide-react';
 
 const TikTokIcon = () => (
   <svg className="w-4 h-4 text-green-500" viewBox="0 0 24 24" fill="currentColor">
@@ -20,6 +20,13 @@ import {
 
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { downloadBibleForOffline, clearBibleCache, isBibleCached } from '@/lib/bibleCache';
+import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
+
+const A11Y_FONTS = [
+  { value: 'default', label: 'Default', desc: 'Standard app fonts' },
+  { value: 'dyslexic', label: 'OpenDyslexic', desc: 'Designed for readers with dyslexia', preview: "'OpenDyslexic', 'Comic Sans MS', sans-serif" },
+  { value: 'hyperlegible', label: 'Atkinson Hyperlegible', desc: 'High legibility for low vision', preview: "'Atkinson Hyperlegible', system-ui, sans-serif" },
+];
 
 const LAST_REVISED = 'May 2026';
 
@@ -28,8 +35,10 @@ export default function SettingsPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteInput, setDeleteInput] = useState('');
   const [deleting, setDeleting] = useState(false);
+  const [a11yFont, setA11yFont] = useState(getAccessibilityFont);
   const [expandedSections, setExpandedSections] = useState({
     text: true,
+    accessibility: true,
     appearance: true,
     install: true,
     offline: true,
@@ -273,6 +282,7 @@ export default function SettingsPage() {
     const newState = !allExpanded;
     setExpandedSections({
       text: newState,
+      accessibility: newState,
       appearance: newState,
       install: newState,
       offline: newState,
@@ -403,6 +413,57 @@ export default function SettingsPage() {
         </button>
         </div>
         </div>
+        </div>
+        )}
+      </div>
+
+      {/* Accessibility */}
+      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+        <button
+          onClick={() => toggleSection('accessibility')}
+          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+        >
+          <div>
+            <h2 className="font-serif text-lg font-semibold text-foreground">Accessibility</h2>
+            <p className="font-sans text-xs text-muted-foreground">Reading fonts for the whole app</p>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.accessibility ? 'rotate-180' : ''}`} />
+        </button>
+        {expandedSections.accessibility && (
+        <div className="p-5 pt-0 space-y-4">
+          <div className="flex items-center gap-2">
+            <Accessibility className="w-4 h-4 text-muted-foreground" />
+            <p className="font-sans text-sm text-foreground font-medium">Accessibility Font</p>
+          </div>
+          <p className="font-sans text-xs text-muted-foreground -mt-1">
+            Applies across the entire app — menus, pages, and scripture.
+          </p>
+          <div className="flex flex-col gap-2">
+            {A11Y_FONTS.map(font => (
+              <button
+                key={font.value}
+                onClick={() => {
+                  setA11yFont(font.value);
+                  setAccessibilityFont(font.value);
+                }}
+                className={`w-full p-3 rounded-xl transition-all text-left border-2 ${
+                  a11yFont === font.value
+                    ? 'bg-primary/10 border-primary'
+                    : 'bg-transparent border-border hover:border-accent'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-sans text-sm font-medium text-foreground" style={font.preview ? { fontFamily: font.preview } : undefined}>
+                      {font.label}
+                    </p>
+                    <p className="font-sans text-xs text-muted-foreground mt-0.5">{font.desc}</p>
+                  </div>
+                  {a11yFont === font.value && <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />}
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
         )}
       </div>

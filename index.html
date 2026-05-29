@@ -43,6 +43,12 @@
           }
           if (isDark) document.documentElement.classList.add('dark');
         } catch (e) {}
+        try {
+          var a11yFont = localStorage.getItem('kjb-a11y-font');
+          if (a11yFont === 'dyslexic' || a11yFont === 'hyperlegible') {
+            document.documentElement.setAttribute('data-a11y-font', a11yFont);
+          }
+        } catch (e) {}
       })();
     </script>
     <style>
