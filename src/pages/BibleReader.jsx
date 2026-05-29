@@ -850,7 +850,9 @@ export default function BibleReader() {
                     onSelect={(v) => {
                       const first = Array.isArray(v) ? v[0] : v;
                       if (Array.isArray(v) && v.length > 1) {
-                        setSelectedVerses(new Set(v));
+                        const range = new Set(v);
+                        setSelectedVerses(range);
+                        setHighlightedVerses(range);
                         setSelectMode(false);
                         setFilterMode(true);
                       }
@@ -869,7 +871,9 @@ export default function BibleReader() {
                   onSelect={(v) => {
                     const first = Array.isArray(v) ? v[0] : v;
                     if (Array.isArray(v) && v.length > 1) {
-                      setSelectedVerses(new Set(v));
+                      const range = new Set(v);
+                      setSelectedVerses(range);
+                      setHighlightedVerses(range);
                       setSelectMode(false);
                       setFilterMode(true);
                     }
