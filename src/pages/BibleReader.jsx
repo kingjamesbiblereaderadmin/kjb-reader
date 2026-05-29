@@ -1254,11 +1254,11 @@ export default function BibleReader() {
                 Currently reading: {filterMode && selectedVerses.size > 0
                   ? `Selected vv.${formatVerseRange([...selectedVerses])}`
                   : lastReadingPos && lastReadingPos.fromRandom
-                  ? `Random chapter: ${book.name} ${pos.chapter}`
+                  ? `Random chapter: ${book.shortName} ${pos.chapter}`
                   : lastReadingPos && lastReadingPos.fromDailyVerse
-                  ? `Daily verse: ${book.name} v.${pos.verse || '1'}`
+                  ? `Daily verse: ${book.shortName} v.${pos.verse || '1'}`
                   : pos.verse
-                  ? `${book.name} v.${pos.verse}`
+                  ? `${book.shortName} v.${pos.verse}`
                   : ''}
               </p>
             </div>
