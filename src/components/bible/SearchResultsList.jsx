@@ -97,6 +97,10 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
         const prevIsNT = i > 0 ? NT_BOOKS.has(results[i - 1].book) : null;
         const showOTHeader = i === 0 && !isNT;
         const showNTHeader = isNT && (i === 0 || !prevIsNT);
+        // Skip rendering this result if its section is collapsed
+        const isOTCollapsed = !isNT && !otExpanded;
+        const isNTCollapsed = isNT && !ntExpanded;
+        if (isOTCollapsed || isNTCollapsed) return null;
         return (
           <React.Fragment key={`frag-${i}`}>
             {showOTHeader && (
@@ -137,23 +141,22 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                 )}
               </div>
             )}
-            {!((showOTHeader && !otExpanded) || (showNTHeader && !ntExpanded)) && (
-              <div
-                onClick={() => {
-                  if (selectMode) {
-                    onToggleSelect(i);
-                  } else if (isColophon) {
-                    onGoToVerse(r.abbr, r.chapter, null);
-                  } else {
-                    onGoToVerse(r.abbr, r.chapter, r.verse);
-                  }
-                }}
-                className={`w-full text-left p-4 rounded-xl border transition-colors cursor-pointer flex items-start gap-3 ${
-                  isSelected
-                    ? 'bg-primary/10 border-primary/40'
-                    : 'bg-card border-border hover:border-accent/40 hover:bg-accent/5'
-                }`}
-              >
+            <div
+              onClick={() => {
+                if (selectMode) {
+                  onToggleSelect(i);
+                } else if (isColophon) {
+                  onGoToVerse(r.abbr, r.chapter, null);
+                } else {
+                  onGoToVerse(r.abbr, r.chapter, r.verse);
+                }
+              }}
+              className={`w-full text-left p-4 rounded-xl border transition-colors cursor-pointer flex items-start gap-3 ${
+                isSelected
+                  ? 'bg-primary/10 border-primary/40'
+                  : 'bg-card border-border hover:border-accent/40 hover:bg-accent/5'
+              }`}
+            >
                 {selectMode && (
                   <div className="shrink-0 mt-0.5">
                     {isSelected
