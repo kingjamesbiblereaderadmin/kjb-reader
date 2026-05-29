@@ -35,7 +35,7 @@ export default function SearchPage() {
   const [results, setResults] = useState([]);
   const [totalOccurrences, setTotalOccurrences] = useState(0);
   const [searched, setSearched] = useState(false);
-  const [testament, setTestament] = useState('all');
+  const [testamentFilter, setTestamentFilter] = useState(new Set(['all'])); // Multi-select: 'all', 'old', 'new'
   const [wholeWord, setWholeWord] = useState(false);
   const [caseSensitive, setCaseSensitive] = useState(false);
   const [exactMatch, setExactMatch] = useState(false);
@@ -145,8 +145,14 @@ export default function SearchPage() {
 
       for (const bookName in bible) {
         if (bookName === '__colophons') continue;
-        if (testament === 'old' && !OT_BOOKS.has(bookName)) continue;
-        if (testament === 'new' && !NT_BOOKS.has(bookName)) continue;
+        // Multi-select testament filter
+        const hasAll = testamentFilter.has('all');
+        const hasOld = testamentFilter.has('old');
+        const hasNew = testamentFilter.has('new');
+        const isOT = OT_BOOKS.has(bookName);
+        const isNT = NT_BOOKS.has(bookName);
+        // Skip if no matching testament selected
+        if (!hasAll && ((isOT && !hasOld) || (isNT && !hasNew))) continue;
         
         if (selectedBooks.size > 0) {
           const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
@@ -303,7 +309,7 @@ export default function SearchPage() {
       setResults([]);
     }
     setLoading(false);
-  }, [testament, wholeWord, caseSensitive, exactMatch, selectedBooks, numberedBookFilter]);
+  }, [testamentFilter, wholeWord, caseSensitive, exactMatch, selectedBooks, numberedBookFilter]);
 
   // Re-run the search whenever filters change (after an initial search has been done)
   useEffect(() => {
@@ -312,7 +318,7 @@ export default function SearchPage() {
       runSearch(q);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [testament, wholeWord, caseSensitive, exactMatch, selectedBooks, numberedBookFilter]);
+  }, [testamentFilter, wholeWord, caseSensitive, exactMatch, selectedBooks, numberedBookFilter]);
 
   // Re-run search whenever URL changes (fixes header search bar)
   useEffect(() => {
@@ -481,18 +487,46 @@ export default function SearchPage() {
       <div className="flex flex-wrap items-center gap-2 mb-5">
         <Filter className="w-3.5 h-3.5 text-muted-foreground" />
         <span className="font-sans text-xs text-muted-foreground">Testament:</span>
-        {[['all', 'All'], ['old', 'Old Testament'], ['new', 'New Testament']].map(([val, label]) => (
-          <button
-            key={val}
-            type="button"
-            onClick={() => setTestament(val)}
-            className={`px-2.5 py-1 rounded-lg font-sans text-xs font-medium transition-colors ${
-              testament === val ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-            }`}
-          >
-            {label}
-          </button>
-        ))}
+        {[['all', 'All'], ['old', 'OT'], ['new', 'NT']].map(([val, label]) => {
+          const isActive = testamentFilter.has(val);
+          return (
+            <button
+              key={val}
+              type="button"
+              onClick={() => {
+                setTestamentFilter(prev => {
+                  const next = new Set(prev);
+                  if (val === 'all') {
+                    // Toggle all: if all is already active, clear everything; otherwise select only all
+                    if (next.has('all')) {
+                      next.clear();
+                    } else {
+                      next.clear();
+                      next.add('all');
+                    }
+                  } else {
+                    // Toggle specific testament
+                    if (next.has(val)) {
+                      next.delete(val);
+                      // If nothing left, add 'all' back
+                      if (next.size === 0) next.add('all');
+                    } else {
+                      next.add(val);
+                      // If both OT and NT are selected, also add 'all' for consistency
+                      if (next.has('old') && next.has('new')) next.add('all');
+                    }
+                  }
+                  return next;
+                });
+              }}
+              className={`px-2.5 py-1 rounded-lg font-sans text-xs font-medium transition-colors ${
+                isActive ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+              }`}
+            >
+              {label}
+            </button>
+          );
+        })}
         <button
           type="button"
           onClick={() => setShowBookFilter(!showBookFilter)}
@@ -587,7 +621,8 @@ export default function SearchPage() {
             </div>
             <div className="flex-1 overflow-y-auto px-4 pb-2" style={{ minHeight: '300px', maxHeight: '400px' }}>
               <div className="space-y-4">
-                {/* Old Testament section */}
+                {/* Old Testament section - only show if 'all' or 'old' is selected */}
+                {(testamentFilter.has('all') || testamentFilter.has('old')) && (
                 <div>
                   <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 sticky top-0 bg-card py-1">
                     Old Testament {searched && booksWithResults.size > 0 && <span className="font-normal normal-case text-muted-foreground/60">({[...booksWithResults].filter(abbr => OLD_TESTAMENT.some(b => b.abbr === abbr)).length})</span>}
@@ -619,21 +654,23 @@ export default function SearchPage() {
                         {book.shortName}
                       </button>
                     ))}
-                  </div>
-                </div>
-                {/* New Testament section */}
-                <div>
-                  <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 sticky top-0 bg-card py-1">
+                    </div>
+                    </div>
+                    )}
+                    {/* New Testament section - only show if 'all' or 'new' is selected */}
+                    {(testamentFilter.has('all') || testamentFilter.has('new')) && (
+                    <div>
+                    <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 sticky top-0 bg-card py-1">
                     New Testament {searched && booksWithResults.size > 0 && <span className="font-normal normal-case text-muted-foreground/60">({[...booksWithResults].filter(abbr => NEW_TESTAMENT.some(b => b.abbr === abbr)).length})</span>}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
+                    </p>
+                    <div className="flex flex-wrap gap-2">
                     {NEW_TESTAMENT
-                      .filter(book => {
-                        const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
-                        const hasResults = booksWithResults === null || booksWithResults.has(book.abbr);
-                        return matchesQuery && hasResults;
-                      })
-                      .map(book => (
+                    .filter(book => {
+                      const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
+                      const hasResults = booksWithResults === null || booksWithResults.has(book.abbr);
+                      return matchesQuery && hasResults;
+                    })
+                    .map(book => (
                       <button
                         key={book.abbr}
                         onClick={() => {
@@ -653,10 +690,11 @@ export default function SearchPage() {
                         {book.shortName}
                       </button>
                     ))}
-                  </div>
-                </div>
-              </div>
-            </div>
+                    </div>
+                    </div>
+                    )}
+                    </div>
+                    </div>
             <div className="p-4 border-t border-border">
               <button
                 onClick={() => setShowBookFilter(false)}
