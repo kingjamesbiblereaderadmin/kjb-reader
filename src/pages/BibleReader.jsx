@@ -153,6 +153,29 @@ export default function BibleReader() {
     return () => document.removeEventListener('fullscreenchange', handler);
   }, []);
 
+  // When the header is hidden, the small "expand" strip should NOT permanently
+  // sit at the top. Instead it appears on any scroll activity, then auto-hides
+  // after a short idle — so the reader stays clean but the bar is always one
+  // scroll-flick away (no need to scroll all the way to the top).
+  const [barVisible, setBarVisible] = useState(false);
+  const barHideTimer = useRef(null);
+  useEffect(() => {
+    if (!hideHeader) return;
+    setBarVisible(false);
+    const scroller = document.getElementById('kjb-scroll');
+    const target = scroller || window;
+    const reveal = () => {
+      setBarVisible(true);
+      if (barHideTimer.current) clearTimeout(barHideTimer.current);
+      barHideTimer.current = setTimeout(() => setBarVisible(false), 2200);
+    };
+    target.addEventListener('scroll', reveal, { passive: true });
+    return () => {
+      target.removeEventListener('scroll', reveal);
+      if (barHideTimer.current) clearTimeout(barHideTimer.current);
+    };
+  }, [hideHeader]);
+
 
 
   const toggleLayout = () => {
@@ -662,7 +685,7 @@ export default function BibleReader() {
   }, [verses, loading, book.name, pos.chapter, isViewingTitlePage]);
 
   return (
-    <div className={`w-full px-5 sm:px-12 lg:px-16 py-3 ${hideHeader ? 'pt-16' : ''}`}>
+    <div className="w-full px-5 sm:px-12 lg:px-16 py-3">
 
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
@@ -1110,9 +1133,9 @@ export default function BibleReader() {
         </div>
       )}
 
-      {/* Show header chevron when hidden — aligned with top border */}
+      {/* Show header chevron when hidden — appears on scroll, auto-hides when idle */}
       {hideHeader && (
-        <div className="fixed top-0 left-0 right-0 h-[49px] border-b border-border bg-background/95 backdrop-blur z-[110]">
+        <div className={`fixed top-0 left-0 right-0 h-[49px] border-b border-border bg-background/95 backdrop-blur z-[110] transition-transform duration-300 ${barVisible ? 'translate-y-0' : '-translate-y-full'}`}>
           <div className="w-full max-w-5xl mx-auto px-4 sm:px-8 lg:px-16 h-full flex items-center justify-end">
             <div className="flex items-center gap-1">
               <button
