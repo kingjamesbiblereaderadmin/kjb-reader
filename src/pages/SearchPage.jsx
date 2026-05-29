@@ -492,7 +492,7 @@ export default function SearchPage() {
                 <X className="w-4 h-4 text-muted-foreground" />
               </button>
             </div>
-            <div className="flex gap-2 p-4 pb-2">
+            <div className="flex gap-2 p-4 pb-2 flex-shrink-0">
               <button
                 onClick={() => {
                   if (testament === 'ot') setSelectedBooks(new Set(OLD_TESTAMENT.map(b => b.abbr)));
@@ -510,7 +510,7 @@ export default function SearchPage() {
                 Clear
               </button>
             </div>
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 px-4 overflow-y-auto flex-1">
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 px-4 overflow-y-auto flex-1" style={{ minHeight: 0 }}>
               {(testament === 'ot' ? OLD_TESTAMENT : testament === 'nt' ? NEW_TESTAMENT : BIBLE_BOOKS).map(book => (
                 <button
                   key={book.abbr}
