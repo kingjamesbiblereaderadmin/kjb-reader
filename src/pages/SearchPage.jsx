@@ -472,7 +472,7 @@ export default function SearchPage() {
       <div className="flex flex-wrap items-center gap-2 mb-5">
         <Filter className="w-3.5 h-3.5 text-muted-foreground" />
         <span className="font-sans text-xs text-muted-foreground">Testament:</span>
-        {[['all', 'All'], ['ot', 'Old Testament'], ['nt', 'New Testament']].map(([val, label]) => (
+        {[['all', 'All'], ['old', 'Old Testament'], ['new', 'New Testament']].map(([val, label]) => (
           <button
             key={val}
             type="button"
@@ -550,8 +550,8 @@ export default function SearchPage() {
             <div className="flex gap-2 p-4 pb-2 flex-shrink-0">
               <button
                 onClick={() => {
-                  if (testament === 'ot') setSelectedBooks(new Set(OLD_TESTAMENT.map(b => b.abbr)));
-                  else if (testament === 'nt') setSelectedBooks(new Set(NEW_TESTAMENT.map(b => b.abbr)));
+                  if (testament === 'old') setSelectedBooks(new Set(OLD_TESTAMENT.map(b => b.abbr)));
+                  else if (testament === 'new') setSelectedBooks(new Set(NEW_TESTAMENT.map(b => b.abbr)));
                   else setSelectedBooks(new Set(BIBLE_BOOKS.map(b => b.abbr)));
                 }}
                 className="px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
@@ -566,7 +566,7 @@ export default function SearchPage() {
               </button>
             </div>
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 px-4 overflow-y-auto flex-1" style={{ minHeight: 0 }}>
-              {BIBLE_BOOKS.map(book => (
+              {(testament === 'old' ? OLD_TESTAMENT : testament === 'new' ? NEW_TESTAMENT : BIBLE_BOOKS).map(book => (
                 <button
                   key={book.abbr}
                   onClick={() => {
