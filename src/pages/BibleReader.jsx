@@ -1334,10 +1334,21 @@ export default function BibleReader() {
                 zoomLevel={zoomLevel}
               />
             ))}
+            {/* Colophon (column mode) — flows inside the column after the last verse,
+                centred within that column */}
+            {columnMode && colophon && (
+              <span className="block text-center mt-8 pt-4 border-t border-border" style={{ breakInside: 'avoid' }}>
+                <span
+                  className={`text-sm text-muted-foreground leading-relaxed [&_em]:italic [&_em]:text-muted-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
+                  style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem` }}
+                  dangerouslySetInnerHTML={{ __html: renderColophonText(colophon) }}
+                />
+              </span>
+            )}
           </div>
         )}
-        {/* Colophon footer - centred, pilcrow prefix, [bracketed] words italic */}
-        {!loading && !error && colophon && (
+        {/* Colophon footer (non-column) - centred, pilcrow prefix, [bracketed] words italic */}
+        {!loading && !error && colophon && !columnMode && (
           <div className="mt-12 mb-4 border-t border-border pt-6 text-center">
             <p
               className={`text-sm text-muted-foreground leading-relaxed [&_em]:italic [&_em]:text-muted-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
