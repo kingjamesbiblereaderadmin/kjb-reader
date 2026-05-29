@@ -34,7 +34,7 @@ export default function RunningHead({ bookName, chapter, baseFontRem, isCursive 
         <div className="flex-1 min-w-0 text-left">
           <span
             ref={leftRef}
-            className="inline-block max-w-full whitespace-nowrap font-semibold tracking-wide text-foreground"
+            className="inline-block max-w-full whitespace-nowrap border-b border-border pb-1.5 font-semibold tracking-wide text-foreground"
             style={{ fontSize, fontStyle: 'normal' }}
           >
             {bookName}
@@ -43,16 +43,12 @@ export default function RunningHead({ bookName, chapter, baseFontRem, isCursive 
         <div className="flex-1 min-w-0 text-right">
           <span
             ref={rightRef}
-            className="inline-block max-w-full whitespace-nowrap font-semibold tracking-wide text-foreground"
+            className="inline-block max-w-full whitespace-nowrap border-b border-border pb-1.5 font-semibold tracking-wide text-foreground"
             style={{ fontSize, fontStyle: 'normal' }}
           >
             {chapterText}
           </span>
         </div>
-      </div>
-      <div className="pt-1.5 flex items-stretch gap-6">
-        <div className="flex-1 border-b border-border" />
-        <div className="flex-1 border-b border-border" />
       </div>
     </div>
   );
