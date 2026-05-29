@@ -108,7 +108,7 @@ export default function SearchPage() {
       const numberedBookMatch = kwLower.match(/(\d+)\s+([a-z]+)/);
       
       // Check if query matches a book name (e.g. "Joshua", "Jude", "Samuel", "Genesis", "Kings")
-      // Also match alternate names like "Preacher" for Ecclesiastes, "First Book of the Kings" for 1 Samuel
+      // Also match alternate names like "Preacher" for Ecclesiastes
       const ALTERNATE_NAMES = {
         preacher: 'ECC',
         ecclesiastes: 'ECC',
@@ -118,12 +118,6 @@ export default function SearchPage() {
         kings: '1KI', // Will show both 1&2 Kings
         samuel: '1SA', // Will show both 1&2 Samuel
         chronicles: '1CH', // Will show both 1&2 Chronicles
-        firstbookofthekings: '1SA',
-        secondbookofthekings: '2SA',
-        thirdbookofthekings: '1KI',
-        fourthbookofthekings: '2KI',
-        firstbookofthechronicles: '1CH',
-        secondbookofthechronicles: '2CH',
       };
       
       const alternateMatch = ALTERNATE_NAMES[kwLower];

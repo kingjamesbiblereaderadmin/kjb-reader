@@ -64,7 +64,7 @@ export default function BibleSearchBar({ onClose }) {
     if (!query.trim()) { setSuggestions([]); return; }
     const q = query.toLowerCase().replace(/\s+/g, ''); // Remove spaces for matching (e.g. "1 kings" → "1kings")
 
-    // Alternate names mapping (e.g. "Preacher" → Ecclesiastes, "First Book of the Kings" → 1 Samuel)
+    // Alternate names mapping (e.g. "Preacher" → Ecclesiastes)
     // Also supports numeric forms like "1 kings", "2 samuel", etc.
     const ALTERNATE_NAMES = {
       preacher: 'ECC',
@@ -72,15 +72,9 @@ export default function BibleSearchBar({ onClose }) {
       song: 'SNG',
       songofsongs: 'SNG',
       canticles: 'SNG',
-      kings: '1KI',
-      samuel: '1SA',
-      chronicles: '1CH',
-      firstbookofthekings: '1SA',
-      secondbookofthekings: '2SA',
-      thirdbookofthekings: '1KI',
-      fourthbookofthekings: '2KI',
-      firstbookofthechronicles: '1CH',
-      secondbookofthechronicles: '2CH',
+      kings: '1KI', // Shows both 1&2 Kings
+      samuel: '1SA', // Shows both 1&2 Samuel
+      chronicles: '1CH', // Shows both 1&2 Chronicles
       '1kings': '1KI',
       '2kings': '2KI',
       '1samuel': '1SA',
