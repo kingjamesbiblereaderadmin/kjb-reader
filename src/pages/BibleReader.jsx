@@ -1258,15 +1258,15 @@ export default function BibleReader() {
                 } else if (isRandom) {
                   label = `Random chapter: ${book.shortName} ${cachedLastReading.chapter}`;
                 } else if (searchTerm) {
-                  label = `Search results`;
+                  label = `Search: "${searchTerm}"`;
                 } else if (filterMode && selectedVerses.size > 0) {
-                  label = `Selected verses`;
+                  label = `Reading: ${book.shortName} ${pos.chapter}`;
                 } else {
                   return null;
                 }
                 return (
                   <div className="flex items-center gap-2 ml-auto">
-                    <div className="px-3 py-1.5 rounded-lg bg-muted text-muted-foreground font-sans text-xs font-medium">
+                    <div className="px-3 py-1.5 rounded-lg bg-yellow-500 text-black font-sans text-xs font-medium">
                       {label}
                     </div>
                     <button
