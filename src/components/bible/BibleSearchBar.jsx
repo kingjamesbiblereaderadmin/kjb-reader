@@ -63,10 +63,40 @@ export default function BibleSearchBar({ onClose }) {
     if (!query.trim()) { setSuggestions([]); return; }
     const q = query.toLowerCase();
 
-    // Book suggestions
-    const bookMatches = BIBLE_BOOKS.filter(b =>
-      b.shortName.toLowerCase().includes(q) || b.abbr.toLowerCase().startsWith(q)
-    ).slice(0, 5).map(b => ({ type: 'book', book: b, label: b.shortName, sub: `${b.chapters} chapters` }));
+    // Alternate names mapping (e.g. "Preacher" → Ecclesiastes)
+    const ALTERNATE_NAMES = {
+      preacher: 'ECC',
+      ecclesiastes: 'ECC',
+      song: 'SNG',
+      songofsongs: 'SNG',
+      canticles: 'SNG',
+      kings: '1KI',
+      samuel: '1SA',
+      chronicles: '1CH',
+    };
+    
+    const alternateMatch = ALTERNATE_NAMES[q];
+    let bookMatches = [];
+    
+    if (alternateMatch) {
+      // For alternate names like Kings/Samuel/Chronicles, show both books
+      if (['1KI', '1SA', '1CH'].includes(alternateMatch)) {
+        const firstBook = BIBLE_BOOKS.find(b => b.abbr === alternateMatch);
+        const secondBookAbbr = alternateMatch === '1KI' ? '2KI' : alternateMatch === '1SA' ? '2SA' : '2CH';
+        const secondBook = BIBLE_BOOKS.find(b => b.abbr === secondBookAbbr);
+        bookMatches = [firstBook, secondBook].filter(Boolean).map(b => ({ type: 'book', book: b, label: b.shortName, sub: `${b.chapters} chapters` }));
+      } else {
+        const book = BIBLE_BOOKS.find(b => b.abbr === alternateMatch);
+        if (book) {
+          bookMatches = [{ type: 'book', book, label: book.shortName, sub: `${book.chapters} chapters` }];
+        }
+      }
+    } else {
+      // Standard matching
+      bookMatches = BIBLE_BOOKS.filter(b =>
+        b.shortName.toLowerCase().includes(q) || b.abbr.toLowerCase().startsWith(q)
+      ).slice(0, 5).map(b => ({ type: 'book', book: b, label: b.shortName, sub: `${b.chapters} chapters` }));
+    }
 
     // Reference hint if they typed book + number (including ranges)
     const refSuggestions = [];
@@ -109,7 +139,7 @@ export default function BibleSearchBar({ onClose }) {
       }
     }
 
-    // If a single book match, show two options: go to book OR search for the term
+    // If a single book match (including from alternate names), show two options: go to book OR search
     let finalSuggestions = [...refSuggestions, ...bookMatches];
     if (bookMatches.length === 1 && refSuggestions.length === 0) {
       const bookMatch = bookMatches[0];
@@ -119,7 +149,7 @@ export default function BibleSearchBar({ onClose }) {
       ];
     }
     
-    // If multiple book matches (e.g. "Kings", "Samuel", "Chronicles"), show all books + search option
+    // If multiple book matches (e.g. "Kings", "Samuel", "Chronicles", or alternate names), show all books + search option
     if (bookMatches.length > 1 && refSuggestions.length === 0) {
       finalSuggestions = [
         ...bookMatches.map(b => ({ type: 'book', book: b.book, label: `Go to ${b.label}`, sub: `${b.book.chapters} chapters` })),
