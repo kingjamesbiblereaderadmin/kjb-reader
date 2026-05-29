@@ -11,7 +11,7 @@
 //   - Apostrophes are intentionally omitted (PCE style: "wifes", "brothers").
 
 import { RTF_TITLE_MAP } from '@/lib/bibleBookTitles';
-import { COLOPHONS } from '@/lib/bibleSubscripts';
+import { COLOPHONS, SUBSCRIPTS } from '@/lib/bibleSubscripts';
 
 // All 66 book titles (upper-case, punctuation-stripped) in canonical order.
 // Used to detect book-title lines, which can span multiple physical lines.
@@ -73,6 +73,27 @@ export function parsePceText(text) {
     if (!currentBook || currentChapter == null) return;
     let t = rawAfterNumber.replace(/\s*<<[^>]*>>\s*$/, '').trim();
     if (hadParagraph) t = '¶ ' + t;
+    
+    // Strip subscript/superscription from verse 1 if it matches a known subscript
+    // (e.g., Psalm titles like "A Psalm of David" at the start of verse 1)
+    if (vs === 1 && currentBook && SUBSCRIPTS[`${currentBook}:${currentChapter}`]) {
+      const subscript = SUBSCRIPTS[`${currentBook}:${currentChapter}`];
+      // Remove HTML/markup from subscript for comparison
+      const subscriptPlain = subscript.replace(/\[([^\]]+)\]/g, '$1');
+      // Check if verse text starts with the subscript (case-insensitive)
+      const tLower = t.toLowerCase();
+      const subscriptLower = subscriptPlain.toLowerCase();
+      if (tLower.startsWith(subscriptLower) || tLower.startsWith('¶ ' + subscriptLower)) {
+        // Strip the subscript from the beginning
+        t = t.replace(new RegExp(`^(¶\\s*)?${subscriptPlain.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i'), '').trim();
+        // Remove leading pilcrow if it's now orphaned
+        if (t.startsWith('¶')) {
+          t = t.replace(/^¶\s*/, '').trim();
+          hadParagraph = false;
+        }
+      }
+    }
+    
     if (!data[currentBook][currentChapter]) data[currentBook][currentChapter] = [];
     data[currentBook][currentChapter].push({ verse: vs, text: t });
     verseCount++;

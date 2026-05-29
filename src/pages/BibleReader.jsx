@@ -1336,9 +1336,9 @@ export default function BibleReader() {
             ))}
           </div>
         )}
-        {/* Colophon footer - centred, pilcrow prefix, [bracketed] words italic */}
+        {/* Colophon footer - in column mode, centred in RIGHT column; otherwise centred full width */}
         {!loading && !error && colophon && (
-          <div className="mt-12 mb-4 border-t border-border pt-6 text-center">
+          <div className={`mt-12 mb-4 border-t border-border pt-6 ${columnMode ? 'text-center pl-[calc(50% + 0.75rem)]' : 'text-center'}`}>
             <p
               className={`text-sm text-muted-foreground leading-relaxed [&_em]:italic [&_em]:text-muted-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
               style={{ 

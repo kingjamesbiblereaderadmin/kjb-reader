@@ -452,12 +452,14 @@ export default function SearchPage() {
       {/* Book filter panel — modal with tap-out to dismiss */}
       {showBookFilter && (
         <div
-          className="fixed inset-0 z-[60] bg-black/40 flex items-end sm:items-center justify-center p-0 sm:p-4"
+          className="fixed inset-0 z-[9999] bg-black/40 flex items-end sm:items-center justify-center p-0 sm:p-4"
           onClick={() => setShowBookFilter(false)}
+          style={{ pointerEvents: 'auto' }}
         >
           <div
             className="w-full sm:max-w-lg max-h-[80vh] flex flex-col bg-card border border-border rounded-t-2xl sm:rounded-2xl shadow-xl"
             onClick={(e) => e.stopPropagation()}
+            style={{ pointerEvents: 'auto' }}
           >
             <div className="flex items-center justify-between p-4 border-b border-border">
               <p className="font-sans text-sm font-semibold text-foreground">
