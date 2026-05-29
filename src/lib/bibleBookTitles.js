@@ -26,6 +26,7 @@ export const RTF_TITLE_MAP = {
   'THE BOOK OF ESTHER': 'Esther',
   'THE BOOK OF JOB': 'Job',
   'THE BOOK OF PSALMS': 'Psalms',
+  'BOOK OF PSALMS': 'Psalms',
   'THE PROVERBS': 'Proverbs',
   'ECCLESIASTES': 'Ecclesiastes',
   'THE SONG OF SOLOMON': 'Song of Solomon',

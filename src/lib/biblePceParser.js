@@ -22,12 +22,24 @@ function normTitle(s) {
   return s.replace(/[.,]/g, '').replace(/\s+/g, ' ').trim().toUpperCase();
 }
 
+// Title keys sorted longest-first so the most specific title wins on substring
+// matches. Critical for editions where Samuel/Kings titles overlap, e.g.
+// "THE FIRST BOOK OF SAMUEL OTHERWISE CALLED THE FIRST BOOK OF THE KINGS" —
+// without longest-first, "...THE FIRST BOOK OF THE KINGS" would match Kings
+// and Samuel/Psalms verses would be lost (undercounting search results).
+const TITLE_KEYS_BY_LEN = [...TITLE_KEYS].sort((a, b) => b.length - a.length);
+
 // Given the accumulated title buffer lines, try to resolve a book name.
 function resolveBook(bufferLines) {
   const joined = normTitle(bufferLines.join(' '));
   if (RTF_TITLE_MAP[joined]) return RTF_TITLE_MAP[joined];
-  // Partial: the buffer contains a known title as a substring
-  for (const key of TITLE_KEYS) {
+  // Prefer the SAMUEL form when both Samuel & Kings appear in the same title.
+  if (joined.includes('SAMUEL')) {
+    if (/FIRST|^1\b|\b1\b/.test(joined)) return '1 Samuel';
+    if (/SECOND|\b2\b/.test(joined)) return '2 Samuel';
+  }
+  // Partial: the buffer contains a known title as a substring — longest first.
+  for (const key of TITLE_KEYS_BY_LEN) {
     if (joined.includes(key)) return RTF_TITLE_MAP[key];
   }
   return null;
@@ -44,7 +56,8 @@ export function parsePceText(text) {
   let pendingFirstVerse = false; // next non-empty line is verse 1
   let verseCount = 0;
 
-  const isChapterLine = (l) => /^CHAPTER\s+\d+$/i.test(l.trim());
+  // Psalms uses "PSALM N" instead of "CHAPTER N"; every other book uses CHAPTER.
+  const isChapterLine = (l) => /^(CHAPTER|PSALM)\s+\d+$/i.test(l.trim());
   const isVerseLine = (l) => /^\d+\s/.test(l);
 
   const pushVerse = (vs, rawAfterNumber, hadParagraph) => {
@@ -60,9 +73,9 @@ export function parsePceText(text) {
     const line = rawLines[i];
     const trimmed = line.trim();
 
-    // Chapter heading
+    // Chapter heading (CHAPTER N, or PSALM N for the book of Psalms)
     if (isChapterLine(line)) {
-      currentChapter = parseInt(trimmed.replace(/CHAPTER\s+/i, ''), 10);
+      currentChapter = parseInt(trimmed.replace(/(CHAPTER|PSALM)\s+/i, ''), 10);
       if (currentBook && !data[currentBook][currentChapter]) data[currentBook][currentChapter] = [];
       pendingFirstVerse = true;
       titleBuffer = [];
