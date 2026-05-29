@@ -96,6 +96,7 @@ export default function BibleReader() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [highlightVerse, setHighlightVerse] = useState(pos.verse || null);
+  const [highlightedVerses, setHighlightedVerses] = useState(new Set());
   const [verseCount, setVerseCount] = useState(0);
 
   const [showBookPicker, setShowBookPicker] = useState(false);
@@ -422,6 +423,7 @@ export default function BibleReader() {
       const range = new Set();
       for (let v = pos.verse; v <= pos.verseEnd; v++) range.add(v);
       setSelectedVerses(range);
+      setHighlightedVerses(range);
       setFilterMode(true);
     }
   }, []);
@@ -449,10 +451,12 @@ export default function BibleReader() {
         const range = new Set();
         for (let v = verseNum; v <= verseEnd; v++) range.add(v);
         setSelectedVerses(range);
+        setHighlightedVerses(range);
         setFilterMode(true);
       } else {
         setFilterMode(false);
         setSelectedVerses(new Set());
+        setHighlightedVerses(new Set());
       }
       setPos({ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum });
       setHighlightVerse(verseNum || null);
@@ -469,10 +473,12 @@ export default function BibleReader() {
         const range = new Set();
         for (let v = p.verse; v <= p.verseEnd; v++) range.add(v);
         setSelectedVerses(range);
+        setHighlightedVerses(range);
         setFilterMode(true);
       } else {
         setFilterMode(false);
         setSelectedVerses(new Set());
+        setHighlightedVerses(new Set());
       }
       setPos({ abbr: p.abbr, chapter: p.chapter, verse: p.verse || null });
       setHighlightVerse(p.verse || null);
@@ -582,6 +588,7 @@ export default function BibleReader() {
           localStorage.setItem('kjb-position', JSON.stringify({ ...current, verse: null, verseEnd: null }));
         }
       } catch {}
+      setHighlightedVerses(new Set());
     }
   }, [filterMode, selectedVerses]);
 
@@ -1324,7 +1331,7 @@ export default function BibleReader() {
               <VerseText
                 key={v.verse}
                 verse={v}
-                highlight={!columnMode && highlightVerse === v.verse}
+                highlight={!columnMode && (highlightVerse === v.verse || highlightedVerses.has(v.verse))}
                 id={`v${v.verse}`}
                 bookName={book.name}
                 abbr={pos.abbr}
@@ -1383,29 +1390,34 @@ export default function BibleReader() {
         </div>
       )}
 
-      {/* Filter mode overlay - top right corner, auto-dismiss */}
+      {/* Filter mode overlay - centered popup */}
       {showFilterOverlay && (
-        <div className="fixed top-24 right-4 z-[99] bg-card border border-border rounded-xl shadow-2xl px-5 py-3 max-w-sm">
-          <p className="font-serif text-sm font-semibold text-foreground mb-2">
-            {selectedVerses.size > 0
-              ? `Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
-              : `Showing ${selectedVerses.size} selected verse${selectedVerses.size !== 1 ? 's' : ''}`}
-          </p>
-          <div className="flex gap-2">
-            <button
-              onClick={handleCopySelected}
-              className="flex-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
-            >
-              <Copy className="w-3.5 h-3.5 inline mr-1" /> {copyFeedback ? 'Copied!' : 'Copy'}
-            </button>
-            <button
-              onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
-              className="flex-1 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
-            >
-              <X className="w-3.5 h-3.5 inline mr-1" /> Close
-            </button>
+        <>
+          <div className="fixed inset-0 z-[98] bg-background/60 backdrop-blur-sm" onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }} />
+          <div className="fixed inset-0 z-[99] flex items-center justify-center pointer-events-none">
+            <div className="bg-card border border-border rounded-2xl shadow-2xl px-6 py-4 max-w-sm w-full mx-4 pointer-events-auto">
+              <p className="font-serif text-sm font-semibold text-foreground mb-3">
+                {selectedVerses.size > 0
+                  ? `Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
+                  : `Showing ${selectedVerses.size} selected verse${selectedVerses.size !== 1 ? 's' : ''}`}
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleCopySelected}
+                  className="flex-1 px-3 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+                >
+                  <Copy className="w-3.5 h-3.5 inline mr-1" /> {copyFeedback ? 'Copied!' : 'Copy'}
+                </button>
+                <button
+                  onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
+                  className="flex-1 px-3 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+                >
+                  <X className="w-3.5 h-3.5 inline mr-1" /> Close
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* Floating select action bar */}
