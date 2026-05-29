@@ -118,6 +118,14 @@ export default function BibleSearchBar({ onClose }) {
         { type: 'keyword', query: query.trim(), label: `Search "${query.trim()}"`, sub: 'Find all mentions in verses' }
       ];
     }
+    
+    // If multiple book matches (e.g. "Kings", "Samuel", "Chronicles"), show all books + search option
+    if (bookMatches.length > 1 && refSuggestions.length === 0) {
+      finalSuggestions = [
+        ...bookMatches.map(b => ({ type: 'book', book: b.book, label: `Go to ${b.label}`, sub: `${b.book.chapters} chapters` })),
+        { type: 'keyword', query: query.trim(), label: `Search "${query.trim()}"`, sub: 'Find all mentions in verses' }
+      ];
+    }
 
     // Keyword hint (only if no book match)
     const kwSuggestions = query.trim().length >= 3 && bookMatches.length === 0 && refSuggestions.length === 0
