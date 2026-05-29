@@ -1481,6 +1481,7 @@ export default function BibleReader() {
                 isCursive={fontFamily === 'cursive'}
                 fontFamilyValue={getFontFamilyValue(fontFamily)}
                 zoomLevel={zoomLevel}
+                searchTerm={searchTerm}
               />
             ))}
           </div>

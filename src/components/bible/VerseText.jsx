@@ -5,7 +5,7 @@ import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { formatVerseShare, buildVerseUrl } from '@/lib/formatDailyVerse';
 
-export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, isCursive = false, fontFamilyValue = null, zoomLevel = 100, hasSubscript = false }) {
+export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, isCursive = false, fontFamilyValue = null, zoomLevel = 100, hasSubscript = false, searchTerm = null }) {
   const bookEntry = BIBLE_BOOKS.find(b => b.abbr === abbr);
   const shortBookName = bookEntry ? bookEntry.shortName : bookName;
   const [selected, setSelected] = useState(false);
@@ -31,8 +31,8 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // Strip <<...>> superscription markers
   let displayVerseText = verse.text.replace(/^<<[^>]*>>\s*/, '');
 
-  // renderVerseText handles [italics] and ¶ pilcrow styling
-  const html = renderVerseText(displayVerseText);
+  // renderVerseText handles [italics] and ¶ pilcrow styling, plus search term highlighting
+  const html = renderVerseText(displayVerseText, searchTerm);
 
   const verseRef = `${shortBookName} ${chapter}:${verse.verse}`;
   // Build the shared, consistent copy/share text (clean text + deep link).

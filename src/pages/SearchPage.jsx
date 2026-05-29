@@ -44,7 +44,7 @@ export default function SearchPage() {
   const [selectedBooks, setSelectedBooks] = useState(new Set());
   const [showBookResult, setShowBookResult] = useState(null); // { bookName, abbr, chapters, testament }
   const [bookFilterQuery, setBookFilterQuery] = useState('');
-  const [booksWithResults, setBooksWithResults] = useState(new Set()); // Track which books have results for current search
+  const [booksWithResults, setBooksWithResults] = useState(null); // Track which books have results for current search (null = no search yet)
 
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
@@ -597,7 +597,7 @@ export default function SearchPage() {
                       {OLD_TESTAMENT
                         .filter(book => {
                           const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
-                          const hasResults = !searched || booksWithResults.has(book.abbr);
+                          const hasResults = booksWithResults === null || booksWithResults.has(book.abbr);
                           return matchesQuery && hasResults;
                         })
                         .map(book => (
@@ -633,7 +633,7 @@ export default function SearchPage() {
                       {NEW_TESTAMENT
                         .filter(book => {
                           const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
-                          const hasResults = !searched || booksWithResults.has(book.abbr);
+                          const hasResults = booksWithResults === null || booksWithResults.has(book.abbr);
                           return matchesQuery && hasResults;
                         })
                         .map(book => (

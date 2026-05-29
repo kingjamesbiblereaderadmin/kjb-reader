@@ -59,7 +59,8 @@ export async function isBibleAvailableOffline() {
 
 // Render verse text: turn [word] into <em>word</em> for KJB italics
 // Render pilcrow (¶) ONLY at beginning of verses, not inside words
-export function renderVerseText(text) {
+// Optionally highlight search terms with <mark> tags
+export function renderVerseText(text, searchTerm = null) {
   // Debug: log verses to check for brackets and pilcrows
   if (text && Math.random() < 0.05) {
     console.log('[RENDER] Sample verse with brackets:', text.substring(0, 200));
@@ -86,9 +87,24 @@ export function renderVerseText(text) {
   cleaned = cleaned.replace(/([\s.,;:!?'")\]])[\u00B6\uFFFD]\s*/g, '$1 <span class="pilcrow">¶</span> ');
   // Turn [bracketed] text into italics
   const parts = cleaned.split(/\[([^\]]+)\]/g);
-  const result = parts.map((part, i) =>
+  let result = parts.map((part, i) =>
     i % 2 === 1 ? `<em>${part}</em>` : part
   ).join('');
+  
+  // Highlight search terms (case-insensitive, whole word matching)
+  if (searchTerm && searchTerm.trim().length > 0) {
+    const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Match whole words only (not inside other words), case-insensitive
+    const regex = new RegExp(`(^|[^A-Za-z'])(${escaped})($|[^A-Za-z'])`, 'gi');
+    result = result.replace(regex, (match, before, term, after) => {
+      // Don't highlight inside HTML tags
+      if (match.includes('<em>') || match.includes('</em>') || match.includes('<span')) {
+        return match;
+      }
+      return `${before}<mark class="bg-accent/40 text-foreground rounded px-0.5">${term}</mark>${after}`;
+    });
+  }
+  
   return result;
 }
 
