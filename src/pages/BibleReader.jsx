@@ -1379,40 +1379,31 @@ export default function BibleReader() {
         </div>
       )}
 
-      {/* Filter mode banner */}
+      {/* Filter mode overlay popup */}
       {filterMode && (
-        <>
-          <div className="fixed bottom-20 left-0 right-0 z-[99] mx-3 mb-3 px-3 py-2 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-between gap-2 max-w-full overflow-x-auto">
-            <p className="font-sans text-xs text-primary font-semibold flex items-center gap-1.5">
-              <BookMarked className="w-3.5 h-3.5" />
+        <div className="fixed inset-0 z-[99] flex items-center justify-center pointer-events-none">
+          <div className="bg-card border border-border rounded-2xl shadow-2xl px-6 py-4 pointer-events-auto max-w-sm mx-4">
+            <p className="font-serif text-sm font-semibold text-foreground mb-3 text-center">
               {selectedVerses.size > 0
                 ? `Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
                 : `Showing ${selectedVerses.size} selected verse${selectedVerses.size !== 1 ? 's' : ''}`}
             </p>
-            <div className="flex items-center gap-1.5">
+            <div className="flex gap-2">
               <button
                 onClick={handleCopySelected}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+                className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
               >
-                <Copy className="w-3 h-3" /> {copyFeedback ? 'Copied!' : 'Copy'}
-              </button>
-              <button
-                onClick={handleShareChapter}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-secondary text-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
-              >
-                <Share2 className="w-3 h-3" /> {shareFeedback ? 'Copied!' : 'Share'}
+                <Copy className="w-4 h-4 inline mr-1" /> {copyFeedback ? 'Copied!' : 'Copy'}
               </button>
               <button
                 onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); }}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-secondary text-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+                className="flex-1 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
               >
-                <X className="w-3 h-3" /> Exit
+                <X className="w-4 h-4 inline mr-1" /> Exit
               </button>
             </div>
           </div>
-          {/* Spacer to prevent content overlap */}
-          <div className="h-24" />
-        </>
+        </div>
       )}
 
       {/* Floating select action bar */}
