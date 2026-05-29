@@ -570,16 +570,8 @@ export default function BibleReader() {
     };
   }, []);
 
-  // Auto-hide highlights after 5 seconds (but keep the verse indicator in toolbar)
-  useEffect(() => {
-    if (highlightVerse) {
-      const timer = setTimeout(() => {
-        setHighlightVerse(null);
-        // Don't clear the verse from position storage - keep it for the toolbar indicator
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [highlightVerse]);
+  // Keep verse highlight persistent (no auto-hide)
+  // The highlight stays until user clears it or navigates away
 
   // Reset verse status when exiting filter mode or clearing selection
   useEffect(() => {
