@@ -632,26 +632,29 @@ export default function SearchPage() {
                         const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
                         return matchesQuery;
                       })
-                      .map(book => (
-                      <button
-                        key={book.abbr}
-                        onClick={() => {
-                          setSelectedBooks(prev => {
-                            const next = new Set(prev);
-                            next.has(book.abbr) ? next.delete(book.abbr) : next.add(book.abbr);
-                            return next;
-                          });
-                        }}
-                        className={`px-3 py-2 rounded-lg font-sans text-xs font-medium transition-colors whitespace-normal text-left ${
-                          selectedBooks.has(book.abbr)
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-secondary text-foreground hover:bg-accent/20'
-                        }`}
-                        title={book.shortName}
-                      >
-                        {book.shortName}
-                      </button>
-                    ))}
+                      .map(book => {
+                        const isSelected = selectedBooks.has(book.abbr);
+                        return (
+                          <button
+                            key={book.abbr}
+                            onClick={() => {
+                              setSelectedBooks(prev => {
+                                const next = new Set(prev);
+                                next.has(book.abbr) ? next.delete(book.abbr) : next.add(book.abbr);
+                                return next;
+                              });
+                            }}
+                            className={`px-3 py-2 rounded-lg font-sans text-xs font-medium transition-colors whitespace-normal text-left ${
+                              isSelected
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-secondary text-foreground hover:bg-accent/20'
+                            }`}
+                            title={book.shortName}
+                          >
+                            {book.shortName}
+                          </button>
+                        );
+                      })}
                   </div>
                 </div>
                 {/* New Testament section */}
@@ -665,26 +668,29 @@ export default function SearchPage() {
                         const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
                         return matchesQuery;
                       })
-                      .map(book => (
-                      <button
-                        key={book.abbr}
-                        onClick={() => {
-                          setSelectedBooks(prev => {
-                            const next = new Set(prev);
-                            next.has(book.abbr) ? next.delete(book.abbr) : next.add(book.abbr);
-                            return next;
-                          });
-                        }}
-                        className={`px-3 py-2 rounded-lg font-sans text-xs font-medium transition-colors whitespace-normal text-left ${
-                          selectedBooks.has(book.abbr)
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-secondary text-foreground hover:bg-accent/20'
-                        }`}
-                        title={book.shortName}
-                      >
-                        {book.shortName}
-                      </button>
-                    ))}
+                      .map(book => {
+                        const isSelected = selectedBooks.has(book.abbr);
+                        return (
+                          <button
+                            key={book.abbr}
+                            onClick={() => {
+                              setSelectedBooks(prev => {
+                                const next = new Set(prev);
+                                next.has(book.abbr) ? next.delete(book.abbr) : next.add(book.abbr);
+                                return next;
+                              });
+                            }}
+                            className={`px-3 py-2 rounded-lg font-sans text-xs font-medium transition-colors whitespace-normal text-left ${
+                              isSelected
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-secondary text-foreground hover:bg-accent/20'
+                            }`}
+                            title={book.shortName}
+                          >
+                            {book.shortName}
+                          </button>
+                        );
+                      })}
                   </div>
                 </div>
               </div>
