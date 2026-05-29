@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked, ChevronDown } from 'lucide-react';
+import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked, ChevronDown, Share2 } from 'lucide-react';
 import { getBibleData } from '@/lib/bibleCache';
 import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
 import { parseReference } from '@/lib/parseReference';
@@ -47,6 +47,7 @@ export default function SearchPage() {
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState(new Set());
   const [copyFeedback, setCopyFeedback] = useState(false);
+  const [shareFeedback, setShareFeedback] = useState(false);
 
   const runSearch = useCallback(async (kw) => {
     if (!kw || kw.trim().length < 2) return;
@@ -277,7 +278,7 @@ export default function SearchPage() {
       runSearch(q);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [testament, wholeWord, caseSensitive, exactMatch, selectedBooks]);
+  }, [testament, wholeWord, caseSensitive, exactMatch, selectedBooks, numberedBookFilter]);
 
   // Re-run search whenever URL changes (fixes header search bar)
   useEffect(() => {
@@ -360,6 +361,28 @@ export default function SearchPage() {
     a.download = `kjb-search-${q.replace(/\s+/g, '-').slice(0, 30)}.txt`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleShare = async () => {
+    const indices = selected.size > 0 ? selected : new Set(results.map((_, i) => i));
+    const text = formatVerses(indices);
+    const q = getQueryFromUrl() || query;
+    const shareText = `KJB Search Results — "${q}"\n\n${text}`;
+    
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: `KJB Search: ${q}`, text: shareText });
+        return;
+      }
+    } catch (err) {
+      if (err?.name === 'AbortError') return;
+    }
+    
+    try {
+      await navigator.clipboard.writeText(shareText);
+      setShareFeedback(true);
+      setTimeout(() => setShareFeedback(false), 1800);
+    } catch {}
   };
 
   const selectedList = [...selected].sort((a, b) => a - b);
@@ -576,6 +599,12 @@ export default function SearchPage() {
                   >
                     <Download className="w-3.5 h-3.5" /> Export
                   </button>
+                  <button
+                    onClick={handleShare}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+                  >
+                    <Share2 className="w-3.5 h-3.5" /> {shareFeedback ? 'Copied!' : 'Share'}
+                  </button>
                 </>
               ) : (
                 <>
@@ -598,6 +627,12 @@ export default function SearchPage() {
                         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
                       >
                         <Download className="w-3.5 h-3.5" /> Export ({selected.size})
+                      </button>
+                      <button
+                        onClick={handleShare}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+                      >
+                        <Share2 className="w-3.5 h-3.5" /> {shareFeedback ? 'Copied!' : `Share (${selected.size})`}
                       </button>
                     </>
                   )}
