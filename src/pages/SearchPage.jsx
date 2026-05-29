@@ -33,6 +33,7 @@ export default function SearchPage() {
   const [highlightTerm, setHighlightTerm] = useState('');
   const [highlightCaseSensitive, setHighlightCaseSensitive] = useState(false);
   const [results, setResults] = useState([]);
+  const [totalOccurrences, setTotalOccurrences] = useState(0);
   const [searched, setSearched] = useState(false);
   const [testament, setTestament] = useState('all');
   const [wholeWord, setWholeWord] = useState(false);
@@ -245,6 +246,22 @@ export default function SearchPage() {
       }
 
       setResults(matches);
+
+      // Compute total occurrences (multiple hits per verse counted) so the
+      // results header matches standard concordance figures.
+      const occEscaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      let occRe;
+      if (effectiveWholeWord) {
+        occRe = new RegExp(`(?<![A-Za-z'])${occEscaped}(?![A-Za-z'])`, effectiveCaseSensitive ? 'g' : 'gi');
+      } else {
+        occRe = new RegExp(occEscaped, effectiveCaseSensitive ? 'g' : 'gi');
+      }
+      let totalOcc = 0;
+      for (const m of matches) {
+        const clean = (m.text || '').replace(/[[\]]/g, '');
+        totalOcc += (clean.match(occRe) || []).length;
+      }
+      setTotalOccurrences(totalOcc);
     } catch (err) {
       console.error('Search error:', err);
       setResults([]);
@@ -520,7 +537,10 @@ export default function SearchPage() {
           <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div>
               <p className="font-sans text-xs text-muted-foreground">
-                {results.length} result{results.length !== 1 ? 's' : ''} for "{stripQuotes(getQueryFromUrl() || query)}"
+                {results.length} verse{results.length !== 1 ? 's' : ''} for "{stripQuotes(getQueryFromUrl() || query)}"
+                {totalOccurrences > results.length && (
+                  <span className="text-muted-foreground/70"> · {totalOccurrences} occurrences</span>
+                )}
               </p>
 
               {numberedBookFilter && (
