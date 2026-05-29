@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronLeft, ChevronRight, Loader2, AlignJustify, AlignLeft, List, Columns2, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, AlignJustify, AlignLeft, List, Columns2, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2, RotateCw } from 'lucide-react';
 import { buildVerseUrl, formatVerseShare, cleanVerseText } from '@/lib/formatDailyVerse';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText } from '@/lib/bibleApi';
@@ -604,6 +604,23 @@ export default function BibleReader() {
     }
   };
 
+  const goToLastReadingPosition = () => {
+    try {
+      const lastPos = localStorage.getItem('kjb-last-reading-pos');
+      if (lastPos) {
+        const p = JSON.parse(lastPos);
+        const bookExists = BIBLE_BOOKS.find(b => b.abbr === p.abbr);
+        if (p && p.abbr && bookExists) {
+          navigate(p.abbr, p.chapter, p.verse || null);
+          return true;
+        }
+      }
+    } catch (err) {
+      console.error('Failed to restore last reading position:', err);
+    }
+    return false;
+  };
+
   const goPrev = () => {
     if (pos.chapter > 1) {
       navigate(pos.abbr, pos.chapter - 1);
@@ -1126,6 +1143,26 @@ export default function BibleReader() {
                 <ChevronRight className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
               </button>
               {/* Fullscreen */}
+              <button
+                onClick={() => {
+                  const restored = goToLastReadingPosition();
+                  if (!restored) {
+                    alert('No previous reading position found.');
+                  }
+                }}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  const restored = goToLastReadingPosition();
+                  if (!restored) {
+                    alert('No previous reading position found.');
+                  }
+                }}
+                title="Return to last reading position"
+                className="flex flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-accent/20 text-accent hover:bg-accent/30 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] max-w-[64px] lg:max-w-none whitespace-nowrap"
+              >
+                <RotateCw className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
+                <span className="hidden lg:inline">Back</span>
+              </button>
               <button
                 onClick={toggleFullscreen}
                 onTouchEnd={(e) => { e.preventDefault(); toggleFullscreen(); }}

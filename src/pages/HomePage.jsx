@@ -138,6 +138,15 @@ export default function HomePage() {
       console.warn('Invalid verse data:', verse);
       return;
     }
+    // Save current reading position before navigating to daily verse
+    try {
+      const currentPos = localStorage.getItem('kjb-position');
+      if (currentPos) {
+        localStorage.setItem('kjb-last-reading-pos', currentPos);
+      }
+    } catch (err) {
+      console.error('Failed to save last reading position:', err);
+    }
     const savedData = { abbr: verse.abbr, chapter: verse.chapter, verse: verse.verse };
     try {
       localStorage.setItem('kjb-position', JSON.stringify(savedData));
