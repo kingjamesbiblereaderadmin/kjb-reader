@@ -464,6 +464,15 @@ export default function BibleReader() {
   //  • the URL query string changes (?book=&chapter=&verse=)
   // Without this, navigating to /read while already on /read does nothing.
   useEffect(() => {
+    // Sync lastReadingPos from localStorage (for random chapter / daily verse indicator)
+    try {
+      const lastReading = localStorage.getItem('kjb-last-reading');
+      if (lastReading) {
+        const parsed = JSON.parse(lastReading);
+        setLastReadingPos(parsed);
+      }
+    } catch {}
+
     // 1) URL params take priority when present
     const urlParams = new URLSearchParams(routerLocation.search);
     const urlBookObj = resolveBook(urlParams.get('book'));
@@ -603,12 +612,21 @@ export default function BibleReader() {
         const searchTotal = localStorage.getItem('kjb-search-total');
         if (searchIndex) setSearchResultIndex(parseInt(searchIndex, 10));
         if (searchTotal) setSearchTotalResults(parseInt(searchTotal, 10));
+        // Sync lastReadingPos from localStorage (for random chapter / daily verse)
+        const lastReading = localStorage.getItem('kjb-last-reading');
+        if (lastReading) {
+          const parsed = JSON.parse(lastReading);
+          setLastReadingPos(parsed);
+        }
       } catch {}
     };
     window.addEventListener('focus', refreshContext);
     document.addEventListener('visibilitychange', refreshContext);
+    // Also sync on storage events (when navigating from other pages)
+    window.addEventListener('storage', refreshContext);
     return () => {
       window.removeEventListener('focus', refreshContext);
+      window.removeEventListener('storage', refreshContext);
       document.removeEventListener('visibilitychange', refreshContext);
     };
   }, [searchTerm]);

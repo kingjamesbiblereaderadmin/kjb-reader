@@ -104,14 +104,14 @@ export default function CurrentlyReadingIndicator({
   const showNav = searchTerm && totalResults > 1;
 
   return (
-    <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-accent/10 border border-accent/20 min-w-[180px] max-w-[320px] flex-shrink-0">
+    <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-accent/10 border border-accent/20 flex-shrink-0">
       <div className="flex-1 min-w-0">
         {prefix && (
-          <p className="font-serif text-[10px] text-accent/70 leading-tight truncate">
+          <p className="font-serif text-[10px] text-accent/70 leading-tight">
             {prefix}
           </p>
         )}
-        <p className="font-serif text-xs font-semibold text-accent leading-snug break-words truncate">
+        <p className="font-serif text-xs font-semibold text-accent leading-snug">
           {label}
         </p>
         {showNav && (
