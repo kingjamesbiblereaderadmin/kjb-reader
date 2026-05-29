@@ -1160,7 +1160,7 @@ export default function BibleReader() {
                 className="flex flex-1 lg:flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] max-w-[64px] lg:max-w-none whitespace-nowrap"
               >
                 {flowMode === 'line' ? <List className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <AlignJustify className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}
-                <span className="hidden lg:inline">{flowMode === 'line' ? 'Lines' : 'Paragraph'}</span>
+                <span className="hidden lg:inline">{flowMode === 'line' ? 'Lines' : 'Para'}</span>
               </button>
               {/* Column toggle (Single ↔ Two-Column) */}
               <button
@@ -1170,7 +1170,7 @@ export default function BibleReader() {
                 className="flex flex-1 lg:flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] max-w-[64px] lg:max-w-none whitespace-nowrap"
               >
                 {columnOn ? <Columns2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <AlignLeft className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}
-                <span className="hidden lg:inline">{columnOn ? '2-Column' : '1-Column'}</span>
+                <span className="hidden lg:inline">{columnOn ? '2-Col' : '1-Col'}</span>
               </button>
               {/* Select mode toggle */}
               <button
@@ -1221,7 +1221,7 @@ export default function BibleReader() {
                 className="flex flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] max-w-[64px] lg:max-w-none whitespace-nowrap"
               >
                 {fullscreen ? <Minimize2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <Maximize2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}
-                <span className="hidden lg:inline">{fullscreen ? 'Exit' : 'Full'}</span>
+                <span className="hidden lg:inline">{fullscreen ? 'Exit' : 'Screen'}</span>
               </button>
 
               {/* Currently reading indicator - integrated into toolbar */}
