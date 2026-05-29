@@ -33,13 +33,22 @@ const TITLE_KEYS_BY_LEN = [...TITLE_KEYS].sort((a, b) => b.length - a.length);
 function resolveBook(bufferLines) {
   const joined = normTitle(bufferLines.join(' '));
   if (RTF_TITLE_MAP[joined]) return RTF_TITLE_MAP[joined];
-  // Prefer the SAMUEL form when both Samuel & Kings appear in the same title.
+  // The Samuel pages are titled e.g. "THE FIRST BOOK OF SAMUEL, OTHERWISE CALLED,
+  // THE FIRST BOOK OF THE KINGS." — detect SAMUEL first so it isn't misread as Kings.
   if (joined.includes('SAMUEL')) {
-    if (/FIRST|^1\b|\b1\b/.test(joined)) return '1 Samuel';
     if (/SECOND|\b2\b/.test(joined)) return '2 Samuel';
+    if (/FIRST|\b1\b/.test(joined)) return '1 Samuel';
+  }
+  // The real books of Kings share the "BOOK OF THE KINGS" phrase with Samuel —
+  // only match Kings when SAMUEL is absent from the buffer.
+  if (joined.includes('KINGS') && !joined.includes('SAMUEL')) {
+    if (/SECOND|\b2\b/.test(joined)) return '2 Kings';
+    if (/FIRST|\b1\b/.test(joined)) return '1 Kings';
   }
   // Partial: the buffer contains a known title as a substring — longest first.
+  // Skip Samuel/Kings keys (handled above) so the shared phrase can't hijack.
   for (const key of TITLE_KEYS_BY_LEN) {
+    if (key.includes('SAMUEL') || key.includes('KINGS')) continue;
     if (joined.includes(key)) return RTF_TITLE_MAP[key];
   }
   return null;
@@ -105,6 +114,11 @@ export function parsePceText(text) {
       pendingFirstVerse = false;
       continue;
     }
+
+    // Ignore title-like text until the current book has had a chapter — prevents
+    // the "OTHERWISE CALLED THE BOOK OF THE KINGS" alias under Samuel titles from
+    // hijacking the book mid-stream (which would lose 1/2 Samuel verses).
+    if (currentBook && currentChapter == null) continue;
 
     // Otherwise this is (part of) a book title — accumulate until we resolve it
     titleBuffer.push(trimmed);
