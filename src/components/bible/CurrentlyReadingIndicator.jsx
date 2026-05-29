@@ -104,47 +104,12 @@ export default function CurrentlyReadingIndicator({
   const showNav = searchTerm && totalResults > 1;
 
   return (
-    <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-accent/10 border border-accent/20 flex-shrink-0">
-      <div className="flex-1 min-w-0">
-        {prefix && (
-          <p className="font-serif text-[10px] text-accent/70 leading-tight">
-            {prefix}
-          </p>
-        )}
-        <p className="font-serif text-xs font-semibold text-accent leading-snug">
-          {label}
+    <div className="flex items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 h-11 min-w-[44px]">
+      <div className="flex-1 min-w-0 text-center">
+        <p className="font-sans text-xs font-medium text-secondary-foreground leading-tight">
+          {prefix ? `${prefix}: ${label}` : label}
         </p>
-        {showNav && (
-          <div className="flex items-center gap-1 mt-1">
-            <button
-              onClick={onPrevResult}
-              disabled={currentResultIndex === 0}
-              className="p-0.5 rounded hover:bg-accent/20 disabled:opacity-30 transition-colors"
-              title="Previous result"
-            >
-              <ChevronLeft className="w-2.5 h-2.5" />
-            </button>
-            <span className="font-sans text-[10px] font-semibold text-accent min-w-[48px] text-center">
-              {currentResultIndex + 1} / {totalResults}
-            </span>
-            <button
-              onClick={onNextResult}
-              disabled={currentResultIndex === totalResults - 1}
-              className="p-0.5 rounded hover:bg-accent/20 disabled:opacity-30 transition-colors"
-              title="Next result"
-            >
-              <ChevronRight className="w-2.5 h-2.5" />
-            </button>
-          </div>
-        )}
       </div>
-      <button
-        onClick={onClear}
-        className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-accent text-accent-foreground font-sans text-[10px] font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
-        title={isFilterMode ? 'Show full chapter' : searchTerm ? 'Clear search' : 'Clear highlight'}
-      >
-        <AlignLeft className="w-3 h-3" /> {clearLabel}
-      </button>
     </div>
   );
 }
