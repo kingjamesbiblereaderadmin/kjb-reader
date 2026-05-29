@@ -1228,6 +1228,7 @@ export default function BibleReader() {
                       setSearchTerm(null);
                       setSearchResultIndex(0);
                       setSearchTotalResults(0);
+                      setHighlightVerse(null);
                       try {
                         localStorage.removeItem('kjb-search-term');
                         localStorage.removeItem('kjb-search-index');
