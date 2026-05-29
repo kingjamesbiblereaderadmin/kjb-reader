@@ -5,6 +5,19 @@ import html2canvas from 'html2canvas';
 import ImageCropper from './ImageCropper';
 import { getNotificationsEnabled, requestNotificationPermission, disableNotifications, scheduleDailyNotification } from '@/lib/notifications';
 import { formatDailyVerseForCopy } from '@/lib/formatDailyVerse';
+import { getAccessibilityFont } from '@/lib/accessibilityFont';
+
+// Map a font choice to an actual CSS font-family. When an app-wide
+// accessibility font is active, it always takes priority.
+function resolveFontFamily(choice, a11yFont) {
+  if (a11yFont === 'dyslexic') return "'OpenDyslexic', 'Comic Sans MS', sans-serif";
+  if (a11yFont === 'hyperlegible') return "'Atkinson Hyperlegible', system-ui, sans-serif";
+  if (a11yFont === 'system') return 'system-ui, -apple-system, sans-serif';
+  if (choice === 'sans-serif') return "'Inter', system-ui, -apple-system, sans-serif";
+  if (choice === 'monospace') return "'Courier New', monospace";
+  if (choice === 'cursive') return "'Dancing Script', cursive";
+  return "'Merriweather', 'Cormorant Garamond', Georgia, serif";
+}
 
 const VERSE_BACKGROUNDS = [
   { gradient: 'from-blue-600 to-purple-600', accent: 'text-blue-200' },
@@ -45,6 +58,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const [fontFamily, setFontFamily] = useState(() => {
     try { return localStorage.getItem('kjb-verse-font-family') || 'serif'; } catch { return 'serif'; }
   });
+  const [a11yFont, setA11yFont] = useState(getAccessibilityFont);
+  // The font actually rendered — accessibility font overrides the verse's own choice
+  const resolvedFont = resolveFontFamily(fontFamily, a11yFont);
   
   useEffect(() => {
     const handleStorage = () => {
@@ -52,6 +68,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       try { setTextColor(localStorage.getItem('kjb-verse-text-color') || '#ffffff'); } catch {}
       try { setTextOpacity(parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '1')); } catch {}
       try { setFontFamily(localStorage.getItem('kjb-verse-font-family') || 'serif'); } catch {}
+      try { setA11yFont(getAccessibilityFont()); } catch {}
       try { setNotifImage(localStorage.getItem('kjb-notif-image') || ''); } catch {}
       try { setShowVersePanel(localStorage.getItem('kjb-verse-panel-visible') !== 'false'); } catch {}
       setPendingBg(null);
@@ -811,7 +828,12 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               <Type className="w-3.5 h-3.5" />
               Font Family
             </label>
-            <div className="grid grid-cols-4 gap-1">
+            {a11yFont !== 'default' && (
+              <p className="font-sans text-[10px] text-slate-500 dark:text-slate-400 mb-2 leading-snug">
+                Accessibility font is on — it overrides this setting. Change it in Settings.
+              </p>
+            )}
+            <div className={`grid grid-cols-4 gap-1 ${a11yFont !== 'default' ? 'opacity-40 pointer-events-none' : ''}`}>
               {[
                 { value: 'serif', label: 'Serif' },
                 { value: 'sans-serif', label: 'Sans' },
@@ -889,7 +911,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         <div className="bg-white/25 backdrop-blur-sm rounded-xl px-6 py-4 mb-5 shadow-none text-center">
           <p 
             className={`font-sans text-sm font-bold tracking-wide uppercase mb-3 ${accentClass}`}
-            style={{ opacity: textOpacity, color: textColor, fontFamily }}
+            style={{ opacity: textOpacity, color: textColor, fontFamily: resolvedFont }}
           >
             Verse of the Day
           </p>
@@ -898,7 +920,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             style={{ 
               color: textColor, 
               opacity: textOpacity, 
-              fontFamily,
+              fontFamily: resolvedFont,
               fontWeight: '700',
               textShadow: '0 2px 8px rgba(0,0,0,0.3)'
             }}
@@ -910,7 +932,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             style={{ 
               opacity: Math.min(1, textOpacity + 0.05), 
               color: textColor, 
-              fontFamily,
+              fontFamily: resolvedFont,
               textShadow: '0 1px 4px rgba(0,0,0,0.3)'
             }}
           >
@@ -924,7 +946,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             style={{ 
               color: textColor, 
               opacity: textOpacity, 
-              fontFamily,
+              fontFamily: resolvedFont,
               fontWeight: '700',
               textShadow: '0 2px 8px rgba(0,0,0,0.3)'
             }}
@@ -936,7 +958,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             style={{ 
               opacity: Math.min(1, textOpacity + 0.05), 
               color: textColor, 
-              fontFamily,
+              fontFamily: resolvedFont,
               textShadow: '0 1px 4px rgba(0,0,0,0.3)'
             }}
           >
@@ -1163,7 +1185,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             </button>
             <p 
               className={`font-sans text-xs font-semibold tracking-widest uppercase mb-6 ${accentClass}`}
-              style={{ opacity: 0.8 * textOpacity, color: textColor, fontFamily }}
+              style={{ opacity: 0.8 * textOpacity, color: textColor, fontFamily: resolvedFont }}
             >
               Verse of the Day
             </p>
