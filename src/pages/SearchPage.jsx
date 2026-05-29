@@ -101,6 +101,9 @@ export default function SearchPage() {
         }
       }
 
+      // Check if query is a numbered book (e.g., "1 john", "2 timothy") or contains one
+      const numberedBookMatch = kwLower.match(/(\d+)\s+([a-z]+)/);
+      
       // Check if query matches a book name exactly (e.g. "Joshua", "Genesis")
       // If so, show BOTH the "Go to book" option AND search for mentions in verses
       const bookMatch = BIBLE_BOOKS.find(b => 
@@ -116,9 +119,6 @@ export default function SearchPage() {
       
       // Clear last reading position when starting a new search
       try { localStorage.removeItem('kjb-last-reading'); } catch {}
-
-      // Check if query is a numbered book (e.g., "1 john", "2 timothy") or contains one
-      const numberedBookMatch = kwLower.match(/(\d+)\s+([a-z]+)/);
       let targetBookAbbr = null;
       if (numberedBookMatch) {
         const num = numberedBookMatch[1];
@@ -291,7 +291,7 @@ export default function SearchPage() {
       setResults([]);
     }
     setLoading(false);
-  }, [testament, wholeWord, caseSensitive, exactMatch, selectedBooks]);
+  }, [testament, wholeWord, caseSensitive, exactMatch, selectedBooks, numberedBookFilter]);
 
   // Re-run the search whenever filters change (after an initial search has been done)
   useEffect(() => {
