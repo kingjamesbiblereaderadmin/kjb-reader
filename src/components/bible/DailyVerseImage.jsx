@@ -722,6 +722,14 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             e.stopPropagation();
             e.nativeEvent.stopImmediatePropagation();
           }}
+          onTouchEnd={(e) => {
+            e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation();
+          }}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation();
+          }}
           className="absolute top-12 right-2 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur rounded-xl shadow-xl p-4 w-72 border border-white/20"
         >
           <div className="flex items-center justify-between mb-3">
