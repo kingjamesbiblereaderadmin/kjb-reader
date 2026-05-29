@@ -1263,8 +1263,9 @@ export default function BibleReader() {
               <div className="flex-1 border-b border-border" />
               <div className="flex-1 border-b border-border" />
             </div>
-            <div className="pt-1.5 text-center">
-              <span className="font-semibold tracking-wide text-foreground block break-words" style={{ fontSize: `${zoomLevel / 100 * 0.7}rem`, fontStyle: 'normal' }}>{book.name} — Chapter {pos.chapter}</span>
+            <div className="pt-1.5 flex items-baseline justify-between gap-4">
+              <span className="font-semibold tracking-wide text-foreground break-words" style={{ fontSize: `${zoomLevel / 100 * 0.7}rem`, fontStyle: 'normal' }}>{book.name}</span>
+              <span className="font-semibold tracking-wide text-foreground whitespace-nowrap" style={{ fontSize: `${zoomLevel / 100 * 0.7}rem`, fontStyle: 'normal' }}>Chapter {pos.chapter}</span>
             </div>
           </div>
         )}
