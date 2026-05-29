@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked, ChevronDown, Share2 } from 'lucide-react';
+import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked, ChevronDown, Share2, ChevronUp, ChevronDown as ChevronDownIcon } from 'lucide-react';
 import { getBibleData } from '@/lib/bibleCache';
 import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
 import { parseReference } from '@/lib/parseReference';
@@ -48,6 +48,9 @@ export default function SearchPage() {
   const [selected, setSelected] = useState(new Set());
   const [copyFeedback, setCopyFeedback] = useState(false);
   const [shareFeedback, setShareFeedback] = useState(false);
+  
+  // Track current search result index for navigation
+  const [currentResultIndex, setCurrentResultIndex] = useState(0);
 
   const runSearch = useCallback(async (kw) => {
     if (!kw || kw.trim().length < 2) return;
@@ -299,8 +302,9 @@ export default function SearchPage() {
   };
 
   const goToVerse = useCallback((abbr, chapter, verse, verseEnd) => {
-    // Clear last reading position when navigating from search (not daily/random)
-    try { localStorage.removeItem('kjb-last-reading'); } catch {}
+    // Store the search term for the CurrentlyReadingIndicator
+    const q = getQueryFromUrl() || query;
+    try { localStorage.setItem('kjb-search-term', q); } catch {}
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null, verseEnd: verseEnd || null })); } catch {}
     window.scrollTo({ top: 0 });
     // Navigate with URL params so the reader reliably scrolls to + highlights the verse.
@@ -308,7 +312,7 @@ export default function SearchPage() {
     navigate(url);
     // If already on /read, notify the mounted reader to load this passage.
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
-  }, [navigate]);
+  }, [navigate, query]);
 
   // Selection helpers
   const toggleSelect = useCallback((i) => {
@@ -388,6 +392,25 @@ export default function SearchPage() {
   };
 
   const selectedList = [...selected].sort((a, b) => a - b);
+  
+  // Navigate to previous/next search result
+  const handlePrevResult = () => {
+    if (currentResultIndex > 0) {
+      const prevIndex = currentResultIndex - 1;
+      const result = results[prevIndex];
+      goToVerse(result.abbr, result.chapter, result.verse);
+      setCurrentResultIndex(prevIndex);
+    }
+  };
+  
+  const handleNextResult = () => {
+    if (currentResultIndex < results.length - 1) {
+      const nextIndex = currentResultIndex + 1;
+      const result = results[nextIndex];
+      goToVerse(result.abbr, result.chapter, result.verse);
+      setCurrentResultIndex(nextIndex);
+    }
+  };
 
   return (
     <div className="w-full max-w-[90rem] mx-auto px-4 sm:px-8 lg:px-16 py-6">
@@ -570,6 +593,32 @@ export default function SearchPage() {
                   <span className="text-muted-foreground/70"> · {totalOccurrences} occurrences</span>
                 )}
               </p>
+              {/* Search result navigation */}
+              {results.length > 0 && (
+                <div className="flex items-center gap-2 mt-2">
+                  <button
+                    onClick={handlePrevResult}
+                    disabled={currentResultIndex === 0}
+                    className="flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors disabled:opacity-30"
+                    title="Previous result"
+                  >
+                    <ChevronUp className="w-3.5 h-3.5" />
+                    Prev
+                  </button>
+                  <span className="font-sans text-xs text-muted-foreground">
+                    {currentResultIndex + 1} of {results.length}
+                  </span>
+                  <button
+                    onClick={handleNextResult}
+                    disabled={currentResultIndex === results.length - 1}
+                    className="flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors disabled:opacity-30"
+                    title="Next result"
+                  >
+                    Next
+                    <ChevronDownIcon className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
 
               {numberedBookFilter && (
                 <p className="font-sans text-xs text-primary font-semibold mt-0.5 flex items-center gap-1">

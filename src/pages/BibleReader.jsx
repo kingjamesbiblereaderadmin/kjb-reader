@@ -137,6 +137,11 @@ export default function BibleReader() {
   });
   const [a11yFont, setA11yFont] = useState(getAccessibilityFont);
   const a11yActive = a11yFont !== 'default';
+  
+  // Track search term for CurrentlyReadingIndicator
+  const [searchTerm, setSearchTerm] = useState(() => {
+    try { return localStorage.getItem('kjb-search-term') || null; } catch { return null; }
+  });
 
   const handleFontChange = (font) => {
     setFontFamily(font);
@@ -406,6 +411,12 @@ export default function BibleReader() {
       }
     };
     preloadAndCache();
+    
+    // Load search term from localStorage
+    try {
+      const term = localStorage.getItem('kjb-search-term');
+      if (term) setSearchTerm(term);
+    } catch {}
     
     // Check for URL parameters: ?book=John&chapter=3&verse=16
     // (book accepts abbr, short name, or full name)
@@ -1164,7 +1175,7 @@ export default function BibleReader() {
               </button>
 
               {/* Currently reading indicator - integrated into toolbar */}
-              {(highlightVerse || (filterMode && selectedVerses.size > 0) || (lastReadingPos && !lastReadingPos.cleared)) && (
+              {(highlightVerse || (filterMode && selectedVerses.size > 0) || (lastReadingPos && !lastReadingPos.cleared) || searchTerm) && (
                 <CurrentlyReadingIndicator
                   highlightVerse={highlightVerse}
                   filterMode={filterMode}
@@ -1172,8 +1183,12 @@ export default function BibleReader() {
                   lastReadingPos={lastReadingPos}
                   book={book}
                   pos={pos}
+                  searchTerm={searchTerm}
                   onClear={() => {
-                    if (filterMode && selectedVerses.size > 0) {
+                    if (searchTerm) {
+                      setSearchTerm(null);
+                      try { localStorage.removeItem('kjb-search-term'); } catch {}
+                    } else if (filterMode && selectedVerses.size > 0) {
                       setFilterMode(false);
                       setSelectMode(false);
                       setSelectedVerses(new Set());

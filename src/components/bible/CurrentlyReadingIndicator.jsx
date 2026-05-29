@@ -60,6 +60,7 @@ export default function CurrentlyReadingIndicator({
   book,
   pos,
   onClear,
+  searchTerm,
 }) {
   const isFilterMode = filterMode && selectedVerses.size > 0;
   const isRandom = lastReadingPos && lastReadingPos.fromRandom;
@@ -71,15 +72,18 @@ export default function CurrentlyReadingIndicator({
   let label = '';
   let clearLabel = 'Clear';
   
-  if (isFilterMode) {
+  if (searchTerm) {
+    label = `Search term: "${searchTerm}"`;
+    clearLabel = 'Clear';
+  } else if (isFilterMode) {
     label = `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`;
     clearLabel = 'Show Full Chapter';
   } else if (isRandom) {
-    label = `Random chapter — ${book.shortName} ${pos.chapter}`;
-    clearLabel = 'Back';
+    label = `${book.shortName} ${pos.chapter}`;
+    clearLabel = 'Clear';
   } else if (isDaily) {
-    label = `Daily verse — ${book.shortName} ${pos.chapter}:${verseNum || '1'}`;
-    clearLabel = 'Back';
+    label = `${book.shortName} ${pos.chapter}:${verseNum || '1'}`;
+    clearLabel = 'Clear';
   } else if (verseNum) {
     label = `${book.shortName} ${pos.chapter}:${verseNum}`;
   } else {
@@ -98,7 +102,7 @@ export default function CurrentlyReadingIndicator({
       <button
         onClick={onClear}
         className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-accent text-accent-foreground font-sans text-[10px] font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
-        title={isFilterMode ? 'Show full chapter' : 'Clear highlight'}
+        title={isFilterMode ? 'Show full chapter' : searchTerm ? 'Clear search' : 'Clear highlight'}
       >
         <AlignLeft className="w-3 h-3" /> {clearLabel}
       </button>
