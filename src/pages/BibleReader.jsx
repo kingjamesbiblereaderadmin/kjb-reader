@@ -1292,12 +1292,12 @@ export default function BibleReader() {
         {!loading && !error && verses.length > 0 && columnMode && !isViewingTitlePage && (
           <RunningHead bookName={book.name} chapter={pos.chapter} baseFontRem={zoomLevel / 100 * 0.7} isCursive={fontFamily === 'cursive'} />
         )}
-        {/* Subscript (Psalm superscription) — centred header below the running head,
-            above the text, in column mode */}
+        {/* Subscript (Psalm superscription) — centred within the LEFT column only
+            (constrained to ~half width, aligned left), below the running head */}
         {!loading && !error && verses.length > 0 && columnMode && !isViewingTitlePage && SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
           <p
-            className={`text-center text-muted-foreground mb-4 max-w-lg mx-auto leading-relaxed [&_em]:italic [&_em]:text-muted-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
-            style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem` }}
+            className={`text-center text-muted-foreground mb-4 leading-relaxed [&_em]:italic [&_em]:text-muted-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
+            style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, width: 'calc(50% - 0.75rem)' }}
             dangerouslySetInnerHTML={{ __html: renderColophonText(SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]) }}
           />
         )}
