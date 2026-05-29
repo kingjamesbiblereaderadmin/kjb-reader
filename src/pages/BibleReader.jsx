@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Columns2, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, AlignJustify, AlignLeft, List, Columns2, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2 } from 'lucide-react';
 import { buildVerseUrl, formatVerseShare, cleanVerseText } from '@/lib/formatDailyVerse';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText } from '@/lib/bibleApi';
@@ -101,15 +101,29 @@ export default function BibleReader() {
   const [showBookPicker, setShowBookPicker] = useState(false);
   const [showChapterPicker, setShowChapterPicker] = useState(false);
   const [showVersePicker, setShowVersePicker] = useState(false);
-  // 3-way layout: 'line' | 'paragraph' | 'column'
-  const [layoutMode, setLayoutMode] = useState(() => {
+  // Two independent controls:
+  //  • flowMode: 'line' | 'paragraph' (reading flow)
+  //  • columnOn: boolean (single vs two-column), combinable with either flow
+  const [flowMode, setFlowMode] = useState(() => {
     try {
-      const v = localStorage.getItem('kjb-layout');
-      return v === 'paragraph' || v === 'column' ? v : 'line';
+      const v = localStorage.getItem('kjb-flow');
+      if (v === 'line' || v === 'paragraph') return v;
+      // Migrate from the old 3-way 'kjb-layout' key
+      const old = localStorage.getItem('kjb-layout');
+      return old === 'paragraph' ? 'paragraph' : 'line';
     } catch { return 'line'; }
   });
-  const paragraphMode = layoutMode === 'paragraph';
-  const columnMode = layoutMode === 'column';
+  const [columnOn, setColumnOn] = useState(() => {
+    try {
+      const v = localStorage.getItem('kjb-column');
+      if (v === 'true') return true;
+      if (v === 'false') return false;
+      // Migrate from the old 3-way 'kjb-layout' key
+      return localStorage.getItem('kjb-layout') === 'column';
+    } catch { return false; }
+  });
+  const paragraphMode = flowMode === 'paragraph';
+  const columnMode = columnOn;
   const [fullscreen, setFullscreen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(() => {
     try { return parseInt(localStorage.getItem('kjb-zoom') || '100'); } catch { return 100; }
@@ -170,11 +184,18 @@ export default function BibleReader() {
 
 
 
-  const toggleLayout = () => {
-    const order = ['line', 'paragraph', 'column'];
-    const next = order[(order.indexOf(layoutMode) + 1) % order.length];
-    setLayoutMode(next);
-    try { localStorage.setItem('kjb-layout', next); } catch {}
+  const toggleFlow = () => {
+    const next = flowMode === 'line' ? 'paragraph' : 'line';
+    setFlowMode(next);
+    try { localStorage.setItem('kjb-flow', next); } catch {}
+  };
+
+  const toggleColumn = () => {
+    setColumnOn(prev => {
+      const next = !prev;
+      try { localStorage.setItem('kjb-column', String(next)); } catch {}
+      return next;
+    });
   };
 
   const adjustZoom = (delta) => {
@@ -1043,15 +1064,25 @@ export default function BibleReader() {
                 )}
               </SelectorSheet>
 
-              {/* Layout toggle */}
+              {/* Flow toggle (Line ↔ Paragraph) */}
               <button
-                onClick={toggleLayout}
-                onTouchEnd={(e) => { e.preventDefault(); toggleLayout(); }}
-                title={layoutMode === 'line' ? 'Switch to paragraph' : layoutMode === 'paragraph' ? 'Switch to two-column' : 'Switch to line-by-line'}
+                onClick={toggleFlow}
+                onTouchEnd={(e) => { e.preventDefault(); toggleFlow(); }}
+                title={flowMode === 'line' ? 'Switch to paragraph' : 'Switch to line-by-line'}
                 className="flex flex-1 lg:flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] max-w-[64px] lg:max-w-none whitespace-nowrap"
               >
-                {layoutMode === 'line' ? <List className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : layoutMode === 'paragraph' ? <AlignJustify className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <Columns2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}
-                <span className="hidden lg:inline">{layoutMode === 'line' ? 'Lines' : layoutMode === 'paragraph' ? 'Paragraph' : '2-Column'}</span>
+                {flowMode === 'line' ? <List className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <AlignJustify className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}
+                <span className="hidden lg:inline">{flowMode === 'line' ? 'Lines' : 'Paragraph'}</span>
+              </button>
+              {/* Column toggle (Single ↔ Two-Column) */}
+              <button
+                onClick={toggleColumn}
+                onTouchEnd={(e) => { e.preventDefault(); toggleColumn(); }}
+                title={columnOn ? 'Switch to single column' : 'Switch to two-column'}
+                className={`flex flex-1 lg:flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg font-sans text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] max-w-[64px] lg:max-w-none whitespace-nowrap ${columnOn ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'}`}
+              >
+                {columnOn ? <Columns2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <AlignLeft className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}
+                <span className="hidden lg:inline">{columnOn ? '2-Column' : '1-Column'}</span>
               </button>
               {/* Select mode toggle */}
               <button
