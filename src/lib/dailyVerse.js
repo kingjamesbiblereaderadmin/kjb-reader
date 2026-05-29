@@ -33,50 +33,6 @@ const EXCLUDED_VERSES = new Set([
   '1 Samuel 15:3', 'Ezekiel 9:6',
 ]);
 
-// Pick a truly random verse from the full cached Bible, fallback to pool if not available
-export async function getRandomVerseFromBible() {
-  try {
-    const bible = await getBibleData();
-    const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
-    if (!bookNames.length) throw new Error('no data');
-
-    let bookName, chapter, verseObj, displayName, bookData;
-    let attempts = 0;
-    do {
-      bookName = bookNames[Math.floor(Math.random() * bookNames.length)];
-      const chapters = Object.keys(bible[bookName]);
-      chapter = chapters[Math.floor(Math.random() * chapters.length)];
-      const verses = bible[bookName][chapter];
-      verseObj = verses[Math.floor(Math.random() * verses.length)];
-      bookData = BIBLE_BOOKS.find(b => b.apiName === bookName);
-      displayName = bookData ? bookData.name : bookName;
-      attempts++;
-    } while (EXCLUDED_VERSES.has(`${displayName} ${chapter}:${verseObj.verse}`) && attempts < 20);
-
-    const abbr = bookData ? bookData.abbr : bookName.slice(0, 3).toUpperCase();
-
-    // Keep [bracketed] italics markers so the card can render italics and
-    // copy/share can include the brackets. Only strip pilcrows and titles.
-    const cleanText = verseObj.text
-      .replace(/¶\s*/g, '')
-      .replace(/^<<[^>]*>>\s*/, '');
-
-    return {
-      abbr,
-      book: displayName,
-      chapter: parseInt(chapter),
-      verse: verseObj.verse,
-      text: cleanText,
-      ref: `${displayName} ${chapter}:${verseObj.verse}`
-    };
-  } catch {
-    // Fallback to static pool
-    const v = FALLBACK_POOL[Math.floor(Math.random() * FALLBACK_POOL.length)];
-    const cleanText = v.text.replace(/\[([^\]]+)\]/g, '$1');
-    return { ...v, text: cleanText, ref: `${v.book} ${v.chapter}:${v.verse}` };
-  }
-}
-
 // Seeded pseudo-random (deterministic for a given seed)
 function seededRandom(seed) {
   let x = Math.sin(seed) * 10000;
