@@ -70,13 +70,13 @@ export default function CurrentlyReadingIndicator({
 
   let label = '';
   if (isFilterMode) {
-    label = `Selected vv.${formatVerseRange([...selectedVerses])}`;
+    label = `Selected ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`;
   } else if (isRandom) {
     label = `Random chapter — ${book.shortName} ${pos.chapter}`;
   } else if (isDaily) {
-    label = `Daily verse — ${book.shortName} v.${verseNum || '1'}`;
+    label = `Daily verse — ${book.shortName} ${pos.chapter}:${verseNum || '1'}`;
   } else if (verseNum) {
-    label = `${book.shortName} v.${verseNum}`;
+    label = `${book.shortName} ${pos.chapter}:${verseNum}`;
   }
 
   if (!label) return null;
