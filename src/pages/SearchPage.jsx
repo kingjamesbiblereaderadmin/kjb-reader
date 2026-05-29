@@ -109,6 +109,7 @@ export default function SearchPage() {
       
       // Check if query matches a book name (e.g. "Joshua", "Jude", "Samuel", "Genesis")
       // Show book suggestion for exact matches OR partial matches (like "Samuel" for 1&2 Samuel)
+      // This runs BEFORE the search, so both the suggestion AND results will show
       const bookMatches = BIBLE_BOOKS.filter(b => 
         b.shortName.toLowerCase() === kwLower ||
         b.apiName.toLowerCase() === kwLower ||
@@ -117,12 +118,12 @@ export default function SearchPage() {
       );
       
       // Prioritize exact matches, fall back to partial matches
-      const exactMatch = bookMatches.find(b => 
+      const exactBookMatch = bookMatches.find(b => 
         b.shortName.toLowerCase() === kwLower ||
         b.apiName.toLowerCase() === kwLower ||
         b.abbr.toLowerCase() === kwLower
       );
-      const bookMatch = exactMatch || (bookMatches.length > 0 ? bookMatches[0] : null);
+      const bookMatch = exactBookMatch || (bookMatches.length > 0 ? bookMatches[0] : null);
       
       if (bookMatch && !isQuotedPhrase && !numberedBookMatch) {
         setShowBookResult({ bookName: bookMatch.shortName, abbr: bookMatch.abbr, chapters: bookMatch.chapters, testament: bookMatch.testament });
