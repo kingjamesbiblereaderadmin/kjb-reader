@@ -414,15 +414,19 @@ export default function BibleReader() {
     };
     preloadAndCache();
     
-    // Load search term from localStorage
+    // Load search term and results from localStorage
     try {
       const term = localStorage.getItem('kjb-search-term');
       if (term) setSearchTerm(term);
-      // Load search result index and total from localStorage
       const searchIndex = localStorage.getItem('kjb-search-index');
       const searchTotal = localStorage.getItem('kjb-search-total');
+      const searchResults = localStorage.getItem('kjb-search-results');
       if (searchIndex) setSearchResultIndex(parseInt(searchIndex, 10));
       if (searchTotal) setSearchTotalResults(parseInt(searchTotal, 10));
+      if (searchResults) {
+        const results = JSON.parse(searchResults);
+        setSearchTotalResults(results.length);
+      }
     } catch {}
     
     // Check for URL parameters: ?book=John&chapter=3&verse=16
