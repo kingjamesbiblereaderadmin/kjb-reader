@@ -113,6 +113,9 @@ export default function SearchPage() {
       } else {
         setShowBookResult(null);
       }
+      
+      // Clear last reading position when starting a new search
+      try { localStorage.removeItem('kjb-last-reading'); } catch {}
 
       // Check if query is a numbered book (e.g., "1 john", "2 timothy") or contains one
       const numberedBookMatch = kwLower.match(/(\d+)\s+([a-z]+)/);
@@ -322,6 +325,8 @@ export default function SearchPage() {
     const q = getQueryFromUrl() || query;
     try { localStorage.setItem('kjb-search-term', q); } catch {}
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null, verseEnd: verseEnd || null })); } catch {}
+    // Clear last reading position (from daily verse/random) when navigating from search
+    try { localStorage.removeItem('kjb-last-reading'); } catch {}
     // Store search results and index for navigation
     try {
       localStorage.setItem('kjb-search-index', String(resultIndex !== null ? resultIndex : 0));
