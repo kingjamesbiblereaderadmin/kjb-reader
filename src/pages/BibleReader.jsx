@@ -1293,7 +1293,7 @@ export default function BibleReader() {
           <RunningHead bookName={book.name} chapter={pos.chapter} baseFontRem={zoomLevel / 100 * 0.7} isCursive={fontFamily === 'cursive'} />
         )}
         {/* Subscript (Psalm superscription) — centred within the LEFT column only
-            (constrained to ~half width, aligned left), below the running head */}
+            (constrained to ~half width), below the running head */}
         {!loading && !error && verses.length > 0 && columnMode && !isViewingTitlePage && SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
           <p
             className={`text-center text-muted-foreground mb-4 leading-relaxed [&_em]:italic [&_em]:text-muted-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
@@ -1332,6 +1332,7 @@ export default function BibleReader() {
                 isCursive={fontFamily === 'cursive'}
                 fontFamilyValue={getFontFamilyValue(fontFamily)}
                 zoomLevel={zoomLevel}
+                hasSubscript={columnMode && SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]}
               />
             ))}
           </div>

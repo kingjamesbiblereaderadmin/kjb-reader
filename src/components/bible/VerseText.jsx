@@ -5,9 +5,11 @@ import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { formatVerseShare, buildVerseUrl } from '@/lib/formatDailyVerse';
 
-export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, isCursive = false, fontFamilyValue = null, zoomLevel = 100 }) {
+export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, isCursive = false, fontFamilyValue = null, zoomLevel = 100, hasSubscript = false }) {
   const bookEntry = BIBLE_BOOKS.find(b => b.abbr === abbr);
   const shortBookName = bookEntry ? bookEntry.shortName : bookName;
+  // Detect column mode from parent context (passed via hasSubscript flag for now)
+  const columnMode = hasSubscript;
   const [selected, setSelected] = useState(false);
   // Highlight overlay is OFF by default — only shown when the user manually
   // applies it via the action popover. Navigation just scrolls to the verse.
@@ -286,8 +288,10 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   }
 
   // ── LINE MODE (default): each verse is its own line ──
+  // In column mode with a subscript, first verse on right column needs gap at top (not aligned with left)
+  const needsTopGap = hasSubscript && columnMode && isFirstVerse;
   return (
-    <span id={id} className={`block relative ${hasPilcrow && !isFirstVerse ? 'pt-6' : 'mt-2'}`}>
+    <span id={id} className={`block relative ${hasPilcrow && !isFirstVerse ? 'pt-6' : needsTopGap ? 'pt-8' : 'mt-2'}`}>
       <span
         onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
         className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.4em] py-[0.25em] gap-[0.6em] w-full ${
