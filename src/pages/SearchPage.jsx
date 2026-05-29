@@ -579,11 +579,11 @@ export default function SearchPage() {
           style={{ pointerEvents: 'auto' }}
         >
           <div
-            className="w-full sm:max-w-lg max-h-[80vh] flex flex-col bg-card border border-border rounded-t-2xl sm:rounded-2xl shadow-xl"
+            className="w-full sm:max-w-md max-h-[70vh] flex flex-col bg-card border border-border rounded-t-2xl sm:rounded-2xl shadow-xl"
             onClick={(e) => e.stopPropagation()}
             style={{ pointerEvents: 'auto' }}
           >
-            <div className="flex items-center justify-between p-4 border-b border-border">
+            <div className="flex items-center justify-between p-3 sm:p-4 border-b border-border flex-shrink-0">
               <p className="font-sans text-sm font-semibold text-foreground">
                 Select Books {selectedBooks.size > 0 && selectedBooks.size < 66 ? `(${selectedBooks.size})` : selectedBooks.size === 66 ? '(All 66)' : ''}
               </p>
@@ -592,7 +592,7 @@ export default function SearchPage() {
               </button>
             </div>
             {/* Search input for filtering books */}
-            <div className="p-4 pb-2 flex-shrink-0">
+            <div className="p-3 sm:p-4 pb-2 flex-shrink-0">
               <input
                 type="text"
                 value={bookFilterQuery}
@@ -602,7 +602,7 @@ export default function SearchPage() {
                 autoFocus
               />
             </div>
-            <div className="flex gap-2 p-4 pb-2 flex-shrink-0">
+            <div className="flex gap-2 p-3 sm:p-4 pb-0 flex-shrink-0">
               <button
                 onClick={() => {
                   const booksToSelect = BIBLE_BOOKS
@@ -620,7 +620,7 @@ export default function SearchPage() {
                 Clear
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto px-4 pb-2" style={{ minHeight: '300px', maxHeight: '400px' }}>
+            <div className="flex-1 overflow-y-auto px-3 sm:px-4 pb-2" style={{ minHeight: '200px' }}>
               <div className="space-y-4">
                 {/* Old Testament section */}
                 <div>
