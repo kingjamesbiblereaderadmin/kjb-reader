@@ -82,6 +82,27 @@ export default function HomePage() {
   const handleRandomVerse = () => {
     const book = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
     const chapter = Math.floor(Math.random() * book.chapters) + 1;
+    
+    // Check if user has a current reading position
+    let currentPos = null;
+    try {
+      currentPos = JSON.parse(localStorage.getItem('kjb-position') || '{}');
+    } catch {}
+    
+    // If user has a reading position, ask if they want to save it
+    if (currentPos && currentPos.abbr) {
+      const bookEntry = BIBLE_BOOKS.find(b => b.abbr === currentPos.abbr);
+      const bookName = bookEntry ? bookEntry.shortName : currentPos.abbr;
+      const confirmMsg = `Save your place in ${bookName} ${currentPos.chapter} before jumping to a random chapter?`;
+      if (window.confirm(confirmMsg)) {
+        try {
+          localStorage.setItem('kjb-last-reading-pos', JSON.stringify(currentPos));
+        } catch (err) {
+          console.error('Failed to save last reading position:', err);
+        }
+      }
+    }
+    
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr: book.abbr, chapter, verse: null })); } catch {}
     window.scrollTo({ top: 0, behavior: 'smooth' });
     navigate(`/read?book=${book.abbr}&chapter=${chapter}`);
@@ -138,15 +159,26 @@ export default function HomePage() {
       console.warn('Invalid verse data:', verse);
       return;
     }
-    // Save current reading position before navigating to daily verse
+    // Check if user has a current reading position
+    let currentPos = null;
     try {
-      const currentPos = localStorage.getItem('kjb-position');
-      if (currentPos) {
-        localStorage.setItem('kjb-last-reading-pos', currentPos);
+      currentPos = JSON.parse(localStorage.getItem('kjb-position') || '{}');
+    } catch {}
+    
+    // If user has a reading position (not the daily verse), ask if they want to save it
+    if (currentPos && currentPos.abbr && !(currentPos.abbr === verse.abbr && currentPos.chapter === verse.chapter)) {
+      const bookEntry = BIBLE_BOOKS.find(b => b.abbr === currentPos.abbr);
+      const bookName = bookEntry ? bookEntry.shortName : currentPos.abbr;
+      const confirmMsg = `Save your place in ${bookName} ${currentPos.chapter} and view today's verse?`;
+      if (window.confirm(confirmMsg)) {
+        try {
+          localStorage.setItem('kjb-last-reading-pos', JSON.stringify(currentPos));
+        } catch (err) {
+          console.error('Failed to save last reading position:', err);
+        }
       }
-    } catch (err) {
-      console.error('Failed to save last reading position:', err);
     }
+    
     const savedData = { abbr: verse.abbr, chapter: verse.chapter, verse: verse.verse };
     try {
       localStorage.setItem('kjb-position', JSON.stringify(savedData));

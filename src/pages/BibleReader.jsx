@@ -1147,14 +1147,14 @@ export default function BibleReader() {
                 onClick={() => {
                   const restored = goToLastReadingPosition();
                   if (!restored) {
-                    alert('No previous reading position found.');
+                    alert('No previous reading position found. You are at your last saved location.');
                   }
                 }}
                 onTouchEnd={(e) => {
                   e.preventDefault();
                   const restored = goToLastReadingPosition();
                   if (!restored) {
-                    alert('No previous reading position found.');
+                    alert('No previous reading position found. You are at your last saved location.');
                   }
                 }}
                 title="Return to last reading position"
