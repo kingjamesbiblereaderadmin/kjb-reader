@@ -82,15 +82,6 @@ export default function HomePage() {
   const handleRandomVerse = () => {
     const book = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
     const chapter = Math.floor(Math.random() * book.chapters) + 1;
-    // Save current reading position before navigating to random chapter
-    try {
-      const currentPos = localStorage.getItem('kjb-position');
-      if (currentPos) {
-        localStorage.setItem('kjb-last-reading-pos', currentPos);
-      }
-    } catch (err) {
-      console.error('Failed to save last reading position:', err);
-    }
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr: book.abbr, chapter, verse: null })); } catch {}
     window.scrollTo({ top: 0, behavior: 'smooth' });
     navigate(`/read?book=${book.abbr}&chapter=${chapter}`);
@@ -146,15 +137,6 @@ export default function HomePage() {
     if (!verse.abbr || !verse.chapter || !verse.verse) {
       console.warn('Invalid verse data:', verse);
       return;
-    }
-    // Save current reading position before navigating to daily verse
-    try {
-      const currentPos = localStorage.getItem('kjb-position');
-      if (currentPos) {
-        localStorage.setItem('kjb-last-reading-pos', currentPos);
-      }
-    } catch (err) {
-      console.error('Failed to save last reading position:', err);
     }
     const savedData = { abbr: verse.abbr, chapter: verse.chapter, verse: verse.verse };
     try {

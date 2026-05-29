@@ -371,8 +371,7 @@ export default function BibleReader() {
     setLoading(false);
   }, []);
 
-  const [showReturnPrompt, setShowReturnPrompt] = useState(false);
-  const [returnTarget, setReturnTarget] = useState(null);
+
 
   useEffect(() => {
     // Preload and cache ALL Bible data with italics on first mount
@@ -409,24 +408,6 @@ export default function BibleReader() {
       setPos({ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum });
       setHighlightVerse(verseNum || null);
       loadChapter(urlBookObj.abbr, chapterNum, verseNum);
-      
-      // Check if there's a saved reading position to return to (daily verse or random chapter)
-      try {
-        const lastPos = localStorage.getItem('kjb-last-reading-pos');
-        if (lastPos) {
-          const p = JSON.parse(lastPos);
-          const bookExists = BIBLE_BOOKS.find(b => b.abbr === p.abbr);
-          // Only show prompt if the saved position is different from current location
-          if (p && p.abbr && bookExists && !(p.abbr === urlBookObj.abbr && p.chapter === chapterNum)) {
-            const bookEntry = BIBLE_BOOKS.find(b => b.abbr === p.abbr);
-            const bookName = bookEntry ? bookEntry.shortName : p.abbr;
-            setReturnTarget({ abbr: p.abbr, chapter: p.chapter, bookName });
-            setShowReturnPrompt(true);
-          }
-        }
-      } catch (err) {
-        console.error('[BibleReader] Failed to check last reading position:', err);
-      }
     } else {
       // Load from saved position WITH highlight if verse is specified
       loadChapter(pos.abbr, pos.chapter, pos.verse || null);
@@ -633,9 +614,6 @@ export default function BibleReader() {
         const bookExists = BIBLE_BOOKS.find(b => b.abbr === p.abbr);
         if (p && p.abbr && bookExists) {
           navigate(p.abbr, p.chapter, p.verse || null);
-          // Clear the saved position after returning
-          localStorage.removeItem('kjb-last-reading-pos');
-          setShowReturnPrompt(false);
           return true;
         }
       }
@@ -643,12 +621,6 @@ export default function BibleReader() {
       console.error('Failed to restore last reading position:', err);
     }
     return false;
-  };
-
-  const handleContinueReading = () => {
-    // User chose to continue with daily verse/random chapter - clear the saved position
-    localStorage.removeItem('kjb-last-reading-pos');
-    setShowReturnPrompt(false);
   };
 
   const goPrev = () => {
@@ -748,36 +720,6 @@ export default function BibleReader() {
 
   return (
     <div className={`w-full px-5 sm:px-12 lg:px-16 py-3 ${hideHeader ? 'pt-16' : ''}`}>
-
-      {/* Return to last reading position prompt */}
-      {showReturnPrompt && returnTarget && (
-        <div className="fixed top-20 left-0 right-0 z-[120] flex justify-center pointer-events-none">
-          <div className="bg-card border border-border rounded-2xl shadow-2xl px-6 py-4 pointer-events-auto max-w-sm mx-4">
-            <p className="font-serif text-sm font-semibold text-foreground mb-3 text-center">
-              Return to {returnTarget.bookName} {returnTarget.chapter}?
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  const restored = goToLastReadingPosition();
-                  if (!restored) {
-                    setShowReturnPrompt(false);
-                  }
-                }}
-                className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
-              >
-                Return
-              </button>
-              <button
-                onClick={handleContinueReading}
-                className="flex-1 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-              >
-                Continue
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
