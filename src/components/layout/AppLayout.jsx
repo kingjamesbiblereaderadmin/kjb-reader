@@ -53,6 +53,24 @@ export default function AppLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
+  // Auto-hide header + bottom nav while actively scrolling; reappear when idle.
+  const [chromeHidden, setChromeHidden] = useState(false);
+  useEffect(() => {
+    const scroller = document.getElementById('kjb-scroll');
+    const target = scroller || window;
+    let idleTimer = null;
+    const onScroll = () => {
+      setChromeHidden(true);
+      if (idleTimer) clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => setChromeHidden(false), 1200);
+    };
+    target.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      target.removeEventListener('scroll', onScroll);
+      if (idleTimer) clearTimeout(idleTimer);
+    };
+  }, []);
+
   // Close hamburger menu whenever the route changes
   useEffect(() => {
     setMenuOpen(false);
@@ -196,7 +214,7 @@ export default function AppLayout() {
   return (
     <AutoUpdateHandler>
     <div className="h-screen bg-background flex flex-col overflow-hidden">
-      <header className={`border-b border-border bg-card/95 backdrop-blur-md z-50 flex-shrink-0 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
+      <header className={`border-b border-border bg-card/95 backdrop-blur-md z-50 flex-shrink-0 transition-transform duration-300 ${hideHeader ? 'hidden' : ''} ${chromeHidden ? '-translate-y-full' : 'translate-y-0'}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
         <div className="w-full px-5 sm:px-12 lg:px-16 h-14 flex items-center gap-2 sm:gap-3">
           {/* Logo */}
           <Link
@@ -321,7 +339,7 @@ export default function AppLayout() {
         </div>
       </main>
 
-      <BottomNav pathname={pathname} navigate={navigate} />
+      <BottomNav pathname={pathname} navigate={navigate} chromeHidden={chromeHidden} />
 
       {/* Scroll to top button - appears on all pages when scrolling */}
       <ScrollToTop />
@@ -445,7 +463,7 @@ function useAppLayoutPrompt() {
   return { isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss };
 }
 
-function BottomNav({ pathname, navigate }) {
+function BottomNav({ pathname, navigate, chromeHidden }) {
   const [showMode, setShowMode] = useState(() => {
     try {
       const saved = localStorage.getItem('kjb-footer-mode');
@@ -469,7 +487,7 @@ function BottomNav({ pathname, navigate }) {
   // Bar mode - thin footer strip with only the chevron toggle (no icons)
   if (showMode === 'bar') {
     return (
-      <nav className="sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/95 backdrop-blur-md border-t border-border" style={{ paddingBottom: 'env(safe-area-inset-bottom)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
+      <nav className={`sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/95 backdrop-blur-md border-t border-border transition-transform duration-300 ${chromeHidden ? 'translate-y-full' : 'translate-y-0'}`} style={{ paddingBottom: 'env(safe-area-inset-bottom)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
         <button
           type="button"
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); cycleShowMode(); }}
@@ -483,7 +501,7 @@ function BottomNav({ pathname, navigate }) {
   }
 
   return (
-    <nav className="sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/95 backdrop-blur-md border-t border-border overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
+    <nav className={`sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/95 backdrop-blur-md border-t border-border overflow-hidden transition-transform duration-300 ${chromeHidden ? 'translate-y-full' : 'translate-y-0'}`} style={{ paddingBottom: 'env(safe-area-inset-bottom)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
       <div className="w-full">
         {/* Primary row: 5 nav items + chevron toggle button */}
         <div className="flex items-stretch">
