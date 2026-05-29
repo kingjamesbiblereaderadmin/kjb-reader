@@ -342,6 +342,15 @@ export default function SearchPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const kw = query.trim();
+    if (!kw) return;
+    
+    // Check if it's a verse reference - if so, navigate directly to it
+    const ref = parseReference(kw);
+    if (ref) {
+      goToVerse(ref.abbr, ref.chapter, ref.verse, ref.verseEnd);
+      return;
+    }
+    
     if (kw.length >= 2) {
       window.history.replaceState({}, '', `/search?q=${encodeURIComponent(kw)}`);
       setSearched(true);
