@@ -1161,7 +1161,8 @@ export default function BibleReader() {
                 {fullscreen ? <Minimize2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <Maximize2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}
                 <span className="hidden lg:inline">{fullscreen ? 'Exit' : 'Full'}</span>
               </button>
-              {/* Currently reading indicator - shows when navigating from daily verse, random chapter, or verse selection */}
+
+              {/* Currently reading indicator - integrated into toolbar */}
               {(highlightVerse || (filterMode && selectedVerses.size > 0) || (lastReadingPos && !lastReadingPos.cleared)) && (
                 <CurrentlyReadingIndicator
                   highlightVerse={highlightVerse}
@@ -1245,43 +1246,7 @@ export default function BibleReader() {
         </div>
       )}
 
-      {/* Currently reading banner for mobile - fixed position, stays visible when scrolling text */}
-      {(highlightVerse || (filterMode && selectedVerses.size > 0) || (lastReadingPos && !lastReadingPos.cleared)) && (
-        <div className="lg:hidden fixed top-[57px] left-0 right-0 z-[99] bg-accent/10 border-b border-accent/20 px-4 sm:px-8 lg:px-16 py-2.5" style={{ top: 'calc(57px + env(safe-area-inset-top))' }}>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 min-w-0">
-              <p className="font-serif text-xs font-semibold text-accent break-words leading-snug">
-                Currently reading: {filterMode && selectedVerses.size > 0
-                  ? `Selected ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
-                  : lastReadingPos && lastReadingPos.fromRandom
-                  ? `Random chapter — ${book.shortName} ${pos.chapter}`
-                  : lastReadingPos && lastReadingPos.fromDailyVerse
-                  ? `Daily verse — ${book.shortName} ${pos.chapter}:${pos.verse || '1'}`
-                  : pos.verse
-                  ? `${book.shortName} ${pos.chapter}:${pos.verse}`
-                  : ''}
-              </p>
-            </div>
-            {filterMode && selectedVerses.size > 0 ? (
-              <button
-                onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setHighlightVerse(null); setShowFilterOverlay(false); setLastReadingPos(null); }}
-                className="flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
-                title="Show full chapter"
-              >
-                <AlignLeft className="w-3.5 h-3.5" /> Full
-              </button>
-            ) : (
-              <button
-                onClick={() => { setHighlightVerse(null); setFilterMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); if (lastReadingPos) setLastReadingPos(prev => prev ? {...prev, cleared: true} : null); }}
-                className="flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
-                title="Clear highlight"
-              >
-                <AlignLeft className="w-3.5 h-3.5" /> Clear
-              </button>
-            )}
-          </div>
-        </div>
-      )}
+
 
       {/* Show header chevron when hidden — portaled to body so it stays truly
           fixed to the viewport (escapes the animated page wrapper) while text scrolls */}

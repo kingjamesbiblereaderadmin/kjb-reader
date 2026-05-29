@@ -82,10 +82,10 @@ export default function CurrentlyReadingIndicator({
   if (!label) return null;
 
   return (
-    <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 min-w-[200px] max-w-[320px]">
+    <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-accent/10 border border-accent/20 min-w-[180px] max-w-[280px] flex-shrink-0">
       <div className="flex-1 min-w-0 overflow-hidden">
         <AutoShrinkText className="font-serif font-semibold text-accent block">
-          Currently reading: {label}
+          {label}
         </AutoShrinkText>
       </div>
       <button
@@ -93,7 +93,7 @@ export default function CurrentlyReadingIndicator({
         className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-accent text-accent-foreground font-sans text-[10px] font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
         title={isFilterMode ? 'Show full chapter' : 'Clear highlight'}
       >
-        <AlignLeft className="w-3 h-3" /> {isFilterMode ? 'Full' : 'Clear'}
+        <AlignLeft className="w-3 h-3" /> Clear
       </button>
     </div>
   );
