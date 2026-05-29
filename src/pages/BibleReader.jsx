@@ -1213,7 +1213,7 @@ export default function BibleReader() {
 
       {/* Continue reading banner - shows when navigating from daily verse, search, or random chapter */}
       {(highlightVerse || (filterMode && selectedVerses.size > 0)) && (
-        <div className="bg-accent/10 border-b border-accent/20 px-4 sm:px-8 lg:px-16 py-2 flex items-center justify-between gap-3">
+        <div className="bg-accent/10 border-b border-accent/20 px-4 sm:px-8 lg:px-16 py-3 flex items-center justify-between gap-3 relative z-[95]">
           <div className="flex-1 min-w-0">
             <p className="font-serif text-xs sm:text-sm font-semibold text-accent truncate">
               {filterMode && selectedVerses.size > 0
@@ -1221,12 +1221,12 @@ export default function BibleReader() {
                 : `Reading ${book.shortName} ${pos.chapter}${highlightVerse ? ':' + highlightVerse : ''}`}
             </p>
             <p className="font-sans text-xs text-accent/80 mt-0.5 truncate">
-              Would you like to continue reading this chapter or return to your previous reading session?
+              Tap "Continue Reading" to view the full chapter
             </p>
           </div>
           <button
             onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setHighlightVerse(null); setShowFilterOverlay(false); }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity whitespace-nowrap flex-shrink-0"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity whitespace-nowrap flex-shrink-0 shadow-sm"
           >
             <AlignLeft className="w-3.5 h-3.5" /> Continue Reading
           </button>
