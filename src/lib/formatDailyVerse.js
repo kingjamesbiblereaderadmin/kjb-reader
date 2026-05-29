@@ -22,18 +22,23 @@ export function cleanVerseText(text = '') {
     .trim();
 }
 
-// The canonical share/copy format used everywhere.
-//   "<text>" — <Reference> (KJB)
+// The canonical share/copy format used everywhere — a clean, professional layout:
 //
-//   <link>
-// Optional title (e.g. "Verse of the Day") sits on its own line above the quote.
+//   <Reference> (KJB)
+//
+//   “<text>”
+//
+//   Read more: <link>
+//
+// Optional title (e.g. "Verse of the Day") sits on its own line at the very top.
 export function formatVerseShare({ text, ref, url, title } = {}) {
   const clean = cleanVerseText(text);
-  let out = '';
-  if (title) out += `${title}\n\n`;
-  out += `“${clean}” — ${ref} (KJB)`;
-  if (url) out += `\n\n${url}`;
-  return out;
+  const parts = [];
+  if (title) parts.push(title);
+  parts.push(`${ref} (KJB)`);
+  parts.push(`“${clean}”`);
+  if (url) parts.push(`Read more: ${url}`);
+  return parts.join('\n\n');
 }
 
 export function formatDailyVerseForCopy(verse) {
