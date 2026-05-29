@@ -742,6 +742,24 @@ export default function SettingsPage() {
               <Type className="w-4 h-4 text-muted-foreground" />
               <p className="font-sans text-sm text-foreground font-medium">Font Family</p>
             </div>
+            {a11yFont !== 'default' && (
+              <>
+                <p className="font-sans text-xs text-muted-foreground leading-snug">
+                  Accessibility font is on — it overrides this. Disable it in the Accessibility section to choose a font.
+                </p>
+                <button
+                  onClick={() => {
+                    setExpandedSections(prev => ({ ...prev, accessibility: true }));
+                    setTimeout(() => document.getElementById('kjb-accessibility-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+                >
+                  <Accessibility className="w-4 h-4" />
+                  Go to Accessibility Settings
+                </button>
+              </>
+            )}
+            {a11yFont === 'default' && (
             <div className="grid grid-cols-2 gap-2">
               {VERSE_FONTS.map(font => (
                 <button
@@ -762,6 +780,7 @@ export default function SettingsPage() {
                 </button>
               ))}
             </div>
+            )}
           </div>
         </div>
         </div>
