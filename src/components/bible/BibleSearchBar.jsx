@@ -109,12 +109,22 @@ export default function BibleSearchBar({ onClose }) {
       }
     }
 
-    // Keyword hint
+    // If a single book match, show two options: go to book OR search for the term
+    let finalSuggestions = [...refSuggestions, ...bookMatches];
+    if (bookMatches.length === 1 && refSuggestions.length === 0) {
+      const bookMatch = bookMatches[0];
+      finalSuggestions = [
+        { type: 'book', book: bookMatch.book, label: `Go to ${bookMatch.label}`, sub: `${bookMatch.book.chapters} chapters` },
+        { type: 'keyword', query: query.trim(), label: `Search "${query.trim()}"`, sub: 'Find all mentions in verses' }
+      ];
+    }
+
+    // Keyword hint (only if no book match)
     const kwSuggestions = query.trim().length >= 3 && bookMatches.length === 0 && refSuggestions.length === 0
       ? [{ type: 'keyword', query: query.trim(), label: `Search: "${query.trim()}"`, sub: 'Keyword search across the Bible' }]
       : [];
 
-    setSuggestions([...refSuggestions, ...bookMatches, ...kwSuggestions]);
+    setSuggestions([...finalSuggestions, ...kwSuggestions]);
   }, [query]);
 
   const goTo = (abbr, chapter, verse, verseEnd) => {
