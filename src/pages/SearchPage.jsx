@@ -147,8 +147,9 @@ export default function SearchPage() {
         );
       }
       
-      // For partial matches like "Samuel", "Kings", "Chronicles" - show all matching books
-      if (kwLower.length >= 3) {
+      // For partial matches like "Samuel", "Chronicles" - show all matching books
+      // Skip this for "kings" since we already handled it specially above
+      if (kwLower.length >= 3 && kwLower !== 'kings') {
         const partialMatches = BIBLE_BOOKS.filter(b => b.shortName.toLowerCase().includes(kwLower));
         if (partialMatches.length > 1) {
           bookMatches = partialMatches;
