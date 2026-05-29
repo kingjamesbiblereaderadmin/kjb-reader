@@ -83,10 +83,10 @@ export default function CurrentlyReadingIndicator({
 
   return (
     <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-accent/10 border border-accent/20 min-w-[180px] max-w-[280px] flex-shrink-0">
-      <div className="flex-1 min-w-0 overflow-hidden">
-        <AutoShrinkText className="font-serif font-semibold text-accent block">
-          {label}
-        </AutoShrinkText>
+      <div className="flex-1 min-w-0">
+        <p className="font-serif text-xs font-semibold text-accent leading-snug break-words">
+          Currently reading: {label}
+        </p>
       </div>
       <button
         onClick={onClear}
