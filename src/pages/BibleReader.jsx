@@ -1463,6 +1463,12 @@ export default function BibleReader() {
               >
                 <BookMarked className="w-3.5 h-3.5" /> Read Selected
               </button>
+              <button
+                onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 font-sans text-xs font-medium transition-colors"
+              >
+                <AlignLeft className="w-3.5 h-3.5" /> Show Full Chapter
+              </button>
             </>
           )}
         </div>
