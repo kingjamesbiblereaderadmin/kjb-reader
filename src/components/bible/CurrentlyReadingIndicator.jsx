@@ -86,12 +86,12 @@ export default function CurrentlyReadingIndicator({
     label = `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`;
     clearLabel = 'Show Full Chapter';
   } else if (isRandom) {
-    prefix = 'Random chapter';
-    label = `${book.shortName} ${pos.chapter}:${verseNum || '1'}`;
+    prefix = 'Currently reading';
+    label = `Random chapter: ${book.shortName} ${pos.chapter}:${verseNum || '1'}`;
     clearLabel = 'Clear';
   } else if (isDaily) {
-    prefix = 'Daily verse';
-    label = `${book.shortName} ${pos.chapter}:${verseNum || '1'}`;
+    prefix = 'Currently reading';
+    label = `Daily verse: ${book.shortName} ${pos.chapter}:${verseNum || '1'}`;
     clearLabel = 'Clear';
   } else if (verseNum) {
     label = `${book.shortName} ${pos.chapter}:${verseNum}`;
