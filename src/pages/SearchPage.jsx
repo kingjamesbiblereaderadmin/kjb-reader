@@ -639,6 +639,7 @@ export default function SearchPage() {
           onClick={() => setShowBookFilter(false)}
           onTouchEnd={() => setShowBookFilter(false)}
           style={{ pointerEvents: 'auto' }}
+          role="presentation"
         >
           <div
             className="w-full max-w-md max-h-[70vh] flex flex-col bg-card border border-border rounded-2xl shadow-xl"
