@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2, ChevronsDown, MoreVertical, Trash2, Image, Copy, Crop } from 'lucide-react';
+import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2, ChevronsDown, MoreVertical, Trash2, Image, Copy, Crop, RotateCcw } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import ImageCropper from './ImageCropper';
 import { getNotificationsEnabled, requestNotificationPermission, disableNotifications, scheduleDailyNotification } from '@/lib/notifications';
@@ -767,10 +767,44 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
           {/* Text Color */}
           <div className="mb-4">
-            <label className="flex items-center gap-2 font-sans text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
-              <Palette className="w-3.5 h-3.5" />
-              Text Color
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="flex items-center gap-2 font-sans text-xs font-medium text-slate-700 dark:text-slate-300">
+                <Palette className="w-3.5 h-3.5" />
+                Text Color
+              </label>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  e.nativeEvent.stopImmediatePropagation();
+                  handleTextColorChange('#ffffff');
+                  handleTextOpacityChange(0.95);
+                  handleFontFamilyChange('serif');
+                }}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  e.nativeEvent.stopImmediatePropagation();
+                }}
+                onTouchStart={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  e.nativeEvent.stopImmediatePropagation();
+                }}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  e.nativeEvent.stopImmediatePropagation();
+                  handleTextColorChange('#ffffff');
+                  handleTextOpacityChange(0.95);
+                  handleFontFamilyChange('serif');
+                }}
+                className="flex items-center gap-1 px-2 py-1 rounded-md bg-secondary hover:bg-accent/20 text-slate-700 dark:text-slate-300 font-sans text-[10px] font-medium transition-colors"
+              >
+                <RotateCcw className="w-2.5 h-2.5" />
+                Reset
+              </button>
+            </div>
             <div className="flex flex-wrap gap-2 mb-2">
               {[
                 '#000000', '#1a1a1a', '#ffffff', '#f8f8f8',

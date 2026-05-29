@@ -675,10 +675,29 @@ export default function SettingsPage() {
 
         {/* Daily Verse Text Style */}
         <div className="pt-4 border-t border-border space-y-4">
+        <div className="flex items-center justify-between">
           <h3 className="font-serif text-base font-semibold text-foreground flex items-center gap-2">
             <Palette className="w-4 h-4" />
             Daily Verse Style
           </h3>
+          <button
+            onClick={() => {
+              setVerseTextColor('#ffffff');
+              setVerseTextOpacity(0.95);
+              setVerseFontFamily('serif');
+              setShowVersePanel(true);
+              localStorage.setItem('kjb-verse-text-color', '#ffffff');
+              localStorage.setItem('kjb-verse-text-opacity', '0.95');
+              localStorage.setItem('kjb-verse-font-family', 'serif');
+              localStorage.setItem('kjb-verse-panel-visible', 'true');
+              window.dispatchEvent(new Event('storage'));
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            Reset
+          </button>
+        </div>
           
           {/* Hide Panel Toggle */}
           <div className="flex items-center justify-between gap-4">
