@@ -215,6 +215,22 @@ export default function SettingsPage() {
       }
     }
     
+    // Ensure OS-level permission is actually granted before testing.
+    // The toggle only flips localStorage; the real Notification permission
+    // may still be 'default' or 'denied', which makes showNotification fail silently.
+    if (!('Notification' in window)) {
+      alert('This browser/PWA does not support notifications.');
+      return;
+    }
+    if (Notification.permission !== 'granted') {
+      const result = await Notification.requestPermission();
+      setNotifPermission(result);
+      if (result !== 'granted') {
+        alert('Notifications are blocked. Please enable notifications for this app in your device settings, then try again.');
+        return;
+      }
+    }
+
     const v = getDailyVerse();
     console.log('[Settings] Showing test notification...');
     try {
@@ -222,7 +238,7 @@ export default function SettingsPage() {
       console.log('[Settings] Test notification completed');
     } catch (err) {
       console.error('[Settings] Test notification failed:', err);
-      alert('Test failed! Check console for details.');
+      alert('Test failed: ' + err.message);
     }
   };
 
