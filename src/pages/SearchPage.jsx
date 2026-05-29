@@ -624,14 +624,13 @@ export default function SearchPage() {
                 {/* Old Testament section */}
                 <div>
                   <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 sticky top-0 bg-card py-1">
-                    Old Testament {searched && booksWithResults.size > 0 && <span className="font-normal normal-case text-muted-foreground/60">({[...booksWithResults].filter(abbr => OLD_TESTAMENT.some(b => b.abbr === abbr)).length})</span>}
+                    Old Testament
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {OLD_TESTAMENT
                       .filter(book => {
                         const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
-                        const hasResults = booksWithResults === null || booksWithResults.has(book.abbr);
-                        return matchesQuery && hasResults;
+                        return matchesQuery;
                       })
                       .map(book => (
                       <button
@@ -658,14 +657,13 @@ export default function SearchPage() {
                 {/* New Testament section */}
                 <div>
                   <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 sticky top-0 bg-card py-1">
-                    New Testament {searched && booksWithResults.size > 0 && <span className="font-normal normal-case text-muted-foreground/60">({[...booksWithResults].filter(abbr => NEW_TESTAMENT.some(b => b.abbr === abbr)).length})</span>}
+                    New Testament
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {NEW_TESTAMENT
                       .filter(book => {
                         const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
-                        const hasResults = booksWithResults === null || booksWithResults.has(book.abbr);
-                        return matchesQuery && hasResults;
+                        return matchesQuery;
                       })
                       .map(book => (
                       <button
