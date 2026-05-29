@@ -1247,7 +1247,7 @@ export default function BibleReader() {
 
       {/* Currently reading banner for mobile - shows below toolbar on mobile only */}
       {(highlightVerse || (filterMode && selectedVerses.size > 0) || (lastReadingPos && !lastReadingPos.cleared)) && (
-        <div className="lg:hidden bg-accent/10 border-b border-accent/20 px-4 sm:px-8 lg:px-16 py-2.5 mb-2">
+        <div className="lg:hidden sticky top-[57px] z-[99] bg-accent/10 border-b border-accent/20 px-4 sm:px-8 lg:px-16 py-2.5 mb-2" style={{ top: 'calc(57px + env(safe-area-inset-top))' }}>
           <div className="flex items-center gap-2">
             <div className="flex-1 min-w-0">
               <p className="font-serif text-xs font-semibold text-accent break-words leading-snug">
