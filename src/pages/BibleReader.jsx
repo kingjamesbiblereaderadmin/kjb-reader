@@ -142,6 +142,8 @@ export default function BibleReader() {
   const [searchTerm, setSearchTerm] = useState(() => {
     try { return localStorage.getItem('kjb-search-term') || null; } catch { return null; }
   });
+  const [searchResultIndex, setSearchResultIndex] = useState(0);
+  const [searchTotalResults, setSearchTotalResults] = useState(0);
 
   const handleFontChange = (font) => {
     setFontFamily(font);
@@ -416,6 +418,11 @@ export default function BibleReader() {
     try {
       const term = localStorage.getItem('kjb-search-term');
       if (term) setSearchTerm(term);
+      // Load search result index and total from localStorage
+      const searchIndex = localStorage.getItem('kjb-search-index');
+      const searchTotal = localStorage.getItem('kjb-search-total');
+      if (searchIndex) setSearchResultIndex(parseInt(searchIndex, 10));
+      if (searchTotal) setSearchTotalResults(parseInt(searchTotal, 10));
     } catch {}
     
     // Check for URL parameters: ?book=John&chapter=3&verse=16
@@ -598,7 +605,7 @@ export default function BibleReader() {
     }
   }, [filterMode, selectedVerses]);
 
-  const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false) => {
+  const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isSearchResult = false) => {
     // Prevent chapter 0 for non-GEN/MAT books
     if (newChapter === 0 && newAbbr !== 'GEN' && newAbbr !== 'MAT') {
       return;
@@ -611,7 +618,7 @@ export default function BibleReader() {
     }
     // Clear highlights when navigating without a specific verse (random chapter)
     // For search results and normal navigation, keep the verse highlight
-    if (!jumpVerse) {
+    if (!jumpVerse && !isSearchResult) {
       setHighlightVerse(null);
     }
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
@@ -1184,10 +1191,49 @@ export default function BibleReader() {
                   book={book}
                   pos={pos}
                   searchTerm={searchTerm}
+                  currentResultIndex={searchResultIndex}
+                  totalResults={searchTotalResults}
+                  onPrevResult={() => {
+                    if (searchResultIndex > 0) {
+                      const prevIndex = searchResultIndex - 1;
+                      // Get the previous result from search results stored in localStorage
+                      try {
+                        const searchResults = JSON.parse(localStorage.getItem('kjb-search-results') || '[]');
+                        const prevResult = searchResults[prevIndex];
+                        if (prevResult) {
+                          setSearchResultIndex(prevIndex);
+                          localStorage.setItem('kjb-search-index', String(prevIndex));
+                          navigate(prevResult.abbr, prevResult.chapter, prevResult.verse, false, false, true);
+                        }
+                      } catch {}
+                    }
+                  }}
+                  onNextResult={() => {
+                    if (searchResultIndex < searchTotalResults - 1) {
+                      const nextIndex = searchResultIndex + 1;
+                      // Get the next result from search results stored in localStorage
+                      try {
+                        const searchResults = JSON.parse(localStorage.getItem('kjb-search-results') || '[]');
+                        const nextResult = searchResults[nextIndex];
+                        if (nextResult) {
+                          setSearchResultIndex(nextIndex);
+                          localStorage.setItem('kjb-search-index', String(nextIndex));
+                          navigate(nextResult.abbr, nextResult.chapter, nextResult.verse, false, false, true);
+                        }
+                      } catch {}
+                    }
+                  }}
                   onClear={() => {
                     if (searchTerm) {
                       setSearchTerm(null);
-                      try { localStorage.removeItem('kjb-search-term'); } catch {}
+                      setSearchResultIndex(0);
+                      setSearchTotalResults(0);
+                      try {
+                        localStorage.removeItem('kjb-search-term');
+                        localStorage.removeItem('kjb-search-index');
+                        localStorage.removeItem('kjb-search-total');
+                        localStorage.removeItem('kjb-search-results');
+                      } catch {}
                     } else if (filterMode && selectedVerses.size > 0) {
                       setFilterMode(false);
                       setSelectMode(false);

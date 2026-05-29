@@ -1,5 +1,5 @@
 import React, { useRef, useLayoutEffect, useState } from 'react';
-import { AlignLeft } from 'lucide-react';
+import { AlignLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 
 // Format verses with dashes for consecutive, commas for gaps
 function formatVerseRange(verses) {
@@ -61,6 +61,10 @@ export default function CurrentlyReadingIndicator({
   pos,
   onClear,
   searchTerm,
+  onPrevResult,
+  onNextResult,
+  currentResultIndex,
+  totalResults,
 }) {
   const isFilterMode = filterMode && selectedVerses.size > 0;
   const isRandom = lastReadingPos && lastReadingPos.fromRandom;
@@ -69,21 +73,26 @@ export default function CurrentlyReadingIndicator({
   // Use pos.verse as the source of truth (persists even when highlight fades)
   const verseNum = pos.verse;
 
+  let prefix = '';
   let label = '';
   let clearLabel = 'Clear';
   
   if (searchTerm) {
-    label = `Search term: "${searchTerm}"`;
+    prefix = 'Search term';
+    label = `"${searchTerm}"`;
     clearLabel = 'Clear';
-  } else if (isFilterMode) {
-    label = `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`;
-    clearLabel = 'Show Full Chapter';
   } else if (isRandom) {
+    prefix = 'Random chapter';
     label = `${book.shortName} ${pos.chapter}`;
     clearLabel = 'Clear';
   } else if (isDaily) {
+    prefix = 'Daily verse';
     label = `${book.shortName} ${pos.chapter}:${verseNum || '1'}`;
     clearLabel = 'Clear';
+  } else if (isFilterMode) {
+    prefix = 'Reading';
+    label = `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`;
+    clearLabel = 'Show Full Chapter';
   } else if (verseNum) {
     label = `${book.shortName} ${pos.chapter}:${verseNum}`;
   } else {
@@ -92,12 +101,42 @@ export default function CurrentlyReadingIndicator({
 
   if (!label) return null;
 
+  const showNav = searchTerm && totalResults > 0;
+
   return (
-    <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-accent/10 border border-accent/20 min-w-[180px] max-w-[280px] flex-shrink-0">
+    <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-accent/10 border border-accent/20 min-w-[180px] max-w-[320px] flex-shrink-0">
       <div className="flex-1 min-w-0">
-        <p className="font-serif text-xs font-semibold text-accent leading-snug break-words">
-          Currently reading: {label}
+        {prefix && (
+          <p className="font-serif text-[10px] text-accent/70 leading-tight truncate">
+            {prefix}
+          </p>
+        )}
+        <p className="font-serif text-xs font-semibold text-accent leading-snug break-words truncate">
+          {label}
         </p>
+        {showNav && (
+          <div className="flex items-center gap-1 mt-1">
+            <button
+              onClick={onPrevResult}
+              disabled={currentResultIndex === 0}
+              className="p-0.5 rounded hover:bg-accent/20 disabled:opacity-30 transition-colors"
+              title="Previous result"
+            >
+              <ChevronLeft className="w-2.5 h-2.5" />
+            </button>
+            <span className="font-sans text-[10px] font-semibold text-accent min-w-[48px] text-center">
+              {currentResultIndex + 1} / {totalResults}
+            </span>
+            <button
+              onClick={onNextResult}
+              disabled={currentResultIndex === totalResults - 1}
+              className="p-0.5 rounded hover:bg-accent/20 disabled:opacity-30 transition-colors"
+              title="Next result"
+            >
+              <ChevronRight className="w-2.5 h-2.5" />
+            </button>
+          </div>
+        )}
       </div>
       <button
         onClick={onClear}

@@ -301,18 +301,26 @@ export default function SearchPage() {
     }
   };
 
-  const goToVerse = useCallback((abbr, chapter, verse, verseEnd) => {
+  const goToVerse = useCallback((abbr, chapter, verse, verseEnd, resultIndex = null) => {
     // Store the search term for the CurrentlyReadingIndicator
     const q = getQueryFromUrl() || query;
     try { localStorage.setItem('kjb-search-term', q); } catch {}
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null, verseEnd: verseEnd || null })); } catch {}
+    // Store search results and index for navigation
+    if (resultIndex !== null) {
+      try {
+        localStorage.setItem('kjb-search-index', String(resultIndex));
+        localStorage.setItem('kjb-search-total', String(results.length));
+        localStorage.setItem('kjb-search-results', JSON.stringify(results.map(r => ({ abbr: r.abbr, chapter: r.chapter, verse: r.verse }))));
+      } catch {}
+    }
     window.scrollTo({ top: 0 });
     // Navigate with URL params so the reader reliably scrolls to + highlights the verse.
     const url = verse ? `/read?book=${abbr}&chapter=${chapter}&verse=${verse}` : `/read?book=${abbr}&chapter=${chapter}`;
     navigate(url);
     // If already on /read, notify the mounted reader to load this passage.
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
-  }, [navigate, query]);
+  }, [navigate, query, results]);
 
   // Selection helpers
   const toggleSelect = useCallback((i) => {
@@ -398,8 +406,7 @@ export default function SearchPage() {
     if (currentResultIndex > 0) {
       const prevIndex = currentResultIndex - 1;
       const result = results[prevIndex];
-      goToVerse(result.abbr, result.chapter, result.verse);
-      setCurrentResultIndex(prevIndex);
+      goToVerse(result.abbr, result.chapter, result.verse, null, prevIndex);
     }
   };
   
@@ -407,8 +414,7 @@ export default function SearchPage() {
     if (currentResultIndex < results.length - 1) {
       const nextIndex = currentResultIndex + 1;
       const result = results[nextIndex];
-      goToVerse(result.abbr, result.chapter, result.verse);
-      setCurrentResultIndex(nextIndex);
+      goToVerse(result.abbr, result.chapter, result.verse, null, nextIndex);
     }
   };
 
@@ -593,32 +599,7 @@ export default function SearchPage() {
                   <span className="text-muted-foreground/70"> · {totalOccurrences} occurrences</span>
                 )}
               </p>
-              {/* Search result navigation */}
-              {results.length > 0 && (
-                <div className="flex items-center gap-2 mt-2">
-                  <button
-                    onClick={handlePrevResult}
-                    disabled={currentResultIndex === 0}
-                    className="flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors disabled:opacity-30"
-                    title="Previous result"
-                  >
-                    <ChevronUp className="w-3.5 h-3.5" />
-                    Prev
-                  </button>
-                  <span className="font-sans text-xs font-semibold text-foreground min-w-[80px] text-center">
-                    {currentResultIndex + 1} / {results.length}
-                  </span>
-                  <button
-                    onClick={handleNextResult}
-                    disabled={currentResultIndex === results.length - 1}
-                    className="flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors disabled:opacity-30"
-                    title="Next result"
-                  >
-                    Next
-                    <ChevronDownIcon className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
+
 
               {numberedBookFilter && (
                 <p className="font-sans text-xs text-primary font-semibold mt-0.5 flex items-center gap-1">
