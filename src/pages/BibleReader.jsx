@@ -1335,16 +1335,31 @@ export default function BibleReader() {
             ))}
           </div>
         )}
-        {/* Colophon - under last verse, centered (column mode: pilcrow + bracketed italics only) */}
-        {!loading && !error && colophon && (
-          <div className={`${columnMode ? 'mt-6 mb-4' : 'mt-12 mb-4 border-t border-border pt-6'} text-center`}>
+        {/* Colophon - column mode: centered under last verse in RIGHT column; non-column: footer with border */}
+        {!loading && !error && colophon && columnMode && (
+          <div style={{ breakInside: 'avoid' }}>
+            <p
+              className={`text-center text-sm text-muted-foreground leading-relaxed ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
+              style={{ 
+                fontStyle: 'normal',
+                fontSize: `${zoomLevel / 100}rem`,
+                width: 'calc(50% - 0.75rem)',
+                marginLeft: 'auto',
+                marginRight: '0'
+              }}
+              dangerouslySetInnerHTML={{ __html: `¶ ${renderColophonText(colophon)}` }}
+            />
+          </div>
+        )}
+        {!loading && !error && colophon && !columnMode && (
+          <div className="mt-12 mb-4 border-t border-border pt-6 text-center">
             <p
               className={`text-sm text-muted-foreground leading-relaxed ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
               style={{ 
                 fontStyle: 'normal',
                 fontSize: `${zoomLevel / 100}rem`
               }}
-              dangerouslySetInnerHTML={{ __html: columnMode ? `¶ ${renderColophonText(colophon)}` : renderColophonText(colophon) }}
+              dangerouslySetInnerHTML={{ __html: `¶ ${renderColophonText(colophon)}` }}
             />
           </div>
         )}
