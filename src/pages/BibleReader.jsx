@@ -12,6 +12,7 @@ import VerseSelector from '@/components/bible/VerseSelector';
 import VerseText from '@/components/bible/VerseText';
 import TitlePage from '@/components/bible/TitlePage';
 import SelectorSheet from '@/components/bible/SelectorSheet';
+import RunningHead from '@/components/bible/RunningHead';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Accessibility } from 'lucide-react';
@@ -1258,16 +1259,7 @@ export default function BibleReader() {
         )}
         {/* Print-style running head — book name left, chapter right (column mode, non-title pages) */}
         {!loading && !error && verses.length > 0 && columnMode && !isViewingTitlePage && (
-          <div className={`mb-3 ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}>
-            <div className="flex items-stretch gap-6">
-              <div className="flex-1 border-b border-border" />
-              <div className="flex-1 border-b border-border" />
-            </div>
-            <div className="pt-1.5 flex items-baseline justify-between gap-4">
-              <span className="font-semibold tracking-wide text-foreground break-words" style={{ fontSize: `${zoomLevel / 100 * 0.7}rem`, fontStyle: 'normal' }}>{book.name}</span>
-              <span className="font-semibold tracking-wide text-foreground whitespace-nowrap" style={{ fontSize: `${zoomLevel / 100 * 0.7}rem`, fontStyle: 'normal' }}>Chapter {pos.chapter}</span>
-            </div>
-          </div>
+          <RunningHead bookName={book.name} chapter={pos.chapter} baseFontRem={zoomLevel / 100 * 0.7} isCursive={fontFamily === 'cursive'} />
         )}
         {!loading && !error && verses.length > 0 && (
           <div
