@@ -101,7 +101,7 @@ export default function CurrentlyReadingIndicator({
 
   if (!label) return null;
 
-  const showNav = searchTerm && totalResults > 0;
+  const showNav = searchTerm && totalResults > 1;
 
   return (
     <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-accent/10 border border-accent/20 min-w-[180px] max-w-[320px] flex-shrink-0">
