@@ -108,19 +108,16 @@ export default function SearchPage() {
       const numberedBookMatch = kwLower.match(/(\d+)\s+([a-z]+)/);
       
       // Check if query matches a book name exactly (e.g. "Joshua", "Genesis", "Jude")
-      // Only show book options on first search, not when user explicitly clicks "Search" button
-      if (!searched) {
-        const bookMatch = BIBLE_BOOKS.find(b => 
-          b.shortName.toLowerCase() === kwLower ||
-          b.name.toLowerCase() === kwLower ||
-          b.abbr.toLowerCase() === kwLower ||
-          b.apiName.toLowerCase() === kwLower
-        );
-        if (bookMatch && !isQuotedPhrase && !numberedBookMatch) {
-          setShowBookResult({ bookName: bookMatch.shortName, abbr: bookMatch.abbr, chapters: bookMatch.chapters, testament: bookMatch.testament });
-        } else {
-          setShowBookResult(null);
-        }
+      const bookMatch = BIBLE_BOOKS.find(b => 
+        b.shortName.toLowerCase() === kwLower ||
+        b.name.toLowerCase() === kwLower ||
+        b.abbr.toLowerCase() === kwLower ||
+        b.apiName.toLowerCase() === kwLower
+      );
+      if (bookMatch && !isQuotedPhrase && !numberedBookMatch) {
+        setShowBookResult({ bookName: bookMatch.shortName, abbr: bookMatch.abbr, chapters: bookMatch.chapters, testament: bookMatch.testament });
+      } else {
+        setShowBookResult(null);
       }
       
       // Clear last reading position when starting a new search
