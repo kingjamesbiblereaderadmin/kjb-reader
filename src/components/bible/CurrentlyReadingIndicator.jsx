@@ -78,8 +78,8 @@ export default function CurrentlyReadingIndicator({
   let clearLabel = 'Clear';
   
   if (searchTerm) {
-    prefix = 'Search term';
-    label = `"${searchTerm}"`;
+    prefix = 'Search';
+    label = `${book.shortName} ${pos.chapter}:${verseNum || ''}`;
     clearLabel = 'Clear';
   } else if (isRandom) {
     prefix = 'Random chapter';
@@ -101,7 +101,7 @@ export default function CurrentlyReadingIndicator({
 
   if (!label) return null;
 
-  const showNav = searchTerm && totalResults > 1;
+  const showNav = searchTerm && totalResults > 0;
 
   return (
     <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-accent/10 border border-accent/20 min-w-[180px] max-w-[320px] flex-shrink-0">
