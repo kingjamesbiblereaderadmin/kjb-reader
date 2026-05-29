@@ -84,7 +84,7 @@ function savePosition(abbr, chapter) {
 
 
 export default function BibleReader() {
-  const { hideHeader, setHideHeader, chromeHidden } = useHeaderHide();
+  const { hideHeader, setHideHeader } = useHeaderHide();
   const routerLocation = useLocation();
   const [pos, setPos] = useState(loadPosition);
   const [verses, setVerses] = useState([]);
@@ -668,7 +668,7 @@ export default function BibleReader() {
 
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
-        <div ref={topRef} className={`sticky top-0 z-[100] border-b border-border pb-2 pt-2 mb-2 relative shadow-sm transition-transform duration-300 ${chromeHidden ? '-translate-y-full' : 'translate-y-0'} before:content-[''] before:absolute before:bottom-full before:-left-5 before:-right-5 sm:before:-left-12 sm:before:-right-12 lg:before:-left-16 lg:before:-right-16 before:h-12 before:bg-background`} style={{ backgroundColor: 'hsl(var(--background))' }}>
+        <div ref={topRef} className="sticky top-0 z-[100] border-b border-border pb-2 pt-2 mb-2 relative shadow-sm before:content-[''] before:absolute before:bottom-full before:-left-5 before:-right-5 sm:before:-left-12 sm:before:-right-12 lg:before:-left-16 lg:before:-right-16 before:h-12 before:bg-background" style={{ backgroundColor: 'hsl(var(--background))' }}>
           <div className="flex flex-wrap items-center gap-1.5 w-full">
 
             {/* Book selector */}
