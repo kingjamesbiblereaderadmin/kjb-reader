@@ -15,6 +15,7 @@ import SelectorSheet from '@/components/bible/SelectorSheet';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useLocation } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import { getAccessibilityFont } from '@/lib/accessibilityFont';
 
 const isMobile = () => window.innerWidth < 640;
 
@@ -109,6 +110,8 @@ export default function BibleReader() {
   const [fontFamily, setFontFamily] = useState(() => {
     try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
   });
+  const [a11yFont, setA11yFont] = useState(getAccessibilityFont);
+  const a11yActive = a11yFont !== 'default';
 
   const handleFontChange = (font) => {
     setFontFamily(font);
@@ -505,6 +508,7 @@ export default function BibleReader() {
     const sync = () => {
       try { setZoomLevel(parseInt(localStorage.getItem('kjb-zoom') || '100')); } catch {}
       try { setFontFamily(localStorage.getItem('kjb-reader-font-family') || 'serif'); } catch {}
+      try { setA11yFont(getAccessibilityFont()); } catch {}
     };
     window.addEventListener('storage', sync);
     window.addEventListener('focus', sync);
@@ -945,7 +949,12 @@ export default function BibleReader() {
                     <div className="flex items-center justify-between mb-3">
                       <span className="font-sans text-xs font-medium text-foreground">Font Family</span>
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
+                    {a11yActive && (
+                      <p className="font-sans text-[11px] text-muted-foreground mb-2 leading-snug">
+                        Accessibility font is on — it overrides this. Disable it in Settings to choose a reading font.
+                      </p>
+                    )}
+                    <div className={`grid grid-cols-2 gap-2 ${a11yActive ? 'opacity-40 pointer-events-none' : ''}`}>
                       {[
                         { value: 'serif', label: 'Serif' },
                         { value: 'sans-serif', label: 'Sans' },
@@ -972,7 +981,12 @@ export default function BibleReader() {
               )}
               {/* Mobile bottom sheet */}
               <SelectorSheet open={showFontPopover && isMobile()} onClose={() => setShowFontPopover(false)} title="Font Family">
-                <div className="space-y-2 p-2">
+                {a11yActive && (
+                  <p className="font-sans text-xs text-muted-foreground mb-3 px-2 leading-snug">
+                    Accessibility font is on — it overrides this. Disable it in Settings to choose a reading font.
+                  </p>
+                )}
+                <div className={`space-y-2 p-2 ${a11yActive ? 'opacity-40 pointer-events-none' : ''}`}>
                   {[
                     { value: 'serif', label: 'Serif' },
                     { value: 'sans-serif', label: 'Sans' },
