@@ -1283,20 +1283,22 @@ export default function BibleReader() {
         </div>
       )}
 
-      {/* Filter mode persistent banner */}
-      {filterMode && selectedVerses.size > 0 && (
+      {/* Filter mode persistent banner - shows when viewing selected verses OR when navigating from daily verse/search/random */}
+      {(filterMode && selectedVerses.size > 0) || (highlightVerse && !filterMode) ? (
         <div className="sticky top-16 sm:top-0 z-[90] bg-accent/10 border border-accent/20 rounded-xl px-4 py-3 mb-6 flex items-center justify-between gap-3">
           <p className="font-serif text-sm font-semibold text-accent">
-            Showing {selectedVerses.size} of {verses.length} verses ({book.shortName} {pos.chapter}:{formatVerseRange([...selectedVerses])})
+            {filterMode && selectedVerses.size > 0
+              ? `Showing ${selectedVerses.size} of ${verses.length} verses (${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])})`
+              : `Reading ${book.shortName} ${pos.chapter}${highlightVerse ? ':' + highlightVerse : ''}`}
           </p>
           <button
-            onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
+            onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setHighlightVerse(null); setShowFilterOverlay(false); }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
           >
             <AlignLeft className="w-3.5 h-3.5" /> Show Full Chapter
           </button>
         </div>
-      )}
+      ) : null}
 
 
 
