@@ -569,18 +569,12 @@ export default function BibleReader() {
     };
   }, []);
 
-  // Auto-hide highlights after 5 seconds
+  // Auto-hide highlights after 5 seconds (but keep the verse indicator in toolbar)
   useEffect(() => {
     if (highlightVerse) {
       const timer = setTimeout(() => {
         setHighlightVerse(null);
-        // Clear the verse from position storage to reset header display
-        try {
-          const current = JSON.parse(localStorage.getItem('kjb-position') || '{}');
-          if (current.verse) {
-            localStorage.setItem('kjb-position', JSON.stringify({ ...current, verse: null, verseEnd: null }));
-          }
-        } catch {}
+        // Don't clear the verse from position storage - keep it for the toolbar indicator
       }, 5000);
       return () => clearTimeout(timer);
     }
@@ -1175,27 +1169,31 @@ export default function BibleReader() {
               </button>
               {/* Currently reading indicator - shows when navigating from daily verse, random chapter, or verse selection */}
               {(highlightVerse || (filterMode && selectedVerses.size > 0) || (lastReadingPos && !lastReadingPos.cleared)) && (
-                <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 min-w-[200px] max-w-[280px]">
-                  <span className="font-serif text-xs font-semibold text-accent truncate">
-                    {filterMode && selectedVerses.size > 0
-                      ? `Selected: vv.${formatVerseRange([...selectedVerses])}`
-                      : lastReadingPos && lastReadingPos.fromRandom
-                      ? `Random: ${book.shortName} ${pos.chapter}`
-                      : lastReadingPos && lastReadingPos.fromDailyVerse
-                      ? `Daily: v.${highlightVerse || '1'}`
-                      : `v.${highlightVerse}`}
-                  </span>
+                <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 min-w-[200px] max-w-[320px]">
+                  <div className="flex-1 min-w-0">
+                    <span className="font-serif text-xs font-semibold text-accent block truncate">
+                      Currently reading: {filterMode && selectedVerses.size > 0
+                        ? `Selected vv.${formatVerseRange([...selectedVerses])}`
+                        : lastReadingPos && lastReadingPos.fromRandom
+                        ? `Random ${book.shortName} ${pos.chapter}`
+                        : lastReadingPos && lastReadingPos.fromDailyVerse
+                        ? `Daily v.${highlightVerse || '1'}`
+                        : `v.${highlightVerse}`}
+                    </span>
+                  </div>
                   {filterMode && selectedVerses.size > 0 ? (
                     <button
                       onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setHighlightVerse(null); setShowFilterOverlay(false); setLastReadingPos(null); }}
-                      className="flex items-center gap-1 px-2 py-1 rounded bg-accent text-accent-foreground font-sans text-[10px] font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
+                      className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-accent text-accent-foreground font-sans text-[10px] font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
+                      title="Show full chapter"
                     >
-                      <AlignLeft className="w-3 h-3" /> Show Full
+                      <AlignLeft className="w-3 h-3" /> Full
                     </button>
                   ) : (
                     <button
                       onClick={() => { setHighlightVerse(null); setFilterMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); if (lastReadingPos) setLastReadingPos(prev => prev ? {...prev, cleared: true} : null); }}
-                      className="flex items-center gap-1 px-2 py-1 rounded bg-accent text-accent-foreground font-sans text-[10px] font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
+                      className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-accent text-accent-foreground font-sans text-[10px] font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
+                      title="Clear highlight"
                     >
                       <AlignLeft className="w-3 h-3" /> Clear
                     </button>
@@ -1262,29 +1260,31 @@ export default function BibleReader() {
       {/* Currently reading banner for mobile - shows below toolbar on mobile only */}
       {(highlightVerse || (filterMode && selectedVerses.size > 0) || (lastReadingPos && !lastReadingPos.cleared)) && (
         <div className="lg:hidden bg-accent/10 border-b border-accent/20 px-4 sm:px-8 lg:px-16 py-2.5 mb-2">
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
             <div className="flex-1 min-w-0">
-              <p className="font-serif text-xs font-semibold text-accent truncate">
-                {filterMode && selectedVerses.size > 0
-                  ? `Selected: ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
+              <p className="font-serif text-xs font-semibold text-accent break-words leading-snug">
+                Currently reading: {filterMode && selectedVerses.size > 0
+                  ? `Selected vv.${formatVerseRange([...selectedVerses])} from ${book.shortName} ${pos.chapter}`
                   : lastReadingPos && lastReadingPos.fromRandom
-                  ? `Random: ${book.shortName} ${pos.chapter}`
+                  ? `Random ${book.shortName} ${pos.chapter}`
                   : lastReadingPos && lastReadingPos.fromDailyVerse
-                  ? `Daily: ${book.shortName} ${pos.chapter}:${highlightVerse || '1'}`
-                  : `${book.shortName} ${pos.chapter}:${highlightVerse}`}
+                  ? `Daily v.${highlightVerse || '1'} (${book.shortName} ${pos.chapter})`
+                  : `v.${highlightVerse} (${book.shortName} ${pos.chapter})`}
               </p>
             </div>
             {filterMode && selectedVerses.size > 0 ? (
               <button
                 onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setHighlightVerse(null); setShowFilterOverlay(false); setLastReadingPos(null); }}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity whitespace-nowrap flex-shrink-0"
+                className="flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+                title="Show full chapter"
               >
-                <AlignLeft className="w-3.5 h-3.5" /> Show Full
+                <AlignLeft className="w-3.5 h-3.5" /> Full
               </button>
             ) : (
               <button
                 onClick={() => { setHighlightVerse(null); setFilterMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); if (lastReadingPos) setLastReadingPos(prev => prev ? {...prev, cleared: true} : null); }}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity whitespace-nowrap flex-shrink-0"
+                className="flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+                title="Clear highlight"
               >
                 <AlignLeft className="w-3.5 h-3.5" /> Clear
               </button>
