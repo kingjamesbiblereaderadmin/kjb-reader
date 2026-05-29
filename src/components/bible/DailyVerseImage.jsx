@@ -21,6 +21,16 @@ function resolveFontFamily(choice, a11yFont) {
   return "'Merriweather', 'Cormorant Garamond', Georgia, serif";
 }
 
+// Pool of pleasant, readable text colours used as a random default
+// (still overridable from the overlay Text Style editor and Settings).
+const RANDOM_TEXT_COLORS = [
+  '#ffffff', '#fef3c7', '#fde68a', '#dbeafe', '#bbf7d0',
+  '#ddd6fe', '#fecaca', '#e0f2fe', '#ffe4e6', '#f8f8f8',
+];
+function pickRandomTextColor() {
+  return RANDOM_TEXT_COLORS[Math.floor(Math.random() * RANDOM_TEXT_COLORS.length)];
+}
+
 const VERSE_BACKGROUNDS = [
   { gradient: 'from-blue-600 to-purple-600', accent: 'text-blue-200' },
   { gradient: 'from-rose-600 to-pink-600', accent: 'text-rose-200' },
@@ -55,7 +65,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
   const [uploadingComplete, setUploadingComplete] = useState(false);
-  const [textColor, setTextColor] = useState(() => localStorage.getItem('kjb-verse-text-color') || '#ffffff');
+  const [textColor, setTextColor] = useState(() => localStorage.getItem('kjb-verse-text-color') || pickRandomTextColor());
   const [textOpacity, setTextOpacity] = useState(() => parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '0.95'));
   const [fontFamily, setFontFamily] = useState(() => {
     try { return localStorage.getItem('kjb-verse-font-family') || 'serif'; } catch { return 'serif'; }
@@ -67,7 +77,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   useEffect(() => {
     const handleStorage = () => {
       try { setCustomBg(localStorage.getItem('kjb-daily-verse-bg') || ''); } catch {}
-      try { setTextColor(localStorage.getItem('kjb-verse-text-color') || '#ffffff'); } catch {}
+      try { const c = localStorage.getItem('kjb-verse-text-color'); if (c) setTextColor(c); } catch {}
       try { setTextOpacity(parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '1')); } catch {}
       try { setFontFamily(localStorage.getItem('kjb-verse-font-family') || 'serif'); } catch {}
       try { setA11yFont(getAccessibilityFont()); } catch {}
