@@ -199,7 +199,7 @@ export default function AppLayout() {
             }}
             className="flex items-center gap-2 flex-shrink-0 pointer-events-auto"
           >
-            <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB Reader" className="h-8 w-auto" />
+            <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" className="h-8 w-auto" />
           </Link>
 
           {/* Search - expands to fill all available space so icons sit flush right */}
