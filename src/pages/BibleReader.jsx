@@ -592,6 +592,27 @@ export default function BibleReader() {
     };
   }, []);
 
+  // Refresh search term and navigation context when page regains focus
+  // (so the CurrentlyReadingIndicator updates after visiting other pages)
+  useEffect(() => {
+    const refreshContext = () => {
+      try {
+        const term = localStorage.getItem('kjb-search-term');
+        if (term !== searchTerm) setSearchTerm(term);
+        const searchIndex = localStorage.getItem('kjb-search-index');
+        const searchTotal = localStorage.getItem('kjb-search-total');
+        if (searchIndex) setSearchResultIndex(parseInt(searchIndex, 10));
+        if (searchTotal) setSearchTotalResults(parseInt(searchTotal, 10));
+      } catch {}
+    };
+    window.addEventListener('focus', refreshContext);
+    document.addEventListener('visibilitychange', refreshContext);
+    return () => {
+      window.removeEventListener('focus', refreshContext);
+      document.removeEventListener('visibilitychange', refreshContext);
+    };
+  }, [searchTerm]);
+
   // Keep verse highlight persistent (no auto-hide)
   // The highlight stays until user clears it or navigates away
   // Note: pos.verse is also kept persistent - don't clear it when highlight fades
