@@ -52,6 +52,53 @@ export default function AppLayout() {
   const { reloadKey, softReload } = useSoftReload();
   const [menuOpen, setMenuOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [pullProgress, setPullProgress] = useState(0);
+
+  // Pull-to-refresh: dragging down while scrolled to the very top reloads the app
+  useEffect(() => {
+    const scroller = document.getElementById('kjb-scroll');
+    if (!scroller) return;
+    let startY = 0;
+    let pulling = false;
+    const THRESHOLD = 90;
+
+    const onStart = (e) => {
+      if (scroller.scrollTop <= 0) {
+        startY = e.touches[0].clientY;
+        pulling = true;
+      } else {
+        pulling = false;
+      }
+    };
+    const onMove = (e) => {
+      if (!pulling) return;
+      const diff = e.touches[0].clientY - startY;
+      if (diff > 0 && scroller.scrollTop <= 0) {
+        setPullProgress(Math.min(diff, THRESHOLD + 40));
+      } else {
+        setPullProgress(0);
+      }
+    };
+    const onEnd = () => {
+      if (pulling && pullProgressRef.current >= THRESHOLD) {
+        window.location.reload();
+      }
+      pulling = false;
+      setPullProgress(0);
+    };
+
+    scroller.addEventListener('touchstart', onStart, { passive: true });
+    scroller.addEventListener('touchmove', onMove, { passive: true });
+    scroller.addEventListener('touchend', onEnd);
+    return () => {
+      scroller.removeEventListener('touchstart', onStart);
+      scroller.removeEventListener('touchmove', onMove);
+      scroller.removeEventListener('touchend', onEnd);
+    };
+  }, []);
+
+  const pullProgressRef = useRef(0);
+  pullProgressRef.current = pullProgress;
 
   // Close hamburger menu whenever the route changes
   useEffect(() => {
@@ -309,6 +356,20 @@ export default function AppLayout() {
           </>
         )}
       </header>
+
+      {pullProgress > 0 && (
+        <div
+          className="fixed left-0 right-0 z-[120] flex justify-center pointer-events-none"
+          style={{ top: `${Math.min(pullProgress, 100) * 0.6}px` }}
+        >
+          <div className="bg-card/95 backdrop-blur border border-border rounded-full p-2.5 shadow-lg">
+            <RotateCw
+              className={`w-5 h-5 text-accent ${pullProgress >= 90 ? 'animate-spin' : ''}`}
+              style={{ transform: `rotate(${pullProgress * 3}deg)` }}
+            />
+          </div>
+        </div>
+      )}
 
       <main id="kjb-scroll" className="flex-1 overflow-y-auto pb-16 sm:pb-0 px-1 sm:px-2">
         <div key={reloadKey}>
