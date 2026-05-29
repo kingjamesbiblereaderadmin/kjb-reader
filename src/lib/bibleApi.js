@@ -92,7 +92,7 @@ export function renderVerseText(text) {
   return result;
 }
 
-// Render colophon text: pilcrow prefix, [bracketed] words become italic, rest is plain
+// Render colophon/subscript text: pilcrow prefix (only if not already in text), [bracketed] words become italic
 export function renderColophonText(text) {
   if (!text || typeof text !== 'string') return '';
   const normalized = text
@@ -104,19 +104,6 @@ export function renderColophonText(text) {
   const rendered = parts.map((part, i) =>
     i % 2 === 1 ? `<em>${part}</em>` : part
   ).join('');
+  // Add pilcrow prefix (text itself is cleaned, so no duplication)
   return `<span class="pilcrow">¶</span> ${rendered}`;
-}
-
-// Render subscript text (Psalm superscriptions) - NO pilcrow, just [bracketed] words become italic
-export function renderSubscriptText(text) {
-  if (!text || typeof text !== 'string') return '';
-  const normalized = text
-    .replace(/\u2019/g, "'").replace(/\u2018/g, "'")
-    .replace(/\u201C/g, '"').replace(/\u201D/g, '"')
-    .replace(/^[\u00B6\uFFFD]\s*/, '');
-  const parts = normalized.split(/\[([^\]]+)\]/g);
-  const rendered = parts.map((part, i) =>
-    i % 2 === 1 ? `<em>${part}</em>` : part
-  ).join('');
-  return rendered;
 }
