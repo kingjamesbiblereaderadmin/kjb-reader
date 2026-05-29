@@ -1233,12 +1233,18 @@ export default function BibleReader() {
                   if (stored) cachedLastReading = JSON.parse(stored);
                 } catch {}
                 return (highlightVerse || (filterMode && selectedVerses.size > 0) || (cachedLastReading && !cachedLastReading.cleared) || searchTerm);
-              })() && (
+              })() && (() => {
+                let cachedLastReading = lastReadingPos;
+                try {
+                  const stored = localStorage.getItem('kjb-last-reading');
+                  if (stored) cachedLastReading = JSON.parse(stored);
+                } catch {}
+                return (
                 <CurrentlyReadingIndicator
                   highlightVerse={highlightVerse}
                   filterMode={filterMode}
                   selectedVerses={selectedVerses}
-                  lastReadingPos={lastReadingPos}
+                  lastReadingPos={cachedLastReading}
                   book={book}
                   pos={pos}
                   searchTerm={searchTerm}
@@ -1305,9 +1311,10 @@ export default function BibleReader() {
                       if (lastReadingPos) setLastReadingPos(prev => prev ? {...prev, cleared: true} : null);
                     }
                   }}
-                />
-              )}
-              {/* Hide header */}
+                  />
+                  );
+                  })()}
+                  {/* Hide header */}
               <button
                 onClick={(e) => { e.stopPropagation(); setHideHeader(!hideHeader); }}
                 onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setHideHeader(!hideHeader); }}
