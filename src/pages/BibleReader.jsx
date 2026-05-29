@@ -1308,13 +1308,13 @@ export default function BibleReader() {
               <VerseText
                 key={v.verse}
                 verse={v}
-                highlight={highlightVerse === v.verse}
+                highlight={!columnMode && highlightVerse === v.verse}
                 id={`v${v.verse}`}
                 bookName={book.name}
                 abbr={pos.abbr}
                 chapter={pos.chapter}
                 isFirstVerse={idx === 0}
-                paragraphMode={paragraphMode || columnMode}
+                paragraphMode={paragraphMode}
                 selectMode={selectMode}
                 isSelected={selectedVerses.has(v.verse)}
                 onSelect={toggleVerseSelect}
