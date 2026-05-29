@@ -1009,7 +1009,7 @@ export default function BibleReader() {
                 onClick={toggleLayout}
                 onTouchEnd={(e) => { e.preventDefault(); toggleLayout(); }}
                 title={paragraphMode ? 'Switch to line-by-line' : 'Switch to paragraph'}
-                className="flex flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"
+                className="flex flex-1 lg:flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] max-w-[64px] lg:max-w-none whitespace-nowrap"
               >
                 {paragraphMode ? <AlignJustify className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <List className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}
                 <span className="hidden lg:inline">{paragraphMode ? 'Lines' : 'Paragraph'}</span>
@@ -1019,7 +1019,7 @@ export default function BibleReader() {
                 onClick={toggleSelectMode}
                 onTouchEnd={(e) => { e.preventDefault(); toggleSelectMode(); }}
                 title="Select verses"
-                className={`flex flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg font-sans text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap ${selectMode ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'}`}
+                className={`flex flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg font-sans text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] max-w-[64px] lg:max-w-none whitespace-nowrap ${selectMode ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'}`}
               >
                 <CheckSquare className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
                 <span className="hidden lg:inline">Select</span>
@@ -1029,7 +1029,7 @@ export default function BibleReader() {
                 onClick={handleShareChapter}
                 onTouchEnd={(e) => { e.preventDefault(); handleShareChapter(); }}
                 title={shareFeedback ? 'Link copied!' : 'Share this chapter'}
-                className="flex flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"
+                className="flex flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] max-w-[64px] lg:max-w-none whitespace-nowrap"
               >
                 <Share2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
                 <span className="hidden lg:inline">{shareFeedback ? 'Copied!' : 'Share'}</span>
@@ -1040,7 +1040,7 @@ export default function BibleReader() {
                 onClick={goPrev}
                 onTouchEnd={(e) => { e.preventDefault(); goPrev(); }}
                 disabled={isFirstChapterFirstBook}
-                className="flex flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-all duration-200 hover:scale-105 active:scale-95 disabled:hover:scale-100 disabled:active:scale-100 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"
+                className="flex flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-all duration-200 hover:scale-105 active:scale-95 disabled:hover:scale-100 disabled:active:scale-100 touch-manipulation h-11 min-w-[44px] max-w-[64px] lg:max-w-none whitespace-nowrap"
               >
                 <ChevronLeft className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
                 <span className="hidden lg:inline">Prev</span>
@@ -1050,7 +1050,7 @@ export default function BibleReader() {
                 onClick={goNext}
                 onTouchEnd={(e) => { e.preventDefault(); goNext(); }}
                 disabled={isLastChapterLastBook}
-                className="flex flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-all duration-200 hover:scale-105 active:scale-95 disabled:hover:scale-100 disabled:active:scale-100 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"
+                className="flex flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-all duration-200 hover:scale-105 active:scale-95 disabled:hover:scale-100 disabled:active:scale-100 touch-manipulation h-11 min-w-[44px] max-w-[64px] lg:max-w-none whitespace-nowrap"
               >
                 <span className="hidden lg:inline">Next</span>
                 <ChevronRight className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
@@ -1060,7 +1060,7 @@ export default function BibleReader() {
                 onClick={toggleFullscreen}
                 onTouchEnd={(e) => { e.preventDefault(); toggleFullscreen(); }}
                 title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-                className="flex flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"
+                className="flex flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] max-w-[64px] lg:max-w-none whitespace-nowrap"
               >
                 {fullscreen ? <Minimize2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <Maximize2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}
                 <span className="hidden lg:inline">{fullscreen ? 'Exit' : 'Full'}</span>
