@@ -104,8 +104,8 @@ export default function CurrentlyReadingIndicator({
   const showNav = searchTerm && totalResults > 1;
 
   return (
-    <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 h-11">
-      <p className="font-sans text-xs font-medium text-secondary-foreground leading-tight whitespace-nowrap">
+    <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 h-11 max-w-[200px]">
+      <p className="font-sans text-xs font-medium text-secondary-foreground leading-tight text-left">
         {prefix ? `${prefix}: ${label}` : label}
       </p>
     </div>
