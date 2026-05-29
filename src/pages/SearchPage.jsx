@@ -115,56 +115,39 @@ export default function SearchPage() {
         song: 'SNG',
         songofsongs: 'SNG',
         canticles: 'SNG',
+        kings: '1KI', // Will show both 1&2 Kings
+        samuel: '1SA', // Will show both 1&2 Samuel
+        chronicles: '1CH', // Will show both 1&2 Chronicles
       };
       
       const alternateMatch = ALTERNATE_NAMES[kwLower];
       let bookMatches = [];
       
       if (alternateMatch) {
-        // For alternate names, get the specific book
-        bookMatches = [BIBLE_BOOKS.find(b => b.abbr === alternateMatch)].filter(Boolean);
-      } else {
-        // Check for numbered book patterns first (e.g., "1 kings", "2 samuel")
-        const numberedMatch = kwLower.match(/^(\d+)\s*(kings|samuel|chronicles|corinthians|thessalonians|timothy|peter|john)$/);
-        if (numberedMatch) {
-          const num = numberedMatch[1];
-          const bookPart = numberedMatch[2];
-          const targetAbbr = `${num}${bookPart.substring(0, 2).toUpperCase()}`;
-          // Map to correct abbreviations
-          const abbrMap = {
-            '1KI': '1KI', '2KI': '2KI',
-            '1SA': '1SA', '2SA': '2SA',
-            '1CH': '1CH', '2CH': '2CH',
-            '1CO': '1CO', '2CO': '2CO',
-            '1TH': '1TH', '2TH': '2TH',
-            '1TI': '1TI', '2TI': '2TI',
-            '1PE': '1PE', '2PE': '2PE',
-            '1JN': '1JN', '2JN': '2JN', '3JN': '3JN'
-          };
-          const mappedAbbr = abbrMap[targetAbbr];
-          if (mappedAbbr) {
-            const book = BIBLE_BOOKS.find(b => b.abbr === mappedAbbr);
-            if (book) bookMatches = [book];
-          }
+        // For alternate names, get the specific book or both books for Samuel/Kings/Chronicles
+        if (['1KI', '1SA', '1CH'].includes(alternateMatch)) {
+          const firstBook = BIBLE_BOOKS.find(b => b.abbr === alternateMatch);
+          const secondBookAbbr = alternateMatch === '1KI' ? '2KI' : alternateMatch === '1SA' ? '2SA' : '2CH';
+          const secondBook = BIBLE_BOOKS.find(b => b.abbr === secondBookAbbr);
+          bookMatches = [firstBook, secondBook].filter(Boolean);
+        } else {
+          bookMatches = [BIBLE_BOOKS.find(b => b.abbr === alternateMatch)].filter(Boolean);
         }
-        
-        // If no numbered match, check for generic names that should show multiple books
-        if (bookMatches.length === 0) {
-          if (kwLower === 'kings') {
-            bookMatches = BIBLE_BOOKS.filter(b => ['1KI', '2KI'].includes(b.abbr));
-          } else if (kwLower === 'samuel') {
-            bookMatches = BIBLE_BOOKS.filter(b => ['1SA', '2SA'].includes(b.abbr));
-          } else if (kwLower === 'chronicles') {
-            bookMatches = BIBLE_BOOKS.filter(b => ['1CH', '2CH'].includes(b.abbr));
-          } else {
-            // Standard matching
-            bookMatches = BIBLE_BOOKS.filter(b => 
-              b.shortName.toLowerCase() === kwLower ||
-              b.apiName.toLowerCase() === kwLower ||
-              b.abbr.toLowerCase() === kwLower ||
-              (kwLower.length >= 3 && b.shortName.toLowerCase().includes(kwLower))
-            );
-          }
+      } else {
+        // Standard matching
+        bookMatches = BIBLE_BOOKS.filter(b => 
+          b.shortName.toLowerCase() === kwLower ||
+          b.apiName.toLowerCase() === kwLower ||
+          b.abbr.toLowerCase() === kwLower ||
+          (kwLower.length >= 3 && b.shortName.toLowerCase().includes(kwLower))
+        );
+      }
+      
+      // For partial matches like "Samuel", "Kings", "Chronicles" - show all matching books
+      if (kwLower.length >= 3) {
+        const partialMatches = BIBLE_BOOKS.filter(b => b.shortName.toLowerCase().includes(kwLower));
+        if (partialMatches.length > 1) {
+          bookMatches = partialMatches;
         }
       }
       
