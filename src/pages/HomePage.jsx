@@ -162,12 +162,9 @@ export default function HomePage() {
       localStorage.removeItem('kjb-search-total');
       localStorage.removeItem('kjb-search-results');
     } catch {}
-    // Save current position as last reading before navigating to random chapter
+    // Save random chapter as last reading position
     try {
-      const current = JSON.parse(localStorage.getItem('kjb-position') || '{}');
-      if (current.abbr && current.chapter) {
-        localStorage.setItem('kjb-last-reading', JSON.stringify({ abbr: current.abbr, chapter: current.chapter, fromRandom: true }));
-      }
+      localStorage.setItem('kjb-last-reading', JSON.stringify({ abbr: book.abbr, chapter, fromRandom: true }));
     } catch {}
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr: book.abbr, chapter, verse: null })); } catch {}
     window.scrollTo({ top: 0, behavior: 'smooth' });
