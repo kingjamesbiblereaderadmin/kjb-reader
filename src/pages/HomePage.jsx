@@ -129,6 +129,13 @@ export default function HomePage() {
       console.warn('Invalid verse data:', verse);
       return;
     }
+    // Save current position as last reading before navigating to daily verse
+    try {
+      const current = JSON.parse(localStorage.getItem('kjb-position') || '{}');
+      if (current.abbr && current.chapter) {
+        localStorage.setItem('kjb-last-reading', JSON.stringify({ abbr: current.abbr, chapter: current.chapter, fromDailyVerse: true }));
+      }
+    } catch {}
     const savedData = { abbr: verse.abbr, chapter: verse.chapter, verse: verse.verse };
     try {
       localStorage.setItem('kjb-position', JSON.stringify(savedData));
@@ -148,7 +155,7 @@ export default function HomePage() {
     try {
       const current = JSON.parse(localStorage.getItem('kjb-position') || '{}');
       if (current.abbr && current.chapter) {
-        localStorage.setItem('kjb-last-reading', JSON.stringify({ abbr: current.abbr, chapter: current.chapter }));
+        localStorage.setItem('kjb-last-reading', JSON.stringify({ abbr: current.abbr, chapter: current.chapter, fromRandom: true }));
       }
     } catch {}
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr: book.abbr, chapter, verse: null })); } catch {}

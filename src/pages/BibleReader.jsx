@@ -1237,14 +1237,20 @@ export default function BibleReader() {
             <p className="font-serif text-xs sm:text-sm font-semibold text-accent break-words">
               {filterMode && selectedVerses.size > 0
                 ? `Reading selected verses from ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
-                : lastReadingPos
-                ? `Reading ${book.shortName} ${pos.chapter}${highlightVerse ? ':' + highlightVerse : ''}`
+                : lastReadingPos && lastReadingPos.fromRandom
+                ? `Random Chapter: ${book.shortName} ${pos.chapter}`
+                : lastReadingPos && lastReadingPos.fromDailyVerse
+                ? `Daily Verse: ${book.shortName} ${pos.chapter}:${highlightVerse || '1'}`
                 : `Reading ${book.shortName} ${pos.chapter}${highlightVerse ? ':' + highlightVerse : ''}`}
             </p>
             <p className="font-sans text-xs text-accent/80 mt-0.5 break-words">
               {lastReadingPos && !highlightVerse
-                ? `You were last reading ${lastReadingPos.abbr} ${lastReadingPos.chapter}. Return or continue here?`
-                : 'Tap "Continue Reading" to view the full chapter'}
+                ? `You were last reading ${lastReadingPos.abbr} ${lastReadingPos.chapter}. Return or show full chapter?`
+                : lastReadingPos && lastReadingPos.fromRandom
+                ? 'Tap "Show Full Chapter" to view the full chapter'
+                : lastReadingPos && lastReadingPos.fromDailyVerse
+                ? 'Tap "Show Full Chapter" to view the full chapter'
+                : 'Tap "Show Full Chapter" to view the full chapter'}
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -1268,7 +1274,7 @@ export default function BibleReader() {
               onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setHighlightVerse(null); setShowFilterOverlay(false); setLastReadingPos(null); }}
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity whitespace-nowrap flex-shrink-0 shadow-sm"
             >
-              <AlignLeft className="w-3.5 h-3.5" /> Continue Reading
+              <AlignLeft className="w-3.5 h-3.5" /> Show Full Chapter
             </button>
           </div>
         </div>
