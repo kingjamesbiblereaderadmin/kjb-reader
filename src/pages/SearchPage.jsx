@@ -605,8 +605,8 @@ export default function SearchPage() {
                     <ChevronUp className="w-3.5 h-3.5" />
                     Prev
                   </button>
-                  <span className="font-sans text-xs text-muted-foreground">
-                    {currentResultIndex + 1} of {results.length}
+                  <span className="font-sans text-xs font-semibold text-foreground min-w-[80px] text-center">
+                    {currentResultIndex + 1} / {results.length}
                   </span>
                   <button
                     onClick={handleNextResult}
