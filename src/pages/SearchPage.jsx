@@ -733,12 +733,31 @@ export default function SearchPage() {
 
 
       {!loading && searched && results.length === 0 && (
-        <p className="font-sans text-sm text-muted-foreground text-center py-12">No results found for "{stripQuotes(query)}".</p>
+        <div className="space-y-4">
+          <p className="font-sans text-sm text-muted-foreground text-center py-12">No results found for "{stripQuotes(query)}".</p>
+          {showBookResult && (
+            <div className="max-w-md mx-auto p-4 rounded-xl bg-primary/5 border border-primary/20">
+              <p className="font-sans text-xs text-muted-foreground mb-3 text-center">
+                Did you mean the book of <span className="font-semibold text-foreground">{showBookResult.bookName}</span>?
+              </p>
+              <button
+                onClick={() => {
+                  setShowBookResult(null);
+                  goToVerse(showBookResult.abbr, 1, null);
+                }}
+                className="w-full flex items-center justify-center gap-2 p-3 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+              >
+                <BookOpen className="w-4 h-4" />
+                Go to {showBookResult.bookName}
+              </button>
+            </div>
+          )}
+        </div>
       )}
 
-      {!loading && (results.length > 0 || showBookResult) && (
+      {!loading && results.length > 0 && (
         <div>
-          {/* Book match options - shown when search term matches a book name */}
+          {/* Book match suggestion - shown when search term also matches a book name */}
           {showBookResult && (
             <div className="mb-4 p-4 rounded-xl bg-primary/5 border border-primary/20">
               <p className="font-sans text-xs text-muted-foreground mb-3">
