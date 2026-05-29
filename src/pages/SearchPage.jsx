@@ -619,13 +619,16 @@ export default function SearchPage() {
               </p>
               <div className="grid sm:grid-cols-2 gap-2">
                 <button
-                  onClick={() => goToVerse(showBookResult.abbr, 1, null)}
+                  onClick={() => {
+                    setShowBookResult(null);
+                    goToVerse(showBookResult.abbr, 1, null);
+                  }}
                   className="flex items-center gap-3 p-3 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
                 >
                   <BookOpen className="w-5 h-5 flex-shrink-0" />
                   <div className="text-left">
                     <p className="font-serif text-sm font-bold">Go to {showBookResult.bookName}</p>
-                    <p className="text-xs opacity-75">{showBookResult.chapters} chapters • {showBookResult.testament === 'OT' ? 'Old' : 'New'} Testament</p>
+                    <p className="text-xs opacity-75">{showBookResult.chapters} chapters • {showBookResult.testament === 'old' ? 'Old' : 'New'} Testament</p>
                   </div>
                 </button>
                 <button
