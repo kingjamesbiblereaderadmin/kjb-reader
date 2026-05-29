@@ -68,10 +68,16 @@ export default function SearchPage() {
       }
       setHighlightTerm(searchTerm);
       
-      // Quoted phrases force case-sensitive matching
+      // Quoted phrases force ALL filters on: match case, whole word, exact match
       const effectiveCaseSensitive = isQuotedPhrase ? true : caseSensitive;
+      const effectiveWholeWord = isQuotedPhrase ? true : wholeWord;
+      const effectiveExactMatch = isQuotedPhrase ? true : exactMatch;
       setHighlightCaseSensitive(effectiveCaseSensitive);
-      if (isQuotedPhrase && !caseSensitive) setCaseSensitive(true);
+      if (isQuotedPhrase) {
+        if (!caseSensitive) setCaseSensitive(true);
+        if (!wholeWord) setWholeWord(true);
+        if (!exactMatch) setExactMatch(true);
+      }
       
       const kwLower = searchTerm.toLowerCase();
 
@@ -138,13 +144,13 @@ export default function SearchPage() {
             const searchText = verseObj.text.replace(/[[\]]/g, '');
             const searchTextLower = searchText.toLowerCase();
             
-            if (exactMatch) {
+            if (effectiveExactMatch) {
               // Exact phrase match: the term must appear verbatim as a contiguous
               // phrase (respecting Match case + Whole word toggles), NOT the whole
               // verse equalling the term.
               const hay = effectiveCaseSensitive ? searchText : searchTextLower;
               const needle = effectiveCaseSensitive ? searchTerm : searchTermLower;
-              if (wholeWord) {
+              if (effectiveWholeWord) {
                 const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const re = new RegExp(`(^|[^A-Za-z'])${escaped}($|[^A-Za-z'])`, effectiveCaseSensitive ? '' : 'i');
                 found = re.test(searchText);
@@ -152,7 +158,7 @@ export default function SearchPage() {
                 found = hay.includes(needle);
               }
             } else if (effectiveCaseSensitive) {
-              if (wholeWord) {
+              if (effectiveWholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const wordRegex = new RegExp(`(^|[^A-Za-z'])${escapedTerm}($|[^A-Za-z'])`);
                 found = wordRegex.test(searchText);
@@ -160,7 +166,7 @@ export default function SearchPage() {
                 found = searchText.includes(searchTerm);
               }
             } else {
-              if (wholeWord) {
+              if (effectiveWholeWord) {
                 const escapedTerm = searchTermLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const wordRegex = new RegExp(`(^|[^a-z'])${escapedTerm}($|[^a-z'])`, 'i');
                 found = wordRegex.test(searchText);
@@ -191,10 +197,10 @@ export default function SearchPage() {
             const colophonLower = colophonText.toLowerCase();
             let colophonFound = false;
             
-            if (exactMatch) {
+            if (effectiveExactMatch) {
               const hay = effectiveCaseSensitive ? colophonText : colophonLower;
               const needle = effectiveCaseSensitive ? searchTerm : searchTermLower;
-              if (wholeWord) {
+              if (effectiveWholeWord) {
                 const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const re = new RegExp(`(^|[^A-Za-z'])${escaped}($|[^A-Za-z'])`, effectiveCaseSensitive ? '' : 'i');
                 colophonFound = re.test(colophonText);
@@ -202,7 +208,7 @@ export default function SearchPage() {
                 colophonFound = hay.includes(needle);
               }
             } else if (effectiveCaseSensitive) {
-              if (wholeWord) {
+              if (effectiveWholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
                 colophonFound = wordRegex.test(colophonText);
@@ -210,7 +216,7 @@ export default function SearchPage() {
                 colophonFound = colophonText.includes(searchTerm);
               }
             } else {
-              if (wholeWord) {
+              if (effectiveWholeWord) {
                 const escapedTerm = searchTermLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
                 colophonFound = wordRegex.test(colophonLower);
