@@ -1228,6 +1228,7 @@ export default function BibleReader() {
                       setSearchTerm(null);
                       setSearchResultIndex(0);
                       setSearchTotalResults(0);
+                      setHighlightVerse(null);
                       try {
                         localStorage.removeItem('kjb-search-term');
                         localStorage.removeItem('kjb-search-index');
@@ -1241,7 +1242,7 @@ export default function BibleReader() {
                       setHighlightVerse(null);
                       setShowFilterOverlay(false);
                       setLastReadingPos(null);
-                    } else if (lastReadingPos && lastReadingPos.abbr && lastReadingPos.chapter) {
+                    } else if (lastReadingPos && lastReadingPos.abbr && lastReadingPos.chapter && !lastReadingPos.cleared) {
                       navigate(lastReadingPos.abbr, lastReadingPos.chapter);
                       setLastReadingPos(null);
                       try { localStorage.removeItem('kjb-last-reading'); } catch {}
