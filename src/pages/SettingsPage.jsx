@@ -383,8 +383,13 @@ export default function SettingsPage() {
         <Type className="w-4 h-4 text-muted-foreground" />
         <p className="font-sans text-sm text-foreground font-medium">Font Family</p>
         </div>
+        {a11yFont !== 'default' && (
+          <p className="font-sans text-xs text-muted-foreground -mt-1 leading-snug">
+            Accessibility font is on — it overrides this. Disable it in the Accessibility section to choose a reading font.
+          </p>
+        )}
         <div className="flex flex-col gap-2">
-        {VERSE_FONTS.map(font => (
+        {a11yFont === 'default' && VERSE_FONTS.map(font => (
           <button
             key={font.value}
             onClick={() => {
