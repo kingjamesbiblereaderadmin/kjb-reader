@@ -1288,8 +1288,8 @@ export default function BibleReader() {
             <TitlePage type={pos.abbr === 'GEN' ? 'testament-old' : 'testament-new'} />
           </div>
         )}
-        {/* Print-style running head — book name left, chapter right (column mode, non-title pages) */}
-        {!loading && !error && verses.length > 0 && columnMode && !isViewingTitlePage && (
+        {/* Print-style running head — book name left, chapter right (column mode, non-title pages, chapters 2+) */}
+        {!loading && !error && verses.length > 0 && columnMode && !isViewingTitlePage && pos.chapter !== 1 && (
           <RunningHead bookName={book.name} chapter={pos.chapter} baseFontRem={zoomLevel / 100 * 0.7} isCursive={fontFamily === 'cursive'} />
         )}
         {!loading && !error && verses.length > 0 && (
