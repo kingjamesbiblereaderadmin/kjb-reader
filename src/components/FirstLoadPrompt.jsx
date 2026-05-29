@@ -4,8 +4,7 @@ import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityF
 
 const A11Y_FONTS = [
   { value: 'default', label: 'Default' },
-  { value: 'system', label: 'System', preview: 'system-ui, -apple-system, sans-serif' },
-  { value: 'dyslexic', label: 'Dyslexic', preview: "'OpenDyslexic', 'Comic Sans MS', sans-serif" },
+  { value: 'dyslexic', label: 'OpenDyslexic', preview: "'OpenDyslexic', 'Comic Sans MS', sans-serif" },
   { value: 'hyperlegible', label: 'Hyperlegible', preview: "'Atkinson Hyperlegible', system-ui, sans-serif" },
 ];
 
