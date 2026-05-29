@@ -1335,13 +1335,13 @@ export default function BibleReader() {
             ))}
           </div>
         )}
-        {/* Colophon footer - centred under the last verse (below the two-column text block) */}
+        {/* Colophon - under last verse, centered with italic styling */}
         {!loading && !error && colophon && (
-          <div className="mt-12 mb-4 border-t border-border pt-6 text-center">
+          <div className={`${columnMode ? '' : 'mt-12 mb-4 border-t border-border pt-6'} text-center`}>
             <p
-              className={`text-sm text-muted-foreground leading-relaxed [&_em]:italic [&_em]:text-muted-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
+              className={`text-sm text-muted-foreground leading-relaxed ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
               style={{ 
-                fontStyle: 'normal',
+                fontStyle: 'italic',
                 fontSize: `${zoomLevel / 100}rem`
               }}
               dangerouslySetInnerHTML={{ __html: renderColophonText(colophon) }}
