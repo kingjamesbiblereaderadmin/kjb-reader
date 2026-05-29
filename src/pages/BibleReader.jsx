@@ -665,11 +665,11 @@ export default function BibleReader() {
   }, [verses, loading, book.name, pos.chapter, isViewingTitlePage]);
 
   return (
-    <div className={`w-full max-w-[90rem] mx-auto px-4 sm:px-8 lg:px-16 py-3 ${hideHeader ? 'pt-16' : ''}`}>
+    <div className={`w-full px-5 sm:px-12 lg:px-16 py-3 ${hideHeader ? 'pt-16' : ''}`}>
 
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
-        <div ref={topRef} className="sticky top-[56px] sm:top-[72px] z-[100] border-b border-border pb-2 pt-2 mb-2 relative shadow-sm before:content-[''] before:absolute before:bottom-full before:-left-4 before:-right-4 sm:before:-left-8 sm:before:-right-8 lg:before:-left-16 lg:before:-right-16 before:h-12 before:bg-background" style={{ backgroundColor: 'hsl(var(--background))' }}>
+        <div ref={topRef} className="sticky top-[56px] sm:top-[72px] z-[100] border-b border-border pb-2 pt-2 mb-2 relative shadow-sm before:content-[''] before:absolute before:bottom-full before:-left-5 before:-right-5 sm:before:-left-12 sm:before:-right-12 lg:before:-left-16 lg:before:-right-16 before:h-12 before:bg-background" style={{ backgroundColor: 'hsl(var(--background))' }}>
           <div className="flex flex-wrap items-stretch gap-1.5 w-full">
 
             {/* Book selector */}
@@ -1343,7 +1343,7 @@ export default function BibleReader() {
 
       {/* Bottom nav */}
       {!loading && !error && (
-        <div className="flex justify-between gap-2 mt-6 pt-6 border-t border-border pb-4">
+        <div className="flex justify-between gap-2 mt-6 pt-6 border-t border-border pb-2">
           <button
             onClick={goPrev}
             disabled={isFirstChapterFirstBook}

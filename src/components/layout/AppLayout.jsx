@@ -304,7 +304,7 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main className="flex-1 pb-24 sm:pb-2 px-1 sm:px-2">
+      <main className="flex-1 pb-16 sm:pb-0 px-1 sm:px-2">
         <div key={reloadKey}>
           <Outlet />
         </div>
