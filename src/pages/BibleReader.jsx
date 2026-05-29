@@ -1163,6 +1163,19 @@ export default function BibleReader() {
               >
                 <ChevronDown className={`w-5 h-5 transition-transform duration-200 flex-shrink-0 ${hideHeader ? '' : 'rotate-180'}`} />
               </button>
+              {/* Continue reading - shows when navigating from daily verse, search, or random chapter */}
+              {(highlightVerse || (filterMode && selectedVerses.size > 0)) && (
+                <button
+                  onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setHighlightVerse(null); setShowFilterOverlay(false); }}
+                  title={filterMode && selectedVerses.size > 0
+                    ? `Reading selected verses from ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}. Click to show full chapter.`
+                    : `Reading ${book.shortName} ${pos.chapter}${highlightVerse ? ':' + highlightVerse : ''}. Click to show full chapter.`}
+                  className="flex items-center gap-1.5 px-3 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 font-sans text-xs font-medium transition-colors h-11 whitespace-nowrap"
+                >
+                  <AlignLeft className="w-4 h-4" />
+                  <span className="hidden lg:inline">Continue Reading</span>
+                </button>
+              )}
             </>
             )}
 
@@ -1283,27 +1296,7 @@ export default function BibleReader() {
         </div>
       )}
 
-      {/* Continue reading banner - attached to menu toolbar */}
-      {(highlightVerse || (filterMode && selectedVerses.size > 0)) && (
-        <div className="sticky top-16 sm:top-[72px] z-[90] bg-accent/10 border-b border-accent/20 px-4 sm:px-8 lg:px-16 py-3 flex items-center justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            <p className="font-serif text-sm font-semibold text-accent truncate">
-              {filterMode && selectedVerses.size > 0
-                ? `Reading selected verses from ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
-                : `Reading ${book.shortName} ${pos.chapter}${highlightVerse ? ':' + highlightVerse : ''}`}
-            </p>
-            <p className="font-sans text-xs text-accent/80 mt-0.5 truncate">
-              Would you like to continue reading this chapter or return to your previous reading session?
-            </p>
-          </div>
-          <button
-            onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setHighlightVerse(null); setShowFilterOverlay(false); }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity whitespace-nowrap flex-shrink-0"
-          >
-            <AlignLeft className="w-3.5 h-3.5" /> Continue Reading
-          </button>
-        </div>
-      )}
+
 
 
 
