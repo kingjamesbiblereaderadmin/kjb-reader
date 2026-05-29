@@ -108,25 +108,16 @@ export default function SearchPage() {
       const numberedBookMatch = kwLower.match(/(\d+)\s+([a-z]+)/);
       
       // Check if query matches a book name (e.g. "Genesis", "Samuel", "Kings", "Chronicles")
-      // Match full names, abbreviations, and partial matches for books with shared names
-      const bookMatches = BIBLE_BOOKS.filter(b => 
+      // Only show book suggestion for EXACT matches, not partial matches
+      // This prevents "Jude" (the book) from blocking search for "jude" in verses
+      const exactBookMatch = BIBLE_BOOKS.find(b => 
         b.shortName.toLowerCase() === kwLower ||
-        b.name.toLowerCase() === kwLower ||
-        b.abbr.toLowerCase() === kwLower ||
         b.apiName.toLowerCase() === kwLower ||
-        (kwLower.length >= 3 && b.shortName.toLowerCase().includes(kwLower))
+        b.abbr.toLowerCase() === kwLower
       );
       
-      // If multiple books match (e.g. "Samuel" matches 1&2 Samuel), show the first one
-      // If exact match found, prioritize it
-      const exactMatch = bookMatches.find(b => 
-        b.shortName.toLowerCase() === kwLower ||
-        b.apiName.toLowerCase() === kwLower
-      );
-      const bookMatch = exactMatch || (bookMatches.length > 0 ? bookMatches[0] : null);
-      
-      if (bookMatch && !isQuotedPhrase && !numberedBookMatch) {
-        setShowBookResult({ bookName: bookMatch.shortName, abbr: bookMatch.abbr, chapters: bookMatch.chapters, testament: bookMatch.testament });
+      if (exactBookMatch && !isQuotedPhrase && !numberedBookMatch) {
+        setShowBookResult({ bookName: exactBookMatch.shortName, abbr: exactBookMatch.abbr, chapters: exactBookMatch.chapters, testament: exactBookMatch.testament });
       } else {
         setShowBookResult(null);
       }
