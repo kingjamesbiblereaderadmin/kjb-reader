@@ -1381,7 +1381,7 @@ export default function BibleReader() {
 
       {/* Filter mode banner */}
       {filterMode && (
-        <div className="sticky top-0 z-[99] mb-3 px-3 py-2 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-between gap-2 max-w-full overflow-x-auto">
+        <div className="fixed bottom-20 left-0 right-0 z-[99] mx-3 mb-3 px-3 py-2 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-between gap-2 max-w-full overflow-x-auto">
           <p className="font-sans text-xs text-primary font-semibold flex items-center gap-1.5">
             <BookMarked className="w-3.5 h-3.5" />
             {selectedVerses.size > 0
