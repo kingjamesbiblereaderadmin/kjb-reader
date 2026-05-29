@@ -104,12 +104,13 @@ export default function SearchPage() {
       // Check if query is a numbered book (e.g., "1 john", "2 timothy") or contains one
       const numberedBookMatch = kwLower.match(/(\d+)\s+([a-z]+)/);
       
-      // Check if query matches a book name exactly (e.g. "Joshua", "Genesis")
+      // Check if query matches a book name exactly (e.g. "Joshua", "Genesis", "Jude")
       // If so, show BOTH the "Go to book" option AND search for mentions in verses
       const bookMatch = BIBLE_BOOKS.find(b => 
         b.shortName.toLowerCase() === kwLower ||
         b.name.toLowerCase() === kwLower ||
-        b.abbr.toLowerCase() === kwLower
+        b.abbr.toLowerCase() === kwLower ||
+        b.apiName.toLowerCase() === kwLower
       );
       if (bookMatch && !isQuotedPhrase && !numberedBookMatch) {
         setShowBookResult({ bookName: bookMatch.shortName, abbr: bookMatch.abbr, chapters: bookMatch.chapters, testament: bookMatch.testament });
