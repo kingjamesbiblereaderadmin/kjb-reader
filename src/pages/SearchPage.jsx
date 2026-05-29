@@ -312,13 +312,14 @@ export default function SearchPage() {
   }, [testamentFilter, wholeWord, caseSensitive, exactMatch, selectedBooks, numberedBookFilter]);
 
   // Re-run the search whenever filters change (after an initial search has been done)
+  // Note: selectedBooks is NOT included - book selection filters results without re-searching
   useEffect(() => {
     const q = (getQueryFromUrl() || query).trim();
     if (searched && q.length >= 2) {
       runSearch(q);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [testamentFilter, wholeWord, caseSensitive, exactMatch, selectedBooks, numberedBookFilter]);
+  }, [testamentFilter, wholeWord, caseSensitive, exactMatch, numberedBookFilter]);
 
   // Re-run search whenever URL changes (fixes header search bar)
   useEffect(() => {
