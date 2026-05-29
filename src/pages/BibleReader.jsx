@@ -1079,7 +1079,7 @@ export default function BibleReader() {
                 onClick={toggleColumn}
                 onTouchEnd={(e) => { e.preventDefault(); toggleColumn(); }}
                 title={columnOn ? 'Switch to single column' : 'Switch to two-column'}
-                className={`flex flex-1 lg:flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg font-sans text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] max-w-[64px] lg:max-w-none whitespace-nowrap ${columnOn ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'}`}
+                className="flex flex-1 lg:flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] max-w-[64px] lg:max-w-none whitespace-nowrap"
               >
                 {columnOn ? <Columns2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <AlignLeft className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}
                 <span className="hidden lg:inline">{columnOn ? '2-Column' : '1-Column'}</span>
