@@ -1207,7 +1207,15 @@ export default function BibleReader() {
               </button>
 
               {/* Currently reading indicator - integrated into toolbar */}
-              {(highlightVerse || (filterMode && selectedVerses.size > 0) || (lastReadingPos && !lastReadingPos.cleared) || searchTerm) && (
+              {(() => {
+                // Check localStorage directly for lastReadingPos in case state hasn't updated
+                let cachedLastReading = lastReadingPos;
+                try {
+                  const stored = localStorage.getItem('kjb-last-reading');
+                  if (stored) cachedLastReading = JSON.parse(stored);
+                } catch {}
+                return (highlightVerse || (filterMode && selectedVerses.size > 0) || (cachedLastReading && !cachedLastReading.cleared) || searchTerm);
+              })() && (
                 <CurrentlyReadingIndicator
                   highlightVerse={highlightVerse}
                   filterMode={filterMode}
