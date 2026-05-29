@@ -65,15 +65,18 @@ export default function CurrentlyReadingIndicator({
   const isRandom = lastReadingPos && lastReadingPos.fromRandom;
   const isDaily = lastReadingPos && lastReadingPos.fromDailyVerse;
 
+  // Use pos.verse as fallback when highlightVerse is cleared but position still has verse
+  const verseNum = highlightVerse || pos.verse;
+
   let label = '';
   if (isFilterMode) {
     label = `Selected vv.${formatVerseRange([...selectedVerses])}`;
   } else if (isRandom) {
     label = `Random chapter: ${book.name} ${pos.chapter}`;
   } else if (isDaily) {
-    label = `Daily v.${highlightVerse || '1'}`;
-  } else if (highlightVerse) {
-    label = `v.${highlightVerse}`;
+    label = `Daily v.${verseNum || '1'}`;
+  } else if (verseNum) {
+    label = `v.${verseNum}`;
   }
 
   if (!label) return null;
