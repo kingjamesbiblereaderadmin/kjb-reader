@@ -384,9 +384,21 @@ export default function SettingsPage() {
         <p className="font-sans text-sm text-foreground font-medium">Font Family</p>
         </div>
         {a11yFont !== 'default' && (
-          <p className="font-sans text-xs text-muted-foreground -mt-1 leading-snug">
-            Accessibility font is on — it overrides this. Disable it in the Accessibility section to choose a reading font.
-          </p>
+          <>
+            <p className="font-sans text-xs text-muted-foreground -mt-1 leading-snug">
+              Accessibility font is on — it overrides this. Disable it in the Accessibility section to choose a reading font.
+            </p>
+            <button
+              onClick={() => {
+                setExpandedSections(prev => ({ ...prev, accessibility: true }));
+                setTimeout(() => document.getElementById('kjb-accessibility-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+              }}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              <Accessibility className="w-4 h-4" />
+              Go to Accessibility Settings
+            </button>
+          </>
         )}
         <div className="flex flex-col gap-2">
         {a11yFont === 'default' && VERSE_FONTS.map(font => (
@@ -424,7 +436,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Accessibility */}
-      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+      <div id="kjb-accessibility-section" className="bg-card border border-border rounded-2xl mb-6 overflow-hidden scroll-mt-4">
         <button
           onClick={() => toggleSection('accessibility')}
           className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"

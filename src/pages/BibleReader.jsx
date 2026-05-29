@@ -13,7 +13,8 @@ import VerseText from '@/components/bible/VerseText';
 import TitlePage from '@/components/bible/TitlePage';
 import SelectorSheet from '@/components/bible/SelectorSheet';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Accessibility } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { getAccessibilityFont } from '@/lib/accessibilityFont';
 
@@ -87,6 +88,7 @@ function savePosition(abbr, chapter) {
 export default function BibleReader() {
   const { hideHeader, setHideHeader } = useHeaderHide();
   const routerLocation = useLocation();
+  const routerNavigate = useNavigate();
   const [pos, setPos] = useState(loadPosition);
   const [verses, setVerses] = useState([]);
   const [colophon, setColophon] = useState(null);
@@ -949,12 +951,21 @@ export default function BibleReader() {
                     <div className="flex items-center justify-between mb-3">
                       <span className="font-sans text-xs font-medium text-foreground">Font Family</span>
                     </div>
-                    {a11yActive && (
-                      <p className="font-sans text-[11px] text-muted-foreground mb-2 leading-snug">
-                        Accessibility font is on — it overrides this. Disable it in Settings to choose a reading font.
-                      </p>
-                    )}
-                    <div className={`grid grid-cols-2 gap-2 ${a11yActive ? 'opacity-40 pointer-events-none' : ''}`}>
+                    {a11yActive ? (
+                      <>
+                        <p className="font-sans text-[11px] text-muted-foreground mb-2 leading-snug">
+                          Accessibility font is on — it overrides reading fonts. Disable it to choose a font.
+                        </p>
+                        <button
+                          onClick={() => { setShowFontPopover(false); routerNavigate('/settings'); }}
+                          className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+                        >
+                          <Accessibility className="w-3.5 h-3.5" />
+                          Accessibility Settings
+                        </button>
+                      </>
+                    ) : (
+                    <div className="grid grid-cols-2 gap-2">
                       {[
                         { value: 'serif', label: 'Serif' },
                         { value: 'sans-serif', label: 'Sans' },
@@ -966,7 +977,7 @@ export default function BibleReader() {
                           key={font.value}
                           onClick={() => { handleFontChange(font.value); setShowFontPopover(false); }}
                           className={`px-3 py-2 rounded-lg font-sans text-xs font-medium transition-all ${
-                            !a11yActive && fontFamily === font.value
+                            fontFamily === font.value
                               ? 'bg-primary text-primary-foreground'
                               : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
                           }`}
@@ -976,17 +987,27 @@ export default function BibleReader() {
                         </button>
                       ))}
                     </div>
+                    )}
                   </div>
                 </div>
               )}
               {/* Mobile bottom sheet */}
               <SelectorSheet open={showFontPopover && isMobile()} onClose={() => setShowFontPopover(false)} title="Font Family">
-                {a11yActive && (
-                  <p className="font-sans text-xs text-muted-foreground mb-3 px-2 leading-snug">
-                    Accessibility font is on — it overrides this. Disable it in Settings to choose a reading font.
-                  </p>
-                )}
-                <div className={`space-y-2 p-2 ${a11yActive ? 'opacity-40 pointer-events-none' : ''}`}>
+                {a11yActive ? (
+                  <div className="p-2 space-y-3">
+                    <p className="font-sans text-xs text-muted-foreground leading-snug">
+                      Accessibility font is on — it overrides reading fonts. Disable it to choose a font.
+                    </p>
+                    <button
+                      onClick={() => { setShowFontPopover(false); routerNavigate('/settings'); }}
+                      className="w-full flex items-center justify-center gap-1.5 px-4 py-3 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+                    >
+                      <Accessibility className="w-4 h-4" />
+                      Accessibility Settings
+                    </button>
+                  </div>
+                ) : (
+                <div className="space-y-2 p-2">
                   {[
                     { value: 'serif', label: 'Serif' },
                     { value: 'sans-serif', label: 'Sans' },
@@ -998,7 +1019,7 @@ export default function BibleReader() {
                       key={font.value}
                       onClick={() => { handleFontChange(font.value); setShowFontPopover(false); }}
                       className={`w-full px-4 py-3 rounded-lg font-sans text-sm font-medium transition-all ${
-                        !a11yActive && fontFamily === font.value
+                        fontFamily === font.value
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
                       }`}
@@ -1008,6 +1029,7 @@ export default function BibleReader() {
                     </button>
                   ))}
                 </div>
+                )}
               </SelectorSheet>
 
               {/* Layout toggle */}
