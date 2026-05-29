@@ -1218,7 +1218,7 @@ export default function BibleReader() {
                 onClick={toggleFullscreen}
                 onTouchEnd={(e) => { e.preventDefault(); toggleFullscreen(); }}
                 title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-                className="flex flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] max-w-[64px] lg:max-w-none whitespace-nowrap"
+                className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"
               >
                 {fullscreen ? <Minimize2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <Maximize2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}
                 <span className="hidden lg:inline">{fullscreen ? 'Exit' : 'Screen'}</span>
