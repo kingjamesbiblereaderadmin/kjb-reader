@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, X, Share, MonitorSmartphone, Download } from 'lucide-react';
+import { Bell, X, Share, MonitorSmartphone, Download, Accessibility } from 'lucide-react';
+import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
+
+const A11Y_FONTS = [
+  { value: 'default', label: 'Default' },
+  { value: 'dyslexic', label: 'Dyslexic', preview: "'OpenDyslexic', 'Comic Sans MS', sans-serif" },
+  { value: 'hyperlegible', label: 'Hyperlegible', preview: "'Atkinson Hyperlegible', system-ui, sans-serif" },
+];
 
 const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
 const isMobile = () => /iphone|ipad|ipod|android/i.test(navigator.userAgent);
@@ -18,6 +25,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   const [notifDone, setNotifDone] = useState(() =>
     'Notification' in window && Notification.permission === 'granted'
   );
+  const [a11yFont, setA11yFont] = useState(getAccessibilityFont);
 
   // Keep notifDone in sync when permission changes externally
   useEffect(() => {
@@ -134,6 +142,32 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
               )}
             </div>
           )}
+
+          {/* Accessibility font — dyslexic & high-legibility options */}
+          <div className="rounded-xl bg-secondary/40 border border-border p-2.5">
+            <div className="flex items-center gap-1.5 mb-2 px-0.5">
+              <Accessibility className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <span className="font-sans text-xs font-medium text-foreground">Accessibility Font</span>
+            </div>
+            <div className="grid grid-cols-3 gap-1.5">
+              {A11Y_FONTS.map(font => (
+                <button
+                  key={font.value}
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setA11yFont(font.value); setAccessibilityFont(font.value); }}
+                  onPointerDown={e => e.stopPropagation()}
+                  className={`px-2 py-2 rounded-lg font-sans text-xs font-medium transition-all touch-manipulation ${
+                    a11yFont === font.value
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-card text-foreground border border-border hover:border-accent'
+                  }`}
+                  style={font.preview ? { fontFamily: font.preview } : undefined}
+                >
+                  {font.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {showNotif && (
             <button
