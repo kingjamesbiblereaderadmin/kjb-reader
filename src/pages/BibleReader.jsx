@@ -1335,14 +1335,15 @@ export default function BibleReader() {
             ))}
           </div>
         )}
-        {/* Colophon - centered across both columns, footer with line on top */}
+        {/* Colophon - column mode: centered across both columns; non-column: footer with line on top */}
         {!loading && !error && colophon && (
-          <div className="mt-12 mb-4 border-t border-border pt-6 text-center">
+          <div className={`${columnMode ? 'mt-6 mb-4' : 'mt-12 mb-4 border-t border-border pt-6'} text-center`}>
             <p
               className={`text-sm text-muted-foreground leading-relaxed ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
               style={{ 
                 fontStyle: 'normal',
-                fontSize: `${zoomLevel / 100}rem`
+                fontSize: `${zoomLevel / 100}rem`,
+                breakInside: 'avoid'
               }}
               dangerouslySetInnerHTML={{ __html: renderColophonText(colophon) }}
             />
