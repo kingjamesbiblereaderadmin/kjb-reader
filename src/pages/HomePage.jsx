@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw, ChevronRight } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
-import { getDailyVerse, getRandomVerseFromBible } from '@/lib/dailyVerse';
+import { getDailyVerse, getDailyVerseFromBible } from '@/lib/dailyVerse';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications, showLocalNotification } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 
@@ -27,8 +27,8 @@ export default function HomePage() {
   const touchEndY = useRef(0);
 
   useEffect(() => {
-    // Show a truly random verse from anywhere in the Bible
-    getRandomVerseFromBible().then(setVerse).catch(() => {});
+    // Show today's verse — same all day, changes once per calendar day
+    getDailyVerseFromBible().then(setVerse).catch(() => {});
     // Preload Bible cache on home page mount to ensure italics are ready
     import('@/lib/bibleCache').then(({ getBibleData }) => {
       getBibleData().catch(() => {});
@@ -39,8 +39,8 @@ export default function HomePage() {
     if (refreshing) return;
     setRefreshing(true);
     try {
-      // Refresh with a truly random verse from anywhere in the Bible
-      const next = await getRandomVerseFromBible();
+      // Re-fetch today's verse (stays the same within a day)
+      const next = await getDailyVerseFromBible();
       setVerse(next);
       await new Promise(resolve => setTimeout(resolve, 600));
     } finally {
