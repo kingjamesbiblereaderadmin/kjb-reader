@@ -1245,12 +1245,14 @@ export default function BibleReader() {
             </p>
             <p className="font-sans text-xs text-accent/80 mt-0.5 break-words">
               {lastReadingPos && !highlightVerse
-                ? `You were last reading ${lastReadingPos.abbr} ${lastReadingPos.chapter}. Return or show full chapter?`
+                ? `You were last reading ${lastReadingPos.abbr} ${lastReadingPos.chapter}. Return or clear highlight?`
                 : lastReadingPos && lastReadingPos.fromRandom
-                ? 'Tap "Show Full Chapter" to view the full chapter'
+                ? 'Clear the highlight to view the full chapter'
                 : lastReadingPos && lastReadingPos.fromDailyVerse
+                ? 'Clear the highlight to view the full chapter'
+                : filterMode && selectedVerses.size > 0
                 ? 'Tap "Show Full Chapter" to view the full chapter'
-                : 'Tap "Show Full Chapter" to view the full chapter'}
+                : 'Clear the highlight to view the full chapter'}
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -1270,12 +1272,21 @@ export default function BibleReader() {
                 <ChevronLeft className="w-3.5 h-3.5" /> Return to {lastReadingPos.abbr} {lastReadingPos.chapter}
               </button>
             )}
-            <button
-              onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setHighlightVerse(null); setShowFilterOverlay(false); setLastReadingPos(null); }}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity whitespace-nowrap flex-shrink-0 shadow-sm"
-            >
-              <AlignLeft className="w-3.5 h-3.5" /> Show Full Chapter
-            </button>
+            {filterMode && selectedVerses.size > 0 ? (
+              <button
+                onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setHighlightVerse(null); setShowFilterOverlay(false); setLastReadingPos(null); }}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity whitespace-nowrap flex-shrink-0 shadow-sm"
+              >
+                <AlignLeft className="w-3.5 h-3.5" /> Show Full Chapter
+              </button>
+            ) : (
+              <button
+                onClick={() => { setHighlightVerse(null); setFilterMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); setLastReadingPos(null); }}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity whitespace-nowrap flex-shrink-0 shadow-sm"
+              >
+                <AlignLeft className="w-3.5 h-3.5" /> Clear Highlight
+              </button>
+            )}
           </div>
         </div>
       )}
