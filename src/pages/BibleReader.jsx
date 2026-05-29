@@ -127,6 +127,7 @@ export default function BibleReader() {
     if (family === 'sans-serif') return "'Inter', system-ui, -apple-system, sans-serif";
     if (family === 'monospace') return "'Courier New', monospace";
     if (family === 'dyslexic') return "'OpenDyslexic', 'Comic Sans MS', sans-serif";
+    if (family === 'hyperlegible') return "'Atkinson Hyperlegible', system-ui, sans-serif";
     return family;
   };
 
@@ -942,7 +943,7 @@ export default function BibleReader() {
                 className="flex flex-1 items-center justify-center gap-1 px-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 whitespace-nowrap"
               >
                 <Type className="w-3.5 h-3.5 transition-transform duration-200 flex-shrink-0" />
-                <span className="hidden sm:inline">{fontFamily === 'serif' ? 'Serif' : fontFamily === 'sans-serif' ? 'Sans' : fontFamily === 'monospace' ? 'Mono' : fontFamily === 'dyslexic' ? 'Dyslexic' : 'Cursive'}</span>
+                <span className="hidden sm:inline">{fontFamily === 'serif' ? 'Serif' : fontFamily === 'sans-serif' ? 'Sans' : fontFamily === 'monospace' ? 'Mono' : fontFamily === 'dyslexic' ? 'Dyslexic' : fontFamily === 'hyperlegible' ? 'Legible' : 'Cursive'}</span>
               </button>
               {/* Desktop popover */}
               {showFontPopover && !isMobile() && (
@@ -972,6 +973,7 @@ export default function BibleReader() {
                         { value: 'monospace', label: 'Mono' },
                         { value: 'cursive', label: 'Cursive' },
                         { value: 'dyslexic', label: 'Dyslexic' },
+                        { value: 'hyperlegible', label: 'Legible' },
                       ].map(font => (
                         <button
                           key={font.value}
@@ -1014,6 +1016,7 @@ export default function BibleReader() {
                     { value: 'monospace', label: 'Mono' },
                     { value: 'cursive', label: 'Cursive' },
                     { value: 'dyslexic', label: 'Dyslexic' },
+                    { value: 'hyperlegible', label: 'Legible' },
                   ].map(font => (
                     <button
                       key={font.value}

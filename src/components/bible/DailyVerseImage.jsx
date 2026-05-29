@@ -16,6 +16,8 @@ function resolveFontFamily(choice, a11yFont) {
   if (choice === 'sans-serif') return "'Inter', system-ui, -apple-system, sans-serif";
   if (choice === 'monospace') return "'Courier New', monospace";
   if (choice === 'cursive') return "'Dancing Script', cursive";
+  if (choice === 'dyslexic') return "'OpenDyslexic', 'Comic Sans MS', sans-serif";
+  if (choice === 'hyperlegible') return "'Atkinson Hyperlegible', system-ui, sans-serif";
   return "'Merriweather', 'Cormorant Garamond', Georgia, serif";
 }
 
@@ -841,12 +843,14 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 Accessibility font is on — it overrides this setting. Change it in Settings.
               </p>
             )}
-            <div className={`grid grid-cols-4 gap-1 ${a11yFont !== 'default' ? 'opacity-40 pointer-events-none' : ''}`}>
+            <div className={`grid grid-cols-3 gap-1 ${a11yFont !== 'default' ? 'opacity-40 pointer-events-none' : ''}`}>
               {[
                 { value: 'serif', label: 'Serif' },
                 { value: 'sans-serif', label: 'Sans' },
                 { value: 'monospace', label: 'Mono' },
                 { value: 'cursive', label: 'Cursive' },
+                { value: 'dyslexic', label: 'Dyslexic' },
+                { value: 'hyperlegible', label: 'Legible' },
               ].map(font => (
                 <button
                   key={font.value}
