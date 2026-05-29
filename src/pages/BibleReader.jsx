@@ -157,6 +157,7 @@ export default function BibleReader() {
   const [selectedVerses, setSelectedVerses] = useState(new Set());
   const [filterMode, setFilterMode] = useState(false); // show only selected verses
   const [copyFeedback, setCopyFeedback] = useState(false);
+  const [showFilterOverlay, setShowFilterOverlay] = useState(false);
 
   const toggleFullscreen = async () => {
     if (!document.fullscreenElement) {
@@ -281,8 +282,11 @@ export default function BibleReader() {
 
   const handleReadSelected = () => {
     setFilterMode(true);
+    setShowFilterOverlay(true);
     setSelectMode(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Auto-dismiss overlay after 3 seconds
+    setTimeout(() => setShowFilterOverlay(false), 3000);
   };
 
   // Share the current chapter (or selected verses) with a deep-link URL.
@@ -1379,29 +1383,27 @@ export default function BibleReader() {
         </div>
       )}
 
-      {/* Filter mode overlay popup */}
-      {filterMode && (
-        <div className="fixed inset-0 z-[99] flex items-center justify-center pointer-events-none">
-          <div className="bg-card border border-border rounded-2xl shadow-2xl px-6 py-4 pointer-events-auto max-w-sm mx-4">
-            <p className="font-serif text-sm font-semibold text-foreground mb-3 text-center">
-              {selectedVerses.size > 0
-                ? `Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
-                : `Showing ${selectedVerses.size} selected verse${selectedVerses.size !== 1 ? 's' : ''}`}
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={handleCopySelected}
-                className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
-              >
-                <Copy className="w-4 h-4 inline mr-1" /> {copyFeedback ? 'Copied!' : 'Copy'}
-              </button>
-              <button
-                onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); }}
-                className="flex-1 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-              >
-                <X className="w-4 h-4 inline mr-1" /> Exit
-              </button>
-            </div>
+      {/* Filter mode overlay - top right corner, auto-dismiss */}
+      {showFilterOverlay && (
+        <div className="fixed top-24 right-4 z-[99] bg-card border border-border rounded-xl shadow-2xl px-5 py-3 max-w-sm">
+          <p className="font-serif text-sm font-semibold text-foreground mb-2">
+            {selectedVerses.size > 0
+              ? `Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
+              : `Showing ${selectedVerses.size} selected verse${selectedVerses.size !== 1 ? 's' : ''}`}
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={handleCopySelected}
+              className="flex-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+            >
+              <Copy className="w-3.5 h-3.5 inline mr-1" /> {copyFeedback ? 'Copied!' : 'Copy'}
+            </button>
+            <button
+              onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
+              className="flex-1 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+            >
+              <X className="w-3.5 h-3.5 inline mr-1" /> Close
+            </button>
           </div>
         </div>
       )}
