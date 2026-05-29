@@ -565,7 +565,7 @@ export default function SearchPage() {
                 Clear
               </button>
             </div>
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 px-4 overflow-y-auto flex-1" style={{ minHeight: 0 }}>
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 px-4 overflow-y-auto flex-1" style={{ minHeight: '200px' }}>
               {(testament === 'old' ? OLD_TESTAMENT : testament === 'new' ? NEW_TESTAMENT : BIBLE_BOOKS).map(book => (
                 <button
                   key={book.abbr}
