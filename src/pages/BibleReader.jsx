@@ -1335,16 +1335,16 @@ export default function BibleReader() {
             ))}
           </div>
         )}
-        {/* Colophon - under last verse, centered with italic styling */}
+        {/* Colophon - under last verse, centered (column mode: pilcrow + bracketed italics only) */}
         {!loading && !error && colophon && (
-          <div className={`${columnMode ? '' : 'mt-12 mb-4 border-t border-border pt-6'} text-center`}>
+          <div className={`${columnMode ? 'mt-6 mb-4' : 'mt-12 mb-4 border-t border-border pt-6'} text-center`}>
             <p
               className={`text-sm text-muted-foreground leading-relaxed ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
               style={{ 
-                fontStyle: 'italic',
+                fontStyle: 'normal',
                 fontSize: `${zoomLevel / 100}rem`
               }}
-              dangerouslySetInnerHTML={{ __html: renderColophonText(colophon) }}
+              dangerouslySetInnerHTML={{ __html: columnMode ? `¶ ${renderColophonText(colophon)}` : renderColophonText(colophon) }}
             />
           </div>
         )}
