@@ -501,7 +501,7 @@ export default function SearchPage() {
           }`}
         >
           <BookOpen className="w-3 h-3" />
-          Books {selectedBooks.size > 0 && `(${selectedBooks.size})`}
+          Books {selectedBooks.size > 0 && selectedBooks.size < 66 ? `(${selectedBooks.size})` : selectedBooks.size === 66 ? '(All)' : ''}
           <ChevronDown className={`w-3 h-3 transition-transform ${showBookFilter ? 'rotate-180' : ''}`} />
         </button>
         <div className="ml-2 flex items-center gap-1.5">
@@ -550,7 +550,7 @@ export default function SearchPage() {
           >
             <div className="flex items-center justify-between p-4 border-b border-border">
               <p className="font-sans text-sm font-semibold text-foreground">
-                Select Books {selectedBooks.size > 0 && `(${selectedBooks.size})`}
+                Select Books {selectedBooks.size > 0 && selectedBooks.size < 66 ? `(${selectedBooks.size})` : selectedBooks.size === 66 ? '(All 66)' : ''}
               </p>
               <button onClick={() => setShowBookFilter(false)} className="p-1 rounded-lg hover:bg-accent/20">
                 <X className="w-4 h-4 text-muted-foreground" />
@@ -570,7 +570,7 @@ export default function SearchPage() {
             <div className="flex gap-2 p-4 pb-2 flex-shrink-0">
               <button
                 onClick={() => {
-                  const booksToSelect = (testament === 'old' ? OLD_TESTAMENT : testament === 'new' ? NEW_TESTAMENT : BIBLE_BOOKS)
+                  const booksToSelect = BIBLE_BOOKS
                     .filter(b => !bookFilterQuery || b.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase()));
                   setSelectedBooks(new Set(booksToSelect.map(b => b.abbr)));
                 }}
@@ -588,77 +588,73 @@ export default function SearchPage() {
             <div className="flex-1 overflow-y-auto px-4 pb-2" style={{ minHeight: '300px', maxHeight: '400px' }}>
               <div className="space-y-4">
                 {/* Old Testament section */}
-                {(testament === 'all' || testament === 'old') && (
-                  <div>
-                    <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 sticky top-0 bg-card py-1">
-                      Old Testament {searched && booksWithResults.size > 0 && <span className="font-normal normal-case text-muted-foreground/60">({[...booksWithResults].filter(abbr => OLD_TESTAMENT.some(b => b.abbr === abbr)).length})</span>}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {OLD_TESTAMENT
-                        .filter(book => {
-                          const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
-                          const hasResults = booksWithResults === null || booksWithResults.has(book.abbr);
-                          return matchesQuery && hasResults;
-                        })
-                        .map(book => (
-                        <button
-                          key={book.abbr}
-                          onClick={() => {
-                            setSelectedBooks(prev => {
-                              const next = new Set(prev);
-                              next.has(book.abbr) ? next.delete(book.abbr) : next.add(book.abbr);
-                              return next;
-                            });
-                          }}
-                          className={`px-3 py-2 rounded-lg font-sans text-xs font-medium transition-colors whitespace-normal text-left ${
-                            selectedBooks.has(book.abbr)
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-secondary text-foreground hover:bg-accent/20'
-                          }`}
-                          title={book.shortName}
-                        >
-                          {book.shortName}
-                        </button>
-                      ))}
-                    </div>
+                <div>
+                  <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 sticky top-0 bg-card py-1">
+                    Old Testament {searched && booksWithResults.size > 0 && <span className="font-normal normal-case text-muted-foreground/60">({[...booksWithResults].filter(abbr => OLD_TESTAMENT.some(b => b.abbr === abbr)).length})</span>}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {OLD_TESTAMENT
+                      .filter(book => {
+                        const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
+                        const hasResults = booksWithResults === null || booksWithResults.has(book.abbr);
+                        return matchesQuery && hasResults;
+                      })
+                      .map(book => (
+                      <button
+                        key={book.abbr}
+                        onClick={() => {
+                          setSelectedBooks(prev => {
+                            const next = new Set(prev);
+                            next.has(book.abbr) ? next.delete(book.abbr) : next.add(book.abbr);
+                            return next;
+                          });
+                        }}
+                        className={`px-3 py-2 rounded-lg font-sans text-xs font-medium transition-colors whitespace-normal text-left ${
+                          selectedBooks.has(book.abbr)
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-secondary text-foreground hover:bg-accent/20'
+                        }`}
+                        title={book.shortName}
+                      >
+                        {book.shortName}
+                      </button>
+                    ))}
                   </div>
-                )}
+                </div>
                 {/* New Testament section */}
-                {(testament === 'all' || testament === 'new') && (
-                  <div>
-                    <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 sticky top-0 bg-card py-1">
-                      New Testament {searched && booksWithResults.size > 0 && <span className="font-normal normal-case text-muted-foreground/60">({[...booksWithResults].filter(abbr => NEW_TESTAMENT.some(b => b.abbr === abbr)).length})</span>}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {NEW_TESTAMENT
-                        .filter(book => {
-                          const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
-                          const hasResults = booksWithResults === null || booksWithResults.has(book.abbr);
-                          return matchesQuery && hasResults;
-                        })
-                        .map(book => (
-                        <button
-                          key={book.abbr}
-                          onClick={() => {
-                            setSelectedBooks(prev => {
-                              const next = new Set(prev);
-                              next.has(book.abbr) ? next.delete(book.abbr) : next.add(book.abbr);
-                              return next;
-                            });
-                          }}
-                          className={`px-3 py-2 rounded-lg font-sans text-xs font-medium transition-colors whitespace-normal text-left ${
-                            selectedBooks.has(book.abbr)
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-secondary text-foreground hover:bg-accent/20'
-                          }`}
-                          title={book.shortName}
-                        >
-                          {book.shortName}
-                        </button>
-                      ))}
-                    </div>
+                <div>
+                  <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 sticky top-0 bg-card py-1">
+                    New Testament {searched && booksWithResults.size > 0 && <span className="font-normal normal-case text-muted-foreground/60">({[...booksWithResults].filter(abbr => NEW_TESTAMENT.some(b => b.abbr === abbr)).length})</span>}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {NEW_TESTAMENT
+                      .filter(book => {
+                        const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
+                        const hasResults = booksWithResults === null || booksWithResults.has(book.abbr);
+                        return matchesQuery && hasResults;
+                      })
+                      .map(book => (
+                      <button
+                        key={book.abbr}
+                        onClick={() => {
+                          setSelectedBooks(prev => {
+                            const next = new Set(prev);
+                            next.has(book.abbr) ? next.delete(book.abbr) : next.add(book.abbr);
+                            return next;
+                          });
+                        }}
+                        className={`px-3 py-2 rounded-lg font-sans text-xs font-medium transition-colors whitespace-normal text-left ${
+                          selectedBooks.has(book.abbr)
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-secondary text-foreground hover:bg-accent/20'
+                        }`}
+                        title={book.shortName}
+                      >
+                        {book.shortName}
+                      </button>
+                    ))}
                   </div>
-                )}
+                </div>
               </div>
             </div>
             <div className="p-4 border-t border-border">
@@ -666,7 +662,7 @@ export default function SearchPage() {
                 onClick={() => setShowBookFilter(false)}
                 className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
               >
-                Go {selectedBooks.size > 0 ? `(${selectedBooks.size} book${selectedBooks.size !== 1 ? 's' : ''})` : '— All Books'}
+                Go {selectedBooks.size > 0 && selectedBooks.size < 66 ? `(${selectedBooks.size} book${selectedBooks.size !== 1 ? 's' : ''})` : selectedBooks.size === 66 ? '(All 66 books)' : '— All Books'}
               </button>
             </div>
           </div>
