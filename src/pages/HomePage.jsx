@@ -129,6 +129,13 @@ export default function HomePage() {
       console.warn('Invalid verse data:', verse);
       return;
     }
+    // Clear search term when navigating to daily verse
+    try {
+      localStorage.removeItem('kjb-search-term');
+      localStorage.removeItem('kjb-search-index');
+      localStorage.removeItem('kjb-search-total');
+      localStorage.removeItem('kjb-search-results');
+    } catch {}
     // Save current position as last reading before navigating to daily verse
     try {
       const current = JSON.parse(localStorage.getItem('kjb-position') || '{}');
@@ -151,6 +158,13 @@ export default function HomePage() {
   const handleRandomVerse = () => {
     const book = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
     const chapter = Math.floor(Math.random() * book.chapters) + 1;
+    // Clear search term when navigating to random chapter
+    try {
+      localStorage.removeItem('kjb-search-term');
+      localStorage.removeItem('kjb-search-index');
+      localStorage.removeItem('kjb-search-total');
+      localStorage.removeItem('kjb-search-results');
+    } catch {}
     // Save current position as last reading before navigating to random chapter
     try {
       const current = JSON.parse(localStorage.getItem('kjb-position') || '{}');
