@@ -64,7 +64,7 @@ export default function BibleSearchBar({ onClose }) {
     if (!query.trim()) { setSuggestions([]); return; }
     const q = query.toLowerCase();
 
-    // Alternate names mapping (e.g. "Preacher" → Ecclesiastes)
+    // Alternate names mapping (e.g. "Preacher" → Ecclesiastes, "First Book of the Kings" → 1 Samuel)
     const ALTERNATE_NAMES = {
       preacher: 'ECC',
       ecclesiastes: 'ECC',
@@ -74,6 +74,12 @@ export default function BibleSearchBar({ onClose }) {
       kings: '1KI',
       samuel: '1SA',
       chronicles: '1CH',
+      firstbookofthekings: '1SA',
+      secondbookofthekings: '2SA',
+      thirdbookofthekings: '1KI',
+      fourthbookofthekings: '2KI',
+      firstbookofthechronicles: '1CH',
+      secondbookofthechronicles: '2CH',
     };
     
     const alternateMatch = ALTERNATE_NAMES[q];
