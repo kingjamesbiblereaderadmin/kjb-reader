@@ -586,8 +586,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                       e.preventDefault();
                       e.stopPropagation();
                       e.nativeEvent.stopImmediatePropagation();
-                      // Don't close menu - let user continue interacting
                       setCropImageForNotif(false);
+                      setShowMenu(false);
                       // Trigger file input immediately
                       if (fileInputRef.current) {
                         fileInputRef.current.click();
@@ -607,8 +607,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                       e.preventDefault();
                       e.stopPropagation();
                       e.nativeEvent.stopImmediatePropagation();
-                      // Don't close menu - let user continue interacting
                       setCropImageForNotif(false);
+                      setShowMenu(false);
                       // Trigger file input immediately on mobile
                       if (fileInputRef.current) {
                         fileInputRef.current.click();

@@ -629,7 +629,6 @@ export default function SettingsPage() {
                     const base64 = event.target?.result;
                     if (typeof base64 === 'string') {
                       setCropImage(base64);
-                      setPendingBg(base64);
                     }
                   };
                   reader.onerror = () => {
