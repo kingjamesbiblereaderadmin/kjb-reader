@@ -65,8 +65,8 @@ export default function CurrentlyReadingIndicator({
   const isRandom = lastReadingPos && lastReadingPos.fromRandom;
   const isDaily = lastReadingPos && lastReadingPos.fromDailyVerse;
 
-  // Use pos.verse as fallback when highlightVerse is cleared but position still has verse
-  const verseNum = highlightVerse || pos.verse;
+  // Use pos.verse as the source of truth (persists even when highlight fades)
+  const verseNum = pos.verse;
 
   let label = '';
   if (isFilterMode) {

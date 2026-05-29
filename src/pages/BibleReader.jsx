@@ -1256,8 +1256,10 @@ export default function BibleReader() {
                   : lastReadingPos && lastReadingPos.fromRandom
                   ? `Random chapter: ${book.name} ${pos.chapter}`
                   : lastReadingPos && lastReadingPos.fromDailyVerse
-                  ? `Daily v.${highlightVerse || '1'}`
-                  : `v.${highlightVerse}`}
+                  ? `Daily verse: ${book.name} v.${pos.verse || '1'}`
+                  : pos.verse
+                  ? `${book.name} v.${pos.verse}`
+                  : ''}
               </p>
             </div>
             {filterMode && selectedVerses.size > 0 ? (
