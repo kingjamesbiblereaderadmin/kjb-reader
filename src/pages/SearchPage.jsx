@@ -640,11 +640,13 @@ export default function SearchPage() {
           style={{ pointerEvents: 'auto' }}
         >
           <div
-            className="w-full max-w-md max-h-[80vh] flex flex-col bg-card border border-border rounded-2xl shadow-xl"
+            className="w-full max-w-md max-h-[85vh] flex flex-col bg-card border border-border rounded-2xl shadow-xl"
             onClick={(e) => e.stopPropagation()}
             style={{ pointerEvents: 'auto' }}
+            role="dialog"
+            aria-modal="true"
           >
-            <div className="flex items-center justify-between p-3 sm:p-4 border-b border-border flex-shrink-0">
+            <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
               <p className="font-sans text-sm font-semibold text-foreground">
                 Select Books {selectedBooks.size > 0 && selectedBooks.size < 66 ? `(${selectedBooks.size})` : selectedBooks.size === 66 ? '(All 66)' : ''}
               </p>
@@ -653,13 +655,13 @@ export default function SearchPage() {
               </button>
             </div>
             {/* Search input for filtering books */}
-            <div className="p-3 sm:p-4 pb-2 flex-shrink-0">
+            <div className="p-4 pb-3 flex-shrink-0">
               <input
                 type="text"
                 value={bookFilterQuery}
                 onChange={(e) => setBookFilterQuery(e.target.value)}
                 placeholder="Search books..."
-                className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors"
+                className="w-full px-3 py-2.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors"
                 autoFocus
               />
             </div>
