@@ -628,7 +628,7 @@ export default function SearchPage() {
                   <BookOpen className="w-5 h-5 flex-shrink-0" />
                   <div className="text-left">
                     <p className="font-serif text-sm font-bold">Go to {showBookResult.bookName}</p>
-                    <p className="text-xs opacity-75">{showBookResult.chapters} chapters • {showBookResult.testament === 'old' ? 'Old' : 'New'} Testament</p>
+                    <p className="text-xs opacity-75">{showBookResult.chapters} {showBookResult.chapters === 1 ? 'chapter' : 'chapters'} • {showBookResult.testament === 'old' ? 'Old' : 'New'} Testament</p>
                   </div>
                 </button>
                 <button
