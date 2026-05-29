@@ -779,7 +779,7 @@ export default function BibleReader() {
               onTouchEnd={(e) => { e.preventDefault(); setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); }}
               className="flex flex-1 items-center justify-center gap-1.5 px-3 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 whitespace-nowrap"
             >
-              <span className="truncate" style={{ maxWidth: `${120 * zoomLevel / 100}px`, fontSize: `${zoomLevel / 100}em` }}>{isViewingTitlePage ? 'Title Page' : book.shortName}</span>
+              <span className="truncate text-center" style={{ maxWidth: `${120 * zoomLevel / 100}px`, fontSize: `${Math.max(0.7, Math.min(1, 100 / zoomLevel)) * 1}em` }}>{isViewingTitlePage ? 'Title Page' : book.shortName}</span>
               <ChevronRight className={`w-3 h-3 opacity-70 transition-transform duration-200 flex-shrink-0 ${showBookPicker ? 'rotate-90' : ''}`} />
             </button>
 
