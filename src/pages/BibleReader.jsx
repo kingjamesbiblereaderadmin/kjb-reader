@@ -1343,7 +1343,7 @@ export default function BibleReader() {
 
       {/* Bottom nav */}
       {!loading && !error && (
-        <div className="flex justify-between gap-2 mt-6 pt-6 border-t border-border pb-2">
+        <div className="flex justify-between gap-2 mt-6 pt-6 border-t border-border pb-2 sm:mt-4 sm:pt-4">
           <button
             onClick={goPrev}
             disabled={isFirstChapterFirstBook}
