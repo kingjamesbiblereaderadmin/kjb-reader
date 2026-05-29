@@ -1292,15 +1292,6 @@ export default function BibleReader() {
         {!loading && !error && verses.length > 0 && columnMode && !isViewingTitlePage && (
           <RunningHead bookName={book.name} chapter={pos.chapter} baseFontRem={zoomLevel / 100 * 0.7} isCursive={fontFamily === 'cursive'} />
         )}
-        {/* Subscript (Psalm superscription) — centred within the LEFT column only
-            (constrained to ~half width), below the running head */}
-        {!loading && !error && verses.length > 0 && columnMode && !isViewingTitlePage && SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
-          <p
-            className={`text-center text-muted-foreground mb-4 leading-relaxed [&_em]:italic [&_em]:text-muted-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
-            style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, width: 'calc(50% - 0.75rem)' }}
-            dangerouslySetInnerHTML={{ __html: renderColophonText(SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]) }}
-          />
-        )}
         {!loading && !error && verses.length > 0 && (
           <div
             className={`${columnMode ? 'kjb-two-col text-justify hyphens-auto' : ''} ${paragraphMode ? 'text-justify hyphens-auto px-2 sm:px-4' : ''}`}
@@ -1311,6 +1302,14 @@ export default function BibleReader() {
               columnRule: '1px solid hsl(var(--border))',
             } : { fontSize: 'inherit' }}
           >
+            {/* Subscript (Psalm superscription) — only in column mode, sits in left column only */}
+            {columnMode && !isViewingTitlePage && SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
+              <p
+                className={`text-center text-muted-foreground mb-4 leading-relaxed [&_em]:italic [&_em]:text-muted-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
+                style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, width: 'calc(50% - 0.75rem)' }}
+                dangerouslySetInnerHTML={{ __html: renderColophonText(SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]) }}
+              />
+            )}
             {verses
               .filter(v => !filterMode || selectedVerses.has(v.verse))
               .map((v, idx) => (
@@ -1332,7 +1331,6 @@ export default function BibleReader() {
                 isCursive={fontFamily === 'cursive'}
                 fontFamilyValue={getFontFamilyValue(fontFamily)}
                 zoomLevel={zoomLevel}
-                hasSubscript={columnMode && SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]}
               />
             ))}
           </div>
