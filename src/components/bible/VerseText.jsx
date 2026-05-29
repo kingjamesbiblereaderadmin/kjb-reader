@@ -5,7 +5,7 @@ import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { formatVerseShare, buildVerseUrl } from '@/lib/formatDailyVerse';
 
-export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, isCursive = false, zoomLevel = 100 }) {
+export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, isCursive = false, fontFamilyValue = null, zoomLevel = 100 }) {
   const bookEntry = BIBLE_BOOKS.find(b => b.abbr === abbr);
   const shortBookName = bookEntry ? bookEntry.shortName : bookName;
   const [selected, setSelected] = useState(false);
@@ -99,7 +99,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   };
 
   // Apply zoom level from parent via inline style
-  const textStyle = { fontSize: 'inherit', fontScale: String(zoomLevel / 100) };
+  const textStyle = { fontSize: 'inherit', fontScale: String(zoomLevel / 100), ...(fontFamilyValue ? { fontFamily: fontFamilyValue } : {}) };
 
   const actionPopover = selected && (
     <>
@@ -249,7 +249,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             )}
             <sup className="text-accent font-sans font-semibold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
             <span
-              className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-justify inline ${isCursive ? 'cursive-em-style' : 'font-serif'} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+              className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-justify inline ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
               style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
               dangerouslySetInnerHTML={{ __html: html }}
             />
@@ -274,7 +274,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           )}
           <sup className="text-accent font-sans font-semibold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
           <span
-            className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-justify ${isCursive ? 'cursive-em-style' : 'font-serif'} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+            className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-justify ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
             style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
             dangerouslySetInnerHTML={{ __html: html }}
           />
@@ -302,7 +302,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         <sup className="text-accent font-sans font-semibold text-[0.6em] shrink-0 select-none mt-[0.2em] mr-[0.3em]">{verse.verse}</sup>
         <span className="flex-1 min-w-0">
           <span
-            className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-justify ${isCursive ? 'cursive-em-style' : 'font-serif'} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+            className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-justify ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
             style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
             dangerouslySetInnerHTML={{ __html: html }}
           />

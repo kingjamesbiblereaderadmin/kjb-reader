@@ -120,7 +120,8 @@ export default function BibleReader() {
     if (family === 'cursive') return "'Dancing Script', cursive";
     if (family === 'serif') return "'Merriweather', 'Cormorant Garamond', Georgia, serif";
     if (family === 'sans-serif') return "'Inter', system-ui, -apple-system, sans-serif";
-    if (family === 'monospace') return "monospace";
+    if (family === 'monospace') return "'Courier New', monospace";
+    if (family === 'dyslexic') return "'OpenDyslexic', 'Comic Sans MS', sans-serif";
     return family;
   };
 
@@ -935,7 +936,7 @@ export default function BibleReader() {
                 className="flex flex-1 items-center justify-center gap-1 px-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 whitespace-nowrap"
               >
                 <Type className="w-3.5 h-3.5 transition-transform duration-200 flex-shrink-0" />
-                <span className="hidden sm:inline">{fontFamily === 'serif' ? 'Serif' : fontFamily === 'sans-serif' ? 'Sans' : fontFamily === 'monospace' ? 'Mono' : 'Cursive'}</span>
+                <span className="hidden sm:inline">{fontFamily === 'serif' ? 'Serif' : fontFamily === 'sans-serif' ? 'Sans' : fontFamily === 'monospace' ? 'Mono' : fontFamily === 'dyslexic' ? 'Dyslexic' : 'Cursive'}</span>
               </button>
               {/* Desktop popover */}
               {showFontPopover && !isMobile() && (
@@ -950,6 +951,7 @@ export default function BibleReader() {
                         { value: 'sans-serif', label: 'Sans' },
                         { value: 'monospace', label: 'Mono' },
                         { value: 'cursive', label: 'Cursive' },
+                        { value: 'dyslexic', label: 'Dyslexic' },
                       ].map(font => (
                         <button
                           key={font.value}
@@ -959,7 +961,7 @@ export default function BibleReader() {
                               ? 'bg-primary text-primary-foreground'
                               : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
                           }`}
-                          style={{ fontFamily: font.value }}
+                          style={{ fontFamily: getFontFamilyValue(font.value) }}
                         >
                           {font.label}
                         </button>
@@ -976,6 +978,7 @@ export default function BibleReader() {
                     { value: 'sans-serif', label: 'Sans' },
                     { value: 'monospace', label: 'Mono' },
                     { value: 'cursive', label: 'Cursive' },
+                    { value: 'dyslexic', label: 'Dyslexic' },
                   ].map(font => (
                     <button
                       key={font.value}
@@ -985,7 +988,7 @@ export default function BibleReader() {
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
                       }`}
-                      style={{ fontFamily: font.value }}
+                      style={{ fontFamily: getFontFamilyValue(font.value) }}
                     >
                       {font.label}
                     </button>
@@ -1187,10 +1190,11 @@ export default function BibleReader() {
 
       {/* Title pages or verses */}
       <div 
-        className={`leading-loose text-foreground/90 ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
+        className={`leading-loose text-foreground/90 ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`}
         style={{ 
           fontSize: `${zoomLevel / 100 * 1.125}rem`, 
-          lineHeight: zoomLevel > 100 ? '1.8' : '1.6'
+          lineHeight: zoomLevel > 100 ? '1.8' : '1.6',
+          ...(fontFamily !== 'cursive' ? { fontFamily: getFontFamilyValue(fontFamily) } : {})
         }}
       >
         {loading && (
@@ -1227,6 +1231,7 @@ export default function BibleReader() {
                 totalVerses={verseCount}
                 colophon={colophon}
                 isCursive={fontFamily === 'cursive'}
+                fontFamilyValue={getFontFamilyValue(fontFamily)}
                 zoomLevel={zoomLevel}
               />
             ))}
