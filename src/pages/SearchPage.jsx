@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked, ChevronDown, Share2, ChevronUp, ChevronDown as ChevronDownIcon } from 'lucide-react';
+import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked, ChevronDown, Share2, ChevronUp, ChevronDown as ChevronDownIcon, ChevronRight } from 'lucide-react';
 import { getBibleData } from '@/lib/bibleCache';
 import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
 import { parseReference } from '@/lib/parseReference';
@@ -42,7 +42,7 @@ export default function SearchPage() {
   const [numberedBookFilter, setNumberedBookFilter] = useState(null);
   const [showBookFilter, setShowBookFilter] = useState(false);
   const [selectedBooks, setSelectedBooks] = useState(new Set());
-  const [bookMatchPrompt, setBookMatchPrompt] = useState(null); // { bookName, abbr, query }
+  const [showBookResult, setShowBookResult] = useState(null); // { bookName, abbr, chapters, testament }
 
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
@@ -102,18 +102,17 @@ export default function SearchPage() {
       }
 
       // Check if query matches a book name exactly (e.g. "Joshua", "Genesis")
-      // If so, prompt user: go to book OR search for verses containing the term
+      // If so, show a "Go to book" result at the top of search results
       const bookMatch = BIBLE_BOOKS.find(b => 
         b.shortName.toLowerCase() === kwLower ||
         b.name.toLowerCase() === kwLower ||
         b.abbr.toLowerCase() === kwLower
       );
       if (bookMatch && !isQuotedPhrase && !numberedBookMatch) {
-        setBookMatchPrompt({ bookName: bookMatch.shortName, abbr: bookMatch.abbr, query: kw });
-        setLoading(false);
-        return;
+        setShowBookResult({ bookName: bookMatch.shortName, abbr: bookMatch.abbr, chapters: bookMatch.chapters, testament: bookMatch.testament });
+      } else {
+        setShowBookResult(null);
       }
-      setBookMatchPrompt(null);
 
       // Check if query is a numbered book (e.g., "1 john", "2 timothy") or contains one
       const numberedBookMatch = kwLower.match(/(\d+)\s+([a-z]+)/);
@@ -599,59 +598,37 @@ export default function SearchPage() {
         </div>
       )}
 
-      {/* Book match prompt */}
-      {bookMatchPrompt && (
-        <div className="fixed inset-0 z-[9999] bg-black/40 flex items-center justify-center p-4" onClick={() => setBookMatchPrompt(null)}>
-          <div className="bg-card border border-border rounded-2xl shadow-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
-            <h2 className="font-serif text-xl font-bold text-foreground mb-2">Search "{bookMatchPrompt.query}"</h2>
-            <p className="font-sans text-sm text-muted-foreground mb-4">
-              "{bookMatchPrompt.query}" matches the book of <strong>{bookMatchPrompt.bookName}</strong>. How would you like to search?
-            </p>
-            <div className="space-y-2">
-              <button
-                onClick={() => {
-                  goToVerse(bookMatchPrompt.abbr, 1, null);
-                  setBookMatchPrompt(null);
-                }}
-                className="w-full flex items-center gap-3 p-4 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
-              >
-                <BookOpen className="w-5 h-5" />
-                <div className="text-left">
-                  <p>Go to {bookMatchPrompt.bookName}</p>
-                  <p className="text-xs opacity-75">Start reading from chapter 1</p>
-                </div>
-              </button>
-              <button
-                onClick={() => {
-                  setBookMatchPrompt(null);
-                  // Clear the prompt and run the search for verses containing the term
-                  runSearch(bookMatchPrompt.query);
-                }}
-                className="w-full flex items-center gap-3 p-4 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-              >
-                <Search className="w-5 h-5" />
-                <div className="text-left">
-                  <p>Search for verses containing "{bookMatchPrompt.query}"</p>
-                  <p className="text-xs opacity-75">Find all mentions in the Bible</p>
-                </div>
-              </button>
-            </div>
-            <button
-              onClick={() => setBookMatchPrompt(null)}
-              className="w-full mt-3 px-4 py-2 rounded-lg bg-transparent text-muted-foreground font-sans text-sm hover:bg-accent/10 transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
+
 
       {!loading && searched && results.length === 0 && (
         <p className="font-sans text-sm text-muted-foreground text-center py-12">No results found for "{stripQuotes(query)}".</p>
       )}
 
-      {!loading && results.length > 0 && (
+      {!loading && (results.length > 0 || showBookResult) && (
         <div>
+          {/* Book result card - shown when search term matches a book name */}
+          {showBookResult && (
+            <div className="mb-4">
+              <div
+                onClick={() => goToVerse(showBookResult.abbr, 1, null)}
+                className="w-full text-left p-5 rounded-xl border border-primary/40 bg-primary/10 hover:bg-primary/15 transition-colors cursor-pointer flex items-center gap-4"
+              >
+                <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl bg-primary text-primary-foreground">
+                  <BookOpen className="w-6 h-6" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-serif text-lg font-bold text-foreground mb-0.5">
+                    {showBookResult.bookName}
+                  </p>
+                  <p className="font-sans text-xs text-muted-foreground">
+                    {showBookResult.chapters} chapter{showBookResult.chapters !== 1 ? 's' : ''} • {showBookResult.testament === 'OT' ? 'Old' : 'New'} Testament
+                  </p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-primary flex-shrink-0" />
+              </div>
+            </div>
+          )}
+
           {/* Results header + action bar */}
           <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div>
