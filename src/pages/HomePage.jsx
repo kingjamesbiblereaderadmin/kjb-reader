@@ -136,12 +136,9 @@ export default function HomePage() {
       localStorage.removeItem('kjb-search-total');
       localStorage.removeItem('kjb-search-results');
     } catch {}
-    // Save current position as last reading before navigating to daily verse
+    // Save daily verse as last reading position
     try {
-      const current = JSON.parse(localStorage.getItem('kjb-position') || '{}');
-      if (current.abbr && current.chapter) {
-        localStorage.setItem('kjb-last-reading', JSON.stringify({ abbr: current.abbr, chapter: current.chapter, fromDailyVerse: true }));
-      }
+      localStorage.setItem('kjb-last-reading', JSON.stringify({ abbr: verse.abbr, chapter: verse.chapter, verse: verse.verse, fromDailyVerse: true }));
     } catch {}
     const savedData = { abbr: verse.abbr, chapter: verse.chapter, verse: verse.verse };
     try {
