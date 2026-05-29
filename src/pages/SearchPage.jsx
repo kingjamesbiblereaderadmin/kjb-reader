@@ -102,7 +102,7 @@ export default function SearchPage() {
       }
 
       // Check if query matches a book name exactly (e.g. "Joshua", "Genesis")
-      // If so, show a "Go to book" result at the top of search results
+      // If so, show BOTH the "Go to book" option AND search for mentions in verses
       const bookMatch = BIBLE_BOOKS.find(b => 
         b.shortName.toLowerCase() === kwLower ||
         b.name.toLowerCase() === kwLower ||
