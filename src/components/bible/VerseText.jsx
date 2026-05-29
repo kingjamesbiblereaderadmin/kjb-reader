@@ -3,6 +3,7 @@ import { renderVerseText } from '@/lib/bibleApi';
 import { Copy, Share2, X, Highlighter, ChevronDown, Bookmark, BookmarkCheck, CheckSquare, Square } from 'lucide-react';
 import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
+import { formatVerseShare, buildVerseUrl } from '@/lib/formatDailyVerse';
 
 export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, isCursive = false, zoomLevel = 100 }) {
   const bookEntry = BIBLE_BOOKS.find(b => b.abbr === abbr);
@@ -34,15 +35,12 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   const html = renderVerseText(displayVerseText);
 
   const verseRef = `${shortBookName} ${chapter}:${verse.verse}`;
-  // Keep [italic] markers as-is for copy/share
-  const textWithItalics = verse.text.replace(/¶\s*/g, '');
-  const isLastVerse = totalVerses > 0 && verse.verse === totalVerses;
-  const colophonWithItalics = isLastVerse && colophon
-    ? colophon.replace(/¶\s*/g, '').trim()
-    : null;
-  const verseText = colophonWithItalics
-    ? `"${textWithItalics}" — ${verseRef} (KJB)\n\n¶ ${colophonWithItalics}`
-    : `"${textWithItalics}" — ${verseRef} (KJB)`;
+  // Build the shared, consistent copy/share text (clean text + deep link).
+  const verseText = formatVerseShare({
+    text: verse.text,
+    ref: verseRef,
+    url: buildVerseUrl({ abbr, chapter, verse: verse.verse }),
+  });
 
   const highlightBg = highlightColors.find(c => c.name === highlightColor)?.bg;
   // Show the overlay when the user manually highlights OR when the verse is the

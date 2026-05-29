@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2 } from 'lucide-react';
-import { buildVerseUrl } from '@/lib/formatDailyVerse';
+import { buildVerseUrl, formatVerseShare, cleanVerseText } from '@/lib/formatDailyVerse';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText } from '@/lib/bibleApi';
 import { getBibleData, forceReloadBibleData } from '@/lib/bibleCache';
@@ -202,29 +202,17 @@ export default function BibleReader() {
     
     const toUse = selectedVerses.size > 0 ? selectedVerses : new Set(verses.map(v => v.verse));
     const selectedVersesList = verses.filter(v => toUse.has(v.verse)).sort((a, b) => a.verse - b.verse);
-    const versesText = selectedVersesList.map(v => {
-      const text = v.text.replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
-      return text;
-    }).join(' ');
-    
-    // Check if last verse of chapter is selected and if there's a colophon
-    const isLastVerseSelected = selectedVersesList.length > 0 && 
-      selectedVersesList[selectedVersesList.length - 1].verse === verses.length && 
-      verses.length > 0;
-    const includeColophon = isLastVerseSelected && colophon;
-    
+    const versesText = selectedVersesList.map(v => cleanVerseText(v.text)).join(' ');
+
     const verseRange = formatVerseRange(selectedVersesList.map(v => v.verse));
     const reference = `${book.shortName} ${pos.chapter}:${verseRange}`;
-    
-    let lines = `"${versesText}`;
-    if (includeColophon) {
-      lines += ` ${colophon}`;
-    }
-    lines += `" — ${reference} (KJB)`;
-    // Append a shareable deep-link to the first selected verse / chapter.
     const firstVerse = selectedVersesList[0]?.verse || null;
-    const url = buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: firstVerse });
-    if (url) lines += `\n\n${url}`;
+
+    const lines = formatVerseShare({
+      text: versesText,
+      ref: reference,
+      url: buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: firstVerse }),
+    });
     
     console.log('[BibleReader] Copying to clipboard:', lines.substring(0, 100) + '...');
     
@@ -269,11 +257,11 @@ export default function BibleReader() {
       ? `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
       : `${book.shortName} ${pos.chapter}`;
     const url = buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: firstVerse });
-    const shareText = `${ref} (KJB)\n${url}`;
+    const shareText = `${ref} (KJB)\n\n${url}`;
 
     try {
       if (navigator.share) {
-        await navigator.share({ title: `${ref} — KJB Reader`, text: `${ref} (KJB)`, url });
+        await navigator.share({ title: `${ref} — KJB Reader`, text: shareText });
         return;
       }
     } catch (err) {

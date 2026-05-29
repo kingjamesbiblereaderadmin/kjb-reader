@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bookmark, Trash2, BookOpen } from 'lucide-react';
+import { Bookmark, Trash2, BookOpen, Share2, Copy } from 'lucide-react';
 import { getSavedVerses, removeSavedVerse } from '@/lib/savedVerses';
+import { formatVerseShare, buildVerseUrl } from '@/lib/formatDailyVerse';
+import { toast } from 'sonner';
 
 export default function SavedVersesPage() {
   const [saved, setSaved] = useState([]);
@@ -14,6 +16,36 @@ export default function SavedVersesPage() {
   const handleRemove = (abbr, chapter, verse) => {
     removeSavedVerse(abbr, chapter, verse);
     setSaved(getSavedVerses());
+  };
+
+  const buildShareText = (entry) =>
+    formatVerseShare({
+      text: entry.text,
+      ref: entry.ref,
+      url: buildVerseUrl({ abbr: entry.abbr, chapter: entry.chapter, verse: entry.verse }),
+    });
+
+  const handleShare = async (entry) => {
+    const shareText = buildShareText(entry);
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: `${entry.ref} — KJB Reader`, text: shareText });
+        return;
+      }
+    } catch (err) {
+      if (err?.name === 'AbortError') return;
+    }
+    try {
+      await navigator.clipboard.writeText(shareText);
+      toast.success('Copied to clipboard');
+    } catch {}
+  };
+
+  const handleCopy = async (entry) => {
+    try {
+      await navigator.clipboard.writeText(buildShareText(entry));
+      toast.success('Copied to clipboard');
+    } catch {}
   };
 
   const handleNavigate = (entry) => {
@@ -66,13 +98,29 @@ export default function SavedVersesPage() {
                   "{entry.text}"
                 </blockquote>
               </button>
-              <button
-                onClick={() => handleRemove(entry.abbr, entry.chapter, entry.verse)}
-                className="p-2 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors flex-shrink-0 mt-0.5"
-                title="Remove"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
+              <div className="flex flex-col gap-1 flex-shrink-0 mt-0.5">
+                <button
+                  onClick={() => handleCopy(entry)}
+                  className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                  title="Copy"
+                >
+                  <Copy className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleShare(entry)}
+                  className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                  title="Share"
+                >
+                  <Share2 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleRemove(entry.abbr, entry.chapter, entry.verse)}
+                  className="p-2 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                  title="Remove"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           ))}
         </div>

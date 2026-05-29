@@ -1,6 +1,6 @@
-// Shared formatter for copying / sharing the daily verse.
-// Keeps [bracketed] italics markers intact in the copied text, and
-// prepends a date-stamped title like "May 20, 2026 - Verse of the Day".
+// Shared formatters for copying / sharing verses across the whole app.
+// One consistent, clean format used by the daily verse, single-verse copy/share,
+// and multi-verse selection copy/share.
 
 // Build a shareable deep-link URL to a specific verse/chapter in the app.
 export function buildVerseUrl({ abbr, chapter, verse } = {}) {
@@ -11,13 +11,39 @@ export function buildVerseUrl({ abbr, chapter, verse } = {}) {
   return url;
 }
 
+// Clean raw KJB verse text for sharing: strip [italic] brackets, pilcrows (¶),
+// superscription markers (<<...>>), and collapse whitespace.
+export function cleanVerseText(text = '') {
+  return String(text)
+    .replace(/\[([^\]]+)\]/g, '$1') // [word] -> word
+    .replace(/¶\s*/g, '')           // remove pilcrow marks
+    .replace(/^<<[^>]*>>\s*/, '')   // remove superscription
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// The canonical share/copy format used everywhere.
+//   "<text>" — <Reference> (KJB)
+//
+//   <link>
+// Optional title (e.g. "Verse of the Day") sits on its own line above the quote.
+export function formatVerseShare({ text, ref, url, title } = {}) {
+  const clean = cleanVerseText(text);
+  let out = '';
+  if (title) out += `${title}\n\n`;
+  out += `“${clean}” — ${ref} (KJB)`;
+  if (url) out += `\n\n${url}`;
+  return out;
+}
+
 export function formatDailyVerseForCopy(verse) {
   const dateTitle = new Date().toLocaleDateString('en-US', {
     month: 'long', day: 'numeric', year: 'numeric',
   });
-  const url = buildVerseUrl(verse);
-  // verse.text keeps brackets (e.g. "the LORD [is] my shepherd")
-  let out = `${dateTitle} - Verse of the Day\n\n"${verse.text}" — ${verse.ref} (KJB)`;
-  if (url) out += `\n\n${url}`;
-  return out;
+  return formatVerseShare({
+    text: verse.text,
+    ref: verse.ref,
+    url: buildVerseUrl(verse),
+    title: `${dateTitle} · Verse of the Day`,
+  });
 }
