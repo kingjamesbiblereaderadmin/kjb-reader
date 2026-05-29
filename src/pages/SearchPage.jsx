@@ -184,9 +184,57 @@ export default function SearchPage() {
             }
           }
           
-          // Colophons (editorial notes after a chapter) are NOT scripture verses,
-          // so they are intentionally excluded from word searches/counts to keep
-          // the verse count aligned with standard KJB concordances.
+          // Search in colophons for this chapter
+          const colophon = bible.__colophons?.[bookName]?.[chapterNum];
+          if (colophon) {
+            const colophonText = colophon.replace(/¶\s*/g, '');
+            const colophonLower = colophonText.toLowerCase();
+            let colophonFound = false;
+            
+            if (exactMatch) {
+              const hay = effectiveCaseSensitive ? colophonText : colophonLower;
+              const needle = effectiveCaseSensitive ? searchTerm : searchTermLower;
+              if (wholeWord) {
+                const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const re = new RegExp(`(^|[^A-Za-z'])${escaped}($|[^A-Za-z'])`, effectiveCaseSensitive ? '' : 'i');
+                colophonFound = re.test(colophonText);
+              } else {
+                colophonFound = hay.includes(needle);
+              }
+            } else if (effectiveCaseSensitive) {
+              if (wholeWord) {
+                const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
+                colophonFound = wordRegex.test(colophonText);
+              } else {
+                colophonFound = colophonText.includes(searchTerm);
+              }
+            } else {
+              if (wholeWord) {
+                const escapedTerm = searchTermLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
+                colophonFound = wordRegex.test(colophonLower);
+              } else {
+                colophonFound = colophonLower.includes(searchTermLower);
+              }
+            }
+            
+            if (colophonFound) {
+              const key = `${bookName}-${chapterNum}-colophon`;
+              if (!seen.has(key)) {
+                seen.add(key);
+                const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+                matches.push({
+                  book: bookName,
+                  chapter: parseInt(chapterNum),
+                  verse: 0, // Mark as colophon
+                  text: colophonText,
+                  isColophon: true,
+                  abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
+                });
+              }
+            }
+          }
         }
       }
 
