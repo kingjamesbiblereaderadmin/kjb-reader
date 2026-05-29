@@ -7,7 +7,7 @@ const STORAGE_KEY = 'kjb-a11y-font';
 export function getAccessibilityFont() {
   try {
     const v = localStorage.getItem(STORAGE_KEY);
-    return ['dyslexic', 'hyperlegible'].includes(v) ? v : 'default';
+    return ['dyslexic', 'hyperlegible', 'system'].includes(v) ? v : 'default';
   } catch {
     return 'default';
   }
@@ -15,7 +15,7 @@ export function getAccessibilityFont() {
 
 export function applyAccessibilityFont(font) {
   const root = document.documentElement;
-  if (font === 'dyslexic' || font === 'hyperlegible') {
+  if (font === 'dyslexic' || font === 'hyperlegible' || font === 'system') {
     root.setAttribute('data-a11y-font', font);
   } else {
     root.removeAttribute('data-a11y-font');

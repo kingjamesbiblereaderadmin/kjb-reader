@@ -4,6 +4,7 @@ import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityF
 
 const A11Y_FONTS = [
   { value: 'default', label: 'Default' },
+  { value: 'system', label: 'System', preview: 'system-ui, -apple-system, sans-serif' },
   { value: 'dyslexic', label: 'Dyslexic', preview: "'OpenDyslexic', 'Comic Sans MS', sans-serif" },
   { value: 'hyperlegible', label: 'Hyperlegible', preview: "'Atkinson Hyperlegible', system-ui, sans-serif" },
 ];
@@ -149,7 +150,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
               <Accessibility className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
               <span className="font-sans text-xs font-medium text-foreground">Accessibility Font</span>
             </div>
-            <div className="grid grid-cols-3 gap-1.5">
+            <div className="grid grid-cols-2 gap-1.5">
               {A11Y_FONTS.map(font => (
                 <button
                   key={font.value}

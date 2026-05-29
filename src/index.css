@@ -203,4 +203,9 @@
   html[data-a11y-font="hyperlegible"] *:not(.cursive-em-style):not(.cursive-em-style *) {
     font-family: 'Atkinson Hyperlegible', system-ui, sans-serif !important;
   }
+  /* System: follow the device's own UI/reading font (incl. an OS-level
+     dyslexic font the user may have set). */
+  html[data-a11y-font="system"] *:not(.cursive-em-style):not(.cursive-em-style *) {
+    font-family: system-ui, -apple-system, sans-serif !important;
+  }
 }
