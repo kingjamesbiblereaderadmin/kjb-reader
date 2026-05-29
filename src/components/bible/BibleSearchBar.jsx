@@ -62,9 +62,10 @@ export default function BibleSearchBar({ onClose }) {
 
   useEffect(() => {
     if (!query.trim()) { setSuggestions([]); return; }
-    const q = query.toLowerCase();
+    const q = query.toLowerCase().replace(/\s+/g, ''); // Remove spaces for matching (e.g. "1 kings" → "1kings")
 
     // Alternate names mapping (e.g. "Preacher" → Ecclesiastes, "First Book of the Kings" → 1 Samuel)
+    // Also supports numeric forms like "1 kings", "2 samuel", etc.
     const ALTERNATE_NAMES = {
       preacher: 'ECC',
       ecclesiastes: 'ECC',
@@ -80,6 +81,23 @@ export default function BibleSearchBar({ onClose }) {
       fourthbookofthekings: '2KI',
       firstbookofthechronicles: '1CH',
       secondbookofthechronicles: '2CH',
+      '1kings': '1KI',
+      '2kings': '2KI',
+      '1samuel': '1SA',
+      '2samuel': '2SA',
+      '1chronicles': '1CH',
+      '2chronicles': '2CH',
+      '1corinthians': '1CO',
+      '2corinthians': '2CO',
+      '1thessalonians': '1TH',
+      '2thessalonians': '2TH',
+      '1timothy': '1TI',
+      '2timothy': '2TI',
+      '1peter': '1PE',
+      '2peter': '2PE',
+      '1john': '1JN',
+      '2john': '2JN',
+      '3john': '3JN',
     };
     
     const alternateMatch = ALTERNATE_NAMES[q];
