@@ -77,6 +77,55 @@ export async function getRandomVerseFromBible() {
   }
 }
 
+// Seeded pseudo-random (deterministic for a given seed)
+function seededRandom(seed) {
+  let x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
+
+// Pick a deterministic verse for today from the full cached Bible.
+// Same verse all day; a new one each calendar day. Falls back to the
+// static pool if Bible data isn't loaded yet.
+export async function getDailyVerseFromBible() {
+  try {
+    const bible = await getBibleData();
+    const bookNames = Object.keys(bible).filter(k => k !== '__colophons').sort();
+    if (!bookNames.length) throw new Error('no data');
+
+    const today = new Date();
+    const daySeed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+
+    let bookName, chapter, verseObj, displayName, bookData;
+    let step = 0;
+    do {
+      bookName = bookNames[Math.floor(seededRandom(daySeed + step * 13) * bookNames.length)];
+      const chapters = Object.keys(bible[bookName]).sort((a, b) => parseInt(a) - parseInt(b));
+      chapter = chapters[Math.floor(seededRandom(daySeed + step * 13 + 1) * chapters.length)];
+      const verses = bible[bookName][chapter];
+      verseObj = verses[Math.floor(seededRandom(daySeed + step * 13 + 2) * verses.length)];
+      bookData = BIBLE_BOOKS.find(b => b.apiName === bookName);
+      displayName = bookData ? bookData.shortName : bookName;
+      step++;
+    } while (EXCLUDED_VERSES.has(`${displayName} ${chapter}:${verseObj.verse}`) && step < 20);
+
+    const abbr = bookData ? bookData.abbr : bookName.slice(0, 3).toUpperCase();
+    const cleanText = verseObj.text
+      .replace(/¶\s*/g, '')
+      .replace(/^<<[^>]*>>\s*/, '');
+
+    return {
+      abbr,
+      book: displayName,
+      chapter: parseInt(chapter),
+      verse: verseObj.verse,
+      text: cleanText,
+      ref: `${displayName} ${chapter}:${verseObj.verse}`
+    };
+  } catch {
+    return getDailyVerse();
+  }
+}
+
 // Get date-based daily verse (one per day)
 export function getDailyVerse() {
   const today = new Date();
