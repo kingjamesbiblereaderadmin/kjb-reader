@@ -80,19 +80,19 @@ export default function CurrentlyReadingIndicator({
   if (searchTerm) {
     prefix = 'Search';
     label = `${book.shortName} ${pos.chapter}:${verseNum || ''}`;
-    clearLabel = 'Clear';
+    clearLabel = 'Clear search';
   } else if (isRandom) {
     prefix = 'Random chapter';
     label = `${book.shortName} ${pos.chapter}`;
-    clearLabel = 'Clear';
-  } else if (isDaily) {
-    prefix = 'Daily verse';
-    label = `${book.shortName} ${pos.chapter}:${verseNum || '1'}`;
     clearLabel = 'Clear';
   } else if (isFilterMode) {
     prefix = 'Reading';
     label = `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`;
     clearLabel = 'Show Full Chapter';
+  } else if (isDaily) {
+    prefix = 'Daily verse';
+    label = `${book.shortName} ${pos.chapter}:${verseNum || '1'}`;
+    clearLabel = 'Clear';
   } else if (verseNum) {
     label = `${book.shortName} ${pos.chapter}:${verseNum}`;
   } else {
