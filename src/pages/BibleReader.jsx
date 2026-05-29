@@ -1229,11 +1229,13 @@ export default function BibleReader() {
                       setSearchResultIndex(0);
                       setSearchTotalResults(0);
                       setHighlightVerse(null);
+                      setLastReadingPos(null);
                       try {
                         localStorage.removeItem('kjb-search-term');
                         localStorage.removeItem('kjb-search-index');
                         localStorage.removeItem('kjb-search-total');
                         localStorage.removeItem('kjb-search-results');
+                        localStorage.removeItem('kjb-last-reading');
                       } catch {}
                     } else if (filterMode && selectedVerses.size > 0) {
                       setFilterMode(false);
