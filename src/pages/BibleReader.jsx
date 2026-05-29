@@ -1157,7 +1157,7 @@ export default function BibleReader() {
                 onClick={toggleFlow}
                 onTouchEnd={(e) => { e.preventDefault(); toggleFlow(); }}
                 title={flowMode === 'line' ? 'Switch to paragraph' : 'Switch to line-by-line'}
-                className="flex flex-1 lg:flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] max-w-[64px] lg:max-w-none whitespace-nowrap"
+                className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"
               >
                 {flowMode === 'line' ? <List className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <AlignJustify className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}
                 <span className="hidden lg:inline">{flowMode === 'line' ? 'Lines' : 'Para'}</span>
@@ -1167,7 +1167,7 @@ export default function BibleReader() {
                 onClick={toggleColumn}
                 onTouchEnd={(e) => { e.preventDefault(); toggleColumn(); }}
                 title={columnOn ? 'Switch to single column' : 'Switch to two-column'}
-                className="flex flex-1 lg:flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] max-w-[64px] lg:max-w-none whitespace-nowrap"
+                className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"
               >
                 {columnOn ? <Columns2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <AlignLeft className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}
                 <span className="hidden lg:inline">{columnOn ? '2-Col' : '1-Col'}</span>
@@ -1177,7 +1177,7 @@ export default function BibleReader() {
                 onClick={toggleSelectMode}
                 onTouchEnd={(e) => { e.preventDefault(); toggleSelectMode(); }}
                 title="Select verses"
-                className={`flex flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg font-sans text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] max-w-[64px] lg:max-w-none whitespace-nowrap ${selectMode ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'}`}
+                className={`flex items-center justify-center gap-1.5 px-3 rounded-lg font-sans text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap ${selectMode ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'}`}
               >
                 <CheckSquare className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
                 <span className="hidden lg:inline">Select</span>
@@ -1187,7 +1187,7 @@ export default function BibleReader() {
                 onClick={handleShareChapter}
                 onTouchEnd={(e) => { e.preventDefault(); handleShareChapter(); }}
                 title={shareFeedback ? 'Link copied!' : 'Share this chapter'}
-                className="flex flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] max-w-[64px] lg:max-w-none whitespace-nowrap"
+                className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"
               >
                 <Share2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
                 <span className="hidden lg:inline">{shareFeedback ? 'Copied!' : 'Share'}</span>
