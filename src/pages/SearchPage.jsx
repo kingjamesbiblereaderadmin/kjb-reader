@@ -62,7 +62,9 @@ export default function SearchPage() {
     setNumberedBookFilter(null);
 
     try {
+      console.log('[SEARCH] Starting search for:', kw);
       const bible = await getBibleData();
+      console.log('[SEARCH] Bible data loaded, books:', Object.keys(bible).filter(k => k !== '__colophons').length);
       let searchTerm = kw.trim();
       // If query is wrapped in quotes, treat as exact phrase: strip the quotes
       // (the Bible text doesn't contain literal quote characters)
