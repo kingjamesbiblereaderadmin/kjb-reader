@@ -115,7 +115,6 @@ export default function SearchPage() {
         song: 'SNG',
         songofsongs: 'SNG',
         canticles: 'SNG',
-        kings: '1KI', // Will show both 1&2 Kings
         samuel: '1SA', // Will show both 1&2 Samuel
         chronicles: '1CH', // Will show both 1&2 Chronicles
       };
@@ -125,14 +124,19 @@ export default function SearchPage() {
       
       if (alternateMatch) {
         // For alternate names, get the specific book or both books for Samuel/Kings/Chronicles
-        if (['1KI', '1SA', '1CH'].includes(alternateMatch)) {
+        if (['1SA', '1CH'].includes(alternateMatch)) {
           const firstBook = BIBLE_BOOKS.find(b => b.abbr === alternateMatch);
-          const secondBookAbbr = alternateMatch === '1KI' ? '2KI' : alternateMatch === '1SA' ? '2SA' : '2CH';
+          const secondBookAbbr = alternateMatch === '1SA' ? '2SA' : '2CH';
           const secondBook = BIBLE_BOOKS.find(b => b.abbr === secondBookAbbr);
           bookMatches = [firstBook, secondBook].filter(Boolean);
         } else {
           bookMatches = [BIBLE_BOOKS.find(b => b.abbr === alternateMatch)].filter(Boolean);
         }
+      } else if (kwLower === 'kings') {
+        // Special case: "kings" shows both Kings AND Samuel
+        const kingsBooks = BIBLE_BOOKS.filter(b => ['1KI', '2KI'].includes(b.abbr));
+        const samuelBooks = BIBLE_BOOKS.filter(b => ['1SA', '2SA'].includes(b.abbr));
+        bookMatches = [...kingsBooks, ...samuelBooks];
       } else {
         // Standard matching
         bookMatches = BIBLE_BOOKS.filter(b => 

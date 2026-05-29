@@ -105,13 +105,19 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
           <React.Fragment key={`frag-${i}`}>
             {showOTHeader && (
               <div className="flex items-center gap-2 pt-2 pb-1 border-b border-border mb-1">
-                <button
-                  onClick={() => setOtExpanded(!otExpanded)}
-                  className="flex items-center gap-1 font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {otExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                  Old Testament <span className="font-normal normal-case text-muted-foreground/60">[{otCount}]</span>
-                </button>
+                {ntCount > 0 ? (
+                  <button
+                    onClick={() => setOtExpanded(!otExpanded)}
+                    className="flex items-center gap-1 font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {otExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                    Old Testament <span className="font-normal normal-case text-muted-foreground/60">[{otCount}]</span>
+                  </button>
+                ) : (
+                  <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                    Old Testament <span className="font-normal normal-case text-muted-foreground/60">[{otCount}]</span>
+                  </p>
+                )}
                 {ntCount > 0 && (
                   <button
                     onClick={() => ntRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
@@ -124,13 +130,19 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
             )}
             {showNTHeader && (
               <div ref={ntRef} className="flex items-center gap-2 pt-3 pb-1 border-b border-border mb-1">
-                <button
-                  onClick={() => setNtExpanded(!ntExpanded)}
-                  className="flex items-center gap-1 font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {ntExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                  New Testament <span className="font-normal normal-case text-muted-foreground/60">[{ntCount}]</span>
-                </button>
+                {otCount > 0 ? (
+                  <button
+                    onClick={() => setNtExpanded(!ntExpanded)}
+                    className="flex items-center gap-1 font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {ntExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                    New Testament <span className="font-normal normal-case text-muted-foreground/60">[{ntCount}]</span>
+                  </button>
+                ) : (
+                  <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                    New Testament <span className="font-normal normal-case text-muted-foreground/60">[{ntCount}]</span>
+                  </p>
+                )}
                 {otCount > 0 && (
                   <button
                     onClick={() => otRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
