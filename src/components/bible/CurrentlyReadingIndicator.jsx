@@ -75,10 +75,10 @@ export default function CurrentlyReadingIndicator({
     label = `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`;
     clearLabel = 'Show Full Chapter';
   } else if (isRandom) {
-    label = `${book.shortName} ${pos.chapter}`;
+    label = `Random chapter — ${book.shortName} ${pos.chapter}`;
     clearLabel = 'Back';
   } else if (isDaily) {
-    label = `${book.shortName} ${pos.chapter}:${verseNum || '1'}`;
+    label = `Daily verse — ${book.shortName} ${pos.chapter}:${verseNum || '1'}`;
     clearLabel = 'Back';
   } else if (verseNum) {
     label = `${book.shortName} ${pos.chapter}:${verseNum}`;
@@ -90,7 +90,7 @@ export default function CurrentlyReadingIndicator({
     <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-accent/10 border border-accent/20 min-w-[180px] max-w-[280px] flex-shrink-0">
       <div className="flex-1 min-w-0">
         <p className="font-serif text-xs font-semibold text-accent leading-snug break-words">
-          {label}
+          Currently reading: {label}
         </p>
       </div>
       <button
