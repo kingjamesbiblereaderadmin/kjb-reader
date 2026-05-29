@@ -65,6 +65,24 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
   }, []);
   const fontStyle = { fontFamily: getFontFamilyValue(fontFamily) };
 
+  // Count total occurrences of the search term (includes multiple hits per verse)
+  // split by testament, so the OT/NT headers can show a subtle bracketed count.
+  const { otCount, ntCount } = React.useMemo(() => {
+    let ot = 0, nt = 0;
+    if (!highlightTerm) {
+      results.forEach(r => (NT_BOOKS.has(r.book) ? nt++ : ot++));
+      return { otCount: ot, ntCount: nt };
+    }
+    const escaped = highlightTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp(escaped, highlightCaseSensitive ? 'g' : 'gi');
+    results.forEach(r => {
+      const clean = (r.text || '').replace(/[[\]]/g, '');
+      const n = (clean.match(re) || []).length;
+      if (NT_BOOKS.has(r.book)) nt += n; else ot += n;
+    });
+    return { otCount: ot, ntCount: nt };
+  }, [results, highlightTerm, highlightCaseSensitive]);
+
   return (
     <div className="space-y-2">
       {results.map((r, i) => {
@@ -77,10 +95,14 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
         return (
           <React.Fragment key={`frag-${i}`}>
             {showOTHeader && (
-              <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground pt-2 pb-1 border-b border-border mb-1">Old Testament</p>
+              <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground pt-2 pb-1 border-b border-border mb-1">
+                Old Testament <span className="font-normal normal-case text-muted-foreground/60">[{otCount}]</span>
+              </p>
             )}
             {showNTHeader && (
-              <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground pt-3 pb-1 border-b border-border mb-1">New Testament</p>
+              <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground pt-3 pb-1 border-b border-border mb-1">
+                New Testament <span className="font-normal normal-case text-muted-foreground/60">[{ntCount}]</span>
+              </p>
             )}
             <div
               onClick={() => {
