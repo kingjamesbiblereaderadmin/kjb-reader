@@ -6,10 +6,13 @@ export default function ScrollToTop() {
   const [footerHeight, setFooterHeight] = useState(80);
 
   useEffect(() => {
+    const scroller = document.getElementById('kjb-scroll');
+    const target = scroller || window;
+    const getY = () => (scroller ? scroller.scrollTop : window.scrollY);
     const handleScroll = () => {
-      setVisible(window.scrollY > 300);
+      setVisible(getY() > 300);
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    target.addEventListener('scroll', handleScroll, { passive: true });
 
     // Calculate footer height based on nav mode
     const updateFooterHeight = () => {
@@ -32,14 +35,16 @@ export default function ScrollToTop() {
     const interval = setInterval(updateFooterHeight, 1000);
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      target.removeEventListener('scroll', handleScroll);
       window.removeEventListener('storage', updateFooterHeight);
       clearInterval(interval);
     };
   }, []);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const scroller = document.getElementById('kjb-scroll');
+    if (scroller) scroller.scrollTo({ top: 0, behavior: 'smooth' });
+    else window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (!visible) return null;

@@ -299,7 +299,7 @@ export default function BibleReader() {
     setVerses([]);
     setColophon(null);
     // Always scroll to top first; verse centering happens after load
-    window.scrollTo({ top: 0 });
+    (document.getElementById('kjb-scroll') || window).scrollTo({ top: 0 });
     const b = BIBLE_BOOKS.find(bk => bk.abbr === bookAbbr);
     if (!b) { setError('Book not found'); setLoading(false); return; }
     
@@ -462,10 +462,16 @@ export default function BibleReader() {
       const scrollToVerse = () => {
         const el = document.getElementById(`v${highlightVerse}`);
         if (!el) return;
+        const scroller = document.getElementById('kjb-scroll');
         const toolbarH = topRef.current ? topRef.current.getBoundingClientRect().height : 0;
-        const stickyOffset = 56 + toolbarH + 12;
-        const top = el.getBoundingClientRect().top + window.scrollY - stickyOffset;
-        window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+        const stickyOffset = toolbarH + 12;
+        if (scroller) {
+          const top = el.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - stickyOffset;
+          scroller.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+        } else {
+          const top = el.getBoundingClientRect().top + window.scrollY - stickyOffset;
+          window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+        }
       };
       const t1 = setTimeout(scrollToVerse, 200);
       const t2 = setTimeout(scrollToVerse, 600);
@@ -476,7 +482,7 @@ export default function BibleReader() {
       try {
         const key = `kjb-scroll-${pos.abbr}-${pos.chapter}`;
         const saved = parseInt(sessionStorage.getItem(key) || '0', 10);
-        if (saved > 0) window.scrollTo({ top: saved });
+        if (saved > 0) (document.getElementById('kjb-scroll') || window).scrollTo({ top: saved });
       } catch {}
     }, 80);
     return () => clearTimeout(timer);
@@ -486,17 +492,20 @@ export default function BibleReader() {
   useEffect(() => {
     if (loading || isViewingTitlePage) return;
     const key = `kjb-scroll-${pos.abbr}-${pos.chapter}`;
+    const scroller = document.getElementById('kjb-scroll');
+    const target = scroller || window;
+    const getY = () => (scroller ? scroller.scrollTop : window.scrollY);
     let raf = null;
     const onScroll = () => {
       if (raf) return;
       raf = requestAnimationFrame(() => {
         raf = null;
-        try { sessionStorage.setItem(key, String(Math.round(window.scrollY))); } catch {}
+        try { sessionStorage.setItem(key, String(Math.round(getY()))); } catch {}
       });
     };
-    window.addEventListener('scroll', onScroll, { passive: true });
+    target.addEventListener('scroll', onScroll, { passive: true });
     return () => {
-      window.removeEventListener('scroll', onScroll);
+      target.removeEventListener('scroll', onScroll);
       if (raf) cancelAnimationFrame(raf);
     };
   }, [loading, isViewingTitlePage, pos.abbr, pos.chapter]);
@@ -669,7 +678,7 @@ export default function BibleReader() {
 
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
-        <div ref={topRef} className="sticky top-[56px] sm:top-[72px] z-[100] border-b border-border pb-2 pt-2 mb-2 relative shadow-sm before:content-[''] before:absolute before:bottom-full before:-left-5 before:-right-5 sm:before:-left-12 sm:before:-right-12 lg:before:-left-16 lg:before:-right-16 before:h-12 before:bg-background" style={{ backgroundColor: 'hsl(var(--background))' }}>
+        <div ref={topRef} className="sticky top-0 z-[100] border-b border-border pb-2 pt-2 mb-2 relative shadow-sm before:content-[''] before:absolute before:bottom-full before:-left-5 before:-right-5 sm:before:-left-12 sm:before:-right-12 lg:before:-left-16 lg:before:-right-16 before:h-12 before:bg-background" style={{ backgroundColor: 'hsl(var(--background))' }}>
           <div className="flex flex-wrap items-stretch gap-1.5 w-full">
 
             {/* Book selector */}
@@ -1273,7 +1282,7 @@ export default function BibleReader() {
 
       {/* Filter mode banner */}
       {filterMode && (
-        <div className="sticky top-[56px] sm:top-[72px] z-[99] mb-3 px-3 py-2 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-between gap-2 max-w-full overflow-x-auto">
+        <div className="sticky top-0 z-[99] mb-3 px-3 py-2 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-between gap-2 max-w-full overflow-x-auto">
           <p className="font-sans text-xs text-primary font-semibold flex items-center gap-1.5">
             <BookMarked className="w-3.5 h-3.5" />
             {selectedVerses.size > 0

@@ -14,6 +14,12 @@ import { getBibleData, isBibleCached, initPeriodicCacheRefresh, downloadBibleFor
 import { toast } from 'sonner';
 import { useSoftReload } from '@/lib/SoftReloadContext';
 
+const scrollMainToTop = () => {
+  const el = document.getElementById('kjb-scroll');
+  if (el) el.scrollTo({ top: 0, behavior: 'smooth' });
+  else window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
 const NAV_ITEMS = [
   { path: '/', icon: Home, label: 'Home' },
   { path: '/contents', icon: List, label: 'Contents' },
@@ -181,15 +187,15 @@ export default function AppLayout() {
 
   return (
     <AutoUpdateHandler>
-    <div className="min-h-screen bg-background flex flex-col">
-      <header className={`border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
+      <header className={`border-b border-border bg-card/95 backdrop-blur-md z-50 flex-shrink-0 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
         <div className="w-full px-5 sm:px-12 lg:px-16 h-14 flex items-center gap-2 sm:gap-3">
           {/* Logo */}
           <Link
             to="/"
             onClick={() => {
               setMenuOpen(false);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              scrollMainToTop();
             }}
             className="flex items-center gap-2 flex-shrink-0 pointer-events-auto"
           >
@@ -284,7 +290,7 @@ export default function AppLayout() {
                       to={item.path}
                       onClick={() => {
                         setMenuOpen(false);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        scrollMainToTop();
                         navigate(item.path);
                       }}
                       className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg font-sans text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 ${
@@ -304,7 +310,7 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main className="flex-1 pb-16 sm:pb-0 px-1 sm:px-2">
+      <main id="kjb-scroll" className="flex-1 overflow-y-auto pb-16 sm:pb-0 px-1 sm:px-2">
         <div key={reloadKey}>
           <Outlet />
         </div>
@@ -344,7 +350,7 @@ function DesktopFooter({ navigate, setMenuOpen }) {
     });
   };
   return (
-      <footer className="hidden sm:block border-t border-border bg-card/80 py-3">
+      <footer className="hidden sm:block border-t border-border bg-card/80 py-3 flex-shrink-0">
         <div className="max-w-5xl mx-auto px-4">
           <div className="flex justify-center mb-2">
             <button
@@ -366,7 +372,7 @@ function DesktopFooter({ navigate, setMenuOpen }) {
                   to={item.path}
                   onClick={() => {
                     setMenuOpen(false);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    scrollMainToTop();
                     navigate(item.path);
                   }}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-sans text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95"
@@ -484,7 +490,7 @@ function BottomNav({ pathname, navigate }) {
                 key={item.path}
                 onClick={(e) => {
                   e.preventDefault();
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  scrollMainToTop();
                   setTimeout(() => navigate(item.path), 150);
                 }}
                 className="flex flex-col items-center justify-center flex-1 h-11 active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95"
@@ -516,7 +522,7 @@ function BottomNav({ pathname, navigate }) {
                   key={item.path}
                   onClick={(e) => {
                     e.preventDefault();
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    scrollMainToTop();
                     navigate(item.path);
                   }}
                   className="flex flex-col items-center justify-center w-full h-11 active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95"
