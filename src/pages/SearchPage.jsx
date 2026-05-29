@@ -606,18 +606,21 @@ export default function SearchPage() {
 
       {!loading && (results.length > 0 || showBookResult) && (
         <div>
-          {/* Book result card - shown when search term matches a book name */}
+          {/* Book match options - shown when search term matches a book name */}
           {showBookResult && (
-            <div className="mb-4">
+            <div className="mb-4 space-y-2">
+              <p className="font-sans text-xs text-muted-foreground">
+                "{stripQuotes(getQueryFromUrl() || query)}" matches the book of {showBookResult.bookName}. How would you like to search?
+              </p>
               <div
                 onClick={() => goToVerse(showBookResult.abbr, 1, null)}
-                className="w-full text-left p-5 rounded-xl border border border-primary/40 bg-primary/10 hover:bg-primary/15 transition-colors cursor-pointer flex items-center gap-3 rounded-lg"
+                className="w-full text-left p-4 rounded-xl border border-primary/40 bg-primary/10 hover:bg-primary/15 transition-colors cursor-pointer flex items-center gap-3"
               >
                 <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-primary-foreground">
                   <BookOpen className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-serif text-base font-bold text-foreground mb-0.5">
+                  <p className="font-serif text-sm font-bold text-foreground">
                     Go to {showBookResult.bookName}
                   </p>
                   <p className="font-sans text-xs text-muted-foreground">
@@ -625,6 +628,26 @@ export default function SearchPage() {
                   </p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-primary flex-shrink-0" />
+              </div>
+              <div
+                onClick={() => {
+                  setShowBookResult(null);
+                  runSearch(getQueryFromUrl() || query);
+                }}
+                className="w-full text-left p-4 rounded-xl border border-border bg-card hover:border-accent/40 hover:bg-accent/5 transition-colors cursor-pointer flex items-center gap-3"
+              >
+                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg bg-secondary text-foreground">
+                  <Search className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-serif text-sm font-bold text-foreground">
+                    Search for "{stripQuotes(getQueryFromUrl() || query)}" in verses
+                  </p>
+                  <p className="font-sans text-xs text-muted-foreground">
+                    Find all mentions across the Bible
+                  </p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               </div>
             </div>
           )}
