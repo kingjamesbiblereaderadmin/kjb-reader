@@ -635,7 +635,6 @@ export default function SearchPage() {
                   onClick={() => {
                     const q = getQueryFromUrl() || query;
                     setShowBookResult(null);
-                    setSearched(true);
                     // Force re-run of search with the query
                     window.history.replaceState({}, '', `/search?q=${encodeURIComponent(q)}`);
                     runSearch(q);
