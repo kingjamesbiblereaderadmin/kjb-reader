@@ -1283,6 +1283,21 @@ export default function BibleReader() {
         </div>
       )}
 
+      {/* Filter mode persistent banner */}
+      {filterMode && selectedVerses.size > 0 && (
+        <div className="sticky top-16 sm:top-0 z-[90] bg-accent/10 border border-accent/20 rounded-xl px-4 py-3 mb-6 flex items-center justify-between gap-3">
+          <p className="font-serif text-sm font-semibold text-accent">
+            Showing {selectedVerses.size} of {verses.length} verses ({book.shortName} {pos.chapter}:{formatVerseRange([...selectedVerses])})
+          </p>
+          <button
+            onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
+          >
+            <AlignLeft className="w-3.5 h-3.5" /> Show Full Chapter
+          </button>
+        </div>
+      )}
+
 
 
       {/* Title pages or verses */}
@@ -1421,9 +1436,9 @@ export default function BibleReader() {
               </div>
               <button
                 onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
-                className="w-full px-3 py-2 rounded-lg bg-accent/10 text-accent font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+                className="w-full px-3 py-2 rounded-lg bg-accent/10 text-accent font-sans text-xs font-medium hover:bg-accent/20 transition-colors flex items-center justify-center gap-1.5"
               >
-                Show Full Chapter
+                <AlignLeft className="w-3.5 h-3.5" /> Show Full Chapter
               </button>
             </div>
           </div>
