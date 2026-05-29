@@ -572,6 +572,7 @@ export default function BibleReader() {
 
   // Keep verse highlight persistent (no auto-hide)
   // The highlight stays until user clears it or navigates away
+  // Note: pos.verse is also kept persistent - don't clear it when highlight fades
 
   // Reset verse status when exiting filter mode or clearing selection
   useEffect(() => {

@@ -74,9 +74,9 @@ export default function CurrentlyReadingIndicator({
   } else if (isRandom) {
     label = `Random chapter: ${book.name} ${pos.chapter}`;
   } else if (isDaily) {
-    label = `Daily v.${verseNum || '1'}`;
+    label = `Daily verse: ${book.name} v.${verseNum || '1'}`;
   } else if (verseNum) {
-    label = `v.${verseNum}`;
+    label = `${book.name} v.${verseNum}`;
   }
 
   if (!label) return null;
