@@ -307,13 +307,11 @@ export default function SearchPage() {
     try { localStorage.setItem('kjb-search-term', q); } catch {}
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null, verseEnd: verseEnd || null })); } catch {}
     // Store search results and index for navigation
-    if (resultIndex !== null) {
-      try {
-        localStorage.setItem('kjb-search-index', String(resultIndex));
-        localStorage.setItem('kjb-search-total', String(results.length));
-        localStorage.setItem('kjb-search-results', JSON.stringify(results.map(r => ({ abbr: r.abbr, chapter: r.chapter, verse: r.verse }))));
-      } catch {}
-    }
+    try {
+      localStorage.setItem('kjb-search-index', String(resultIndex !== null ? resultIndex : 0));
+      localStorage.setItem('kjb-search-total', String(results.length));
+      localStorage.setItem('kjb-search-results', JSON.stringify(results.map(r => ({ abbr: r.abbr, chapter: r.chapter, verse: r.verse }))));
+    } catch {}
     window.scrollTo({ top: 0 });
     // Navigate with URL params so the reader reliably scrolls to + highlights the verse.
     const url = verse ? `/read?book=${abbr}&chapter=${chapter}&verse=${verse}` : `/read?book=${abbr}&chapter=${chapter}`;
