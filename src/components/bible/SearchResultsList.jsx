@@ -192,7 +192,6 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                   </p>
                 </div>
               </div>
-            )}
           </React.Fragment>
         );
       })}
