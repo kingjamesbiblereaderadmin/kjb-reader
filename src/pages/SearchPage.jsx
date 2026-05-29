@@ -105,17 +105,19 @@ export default function SearchPage() {
       const numberedBookMatch = kwLower.match(/(\d+)\s+([a-z]+)/);
       
       // Check if query matches a book name exactly (e.g. "Joshua", "Genesis", "Jude")
-      // If so, show BOTH the "Go to book" option AND search for mentions in verses
-      const bookMatch = BIBLE_BOOKS.find(b => 
-        b.shortName.toLowerCase() === kwLower ||
-        b.name.toLowerCase() === kwLower ||
-        b.abbr.toLowerCase() === kwLower ||
-        b.apiName.toLowerCase() === kwLower
-      );
-      if (bookMatch && !isQuotedPhrase && !numberedBookMatch) {
-        setShowBookResult({ bookName: bookMatch.shortName, abbr: bookMatch.abbr, chapters: bookMatch.chapters, testament: bookMatch.testament });
-      } else {
-        setShowBookResult(null);
+      // Only show book options on first search, not when user explicitly clicks "Search" button
+      if (!searched) {
+        const bookMatch = BIBLE_BOOKS.find(b => 
+          b.shortName.toLowerCase() === kwLower ||
+          b.name.toLowerCase() === kwLower ||
+          b.abbr.toLowerCase() === kwLower ||
+          b.apiName.toLowerCase() === kwLower
+        );
+        if (bookMatch && !isQuotedPhrase && !numberedBookMatch) {
+          setShowBookResult({ bookName: bookMatch.shortName, abbr: bookMatch.abbr, chapters: bookMatch.chapters, testament: bookMatch.testament });
+        } else {
+          setShowBookResult(null);
+        }
       }
       
       // Clear last reading position when starting a new search
@@ -613,7 +615,7 @@ export default function SearchPage() {
       {!loading && (results.length > 0 || showBookResult) && (
         <div>
           {/* Book match options - shown when search term matches a book name */}
-          {showBookResult && !loading && (
+          {showBookResult && (
             <div className="mb-4 p-4 rounded-xl bg-primary/5 border border-primary/20">
               <p className="font-sans text-xs text-muted-foreground mb-3">
                 "{stripQuotes(getQueryFromUrl() || query)}" matches the book of {showBookResult.bookName}. How would you like to search?
