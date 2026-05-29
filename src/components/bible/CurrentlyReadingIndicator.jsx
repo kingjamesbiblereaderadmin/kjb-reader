@@ -82,6 +82,8 @@ export default function CurrentlyReadingIndicator({
     clearLabel = 'Back';
   } else if (verseNum) {
     label = `${book.shortName} ${pos.chapter}:${verseNum}`;
+  } else {
+    label = `${book.shortName} ${pos.chapter}`;
   }
 
   if (!label) return null;

@@ -599,6 +599,7 @@ export default function BibleReader() {
       setLastReadingPos(lastPos);
     }
     // Clear highlights when navigating without a specific verse (random chapter)
+    // For search results and normal navigation, keep the verse highlight
     if (!jumpVerse) {
       setHighlightVerse(null);
     }
