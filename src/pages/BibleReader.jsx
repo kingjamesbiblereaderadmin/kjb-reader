@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, AlignJustify, List, Columns2, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2 } from 'lucide-react';
 import { buildVerseUrl, formatVerseShare, cleanVerseText } from '@/lib/formatDailyVerse';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText } from '@/lib/bibleApi';
@@ -100,9 +100,15 @@ export default function BibleReader() {
   const [showBookPicker, setShowBookPicker] = useState(false);
   const [showChapterPicker, setShowChapterPicker] = useState(false);
   const [showVersePicker, setShowVersePicker] = useState(false);
-  const [paragraphMode, setParagraphMode] = useState(() => {
-    try { return localStorage.getItem('kjb-layout') === 'paragraph'; } catch { return false; }
+  // 3-way layout: 'line' | 'paragraph' | 'column'
+  const [layoutMode, setLayoutMode] = useState(() => {
+    try {
+      const v = localStorage.getItem('kjb-layout');
+      return v === 'paragraph' || v === 'column' ? v : 'line';
+    } catch { return 'line'; }
   });
+  const paragraphMode = layoutMode === 'paragraph';
+  const columnMode = layoutMode === 'column';
   const [fullscreen, setFullscreen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(() => {
     try { return parseInt(localStorage.getItem('kjb-zoom') || '100'); } catch { return 100; }
@@ -164,9 +170,10 @@ export default function BibleReader() {
 
 
   const toggleLayout = () => {
-    const next = !paragraphMode;
-    setParagraphMode(next);
-    try { localStorage.setItem('kjb-layout', next ? 'paragraph' : 'line'); } catch {}
+    const order = ['line', 'paragraph', 'column'];
+    const next = order[(order.indexOf(layoutMode) + 1) % order.length];
+    setLayoutMode(next);
+    try { localStorage.setItem('kjb-layout', next); } catch {}
   };
 
   const adjustZoom = (delta) => {
@@ -1039,11 +1046,11 @@ export default function BibleReader() {
               <button
                 onClick={toggleLayout}
                 onTouchEnd={(e) => { e.preventDefault(); toggleLayout(); }}
-                title={paragraphMode ? 'Switch to line-by-line' : 'Switch to paragraph'}
+                title={layoutMode === 'line' ? 'Switch to paragraph' : layoutMode === 'paragraph' ? 'Switch to two-column' : 'Switch to line-by-line'}
                 className="flex flex-1 lg:flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] max-w-[64px] lg:max-w-none whitespace-nowrap"
               >
-                {paragraphMode ? <AlignJustify className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <List className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}
-                <span className="hidden lg:inline">{paragraphMode ? 'Lines' : 'Paragraph'}</span>
+                {layoutMode === 'line' ? <List className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : layoutMode === 'paragraph' ? <AlignJustify className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <Columns2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}
+                <span className="hidden lg:inline">{layoutMode === 'line' ? 'Lines' : layoutMode === 'paragraph' ? 'Paragraph' : '2-Column'}</span>
               </button>
               {/* Select mode toggle */}
               <button
@@ -1204,8 +1211,8 @@ export default function BibleReader() {
         />
       )}
 
-      {/* Book title — hidden when showing title page */}
-      {!isViewingTitlePage && (
+      {/* Book title — hidden when showing title page or in two-column (uses running head) */}
+      {!isViewingTitlePage && !columnMode && (
         <div className="text-center mb-6 pt-8" style={{ fontSize: `${zoomLevel / 100}rem` }}>
           <h1 className={`${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} text-3xl md:text-4xl font-bold text-foreground mb-2 leading-tight`} style={{ fontStyle: 'normal', fontWeight: '900' }}>{book.name}</h1>
           <p className={`font-sans text-muted-foreground tracking-widest uppercase mt-2 ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100 * 0.875}rem`, fontWeight: fontFamily === 'cursive' ? '400' : undefined }}>
@@ -1249,15 +1256,22 @@ export default function BibleReader() {
             <TitlePage type={pos.abbr === 'GEN' ? 'testament-old' : 'testament-new'} />
           </div>
         )}
+        {/* Print-style running head — book name left, chapter right (column mode, non-title pages) */}
+        {!loading && !error && verses.length > 0 && columnMode && !isViewingTitlePage && (
+          <div className={`flex items-baseline justify-between border-b border-border pb-1.5 mb-3 ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}>
+            <span className="font-semibold tracking-wide text-foreground" style={{ fontSize: `${zoomLevel / 100 * 0.8}rem`, fontStyle: 'normal' }}>{book.name}</span>
+            <span className="font-semibold tracking-wide text-foreground" style={{ fontSize: `${zoomLevel / 100 * 0.8}rem`, fontStyle: 'normal' }}>{pos.chapter}</span>
+          </div>
+        )}
         {!loading && !error && verses.length > 0 && (
           <div
-            className={`kjb-two-col text-justify hyphens-auto ${paragraphMode ? 'px-2 sm:px-4' : ''}`}
-            style={{
+            className={`${columnMode ? 'kjb-two-col text-justify hyphens-auto' : ''} ${paragraphMode ? 'text-justify hyphens-auto px-2 sm:px-4' : ''}`}
+            style={columnMode ? {
               fontSize: 'inherit',
               columnCount: 2,
-              columnGap: '2.5rem',
+              columnGap: '1.5rem',
               columnRule: '1px solid hsl(var(--border))',
-            }}
+            } : { fontSize: 'inherit' }}
           >
             {verses
               .filter(v => !filterMode || selectedVerses.has(v.verse))
@@ -1271,7 +1285,7 @@ export default function BibleReader() {
                 abbr={pos.abbr}
                 chapter={pos.chapter}
                 isFirstVerse={idx === 0}
-                paragraphMode={paragraphMode}
+                paragraphMode={paragraphMode || columnMode}
                 selectMode={selectMode}
                 isSelected={selectedVerses.has(v.verse)}
                 onSelect={toggleVerseSelect}
