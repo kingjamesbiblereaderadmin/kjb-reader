@@ -1381,34 +1381,38 @@ export default function BibleReader() {
 
       {/* Filter mode banner */}
       {filterMode && (
-        <div className="fixed bottom-20 left-0 right-0 z-[99] mx-3 mb-3 px-3 py-2 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-between gap-2 max-w-full overflow-x-auto">
-          <p className="font-sans text-xs text-primary font-semibold flex items-center gap-1.5">
-            <BookMarked className="w-3.5 h-3.5" />
-            {selectedVerses.size > 0
-              ? `Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
-              : `Showing ${selectedVerses.size} selected verse${selectedVerses.size !== 1 ? 's' : ''}`}
-          </p>
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={handleCopySelected}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
-            >
-              <Copy className="w-3 h-3" /> {copyFeedback ? 'Copied!' : 'Copy'}
-            </button>
-            <button
-              onClick={handleShareChapter}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-secondary text-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
-            >
-              <Share2 className="w-3 h-3" /> {shareFeedback ? 'Copied!' : 'Share'}
-            </button>
-            <button
-              onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); }}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-secondary text-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
-            >
-              <X className="w-3 h-3" /> Exit
-            </button>
+        <>
+          <div className="fixed bottom-20 left-0 right-0 z-[99] mx-3 mb-3 px-3 py-2 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-between gap-2 max-w-full overflow-x-auto">
+            <p className="font-sans text-xs text-primary font-semibold flex items-center gap-1.5">
+              <BookMarked className="w-3.5 h-3.5" />
+              {selectedVerses.size > 0
+                ? `Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
+                : `Showing ${selectedVerses.size} selected verse${selectedVerses.size !== 1 ? 's' : ''}`}
+            </p>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={handleCopySelected}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+              >
+                <Copy className="w-3 h-3" /> {copyFeedback ? 'Copied!' : 'Copy'}
+              </button>
+              <button
+                onClick={handleShareChapter}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-secondary text-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+              >
+                <Share2 className="w-3 h-3" /> {shareFeedback ? 'Copied!' : 'Share'}
+              </button>
+              <button
+                onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); }}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-secondary text-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+              >
+                <X className="w-3 h-3" /> Exit
+              </button>
+            </div>
           </div>
-        </div>
+          {/* Spacer to prevent content overlap */}
+          <div className="h-24" />
+        </>
       )}
 
       {/* Floating select action bar */}
