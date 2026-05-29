@@ -621,8 +621,7 @@ export default function SearchPage() {
             </div>
             <div className="flex-1 overflow-y-auto px-4 pb-2" style={{ minHeight: '300px', maxHeight: '400px' }}>
               <div className="space-y-4">
-                {/* Old Testament section - only show if 'all' or 'old' is selected */}
-                {(testamentFilter.has('all') || testamentFilter.has('old')) && (
+                {/* Old Testament section - always show both testaments */}
                 <div>
                   <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 sticky top-0 bg-card py-1">
                     Old Testament {searched && booksWithResults.size > 0 && <span className="font-normal normal-case text-muted-foreground/60">({[...booksWithResults].filter(abbr => OLD_TESTAMENT.some(b => b.abbr === abbr)).length})</span>}
@@ -654,23 +653,21 @@ export default function SearchPage() {
                         {book.shortName}
                       </button>
                     ))}
-                    </div>
-                    </div>
-                    )}
-                    {/* New Testament section - only show if 'all' or 'new' is selected */}
-                    {(testamentFilter.has('all') || testamentFilter.has('new')) && (
-                    <div>
-                    <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 sticky top-0 bg-card py-1">
+                  </div>
+                </div>
+                {/* New Testament section - always show */}
+                <div>
+                  <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 sticky top-0 bg-card py-1">
                     New Testament {searched && booksWithResults.size > 0 && <span className="font-normal normal-case text-muted-foreground/60">({[...booksWithResults].filter(abbr => NEW_TESTAMENT.some(b => b.abbr === abbr)).length})</span>}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
+                  </p>
+                  <div className="flex flex-wrap gap-2">
                     {NEW_TESTAMENT
-                    .filter(book => {
-                      const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
-                      const hasResults = booksWithResults === null || booksWithResults.has(book.abbr);
-                      return matchesQuery && hasResults;
-                    })
-                    .map(book => (
+                      .filter(book => {
+                        const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
+                        const hasResults = booksWithResults === null || booksWithResults.has(book.abbr);
+                        return matchesQuery && hasResults;
+                      })
+                      .map(book => (
                       <button
                         key={book.abbr}
                         onClick={() => {
@@ -690,11 +687,10 @@ export default function SearchPage() {
                         {book.shortName}
                       </button>
                     ))}
-                    </div>
-                    </div>
-                    )}
-                    </div>
-                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div className="p-4 border-t border-border">
               <button
                 onClick={() => setShowBookFilter(false)}
