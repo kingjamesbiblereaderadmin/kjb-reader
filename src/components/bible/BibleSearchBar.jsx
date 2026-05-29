@@ -56,6 +56,7 @@ export default function BibleSearchBar({ onClose }) {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef(null);
   const navigate = useNavigate();
 
@@ -163,7 +164,31 @@ export default function BibleSearchBar({ onClose }) {
       : [];
 
     setSuggestions([...finalSuggestions, ...kwSuggestions]);
+    setSelectedIndex(-1); // Reset selection when suggestions change
   }, [query]);
+
+  // Keyboard navigation
+  const handleKeyDown = (e) => {
+    if (!open || suggestions.length === 0) return;
+    
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : 0));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev > 0 ? prev - 1 : suggestions.length - 1));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
+        handleSelect(suggestions[selectedIndex]);
+      } else if (suggestions.length > 0) {
+        handleSelect(suggestions[0]);
+      }
+    } else if (e.key === 'Escape') {
+      setOpen(false);
+      setSelectedIndex(-1);
+    }
+  };
 
   const goTo = (abbr, chapter, verse, verseEnd) => {
     // Keep verseEnd in localStorage so the reader can enter range/filter mode.
@@ -217,6 +242,7 @@ export default function BibleSearchBar({ onClose }) {
             value={query}
             onChange={e => { setQuery(e.target.value); setOpen(true); }}
             onFocus={() => setOpen(true)}
+            onKeyDown={handleKeyDown}
             placeholder="Search..."
             className="w-full pl-9 pr-8 py-1.5 h-9 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors truncate"
           />
@@ -241,7 +267,9 @@ export default function BibleSearchBar({ onClose }) {
             <button
               key={i}
               onClick={() => handleSelect(s)}
-              className="w-full flex items-center gap-3 px-3 py-3 min-h-[48px] hover:bg-secondary transition-colors text-left border-b border-border last:border-0 touch-manipulation"
+              className={`w-full flex items-center gap-3 px-3 py-3 min-h-[48px] transition-colors text-left border-b border-border last:border-0 touch-manipulation ${
+                i === selectedIndex ? 'bg-secondary' : 'hover:bg-secondary'
+              }`}
             >
               <Search className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
               <div className="flex-1 min-w-0">
