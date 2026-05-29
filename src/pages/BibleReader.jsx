@@ -1283,22 +1283,27 @@ export default function BibleReader() {
         </div>
       )}
 
-      {/* Filter mode persistent banner - shows when viewing selected verses OR when navigating from daily verse/search/random */}
-      {(filterMode && selectedVerses.size > 0) || (highlightVerse && !filterMode) ? (
-        <div className="sticky top-16 sm:top-0 z-[90] bg-accent/10 border border-accent/20 rounded-xl px-4 py-3 mb-6 flex items-center justify-between gap-3">
-          <p className="font-serif text-sm font-semibold text-accent">
-            {filterMode && selectedVerses.size > 0
-              ? `Showing ${selectedVerses.size} of ${verses.length} verses (${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])})`
-              : `Reading ${book.shortName} ${pos.chapter}${highlightVerse ? ':' + highlightVerse : ''}`}
-          </p>
+      {/* Continue reading banner - attached to menu toolbar */}
+      {(highlightVerse || (filterMode && selectedVerses.size > 0)) && (
+        <div className="sticky top-16 sm:top-[72px] z-[90] bg-accent/10 border-b border-accent/20 px-4 sm:px-8 lg:px-16 py-3 flex items-center justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <p className="font-serif text-sm font-semibold text-accent truncate">
+              {filterMode && selectedVerses.size > 0
+                ? `Reading selected verses from ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
+                : `Reading ${book.shortName} ${pos.chapter}${highlightVerse ? ':' + highlightVerse : ''}`}
+            </p>
+            <p className="font-sans text-xs text-accent/80 mt-0.5 truncate">
+              Would you like to continue reading this chapter or return to your previous reading session?
+            </p>
+          </div>
           <button
             onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setHighlightVerse(null); setShowFilterOverlay(false); }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity whitespace-nowrap flex-shrink-0"
           >
-            <AlignLeft className="w-3.5 h-3.5" /> Show Full Chapter
+            <AlignLeft className="w-3.5 h-3.5" /> Continue Reading
           </button>
         </div>
-      ) : null}
+      )}
 
 
 
