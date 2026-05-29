@@ -10,7 +10,7 @@ import AutoUpdateHandler from '@/components/AutoUpdateHandler';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, showLocalNotification, initNotifications } from '@/lib/notifications';
 import { getDailyVerse } from '@/lib/dailyVerse';
-import { getBibleData, isBibleCached, initPeriodicCacheRefresh, downloadBibleForOffline, refreshCacheIfDue } from '@/lib/bibleCache';
+import { getBibleData, isBibleCached, initPeriodicCacheRefresh, downloadBibleForOffline, refreshCacheIfDue, CACHE_VERSION } from '@/lib/bibleCache';
 import { toast } from 'sonner';
 import { useSoftReload } from '@/lib/SoftReloadContext';
 
@@ -224,13 +224,10 @@ export default function AppLayout() {
                 setRefreshing(true);
                 const checkToastId = toast.loading('Checking for updates…');
                 try {
-                  // Check version first - only recache if changed
-                  const remoteVer = await fetch('https://media.base44.com/files/public/6a05adcee684459ea05d28a4/VERSION.txt?t=' + Date.now())
-                    .then(r => r.text())
-                    .then(t => t.trim());
+                  // Compare the in-code CACHE_VERSION against what's stored locally.
                   const localVer = localStorage.getItem('bible_cache_version');
 
-                  if (localVer && remoteVer !== localVer) {
+                  if (localVer && localVer !== CACHE_VERSION) {
                     // Actual new version available
                     toast.loading('New version found — updating Bible data…', { id: checkToastId });
                     localStorage.removeItem('bible_cache_version');
