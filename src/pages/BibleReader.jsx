@@ -1061,10 +1061,9 @@ export default function BibleReader() {
                 onClick={(e) => { e.stopPropagation(); setHideHeader(!hideHeader); }}
                 onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setHideHeader(!hideHeader); }}
                 title={hideHeader ? "Show header" : "Hide header"}
-                className="flex flex-1 items-center justify-center gap-1.5 p-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation min-h-[44px] min-w-[44px] whitespace-nowrap"
+                className="flex items-center justify-center p-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation min-h-[44px] min-w-[44px] whitespace-nowrap flex-shrink-0"
               >
                 <ChevronDown className={`w-5 h-5 transition-transform duration-200 flex-shrink-0 ${hideHeader ? '' : 'rotate-180'}`} />
-                <span className="hidden lg:inline">Hide</span>
               </button>
             </>
             )}
@@ -1104,10 +1103,9 @@ export default function BibleReader() {
                   onClick={(e) => { e.stopPropagation(); setHideHeader(!hideHeader); }}
                   onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setHideHeader(!hideHeader); }}
                   title={hideHeader ? "Show header" : "Hide header"}
-                  className="flex flex-1 items-center justify-center gap-1.5 p-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation min-h-[44px] min-w-[44px]"
+                  className="flex items-center justify-center p-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation min-h-[44px] min-w-[44px] flex-shrink-0"
                 >
                   <ChevronDown className={`w-5 h-5 flex-shrink-0 ${hideHeader ? '' : 'rotate-180'}`} />
-                  <span className="hidden lg:inline">Hide</span>
                 </button>
               </>
             )}
