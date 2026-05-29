@@ -44,6 +44,7 @@ export default function SearchPage() {
   const [selectedBooks, setSelectedBooks] = useState(new Set());
   const [showBookResult, setShowBookResult] = useState(null); // { bookName, abbr, chapters, testament }
   const [bookFilterQuery, setBookFilterQuery] = useState('');
+  const [booksWithResults, setBooksWithResults] = useState(new Set()); // Track which books have results for current search
 
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
@@ -274,6 +275,13 @@ export default function SearchPage() {
       }
 
       setResults(matches);
+
+      // Track which books have results
+      const booksWithHits = new Set(matches.map(m => {
+        const bookEntry = BIBLE_BOOKS.find(b => b.apiName === m.book);
+        return bookEntry ? bookEntry.abbr : null;
+      }).filter(Boolean));
+      setBooksWithResults(booksWithHits);
 
       // Compute total occurrences (multiple hits per verse counted) so the
       // results header matches standard concordance figures.
@@ -583,11 +591,15 @@ export default function SearchPage() {
                 {(testament === 'all' || testament === 'old') && (
                   <div>
                     <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 sticky top-0 bg-card py-1">
-                      Old Testament
+                      Old Testament {searched && booksWithResults.size > 0 && <span className="font-normal normal-case text-muted-foreground/60">({[...booksWithResults].filter(abbr => OLD_TESTAMENT.some(b => b.abbr === abbr)).length})</span>}
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {OLD_TESTAMENT
-                        .filter(book => !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase()))
+                        .filter(book => {
+                          const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
+                          const hasResults = !searched || booksWithResults.has(book.abbr);
+                          return matchesQuery && hasResults;
+                        })
                         .map(book => (
                         <button
                           key={book.abbr}
@@ -615,11 +627,15 @@ export default function SearchPage() {
                 {(testament === 'all' || testament === 'new') && (
                   <div>
                     <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 sticky top-0 bg-card py-1">
-                      New Testament
+                      New Testament {searched && booksWithResults.size > 0 && <span className="font-normal normal-case text-muted-foreground/60">({[...booksWithResults].filter(abbr => NEW_TESTAMENT.some(b => b.abbr === abbr)).length})</span>}
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {NEW_TESTAMENT
-                        .filter(book => !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase()))
+                        .filter(book => {
+                          const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
+                          const hasResults = !searched || booksWithResults.has(book.abbr);
+                          return matchesQuery && hasResults;
+                        })
                         .map(book => (
                         <button
                           key={book.abbr}
