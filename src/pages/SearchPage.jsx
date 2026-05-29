@@ -700,12 +700,12 @@ export default function SearchPage() {
                 </div>
               </div>
             </div>
-            <div className="p-4 border-t border-border">
+            <div className="p-3 sm:p-4 border-t border-border flex-shrink-0">
               <button
                 onClick={() => setShowBookFilter(false)}
                 className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
               >
-                Go {selectedBooks.size > 0 && selectedBooks.size < 66 ? `(${selectedBooks.size} book${selectedBooks.size !== 1 ? 's' : ''})` : selectedBooks.size === 66 ? '(All 66 books)' : '— All Books'}
+                Search {selectedBooks.size > 0 && selectedBooks.size < 66 ? `(${selectedBooks.size} book${selectedBooks.size !== 1 ? 's' : ''})` : selectedBooks.size === 66 ? '(All 66 books)' : 'All Books'}
               </button>
             </div>
           </div>
