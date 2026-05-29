@@ -71,12 +71,10 @@ export default function CurrentlyReadingIndicator({
   let label = '';
   if (isFilterMode) {
     label = `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`;
-  } else if (isRandom) {
-    label = `${book.shortName} ${pos.chapter}`;
-  } else if (isDaily) {
-    label = `${book.shortName} ${pos.chapter}:${verseNum || '1'}`;
   } else if (verseNum) {
     label = `${book.shortName} ${pos.chapter}:${verseNum}`;
+  } else {
+    label = `${book.shortName} ${pos.chapter}`;
   }
 
   if (!label) return null;
