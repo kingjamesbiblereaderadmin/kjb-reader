@@ -130,8 +130,9 @@ export default function BibleSearchBar({ onClose }) {
   const goTo = (abbr, chapter, verse, verseEnd) => {
     // Keep verseEnd in localStorage so the reader can enter range/filter mode.
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null, verseEnd: verseEnd || null })); } catch {}
-    // Clear search term so CurrentlyReadingIndicator doesn't show stale search
+    // Clear search term and last reading position so CurrentlyReadingIndicator doesn't show stale context
     try { localStorage.removeItem('kjb-search-term'); } catch {}
+    try { localStorage.removeItem('kjb-last-reading'); } catch {}
     setQuery('');
     setSuggestions([]);
     setOpen(false);
