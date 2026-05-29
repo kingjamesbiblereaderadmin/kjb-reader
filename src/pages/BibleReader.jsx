@@ -1331,7 +1331,7 @@ export default function BibleReader() {
               <VerseText
                 key={v.verse}
                 verse={v}
-                highlight={!columnMode && (highlightVerse === v.verse || highlightedVerses.has(v.verse))}
+                highlight={highlightVerse === v.verse || highlightedVerses.has(v.verse)}
                 id={`v${v.verse}`}
                 bookName={book.name}
                 abbr={pos.abbr}
