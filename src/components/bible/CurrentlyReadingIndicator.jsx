@@ -72,9 +72,9 @@ export default function CurrentlyReadingIndicator({
   if (isFilterMode) {
     label = `Selected vv.${formatVerseRange([...selectedVerses])}`;
   } else if (isRandom) {
-    label = `Random chapter: ${book.shortName} ${pos.chapter}`;
+    label = `Random chapter — ${book.shortName} ${pos.chapter}`;
   } else if (isDaily) {
-    label = `Daily verse: ${book.shortName} v.${verseNum || '1'}`;
+    label = `Daily verse — ${book.shortName} v.${verseNum || '1'}`;
   } else if (verseNum) {
     label = `${book.shortName} v.${verseNum}`;
   }

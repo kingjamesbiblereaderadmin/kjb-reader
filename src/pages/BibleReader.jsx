@@ -1254,9 +1254,9 @@ export default function BibleReader() {
                 Currently reading: {filterMode && selectedVerses.size > 0
                   ? `Selected vv.${formatVerseRange([...selectedVerses])}`
                   : lastReadingPos && lastReadingPos.fromRandom
-                  ? `Random chapter: ${book.shortName} ${pos.chapter}`
+                  ? `Random chapter — ${book.shortName} ${pos.chapter}`
                   : lastReadingPos && lastReadingPos.fromDailyVerse
-                  ? `Daily verse: ${book.shortName} v.${pos.verse || '1'}`
+                  ? `Daily verse — ${book.shortName} v.${pos.verse || '1'}`
                   : pos.verse
                   ? `${book.shortName} v.${pos.verse}`
                   : ''}
