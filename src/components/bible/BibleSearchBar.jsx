@@ -167,7 +167,7 @@ export default function BibleSearchBar({ onClose }) {
     if (bookMatches.length === 1 && refSuggestions.length === 0) {
       const bookMatch = bookMatches[0];
       finalSuggestions = [
-        { type: 'book', book: bookMatch.book, label: `Go to ${bookMatch.label}`, sub: `${bookMatch.book.chapters} chapters` },
+        { type: 'book', book: bookMatch.book, label: `Go to ${bookMatch.book.shortName}`, sub: `${bookMatch.book.chapters} chapters` },
         { type: 'keyword', query: query.trim(), label: `Search "${query.trim()}"`, sub: 'Find all mentions in verses' }
       ];
     }
@@ -175,7 +175,7 @@ export default function BibleSearchBar({ onClose }) {
     // If multiple book matches (e.g. "Kings", "Samuel", "Chronicles", or alternate names), show all books + search option
     if (bookMatches.length > 1 && refSuggestions.length === 0) {
       finalSuggestions = [
-        ...bookMatches.map(b => ({ type: 'book', book: b.book, label: `Go to ${b.label}`, sub: `${b.book.chapters} chapters` })),
+        ...bookMatches.map(b => ({ type: 'book', book: b.book, label: `Go to ${b.book.shortName}`, sub: `${b.book.chapters} chapters` })),
         { type: 'keyword', query: query.trim(), label: `Search "${query.trim()}"`, sub: 'Find all mentions in verses' }
       ];
     }
