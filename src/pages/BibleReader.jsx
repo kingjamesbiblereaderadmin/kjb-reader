@@ -1252,13 +1252,13 @@ export default function BibleReader() {
             <div className="flex-1 min-w-0">
               <p className="font-serif text-xs font-semibold text-accent break-words leading-snug">
                 Currently reading: {filterMode && selectedVerses.size > 0
-                  ? `Selected vv.${formatVerseRange([...selectedVerses])}`
+                  ? `Selected ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
                   : lastReadingPos && lastReadingPos.fromRandom
                   ? `Random chapter — ${book.shortName} ${pos.chapter}`
                   : lastReadingPos && lastReadingPos.fromDailyVerse
-                  ? `Daily verse — ${book.shortName} v.${pos.verse || '1'}`
+                  ? `Daily verse — ${book.shortName} ${pos.chapter}:${pos.verse || '1'}`
                   : pos.verse
-                  ? `${book.shortName} v.${pos.verse}`
+                  ? `${book.shortName} ${pos.chapter}:${pos.verse}`
                   : ''}
               </p>
             </div>
