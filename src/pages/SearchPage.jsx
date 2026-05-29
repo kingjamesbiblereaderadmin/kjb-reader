@@ -621,16 +621,17 @@ export default function SearchPage() {
             </div>
             <div className="flex-1 overflow-y-auto px-4 pb-2" style={{ minHeight: '300px', maxHeight: '400px' }}>
               <div className="space-y-4">
-                {/* Old Testament section - always show both testaments */}
+                {/* Old Testament section */}
                 <div>
                   <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 sticky top-0 bg-card py-1">
-                    Old Testament
+                    Old Testament {searched && booksWithResults.size > 0 && <span className="font-normal normal-case text-muted-foreground/60">({[...booksWithResults].filter(abbr => OLD_TESTAMENT.some(b => b.abbr === abbr)).length})</span>}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {OLD_TESTAMENT
                       .filter(book => {
                         const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
-                        return matchesQuery;
+                        const hasResults = booksWithResults === null || booksWithResults.has(book.abbr);
+                        return matchesQuery && hasResults;
                       })
                       .map(book => (
                       <button
@@ -654,16 +655,17 @@ export default function SearchPage() {
                     ))}
                   </div>
                 </div>
-                {/* New Testament section - always show */}
+                {/* New Testament section */}
                 <div>
                   <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 sticky top-0 bg-card py-1">
-                    New Testament
+                    New Testament {searched && booksWithResults.size > 0 && <span className="font-normal normal-case text-muted-foreground/60">({[...booksWithResults].filter(abbr => NEW_TESTAMENT.some(b => b.abbr === abbr)).length})</span>}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {NEW_TESTAMENT
                       .filter(book => {
                         const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
-                        return matchesQuery;
+                        const hasResults = booksWithResults === null || booksWithResults.has(book.abbr);
+                        return matchesQuery && hasResults;
                       })
                       .map(book => (
                       <button
