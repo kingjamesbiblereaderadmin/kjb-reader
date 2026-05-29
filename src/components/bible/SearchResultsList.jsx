@@ -1,5 +1,5 @@
-import React from 'react';
-import { BookOpen, CheckSquare, Square } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { BookOpen, CheckSquare, Square, ChevronDown, ChevronUp, ArrowDown, ChevronRight } from 'lucide-react';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 
 const NT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'NT' || BIBLE_BOOKS.indexOf(b) >= 39).map(b => b.apiName));
@@ -49,6 +49,11 @@ function renderWithItalics(text, searchTerm, caseSensitive) {
 }
 
 function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, selectMode, selected, onToggleSelect, onGoToVerse }) {
+  const [otExpanded, setOtExpanded] = useState(true);
+  const [ntExpanded, setNtExpanded] = useState(true);
+  const otRef = React.useRef(null);
+  const ntRef = React.useRef(null);
+  
   const [fontFamily, setFontFamily] = React.useState(() => {
     try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
   });
@@ -95,54 +100,84 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
         return (
           <React.Fragment key={`frag-${i}`}>
             {showOTHeader && (
-              <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground pt-2 pb-1 border-b border-border mb-1">
-                Old Testament <span className="font-normal normal-case text-muted-foreground/60">[{otCount}]</span>
-              </p>
+              <div className="flex items-center gap-2 pt-2 pb-1 border-b border-border mb-1">
+                <button
+                  onClick={() => setOtExpanded(!otExpanded)}
+                  className="flex items-center gap-1 font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {otExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                  Old Testament <span className="font-normal normal-case text-muted-foreground/60">[{otCount}]</span>
+                </button>
+                {ntCount > 0 && (
+                  <button
+                    onClick={() => ntRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                    className="ml-auto flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+                  >
+                    Jump to NT <ArrowDown className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
             )}
             {showNTHeader && (
-              <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground pt-3 pb-1 border-b border-border mb-1">
-                New Testament <span className="font-normal normal-case text-muted-foreground/60">[{ntCount}]</span>
-              </p>
-            )}
-            <div
-              onClick={() => {
-                if (selectMode) {
-                  onToggleSelect(i);
-                } else if (isColophon) {
-                  onGoToVerse(r.abbr, r.chapter, null);
-                } else {
-                  onGoToVerse(r.abbr, r.chapter, r.verse);
-                }
-              }}
-              className={`w-full text-left p-4 rounded-xl border transition-colors cursor-pointer flex items-start gap-3 ${
-                isSelected
-                  ? 'bg-primary/10 border-primary/40'
-                  : 'bg-card border-border hover:border-accent/40 hover:bg-accent/5'
-              }`}
-            >
-              {selectMode && (
-                <div className="shrink-0 mt-0.5">
-                  {isSelected
-                    ? <CheckSquare className="w-4 h-4 text-primary" />
-                    : <Square className="w-4 h-4 text-muted-foreground" />
-                  }
-                </div>
-              )}
-              <div className="flex-1 min-w-0">
-                <p className="font-sans text-xs text-accent font-semibold mb-1 flex items-center gap-1">
-                  <BookOpen className="w-3 h-3" />
-                  {BIBLE_BOOKS.find(b => b.apiName === r.book)?.shortName || r.book} {r.chapter}
-                  {isColophon ? ' (Colophon)' : `:${r.verse}`}
-                </p>
-                <p className="text-base text-foreground leading-relaxed" style={fontStyle}>
-                  {isColophon ? (
-                    <span className="italic text-muted-foreground">¶ {renderWithItalics(r.text, highlightTerm, highlightCaseSensitive)}</span>
-                  ) : (
-                    <span>"{renderWithItalics(r.text, highlightTerm, highlightCaseSensitive)}"</span>
-                  )}
-                </p>
+              <div ref={ntRef} className="flex items-center gap-2 pt-3 pb-1 border-b border-border mb-1">
+                <button
+                  onClick={() => setNtExpanded(!ntExpanded)}
+                  className="flex items-center gap-1 font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {ntExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                  New Testament <span className="font-normal normal-case text-muted-foreground/60">[{ntCount}]</span>
+                </button>
+                {otCount > 0 && (
+                  <button
+                    onClick={() => otRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                    className="ml-auto flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+                  >
+                    Jump to OT <ArrowDown className="w-3 h-3 rotate-180" />
+                  </button>
+                )}
               </div>
-            </div>
+            )}
+            {!((showOTHeader && !otExpanded) || (showNTHeader && !ntExpanded)) && (
+              <div
+                onClick={() => {
+                  if (selectMode) {
+                    onToggleSelect(i);
+                  } else if (isColophon) {
+                    onGoToVerse(r.abbr, r.chapter, null);
+                  } else {
+                    onGoToVerse(r.abbr, r.chapter, r.verse);
+                  }
+                }}
+                className={`w-full text-left p-4 rounded-xl border transition-colors cursor-pointer flex items-start gap-3 ${
+                  isSelected
+                    ? 'bg-primary/10 border-primary/40'
+                    : 'bg-card border-border hover:border-accent/40 hover:bg-accent/5'
+                }`}
+              >
+                {selectMode && (
+                  <div className="shrink-0 mt-0.5">
+                    {isSelected
+                      ? <CheckSquare className="w-4 h-4 text-primary" />
+                      : <Square className="w-4 h-4 text-muted-foreground" />
+                    }
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="font-sans text-xs text-accent font-semibold mb-1 flex items-center gap-1">
+                    <BookOpen className="w-3 h-3" />
+                    {BIBLE_BOOKS.find(b => b.apiName === r.book)?.shortName || r.book} {r.chapter}
+                    {isColophon ? ' (Colophon)' : `:${r.verse}`}
+                  </p>
+                  <p className="text-base text-foreground leading-relaxed" style={fontStyle}>
+                    {isColophon ? (
+                      <span className="italic text-muted-foreground">¶ {renderWithItalics(r.text, highlightTerm, highlightCaseSensitive)}</span>
+                    ) : (
+                      <span>"{renderWithItalics(r.text, highlightTerm, highlightCaseSensitive)}"</span>
+                    )}
+                  </p>
+                </div>
+              </div>
+            )}
           </React.Fragment>
         );
       })}
