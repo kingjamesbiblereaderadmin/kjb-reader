@@ -417,6 +417,7 @@ export default function SettingsPage() {
             {font.label}
           </button>
         ))}
+        {a11yFont === 'default' && (
         <button
           onClick={() => {
             setReaderFontFamily('serif');
@@ -427,6 +428,7 @@ export default function SettingsPage() {
         >
           Reset to Default
         </button>
+        )}
         </div>
         </div>
         </div>
