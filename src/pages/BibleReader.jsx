@@ -1235,13 +1235,13 @@ export default function BibleReader() {
         <div className="bg-accent/10 border-b border-accent/20 px-4 sm:px-8 lg:px-16 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 relative z-[95]">
           <div className="flex-1 min-w-0 pr-3">
             <p className="font-serif text-xs sm:text-sm font-semibold text-accent break-words">
-              {filterMode && selectedVerses.size > 0
-                ? `Reading selected verses from ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
+              Currently reading: {filterMode && selectedVerses.size > 0
+                ? `Selected verses from ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
                 : lastReadingPos && lastReadingPos.fromRandom
-                ? `Random Chapter: ${book.shortName} ${pos.chapter}`
+                ? `Random Chapter — ${book.shortName} ${pos.chapter}`
                 : lastReadingPos && lastReadingPos.fromDailyVerse
-                ? `Daily Verse: ${book.shortName} ${pos.chapter}:${highlightVerse || '1'}`
-                : `Reading ${book.shortName} ${pos.chapter}${highlightVerse ? ':' + highlightVerse : ''}`}
+                ? `Daily Verse — ${book.shortName} ${pos.chapter}:${highlightVerse || '1'}`
+                : `${book.shortName} ${pos.chapter}${highlightVerse ? ':' + highlightVerse : ''}`}
             </p>
             <p className="font-sans text-xs text-accent/80 mt-0.5 break-words">
               {lastReadingPos && !highlightVerse
