@@ -1304,13 +1304,11 @@ export default function BibleReader() {
           >
             {/* Subscript (Psalm superscription) — centred within the LEFT column only */}
             {columnMode && !isViewingTitlePage && SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
-              <div style={{ width: 'calc(50% - 0.75rem)', marginRight: 'auto', marginLeft: '0' }}>
-                <p
-                  className={`text-center text-muted-foreground mb-4 leading-relaxed [&_em]:italic [&_em]:text-muted-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
-                  style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem` }}
-                  dangerouslySetInnerHTML={{ __html: renderColophonText(SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]) }}
-                />
-              </div>
+              <p
+                className={`text-center text-muted-foreground mb-4 leading-relaxed [&_em]:italic [&_em]:text-muted-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
+                style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, breakInside: 'avoid' }}
+                dangerouslySetInnerHTML={{ __html: renderColophonText(SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]) }}
+              />
             )}
             {verses
               .filter(v => !filterMode || selectedVerses.has(v.verse))
