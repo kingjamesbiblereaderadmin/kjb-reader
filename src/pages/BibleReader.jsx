@@ -1401,7 +1401,7 @@ export default function BibleReader() {
                   ? `Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
                   : `Showing ${selectedVerses.size} selected verse${selectedVerses.size !== 1 ? 's' : ''}`}
               </p>
-              <div className="flex gap-2">
+              <div className="flex gap-2 mb-2">
                 <button
                   onClick={handleCopySelected}
                   className="flex-1 px-3 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
@@ -1415,6 +1415,12 @@ export default function BibleReader() {
                   <X className="w-3.5 h-3.5 inline mr-1" /> Close
                 </button>
               </div>
+              <button
+                onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
+                className="w-full px-3 py-2 rounded-lg bg-accent/10 text-accent font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+              >
+                Show Full Chapter
+              </button>
             </div>
           </div>
         </>
