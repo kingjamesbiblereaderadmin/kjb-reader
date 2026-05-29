@@ -1245,9 +1245,9 @@ export default function BibleReader() {
         </div>
       )}
 
-      {/* Currently reading banner for mobile - sticky below toolbar, stays visible when scrolling */}
+      {/* Currently reading banner for mobile - fixed position, stays visible when scrolling text */}
       {(highlightVerse || (filterMode && selectedVerses.size > 0) || (lastReadingPos && !lastReadingPos.cleared)) && (
-        <div className="lg:hidden sticky top-[57px] z-[99] bg-accent/10 border-b border-accent/20 px-4 sm:px-8 lg:px-16 py-2.5 mb-2" style={{ top: 'calc(57px + env(safe-area-inset-top))' }}>
+        <div className="lg:hidden fixed top-[57px] left-0 right-0 z-[99] bg-accent/10 border-b border-accent/20 px-4 sm:px-8 lg:px-16 py-2.5" style={{ top: 'calc(57px + env(safe-area-inset-top))' }}>
           <div className="flex items-center gap-2">
             <div className="flex-1 min-w-0">
               <p className="font-serif text-xs font-semibold text-accent break-words leading-snug">
