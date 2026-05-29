@@ -151,6 +151,9 @@ export default function SearchPage() {
         }
       }
       
+      // Store all matching books for the UI to display multiple options
+      const matchingBooks = bookMatches.length > 0 ? bookMatches : [];
+      
       // Prioritize exact matches, fall back to first match
       const exactBookMatch = bookMatches.find(b => 
         b.shortName.toLowerCase() === kwLower ||
@@ -160,7 +163,13 @@ export default function SearchPage() {
       const bookMatch = exactBookMatch || (bookMatches.length > 0 ? bookMatches[0] : null);
       
       if (bookMatch && !isQuotedPhrase && !numberedBookMatch) {
-        setShowBookResult({ bookName: bookMatch.shortName, abbr: bookMatch.abbr, chapters: bookMatch.chapters, testament: bookMatch.testament });
+        setShowBookResult({ 
+          bookName: bookMatch.shortName, 
+          abbr: bookMatch.abbr, 
+          chapters: bookMatch.chapters, 
+          testament: bookMatch.testament,
+          allMatches: matchingBooks // Store all matches for UI
+        });
       } else {
         setShowBookResult(null);
       }
@@ -804,17 +813,15 @@ export default function SearchPage() {
           {showBookResult && (
             <div className="mb-4 p-4 rounded-xl bg-primary/5 border border-primary/20">
               <p className="font-sans text-xs text-muted-foreground mb-3">
-                {['Kings', 'Samuel', 'Chronicles'].some(name => query.toLowerCase().includes(name.toLowerCase())) 
+                {showBookResult.allMatches && showBookResult.allMatches.length > 1
                   ? `Found multiple books. Which one did you mean?`
                   : `Found the book of ${showBookResult.bookName}. How would you like to search?`
                 }
               </p>
-              {/* Show multiple book options for Kings/Samuel/Chronicles */}
-              {['Kings', 'Samuel', 'Chronicles'].some(name => query.toLowerCase().includes(name.toLowerCase())) && (
+              {/* Show multiple book options when there are multiple matches (e.g. 1&2 Kings, Samuel, Chronicles, or alternate names) */}
+              {showBookResult.allMatches && showBookResult.allMatches.length > 1 && (
                 <div className="grid sm:grid-cols-2 gap-2 mb-3">
-                  {BIBLE_BOOKS.filter(b => 
-                    b.shortName.toLowerCase().includes(query.toLowerCase())
-                  ).map(book => (
+                  {showBookResult.allMatches.map(book => (
                     <button
                       key={book.abbr}
                       onClick={() => {
@@ -826,14 +833,27 @@ export default function SearchPage() {
                       <BookOpen className="w-5 h-5 flex-shrink-0" />
                       <div className="text-left">
                         <p className="font-serif text-sm font-bold">{book.shortName}</p>
-                        <p className="text-xs opacity-75">{book.chapters} {book.chapters === 1 ? 'chapter' : 'chapters'}</p>
+                        <p className="text-xs opacity-75">{book.chapters} {book.chapters === 1 ? 'chapter' : 'chapters'} • {book.testament === 'old' ? 'Old' : 'New'} Testament</p>
                       </div>
                     </button>
                   ))}
+                  <button
+                    onClick={() => {
+                      setShowBookResult(null);
+                      // Search is already running, just let it complete
+                    }}
+                    className="flex items-center gap-3 p-3 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+                  >
+                    <Search className="w-5 h-5 flex-shrink-0" />
+                    <div className="text-left">
+                      <p className="font-serif text-sm font-bold">Search "{stripQuotes(getQueryFromUrl() || query)}"</p>
+                      <p className="text-xs opacity-75">Find all mentions in verses</p>
+                    </div>
+                  </button>
                 </div>
               )}
               {/* Single book option or search button */}
-              {!['Kings', 'Samuel', 'Chronicles'].some(name => query.toLowerCase().includes(name.toLowerCase())) && (
+              {(!showBookResult.allMatches || showBookResult.allMatches.length <= 1) && (
                 <div className="grid sm:grid-cols-2 gap-2">
                   <button
                     onClick={() => {
