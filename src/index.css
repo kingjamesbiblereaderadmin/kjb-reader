@@ -138,6 +138,22 @@
     }
   }
 
+  /* Two-column reading layout (true to printed Bible) */
+  .kjb-two-col {
+    column-fill: balance;
+  }
+  /* Keep each verse intact within a single column when possible */
+  .kjb-two-col > span {
+    break-inside: avoid;
+  }
+  /* On very small screens columns get too narrow — fall back to one column */
+  @media (max-width: 380px) {
+    .kjb-two-col {
+      column-count: 1 !important;
+      column-rule: none !important;
+    }
+  }
+
   /* Hide scrollbar for horizontal scrolling nav */
   .scrollbar-hide {
     -ms-overflow-style: none;

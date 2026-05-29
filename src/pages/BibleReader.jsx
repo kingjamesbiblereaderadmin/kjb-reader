@@ -1250,7 +1250,15 @@ export default function BibleReader() {
           </div>
         )}
         {!loading && !error && verses.length > 0 && (
-          <div className={paragraphMode ? 'text-justify hyphens-auto px-2 sm:px-4' : ''} style={{ fontSize: 'inherit' }}>
+          <div
+            className={`kjb-two-col text-justify hyphens-auto ${paragraphMode ? 'px-2 sm:px-4' : ''}`}
+            style={{
+              fontSize: 'inherit',
+              columnCount: 2,
+              columnGap: '2.5rem',
+              columnRule: '1px solid hsl(var(--border))',
+            }}
+          >
             {verses
               .filter(v => !filterMode || selectedVerses.has(v.verse))
               .map((v, idx) => (
