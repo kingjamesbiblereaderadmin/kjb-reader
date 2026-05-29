@@ -63,6 +63,7 @@ export default function SearchPage() {
     setSelected(new Set());
     setSelectMode(false);
     setNumberedBookFilter(null);
+    setSelectedBooks(new Set()); // Clear book filter on new search
 
     try {
       console.log('[SEARCH] Starting search for:', kw);
