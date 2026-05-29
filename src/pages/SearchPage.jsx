@@ -115,28 +115,28 @@ export default function SearchPage() {
         song: 'SNG',
         songofsongs: 'SNG',
         canticles: 'SNG',
-        samuel: '1SA', // Will show both 1&2 Samuel
-        chronicles: '1CH', // Will show both 1&2 Chronicles
       };
       
       const alternateMatch = ALTERNATE_NAMES[kwLower];
       let bookMatches = [];
       
       if (alternateMatch) {
-        // For alternate names, get the specific book or both books for Samuel/Kings/Chronicles
-        if (['1SA', '1CH'].includes(alternateMatch)) {
-          const firstBook = BIBLE_BOOKS.find(b => b.abbr === alternateMatch);
-          const secondBookAbbr = alternateMatch === '1SA' ? '2SA' : '2CH';
-          const secondBook = BIBLE_BOOKS.find(b => b.abbr === secondBookAbbr);
-          bookMatches = [firstBook, secondBook].filter(Boolean);
-        } else {
-          bookMatches = [BIBLE_BOOKS.find(b => b.abbr === alternateMatch)].filter(Boolean);
-        }
+        // For alternate names like Preacher/Song, get the specific book
+        bookMatches = [BIBLE_BOOKS.find(b => b.abbr === alternateMatch)].filter(Boolean);
       } else if (kwLower === 'kings') {
         // Special case: "kings" shows both Kings AND Samuel
         const kingsBooks = BIBLE_BOOKS.filter(b => ['1KI', '2KI'].includes(b.abbr));
         const samuelBooks = BIBLE_BOOKS.filter(b => ['1SA', '2SA'].includes(b.abbr));
         bookMatches = [...kingsBooks, ...samuelBooks];
+      } else if (kwLower === 'samuel') {
+        // Special case: "samuel" shows both Samuel AND Kings
+        const samuelBooks = BIBLE_BOOKS.filter(b => ['1SA', '2SA'].includes(b.abbr));
+        const kingsBooks = BIBLE_BOOKS.filter(b => ['1KI', '2KI'].includes(b.abbr));
+        bookMatches = [...samuelBooks, ...kingsBooks];
+      } else if (kwLower === 'chronicles') {
+        // Special case: "chronicles" shows both 1&2 Chronicles
+        const chroniclesBooks = BIBLE_BOOKS.filter(b => ['1CH', '2CH'].includes(b.abbr));
+        bookMatches = chroniclesBooks;
       } else {
         // Standard matching
         bookMatches = BIBLE_BOOKS.filter(b => 
