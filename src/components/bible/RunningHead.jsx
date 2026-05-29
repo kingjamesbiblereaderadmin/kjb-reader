@@ -31,19 +31,19 @@ export default function RunningHead({ bookName, chapter, baseFontRem, isCursive 
   return (
     <div className={`mb-6 ${isCursive ? 'cursive-em-style' : 'font-serif'}`}>
       <div className="flex items-baseline gap-6">
-        <div className="flex-1 min-w-0 text-left">
+        <div className="flex-1 min-w-0 text-left border-b border-border pb-1.5">
           <span
             ref={leftRef}
-            className="inline-block max-w-full whitespace-nowrap border-b border-border pb-1.5 font-semibold tracking-wide text-foreground"
+            className="inline-block max-w-full whitespace-nowrap font-semibold tracking-wide text-foreground"
             style={{ fontSize, fontStyle: 'normal' }}
           >
             {bookName}
           </span>
         </div>
-        <div className="flex-1 min-w-0 text-right">
+        <div className="flex-1 min-w-0 text-right border-b border-border pb-1.5">
           <span
             ref={rightRef}
-            className="inline-block max-w-full whitespace-nowrap border-b border-border pb-1.5 font-semibold tracking-wide text-foreground"
+            className="inline-block max-w-full whitespace-nowrap font-semibold tracking-wide text-foreground"
             style={{ fontSize, fontStyle: 'normal' }}
           >
             {chapterText}
