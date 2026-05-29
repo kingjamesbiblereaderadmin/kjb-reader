@@ -159,6 +159,13 @@ export default function BibleReader() {
   const [filterMode, setFilterMode] = useState(false); // show only selected verses
   const [copyFeedback, setCopyFeedback] = useState(false);
   const [showFilterOverlay, setShowFilterOverlay] = useState(false);
+  // Track last reading position before navigating to daily verse/random chapter
+  const [lastReadingPos, setLastReadingPos] = useState(() => {
+    try {
+      const saved = localStorage.getItem('kjb-last-reading');
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
+  });
 
   const toggleFullscreen = async () => {
     if (!document.fullscreenElement) {
@@ -592,10 +599,16 @@ export default function BibleReader() {
     }
   }, [filterMode, selectedVerses]);
 
-  const navigate = (newAbbr, newChapter, jumpVerse = null) => {
+  const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false) => {
     // Prevent chapter 0 for non-GEN/MAT books
     if (newChapter === 0 && newAbbr !== 'GEN' && newAbbr !== 'MAT') {
       return;
+    }
+    // Save last reading position before navigating from daily verse or random chapter
+    if ((fromDailyVerse || fromRandom) && pos.abbr && pos.chapter) {
+      const lastPos = { abbr: pos.abbr, chapter: pos.chapter };
+      try { localStorage.setItem('kjb-last-reading', JSON.stringify(lastPos)); } catch {}
+      setLastReadingPos(lastPos);
     }
     // Clear highlights when navigating without a specific verse (random chapter)
     if (!jumpVerse) {
@@ -607,6 +620,9 @@ export default function BibleReader() {
   };
 
   const goNext = () => {
+    // Clear last reading position when navigating normally
+    setLastReadingPos(null);
+    try { localStorage.removeItem('kjb-last-reading'); } catch {}
     if (pos.chapter < book.chapters) {
       navigate(pos.abbr, pos.chapter + 1);
     } else {
@@ -620,6 +636,9 @@ export default function BibleReader() {
 
 
   const goPrev = () => {
+    // Clear last reading position when navigating normally
+    setLastReadingPos(null);
+    try { localStorage.removeItem('kjb-last-reading'); } catch {}
     if (pos.chapter > 1) {
       navigate(pos.abbr, pos.chapter - 1);
     } else if (pos.chapter === 1 && (pos.abbr === 'GEN' || pos.abbr === 'MAT')) {
@@ -1212,24 +1231,46 @@ export default function BibleReader() {
       )}
 
       {/* Continue reading banner - shows when navigating from daily verse, search, or random chapter */}
-      {(highlightVerse || (filterMode && selectedVerses.size > 0)) && (
-        <div className="bg-accent/10 border-b border-accent/20 px-4 sm:px-8 lg:px-16 py-3 flex items-center justify-between gap-3 relative z-[95]">
+      {(highlightVerse || (filterMode && selectedVerses.size > 0) || lastReadingPos) && (
+        <div className="bg-accent/10 border-b border-accent/20 px-4 sm:px-8 lg:px-16 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 relative z-[95]">
           <div className="flex-1 min-w-0 pr-3">
             <p className="font-serif text-xs sm:text-sm font-semibold text-accent break-words">
               {filterMode && selectedVerses.size > 0
                 ? `Reading selected verses from ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
+                : lastReadingPos
+                ? `Reading ${book.shortName} ${pos.chapter}${highlightVerse ? ':' + highlightVerse : ''}`
                 : `Reading ${book.shortName} ${pos.chapter}${highlightVerse ? ':' + highlightVerse : ''}`}
             </p>
             <p className="font-sans text-xs text-accent/80 mt-0.5 break-words">
-              Tap "Continue Reading" to view the full chapter
+              {lastReadingPos && !highlightVerse
+                ? `You were last reading ${lastReadingPos.abbr} ${lastReadingPos.chapter}. Return or continue here?`
+                : 'Tap "Continue Reading" to view the full chapter'}
             </p>
           </div>
-          <button
-            onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setHighlightVerse(null); setShowFilterOverlay(false); }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity whitespace-nowrap flex-shrink-0 shadow-sm"
-          >
-            <AlignLeft className="w-3.5 h-3.5" /> Continue Reading
-          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            {lastReadingPos && (
+              <button
+                onClick={() => {
+                  try {
+                    const saved = JSON.parse(localStorage.getItem('kjb-last-reading') || '{}');
+                    if (saved.abbr && saved.chapter) {
+                      navigate(saved.abbr, saved.chapter, null, false, false);
+                      setLastReadingPos(null);
+                    }
+                  } catch {}
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors whitespace-nowrap"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" /> Return to {lastReadingPos.abbr} {lastReadingPos.chapter}
+              </button>
+            )}
+            <button
+              onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setHighlightVerse(null); setShowFilterOverlay(false); setLastReadingPos(null); }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent text-accent-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity whitespace-nowrap flex-shrink-0 shadow-sm"
+            >
+              <AlignLeft className="w-3.5 h-3.5" /> Continue Reading
+            </button>
+          </div>
         </div>
       )}
 

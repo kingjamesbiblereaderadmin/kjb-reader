@@ -79,15 +79,6 @@ export default function HomePage() {
     handleVerseClick();
   };
 
-  const handleRandomVerse = () => {
-    const book = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
-    const chapter = Math.floor(Math.random() * book.chapters) + 1;
-    try { localStorage.setItem('kjb-position', JSON.stringify({ abbr: book.abbr, chapter, verse: null })); } catch {}
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    navigate(`/read?book=${book.abbr}&chapter=${chapter}`);
-    setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
-  };
-
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifPermission, setNotifPermission] = useState(() => {
     if (!('serviceWorker' in navigator)) return 'unsupported';
@@ -147,6 +138,22 @@ export default function HomePage() {
     // Navigate with URL params so the reader scrolls + highlights reliably,
     // whether it's freshly mounted or already open.
     navigate(`/read?book=${verse.abbr}&chapter=${verse.chapter}&verse=${verse.verse}`);
+    setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
+  };
+
+  const handleRandomVerse = () => {
+    const book = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
+    const chapter = Math.floor(Math.random() * book.chapters) + 1;
+    // Save current position as last reading before navigating to random chapter
+    try {
+      const current = JSON.parse(localStorage.getItem('kjb-position') || '{}');
+      if (current.abbr && current.chapter) {
+        localStorage.setItem('kjb-last-reading', JSON.stringify({ abbr: current.abbr, chapter: current.chapter }));
+      }
+    } catch {}
+    try { localStorage.setItem('kjb-position', JSON.stringify({ abbr: book.abbr, chapter, verse: null })); } catch {}
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    navigate(`/read?book=${book.abbr}&chapter=${chapter}`);
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   };
 
