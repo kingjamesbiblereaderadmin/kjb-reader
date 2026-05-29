@@ -99,39 +99,6 @@ export function disableNotifications() {
 
 
 
-// Compute the next fire time (today or tomorrow) as a Date
-function getNextFireDate() {
-  const [hh, mm] = getNotificationTime().split(':').map(Number);
-  const now = new Date();
-  const target = new Date();
-  target.setHours(hh, mm, 0, 0);
-  if (target <= now) target.setDate(target.getDate() + 1);
-  return target;
-}
-
-// Save next fire timestamp to localStorage AND SW cache so periodicsync can read it
-async function saveNextFireTime(verse) {
-  const t = getNextFireDate();
-  localStorage.setItem(NOTIF_NEXT_KEY, String(t.getTime()));
-  console.log('[Notif] Next notification scheduled for:', t, '(', t.toLocaleString(), ')');
-  // Write config to SW-accessible cache for background periodicsync
-  try {
-    const cache = await caches.open('kjb-notif-config');
-    const config = {
-      nextTs: t.getTime(),
-      lastDate: localStorage.getItem(NOTIF_LAST_KEY) || '',
-      verseText: verse ? verse.text.slice(0, 120) + (verse.text.length > 120 ? '…' : '') : '',
-      verseRef: verse ? verse.ref : '',
-    };
-    await cache.put('/notif-config', new Response(JSON.stringify(config), {
-      headers: { 'Content-Type': 'application/json' }
-    }));
-    console.log('[Notif] Config saved to SW cache');
-  } catch (err) {
-    console.warn('[Notif] Failed to save config to cache:', err);
-  }
-}
-
 const APP_LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
 
 // ---- App-based notifications only ----
@@ -217,12 +184,6 @@ export async function showLocalNotification(title, body, imageUrl = null) {
   }
 }
 
-// In-page poll (fires while app is open / foreground).
-// A single long setTimeout is unreliable (browsers throttle/clear timers when
-// the device sleeps), so instead we poll every 30s and fire as soon as today's
-// scheduled time has passed and we haven't notified yet today.
-let _pollInterval = null;
-
 function fireNotificationNow(verse) {
   const today = todayString();
   localStorage.setItem(NOTIF_LAST_KEY, today);
@@ -231,86 +192,20 @@ function fireNotificationNow(verse) {
     `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref} (KJB)`,
     null
   );
-  saveNextFireTime(verse);
 }
 
-// Returns true if today's scheduled time has passed and we haven't notified today
-function isDueNow() {
-  if (!getNotificationsEnabled()) return false;
-  if (localStorage.getItem(NOTIF_LAST_KEY) === todayString()) return false;
-  const [hh, mm] = getNotificationTime().split(':').map(Number);
-  const target = new Date();
-  target.setHours(hh, mm, 0, 0);
-  return Date.now() >= target.getTime();
-}
-
-function armTimer(verse) {
-  if (_pollInterval) { clearInterval(_pollInterval); _pollInterval = null; }
-
-  console.log('[Notif] Poll armed. Notify time:', getNotificationTime(), '| Last notified:', localStorage.getItem(NOTIF_LAST_KEY));
-
-  // Fire immediately if already due (don't wait up to 30s)
-  if (isDueNow()) {
-    console.log('[Notif] ⏰ Already due on arm — firing notification now');
-    fireNotificationNow(getDailyVerse());
-  }
-
-  _pollInterval = setInterval(() => {
-    if (isDueNow()) {
-      console.log('[Notif] ⏰ Scheduled time reached — firing notification');
-      const freshVerse = getDailyVerse();
-      fireNotificationNow(freshVerse);
-    }
-  }, 30000); // check every 30 seconds
-}
-
-function scheduleAndSave(verse) {
-  saveNextFireTime(verse);
-  armTimer(verse);
-}
-
-// Register periodic background sync so Android can fire even when app is closed
-async function registerPeriodicSync() {
-  try {
-    const reg = await navigator.serviceWorker.ready;
-    if ('periodicSync' in reg) {
-      try {
-        // Try to register with 24-hour interval (minimum allowed)
-        await reg.periodicSync.register('daily-verse-notif', { minInterval: 24 * 60 * 60 * 1000 });
-        console.log('[Notif] Periodic sync registered (24h interval)');
-      } catch (syncErr) {
-        console.warn('[Notif] Periodic sync not available:', syncErr.message);
-      }
-    }
-    // Note: periodicSync is only supported on Chrome for Android
-    // Most browsers will use in-page timer or push notifications instead
-  } catch (err) {
-    console.warn('[Notif] Periodic sync registration failed:', err.message);
-  }
-}
-
-// On page focus/visibility, check if we need to show a notification for today's verse
-// Only show if user missed the daily verse (new day, never opened app to see it)
-function checkOverdueNotification(verse) {
+// Fire once per day: when the app is opened on a new day (and we haven't
+// shown today's verse yet). No time scheduling — just a new-day check.
+function checkNewDayNotification(verse) {
   if (!getNotificationsEnabled()) return;
-  if (!('serviceWorker' in navigator)) return;
-
-  // Fire on app open / focus if today's scheduled time has already passed
-  // and we haven't notified yet today (missed notification recovery).
-  if (isDueNow()) {
-    const freshVerse = getDailyVerse();
-    fireNotificationNow(freshVerse);
-  }
+  if (localStorage.getItem(NOTIF_LAST_KEY) === todayString()) return;
+  fireNotificationNow(verse || getDailyVerse());
 }
 
+// Kept for callers (Settings toggle). Fires today's verse immediately if not
+// yet shown today, so enabling on a new day gives instant feedback.
 export function scheduleDailyNotification(verse) {
-  if (!getNotificationsEnabled()) return;
-  if (!('serviceWorker' in navigator)) return;
-  // In-app notifications only: persist next-fire time, arm the in-page timer,
-  // and try periodicSync (Chrome Android PWA) as a best-effort wake-up.
-  saveNextFireTime(verse);
-  armTimer(verse);
-  registerPeriodicSync();
+  checkNewDayNotification(verse);
 }
 
 // Call once on app load - checks for missed notifications and arms timer
@@ -336,42 +231,25 @@ export function initNotifications(verse) {
   _notificationsInitialized = true;
 
   console.log('[Notif] Last notified:', localStorage.getItem(NOTIF_LAST_KEY));
-  console.log('[Notif] Next fire timestamp:', localStorage.getItem(NOTIF_NEXT_KEY));
-  console.log('[Notif] Notification time setting:', getNotificationTime());
-  
-  // Track app open date for recovery notification logic
-  const today = todayString();
-  localStorage.setItem('kjb-last-app-open', today);
 
-  // Always check if notification is due when app opens (for missed notifications)
-  console.log('[Notif] Checking overdue notification...');
-  checkOverdueNotification(verse);
-
-  // Arm the in-page timer for future notifications at the scheduled time
-  console.log('[Notif] Scheduling daily notification...');
-  scheduleDailyNotification(verse);
+  // Fire today's verse if the app is opened on a new day
+  checkNewDayNotification(verse);
 
   // Re-check on visibility change (e.g. user switches back to the app)
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
-      localStorage.setItem('kjb-last-app-open', todayString());
-      const freshVerse = getDailyVerse();
-      console.log('[Notif] App became visible, checking overdue');
-      checkOverdueNotification(freshVerse);
+      checkNewDayNotification(getDailyVerse());
     }
   });
-  
+
   // Check on window focus
   window.addEventListener('focus', () => {
-    const freshVerse = getDailyVerse();
-    checkOverdueNotification(freshVerse);
+    checkNewDayNotification(getDailyVerse());
   });
 
-  // Check on pageshow — covers PWA resume from back/forward cache on Android,
-  // which focus/visibilitychange sometimes don't fire for.
+  // Check on pageshow — covers PWA resume from back/forward cache
   window.addEventListener('pageshow', () => {
-    const freshVerse = getDailyVerse();
-    checkOverdueNotification(freshVerse);
+    checkNewDayNotification(getDailyVerse());
   });
   
   console.log('[Notif] Notifications initialized successfully');

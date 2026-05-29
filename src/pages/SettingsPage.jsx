@@ -187,16 +187,6 @@ export default function SettingsPage() {
     }
   };
 
-  const handleTimeChange = (e) => {
-    setNotifTimeState(e.target.value);
-    setNotificationTime(e.target.value);
-    if (notifEnabled) {
-      scheduleDailyNotification(getDailyVerse());
-      // Update server-side preferred hour so background push fires at the new time
-      updatePushPreferredHour();
-    }
-  };
-
   const handleTestNotif = async () => {
     console.log('[Settings] Test notification button clicked');
     console.log('[Settings] Notifications enabled:', getNotificationsEnabled());
@@ -1012,7 +1002,7 @@ export default function SettingsPage() {
                 <p className="font-sans text-xs text-muted-foreground">
                   {notifPermission === 'denied'
                     ? 'Blocked — go to your browser/app settings and allow notifications for this site'
-                    : 'Daily verse reminder'}
+                    : 'Shows the daily verse when you open the app on a new day'}
                 </p>
               </div>
               <Switch
@@ -1023,30 +1013,13 @@ export default function SettingsPage() {
               />
             </div>
             {notifEnabled && (
-            <div className="space-y-3 pt-1">
-            <div className="flex items-center gap-3">
-              <label className="font-sans text-sm text-muted-foreground shrink-0">Notify at</label>
-              <input
-                type="time"
-                value={notifTime}
-                onChange={handleTimeChange}
-                className="flex-1 px-3 py-1.5 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground focus:outline-none focus:border-accent"
-              />
-              <button
-                onClick={() => handleTimeChange({ target: { value: '08:00' } })}
-                className="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
-                title="Reset to 8:00 AM"
-              >
-                <RotateCcw className="w-3 h-3" />
-                Reset
-              </button>
+            <div className="pt-1">
               <button
                 onClick={handleTestNotif}
-                className="shrink-0 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+                className="px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
               >
-                Test
+                Test Notification
               </button>
-            </div>
             </div>
             )}
 
