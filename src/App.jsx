@@ -15,16 +15,16 @@ import React, { lazy, Suspense, useEffect } from 'react';
 // Lazy-load pages. Each import() factory is kept as a reference so we can
 // also trigger it manually in the background to preload all routes.
 const loaders = {
-  Home: () => import('@/pages/HomePage'),
-  BibleReader: () => import('@/pages/BibleReader'),
-  Gospel: () => import('@/pages/GospelPage'),
-  Resources: () => import('@/pages/ResourcesPage'),
-  About: () => import('@/pages/AboutPage'),
-  Contents: () => import('@/pages/ContentsPage.jsx'),
-  Settings: () => import('@/pages/SettingsPage.jsx'),
-  Search: () => import('@/pages/SearchPage.jsx'),
-  Saved: () => import('@/pages/SavedVersesPage.jsx'),
-  RefreshCache: () => import('@/pages/RefreshCache.jsx'),
+  Home: () => import('@/pages/HomePage').catch((err) => { console.error('Failed to load HomePage:', err); throw err; }),
+  BibleReader: () => import('@/pages/BibleReader').catch((err) => { console.error('Failed to load BibleReader:', err); throw err; }),
+  Gospel: () => import('@/pages/GospelPage').catch((err) => { console.error('Failed to load GospelPage:', err); throw err; }),
+  Resources: () => import('@/pages/ResourcesPage').catch((err) => { console.error('Failed to load ResourcesPage:', err); throw err; }),
+  About: () => import('@/pages/AboutPage').catch((err) => { console.error('Failed to load AboutPage:', err); throw err; }),
+  Contents: () => import('@/pages/ContentsPage.jsx').catch((err) => { console.error('Failed to load ContentsPage:', err); throw err; }),
+  Settings: () => import('@/pages/SettingsPage.jsx').catch((err) => { console.error('Failed to load SettingsPage:', err); throw err; }),
+  Search: () => import('@/pages/SearchPage.jsx').catch((err) => { console.error('Failed to load SearchPage:', err); throw err; }),
+  Saved: () => import('@/pages/SavedVersesPage.jsx').catch((err) => { console.error('Failed to load SavedVersesPage:', err); throw err; }),
+  RefreshCache: () => import('@/pages/RefreshCache.jsx').catch((err) => { console.error('Failed to load RefreshCache:', err); throw err; }),
 };
 const HomePage = lazy(loaders.Home);
 const BibleReader = lazy(loaders.BibleReader);
