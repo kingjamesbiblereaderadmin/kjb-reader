@@ -43,6 +43,7 @@ export default function SearchPage() {
   const [showBookFilter, setShowBookFilter] = useState(false);
   const [selectedBooks, setSelectedBooks] = useState(new Set());
   const [showBookResult, setShowBookResult] = useState(null); // { bookName, abbr, chapters, testament }
+  const [bookFilterQuery, setBookFilterQuery] = useState('');
 
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
@@ -547,12 +548,23 @@ export default function SearchPage() {
                 <X className="w-4 h-4 text-muted-foreground" />
               </button>
             </div>
+            {/* Search input for filtering books */}
+            <div className="p-4 pb-2 flex-shrink-0">
+              <input
+                type="text"
+                value={bookFilterQuery}
+                onChange={(e) => setBookFilterQuery(e.target.value)}
+                placeholder="Search books..."
+                className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors"
+                autoFocus
+              />
+            </div>
             <div className="flex gap-2 p-4 pb-2 flex-shrink-0">
               <button
                 onClick={() => {
-                  if (testament === 'old') setSelectedBooks(new Set(OLD_TESTAMENT.map(b => b.abbr)));
-                  else if (testament === 'new') setSelectedBooks(new Set(NEW_TESTAMENT.map(b => b.abbr)));
-                  else setSelectedBooks(new Set(BIBLE_BOOKS.map(b => b.abbr)));
+                  const booksToSelect = (testament === 'old' ? OLD_TESTAMENT : testament === 'new' ? NEW_TESTAMENT : BIBLE_BOOKS)
+                    .filter(b => !bookFilterQuery || b.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase()));
+                  setSelectedBooks(new Set(booksToSelect.map(b => b.abbr)));
                 }}
                 className="px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
               >
@@ -565,8 +577,11 @@ export default function SearchPage() {
                 Clear
               </button>
             </div>
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 px-4 overflow-y-auto flex-1" style={{ minHeight: '200px' }}>
-              {(testament === 'old' ? OLD_TESTAMENT : testament === 'new' ? NEW_TESTAMENT : BIBLE_BOOKS).map(book => (
+            <div className="flex-1 overflow-y-auto px-4 pb-2" style={{ minHeight: '300px', maxHeight: '400px' }}>
+              <div className="flex flex-wrap gap-2">
+                {(testament === 'old' ? OLD_TESTAMENT : testament === 'new' ? NEW_TESTAMENT : BIBLE_BOOKS)
+                  .filter(book => !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase()))
+                  .map(book => (
                 <button
                   key={book.abbr}
                   onClick={() => {
@@ -576,16 +591,17 @@ export default function SearchPage() {
                       return next;
                     });
                   }}
-                  className={`px-2 py-1.5 rounded-lg font-sans text-xs font-medium transition-colors text-left truncate ${
+                  className={`px-3 py-2 rounded-lg font-sans text-xs font-medium transition-colors whitespace-normal text-left ${
                     selectedBooks.has(book.abbr)
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-secondary text-foreground hover:bg-accent/20'
                   }`}
                   title={book.shortName}
                 >
-                  {book.shortName.length > 12 ? book.abbr : book.shortName}
+                  {book.shortName}
                 </button>
               ))}
+              </div>
             </div>
             <div className="p-4 border-t border-border">
               <button
