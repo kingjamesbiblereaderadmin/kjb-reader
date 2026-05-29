@@ -72,7 +72,6 @@ export default function BibleSearchBar({ onClose }) {
       song: 'SNG',
       songofsongs: 'SNG',
       canticles: 'SNG',
-      kings: '1KI', // Shows both 1&2 Kings
       samuel: '1SA', // Shows both 1&2 Samuel
       chronicles: '1CH', // Shows both 1&2 Chronicles
       '1kings': '1KI',
@@ -97,11 +96,16 @@ export default function BibleSearchBar({ onClose }) {
     const alternateMatch = ALTERNATE_NAMES[q];
     let bookMatches = [];
     
-    if (alternateMatch) {
-      // For alternate names like Kings/Samuel/Chronicles, show both books
-      if (['1KI', '1SA', '1CH'].includes(alternateMatch)) {
+    // Special case: "kings" shows both Kings AND Samuel (like in SearchPage)
+    if (q === 'kings') {
+      const kingsBooks = BIBLE_BOOKS.filter(b => ['1KI', '2KI'].includes(b.abbr));
+      const samuelBooks = BIBLE_BOOKS.filter(b => ['1SA', '2SA'].includes(b.abbr));
+      bookMatches = [...kingsBooks, ...samuelBooks].map(b => ({ type: 'book', book: b, label: b.shortName, sub: `${b.chapters} chapters` }));
+    } else if (alternateMatch) {
+      // For alternate names like Samuel/Chronicles, show both books
+      if (['1SA', '1CH'].includes(alternateMatch)) {
         const firstBook = BIBLE_BOOKS.find(b => b.abbr === alternateMatch);
-        const secondBookAbbr = alternateMatch === '1KI' ? '2KI' : alternateMatch === '1SA' ? '2SA' : '2CH';
+        const secondBookAbbr = alternateMatch === '1SA' ? '2SA' : '2CH';
         const secondBook = BIBLE_BOOKS.find(b => b.abbr === secondBookAbbr);
         bookMatches = [firstBook, secondBook].filter(Boolean).map(b => ({ type: 'book', book: b, label: b.shortName, sub: `${b.chapters} chapters` }));
       } else {
