@@ -966,7 +966,7 @@ export default function BibleReader() {
                           key={font.value}
                           onClick={() => { handleFontChange(font.value); setShowFontPopover(false); }}
                           className={`px-3 py-2 rounded-lg font-sans text-xs font-medium transition-all ${
-                            fontFamily === font.value
+                            !a11yActive && fontFamily === font.value
                               ? 'bg-primary text-primary-foreground'
                               : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
                           }`}
@@ -998,7 +998,7 @@ export default function BibleReader() {
                       key={font.value}
                       onClick={() => { handleFontChange(font.value); setShowFontPopover(false); }}
                       className={`w-full px-4 py-3 rounded-lg font-sans text-sm font-medium transition-all ${
-                        fontFamily === font.value
+                        !a11yActive && fontFamily === font.value
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
                       }`}
