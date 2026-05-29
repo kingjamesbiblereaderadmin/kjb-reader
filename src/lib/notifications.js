@@ -236,6 +236,7 @@ function fireNotificationNow(verse) {
 
 // Returns true if today's scheduled time has passed and we haven't notified today
 function isDueNow() {
+  if (!getNotificationsEnabled()) return false;
   if (localStorage.getItem(NOTIF_LAST_KEY) === todayString()) return false;
   const [hh, mm] = getNotificationTime().split(':').map(Number);
   const target = new Date();
@@ -247,6 +248,12 @@ function armTimer(verse) {
   if (_pollInterval) { clearInterval(_pollInterval); _pollInterval = null; }
 
   console.log('[Notif] Poll armed. Notify time:', getNotificationTime(), '| Last notified:', localStorage.getItem(NOTIF_LAST_KEY));
+
+  // Fire immediately if already due (don't wait up to 30s)
+  if (isDueNow()) {
+    console.log('[Notif] ⏰ Already due on arm — firing notification now');
+    fireNotificationNow(getDailyVerse());
+  }
 
   _pollInterval = setInterval(() => {
     if (isDueNow()) {
