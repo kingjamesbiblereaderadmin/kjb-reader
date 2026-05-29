@@ -60,7 +60,6 @@ export default function CurrentlyReadingIndicator({
   book,
   pos,
   onClear,
-  onGoBack,
 }) {
   const isFilterMode = filterMode && selectedVerses.size > 0;
   const isRandom = lastReadingPos && lastReadingPos.fromRandom;
@@ -70,45 +69,37 @@ export default function CurrentlyReadingIndicator({
   const verseNum = pos.verse;
 
   let label = '';
+  let clearLabel = 'Clear';
+  
   if (isFilterMode) {
     label = `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`;
+    clearLabel = 'Show Full Chapter';
   } else if (isRandom) {
-    label = `Random chapter — ${book.shortName} ${pos.chapter}`;
+    label = `${book.shortName} ${pos.chapter}`;
+    clearLabel = 'Back';
   } else if (isDaily) {
-    label = `Daily verse — ${book.shortName} ${pos.chapter}:${verseNum || '1'}`;
+    label = `${book.shortName} ${pos.chapter}:${verseNum || '1'}`;
+    clearLabel = 'Back';
   } else if (verseNum) {
     label = `${book.shortName} ${pos.chapter}:${verseNum}`;
   }
 
   if (!label) return null;
 
-  const showGoBack = lastReadingPos && !isFilterMode && (isDaily || isRandom);
-
   return (
     <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-accent/10 border border-accent/20 min-w-[180px] max-w-[280px] flex-shrink-0">
       <div className="flex-1 min-w-0">
         <p className="font-serif text-xs font-semibold text-accent leading-snug break-words">
-          Currently reading: {label}
+          {label}
         </p>
       </div>
-      <div className="flex items-center gap-1">
-        {showGoBack && onGoBack && (
-          <button
-            onClick={onGoBack}
-            className="flex items-center gap-1 px-2 py-1 rounded bg-secondary text-secondary-foreground font-sans text-[10px] font-medium hover:bg-accent/20 transition-opacity whitespace-nowrap"
-            title="Go back to previous reading"
-          >
-            Back
-          </button>
-        )}
-        <button
-          onClick={onClear}
-          className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-accent text-accent-foreground font-sans text-[10px] font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
-          title={isFilterMode ? 'Show full chapter' : 'Clear highlight'}
-        >
-          <AlignLeft className="w-3 h-3" /> Clear
-        </button>
-      </div>
+      <button
+        onClick={onClear}
+        className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-accent text-accent-foreground font-sans text-[10px] font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
+        title={isFilterMode ? 'Show full chapter' : 'Clear highlight'}
+      >
+        <AlignLeft className="w-3 h-3" /> {clearLabel}
+      </button>
     </div>
   );
 }
