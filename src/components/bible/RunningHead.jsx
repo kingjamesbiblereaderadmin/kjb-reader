@@ -9,11 +9,12 @@ function HeadHalf({ text, align, baseFontRem }) {
   // Reset to full size whenever inputs change so we measure cleanly.
   useLayoutEffect(() => { setScale(1); }, [text, baseFontRem]);
 
+  // Shrink the font step-by-step until the single line fits its half.
   useLayoutEffect(() => {
     const el = ref.current;
-    if (!el || scale !== 1) return;
-    if (el.scrollWidth > el.clientWidth) {
-      setScale(Math.max(0.5, el.clientWidth / el.scrollWidth));
+    if (!el) return;
+    if (el.scrollWidth > el.clientWidth + 0.5 && scale > 0.35) {
+      setScale((s) => Math.max(0.35, s - 0.05));
     }
   }, [scale, text, baseFontRem]);
 
