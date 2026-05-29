@@ -4,6 +4,16 @@ import { BIBLE_BOOKS } from '@/lib/bibleData';
 
 const NT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'NT' || BIBLE_BOOKS.indexOf(b) >= 39).map(b => b.apiName));
 
+// Map reader font family values to actual CSS font families
+function getFontFamilyValue(family) {
+  if (family === 'cursive') return "'Dancing Script', cursive";
+  if (family === 'serif') return "'Merriweather', 'Cormorant Garamond', Georgia, serif";
+  if (family === 'sans-serif') return "'Inter', system-ui, -apple-system, sans-serif";
+  if (family === 'monospace') return "'Courier New', monospace";
+  if (family === 'dyslexic') return "'OpenDyslexic', 'Comic Sans MS', sans-serif";
+  return "'Merriweather', 'Cormorant Garamond', Georgia, serif";
+}
+
 // Render [bracketed] words as <em> italics, with optional search-term highlighting
 function renderWithItalics(text, searchTerm, caseSensitive) {
   const segments = [];
@@ -39,6 +49,22 @@ function renderWithItalics(text, searchTerm, caseSensitive) {
 }
 
 function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, selectMode, selected, onToggleSelect, onGoToVerse }) {
+  const [fontFamily, setFontFamily] = React.useState(() => {
+    try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
+  });
+  React.useEffect(() => {
+    const sync = () => {
+      try { setFontFamily(localStorage.getItem('kjb-reader-font-family') || 'serif'); } catch {}
+    };
+    window.addEventListener('storage', sync);
+    window.addEventListener('focus', sync);
+    return () => {
+      window.removeEventListener('storage', sync);
+      window.removeEventListener('focus', sync);
+    };
+  }, []);
+  const fontStyle = { fontFamily: getFontFamilyValue(fontFamily) };
+
   return (
     <div className="space-y-2">
       {results.map((r, i) => {
@@ -86,7 +112,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                   {BIBLE_BOOKS.find(b => b.apiName === r.book)?.shortName || r.book} {r.chapter}
                   {isColophon ? ' (Colophon)' : `:${r.verse}`}
                 </p>
-                <p className="font-serif text-base text-foreground leading-relaxed">
+                <p className="text-base text-foreground leading-relaxed" style={fontStyle}>
                   {isColophon ? (
                     <span className="italic text-muted-foreground">¶ {renderWithItalics(r.text, highlightTerm, highlightCaseSensitive)}</span>
                   ) : (
