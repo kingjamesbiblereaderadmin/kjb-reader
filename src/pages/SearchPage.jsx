@@ -69,13 +69,14 @@ export default function SearchPage() {
       }
       setHighlightTerm(searchTerm);
       
-      // Quoted phrases force ALL filters on: match case, whole word, exact match
-      const effectiveCaseSensitive = isQuotedPhrase ? true : caseSensitive;
+      // Quoted phrases force exact phrase + whole word on (NOT match case —
+      // case-sensitivity would exclude capitalized instances like "Blood" at
+      // verse starts, undercounting vs standard concordance figures).
+      const effectiveCaseSensitive = caseSensitive;
       const effectiveWholeWord = isQuotedPhrase ? true : wholeWord;
       const effectiveExactMatch = isQuotedPhrase ? true : exactMatch;
       setHighlightCaseSensitive(effectiveCaseSensitive);
       if (isQuotedPhrase) {
-        if (!caseSensitive) setCaseSensitive(true);
         if (!wholeWord) setWholeWord(true);
         if (!exactMatch) setExactMatch(true);
       }
