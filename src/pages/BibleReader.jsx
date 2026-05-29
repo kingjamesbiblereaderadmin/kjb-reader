@@ -1224,20 +1224,9 @@ export default function BibleReader() {
                 <span className="hidden lg:inline">{fullscreen ? 'Exit' : 'Screen'}</span>
               </button>
 
-              {/* Spacer to push items to the right */}
-              <div className="flex-1" />
-                  {/* Hide header */}
-              <button
-                onClick={(e) => { e.stopPropagation(); setHideHeader(!hideHeader); }}
-                onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setHideHeader(!hideHeader); }}
-                title={hideHeader ? "Show header" : "Hide header"}
-                className="flex items-center justify-center px-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap flex-shrink-0"
-              >
-                <ChevronDown className={`w-5 h-5 transition-transform duration-200 flex-shrink-0 ${hideHeader ? '' : 'rotate-180'}`} />
-              </button>
-              
-              {/* Currently reading indicator - on right side as badge */}
+              {/* Currently reading indicator - integrated into toolbar */}
               {(() => {
+                // Check localStorage directly for lastReadingPos in case state hasn't updated
                 let cachedLastReading = lastReadingPos;
                 try {
                   const stored = localStorage.getItem('kjb-last-reading');
@@ -1250,64 +1239,90 @@ export default function BibleReader() {
                   const stored = localStorage.getItem('kjb-last-reading');
                   if (stored) cachedLastReading = JSON.parse(stored);
                 } catch {}
-                const isDaily = cachedLastReading && cachedLastReading.fromDailyVerse;
-                const isRandom = cachedLastReading && cachedLastReading.fromRandom;
-                let label = '';
-                if (isDaily) {
-                  label = `Daily verse: ${book.shortName} ${cachedLastReading.verse || pos.verse}`;
-                } else if (isRandom) {
-                  label = `Random chapter: ${book.shortName} ${cachedLastReading.chapter}`;
-                } else if (searchTerm) {
-                  label = `Search: "${searchTerm}"`;
-                } else if (filterMode && selectedVerses.size > 0) {
-                  label = `Reading: ${book.shortName} ${pos.chapter}`;
-                } else {
-                  return null;
-                }
                 return (
-                  <div className="flex items-center gap-2 ml-auto">
-                    <div className="px-3 py-1.5 rounded-lg bg-yellow-500 text-black font-sans text-xs font-medium">
-                      {label}
-                    </div>
-                    <button
-                      onClick={() => {
-                        if (searchTerm) {
-                          setSearchTerm(null);
-                          setSearchResultIndex(0);
-                          setSearchTotalResults(0);
-                          setHighlightVerse(null);
-                          try {
-                            localStorage.removeItem('kjb-search-term');
-                            localStorage.removeItem('kjb-search-index');
-                            localStorage.removeItem('kjb-search-total');
-                            localStorage.removeItem('kjb-search-results');
-                          } catch {}
-                        } else if (filterMode && selectedVerses.size > 0) {
-                          setFilterMode(false);
-                          setSelectMode(false);
-                          setSelectedVerses(new Set());
-                          setHighlightVerse(null);
-                          setShowFilterOverlay(false);
-                          setLastReadingPos(null);
-                        } else if (cachedLastReading && cachedLastReading.abbr && cachedLastReading.chapter && !cachedLastReading.cleared) {
-                          navigate(cachedLastReading.abbr, cachedLastReading.chapter);
-                          setLastReadingPos(null);
-                          try { localStorage.removeItem('kjb-last-reading'); } catch {}
-                        } else {
-                          setHighlightVerse(null);
-                          setFilterMode(false);
-                          setSelectedVerses(new Set());
-                          setShowFilterOverlay(false);
-                          if (cachedLastReading) setLastReadingPos(prev => prev ? {...prev, cleared: true} : null);
+                <CurrentlyReadingIndicator
+                  highlightVerse={highlightVerse}
+                  filterMode={filterMode}
+                  selectedVerses={selectedVerses}
+                  lastReadingPos={cachedLastReading}
+                  book={book}
+                  pos={pos}
+                  searchTerm={searchTerm}
+                  currentResultIndex={searchResultIndex}
+                  totalResults={searchTotalResults}
+                  onPrevResult={() => {
+                    if (searchResultIndex > 0) {
+                      const prevIndex = searchResultIndex - 1;
+                      // Get the previous result from search results stored in localStorage
+                      try {
+                        const searchResults = JSON.parse(localStorage.getItem('kjb-search-results') || '[]');
+                        const prevResult = searchResults[prevIndex];
+                        if (prevResult) {
+                          setSearchResultIndex(prevIndex);
+                          localStorage.setItem('kjb-search-index', String(prevIndex));
+                          navigate(prevResult.abbr, prevResult.chapter, prevResult.verse, false, false, true);
                         }
-                      }}
-                      className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
-                    >
-                      Clear
-                    </button>
-                  </div>
-                );
-              })()}
+                      } catch {}
+                    }
+                  }}
+                  onNextResult={() => {
+                    if (searchResultIndex < searchTotalResults - 1) {
+                      const nextIndex = searchResultIndex + 1;
+                      // Get the next result from search results stored in localStorage
+                      try {
+                        const searchResults = JSON.parse(localStorage.getItem('kjb-search-results') || '[]');
+                        const nextResult = searchResults[nextIndex];
+                        if (nextResult) {
+                          setSearchResultIndex(nextIndex);
+                          localStorage.setItem('kjb-search-index', String(nextIndex));
+                          navigate(nextResult.abbr, nextResult.chapter, nextResult.verse, false, false, true);
+                        }
+                      } catch {}
+                    }
+                  }}
+                  onClear={() => {
+                    if (searchTerm) {
+                      setSearchTerm(null);
+                      setSearchResultIndex(0);
+                      setSearchTotalResults(0);
+                      setHighlightVerse(null);
+                      try {
+                        localStorage.removeItem('kjb-search-term');
+                        localStorage.removeItem('kjb-search-index');
+                        localStorage.removeItem('kjb-search-total');
+                        localStorage.removeItem('kjb-search-results');
+                      } catch {}
+                    } else if (filterMode && selectedVerses.size > 0) {
+                      setFilterMode(false);
+                      setSelectMode(false);
+                      setSelectedVerses(new Set());
+                      setHighlightVerse(null);
+                      setShowFilterOverlay(false);
+                      setLastReadingPos(null);
+                    } else if (lastReadingPos && lastReadingPos.abbr && lastReadingPos.chapter && !lastReadingPos.cleared) {
+                      navigate(lastReadingPos.abbr, lastReadingPos.chapter);
+                      setLastReadingPos(null);
+                      try { localStorage.removeItem('kjb-last-reading'); } catch {}
+                    } else {
+                      setHighlightVerse(null);
+                      setFilterMode(false);
+                      setSelectedVerses(new Set());
+                      setShowFilterOverlay(false);
+                      if (lastReadingPos) setLastReadingPos(prev => prev ? {...prev, cleared: true} : null);
+                    }
+                  }}
+                  />
+                  );
+                  })()}
+                  {/* Hide header */}
+              <button
+                onClick={(e) => { e.stopPropagation(); setHideHeader(!hideHeader); }}
+                onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setHideHeader(!hideHeader); }}
+                title={hideHeader ? "Show header" : "Hide header"}
+                className="flex items-center justify-center px-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap flex-shrink-0"
+              >
+                <ChevronDown className={`w-5 h-5 transition-transform duration-200 flex-shrink-0 ${hideHeader ? '' : 'rotate-180'}`} />
+              </button>
             </>
             )}
 
