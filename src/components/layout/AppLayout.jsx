@@ -58,6 +58,14 @@ export default function AppLayout() {
     setMenuOpen(false);
   }, [pathname]);
 
+  // Reset the main scroll container to the top on every route change.
+  // The reader (/read) manages its own scroll restoration, so skip it there.
+  useEffect(() => {
+    if (pathname === '/read') return;
+    const el = document.getElementById('kjb-scroll');
+    if (el) el.scrollTo({ top: 0 });
+  }, [pathname]);
+
   // Close hamburger menu on any outside tap/click (excluding the menu itself and the toggle button)
   useEffect(() => {
     if (!menuOpen) return;
