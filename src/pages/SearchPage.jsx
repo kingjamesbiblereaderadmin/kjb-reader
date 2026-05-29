@@ -611,20 +611,20 @@ export default function SearchPage() {
             <div className="mb-4">
               <div
                 onClick={() => goToVerse(showBookResult.abbr, 1, null)}
-                className="w-full text-left p-5 rounded-xl border border-primary/40 bg-primary/10 hover:bg-primary/15 transition-colors cursor-pointer flex items-center gap-4"
+                className="w-full text-left p-5 rounded-xl border border border-primary/40 bg-primary/10 hover:bg-primary/15 transition-colors cursor-pointer flex items-center gap-3 rounded-lg"
               >
-                <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                  <BookOpen className="w-6 h-6" />
+                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                  <BookOpen className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-serif text-lg font-bold text-foreground mb-0.5">
+                  <p className="font-serif text-base font-bold text-foreground mb-0.5">
                     Go to {showBookResult.bookName}
                   </p>
                   <p className="font-sans text-xs text-muted-foreground">
                     {showBookResult.chapters} chapter{showBookResult.chapters !== 1 ? 's' : ''} • {showBookResult.testament === 'OT' ? 'Old' : 'New'} Testament
                   </p>
                 </div>
-                <ChevronRight className="w-5 h-5 text-primary flex-shrink-0" />
+                <ChevronRight className="w-4 h-4 text-primary flex-shrink-0" />
               </div>
             </div>
           )}
