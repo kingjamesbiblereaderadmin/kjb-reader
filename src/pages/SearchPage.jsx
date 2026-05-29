@@ -139,10 +139,17 @@ export default function SearchPage() {
             const searchTextLower = searchText.toLowerCase();
             
             if (exactMatch) {
-              if (effectiveCaseSensitive) {
-                found = (searchText === searchTerm);
+              // Exact phrase match: the term must appear verbatim as a contiguous
+              // phrase (respecting Match case + Whole word toggles), NOT the whole
+              // verse equalling the term.
+              const hay = effectiveCaseSensitive ? searchText : searchTextLower;
+              const needle = effectiveCaseSensitive ? searchTerm : searchTermLower;
+              if (wholeWord) {
+                const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const re = new RegExp(`(^|[^A-Za-z'])${escaped}($|[^A-Za-z'])`, effectiveCaseSensitive ? '' : 'i');
+                found = re.test(searchText);
               } else {
-                found = (searchTextLower === searchTermLower);
+                found = hay.includes(needle);
               }
             } else if (effectiveCaseSensitive) {
               if (wholeWord) {
@@ -185,7 +192,15 @@ export default function SearchPage() {
             let colophonFound = false;
             
             if (exactMatch) {
-              colophonFound = effectiveCaseSensitive ? (colophonText === searchTerm) : (colophonLower === searchTermLower);
+              const hay = effectiveCaseSensitive ? colophonText : colophonLower;
+              const needle = effectiveCaseSensitive ? searchTerm : searchTermLower;
+              if (wholeWord) {
+                const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const re = new RegExp(`(^|[^A-Za-z'])${escaped}($|[^A-Za-z'])`, effectiveCaseSensitive ? '' : 'i');
+                colophonFound = re.test(colophonText);
+              } else {
+                colophonFound = hay.includes(needle);
+              }
             } else if (effectiveCaseSensitive) {
               if (wholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
