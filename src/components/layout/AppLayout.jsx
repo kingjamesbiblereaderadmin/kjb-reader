@@ -48,13 +48,12 @@ const BOTTOM_NAV_SECONDARY = [
 export default function AppLayout() {
   const { pathname } = useLocation();
   const { isDark, mode, toggleTheme } = useTheme();
-  const { hideHeader } = useHeaderHide();
+  const { hideHeader, chromeHidden, setChromeHidden } = useHeaderHide();
   const { reloadKey, softReload } = useSoftReload();
   const [menuOpen, setMenuOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   // Auto-hide header + bottom nav while actively scrolling; reappear when idle.
-  const [chromeHidden, setChromeHidden] = useState(false);
   useEffect(() => {
     const scroller = document.getElementById('kjb-scroll');
     const target = scroller || window;
