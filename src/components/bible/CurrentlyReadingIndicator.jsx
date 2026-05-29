@@ -78,7 +78,7 @@ export default function CurrentlyReadingIndicator({
   let clearLabel = 'Clear';
   
   if (searchTerm) {
-    prefix = 'Search';
+    prefix = `Search: "${searchTerm}"`;
     label = `${book.shortName} ${pos.chapter}:${verseNum || ''}`;
     clearLabel = 'Clear search';
   } else if (isFilterMode) {
