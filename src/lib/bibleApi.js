@@ -92,7 +92,7 @@ export function renderVerseText(text) {
   return result;
 }
 
-// Render colophon text: [bracketed] words become italic, rest is plain (no pilcrow prefix)
+// Render colophon text: pilcrow prefix, [bracketed] words become italic, rest is plain
 export function renderColophonText(text) {
   if (!text || typeof text !== 'string') return '';
   const normalized = text
@@ -104,5 +104,5 @@ export function renderColophonText(text) {
   const rendered = parts.map((part, i) =>
     i % 2 === 1 ? `<em>${part}</em>` : part
   ).join('');
-  return rendered;
+  return `<span class="pilcrow">¶</span> ${rendered}`;
 }

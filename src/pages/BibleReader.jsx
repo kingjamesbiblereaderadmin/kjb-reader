@@ -1347,7 +1347,7 @@ export default function BibleReader() {
                 marginLeft: 'auto',
                 marginRight: '0'
               }}
-              dangerouslySetInnerHTML={{ __html: `¶ ${renderColophonText(colophon)}` }}
+              dangerouslySetInnerHTML={{ __html: renderColophonText(colophon) }}
             />
           </div>
         )}
@@ -1359,7 +1359,7 @@ export default function BibleReader() {
                 fontStyle: 'normal',
                 fontSize: `${zoomLevel / 100}rem`
               }}
-              dangerouslySetInnerHTML={{ __html: `¶ ${renderColophonText(colophon)}` }}
+              dangerouslySetInnerHTML={{ __html: renderColophonText(colophon) }}
             />
           </div>
         )}
