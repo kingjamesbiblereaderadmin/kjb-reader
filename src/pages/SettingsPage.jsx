@@ -23,7 +23,6 @@ import { downloadBibleForOffline, clearBibleCache, isBibleCached } from '@/lib/b
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
 
 const A11Y_FONTS = [
-  { value: 'system', label: 'System Font', desc: "Follow your device's font setting", preview: 'system-ui, -apple-system, sans-serif' },
   { value: 'dyslexic', label: 'OpenDyslexic', desc: 'Designed for readers with dyslexia', preview: "'OpenDyslexic', 'Comic Sans MS', sans-serif" },
   { value: 'hyperlegible', label: 'Atkinson Hyperlegible', desc: 'High legibility for low vision', preview: "'Atkinson Hyperlegible', system-ui, sans-serif" },
 ];
@@ -482,22 +481,13 @@ export default function SettingsPage() {
             ))}
           </div>
           {a11yFont !== 'default' && (
-            <div className="flex gap-2">
-              <button
-                onClick={() => { setA11yFont('system'); setAccessibilityFont('system'); }}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                Reset to System
-              </button>
-              <button
-                onClick={() => { setA11yFont('default'); setAccessibilityFont('default'); }}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-destructive/10 text-destructive font-sans text-sm font-medium hover:bg-destructive/20 transition-colors"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                Disable
-              </button>
-            </div>
+            <button
+              onClick={() => { setA11yFont('default'); setAccessibilityFont('default'); }}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-destructive/10 text-destructive font-sans text-sm font-medium hover:bg-destructive/20 transition-colors"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Disable
+            </button>
           )}
         </div>
         )}
