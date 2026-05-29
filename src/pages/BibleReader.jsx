@@ -1179,19 +1179,16 @@ export default function BibleReader() {
                       setHighlightVerse(null);
                       setShowFilterOverlay(false);
                       setLastReadingPos(null);
+                    } else if (lastReadingPos && lastReadingPos.abbr && lastReadingPos.chapter) {
+                      navigate(lastReadingPos.abbr, lastReadingPos.chapter);
+                      setLastReadingPos(null);
+                      try { localStorage.removeItem('kjb-last-reading'); } catch {}
                     } else {
                       setHighlightVerse(null);
                       setFilterMode(false);
                       setSelectedVerses(new Set());
                       setShowFilterOverlay(false);
                       if (lastReadingPos) setLastReadingPos(prev => prev ? {...prev, cleared: true} : null);
-                    }
-                  }}
-                  onGoBack={() => {
-                    if (lastReadingPos && lastReadingPos.abbr && lastReadingPos.chapter) {
-                      navigate(lastReadingPos.abbr, lastReadingPos.chapter);
-                      setLastReadingPos(null);
-                      try { localStorage.removeItem('kjb-last-reading'); } catch {}
                     }
                   }}
                 />
