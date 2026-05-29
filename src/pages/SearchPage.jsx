@@ -633,8 +633,12 @@ export default function SearchPage() {
                 </button>
                 <button
                   onClick={() => {
+                    const q = getQueryFromUrl() || query;
                     setShowBookResult(null);
-                    runSearch(getQueryFromUrl() || query);
+                    setSearched(true);
+                    // Force re-run of search with the query
+                    window.history.replaceState({}, '', `/search?q=${encodeURIComponent(q)}`);
+                    runSearch(q);
                   }}
                   className="flex items-center gap-3 p-3 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-colors"
                 >
