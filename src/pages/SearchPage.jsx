@@ -618,7 +618,7 @@ export default function SearchPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-serif text-lg font-bold text-foreground mb-0.5">
-                    {showBookResult.bookName}
+                    Go to {showBookResult.bookName}
                   </p>
                   <p className="font-sans text-xs text-muted-foreground">
                     {showBookResult.chapters} chapter{showBookResult.chapters !== 1 ? 's' : ''} • {showBookResult.testament === 'OT' ? 'Old' : 'New'} Testament
