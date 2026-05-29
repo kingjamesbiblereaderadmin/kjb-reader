@@ -107,17 +107,51 @@ export default function SearchPage() {
       // Check if query is a numbered book (e.g., "1 john", "2 timothy") or contains one
       const numberedBookMatch = kwLower.match(/(\d+)\s+([a-z]+)/);
       
-      // Check if query matches a book name (e.g. "Joshua", "Jude", "Samuel", "Genesis")
-      // Show book suggestion for exact matches OR partial matches (like "Samuel" for 1&2 Samuel)
-      // This runs BEFORE the search, so both the suggestion AND results will show
-      const bookMatches = BIBLE_BOOKS.filter(b => 
-        b.shortName.toLowerCase() === kwLower ||
-        b.apiName.toLowerCase() === kwLower ||
-        b.abbr.toLowerCase() === kwLower ||
-        (kwLower.length >= 3 && b.shortName.toLowerCase().includes(kwLower))
-      );
+      // Check if query matches a book name (e.g. "Joshua", "Jude", "Samuel", "Genesis", "Kings")
+      // Also match alternate names like "Preacher" for Ecclesiastes, "Song of Solomon" for Song of Songs
+      const ALTERNATE_NAMES = {
+        preacher: 'ECC',
+        ecclesiastes: 'ECC',
+        song: 'SNG',
+        songofsongs: 'SNG',
+        canticles: 'SNG',
+        kings: '1KI', // Will show both 1&2 Kings
+        samuel: '1SA', // Will show both 1&2 Samuel
+        chronicles: '1CH', // Will show both 1&2 Chronicles
+      };
       
-      // Prioritize exact matches, fall back to partial matches
+      const alternateMatch = ALTERNATE_NAMES[kwLower];
+      let bookMatches = [];
+      
+      if (alternateMatch) {
+        // For alternate names, get the specific book or both books for Samuel/Kings/Chronicles
+        if (['1KI', '1SA', '1CH'].includes(alternateMatch)) {
+          const firstBook = BIBLE_BOOKS.find(b => b.abbr === alternateMatch);
+          const secondBookAbbr = alternateMatch === '1KI' ? '2KI' : alternateMatch === '1SA' ? '2SA' : '2CH';
+          const secondBook = BIBLE_BOOKS.find(b => b.abbr === secondBookAbbr);
+          bookMatches = [firstBook, secondBook].filter(Boolean);
+        } else {
+          bookMatches = [BIBLE_BOOKS.find(b => b.abbr === alternateMatch)].filter(Boolean);
+        }
+      } else {
+        // Standard matching
+        bookMatches = BIBLE_BOOKS.filter(b => 
+          b.shortName.toLowerCase() === kwLower ||
+          b.apiName.toLowerCase() === kwLower ||
+          b.abbr.toLowerCase() === kwLower ||
+          (kwLower.length >= 3 && b.shortName.toLowerCase().includes(kwLower))
+        );
+      }
+      
+      // For partial matches like "Samuel", "Kings", "Chronicles" - show all matching books
+      if (kwLower.length >= 3) {
+        const partialMatches = BIBLE_BOOKS.filter(b => b.shortName.toLowerCase().includes(kwLower));
+        if (partialMatches.length > 1) {
+          bookMatches = partialMatches;
+        }
+      }
+      
+      // Prioritize exact matches, fall back to first match
       const exactBookMatch = bookMatches.find(b => 
         b.shortName.toLowerCase() === kwLower ||
         b.apiName.toLowerCase() === kwLower ||
@@ -770,36 +804,65 @@ export default function SearchPage() {
           {showBookResult && (
             <div className="mb-4 p-4 rounded-xl bg-primary/5 border border-primary/20">
               <p className="font-sans text-xs text-muted-foreground mb-3">
-                Found the book of <span className="font-semibold text-foreground">{showBookResult.bookName}</span>. How would you like to search?
+                {['Kings', 'Samuel', 'Chronicles'].some(name => query.toLowerCase().includes(name.toLowerCase())) 
+                  ? `Found multiple books. Which one did you mean?`
+                  : `Found the book of ${showBookResult.bookName}. How would you like to search?`
+                }
               </p>
-              <div className="grid sm:grid-cols-2 gap-2">
-                <button
-                  onClick={() => {
-                    setShowBookResult(null);
-                    goToVerse(showBookResult.abbr, 1, null);
-                  }}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
-                >
-                  <BookOpen className="w-5 h-5 flex-shrink-0" />
-                  <div className="text-left">
-                    <p className="font-serif text-sm font-bold">Go to {showBookResult.bookName}</p>
-                    <p className="text-xs opacity-75">{showBookResult.chapters} {showBookResult.chapters === 1 ? 'chapter' : 'chapters'} • {showBookResult.testament === 'old' ? 'Old' : 'New'} Testament</p>
-                  </div>
-                </button>
-                <button
-                  onClick={() => {
-                    setShowBookResult(null);
-                    // Search is already running, just let it complete
-                  }}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-colors"
-                >
-                  <Search className="w-5 h-5 flex-shrink-0" />
-                  <div className="text-left">
-                    <p className="font-serif text-sm font-bold">Search "{stripQuotes(getQueryFromUrl() || query)}"</p>
-                    <p className="text-xs opacity-75">Find all mentions in verses</p>
-                  </div>
-                </button>
-              </div>
+              {/* Show multiple book options for Kings/Samuel/Chronicles */}
+              {['Kings', 'Samuel', 'Chronicles'].some(name => query.toLowerCase().includes(name.toLowerCase())) && (
+                <div className="grid sm:grid-cols-2 gap-2 mb-3">
+                  {BIBLE_BOOKS.filter(b => 
+                    b.shortName.toLowerCase().includes(query.toLowerCase())
+                  ).map(book => (
+                    <button
+                      key={book.abbr}
+                      onClick={() => {
+                        setShowBookResult(null);
+                        goToVerse(book.abbr, 1, null);
+                      }}
+                      className="flex items-center gap-3 p-3 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-colors"
+                    >
+                      <BookOpen className="w-5 h-5 flex-shrink-0" />
+                      <div className="text-left">
+                        <p className="font-serif text-sm font-bold">{book.shortName}</p>
+                        <p className="text-xs opacity-75">{book.chapters} {book.chapters === 1 ? 'chapter' : 'chapters'}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {/* Single book option or search button */}
+              {!['Kings', 'Samuel', 'Chronicles'].some(name => query.toLowerCase().includes(name.toLowerCase())) && (
+                <div className="grid sm:grid-cols-2 gap-2">
+                  <button
+                    onClick={() => {
+                      setShowBookResult(null);
+                      goToVerse(showBookResult.abbr, 1, null);
+                    }}
+                    className="flex items-center gap-3 p-3 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+                  >
+                    <BookOpen className="w-5 h-5 flex-shrink-0" />
+                    <div className="text-left">
+                      <p className="font-serif text-sm font-bold">Go to {showBookResult.bookName}</p>
+                      <p className="text-xs opacity-75">{showBookResult.chapters} {showBookResult.chapters === 1 ? 'chapter' : 'chapters'} • {showBookResult.testament === 'old' ? 'Old' : 'New'} Testament</p>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowBookResult(null);
+                      // Search is already running, just let it complete
+                    }}
+                    className="flex items-center gap-3 p-3 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-colors"
+                  >
+                    <Search className="w-5 h-5 flex-shrink-0" />
+                    <div className="text-left">
+                      <p className="font-serif text-sm font-bold">Search "{stripQuotes(getQueryFromUrl() || query)}"</p>
+                      <p className="text-xs opacity-75">Find all mentions in verses</p>
+                    </div>
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
