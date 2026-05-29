@@ -295,7 +295,7 @@ export default function SearchPage() {
       const ref = (r.isColophon || r.verse === 0)
         ? `${bookName} ${r.chapter} colophon`
         : `${bookName} ${r.chapter}:${r.verse}`;
-      return `"${text}" — ${ref} (KJB)`;
+      return `"${text}"\n— ${ref} (KJB)`;
     });
     return lines.join('\n\n');
   };
@@ -312,8 +312,9 @@ export default function SearchPage() {
     const q = getQueryFromUrl() || query;
     const header = `KJB Search Results — "${q}"\n${'='.repeat(50)}\n\n`;
     const body = formatVerses(indices);
-    const footer = `\n\n${'='.repeat(50)}\n${indices.size} verse${indices.size !== 1 ? 's' : ''} — King James Bible (PCE)`;
-    const blob = new Blob([header + body + footer], { type: 'text/plain;charset=utf-8' });
+    const footer = `\n\n${'='.repeat(50)}\n${indices.size} verse${indices.size !== 1 ? 's' : ''} — King James Bible`;
+    // Prepend a UTF-8 BOM so em-dashes/curly quotes render correctly in all text viewers
+    const blob = new Blob(['\uFEFF', header + body + footer], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
