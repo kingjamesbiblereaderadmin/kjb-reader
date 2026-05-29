@@ -6,8 +6,8 @@ import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
 import { parseReference } from '@/lib/parseReference';
 import SearchResultsList from '@/components/bible/SearchResultsList';
 
-const OT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'OT' || BIBLE_BOOKS.indexOf(b) < 39).map(b => b.apiName));
-const NT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'NT' || BIBLE_BOOKS.indexOf(b) >= 39).map(b => b.apiName));
+const OT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'old').map(b => b.apiName));
+const NT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'new').map(b => b.apiName));
 
 // Strip surrounding quotes from a display query (for "results for" labels)
 function stripQuotes(s) {
@@ -143,8 +143,8 @@ export default function SearchPage() {
 
       for (const bookName in bible) {
         if (bookName === '__colophons') continue;
-        if (testament === 'ot' && !OT_BOOKS.has(bookName)) continue;
-        if (testament === 'nt' && !NT_BOOKS.has(bookName)) continue;
+        if (testament === 'old' && !OT_BOOKS.has(bookName)) continue;
+        if (testament === 'new' && !NT_BOOKS.has(bookName)) continue;
         
         if (selectedBooks.size > 0) {
           const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
