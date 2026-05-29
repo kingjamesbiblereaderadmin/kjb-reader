@@ -299,6 +299,8 @@ export default function SearchPage() {
   };
 
   const goToVerse = useCallback((abbr, chapter, verse, verseEnd) => {
+    // Clear last reading position when navigating from search (not daily/random)
+    try { localStorage.removeItem('kjb-last-reading'); } catch {}
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null, verseEnd: verseEnd || null })); } catch {}
     window.scrollTo({ top: 0 });
     // Navigate with URL params so the reader reliably scrolls to + highlights the verse.
