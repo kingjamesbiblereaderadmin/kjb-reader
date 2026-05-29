@@ -97,6 +97,7 @@ export default function ContentsPage() {
   }, [selectedBook, selectedChapter]);
 
   return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
     <div className="w-full max-w-[90rem] mx-auto px-4 sm:px-8 lg:px-16 py-10">
       {/* Header */}
       <div className="text-center mb-8">
@@ -185,6 +186,7 @@ export default function ContentsPage() {
       <p className="text-center font-sans text-xs text-muted-foreground">
         Tap "Select a Book" to choose a book, chapter, and verse
       </p>
+    </div>
     </div>
   );
 }
