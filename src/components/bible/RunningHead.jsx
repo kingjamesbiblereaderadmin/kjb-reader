@@ -1,37 +1,47 @@
 import React, { useRef, useState, useLayoutEffect } from 'react';
 
-// Renders the two-column split underline with the book name aligned to the
-// left edge and "Chapter N" to the right edge. The text font auto-shrinks so
-// both fit on a single line within the available width.
-export default function RunningHead({ bookName, chapter, baseFontRem, isCursive }) {
-  const rowRef = useRef(null);
+// One half of the running head: a label aligned to the inner edge of a split
+// line. The text auto-shrinks so it fits on a single line within its column.
+function HeadHalf({ text, align, baseFontRem }) {
+  const ref = useRef(null);
   const [scale, setScale] = useState(1);
 
-  useLayoutEffect(() => {
-    setScale(1); // reset before measuring at full size
-  }, [bookName, chapter, baseFontRem]);
+  // Reset to full size whenever inputs change so we measure cleanly.
+  useLayoutEffect(() => { setScale(1); }, [text, baseFontRem]);
 
   useLayoutEffect(() => {
-    const el = rowRef.current;
+    const el = ref.current;
     if (!el || scale !== 1) return;
-    // If content overflows the row, compute a scale factor to fit on one line
     if (el.scrollWidth > el.clientWidth) {
-      const next = Math.max(0.5, el.clientWidth / el.scrollWidth);
-      setScale(next);
+      setScale(Math.max(0.5, el.clientWidth / el.scrollWidth));
     }
-  }, [scale, bookName, chapter, baseFontRem]);
+  }, [scale, text, baseFontRem]);
 
-  const fontSize = `${baseFontRem * scale}rem`;
+  return (
+    <div className={`flex-1 overflow-hidden ${align === 'right' ? 'text-right' : 'text-left'}`}>
+      <span
+        ref={ref}
+        className="inline-block max-w-full whitespace-nowrap font-semibold tracking-wide text-foreground"
+        style={{ fontSize: `${baseFontRem * scale}rem`, fontStyle: 'normal' }}
+      >
+        {text}
+      </span>
+    </div>
+  );
+}
 
+// Renders the two-column split underline with the book name aligned to the
+// left split-line edge and "Chapter N" aligned to the right split-line edge.
+export default function RunningHead({ bookName, chapter, baseFontRem, isCursive }) {
   return (
     <div className={`mb-6 ${isCursive ? 'cursive-em-style' : 'font-serif'}`}>
       <div className="flex items-stretch gap-6">
         <div className="flex-1 border-b border-border" />
         <div className="flex-1 border-b border-border" />
       </div>
-      <div ref={rowRef} className="pt-1.5 flex items-baseline justify-between gap-4 whitespace-nowrap overflow-hidden">
-        <span className="font-semibold tracking-wide text-foreground" style={{ fontSize, fontStyle: 'normal' }}>{bookName}</span>
-        <span className="font-semibold tracking-wide text-foreground" style={{ fontSize, fontStyle: 'normal' }}>Chapter {chapter}</span>
+      <div className="pt-1.5 flex items-baseline gap-6">
+        <HeadHalf text={bookName} align="left" baseFontRem={baseFontRem} />
+        <HeadHalf text={`Chapter ${chapter}`} align="right" baseFontRem={baseFontRem} />
       </div>
     </div>
   );
