@@ -53,16 +53,22 @@ function countWord(verses, word) {
   const needle = word.toLowerCase();
   let substringVerses = 0;   // verses containing the word as a substring (default search)
   let wholeWordVerses = 0;   // verses containing the word as a whole word
+  let substringTotal = 0;    // total substring occurrences (multiple per verse)
+  let wholeWordTotal = 0;    // total whole-word occurrences (multiple per verse)
   const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const wordRe = new RegExp(`(^|[^a-z'])${escaped}($|[^a-z'])`, 'i');
+  const subReGlobal = new RegExp(escaped, 'gi');
+  const wordReGlobal = new RegExp(`(?<![a-z'])${escaped}(?![a-z'])`, 'gi');
 
   for (const v of verses) {
     const searchText = v.text.replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '').replace(/[[\]]/g, '');
     const lower = searchText.toLowerCase();
     if (lower.includes(needle)) substringVerses++;
     if (wordRe.test(searchText)) wholeWordVerses++;
+    substringTotal += (lower.match(subReGlobal) || []).length;
+    wholeWordTotal += (lower.match(wordReGlobal) || []).length;
   }
-  return { substringVerses, wholeWordVerses };
+  return { substringVerses, wholeWordVerses, substringTotal, wholeWordTotal };
 }
 
 Deno.serve(async (req) => {
@@ -84,14 +90,18 @@ Deno.serve(async (req) => {
     return Response.json({
       totalVersesParsed: verses.length,
       blood: {
-        defaultSearch_substring: blood.substringVerses,
-        wholeWord: blood.wholeWordVerses,
+        verses_substring: blood.substringVerses,
+        verses_wholeWord: blood.wholeWordVerses,
+        totalOccurrences_substring: blood.substringTotal,
+        totalOccurrences_wholeWord: blood.wholeWordTotal,
       },
       sin: {
-        defaultSearch_substring: sin.substringVerses,
-        wholeWord: sin.wholeWordVerses,
+        verses_substring: sin.substringVerses,
+        verses_wholeWord: sin.wholeWordVerses,
+        totalOccurrences_substring: sin.substringTotal,
+        totalOccurrences_wholeWord: sin.wholeWordTotal,
       },
-      note: 'Counts are VERSE counts (a verse with the word twice counts once). substring = app default search; wholeWord = "Whole word" filter. Colophons are NOT included here.',
+      note: 'verses_* = verse counts (a verse with the word twice counts once). totalOccurrences_* = total hits including multiple per verse. Colophons NOT included.',
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
