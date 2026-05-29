@@ -19,10 +19,10 @@ function HeadHalf({ text, align, baseFontRem }) {
   }, [scale, text, baseFontRem]);
 
   return (
-    <div className={`flex-1 overflow-hidden ${align === 'right' ? 'text-right' : 'text-left'}`}>
+    <div className={`flex-1 min-w-0 ${align === 'right' ? 'text-right' : 'text-left'}`}>
       <span
         ref={ref}
-        className="inline-block max-w-full whitespace-nowrap font-semibold tracking-wide text-foreground"
+        className="inline-block max-w-full whitespace-nowrap overflow-visible font-semibold tracking-wide text-foreground"
         style={{ fontSize: `${baseFontRem * scale}rem`, fontStyle: 'normal' }}
       >
         {text}
