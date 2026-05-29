@@ -1187,6 +1187,13 @@ export default function BibleReader() {
                       if (lastReadingPos) setLastReadingPos(prev => prev ? {...prev, cleared: true} : null);
                     }
                   }}
+                  onGoBack={() => {
+                    if (lastReadingPos && lastReadingPos.abbr && lastReadingPos.chapter) {
+                      navigate(lastReadingPos.abbr, lastReadingPos.chapter);
+                      setLastReadingPos(null);
+                      try { localStorage.removeItem('kjb-last-reading'); } catch {}
+                    }
+                  }}
                 />
               )}
               {/* Hide header */}
