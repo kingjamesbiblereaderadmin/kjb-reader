@@ -1259,7 +1259,7 @@ export default function BibleReader() {
         {/* Print-style running head — book name left, chapter right (column mode, non-title pages) */}
         {!loading && !error && verses.length > 0 && columnMode && !isViewingTitlePage && (
           <div className={`flex items-baseline justify-between border-b border-border pb-1.5 mb-3 ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}>
-            <span className="font-semibold tracking-wide text-foreground" style={{ fontSize: `${zoomLevel / 100 * 0.8}rem`, fontStyle: 'normal' }}>{book.name}</span>
+            <span className="font-semibold tracking-wide text-foreground" style={{ fontSize: `${zoomLevel / 100 * 0.8}rem`, fontStyle: 'normal' }}>{book.shortName}</span>
             <span className="font-semibold tracking-wide text-foreground" style={{ fontSize: `${zoomLevel / 100 * 0.8}rem`, fontStyle: 'normal' }}>{pos.chapter}</span>
           </div>
         )}
