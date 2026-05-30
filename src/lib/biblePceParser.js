@@ -158,6 +158,32 @@ export function parsePceText(text) {
     }
   }
 
+  // Post-process: for every Psalm chapter that has a known subscript,
+  // check if verse 1 text IS the subscript text (i.e. the parser captured the
+  // superscription as the unnumbered "verse 1"). If so, remove it and shift all
+  // subsequent verse numbers down by 1 so the real text starts at verse 1.
+  if (data['Psalms']) {
+    for (const [key, subscript] of Object.entries(SUBSCRIPTS)) {
+      if (!key.startsWith('Psalms:')) continue;
+      const ch = parseInt(key.split(':')[1], 10);
+      const verses = data['Psalms'][ch];
+      if (!verses || verses.length === 0) continue;
+      const v1 = verses[0];
+      if (v1.verse !== 1) continue;
+      const subscriptPlain = subscript.replace(/\[([^\]]+)\]/g, '$1');
+      const v1Plain = v1.text.replace(/^¶\s*/, '').trim();
+      // Check if verse 1 is substantially the subscript (allow minor variance)
+      const sub = subscriptPlain.toLowerCase().trim();
+      const v1l = v1Plain.toLowerCase().trim();
+      if (v1l === sub || v1l.startsWith(sub)) {
+        // Verse 1 is entirely (or starts with) the subscript — drop it and renumber
+        verses.shift();
+        for (const v of verses) { v.verse -= 1; }
+        console.log(`[PCE-PARSE] Stripped subscript-as-verse-1 from Psalms ${ch}, renumbered ${verses.length} verses`);
+      }
+    }
+  }
+
   data.__colophons = { ...COLOPHONS };
   const bookCount = Object.keys(data).filter((k) => k !== '__colophons').length;
   console.log('[PCE-PARSE] ✓', verseCount, 'verses across', bookCount, 'books');
