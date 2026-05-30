@@ -208,18 +208,11 @@
     color: #e5e5e5 !important;
   }
   
-  /* Italic words ([bracketed]) in cursive mode - italic, slightly faded, no layout shift */
+  /* Italic words ([bracketed]) in cursive mode - use Great Vibes (thinner/lighter cursive) */
   .cursive-em-style em {
-    display: inline !important;
-    font-style: italic !important;
-    font-weight: inherit !important;
-    font-size: inherit !important;
-    line-height: inherit !important;
-    color: rgba(26, 26, 26, 0.6) !important;
-    vertical-align: baseline !important;
-  }
-  .dark .cursive-em-style em {
-    color: rgba(255, 255, 255, 0.55) !important;
+    font-family: 'Great Vibes', cursive !important;
+    font-style: normal !important;
+    font-weight: 400 !important;
   }
 
   /* Colophon and subscript italics in cursive mode */
