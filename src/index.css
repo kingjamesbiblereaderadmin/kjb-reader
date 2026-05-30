@@ -208,11 +208,15 @@
     color: #e5e5e5 !important;
   }
   
-  /* Italic words ([bracketed]) in cursive mode - bold italic, darker */
+  /* Italic words ([bracketed]) in cursive mode - bold italic, darker.
+     Dancing Script is a connecting cursive font, so add small side spacing so
+     italic words don't visually merge with adjacent words. */
   .cursive-em-style em {
     font-style: italic !important;
     font-weight: 900 !important;
     color: #1a1a1a !important;
+    margin-left: 0.15em;
+    margin-right: 0.15em;
   }
   .dark .cursive-em-style em {
     color: #ffffff !important;
