@@ -1265,10 +1265,10 @@ export default function BibleReader() {
                         const r = searchResults[prevIndex];
                         localStorage.setItem('kjb-search-index', String(prevIndex));
                         setSearchResultIndex(prevIndex);
-                        setSearchTotalResults(searchResults.length);
-                        // Update URL so the routerLocation effect reliably handles navigation
-                        const url = r.verse ? `/read?book=${r.abbr}&chapter=${r.chapter}&verse=${r.verse}` : `/read?book=${r.abbr}&chapter=${r.chapter}`;
-                        routerNavigate(url, { replace: true });
+                        // Navigate directly without going through URL/effect
+                        setPos({ abbr: r.abbr, chapter: r.chapter, verse: r.verse || null });
+                        setHighlightVerse(r.verse || null);
+                        loadChapter(r.abbr, r.chapter, r.verse || null);
                       }
                     } catch {}
                   }}
@@ -1281,10 +1281,10 @@ export default function BibleReader() {
                         const r = searchResults[nextIndex];
                         localStorage.setItem('kjb-search-index', String(nextIndex));
                         setSearchResultIndex(nextIndex);
-                        setSearchTotalResults(searchResults.length);
-                        // Update URL so the routerLocation effect reliably handles navigation
-                        const url = r.verse ? `/read?book=${r.abbr}&chapter=${r.chapter}&verse=${r.verse}` : `/read?book=${r.abbr}&chapter=${r.chapter}`;
-                        routerNavigate(url, { replace: true });
+                        // Navigate directly without going through URL/effect
+                        setPos({ abbr: r.abbr, chapter: r.chapter, verse: r.verse || null });
+                        setHighlightVerse(r.verse || null);
+                        loadChapter(r.abbr, r.chapter, r.verse || null);
                       }
                     } catch {}
                   }}
