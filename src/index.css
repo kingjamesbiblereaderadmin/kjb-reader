@@ -143,13 +143,15 @@
     column-fill: balance;
   }
   /* Slightly smaller text + tighter spacing so two columns fit nicely on phones.
-     word-spacing: normal fixes the large gaps that text-justify causes in CSS columns */
+     Disable hyphenation and justification to prevent gaps in text flow */
   .kjb-two-col {
     font-size: 0.92em;
     word-spacing: normal;
-    text-align: justify;
-    -webkit-hyphens: auto;
-    hyphens: auto;
+    text-align: left;
+    -webkit-hyphens: none;
+    hyphens: none;
+    -webkit-hyphenate-limit-chars: 6 3 3;
+    hyphenate-limit-chars: 6 3 3;
   }
   /* Keep each verse intact within a single column when possible */
   .kjb-two-col > span {
