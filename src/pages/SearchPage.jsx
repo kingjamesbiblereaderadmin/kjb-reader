@@ -6,6 +6,8 @@ import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
 import { parseReference } from '@/lib/parseReference';
 import SearchResultsList from '@/components/bible/SearchResultsList';
 import { setSearchNav } from '@/lib/searchNav';
+import ExportMenu from '@/components/bible/ExportMenu';
+import { exportVerses } from '@/lib/exportVerses';
 
 const OT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'old').map(b => b.apiName));
 const NT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'new').map(b => b.apiName));
@@ -467,20 +469,21 @@ export default function SearchPage() {
     setTimeout(() => setCopyFeedback(false), 1800);
   };
 
-  const handleExport = () => {
-    const indices = selected.size > 0 ? selected : new Set(results.map((_, i) => i));
+  // Build export items (raw text with brackets + reference) for the chosen format.
+  const handleExport = (format) => {
+    const indices = selected.size > 0 ? [...selected] : results.map((_, i) => i);
+    const sorted = [...indices].sort((a, b) => a - b);
     const q = getQueryFromUrl() || query;
-    const header = `KJB Search Results — "${q}"\n${'='.repeat(50)}\n\n`;
-    const body = formatVerses(indices);
-    const footer = `\n\n${'='.repeat(50)}\n${indices.size} verse${indices.size !== 1 ? 's' : ''} — King James Bible`;
-    // Prepend a UTF-8 BOM so em-dashes/curly quotes render correctly in all text viewers
-    const blob = new Blob(['\uFEFF', header + body + footer], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `kjb-search-${q.replace(/\s+/g, '-').slice(0, 30)}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const items = sorted.map(i => {
+      const r = results[i];
+      const bookEntry = BIBLE_BOOKS.find(b => b.apiName === r.book);
+      const bookName = bookEntry ? bookEntry.shortName : r.book;
+      const ref = (r.isColophon || r.verse === 0)
+        ? `${bookName} ${r.chapter} colophon`
+        : `${bookName} ${r.chapter}:${r.verse}`;
+      return { text: r.text, ref };
+    });
+    exportVerses(format, items, q);
   };
 
   const handleShare = async () => {
@@ -974,12 +977,7 @@ export default function SearchPage() {
                   >
                     <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy All'}
                   </button>
-                  <button
-                    onClick={handleExport}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
-                  >
-                    <Download className="w-3.5 h-3.5" /> Export
-                  </button>
+                  <ExportMenu onExport={handleExport} label="Export" />
                   <button
                     onClick={handleShare}
                     className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
@@ -1003,12 +1001,7 @@ export default function SearchPage() {
                       >
                         <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : `Copy (${selected.size})`}
                       </button>
-                      <button
-                        onClick={handleExport}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
-                      >
-                        <Download className="w-3.5 h-3.5" /> Export ({selected.size})
-                      </button>
+                      <ExportMenu onExport={handleExport} count={selected.size} label="Export" />
                       <button
                         onClick={handleShare}
                         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
