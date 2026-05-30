@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Heart, AlertCircle, CheckCircle, XCircle, Copy, Check, Share2, Download } from 'lucide-react';
+import { Heart, AlertCircle, CheckCircle, XCircle, Copy, Check, Share2, Download, FileText, FileType } from 'lucide-react';
+import { jsPDF } from 'jspdf';
 import { useNavigate } from 'react-router-dom';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { setGospelNav } from '@/lib/searchNav';
@@ -156,17 +157,43 @@ function GospelActions() {
     } catch {}
   };
 
-  const handleDownload = () => {
-    const text = buildGospelText();
-    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const downloadBlob = (blob, filename) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'the-gospel.txt';
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadTxt = () => {
+    downloadBlob(new Blob([buildGospelText()], { type: 'text/plain;charset=utf-8' }), 'the-gospel.txt');
+  };
+
+  const handleDownloadPdf = () => {
+    const text = buildGospelText();
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    const margin = 48;
+    const maxWidth = doc.internal.pageSize.getWidth() - margin * 2;
+    const pageHeight = doc.internal.pageSize.getHeight();
+    doc.setFont('times', 'normal');
+    doc.setFontSize(11);
+    const lines = doc.splitTextToSize(text, maxWidth);
+    let y = margin;
+    lines.forEach((line) => {
+      if (y > pageHeight - margin) { doc.addPage(); y = margin; }
+      doc.text(line, margin, y);
+      y += 16;
+    });
+    doc.save('the-gospel.pdf');
+  };
+
+  const handleDownloadWord = () => {
+    const text = buildGospelText();
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:Georgia,serif;font-size:12pt;white-space:pre-wrap;">${text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</body></html>`;
+    downloadBlob(new Blob([html], { type: 'application/msword' }), 'the-gospel.doc');
   };
 
   return (
@@ -186,11 +213,25 @@ function GospelActions() {
         {shared ? 'Copied!' : 'Share'}
       </button>
       <button
-        onClick={handleDownload}
+        onClick={handleDownloadTxt}
         className="inline-flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-accent/20 text-foreground rounded-lg font-sans text-sm font-medium transition-colors"
       >
         <Download className="w-4 h-4" />
-        Download
+        Text
+      </button>
+      <button
+        onClick={handleDownloadPdf}
+        className="inline-flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-accent/20 text-foreground rounded-lg font-sans text-sm font-medium transition-colors"
+      >
+        <FileText className="w-4 h-4" />
+        PDF
+      </button>
+      <button
+        onClick={handleDownloadWord}
+        className="inline-flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-accent/20 text-foreground rounded-lg font-sans text-sm font-medium transition-colors"
+      >
+        <FileType className="w-4 h-4" />
+        Word
       </button>
     </div>
   );
