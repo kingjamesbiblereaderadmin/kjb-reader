@@ -973,7 +973,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       />
       
       {showVersePanel ? (
-        <div className="bg-white/25 backdrop-blur-sm rounded-xl px-6 py-4 mb-5 shadow-none text-center">
+        <div className="bg-white/25 backdrop-blur-sm rounded-xl px-6 py-4 shadow-none text-center">
           <p 
             className={`font-sans text-sm font-bold tracking-wide uppercase mb-3 ${accentClass}`}
             style={{ opacity: textOpacity, color: textColor, fontFamily: resolvedFont }}
@@ -1007,7 +1007,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           </p>
         </div>
       ) : (
-        <div className="px-6 py-4 mb-5 text-center">
+        <div className="px-6 py-4 text-center">
           <blockquote 
             className="text-center text-2xl md:text-3xl leading-relaxed [&_em]:italic break-words"
             style={{ 
@@ -1035,11 +1035,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           </p>
         </div>
       )}
-      <div 
-        className={`w-12 h-1 mx-auto ${accentClass}`}
-        style={{ opacity: 0.75 * textOpacity, backgroundColor: textColor }}
-      />
-      
       {/* Crop Modal - positioned near verse card */}
       {cropImage && (
         <ImageCropper
