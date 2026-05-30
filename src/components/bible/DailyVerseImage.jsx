@@ -393,8 +393,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {/* Date display */}
-      <div className="absolute bottom-3 left-3 bg-black/30 backdrop-blur-sm rounded-full" style={{ paddingLeft: '14px', paddingRight: '14px', paddingTop: '7px', paddingBottom: '7px' }}>
-        <span className="font-medium whitespace-nowrap" style={{ color: '#ffffff', fontFamily: "'Inter', system-ui, sans-serif", fontSize: '12px', lineHeight: '1', display: 'block' }}>
+      <div className="absolute bottom-3 left-3 bg-black/30 backdrop-blur-sm rounded-full flex items-center justify-center" style={{ paddingLeft: '14px', paddingRight: '14px', height: '26px' }}>
+        <span className="font-medium whitespace-nowrap" style={{ color: '#ffffff', fontFamily: "'Inter', system-ui, sans-serif", fontSize: '12px', lineHeight: '26px' }}>
           {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
         </span>
       </div>
