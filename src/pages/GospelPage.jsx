@@ -51,8 +51,8 @@ Trust he is God, died, shed his blood, buried and rose again on the 3rd day for 
 ${link('Rom', 3, 20)}
 
 “The wicked shall be turned into hell, and all the nations that forget God.”
-— Psalm 9:17
-${link('Psa', 9, 17)}
+— Psalm 9:16
+${link('Psa', 9, 16)}
 
 ━━━━━━━━━━━━━━━━━━━━
 
@@ -122,7 +122,7 @@ function CopyGospelButton() {
 // Full verse texts
 const VERSE_TEXTS = {
   'Rom3:20': '"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin." — Romans 3:20',
-  'Psa9:17': '"The wicked shall be turned into hell, and all the nations that forget God." — Psalm 9:17',
+  'Psa9:16': '"The wicked shall be turned into hell, and all the nations that forget God." — Psalm 9:16',
   '1Tim3:16': '"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory." — 1 Timothy 3:16',
 };
 
@@ -157,11 +157,11 @@ export default function GospelPage() {
               {VERSE_TEXTS['Rom3:20']}
             </blockquote>
             <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
-              {VERSE_TEXTS['Psa9:17']}
+              {VERSE_TEXTS['Psa9:16']}
             </blockquote>
             <div className="flex flex-wrap gap-2">
               <VerseLink book="Romans" chapter={3} verse={20}>Romans 3:20</VerseLink>
-              <VerseLink book="Psalms" chapter={9} verse={17}>Psalm 9:17</VerseLink>
+              <VerseLink book="Psalms" chapter={9} verse={16}>Psalm 9:16</VerseLink>
             </div>
           </div>
         </div>
