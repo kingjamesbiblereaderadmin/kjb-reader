@@ -143,6 +143,8 @@ export default function BibleReader() {
   const [searchTerm, setSearchTerm] = useState(() => getSearchNav().term || null);
   const [searchResultIndex, setSearchResultIndex] = useState(() => getSearchNav().index);
   const [searchTotalResults, setSearchTotalResults] = useState(() => getSearchNav().results.length);
+  // Ref to prevent focus events from restoring a search we intentionally cleared
+  const searchClearedRef = useRef(false);
 
   const handleFontChange = (font) => {
     setFontFamily(font);
@@ -599,13 +601,14 @@ export default function BibleReader() {
   }, []);
 
   // Refresh search navigation context when returning from another page (e.g. SearchPage)
-  // Only sync from storage when the term actually changed (i.e. user did a new search)
   useEffect(() => {
     const refreshContext = () => {
       try {
         const { term, index, results } = getSearchNav();
-        // Only restore search state if there's an active term in storage —
-        // do NOT overwrite if we've already cleared it in this session.
+        // If user intentionally cleared search, don't restore it on focus
+        if (searchClearedRef.current && !term) return;
+        // If there's a new term in storage (user did a fresh search), reset the cleared flag
+        if (term) searchClearedRef.current = false;
         setSearchTerm(term || null);
         setSearchResultIndex(index);
         setSearchTotalResults(results.length);
@@ -613,11 +616,7 @@ export default function BibleReader() {
         setLastReadingPos(lastReading ? JSON.parse(lastReading) : null);
       } catch {}
     };
-    // Only re-sync when the window regains focus (coming back from SearchPage tab/page)
     window.addEventListener('focus', refreshContext);
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) refreshContext();
-    });
     return () => {
       window.removeEventListener('focus', refreshContext);
     };
@@ -645,6 +644,7 @@ export default function BibleReader() {
     }
     // Clear search context on any manual navigation (not search result navigation)
     if (!isSearchResult && searchTerm) {
+      searchClearedRef.current = true;
       clearSearchNav();
       setSearchTerm(null);
       setSearchResultIndex(0);
@@ -672,6 +672,7 @@ export default function BibleReader() {
   };
 
   const clearSearchContext = () => {
+    searchClearedRef.current = true;
     clearSearchNav();
     setSearchTerm(null);
     setSearchResultIndex(0);
