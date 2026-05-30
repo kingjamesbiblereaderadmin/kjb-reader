@@ -417,12 +417,21 @@ export default function SearchPage() {
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null, verseEnd: verseEnd || null })); } catch {}
     // Clear last reading position (from daily verse/random) when navigating from search
     try { localStorage.removeItem('kjb-last-reading'); } catch {}
-    // Store search results and index for navigation
+    // Store search results and index for navigation.
+    // Cap at 500 results to avoid localStorage quota errors (results can be thousands of entries).
     try {
+      const compact = results.slice(0, 500).map(r => ({ abbr: r.abbr, chapter: r.chapter, verse: r.verse }));
       localStorage.setItem('kjb-search-index', String(resultIndex !== null ? resultIndex : 0));
       localStorage.setItem('kjb-search-total', String(results.length));
-      localStorage.setItem('kjb-search-results', JSON.stringify(results.map(r => ({ abbr: r.abbr, chapter: r.chapter, verse: r.verse }))));
-    } catch {}
+      localStorage.setItem('kjb-search-results', JSON.stringify(compact));
+    } catch {
+      // If still too large, store without results so at least index/total are saved
+      try {
+        localStorage.setItem('kjb-search-index', String(resultIndex !== null ? resultIndex : 0));
+        localStorage.setItem('kjb-search-total', String(results.length));
+        localStorage.removeItem('kjb-search-results');
+      } catch {}
+    }
     window.scrollTo({ top: 0 });
     // Navigate with URL params so the reader reliably scrolls to + highlights the verse.
     const url = verse ? `/read?book=${abbr}&chapter=${chapter}&verse=${verse}` : `/read?book=${abbr}&chapter=${chapter}`;
