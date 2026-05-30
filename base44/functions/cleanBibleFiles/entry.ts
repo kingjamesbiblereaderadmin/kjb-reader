@@ -34,23 +34,9 @@ function stripInlineColophon(text) {
     .trim();
 }
 
-async function uploadCleanFile(blob, filename) {
-  const uploadForm = new FormData();
-  uploadForm.append('file', blob, filename);
-  
-  const uploadRes = await fetch('https://media.base44.com/api/upload', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${Deno.env.get('BASE44_SERVICE_TOKEN')}`
-    },
-    body: uploadForm
-  });
-  
-  if (!uploadRes.ok) {
-    throw new Error(`Upload failed: ${uploadRes.status}`);
-  }
-  
-  return await uploadRes.json();
+async function uploadCleanFile(base44, blob, filename) {
+  const file = new File([blob], filename, { type: blob.type });
+  return await base44.asServiceRole.integrations.Core.UploadFile({ file });
 }
 
 Deno.serve(async (req) => {
@@ -59,6 +45,9 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (user.role !== 'admin') {
+      return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
     console.log('[cleanBibleFiles] Fetching both files...');
@@ -121,8 +110,8 @@ Deno.serve(async (req) => {
     const rtfBlob = new Blob([cleanRtfText], { type: 'text/plain;charset=windows-1252' });
     
     const [abbrevUpload, rtfUpload] = await Promise.all([
-      uploadCleanFile(abbrevBlob, 'TEXT-PCE-127-CLEAN.txt'),
-      uploadCleanFile(rtfBlob, 'KJB-PCE-RTF-CLEAN.txt')
+      uploadCleanFile(base44, abbrevBlob, 'TEXT-PCE-127-CLEAN.txt'),
+      uploadCleanFile(base44, rtfBlob, 'KJB-PCE-RTF-CLEAN.txt')
     ]);
 
     console.log('[cleanBibleFiles] Upload complete:', abbrevUpload.file_url, rtfUpload.file_url);
