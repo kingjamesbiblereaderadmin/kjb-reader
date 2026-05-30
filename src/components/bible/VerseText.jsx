@@ -254,8 +254,8 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             )}
             <sup className="text-accent font-sans font-semibold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
             <span
-              className={`leading-relaxed break-words text-justify inline ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
-              style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
+              className={`break-words text-justify inline ${isCursive ? 'cursive-em-style' : 'leading-relaxed'} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+              style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem`, lineHeight: '1.7' } : textStyle}
               dangerouslySetInnerHTML={{ __html: html }}
             />
           </span>
@@ -279,8 +279,8 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           )}
           <sup className="text-accent font-sans font-semibold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
           <span
-            className={`leading-loose break-words text-justify ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
-            style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
+            className={`break-words text-justify ${isCursive ? 'cursive-em-style' : 'leading-loose'} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+            style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem`, lineHeight: '1.7' } : textStyle}
             dangerouslySetInnerHTML={{ __html: html }}
           />
           {' '}
@@ -307,8 +307,8 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         <sup className="text-accent font-sans font-semibold text-[0.6em] shrink-0 select-none mt-[0.2em] mr-[0.3em]">{verse.verse}</sup>
         <span className="flex-1 min-w-0">
           <span
-            className={`leading-relaxed break-words text-justify ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
-            style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
+            className={`break-words text-justify ${isCursive ? 'cursive-em-style' : 'leading-relaxed'} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+            style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem`, lineHeight: '1.7' } : textStyle}
             dangerouslySetInnerHTML={{ __html: html }}
           />
         </span>
