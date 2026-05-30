@@ -346,12 +346,12 @@ function DesktopFooter({ navigate, setMenuOpen }) {
     });
   };
   return (
-      <footer className="hidden sm:block border-t border-border bg-card/80 py-3 flex-shrink-0">
+      <footer className={`hidden sm:block border-t border-border bg-card/80 flex-shrink-0 ${open ? 'py-3' : 'py-0.5'}`}>
         <div className="max-w-5xl mx-auto px-4">
-          <div className="flex justify-center mb-2">
+          <div className={`flex justify-center ${open ? 'mb-2' : 'mb-0'}`}>
             <button
               onClick={toggle}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-lg font-sans text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              className={`flex items-center gap-1.5 px-3 rounded-lg font-sans text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors ${open ? 'py-1' : 'py-0.5'}`}
             >
               {open ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
               {open ? 'Hide menu' : 'Show menu'}
