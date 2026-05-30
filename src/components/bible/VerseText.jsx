@@ -9,9 +9,13 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   const bookEntry = BIBLE_BOOKS.find(b => b.abbr === abbr);
   const shortBookName = bookEntry ? bookEntry.shortName : bookName;
   const [selected, setSelected] = useState(false);
-  // Highlight overlay is OFF by default — only shown when the user manually
-  // applies it via the action popover. Navigation just scrolls to the verse.
+  // showHighlight: true when navigated to this verse (prop) OR user manually applied a colour
   const [showHighlight, setShowHighlight] = useState(false);
+
+  // Sync with the parent's highlight prop (e.g. daily verse / search result navigation)
+  useEffect(() => {
+    setShowHighlight(highlight);
+  }, [highlight]);
   const [highlightColor, setHighlightColor] = useState('accent');
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [saved, setSaved] = useState(() => isVerseSaved(abbr, chapter, verse.verse));
