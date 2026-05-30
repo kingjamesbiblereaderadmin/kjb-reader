@@ -108,18 +108,32 @@ export function renderVerseText(text, searchTerm = null) {
   return result;
 }
 
-// Render colophon/subscript text: pilcrow prefix (only if not already in text), [bracketed] words become italic
+// Render colophon text (epistolary closing notes): pilcrow prefix + [brackets] → italic
 export function renderColophonText(text) {
   if (!text || typeof text !== 'string') return '';
   const normalized = text
     .replace(/\u2019/g, "'").replace(/\u2018/g, "'")
     .replace(/\u201C/g, '"').replace(/\u201D/g, '"')
-    // Strip any leading pilcrow from the text itself to avoid doubling
     .replace(/^[\u00B6\uFFFD]\s*/, '');
   const parts = normalized.split(/\[([^\]]+)\]/g);
   const rendered = parts.map((part, i) =>
     i % 2 === 1 ? `<em>${part}</em>` : part
   ).join('');
-  // Add pilcrow prefix (text itself is cleaned, so no duplication)
   return `<span class="pilcrow">¶</span> ${rendered}`;
+}
+
+// Render Psalm subscript/superscription text:
+// The entire line is italic. [bracketed] words within it are NON-italic (roman within italic),
+// matching the printed KJB convention. No pilcrow prefix.
+export function renderSubscriptText(text) {
+  if (!text || typeof text !== 'string') return '';
+  const normalized = text
+    .replace(/\u2019/g, "'").replace(/\u2018/g, "'")
+    .replace(/\u201C/g, '"').replace(/\u201D/g, '"');
+  // The outer <em> wraps everything; [bracketed] words cancel italic with <span style="font-style:normal">
+  const parts = normalized.split(/\[([^\]]+)\]/g);
+  const inner = parts.map((part, i) =>
+    i % 2 === 1 ? `<span style="font-style:normal">${part}</span>` : part
+  ).join('');
+  return `<em>${inner}</em>`;
 }

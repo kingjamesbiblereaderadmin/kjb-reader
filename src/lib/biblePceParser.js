@@ -136,42 +136,45 @@ export function parsePceText(text) {
     }
   }
 
-  // Post-process: for every Psalm with a hardcoded verse 1, authoritatively set it.
-  // The PCE source file sometimes puts the superscription as the unnumbered line
-  // (which the parser reads as "verse 1"). We fix this by:
-  //   1. If verse 1 text matches the subscript (not the real verse), remove it
-  //      and shift all verse numbers down by 1.
-  //   2. Then replace verse 1's text with the hardcoded authoritative value.
+  // Post-process Psalms: for every chapter in PSALM_VERSE_1, the PCE source file
+  // encodes the superscription as the unnumbered "verse 1" line. The parser reads
+  // it as verse 1, so verse 2 in the file is the real verse 1, verse 3 is verse 2, etc.
+  // Strategy: drop the first element (subscript-as-verse-1), renumber the rest starting
+  // from 1, then force verse 1 to the hardcoded authoritative text.
   if (data['Psalms']) {
     for (const [ch, correctV1] of Object.entries(PSALM_VERSE_1)) {
       const chapter = parseInt(ch, 10);
       const verses = data['Psalms'][chapter];
       if (!verses || verses.length === 0) continue;
 
-      // Check if verse 1 text is the subscript (not real verse content)
       const subscript = SUBSCRIPTS[`Psalms:${chapter}`];
-      if (subscript) {
-        const subscriptPlain = subscript.replace(/\[([^\]]+)\]/g, '$1').toLowerCase().trim();
-        const v1 = verses[0];
-        if (v1 && v1.verse === 1) {
-          const v1Plain = v1.text.replace(/^¶\s*/, '').trim().toLowerCase();
-          if (v1Plain === subscriptPlain || v1Plain.startsWith(subscriptPlain)) {
-            // Verse 1 is the subscript — remove it and renumber
-            verses.shift();
-            for (const v of verses) { v.verse -= 1; }
-            console.log(`[PCE-PARSE] Removed subscript-as-verse-1 from Psalms ${chapter}`);
-          }
+      const subscriptPlain = subscript
+        ? subscript.replace(/\[([^\]]+)\]/g, '$1').toLowerCase().trim()
+        : '';
+      const correctV1Plain = correctV1.replace(/\[([^\]]+)\]/g, '$1').toLowerCase().trim();
+
+      // Check if the parsed verse 1 is NOT the correct verse (i.e. it's the subscript).
+      // If so, drop it and renumber. We check it is NOT the correct verse text.
+      const v1 = verses[0];
+      if (v1 && v1.verse === 1) {
+        const v1Plain = v1.text.replace(/^¶\s*/, '').trim().toLowerCase();
+        const isCorrect = v1Plain === correctV1Plain || v1Plain.startsWith(correctV1Plain.substring(0, 20));
+        const isSubscript = subscriptPlain && (v1Plain === subscriptPlain || v1Plain.startsWith(subscriptPlain.substring(0, 20)));
+        if (!isCorrect || isSubscript) {
+          // Parsed verse 1 is wrong (subscript) — drop it and renumber from 1
+          verses.shift();
+          for (const v of verses) { v.verse -= 1; }
+          console.log(`[PCE-PARSE] Renumbered Psalms ${chapter} (dropped subscript-as-v1)`);
         }
       }
 
-      // Now force verse 1 to the authoritative hardcoded text
+      // Always force verse 1 to the authoritative hardcoded text
       const v1entry = verses.find(v => v.verse === 1);
       if (v1entry) {
         v1entry.text = correctV1;
       } else {
-        // Verse 1 missing entirely — insert it
         verses.unshift({ verse: 1, text: correctV1 });
-        console.log(`[PCE-PARSE] Inserted missing verse 1 for Psalms ${chapter}`);
+        console.log(`[PCE-PARSE] Inserted verse 1 for Psalms ${chapter}`);
       }
     }
   }
