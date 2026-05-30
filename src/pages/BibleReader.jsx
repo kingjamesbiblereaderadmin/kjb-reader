@@ -415,11 +415,21 @@ export default function BibleReader() {
     };
     preloadAndCache();
     
-    // Sync search nav state from module (already initialized from localStorage)
-    const { term, index, results } = getSearchNav();
-    if (term) setSearchTerm(term);
-    setSearchResultIndex(index);
-    setSearchTotalResults(results.length);
+    // Only restore search nav if we're arriving from a search navigation
+    const initParams = new URLSearchParams(window.location.search);
+    if (initParams.get('from') === 'search') {
+      const { term, index, results } = getSearchNav();
+      if (term) {
+        searchClearedRef.current = false;
+        setSearchTerm(term);
+        setSearchResultIndex(index);
+        setSearchTotalResults(results.length);
+      }
+    } else {
+      // Clear any stale search nav on fresh load
+      clearSearchNav();
+      setSearchTerm(null);
+    }
     
     // Check for URL parameters: ?book=John&chapter=3&verse=16
     // (book accepts abbr, short name, or full name)
@@ -461,7 +471,7 @@ export default function BibleReader() {
     const urlParams = new URLSearchParams(routerLocation.search);
     const urlBookObj = resolveBook(urlParams.get('book'));
     const urlChapter = urlParams.get('chapter');
-    const isFromDailyVerse = urlParams.get('from') === 'daily';
+    const isFromSearch = urlParams.get('from') === 'search';
     if (urlBookObj && urlChapter) {
       const chapterNum = parseInt(urlChapter, 10);
       const verseNum = urlParams.get('verse') ? parseInt(urlParams.get('verse'), 10) : null;
@@ -482,14 +492,22 @@ export default function BibleReader() {
         setSelectedVerses(new Set());
         setHighlightedVerses(new Set());
       }
-      // If this URL navigation is NOT from daily verse, clear the daily/random indicator
-      if (!isFromDailyVerse) {
-        // Only clear if coming from a search (has a search term stored) or explicit non-daily nav
-        const hasSearchTerm = !!localStorage.getItem('kjb-search-term');
-        if (hasSearchTerm) {
-          setLastReadingPos(null);
-          try { localStorage.removeItem('kjb-last-reading'); } catch {}
+      // If navigation comes from search, restore search context; otherwise clear it
+      if (isFromSearch) {
+        const { term, index, results } = getSearchNav();
+        if (term) {
+          searchClearedRef.current = false;
+          setSearchTerm(term);
+          setSearchResultIndex(index);
+          setSearchTotalResults(results.length);
         }
+      } else {
+        // Non-search URL navigation — clear any lingering search state
+        searchClearedRef.current = true;
+        clearSearchNav();
+        setSearchTerm(null);
+        setSearchResultIndex(0);
+        setSearchTotalResults(0);
       }
       setPos({ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum });
       setHighlightVerse(verseNum || null);
@@ -632,19 +650,17 @@ export default function BibleReader() {
     }
   }, [filterMode, selectedVerses]);
 
-  const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isSearchResult = false) => {
+  const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false) => {
     // Prevent chapter 0 for non-GEN/MAT books
     if (newChapter === 0 && newAbbr !== 'GEN' && newAbbr !== 'MAT') {
       return;
     }
-    // Clear search context on any manual navigation (not search result navigation)
-    if (!isSearchResult && searchTerm) {
-      searchClearedRef.current = true;
-      clearSearchNav();
-      setSearchTerm(null);
-      setSearchResultIndex(0);
-      setSearchTotalResults(0);
-    }
+    // Always clear search context on any manual navigation
+    searchClearedRef.current = true;
+    clearSearchNav();
+    setSearchTerm(null);
+    setSearchResultIndex(0);
+    setSearchTotalResults(0);
     // Save last reading position before navigating FROM daily verse or random chapter
     if ((fromDailyVerse || fromRandom) && pos.abbr && pos.chapter) {
       const lastPos = { abbr: pos.abbr, chapter: pos.chapter, fromDailyVerse, fromRandom };
@@ -652,14 +668,8 @@ export default function BibleReader() {
       setLastReadingPos(lastPos);
     }
     // Clear highlights when navigating without a specific verse
-    if (!jumpVerse && !isSearchResult) {
+    if (!jumpVerse) {
       setHighlightVerse(null);
-    }
-    // Clear the daily/random indicator when doing a search navigation, but keep the search term
-    if (isSearchResult) {
-      setLastReadingPos(null);
-      try { localStorage.removeItem('kjb-last-reading'); } catch {}
-      // Do NOT clear searchTerm here — it must persist for the indicator's nav buttons to remain visible
     }
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);
@@ -676,7 +686,6 @@ export default function BibleReader() {
   };
 
   const goNext = () => {
-    if (searchTerm) clearSearchContext();
     if (pos.chapter < book.chapters) {
       navigate(pos.abbr, pos.chapter + 1);
     } else {
@@ -690,7 +699,6 @@ export default function BibleReader() {
 
 
   const goPrev = () => {
-    if (searchTerm) clearSearchContext();
     if (pos.chapter > 1) {
       navigate(pos.abbr, pos.chapter - 1);
     } else if (pos.chapter === 1 && (pos.abbr === 'GEN' || pos.abbr === 'MAT')) {
