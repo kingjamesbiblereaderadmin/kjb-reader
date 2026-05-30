@@ -352,7 +352,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   };
 
   return (
-    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-8 pt-5 pb-8 text-center text-white relative ${uploadingComplete ? 'cursor-default' : 'cursor-pointer'}`} style={bgStyle} onTouchEnd={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }}>
+    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-8 pt-5 pb-14 text-center text-white relative ${uploadingComplete ? 'cursor-default' : 'cursor-pointer'}`} style={bgStyle} onTouchEnd={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }}>
       {/* Notification bell indicator button */}
       {showButtons && onToggleNotif && (
         <button
@@ -387,7 +387,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {/* Date display */}
-      <div className="absolute bottom-3 left-3 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.4)', paddingLeft: '14px', paddingRight: '14px', paddingTop: '5px', paddingBottom: '5px' }}>
+      <div className="absolute bottom-4 left-4 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.4)', paddingLeft: '14px', paddingRight: '14px', paddingTop: '5px', paddingBottom: '5px' }}>
         <span className="font-medium whitespace-nowrap" style={{ color: '#ffffff', fontFamily: "'Inter', system-ui, sans-serif", fontSize: '12px', lineHeight: '16px' }}>
           {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
         </span>

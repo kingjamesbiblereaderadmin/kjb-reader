@@ -40,7 +40,7 @@ export function formatVerseShare({ text, ref, url, title } = {}) {
   const parts = [];
   if (title) parts.push(title);
   parts.push(`“${clean}” - ${ref} (KJB)`);
-  if (url) parts.push(`Read more: ${url}`);
+  if (url) parts.push(`Read more: <${url}>`);
   return parts.join('\n\n');
 }
 
