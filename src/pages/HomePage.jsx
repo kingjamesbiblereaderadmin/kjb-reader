@@ -153,8 +153,8 @@ export default function HomePage() {
   };
 
   const handleRandomVerse = () => {
-    const book = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
-    const chapter = Math.floor(Math.random() * book.chapters) + 1;
+    const randomBook = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
+    const randomChapter = Math.floor(Math.random() * randomBook.chapters) + 1;
     // Clear search term when navigating to random chapter
     try {
       localStorage.removeItem('kjb-search-term');
@@ -162,13 +162,16 @@ export default function HomePage() {
       localStorage.removeItem('kjb-search-total');
       localStorage.removeItem('kjb-search-results');
     } catch {}
-    // Save random chapter as last reading position
+    // Save the CURRENT reading position so clear button can return to it
     try {
-      localStorage.setItem('kjb-last-reading', JSON.stringify({ abbr: book.abbr, chapter, fromRandom: true }));
+      const currentPos = JSON.parse(localStorage.getItem('kjb-position') || '{}');
+      if (currentPos.abbr && currentPos.chapter) {
+        localStorage.setItem('kjb-last-reading', JSON.stringify({ abbr: currentPos.abbr, chapter: currentPos.chapter, fromRandom: true }));
+      }
     } catch {}
-    try { localStorage.setItem('kjb-position', JSON.stringify({ abbr: book.abbr, chapter, verse: null })); } catch {}
+    try { localStorage.setItem('kjb-position', JSON.stringify({ abbr: randomBook.abbr, chapter: randomChapter, verse: null })); } catch {}
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    navigate(`/read?book=${book.abbr}&chapter=${chapter}`);
+    navigate(`/read?book=${randomBook.abbr}&chapter=${randomChapter}`);
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   };
 
