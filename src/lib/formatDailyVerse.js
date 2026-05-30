@@ -24,9 +24,7 @@ export function cleanVerseText(text = '') {
 
 // The canonical share/copy format used everywhere — a clean, professional layout:
 //
-//   <Reference> (KJB)
-//
-//   “<text>”
+//   “<text>” - <Reference> (KJB)
 //
 //   Read more: <link>
 //
@@ -35,8 +33,7 @@ export function formatVerseShare({ text, ref, url, title } = {}) {
   const clean = cleanVerseText(text);
   const parts = [];
   if (title) parts.push(title);
-  parts.push(`${ref} (KJB)`);
-  parts.push(`“${clean}”`);
+  parts.push(`“${clean}” - ${ref} (KJB)`);
   if (url) parts.push(`Read more: ${url}`);
   return parts.join('\n\n');
 }
