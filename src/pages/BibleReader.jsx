@@ -453,8 +453,10 @@ export default function BibleReader() {
       setHighlightVerse(verseNum || null);
       loadChapter(urlBookObj.abbr, chapterNum, verseNum);
     } else {
-      // Load from saved position WITH highlight if verse is specified
-      loadChapter(pos.abbr, pos.chapter, pos.verse || null);
+      // Load from saved position — restore highlight from saved verse
+      const savedVerse = pos.verse || null;
+      if (savedVerse) setHighlightVerse(savedVerse);
+      loadChapter(pos.abbr, pos.chapter, savedVerse);
     }
     
     // If a verse range was passed, pre-select those verses and enter filter mode
@@ -533,7 +535,10 @@ export default function BibleReader() {
     // 2) No URL params — restore highlight/lastReadingPos from saved state without reloading chapter
     try {
       const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      if (p && p.verse) setHighlightVerse(p.verse);
+      if (p && p.verse) {
+        setHighlightVerse(p.verse);
+        setPos(prev => ({ ...prev, verse: p.verse }));
+      }
     } catch {}
     try {
       const saved = localStorage.getItem('kjb-last-reading');
