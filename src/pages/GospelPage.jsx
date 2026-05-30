@@ -206,27 +206,31 @@ function GospelActions() {
         {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
         {copied ? 'Copied!' : 'Copy the Gospel'}
       </button>
-      <DropdownMenu>
-        <DropdownMenuTrigger className="inline-flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-accent/20 text-foreground rounded-lg font-sans text-sm font-medium transition-colors outline-none">
+      <div className="inline-flex items-center bg-secondary rounded-lg overflow-hidden">
+        <button
+          onClick={handleShare}
+          className="inline-flex items-center gap-2 px-4 py-2 hover:bg-accent/20 text-foreground font-sans text-sm font-medium transition-colors"
+        >
           {shared ? <Check className="w-4 h-4 text-green-600" /> : <Share2 className="w-4 h-4" />}
           {shared ? 'Copied!' : 'Share'}
-          <ChevronDown className="w-3.5 h-3.5 opacity-70" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="center" className="font-sans">
-          <DropdownMenuItem onClick={handleShare} className="gap-2 cursor-pointer">
-            <Share2 className="w-4 h-4" /> Share…
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleDownloadTxt} className="gap-2 cursor-pointer">
-            <Download className="w-4 h-4" /> Download as Text
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleDownloadPdf} className="gap-2 cursor-pointer">
-            <FileText className="w-4 h-4" /> Download as PDF
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleDownloadWord} className="gap-2 cursor-pointer">
-            <FileType className="w-4 h-4" /> Download as Word
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger className="px-2 py-2 hover:bg-accent/20 text-foreground transition-colors outline-none border-l border-border/50">
+            <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="center" className="font-sans">
+            <DropdownMenuItem onClick={handleDownloadTxt} className="gap-2 cursor-pointer">
+              <Download className="w-4 h-4" /> Download as Text
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleDownloadPdf} className="gap-2 cursor-pointer">
+              <FileText className="w-4 h-4" /> Download as PDF
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleDownloadWord} className="gap-2 cursor-pointer">
+              <FileType className="w-4 h-4" /> Download as Word
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   );
 }
