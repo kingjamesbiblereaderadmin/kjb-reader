@@ -142,6 +142,7 @@ const VERSE_TEXTS = {
   'Rom3:20': '"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin." — Romans 3:20',
   'Psa9:16': '"The wicked shall be turned into hell, and all the nations that forget God." — Psalm 9:16',
   '1Tim3:16': '"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory." — 1 Timothy 3:16',
+  'Rom3:25': '"Whom God hath set forth to be a propitiation through faith in his blood, to declare his righteousness for the remission of sins that are past, through the forbearance of God;" — Romans 3:25',
 };
 
 export default function GospelPage() {
@@ -210,8 +211,12 @@ export default function GospelPage() {
             <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
               "Moreover, brethren, I declare unto you the gospel which I preached unto you, which also ye have received, and wherein ye stand; By which also ye are saved, if ye keep in memory what I preached unto you, unless ye have believed in vain. For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." — 1 Corinthians 15:1–4
             </blockquote>
+            <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
+              {VERSE_TEXTS['Rom3:25']}
+            </blockquote>
             <div className="flex flex-wrap gap-2">
               <VerseLink book="1 Corinthians" chapter={15} verse={1}>1 Corinthians 15:1–4</VerseLink>
+              <VerseLink book="Romans" chapter={3} verse={25}>Romans 3:25</VerseLink>
             </div>
           </div>
         </div>
