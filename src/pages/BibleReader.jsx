@@ -19,7 +19,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Accessibility } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
-import { getSearchNav, setSearchNav, setSearchIndex, clearSearchNav, getGospelNav, setGospelIndex, clearGospelNav } from '@/lib/searchNav';
+import { getSearchNav, setSearchNav, setSearchIndex, clearSearchNav, getGospelNav, setGospelNav, setGospelIndex, clearGospelNav } from '@/lib/searchNav';
+import { getGospelResults } from '@/lib/gospelVerses';
 
 const isMobile = () => window.innerWidth < 640;
 
@@ -508,7 +509,18 @@ export default function BibleReader() {
     }
     // Restore gospel stepper when arriving from a gospel link
     if (initParams.get('from') === 'gospel') {
-      const g = getGospelNav();
+      let g = getGospelNav();
+      // Fresh/shared link with no in-memory nav: seed the full gospel list and
+      // set the index to the verse in the URL so the stepper shows X of Y.
+      if (g.results.length === 0) {
+        const results = getGospelResults();
+        const b = resolveBook(initParams.get('book'));
+        const ch = parseInt(initParams.get('chapter') || '0', 10);
+        const vs = initParams.get('verse') ? parseInt(initParams.get('verse'), 10) : null;
+        const idx = Math.max(0, results.findIndex(r => b && r.abbr === b.abbr && r.chapter === ch && r.verse === vs));
+        setGospelNav(results, idx);
+        g = { results, index: idx };
+      }
       if (g.results.length > 0) {
         setGospelMode(true);
         setGospelResultIndex(g.index);
@@ -584,7 +596,15 @@ export default function BibleReader() {
       }
       // Gospel stepper navigation
       if (isFromGospel) {
-        const g = getGospelNav();
+        let g = getGospelNav();
+        // Shared/opened link with no in-memory nav: seed the full gospel list
+        // and set the index to this verse so the stepper shows the right X of Y.
+        if (g.results.length === 0) {
+          const results = getGospelResults();
+          const idx = Math.max(0, results.findIndex(r => r.abbr === urlBookObj.abbr && r.chapter === chapterNum && r.verse === verseNum));
+          setGospelNav(results, idx);
+          g = { results, index: idx };
+        }
         if (g.results.length > 0) {
           setGospelMode(true);
           setGospelResultIndex(g.index);

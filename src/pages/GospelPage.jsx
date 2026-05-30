@@ -3,16 +3,7 @@ import { Heart, AlertCircle, CheckCircle, XCircle, Copy, Check } from 'lucide-re
 import { useNavigate } from 'react-router-dom';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { setGospelNav } from '@/lib/searchNav';
-
-// Ordered list of all gospel verses, used for the in-reader "Gospel" stepper.
-const GOSPEL_VERSES = [
-  { book: 'Romans', chapter: 3, verse: 20, label: 'All sinned' },
-  { book: 'Psalms', chapter: 9, verse: 16, label: 'Hell' },
-  { book: '1 Timothy', chapter: 3, verse: 16, label: 'Jesus is God' },
-  { book: '1 Corinthians', chapter: 15, verse: 1, label: 'Gospel' },
-  { book: 'Romans', chapter: 3, verse: 25, label: 'Faith in his blood' },
-  { book: 'Ephesians', chapter: 1, verse: 13, label: 'OSAS' },
-];
+import { getGospelResults } from '@/lib/gospelVerses';
 
 function VerseLink({ book, chapter, verse, children }) {
   const navigate = useNavigate();
@@ -22,10 +13,7 @@ function VerseLink({ book, chapter, verse, children }) {
     if (!bookData) return;
     // Seed the gospel stepper with all gospel verses (resolved to abbrs),
     // starting at the clicked verse, so the reader shows "Gospel" with arrows.
-    const results = GOSPEL_VERSES.map(g => {
-      const bd = BIBLE_BOOKS.find(b => b.shortName === g.book || b.apiName === g.book);
-      return bd ? { abbr: bd.abbr, chapter: g.chapter, verse: g.verse, label: g.label } : null;
-    }).filter(Boolean);
+    const results = getGospelResults();
     const index = Math.max(0, results.findIndex(r => r.abbr === bookData.abbr && r.chapter === chapter && r.verse === verse));
     try {
       localStorage.removeItem('kjb-search-term');
