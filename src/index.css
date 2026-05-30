@@ -193,13 +193,16 @@
   
   /* In cursive mode ONLY, use Dancing Script font for scripture text (full italic).
      Exclude UI chrome (buttons, sans-font elements, verse-number sups, icons). */
-  .cursive-em-style {
+  .cursive-em-style,
+  .cursive-em-style span {
     font-family: 'Dancing Script', cursive !important;
     font-style: italic !important;
     font-weight: 400 !important;
     color: #1a1a1a !important;
+    line-height: 1.7 !important;
   }
-  .dark .cursive-em-style {
+  .dark .cursive-em-style,
+  .dark .cursive-em-style span {
     color: #e5e5e5 !important;
   }
   
