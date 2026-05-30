@@ -388,15 +388,16 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
       {/* Date display */}
       <span
-        className="absolute bottom-2.5 left-3 whitespace-nowrap"
+        className="absolute bottom-3 left-3 whitespace-nowrap"
         style={{
-          backgroundColor: 'rgba(0,0,0,0.22)',
-          borderRadius: '4px',
-          color: 'rgba(255,255,255,0.75)',
+          backgroundColor: 'rgba(0,0,0,0.3)',
+          borderRadius: '6px',
+          color: 'rgba(255,255,255,0.95)',
           fontFamily: "'Inter', system-ui, sans-serif",
-          fontSize: '8px',
-          lineHeight: '8px',
-          padding: '3px 6px',
+          fontSize: '11px',
+          fontWeight: 700,
+          lineHeight: '11px',
+          padding: '5px 9px',
         }}
       >
         {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
