@@ -670,11 +670,11 @@ export default function BibleReader() {
     if (!jumpVerse && !isSearchResult) {
       setHighlightVerse(null);
     }
-    // Clear lastReadingPos when doing a search/external navigation (not from daily/random, not chapter prev/next)
-    // Search results and other navigations that bring you to a new verse should clear the daily/random indicator
+    // Clear the daily/random indicator when doing a search navigation, but keep the search term
     if (isSearchResult) {
       setLastReadingPos(null);
       try { localStorage.removeItem('kjb-last-reading'); } catch {}
+      // Do NOT clear searchTerm here — it must persist for the indicator's nav buttons to remain visible
     }
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);
@@ -1257,34 +1257,32 @@ export default function BibleReader() {
                   currentResultIndex={searchResultIndex}
                   totalResults={searchTotalResults}
                   onPrevResult={() => {
-                    if (searchResultIndex > 0) {
-                      const prevIndex = searchResultIndex - 1;
-                      // Get the previous result from search results stored in localStorage
-                      try {
-                        const searchResults = JSON.parse(localStorage.getItem('kjb-search-results') || '[]');
+                    try {
+                      const searchResults = JSON.parse(localStorage.getItem('kjb-search-results') || '[]');
+                      const currentIndex = parseInt(localStorage.getItem('kjb-search-index') || '0', 10);
+                      const prevIndex = currentIndex - 1;
+                      if (prevIndex >= 0 && searchResults[prevIndex]) {
                         const prevResult = searchResults[prevIndex];
-                        if (prevResult) {
-                          setSearchResultIndex(prevIndex);
-                          localStorage.setItem('kjb-search-index', String(prevIndex));
-                          navigate(prevResult.abbr, prevResult.chapter, prevResult.verse, false, false, true);
-                        }
-                      } catch {}
-                    }
+                        setSearchResultIndex(prevIndex);
+                        setSearchTotalResults(searchResults.length);
+                        localStorage.setItem('kjb-search-index', String(prevIndex));
+                        navigate(prevResult.abbr, prevResult.chapter, prevResult.verse, false, false, true);
+                      }
+                    } catch {}
                   }}
                   onNextResult={() => {
-                    if (searchResultIndex < searchTotalResults - 1) {
-                      const nextIndex = searchResultIndex + 1;
-                      // Get the next result from search results stored in localStorage
-                      try {
-                        const searchResults = JSON.parse(localStorage.getItem('kjb-search-results') || '[]');
+                    try {
+                      const searchResults = JSON.parse(localStorage.getItem('kjb-search-results') || '[]');
+                      const currentIndex = parseInt(localStorage.getItem('kjb-search-index') || '0', 10);
+                      const nextIndex = currentIndex + 1;
+                      if (nextIndex < searchResults.length && searchResults[nextIndex]) {
                         const nextResult = searchResults[nextIndex];
-                        if (nextResult) {
-                          setSearchResultIndex(nextIndex);
-                          localStorage.setItem('kjb-search-index', String(nextIndex));
-                          navigate(nextResult.abbr, nextResult.chapter, nextResult.verse, false, false, true);
-                        }
-                      } catch {}
-                    }
+                        setSearchResultIndex(nextIndex);
+                        setSearchTotalResults(searchResults.length);
+                        localStorage.setItem('kjb-search-index', String(nextIndex));
+                        navigate(nextResult.abbr, nextResult.chapter, nextResult.verse, false, false, true);
+                      }
+                    } catch {}
                   }}
                   onClear={() => {
                     // Resolve the cached lastReadingPos
