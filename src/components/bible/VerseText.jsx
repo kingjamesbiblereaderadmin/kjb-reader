@@ -237,36 +237,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // ── PARAGRAPH MODE: verses flow inline; pilcrow verses break to a new line ──
   const hasPilcrow = verse.text.includes('\u00B6') || verse.text.includes('\u000F');
   if (paragraphMode) {
-    // Pilcrow verse in COLUMN mode: keep it inline so CSS columns flow evenly.
-    // A block + pt-6 here causes uneven gaps at column tops/bottoms. The ¶ glyph
-    // already marks the new paragraph visually.
-    if (hasPilcrow && !isFirstVerse && columnMode) {
-      return (
-        <span id={id} className="inline relative">
-          <span
-            onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
-            className={`inline leading-loose transition-colors duration-200 rounded cursor-pointer px-[0.3em] py-[0.2em] ${
-              selectMode && isSelected ? 'bg-primary/10' : !isHighlighted ? 'hover:bg-secondary/60' : ''
-            }`}
-          >
-            {selectMode && (
-              <span className="inline-flex items-center mr-1 text-primary align-middle">
-                {isSelected ? <CheckSquare className="w-[1em] h-[1em]" /> : <Square className="w-[1em] h-[1em] text-muted-foreground" />}
-              </span>
-            )}
-            <sup className="text-accent font-sans font-semibold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
-            <span
-              className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-justify ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
-              style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
-              dangerouslySetInnerHTML={{ __html: html }}
-            />
-            {' '}
-          </span>
-          {!selectMode && actionPopover}
-        </span>
-      );
-    }
-    // Pilcrow verse (single-column): render as a block (new paragraph) with gap above, no indent
+    // Pilcrow verse: render as a block (new paragraph) with gap above, no indent
     if (hasPilcrow && !isFirstVerse) {
       return (
         <span id={id} className="block relative pt-6">
