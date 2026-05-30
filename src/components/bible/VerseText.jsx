@@ -237,10 +237,10 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // ── PARAGRAPH MODE: verses flow inline; pilcrow verses break to a new line ──
   const hasPilcrow = verse.text.includes('\u00B6') || verse.text.includes('\u000F');
   if (paragraphMode) {
-    // Pilcrow verse: render as a block (new paragraph) with small gap above, no indent
+    // Pilcrow verse: render as a block (new paragraph) with gap above, no indent
     if (hasPilcrow && !isFirstVerse) {
       return (
-        <span id={id} className="block relative pt-2">
+        <span id={id} className="block relative pt-6">
           <span
             onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
             className={`inline leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.3em] py-[0.2em] ${
@@ -263,12 +263,12 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         </span>
       );
     }
-    // Normal inline verse - no trailing space to prevent gaps
+    // Normal inline verse
     return (
       <span id={id} className="inline relative">
         <span
           onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
-          className={`inline leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.2em] py-[0.1em] ${
+          className={`inline leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.3em] py-[0.2em] ${
             selectMode && isSelected ? 'bg-primary/10' : !isHighlighted ? 'hover:bg-secondary/60' : ''
           }`}
         >
@@ -277,9 +277,9 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
               {isSelected ? <CheckSquare className="w-[1em] h-[1em]" /> : <Square className="w-[1em] h-[1em] text-muted-foreground" />}
             </span>
           )}
-          <sup className="text-accent font-sans font-semibold text-[0.65em] mr-1 select-none">{verse.verse}</sup>
+          <sup className="text-accent font-sans font-semibold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
           <span
-            className={`break-words text-justify ${isCursive ? 'cursive-em-style' : 'leading-relaxed'} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.2em] py-[0.05em]` : ''}`}
+            className={`break-words text-justify ${isCursive ? 'cursive-em-style' : 'leading-relaxed'} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
             style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem`, lineHeight: '1.7' } : textStyle}
             dangerouslySetInnerHTML={{ __html: html }}
           />

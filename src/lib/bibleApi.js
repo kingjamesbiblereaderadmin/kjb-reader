@@ -91,12 +91,12 @@ export function renderVerseText(text, searchTerm = null) {
     segments.push({ italic: false, text: cleaned.slice(lastIdx) });
   }
   
-  // Handle pilcrow - render as span at start or after punctuation
+  // Handle pilcrow - render as span at start or after punctuation (no extra spaces)
   const processPilcrow = (seg) => {
     if (seg.italic) return seg.text;
     let t = seg.text;
     t = t.replace(/^[\u00B6\uFFFD]\s*/, '<span class="pilcrow">¶</span> ');
-    t = t.replace(/([\s.,;:!?'")\]])[\u00B6\uFFFD]\s*/g, '$1 <span class="pilcrow">¶</span> ');
+    t = t.replace(/([\s.,;:!?'")\]])[\u00B6\uFFFD]\s*/g, '$1<span class="pilcrow">¶</span> ');
     return t;
   };
   
