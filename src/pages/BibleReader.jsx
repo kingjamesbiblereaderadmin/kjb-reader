@@ -456,11 +456,6 @@ export default function BibleReader() {
   //  • the URL query string changes (?book=&chapter=&verse=)
   // Without this, navigating to /read while already on /read does nothing.
   useEffect(() => {
-    // Sync lastReadingPos from localStorage — always sync (including cleared state)
-    try {
-      const lastReading = localStorage.getItem('kjb-last-reading');
-      setLastReadingPos(lastReading ? JSON.parse(lastReading) : null);
-    } catch {}
 
     // 1) URL params take priority when present
     const urlParams = new URLSearchParams(routerLocation.search);
@@ -1232,26 +1227,12 @@ export default function BibleReader() {
               </button>
 
               {/* Currently reading indicator - integrated into toolbar */}
-              {(() => {
-                // Check localStorage directly for lastReadingPos in case state hasn't updated
-                let cachedLastReading = lastReadingPos;
-                try {
-                  const stored = localStorage.getItem('kjb-last-reading');
-                  if (stored) cachedLastReading = JSON.parse(stored);
-                } catch {}
-                return (highlightVerse || (filterMode && selectedVerses.size > 0) || (cachedLastReading && !cachedLastReading.cleared) || searchTerm);
-              })() && (() => {
-                let cachedLastReading = lastReadingPos;
-                try {
-                  const stored = localStorage.getItem('kjb-last-reading');
-                  if (stored) cachedLastReading = JSON.parse(stored);
-                } catch {}
-                return (
+              {(highlightVerse || (filterMode && selectedVerses.size > 0) || (lastReadingPos && !lastReadingPos.cleared) || searchTerm) && (
                 <CurrentlyReadingIndicator
                   highlightVerse={highlightVerse}
                   filterMode={filterMode}
                   selectedVerses={selectedVerses}
-                  lastReadingPos={cachedLastReading}
+                  lastReadingPos={lastReadingPos}
                   book={book}
                   pos={pos}
                   searchTerm={searchTerm}
@@ -1282,22 +1263,10 @@ export default function BibleReader() {
                     }
                   }}
                   onClear={() => {
-                    // Resolve the cached lastReadingPos
-                    let cachedLastReading = lastReadingPos;
-                    try {
-                      const stored = localStorage.getItem('kjb-last-reading');
-                      if (stored) cachedLastReading = JSON.parse(stored);
-                    } catch {}
-
                     if (searchTerm) {
-                      clearSearchNav();
-                      setSearchTerm(null);
-                      setSearchResultIndex(0);
-                      setSearchTotalResults(0);
-                      setHighlightVerse(null);
-                    } else if (cachedLastReading && cachedLastReading.abbr && cachedLastReading.chapter && !cachedLastReading.cleared) {
-                      // Daily verse / random chapter — go back to the previous chapter
-                      const { abbr, chapter } = cachedLastReading;
+                      clearSearchContext();
+                    } else if (lastReadingPos && lastReadingPos.abbr && lastReadingPos.chapter && !lastReadingPos.cleared) {
+                      const { abbr, chapter } = lastReadingPos;
                       setFilterMode(false);
                       setSelectMode(false);
                       setSelectedVerses(new Set());
@@ -1319,9 +1288,8 @@ export default function BibleReader() {
                       setShowFilterOverlay(false);
                     }
                   }}
-                  />
-                  );
-                  })()}
+                />
+              )}
                   {/* Hide header */}
               <button
                 onClick={(e) => { e.stopPropagation(); setHideHeader(!hideHeader); }}
