@@ -225,9 +225,11 @@
   }
 
   /* Colophon and subscript italics: only [bracketed] words (rendered as <em>)
-     are italic. The surrounding subscript/colophon text stays roman. */
-  .kjb-colophon em,
-  .kjb-subscript em {
+     are italic. The surrounding subscript/colophon text stays roman.
+     In cursive mode the .cursive-em-style em rule takes over (Dancing Script
+     italic), so we exclude cursive here. */
+  .kjb-colophon:not(.cursive-em-style) em,
+  .kjb-subscript:not(.cursive-em-style) em {
     font-style: italic !important;
   }
 
