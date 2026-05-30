@@ -208,18 +208,18 @@
     color: #e5e5e5 !important;
   }
   
-  /* Italic words ([bracketed]) in cursive mode - bold italic, darker.
-     Dancing Script is a connecting cursive font, so add small side spacing so
-     italic words don't visually merge with adjacent words. */
+  /* Italic words ([bracketed]) in cursive mode - lighter weight, normal spacing.
+     Dancing Script is a connecting cursive font; instead of margins (which break
+     in justified paragraph mode), use inline-block + word-spacing so italic words
+     keep normal gaps and never merge with adjacent words. */
   .cursive-em-style em {
     font-style: italic !important;
-    font-weight: 900 !important;
+    font-weight: 300 !important;
     color: #1a1a1a !important;
-    margin-left: 0.15em;
-    margin-right: 0.15em;
+    display: inline-block;
   }
   .dark .cursive-em-style em {
-    color: #ffffff !important;
+    color: #e5e5e5 !important;
   }
 
   /* Colophon and subscript italics in cursive mode */
