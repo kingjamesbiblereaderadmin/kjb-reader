@@ -85,10 +85,10 @@ export function renderVerseText(text, searchTerm = null) {
   // …or mid-verse when preceded by a space or sentence punctuation (e.g. "houses. ¶But").
   // This prevents the raw ¶ from gluing to the previous word (the "kings¶" → "kingspilcrow" bug).
   cleaned = cleaned.replace(/([\s.,;:!?'")\]])[\u00B6\uFFFD]\s*/g, '$1 <span class="pilcrow">¶</span> ');
-  // Turn [bracketed] text into italics - preserve exact spacing from source
+  // Turn [bracketed] text into italics with inline styles to prevent gaps
   const parts = cleaned.split(/\[([^\]]+)\]/g);
   let result = parts.map((part, i) =>
-    i % 2 === 1 ? `<em>${part}</em>` : part
+    i % 2 === 1 ? `<em style="font-family:inherit;font-style:italic;font-weight:inherit;display:inline;white-space:pre-wrap;">${part}</em>` : part
   ).join('');
   
   // Highlight search terms — split on HTML tags so we only replace inside text nodes
