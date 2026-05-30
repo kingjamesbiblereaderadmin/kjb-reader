@@ -736,6 +736,10 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             e.stopPropagation();
             e.nativeEvent.stopImmediatePropagation();
           }}
+          onTouchStart={(e) => {
+            e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation();
+          }}
           onTouchEnd={(e) => {
             e.stopPropagation();
             e.nativeEvent.stopImmediatePropagation();
