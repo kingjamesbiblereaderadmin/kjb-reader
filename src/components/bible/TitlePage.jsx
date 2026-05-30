@@ -37,7 +37,7 @@ export default function TitlePage({ type }) {
 
           <div className="pt-8">
             <p className="font-serif text-base md:text-lg font-normal text-foreground tracking-[0.1em]">
-              AUTHORIZED KING JAMES BIBLE
+              AUTHORISED KING JAMES BIBLE
             </p>
           </div>
         </div>
@@ -117,7 +117,7 @@ export default function TitlePage({ type }) {
 
           <div className="pt-8">
             <p className="font-serif text-base md:text-lg font-normal text-foreground tracking-[0.1em]">
-              AUTHORIZED KING JAMES BIBLE
+              AUTHORISED KING JAMES BIBLE
             </p>
           </div>
         </div>
