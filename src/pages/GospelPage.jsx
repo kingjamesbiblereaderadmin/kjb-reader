@@ -91,6 +91,19 @@ ${link('1Cor', 15, 1)}
 
 ━━━━━━━━━━━━━━━━━━━━
 
+These do NOT make you a Christian:
+
+• Repenting of sins
+• Making Jesus Lord
+• Being a member of a church
+• Tithing
+• Being baptised (water)
+• Saying a sinner's prayer
+• Confessing with your mouth
+• Lordship Salvation
+
+━━━━━━━━━━━━━━━━━━━━
+
 Once Saved, Always Saved:
 
 “In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise.”
