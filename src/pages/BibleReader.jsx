@@ -1500,9 +1500,9 @@ export default function BibleReader() {
                 isCursive={fontFamily === 'cursive'}
                 fontFamilyValue={getFontFamilyValue(fontFamily)}
                 zoomLevel={zoomLevel}
-                searchTerm={searchTerm}
-              />
-            ))}
+                searchTerm={searchTerm && highlightVerse === v.verse ? searchTerm : null}
+                />
+                ))}
           </div>
         )}
         {/* Colophon - column mode: centered across both columns; non-column: footer with line on top */}
