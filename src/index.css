@@ -208,14 +208,15 @@
     font-family: inherit !important;
     font-style: inherit !important;
     font-weight: inherit !important;
-    background-color: rgba(217, 180, 105, 0.4) !important;
-    border-radius: 3px !important;
-    padding: 0 2px !important;
+    background-color: #d4af37 !important;
+    border-radius: 2px !important;
+    padding: 0 3px !important;
     margin: 0 !important;
     display: inline !important;
+    box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.3) !important;
   }
   .dark .cursive-em-style em {
-    background-color: rgba(217, 180, 105, 0.35) !important;
+    background-color: #c9a227 !important;
   }
 
   /* Colophon and subscript italics in cursive mode */
