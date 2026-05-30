@@ -1,5 +1,12 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+
 Deno.serve(async (req) => {
   try {
+    const base44 = createClientFromRequest(req);
+    if (!(await base44.auth.isAuthenticated())) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const publicKey = Deno.env.get('VAPID_PUBLIC_KEY');
     
     if (!publicKey) {
