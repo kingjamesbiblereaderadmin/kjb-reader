@@ -92,7 +92,13 @@ export default function BibleReader() {
   const { hideHeader, setHideHeader } = useHeaderHide();
   const routerLocation = useLocation();
   const routerNavigate = useNavigate();
-  const [pos, setPos] = useState(loadPosition);
+  const [pos, setPos] = useState(() => {
+    // On a plain refresh, don't restore a single highlighted verse (it would
+    // show the "currently reading" indicator). URL/search/daily navigation
+    // sets the verse explicitly elsewhere.
+    const p = loadPosition();
+    return { ...p, verse: null };
+  });
   const [verses, setVerses] = useState([]);
   const [colophon, setColophon] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -497,10 +503,9 @@ export default function BibleReader() {
       setHighlightVerse(verseNum || null);
       loadChapter(urlBookObj.abbr, chapterNum, verseNum);
     } else {
-      // Load from saved position — restore highlight from saved verse
-      const savedVerse = pos.verse || null;
-      if (savedVerse) setHighlightVerse(savedVerse);
-      loadChapter(pos.abbr, pos.chapter, savedVerse);
+      // Plain refresh — load the chapter WITHOUT restoring a verse highlight,
+      // so the "currently reading" indicator doesn't reappear on reload.
+      loadChapter(pos.abbr, pos.chapter, null);
     }
     
     // If a verse range was passed, pre-select those verses and enter filter mode
@@ -598,12 +603,11 @@ export default function BibleReader() {
     try {
       const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
       if (p && p.abbr && p.chapter) {
-        const savedVerse = p.verse || null;
-        setPos({ abbr: p.abbr, chapter: p.chapter, verse: savedVerse });
-        if (savedVerse) setHighlightVerse(savedVerse);
+        setPos({ abbr: p.abbr, chapter: p.chapter, verse: null });
         // Always reload — internal navigation (book/chapter picker) doesn't change
         // routerLocation.search so this effect never fires for those navigations.
-        loadChapter(p.abbr, p.chapter, savedVerse);
+        // Don't restore a verse highlight (avoids the "currently reading" indicator on refresh).
+        loadChapter(p.abbr, p.chapter, null);
       }
     } catch {}
     try {
