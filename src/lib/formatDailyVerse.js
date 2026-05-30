@@ -13,16 +13,11 @@ export function buildVerseUrl({ abbr, chapter, verse, verseEnd, from } = {}) {
   return url;
 }
 
-// Clean raw KJB verse text for sharing: remove pilcrows (¶), superscription
-// markers (<<...>>), and the [italic] brackets (keeping the supplied words),
-// then collapse whitespace. Produces clean plain text for copy/share everywhere.
+// Clean raw KJB verse text for sharing: KEEP pilcrows (¶), superscription
+// markers (<<...>>), and [italic] brackets intact (they mark supplied words);
+// only collapse whitespace so the shared text matches what's on screen.
 export function cleanVerseText(text = '') {
   return String(text)
-    .replace(/¶\s*/g, '')              // remove pilcrow marks
-    .replace(/\u000F/g, '')            // remove stray pilcrow control char
-    .replace(/^<<[^>]*>>\s*/, '')      // remove superscription
-    .replace(/\[([^\]]*)\]/g, '$1')    // unwrap [italic] brackets, keep word
-    .replace(/[[\]]/g, '')             // strip any stray brackets
     .replace(/\s+/g, ' ')
     .trim();
 }
