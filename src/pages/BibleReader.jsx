@@ -334,6 +334,8 @@ export default function BibleReader() {
   };
 
   const topRef = useRef(null);
+  const posRef = useRef(pos);
+  useEffect(() => { posRef.current = pos; }, [pos]);
   const book = BIBLE_BOOKS.find(b => b.abbr === pos.abbr) || BIBLE_BOOKS[0];
 
   // Determine if viewing a title page (chapter 0)
@@ -532,12 +534,12 @@ export default function BibleReader() {
       return;
     }
 
-    // 2) No URL params — restore highlight/lastReadingPos from saved state without reloading chapter
+    // 2) No URL params — restore highlight only if saved position matches current book+chapter
     try {
       const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      if (p && p.verse) {
+      const cur = posRef.current;
+      if (p && p.verse && p.abbr === cur.abbr && p.chapter === cur.chapter) {
         setHighlightVerse(p.verse);
-        setPos(prev => ({ ...prev, verse: p.verse }));
       }
     } catch {}
     try {
