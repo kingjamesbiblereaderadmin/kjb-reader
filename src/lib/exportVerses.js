@@ -33,7 +33,8 @@ function plainNoBrackets(text) {
   return (text || '')
     .replace(/¶\s*/g, '')
     .replace(/^<<[^>]*>>\s*/, '')
-    .replace(/\[([^\]]+)\]/g, '$1');
+    .replace(/\[([^\]]*)\]/g, '$1') // remove matched [italic] brackets, keep inner word
+    .replace(/[[\]]/g, '');          // strip any stray/unmatched brackets
 }
 
 // Plain text WITH brackets kept (for XLS / italics-aware contexts)
