@@ -15,11 +15,15 @@ export function buildVerseUrl({ abbr, chapter, verse } = {}) {
 // supplied words), but remove pilcrows (¶), superscription markers (<<...>>),
 // and collapse whitespace.
 export function cleanVerseText(text = '') {
-  return String(text)
+  let out = String(text)
     .replace(/¶\s*/g, '')           // remove pilcrow marks
     .replace(/^<<[^>]*>>\s*/, '')   // remove superscription
     .replace(/\s+/g, ' ')
     .trim();
+  // Merge adjacent [bracketed] words: "[to] [be]" → "[to be]"
+  let prev;
+  do { prev = out; out = out.replace(/\]( +)\[/g, '$1'); } while (out !== prev);
+  return out;
 }
 
 // The canonical share/copy format used everywhere — a clean, professional layout:

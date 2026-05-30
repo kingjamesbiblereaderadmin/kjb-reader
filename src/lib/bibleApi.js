@@ -15,6 +15,19 @@ function stripMadeInAustralia(text) {
   return text.replace(/\s*made\s+in\s+australia\.?\s*/gi, '').trim();
 }
 
+// Merge adjacent bracketed (italic-supplied) words into a single bracket so
+// "[to] [be]" becomes "[to be]" for cleaner formatting. Runs repeatedly to
+// collapse runs of 3+ adjacent bracketed words.
+export function mergeAdjacentBrackets(text = '') {
+  let out = String(text);
+  let prev;
+  do {
+    prev = out;
+    out = out.replace(/\]( +)\[/g, '$1');
+  } while (out !== prev);
+  return out;
+}
+
 export async function fetchChapter(bookApiName, chapter) {
   // Get complete Bible data (from cache or network)
   const bible = await getBibleData();
@@ -27,9 +40,9 @@ export async function fetchChapter(bookApiName, chapter) {
   }
   if (!verses.length) throw new Error(`No verses found for ${bookApiName} ${chapter}`);
 
-  // Strip "Made in Australia" from all verses globally
+  // Strip "Made in Australia" + merge adjacent [bracketed] words on all verses
   verses = verses.map(v => {
-    const cleaned = stripMadeInAustralia(v.text);
+    const cleaned = mergeAdjacentBrackets(stripMadeInAustralia(v.text));
     return cleaned !== v.text ? { ...v, text: cleaned } : v;
   });
 
@@ -69,6 +82,7 @@ export function renderVerseText(text, searchTerm = null) {
   }
   // Strip "Made in Australia" if it somehow appears in verse text
   let cleaned = text.replace(/\s*made\s+in\s+australia\.?\s*/gi, '');
+  cleaned = mergeAdjacentBrackets(cleaned);
   cleaned = cleaned.replace(/[<>]|>>/g, '');
   // Normalize smart/curly apostrophes and quotes to plain ASCII to fix Edge rendering
   cleaned = cleaned
@@ -108,10 +122,10 @@ export function renderVerseText(text, searchTerm = null) {
 // Render colophon text (epistolary closing notes): pilcrow prefix + [brackets] → italic
 export function renderColophonText(text) {
   if (!text || typeof text !== 'string') return '';
-  const normalized = text
+  const normalized = mergeAdjacentBrackets(text
     .replace(/\u2019/g, "'").replace(/\u2018/g, "'")
     .replace(/\u201C/g, '"').replace(/\u201D/g, '"')
-    .replace(/^[\u00B6\uFFFD]\s*/, '');
+    .replace(/^[\u00B6\uFFFD]\s*/, ''));
   const parts = normalized.split(/\[([^\]]+)\]/g);
   const rendered = parts.map((part, i) =>
     i % 2 === 1 ? `<em>${part}</em>` : part
@@ -123,9 +137,9 @@ export function renderColophonText(text) {
 // Non-italic by default, [bracketed] words italic, with a pilcrow prefix.
 export function renderSubscriptText(text) {
   if (!text || typeof text !== 'string') return '';
-  const normalized = text
+  const normalized = mergeAdjacentBrackets(text
     .replace(/\u2019/g, "'").replace(/\u2018/g, "'")
-    .replace(/\u201C/g, '"').replace(/\u201D/g, '"');
+    .replace(/\u201C/g, '"').replace(/\u201D/g, '"'));
   const parts = normalized.split(/\[([^\]]+)\]/g);
   const rendered = parts.map((part, i) =>
     i % 2 === 1 ? `<em>${part}</em>` : part
