@@ -534,12 +534,16 @@ export default function BibleReader() {
       return;
     }
 
-    // 2) No URL params — restore highlight only if saved position matches current book+chapter
+    // 2) No URL params — reload from saved position (handles returning from Home with no URL params)
     try {
       const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      const cur = posRef.current;
-      if (p && p.verse && p.abbr === cur.abbr && p.chapter === cur.chapter) {
-        setHighlightVerse(p.verse);
+      if (p && p.abbr && p.chapter) {
+        const savedVerse = p.verse || null;
+        setPos({ abbr: p.abbr, chapter: p.chapter, verse: savedVerse });
+        if (savedVerse) setHighlightVerse(savedVerse);
+        // Always reload — internal navigation (book/chapter picker) doesn't change
+        // routerLocation.search so this effect never fires for those navigations.
+        loadChapter(p.abbr, p.chapter, savedVerse);
       }
     } catch {}
     try {
