@@ -70,12 +70,9 @@ export function parsePceText(text) {
   const isVerseLine = (l) => /^\d+\s/.test(l);
 
   const pushVerse = (vs, rawAfterNumber, hadParagraph) => {
-  if (!currentBook || currentChapter == null) return;
-  let t = rawAfterNumber
-    .replace(/\s*<<[^>]*>>\s*$/, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-  if (hadParagraph) t = '¶ ' + t;
+    if (!currentBook || currentChapter == null) return;
+    let t = rawAfterNumber.replace(/\s*<<[^>]*>>\s*$/, '').trim();
+    if (hadParagraph) t = '¶ ' + t;
     
     
     if (!data[currentBook][currentChapter]) data[currentBook][currentChapter] = [];

@@ -10,8 +10,8 @@ import { parsePceText } from '@/lib/biblePceParser';
 // Bump this version string whenever the Bible text file changes — every client
 // will then re-download and re-parse fresh. Replaces the old remote VERSION.txt
 // check (which 404'd/403'd and broke auto-updates).
-export const CACHE_VERSION = 'v76';
-const CACHE_KEY = 'bible_data_pce_v76_SINGLE_FILE';
+export const CACHE_VERSION = 'v75';
+const CACHE_KEY = 'bible_data_pce_v75_SINGLE_FILE';
 // Single clean PCE source file: book titles, CHAPTER headings, [bracketed] italics,
 // and double-space paragraph (pilcrow) markers. No separate italics file needed.
 const PCE_TEXT_FILE_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/b55b13158_KingJamesBible-PureCambridgeEditionTextfile1.txt';

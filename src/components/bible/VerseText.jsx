@@ -237,13 +237,10 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // ── PARAGRAPH MODE: verses flow inline; pilcrow verses break to a new line ──
   const hasPilcrow = verse.text.includes('\u00B6') || verse.text.includes('\u000F');
   if (paragraphMode) {
-    // Pilcrow verse: start a new paragraph. Use a line break + vertical spacer
-    // (rendered inline) instead of a `block` wrapper, so it doesn't fragment the
-    // CSS multi-column flow when both paragraph mode and column mode are on.
+    // Pilcrow verse: render as a block (new paragraph) with gap above, no indent
     if (hasPilcrow && !isFirstVerse) {
       return (
-        <span id={id} className="inline relative">
-          <span className="block h-6" aria-hidden="true" />
+        <span id={id} className="block relative pt-6">
           <span
             onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
             className={`inline leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.3em] py-[0.2em] ${
@@ -257,8 +254,8 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             )}
             <sup className="text-accent font-sans font-semibold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
             <span
-              className={`break-words text-justify inline ${isCursive ? 'cursive-em-style' : 'leading-relaxed'} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
-              style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem`, lineHeight: '1.7' } : textStyle}
+              className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-justify inline ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+              style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
               dangerouslySetInnerHTML={{ __html: html }}
             />
           </span>
@@ -271,7 +268,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
       <span id={id} className="inline relative">
         <span
           onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
-          className={`inline leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.3em] py-[0.2em] ${
+          className={`inline leading-loose transition-colors duration-200 rounded cursor-pointer px-[0.3em] py-[0.2em] ${
             selectMode && isSelected ? 'bg-primary/10' : !isHighlighted ? 'hover:bg-secondary/60' : ''
           }`}
         >
@@ -282,10 +279,11 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           )}
           <sup className="text-accent font-sans font-semibold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
           <span
-            className={`break-words text-justify ${isCursive ? 'cursive-em-style' : 'leading-relaxed'} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
-            style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem`, lineHeight: '1.7' } : textStyle}
+            className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-justify ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+            style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
             dangerouslySetInnerHTML={{ __html: html }}
           />
+          {' '}
         </span>
         {!selectMode && actionPopover}
       </span>
@@ -294,7 +292,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
 
   // ── LINE MODE (default): each verse is its own line ──
   return (
-    <span id={id} className={`block relative ${paragraphMode && hasPilcrow && !isFirstVerse ? 'pt-6' : ''}`}>
+    <span id={id} className={`block relative ${hasPilcrow && !isFirstVerse ? 'pt-6' : 'mt-2'}`}>
       <span
         onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
         className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.4em] py-[0.25em] gap-[0.6em] w-full ${
@@ -308,11 +306,11 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         )}
         <sup className="text-accent font-sans font-semibold text-[0.6em] shrink-0 select-none mt-[0.2em] mr-[0.3em]">{verse.verse}</sup>
         <span className="flex-1 min-w-0">
-        <span
-          className={`break-words text-left ${isCursive ? 'cursive-em-style' : 'leading-relaxed'} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
-          style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem`, lineHeight: '1.7' } : textStyle}
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
+          <span
+            className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-justify ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+            style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
         </span>
       </span>
       {!selectMode && actionPopover}
