@@ -3,7 +3,7 @@ import { Bell, X, Share, MonitorSmartphone, Download, Accessibility } from 'luci
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
 
 const A11Y_FONTS = [
-  { value: 'default', label: 'Default' },
+  { value: 'default', label: 'Off' },
   { value: 'dyslexic', label: 'OpenDyslexic', preview: "'OpenDyslexic', 'Comic Sans MS', sans-serif" },
   { value: 'hyperlegible', label: 'Hyperlegible', preview: "'Atkinson Hyperlegible', system-ui, sans-serif" },
 ];
