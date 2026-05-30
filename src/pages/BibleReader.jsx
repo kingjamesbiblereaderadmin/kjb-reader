@@ -1444,7 +1444,7 @@ export default function BibleReader() {
           fixed to the viewport (escapes the animated page wrapper) while text scrolls */}
       {hideHeader && createPortal(
         <div className="fixed top-0 left-0 right-0 border-b border-border bg-background/95 backdrop-blur z-[110]" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-          <div className="w-full px-3 py-1.5 flex items-center justify-end">
+          <div className="w-full px-5 sm:px-12 lg:px-16 py-1.5 flex items-center justify-end">
             <div className="flex items-center gap-1">
               <button
                 onClick={toggleFullscreen}
