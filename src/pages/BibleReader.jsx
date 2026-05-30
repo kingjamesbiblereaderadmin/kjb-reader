@@ -924,7 +924,7 @@ export default function BibleReader() {
               onTouchEnd={(e) => { e.preventDefault(); setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); }}
               className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11"
             >
-              <span className="truncate text-center" style={{ maxWidth: `${120 * zoomLevel / 100}px`, fontSize: `${Math.max(0.7, Math.min(1, 100 / zoomLevel)) * 1}em` }}>{isViewingTitlePage ? 'Title Page' : book.shortName}</span>
+              <span className="truncate text-center" style={{ maxWidth: '120px' }}>{isViewingTitlePage ? 'Title Page' : book.shortName}</span>
               <ChevronRight className={`w-3 h-3 opacity-70 transition-transform duration-200 flex-shrink-0 ${showBookPicker ? 'rotate-90' : ''}`} />
             </button>
 
@@ -1022,7 +1022,7 @@ export default function BibleReader() {
                 }`}
                 disabled={verseCount === 0}
               >
-                <span className="truncate" style={{ maxWidth: `${80 * zoomLevel / 100}px`, fontSize: `${zoomLevel / 100}em` }}>
+                <span className="truncate" style={{ maxWidth: '80px' }}>
                   {selectMode
                     ? `${selectedVerses.size > 0 ? selectedVerses.size : '0'} selected`
                     : filterMode && selectedVerses.size > 0
@@ -1088,7 +1088,7 @@ export default function BibleReader() {
                 className="flex flex-1 items-center justify-center gap-1 px-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 whitespace-nowrap"
               >
                 <ZoomIn className="w-3.5 h-3.5 transition-transform duration-200 flex-shrink-0" />
-                <span className="truncate" style={{ fontSize: `${zoomLevel / 100}em` }}>{zoomLevel}%</span>
+                <span className="truncate">{zoomLevel}%</span>
               </button>
               {/* Desktop popover */}
               {showZoomPopover && !isMobile() && (
@@ -1187,7 +1187,7 @@ export default function BibleReader() {
                 className="flex flex-1 items-center justify-center gap-1 px-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 whitespace-nowrap"
               >
                 <Type className="w-3.5 h-3.5 transition-transform duration-200 flex-shrink-0" />
-                <span className="hidden sm:inline" style={{ fontSize: `${zoomLevel / 100}em` }}>{fontFamily === 'serif' ? 'Serif' : fontFamily === 'sans-serif' ? 'Sans' : fontFamily === 'monospace' ? 'Mono' : fontFamily === 'dyslexic' ? 'Dyslexic' : fontFamily === 'hyperlegible' ? 'Legible' : 'Cursive'}</span>
+                <span className="hidden sm:inline">{fontFamily === 'serif' ? 'Serif' : fontFamily === 'sans-serif' ? 'Sans' : fontFamily === 'monospace' ? 'Mono' : fontFamily === 'dyslexic' ? 'Dyslexic' : fontFamily === 'hyperlegible' ? 'Legible' : 'Cursive'}</span>
               </button>
               {/* Desktop popover */}
               {showFontPopover && !isMobile() && (
