@@ -77,6 +77,10 @@ ${link('1Tim', 3, 16)}
 — 1 Corinthians 15:1-4
 ${link('1Cor', 15, 1)}
 
+“Whom God hath set forth to be a propitiation through faith in his blood, to declare his righteousness for the remission of sins that are past, through the forbearance of God;”
+— Romans 3:25
+${link('Rom', 3, 25)}
+
 ━━━━━━━━━━━━━━━━━━━━
 
 These do NOT make you a Christian:
