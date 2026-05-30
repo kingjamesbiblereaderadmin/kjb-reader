@@ -212,12 +212,10 @@
   .cursive-em-style em {
     font-style: italic !important;
     font-weight: 300 !important;
-    color: #1a1a1a !important;
-    opacity: 0.7;
+    color: rgba(26, 26, 26, 0.6) !important;
   }
   .dark .cursive-em-style em {
-    color: #ffffff !important;
-    opacity: 0.6;
+    color: rgba(255, 255, 255, 0.55) !important;
   }
 
   /* Colophon and subscript italics in cursive mode */
