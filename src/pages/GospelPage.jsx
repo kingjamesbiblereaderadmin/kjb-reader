@@ -15,7 +15,7 @@ function VerseLink({ book, chapter, verse, children }) {
     } catch {}
     window.scrollTo({ top: 0, behavior: 'smooth' });
     // Navigate with URL params so the reader scrolls to AND highlights the verse
-    navigate(`/read?book=${bookData.abbr}&chapter=${chapter}&verse=${verse}&from=daily`);
+    navigate(`/read?book=${bookData.abbr}&chapter=${chapter}&verse=${verse}`);
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   };
 
@@ -33,7 +33,7 @@ function VerseLink({ book, chapter, verse, children }) {
 // a link to the gospel page, and the Robert Breaker video link.
 function buildGospelText() {
   const origin = (typeof window !== 'undefined' && window.location?.origin) ? window.location.origin : '';
-  const link = (abbr, chapter, verse) => `${origin}/read?book=${abbr}&chapter=${chapter}&verse=${verse}&from=daily`;
+  const link = (abbr, chapter, verse) => `${origin}/read?book=${abbr}&chapter=${chapter}&verse=${verse}`;
   return `✝ HOW TO BE SAVED?
 
 The Gospel of Jesus Christ:
