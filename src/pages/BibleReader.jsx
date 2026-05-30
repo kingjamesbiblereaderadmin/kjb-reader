@@ -19,7 +19,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Accessibility } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
-import { getSearchNav, setSearchIndex, clearSearchNav } from '@/lib/searchNav';
+import { getSearchNav, setSearchNav, setSearchIndex, clearSearchNav } from '@/lib/searchNav';
 
 const isMobile = () => window.innerWidth < 640;
 
@@ -549,9 +549,16 @@ export default function BibleReader() {
       }
       // Restore context based on navigation source
       if (isFromSearch) {
-        const { term, index, results } = getSearchNav();
+        let { term, index, results } = getSearchNav();
         // Fall back to the ?q= URL param so shared/bookmarked links restore the term.
         const urlTerm = urlParams.get('q') || term;
+        // Shared/bookmarked link: no in-memory results — seed a single-result nav
+        // from the URL so the search indicator (and term) still show.
+        if (urlTerm && results.length === 0) {
+          results = [{ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum }];
+          index = 0;
+          setSearchNav(results, index, urlTerm);
+        }
         if (urlTerm) {
           searchClearedRef.current = false;
           setSearchTerm(urlTerm);
