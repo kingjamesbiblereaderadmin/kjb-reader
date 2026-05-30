@@ -352,7 +352,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   };
 
   return (
-    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-8 pt-8 pb-24 text-center text-white relative ${uploadingComplete ? 'cursor-default' : 'cursor-pointer'}`} style={bgStyle} onTouchEnd={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }}>
+    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full ${gradientClass} rounded-2xl shadow-lg px-8 pt-8 pb-10 text-center text-white relative flex flex-col ${uploadingComplete ? 'cursor-default' : 'cursor-pointer'}`} style={bgStyle} onTouchEnd={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }}>
       {/* Notification bell indicator button */}
       {showButtons && onToggleNotif && (
         <button
@@ -973,7 +973,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       />
       
       {showVersePanel ? (
-        <div className="bg-white/25 backdrop-blur-sm rounded-xl px-6 py-4 shadow-none text-center">
+        <div className="bg-white/25 backdrop-blur-sm rounded-xl px-6 py-4 shadow-none text-center flex-1 flex flex-col justify-center">
           <p 
             className={`font-sans text-sm font-bold tracking-wide uppercase mb-3 ${accentClass}`}
             style={{ opacity: textOpacity, color: textColor, fontFamily: resolvedFont }}
@@ -1007,7 +1007,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           </p>
         </div>
       ) : (
-        <div className="px-6 py-4 text-center">
+        <div className="px-6 py-4 text-center flex-1 flex flex-col justify-center">
           <blockquote 
             className="text-center text-2xl md:text-3xl leading-relaxed [&_em]:italic break-words"
             style={{ 
