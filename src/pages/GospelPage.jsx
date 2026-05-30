@@ -123,7 +123,7 @@ function GospelActions() {
   const [shared, setShared] = useState(false);
 
   const handleCopy = async () => {
-    const text = buildGospelText();
+    const text = buildGospelTextPlain();
     try {
       await navigator.clipboard.writeText(text);
     } catch {
@@ -141,7 +141,7 @@ function GospelActions() {
   };
 
   const handleShare = async () => {
-    const text = buildGospelText();
+    const text = buildGospelTextPlain();
     try {
       if (navigator.share) {
         await navigator.share({ title: 'How to be Saved — The Gospel of Jesus Christ', text });
