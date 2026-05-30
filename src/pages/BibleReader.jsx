@@ -462,9 +462,11 @@ export default function BibleReader() {
     const initParams = new URLSearchParams(window.location.search);
     if (initParams.get('from') === 'search') {
       const { term, index, results } = getSearchNav();
-      if (term) {
+      // Fall back to the ?q= URL param so shared/bookmarked links restore the term.
+      const urlTerm = initParams.get('q') || term;
+      if (urlTerm) {
         searchClearedRef.current = false;
-        setSearchTerm(term);
+        setSearchTerm(urlTerm);
         setSearchResultIndex(index);
         setSearchTotalResults(results.length);
       }
@@ -548,9 +550,11 @@ export default function BibleReader() {
       // Restore context based on navigation source
       if (isFromSearch) {
         const { term, index, results } = getSearchNav();
-        if (term) {
+        // Fall back to the ?q= URL param so shared/bookmarked links restore the term.
+        const urlTerm = urlParams.get('q') || term;
+        if (urlTerm) {
           searchClearedRef.current = false;
-          setSearchTerm(term);
+          setSearchTerm(urlTerm);
           setSearchResultIndex(index);
           setSearchTotalResults(results.length);
         }
@@ -1394,13 +1398,7 @@ export default function BibleReader() {
                       setHighlightVerse(null);
                       setShowFilterOverlay(false);
                       setLastReadingPos(null);
-                      try {
-                        localStorage.removeItem('kjb-last-reading');
-                        // Update saved position so the route effect (triggered when
-                        // navigate() strips ?from=daily) reloads the PREVIOUS chapter,
-                        // not the random/daily one we're leaving.
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr, chapter, verse: null }));
-                      } catch {}
+                      try { localStorage.removeItem('kjb-last-reading'); } catch {}
                       navigate(abbr, chapter);
                     } else if (filterMode && selectedVerses.size > 0) {
                       setFilterMode(false);
