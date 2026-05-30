@@ -123,11 +123,15 @@ export function renderColophonText(text) {
 }
 
 // Render Psalm subscript/superscription text:
-// Entire line is italic (matching printed KJB), with a pilcrow prefix.
+// Non-italic by default, [bracketed] words italic, with a pilcrow prefix.
 export function renderSubscriptText(text) {
   if (!text || typeof text !== 'string') return '';
   const normalized = text
     .replace(/\u2019/g, "'").replace(/\u2018/g, "'")
     .replace(/\u201C/g, '"').replace(/\u201D/g, '"');
-  return `<span class="pilcrow">¶</span> <em>${normalized}</em>`;
+  const parts = normalized.split(/\[([^\]]+)\]/g);
+  const rendered = parts.map((part, i) =>
+    i % 2 === 1 ? `<em>${part}</em>` : part
+  ).join('');
+  return `<span class="pilcrow">¶</span> ${rendered}`;
 }
