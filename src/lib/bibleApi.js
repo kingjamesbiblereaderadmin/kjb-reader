@@ -108,8 +108,8 @@ export function renderVerseText(text, searchTerm = null) {
     return str.replace(regex, '<mark style="background-color: rgba(250, 204, 21, 0.55); border-radius: 3px; padding: 0 2px;">$1</mark>');
   };
   
-  // Build HTML with proper spacing - no gaps between segments
-  return segments.map((seg, i) => {
+  // Build HTML - join segments directly with no extra spaces
+  return segments.map((seg) => {
     const processed = processPilcrow(seg);
     const highlighted = highlightSearch(processed, seg.italic);
     if (seg.italic) {

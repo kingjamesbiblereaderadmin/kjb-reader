@@ -208,13 +208,17 @@
     color: #e5e5e5 !important;
   }
   
-  /* Italic words ([bracketed]) in cursive mode - use italic style but prevent gaps with tight spacing */
+  /* Italic words ([bracketed]) in cursive mode - use italic style with tight spacing to prevent gaps */
   .cursive-em-style em {
     font-family: inherit !important;
     font-style: italic !important;
     font-weight: inherit !important;
     opacity: 1 !important;
     font-variant-numeric: normal !important;
+    display: inline !important;
+    white-space: normal !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   /* Colophon and subscript italics in cursive mode */
