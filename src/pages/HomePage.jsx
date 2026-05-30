@@ -148,7 +148,7 @@ export default function HomePage() {
     }
     // Navigate with URL params so the reader scrolls + highlights reliably,
     // whether it's freshly mounted or already open.
-    navigate(`/read?book=${verse.abbr}&chapter=${verse.chapter}&verse=${verse.verse}`);
+    navigate(`/read?book=${verse.abbr}&chapter=${verse.chapter}&verse=${verse.verse}&from=daily`);
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   };
 

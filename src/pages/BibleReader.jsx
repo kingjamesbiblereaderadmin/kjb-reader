@@ -430,6 +430,13 @@ export default function BibleReader() {
       clearSearchNav();
       setSearchTerm(null);
     }
+    // Restore lastReadingPos when arriving from daily/random
+    if (initParams.get('from') === 'daily') {
+      try {
+        const saved = localStorage.getItem('kjb-last-reading');
+        if (saved) setLastReadingPos(JSON.parse(saved));
+      } catch {}
+    }
     
     // Check for URL parameters: ?book=John&chapter=3&verse=16
     // (book accepts abbr, short name, or full name)
@@ -472,6 +479,7 @@ export default function BibleReader() {
     const urlBookObj = resolveBook(urlParams.get('book'));
     const urlChapter = urlParams.get('chapter');
     const isFromSearch = urlParams.get('from') === 'search';
+    const isFromDaily = urlParams.get('from') === 'daily';
     if (urlBookObj && urlChapter) {
       const chapterNum = parseInt(urlChapter, 10);
       const verseNum = urlParams.get('verse') ? parseInt(urlParams.get('verse'), 10) : null;
@@ -492,7 +500,7 @@ export default function BibleReader() {
         setSelectedVerses(new Set());
         setHighlightedVerses(new Set());
       }
-      // If navigation comes from search, restore search context; otherwise clear it
+      // Restore context based on navigation source
       if (isFromSearch) {
         const { term, index, results } = getSearchNav();
         if (term) {
@@ -508,6 +516,13 @@ export default function BibleReader() {
         setSearchTerm(null);
         setSearchResultIndex(0);
         setSearchTotalResults(0);
+      }
+      // Restore lastReadingPos from storage for daily/random navigations
+      if (isFromDaily) {
+        try {
+          const saved = localStorage.getItem('kjb-last-reading');
+          if (saved) setLastReadingPos(JSON.parse(saved));
+        } catch {}
       }
       setPos({ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum });
       setHighlightVerse(verseNum || null);
