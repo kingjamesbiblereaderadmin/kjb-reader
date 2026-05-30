@@ -424,7 +424,11 @@ export default function SearchPage() {
     setSearchNav(compact, resultIndex !== null ? resultIndex : 0, q);
     window.scrollTo({ top: 0 });
     // Navigate with URL params so the reader reliably scrolls to + highlights the verse.
-    const url = verse ? `/read?book=${abbr}&chapter=${chapter}&verse=${verse}&from=search` : `/read?book=${abbr}&chapter=${chapter}&from=search`;
+    // Include the search term (&q=) so the URL is shareable/bookmarkable.
+    const qParam = q ? `&q=${encodeURIComponent(q)}` : '';
+    const url = verse
+      ? `/read?book=${abbr}&chapter=${chapter}&verse=${verse}&from=search${qParam}`
+      : `/read?book=${abbr}&chapter=${chapter}&from=search${qParam}`;
     navigate(url);
     // If already on /read, notify the mounted reader to load this passage.
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);

@@ -1394,7 +1394,13 @@ export default function BibleReader() {
                       setHighlightVerse(null);
                       setShowFilterOverlay(false);
                       setLastReadingPos(null);
-                      try { localStorage.removeItem('kjb-last-reading'); } catch {}
+                      try {
+                        localStorage.removeItem('kjb-last-reading');
+                        // Update saved position so the route effect (triggered when
+                        // navigate() strips ?from=daily) reloads the PREVIOUS chapter,
+                        // not the random/daily one we're leaving.
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr, chapter, verse: null }));
+                      } catch {}
                       navigate(abbr, chapter);
                     } else if (filterMode && selectedVerses.size > 0) {
                       setFilterMode(false);
