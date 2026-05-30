@@ -1383,7 +1383,10 @@ export default function BibleReader() {
                     if (searchTerm) {
                       clearSearchContext();
                     } else if (lastReadingPos && lastReadingPos.abbr && lastReadingPos.chapter && !lastReadingPos.cleared) {
-                      const { abbr, chapter } = lastReadingPos;
+                      // Return to the PREVIOUS reading session if one was stored
+                      // (random/daily navigation), otherwise stay on this chapter.
+                      const abbr = lastReadingPos.prevAbbr || lastReadingPos.abbr;
+                      const chapter = lastReadingPos.prevChapter || lastReadingPos.chapter;
                       lastReadingClearedRef.current = true;
                       setFilterMode(false);
                       setSelectMode(false);

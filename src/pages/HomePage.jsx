@@ -136,9 +136,18 @@ export default function HomePage() {
       localStorage.removeItem('kjb-search-total');
       localStorage.removeItem('kjb-search-results');
     } catch {}
-    // Save daily verse as last reading position
+    // Save daily verse as last reading position, plus the previous chapter so
+    // Clear returns to the prior reading session.
     try {
-      localStorage.setItem('kjb-last-reading', JSON.stringify({ abbr: verse.abbr, chapter: verse.chapter, verse: verse.verse, fromDailyVerse: true }));
+      const currentPos = JSON.parse(localStorage.getItem('kjb-position') || '{}');
+      localStorage.setItem('kjb-last-reading', JSON.stringify({
+        abbr: verse.abbr,
+        chapter: verse.chapter,
+        verse: verse.verse,
+        fromDailyVerse: true,
+        prevAbbr: currentPos.abbr || null,
+        prevChapter: currentPos.chapter || null,
+      }));
     } catch {}
     const savedData = { abbr: verse.abbr, chapter: verse.chapter, verse: verse.verse };
     try {
@@ -162,10 +171,17 @@ export default function HomePage() {
       localStorage.removeItem('kjb-search-total');
       localStorage.removeItem('kjb-search-results');
     } catch {}
-    // Save the DESTINATION random chapter so the reader shows the "Random Chapter"
-    // indicator (lastReadingActive matches the current chapter).
+    // Save the DESTINATION random chapter (so the reader shows the "Random Chapter"
+    // indicator) plus the PREVIOUS chapter (so Clear can return to it).
     try {
-      localStorage.setItem('kjb-last-reading', JSON.stringify({ abbr: randomBook.abbr, chapter: randomChapter, fromRandom: true }));
+      const currentPos = JSON.parse(localStorage.getItem('kjb-position') || '{}');
+      localStorage.setItem('kjb-last-reading', JSON.stringify({
+        abbr: randomBook.abbr,
+        chapter: randomChapter,
+        fromRandom: true,
+        prevAbbr: currentPos.abbr || null,
+        prevChapter: currentPos.chapter || null,
+      }));
     } catch {}
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr: randomBook.abbr, chapter: randomChapter, verse: null })); } catch {}
     window.scrollTo({ top: 0, behavior: 'smooth' });
