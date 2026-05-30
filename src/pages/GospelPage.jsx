@@ -2,6 +2,16 @@ import React, { useState } from 'react';
 import { Heart, AlertCircle, CheckCircle, XCircle, Copy, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
+import { setGospelNav } from '@/lib/searchNav';
+
+// Ordered list of all gospel verses, used for the in-reader "Gospel" stepper.
+const GOSPEL_VERSES = [
+  { book: 'Romans', chapter: 3, verse: 20 },
+  { book: 'Psalms', chapter: 9, verse: 16 },
+  { book: '1 Timothy', chapter: 3, verse: 16 },
+  { book: '1 Corinthians', chapter: 15, verse: 1 },
+  { book: 'Ephesians', chapter: 1, verse: 13 },
+];
 
 function VerseLink({ book, chapter, verse, children }) {
   const navigate = useNavigate();
@@ -9,13 +19,21 @@ function VerseLink({ book, chapter, verse, children }) {
 
   const handleClick = () => {
     if (!bookData) return;
+    // Seed the gospel stepper with all gospel verses (resolved to abbrs),
+    // starting at the clicked verse, so the reader shows "Gospel" with arrows.
+    const results = GOSPEL_VERSES.map(g => {
+      const bd = BIBLE_BOOKS.find(b => b.shortName === g.book || b.apiName === g.book);
+      return bd ? { abbr: bd.abbr, chapter: g.chapter, verse: g.verse } : null;
+    }).filter(Boolean);
+    const index = Math.max(0, results.findIndex(r => r.abbr === bookData.abbr && r.chapter === chapter && r.verse === verse));
     try {
       localStorage.removeItem('kjb-search-term');
+      setGospelNav(results, index);
       localStorage.setItem('kjb-position', JSON.stringify({ abbr: bookData.abbr, chapter, verse }));
     } catch {}
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    // Navigate with URL params so the reader scrolls to AND highlights the verse
-    navigate(`/read?book=${bookData.abbr}&chapter=${chapter}&verse=${verse}`);
+    // Navigate with from=gospel so the reader scrolls, highlights and shows the stepper
+    navigate(`/read?book=${bookData.abbr}&chapter=${chapter}&verse=${verse}&from=gospel`);
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   };
 

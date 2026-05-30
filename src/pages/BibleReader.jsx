@@ -19,7 +19,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Accessibility } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
-import { getSearchNav, setSearchNav, setSearchIndex, clearSearchNav } from '@/lib/searchNav';
+import { getSearchNav, setSearchNav, setSearchIndex, clearSearchNav, getGospelNav, setGospelIndex, clearGospelNav } from '@/lib/searchNav';
 
 const isMobile = () => window.innerWidth < 640;
 
@@ -154,6 +154,11 @@ export default function BibleReader() {
   // Ref to prevent focus events from restoring a daily/random "last reading"
   // indicator after the user manually navigated (book/chapter/verse) or cleared it
   const lastReadingClearedRef = useRef(false);
+
+  // Gospel stepper state — show "Gospel" indicator with up/down arrows
+  const [gospelMode, setGospelMode] = useState(false);
+  const [gospelResultIndex, setGospelResultIndex] = useState(() => getGospelNav().index);
+  const [gospelTotalResults, setGospelTotalResults] = useState(() => getGospelNav().results.length);
 
   const handleFontChange = (font) => {
     // Dyslexic & Legible are accessibility fonts — apply them app-wide (and
@@ -501,6 +506,17 @@ export default function BibleReader() {
         if (saved) setLastReadingPos(JSON.parse(saved));
       } catch {}
     }
+    // Restore gospel stepper when arriving from a gospel link
+    if (initParams.get('from') === 'gospel') {
+      const g = getGospelNav();
+      if (g.results.length > 0) {
+        setGospelMode(true);
+        setGospelResultIndex(g.index);
+        setGospelTotalResults(g.results.length);
+      }
+    } else {
+      clearGospelNav();
+    }
     
     // Check for URL parameters: ?book=John&chapter=3&verse=16
     // (book accepts abbr, short name, or full name)
@@ -545,6 +561,7 @@ export default function BibleReader() {
     const urlChapter = urlParams.get('chapter');
     const isFromSearch = urlParams.get('from') === 'search';
     const isFromDaily = urlParams.get('from') === 'daily';
+    const isFromGospel = urlParams.get('from') === 'gospel';
     if (urlBookObj && urlChapter) {
       const chapterNum = parseInt(urlChapter, 10);
       const verseNum = urlParams.get('verse') ? parseInt(urlParams.get('verse'), 10) : null;
@@ -564,6 +581,18 @@ export default function BibleReader() {
         setFilterMode(false);
         setSelectedVerses(new Set());
         setHighlightedVerses(new Set());
+      }
+      // Gospel stepper navigation
+      if (isFromGospel) {
+        const g = getGospelNav();
+        if (g.results.length > 0) {
+          setGospelMode(true);
+          setGospelResultIndex(g.index);
+          setGospelTotalResults(g.results.length);
+        }
+      } else {
+        setGospelMode(false);
+        clearGospelNav();
       }
       // Restore context based on navigation source
       if (isFromSearch) {
@@ -787,6 +816,9 @@ export default function BibleReader() {
     setSearchTerm(null);
     setSearchResultIndex(0);
     setSearchTotalResults(0);
+    // Clear gospel stepper on manual navigation
+    setGospelMode(false);
+    clearGospelNav();
     // Save last reading position before navigating FROM daily verse or random chapter
     if ((fromDailyVerse || fromRandom) && pos.abbr && pos.chapter) {
       lastReadingClearedRef.current = false;
@@ -1380,7 +1412,7 @@ export default function BibleReader() {
               </button>
 
               {/* Currently reading indicator - integrated into toolbar */}
-              {(highlightVerse || (filterMode && selectedVerses.size > 0) || lastReadingActive || searchTerm) && (
+              {(highlightVerse || (filterMode && selectedVerses.size > 0) || lastReadingActive || searchTerm || gospelMode) && (
                 <CurrentlyReadingIndicator
                   highlightVerse={highlightVerse}
                   filterMode={filterMode}
@@ -1389,9 +1421,23 @@ export default function BibleReader() {
                   book={book}
                   pos={pos}
                   searchTerm={searchTerm}
-                  currentResultIndex={searchResultIndex}
-                  totalResults={searchTotalResults}
+                  gospelMode={gospelMode}
+                  currentResultIndex={gospelMode ? gospelResultIndex : searchResultIndex}
+                  totalResults={gospelMode ? gospelTotalResults : searchTotalResults}
                   onPrevResult={() => {
+                    if (gospelMode) {
+                      const { results, index } = getGospelNav();
+                      const prevIndex = index - 1;
+                      if (prevIndex >= 0 && results[prevIndex]) {
+                        const r = results[prevIndex];
+                        setGospelIndex(prevIndex);
+                        setGospelResultIndex(prevIndex);
+                        setPos({ abbr: r.abbr, chapter: r.chapter, verse: r.verse || null });
+                        setHighlightVerse(r.verse || null);
+                        loadChapter(r.abbr, r.chapter, r.verse || null);
+                      }
+                      return;
+                    }
                     const { results, index } = getSearchNav();
                     const prevIndex = index - 1;
                     if (prevIndex >= 0 && results[prevIndex]) {
@@ -1404,6 +1450,19 @@ export default function BibleReader() {
                     }
                   }}
                   onNextResult={() => {
+                    if (gospelMode) {
+                      const { results, index } = getGospelNav();
+                      const nextIndex = index + 1;
+                      if (nextIndex < results.length && results[nextIndex]) {
+                        const r = results[nextIndex];
+                        setGospelIndex(nextIndex);
+                        setGospelResultIndex(nextIndex);
+                        setPos({ abbr: r.abbr, chapter: r.chapter, verse: r.verse || null });
+                        setHighlightVerse(r.verse || null);
+                        loadChapter(r.abbr, r.chapter, r.verse || null);
+                      }
+                      return;
+                    }
                     const { results, index } = getSearchNav();
                     const nextIndex = index + 1;
                     if (nextIndex < results.length && results[nextIndex]) {
@@ -1416,6 +1475,13 @@ export default function BibleReader() {
                     }
                   }}
                   onClear={() => {
+                    if (gospelMode) {
+                      setGospelMode(false);
+                      clearGospelNav();
+                      setHighlightVerse(null);
+                      try { window.history.replaceState({}, '', '/read'); } catch {}
+                      return;
+                    }
                     if (searchTerm) {
                       clearSearchContext();
                     } else if (lastReadingPos && lastReadingPos.abbr && lastReadingPos.chapter && !lastReadingPos.cleared) {

@@ -29,6 +29,7 @@ export default function CurrentlyReadingIndicator({
   onNextResult,
   currentResultIndex,
   totalResults,
+  gospelMode,
 }) {
   const isFilterMode = filterMode && selectedVerses.size > 0;
   const isRandom = lastReadingPos && lastReadingPos.fromRandom;
@@ -40,7 +41,11 @@ export default function CurrentlyReadingIndicator({
   let reference = '';
   let clearLabel = 'Clear';
 
-  if (searchTerm) {
+  if (gospelMode) {
+    typeLabel = 'Gospel';
+    reference = `${book.shortName} ${pos.chapter}${verseNum ? `:${verseNum}` : ''}`;
+    clearLabel = 'Clear';
+  } else if (searchTerm) {
     typeLabel = `Search: "${searchTerm}"`;
     reference = `${book.shortName} ${pos.chapter}${verseNum ? `:${verseNum}` : ''}`;
     clearLabel = 'Clear search';
@@ -65,7 +70,7 @@ export default function CurrentlyReadingIndicator({
 
   if (!reference) return null;
 
-  const showNavigation = searchTerm && totalResults > 1 && onPrevResult && onNextResult;
+  const showNavigation = (searchTerm || gospelMode) && totalResults > 1 && onPrevResult && onNextResult;
 
   return (
     <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-yellow-500 text-black font-sans text-xs font-medium h-11 whitespace-nowrap flex-shrink-0">
