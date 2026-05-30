@@ -665,10 +665,11 @@ export default function BibleReader() {
         setLastReadingPos(lastReading ? JSON.parse(lastReading) : null);
       } catch {}
 
-      // Restore highlight from saved position when returning (e.g. Home → Read)
+      // Restore highlight only if saved position matches the currently viewed chapter
       try {
         const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        if (p && p.verse) {
+        const cur = posRef.current;
+        if (p && p.verse && p.abbr === cur.abbr && p.chapter === cur.chapter) {
           setHighlightVerse(p.verse);
         }
       } catch {}
