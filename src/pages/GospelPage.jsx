@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, AlertCircle, CheckCircle, XCircle, Copy, Check } from 'lucide-react';
+import { Heart, AlertCircle, CheckCircle, XCircle, Copy, Check, Share2, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { setGospelNav } from '@/lib/searchNav';
@@ -116,8 +116,10 @@ https://www.youtube.com/watch?v=znP9Dr6tOzU
 https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq`;
 }
 
-function CopyGospelButton() {
+function GospelActions() {
   const [copied, setCopied] = useState(false);
+  const [shared, setShared] = useState(false);
+
   const handleCopy = async () => {
     const text = buildGospelText();
     try {
@@ -135,14 +137,62 @@ function CopyGospelButton() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const handleShare = async () => {
+    const text = buildGospelText();
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'How to be Saved — The Gospel of Jesus Christ', text });
+        return;
+      }
+    } catch (err) {
+      if (err?.name === 'AbortError') return;
+    }
+    // Fallback: copy to clipboard
+    try {
+      await navigator.clipboard.writeText(text);
+      setShared(true);
+      setTimeout(() => setShared(false), 2000);
+    } catch {}
+  };
+
+  const handleDownload = () => {
+    const text = buildGospelText();
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'the-gospel.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
-    <button
-      onClick={handleCopy}
-      className="inline-flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-accent/20 text-foreground rounded-lg font-sans text-sm font-medium transition-colors"
-    >
-      {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
-      {copied ? 'Copied!' : 'Copy the Gospel'}
-    </button>
+    <div className="flex flex-wrap items-center justify-center gap-2">
+      <button
+        onClick={handleCopy}
+        className="inline-flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-accent/20 text-foreground rounded-lg font-sans text-sm font-medium transition-colors"
+      >
+        {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+        {copied ? 'Copied!' : 'Copy the Gospel'}
+      </button>
+      <button
+        onClick={handleShare}
+        className="inline-flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-accent/20 text-foreground rounded-lg font-sans text-sm font-medium transition-colors"
+      >
+        {shared ? <Check className="w-4 h-4 text-green-600" /> : <Share2 className="w-4 h-4" />}
+        {shared ? 'Copied!' : 'Share'}
+      </button>
+      <button
+        onClick={handleDownload}
+        className="inline-flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-accent/20 text-foreground rounded-lg font-sans text-sm font-medium transition-colors"
+      >
+        <Download className="w-4 h-4" />
+        Download
+      </button>
+    </div>
   );
 }
 
@@ -171,7 +221,7 @@ export default function GospelPage() {
         </p>
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         <div className="mt-5">
-          <CopyGospelButton />
+          <GospelActions />
         </div>
       </div>
 
