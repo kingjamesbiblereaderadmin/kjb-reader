@@ -1614,6 +1614,7 @@ export default function BibleReader() {
                 chapter={pos.chapter}
                 isFirstVerse={idx === 0}
                 paragraphMode={paragraphMode}
+                columnMode={columnMode}
                 selectMode={selectMode}
                 isSelected={selectedVerses.has(v.verse)}
                 onSelect={toggleVerseSelect}
