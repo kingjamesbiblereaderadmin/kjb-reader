@@ -14,8 +14,7 @@ import { useTheme, COLOUR_PALETTES } from '@/lib/themeContext';
 import { useNavigate } from 'react-router-dom';
 import {
   getNotificationsEnabled, getNotificationTime, setNotificationTime,
-  requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification,
-  updatePushPreferredHour
+  requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification
 } from '@/lib/notifications';
 
 import { getDailyVerse } from '@/lib/dailyVerse';

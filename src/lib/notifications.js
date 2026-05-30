@@ -105,15 +105,6 @@ const APP_LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c
 // Reminders are handled entirely on-device via the in-app timer + service
 // worker (showLocalNotification). No server push / VAPID is used.
 
-// Kept as no-ops so existing callers keep working without server push.
-export async function subscribeToPush() {
-  return false;
-}
-
-export async function updatePushPreferredHour() {
-  // No server-side schedule to update — the in-app timer reschedules itself.
-}
-
 // Show a notification via SW (required on Android PWA)
 export async function showLocalNotification(title, body, imageUrl = null) {
   console.log('[Notif] showLocalNotification called:', title);
