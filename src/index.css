@@ -208,11 +208,12 @@
     color: #e5e5e5 !important;
   }
   
-  /* Italic words ([bracketed]) in cursive mode - inherit everything, no styling */
+  /* Italic words ([bracketed]) in cursive mode - inherit font metrics, lighter opacity for distinction */
   .cursive-em-style em {
     font-family: inherit !important;
     font-style: inherit !important;
     font-weight: inherit !important;
+    opacity: 0.75 !important;
   }
 
   /* Colophon and subscript italics in cursive mode */
