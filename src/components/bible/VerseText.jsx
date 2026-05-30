@@ -244,20 +244,22 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           <span
             onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
             className={`inline leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.3em] py-[0.2em] ${
-              selectMode && isSelected ? 'bg-primary/10 border border-primary/30 rounded-[0.4em]' : !isHighlighted ? 'hover:bg-secondary/60' : ''
+              !selectMode && !isHighlighted ? 'hover:bg-secondary/60' : ''
             }`}
           >
-            {selectMode && (
-              <span className="inline-flex items-center mr-1 text-primary align-middle">
-                {isSelected ? <CheckSquare className="w-[1em] h-[1em]" /> : <Square className="w-[1em] h-[1em] text-muted-foreground" />}
-              </span>
-            )}
             <sup className="text-accent font-sans font-semibold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
-            <span
-              className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left inline ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
-              style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
-              dangerouslySetInnerHTML={{ __html: html }}
-            />
+            <span className={selectMode && isSelected ? 'bg-primary/10 border border-primary/30 rounded-[0.4em] box-decoration-clone px-[0.2em] py-[0.1em]' : ''}>
+              {selectMode && (
+                <span className="inline-flex items-center mr-1 text-primary align-middle">
+                  {isSelected ? <CheckSquare className="w-[1em] h-[1em]" /> : <Square className="w-[1em] h-[1em] text-muted-foreground" />}
+                </span>
+              )}
+              <span
+                className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left inline ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+                style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
+                dangerouslySetInnerHTML={{ __html: html }}
+              />
+            </span>
           </span>
           {!selectMode && actionPopover}
         </span>
@@ -269,20 +271,22 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         <span
           onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
           className={`inline leading-loose transition-colors duration-200 rounded cursor-pointer px-[0.3em] py-[0.2em] ${
-            selectMode && isSelected ? 'bg-primary/10' : !isHighlighted ? 'hover:bg-secondary/60' : ''
+            !selectMode && !isHighlighted ? 'hover:bg-secondary/60' : ''
           }`}
         >
-          {selectMode && (
-            <span className="inline-flex items-center mr-1 text-primary align-middle">
-              {isSelected ? <CheckSquare className="w-[1em] h-[1em]" /> : <Square className="w-[1em] h-[1em] text-muted-foreground" />}
-            </span>
-          )}
           <sup className="text-accent font-sans font-semibold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
-          <span
-            className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
-            style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
+          <span className={selectMode && isSelected ? 'bg-primary/10 box-decoration-clone rounded px-[0.2em] py-[0.1em]' : ''}>
+            {selectMode && (
+              <span className="inline-flex items-center mr-1 text-primary align-middle">
+                {isSelected ? <CheckSquare className="w-[1em] h-[1em]" /> : <Square className="w-[1em] h-[1em] text-muted-foreground" />}
+              </span>
+            )}
+            <span
+              className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+              style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          </span>
           {' '}
         </span>
         {!selectMode && actionPopover}
@@ -296,18 +300,18 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
       <span
         onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
         className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.4em] py-[0.25em] gap-[0.6em] w-full ${
-          selectMode && isSelected ? 'bg-primary/10 border border-primary/30 rounded-[0.5em]' : !isHighlighted ? 'hover:bg-secondary/60' : ''
+          !selectMode && !isHighlighted ? 'hover:bg-secondary/60' : ''
         }`}
       >
-        {selectMode && (
-          <span className="shrink-0 mt-[0.2em] text-primary">
-            {isSelected ? <CheckSquare className="w-[1.1em] h-[1.1em]" /> : <Square className="w-[1.1em] h-[1.1em] text-muted-foreground" />}
-          </span>
-        )}
         <sup className="text-accent font-sans font-semibold text-[0.6em] shrink-0 select-none mt-[0.2em] mr-[0.3em]">{verse.verse}</sup>
-        <span className="flex-1 min-w-0">
+        <span className={`flex-1 min-w-0 flex items-start gap-[0.6em] ${selectMode && isSelected ? 'bg-primary/10 border border-primary/30 rounded-[0.5em] px-[0.3em] py-[0.1em]' : ''}`}>
+          {selectMode && (
+            <span className="shrink-0 mt-[0.2em] text-primary">
+              {isSelected ? <CheckSquare className="w-[1.1em] h-[1.1em]" /> : <Square className="w-[1.1em] h-[1.1em] text-muted-foreground" />}
+            </span>
+          )}
           <span
-            className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+            className={`flex-1 min-w-0 leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
             style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
             dangerouslySetInnerHTML={{ __html: html }}
           />
