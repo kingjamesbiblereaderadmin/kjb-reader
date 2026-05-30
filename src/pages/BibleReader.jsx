@@ -707,6 +707,11 @@ export default function BibleReader() {
       // daily/random "last reading" context so the indicator doesn't keep showing it.
       try { localStorage.removeItem('kjb-last-reading'); } catch {}
       setLastReadingPos(null);
+      // Also strip any stale ?from=daily / ?from=search etc. from the URL so the
+      // route effect (and focus handlers) can't restore the daily indicator.
+      if (window.location.search) {
+        try { window.history.replaceState(null, '', window.location.pathname); } catch {}
+      }
     }
     // Clear highlights when navigating without a specific verse
     if (!jumpVerse) {
