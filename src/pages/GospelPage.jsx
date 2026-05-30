@@ -201,7 +201,7 @@ export default function GospelPage() {
             <XCircle className="w-5 h-5 text-red-500" />
           </div>
           <div>
-            <h3 className="font-serif text-xl font-semibold text-red-700 dark:text-red-400 mb-2">These do NOT make you a Christian</h3>
+            <h3 className="font-serif text-xl font-semibold text-red-700 dark:text-red-400 mb-2">These do NOT make you a Christian:</h3>
             <ul className="space-y-1 font-sans text-sm text-foreground/80">
               {[
                 'Repenting of sins',
