@@ -208,10 +208,10 @@
     color: #e5e5e5 !important;
   }
   
-  /* Italic words ([bracketed]) in cursive mode - light italic, slightly faded */
+  /* Italic words ([bracketed]) in cursive mode - italic, slightly faded */
   .cursive-em-style em {
     font-style: italic !important;
-    font-weight: 300 !important;
+    font-weight: inherit !important;
     color: rgba(26, 26, 26, 0.6) !important;
   }
   .dark .cursive-em-style em {
