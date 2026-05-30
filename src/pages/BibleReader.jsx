@@ -1291,7 +1291,15 @@ export default function BibleReader() {
                     }
                   }}
                   onClear={() => {
+                    // Resolve the cached lastReadingPos
+                    let cachedLastReading = lastReadingPos;
+                    try {
+                      const stored = localStorage.getItem('kjb-last-reading');
+                      if (stored) cachedLastReading = JSON.parse(stored);
+                    } catch {}
+
                     if (searchTerm) {
+                      // Clear search and return to previous position if available
                       setSearchTerm(null);
                       setSearchResultIndex(0);
                       setSearchTotalResults(0);
@@ -1302,23 +1310,28 @@ export default function BibleReader() {
                         localStorage.removeItem('kjb-search-total');
                         localStorage.removeItem('kjb-search-results');
                       } catch {}
-                    } else if (filterMode && selectedVerses.size > 0) {
+                    } else if (cachedLastReading && cachedLastReading.abbr && cachedLastReading.chapter && !cachedLastReading.cleared) {
+                      // Daily verse / random chapter — go back to the previous chapter
+                      const { abbr, chapter } = cachedLastReading;
                       setFilterMode(false);
                       setSelectMode(false);
                       setSelectedVerses(new Set());
                       setHighlightVerse(null);
                       setShowFilterOverlay(false);
                       setLastReadingPos(null);
-                    } else if (lastReadingPos && lastReadingPos.abbr && lastReadingPos.chapter && !lastReadingPos.cleared) {
-                      navigate(lastReadingPos.abbr, lastReadingPos.chapter);
-                      setLastReadingPos(null);
                       try { localStorage.removeItem('kjb-last-reading'); } catch {}
+                      navigate(abbr, chapter);
+                    } else if (filterMode && selectedVerses.size > 0) {
+                      setFilterMode(false);
+                      setSelectMode(false);
+                      setSelectedVerses(new Set());
+                      setHighlightVerse(null);
+                      setShowFilterOverlay(false);
                     } else {
                       setHighlightVerse(null);
                       setFilterMode(false);
                       setSelectedVerses(new Set());
                       setShowFilterOverlay(false);
-                      if (lastReadingPos) setLastReadingPos(prev => prev ? {...prev, cleared: true} : null);
                     }
                   }}
                   />
