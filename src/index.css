@@ -221,7 +221,7 @@
   }
   .dark .cursive-em-style em,
   .dark .cursive-em-style *:not(button) em {
-    color: #9a9a9a !important;
+    color: #c4c4c4 !important;
   }
 
   /* Colophon and subscript italics: only [bracketed] words (rendered as <em>)
