@@ -41,7 +41,7 @@ The Gospel is the glad tidings of the Lord Jesus Christ, trust he is God, died, 
 
 ━━━━━━━━━━━━━━━━━━━━
 
-1. Believe you are a sinner that deserves hell.
+1. Believe you are a sinner that deserves hell:
 
 “Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin.”
 — Romans 3:20
@@ -53,7 +53,7 @@ ${link('Psa', 9, 17)}
 
 ━━━━━━━━━━━━━━━━━━━━
 
-2. Believe that Jesus is God manifested in the flesh.
+2. Believe that Jesus is God manifested in the flesh:
 
 “And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory.”
 — 1 Timothy 3:16
@@ -61,7 +61,7 @@ ${link('1Tim', 3, 16)}
 
 ━━━━━━━━━━━━━━━━━━━━
 
-3. Believe he died, shed his blood, was buried and rose again.
+3. Believe he died, shed his blood, was buried and rose again:
 
 “Moreover, brethren, I declare unto you the gospel which I preached unto you... how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures.”
 — 1 Corinthians 15:1-4
@@ -69,7 +69,7 @@ ${link('1Cor', 15, 1)}
 
 ━━━━━━━━━━━━━━━━━━━━
 
-Once Saved, Always Saved
+Once Saved, Always Saved:
 
 “In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise.”
 — Ephesians 1:13
