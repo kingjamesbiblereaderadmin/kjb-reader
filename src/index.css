@@ -155,6 +155,14 @@
   .kjb-two-col > span {
     break-inside: avoid;
   }
+  /* Cursive font in two-column mode: justify stretches the wide script into
+     ugly word gaps in narrow columns. Use left alignment + no hyphens instead. */
+  .kjb-two-col.cursive-em-style,
+  .kjb-two-col .cursive-em-style {
+    text-align: left;
+    -webkit-hyphens: none;
+    hyphens: none;
+  }
   /* First verse of each column starts flush at the top (no leading gap),
      so the left & right columns align at the same height */
   .kjb-two-col > span:first-child {
