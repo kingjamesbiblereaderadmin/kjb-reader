@@ -208,14 +208,16 @@
     color: #e5e5e5 !important;
   }
   
-  /* Italic words ([bracketed]) in cursive mode - bold italic, darker */
+  /* Italic words ([bracketed]) in cursive mode - light italic, slightly faded */
   .cursive-em-style em {
     font-style: italic !important;
-    font-weight: 900 !important;
+    font-weight: 300 !important;
     color: #1a1a1a !important;
+    opacity: 0.7;
   }
   .dark .cursive-em-style em {
     color: #ffffff !important;
+    opacity: 0.6;
   }
 
   /* Colophon and subscript italics in cursive mode */
