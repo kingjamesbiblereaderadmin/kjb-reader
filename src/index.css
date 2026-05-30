@@ -210,21 +210,18 @@
   }
   
   /* Italic words ([bracketed]) in cursive mode.
-     Use a DIFFERENT, lighter font (Cormorant Garamond italic) instead of the
-     connecting Dancing Script — this both makes them visually distinct AND fixes
-     the merging issue (Dancing Script glyphs connect into neighbours).
-     inline-block preserves the surrounding spaces so words never merge. */
+     Match the search-results look: same Dancing Script font, rendered italic and
+     in a lighter colour so they're visually distinct from surrounding text. */
   .cursive-em-style em,
   .cursive-em-style *:not(button) em {
-    font-family: 'Cormorant Garamond', Georgia, serif !important;
+    font-family: 'Dancing Script', cursive !important;
     font-style: italic !important;
     font-weight: 400 !important;
-    color: #555 !important;
-    display: inline-block;
+    color: #777 !important;
   }
   .dark .cursive-em-style em,
   .dark .cursive-em-style *:not(button) em {
-    color: #b0b0b0 !important;
+    color: #9a9a9a !important;
   }
 
   /* Colophon and subscript italics: only [bracketed] words (rendered as <em>)
