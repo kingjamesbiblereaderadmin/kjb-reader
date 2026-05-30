@@ -19,6 +19,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Accessibility } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { getAccessibilityFont } from '@/lib/accessibilityFont';
+import { getSearchNav, setSearchIndex, clearSearchNav } from '@/lib/searchNav';
 
 const isMobile = () => window.innerWidth < 640;
 
@@ -139,19 +140,9 @@ export default function BibleReader() {
   const a11yActive = a11yFont !== 'default';
   
   // Track search term for CurrentlyReadingIndicator
-  const [searchTerm, setSearchTerm] = useState(() => {
-    try { return localStorage.getItem('kjb-search-term') || null; } catch { return null; }
-  });
-  const [searchResultIndex, setSearchResultIndex] = useState(() => {
-    try { return parseInt(localStorage.getItem('kjb-search-index') || '0', 10); } catch { return 0; }
-  });
-  const [searchTotalResults, setSearchTotalResults] = useState(() => {
-    try {
-      const results = localStorage.getItem('kjb-search-results');
-      if (results) return JSON.parse(results).length;
-      return parseInt(localStorage.getItem('kjb-search-total') || '0', 10);
-    } catch { return 0; }
-  });
+  const [searchTerm, setSearchTerm] = useState(() => getSearchNav().term || null);
+  const [searchResultIndex, setSearchResultIndex] = useState(() => getSearchNav().index);
+  const [searchTotalResults, setSearchTotalResults] = useState(() => getSearchNav().results.length);
 
   const handleFontChange = (font) => {
     setFontFamily(font);
@@ -422,20 +413,11 @@ export default function BibleReader() {
     };
     preloadAndCache();
     
-    // Load search term and results from localStorage
-    try {
-      const term = localStorage.getItem('kjb-search-term');
-      if (term) setSearchTerm(term);
-      const searchIndex = localStorage.getItem('kjb-search-index');
-      const searchTotal = localStorage.getItem('kjb-search-total');
-      const searchResults = localStorage.getItem('kjb-search-results');
-      if (searchIndex) setSearchResultIndex(parseInt(searchIndex, 10));
-      if (searchTotal) setSearchTotalResults(parseInt(searchTotal, 10));
-      if (searchResults) {
-        const results = JSON.parse(searchResults);
-        setSearchTotalResults(results.length);
-      }
-    } catch {}
+    // Sync search nav state from module (already initialized from localStorage)
+    const { term, index, results } = getSearchNav();
+    if (term) setSearchTerm(term);
+    setSearchResultIndex(index);
+    setSearchTotalResults(results.length);
     
     // Check for URL parameters: ?book=John&chapter=3&verse=16
     // (book accepts abbr, short name, or full name)
@@ -621,13 +603,10 @@ export default function BibleReader() {
   useEffect(() => {
     const refreshContext = () => {
       try {
-        const term = localStorage.getItem('kjb-search-term');
-        if (term !== searchTerm) setSearchTerm(term);
-        const searchIndex = localStorage.getItem('kjb-search-index');
-        const searchTotal = localStorage.getItem('kjb-search-total');
-        if (searchIndex) setSearchResultIndex(parseInt(searchIndex, 10));
-        if (searchTotal) setSearchTotalResults(parseInt(searchTotal, 10));
-        // Sync lastReadingPos from localStorage — always sync, including null (cleared by search nav)
+        const { term, index, results } = getSearchNav();
+        if (term !== searchTerm) setSearchTerm(term || null);
+        setSearchResultIndex(index);
+        setSearchTotalResults(results.length);
         const lastReading = localStorage.getItem('kjb-last-reading');
         setLastReadingPos(lastReading ? JSON.parse(lastReading) : null);
       } catch {}
@@ -1265,13 +1244,11 @@ export default function BibleReader() {
                   currentResultIndex={searchResultIndex}
                   totalResults={searchTotalResults}
                   onPrevResult={() => {
-                    const searchResults = JSON.parse(localStorage.getItem('kjb-search-results') || '[]');
-                    const currentIndex = parseInt(localStorage.getItem('kjb-search-index') || '0', 10);
-                    const prevIndex = currentIndex - 1;
-                    console.log('[Nav] Prev clicked, currentIndex:', currentIndex, 'prevIndex:', prevIndex, 'results len:', searchResults.length);
-                    if (prevIndex >= 0 && searchResults[prevIndex]) {
-                      const r = searchResults[prevIndex];
-                      localStorage.setItem('kjb-search-index', String(prevIndex));
+                    const { results, index } = getSearchNav();
+                    const prevIndex = index - 1;
+                    if (prevIndex >= 0 && results[prevIndex]) {
+                      const r = results[prevIndex];
+                      setSearchIndex(prevIndex);
                       setSearchResultIndex(prevIndex);
                       setPos({ abbr: r.abbr, chapter: r.chapter, verse: r.verse || null });
                       setHighlightVerse(r.verse || null);
@@ -1279,13 +1256,11 @@ export default function BibleReader() {
                     }
                   }}
                   onNextResult={() => {
-                    const searchResults = JSON.parse(localStorage.getItem('kjb-search-results') || '[]');
-                    const currentIndex = parseInt(localStorage.getItem('kjb-search-index') || '0', 10);
-                    const nextIndex = currentIndex + 1;
-                    console.log('[Nav] Next clicked, currentIndex:', currentIndex, 'nextIndex:', nextIndex, 'results len:', searchResults.length);
-                    if (nextIndex < searchResults.length && searchResults[nextIndex]) {
-                      const r = searchResults[nextIndex];
-                      localStorage.setItem('kjb-search-index', String(nextIndex));
+                    const { results, index } = getSearchNav();
+                    const nextIndex = index + 1;
+                    if (nextIndex < results.length && results[nextIndex]) {
+                      const r = results[nextIndex];
+                      setSearchIndex(nextIndex);
                       setSearchResultIndex(nextIndex);
                       setPos({ abbr: r.abbr, chapter: r.chapter, verse: r.verse || null });
                       setHighlightVerse(r.verse || null);
@@ -1301,17 +1276,11 @@ export default function BibleReader() {
                     } catch {}
 
                     if (searchTerm) {
-                      // Clear search and return to previous position if available
+                      clearSearchNav();
                       setSearchTerm(null);
                       setSearchResultIndex(0);
                       setSearchTotalResults(0);
                       setHighlightVerse(null);
-                      try {
-                        localStorage.removeItem('kjb-search-term');
-                        localStorage.removeItem('kjb-search-index');
-                        localStorage.removeItem('kjb-search-total');
-                        localStorage.removeItem('kjb-search-results');
-                      } catch {}
                     } else if (cachedLastReading && cachedLastReading.abbr && cachedLastReading.chapter && !cachedLastReading.cleared) {
                       // Daily verse / random chapter — go back to the previous chapter
                       const { abbr, chapter } = cachedLastReading;

@@ -5,6 +5,7 @@ import { getBibleData } from '@/lib/bibleCache';
 import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
 import { parseReference } from '@/lib/parseReference';
 import SearchResultsList from '@/components/bible/SearchResultsList';
+import { setSearchNav } from '@/lib/searchNav';
 
 const OT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'old').map(b => b.apiName));
 const NT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'new').map(b => b.apiName));
@@ -413,25 +414,12 @@ export default function SearchPage() {
   const goToVerse = useCallback((abbr, chapter, verse, verseEnd, resultIndex = null) => {
     // Store the search term for the CurrentlyReadingIndicator
     const q = getQueryFromUrl() || query;
-    try { localStorage.setItem('kjb-search-term', q); } catch {}
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null, verseEnd: verseEnd || null })); } catch {}
     // Clear last reading position (from daily verse/random) when navigating from search
     try { localStorage.removeItem('kjb-last-reading'); } catch {}
-    // Store search results and index for navigation.
-    // Cap at 500 results to avoid localStorage quota errors (results can be thousands of entries).
-    try {
-      const compact = results.slice(0, 500).map(r => ({ abbr: r.abbr, chapter: r.chapter, verse: r.verse }));
-      localStorage.setItem('kjb-search-index', String(resultIndex !== null ? resultIndex : 0));
-      localStorage.setItem('kjb-search-total', String(results.length));
-      localStorage.setItem('kjb-search-results', JSON.stringify(compact));
-    } catch {
-      // If still too large, store without results so at least index/total are saved
-      try {
-        localStorage.setItem('kjb-search-index', String(resultIndex !== null ? resultIndex : 0));
-        localStorage.setItem('kjb-search-total', String(results.length));
-        localStorage.removeItem('kjb-search-results');
-      } catch {}
-    }
+    // Store search nav state (in-memory + localStorage backup)
+    const compact = results.map(r => ({ abbr: r.abbr, chapter: r.chapter, verse: r.verse }));
+    setSearchNav(compact, resultIndex !== null ? resultIndex : 0, q);
     window.scrollTo({ top: 0 });
     // Navigate with URL params so the reader reliably scrolls to + highlights the verse.
     const url = verse ? `/read?book=${abbr}&chapter=${chapter}&verse=${verse}` : `/read?book=${abbr}&chapter=${chapter}`;
