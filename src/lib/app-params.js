@@ -20,11 +20,11 @@ const getAppParamValue = (paramName, { defaultValue = undefined, removeFromUrl =
 		window.history.replaceState({}, document.title, newUrl);
 	}
 	if (searchParam) {
-		storage.setItem(storageKey, searchParam);
+		try { storage.setItem(storageKey, searchParam); } catch {}
 		return searchParam;
 	}
 	if (defaultValue) {
-		storage.setItem(storageKey, defaultValue);
+		try { storage.setItem(storageKey, defaultValue); } catch {}
 		return defaultValue;
 	}
 	const storedValue = storage.getItem(storageKey);
