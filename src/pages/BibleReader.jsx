@@ -145,6 +145,9 @@ export default function BibleReader() {
   const [searchTotalResults, setSearchTotalResults] = useState(() => getSearchNav().results.length);
   // Ref to prevent focus events from restoring a search we intentionally cleared
   const searchClearedRef = useRef(false);
+  // Ref to prevent focus events from restoring a daily/random "last reading"
+  // indicator after the user manually navigated (book/chapter/verse) or cleared it
+  const lastReadingClearedRef = useRef(false);
 
   const handleFontChange = (font) => {
     setFontFamily(font);
@@ -523,6 +526,7 @@ export default function BibleReader() {
       }
       // Restore lastReadingPos from storage for daily/random navigations
       if (isFromDaily) {
+        lastReadingClearedRef.current = false;
         try {
           const saved = localStorage.getItem('kjb-last-reading');
           if (saved) setLastReadingPos(JSON.parse(saved));
@@ -661,6 +665,11 @@ export default function BibleReader() {
         setSearchTerm(term || null);
         setSearchResultIndex(index);
         setSearchTotalResults(results.length);
+        // Don't restore a daily/random indicator the user already cleared/navigated away from
+        if (lastReadingClearedRef.current) {
+          setLastReadingPos(null);
+          return;
+        }
         const lastReading = localStorage.getItem('kjb-last-reading');
         setLastReadingPos(lastReading ? JSON.parse(lastReading) : null);
       } catch {}
@@ -699,18 +708,22 @@ export default function BibleReader() {
     setSearchTotalResults(0);
     // Save last reading position before navigating FROM daily verse or random chapter
     if ((fromDailyVerse || fromRandom) && pos.abbr && pos.chapter) {
+      lastReadingClearedRef.current = false;
       const lastPos = { abbr: pos.abbr, chapter: pos.chapter, fromDailyVerse, fromRandom };
       try { localStorage.setItem('kjb-last-reading', JSON.stringify(lastPos)); } catch {}
       setLastReadingPos(lastPos);
     } else {
       // Manual navigation (book/chapter/verse picker, prev/next) — clear any stale
       // daily/random "last reading" context so the indicator doesn't keep showing it.
+      lastReadingClearedRef.current = true;
       try { localStorage.removeItem('kjb-last-reading'); } catch {}
       setLastReadingPos(null);
       // Also strip any stale ?from=daily / ?from=search etc. from the URL so the
       // route effect (and focus handlers) can't restore the daily indicator.
-      if (window.location.search) {
-        try { window.history.replaceState(null, '', window.location.pathname); } catch {}
+      // Use routerNavigate so React Router's location updates too (replaceState alone
+      // leaves routerLocation.search stale, letting the route effect re-apply daily).
+      if (routerLocation.search) {
+        try { routerNavigate('/read', { replace: true }); } catch {}
       }
     }
     // Clear highlights when navigating without a specific verse
@@ -1321,6 +1334,7 @@ export default function BibleReader() {
                       clearSearchContext();
                     } else if (lastReadingPos && lastReadingPos.abbr && lastReadingPos.chapter && !lastReadingPos.cleared) {
                       const { abbr, chapter } = lastReadingPos;
+                      lastReadingClearedRef.current = true;
                       setFilterMode(false);
                       setSelectMode(false);
                       setSelectedVerses(new Set());
