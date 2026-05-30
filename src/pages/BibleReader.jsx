@@ -142,8 +142,16 @@ export default function BibleReader() {
   const [searchTerm, setSearchTerm] = useState(() => {
     try { return localStorage.getItem('kjb-search-term') || null; } catch { return null; }
   });
-  const [searchResultIndex, setSearchResultIndex] = useState(0);
-  const [searchTotalResults, setSearchTotalResults] = useState(0);
+  const [searchResultIndex, setSearchResultIndex] = useState(() => {
+    try { return parseInt(localStorage.getItem('kjb-search-index') || '0', 10); } catch { return 0; }
+  });
+  const [searchTotalResults, setSearchTotalResults] = useState(() => {
+    try {
+      const results = localStorage.getItem('kjb-search-results');
+      if (results) return JSON.parse(results).length;
+      return parseInt(localStorage.getItem('kjb-search-total') || '0', 10);
+    } catch { return 0; }
+  });
 
   const handleFontChange = (font) => {
     setFontFamily(font);
@@ -1257,36 +1265,32 @@ export default function BibleReader() {
                   currentResultIndex={searchResultIndex}
                   totalResults={searchTotalResults}
                   onPrevResult={() => {
-                    try {
-                      const searchResults = JSON.parse(localStorage.getItem('kjb-search-results') || '[]');
-                      const currentIndex = parseInt(localStorage.getItem('kjb-search-index') || '0', 10);
-                      const prevIndex = currentIndex - 1;
-                      if (prevIndex >= 0 && searchResults[prevIndex]) {
-                        const r = searchResults[prevIndex];
-                        localStorage.setItem('kjb-search-index', String(prevIndex));
-                        setSearchResultIndex(prevIndex);
-                        // Navigate directly without going through URL/effect
-                        setPos({ abbr: r.abbr, chapter: r.chapter, verse: r.verse || null });
-                        setHighlightVerse(r.verse || null);
-                        loadChapter(r.abbr, r.chapter, r.verse || null);
-                      }
-                    } catch {}
+                    const searchResults = JSON.parse(localStorage.getItem('kjb-search-results') || '[]');
+                    const currentIndex = parseInt(localStorage.getItem('kjb-search-index') || '0', 10);
+                    const prevIndex = currentIndex - 1;
+                    console.log('[Nav] Prev clicked, currentIndex:', currentIndex, 'prevIndex:', prevIndex, 'results len:', searchResults.length);
+                    if (prevIndex >= 0 && searchResults[prevIndex]) {
+                      const r = searchResults[prevIndex];
+                      localStorage.setItem('kjb-search-index', String(prevIndex));
+                      setSearchResultIndex(prevIndex);
+                      setPos({ abbr: r.abbr, chapter: r.chapter, verse: r.verse || null });
+                      setHighlightVerse(r.verse || null);
+                      loadChapter(r.abbr, r.chapter, r.verse || null);
+                    }
                   }}
                   onNextResult={() => {
-                    try {
-                      const searchResults = JSON.parse(localStorage.getItem('kjb-search-results') || '[]');
-                      const currentIndex = parseInt(localStorage.getItem('kjb-search-index') || '0', 10);
-                      const nextIndex = currentIndex + 1;
-                      if (nextIndex < searchResults.length && searchResults[nextIndex]) {
-                        const r = searchResults[nextIndex];
-                        localStorage.setItem('kjb-search-index', String(nextIndex));
-                        setSearchResultIndex(nextIndex);
-                        // Navigate directly without going through URL/effect
-                        setPos({ abbr: r.abbr, chapter: r.chapter, verse: r.verse || null });
-                        setHighlightVerse(r.verse || null);
-                        loadChapter(r.abbr, r.chapter, r.verse || null);
-                      }
-                    } catch {}
+                    const searchResults = JSON.parse(localStorage.getItem('kjb-search-results') || '[]');
+                    const currentIndex = parseInt(localStorage.getItem('kjb-search-index') || '0', 10);
+                    const nextIndex = currentIndex + 1;
+                    console.log('[Nav] Next clicked, currentIndex:', currentIndex, 'nextIndex:', nextIndex, 'results len:', searchResults.length);
+                    if (nextIndex < searchResults.length && searchResults[nextIndex]) {
+                      const r = searchResults[nextIndex];
+                      localStorage.setItem('kjb-search-index', String(nextIndex));
+                      setSearchResultIndex(nextIndex);
+                      setPos({ abbr: r.abbr, chapter: r.chapter, verse: r.verse || null });
+                      setHighlightVerse(r.verse || null);
+                      loadChapter(r.abbr, r.chapter, r.verse || null);
+                    }
                   }}
                   onClear={() => {
                     // Resolve the cached lastReadingPos
