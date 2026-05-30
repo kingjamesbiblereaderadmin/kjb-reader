@@ -394,10 +394,10 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           borderRadius: '6px',
           color: 'rgba(255,255,255,0.95)',
           fontFamily: "'Inter', system-ui, sans-serif",
-          fontSize: '11px',
+          fontSize: '14px',
           fontWeight: 700,
-          lineHeight: '11px',
-          padding: '5px 9px',
+          lineHeight: '14px',
+          padding: '7px 12px',
         }}
       >
         {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
