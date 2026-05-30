@@ -98,7 +98,7 @@ export function renderVerseText(text, searchTerm = null) {
     // Split the HTML string into tag and text segments, only replace in text segments
     result = result.replace(/(<[^>]+>)|([^<]+)/g, (chunk, tag, text) => {
       if (tag) return tag; // keep HTML tags untouched
-      return text.replace(termRegex, '<mark class="bg-yellow-300/70 dark:bg-yellow-500/50 text-foreground rounded px-0.5">$1</mark>');
+      return text.replace(termRegex, '<mark style="background-color: rgba(250, 204, 21, 0.55); border-radius: 3px; padding: 0 2px;">$1</mark>');
     });
   }
   
