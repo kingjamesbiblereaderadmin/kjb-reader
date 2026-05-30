@@ -1,5 +1,5 @@
 import React from 'react';
-import { X } from 'lucide-react';
+import { X, ChevronUp, ChevronDown } from 'lucide-react';
 
 // Format verses with dashes for consecutive, commas for gaps
 function formatVerseRange(verses) {
@@ -65,6 +65,8 @@ export default function CurrentlyReadingIndicator({
 
   if (!reference) return null;
 
+  const showNavigation = searchTerm && totalResults > 1 && onPrevResult && onNextResult;
+
   return (
     <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-yellow-500 text-black font-sans text-xs font-medium h-11 whitespace-nowrap flex-shrink-0">
       <div className="flex flex-col leading-tight min-w-0">
@@ -77,12 +79,35 @@ export default function CurrentlyReadingIndicator({
           <span className="font-bold text-xs">{reference}</span>
         )}
       </div>
+      {showNavigation && (
+        <>
+          <span className="ml-1 text-[10px] font-semibold opacity-70">{currentResultIndex + 1}/{totalResults}</span>
+          <button
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onPrevResult(); }}
+            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); onPrevResult(); }}
+            disabled={currentResultIndex <= 0}
+            title="Previous result"
+            className="p-0.5 rounded hover:bg-black/20 transition-colors flex-shrink-0 disabled:opacity-30"
+          >
+            <ChevronUp className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onNextResult(); }}
+            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); onNextResult(); }}
+            disabled={currentResultIndex >= totalResults - 1}
+            title="Next result"
+            className="p-0.5 rounded hover:bg-black/20 transition-colors flex-shrink-0 disabled:opacity-30"
+          >
+            <ChevronDown className="w-3.5 h-3.5" />
+          </button>
+        </>
+      )}
       {onClear && (
         <button
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClear(); }}
           onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); onClear(); }}
           title={clearLabel}
-          className="ml-1 p-0.5 rounded hover:bg-black/20 transition-colors flex-shrink-0"
+          className="ml-0.5 p-0.5 rounded hover:bg-black/20 transition-colors flex-shrink-0"
         >
           <X className="w-3.5 h-3.5" />
         </button>
