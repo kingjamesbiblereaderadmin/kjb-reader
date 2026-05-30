@@ -177,6 +177,10 @@ export default function ContentsPage() {
               currentVerse={selectedVerses}
               onSelect={handleSelectVerse}
               onClose={() => setShowVerseSelector(false)}
+              onGoToChapter={() => {
+                setShowVerseSelector(false);
+                goTo(selectedBook, selectedChapter, null);
+              }}
               multiSelect={true}
             />
           </div>

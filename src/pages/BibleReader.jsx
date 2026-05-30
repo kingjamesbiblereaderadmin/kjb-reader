@@ -702,6 +702,11 @@ export default function BibleReader() {
       const lastPos = { abbr: pos.abbr, chapter: pos.chapter, fromDailyVerse, fromRandom };
       try { localStorage.setItem('kjb-last-reading', JSON.stringify(lastPos)); } catch {}
       setLastReadingPos(lastPos);
+    } else {
+      // Manual navigation (book/chapter/verse picker, prev/next) — clear any stale
+      // daily/random "last reading" context so the indicator doesn't keep showing it.
+      try { localStorage.removeItem('kjb-last-reading'); } catch {}
+      setLastReadingPos(null);
     }
     // Clear highlights when navigating without a specific verse
     if (!jumpVerse) {

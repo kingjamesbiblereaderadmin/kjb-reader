@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Check, Layers } from 'lucide-react';
 
-export default function VerseSelector({ totalVerses, currentVerse, onSelect, onClose, multiSelect = false }) {
+export default function VerseSelector({ totalVerses, currentVerse, onSelect, onClose, multiSelect = false, onGoToChapter = null }) {
   const [selected, setSelected] = useState(() => new Set(currentVerse ? (Array.isArray(currentVerse) ? currentVerse : [currentVerse]) : []));
   const [multiMode, setMultiMode] = useState(false); // Default to single-select mode
 
@@ -59,6 +59,16 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
           })}
         </div>
       </div>
+      {onGoToChapter && (
+        <div className="px-3 pt-3">
+          <button
+            onClick={onGoToChapter}
+            className="w-full px-4 py-2.5 rounded-lg bg-accent/10 text-accent font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+          >
+            Go to whole chapter
+          </button>
+        </div>
+      )}
       <div className="p-3 border-t border-border flex gap-2">
         <button
           onClick={onClose}
