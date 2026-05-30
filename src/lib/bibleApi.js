@@ -61,48 +61,62 @@ export async function isBibleAvailableOffline() {
 // Render pilcrow (¶) ONLY at beginning of verses, not inside words
 // Optionally highlight search terms with <mark> tags
 export function renderVerseText(text, searchTerm = null) {
-  // Debug: log verses to check for brackets and pilcrows
-  if (text && Math.random() < 0.05) {
-    console.log('[RENDER] Sample verse with brackets:', text.substring(0, 200));
-    console.log('[RENDER] Has pilcrow (¶)?', text.includes('¶') || text.includes('\u00B6'));
-    console.log('[RENDER] Pilcrow count:', (text.match(/¶/g) || []).length);
-  }
   // Strip "Made in Australia" if it somehow appears in verse text
   let cleaned = text.replace(/\s*made\s+in\s+australia\.?\s*/gi, '');
   cleaned = cleaned.replace(/[<>]|>>/g, '');
-  // Normalize smart/curly apostrophes and quotes to plain ASCII to fix Edge rendering
+  // Normalize smart/curly apostrophes and quotes to plain ASCII
   cleaned = cleaned
-    .replace(/\u2019/g, "'")   // right single quotation mark → apostrophe
-    .replace(/\u2018/g, "'")   // left single quotation mark
-    .replace(/\u201C/g, '"')   // left double quote
-    .replace(/\u201D/g, '"')   // right double quote
-    .replace(/\u2032/g, "'");  // prime
-  // Fix pilcrow characters used as apostrophes within words (e.g., "Christ¶s" → "Christ's")
+    .replace(/\u2019/g, "'")
+    .replace(/\u2018/g, "'")
+    .replace(/\u201C/g, '"')
+    .replace(/\u201D/g, '"')
+    .replace(/\u2032/g, "'");
+  // Fix pilcrow characters used as apostrophes within words
   cleaned = cleaned.replace(/(\w)\u00B6(\w)/g, '$1\'$2');
   cleaned = cleaned.replace(/(\w)\uFFFD(\w)/g, '$1\'$2');
-  // Render pilcrow as a paragraph marker when it appears at the START of the text…
-  cleaned = cleaned.replace(/^[\u00B6\uFFFD]\s*/, '<span class="pilcrow">¶</span> ');
-  // …or mid-verse when preceded by a space or sentence punctuation (e.g. "houses. ¶But").
-  // This prevents the raw ¶ from gluing to the previous word (the "kings¶" → "kingspilcrow" bug).
-  cleaned = cleaned.replace(/([\s.,;:!?'")\]])[\u00B6\uFFFD]\s*/g, '$1 <span class="pilcrow">¶</span> ');
-  // Turn [bracketed] text into italics with inline styles to prevent gaps
-  const parts = cleaned.split(/\[([^\]]+)\]/g);
-  let result = parts.map((part, i) =>
-    i % 2 === 1 ? `<em style="font-family:inherit;font-style:italic;font-weight:inherit;display:inline;white-space:pre-wrap;">${part}</em>` : part
-  ).join('');
   
-  // Highlight search terms — split on HTML tags so we only replace inside text nodes
-  if (searchTerm && searchTerm.trim().length > 0) {
-    const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const termRegex = new RegExp(`(${escaped})`, 'gi');
-    // Split the HTML string into tag and text segments, only replace in text segments
-    result = result.replace(/(<[^>]+>)|([^<]+)/g, (chunk, tag, text) => {
-      if (tag) return tag; // keep HTML tags untouched
-      return text.replace(termRegex, '<mark style="background-color: rgba(250, 204, 21, 0.55); border-radius: 3px; padding: 0 2px;">$1</mark>');
-    });
+  // Split into segments: italic [bracketed] parts and normal text
+  const segments = [];
+  const italicRegex = /\[([^\]]+)\]/g;
+  let lastIdx = 0;
+  let m;
+  while ((m = italicRegex.exec(cleaned)) !== null) {
+    if (m.index > lastIdx) {
+      segments.push({ italic: false, text: cleaned.slice(lastIdx, m.index) });
+    }
+    segments.push({ italic: true, text: m[1] });
+    lastIdx = m.index + m[0].length;
+  }
+  if (lastIdx < cleaned.length) {
+    segments.push({ italic: false, text: cleaned.slice(lastIdx) });
   }
   
-  return result;
+  // Handle pilcrow - render as span at start or after punctuation
+  const processPilcrow = (seg) => {
+    if (seg.italic) return seg.text;
+    let t = seg.text;
+    t = t.replace(/^[\u00B6\uFFFD]\s*/, '<span class="pilcrow">¶</span> ');
+    t = t.replace(/([\s.,;:!?'")\]])[\u00B6\uFFFD]\s*/g, '$1 <span class="pilcrow">¶</span> ');
+    return t;
+  };
+  
+  // Highlight search terms within each segment
+  const highlightSearch = (str, isItalic) => {
+    if (!searchTerm || searchTerm.trim().length === 0) return str;
+    const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escaped})`, 'gi');
+    return str.replace(regex, '<mark style="background-color: rgba(250, 204, 21, 0.55); border-radius: 3px; padding: 0 2px;">$1</mark>');
+  };
+  
+  // Build HTML with proper spacing - no gaps between segments
+  return segments.map((seg, i) => {
+    const processed = processPilcrow(seg);
+    const highlighted = highlightSearch(processed, seg.italic);
+    if (seg.italic) {
+      return `<em>${highlighted}</em>`;
+    }
+    return highlighted;
+  }).join('');
 }
 
 // Render colophon text (epistolary closing notes): pilcrow prefix + [brackets] → italic
