@@ -83,8 +83,8 @@ function loadPosition() {
   return { abbr: 'GEN', chapter: 1, verse: null };
 }
 
-function savePosition(abbr, chapter) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr, chapter })); } catch {}
+function savePosition(abbr, chapter, verse = null) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr, chapter, verse })); } catch {}
 }
 
 
@@ -372,7 +372,7 @@ export default function BibleReader() {
       if (jumpVerse) {
         setHighlightVerse(jumpVerse);
       }
-      savePosition(bookAbbr, chapter);
+      savePosition(bookAbbr, chapter, jumpVerse || null);
       
       // Debug: log sample verses to check for brackets
       console.log('[BibleReader] Loaded', data.verses.length, 'verses for', b.apiName, chapter);
@@ -515,7 +515,17 @@ export default function BibleReader() {
       return;
     }
 
-    // 2) Otherwise honour an explicit navigate event (from saved position)
+    // 2) No URL params — restore highlight/lastReadingPos from saved state without reloading chapter
+    try {
+      const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      if (p && p.verse) setHighlightVerse(p.verse);
+    } catch {}
+    try {
+      const saved = localStorage.getItem('kjb-last-reading');
+      if (saved) setLastReadingPos(JSON.parse(saved));
+    } catch {}
+
+    // 3) Honour an explicit navigate event (dispatched by SearchPage/HomePage after writing kjb-position)
     const applyRequestedPosition = () => {
       let p;
       try { p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return; }
