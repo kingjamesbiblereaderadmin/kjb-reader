@@ -622,12 +622,7 @@ export default function BibleReader() {
     };
   }, [searchTerm]);
 
-  // Auto-fade highlight after 5 seconds
-  useEffect(() => {
-    if (!highlightVerse) return;
-    const timer = setTimeout(() => setHighlightVerse(null), 5000);
-    return () => clearTimeout(timer);
-  }, [highlightVerse]);
+
 
   // Reset verse status when exiting filter mode or clearing selection
   useEffect(() => {
