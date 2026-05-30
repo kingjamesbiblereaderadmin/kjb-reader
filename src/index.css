@@ -196,7 +196,7 @@
      Also exclude <em> so italic words can be styled separately below. */
   .cursive-em-style,
   .cursive-em-style *:not(button):not(button *):not(.font-sans):not(.font-sans *):not(sup):not(svg):not(svg *):not(em) {
-    font-family: 'Caveat', 'Dancing Script', cursive !important;
+    font-family: 'Dancing Script', cursive !important;
     font-weight: inherit !important;
   }
   

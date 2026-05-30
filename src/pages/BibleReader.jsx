@@ -156,7 +156,7 @@ export default function BibleReader() {
 
   // Map font family values to actual CSS font families
   const getFontFamilyValue = (family) => {
-    if (family === 'cursive') return "'Caveat', 'Dancing Script', cursive";
+    if (family === 'cursive') return "'Dancing Script', cursive";
     if (family === 'serif') return "'Merriweather', 'Cormorant Garamond', Georgia, serif";
     if (family === 'sans-serif') return "'Inter', system-ui, -apple-system, sans-serif";
     if (family === 'monospace') return "'Courier New', monospace";
