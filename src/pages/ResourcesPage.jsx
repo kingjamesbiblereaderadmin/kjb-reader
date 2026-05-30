@@ -43,6 +43,11 @@ const WHY_KJB = {
     title: "Warning on the NKJV",
     text: "You are more than welcome to purchase a King James Bible from the Dollar Store or any Bible retailer without worrying about errors. However, please note: the NKJV is not the same as the King James Bible. Please check out this resource to learn more and do your own research.",
     links: [{ url: 'https://www.scionofzion.com/nkjv.htm', label: 'NKJV Comparison' }]
+  },
+  {
+    title: "Textus Receptus Bibles",
+    text: "Research on the Textus Receptus — the Greek text underlying the King James Bible.",
+    links: [{ url: 'https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs', label: 'Read comparison' }]
   }]
 
 };
@@ -140,12 +145,6 @@ const RESOURCES = [
     desc: "Books and resources for King James Bible believers.",
     url: "https://avpublications.com/",
     label: "avpublications.com"
-  },
-  {
-    title: "Textus Receptus Bibles",
-    desc: "Research on the Textus Receptus — the Greek text underlying the King James Bible.",
-    url: "https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs",
-    label: "Read comparison"
   }]
 
 },
