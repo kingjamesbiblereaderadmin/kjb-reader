@@ -49,7 +49,7 @@ const sanitizeFilename = (q) => (q || 'verses').replace(/\s+/g, '-').replace(/[^
 // ── TXT ──
 export function exportTxt(items, query) {
   const header = `KJB Search Results — "${query}"\n${'='.repeat(50)}\n\n`;
-  const body = items.map(it => `"${plainNoBrackets(it.text)}"\n— ${it.ref} (KJB)`).join('\n\n');
+  const body = items.map(it => `"${plainWithBrackets(it.text)}"\n— ${it.ref} (KJB)`).join('\n\n');
   const footer = `\n\n${'='.repeat(50)}\n${items.length} verse${items.length !== 1 ? 's' : ''} — King James Bible`;
   const blob = new Blob(['\uFEFF', header + body + footer], { type: 'text/plain;charset=utf-8' });
   downloadBlob(blob, `kjb-${sanitizeFilename(query)}.txt`);
