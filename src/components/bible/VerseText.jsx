@@ -268,7 +268,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
       <span id={id} className="inline relative">
         <span
           onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
-          className={`inline leading-loose transition-colors duration-200 rounded cursor-pointer px-[0.3em] py-[0.2em] ${
+          className={`inline leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.3em] py-[0.2em] ${
             selectMode && isSelected ? 'bg-primary/10' : !isHighlighted ? 'hover:bg-secondary/60' : ''
           }`}
         >
@@ -279,11 +279,10 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           )}
           <sup className="text-accent font-sans font-semibold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
           <span
-            className={`break-words text-justify ${isCursive ? 'cursive-em-style' : 'leading-loose'} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+            className={`break-words text-justify ${isCursive ? 'cursive-em-style' : 'leading-relaxed'} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
             style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem`, lineHeight: '1.7' } : textStyle}
             dangerouslySetInnerHTML={{ __html: html }}
           />
-          {' '}
         </span>
         {!selectMode && actionPopover}
       </span>
