@@ -642,6 +642,13 @@ export default function BibleReader() {
     if (newChapter === 0 && newAbbr !== 'GEN' && newAbbr !== 'MAT') {
       return;
     }
+    // Clear search context on any manual navigation (not search result navigation)
+    if (!isSearchResult && searchTerm) {
+      clearSearchNav();
+      setSearchTerm(null);
+      setSearchResultIndex(0);
+      setSearchTotalResults(0);
+    }
     // Save last reading position before navigating FROM daily verse or random chapter
     if ((fromDailyVerse || fromRandom) && pos.abbr && pos.chapter) {
       const lastPos = { abbr: pos.abbr, chapter: pos.chapter, fromDailyVerse, fromRandom };
@@ -663,7 +670,16 @@ export default function BibleReader() {
     loadChapter(newAbbr, newChapter, jumpVerse);
   };
 
+  const clearSearchContext = () => {
+    clearSearchNav();
+    setSearchTerm(null);
+    setSearchResultIndex(0);
+    setSearchTotalResults(0);
+    setHighlightVerse(null);
+  };
+
   const goNext = () => {
+    if (searchTerm) clearSearchContext();
     if (pos.chapter < book.chapters) {
       navigate(pos.abbr, pos.chapter + 1);
     } else {
@@ -677,6 +693,7 @@ export default function BibleReader() {
 
 
   const goPrev = () => {
+    if (searchTerm) clearSearchContext();
     if (pos.chapter > 1) {
       navigate(pos.abbr, pos.chapter - 1);
     } else if (pos.chapter === 1 && (pos.abbr === 'GEN' || pos.abbr === 'MAT')) {
