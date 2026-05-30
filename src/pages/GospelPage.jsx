@@ -205,8 +205,16 @@ function GospelActions() {
 
   const handleDownloadWord = () => {
     const text = buildGospelTextPlain();
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:Georgia,serif;font-size:12pt;white-space:pre-wrap;">${text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</body></html>`;
-    downloadBlob(new Blob([html], { type: 'application/msword' }), 'the-gospel.doc');
+    const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    // Convert each line into a Word paragraph. Blank lines become spacer
+    // paragraphs so the spacing matches the on-screen layout.
+    const body = text.split('\n').map((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) return '<p style="margin:0;line-height:1.4">&nbsp;</p>';
+      return `<p style="margin:0;line-height:1.4">${esc(line)}</p>`;
+    }).join('');
+    const html = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>The Gospel</title></head><body style="font-family:Georgia,serif;font-size:12pt;color:#000">${body}</body></html>`;
+    downloadBlob(new Blob(['\ufeff', html], { type: 'application/msword' }), 'the-gospel.doc');
   };
 
   return (
