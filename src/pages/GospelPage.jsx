@@ -158,6 +158,18 @@ function GospelActions() {
     } catch {}
   };
 
+  // Plain-text version for file downloads: strips emojis & decorative symbols
+  // that don't render in document fonts (jsPDF, Word), and uses ASCII separators.
+  const buildGospelTextPlain = () => {
+    return buildGospelText()
+      .replace(/[━]+/g, '------------------------')
+      .replace(/^[✝📖▶🎬]\s*/gm, '')
+      // Remove any remaining emoji / pictographic characters
+      .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2700}-\u{27BF}\uFE0F]/gu, '')
+      .replace(/[ \t]+\n/g, '\n')
+      .trim();
+  };
+
   const downloadBlob = (blob, filename) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -170,11 +182,11 @@ function GospelActions() {
   };
 
   const handleDownloadTxt = () => {
-    downloadBlob(new Blob([buildGospelText()], { type: 'text/plain;charset=utf-8' }), 'the-gospel.txt');
+    downloadBlob(new Blob([buildGospelTextPlain()], { type: 'text/plain;charset=utf-8' }), 'the-gospel.txt');
   };
 
   const handleDownloadPdf = () => {
-    const text = buildGospelText();
+    const text = buildGospelTextPlain();
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
     const margin = 48;
     const maxWidth = doc.internal.pageSize.getWidth() - margin * 2;
@@ -192,7 +204,7 @@ function GospelActions() {
   };
 
   const handleDownloadWord = () => {
-    const text = buildGospelText();
+    const text = buildGospelTextPlain();
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:Georgia,serif;font-size:12pt;white-space:pre-wrap;">${text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</body></html>`;
     downloadBlob(new Blob([html], { type: 'application/msword' }), 'the-gospel.doc');
   };
