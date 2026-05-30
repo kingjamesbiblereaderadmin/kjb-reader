@@ -43,9 +43,10 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   });
 
   const highlightBg = highlightColors.find(c => c.name === highlightColor)?.bg;
-  // Show the overlay when the user manually highlights OR when the verse is the
-  // navigation target (the `highlight` prop, e.g. from daily verse / search).
-  const isHighlighted = showHighlight || highlight;
+  // Full-verse background only when the user manually applies a highlight colour.
+  // Navigation (highlight prop) just scrolls to the verse; the search term words
+  // are already highlighted inline via <mark> tags from renderVerseText.
+  const isHighlighted = showHighlight;
 
   const handleCopy = async (e) => {
     e.stopPropagation();
