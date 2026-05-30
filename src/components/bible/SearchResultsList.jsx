@@ -48,7 +48,9 @@ function renderWithItalics(text, searchTerm, caseSensitive) {
   );
 }
 
-function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, selectMode, selected, onToggleSelect, onGoToVerse }) {
+function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, selectMode, selected, onToggleSelect, onGoToVerse, focusedIndex = -1, resultRefs }) {
+  // Track a flat index across results for keyboard focus
+  let resultIndex = -1;
   const [otExpanded, setOtExpanded] = useState(true);
   const [ntExpanded, setNtExpanded] = useState(true);
   const otRef = React.useRef(null);
@@ -155,19 +157,26 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                 )}
               </div>
             )}
-            {!isOTCollapsed && !isNTCollapsed && (
+            {!isOTCollapsed && !isNTCollapsed && (() => {
+              resultIndex++;
+              const isFocused = focusedIndex === resultIndex;
+              const thisIndex = resultIndex;
+              return (
             <div
+              ref={el => { if (resultRefs) resultRefs.current[thisIndex] = el; }}
               onClick={() => {
                 if (selectMode) {
                   onToggleSelect(i);
                 } else if (isColophon) {
-                  onGoToVerse(r.abbr, r.chapter, null);
+                  onGoToVerse(r.abbr, r.chapter, null, null, thisIndex);
                 } else {
-                  onGoToVerse(r.abbr, r.chapter, r.verse);
+                  onGoToVerse(r.abbr, r.chapter, r.verse, null, thisIndex);
                 }
               }}
               className={`w-full text-left p-4 rounded-xl border transition-colors cursor-pointer flex items-start gap-3 ${
-                isSelected
+                isFocused
+                  ? 'bg-accent/10 border-accent/60 ring-1 ring-accent/40'
+                  : isSelected
                   ? 'bg-primary/10 border-primary/40'
                   : 'bg-card border-border hover:border-accent/40 hover:bg-accent/5'
               }`}
@@ -195,7 +204,8 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                   </p>
                 </div>
               </div>
-            )}
+              );
+            })()}
           </React.Fragment>
         );
       })}

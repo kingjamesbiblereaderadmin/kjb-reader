@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked, ChevronDown, Share2, ChevronUp, ChevronDown as ChevronDownIcon, ChevronRight } from 'lucide-react';
 import { getBibleData } from '@/lib/bibleCache';
@@ -54,6 +54,9 @@ export default function SearchPage() {
   
   // Track current search result index for navigation
   const [currentResultIndex, setCurrentResultIndex] = useState(0);
+  // Keyboard navigation: focused result index (-1 = none)
+  const [focusedIndex, setFocusedIndex] = useState(-1);
+  const resultRefs = React.useRef([]);
 
   const runSearch = useCallback(async (kw) => {
     if (!kw || kw.trim().length < 2) return;
@@ -507,6 +510,48 @@ export default function SearchPage() {
 
   const selectedList = [...selected].sort((a, b) => a - b);
   
+  // Reset focus when results change
+  useEffect(() => { setFocusedIndex(-1); resultRefs.current = []; }, [results]);
+
+  // Keyboard shortcuts: ↑/↓ or J/K to navigate, Enter to open, Escape to blur
+  useEffect(() => {
+    if (!results.length) return;
+    const handler = (e) => {
+      // Don't steal keys when typing in an input/textarea
+      const tag = document.activeElement?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+      if (e.key === 'ArrowDown' || e.key === 'j') {
+        e.preventDefault();
+        setFocusedIndex(prev => {
+          const next = Math.min(prev + 1, results.length - 1);
+          resultRefs.current[next]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          return next;
+        });
+      } else if (e.key === 'ArrowUp' || e.key === 'k') {
+        e.preventDefault();
+        setFocusedIndex(prev => {
+          const next = Math.max(prev - 1, 0);
+          resultRefs.current[next]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          return next;
+        });
+      } else if (e.key === 'Enter') {
+        setFocusedIndex(prev => {
+          if (prev >= 0 && prev < results.length) {
+            const r = results[prev];
+            if (r.isColophon || r.verse === 0) goToVerse(r.abbr, r.chapter, null, null, prev);
+            else goToVerse(r.abbr, r.chapter, r.verse, null, prev);
+          }
+          return prev;
+        });
+      } else if (e.key === 'Escape') {
+        setFocusedIndex(-1);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [results, goToVerse]);
+
   // Navigate to previous/next search result
   const handlePrevResult = () => {
     if (currentResultIndex > 0) {
@@ -1002,6 +1047,12 @@ export default function SearchPage() {
             </div>
           )}
 
+          {/* Keyboard hint */}
+          {results.length > 0 && (
+            <p className="font-sans text-xs text-muted-foreground/60 mb-2 hidden sm:block">
+              ↑ ↓ or J / K to navigate · Enter to open
+            </p>
+          )}
           {/* Verse list */}
           <SearchResultsList
             results={results}
@@ -1011,6 +1062,8 @@ export default function SearchPage() {
             selected={selected}
             onToggleSelect={toggleSelect}
             onGoToVerse={goToVerse}
+            focusedIndex={focusedIndex}
+            resultRefs={resultRefs}
           />
         </div>
       )}
