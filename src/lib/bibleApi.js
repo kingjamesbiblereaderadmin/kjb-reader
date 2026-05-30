@@ -91,17 +91,14 @@ export function renderVerseText(text, searchTerm = null) {
     i % 2 === 1 ? `<em>${part}</em>` : part
   ).join('');
   
-  // Highlight search terms (case-insensitive, whole word matching)
+  // Highlight search terms — split on HTML tags so we only replace inside text nodes
   if (searchTerm && searchTerm.trim().length > 0) {
     const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    // Match whole words only (not inside other words), case-insensitive
-    const regex = new RegExp(`(^|[^A-Za-z'])(${escaped})($|[^A-Za-z'])`, 'gi');
-    result = result.replace(regex, (match, before, term, after) => {
-      // Don't highlight inside HTML tags
-      if (match.includes('<em>') || match.includes('</em>') || match.includes('<span')) {
-        return match;
-      }
-      return `${before}<mark class="bg-accent/40 text-foreground rounded px-0.5">${term}</mark>${after}`;
+    const termRegex = new RegExp(`(${escaped})`, 'gi');
+    // Split the HTML string into tag and text segments, only replace in text segments
+    result = result.replace(/(<[^>]+>)|([^<]+)/g, (chunk, tag, text) => {
+      if (tag) return tag; // keep HTML tags untouched
+      return text.replace(termRegex, '<mark class="bg-yellow-300/70 dark:bg-yellow-500/50 text-foreground rounded px-0.5">$1</mark>');
     });
   }
   
