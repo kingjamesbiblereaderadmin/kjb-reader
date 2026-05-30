@@ -202,10 +202,16 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     // Wait for state to update before capturing
     await new Promise(resolve => setTimeout(resolve, 150));
     try {
-      const canvas = await html2canvas(verseRef.current, {
+      const el = verseRef.current;
+      const canvas = await html2canvas(el, {
         backgroundColor: null,
         scale: 2,
         useCORS: true,
+        width: el.offsetWidth,
+        height: el.offsetHeight,
+        windowWidth: el.offsetWidth,
+        scrollX: 0,
+        scrollY: 0,
       });
       const link = document.createElement('a');
       const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
@@ -298,10 +304,16 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     await new Promise(resolve => setTimeout(resolve, 150));
     try {
       // Try to share/copy image first
-      const canvas = await html2canvas(verseRef.current, {
+      const el = verseRef.current;
+      const canvas = await html2canvas(el, {
         backgroundColor: null,
         scale: 2,
         useCORS: true,
+        width: el.offsetWidth,
+        height: el.offsetHeight,
+        windowWidth: el.offsetWidth,
+        scrollX: 0,
+        scrollY: 0,
       });
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
       
@@ -962,13 +974,15 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             Verse of the Day
           </p>
           <blockquote 
-            className="text-center text-2xl md:text-3xl leading-relaxed [&_em]:italic"
+            className="text-center text-2xl md:text-3xl leading-relaxed [&_em]:italic break-words"
             style={{ 
               color: textColor, 
               opacity: textOpacity, 
               fontFamily: resolvedFont,
               fontWeight: '700',
-              textShadow: '0 2px 8px rgba(0,0,0,0.3)'
+              textShadow: '0 2px 8px rgba(0,0,0,0.3)',
+              overflowWrap: 'break-word',
+              wordBreak: 'break-word'
             }}
           >
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
@@ -988,13 +1002,15 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       ) : (
         <div className="px-6 py-4 mb-5 text-center">
           <blockquote 
-            className="text-center text-2xl md:text-3xl leading-relaxed [&_em]:italic"
+            className="text-center text-2xl md:text-3xl leading-relaxed [&_em]:italic break-words"
             style={{ 
               color: textColor, 
               opacity: textOpacity, 
               fontFamily: resolvedFont,
               fontWeight: '700',
-              textShadow: '0 2px 8px rgba(0,0,0,0.3)'
+              textShadow: '0 2px 8px rgba(0,0,0,0.3)',
+              overflowWrap: 'break-word',
+              wordBreak: 'break-word'
             }}
           >
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
