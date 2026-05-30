@@ -106,7 +106,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
         return (
           <React.Fragment key={`frag-${i}`}>
             {showOTHeader && (
-              <div className="flex items-center gap-2 pt-2 pb-1 border-b border-border mb-1">
+              <div ref={otRef} className="flex items-center gap-2 pt-2 pb-1 border-b border-border mb-1">
                 {ntCount > 0 ? (
                   <button
                     onClick={() => setOtExpanded(!otExpanded)}
@@ -147,7 +147,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                 )}
                 {otCount > 0 && (
                   <button
-                    onClick={() => otRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                    onClick={() => { setOtExpanded(true); setTimeout(() => otRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50); }}
                     className="ml-auto flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
                   >
                     Jump to OT <ArrowDown className="w-3 h-3 rotate-180" />
