@@ -237,10 +237,13 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // ── PARAGRAPH MODE: verses flow inline; pilcrow verses break to a new line ──
   const hasPilcrow = verse.text.includes('\u00B6') || verse.text.includes('\u000F');
   if (paragraphMode) {
-    // Pilcrow verse: render as a block (new paragraph) with gap above, no indent
+    // Pilcrow verse: start a new paragraph. Use a line break + vertical spacer
+    // (rendered inline) instead of a `block` wrapper, so it doesn't fragment the
+    // CSS multi-column flow when both paragraph mode and column mode are on.
     if (hasPilcrow && !isFirstVerse) {
       return (
-        <span id={id} className="block relative pt-6">
+        <span id={id} className="inline relative">
+          <span className="block h-6" aria-hidden="true" />
           <span
             onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
             className={`inline leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.3em] py-[0.2em] ${
