@@ -237,10 +237,10 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // ── PARAGRAPH MODE: verses flow inline; pilcrow verses break to a new line ──
   const hasPilcrow = verse.text.includes('\u00B6') || verse.text.includes('\u000F');
   if (paragraphMode) {
-    // Pilcrow verse: render as a block (new paragraph) with gap above, no indent
+    // Pilcrow verse: render as a block (new paragraph) with small gap above, no indent
     if (hasPilcrow && !isFirstVerse) {
       return (
-        <span id={id} className="block relative pt-6">
+        <span id={id} className="block relative pt-2">
           <span
             onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
             className={`inline leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.3em] py-[0.2em] ${
