@@ -1422,6 +1422,7 @@ export default function BibleReader() {
                   pos={pos}
                   searchTerm={searchTerm}
                   gospelMode={gospelMode}
+                  gospelLabel={gospelMode ? (getGospelNav().results[gospelResultIndex]?.label || 'Gospel') : null}
                   currentResultIndex={gospelMode ? gospelResultIndex : searchResultIndex}
                   totalResults={gospelMode ? gospelTotalResults : searchTotalResults}
                   onPrevResult={() => {

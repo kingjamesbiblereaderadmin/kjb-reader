@@ -6,11 +6,11 @@ import { setGospelNav } from '@/lib/searchNav';
 
 // Ordered list of all gospel verses, used for the in-reader "Gospel" stepper.
 const GOSPEL_VERSES = [
-  { book: 'Romans', chapter: 3, verse: 20 },
-  { book: 'Psalms', chapter: 9, verse: 16 },
-  { book: '1 Timothy', chapter: 3, verse: 16 },
-  { book: '1 Corinthians', chapter: 15, verse: 1 },
-  { book: 'Ephesians', chapter: 1, verse: 13 },
+  { book: 'Romans', chapter: 3, verse: 20, label: 'Faith in his blood' },
+  { book: 'Psalms', chapter: 9, verse: 16, label: 'Hell' },
+  { book: '1 Timothy', chapter: 3, verse: 16, label: 'Jesus is God' },
+  { book: '1 Corinthians', chapter: 15, verse: 1, label: 'Gospel' },
+  { book: 'Ephesians', chapter: 1, verse: 13, label: 'OSAS' },
 ];
 
 function VerseLink({ book, chapter, verse, children }) {
@@ -23,7 +23,7 @@ function VerseLink({ book, chapter, verse, children }) {
     // starting at the clicked verse, so the reader shows "Gospel" with arrows.
     const results = GOSPEL_VERSES.map(g => {
       const bd = BIBLE_BOOKS.find(b => b.shortName === g.book || b.apiName === g.book);
-      return bd ? { abbr: bd.abbr, chapter: g.chapter, verse: g.verse } : null;
+      return bd ? { abbr: bd.abbr, chapter: g.chapter, verse: g.verse, label: g.label } : null;
     }).filter(Boolean);
     const index = Math.max(0, results.findIndex(r => r.abbr === bookData.abbr && r.chapter === chapter && r.verse === verse));
     try {
