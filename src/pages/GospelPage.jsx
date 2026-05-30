@@ -37,7 +37,7 @@ function buildGospelText() {
   return `✝ HOW TO BE SAVED
 The Gospel of Jesus Christ
 
-The good news of what Jesus Christ did for you. Here is what the Bible says you must believe.
+The gospel is the good news about what Jesus Christ did for you. Here is what the Bible says you must believe.
 
 ━━━━━━━━━━━━━━━━━━━━
 
