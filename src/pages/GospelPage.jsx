@@ -106,7 +106,10 @@ Trust the blood — believe the gospel and be saved.
 ${origin}/gospel
 
 ▶ Watch “THE GOSPEL THAT SAVES” by Robert Breaker:
-https://www.youtube.com/watch?v=znP9Dr6tOzU`;
+https://www.youtube.com/watch?v=znP9Dr6tOzU
+
+🎬 Watch the full gospel video playlist:
+https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq`;
 }
 
 function CopyGospelButton() {
