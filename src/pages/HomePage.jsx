@@ -162,16 +162,14 @@ export default function HomePage() {
       localStorage.removeItem('kjb-search-total');
       localStorage.removeItem('kjb-search-results');
     } catch {}
-    // Save the CURRENT reading position so clear button can return to it
+    // Save the DESTINATION random chapter so the reader shows the "Random Chapter"
+    // indicator (lastReadingActive matches the current chapter).
     try {
-      const currentPos = JSON.parse(localStorage.getItem('kjb-position') || '{}');
-      if (currentPos.abbr && currentPos.chapter) {
-        localStorage.setItem('kjb-last-reading', JSON.stringify({ abbr: currentPos.abbr, chapter: currentPos.chapter, fromRandom: true }));
-      }
+      localStorage.setItem('kjb-last-reading', JSON.stringify({ abbr: randomBook.abbr, chapter: randomChapter, fromRandom: true }));
     } catch {}
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr: randomBook.abbr, chapter: randomChapter, verse: null })); } catch {}
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    navigate(`/read?book=${randomBook.abbr}&chapter=${randomChapter}`);
+    navigate(`/read?book=${randomBook.abbr}&chapter=${randomChapter}&from=daily`);
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   };
 
