@@ -649,7 +649,7 @@ export default function BibleReader() {
     };
   }, []);
 
-  // Refresh search navigation context when returning from another page (e.g. SearchPage)
+  // Refresh search navigation context + highlight when returning from another page
   useEffect(() => {
     const refreshContext = () => {
       try {
@@ -663,6 +663,14 @@ export default function BibleReader() {
         setSearchTotalResults(results.length);
         const lastReading = localStorage.getItem('kjb-last-reading');
         setLastReadingPos(lastReading ? JSON.parse(lastReading) : null);
+      } catch {}
+
+      // Restore highlight from saved position when returning (e.g. Home → Read)
+      try {
+        const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        if (p && p.verse) {
+          setHighlightVerse(p.verse);
+        }
       } catch {}
     };
     window.addEventListener('focus', refreshContext);
