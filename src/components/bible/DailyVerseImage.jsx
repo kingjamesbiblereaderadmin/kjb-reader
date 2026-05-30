@@ -962,7 +962,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             Verse of the Day
           </p>
           <blockquote 
-            className="text-2xl md:text-3xl leading-relaxed [&_em]:italic"
+            className="text-center text-2xl md:text-3xl leading-relaxed [&_em]:italic"
             style={{ 
               color: textColor, 
               opacity: textOpacity, 
@@ -974,7 +974,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
           </blockquote>
           <p 
-            className="font-sans text-base font-semibold mt-4"
+            className="font-sans text-base font-semibold mt-4 text-center"
             style={{ 
               opacity: Math.min(1, textOpacity + 0.05), 
               color: textColor, 
@@ -986,9 +986,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           </p>
         </div>
       ) : (
-        <div className="px-6 py-4 mb-5">
+        <div className="px-6 py-4 mb-5 text-center">
           <blockquote 
-            className="text-2xl md:text-3xl leading-relaxed [&_em]:italic"
+            className="text-center text-2xl md:text-3xl leading-relaxed [&_em]:italic"
             style={{ 
               color: textColor, 
               opacity: textOpacity, 
@@ -1000,7 +1000,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
           </blockquote>
           <p 
-            className="font-sans text-base font-semibold mt-4"
+            className="font-sans text-base font-semibold mt-4 text-center"
             style={{ 
               opacity: Math.min(1, textOpacity + 0.05), 
               color: textColor, 
