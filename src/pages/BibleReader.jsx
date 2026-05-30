@@ -566,12 +566,20 @@ export default function BibleReader() {
         setSearchResultIndex(0);
         setSearchTotalResults(0);
       }
-      // Restore lastReadingPos from storage for daily/random navigations
+      // Restore lastReadingPos from storage for daily/random navigations.
+      // For a shared/opened ?from=daily link there's no stored value, so seed
+      // the daily indicator directly from the URL params.
       if (isFromDaily) {
         lastReadingClearedRef.current = false;
         try {
           const saved = localStorage.getItem('kjb-last-reading');
-          if (saved) setLastReadingPos(JSON.parse(saved));
+          if (saved) {
+            setLastReadingPos(JSON.parse(saved));
+          } else {
+            const dailyPos = { abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum || null, fromDailyVerse: true };
+            localStorage.setItem('kjb-last-reading', JSON.stringify(dailyPos));
+            setLastReadingPos(dailyPos);
+          }
         } catch {}
       }
       setPos({ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum });
