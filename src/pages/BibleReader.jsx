@@ -598,29 +598,30 @@ export default function BibleReader() {
     };
   }, []);
 
-  // Refresh search term and navigation context when page regains focus
-  // (so the CurrentlyReadingIndicator updates after visiting other pages)
+  // Refresh search navigation context when returning from another page (e.g. SearchPage)
+  // Only sync from storage when the term actually changed (i.e. user did a new search)
   useEffect(() => {
     const refreshContext = () => {
       try {
         const { term, index, results } = getSearchNav();
-        if (term !== searchTerm) setSearchTerm(term || null);
+        // Only restore search state if there's an active term in storage —
+        // do NOT overwrite if we've already cleared it in this session.
+        setSearchTerm(term || null);
         setSearchResultIndex(index);
         setSearchTotalResults(results.length);
         const lastReading = localStorage.getItem('kjb-last-reading');
         setLastReadingPos(lastReading ? JSON.parse(lastReading) : null);
       } catch {}
     };
+    // Only re-sync when the window regains focus (coming back from SearchPage tab/page)
     window.addEventListener('focus', refreshContext);
-    document.addEventListener('visibilitychange', refreshContext);
-    // Also sync on storage events (when navigating from other pages)
-    window.addEventListener('storage', refreshContext);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) refreshContext();
+    });
     return () => {
       window.removeEventListener('focus', refreshContext);
-      window.removeEventListener('storage', refreshContext);
-      document.removeEventListener('visibilitychange', refreshContext);
     };
-  }, [searchTerm]);
+  }, []);
 
 
 
