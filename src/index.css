@@ -227,12 +227,11 @@
     color: #b0b0b0 !important;
   }
 
-  /* Colophon and subscript italics in cursive mode */
-  .cursive-em-style ~ * em,
+  /* Colophon and subscript italics: only [bracketed] words (rendered as <em>)
+     are italic. The surrounding subscript/colophon text stays roman. */
   .kjb-colophon em,
   .kjb-subscript em {
     font-style: italic !important;
-    font-weight: 700 !important;
   }
 
   /* ── App-wide accessibility fonts ──
