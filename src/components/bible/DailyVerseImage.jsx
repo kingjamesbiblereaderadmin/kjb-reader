@@ -974,13 +974,14 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       />
       
       {showVersePanel ? (
-        <div className="bg-white/25 backdrop-blur-sm rounded-xl px-6 pt-4 pb-6 shadow-none text-center flex-1 flex flex-col justify-start w-full max-w-full overflow-hidden">
+        <div className="bg-white/25 backdrop-blur-sm rounded-xl px-6 pt-4 pb-6 shadow-none text-center flex-1 flex flex-col w-full max-w-full overflow-hidden">
           <p 
-            className={`font-sans text-sm font-bold tracking-wide uppercase mb-3 ${accentClass}`}
+            className={`font-sans text-sm font-bold tracking-wide uppercase mb-8 ${accentClass}`}
             style={{ opacity: textOpacity, color: textColor, fontFamily: resolvedFont }}
           >
             Verse of the Day
           </p>
+          <div className="flex-1 flex flex-col justify-center">
           <blockquote 
             className="text-center text-3xl md:text-4xl leading-relaxed [&_em]:italic break-words"
             style={{ 
@@ -1006,6 +1007,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           >
             — {verse.ref}
           </p>
+          </div>
         </div>
       ) : (
         <div className="px-6 py-4 text-center flex-1 flex flex-col justify-center">
