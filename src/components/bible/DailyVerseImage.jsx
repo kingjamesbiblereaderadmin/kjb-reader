@@ -387,11 +387,20 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {/* Date display */}
-      <div className="absolute bottom-2.5 left-3" style={{ backgroundColor: 'rgba(0,0,0,0.22)', borderRadius: '4px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '6px', paddingRight: '6px' }}>
-        <span className="whitespace-nowrap" style={{ color: 'rgba(255,255,255,0.75)', fontFamily: "'Inter', system-ui, sans-serif", fontSize: '8px', lineHeight: '1' }}>
-          {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-        </span>
-      </div>
+      <span
+        className="absolute bottom-2.5 left-3 whitespace-nowrap"
+        style={{
+          backgroundColor: 'rgba(0,0,0,0.22)',
+          borderRadius: '4px',
+          color: 'rgba(255,255,255,0.75)',
+          fontFamily: "'Inter', system-ui, sans-serif",
+          fontSize: '8px',
+          lineHeight: '8px',
+          padding: '3px 6px',
+        }}
+      >
+        {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+      </span>
 
       {/* Action buttons */}
       <div className="absolute top-2 right-2 flex gap-1 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
