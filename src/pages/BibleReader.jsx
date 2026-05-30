@@ -1392,14 +1392,24 @@ export default function BibleReader() {
                       const abbr = lastReadingPos.prevAbbr || lastReadingPos.abbr;
                       const chapter = lastReadingPos.prevChapter || lastReadingPos.chapter;
                       lastReadingClearedRef.current = true;
+                      searchClearedRef.current = true;
                       setFilterMode(false);
                       setSelectMode(false);
                       setSelectedVerses(new Set());
                       setHighlightVerse(null);
                       setShowFilterOverlay(false);
                       setLastReadingPos(null);
-                      try { localStorage.removeItem('kjb-last-reading'); } catch {}
-                      navigate(abbr, chapter);
+                      try {
+                        localStorage.removeItem('kjb-last-reading');
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr, chapter, verse: null }));
+                      } catch {}
+                      // Strip ?from=daily from the URL WITHOUT triggering the route
+                      // effect (routerNavigate would reload again → flash).
+                      try { window.history.replaceState({}, '', '/read'); } catch {}
+                      // Load the previous chapter directly — single load, no flash.
+                      freshNavRef.current = true;
+                      setPos({ abbr, chapter, verse: null });
+                      loadChapter(abbr, chapter, null);
                     } else if (filterMode && selectedVerses.size > 0) {
                       setFilterMode(false);
                       setSelectMode(false);
