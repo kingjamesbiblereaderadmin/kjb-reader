@@ -997,7 +997,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
           </blockquote>
           <p 
-            className="font-sans text-base font-semibold mt-4 text-center"
+            className="font-sans text-base font-semibold mt-8 text-center"
             style={{ 
               opacity: Math.min(1, textOpacity + 0.05), 
               color: textColor, 
