@@ -323,7 +323,6 @@ export default function BibleReader() {
 
   const handleReadSelected = () => {
     setFilterMode(true);
-    setShowFilterOverlay(true);
     setSelectMode(false);
     // Reflect the selected verse range in the browser URL so it's shareable
     if (selectedVerses.size > 0) {
@@ -1538,6 +1537,28 @@ export default function BibleReader() {
               )}
             </div>
           )}
+
+          {/* Reading a verse range — merged into the sticky toolbar like the copy bar */}
+          {!selectMode && filterMode && selectedVerses.size > 0 && (
+            <div className="mt-2 pt-2 border-t border-border flex items-center gap-2 overflow-x-auto scrollbar-hide">
+              <span className="font-sans text-xs text-muted-foreground font-medium whitespace-nowrap">
+                Reading {book.shortName} {pos.chapter}:{formatVerseRange([...selectedVerses])}
+              </span>
+              <div className="w-px h-4 bg-border" />
+              <button
+                onClick={handleCopySelected}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors whitespace-nowrap"
+              >
+                <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy'}
+              </button>
+              <button
+                onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 font-sans text-xs font-medium transition-colors whitespace-nowrap"
+              >
+                <AlignLeft className="w-3.5 h-3.5" /> Show Full Chapter
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -1722,42 +1743,6 @@ export default function BibleReader() {
             The End
           </p>
         </div>
-      )}
-
-      {/* Filter mode overlay - centered popup */}
-      {showFilterOverlay && (
-        <>
-          <div className="fixed inset-0 z-[98] bg-background/60 backdrop-blur-sm" onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }} />
-          <div className="fixed inset-0 z-[99] flex items-center justify-center pointer-events-none">
-            <div className="bg-card border border-border rounded-2xl shadow-2xl px-6 py-4 max-w-sm w-full mx-4 pointer-events-auto">
-              <p className="font-serif text-sm font-semibold text-foreground mb-3">
-                {selectedVerses.size > 0
-                  ? `Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
-                  : `Showing ${selectedVerses.size} selected verse${selectedVerses.size !== 1 ? 's' : ''}`}
-              </p>
-              <div className="flex gap-2 mb-2">
-                <button
-                  onClick={handleCopySelected}
-                  className="flex-1 px-3 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
-                >
-                  <Copy className="w-3.5 h-3.5 inline mr-1" /> {copyFeedback ? 'Copied!' : 'Copy'}
-                </button>
-                <button
-                  onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
-                  className="flex-1 px-3 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
-                >
-                  <X className="w-3.5 h-3.5 inline mr-1" /> Close
-                </button>
-              </div>
-              <button
-                onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
-                className="w-full px-3 py-2 rounded-lg bg-accent/10 text-accent font-sans text-xs font-medium hover:bg-accent/20 transition-colors flex items-center justify-center gap-1.5"
-              >
-                <AlignLeft className="w-3.5 h-3.5" /> Show Full Chapter
-              </button>
-            </div>
-          </div>
-        </>
       )}
 
       {/* Bottom nav */}
