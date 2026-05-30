@@ -305,7 +305,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     try {
       // Try to share/copy image first
       const el = verseRef.current;
-      const canvas = await html2canvas(el, {
+      const cardCanvas = await html2canvas(el, {
         backgroundColor: null,
         scale: 2,
         useCORS: true,
@@ -315,6 +315,22 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         scrollX: 0,
         scrollY: 0,
       });
+
+      // Pad the square card into a 9:16 portrait frame so Instagram Stories
+      // (which auto-crops to 9:16) don't cut off the verse or reference.
+      const canvas = document.createElement('canvas');
+      const cw = cardCanvas.width;
+      const frameH = Math.round(cw * 16 / 9);
+      canvas.width = cw;
+      canvas.height = frameH;
+      const ctx = canvas.getContext('2d');
+      // Sample the card's top-left pixel for a matching background fill
+      const px = cardCanvas.getContext('2d').getImageData(2, 2, 1, 1).data;
+      ctx.fillStyle = `rgb(${px[0]},${px[1]},${px[2]})`;
+      ctx.fillRect(0, 0, cw, frameH);
+      // Center the card vertically within the portrait frame
+      ctx.drawImage(cardCanvas, 0, Math.round((frameH - cardCanvas.height) / 2));
+
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
       
       const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
