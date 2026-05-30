@@ -195,7 +195,11 @@ function GospelActions() {
       .replace(/[\u201C\u201D]/g, '"')
       .replace(/[\u2013\u2014]/g, '-')
       .replace(/[\u2026]/g, '...')
-      .replace(/[^\x00-\xFF]/g, '');
+      // Drop EVERYTHING outside printable ASCII (incl. emoji surrogate pairs)
+      .replace(/[^\x20-\x7E\n]/g, '')
+      // Tidy spaces left by removed characters
+      .replace(/^[ \t]+/gm, '')
+      .replace(/[ \t]{2,}/g, ' ');
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
     const margin = 48;
     const maxWidth = doc.internal.pageSize.getWidth() - margin * 2;
