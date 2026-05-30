@@ -6,10 +6,11 @@ import { setGospelNav } from '@/lib/searchNav';
 
 // Ordered list of all gospel verses, used for the in-reader "Gospel" stepper.
 const GOSPEL_VERSES = [
-  { book: 'Romans', chapter: 3, verse: 20, label: 'Faith in his blood' },
+  { book: 'Romans', chapter: 3, verse: 20, label: 'All sinned' },
   { book: 'Psalms', chapter: 9, verse: 16, label: 'Hell' },
   { book: '1 Timothy', chapter: 3, verse: 16, label: 'Jesus is God' },
   { book: '1 Corinthians', chapter: 15, verse: 1, label: 'Gospel' },
+  { book: 'Romans', chapter: 3, verse: 25, label: 'Faith in his blood' },
   { book: 'Ephesians', chapter: 1, verse: 13, label: 'OSAS' },
 ];
 
