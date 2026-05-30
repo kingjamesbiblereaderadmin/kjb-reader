@@ -286,18 +286,32 @@ export default function BibleReader() {
     
     const toUse = selectedVerses.size > 0 ? selectedVerses : new Set(verses.map(v => v.verse));
     const selectedVersesList = verses.filter(v => toUse.has(v.verse)).sort((a, b) => a.verse - b.verse);
-    const versesText = selectedVersesList.map(v => cleanVerseText(v.text)).join(' ');
 
-    const verseRange = formatVerseRange(selectedVersesList.map(v => v.verse));
-    const reference = `${book.shortName} ${pos.chapter}:${verseRange}`;
+    // Group consecutive verses; non-consecutive runs become separate referenced blocks.
+    const groups = [];
+    let group = [];
+    selectedVersesList.forEach((v) => {
+      if (group.length === 0 || v.verse === group[group.length - 1].verse + 1) {
+        group.push(v);
+      } else {
+        groups.push(group);
+        group = [v];
+      }
+    });
+    if (group.length) groups.push(group);
+
     const firstVerse = selectedVersesList[0]?.verse || null;
     const lastVerse = selectedVersesList[selectedVersesList.length - 1]?.verse || null;
 
-    const lines = formatVerseShare({
-      text: versesText,
-      ref: reference,
-      url: buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: firstVerse, verseEnd: lastVerse, from: searchTerm ? 'search' : undefined }),
+    const blocks = groups.map((g) => {
+      const range = formatVerseRange(g.map(v => v.verse));
+      return formatVerseShare({
+        text: g.map(v => cleanVerseText(v.text)).join(' '),
+        ref: `${book.shortName} ${pos.chapter}:${range}`,
+        url: buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: g[0].verse, verseEnd: g[g.length - 1].verse > g[0].verse ? g[g.length - 1].verse : undefined, from: searchTerm ? 'search' : undefined }),
+      });
     });
+    const lines = blocks.join('\n\n———\n\n');
     
     console.log('[BibleReader] Copying to clipboard:', lines.substring(0, 100) + '...');
     
