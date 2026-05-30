@@ -207,9 +207,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         backgroundColor: null,
         scale: 2,
         useCORS: true,
-        width: el.offsetWidth,
-        height: el.offsetHeight,
-        windowWidth: el.offsetWidth,
         scrollX: 0,
         scrollY: 0,
       });
@@ -309,9 +306,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         backgroundColor: null,
         scale: 2,
         useCORS: true,
-        width: el.offsetWidth,
-        height: el.offsetHeight,
-        windowWidth: el.offsetWidth,
         scrollX: 0,
         scrollY: 0,
       });
