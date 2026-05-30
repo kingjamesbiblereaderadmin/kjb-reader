@@ -78,6 +78,10 @@ export default function ContentsPage() {
           setTimeout(() => goTo(selectedBook, chapter, null), 150);
         }
       });
+    } else {
+      // "Go to Chapter" — navigate straight to the chapter
+      setShowChapterSelector(false);
+      setTimeout(() => goTo(selectedBook, chapter, null), 150);
     }
   };
 
