@@ -337,6 +337,9 @@ export default function BibleReader() {
   };
 
   const topRef = useRef(null);
+  // When true, the next chapter load is a fresh navigation and must start at the
+  // top (do NOT restore the saved scroll offset for that chapter).
+  const freshNavRef = useRef(false);
   const posRef = useRef(pos);
   useEffect(() => { posRef.current = pos; }, [pos]);
   const book = BIBLE_BOOKS.find(b => b.abbr === pos.abbr) || BIBLE_BOOKS[0];
@@ -605,6 +608,13 @@ export default function BibleReader() {
       const t2 = setTimeout(scrollToVerse, 600);
       return () => { clearTimeout(t1); clearTimeout(t2); };
     }
+    // Fresh navigation (book/chapter picker, prev/next, etc.) — always start at the
+    // top and do NOT restore a previously-saved scroll offset for this chapter.
+    if (freshNavRef.current) {
+      freshNavRef.current = false;
+      (document.getElementById('kjb-scroll') || window).scrollTo({ top: 0 });
+      return;
+    }
     // No highlight: restore saved scroll offset for this chapter
     const timer = setTimeout(() => {
       try {
@@ -730,6 +740,9 @@ export default function BibleReader() {
     if (!jumpVerse) {
       setHighlightVerse(null);
     }
+    // Mark this as a fresh navigation so the reader starts at the top of the
+    // new chapter (skips scroll restoration).
+    freshNavRef.current = true;
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);
     loadChapter(newAbbr, newChapter, jumpVerse);
