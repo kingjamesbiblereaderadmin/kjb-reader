@@ -976,7 +976,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       {showVersePanel ? (
         <div className="bg-white/25 backdrop-blur-sm rounded-xl px-6 pt-4 pb-6 shadow-none text-center flex-1 flex flex-col w-full max-w-full overflow-hidden">
           <p 
-            className={`font-sans text-base font-bold tracking-wide uppercase mt-3 mb-8 ${accentClass}`}
+            className={`font-sans text-base font-extrabold tracking-wide uppercase mt-3 mb-8 ${accentClass}`}
             style={{ opacity: textOpacity, color: textColor, fontFamily: resolvedFont }}
           >
             Verse of the Day
