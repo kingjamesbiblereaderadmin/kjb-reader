@@ -191,29 +191,31 @@
     font-style: italic;
   }
   
-  /* In cursive mode ONLY, use Dancing Script font for scripture text (full italic).
+  /* In cursive mode ONLY, use Dancing Script font for scripture text.
      Exclude UI chrome (buttons, sans-font elements, verse-number sups, icons). */
   .cursive-em-style,
-  .cursive-em-style span {
+  .cursive-em-style *:not(button):not(button *):not(.font-sans):not(.font-sans *):not(sup):not(svg):not(svg *) {
     font-family: 'Dancing Script', cursive !important;
-    font-style: italic !important;
+    font-weight: inherit !important;
+  }
+  
+  .cursive-em-style {
+    font-style: normal !important;
     font-weight: 400 !important;
     color: #1a1a1a !important;
     line-height: 1.7 !important;
   }
-  .dark .cursive-em-style,
-  .dark .cursive-em-style span {
+  .dark .cursive-em-style {
     color: #e5e5e5 !important;
   }
   
   /* Bracketed words in cursive mode - lighter font color */
   .cursive-em-style em {
     font-family: inherit !important;
-    font-style: inherit !important;
+    font-style: italic !important;
     font-weight: inherit !important;
     color: rgba(26, 26, 26, 0.5) !important;
     background-color: transparent !important;
-    box-shadow: none !important;
   }
   .dark .cursive-em-style em {
     color: rgba(229, 229, 229, 0.5) !important;
