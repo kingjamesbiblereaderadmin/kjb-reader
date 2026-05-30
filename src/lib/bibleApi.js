@@ -135,5 +135,5 @@ export function renderSubscriptText(text) {
   const inner = parts.map((part, i) =>
     i % 2 === 1 ? `<span style="font-style:normal">${part}</span>` : part
   ).join('');
-  return `<em>${inner}</em>`;
+  return `<span class="pilcrow">¶</span> <em>${inner}</em>`;
 }
