@@ -1497,7 +1497,49 @@ export default function BibleReader() {
         </div>
       )}
 
-
+      {/* Select action bar — anchored just under the sticky reader toolbar */}
+      {selectMode && (
+        <div className="sticky top-16 z-[60] mx-auto mb-3 flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-2xl bg-card border border-border shadow-2xl max-w-full w-fit overflow-x-auto">
+          <span className="font-sans text-xs text-muted-foreground font-medium whitespace-nowrap">
+            {selectedVerses.size === 0 ? '0' : selectedVerses.size}{selectedVerses.size === 0 ? '' : `/${verses.length}`} selected
+          </span>
+          <div className="w-px h-4 bg-border" />
+          <button
+            onClick={selectAllVerses}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors whitespace-nowrap"
+          >
+            <CheckSquare className="w-3.5 h-3.5" /> All
+          </button>
+          <button
+            onClick={toggleSelectMode}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors whitespace-nowrap"
+          >
+            <X className="w-3.5 h-3.5" /> Cancel
+          </button>
+          {selectedVerses.size > 0 && (
+            <>
+              <button
+                onClick={handleCopySelected}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors whitespace-nowrap"
+              >
+                <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy'}
+              </button>
+              <button
+                onClick={handleReadSelected}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
+              >
+                <BookMarked className="w-3.5 h-3.5" /> Read Selected
+              </button>
+              <button
+                onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 font-sans text-xs font-medium transition-colors whitespace-nowrap"
+              >
+                <AlignLeft className="w-3.5 h-3.5" /> Show Full Chapter
+              </button>
+            </>
+          )}
+        </div>
+      )}
 
       {/* Show header chevron when hidden — portaled to body so it stays truly
           fixed to the viewport (escapes the animated page wrapper) while text scrolls */}
@@ -1716,50 +1758,6 @@ export default function BibleReader() {
             </div>
           </div>
         </>
-      )}
-
-      {/* Floating select action bar */}
-      {selectMode && (
-        <div className="fixed bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-2xl bg-card border border-border shadow-2xl max-w-[95vw] w-auto overflow-x-auto">
-          <span className="font-sans text-xs text-muted-foreground font-medium">
-            {selectedVerses.size === 0 ? '0' : selectedVerses.size}{selectedVerses.size === 0 ? '' : `/${verses.length}`} selected
-          </span>
-          <div className="w-px h-4 bg-border" />
-          <button
-            onClick={selectAllVerses}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
-          >
-            <CheckSquare className="w-3.5 h-3.5" /> All
-          </button>
-          <button
-            onClick={toggleSelectMode}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
-          >
-            <X className="w-3.5 h-3.5" /> Cancel
-          </button>
-          {selectedVerses.size > 0 && (
-            <>
-              <button
-                onClick={handleCopySelected}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
-              >
-                <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy'}
-              </button>
-              <button
-                onClick={handleReadSelected}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
-              >
-                <BookMarked className="w-3.5 h-3.5" /> Read Selected
-              </button>
-              <button
-                onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 font-sans text-xs font-medium transition-colors"
-              >
-                <AlignLeft className="w-3.5 h-3.5" /> Show Full Chapter
-              </button>
-            </>
-          )}
-        </div>
       )}
 
       {/* Bottom nav */}
