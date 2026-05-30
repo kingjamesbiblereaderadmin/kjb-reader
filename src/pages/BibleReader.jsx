@@ -290,7 +290,7 @@ export default function BibleReader() {
     const lines = formatVerseShare({
       text: versesText,
       ref: reference,
-      url: buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: firstVerse, verseEnd: lastVerse }),
+      url: buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: firstVerse, verseEnd: lastVerse, from: searchTerm ? 'search' : undefined }),
     });
     
     console.log('[BibleReader] Copying to clipboard:', lines.substring(0, 100) + '...');

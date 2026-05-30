@@ -43,7 +43,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   const verseText = formatVerseShare({
     text: verse.text,
     ref: verseRef,
-    url: buildVerseUrl({ abbr, chapter, verse: verse.verse }),
+    url: buildVerseUrl({ abbr, chapter, verse: verse.verse, from: searchTerm ? 'search' : undefined }),
   });
 
   const highlightBg = highlightColors.find(c => c.name === highlightColor)?.bg;
