@@ -240,7 +240,7 @@ export default function BibleReader() {
   };
 
   const adjustZoom = (delta) => {
-    const newZoom = Math.max(75, Math.min(150, zoomLevel + delta));
+    const newZoom = Math.max(75, Math.min(250, zoomLevel + delta));
     setZoomLevel(newZoom);
     try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch {}
   };
@@ -1108,7 +1108,7 @@ export default function BibleReader() {
                       <input
                         type="range"
                         min="75"
-                        max="150"
+                        max="250"
                         step="5"
                         value={zoomLevel}
                         onChange={handleZoomChange}
@@ -1152,7 +1152,7 @@ export default function BibleReader() {
                     <input
                       type="range"
                       min="75"
-                      max="150"
+                      max="250"
                       step="5"
                       value={zoomLevel}
                       onChange={handleZoomChange}
