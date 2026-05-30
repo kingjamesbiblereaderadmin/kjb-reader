@@ -73,8 +73,6 @@ export function parsePceText(text) {
   if (!currentBook || currentChapter == null) return;
   let t = rawAfterNumber
     .replace(/\s*<<[^>]*>>\s*$/, '')
-    .replace(/\\\[/g, '[')
-    .replace(/\\\]/g, ']')
     .replace(/\s+/g, ' ')
     .trim();
   if (hadParagraph) t = '¶ ' + t;
