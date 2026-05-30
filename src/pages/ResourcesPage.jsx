@@ -77,7 +77,7 @@ const PREACHERS = [
   desc: 'KJB Elites — faithful preacher of the word.',
   links: [
   'https://youtube.com/@josephgonzalez3',
-  'https://www.tiktok.com/@kjb_elites',
+  'https://www.tiktok.com/@joyfullychurch',
   'https://joyfullychurch.univer.se/']
 
 },
