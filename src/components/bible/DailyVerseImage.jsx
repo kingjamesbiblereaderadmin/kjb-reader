@@ -387,8 +387,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {/* Date display */}
-      <div className="absolute bottom-2.5 left-3 rounded" style={{ backgroundColor: 'rgba(0,0,0,0.22)', paddingLeft: '6px', paddingRight: '6px', paddingTop: '1px', paddingBottom: '1px' }}>
-        <span className="whitespace-nowrap" style={{ color: 'rgba(255,255,255,0.75)', fontFamily: "'Inter', system-ui, sans-serif", fontSize: '8px', lineHeight: '12px' }}>
+      <div className="absolute bottom-2.5 left-3" style={{ backgroundColor: 'rgba(0,0,0,0.22)', borderRadius: '4px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '6px', paddingRight: '6px' }}>
+        <span className="whitespace-nowrap" style={{ color: 'rgba(255,255,255,0.75)', fontFamily: "'Inter', system-ui, sans-serif", fontSize: '8px', lineHeight: '1' }}>
           {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
         </span>
       </div>
