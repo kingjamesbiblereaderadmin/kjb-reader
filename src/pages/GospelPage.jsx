@@ -34,10 +34,13 @@ function VerseLink({ book, chapter, verse, children }) {
 function buildGospelText() {
   const origin = (typeof window !== 'undefined' && window.location?.origin) ? window.location.origin : '';
   const link = (abbr, chapter, verse) => `${origin}/read?book=${abbr}&chapter=${chapter}&verse=${verse}&from=daily`;
-  return `✝ HOW TO BE SAVED
-The Gospel of Jesus Christ
+  return `✝ HOW TO BE SAVED?
 
-The Gospel is the glad tidings of the Lord Jesus Christ, trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.
+The Gospel of Jesus Christ:
+
+The Gospel is the glad tidings of the Lord Jesus Christ:
+
+Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.
 
 ━━━━━━━━━━━━━━━━━━━━
 
