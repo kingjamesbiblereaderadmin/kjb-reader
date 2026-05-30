@@ -1,5 +1,5 @@
-import React from 'react';
-import { Heart, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Heart, AlertCircle, CheckCircle, XCircle, Copy, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 
@@ -9,10 +9,14 @@ function VerseLink({ book, chapter, verse, children }) {
 
   const handleClick = () => {
     if (!bookData) return;
-    const pos = { abbr: bookData.abbr, chapter, verse };
-    try { localStorage.setItem('kjb-position', JSON.stringify(pos)); } catch {}
+    try {
+      localStorage.removeItem('kjb-search-term');
+      localStorage.setItem('kjb-position', JSON.stringify({ abbr: bookData.abbr, chapter, verse }));
+    } catch {}
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => navigate('/read'), 150);
+    // Navigate with URL params so the reader scrolls to AND highlights the verse
+    navigate(`/read?book=${bookData.abbr}&chapter=${chapter}&verse=${verse}&from=daily`);
+    setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   };
 
   return (
@@ -21,6 +25,53 @@ function VerseLink({ book, chapter, verse, children }) {
       className="underline text-accent hover:text-accent/80 transition-colors font-medium cursor-pointer"
     >
       {children}
+    </button>
+  );
+}
+
+// Plain-text version of the gospel for copying.
+const GOSPEL_TEXT = `HOW TO BE SAVED — The Gospel
+
+1. Believe you are a sinner that deserves hell.
+"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin." — Romans 3:20
+"The wicked shall be turned into hell, and all the nations that forget God." — Psalm 9:17
+
+2. Believe that Jesus is God manifested in the flesh.
+"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory." — 1 Timothy 3:16
+
+3. Believe he died, shed his blood, was buried and rose again.
+"Moreover, brethren, I declare unto you the gospel which I preached unto you... how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." — 1 Corinthians 15:1-4
+
+Once Saved, Always Saved:
+"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." — Ephesians 1:13
+
+Trust the blood — believe the gospel and be saved.`;
+
+function CopyGospelButton() {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(GOSPEL_TEXT);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = GOSPEL_TEXT;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button
+      onClick={handleCopy}
+      className="inline-flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-accent/20 text-foreground rounded-lg font-sans text-sm font-medium transition-colors"
+    >
+      {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+      {copied ? 'Copied!' : 'Copy the Gospel'}
     </button>
   );
 }
@@ -45,6 +96,9 @@ export default function GospelPage() {
           The gospel is the good news about what Jesus Christ did for you. Here is what the Bible says you must believe.
         </p>
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
+        <div className="mt-5">
+          <CopyGospelButton />
+        </div>
       </div>
 
       {/* Gospel Steps */}
