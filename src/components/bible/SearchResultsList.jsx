@@ -155,6 +155,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                 )}
               </div>
             )}
+            {!isOTCollapsed && !isNTCollapsed && (
             <div
               onClick={() => {
                 if (selectMode) {
@@ -194,6 +195,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                   </p>
                 </div>
               </div>
+            )}
           </React.Fragment>
         );
       })}
