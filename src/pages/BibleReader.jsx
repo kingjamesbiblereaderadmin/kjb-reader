@@ -18,7 +18,7 @@ import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Accessibility } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { getAccessibilityFont } from '@/lib/accessibilityFont';
+import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
 import { getSearchNav, setSearchIndex, clearSearchNav } from '@/lib/searchNav';
 
 const isMobile = () => window.innerWidth < 640;
@@ -150,6 +150,14 @@ export default function BibleReader() {
   const lastReadingClearedRef = useRef(false);
 
   const handleFontChange = (font) => {
+    // Dyslexic & Legible are accessibility fonts — apply them app-wide (and
+    // disable the other reader fonts), matching the Settings behaviour.
+    if (font === 'dyslexic' || font === 'hyperlegible') {
+      setAccessibilityFont(font);
+      setA11yFont(font);
+      window.dispatchEvent(new Event('storage'));
+      return;
+    }
     setFontFamily(font);
     try { localStorage.setItem('kjb-reader-font-family', font); } catch {}
   };
@@ -1173,20 +1181,11 @@ export default function BibleReader() {
                     <div className="flex items-center justify-between mb-3">
                       <span className="font-sans text-xs font-medium text-foreground">Font Family</span>
                     </div>
-                    {a11yActive ? (
-                      <>
-                        <p className="font-sans text-[11px] text-muted-foreground mb-2 leading-snug">
-                          Accessibility font is on — it overrides reading fonts. Disable it to choose a font.
-                        </p>
-                        <button
-                          onClick={() => { setShowFontPopover(false); routerNavigate('/settings'); }}
-                          className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
-                        >
-                          <Accessibility className="w-3.5 h-3.5" />
-                          Accessibility Settings
-                        </button>
-                      </>
-                    ) : (
+                    {a11yActive && (
+                      <p className="font-sans text-[11px] text-muted-foreground mb-2 leading-snug">
+                        An accessibility font is active app-wide. Pick another font to switch, or it overrides other reading fonts.
+                      </p>
+                    )}
                     <div className="grid grid-cols-2 gap-2">
                       {[
                         { value: 'serif', label: 'Serif' },
@@ -1195,42 +1194,38 @@ export default function BibleReader() {
                         { value: 'cursive', label: 'Cursive' },
                         { value: 'dyslexic', label: 'Dyslexic' },
                         { value: 'hyperlegible', label: 'Legible' },
-                      ].map(font => (
+                      ].map(font => {
+                        const isA11yChoice = font.value === 'dyslexic' || font.value === 'hyperlegible';
+                        const isActive = a11yActive ? a11yFont === font.value : fontFamily === font.value;
+                        const isDisabled = a11yActive && !isA11yChoice;
+                        return (
                         <button
                           key={font.value}
+                          disabled={isDisabled}
                           onClick={() => { handleFontChange(font.value); setShowFontPopover(false); }}
                           className={`px-3 py-2 rounded-lg font-sans text-xs font-medium transition-all ${
-                            fontFamily === font.value
+                            isActive
                               ? 'bg-primary text-primary-foreground'
                               : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-                          }`}
+                          } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
                           style={{ fontFamily: getFontFamilyValue(font.value) }}
                         >
                           {font.label}
                         </button>
-                      ))}
+                        );
+                      })}
                     </div>
-                    )}
                   </div>
                 </div>
               )}
               {/* Mobile bottom sheet */}
               <SelectorSheet open={showFontPopover && isMobile()} onClose={() => setShowFontPopover(false)} title="Font Family">
-                {a11yActive ? (
-                  <div className="p-2 space-y-3">
-                    <p className="font-sans text-xs text-muted-foreground leading-snug">
-                      Accessibility font is on — it overrides reading fonts. Disable it to choose a font.
-                    </p>
-                    <button
-                      onClick={() => { setShowFontPopover(false); routerNavigate('/settings'); }}
-                      className="w-full flex items-center justify-center gap-1.5 px-4 py-3 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
-                    >
-                      <Accessibility className="w-4 h-4" />
-                      Accessibility Settings
-                    </button>
-                  </div>
-                ) : (
                 <div className="space-y-2 p-2">
+                  {a11yActive && (
+                    <p className="font-sans text-xs text-muted-foreground leading-snug mb-1">
+                      An accessibility font is active app-wide. Pick another font to switch, or it overrides other reading fonts.
+                    </p>
+                  )}
                   {[
                     { value: 'serif', label: 'Serif' },
                     { value: 'sans-serif', label: 'Sans' },
@@ -1238,22 +1233,27 @@ export default function BibleReader() {
                     { value: 'cursive', label: 'Cursive' },
                     { value: 'dyslexic', label: 'Dyslexic' },
                     { value: 'hyperlegible', label: 'Legible' },
-                  ].map(font => (
+                  ].map(font => {
+                    const isA11yChoice = font.value === 'dyslexic' || font.value === 'hyperlegible';
+                    const isActive = a11yActive ? a11yFont === font.value : fontFamily === font.value;
+                    const isDisabled = a11yActive && !isA11yChoice;
+                    return (
                     <button
                       key={font.value}
+                      disabled={isDisabled}
                       onClick={() => { handleFontChange(font.value); setShowFontPopover(false); }}
                       className={`w-full px-4 py-3 rounded-lg font-sans text-sm font-medium transition-all ${
-                        fontFamily === font.value
+                        isActive
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-                      }`}
+                      } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
                       style={{ fontFamily: getFontFamilyValue(font.value) }}
                     >
                       {font.label}
                     </button>
-                  ))}
+                    );
+                  })}
                 </div>
-                )}
               </SelectorSheet>
 
               {/* Flow toggle (Line ↔ Paragraph) */}
