@@ -198,9 +198,21 @@ export default function BibleReader() {
   };
 
   useEffect(() => {
-    const handler = () => setFullscreen(!!document.fullscreenElement);
+    // Detect both the JS Fullscreen API and browser-native (F11) fullscreen.
+    // F11 doesn't fire 'fullscreenchange', so we also compare the window's
+    // outer height against the screen height on resize.
+    const handler = () => {
+      const apiFull = !!document.fullscreenElement;
+      const browserFull = Math.abs(window.innerHeight - window.screen.height) < 2;
+      setFullscreen(apiFull || browserFull);
+    };
+    handler();
     document.addEventListener('fullscreenchange', handler);
-    return () => document.removeEventListener('fullscreenchange', handler);
+    window.addEventListener('resize', handler);
+    return () => {
+      document.removeEventListener('fullscreenchange', handler);
+      window.removeEventListener('resize', handler);
+    };
   }, []);
 
 
