@@ -770,6 +770,16 @@ export default function BibleReader() {
     }
   };
 
+  // The daily/random "last reading" indicator should only show while the user is
+  // actually viewing that exact chapter. Once they navigate elsewhere (or after a
+  // refresh that lands on a different chapter), it must not persist.
+  const lastReadingActive = !!(
+    lastReadingPos &&
+    !lastReadingPos.cleared &&
+    lastReadingPos.abbr === pos.abbr &&
+    lastReadingPos.chapter === pos.chapter
+  );
+
   const isLastChapterLastBook = pos.abbr === 'REV' && pos.chapter === 22;
   const isFirstChapterFirstBook = pos.abbr === 'GEN' && pos.chapter === 0;
   const isGenesisChapterOne = pos.abbr === 'GEN' && pos.chapter === 1;
@@ -1294,12 +1304,12 @@ export default function BibleReader() {
               </button>
 
               {/* Currently reading indicator - integrated into toolbar */}
-              {(highlightVerse || (filterMode && selectedVerses.size > 0) || (lastReadingPos && !lastReadingPos.cleared) || searchTerm) && (
+              {(highlightVerse || (filterMode && selectedVerses.size > 0) || lastReadingActive || searchTerm) && (
                 <CurrentlyReadingIndicator
                   highlightVerse={highlightVerse}
                   filterMode={filterMode}
                   selectedVerses={selectedVerses}
-                  lastReadingPos={lastReadingPos}
+                  lastReadingPos={lastReadingActive ? lastReadingPos : null}
                   book={book}
                   pos={pos}
                   searchTerm={searchTerm}
