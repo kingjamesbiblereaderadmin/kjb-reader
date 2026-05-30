@@ -1585,7 +1585,7 @@ export default function BibleReader() {
         )}
         {!loading && !error && verses.length > 0 && (
           <div
-            className={`${columnMode ? 'kjb-two-col text-justify hyphens-auto' : 'text-left'} ${paragraphMode ? 'text-justify hyphens-auto px-2 sm:px-4' : ''}`}
+            className={`${columnMode ? 'kjb-two-col text-left hyphens-auto' : 'text-left'} ${paragraphMode ? 'text-left px-2 sm:px-4' : ''}`}
             style={columnMode ? {
               fontSize: 'inherit',
               columnCount: 2,
