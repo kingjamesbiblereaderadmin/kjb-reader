@@ -76,21 +76,24 @@ export function parsePceText(text) {
     
     // Strip subscript/superscription from verse 1 if it matches a known subscript
     // (e.g., Psalm titles like "A Psalm of David" at the start of verse 1)
+    // IMPORTANT: Only strip if there is remaining verse text after stripping.
+    // Otherwise keep verse 1 as-is (the subscript IS the only content, which
+    // means in the source file verse 1 starts immediately after the title with
+    // the actual verse text following — do not erase real verse content).
     if (vs === 1 && currentBook && SUBSCRIPTS[`${currentBook}:${currentChapter}`]) {
       const subscript = SUBSCRIPTS[`${currentBook}:${currentChapter}`];
-      // Remove HTML/markup from subscript for comparison
       const subscriptPlain = subscript.replace(/\[([^\]]+)\]/g, '$1');
-      // Check if verse text starts with the subscript (case-insensitive)
       const tLower = t.toLowerCase();
       const subscriptLower = subscriptPlain.toLowerCase();
       if (tLower.startsWith(subscriptLower) || tLower.startsWith('¶ ' + subscriptLower)) {
-        // Strip the subscript from the beginning
-        t = t.replace(new RegExp(`^(¶\\s*)?${subscriptPlain.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i'), '').trim();
-        // Remove leading pilcrow if it's now orphaned
-        if (t.startsWith('¶')) {
-          t = t.replace(/^¶\s*/, '').trim();
-          hadParagraph = false;
+        const stripped = t.replace(new RegExp(`^(¶\\s*)?${subscriptPlain.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i'), '').trim();
+        // Only apply the strip if real verse text remains
+        if (stripped.length > 3) {
+          t = stripped;
+          if (t.startsWith('¶')) { t = t.replace(/^¶\s*/, '').trim(); hadParagraph = false; }
         }
+        // If stripping leaves nothing (subscript = entire "verse 1" line), we
+        // leave t unchanged — the real verse 1 is on the next numbered line.
       }
     }
     

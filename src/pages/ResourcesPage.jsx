@@ -35,6 +35,11 @@ const WHY_KJB = {
   desc: "The King James Bible is the only preserved Word of God in the English Language",
   content: [
   {
+    title: "The Word of God Will Keep Its Infallibility",
+    text: "A historical book demonstrating that the King James Bible is the infallible, preserved Word of God in the English language. Full text available on Archive.org.",
+    links: [{ url: 'https://archive.org/details/wordgodwillkeepi0000faus', label: 'Read on Archive.org' }]
+  },
+  {
     title: "Warning on the NKJV",
     text: "You are more than welcome to purchase a King James Bible from the Dollar Store or any Bible retailer without worrying about errors. However, please note: the NKJV is not the same as the King James Bible. Please check out this resource to learn more and do your own research.",
     links: [{ url: 'https://www.scionofzion.com/nkjv.htm', label: 'NKJV Comparison' }]

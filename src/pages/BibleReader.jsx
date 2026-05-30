@@ -631,9 +631,12 @@ export default function BibleReader() {
     };
   }, [searchTerm]);
 
-  // Keep verse highlight persistent (no auto-hide)
-  // The highlight stays until user clears it or navigates away
-  // Note: pos.verse is also kept persistent - don't clear it when highlight fades
+  // Auto-fade highlight after 5 seconds
+  useEffect(() => {
+    if (!highlightVerse) return;
+    const timer = setTimeout(() => setHighlightVerse(null), 5000);
+    return () => clearTimeout(timer);
+  }, [highlightVerse]);
 
   // Reset verse status when exiting filter mode or clearing selection
   useEffect(() => {
@@ -660,9 +663,16 @@ export default function BibleReader() {
       setLastReadingPos(lastPos);
     }
     // Clear highlights when navigating without a specific verse (random chapter)
-    // For search results and normal navigation, keep the verse highlight
     if (!jumpVerse && !isSearchResult) {
       setHighlightVerse(null);
+    }
+    // Clear "last reading" indicator when navigating to a different book or chapter
+    // (only keep it if the user clicked it from the indicator itself via onClear)
+    if (newAbbr !== pos.abbr || newChapter !== pos.chapter) {
+      if (!fromDailyVerse && !fromRandom) {
+        setLastReadingPos(null);
+        try { localStorage.removeItem('kjb-last-reading'); } catch {}
+      }
     }
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);

@@ -306,7 +306,7 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main id="kjb-scroll" className="flex-1 overflow-y-auto pb-[calc(7rem+env(safe-area-inset-bottom))] sm:!pb-0 px-1 sm:px-2">
+      <main id="kjb-scroll" className="flex-1 overflow-y-auto pb-[calc(5rem+env(safe-area-inset-bottom))] sm:!pb-0 px-1 sm:px-2">
         <div key={reloadKey}>
           <Outlet />
         </div>
@@ -457,17 +457,17 @@ function BottomNav({ pathname, navigate }) {
     try { window.dispatchEvent(new Event('kjb-footer-mode-change')); } catch {}
   };
 
-  // Bar mode - thin footer strip with only the chevron toggle (no icons)
+  // Bar mode - ultra-thin footer strip with only the chevron toggle (no icons)
   if (showMode === 'bar') {
     return (
-      <nav className="sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/95 backdrop-blur-md border-t border-border" style={{ paddingBottom: 'env(safe-area-inset-bottom)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
+      <nav className="sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/80 backdrop-blur-md border-t border-border/50" style={{ paddingBottom: 'env(safe-area-inset-bottom)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
         <button
           type="button"
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); cycleShowMode(); }}
-          className="w-full h-6 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-all duration-200"
+          className="w-full h-4 flex items-center justify-center text-muted-foreground/50 hover:text-foreground active:bg-secondary/50 transition-all duration-200"
           title="Toggle navigation"
         >
-          <ChevronDown className="w-3.5 h-3.5 rotate-180 transition-transform duration-200" />
+          <ChevronDown className="w-3 h-3 rotate-180 transition-transform duration-200" />
         </button>
       </nav>
     );

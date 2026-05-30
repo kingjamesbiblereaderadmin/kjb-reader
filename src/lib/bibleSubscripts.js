@@ -5,7 +5,6 @@
 // Psalms without a superscription are not listed.
 
 export const SUBSCRIPTS = {
-  'Psalms:1':   'A Psalm of David.',
   'Psalms:2':   'A Psalm of David.',
   'Psalms:3':   'A Psalm of David, when he fled from Absalom his son.',
   'Psalms:4':   'To the chief Musician on Neginoth, A Psalm of David.',

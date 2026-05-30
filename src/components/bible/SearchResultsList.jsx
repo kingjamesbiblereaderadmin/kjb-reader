@@ -100,7 +100,9 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
         // Skip rendering this result if its section is collapsed
         const isOTCollapsed = !isNT && !otExpanded;
         const isNTCollapsed = isNT && !ntExpanded;
-        if (isOTCollapsed || isNTCollapsed) return null;
+        // When collapsed: show only the header row, skip all result rows
+        if (isOTCollapsed && !showOTHeader) return null;
+        if (isNTCollapsed && !showNTHeader) return null;
         return (
           <React.Fragment key={`frag-${i}`}>
             {showOTHeader && (
@@ -120,7 +122,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                 )}
                 {ntCount > 0 && (
                   <button
-                    onClick={() => ntRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                    onClick={() => { setNtExpanded(true); setTimeout(() => ntRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50); }}
                     className="ml-auto flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
                   >
                     Jump to NT <ArrowDown className="w-3 h-3" />
