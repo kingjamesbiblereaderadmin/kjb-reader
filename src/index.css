@@ -192,9 +192,10 @@
   }
   
   /* In cursive mode ONLY, use Dancing Script font for scripture text.
-     Exclude UI chrome (buttons, sans-font elements, verse-number sups, icons). */
+     Exclude UI chrome (buttons, sans-font elements, verse-number sups, icons).
+     Also exclude <em> so italic words can be styled separately below. */
   .cursive-em-style,
-  .cursive-em-style *:not(button):not(button *):not(.font-sans):not(.font-sans *):not(sup):not(svg):not(svg *) {
+  .cursive-em-style *:not(button):not(button *):not(.font-sans):not(.font-sans *):not(sup):not(svg):not(svg *):not(em) {
     font-family: 'Dancing Script', cursive !important;
     font-weight: inherit !important;
   }
@@ -208,18 +209,22 @@
     color: #e5e5e5 !important;
   }
   
-  /* Italic words ([bracketed]) in cursive mode - lighter weight, normal spacing.
-     Dancing Script is a connecting cursive font; instead of margins (which break
-     in justified paragraph mode), use inline-block + word-spacing so italic words
-     keep normal gaps and never merge with adjacent words. */
-  .cursive-em-style em {
+  /* Italic words ([bracketed]) in cursive mode.
+     Use a DIFFERENT, lighter font (Cormorant Garamond italic) instead of the
+     connecting Dancing Script — this both makes them visually distinct AND fixes
+     the merging issue (Dancing Script glyphs connect into neighbours).
+     inline-block preserves the surrounding spaces so words never merge. */
+  .cursive-em-style em,
+  .cursive-em-style *:not(button) em {
+    font-family: 'Cormorant Garamond', Georgia, serif !important;
     font-style: italic !important;
-    font-weight: 300 !important;
-    color: #1a1a1a !important;
+    font-weight: 400 !important;
+    color: #555 !important;
     display: inline-block;
   }
-  .dark .cursive-em-style em {
-    color: #e5e5e5 !important;
+  .dark .cursive-em-style em,
+  .dark .cursive-em-style *:not(button) em {
+    color: #b0b0b0 !important;
   }
 
   /* Colophon and subscript italics in cursive mode */
