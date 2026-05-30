@@ -464,19 +464,17 @@ export default function BibleReader() {
   //  • the URL query string changes (?book=&chapter=&verse=)
   // Without this, navigating to /read while already on /read does nothing.
   useEffect(() => {
-    // Sync lastReadingPos from localStorage (for random chapter / daily verse indicator)
+    // Sync lastReadingPos from localStorage — always sync (including cleared state)
     try {
       const lastReading = localStorage.getItem('kjb-last-reading');
-      if (lastReading) {
-        const parsed = JSON.parse(lastReading);
-        setLastReadingPos(parsed);
-      }
+      setLastReadingPos(lastReading ? JSON.parse(lastReading) : null);
     } catch {}
 
     // 1) URL params take priority when present
     const urlParams = new URLSearchParams(routerLocation.search);
     const urlBookObj = resolveBook(urlParams.get('book'));
     const urlChapter = urlParams.get('chapter');
+    const isFromDailyVerse = urlParams.get('from') === 'daily';
     if (urlBookObj && urlChapter) {
       const chapterNum = parseInt(urlChapter, 10);
       const verseNum = urlParams.get('verse') ? parseInt(urlParams.get('verse'), 10) : null;
@@ -496,6 +494,15 @@ export default function BibleReader() {
         setFilterMode(false);
         setSelectedVerses(new Set());
         setHighlightedVerses(new Set());
+      }
+      // If this URL navigation is NOT from daily verse, clear the daily/random indicator
+      if (!isFromDailyVerse) {
+        // Only clear if coming from a search (has a search term stored) or explicit non-daily nav
+        const hasSearchTerm = !!localStorage.getItem('kjb-search-term');
+        if (hasSearchTerm) {
+          setLastReadingPos(null);
+          try { localStorage.removeItem('kjb-last-reading'); } catch {}
+        }
       }
       setPos({ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum });
       setHighlightVerse(verseNum || null);
@@ -612,12 +619,9 @@ export default function BibleReader() {
         const searchTotal = localStorage.getItem('kjb-search-total');
         if (searchIndex) setSearchResultIndex(parseInt(searchIndex, 10));
         if (searchTotal) setSearchTotalResults(parseInt(searchTotal, 10));
-        // Sync lastReadingPos from localStorage (for random chapter / daily verse)
+        // Sync lastReadingPos from localStorage — always sync, including null (cleared by search nav)
         const lastReading = localStorage.getItem('kjb-last-reading');
-        if (lastReading) {
-          const parsed = JSON.parse(lastReading);
-          setLastReadingPos(parsed);
-        }
+        setLastReadingPos(lastReading ? JSON.parse(lastReading) : null);
       } catch {}
     };
     window.addEventListener('focus', refreshContext);
@@ -656,23 +660,21 @@ export default function BibleReader() {
     if (newChapter === 0 && newAbbr !== 'GEN' && newAbbr !== 'MAT') {
       return;
     }
-    // Save last reading position before navigating from daily verse or random chapter
+    // Save last reading position before navigating FROM daily verse or random chapter
     if ((fromDailyVerse || fromRandom) && pos.abbr && pos.chapter) {
       const lastPos = { abbr: pos.abbr, chapter: pos.chapter, fromDailyVerse, fromRandom };
       try { localStorage.setItem('kjb-last-reading', JSON.stringify(lastPos)); } catch {}
       setLastReadingPos(lastPos);
     }
-    // Clear highlights when navigating without a specific verse (random chapter)
+    // Clear highlights when navigating without a specific verse
     if (!jumpVerse && !isSearchResult) {
       setHighlightVerse(null);
     }
-    // Clear "last reading" indicator when navigating to a different book or chapter
-    // (only keep it if the user clicked it from the indicator itself via onClear)
-    if (newAbbr !== pos.abbr || newChapter !== pos.chapter) {
-      if (!fromDailyVerse && !fromRandom) {
-        setLastReadingPos(null);
-        try { localStorage.removeItem('kjb-last-reading'); } catch {}
-      }
+    // Clear lastReadingPos when doing a search/external navigation (not from daily/random, not chapter prev/next)
+    // Search results and other navigations that bring you to a new verse should clear the daily/random indicator
+    if (isSearchResult) {
+      setLastReadingPos(null);
+      try { localStorage.removeItem('kjb-last-reading'); } catch {}
     }
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);
@@ -680,9 +682,6 @@ export default function BibleReader() {
   };
 
   const goNext = () => {
-    // Clear last reading position when navigating normally
-    setLastReadingPos(null);
-    try { localStorage.removeItem('kjb-last-reading'); } catch {}
     if (pos.chapter < book.chapters) {
       navigate(pos.abbr, pos.chapter + 1);
     } else {
@@ -696,9 +695,6 @@ export default function BibleReader() {
 
 
   const goPrev = () => {
-    // Clear last reading position when navigating normally
-    setLastReadingPos(null);
-    try { localStorage.removeItem('kjb-last-reading'); } catch {}
     if (pos.chapter > 1) {
       navigate(pos.abbr, pos.chapter - 1);
     } else if (pos.chapter === 1 && (pos.abbr === 'GEN' || pos.abbr === 'MAT')) {
