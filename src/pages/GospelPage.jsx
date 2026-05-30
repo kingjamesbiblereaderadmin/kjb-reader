@@ -29,32 +29,41 @@ function VerseLink({ book, chapter, verse, children }) {
   );
 }
 
-// Plain-text version of the gospel for copying.
-const GOSPEL_TEXT = `HOW TO BE SAVED — The Gospel
+// Build the plain-text gospel for copying, with verse-reference deep links,
+// a link to the gospel page, and the Robert Breaker video link.
+function buildGospelText() {
+  const origin = (typeof window !== 'undefined' && window.location?.origin) ? window.location.origin : '';
+  const link = (abbr, chapter, verse) => `${origin}/read?book=${abbr}&chapter=${chapter}&verse=${verse}&from=daily`;
+  return `HOW TO BE SAVED — The Gospel
 
 1. Believe you are a sinner that deserves hell.
-"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin." — Romans 3:20
-"The wicked shall be turned into hell, and all the nations that forget God." — Psalm 9:17
+"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin." — Romans 3:20 <${link('Rom', 3, 20)}>
+"The wicked shall be turned into hell, and all the nations that forget God." — Psalm 9:17 <${link('Psa', 9, 17)}>
 
 2. Believe that Jesus is God manifested in the flesh.
-"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory." — 1 Timothy 3:16
+"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory." — 1 Timothy 3:16 <${link('1Tim', 3, 16)}>
 
 3. Believe he died, shed his blood, was buried and rose again.
-"Moreover, brethren, I declare unto you the gospel which I preached unto you... how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." — 1 Corinthians 15:1-4
+"Moreover, brethren, I declare unto you the gospel which I preached unto you... how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." — 1 Corinthians 15:1-4 <${link('1Cor', 15, 1)}>
 
 Once Saved, Always Saved:
-"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." — Ephesians 1:13
+"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." — Ephesians 1:13 <${link('Eph', 1, 13)}>
 
-Trust the blood — believe the gospel and be saved.`;
+Trust the blood — believe the gospel and be saved.
+
+Read the full gospel: <${origin}/gospel>
+Watch "THE GOSPEL THAT SAVES" by Robert Breaker: <https://www.youtube.com/watch?v=znP9Dr6tOzU>`;
+}
 
 function CopyGospelButton() {
   const [copied, setCopied] = useState(false);
   const handleCopy = async () => {
+    const text = buildGospelText();
     try {
-      await navigator.clipboard.writeText(GOSPEL_TEXT);
+      await navigator.clipboard.writeText(text);
     } catch {
       const ta = document.createElement('textarea');
-      ta.value = GOSPEL_TEXT;
+      ta.value = text;
       ta.style.position = 'fixed';
       ta.style.opacity = '0';
       document.body.appendChild(ta);
