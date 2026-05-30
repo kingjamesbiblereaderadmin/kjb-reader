@@ -1262,11 +1262,13 @@ export default function BibleReader() {
                       const currentIndex = parseInt(localStorage.getItem('kjb-search-index') || '0', 10);
                       const prevIndex = currentIndex - 1;
                       if (prevIndex >= 0 && searchResults[prevIndex]) {
-                        const prevResult = searchResults[prevIndex];
+                        const r = searchResults[prevIndex];
+                        localStorage.setItem('kjb-search-index', String(prevIndex));
                         setSearchResultIndex(prevIndex);
                         setSearchTotalResults(searchResults.length);
-                        localStorage.setItem('kjb-search-index', String(prevIndex));
-                        navigate(prevResult.abbr, prevResult.chapter, prevResult.verse, false, false, true);
+                        // Update URL so the routerLocation effect reliably handles navigation
+                        const url = r.verse ? `/read?book=${r.abbr}&chapter=${r.chapter}&verse=${r.verse}` : `/read?book=${r.abbr}&chapter=${r.chapter}`;
+                        routerNavigate(url, { replace: true });
                       }
                     } catch {}
                   }}
@@ -1276,11 +1278,13 @@ export default function BibleReader() {
                       const currentIndex = parseInt(localStorage.getItem('kjb-search-index') || '0', 10);
                       const nextIndex = currentIndex + 1;
                       if (nextIndex < searchResults.length && searchResults[nextIndex]) {
-                        const nextResult = searchResults[nextIndex];
+                        const r = searchResults[nextIndex];
+                        localStorage.setItem('kjb-search-index', String(nextIndex));
                         setSearchResultIndex(nextIndex);
                         setSearchTotalResults(searchResults.length);
-                        localStorage.setItem('kjb-search-index', String(nextIndex));
-                        navigate(nextResult.abbr, nextResult.chapter, nextResult.verse, false, false, true);
+                        // Update URL so the routerLocation effect reliably handles navigation
+                        const url = r.verse ? `/read?book=${r.abbr}&chapter=${r.chapter}&verse=${r.verse}` : `/read?book=${r.abbr}&chapter=${r.chapter}`;
+                        routerNavigate(url, { replace: true });
                       }
                     } catch {}
                   }}
