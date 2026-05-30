@@ -285,11 +285,12 @@ export default function BibleReader() {
     const verseRange = formatVerseRange(selectedVersesList.map(v => v.verse));
     const reference = `${book.shortName} ${pos.chapter}:${verseRange}`;
     const firstVerse = selectedVersesList[0]?.verse || null;
+    const lastVerse = selectedVersesList[selectedVersesList.length - 1]?.verse || null;
 
     const lines = formatVerseShare({
       text: versesText,
       ref: reference,
-      url: buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: firstVerse }),
+      url: buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: firstVerse, verseEnd: lastVerse }),
     });
     
     console.log('[BibleReader] Copying to clipboard:', lines.substring(0, 100) + '...');
@@ -324,6 +325,19 @@ export default function BibleReader() {
     setFilterMode(true);
     setShowFilterOverlay(true);
     setSelectMode(false);
+    // Reflect the selected verse range in the browser URL so it's shareable
+    if (selectedVerses.size > 0) {
+      const first = Math.min(...selectedVerses);
+      const last = Math.max(...selectedVerses);
+      let url = `/read?book=${pos.abbr}&chapter=${pos.chapter}&verse=${first}`;
+      if (last > first) url += `&verseEnd=${last}`;
+      try {
+        window.history.replaceState({}, '', url);
+        savePosition(pos.abbr, pos.chapter, first);
+        const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...p, verseEnd: last > first ? last : null }));
+      } catch {}
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
     // Auto-dismiss overlay after 3 seconds
     setTimeout(() => setShowFilterOverlay(false), 3000);
@@ -334,10 +348,11 @@ export default function BibleReader() {
   const handleShareChapter = async () => {
     const hasSelection = selectedVerses.size > 0;
     const firstVerse = hasSelection ? Math.min(...selectedVerses) : null;
+    const lastVerse = hasSelection ? Math.max(...selectedVerses) : null;
     const ref = hasSelection
       ? `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
       : `${book.shortName} ${pos.chapter}`;
-    const url = buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: firstVerse });
+    const url = buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: firstVerse, verseEnd: lastVerse });
     const shareText = `${ref} (KJB)\n\n${url}`;
 
     try {

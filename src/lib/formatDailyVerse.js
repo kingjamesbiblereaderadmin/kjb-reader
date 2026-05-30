@@ -3,11 +3,12 @@
 // and multi-verse selection copy/share.
 
 // Build a shareable deep-link URL to a specific verse/chapter in the app.
-export function buildVerseUrl({ abbr, chapter, verse } = {}) {
+export function buildVerseUrl({ abbr, chapter, verse, verseEnd } = {}) {
   if (!abbr || !chapter) return '';
   const base = (typeof window !== 'undefined' && window.location?.origin) ? window.location.origin : '';
   let url = `${base}/read?book=${abbr}&chapter=${chapter}`;
   if (verse) url += `&verse=${verse}`;
+  if (verseEnd && verseEnd > verse) url += `&verseEnd=${verseEnd}`;
   return url;
 }
 
