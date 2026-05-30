@@ -169,7 +169,10 @@ export default function GospelPage() {
         </div>
         <h1 className="font-serif text-4xl font-bold text-foreground mb-3">How to be Saved</h1>
         <p className="font-sans text-muted-foreground max-w-lg mx-auto">
-          The Gospel is the glad tidings of the Lord Jesus Christ, trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.
+          The Gospel is the glad tidings of the Lord Jesus Christ:
+        </p>
+        <p className="font-sans text-muted-foreground max-w-lg mx-auto mt-3">
+          Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.
         </p>
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         <div className="mt-5">
