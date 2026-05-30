@@ -163,10 +163,12 @@ function GospelActions() {
   const buildGospelTextPlain = () => {
     return buildGospelText()
       .replace(/[━]+/g, '------------------------')
-      .replace(/^[✝📖▶🎬]\s*/gm, '')
-      // Remove any remaining emoji / pictographic characters
-      .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2700}-\u{27BF}\uFE0F]/gu, '')
-      .replace(/[ \t]+\n/g, '\n')
+      // Strip ALL emoji / pictographic / symbol / arrow characters (incl. variation selectors)
+      .replace(/[\u{1F000}-\u{1FFFF}\u{2190}-\u{2BFF}\u{2600}-\u{27BF}\u{2122}\u{2139}\u{FE00}-\u{FE0F}\u{200D}]/gu, '')
+      // Tidy up: trim leading spaces left after removed emoji, collapse trailing space
+      .replace(/^[ \t]+/gm, '')
+      .replace(/[ \t]+$/gm, '')
+      .replace(/[ \t]+/g, ' ')
       .trim();
   };
 
