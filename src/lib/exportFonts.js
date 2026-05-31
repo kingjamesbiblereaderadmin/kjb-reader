@@ -45,23 +45,6 @@ export const EXPORT_FONTS = [
     },
   },
   {
-    id: 'dyslexic',
-    label: 'Dyslexic-friendly',
-    pdf: 'helvetica',
-    css: "'OpenDyslexic', 'Comic Sans MS', 'Verdana', sans-serif",
-    rtf: 'Comic Sans MS',
-    embed: {
-      // OpenDyslexic and Lexend both ship in formats jsPDF renders as blank text
-      // (CFF / a cmap jsPDF mishandles). Atkinson Hyperlegible is a glyf-based
-      // TrueType that embeds reliably AND is a highly legible accessible face, so
-      // we use it for the dyslexic PDF. Word/RTF still name OpenDyslexic.
-      family: 'AtkinsonHyperlegibleDys',
-      normal: 'https://cdn.jsdelivr.net/fontsource/fonts/atkinson-hyperlegible@latest/latin-400-normal.ttf',
-      bold: 'https://cdn.jsdelivr.net/fontsource/fonts/atkinson-hyperlegible@latest/latin-700-normal.ttf',
-      italic: 'https://cdn.jsdelivr.net/fontsource/fonts/atkinson-hyperlegible@latest/latin-400-italic.ttf',
-    },
-  },
-  {
     id: 'legible',
     label: 'High-legibility',
     pdf: 'helvetica',

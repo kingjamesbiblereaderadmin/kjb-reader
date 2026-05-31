@@ -575,8 +575,11 @@ async function buildText(opts, bible, onProgress, format) {
         flush();
       } else {
         verses.forEach((v, idx) => {
-          // Blank line above verses that begin a new paragraph (pilcrow)
-          if (idx > 0 && hasPilcrow(v.text)) push(isDocx ? '<p style="margin:0"></p>' : '');
+          // Gap above verses that begin a new paragraph (pilcrow).
+          if (idx > 0 && hasPilcrow(v.text)) {
+            if (isDocx) out.push('<p style="margin:0;line-height:6pt">&nbsp;</p>');
+            else push('');
+          }
           push(`${v.verse} ${plainText(v.text, keepBrackets)}`);
         });
       }
@@ -736,7 +739,7 @@ async function buildRtf(opts, bible, onProgress) {
         flush();
       } else {
         verses.forEach((v, idx) => {
-          // Extra space above verses that begin a new paragraph (pilcrow)
+          // Extra space above verses that begin a new paragraph (pilcrow).
           const sb = idx > 0 && hasPilcrow(v.text) ? 120 : 0;
           para(`{\\b ${v.verse}} ${rtfInline(v.text)}`, { sb });
         });
