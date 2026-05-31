@@ -120,21 +120,19 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
           </p>
         </div>
 
-        {/* Date badge — clean dark-purple pill, snug fit */}
+        {/* Date badge — clean dark-purple pill, snug fit.
+            html2canvas mis-centers flex text vertically, so we use a plain
+            inline-block with balanced top/bottom padding instead. */}
         <div
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
             alignSelf: 'center',
-            width: 'auto',
             background: '#2A1750',
             borderRadius: '999px',
-            padding: '4px 24px',
+            padding: '14px 28px 16px',
             marginBottom: '56px',
           }}
         >
-          <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '30px', fontWeight: 700, lineHeight: 1.3, letterSpacing: '0.04em', color: '#ffffff', display: 'block', marginTop: '-6px' }}>
+          <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '30px', fontWeight: 700, lineHeight: 1, letterSpacing: '0.04em', color: '#ffffff' }}>
             {dateStr}
           </span>
         </div>
