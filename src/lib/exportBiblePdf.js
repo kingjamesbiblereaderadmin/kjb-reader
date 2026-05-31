@@ -78,6 +78,39 @@ function escapeHtml(s = '') {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+// Simulate the TOC vertical layout to find the EXACT page count needed.
+// Mirrors the spacing used by the real TOC writer (CONTENTS, testament headers,
+// book rows, and chapter-number grids) so no blank pages get reserved.
+function measureTocPages(doc, pageW, pageH, margin) {
+  doc.setFont('times', 'bold');
+  let pages = 1;
+  let ty = margin + 28; // CONTENTS header
+  const advance = (h) => { if (ty + h > pageH - margin) { pages += 1; ty = margin; } ty += h; };
+
+  // Chapter-grid geometry (must match writeChapterGrid)
+  const cellW = 26, gridLineH = 13;
+  const gridStartX = margin + 16;
+  const gridMaxX = pageW - margin;
+
+  let lastT = null;
+  BIBLE_BOOKS.forEach(book => {
+    if (book.testament !== lastT) { lastT = book.testament; advance(8 + 20); } // testament header
+    advance(15); // book row
+    if (book.chapters > 1) {
+      // simulate the wrapped chapter grid
+      let cx = gridStartX;
+      let rowHeight = 0;
+      for (let ch = 1; ch <= book.chapters; ch++) {
+        if (cx + cellW > gridMaxX) { advance(gridLineH); cx = gridStartX; }
+        cx += cellW;
+        rowHeight = gridLineH;
+      }
+      advance(rowHeight + 4); // final row + trailing gap
+    }
+  });
+  return pages;
+}
+
 // ─────────────────────────────────────────────────────────────
 // PDF
 // ─────────────────────────────────────────────────────────────
@@ -194,14 +227,11 @@ async function buildPdf(opts, bible, onProgress) {
   // Title pages
   titlePage(TITLE_WHOLE);
 
-  // Reserve blank pages for the Table of Contents (filled in at the end once we
-  // know each book's & chapter's page numbers). Each book takes a title row plus
-  // a wrapped grid of chapter numbers, so reserve generously.
+  // Reserve EXACTLY the right number of pages for the Table of Contents by
+  // simulating its vertical layout first (mirrors the real TOC writer's spacing
+  // below). Over-reserving previously left blank pages between Contents & Genesis.
   const total = BIBLE_BOOKS.length;
-  const totalChapters = BIBLE_BOOKS.reduce((n, b) => n + b.chapters, 0);
-  // ~ one row per book title + chapter-grid rows (≈ 14 chapter cells per row)
-  const estRows = total + Math.ceil(totalChapters / 14) + total + 6;
-  const tocPagesNeeded = Math.ceil(estRows / 46);
+  const tocPagesNeeded = measureTocPages(doc, pageW, pageH, margin);
   const tocStartPage = doc.internal.getNumberOfPages();
   for (let i = 0; i < tocPagesNeeded; i++) doc.addPage();
 
