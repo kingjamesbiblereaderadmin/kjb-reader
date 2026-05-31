@@ -38,6 +38,15 @@ function hasPilcrow(text = '') {
   return text.includes('\u00B6') || text.includes('\uFFFD');
 }
 
+// Strip the source's trailing "THE END" / "END OF THE PROPHETS" markers from a
+// verse so we can render them ourselves as proper centered lines instead.
+function stripEndMarker(text = '') {
+  return String(text)
+    .replace(/\s*[\u00B6\uFFFD]?\s*THE END\.?\s*$/i, '')
+    .replace(/\s*[\u00B6\uFFFD]?\s*END OF THE PROPHETS\.?\s*$/i, '')
+    .trim();
+}
+
 // Turn normalised text into ordered segments: { text, italic }.
 // Leading/mid pilcrows become a literal "¶ " marker in a plain segment.
 function toSegments(text) {
@@ -169,8 +178,15 @@ async function buildPdf(opts, bible, onProgress) {
     y += 8;
 
     for (let ch = 1; ch <= book.chapters; ch++) {
-      const verses = bookData[ch] || [];
+      let verses = bookData[ch] || [];
       if (!verses.length) continue;
+      // Remove any source end-marker from the very last verse of the Bible / OT
+      const isOtEnd = book.apiName === 'Malachi' && ch === book.chapters;
+      const isNtEnd = book.apiName === 'Revelation' && ch === book.chapters;
+      if (isOtEnd || isNtEnd) {
+        const last = verses[verses.length - 1];
+        verses = [...verses.slice(0, -1), { ...last, text: stripEndMarker(last.text) }];
+      }
       ensureSpace(28);
       doc.setFont('times', 'bold'); doc.setFontSize(11);
       doc.text(`Chapter ${ch}`, colX() + colWidth / 2, y, { align: 'center', baseline: 'top' });
@@ -203,6 +219,16 @@ async function buildPdf(opts, bible, onProgress) {
         if (colo) { y += 3; writeCentered('¶ ' + plainText(colo, false).replace(/^¶\s*/, ''), { size: 8 }); }
       }
     }
+    // End-of-section markers
+    if (book.apiName === 'Malachi') {
+      y += 10;
+      writeCentered('THE END OF THE PROPHETS.', { size: 11, font: 'bold', gapAfter: 6 });
+    }
+    if (book.apiName === 'Revelation') {
+      y += 10;
+      writeCentered('THE END.', { size: 12, font: 'bold', gapAfter: 6 });
+    }
+
     onProgress(Math.round(((bi + 1) / total) * 90) + 5, `Adding ${book.shortName}… (${bi + 1}/${total})`);
     await new Promise(r => setTimeout(r, 0));
   }
@@ -311,8 +337,14 @@ async function buildText(opts, bible, onProgress, format) {
     push(book.name, 'h1', anchorFor(book));
 
     for (let ch = 1; ch <= book.chapters; ch++) {
-      const verses = bookData[ch] || [];
+      let verses = bookData[ch] || [];
       if (!verses.length) continue;
+      const isOtEnd = book.apiName === 'Malachi' && ch === book.chapters;
+      const isNtEnd = book.apiName === 'Revelation' && ch === book.chapters;
+      if (isOtEnd || isNtEnd) {
+        const last = verses[verses.length - 1];
+        verses = [...verses.slice(0, -1), { ...last, text: stripEndMarker(last.text) }];
+      }
       push('');
       push(`Chapter ${ch}`, 'h2');
 
@@ -338,6 +370,16 @@ async function buildText(opts, bible, onProgress, format) {
         if (colo) push('¶ ' + plainText(colo, keepBrackets).replace(/^¶\s*/, ''), 'center-italic');
       }
     }
+    // End-of-section markers (with extra spacing before the NT title page)
+    if (book.apiName === 'Malachi') {
+      if (isDocx) { out.push('<p style="text-align:center;margin-top:14px"><b>THE END OF THE PROPHETS.</b></p>'); out.push('<br style="page-break-after:always" />'); }
+      else { push(''); push('THE END OF THE PROPHETS.'); push(''); push(''); }
+    }
+    if (book.apiName === 'Revelation') {
+      if (isDocx) out.push('<p style="text-align:center;margin-top:14px"><b>THE END.</b></p>');
+      else { push(''); push('THE END.'); }
+    }
+
     onProgress(Math.round(((bi + 1) / total) * 90) + 5, `Adding ${book.shortName}… (${bi + 1}/${total})`);
     await new Promise(r => setTimeout(r, 0));
   }
