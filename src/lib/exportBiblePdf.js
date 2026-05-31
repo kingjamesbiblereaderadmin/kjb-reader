@@ -191,8 +191,8 @@ async function buildPdf(opts, bible, onProgress) {
 
     if (book.apiName === 'Matthew') titlePage(TITLE_NT);
 
-    // Set the running header to this book's short name, then start a fresh page
-    runningHead = book.shortName;
+    // Set the running header to this book's full name, then start a fresh page
+    runningHead = book.name;
     newPage();
     const startPage = doc.internal.getNumberOfPages();
     const chapterPages = [];
@@ -556,7 +556,7 @@ async function buildRtf(opts, bible, onProgress) {
     // New section per book (also breaks to a new page) so the running header
     // shows the current book name.
     lines.push('\\sect ');
-    lines.push(`\\sectd\\headery720 ${headerFor(book.shortName)}`);
+    lines.push(`\\sectd\\headery720 ${headerFor(book.name)}`);
 
     para(rtfEscape(book.name), { center: true, bold: true, size: 32, sb: 120, sa: 160 });
 
