@@ -7,6 +7,7 @@ const TikTokIcon = () => (
   </svg>
 );
 import ImageCropper from '@/components/bible/ImageCropper';
+import DownloadBibleSection from '@/components/bible/DownloadBibleSection';
 import { Switch } from '@/components/ui/switch';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { base44 } from '@/api/base44Client';
@@ -40,6 +41,7 @@ export default function SettingsPage() {
     appearance: true,
     install: true,
     offline: true,
+    downloadPdf: true,
     notifications: true,
     info: true,
     credits: true,
@@ -339,6 +341,7 @@ export default function SettingsPage() {
       appearance: newState,
       install: newState,
       offline: newState,
+      downloadPdf: newState,
       notifications: newState,
       info: newState,
       credits: newState,
@@ -1006,6 +1009,21 @@ export default function SettingsPage() {
             )}
           </div>
         )}
+      </div>
+
+      {/* Download Bible as PDF */}
+      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+        <button
+          onClick={() => toggleSection('downloadPdf')}
+          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+        >
+          <div>
+            <h2 className="font-serif text-lg font-semibold text-foreground">Download Bible (PDF)</h2>
+            <p className="font-sans text-xs text-muted-foreground">Whole Bible with layout options</p>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.downloadPdf ? 'rotate-180' : ''}`} />
+        </button>
+        {expandedSections.downloadPdf && <DownloadBibleSection />}
       </div>
 
       {/* Notifications */}
