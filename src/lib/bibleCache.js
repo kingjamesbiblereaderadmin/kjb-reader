@@ -28,6 +28,16 @@ function isValidBibleData(data) {
   return bookCount >= EXPECTED_BOOK_COUNT;
 }
 
+// Integrity check for the known Psalm 9 numbering bug: verse 1 must be
+// "I will praise" (not the superscription, and not shifted). If the cached data
+// was parsed by an old buggy parser, this returns false so we re-fetch+re-parse.
+function isPsalm9Correct(data) {
+  const p9 = data?.['Psalms']?.[9];
+  if (!Array.isArray(p9)) return true; // can't verify — don't block
+  const v1 = p9.find(v => v.verse === 1);
+  return !!v1 && /^¶?\s*i will praise/i.test(v1.text);
+}
+
 async function fetchWithRetry(url, retries = 3, expectPilcrows = false) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
@@ -198,7 +208,12 @@ export async function getBibleData() {
       const needsUpdate = await checkForUpdates();
       const cached = await loadFromCache();
 
-      if (cached && !needsUpdate) {
+      // Self-heal: if the cached data has the old Psalm 9 numbering bug, force a
+      // fresh re-parse even if the version string didn't change.
+      const cachedIsStale = cached && !isPsalm9Correct(cached);
+      if (cachedIsStale) console.log('[CACHE] ⚠️ Psalm 9 numbering wrong in cache — re-parsing');
+
+      if (cached && !needsUpdate && !cachedIsStale) {
         parsedData = cached;
         console.log('[CACHE] ✓ Using cached version - instant load');
         return parsedData;
