@@ -396,9 +396,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         </span>
       )}
 
-      {/* Date display — centered above the URL during capture, bottom-left on screen */}
+      {/* Date display — centered at the bottom (above the URL during capture) */}
       <span
-        className={`absolute whitespace-nowrap ${capturing ? 'bottom-12 left-1/2 -translate-x-1/2' : 'bottom-3 left-3'}`}
+        className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap ${capturing ? 'bottom-12' : 'bottom-4'}`}
         style={{
           backgroundColor: 'rgba(49, 46, 129, 0.55)',
           border: '1px solid rgba(255,255,255,0.15)',
@@ -997,16 +997,16 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {showVersePanel ? (
-        <div className="bg-white/25 backdrop-blur-sm rounded-xl px-6 pt-4 pb-6 mb-10 shadow-none text-center flex-1 flex flex-col w-full max-w-full overflow-hidden">
+        <div className="px-2 pt-2 pb-14 text-center flex-1 flex flex-col w-full max-w-full overflow-hidden">
           <div className="flex items-center justify-center gap-3 mt-3 mb-8">
-            <span className="h-px w-8 bg-current opacity-50" style={{ color: textColor }} />
+            <span className="h-px w-10 bg-current opacity-40" style={{ color: textColor }} />
             <p 
-              className={`font-sans text-base font-extrabold tracking-widest uppercase ${accentClass}`}
-              style={{ opacity: textOpacity, color: textColor, fontFamily: "'Inter', system-ui, sans-serif" }}
+              className={`font-sans text-base md:text-lg font-extrabold tracking-[0.2em] uppercase ${accentClass}`}
+              style={{ opacity: Math.min(1, textOpacity + 0.05), color: textColor, fontFamily: "'Inter', system-ui, sans-serif", textShadow: '0 1px 4px rgba(0,0,0,0.25)' }}
             >
               Verse of the Day
             </p>
-            <span className="h-px w-8 bg-current opacity-50" style={{ color: textColor }} />
+            <span className="h-px w-10 bg-current opacity-40" style={{ color: textColor }} />
           </div>
           <div className="flex-1 flex flex-col justify-center">
           <blockquote 
@@ -1016,7 +1016,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               opacity: textOpacity, 
               fontFamily: resolvedFont,
               fontWeight: '700',
-              textShadow: '0 2px 8px rgba(0,0,0,0.3)',
+              textShadow: '0 2px 8px rgba(0,0,0,0.35)',
               overflowWrap: 'break-word',
               wordBreak: 'break-word'
             }}
@@ -1024,7 +1024,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
           </blockquote>
           <p 
-            className="font-sans text-base font-semibold mt-8 text-center"
+            className="font-sans text-base md:text-lg font-semibold mt-8 text-center"
             style={{ 
               opacity: Math.min(1, textOpacity + 0.05), 
               color: textColor, 
