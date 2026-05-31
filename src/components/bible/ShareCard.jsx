@@ -92,6 +92,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
         {/* Verse text — centered, fills the middle */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
           <blockquote
+            className="kjb-sharecard-verse"
             style={{
               margin: 0,
               textAlign: 'center',
@@ -104,6 +105,9 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
               maxWidth: '880px',
             }}
           >
+            {/* Force KJB italic words (<em>) to render italic in every font —
+                html2canvas does not reliably apply the browser's default em style. */}
+            <style>{`.kjb-sharecard-verse em { font-style: italic !important; font-weight: inherit; }`}</style>
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
           </blockquote>
           <p
