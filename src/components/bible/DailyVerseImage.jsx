@@ -22,13 +22,13 @@ function resolveFontFamily(choice, a11yFont) {
 }
 
 const VERSE_BACKGROUNDS = [
-  { gradient: 'from-blue-700 via-indigo-600 to-purple-600', accent: 'text-blue-200' },   // Sun
-  { gradient: 'from-indigo-700 via-violet-600 to-purple-600', accent: 'text-indigo-200' }, // Mon
-  { gradient: 'from-sky-700 via-blue-600 to-indigo-600', accent: 'text-sky-200' },        // Tue
-  { gradient: 'from-violet-700 via-purple-600 to-fuchsia-600', accent: 'text-violet-200' }, // Wed
-  { gradient: 'from-blue-800 via-indigo-700 to-violet-600', accent: 'text-blue-200' },     // Thu
-  { gradient: 'from-purple-700 via-indigo-600 to-blue-600', accent: 'text-purple-200' },   // Fri
-  { gradient: 'from-indigo-800 via-blue-700 to-sky-600', accent: 'text-indigo-200' }       // Sat
+  { gradient: 'from-blue-700 via-indigo-600 to-purple-600', accent: 'text-blue-200' },     // Sun — blue/purple
+  { gradient: 'from-emerald-700 via-teal-600 to-cyan-600', accent: 'text-emerald-200' },   // Mon — green/teal
+  { gradient: 'from-rose-700 via-pink-600 to-fuchsia-600', accent: 'text-rose-200' },       // Tue — rose/pink
+  { gradient: 'from-amber-600 via-orange-600 to-red-600', accent: 'text-amber-200' },        // Wed — warm sunset
+  { gradient: 'from-cyan-700 via-sky-600 to-blue-600', accent: 'text-cyan-200' },           // Thu — ocean blue
+  { gradient: 'from-violet-700 via-purple-600 to-pink-600', accent: 'text-violet-200' },     // Fri — violet/pink
+  { gradient: 'from-slate-800 via-indigo-800 to-purple-800', accent: 'text-slate-300' }      // Sat — deep night
 ];
 
 export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEnabled }) {
