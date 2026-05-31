@@ -247,7 +247,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
               !selectMode && !isHighlighted ? 'hover:bg-secondary/60' : ''
             }`}
           >
-            <sup className="text-accent font-sans font-semibold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
+            <sup className="text-accent font-sans font-bold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
             <span className={selectMode && isSelected ? 'bg-primary/10 border border-primary/30 rounded-[0.4em] box-decoration-clone px-[0.2em] py-[0.1em]' : ''}>
               {selectMode && (
                 <span className="inline-flex items-center mr-1 text-primary align-middle">
@@ -255,7 +255,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
                 </span>
               )}
               <span
-                className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left inline ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+                className={`leading-relaxed [&_em]:italic [&_em]:text-accent/90 break-words text-left inline ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
                 style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
                 dangerouslySetInnerHTML={{ __html: html }}
               />
@@ -274,7 +274,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             !selectMode && !isHighlighted ? 'hover:bg-secondary/60' : ''
           }`}
         >
-          <sup className="text-accent font-sans font-semibold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
+          <sup className="text-accent font-sans font-bold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
           <span className={selectMode && isSelected ? 'bg-primary/10 box-decoration-clone rounded px-[0.2em] py-[0.1em]' : ''}>
             {selectMode && (
               <span className="inline-flex items-center mr-1 text-primary align-middle">
@@ -282,7 +282,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
               </span>
             )}
             <span
-              className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+              className={`leading-loose [&_em]:italic [&_em]:text-accent/90 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
               style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
               dangerouslySetInnerHTML={{ __html: html }}
             />
@@ -303,7 +303,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           !selectMode && !isHighlighted ? 'hover:bg-secondary/60' : ''
         }`}
       >
-        <sup className="text-accent font-sans font-semibold text-[0.6em] shrink-0 select-none mt-[0.2em] mr-[0.3em]">{verse.verse}</sup>
+        <sup className="text-accent font-sans font-bold text-[0.6em] shrink-0 select-none mt-[0.2em] mr-[0.3em]">{verse.verse}</sup>
         <span className={`flex-1 min-w-0 flex items-start gap-[0.6em] ${selectMode && isSelected ? 'bg-primary/10 border border-primary/30 rounded-[0.5em] px-[0.3em] py-[0.1em]' : ''}`}>
           {selectMode && (
             <span className="shrink-0 mt-[0.2em] text-primary">
@@ -311,7 +311,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             </span>
           )}
           <span
-            className={`flex-1 min-w-0 leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+            className={`flex-1 min-w-0 leading-relaxed [&_em]:italic [&_em]:text-accent/90 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
             style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
             dangerouslySetInnerHTML={{ __html: html }}
           />

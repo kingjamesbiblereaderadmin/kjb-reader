@@ -1754,7 +1754,7 @@ export default function BibleReader() {
 
       {/* Title pages or verses */}
       <div 
-        className={`leading-loose text-foreground/90 ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`}
+        className={`leading-loose text-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`}
         style={{ 
           fontSize: `${zoomLevel / 100 * 1.125}rem`, 
           lineHeight: zoomLevel > 100 ? '1.8' : '1.6',
