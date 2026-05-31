@@ -78,12 +78,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       setPendingBg(null);
     };
     window.addEventListener('storage', handleStorage);
-    window.addEventListener('focus', handleStorage);
     handleStorage();
-    return () => {
-      window.removeEventListener('storage', handleStorage);
-      window.removeEventListener('focus', handleStorage);
-    };
+    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
   // Prevent body scroll when lightbox is open
