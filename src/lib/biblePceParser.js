@@ -67,6 +67,9 @@ export function parsePceText(text) {
   // verse 2: the superscription, then the real verse 1. When true, the next
   // unnumbered line is the superscription (skipped) and the one after is verse 1.
   let pendingSuperscript = false;
+  // Psalm 119 acrostic: the most recent Hebrew letter heading, to stamp on the
+  // next verse so the reader can show it as an italic stanza heading.
+  let pendingHeading = null;
   let verseCount = 0;
 
   // Psalms uses "PSALM N" instead of "CHAPTER N"; every other book uses CHAPTER.
@@ -89,10 +92,15 @@ export function parsePceText(text) {
     if (!currentBook || currentChapter == null) return;
     let t = rawAfterNumber.replace(/\s*<<[^>]*>>\s*$/, '').trim();
     if (hadParagraph) t = '¶ ' + t;
-    
-    
+
     if (!data[currentBook][currentChapter]) data[currentBook][currentChapter] = [];
-    data[currentBook][currentChapter].push({ verse: vs, text: t });
+    const entry = { verse: vs, text: t };
+    // Stamp any pending Psalm 119 acrostic letter heading onto this verse.
+    if (pendingHeading) {
+      entry.heading = pendingHeading;
+      pendingHeading = null;
+    }
+    data[currentBook][currentChapter].push(entry);
     verseCount++;
   };
 
@@ -115,10 +123,12 @@ export function parsePceText(text) {
     // Blank line — flush any title buffer attempt (handled on chapter detection)
     if (!trimmed) continue;
 
-    // Psalm 119 acrostic letter heading (ALEPH., BETH., …) — skip entirely so it
-    // is never parsed as a verse and doesn't pollute the title buffer. Does NOT
-    // consume pendingFirstVerse, so the real verse 1 ("BLESSED…") is still captured.
+    // Psalm 119 acrostic letter heading (ALEPH., BETH., …) — capture it as a
+    // stanza heading to stamp on the next verse (NOT a verse, NOT a pilcrow).
+    // Does NOT consume pendingFirstVerse, so the real verse 1 ("BLESSED…") is
+    // still captured (with the ALEPH heading attached).
     if (currentBook === 'Psalms' && currentChapter === 119 && isHebrewLetterHeading(line)) {
+      pendingHeading = trimmed.replace(/\.$/, '').toUpperCase();
       continue;
     }
 

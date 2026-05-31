@@ -51,6 +51,17 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     );
   }
 
+  // Psalm 119 acrostic stanza heading (ALEPH, BETH, …) — italic, no pilcrow,
+  // shown above the verse it precedes.
+  const stanzaHeading = verse.heading ? (
+    <span
+      className={`block text-center italic text-muted-foreground select-none mt-4 mb-1 tracking-widest ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
+      style={{ fontSize: `${zoomLevel / 100 * 0.85}rem` }}
+    >
+      {verse.heading.charAt(0) + verse.heading.slice(1).toLowerCase()}
+    </span>
+  ) : null;
+
   const verseRef = `${shortBookName} ${chapter}:${verse.verse}`;
   // Build the shared, consistent copy/share text (clean text + deep link).
   const verseText = formatVerseShare({
@@ -254,6 +265,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     if (hasPilcrow && !isFirstVerse) {
       return (
         <span id={id} className="block relative pt-6">
+          {stanzaHeading}
           <span
             onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
             className={`inline leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.3em] py-[0.2em] ${
@@ -281,6 +293,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     // Normal inline verse
     return (
       <span id={id} className="inline relative">
+        {stanzaHeading}
         <span
           onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
           className={`inline leading-loose transition-colors duration-200 rounded cursor-pointer px-[0.3em] py-[0.2em] ${
@@ -319,6 +332,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     // still begin at the true left margin.
     return (
       <span id={id} className="block relative mt-2" style={{ display: 'flow-root' }}>
+        {stanzaHeading}
         <span
           onClick={() => setSelected(s => !s)}
           className={`block leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.4em] py-[0.25em] ${!isHighlighted ? 'hover:bg-secondary/60' : ''}`}
@@ -336,6 +350,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   }
   return (
     <span id={id} className={`block relative ${hasPilcrow && !isFirstVerse ? 'pt-6' : 'mt-2'}`}>
+      {stanzaHeading}
       <span
         onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
         className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.4em] py-[0.25em] gap-[0.6em] w-full ${
