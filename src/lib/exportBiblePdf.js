@@ -88,18 +88,39 @@ async function buildPdf(opts, bible, onProgress) {
   const margin = 40, gutter = 18;
   const colWidth = twoColumn ? (pageW - margin * 2 - gutter) / 2 : pageW - margin * 2;
   const bodySize = 9;
+  const headerGap = 16; // vertical space reserved at the top of scripture pages for the running head
   let col = 0, y = margin;
   const colX = () => margin + (twoColumn && col === 1 ? colWidth + gutter : 0);
 
-  function newPage() { doc.addPage(); y = margin; col = 0; }
-  function ensureSpace(needed = bodySize + 4) {
-    if (y + needed <= pageH - margin) return;
-    if (twoColumn && col === 0) { col = 1; y = margin; } else newPage();
+  // Running header: the book name centered at the top of every scripture page.
+  // Disabled on title / contents pages by toggling runningHead.
+  let runningHead = '';
+  function stampHeader() {
+    if (!runningHead) return;
+    doc.setFont('times', 'italic');
+    doc.setFontSize(9);
+    doc.text(runningHead, pageW / 2, margin - 6, { align: 'center', baseline: 'top' });
   }
 
-  // Render a title page (centered, vertical middle-ish)
+  function newPage() {
+    doc.addPage();
+    col = 0;
+    y = runningHead ? margin + headerGap : margin;
+    stampHeader();
+  }
+  function ensureSpace(needed = bodySize + 4) {
+    if (y + needed <= pageH - margin) return;
+    if (twoColumn && col === 0) { col = 1; y = runningHead ? margin + headerGap : margin; } else newPage();
+  }
+
+  // True when nothing has been drawn on the current page yet
+  const atPageTop = () => col === 0 && y === (runningHead ? margin + headerGap : margin);
+
+  // Render a title page (centered, vertical middle-ish). No running header.
   function titlePage(blocks) {
-    if (!(y === margin && col === 0)) newPage();
+    const prevHead = runningHead;
+    runningHead = '';
+    if (!atPageTop()) newPage();
     y = pageH / 4;
     blocks.forEach(b => {
       doc.setFont('times', b.bold ? 'bold' : 'normal');
@@ -108,6 +129,7 @@ async function buildPdf(opts, bible, onProgress) {
       lines.forEach(ln => { doc.text(ln, pageW / 2, y, { align: 'center', baseline: 'top' }); y += b.size + 6; });
       y += b.gap || 10;
     });
+    runningHead = prevHead;
     newPage();
   }
 
@@ -150,15 +172,18 @@ async function buildPdf(opts, bible, onProgress) {
   titlePage(TITLE_WHOLE);
 
   // Reserve blank pages for the Table of Contents (filled in at the end once we
-  // know each book's page number). ~36 entries per page.
+  // know each book's & chapter's page numbers). Each book takes a title row plus
+  // a wrapped grid of chapter numbers, so reserve generously.
   const total = BIBLE_BOOKS.length;
-  const tocPagesNeeded = Math.ceil((total + 4) / 34);
+  const totalChapters = BIBLE_BOOKS.reduce((n, b) => n + b.chapters, 0);
+  // ~ one row per book title + chapter-grid rows (≈ 14 chapter cells per row)
+  const estRows = total + Math.ceil(totalChapters / 14) + total + 6;
+  const tocPagesNeeded = Math.ceil(estRows / 46);
   const tocStartPage = doc.internal.getNumberOfPages();
   for (let i = 0; i < tocPagesNeeded; i++) doc.addPage();
-  newPage(); // start scripture on a fresh page after the reserved TOC pages
 
-  // Track where each book begins for the TOC + PDF outline bookmarks
-  const bookPages = []; // { book, page }
+  // Track where each book begins (+ each chapter) for the TOC + PDF outline bookmarks
+  const bookPages = []; // { book, page, chapters: [{ ch, page }] }
 
   for (let bi = 0; bi < total; bi++) {
     const book = BIBLE_BOOKS[bi];
@@ -166,11 +191,12 @@ async function buildPdf(opts, bible, onProgress) {
 
     if (book.apiName === 'Matthew') titlePage(TITLE_NT);
 
-    if (!(y === margin && col === 0)) newPage();
+    // Set the running header to this book's short name, then start a fresh page
+    runningHead = book.shortName;
+    newPage();
     const startPage = doc.internal.getNumberOfPages();
-    bookPages.push({ book, page: startPage });
-    // PDF outline bookmark (clickable in the sidebar / Contents panel)
-    if (doc.outline?.add) doc.outline.add(null, book.shortName, { pageNumber: startPage });
+    const chapterPages = [];
+    bookPages.push({ book, page: startPage, chapters: chapterPages });
 
     doc.setFont('times', 'bold'); doc.setFontSize(15);
     const titleLines = doc.splitTextToSize(book.name, colWidth);
@@ -188,6 +214,7 @@ async function buildPdf(opts, bible, onProgress) {
         verses = [...verses.slice(0, -1), { ...last, text: stripEndMarker(last.text) }];
       }
       ensureSpace(28);
+      chapterPages.push({ ch, page: doc.internal.getNumberOfPages() });
       doc.setFont('times', 'bold'); doc.setFontSize(11);
       doc.text(`Chapter ${ch}`, colX() + colWidth / 2, y, { align: 'center', baseline: 'top' });
       y += 16;
@@ -233,33 +260,80 @@ async function buildPdf(opts, bible, onProgress) {
     await new Promise(r => setTimeout(r, 0));
   }
 
-  // ── Fill in the reserved Table of Contents pages with clickable links ──
+  // ── Collapsible PDF outline bookmarks: Testament ▸ Book ▸ Chapter ──
+  // These appear as an expandable tree in the PDF reader's bookmarks/contents panel.
+  if (doc.outline?.add) {
+    let otNode = null, ntNode = null;
+    const otFirst = bookPages.find(b => b.book.testament === 'old');
+    const ntFirst = bookPages.find(b => b.book.testament === 'new');
+    if (otFirst) otNode = doc.outline.add(null, 'THE OLD TESTAMENT', { pageNumber: otFirst.page });
+    if (ntFirst) ntNode = doc.outline.add(null, 'THE NEW TESTAMENT', { pageNumber: ntFirst.page });
+    bookPages.forEach(({ book, page, chapters }) => {
+      const parent = book.testament === 'old' ? otNode : ntNode;
+      const bookNode = doc.outline.add(parent, book.shortName, { pageNumber: page });
+      chapters.forEach(({ ch, page: chPage }) => {
+        doc.outline.add(bookNode, `Chapter ${ch}`, { pageNumber: chPage });
+      });
+    });
+  }
+
+  // ── Fill in the reserved Table of Contents pages: OT/NT headers, each book
+  //    name (links to the book), and a grid of clickable chapter numbers. ──
   onProgress(96, 'Building contents…');
+  runningHead = ''; // no running header on contents pages
   let tocPage = tocStartPage;
   doc.setPage(tocPage);
   let ty = margin;
   doc.setFont('times', 'bold'); doc.setFontSize(18);
   doc.text('CONTENTS', pageW / 2, ty, { align: 'center', baseline: 'top' });
-  ty += 30;
+  ty += 28;
 
-  const writeTocEntry = (label, page, { bold = false, indent = 0 } = {}) => {
-    if (ty > pageH - margin) { tocPage += 1; doc.setPage(tocPage); ty = margin; }
-    doc.setFont('times', bold ? 'bold' : 'normal');
-    doc.setFontSize(bold ? 12 : 10.5);
-    const leftX = margin + indent;
-    doc.textWithLink(label, leftX, ty, { pageNumber: page });
-    if (!bold) doc.text(String(page), pageW - margin, ty, { align: 'right' });
-    ty += bold ? 20 : 15;
+  const ensureTocSpace = (needed) => {
+    if (ty + needed > pageH - margin) { tocPage += 1; doc.setPage(tocPage); ty = margin; }
+  };
+
+  const writeTestament = (label, page) => {
+    ensureTocSpace(28);
+    ty += 8;
+    doc.setFont('times', 'bold'); doc.setFontSize(13);
+    // Center manually (textWithLink doesn't honour align reliably)
+    const w = doc.getTextWidth(label);
+    doc.textWithLink(label, (pageW - w) / 2, ty, { pageNumber: page });
+    ty += 20;
+  };
+
+  const writeBookRow = (book, page) => {
+    ensureTocSpace(16);
+    doc.setFont('times', 'bold'); doc.setFontSize(10.5);
+    doc.textWithLink(book.name, margin + 6, ty, { pageNumber: page });
+    doc.text(String(page), pageW - margin, ty, { align: 'right' });
+    ty += 14;
+  };
+
+  // Render chapter numbers as a wrapped grid of clickable cells under each book
+  const writeChapterGrid = (chapters) => {
+    const cellW = 26, lineH = 13;
+    const startX = margin + 16;
+    const maxX = pageW - margin;
+    let cx = startX;
+    doc.setFont('times', 'normal'); doc.setFontSize(9);
+    chapters.forEach(({ ch, page: chPage }) => {
+      if (cx + cellW > maxX) { cx = startX; ty += lineH; ensureTocSpace(lineH); }
+      if (cx === startX) ensureTocSpace(lineH);
+      doc.textWithLink(String(ch), cx, ty, { pageNumber: chPage });
+      cx += cellW;
+    });
+    ty += lineH + 4;
   };
 
   let lastTestament = null;
-  bookPages.forEach(({ book, page }) => {
+  bookPages.forEach(({ book, page, chapters }) => {
     if (book.testament !== lastTestament) {
       lastTestament = book.testament;
-      ty += 6;
-      writeTocEntry(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT', page, { bold: true });
+      writeTestament(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT', page);
     }
-    writeTocEntry(book.name, page, { indent: 14 });
+    writeBookRow(book, page);
+    if (chapters.length > 1) writeChapterGrid(chapters);
   });
 
   onProgress(98, 'Finalising PDF…');
