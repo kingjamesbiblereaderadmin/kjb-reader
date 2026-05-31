@@ -624,22 +624,24 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                     <Copy className="w-4 h-4" />
                     Copy Verse
                   </button>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      e.nativeEvent.stopImmediatePropagation();
-                      const newValue = !showVersePanel;
-                      setShowVersePanel(newValue);
-                      localStorage.setItem('kjb-verse-panel-visible', String(newValue));
-                      window.dispatchEvent(new Event('storage'));
-                      setShowMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
-                  >
-                    <Eye className="w-4 h-4" />
-                    {showVersePanel ? 'Hide Panel' : 'Show Panel'}
-                  </button>
+                  {hasCustomBg && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.nativeEvent.stopImmediatePropagation();
+                        const newValue = !showVersePanel;
+                        setShowVersePanel(newValue);
+                        localStorage.setItem('kjb-verse-panel-visible', String(newValue));
+                        window.dispatchEvent(new Event('storage'));
+                        setShowMenu(false);
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                    >
+                      <Eye className="w-4 h-4" />
+                      {showVersePanel ? 'Hide Panel' : 'Show Panel'}
+                    </button>
+                  )}
                   {!showStyleEditor && (
                     <button
                       onClick={(e) => {
@@ -1090,7 +1092,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         </div>
       ) : (
         <div className="px-6 py-4 text-center flex-1 flex flex-col justify-center">
-          <div className={`inline-flex self-center items-center justify-center gap-4 mb-6 ${hasCustomBg ? 'rounded-2xl bg-black/25 backdrop-blur-[2px] px-5 py-2' : ''}`}>
+          <div className={`inline-flex self-center items-center justify-center gap-4 ${hasCustomBg ? 'rounded-2xl bg-black/25 backdrop-blur-[2px] px-5 py-2' : ''}`}>
             <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
             <p 
               className={`font-sans text-lg md:text-xl font-black tracking-[0.22em] uppercase ${accentClass}`}
@@ -1100,31 +1102,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             </p>
             <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
           </div>
-          <blockquote 
-            className={`text-center leading-relaxed [&_em]:italic break-words ${fontFamily === 'cursive' ? 'text-5xl md:text-6xl' : 'text-2xl md:text-3xl'}`}
-            style={{ 
-              color: textColor, 
-              opacity: textOpacity, 
-              fontFamily: resolvedFont,
-              fontWeight: '700',
-              textShadow: '0 2px 8px rgba(0,0,0,0.3)',
-              overflowWrap: 'break-word',
-              wordBreak: 'break-word'
-            }}
-          >
-            "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
-          </blockquote>
-          <p 
-            className="font-sans text-base font-semibold mt-4 text-center"
-            style={{ 
-              opacity: Math.min(1, textOpacity + 0.05), 
-              color: textColor, 
-              fontFamily: resolvedFont,
-              textShadow: '0 1px 4px rgba(0,0,0,0.3)'
-            }}
-          >
-            — {verse.ref}
-          </p>
         </div>
       )}
       {/* Crop Modal - positioned near verse card */}
