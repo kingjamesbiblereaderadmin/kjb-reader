@@ -104,6 +104,7 @@ function measureTocPages(doc, pageW, pageH, margin, F = 'times', books = BIBLE_B
     }
     advance(15); // book row
     if (book.chapters > 1) {
+      advance(gridLineH); // "Chapters:" label line
       // simulate the wrapped chapter grid
       let cx = gridStartX;
       let rowHeight = 0;
@@ -459,6 +460,11 @@ async function buildPdf(opts, bible, onProgress) {
     const cellW = 26, lineH = 13;
     const startX = margin + 16;
     const maxX = pageW - margin;
+    // "Chapters:" label above the grid
+    ensureTocSpace(lineH);
+    doc.setFont(F, 'italic'); doc.setFontSize(8.5);
+    doc.text('Chapters:', startX, ty);
+    ty += lineH;
     let cx = startX;
     doc.setFont(F, 'normal'); doc.setFontSize(9);
     chapters.forEach(({ ch, page: chPage }) => {
