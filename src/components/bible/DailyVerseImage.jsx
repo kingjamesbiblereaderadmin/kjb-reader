@@ -22,13 +22,13 @@ function resolveFontFamily(choice, a11yFont) {
 }
 
 const VERSE_BACKGROUNDS = [
-  { gradient: 'from-blue-600 to-purple-600', accent: 'text-blue-200' },
-  { gradient: 'from-rose-600 to-pink-600', accent: 'text-rose-200' },
-  { gradient: 'from-emerald-600 to-teal-600', accent: 'text-emerald-200' },
-  { gradient: 'from-amber-600 to-orange-600', accent: 'text-amber-200' },
-  { gradient: 'from-indigo-600 to-blue-600', accent: 'text-indigo-200' },
-  { gradient: 'from-violet-600 to-purple-600', accent: 'text-violet-200' },
-  { gradient: 'from-cyan-600 to-blue-600', accent: 'text-cyan-200' }
+  { gradient: 'from-blue-700 via-indigo-600 to-purple-600', accent: 'text-blue-200' },
+  { gradient: 'from-blue-700 via-indigo-600 to-purple-600', accent: 'text-blue-200' },
+  { gradient: 'from-blue-700 via-indigo-600 to-purple-600', accent: 'text-blue-200' },
+  { gradient: 'from-blue-700 via-indigo-600 to-purple-600', accent: 'text-blue-200' },
+  { gradient: 'from-blue-700 via-indigo-600 to-purple-600', accent: 'text-blue-200' },
+  { gradient: 'from-blue-700 via-indigo-600 to-purple-600', accent: 'text-blue-200' },
+  { gradient: 'from-blue-700 via-indigo-600 to-purple-600', accent: 'text-blue-200' }
 ];
 
 export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEnabled }) {
@@ -400,14 +400,17 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       <span
         className={`absolute whitespace-nowrap ${capturing ? 'bottom-12 left-1/2 -translate-x-1/2' : 'bottom-3 left-3'}`}
         style={{
-          backgroundColor: 'rgba(0,0,0,0.3)',
-          borderRadius: '6px',
+          backgroundColor: 'rgba(49, 46, 129, 0.55)',
+          border: '1px solid rgba(255,255,255,0.15)',
+          borderRadius: '12px',
           color: 'rgba(255,255,255,0.95)',
           fontFamily: "'Inter', system-ui, sans-serif",
-          fontSize: '14px',
+          fontSize: '15px',
           fontWeight: 700,
-          lineHeight: '14px',
-          padding: '7px 12px',
+          letterSpacing: '0.02em',
+          lineHeight: '15px',
+          padding: '9px 18px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
         }}
       >
         {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
