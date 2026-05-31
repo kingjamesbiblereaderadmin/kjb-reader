@@ -651,6 +651,9 @@ function rtfInline(text) {
   let s = normalise(text);
   s = s.replace(/(\w)[\u00B6\uFFFD](\w)/g, "$1'$2");
   s = s.replace(/[\u00B6\uFFFD]\s*/g, '\u00B6 ');
+  // Merge adjacent bracketed groups (separated only by whitespace) so they
+  // render as ONE continuous italic run instead of two seamed runs.
+  s = s.replace(/\]\s*\[/g, ' ');
   const parts = s.split(/\[([^\]]+)\]/g);
   return parts.map((p, i) => (i % 2 === 1 ? `{\\i ${rtfEscape(p)}}` : rtfEscape(p))).join('');
 }
