@@ -43,20 +43,6 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
     />
   );
 
-  // Short decorative gradient dash (~50px) with soft glow
-  const Dash = () => (
-    <span
-      style={{
-        display: 'block',
-        width: '52px',
-        height: '3px',
-        borderRadius: '3px',
-        background: 'linear-gradient(90deg, #4f7bff, #a85aff)',
-        boxShadow: '0 0 8px rgba(140,110,255,0.6)',
-      }}
-    />
-  );
-
   return (
     <div
       ref={ref}
@@ -103,9 +89,8 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
           <HeaderRule flip />
         </div>
 
-        {/* Verse text — centered, fills the middle, decorative dashes above/below */}
+        {/* Verse text — centered, fills the middle */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-          <div style={{ marginBottom: '40px' }}><Dash /></div>
           <blockquote
             style={{
               margin: 0,
@@ -133,22 +118,23 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
           >
             — {verse.ref}
           </p>
-          <div style={{ marginTop: '40px' }}><Dash /></div>
         </div>
 
-        {/* Date badge — clean dark-purple pill */}
+        {/* Date badge — clean dark-purple pill, snug fit */}
         <div
           style={{
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
+            alignSelf: 'center',
+            width: 'auto',
             background: '#2A1750',
             borderRadius: '999px',
-            padding: '14px 40px',
+            padding: '18px 36px',
             marginBottom: '56px',
           }}
         >
-          <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '40px', fontWeight: 700, lineHeight: 1, letterSpacing: '0.04em', color: '#ffffff' }}>
+          <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '40px', fontWeight: 700, lineHeight: '40px', letterSpacing: '0.04em', color: '#ffffff' }}>
             {dateStr}
           </span>
         </div>
