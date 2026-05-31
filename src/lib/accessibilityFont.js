@@ -28,8 +28,4 @@ export function setAccessibilityFont(font) {
     else localStorage.setItem(STORAGE_KEY, font);
   } catch {}
   applyAccessibilityFont(font);
-  // Notify every screen (reader, settings, verse card) to re-sync its local
-  // a11yFont state immediately — same-tab `storage` events don't fire, so we
-  // use a dedicated custom event as the reliable cross-component signal.
-  try { window.dispatchEvent(new Event('kjb-a11y-change')); } catch {}
 }

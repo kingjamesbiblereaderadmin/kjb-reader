@@ -7,7 +7,7 @@ import ImageCropper from './ImageCropper';
 import ShareCard from './ShareCard.jsx';
 import { getNotificationsEnabled, requestNotificationPermission, disableNotifications, scheduleDailyNotification } from '@/lib/notifications';
 import { formatDailyVerseForCopy } from '@/lib/formatDailyVerse';
-import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
+import { getAccessibilityFont } from '@/lib/accessibilityFont';
 
 // Map a font choice to an actual CSS font-family. When an app-wide
 // accessibility font is active, it always takes priority.
@@ -77,21 +77,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       try { setShowVersePanel(localStorage.getItem('kjb-verse-panel-visible') !== 'false'); } catch {}
       setPendingBg(null);
     };
-    // On focus, only re-sync the font prefs (NOT pendingBg, which would wipe an
-    // in-progress crop). Keeps the accessibility font in sync when enabled elsewhere.
-    const handleFocus = () => {
-      try { setFontFamily(localStorage.getItem('kjb-verse-font-family') || 'serif'); } catch {}
-      try { setA11yFont(getAccessibilityFont()); } catch {}
-    };
     window.addEventListener('storage', handleStorage);
-    window.addEventListener('focus', handleFocus);
-    window.addEventListener('kjb-a11y-change', handleFocus);
     handleStorage();
-    return () => {
-      window.removeEventListener('storage', handleStorage);
-      window.removeEventListener('focus', handleFocus);
-      window.removeEventListener('kjb-a11y-change', handleFocus);
-    };
+    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
   // Prevent body scroll when lightbox is open
@@ -177,27 +165,19 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
   const handleTextColorChange = (color) => {
     setTextColor(color);
-    try { localStorage.setItem('kjb-verse-text-color', color); } catch {}
+    localStorage.setItem('kjb-verse-text-color', color);
     window.dispatchEvent(new Event('storage'));
   };
 
   const handleTextOpacityChange = (opacity) => {
     setTextOpacity(opacity);
-    try { localStorage.setItem('kjb-verse-text-opacity', String(opacity)); } catch {}
+    localStorage.setItem('kjb-verse-text-opacity', String(opacity));
     window.dispatchEvent(new Event('storage'));
   };
 
   const handleFontFamilyChange = (font) => {
-    // Dyslexic / hyperlegible are app-wide accessibility fonts — selecting them
-    // here enables them everywhere (reader, settings, verse card).
-    if (font === 'dyslexic' || font === 'hyperlegible') {
-      setAccessibilityFont(font);
-      setA11yFont(font);
-      window.dispatchEvent(new Event('storage'));
-      return;
-    }
     setFontFamily(font);
-    try { localStorage.setItem('kjb-verse-font-family', font); } catch {}
+    localStorage.setItem('kjb-verse-font-family', font);
     window.dispatchEvent(new Event('storage'));
   };
 
@@ -950,10 +930,10 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             </label>
             {a11yFont !== 'default' && (
               <p className="font-sans text-[10px] text-slate-500 dark:text-slate-400 mb-2 leading-snug">
-                An accessibility font is active app-wide. Pick another font to switch, or it overrides other fonts.
+                Accessibility font is on — it overrides this setting. Change it in Settings.
               </p>
             )}
-            <div className="grid grid-cols-3 gap-1">
+            <div className={`grid grid-cols-3 gap-1 ${a11yFont !== 'default' ? 'opacity-40 pointer-events-none' : ''}`}>
               {[
                 { value: 'serif', label: 'Serif' },
                 { value: 'sans-serif', label: 'Sans' },
@@ -961,15 +941,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 { value: 'cursive', label: 'Cursive' },
                 { value: 'dyslexic', label: 'Dyslexic' },
                 { value: 'hyperlegible', label: 'Legible' },
-              ].map(font => {
-                const isA11yChoice = font.value === 'dyslexic' || font.value === 'hyperlegible';
-                const a11yActive = a11yFont !== 'default';
-                const isActive = a11yActive ? a11yFont === font.value : fontFamily === font.value;
-                const isDisabled = a11yActive && !isA11yChoice;
-                return (
+              ].map(font => (
                 <button
                   key={font.value}
-                  disabled={isDisabled}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -993,15 +967,14 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                     handleFontFamilyChange(font.value);
                   }}
                   className={`px-1.5 py-1.5 rounded-md font-sans text-[10px] font-medium transition-all ${
-                    isActive
+                    fontFamily === font.value
                       ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900'
                       : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                  } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
+                  }`}
                 >
                   {font.label}
                 </button>
-                );
-              })}
+              ))}
             </div>
           </div>
         </div>
@@ -1377,7 +1350,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {/* Off-screen fixed-size card used for the shared/downloaded image */}
-      <ShareCard ref={shareCardRef} verse={verse} logoSrc={logoDataUrl} fontFamily={resolvedFont} a11yFont={a11yFont} />
+      <ShareCard ref={shareCardRef} verse={verse} logoSrc={logoDataUrl} fontFamily={resolvedFont} />
     </div>
   );
 }

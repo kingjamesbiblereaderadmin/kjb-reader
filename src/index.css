@@ -253,10 +253,9 @@
   }
 
   /* Accessibility settings section: always render in OpenDyslexic so it's
-     easy to find regardless of the active app font. Font-preview labels opt out
-     via .kjb-font-preview so each option shows in its own typeface. */
+     easy to find regardless of the active app font. */
   #kjb-accessibility-section,
-  #kjb-accessibility-section *:not(.kjb-font-preview) {
+  #kjb-accessibility-section * {
     font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif !important;
   }
 
