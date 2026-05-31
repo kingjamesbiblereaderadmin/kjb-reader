@@ -128,7 +128,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             alignSelf: 'center',
             background: '#2A1750',
             borderRadius: '999px',
-            padding: '13px 28px 17px',
+            padding: '9px 28px 17px',
             marginBottom: '56px',
           }}
         >
