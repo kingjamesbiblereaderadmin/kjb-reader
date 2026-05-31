@@ -299,7 +299,7 @@ async function buildPdf(opts, bible, onProgress) {
       chapterPages.push({ ch, page: doc.internal.getNumberOfPages() });
       doc.setFont(F, 'bold'); doc.setFontSize(11);
       doc.text(`Chapter ${ch}`, colX() + colWidth / 2, y, { align: 'center', baseline: 'top' });
-      y += 16;
+      y += 22; // gap below the chapter number before the first verse
 
       if (subscripts) {
         const sub = SUBSCRIPTS[`${book.apiName}:${ch}`];
