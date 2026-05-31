@@ -989,7 +989,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       {/* Faint divider lines (top under header, bottom above URL) — like the reference */}
       <span
         className="absolute left-8 right-8 h-px z-0 pointer-events-none"
-        style={{ top: capturing ? '88px' : '52px', backgroundColor: textColor, opacity: 0.18 }}
+        style={{ top: capturing ? '112px' : '78px', backgroundColor: textColor, opacity: 0.18 }}
       />
       <span
         className="absolute left-8 right-8 h-px z-0 pointer-events-none"
