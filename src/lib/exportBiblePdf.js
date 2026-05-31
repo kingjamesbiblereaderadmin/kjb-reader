@@ -257,8 +257,11 @@ async function buildPdf(opts, bible, onProgress) {
     // Start the book on a fresh page WITHOUT a running head (the book title acts
     // as the heading here). Enable the running head afterwards so it appears on
     // every subsequent page of the book.
+    // titlePage() already leaves us at the top of a fresh, header-less page — in
+    // that case don't add ANOTHER page (which caused a blank page before Matthew
+    // that still carried the previous book's running header).
     runningHead = '';
-    newPage();
+    if (!atPageTop()) newPage();
     const startPage = doc.internal.getNumberOfPages();
     const chapterPages = [];
     bookPages.push({ book, page: startPage, chapters: chapterPages });
@@ -771,10 +774,7 @@ async function buildRtf(opts, bible, onProgress) {
 }
 
 function fileName(opts, ext) {
-  const cols = opts.twoColumn ? '2col' : '1col';
-  const flow = opts.paragraph ? 'paragraph' : 'line';
-  const names = opts.shortNames ? 'short-names' : 'full-names';
-  return `KJB-Bible-${cols}-${flow}-${names}.${ext}`;
+  return `KJB-Bible-${opts.twoColumn ? '2col' : '1col'}-${opts.paragraph ? 'paragraph' : 'line'}.${ext}`;
 }
 
 function triggerDownload(blob, name) {
