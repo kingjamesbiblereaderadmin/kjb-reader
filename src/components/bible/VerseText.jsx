@@ -55,8 +55,8 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // shown above the verse it precedes.
   const stanzaHeading = verse.heading ? (
     <span
-      className={`block text-left font-bold text-foreground select-none mt-4 mb-1 tracking-widest ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
-      style={{ fontSize: `${zoomLevel / 100 * 0.85}rem` }}
+      className={`block text-left font-bold text-foreground select-none mt-4 mb-1 not-italic ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
+      style={{ fontSize: `${zoomLevel / 100}rem` }}
     >
       {verse.heading.charAt(0) + verse.heading.slice(1).toLowerCase()}
     </span>
