@@ -743,7 +743,10 @@ async function buildText(opts, bible, onProgress, format) {
 
       if (colophons) {
         const colo = COLOPHONS[`${book.apiName}:${ch}`];
-        if (colo) push('¶ ' + plainText(colo, isDocx ? true : keepBrackets).replace(/^¶\s*/, ''), 'center-italic');
+        if (colo) {
+          if (!isDocx) push(''); // blank line above colophon (TXT)
+          push('¶ ' + plainText(colo, isDocx ? true : keepBrackets).replace(/^¶\s*/, ''), 'center-italic');
+        }
       }
     }
     // End-of-section markers (with extra spacing before the NT title page)
