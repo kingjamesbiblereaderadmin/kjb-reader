@@ -130,11 +130,11 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             width: 'auto',
             background: '#2A1750',
             borderRadius: '999px',
-            padding: '12px 28px',
+            padding: '4px 24px',
             marginBottom: '56px',
           }}
         >
-          <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '32px', fontWeight: 700, lineHeight: 1, letterSpacing: '0.04em', color: '#ffffff', display: 'block' }}>
+          <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '30px', fontWeight: 700, lineHeight: 1.3, letterSpacing: '0.04em', color: '#ffffff', display: 'block' }}>
             {dateStr}
           </span>
         </div>
