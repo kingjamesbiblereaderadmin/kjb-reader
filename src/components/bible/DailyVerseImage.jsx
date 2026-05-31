@@ -187,26 +187,35 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const verseRef = useRef(null);
   const shareCardRef = useRef(null);
   const [capturing, setCapturing] = useState(false);
+  const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png';
+  const [logoDataUrl, setLogoDataUrl] = useState('');
+
+  // Pre-fetch the logo as a same-origin data URL once, so html2canvas can
+  // render it without tainting the canvas (which would break capture).
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(LOGO_URL, { mode: 'cors' });
+        const blob = await res.blob();
+        const dataUrl = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        });
+        if (!cancelled) setLogoDataUrl(dataUrl);
+      } catch {
+        // If the logo can't be fetched, the card just renders without it.
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   // Capture the fixed 1024×1024 ShareCard (used for download + share/copy).
   // Returns a PNG blob. The card uses the default gradient design always.
   const captureShareCard = async () => {
     const el = shareCardRef.current;
-    // Wait for any images inside the card (the logo) to fully load so they
-    // appear in the captured PNG. html2canvas otherwise snapshots too early.
-    const imgs = Array.from(el.querySelectorAll('img'));
-    await Promise.all(imgs.map(img => (
-      img.complete && img.naturalWidth > 0
-        ? Promise.resolve()
-        // Resolve on load/error, but never hang — time out after 2.5s.
-        : new Promise(res => {
-            const done = () => res();
-            img.onload = done;
-            img.onerror = done;
-            setTimeout(done, 2500);
-          })
-    )));
-    const canvas = await html2canvas(el, { backgroundColor: null, scale: 1, useCORS: true, allowTaint: false });
+    const canvas = await html2canvas(el, { backgroundColor: null, scale: 1, useCORS: true });
     return await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
   };
   
@@ -1318,7 +1327,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {/* Off-screen fixed-size card used for the shared/downloaded image */}
-      <ShareCard ref={shareCardRef} verse={verse} />
+      <ShareCard ref={shareCardRef} verse={verse} logoSrc={logoDataUrl} />
     </div>
   );
 }
