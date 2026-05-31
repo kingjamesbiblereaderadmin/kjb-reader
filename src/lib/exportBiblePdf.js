@@ -433,14 +433,15 @@ async function buildPdf(opts, bible, onProgress) {
     ensureTocSpace(16);
     doc.setFont(F, 'bold'); doc.setFontSize(10.5);
     const label = `\u2022  ${nameOf(book)}`;
-    const pageStr = String(page);
+    // Right-hand value is now the chapter count, not the page number.
+    const pageStr = `${book.chapters} ch.`;
     const labelX = margin + 6;
     const pageX = pageW - margin;
     // Book name (clickable) on the left
     doc.textWithLink(label, labelX, ty, { pageNumber: page });
-    // Right-aligned page number
+    // Right-aligned chapter count
     doc.text(pageStr, pageX, ty, { align: 'right' });
-    // Dotted leader filling the gap between the title and the page number
+    // Dotted leader filling the gap between the title and the chapter count
     const labelW = doc.getTextWidth(label);
     const pageW2 = doc.getTextWidth(pageStr);
     const dotsStart = labelX + labelW + 6;
