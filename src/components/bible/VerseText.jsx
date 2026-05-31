@@ -52,7 +52,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
       ? highlightColors.find(c => c.name === highlightColor)?.color
       : null;
     const letterStyle = dropHighlight
-      ? ` style="background-color:${dropHighlight};border-radius:0.1em;opacity:0.35;"`
+      ? ` style="background-color:${dropHighlight}59;border-radius:0.1em;color:#ffffff;"`
       : '';
     html = html.replace(
       /([A-Za-z])/,
@@ -165,7 +165,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setSelected(false); }}
         onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setSelected(false); }}
       />
-      <div className="absolute left-2 right-2 sm:left-auto sm:right-0 top-full mt-1.5 z-50 w-auto sm:w-max max-w-[calc(100vw-1rem)] flex flex-wrap items-center justify-start gap-1.5 bg-card border border-border rounded-xl shadow-xl px-2.5 py-2">
+      <div className="absolute left-2 sm:left-auto sm:right-0 top-full mt-1.5 z-50 w-max max-w-[calc(100vw-1rem)] inline-flex flex-wrap items-center justify-start gap-1.5 bg-card border border-border rounded-xl shadow-xl px-2.5 py-2">
         <div className="relative">
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setShowColorPicker(!showColorPicker); }}
