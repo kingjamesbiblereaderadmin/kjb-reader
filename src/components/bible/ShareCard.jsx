@@ -133,18 +133,18 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc }, ref) {
           <div style={{ marginTop: '40px' }}><Dash /></div>
         </div>
 
-        {/* Date badge — dark purple */}
+        {/* Date badge — clean dark-purple pill */}
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: '#3A1F5F',
-            borderRadius: '18px',
-            height: '88px',
-            padding: '0 44px',
+            background: '#2A1750',
+            borderRadius: '16px',
+            height: '84px',
+            padding: '0 48px',
             marginBottom: '56px',
-            boxShadow: '0 6px 18px rgba(0,0,0,0.3)',
+            boxShadow: '0 8px 22px rgba(0,0,0,0.35)',
           }}
         >
           <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '40px', fontWeight: 700, lineHeight: '40px', letterSpacing: '0.04em', color: '#ffffff' }}>
