@@ -314,10 +314,11 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // letter is wrapped (kjb-dropcap-letter) and floats left within the text.
   if (dropCap && !selectMode) {
     return (
-      <span id={id} className="block relative mt-2">
+      <span id={id} className="block relative mt-2" style={{ display: 'flow-root' }}>
         <span
           onClick={() => setSelected(s => !s)}
           className={`block leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.4em] py-[0.25em] ${!isHighlighted ? 'hover:bg-secondary/60' : ''}`}
+          style={{ display: 'flow-root' }}
         >
           <span
             className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
