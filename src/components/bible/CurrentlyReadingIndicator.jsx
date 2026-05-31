@@ -44,7 +44,10 @@ export default function CurrentlyReadingIndicator({
 
   if (gospelMode) {
     typeLabel = gospelLabel || 'Gospel';
-    reference = `${book.shortName} ${pos.chapter}${verseNum ? `:${verseNum}` : ''}`;
+    const gospelVerses = selectedVerses && selectedVerses.size > 1
+      ? `:${formatVerseRange([...selectedVerses])}`
+      : verseNum ? `:${verseNum}` : '';
+    reference = `${book.shortName} ${pos.chapter}${gospelVerses}`;
     clearLabel = 'Clear';
   } else if (searchTerm) {
     typeLabel = `Search: "${searchTerm}"`;
