@@ -1002,15 +1002,15 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           <div className="flex items-center justify-center gap-4 mt-3 mb-8">
             <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
             <p 
-              className={`font-sans text-base md:text-lg font-extrabold tracking-[0.2em] uppercase ${accentClass}`}
-              style={{ opacity: Math.min(1, textOpacity + 0.05), color: textColor, fontFamily: "'Inter', system-ui, sans-serif", textShadow: '0 1px 4px rgba(0,0,0,0.25)' }}
+              className={`font-sans text-lg md:text-xl font-black tracking-[0.22em] uppercase ${accentClass}`}
+              style={{ opacity: 1, color: textColor, fontFamily: "'Inter', system-ui, sans-serif", textShadow: '0 2px 10px rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.45)' }}
             >
               Verse of the Day
             </p>
             <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
           </div>
           <div className="flex-1 flex flex-col justify-center">
-          <div className={hasCustomBg ? 'mx-auto max-w-2xl rounded-2xl bg-black/35 backdrop-blur-sm px-6 py-6' : ''}>
+          <div className={hasCustomBg ? 'mx-auto max-w-2xl rounded-2xl bg-black/20 backdrop-blur-[2px] px-6 py-6' : ''}>
           <blockquote 
             className="text-center text-3xl md:text-4xl leading-relaxed [&_em]:italic break-words"
             style={{ 
