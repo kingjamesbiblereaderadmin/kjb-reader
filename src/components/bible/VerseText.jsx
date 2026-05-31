@@ -45,9 +45,18 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   if (dropCap && !selectMode) {
     // Float the verse number + big first letter together as one unit, so the
     // number always sits immediately to the LEFT of the drop cap (in every mode).
+    // When highlighted, tint the big letter with the active highlight colour so
+    // the highlight visually covers it (the float sits outside the parent's
+    // inline background box, so it needs its own background).
+    const dropHighlight = showHighlight
+      ? highlightColors.find(c => c.name === highlightColor)?.color
+      : null;
+    const letterStyle = dropHighlight
+      ? ` style="background-color:${dropHighlight};opacity:0.95;border-radius:0.15em;"`
+      : '';
     html = html.replace(
       /([A-Za-z])/,
-      `<span class="kjb-dropcap-group"><span class="kjb-dropcap-num">${verse.verse}</span><span class="kjb-dropcap-letter">$1</span></span>`
+      `<span class="kjb-dropcap-group"><span class="kjb-dropcap-num">${verse.verse}</span><span class="kjb-dropcap-letter"${letterStyle}>$1</span></span>`
     );
   }
 
