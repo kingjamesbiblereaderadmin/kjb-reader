@@ -165,7 +165,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setSelected(false); }}
         onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setSelected(false); }}
       />
-      <div className="absolute right-0 top-full mt-1.5 z-50 flex flex-wrap items-center gap-1.5 bg-card border border-border rounded-xl shadow-xl px-2.5 py-2">
+      <div className="absolute left-2 right-2 sm:left-auto sm:right-0 top-full mt-1.5 z-50 w-auto sm:w-max max-w-[calc(100vw-1rem)] flex flex-wrap items-center justify-start gap-1.5 bg-card border border-border rounded-xl shadow-xl px-2.5 py-2">
         <div className="relative">
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setShowColorPicker(!showColorPicker); }}
