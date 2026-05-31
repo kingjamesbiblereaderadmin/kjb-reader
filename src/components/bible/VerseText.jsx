@@ -285,7 +285,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
               className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${dropCap ? 'kjb-dropcap' : ''} ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
               style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
             >
-              {dropCap && <sup className="text-accent font-sans font-bold text-[0.65em] mr-2 select-none">{verse.verse}</sup>}
+              {dropCap && <span className="kjb-dropcap-num text-accent font-sans text-[0.65em] select-none">{verse.verse}</span>}
               <span dangerouslySetInnerHTML={{ __html: html }} />
             </span>
           </span>
@@ -306,13 +306,15 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           onClick={() => setSelected(s => !s)}
           className={`block leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.4em] py-[0.25em] ${!isHighlighted ? 'hover:bg-secondary/60' : ''}`}
         >
-          {/* Verse number floats next to the drop cap's first text line */}
-          <sup className="text-accent font-sans font-bold text-[0.6em] select-none mr-[0.3em] align-super">{verse.verse}</sup>
+          {/* Verse number is absolutely positioned to the left of the drop cap
+              so it never becomes the ::first-letter and never stacks on top. */}
           <span
             className={`kjb-dropcap leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
             style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
+          >
+            <span className="kjb-dropcap-num text-accent font-sans text-[0.6em] select-none">{verse.verse}</span>
+            <span dangerouslySetInnerHTML={{ __html: html }} />
+          </span>
         </span>
         {actionPopover}
       </span>

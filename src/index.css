@@ -260,10 +260,19 @@
   }
 
   /* Drop cap — large decorative first letter on verse 1 of a chapter.
-     inline-block establishes a block formatting context so ::first-letter
-     applies to the text (the verse number stays beside it, not on top). */
+     The verse number is rendered as a separate absolutely-positioned element
+     (.kjb-dropcap-num) so it never becomes the ::first-letter target and sits
+     to the LEFT of the drop cap, in line with it. */
   .kjb-dropcap {
-    display: inline-block;
+    display: block;
+    position: relative;
+    padding-left: 1.6em;
+  }
+  .kjb-dropcap-num {
+    position: absolute;
+    left: 0;
+    top: 0.1em;
+    font-weight: 700;
   }
   .kjb-dropcap::first-letter {
     float: left;
