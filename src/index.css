@@ -274,4 +274,12 @@
     color: inherit;
     font-family: 'Cormorant Garamond', 'Merriweather', Georgia, serif;
   }
+  /* Verse number for a drop-cap verse: float it left so it sits BEFORE the big
+     drop-cap letter (left of it), aligned to the top. */
+  .kjb-dropcap-num {
+    float: left;
+    margin-top: 0.15em;
+    margin-right: 0.15em;
+    line-height: 1;
+  }
 }
