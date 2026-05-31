@@ -997,7 +997,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {showVersePanel ? (
-        <div className="bg-white/25 backdrop-blur-sm rounded-xl px-6 pt-4 pb-6 shadow-none text-center flex-1 flex flex-col w-full max-w-full overflow-hidden">
+        <div className="bg-white/25 backdrop-blur-sm rounded-xl px-6 pt-4 pb-6 mb-10 shadow-none text-center flex-1 flex flex-col w-full max-w-full overflow-hidden">
           <div className="flex items-center justify-center gap-3 mt-3 mb-8">
             <span className="h-px w-8 bg-current opacity-50" style={{ color: textColor }} />
             <p 
