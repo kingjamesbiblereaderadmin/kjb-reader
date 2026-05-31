@@ -163,7 +163,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
                 <stop offset="100%" stopColor="rgba(120,60,200,0)" />
               </linearGradient>
             </defs>
-            <path d="M0,32 Q440,0 880,32" fill="none" stroke="url(#kjbCurveGrad)" strokeWidth="6" strokeLinecap="round" />
+            <path d="M0,32 Q440,0 880,32" fill="none" stroke="url(#kjbCurveGrad)" strokeWidth="11" strokeLinecap="round" />
           </svg>
           <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '38px', fontWeight: 700, color: '#ffffff', textShadow: '0 2px 6px rgba(0,0,0,0.35)' }}>
             KingJamesBibleReader.com
