@@ -8,9 +8,11 @@ import { renderVerseText } from '@/lib/bibleApi';
 // Rendered off-screen and captured by html2canvas.
 const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png';
 
-const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFamily }, ref) {
+const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFamily, textColor, textOpacity }, ref) {
   const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
   const verseFont = fontFamily || "'Merriweather', 'Cormorant Garamond', Georgia, serif";
+  const verseColor = textColor || '#ffffff';
+  const verseOpacity = textOpacity != null ? textOpacity : 1;
 
   // Thin full-width gradient line (blue → purple) with soft glow
   const SeparatorLine = () => (
@@ -100,7 +102,8 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
               fontWeight: 700,
               fontSize: '64px',
               lineHeight: 1.32,
-              color: '#ffffff',
+              color: verseColor,
+              opacity: verseOpacity,
               textShadow: '0 3px 10px rgba(0,0,0,0.4)',
               maxWidth: '880px',
             }}
@@ -116,7 +119,8 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
               fontFamily: verseFont,
               fontWeight: 700,
               fontSize: '38px',
-              color: '#ffffff',
+              color: verseColor,
+              opacity: Math.min(1, verseOpacity + 0.05),
               textShadow: '0 2px 6px rgba(0,0,0,0.35)',
             }}
           >
