@@ -86,31 +86,13 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
       />
 
       <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '64px 72px' }}>
-        {/* Logo top-left — the real app logo (base64 data URL or direct URL).
-            White rounded backing so the logo is always clearly visible on the
-            dark gradient. */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '64px',
-            left: '48px',
-            width: '104px',
-            height: '104px',
-            borderRadius: '20px',
-            background: '#ffffff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
-          }}
-        >
-          <img
-            src={logoSrc || LOGO_URL}
-            alt="KJB Reader"
-            crossOrigin="anonymous"
-            style={{ width: '84px', height: '84px', objectFit: 'contain' }}
-          />
-        </div>
+        {/* Logo — top-left corner, clean with no backing or border. */}
+        <img
+          src={logoSrc || LOGO_URL}
+          alt="KJB Reader"
+          crossOrigin="anonymous"
+          style={{ position: 'absolute', top: '40px', left: '40px', width: '104px', height: '104px', objectFit: 'contain', borderRadius: '20px' }}
+        />
 
         {/* VERSE OF THE DAY header with gradient side rules */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginTop: '32px' }}>
