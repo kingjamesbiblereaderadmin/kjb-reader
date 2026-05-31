@@ -53,13 +53,30 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
 
   // Psalm 119 acrostic stanza heading (ALEPH, BETH, …) — italic, no pilcrow,
   // shown above the verse it precedes.
+  const headingLabel = verse.heading ? verse.heading.charAt(0) + verse.heading.slice(1).toLowerCase() : null;
+  // In line mode, the heading sits in the same flex row as a verse: a transparent
+  // spacer matching the verse-number column, then the heading centered over the
+  // verse-text column (so it's centered on the text, not the full page width).
+  // In paragraph/column mode it just centers over the whole block.
   const stanzaHeading = verse.heading ? (
-    <span
-      className={`block text-center font-bold text-foreground select-none mt-6 mb-4 not-italic tracking-wide ${columnMode ? '' : 'ml-[1.2em]'} ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
-      style={{ fontSize: `${zoomLevel / 100 * 1.2}rem` }}
-    >
-      {verse.heading.charAt(0) + verse.heading.slice(1).toLowerCase()}
-    </span>
+    (!columnMode && !paragraphMode) ? (
+      <span className="flex items-start mt-6 mb-4 px-[0.4em] gap-[0.6em] w-full">
+        <span className="text-[0.6em] shrink-0 invisible mr-[0.3em]">{verse.verse}</span>
+        <span
+          className={`flex-1 text-center font-bold text-foreground select-none not-italic tracking-wide ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
+          style={{ fontSize: `${zoomLevel / 100 * 1.2}rem` }}
+        >
+          {headingLabel}
+        </span>
+      </span>
+    ) : (
+      <span
+        className={`block text-center font-bold text-foreground select-none mt-6 mb-4 not-italic tracking-wide ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
+        style={{ fontSize: `${zoomLevel / 100 * 1.2}rem` }}
+      >
+        {headingLabel}
+      </span>
+    )
   ) : null;
 
   const verseRef = `${shortBookName} ${chapter}:${verse.verse}`;
