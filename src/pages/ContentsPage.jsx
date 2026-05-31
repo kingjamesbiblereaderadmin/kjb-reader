@@ -131,10 +131,10 @@ export default function ContentsPage() {
       {/* Book Selector Popup */}
       {showBookSelector && (
         <div 
-          className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-4 overflow-y-auto bg-black/50 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
           onClick={() => setShowBookSelector(false)}
         >
-          <div className="relative my-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
             <BookSelector
               currentAbbr={selectedBook}
               onSelect={handleSelectBook}
