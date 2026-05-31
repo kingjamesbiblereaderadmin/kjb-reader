@@ -140,11 +140,17 @@ async function buildPdf(opts, bible, onProgress) {
   const pageW = doc.internal.pageSize.getWidth();
   const pageH = doc.internal.pageSize.getHeight();
   const margin = 40, gutter = 18;
-  const colWidth = twoColumn ? (pageW - margin * 2 - gutter) / 2 : pageW - margin * 2;
+  const fullWidth = pageW - margin * 2;
+  const twoColWidth = (pageW - margin * 2 - gutter) / 2;
   const bodySize = 9;
   const headerGap = 16; // vertical space reserved at the top of scripture pages for the running head
   let col = 0, y = margin;
-  const colX = () => margin + (twoColumn && col === 1 ? colWidth + gutter : 0);
+  // Per-book override: short books render full-width (single column) even when
+  // two-column mode is on, so they don't leave an empty right column.
+  let forceSingleCol = false;
+  const isTwoCol = () => twoColumn && !forceSingleCol;
+  const colWidth = () => (isTwoCol() ? twoColWidth : fullWidth);
+  const colX = () => margin + (isTwoCol() && col === 1 ? twoColWidth + gutter : 0);
 
   // Running header: the book name centered at the top of every scripture page.
   // Disabled on title / contents pages by toggling runningHead.
@@ -164,7 +170,7 @@ async function buildPdf(opts, bible, onProgress) {
   }
   function ensureSpace(needed = bodySize + 4) {
     if (y + needed <= pageH - margin) return;
-    if (twoColumn && col === 0) { col = 1; y = runningHead ? margin + headerGap : margin; } else newPage();
+    if (isTwoCol() && col === 0) { col = 1; y = runningHead ? margin + headerGap : margin; } else newPage();
   }
 
   // True when nothing has been drawn on the current page yet
@@ -209,7 +215,7 @@ async function buildPdf(opts, bible, onProgress) {
       words.forEach(w => {
         if (/^\s+$/.test(w)) { if (lineHasContent) x += spaceW(); return; }
         const wWidth = doc.getTextWidth(w);
-        if (x + wWidth > startX + colWidth && lineHasContent) wrap();
+        if (x + wWidth > startX + colWidth() && lineHasContent) wrap();
         doc.setFont(F, seg.italic ? 'italic' : 'normal');
         doc.text(w, x, y, { baseline: 'top' });
         x += wWidth;
@@ -222,8 +228,8 @@ async function buildPdf(opts, bible, onProgress) {
   function writeCentered(text, { size = bodySize, font = 'italic', gapAfter = 4 } = {}) {
     doc.setFont(F, font);
     doc.setFontSize(size);
-    const lines = doc.splitTextToSize(text, colWidth);
-    lines.forEach(ln => { ensureSpace(size + 4); doc.text(ln, colX() + colWidth / 2, y, { align: 'center', baseline: 'top' }); y += size + 3.5; });
+    const lines = doc.splitTextToSize(text, colWidth());
+    lines.forEach(ln => { ensureSpace(size + 4); doc.text(ln, colX() + colWidth() / 2, y, { align: 'center', baseline: 'top' }); y += size + 3.5; });
     y += gapAfter;
   }
 
@@ -253,7 +259,7 @@ async function buildPdf(opts, bible, onProgress) {
       doc.setFont(F, word.italic ? 'italic' : 'normal');
       const ww = doc.getTextWidth(word.w);
       const add = (line.length ? spaceW() : 0) + ww;
-      if (line.length && lineW + add > colWidth) {
+      if (line.length && lineW + add > colWidth()) {
         lines.push({ words: line, width: lineW });
         line = []; lineW = 0;
       }
@@ -265,7 +271,7 @@ async function buildPdf(opts, bible, onProgress) {
     // Render each line centered within the column.
     lines.forEach(ln => {
       ensureSpace(size + 4);
-      let x = colX() + (colWidth - ln.width) / 2;
+      let x = colX() + (colWidth() - ln.width) / 2;
       ln.words.forEach((word, i) => {
         if (i > 0) { doc.setFont(F, 'normal'); x += spaceW(); }
         doc.setFont(F, word.italic ? 'italic' : 'normal');
@@ -311,6 +317,10 @@ async function buildPdf(opts, bible, onProgress) {
   for (let bi = 0; bi < total; bi++) {
     const book = BOOKS[bi];
     const bookData = bible[book.apiName] || {};
+    // Single-chapter books (Obadiah, Philemon, 2/3 John, Jude) are too short to
+    // fill two columns — render them full-width (single column) so they don't
+    // leave an empty right column.
+    forceSingleCol = book.chapters === 1;
 
     // NT title page before Matthew — only when both testaments are present
     // (for NT-only export the front page already IS the NT title).
@@ -332,8 +342,8 @@ async function buildPdf(opts, bible, onProgress) {
     bookPages.push({ book, page: startPage, chapters: chapterPages });
 
     doc.setFont(F, 'bold'); doc.setFontSize(15);
-    const titleLines = doc.splitTextToSize(nameOf(book), colWidth);
-    titleLines.forEach(ln => { doc.text(ln, colX() + colWidth / 2, y, { align: 'center', baseline: 'top' }); y += 18; });
+    const titleLines = doc.splitTextToSize(nameOf(book), colWidth());
+    titleLines.forEach(ln => { doc.text(ln, colX() + colWidth() / 2, y, { align: 'center', baseline: 'top' }); y += 18; });
     y += 8;
 
     // From now on, new pages within this book carry the book name header.
@@ -353,7 +363,7 @@ async function buildPdf(opts, bible, onProgress) {
       if (ch > 1 && !atPageTop()) y += 12; // breathing room before each new chapter
       chapterPages.push({ ch, page: doc.internal.getNumberOfPages() });
       doc.setFont(F, 'bold'); doc.setFontSize(11);
-      doc.text(`Chapter ${ch}`, colX() + colWidth / 2, y, { align: 'center', baseline: 'top' });
+      doc.text(`Chapter ${ch}`, colX() + colWidth() / 2, y, { align: 'center', baseline: 'top' });
       y += 22; // gap below the chapter number before the first verse
 
       if (subscripts) {
