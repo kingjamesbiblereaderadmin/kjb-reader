@@ -104,7 +104,6 @@ function measureTocPages(doc, pageW, pageH, margin, F = 'times', books = BIBLE_B
     }
     advance(15); // book row
     if (book.chapters > 1) {
-      advance(gridLineH); // "Chapters:" label line
       // simulate the wrapped chapter grid
       let cx = gridStartX;
       let rowHeight = 0;
@@ -434,14 +433,15 @@ async function buildPdf(opts, bible, onProgress) {
     ensureTocSpace(16);
     doc.setFont(F, 'bold'); doc.setFontSize(10.5);
     const label = `\u2022  ${nameOf(book)}`;
-    const pageStr = String(page);
+    // Right-hand value is the chapter count, not the page number.
+    const pageStr = `${book.chapters} ch.`;
     const labelX = margin + 6;
     const pageX = pageW - margin;
     // Book name (clickable) on the left
     doc.textWithLink(label, labelX, ty, { pageNumber: page });
-    // Right-aligned page number
+    // Right-aligned chapter count
     doc.text(pageStr, pageX, ty, { align: 'right' });
-    // Dotted leader filling the gap between the title and the page number
+    // Dotted leader filling the gap between the title and the chapter count
     const labelW = doc.getTextWidth(label);
     const pageW2 = doc.getTextWidth(pageStr);
     const dotsStart = labelX + labelW + 6;
@@ -460,11 +460,6 @@ async function buildPdf(opts, bible, onProgress) {
     const cellW = 26, lineH = 13;
     const startX = margin + 16;
     const maxX = pageW - margin;
-    // "Chapters:" label above the grid
-    ensureTocSpace(lineH);
-    doc.setFont(F, 'italic'); doc.setFontSize(8.5);
-    doc.text('Chapters:', startX, ty);
-    ty += lineH;
     let cx = startX;
     doc.setFont(F, 'normal'); doc.setFontSize(9);
     chapters.forEach(({ ch, page: chPage }) => {
