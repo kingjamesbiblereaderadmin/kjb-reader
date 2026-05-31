@@ -264,22 +264,31 @@
      and float it, instead of relying on ::first-letter. This works in every
      reading mode (line, paragraph, column) — including inline flow — and never
      accidentally enlarges the verse number. */
-  .kjb-dropcap-letter {
+  /* The whole drop-cap unit (number + big letter) floats left together, so the
+     verse number always sits immediately to the LEFT of the drop cap in every
+     reading mode. */
+  .kjb-dropcap-group {
     float: left;
+    display: flex;
+    align-items: flex-start;
+    padding-right: 0.1em;
+    padding-top: 0.04em;
+  }
+  .kjb-dropcap-letter {
     font-size: 3.4em;
     line-height: 0.7;
     font-weight: 700;
-    padding-right: 0.08em;
-    padding-top: 0.04em;
     color: inherit;
     font-family: 'Cormorant Garamond', 'Merriweather', Georgia, serif;
   }
-  /* Verse number for a drop-cap verse: float it left so it sits BEFORE the big
-     drop-cap letter (left of it), aligned to the top. */
+  /* Verse number sits at the top-left of the group, beside the big letter. */
   .kjb-dropcap-num {
-    float: left;
-    margin-top: 0.15em;
-    margin-right: 0.15em;
+    font-size: 0.62em;
+    font-weight: 700;
     line-height: 1;
+    margin-right: 0.18em;
+    margin-top: 0.1em;
+    color: hsl(var(--accent));
+    font-family: 'Inter', system-ui, sans-serif;
   }
 }

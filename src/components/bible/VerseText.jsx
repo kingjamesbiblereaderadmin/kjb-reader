@@ -43,7 +43,12 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // and would otherwise enlarge the verse number). Skips any leading HTML tags
   // (e.g. a pilcrow span) so the cap lands on the first real letter.
   if (dropCap && !selectMode) {
-    html = html.replace(/([A-Za-z])/, '<span class="kjb-dropcap-letter">$1</span>');
+    // Float the verse number + big first letter together as one unit, so the
+    // number always sits immediately to the LEFT of the drop cap (in every mode).
+    html = html.replace(
+      /([A-Za-z])/,
+      `<span class="kjb-dropcap-group"><span class="kjb-dropcap-num">${verse.verse}</span><span class="kjb-dropcap-letter">$1</span></span>`
+    );
   }
 
   const verseRef = `${shortBookName} ${chapter}:${verse.verse}`;
@@ -282,9 +287,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             !selectMode && !isHighlighted ? 'hover:bg-secondary/60' : ''
           }`}
         >
-          {dropCap && !selectMode ? (
-            <span className="kjb-dropcap-num text-accent font-sans font-bold text-[0.6em] select-none">{verse.verse}</span>
-          ) : (
+          {!(dropCap && !selectMode) && (
             <sup className="text-accent font-sans font-bold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
           )}
           <span className={selectMode && isSelected ? 'bg-primary/10 box-decoration-clone rounded px-[0.2em] py-[0.1em]' : ''}>
@@ -316,8 +319,6 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           onClick={() => setSelected(s => !s)}
           className={`block leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.4em] py-[0.25em] ${!isHighlighted ? 'hover:bg-secondary/60' : ''}`}
         >
-          {/* Floated number sits to the LEFT of the floated drop-cap letter */}
-          <span className="kjb-dropcap-num text-accent font-sans font-bold text-[0.6em] select-none">{verse.verse}</span>
           <span
             className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
             style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
