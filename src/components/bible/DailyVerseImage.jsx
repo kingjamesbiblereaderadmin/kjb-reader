@@ -398,7 +398,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
       {/* Date display — centered at the bottom (above the URL during capture) */}
       <span
-        className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap ${capturing ? 'bottom-12' : 'bottom-3'}`}
+        className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap ${capturing ? 'bottom-12' : 'bottom-6'}`}
         style={{
           backgroundColor: 'rgba(55, 48, 163, 0.65)',
           border: '1px solid rgba(255,255,255,0.18)',
