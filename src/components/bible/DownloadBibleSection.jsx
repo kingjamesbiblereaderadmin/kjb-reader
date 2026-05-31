@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, Loader2, Columns2, AlignLeft, AlignJustify, List, CheckCircle2, AlertCircle, FileType, FileText, File } from 'lucide-react';
+import { Download, Loader2, Columns2, AlignLeft, AlignJustify, List, CheckCircle2, AlertCircle, FileType, FileText, File, FileType2 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { exportBiblePdf } from '@/lib/exportBiblePdf';
 
@@ -18,7 +18,7 @@ function Toggle({ active, onClick, icon: Icon, label }) {
 }
 
 // Rough estimated output size per format (whole KJB ~4.2M chars)
-const SIZE_ESTIMATES = { pdf: '~6 MB', docx: '~5 MB', txt: '~4.5 MB' };
+const SIZE_ESTIMATES = { pdf: '~6 MB', docx: '~5 MB', rtf: '~7 MB', txt: '~4.5 MB' };
 
 export default function DownloadBibleSection() {
   const [twoColumn, setTwoColumn] = useState(false);
@@ -61,15 +61,19 @@ export default function DownloadBibleSection() {
         <div className="flex gap-2">
           <Toggle active={format === 'pdf'} onClick={() => setFormat('pdf')} icon={FileType} label="PDF" />
           <Toggle active={format === 'docx'} onClick={() => setFormat('docx')} icon={FileText} label="Word" />
+          <Toggle active={format === 'rtf'} onClick={() => setFormat('rtf')} icon={FileType2} label="RTF" />
           <Toggle active={format === 'txt'} onClick={() => setFormat('txt')} icon={File} label="Text" />
         </div>
         {format === 'txt' && (
           <p className="font-sans text-xs text-muted-foreground">Italics are shown in [brackets] in the text file.</p>
         )}
+        {format === 'rtf' && (
+          <p className="font-sans text-xs text-muted-foreground">Rich text with real italics — opens in Word, Pages or WordPad.</p>
+        )}
       </div>
 
-      {/* Column layout — PDF & Word */}
-      {(format === 'pdf' || format === 'docx') && (
+      {/* Column layout — PDF, Word & RTF */}
+      {(format === 'pdf' || format === 'docx' || format === 'rtf') && (
         <div className="space-y-2">
           <p className="font-sans text-sm font-medium text-foreground">Columns</p>
           <div className="flex gap-2">
@@ -113,7 +117,7 @@ export default function DownloadBibleSection() {
         className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 disabled:opacity-60 transition-opacity"
       >
         {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-        {busy ? 'Generating…' : `Download Bible (${format === 'docx' ? 'Word' : format.toUpperCase()})`}
+        {busy ? 'Generating…' : `Download Bible (${format === 'docx' ? 'Word' : format.toUpperCase()})`}{/* RTF/PDF/TXT show as-is */}
         {!busy && <span className="opacity-70 text-xs font-normal">· {SIZE_ESTIMATES[format]}</span>}
       </button>
 

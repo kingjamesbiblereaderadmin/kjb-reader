@@ -402,6 +402,106 @@ async function buildText(opts, bible, onProgress, format) {
   triggerDownload(blob, name);
 }
 
+// ─────────────────────────────────────────────────────────────
+// RTF (rich text — real italics, opens in Word/Pages/WordPad)
+// ─────────────────────────────────────────────────────────────
+function rtfEscape(s = '') {
+  // Escape RTF specials and encode non-ASCII as \uN? unicode runs
+  let out = '';
+  for (const ch of String(s)) {
+    const code = ch.codePointAt(0);
+    if (ch === '\\' || ch === '{' || ch === '}') out += '\\' + ch;
+    else if (code === 0xB6) out += '\\u182?';          // pilcrow ¶
+    else if (code > 127) out += `\\u${code > 32767 ? code - 65536 : code}?`;
+    else out += ch;
+  }
+  return out;
+}
+
+// Convert a verse to RTF inline runs: [word] → \i word\i0
+function rtfInline(text) {
+  let s = normalise(text);
+  s = s.replace(/(\w)[\u00B6\uFFFD](\w)/g, "$1'$2");
+  s = s.replace(/[\u00B6\uFFFD]\s*/g, '\u00B6 ');
+  const parts = s.split(/\[([^\]]+)\]/g);
+  return parts.map((p, i) => (i % 2 === 1 ? `{\\i ${rtfEscape(p)}}` : rtfEscape(p))).join('');
+}
+
+async function buildRtf(opts, bible, onProgress) {
+  const { twoColumn, paragraph, subscripts, colophons } = opts;
+  const lines = [];
+  const para = (rtf, { center = false, bold = false, size = 22 } = {}) =>
+    lines.push(`{\\pard${center ? '\\qc' : ''}\\sa80 \\fs${size}${bold ? '\\b' : ''} ${rtf}${bold ? '\\b0' : ''}\\par}`);
+
+  // Title page
+  TITLE_WHOLE.forEach((b, i) => para(rtfEscape(b.t), { center: true, bold: !!b.bold, size: i === 1 ? 56 : 26 }));
+  lines.push('\\page ');
+
+  // Contents
+  para('CONTENTS', { center: true, bold: true, size: 32 });
+  let lastT = null;
+  BIBLE_BOOKS.forEach(book => {
+    if (book.testament !== lastT) { lastT = book.testament; para(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT', { bold: true, size: 24 }); }
+    para(rtfEscape(book.name), { size: 20 });
+  });
+  lines.push('\\page ');
+
+  const total = BIBLE_BOOKS.length;
+  for (let bi = 0; bi < total; bi++) {
+    const book = BIBLE_BOOKS[bi];
+    const bookData = bible[book.apiName] || {};
+
+    if (book.apiName === 'Matthew') { TITLE_NT.forEach((b, i) => para(rtfEscape(b.t), { center: true, bold: !!b.bold, size: i === 1 ? 48 : 24 })); lines.push('\\page '); }
+
+    para(rtfEscape(book.name), { center: true, bold: true, size: 30 });
+
+    for (let ch = 1; ch <= book.chapters; ch++) {
+      let verses = bookData[ch] || [];
+      if (!verses.length) continue;
+      const isOtEnd = book.apiName === 'Malachi' && ch === book.chapters;
+      const isNtEnd = book.apiName === 'Revelation' && ch === book.chapters;
+      if (isOtEnd || isNtEnd) {
+        const last = verses[verses.length - 1];
+        verses = [...verses.slice(0, -1), { ...last, text: stripEndMarker(last.text) }];
+      }
+      para(`Chapter ${ch}`, { center: true, bold: true, size: 22 });
+
+      if (subscripts) {
+        const sub = SUBSCRIPTS[`${book.apiName}:${ch}`];
+        if (sub) para(`{\\i ${rtfInline(sub)}}`, { center: true, size: 18 });
+      }
+
+      if (paragraph) {
+        let buf = '';
+        const flush = () => { if (buf.trim()) para(buf.trim()); buf = ''; };
+        verses.forEach((v, idx) => {
+          if (idx > 0 && hasPilcrow(v.text)) flush();
+          buf += `{\\b ${v.verse}} ${rtfInline(v.text)}  `;
+        });
+        flush();
+      } else {
+        verses.forEach(v => para(`{\\b ${v.verse}}  ${rtfInline(v.text)}`));
+      }
+
+      if (colophons) {
+        const colo = COLOPHONS[`${book.apiName}:${ch}`];
+        if (colo) para(`{\\i \u00B6 ${rtfInline(colo).replace(/^\\u182\?\s*/, '')}}`, { center: true, size: 18 });
+      }
+    }
+
+    if (book.apiName === 'Malachi') { para('THE END OF THE PROPHETS.', { center: true, bold: true, size: 24 }); lines.push('\\page '); }
+    if (book.apiName === 'Revelation') para('THE END.', { center: true, bold: true, size: 26 });
+
+    onProgress(Math.round(((bi + 1) / total) * 90) + 5, `Adding ${book.shortName}… (${bi + 1}/${total})`);
+    await new Promise(r => setTimeout(r, 0));
+  }
+
+  onProgress(98, 'Saving file…');
+  const colsHeader = twoColumn ? '\\cols2\\colsx360 ' : '';
+  const rtf = `{\\rtf1\\ansi\\deff0{\\fonttbl{\\f0 Times New Roman;}}\\f0 ${colsHeader}${lines.join('\n')}}`;
+  triggerDownload(new Blob([rtf], { type: 'application/rtf' }), fileName(opts, 'rtf'));
+}
+
 function fileName(opts, ext) {
   return `KJB-Bible-${opts.twoColumn ? '2col' : '1col'}-${opts.paragraph ? 'paragraph' : 'line'}.${ext}`;
 }
@@ -424,6 +524,7 @@ export async function exportBiblePdf(opts, onProgress = () => {}) {
   const bible = await getBibleData();
   const format = opts.format || 'pdf';
   if (format === 'pdf') await buildPdf(opts, bible, onProgress);
+  else if (format === 'rtf') await buildRtf(opts, bible, onProgress);
   else await buildText(opts, bible, onProgress, format);
   onProgress(100, 'Done!');
 }
