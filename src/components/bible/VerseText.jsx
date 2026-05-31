@@ -282,7 +282,11 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             !selectMode && !isHighlighted ? 'hover:bg-secondary/60' : ''
           }`}
         >
-          <sup className="text-accent font-sans font-bold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
+          {dropCap && !selectMode ? (
+            <span className="kjb-dropcap-num text-accent font-sans font-bold text-[0.6em] select-none">{verse.verse}</span>
+          ) : (
+            <sup className="text-accent font-sans font-bold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
+          )}
           <span className={selectMode && isSelected ? 'bg-primary/10 box-decoration-clone rounded px-[0.2em] py-[0.1em]' : ''}>
             {selectMode && (
               <span className="inline-flex items-center mr-1 text-primary align-middle">
