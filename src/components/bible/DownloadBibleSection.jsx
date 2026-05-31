@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, Loader2, Columns2, AlignLeft, AlignJustify, List, CheckCircle2, AlertCircle, FileType, FileText, File, FileType2, Type, Tag } from 'lucide-react';
+import { Download, Loader2, Columns2, AlignLeft, AlignJustify, List, CheckCircle2, AlertCircle, FileType, FileText, File, FileType2, Type, Tag, BookOpen, BookMarked, Library } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { exportBiblePdf } from '@/lib/exportBiblePdf';
 import { DEFAULT_EXPORT_FONT } from '@/lib/exportFonts';
@@ -22,6 +22,7 @@ function Toggle({ active, onClick, icon: Icon, label }) {
 const SIZE_ESTIMATES = { pdf: '~6 MB', docx: '~5 MB', rtf: '~7 MB', txt: '~4.5 MB' };
 
 export default function DownloadBibleSection() {
+  const [scope, setScope] = useState('whole');
   const [twoColumn, setTwoColumn] = useState(false);
   const [paragraph, setParagraph] = useState(false);
   const [subscripts, setSubscripts] = useState(true);
@@ -41,7 +42,7 @@ export default function DownloadBibleSection() {
     setProgress(0);
     setStatus('Preparing…');
     try {
-      await exportBiblePdf({ twoColumn, paragraph, subscripts, colophons, shortNames, format, font }, (pct, msg) => {
+      await exportBiblePdf({ scope, twoColumn, paragraph, subscripts, colophons, shortNames, format, font }, (pct, msg) => {
         setProgress(pct);
         setStatus(msg);
       });
@@ -57,6 +58,16 @@ export default function DownloadBibleSection() {
       <p className="font-sans text-sm text-muted-foreground">
         Generate the entire King James Bible — including title pages, pilcrows and italics — in your chosen layout. Runs on your device, no internet or credits used.
       </p>
+
+      {/* Scope — whole Bible, Old Testament, or New Testament */}
+      <div className="space-y-2">
+        <p className="font-sans text-sm font-medium text-foreground">Include</p>
+        <div className="flex gap-2">
+          <Toggle active={scope === 'whole'} onClick={() => setScope('whole')} icon={Library} label="Whole" />
+          <Toggle active={scope === 'old'} onClick={() => setScope('old')} icon={BookMarked} label="Old Test." />
+          <Toggle active={scope === 'new'} onClick={() => setScope('new')} icon={BookOpen} label="New Test." />
+        </div>
+      </div>
 
       {/* Format */}
       <div className="space-y-2">
