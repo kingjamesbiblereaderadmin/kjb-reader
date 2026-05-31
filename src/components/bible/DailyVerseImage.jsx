@@ -3,6 +3,7 @@ import { renderVerseText } from '@/lib/bibleApi';
 import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2, ChevronsDown, MoreVertical, Trash2, Image, Copy, Crop, RotateCcw } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import ImageCropper from './ImageCropper';
+import ShareCard from './ShareCard.jsx';
 import { getNotificationsEnabled, requestNotificationPermission, disableNotifications, scheduleDailyNotification } from '@/lib/notifications';
 import { formatDailyVerseForCopy } from '@/lib/formatDailyVerse';
 import { getAccessibilityFont } from '@/lib/accessibilityFont';
@@ -184,7 +185,16 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
   
   const verseRef = useRef(null);
+  const shareCardRef = useRef(null);
   const [capturing, setCapturing] = useState(false);
+
+  // Capture the fixed 1024×1024 ShareCard (used for download + share/copy).
+  // Returns a PNG blob. The card uses the default gradient design always.
+  const captureShareCard = async () => {
+    const el = shareCardRef.current;
+    const canvas = await html2canvas(el, { backgroundColor: null, scale: 1, useCORS: true });
+    return await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+  };
   
   const bgStyle = (pendingBg || customBg)
     ? { backgroundImage: `url(${pendingBg || customBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }
@@ -196,35 +206,19 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const handleDownload = async (e) => {
     e.stopPropagation();
     e.preventDefault();
-    setCapturing(true);
-    setShowButtons(false);
-    setShowStyleEditor(false);
     setShowMenu(false);
-    // Wait for state to update before capturing
-    await new Promise(resolve => setTimeout(resolve, 150));
     try {
-      const el = verseRef.current;
-      const canvas = await html2canvas(el, {
-        backgroundColor: null,
-        scale: 2,
-        useCORS: true,
-        scrollX: 0,
-        scrollY: 0,
-      });
+      const blob = await captureShareCard();
       const link = document.createElement('a');
       const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
       link.download = `daily-verse-${dateStr}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.href = URL.createObjectURL(blob);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
     } catch (err) {
       console.error('Failed to download image:', err);
-    } finally {
-      setTimeout(() => {
-        setCapturing(false);
-        setShowButtons(true);
-      }, 100);
     }
   };
 
@@ -294,24 +288,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       e.stopPropagation();
       e.preventDefault();
     }
-    setCapturing(true);
-    setShowButtons(false);
-    setShowStyleEditor(false);
     setShowMenu(false);
-    // Wait for state to update before capturing
-    await new Promise(resolve => setTimeout(resolve, 150));
     try {
-      // Try to share/copy image first
-      const el = verseRef.current;
-      const canvas = await html2canvas(el, {
-        backgroundColor: null,
-        scale: 2,
-        useCORS: true,
-        scrollX: 0,
-        scrollY: 0,
-      });
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-      
+      // Capture the fixed square ShareCard for sharing/copying
+      const blob = await captureShareCard();
+
       const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
       // Only use Web Share API if explicitly triggered by user (not on app open)
       if (e && navigator.share && navigator.canShare({ files: [new File([blob], 'verse.png', { type: 'image/png' })] })) {
@@ -332,11 +313,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       // Fallback: copy text to clipboard
       await navigator.clipboard.writeText(formatDailyVerseForCopy(verse));
       alert('Verse copied to clipboard!');
-    } finally {
-      setTimeout(() => {
-        setCapturing(false);
-        setShowButtons(true);
-      }, 100);
     }
   };
 
@@ -1326,6 +1302,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           </div>
         </div>
       )}
+
+      {/* Off-screen fixed-size card used for the shared/downloaded image */}
+      <ShareCard ref={shareCardRef} verse={verse} />
     </div>
   );
 }
