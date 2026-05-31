@@ -4,12 +4,6 @@ const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e
 
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const res = await fetch(LOGO_URL);
     if (!res.ok) {
       return Response.json({ error: `Fetch failed: ${res.status}` }, { status: 500 });
