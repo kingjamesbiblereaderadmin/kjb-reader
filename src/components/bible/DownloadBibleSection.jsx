@@ -3,20 +3,22 @@ import { Download, Loader2, Columns2, AlignLeft, AlignJustify, List, CheckCircle
 import { Switch } from '@/components/ui/switch';
 import { exportBiblePdf } from '@/lib/exportBiblePdf';
 
-function Toggle({ active, onClick, icon: Icon, label, sub }) {
+function Toggle({ active, onClick, icon: Icon, label }) {
   return (
     <button
       onClick={onClick}
-      className={`flex-1 flex flex-col items-center gap-1.5 px-3 py-3 rounded-xl border-2 transition-all ${
+      className={`flex-1 flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all ${
         active ? 'bg-primary text-primary-foreground border-primary' : 'bg-transparent text-foreground border-border hover:border-accent'
       }`}
     >
-      <Icon className="w-5 h-5" />
-      <span className="font-sans text-sm font-medium">{label}</span>
-      {sub && <span className={`font-sans text-[11px] ${active ? 'opacity-80' : 'text-muted-foreground'}`}>{sub}</span>}
+      <Icon className="w-3.5 h-3.5" />
+      <span className="font-sans text-xs font-medium">{label}</span>
     </button>
   );
 }
+
+// Rough estimated output size per format (whole KJB ~4.2M chars)
+const SIZE_ESTIMATES = { pdf: '~6 MB', docx: '~5 MB', txt: '~4.5 MB' };
 
 export default function DownloadBibleSection() {
   const [twoColumn, setTwoColumn] = useState(false);
@@ -57,9 +59,9 @@ export default function DownloadBibleSection() {
       <div className="space-y-2">
         <p className="font-sans text-sm font-medium text-foreground">Format</p>
         <div className="flex gap-2">
-          <Toggle active={format === 'pdf'} onClick={() => setFormat('pdf')} icon={FileType} label="PDF" sub=".pdf" />
-          <Toggle active={format === 'docx'} onClick={() => setFormat('docx')} icon={FileText} label="Word" sub=".doc" />
-          <Toggle active={format === 'txt'} onClick={() => setFormat('txt')} icon={File} label="Text" sub=".txt" />
+          <Toggle active={format === 'pdf'} onClick={() => setFormat('pdf')} icon={FileType} label="PDF" />
+          <Toggle active={format === 'docx'} onClick={() => setFormat('docx')} icon={FileText} label="Word" />
+          <Toggle active={format === 'txt'} onClick={() => setFormat('txt')} icon={File} label="Text" />
         </div>
         {format === 'txt' && (
           <p className="font-sans text-xs text-muted-foreground">Italics are shown in [brackets] in the text file.</p>
@@ -71,8 +73,8 @@ export default function DownloadBibleSection() {
         <div className="space-y-2">
           <p className="font-sans text-sm font-medium text-foreground">Columns</p>
           <div className="flex gap-2">
-            <Toggle active={!twoColumn} onClick={() => setTwoColumn(false)} icon={AlignLeft} label="Single" sub="1 column" />
-            <Toggle active={twoColumn} onClick={() => setTwoColumn(true)} icon={Columns2} label="Two" sub="2 columns" />
+            <Toggle active={!twoColumn} onClick={() => setTwoColumn(false)} icon={AlignLeft} label="Single" />
+            <Toggle active={twoColumn} onClick={() => setTwoColumn(true)} icon={Columns2} label="Two" />
           </div>
         </div>
       )}
@@ -81,8 +83,8 @@ export default function DownloadBibleSection() {
       <div className="space-y-2">
         <p className="font-sans text-sm font-medium text-foreground">Reading Flow</p>
         <div className="flex gap-2">
-          <Toggle active={!paragraph} onClick={() => setParagraph(false)} icon={List} label="Line" sub="Verse per line" />
-          <Toggle active={paragraph} onClick={() => setParagraph(true)} icon={AlignJustify} label="Paragraph" sub="Flowing text" />
+          <Toggle active={!paragraph} onClick={() => setParagraph(false)} icon={List} label="Line" />
+          <Toggle active={paragraph} onClick={() => setParagraph(true)} icon={AlignJustify} label="Paragraph" />
         </div>
       </div>
 
@@ -112,6 +114,7 @@ export default function DownloadBibleSection() {
       >
         {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
         {busy ? 'Generating…' : `Download Bible (${format === 'docx' ? 'Word' : format.toUpperCase()})`}
+        {!busy && <span className="opacity-70 text-xs font-normal">· {SIZE_ESTIMATES[format]}</span>}
       </button>
 
       {busy && (
