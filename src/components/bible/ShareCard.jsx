@@ -86,13 +86,29 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
       />
 
       <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '64px 72px' }}>
-        {/* Logo top-left — the real app logo (base64 data URL or direct URL). */}
-        <div style={{ position: 'absolute', top: '64px', left: '48px' }}>
+        {/* Logo top-left — the real app logo (base64 data URL or direct URL).
+            White rounded backing so the logo is always clearly visible on the
+            dark gradient. */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '64px',
+            left: '48px',
+            width: '104px',
+            height: '104px',
+            borderRadius: '20px',
+            background: '#ffffff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
+          }}
+        >
           <img
             src={logoSrc || LOGO_URL}
             alt="KJB Reader"
             crossOrigin="anonymous"
-            style={{ width: '104px', height: '104px', objectFit: 'contain', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.3)' }}
+            style={{ width: '84px', height: '84px', objectFit: 'contain' }}
           />
         </div>
 
@@ -145,11 +161,9 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             alignItems: 'center',
             justifyContent: 'center',
             background: '#2A1750',
-            border: '1px solid rgba(255,255,255,0.12)',
-            borderRadius: '18px',
-            padding: '20px 48px',
+            borderRadius: '999px',
+            padding: '20px 52px',
             marginBottom: '56px',
-            boxShadow: '0 8px 22px rgba(0,0,0,0.35)',
           }}
         >
           <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '40px', fontWeight: 700, lineHeight: 1, letterSpacing: '0.04em', color: '#ffffff' }}>
