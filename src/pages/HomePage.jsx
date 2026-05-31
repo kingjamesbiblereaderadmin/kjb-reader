@@ -255,6 +255,19 @@ export default function HomePage() {
         </div>
       )}
 
+      {/* TEMP: test italics — swaps the card verse to one with KJB italic words */}
+      <div className="w-full mb-3 flex justify-center">
+        <button
+          onClick={() => setVerse({
+            abbr: 'PSA', chapter: 23, verse: 1, ref: 'Psalm 23:1',
+            text: 'The LORD [is] my shepherd; I shall not want.',
+          })}
+          className="px-4 py-2 rounded-lg bg-amber-500 text-white font-sans text-sm font-medium shadow"
+        >
+          Test italics (Psalm 23:1)
+        </button>
+      </div>
+
       {/* Daily verse card */}
       <div className="w-full mb-6 relative">
         <DailyVerseImage verse={verse} onClick={handleVerseCardClick} onToggleNotif={handleToggleNotif} notifEnabled={notifEnabled} />
