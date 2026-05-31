@@ -468,6 +468,7 @@ export default function SettingsPage() {
                 onClick={() => {
                   setA11yFont(font.value);
                   setAccessibilityFont(font.value);
+                  window.dispatchEvent(new Event('storage'));
                 }}
                 className={`w-full p-3 rounded-xl transition-all text-left border-2 ${
                   a11yFont === font.value
@@ -489,7 +490,7 @@ export default function SettingsPage() {
           </div>
           {a11yFont !== 'default' && (
             <button
-              onClick={() => { setA11yFont('default'); setAccessibilityFont('default'); }}
+              onClick={() => { setA11yFont('default'); setAccessibilityFont('default'); window.dispatchEvent(new Event('storage')); }}
               className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-destructive/10 text-destructive font-sans text-sm font-medium hover:bg-destructive/20 transition-colors"
             >
               <RotateCcw className="w-3.5 h-3.5" />
