@@ -986,12 +986,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         className="hidden"
       />
       
-      {/* Faint divider line (bottom above URL) — like the reference */}
-      <span
-        className="absolute left-8 right-8 h-px z-0 pointer-events-none"
-        style={{ bottom: capturing ? '64px' : '14px', backgroundColor: textColor, opacity: 0.18 }}
-      />
-
       {/* Capture-only logo (top-left) — shown only in the downloaded/copied/shared image */}
       {capturing && (
         <img
@@ -1004,15 +998,15 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
       {showVersePanel ? (
         <div className="px-2 pt-2 pb-10 text-center flex-1 flex flex-col w-full max-w-full overflow-hidden">
-          <div className="flex items-center justify-center gap-3 mt-3 mb-8">
-            <span className="h-px w-10 bg-current opacity-40" style={{ color: textColor }} />
+          <div className="flex items-center justify-center gap-4 mt-3 mb-8">
+            <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
             <p 
               className={`font-sans text-base md:text-lg font-extrabold tracking-[0.2em] uppercase ${accentClass}`}
               style={{ opacity: Math.min(1, textOpacity + 0.05), color: textColor, fontFamily: "'Inter', system-ui, sans-serif", textShadow: '0 1px 4px rgba(0,0,0,0.25)' }}
             >
               Verse of the Day
             </p>
-            <span className="h-px w-10 bg-current opacity-40" style={{ color: textColor }} />
+            <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
           </div>
           <div className="flex-1 flex flex-col justify-center">
           <blockquote 
