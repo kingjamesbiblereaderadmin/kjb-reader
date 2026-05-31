@@ -3,6 +3,7 @@ import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { getBibleData } from '@/lib/bibleCache';
 import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
 import { mergeAdjacentBrackets } from '@/lib/bibleApi';
+import { getExportFont } from '@/lib/exportFonts';
 
 // ── Title page text blocks (mirrors components/bible/TitlePage) ──
 const TITLE_WHOLE = [
@@ -82,6 +83,7 @@ function escapeHtml(s = '') {
 // ─────────────────────────────────────────────────────────────
 async function buildPdf(opts, bible, onProgress) {
   const { twoColumn, paragraph, subscripts, colophons } = opts;
+  const F = getExportFont(opts.font).pdf; // PDF font family (times/helvetica/courier)
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const pageW = doc.internal.pageSize.getWidth();
   const pageH = doc.internal.pageSize.getHeight();
@@ -97,7 +99,7 @@ async function buildPdf(opts, bible, onProgress) {
   let runningHead = '';
   function stampHeader() {
     if (!runningHead) return;
-    doc.setFont('times', 'italic');
+    doc.setFont(F, 'italic');
     doc.setFontSize(9);
     doc.text(runningHead, pageW / 2, margin - 6, { align: 'center', baseline: 'top' });
   }
@@ -123,7 +125,7 @@ async function buildPdf(opts, bible, onProgress) {
     if (!atPageTop()) newPage();
     y = pageH / 4;
     blocks.forEach(b => {
-      doc.setFont('times', b.bold ? 'bold' : 'normal');
+      doc.setFont(F, b.bold ? 'bold' : 'normal');
       doc.setFontSize(b.size);
       const lines = doc.splitTextToSize(b.t, pageW - margin * 2);
       lines.forEach(ln => { doc.text(ln, pageW / 2, y, { align: 'center', baseline: 'top' }); y += b.size + 6; });
@@ -136,7 +138,7 @@ async function buildPdf(opts, bible, onProgress) {
   // Word-wrap a list of {text,italic} segments within the active column.
   function writeSegments(segments, { size = bodySize, indentFirst = 0 } = {}) {
     doc.setFontSize(size);
-    const spaceW = () => { doc.setFont('times', 'normal'); return doc.getTextWidth(' '); };
+    const spaceW = () => { doc.setFont(F, 'normal'); return doc.getTextWidth(' '); };
     let x = colX() + indentFirst;
     const startX = colX();
     let lineHasContent = false;
@@ -145,13 +147,13 @@ async function buildPdf(opts, bible, onProgress) {
     const wrap = () => { y += size + 3.5; ensureSpace(size + 4); x = colX(); lineHasContent = false; };
 
     segments.forEach(seg => {
-      doc.setFont('times', seg.italic ? 'italic' : 'normal');
+      doc.setFont(F, seg.italic ? 'italic' : 'normal');
       const words = seg.text.split(/(\s+)/).filter(w => w.length);
       words.forEach(w => {
         if (/^\s+$/.test(w)) { if (lineHasContent) x += spaceW(); return; }
         const wWidth = doc.getTextWidth(w);
         if (x + wWidth > startX + colWidth && lineHasContent) wrap();
-        doc.setFont('times', seg.italic ? 'italic' : 'normal');
+        doc.setFont(F, seg.italic ? 'italic' : 'normal');
         doc.text(w, x, y, { baseline: 'top' });
         x += wWidth;
         lineHasContent = true;
@@ -161,7 +163,7 @@ async function buildPdf(opts, bible, onProgress) {
   }
 
   function writeCentered(text, { size = bodySize, font = 'italic', gapAfter = 4 } = {}) {
-    doc.setFont('times', font);
+    doc.setFont(F, font);
     doc.setFontSize(size);
     const lines = doc.splitTextToSize(text, colWidth);
     lines.forEach(ln => { ensureSpace(size + 4); doc.text(ln, colX() + colWidth / 2, y, { align: 'center', baseline: 'top' }); y += size + 3.5; });
@@ -175,14 +177,14 @@ async function buildPdf(opts, bible, onProgress) {
     const segs = toSegments(rawText); // keeps brackets as italic segments
     // Measure total width to center
     const measure = () => segs.reduce((w, s) => {
-      doc.setFont('times', s.italic ? 'italic' : 'normal');
+      doc.setFont(F, s.italic ? 'italic' : 'normal');
       return w + doc.getTextWidth(s.text);
     }, 0);
     ensureSpace(size + 4);
     let lineW = measure();
     let x = colX() + (colWidth - lineW) / 2;
     segs.forEach(s => {
-      doc.setFont('times', s.italic ? 'italic' : 'normal');
+      doc.setFont(F, s.italic ? 'italic' : 'normal');
       doc.text(s.text, x, y, { baseline: 'top' });
       x += doc.getTextWidth(s.text);
     });
@@ -221,7 +223,7 @@ async function buildPdf(opts, bible, onProgress) {
     const chapterPages = [];
     bookPages.push({ book, page: startPage, chapters: chapterPages });
 
-    doc.setFont('times', 'bold'); doc.setFontSize(15);
+    doc.setFont(F, 'bold'); doc.setFontSize(15);
     const titleLines = doc.splitTextToSize(book.name, colWidth);
     titleLines.forEach(ln => { doc.text(ln, colX() + colWidth / 2, y, { align: 'center', baseline: 'top' }); y += 18; });
     y += 8;
@@ -242,7 +244,7 @@ async function buildPdf(opts, bible, onProgress) {
       ensureSpace(34);
       if (ch > 1 && !atPageTop()) y += 12; // breathing room before each new chapter
       chapterPages.push({ ch, page: doc.internal.getNumberOfPages() });
-      doc.setFont('times', 'bold'); doc.setFontSize(11);
+      doc.setFont(F, 'bold'); doc.setFontSize(11);
       doc.text(`Chapter ${ch}`, colX() + colWidth / 2, y, { align: 'center', baseline: 'top' });
       y += 16;
 
@@ -297,7 +299,7 @@ async function buildPdf(opts, bible, onProgress) {
     for (let p = page; p <= endPage; p++) {
       const within = p - page + 1;
       doc.setPage(p);
-      doc.setFont('times', 'normal');
+      doc.setFont(F, 'normal');
       doc.setFontSize(8);
       doc.text(`${within} of ${totalInBook}`, pageW / 2, pageH - margin + 14, { align: 'center', baseline: 'top' });
     }
@@ -327,7 +329,7 @@ async function buildPdf(opts, bible, onProgress) {
   let tocPage = tocStartPage;
   doc.setPage(tocPage);
   let ty = margin;
-  doc.setFont('times', 'bold'); doc.setFontSize(18);
+  doc.setFont(F, 'bold'); doc.setFontSize(18);
   doc.text('CONTENTS', pageW / 2, ty, { align: 'center', baseline: 'top' });
   ty += 28;
 
@@ -338,7 +340,7 @@ async function buildPdf(opts, bible, onProgress) {
   const writeTestament = (label, page) => {
     ensureTocSpace(28);
     ty += 8;
-    doc.setFont('times', 'bold'); doc.setFontSize(13);
+    doc.setFont(F, 'bold'); doc.setFontSize(13);
     // Center manually (textWithLink doesn't honour align reliably)
     const w = doc.getTextWidth(label);
     doc.textWithLink(label, (pageW - w) / 2, ty, { pageNumber: page });
@@ -347,7 +349,7 @@ async function buildPdf(opts, bible, onProgress) {
 
   const writeBookRow = (book, page) => {
     ensureTocSpace(16);
-    doc.setFont('times', 'bold'); doc.setFontSize(10.5);
+    doc.setFont(F, 'bold'); doc.setFontSize(10.5);
     const label = `\u2022  ${book.name}`;
     const pageStr = String(page);
     const labelX = margin + 6;
@@ -362,7 +364,7 @@ async function buildPdf(opts, bible, onProgress) {
     const dotsStart = labelX + labelW + 6;
     const dotsEnd = pageX - pageW2 - 6;
     if (dotsEnd > dotsStart) {
-      doc.setFont('times', 'normal');
+      doc.setFont(F, 'normal');
       const dotW = doc.getTextWidth('.');
       const count = Math.floor((dotsEnd - dotsStart) / dotW);
       if (count > 0) doc.text('.'.repeat(count), dotsStart, ty);
@@ -376,7 +378,7 @@ async function buildPdf(opts, bible, onProgress) {
     const startX = margin + 16;
     const maxX = pageW - margin;
     let cx = startX;
-    doc.setFont('times', 'normal'); doc.setFontSize(9);
+    doc.setFont(F, 'normal'); doc.setFontSize(9);
     chapters.forEach(({ ch, page: chPage }) => {
       if (cx + cellW > maxX) { cx = startX; ty += lineH; ensureTocSpace(lineH); }
       if (cx === startX) ensureTocSpace(lineH);
@@ -529,7 +531,8 @@ async function buildText(opts, bible, onProgress, format) {
       ? '@page Section1 { columns: 2; column-gap: 24px; } div.Section1 { -webkit-column-count: 2; column-count: 2; column-gap: 24px; }'
       : '@page Section1 {} div.Section1 {}';
     const body = `<div class="Section1">${out.join('\n')}</div>`;
-    const html = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>KJB</title><style>${colCss}</style></head><body style="font-family:'Times New Roman',serif;font-size:11pt;">${body}</body></html>`;
+    const fontCss = getExportFont(opts.font).css;
+    const html = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>KJB</title><style>${colCss}</style></head><body style="font-family:${fontCss};font-size:11pt;">${body}</body></html>`;
     blob = new Blob(['\ufeff', html], { type: 'application/msword' });
     name = fileName(opts, 'doc');
   } else {
@@ -666,7 +669,8 @@ async function buildRtf(opts, bible, onProgress) {
   // Two-column applies per section; bake it into every \sectd via a token swap.
   const colsHeader = twoColumn ? '\\cols2\\colsx360' : '';
   const body = lines.join('\n').replace(/\\sectd/g, `\\sectd${colsHeader}`);
-  const rtf = `{\\rtf1\\ansi\\deff0\\fet0{\\fonttbl{\\f0 Times New Roman;}}\\f0\\fs20 ${body}}`;
+  const rtfFont = getExportFont(opts.font).rtf;
+  const rtf = `{\\rtf1\\ansi\\deff0\\fet0{\\fonttbl{\\f0 ${rtfFont};}}\\f0\\fs20 ${body}}`;
   triggerDownload(new Blob([rtf], { type: 'application/rtf' }), fileName(opts, 'rtf'));
 }
 
