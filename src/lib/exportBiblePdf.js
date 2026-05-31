@@ -305,7 +305,7 @@ async function buildPdf(opts, bible, onProgress) {
   const writeBookRow = (book, page) => {
     ensureTocSpace(16);
     doc.setFont('times', 'bold'); doc.setFontSize(10.5);
-    doc.textWithLink(book.name, margin + 6, ty, { pageNumber: page });
+    doc.textWithLink(`\u2022  ${book.name}`, margin + 6, ty, { pageNumber: page });
     doc.text(String(page), pageW - margin, ty, { align: 'right' });
     ty += 14;
   };
@@ -386,7 +386,7 @@ async function buildText(opts, bible, onProgress, format) {
         lastT = book.testament;
         out.push(`<p style="margin:8px 0 2px"><b>${book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT'}</b></p>`);
       }
-      out.push(`<p style="margin:1px 0 1px 18px"><a href="#${anchorFor(book)}">${escapeHtml(book.name)}</a></p>`);
+      out.push(`<p style="margin:1px 0 1px 28px;text-indent:-10px"><a href="#${anchorFor(book)}">&bull;&nbsp;${escapeHtml(book.name)}</a></p>`);
     });
     out.push('<br style="page-break-after:always" />');
   } else {
@@ -395,7 +395,7 @@ async function buildText(opts, bible, onProgress, format) {
     let lastT = null;
     BIBLE_BOOKS.forEach(book => {
       if (book.testament !== lastT) { lastT = book.testament; push(''); push(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT'); }
-      push('  ' + book.name);
+      push('  \u2022 ' + book.name);
     });
     push('');
     push('');
@@ -504,30 +504,57 @@ function rtfInline(text) {
 async function buildRtf(opts, bible, onProgress) {
   const { twoColumn, paragraph, subscripts, colophons } = opts;
   const lines = [];
-  const para = (rtf, { center = false, bold = false, size = 22 } = {}) =>
-    lines.push(`{\\pard${center ? '\\qc' : ''}\\sa80 \\fs${size}${bold ? '\\b' : ''} ${rtf}${bold ? '\\b0' : ''}\\par}`);
+  // Generic paragraph helper. spaceBefore/spaceAfter in twips, qc=centered.
+  const para = (rtf, { center = false, bold = false, size = 22, sb = 0, sa = 80 } = {}) =>
+    lines.push(`{\\pard${center ? '\\qc' : '\\ql'}\\sb${sb}\\sa${sa}\\fs${size}${bold ? '\\b' : ''} ${rtf}${bold ? '\\b0' : ''}\\par}`);
+  const spacer = (h = 200) => lines.push(`{\\pard\\sa${h}\\par}`);
 
-  // Title page
-  TITLE_WHOLE.forEach((b, i) => para(rtfEscape(b.t), { center: true, bold: !!b.bold, size: i === 1 ? 56 : 26 }));
+  // ── Running header: book name (left) + "Chapter N" (right), on every page ──
+  // \chftn-style fields aren't needed; we keep a simple book-name header updated
+  // per book via \headerl/\headerr is complex, so use a single \header that we
+  // can't change mid-doc. Instead we emit a per-section header using \sectd.
+  // Simplest reliable approach: a header band with the book name, reset per book
+  // by starting a new section (\sect) before each book.
+  const headerFor = (bookName) =>
+    `{\\header \\pard\\qc\\fs18\\i ${rtfEscape(bookName)}\\i0\\par}`;
+
+  // Front matter (title + contents) — its own headerless section
+  lines.push('\\sectd ');
+  // Title page — centered, generously spaced
+  spacer(1800);
+  TITLE_WHOLE.forEach((b, i) => para(rtfEscape(b.t), { center: true, bold: !!b.bold, size: i === 1 ? 64 : 26, sb: i === 1 ? 120 : 60, sa: i === 1 ? 200 : 120 }));
   lines.push('\\page ');
 
-  // Contents
-  para('CONTENTS', { center: true, bold: true, size: 32 });
+  // Contents — bulleted list grouped by testament
+  para('CONTENTS', { center: true, bold: true, size: 34, sa: 240 });
   let lastT = null;
   BIBLE_BOOKS.forEach(book => {
-    if (book.testament !== lastT) { lastT = book.testament; para(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT', { bold: true, size: 24 }); }
-    para(rtfEscape(book.name), { size: 20 });
+    if (book.testament !== lastT) {
+      lastT = book.testament;
+      para(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT', { bold: true, size: 26, sb: 160, sa: 80 });
+    }
+    // Bullet + indent
+    lines.push(`{\\pard\\fi-180\\li360\\sa40\\fs20 \\bullet\\tab ${rtfEscape(book.name)}\\par}`);
   });
-  lines.push('\\page ');
 
   const total = BIBLE_BOOKS.length;
   for (let bi = 0; bi < total; bi++) {
     const book = BIBLE_BOOKS[bi];
     const bookData = bible[book.apiName] || {};
 
-    if (book.apiName === 'Matthew') { TITLE_NT.forEach((b, i) => para(rtfEscape(b.t), { center: true, bold: !!b.bold, size: i === 1 ? 48 : 24 })); lines.push('\\page '); }
+    // NT title page: its own section (no header), then Matthew starts a new section
+    if (book.apiName === 'Matthew') {
+      lines.push('\\sect \\sectd ');
+      spacer(1800);
+      TITLE_NT.forEach((b, i) => para(rtfEscape(b.t), { center: true, bold: !!b.bold, size: i === 1 ? 56 : 24, sb: i === 1 ? 120 : 60, sa: i === 1 ? 200 : 120 }));
+    }
 
-    para(rtfEscape(book.name), { center: true, bold: true, size: 30 });
+    // New section per book (also breaks to a new page) so the running header
+    // shows the current book name.
+    lines.push('\\sect ');
+    lines.push(`\\sectd\\headery720 ${headerFor(book.shortName)}`);
+
+    para(rtfEscape(book.name), { center: true, bold: true, size: 32, sb: 120, sa: 160 });
 
     for (let ch = 1; ch <= book.chapters; ch++) {
       let verses = bookData[ch] || [];
@@ -571,8 +598,10 @@ async function buildRtf(opts, bible, onProgress) {
   }
 
   onProgress(98, 'Saving file…');
-  const colsHeader = twoColumn ? '\\cols2\\colsx360 ' : '';
-  const rtf = `{\\rtf1\\ansi\\deff0{\\fonttbl{\\f0 Times New Roman;}}\\f0 ${colsHeader}${lines.join('\n')}}`;
+  // Two-column applies per section; bake it into every \sectd via a token swap.
+  const colsHeader = twoColumn ? '\\cols2\\colsx360' : '';
+  const body = lines.join('\n').replace(/\\sectd/g, `\\sectd${colsHeader}`);
+  const rtf = `{\\rtf1\\ansi\\deff0\\fet0{\\fonttbl{\\f0 Times New Roman;}}\\f0\\fs20 ${body}}`;
   triggerDownload(new Blob([rtf], { type: 'application/rtf' }), fileName(opts, 'rtf'));
 }
 
