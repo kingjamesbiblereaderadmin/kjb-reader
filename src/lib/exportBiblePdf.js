@@ -433,15 +433,14 @@ async function buildPdf(opts, bible, onProgress) {
     ensureTocSpace(16);
     doc.setFont(F, 'bold'); doc.setFontSize(10.5);
     const label = `\u2022  ${nameOf(book)}`;
-    // Right-hand value is now the chapter count, not the page number.
-    const pageStr = `${book.chapters} ch.`;
+    const pageStr = String(page);
     const labelX = margin + 6;
     const pageX = pageW - margin;
     // Book name (clickable) on the left
     doc.textWithLink(label, labelX, ty, { pageNumber: page });
-    // Right-aligned chapter count
+    // Right-aligned page number
     doc.text(pageStr, pageX, ty, { align: 'right' });
-    // Dotted leader filling the gap between the title and the chapter count
+    // Dotted leader filling the gap between the title and the page number
     const labelW = doc.getTextWidth(label);
     const pageW2 = doc.getTextWidth(pageStr);
     const dotsStart = labelX + labelW + 6;
@@ -562,11 +561,18 @@ async function buildText(opts, bible, onProgress, format) {
   // the first book's section open will close this div.
   if (isDocx) out.push('<div class="SectionFront">');
 
-  // Title pages — Holy Bible for whole/OT, New Testament for NT-only
+  // Title pages — Holy Bible for whole/OT, New Testament for NT-only.
+  // Anchor the cover so the Contents "Cover Page" entry can link back to it (DOCX).
+  if (isDocx) out.push('<a name="cover_page"></a>');
   (scope === 'new' ? TITLE_NT : TITLE_WHOLE).forEach((b, i) => push(b.t, i === 1 ? 'h1' : 'h2'));
   push('');
 
   const total = BOOKS.length;
+
+  // Title-page link rows shown before each testament's books (matches PDF):
+  //  • Cover Page → before the Old Testament (or NT-only cover)
+  //  • The New Testament → before the New Testament books (whole-Bible only)
+  const coverBeforeTestament = scope === 'new' ? 'new' : 'old';
 
   // Table of Contents (Word: clickable links to in-doc anchors; TXT: plain list)
   if (isDocx) {
@@ -575,6 +581,12 @@ async function buildText(opts, bible, onProgress, format) {
     BOOKS.forEach(book => {
       if (book.testament !== lastT) {
         lastT = book.testament;
+        if (book.testament === coverBeforeTestament) {
+          out.push(`<p style="margin:1px 0 1px 28px;text-indent:-10px"><a href="#cover_page">&bull;&nbsp;Cover Page</a></p>`);
+        }
+        if (book.testament === 'new' && scope === 'whole') {
+          out.push(`<p style="margin:1px 0 1px 28px;text-indent:-10px"><a href="#nt_title">&bull;&nbsp;The New Testament</a></p>`);
+        }
         out.push(`<p style="margin:8px 0 2px"><b>${book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT'}</b></p>`);
       }
       out.push(`<p style="margin:1px 0 1px 28px;text-indent:-10px"><a href="#${anchorFor(book)}">&bull;&nbsp;${escapeHtml(nameOf(book))}</a></p>`);
@@ -585,7 +597,13 @@ async function buildText(opts, bible, onProgress, format) {
     push('');
     let lastT = null;
     BOOKS.forEach(book => {
-      if (book.testament !== lastT) { lastT = book.testament; push(''); push(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT'); }
+      if (book.testament !== lastT) {
+        lastT = book.testament;
+        push('');
+        if (book.testament === coverBeforeTestament) push('  \u2022 Cover Page');
+        if (book.testament === 'new' && scope === 'whole') push('  \u2022 The New Testament');
+        push(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT');
+      }
       push('  \u2022 ' + nameOf(book));
     });
     push('');
@@ -596,7 +614,7 @@ async function buildText(opts, bible, onProgress, format) {
     const book = BOOKS[bi];
     const bookData = bible[book.apiName] || {};
 
-    if (book.apiName === 'Matthew' && scope === 'whole') { TITLE_NT.forEach((b, i) => push(b.t, i === 1 ? 'h1' : 'h2')); push(''); }
+    if (book.apiName === 'Matthew' && scope === 'whole') { if (isDocx) out.push('<a name="nt_title"></a>'); TITLE_NT.forEach((b, i) => push(b.t, i === 1 ? 'h1' : 'h2')); push(''); }
 
     // Word: each book is its own section so the running header shows the current
     // book name. Close the previous section (its paragraph properties hold the
@@ -770,14 +788,18 @@ async function buildRtf(opts, bible, onProgress) {
 
   // Contents — bulleted list grouped by testament
   para('CONTENTS', { center: true, bold: true, size: 34, sa: 240 });
+  const coverBeforeTestament = scope === 'new' ? 'new' : 'old';
+  const bulletRow = (text) => lines.push(`{\\pard\\fi-180\\li360\\sa40\\fs20 \\bullet\\tab ${rtfEscape(text)}\\par}`);
   let lastT = null;
   BOOKS.forEach(book => {
     if (book.testament !== lastT) {
       lastT = book.testament;
+      // Title-page entries before their testament (matches PDF)
+      if (book.testament === coverBeforeTestament) bulletRow('Cover Page');
+      if (book.testament === 'new' && scope === 'whole') bulletRow('The New Testament');
       para(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT', { bold: true, size: 26, sb: 160, sa: 80 });
     }
-    // Bullet + indent
-    lines.push(`{\\pard\\fi-180\\li360\\sa40\\fs20 \\bullet\\tab ${rtfEscape(nameOf(book))}\\par}`);
+    bulletRow(nameOf(book));
   });
 
   const total = BOOKS.length;
