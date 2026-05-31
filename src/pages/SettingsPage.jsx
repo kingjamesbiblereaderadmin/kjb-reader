@@ -461,12 +461,14 @@ export default function SettingsPage() {
           </button>
           );
         })}
-        <button
-          onClick={() => pickReaderFont('serif')}
-          className="w-full py-3 rounded-xl font-sans text-sm font-medium transition-all text-center bg-secondary text-secondary-foreground border-2 border-border hover:border-accent"
-        >
-          Reset to Default
-        </button>
+        {a11yFont === 'default' && (
+          <button
+            onClick={() => pickReaderFont('serif')}
+            className="w-full py-3 rounded-xl font-sans text-sm font-medium transition-all text-center bg-secondary text-secondary-foreground border-2 border-border hover:border-accent"
+          >
+            Reset to Default
+          </button>
+        )}
         </div>
         </div>
         </div>
