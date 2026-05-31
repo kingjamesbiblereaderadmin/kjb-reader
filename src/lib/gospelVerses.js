@@ -5,7 +5,7 @@ import { BIBLE_BOOKS } from '@/lib/bibleData';
 
 export const GOSPEL_VERSES = [
   { book: 'Romans', chapter: 3, verse: 20, label: 'All sinned' },
-  { book: 'Psalms', chapter: 9, verse: 16, label: 'Hell' },
+  { book: 'Psalms', chapter: 9, verse: 17, label: 'Hell' },
   { book: '1 Timothy', chapter: 3, verse: 16, label: 'Jesus is God' },
   { book: '1 Corinthians', chapter: 15, verse: 1, label: 'Gospel' },
   { book: 'Romans', chapter: 3, verse: 25, label: 'Faith in his blood' },
