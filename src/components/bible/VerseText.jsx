@@ -49,9 +49,23 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     // When highlighted, tint the big letter with the active highlight colour so
     // the highlight visually covers it (the float sits outside the parent's
     // inline background box, so it needs its own background).
+    // In paragraph/column mode the floated drop-cap letter sits OUTSIDE the inline
+    // highlight box, so give the letter its own matching ~40% tint. In line mode the
+    // float is pulled back inside the highlighted block, so it needs no own tint
+    // (avoids a doubled-up darker square). The verse number always stays clear
+    // (kjb-dropcap-num has transparent background in CSS).
+    const dropRaw = showHighlight
+      ? highlightColors.find(c => c.name === highlightColor)?.color
+      : null;
+    const dropHighlight = (dropRaw && (paragraphMode || columnMode))
+      ? (dropRaw.startsWith('#') ? `${dropRaw}66` : `hsl(var(--accent) / 0.4)`)
+      : null;
+    const letterStyle = dropHighlight
+      ? ` style="background-color:${dropHighlight};border-radius:0.1em;"`
+      : '';
     html = html.replace(
       /([A-Za-z])/,
-      `<span class="kjb-dropcap-group"><span class="kjb-dropcap-num">${verse.verse}</span><span class="kjb-dropcap-letter">$1</span></span>`
+      `<span class="kjb-dropcap-group"><span class="kjb-dropcap-num">${verse.verse}</span><span class="kjb-dropcap-letter"${letterStyle}>$1</span></span>`
     );
   }
 
