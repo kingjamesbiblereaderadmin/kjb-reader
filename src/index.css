@@ -259,7 +259,11 @@
     font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif !important;
   }
 
-  /* Drop cap — large decorative first letter on verse 1 of a chapter. */
+  /* Drop cap — large decorative first letter on verse 1 of a chapter.
+     ::first-letter only applies to block-level boxes, so force display. */
+  .kjb-dropcap {
+    display: block;
+  }
   .kjb-dropcap::first-letter {
     float: left;
     font-size: 3.4em;

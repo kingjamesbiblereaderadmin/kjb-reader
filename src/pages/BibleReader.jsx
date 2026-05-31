@@ -1817,7 +1817,7 @@ export default function BibleReader() {
                 isCursive={fontFamily === 'cursive'}
                 fontFamilyValue={getFontFamilyValue(fontFamily)}
                 zoomLevel={zoomLevel}
-                dropCap={idx === 0 && v.verse === 1 && !columnMode}
+                dropCap={idx === 0 && v.verse === 1}
                 searchTerm={searchTerm && highlightVerse === v.verse ? searchTerm : null}
                 />
                 ))}
