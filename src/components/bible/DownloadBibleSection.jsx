@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, Loader2, Columns2, AlignLeft, AlignJustify, List, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Download, Loader2, Columns2, AlignLeft, AlignJustify, List, CheckCircle2, AlertCircle, FileType, FileText, File } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { exportBiblePdf } from '@/lib/exportBiblePdf';
 
@@ -23,6 +23,7 @@ export default function DownloadBibleSection() {
   const [paragraph, setParagraph] = useState(false);
   const [subscripts, setSubscripts] = useState(true);
   const [colophons, setColophons] = useState(true);
+  const [format, setFormat] = useState('pdf');
 
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -35,7 +36,7 @@ export default function DownloadBibleSection() {
     setProgress(0);
     setStatus('Preparing…');
     try {
-      await exportBiblePdf({ twoColumn, paragraph, subscripts, colophons }, (pct, msg) => {
+      await exportBiblePdf({ twoColumn, paragraph, subscripts, colophons, format }, (pct, msg) => {
         setProgress(pct);
         setStatus(msg);
       });
@@ -49,17 +50,32 @@ export default function DownloadBibleSection() {
   return (
     <div className="p-5 pt-0 space-y-5">
       <p className="font-sans text-sm text-muted-foreground">
-        Generate a PDF of the entire King James Bible with your chosen layout. Large file — generation may take a minute.
+        Generate the entire King James Bible — including title pages, pilcrows and italics — in your chosen layout. Runs on your device, no internet or credits used.
       </p>
 
-      {/* Column layout */}
+      {/* Format */}
       <div className="space-y-2">
-        <p className="font-sans text-sm font-medium text-foreground">Columns</p>
+        <p className="font-sans text-sm font-medium text-foreground">Format</p>
         <div className="flex gap-2">
-          <Toggle active={!twoColumn} onClick={() => setTwoColumn(false)} icon={AlignLeft} label="Single" sub="1 column" />
-          <Toggle active={twoColumn} onClick={() => setTwoColumn(true)} icon={Columns2} label="Two" sub="2 columns" />
+          <Toggle active={format === 'pdf'} onClick={() => setFormat('pdf')} icon={FileType} label="PDF" sub=".pdf" />
+          <Toggle active={format === 'docx'} onClick={() => setFormat('docx')} icon={FileText} label="Word" sub=".doc" />
+          <Toggle active={format === 'txt'} onClick={() => setFormat('txt')} icon={File} label="Text" sub=".txt" />
         </div>
+        {format === 'txt' && (
+          <p className="font-sans text-xs text-muted-foreground">Italics are shown in [brackets] in the text file.</p>
+        )}
       </div>
+
+      {/* Column layout — PDF only */}
+      {format === 'pdf' && (
+        <div className="space-y-2">
+          <p className="font-sans text-sm font-medium text-foreground">Columns</p>
+          <div className="flex gap-2">
+            <Toggle active={!twoColumn} onClick={() => setTwoColumn(false)} icon={AlignLeft} label="Single" sub="1 column" />
+            <Toggle active={twoColumn} onClick={() => setTwoColumn(true)} icon={Columns2} label="Two" sub="2 columns" />
+          </div>
+        </div>
+      )}
 
       {/* Flow */}
       <div className="space-y-2">
@@ -95,7 +111,7 @@ export default function DownloadBibleSection() {
         className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 disabled:opacity-60 transition-opacity"
       >
         {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-        {busy ? 'Generating PDF…' : 'Download Bible PDF'}
+        {busy ? 'Generating…' : `Download Bible (${format === 'docx' ? 'Word' : format.toUpperCase()})`}
       </button>
 
       {busy && (
@@ -108,7 +124,7 @@ export default function DownloadBibleSection() {
       )}
       {!busy && status === 'Done!' && (
         <p className="font-sans text-sm text-green-600 dark:text-green-400 flex items-center gap-1.5">
-          <CheckCircle2 className="w-4 h-4" /> PDF downloaded successfully!
+          <CheckCircle2 className="w-4 h-4" /> File downloaded successfully!
         </p>
       )}
       {error && (
