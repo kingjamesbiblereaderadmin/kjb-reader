@@ -290,14 +290,15 @@
     display: flex;
     align-items: flex-start;
     padding-right: 0.14em;
-    /* Height locked to exactly two text lines (line-height: 1.625 = leading-relaxed),
-       so the drop cap always spans two lines at ANY zoom level. */
-    height: 3.25em;
+    /* Height locked to exactly two text lines using `lh` units, so the float
+       clears after exactly two lines regardless of the active font's line box
+       (serif, dyslexic, hyperlegible, etc.). This keeps verse 1's wrapped text
+       and verse 2 aligned to the same left edge. */
+    height: 2lh;
   }
   .kjb-dropcap-letter {
-    /* Sized & vertically nudged so the glyph fills the 2-line box (3.25em).
-       Using em keeps everything proportional, so it scales with any zoom. */
-    font-size: 4.4em;
+    /* Sized to fill the 2-line box. Height of the glyph follows the line box. */
+    font-size: 2lh;
     line-height: 1;
     font-weight: 700;
     color: inherit;
