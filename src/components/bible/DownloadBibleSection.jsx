@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Download, Loader2, Columns2, AlignLeft, AlignJustify, List, CheckCircle2, AlertCircle, FileType, FileText, File, FileType2, Type, Tag } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { exportBiblePdf } from '@/lib/exportBiblePdf';
-import { EXPORT_FONTS, DEFAULT_EXPORT_FONT } from '@/lib/exportFonts';
+import { DEFAULT_EXPORT_FONT } from '@/lib/exportFonts';
 
 function Toggle({ active, onClick, icon: Icon, label }) {
   return (
@@ -74,31 +74,6 @@ export default function DownloadBibleSection() {
           <p className="font-sans text-xs text-muted-foreground">Rich text with real italics — opens in Word, Pages or WordPad.</p>
         )}
       </div>
-
-      {/* Font — PDF, Word & RTF (TXT is plain text) */}
-      {format !== 'txt' && (
-        <div className="space-y-2">
-          <p className="font-sans text-sm font-medium text-foreground">Font</p>
-          <div className="grid grid-cols-3 gap-2">
-            {EXPORT_FONTS.map(f => (
-              <button
-                key={f.id}
-                onClick={() => setFont(f.id)}
-                className={`px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-all ${
-                  font === f.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-transparent text-foreground border-border hover:border-accent'
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
-          {format === 'pdf' && (font === 'cursive' || font === 'dyslexic' || font === 'legible') && (
-            <p className="font-sans text-xs text-muted-foreground">
-              PDF uses a built-in look-alike for this font. For the exact font, choose Word or RTF.
-            </p>
-          )}
-        </div>
-      )}
 
       {/* Column layout — PDF, Word & RTF */}
       {(format === 'pdf' || format === 'docx' || format === 'rtf') && (
