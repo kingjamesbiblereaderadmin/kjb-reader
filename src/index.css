@@ -286,7 +286,7 @@
     font-family: 'Cormorant Garamond', 'Merriweather', Georgia, serif;
     /* Pull the glyph down so its cap-top aligns with line 1's cap-top and its
        baseline drops to line 2's baseline (compensates for the font's ascent gap). */
-    margin-top: -0.12em;
+    margin-top: 0.08em;
   }
   /* Verse number sits at the top-left of the group, beside the big letter. */
   .kjb-dropcap-num {
