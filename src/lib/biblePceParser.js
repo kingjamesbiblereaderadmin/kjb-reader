@@ -63,6 +63,10 @@ export function parsePceText(text) {
   let currentChapter = null;
   let titleBuffer = [];
   let pendingFirstVerse = false; // next non-empty line is verse 1
+  // For Psalms with a superscription, the file has TWO unnumbered lines before
+  // verse 2: the superscription, then the real verse 1. When true, the next
+  // unnumbered line is the superscription (skipped) and the one after is verse 1.
+  let pendingSuperscript = false;
   let verseCount = 0;
 
   // Psalms uses "PSALM N" instead of "CHAPTER N"; every other book uses CHAPTER.
@@ -89,6 +93,9 @@ export function parsePceText(text) {
       currentChapter = parseInt(trimmed.replace(/(CHAPTER|PSALM)\s+/i, ''), 10);
       if (currentBook && !data[currentBook][currentChapter]) data[currentBook][currentChapter] = [];
       pendingFirstVerse = true;
+      // Psalms with a known superscription have an extra unnumbered line (the
+      // superscription) before the real verse 1 — skip it so verse 1 is correct.
+      pendingSuperscript = currentBook === 'Psalms' && !!SUBSCRIPTS[`Psalms:${currentChapter}`];
       titleBuffer = [];
       continue;
     }
@@ -106,6 +113,12 @@ export function parsePceText(text) {
         pendingFirstVerse = false;
         continue;
       }
+    }
+
+    // Superscription line for a Psalm (unnumbered, comes before verse 1) — skip it.
+    if (pendingSuperscript && currentChapter != null) {
+      pendingSuperscript = false;
+      continue;
     }
 
     // First (unnumbered) verse of a chapter
