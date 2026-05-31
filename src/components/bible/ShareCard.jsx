@@ -34,7 +34,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse }, ref) {
           src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png"
           alt="KJB Reader"
           crossOrigin="anonymous"
-          style={{ position: 'absolute', top: '48px', left: '48px', width: '104px', height: '104px', borderRadius: '14px', boxShadow: '0 4px 14px rgba(0,0,0,0.3)' }}
+          style={{ position: 'absolute', top: '64px', left: '48px', width: '104px', height: '104px', borderRadius: '14px', boxShadow: '0 4px 14px rgba(0,0,0,0.3)' }}
         />
 
         {/* VERSE OF THE DAY header with side rules */}
@@ -93,8 +93,18 @@ const ShareCard = React.forwardRef(function ShareCard({ verse }, ref) {
           </span>
         </div>
 
-        {/* Footer URL with top rule */}
-        <div style={{ width: '100%', borderTop: '1px solid rgba(255,255,255,0.25)', paddingTop: '28px', textAlign: 'center' }}>
+        {/* Footer URL with curved gradient divider above */}
+        <div style={{ width: '100%', textAlign: 'center' }}>
+          <svg viewBox="0 0 880 40" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '40px', marginBottom: '24px' }}>
+            <defs>
+              <linearGradient id="kjbCurveGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="rgba(255,255,255,0)" />
+                <stop offset="50%" stopColor="rgba(255,255,255,0.85)" />
+                <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+              </linearGradient>
+            </defs>
+            <path d="M0,32 Q440,0 880,32" fill="none" stroke="url(#kjbCurveGrad)" strokeWidth="3" strokeLinecap="round" />
+          </svg>
           <span style={{ fontFamily: "'Merriweather', Georgia, serif", fontSize: '38px', fontWeight: 700, color: '#ffffff', textShadow: '0 2px 6px rgba(0,0,0,0.35)' }}>
             KingJamesBibleReader.com
           </span>
