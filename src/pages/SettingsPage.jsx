@@ -132,10 +132,16 @@ export default function SettingsPage() {
     const handleStorage = () => {
       isBibleCached().then(setCached);
       try { setReaderFontFamily(localStorage.getItem('kjb-reader-font-family') || 'serif'); } catch {}
+      try { setVerseFontFamily(localStorage.getItem('kjb-verse-font-family') || 'serif'); } catch {}
       try { setZoomLevel(parseInt(localStorage.getItem('kjb-zoom') || '100')); } catch {}
+      try { setA11yFont(getAccessibilityFont()); } catch {}
     };
     window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
+    window.addEventListener('focus', handleStorage);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('focus', handleStorage);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
