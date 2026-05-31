@@ -711,7 +711,10 @@ async function buildText(opts, bible, onProgress, format) {
 
       if (subscripts) {
         const sub = SUBSCRIPTS[`${book.apiName}:${ch}`];
-        if (sub) push(plainText(sub, isDocx ? true : keepBrackets), 'center-italic');
+        if (sub) {
+          if (!isDocx) push(''); // blank line above subscript (TXT)
+          push(plainText(sub, isDocx ? true : keepBrackets), 'center-italic');
+        }
       }
 
       if (paragraph) {
