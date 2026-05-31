@@ -389,7 +389,7 @@ async function buildPdf(opts, bible, onProgress) {
   // These appear as an expandable tree in the PDF reader's bookmarks/contents panel.
   if (doc.outline?.add) {
     // Front-matter title pages at the top of the outline panel.
-    if (holyBiblePage) doc.outline.add(null, 'The Holy Bible', { pageNumber: holyBiblePage });
+    if (holyBiblePage) doc.outline.add(null, 'Cover Page', { pageNumber: holyBiblePage });
     doc.outline.add(null, 'Contents', { pageNumber: tocStartPage });
 
     let otNode = null, ntNode = null;
@@ -506,7 +506,7 @@ async function buildPdf(opts, bible, onProgress) {
       // Title-page link precedes its testament's books:
       //  • The Holy Bible → before the Old Testament
       //  • The New Testament → before the New Testament books
-      if (book.testament === 'old' && holyBiblePage) writeLinkRow('The Holy Bible', holyBiblePage);
+      if (book.testament === 'old' && holyBiblePage) writeLinkRow('Cover Page', holyBiblePage);
       if (book.testament === 'new' && ntTitlePageNum) writeLinkRow('The New Testament', ntTitlePageNum);
       writeTestament(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT', page);
     }
