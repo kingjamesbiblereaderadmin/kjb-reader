@@ -654,7 +654,9 @@ async function buildText(opts, bible, onProgress, format) {
         if (book.testament === 'new' && scope === 'whole') push('  \u2022 The New Testament');
         push(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT');
       }
+      push('');
       push('  \u2022 ' + nameOf(book));
+      push('');
     });
     push('');
     push('');
