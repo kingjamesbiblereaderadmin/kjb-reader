@@ -170,8 +170,16 @@ export default function BibleReader() {
       window.dispatchEvent(new Event('storage'));
       return;
     }
+    // Picking a normal reading font (Serif/Sans/Mono/Cursive) must turn OFF any
+    // active accessibility font, otherwise the indicator shows the new font but
+    // the app keeps rendering in the accessibility font.
+    if (a11yFont !== 'default') {
+      setAccessibilityFont('default');
+      setA11yFont('default');
+    }
     setFontFamily(font);
     try { localStorage.setItem('kjb-reader-font-family', font); } catch {}
+    window.dispatchEvent(new Event('storage'));
   };
 
   // Map font family values to actual CSS font families
