@@ -999,7 +999,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
       {showVersePanel ? (
         <div className="px-2 pt-2 pb-10 text-center flex-1 flex flex-col w-full max-w-full overflow-hidden">
-          <div className="flex items-center justify-center gap-4 mt-3 mb-8">
+          <div className={`inline-flex self-center items-center justify-center gap-4 mt-3 mb-8 ${hasCustomBg ? 'rounded-full bg-black/25 backdrop-blur-[2px] px-5 py-2' : ''}`}>
             <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
             <p 
               className={`font-sans text-lg md:text-xl font-black tracking-[0.22em] uppercase ${accentClass}`}
@@ -1041,7 +1041,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         </div>
       ) : (
         <div className="px-6 py-4 text-center flex-1 flex flex-col justify-center">
-          <div className="flex items-center justify-center gap-4 mb-6">
+          <div className={`inline-flex self-center items-center justify-center gap-4 mb-6 ${hasCustomBg ? 'rounded-full bg-black/25 backdrop-blur-[2px] px-5 py-2' : ''}`}>
             <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
             <p 
               className={`font-sans text-lg md:text-xl font-black tracking-[0.22em] uppercase ${accentClass}`}
