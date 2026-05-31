@@ -279,14 +279,14 @@
   .kjb-dropcap-letter {
     /* Sized & vertically nudged so the glyph fills the 2-line box (3.25em).
        Using em keeps everything proportional, so it scales with any zoom. */
-    font-size: 3.9em;
+    font-size: 4.4em;
     line-height: 1;
     font-weight: 700;
     color: inherit;
     font-family: 'Cormorant Garamond', 'Merriweather', Georgia, serif;
     /* Pull the glyph down so its cap-top aligns with line 1's cap-top and its
        baseline drops to line 2's baseline (compensates for the font's ascent gap). */
-    margin-top: 0.08em;
+    margin-top: -0.12em;
   }
   /* Verse number sits at the top-left of the group, beside the big letter. */
   .kjb-dropcap-num {
