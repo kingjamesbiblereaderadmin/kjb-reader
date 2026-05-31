@@ -373,10 +373,15 @@ async function buildPdf(opts, bible, onProgress) {
   // ── Collapsible PDF outline bookmarks: Testament ▸ Book ▸ Chapter ──
   // These appear as an expandable tree in the PDF reader's bookmarks/contents panel.
   if (doc.outline?.add) {
+    // Front-matter title pages at the top of the outline panel.
+    doc.outline.add(null, 'The Holy Bible', { pageNumber: holyBiblePage });
+    doc.outline.add(null, 'Contents', { pageNumber: tocStartPage });
+
     let otNode = null, ntNode = null;
     const otFirst = bookPages.find(b => b.book.testament === 'old');
     const ntFirst = bookPages.find(b => b.book.testament === 'new');
     if (otFirst) otNode = doc.outline.add(null, 'THE OLD TESTAMENT', { pageNumber: otFirst.page });
+    if (ntTitlePageNum) doc.outline.add(null, 'The New Testament', { pageNumber: ntTitlePageNum });
     if (ntFirst) ntNode = doc.outline.add(null, 'THE NEW TESTAMENT', { pageNumber: ntFirst.page });
     bookPages.forEach(({ book, page, chapters }) => {
       const parent = book.testament === 'old' ? otNode : ntNode;
