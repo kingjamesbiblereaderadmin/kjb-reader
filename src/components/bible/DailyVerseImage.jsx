@@ -79,10 +79,12 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     };
     window.addEventListener('storage', handleStorage);
     window.addEventListener('focus', handleStorage);
+    window.addEventListener('kjb-fonts-changed', handleStorage);
     handleStorage();
     return () => {
       window.removeEventListener('storage', handleStorage);
       window.removeEventListener('focus', handleStorage);
+      window.removeEventListener('kjb-fonts-changed', handleStorage);
     };
   }, []);
 

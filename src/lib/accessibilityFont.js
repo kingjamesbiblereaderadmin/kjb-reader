@@ -38,8 +38,11 @@ export function setAccessibilityFont(font) {
     }
   } catch {}
   applyAccessibilityFont(font);
-  // Notify same-tab listeners (daily card, reader indicator/popover). A
-  // localStorage write in the same tab does NOT fire a 'storage' event, so we
+  // Notify same-tab listeners (daily card, reader indicator/popover, settings).
+  // A localStorage write in the same tab does NOT fire a 'storage' event, so we
   // dispatch one manually to keep every component's font state in sync.
   try { window.dispatchEvent(new Event('storage')); } catch {}
+  // Also fire a dedicated event so listeners can sync reliably regardless of
+  // whether they're mounted on the same route.
+  try { window.dispatchEvent(new Event('kjb-fonts-changed')); } catch {}
 }

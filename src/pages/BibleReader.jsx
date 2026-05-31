@@ -799,9 +799,11 @@ export default function BibleReader() {
     sync(); // run immediately on mount / when pathname changes
     window.addEventListener('storage', sync);
     window.addEventListener('focus', sync);
+    window.addEventListener('kjb-fonts-changed', sync);
     return () => {
       window.removeEventListener('storage', sync);
       window.removeEventListener('focus', sync);
+      window.removeEventListener('kjb-fonts-changed', sync);
     };
   }, [routerLocation.pathname]);
 
