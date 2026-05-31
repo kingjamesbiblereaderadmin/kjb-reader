@@ -93,13 +93,15 @@ function measureTocPages(doc, pageW, pageH, margin, F = 'times') {
   const gridStartX = margin + 16;
   const gridMaxX = pageW - margin;
 
-  // "TITLE PAGES" section at the top: 1 testament-style header + 3 title rows.
-  advance(8 + 20);            // TITLE PAGES header
-  advance(15); advance(15); advance(15); // Holy Bible, Contents, New Testament
+  advance(34); // "CONTENTS" heading at the top
 
   let lastT = null;
   BIBLE_BOOKS.forEach(book => {
-    if (book.testament !== lastT) { lastT = book.testament; advance(8 + 20); } // testament header
+    if (book.testament !== lastT) {
+      lastT = book.testament;
+      advance(15); // inline title-page link (Holy Bible / New Testament)
+      advance(8 + 20); // testament header
+    }
     advance(15); // book row
     if (book.chapters > 1) {
       // simulate the wrapped chapter grid
@@ -241,18 +243,12 @@ async function buildPdf(opts, bible, onProgress) {
   }
 
   // Track the page numbers of the front-matter title pages so they can be listed
-  // (and linked) in the Contents.
-  const titlePageRefs = [];
+  // (and linked) inline in the Contents.
+  let ntTitlePageNum = 0;
 
   // Whole-Bible title page (page 1)
   const holyBiblePage = doc.internal.getNumberOfPages();
   titlePage(TITLE_WHOLE);
-  titlePageRefs.push({ label: 'The Holy Bible', page: holyBiblePage });
-
-  // Dedicated "CONTENTS" title page (uses the fresh blank page titlePage() left).
-  const contentsTitlePage = doc.internal.getNumberOfPages();
-  titlePage([{ t: 'CONTENTS', size: 34, bold: true }]);
-  titlePageRefs.push({ label: 'Contents', page: contentsTitlePage });
 
   const total = BIBLE_BOOKS.length;
   const tocPagesNeeded = measureTocPages(doc, pageW, pageH, margin, F);
@@ -275,9 +271,8 @@ async function buildPdf(opts, bible, onProgress) {
     const bookData = bible[book.apiName] || {};
 
     if (book.apiName === 'Matthew') {
-      const ntTitlePage = doc.internal.getNumberOfPages();
+      ntTitlePageNum = doc.internal.getNumberOfPages();
       titlePage(TITLE_NT);
-      titlePageRefs.push({ label: 'The New Testament', page: ntTitlePage });
     }
 
     // Start the book on a fresh page WITHOUT a running head (the book title acts
@@ -479,14 +474,20 @@ async function buildPdf(opts, bible, onProgress) {
     ty += 15;
   };
 
-  // Title-page entries at the very top of the Contents listing.
-  writeTestament('TITLE PAGES', titlePageRefs[0]?.page || 1);
-  titlePageRefs.forEach(({ label, page }) => writeLinkRow(label, page));
+  // "CONTENTS" heading at the top of the listing (no separate title page).
+  doc.setFont(F, 'bold'); doc.setFontSize(20);
+  doc.text('CONTENTS', pageW / 2, ty, { align: 'center', baseline: 'top' });
+  ty += 34;
 
   let lastTestament = null;
   bookPages.forEach(({ book, page, chapters }) => {
     if (book.testament !== lastTestament) {
       lastTestament = book.testament;
+      // Title-page link precedes its testament's books:
+      //  • The Holy Bible → before the Old Testament
+      //  • The New Testament → before the New Testament books
+      if (book.testament === 'old') writeLinkRow('The Holy Bible', holyBiblePage);
+      if (book.testament === 'new' && ntTitlePageNum) writeLinkRow('The New Testament', ntTitlePageNum);
       writeTestament(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT', page);
     }
     writeBookRow(book, page);
