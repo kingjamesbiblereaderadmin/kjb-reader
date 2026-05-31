@@ -774,7 +774,14 @@ async function buildRtf(opts, bible, onProgress) {
 }
 
 function fileName(opts, ext) {
-  return `KJB-Bible-${opts.twoColumn ? '2col' : '1col'}-${opts.paragraph ? 'paragraph' : 'line'}.${ext}`;
+  const cols = opts.twoColumn ? '2col' : '1col';
+  const flow = opts.paragraph ? 'paragraph' : 'line';
+  const names = opts.shortNames ? 'short-names' : 'full-names';
+  const extras = [
+    opts.subscripts ? 'subscripts' : null,
+    opts.colophons ? 'colophons' : null,
+  ].filter(Boolean).join('-');
+  return `KJB-Bible-${cols}-${flow}-${names}${extras ? '-' + extras : ''}.${ext}`;
 }
 
 function triggerDownload(blob, name) {
