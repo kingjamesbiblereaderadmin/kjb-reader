@@ -85,16 +85,16 @@ export default function SearchPage() {
       }
       setHighlightTerm(searchTerm);
       
-      // Quoted phrases force exact phrase + whole word on (NOT match case —
-      // case-sensitivity would exclude capitalized instances like "Blood" at
-      // verse starts, undercounting vs standard concordance figures).
-      const effectiveCaseSensitive = caseSensitive;
+      // Quoted phrases force exact phrase + whole word + match case on, so
+      // "Prince" matches only the capitalized form, not "prince".
+      const effectiveCaseSensitive = isQuotedPhrase ? true : caseSensitive;
       const effectiveWholeWord = isQuotedPhrase ? true : wholeWord;
       const effectiveExactMatch = isQuotedPhrase ? true : exactMatch;
       setHighlightCaseSensitive(effectiveCaseSensitive);
       if (isQuotedPhrase) {
         if (!wholeWord) setWholeWord(true);
         if (!exactMatch) setExactMatch(true);
+        if (!caseSensitive) setCaseSensitive(true);
       }
       
       const kwLower = searchTerm.toLowerCase();
