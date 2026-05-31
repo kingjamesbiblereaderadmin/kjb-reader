@@ -51,10 +51,12 @@ export const EXPORT_FONTS = [
     css: "'OpenDyslexic', 'Comic Sans MS', 'Verdana', sans-serif",
     rtf: 'Comic Sans MS',
     embed: {
-      family: 'OpenDyslexic',
-      normal: 'https://cdn.jsdelivr.net/fontsource/fonts/opendyslexic@latest/latin-400-normal.ttf',
-      bold: 'https://cdn.jsdelivr.net/fontsource/fonts/opendyslexic@latest/latin-700-normal.ttf',
-      italic: 'https://cdn.jsdelivr.net/fontsource/fonts/opendyslexic@latest/latin-400-italic.ttf',
+      // OpenDyslexic ships only as a CFF/OpenType font, which jsPDF can't embed.
+      // Lexend is a glyf-based TrueType designed to improve reading proficiency,
+      // so we embed it for the PDF. Word/RTF still name OpenDyslexic (system font).
+      family: 'Lexend',
+      normal: 'https://cdn.jsdelivr.net/fontsource/fonts/lexend@latest/latin-400-normal.ttf',
+      bold: 'https://cdn.jsdelivr.net/fontsource/fonts/lexend@latest/latin-700-normal.ttf',
     },
   },
   {

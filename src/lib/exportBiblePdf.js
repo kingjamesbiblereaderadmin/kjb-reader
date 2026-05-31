@@ -82,8 +82,8 @@ function escapeHtml(s = '') {
 // Simulate the TOC vertical layout to find the EXACT page count needed.
 // Mirrors the spacing used by the real TOC writer (CONTENTS, testament headers,
 // book rows, and chapter-number grids) so no blank pages get reserved.
-function measureTocPages(doc, pageW, pageH, margin) {
-  doc.setFont('times', 'bold');
+function measureTocPages(doc, pageW, pageH, margin, F = 'times') {
+  doc.setFont(F, 'bold');
   let pages = 1;
   let ty = margin + 28; // CONTENTS header
   const advance = (h) => { if (ty + h > pageH - margin) { pages += 1; ty = margin; } ty += h; };
@@ -240,7 +240,7 @@ async function buildPdf(opts, bible, onProgress) {
   // simulating its vertical layout first (mirrors the real TOC writer's spacing
   // below). Over-reserving previously left blank pages between Contents & Genesis.
   const total = BIBLE_BOOKS.length;
-  const tocPagesNeeded = measureTocPages(doc, pageW, pageH, margin);
+  const tocPagesNeeded = measureTocPages(doc, pageW, pageH, margin, F);
   const tocStartPage = doc.internal.getNumberOfPages();
   for (let i = 0; i < tocPagesNeeded; i++) doc.addPage();
 
