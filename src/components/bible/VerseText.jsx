@@ -295,6 +295,27 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   }
 
   // ── LINE MODE (default): each verse is its own line ──
+  // Drop-cap verse 1: render the verse number INLINE before the text (not as a
+  // flex sibling) so it sits beside the first text line, not at the top of the cap.
+  if (dropCap && !selectMode) {
+    return (
+      <span id={id} className="block relative mt-2">
+        <span
+          onClick={() => setSelected(s => !s)}
+          className={`block leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.4em] py-[0.25em] ${!isHighlighted ? 'hover:bg-secondary/60' : ''}`}
+        >
+          {/* Verse number floats next to the drop cap's first text line */}
+          <sup className="text-accent font-sans font-bold text-[0.6em] select-none mr-[0.3em] align-super">{verse.verse}</sup>
+          <span
+            className={`kjb-dropcap leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+            style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
+        </span>
+        {actionPopover}
+      </span>
+    );
+  }
   return (
     <span id={id} className={`block relative ${hasPilcrow && !isFirstVerse ? 'pt-6' : 'mt-2'}`}>
       <span
