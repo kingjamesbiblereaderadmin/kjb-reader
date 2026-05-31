@@ -1041,6 +1041,16 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         </div>
       ) : (
         <div className="px-6 py-4 text-center flex-1 flex flex-col justify-center">
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
+            <p 
+              className={`font-sans text-lg md:text-xl font-black tracking-[0.22em] uppercase ${accentClass}`}
+              style={{ opacity: 1, color: textColor, fontFamily: "'Inter', system-ui, sans-serif", textShadow: '0 2px 10px rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.45)' }}
+            >
+              Verse of the Day
+            </p>
+            <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
+          </div>
           <blockquote 
             className="text-center text-2xl md:text-3xl leading-relaxed [&_em]:italic break-words"
             style={{ 
