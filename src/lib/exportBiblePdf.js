@@ -650,8 +650,8 @@ async function buildText(opts, bible, onProgress, format) {
       if (book.testament !== lastT) {
         lastT = book.testament;
         push('');
-        if (book.testament === coverBeforeTestament) push('  \u2022 Cover Page');
-        if (book.testament === 'new' && scope === 'whole') push('  \u2022 The New Testament');
+        if (book.testament === coverBeforeTestament) { push('  \u2022 Cover Page'); push(''); }
+        if (book.testament === 'new' && scope === 'whole') { push('  \u2022 The New Testament'); push(''); }
         push(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT');
       }
       push('');
