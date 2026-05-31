@@ -227,25 +227,54 @@ async function buildPdf(opts, bible, onProgress) {
     y += gapAfter;
   }
 
-  // Centered line where ONLY [bracketed] words are italic; the rest is roman.
-  // Splits into {text,italic} segments and centers the whole assembled line.
+  // Centered, WRAPPED line where ONLY [bracketed] words are italic; rest roman.
+  // Breaks the segments into words and lays them out line-by-line within the
+  // column, centering each line. Prevents long colophons from overflowing the
+  // column edge (e.g. the Titus / Romans subscriptions in two-column mode).
   function writeCenteredMixed(rawText, { size = bodySize, gapAfter = 4 } = {}) {
     doc.setFontSize(size);
     const segs = toSegments(rawText); // keeps brackets as italic segments
-    // Measure total width to center
-    const measure = () => segs.reduce((w, s) => {
-      doc.setFont(F, s.italic ? 'italic' : 'normal');
-      return w + doc.getTextWidth(s.text);
-    }, 0);
-    ensureSpace(size + 4);
-    let lineW = measure();
-    let x = colX() + (colWidth - lineW) / 2;
+    const spaceW = () => { doc.setFont(F, 'normal'); return doc.getTextWidth(' '); };
+
+    // Flatten to a word stream, each word carrying its italic flag.
+    const words = [];
     segs.forEach(s => {
-      doc.setFont(F, s.italic ? 'italic' : 'normal');
-      doc.text(s.text, x, y, { baseline: 'top' });
-      x += doc.getTextWidth(s.text);
+      s.text.split(/(\s+)/).filter(w => w.length).forEach(w => {
+        if (/^\s+$/.test(w)) return;
+        words.push({ w, italic: s.italic });
+      });
     });
-    y += size + 3.5 + gapAfter;
+
+    // Greedily group words into lines that fit colWidth.
+    const lines = [];
+    let line = [];
+    let lineW = 0;
+    words.forEach(word => {
+      doc.setFont(F, word.italic ? 'italic' : 'normal');
+      const ww = doc.getTextWidth(word.w);
+      const add = (line.length ? spaceW() : 0) + ww;
+      if (line.length && lineW + add > colWidth) {
+        lines.push({ words: line, width: lineW });
+        line = []; lineW = 0;
+      }
+      line.push(word);
+      lineW += (line.length > 1 ? spaceW() : 0) + ww;
+    });
+    if (line.length) lines.push({ words: line, width: lineW });
+
+    // Render each line centered within the column.
+    lines.forEach(ln => {
+      ensureSpace(size + 4);
+      let x = colX() + (colWidth - ln.width) / 2;
+      ln.words.forEach((word, i) => {
+        if (i > 0) { doc.setFont(F, 'normal'); x += spaceW(); }
+        doc.setFont(F, word.italic ? 'italic' : 'normal');
+        doc.text(word.w, x, y, { baseline: 'top' });
+        x += doc.getTextWidth(word.w);
+      });
+      y += size + 3.5;
+    });
+    y += gapAfter;
   }
 
   // Track the page numbers of the front-matter title pages so they can be listed
