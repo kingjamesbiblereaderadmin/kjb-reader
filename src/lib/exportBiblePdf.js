@@ -4,6 +4,7 @@ import { getBibleData } from '@/lib/bibleCache';
 import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
 import { mergeAdjacentBrackets } from '@/lib/bibleApi';
 import { getExportFont } from '@/lib/exportFonts';
+import { embedPdfFont } from '@/lib/embedPdfFont';
 
 // ── Title page text blocks (mirrors components/bible/TitlePage) ──
 const TITLE_WHOLE = [
@@ -116,8 +117,13 @@ function measureTocPages(doc, pageW, pageH, margin) {
 // ─────────────────────────────────────────────────────────────
 async function buildPdf(opts, bible, onProgress) {
   const { twoColumn, paragraph, subscripts, colophons } = opts;
-  const F = getExportFont(opts.font).pdf; // PDF font family (times/helvetica/courier)
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  // Resolve the PDF font. Decorative fonts (cursive/dyslexic/legible) are real
+  // TTFs embedded into the doc; standard fonts use jsPDF built-ins. On any
+  // failure this falls back to a built-in so the export still works.
+  const fontDef = getExportFont(opts.font);
+  if (fontDef.embed) onProgress(3, `Loading ${fontDef.label} font…`);
+  const F = await embedPdfFont(doc, fontDef);
   const pageW = doc.internal.pageSize.getWidth();
   const pageH = doc.internal.pageSize.getHeight();
   const margin = 40, gutter = 18;
