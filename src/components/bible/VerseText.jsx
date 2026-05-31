@@ -313,6 +313,10 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // Drop-cap verse 1: number sits beside the first text line; the big first
   // letter is wrapped (kjb-dropcap-letter) and floats left within the text.
   if (dropCap && !selectMode) {
+    // Indent the wrapped text lines of verse 1 so they align with the text
+    // column of verse 2 onward (which sits right of the verse-number column).
+    // The floated drop-cap group is pulled back left so the big letter + number
+    // still begin at the true left margin.
     return (
       <span id={id} className="block relative mt-2" style={{ display: 'flow-root' }}>
         <span
@@ -321,8 +325,8 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           style={{ display: 'flow-root' }}
         >
           <span
-            className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
-            style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
+            className={`block leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left [&_.kjb-dropcap-group]:-ml-[1.5em] ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+            style={{ paddingLeft: '1.5em', ...(isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle) }}
             dangerouslySetInnerHTML={{ __html: html }}
           />
         </span>
