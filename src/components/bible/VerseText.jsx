@@ -4,6 +4,7 @@ import { Copy, Share2, X, Highlighter, ChevronDown, Bookmark, BookmarkCheck, Che
 import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { formatVerseShare, buildVerseUrl, withExtras } from '@/lib/formatDailyVerse';
+import VersePopover from '@/components/bible/VersePopover';
 
 export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, subscript = null, isCursive = false, fontFamilyValue = null, zoomLevel = 100, hasSubscript = false, searchTerm = null, dropCap = false, columnMode = false }) {
   const bookEntry = BIBLE_BOOKS.find(b => b.abbr === abbr);
@@ -52,7 +53,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
       ? highlightColors.find(c => c.name === highlightColor)?.color
       : null;
     const letterStyle = dropHighlight
-      ? ` style="background-color:${dropHighlight}59;border-radius:0.1em;color:#ffffff;"`
+      ? ` style="background-color:${dropHighlight};border-radius:0.1em;color:#ffffff;"`
       : '';
     html = html.replace(
       /([A-Za-z])/,
@@ -165,7 +166,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setSelected(false); }}
         onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setSelected(false); }}
       />
-      <div className="absolute left-2 sm:left-auto sm:right-0 top-full mt-1.5 z-50 w-max max-w-[calc(100vw-1rem)] inline-flex flex-wrap items-center justify-start gap-1.5 bg-card border border-border rounded-xl shadow-xl px-2.5 py-2">
+      <VersePopover>
         <div className="relative">
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setShowColorPicker(!showColorPicker); }}
@@ -282,7 +283,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         >
           <X className="w-3 h-3" />
         </button>
-      </div>
+      </VersePopover>
     </>
   );
 
