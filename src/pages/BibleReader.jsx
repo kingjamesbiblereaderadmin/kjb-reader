@@ -787,20 +787,23 @@ export default function BibleReader() {
     };
   }, [loading, isViewingTitlePage, pos.abbr, pos.chapter]);
 
-  // Keep zoom + font in sync if changed elsewhere (e.g. Settings) after reload
+  // Keep zoom + font in sync if changed elsewhere (e.g. Settings, daily card)
+  // after reload, on focus, on storage events, AND whenever this route becomes
+  // active (so a font picked on Home's daily card is reflected here immediately).
   useEffect(() => {
     const sync = () => {
       try { setZoomLevel(parseInt(localStorage.getItem('kjb-zoom') || '100')); } catch {}
       try { setFontFamily(localStorage.getItem('kjb-reader-font-family') || 'serif'); } catch {}
       try { setA11yFont(getAccessibilityFont()); } catch {}
     };
+    sync(); // run immediately on mount / when pathname changes
     window.addEventListener('storage', sync);
     window.addEventListener('focus', sync);
     return () => {
       window.removeEventListener('storage', sync);
       window.removeEventListener('focus', sync);
     };
-  }, []);
+  }, [routerLocation.pathname]);
 
   // Refresh search navigation context when returning from another page (e.g. SearchPage)
   useEffect(() => {
