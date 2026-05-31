@@ -215,6 +215,19 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   // Returns a PNG blob. The card uses the default gradient design always.
   const captureShareCard = async () => {
     const el = shareCardRef.current;
+    // Wait for the logo <img> (data URL) to actually decode so it appears in
+    // the snapshot instead of an empty placeholder box.
+    const imgs = Array.from(el.querySelectorAll('img'));
+    await Promise.all(imgs.map(img => (
+      img.complete && img.naturalWidth > 0
+        ? Promise.resolve()
+        : new Promise(res => {
+            const done = () => res();
+            img.onload = done;
+            img.onerror = done;
+            setTimeout(done, 2000);
+          })
+    )));
     const canvas = await html2canvas(el, { backgroundColor: null, scale: 1, useCORS: true });
     return await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
   };
