@@ -189,31 +189,38 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const [capturing, setCapturing] = useState(false);
   const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png';
   const [logoDataUrl, setLogoDataUrl] = useState('');
+  const logoDataUrlRef = useRef('');
 
-  // Pre-fetch the logo as a same-origin data URL once, so html2canvas can
-  // render it without tainting the canvas (which would break capture).
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch(LOGO_URL, { mode: 'cors' });
-        const blob = await res.blob();
-        const dataUrl = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.readAsDataURL(blob);
-        });
-        if (!cancelled) setLogoDataUrl(dataUrl);
-      } catch {
-        // If the logo can't be fetched, the card just renders without it.
-      }
-    })();
-    return () => { cancelled = true; };
-  }, []);
+  // Fetch the logo as a same-origin data URL so html2canvas can render it
+  // without tainting the canvas. Returns the data URL (and caches it).
+  const fetchLogoDataUrl = async () => {
+    if (logoDataUrlRef.current) return logoDataUrlRef.current;
+    try {
+      const res = await fetch(LOGO_URL, { mode: 'cors', cache: 'force-cache' });
+      const blob = await res.blob();
+      const dataUrl = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+      });
+      logoDataUrlRef.current = dataUrl;
+      setLogoDataUrl(dataUrl);
+      return dataUrl;
+    } catch {
+      return '';
+    }
+  };
+
+  // Pre-fetch on mount so the card usually already has it.
+  useEffect(() => { fetchLogoDataUrl(); }, []);
 
   // Capture the fixed 1024×1024 ShareCard (used for download + share/copy).
   // Returns a PNG blob. The card uses the default gradient design always.
   const captureShareCard = async () => {
+    // Guarantee the logo is available as a same-origin data URL before capture.
+    await fetchLogoDataUrl();
+    // Give React a tick to render the <img> with the data URL src.
+    await new Promise(r => setTimeout(r, 50));
     const el = shareCardRef.current;
     // Wait for the logo <img> (data URL) to actually decode so it appears in
     // the snapshot instead of an empty placeholder box.
