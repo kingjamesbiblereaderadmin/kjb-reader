@@ -49,11 +49,17 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     // When highlighted, tint the big letter with the active highlight colour so
     // the highlight visually covers it (the float sits outside the parent's
     // inline background box, so it needs its own background).
-    const dropHighlight = showHighlight
+    // Match the verse text highlight exactly: ~40% translucent tint, normal text colour.
+    // Default "accent" uses the CSS var with 0.4 alpha; named colours use their 6-digit
+    // hex + "66" (≈40%) alpha suffix so the drop cap tint equals the rest of the verse.
+    const dropRaw = showHighlight
       ? highlightColors.find(c => c.name === highlightColor)?.color
       : null;
+    const dropHighlight = dropRaw
+      ? (dropRaw.startsWith('#') ? `${dropRaw}66` : `hsl(var(--accent) / 0.4)`)
+      : null;
     const letterStyle = dropHighlight
-      ? ` style="background-color:${dropHighlight};border-radius:0.1em;color:#ffffff;"`
+      ? ` style="background-color:${dropHighlight};border-radius:0.1em;"`
       : '';
     html = html.replace(
       /([A-Za-z])/,
