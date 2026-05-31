@@ -25,8 +25,8 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
   };
 
   return (
-    <div className="bg-card rounded-2xl shadow-2xl overflow-hidden w-[95vw] max-w-md max-h-[80vh] flex flex-col">
-      <div className="overflow-y-auto flex-1 p-3 pb-6 space-y-1">
+    <div className="bg-card rounded-2xl shadow-2xl overflow-hidden w-[95vw] max-w-md max-h-[70vh] flex flex-col">
+      <div className="overflow-y-auto flex-1 p-3 pb-6 space-y-1 overscroll-contain">
         {/* Title Page - Above Old Testament */}
         <button
           onClick={() => { onSelect({ abbr: 'GEN', name: 'Genesis', chapters: 50, shortName: 'Gen' }, true, false); onClose(); }}
