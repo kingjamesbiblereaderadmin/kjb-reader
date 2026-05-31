@@ -283,9 +283,25 @@ async function buildPdf(opts, bible, onProgress) {
       writeCentered('THE END.', { size: 12, font: 'bold', gapAfter: 6 });
     }
 
+    // Record the last page this book occupies (for per-book page footers)
+    bookPages[bookPages.length - 1].endPage = doc.internal.getNumberOfPages();
+
     onProgress(Math.round(((bi + 1) / total) * 90) + 5, `Adding ${book.shortName}… (${bi + 1}/${total})`);
     await new Promise(r => setTimeout(r, 0));
   }
+
+  // ── Per-book page footers: "page X of Y" centered at the bottom of every
+  //    scripture page, where X is the page within the book and Y the book total. ──
+  bookPages.forEach(({ book, page, endPage }) => {
+    const totalInBook = endPage - page + 1;
+    for (let p = page; p <= endPage; p++) {
+      const within = p - page + 1;
+      doc.setPage(p);
+      doc.setFont('times', 'normal');
+      doc.setFontSize(8);
+      doc.text(`${within} of ${totalInBook}`, pageW / 2, pageH - margin + 14, { align: 'center', baseline: 'top' });
+    }
+  });
 
   // ── Collapsible PDF outline bookmarks: Testament ▸ Book ▸ Chapter ──
   // These appear as an expandable tree in the PDF reader's bookmarks/contents panel.
