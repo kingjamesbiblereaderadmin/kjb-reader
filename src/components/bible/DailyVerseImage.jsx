@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
 import { renderVerseText } from '@/lib/bibleApi';
 import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2, ChevronsDown, MoreVertical, Trash2, Image, Copy, Crop, RotateCcw } from 'lucide-react';
 import html2canvas from 'html2canvas';
@@ -187,61 +188,28 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const verseRef = useRef(null);
   const shareCardRef = useRef(null);
   const [capturing, setCapturing] = useState(false);
-  const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png';
-  const [logoDataUrl, setLogoDataUrl] = useState('');
-  const logoDataUrlRef = useRef('');
+  const [logoDataUrl, setLogoDataUrl] = useState(() => {
+    try { return localStorage.getItem('kjb-logo-base64') || ''; } catch { return ''; }
+  });
+  const logoDataUrlRef = useRef(logoDataUrl);
 
-  // Convert the logo to a same-origin data URL so html2canvas can render it
-  // without tainting the canvas. Try fetch() first, then fall back to an
-  // <img> + canvas (works whenever the CDN sends CORS headers).
+  // Get the real app PNG as a base64 data URL via the backend function (no CORS,
+  // always same-origin). Cached in localStorage so we only fetch once.
   const fetchLogoDataUrl = async () => {
     if (logoDataUrlRef.current) return logoDataUrlRef.current;
-
-    const store = (dataUrl) => {
-      logoDataUrlRef.current = dataUrl;
-      setLogoDataUrl(dataUrl);
-      return dataUrl;
-    };
-
-    // 1) fetch → blob → data URL
     try {
-      const res = await fetch(LOGO_URL, { mode: 'cors' });
-      if (res.ok) {
-        const blob = await res.blob();
-        const dataUrl = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        });
-        return store(dataUrl);
+      const res = await base44.functions.invoke('fetchLogoBase64', {});
+      const dataUrl = res?.data?.dataUrl;
+      if (dataUrl) {
+        logoDataUrlRef.current = dataUrl;
+        setLogoDataUrl(dataUrl);
+        try { localStorage.setItem('kjb-logo-base64', dataUrl); } catch {}
+        return dataUrl;
       }
     } catch (err) {
-      console.warn('[ShareCard] logo fetch failed, trying img fallback', err);
+      console.warn('[ShareCard] logo fetch failed', err);
     }
-
-    // 2) <img crossOrigin> → canvas → data URL
-    try {
-      const dataUrl = await new Promise((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = () => {
-          try {
-            const c = document.createElement('canvas');
-            c.width = img.naturalWidth;
-            c.height = img.naturalHeight;
-            c.getContext('2d').drawImage(img, 0, 0);
-            resolve(c.toDataURL('image/png'));
-          } catch (e) { reject(e); }
-        };
-        img.onerror = reject;
-        img.src = LOGO_URL;
-      });
-      return store(dataUrl);
-    } catch (err) {
-      console.warn('[ShareCard] logo img fallback failed', err);
-      return '';
-    }
+    return '';
   };
 
   // Pre-fetch on mount so the card usually already has it.

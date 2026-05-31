@@ -86,9 +86,17 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc }, ref) {
       />
 
       <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '64px 72px' }}>
-        {/* Logo top-left — always-embedded inline SVG (no URL, no CORS, no fetch). */}
+        {/* Logo top-left — real app PNG (base64) when available, else inline SVG. */}
         <div style={{ position: 'absolute', top: '64px', left: '48px' }}>
-          <ShareCardLogo size={104} />
+          {logoSrc ? (
+            <img
+              src={logoSrc}
+              alt="KJB Reader"
+              style={{ width: '104px', height: '104px', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.3)' }}
+            />
+          ) : (
+            <ShareCardLogo size={104} />
+          )}
         </div>
 
         {/* VERSE OF THE DAY header with gradient side rules */}
