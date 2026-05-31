@@ -77,9 +77,19 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       try { setShowVersePanel(localStorage.getItem('kjb-verse-panel-visible') !== 'false'); } catch {}
       setPendingBg(null);
     };
+    // On focus, only re-sync the font prefs (NOT pendingBg, which would wipe an
+    // in-progress crop). Keeps the accessibility font in sync when enabled elsewhere.
+    const handleFocus = () => {
+      try { setFontFamily(localStorage.getItem('kjb-verse-font-family') || 'serif'); } catch {}
+      try { setA11yFont(getAccessibilityFont()); } catch {}
+    };
     window.addEventListener('storage', handleStorage);
+    window.addEventListener('focus', handleFocus);
     handleStorage();
-    return () => window.removeEventListener('storage', handleStorage);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
 
   // Prevent body scroll when lightbox is open
