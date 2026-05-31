@@ -1,6 +1,5 @@
 import React from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
-import ShareCardLogo from './ShareCardLogo';
 
 // Fixed 1024×1024 square card used ONLY for the shared/downloaded image.
 // Style: vertical blue→purple gradient, logo top-left, "VERSE OF THE DAY"
@@ -87,17 +86,14 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
       />
 
       <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '64px 72px' }}>
-        {/* Logo top-left — real app PNG (base64) when available, else inline SVG. */}
+        {/* Logo top-left — the real app logo (base64 data URL or direct URL). */}
         <div style={{ position: 'absolute', top: '64px', left: '48px' }}>
-          {logoSrc ? (
-            <img
-              src={logoSrc}
-              alt="KJB Reader"
-              style={{ width: '104px', height: '104px', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.3)' }}
-            />
-          ) : (
-            <ShareCardLogo size={104} />
-          )}
+          <img
+            src={logoSrc || LOGO_URL}
+            alt="KJB Reader"
+            crossOrigin="anonymous"
+            style={{ width: '104px', height: '104px', objectFit: 'contain', borderRadius: '16px', boxShadow: '0 4px 14px rgba(0,0,0,0.3)' }}
+          />
         </div>
 
         {/* VERSE OF THE DAY header with gradient side rules */}
@@ -145,18 +141,18 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
         {/* Date badge — clean dark-purple pill */}
         <div
           style={{
-            display: 'flex',
+            display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
             background: '#2A1750',
-            borderRadius: '16px',
-            height: '84px',
-            padding: '0 48px',
+            border: '1px solid rgba(255,255,255,0.12)',
+            borderRadius: '18px',
+            padding: '20px 48px',
             marginBottom: '56px',
             boxShadow: '0 8px 22px rgba(0,0,0,0.35)',
           }}
         >
-          <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '40px', fontWeight: 700, lineHeight: '40px', letterSpacing: '0.04em', color: '#ffffff' }}>
+          <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '40px', fontWeight: 700, lineHeight: 1, letterSpacing: '0.04em', color: '#ffffff' }}>
             {dateStr}
           </span>
         </div>
