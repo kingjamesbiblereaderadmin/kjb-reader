@@ -304,7 +304,8 @@ async function buildPdf(opts, bible, onProgress) {
         });
         flush();
       } else {
-        verses.forEach(v => {
+        verses.forEach((v, idx) => {
+          if (idx > 0 && hasPilcrow(v.text)) y += 6; // gap above new-paragraph verses
           writeSegments([{ text: `${v.verse} `, italic: false }, ...toSegments(v.text)]);
           y += 1;
         });
@@ -573,7 +574,11 @@ async function buildText(opts, bible, onProgress, format) {
         });
         flush();
       } else {
-        verses.forEach(v => push(`${v.verse} ${plainText(v.text, keepBrackets)}`));
+        verses.forEach((v, idx) => {
+          // Blank line above verses that begin a new paragraph (pilcrow)
+          if (idx > 0 && hasPilcrow(v.text)) push(isDocx ? '<p style="margin:0"></p>' : '');
+          push(`${v.verse} ${plainText(v.text, keepBrackets)}`);
+        });
       }
 
       if (colophons) {
@@ -730,7 +735,11 @@ async function buildRtf(opts, bible, onProgress) {
         });
         flush();
       } else {
-        verses.forEach(v => para(`{\\b ${v.verse}} ${rtfInline(v.text)}`));
+        verses.forEach((v, idx) => {
+          // Extra space above verses that begin a new paragraph (pilcrow)
+          const sb = idx > 0 && hasPilcrow(v.text) ? 120 : 0;
+          para(`{\\b ${v.verse}} ${rtfInline(v.text)}`, { sb });
+        });
       }
 
       if (colophons) {
