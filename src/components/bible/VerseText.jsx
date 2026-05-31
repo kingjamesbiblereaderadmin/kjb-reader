@@ -52,7 +52,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
       ? highlightColors.find(c => c.name === highlightColor)?.color
       : null;
     const letterStyle = dropHighlight
-      ? ` style="background-color:${dropHighlight};border-radius:0.15em;opacity:0.4;"`
+      ? ` style="background-color:${dropHighlight};border-radius:0.1em;opacity:0.35;"`
       : '';
     html = html.replace(
       /([A-Za-z])/,
