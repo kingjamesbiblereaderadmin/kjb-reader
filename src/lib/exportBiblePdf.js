@@ -771,7 +771,10 @@ async function buildRtf(opts, bible, onProgress) {
 }
 
 function fileName(opts, ext) {
-  return `KJB-Bible-${opts.twoColumn ? '2col' : '1col'}-${opts.paragraph ? 'paragraph' : 'line'}.${ext}`;
+  const cols = opts.twoColumn ? '2col' : '1col';
+  const flow = opts.paragraph ? 'paragraph' : 'line';
+  const names = opts.shortNames ? 'short-names' : 'full-names';
+  return `KJB-Bible-${cols}-${flow}-${names}.${ext}`;
 }
 
 function triggerDownload(blob, name) {
