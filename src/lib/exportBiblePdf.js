@@ -716,7 +716,15 @@ async function buildText(opts, bible, onProgress, format) {
 
       if (paragraph) {
         let buffer = '';
-        const flush = () => { if (buffer.trim()) push(buffer.trim()); buffer = ''; };
+        let wroteFirst = false;
+        const flush = () => {
+          if (buffer.trim()) {
+            if (wroteFirst && !isDocx) push(''); // blank line between paragraphs (TXT)
+            push(buffer.trim());
+            wroteFirst = true;
+          }
+          buffer = '';
+        };
         verses.forEach((v, idx) => {
           if (idx > 0 && hasPilcrow(v.text)) flush();
           buffer += `${v.verse} ${plainText(v.text, keepBrackets)}  `;
