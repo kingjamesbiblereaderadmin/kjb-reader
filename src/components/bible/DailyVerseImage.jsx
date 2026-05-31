@@ -1101,7 +1101,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
           </div>
           <blockquote 
-            className="text-center text-2xl md:text-3xl leading-relaxed [&_em]:italic break-words"
+            className={`text-center leading-relaxed [&_em]:italic break-words ${fontFamily === 'cursive' ? 'text-4xl md:text-5xl' : 'text-2xl md:text-3xl'}`}
             style={{ 
               color: textColor, 
               opacity: textOpacity, 
