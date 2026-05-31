@@ -191,8 +191,10 @@ async function buildPdf(opts, bible, onProgress) {
 
     if (book.apiName === 'Matthew') titlePage(TITLE_NT);
 
-    // Set the running header to this book's full name, then start a fresh page
-    runningHead = book.name;
+    // Start the book on a fresh page WITHOUT a running head (the book title acts
+    // as the heading here). Enable the running head afterwards so it appears on
+    // every subsequent page of the book.
+    runningHead = '';
     newPage();
     const startPage = doc.internal.getNumberOfPages();
     const chapterPages = [];
@@ -202,6 +204,9 @@ async function buildPdf(opts, bible, onProgress) {
     const titleLines = doc.splitTextToSize(book.name, colWidth);
     titleLines.forEach(ln => { doc.text(ln, colX() + colWidth / 2, y, { align: 'center', baseline: 'top' }); y += 18; });
     y += 8;
+
+    // From now on, new pages within this book carry the full book name header.
+    runningHead = book.name;
 
     for (let ch = 1; ch <= book.chapters; ch++) {
       let verses = bookData[ch] || [];
@@ -519,8 +524,10 @@ async function buildRtf(opts, bible, onProgress) {
   // can't change mid-doc. Instead we emit a per-section header using \sectd.
   // Simplest reliable approach: a header band with the book name, reset per book
   // by starting a new section (\sect) before each book.
+  // \titlepg + empty \headerf suppresses the header on the section's FIRST page
+  // (the book-title page), while \header shows it on every subsequent page.
   const headerFor = (bookName) =>
-    `{\\header \\pard\\qc\\fs18\\i ${rtfEscape(bookName)}\\i0\\par}`;
+    `\\titlepg{\\headerf \\pard\\par}{\\header \\pard\\qc\\fs18\\i ${rtfEscape(bookName)}\\i0\\par}`;
 
   // Front matter (title + contents) — its own headerless section
   lines.push('\\sectd ');
