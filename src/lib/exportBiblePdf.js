@@ -311,9 +311,26 @@ async function buildPdf(opts, bible, onProgress) {
   const writeBookRow = (book, page) => {
     ensureTocSpace(16);
     doc.setFont('times', 'bold'); doc.setFontSize(10.5);
-    doc.textWithLink(`\u2022  ${book.name}`, margin + 6, ty, { pageNumber: page });
-    doc.text(String(page), pageW - margin, ty, { align: 'right' });
-    ty += 14;
+    const label = `\u2022  ${book.name}`;
+    const pageStr = String(page);
+    const labelX = margin + 6;
+    const pageX = pageW - margin;
+    // Book name (clickable) on the left
+    doc.textWithLink(label, labelX, ty, { pageNumber: page });
+    // Right-aligned page number
+    doc.text(pageStr, pageX, ty, { align: 'right' });
+    // Dotted leader filling the gap between the title and the page number
+    const labelW = doc.getTextWidth(label);
+    const pageW2 = doc.getTextWidth(pageStr);
+    const dotsStart = labelX + labelW + 6;
+    const dotsEnd = pageX - pageW2 - 6;
+    if (dotsEnd > dotsStart) {
+      doc.setFont('times', 'normal');
+      const dotW = doc.getTextWidth('.');
+      const count = Math.floor((dotsEnd - dotsStart) / dotW);
+      if (count > 0) doc.text('.'.repeat(count), dotsStart, ty);
+    }
+    ty += 15;
   };
 
   // Render chapter numbers as a wrapped grid of clickable cells under each book
