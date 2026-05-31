@@ -398,12 +398,14 @@ async function buildPdf(opts, bible, onProgress) {
     if (otFirst) otNode = doc.outline.add(null, 'THE OLD TESTAMENT', { pageNumber: otFirst.page });
     if (ntTitlePageNum) doc.outline.add(null, 'The New Testament', { pageNumber: ntTitlePageNum });
     if (ntFirst) ntNode = doc.outline.add(null, 'THE NEW TESTAMENT', { pageNumber: ntFirst.page });
-    bookPages.forEach(({ book, page, chapters }) => {
+    // One bookmark per book (linking to its start page) — NO per-chapter nodes.
+    // With 1,189 chapters, a node per chapter bloated the outline tree so much
+    // that PDF readers couldn't scroll to the last books. Book-level entries
+    // keep the tree compact (~70 entries) and fully scrollable. Chapter links
+    // still live in the printed Contents pages.
+    bookPages.forEach(({ book, page }) => {
       const parent = book.testament === 'old' ? otNode : ntNode;
-      const bookNode = doc.outline.add(parent, book.shortName, { pageNumber: page });
-      chapters.forEach(({ ch, page: chPage }) => {
-        doc.outline.add(bookNode, `Chapter ${ch}`, { pageNumber: chPage });
-      });
+      doc.outline.add(parent, book.shortName, { pageNumber: page });
     });
   }
 
