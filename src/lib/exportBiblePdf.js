@@ -213,7 +213,8 @@ async function buildPdf(opts, bible, onProgress) {
         const last = verses[verses.length - 1];
         verses = [...verses.slice(0, -1), { ...last, text: stripEndMarker(last.text) }];
       }
-      ensureSpace(28);
+      ensureSpace(34);
+      if (ch > 1 && !atPageTop()) y += 12; // breathing room before each new chapter
       chapterPages.push({ ch, page: doc.internal.getNumberOfPages() });
       doc.setFont('times', 'bold'); doc.setFontSize(11);
       doc.text(`Chapter ${ch}`, colX() + colWidth / 2, y, { align: 'center', baseline: 'top' });
@@ -419,8 +420,11 @@ async function buildText(opts, bible, onProgress, format) {
         const last = verses[verses.length - 1];
         verses = [...verses.slice(0, -1), { ...last, text: stripEndMarker(last.text) }];
       }
-      push('');
-      push(`Chapter ${ch}`, 'h2');
+      if (isDocx) {
+        out.push(`<p style="text-align:center;margin-top:18px"><b>Chapter ${ch}</b></p>`);
+      } else {
+        push(''); push(''); push(`Chapter ${ch}`); push('');
+      }
 
       if (subscripts) {
         const sub = SUBSCRIPTS[`${book.apiName}:${ch}`];
@@ -565,7 +569,7 @@ async function buildRtf(opts, bible, onProgress) {
         const last = verses[verses.length - 1];
         verses = [...verses.slice(0, -1), { ...last, text: stripEndMarker(last.text) }];
       }
-      para(`Chapter ${ch}`, { center: true, bold: true, size: 22 });
+      para(`Chapter ${ch}`, { center: true, bold: true, size: 22, sb: 240, sa: 120 });
 
       if (subscripts) {
         const sub = SUBSCRIPTS[`${book.apiName}:${ch}`];
