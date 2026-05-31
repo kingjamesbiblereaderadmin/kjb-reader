@@ -244,6 +244,13 @@ async function buildPdf(opts, bible, onProgress) {
   const tocPagesNeeded = measureTocPages(doc, pageW, pageH, margin, F);
   const tocStartPage = doc.internal.getNumberOfPages();
   for (let i = 0; i < tocPagesNeeded; i++) doc.addPage();
+  // Genesis must begin on a brand-new page right after the reserved TOC pages.
+  // Reset the layout cursor as "mid-page" so the first book's `if (!atPageTop())
+  // newPage()` reliably adds exactly ONE page (no extra blank gap, no overwrite
+  // of the last reserved TOC page).
+  runningHead = '';
+  col = 0;
+  y = pageH; // force atPageTop() === false → exactly one newPage() for Genesis
 
   // Track where each book begins (+ each chapter) for the TOC + PDF outline bookmarks
   const bookPages = []; // { book, page, chapters: [{ ch, page }] }
