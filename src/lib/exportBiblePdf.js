@@ -273,7 +273,12 @@ async function buildText(opts, bible, onProgress, format) {
   onProgress(98, 'Saving file…');
   let blob, name;
   if (isDocx) {
-    const html = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>KJB</title></head><body style="font-family:'Times New Roman',serif;font-size:11pt;">${out.join('\n')}</body></html>`;
+    // Word reads @page section CSS for column count — emit 2 cols when requested.
+    const colCss = opts.twoColumn
+      ? '@page Section1 { columns: 2; column-gap: 24px; } div.Section1 { -webkit-column-count: 2; column-count: 2; column-gap: 24px; }'
+      : '@page Section1 {} div.Section1 {}';
+    const body = `<div class="Section1">${out.join('\n')}</div>`;
+    const html = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>KJB</title><style>${colCss}</style></head><body style="font-family:'Times New Roman',serif;font-size:11pt;">${body}</body></html>`;
     blob = new Blob(['\ufeff', html], { type: 'application/msword' });
     name = fileName(opts, 'doc');
   } else {

@@ -68,8 +68,8 @@ export default function DownloadBibleSection() {
         )}
       </div>
 
-      {/* Column layout — PDF only */}
-      {format === 'pdf' && (
+      {/* Column layout — PDF & Word */}
+      {(format === 'pdf' || format === 'docx') && (
         <div className="space-y-2">
           <p className="font-sans text-sm font-medium text-foreground">Columns</p>
           <div className="flex gap-2">
