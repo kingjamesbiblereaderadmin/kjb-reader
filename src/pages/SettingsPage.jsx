@@ -105,6 +105,44 @@ export default function SettingsPage() {
     { value: 'cursive', label: 'Cursive' },
   ];
 
+  // Accessibility fonts that also appear in every font picker (reader, daily
+  // card, settings). Choosing one applies it app-wide via setAccessibilityFont,
+  // so all pickers stay in sync. Picking a normal font turns it back off.
+  const A11Y_FONT_OPTIONS = [
+    { value: 'dyslexic', label: 'Dyslexic' },
+    { value: 'hyperlegible', label: 'Legible' },
+  ];
+
+  // Unified font-pick handler for the reader font: normal fonts write
+  // kjb-reader-font-family and clear any a11y font; dyslexic/hyperlegible set
+  // the app-wide accessibility font. Mirrors the reader & daily card exactly.
+  const pickReaderFont = (value) => {
+    if (value === 'dyslexic' || value === 'hyperlegible') {
+      setA11yFont(value);
+      setAccessibilityFont(value);
+      return;
+    }
+    if (a11yFont !== 'default') { setA11yFont('default'); setAccessibilityFont('default'); }
+    setReaderFontFamily(value);
+    try { localStorage.setItem('kjb-reader-font-family', value); } catch {}
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new Event('kjb-fonts-changed'));
+  };
+
+  // Same for the daily-verse font picker.
+  const pickVerseFont = (value) => {
+    if (value === 'dyslexic' || value === 'hyperlegible') {
+      setA11yFont(value);
+      setAccessibilityFont(value);
+      return;
+    }
+    if (a11yFont !== 'default') { setA11yFont('default'); setAccessibilityFont('default'); }
+    setVerseFontFamily(value);
+    try { localStorage.setItem('kjb-verse-font-family', value); } catch {}
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new Event('kjb-fonts-changed'));
+  };
+
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
@@ -396,53 +434,35 @@ export default function SettingsPage() {
         <p className="font-sans text-sm text-foreground font-medium">Font Family</p>
         </div>
         {a11yFont !== 'default' && (
-          <>
-            <p className="font-sans text-xs text-muted-foreground -mt-1 leading-snug">
-              Accessibility font is on — it overrides this. Disable it in the Accessibility section to choose a reading font.
-            </p>
-            <button
-              onClick={() => {
-                setExpandedSections(prev => ({ ...prev, accessibility: true }));
-                setTimeout(() => document.getElementById('kjb-accessibility-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
-              }}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
-            >
-              <Accessibility className="w-4 h-4" />
-              Go to Accessibility Settings
-            </button>
-          </>
+          <p className="font-sans text-xs text-muted-foreground -mt-1 leading-snug">
+            An accessibility font is on (it applies across the whole app). Pick a reading font below to switch back.
+          </p>
         )}
         <div className="flex flex-col gap-2">
-        {a11yFont === 'default' && VERSE_FONTS.map(font => (
+        {[...VERSE_FONTS, ...A11Y_FONT_OPTIONS].map(font => {
+          const isA11yChoice = font.value === 'dyslexic' || font.value === 'hyperlegible';
+          const isActive = a11yFont !== 'default' ? a11yFont === font.value : readerFontFamily === font.value;
+          return (
           <button
             key={font.value}
-            onClick={() => {
-              setReaderFontFamily(font.value);
-              localStorage.setItem('kjb-reader-font-family', font.value);
-              window.dispatchEvent(new Event('storage'));
-            }}
+            onClick={() => pickReaderFont(font.value)}
             className={`w-full py-3 rounded-xl font-sans text-sm font-medium transition-all text-center border-2 ${
-              readerFontFamily === font.value
+              isActive
                 ? 'bg-primary text-primary-foreground border-primary'
                 : 'bg-transparent text-foreground border-border hover:border-accent'
             }`}
-            style={{ fontFamily: font.value }}
+            style={isA11yChoice ? undefined : { fontFamily: font.value }}
           >
             {font.label}
           </button>
-        ))}
-        {a11yFont === 'default' && (
+          );
+        })}
         <button
-          onClick={() => {
-            setReaderFontFamily('serif');
-            localStorage.setItem('kjb-reader-font-family', 'serif');
-            window.dispatchEvent(new Event('storage'));
-          }}
+          onClick={() => pickReaderFont('serif')}
           className="w-full py-3 rounded-xl font-sans text-sm font-medium transition-all text-center bg-secondary text-secondary-foreground border-2 border-border hover:border-accent"
         >
           Reset to Default
         </button>
-        )}
         </div>
         </div>
         </div>
@@ -775,44 +795,30 @@ export default function SettingsPage() {
               <p className="font-sans text-sm text-foreground font-medium">Font Family</p>
             </div>
             {a11yFont !== 'default' && (
-              <>
-                <p className="font-sans text-xs text-muted-foreground leading-snug">
-                  Accessibility font is on — it overrides this. Disable it in the Accessibility section to choose a font.
-                </p>
-                <button
-                  onClick={() => {
-                    setExpandedSections(prev => ({ ...prev, accessibility: true }));
-                    setTimeout(() => document.getElementById('kjb-accessibility-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
-                  }}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
-                >
-                  <Accessibility className="w-4 h-4" />
-                  Go to Accessibility Settings
-                </button>
-              </>
+              <p className="font-sans text-xs text-muted-foreground leading-snug">
+                An accessibility font is on (it applies across the whole app). Pick another font below to switch back.
+              </p>
             )}
-            {a11yFont === 'default' && (
             <div className="grid grid-cols-2 gap-2">
-              {VERSE_FONTS.map(font => (
+              {[...VERSE_FONTS, ...A11Y_FONT_OPTIONS].map(font => {
+                const isA11yChoice = font.value === 'dyslexic' || font.value === 'hyperlegible';
+                const isActive = a11yFont !== 'default' ? a11yFont === font.value : verseFontFamily === font.value;
+                return (
                 <button
                   key={font.value}
-                  onClick={() => {
-                    setVerseFontFamily(font.value);
-                    localStorage.setItem('kjb-verse-font-family', font.value);
-                    window.dispatchEvent(new Event('storage'));
-                  }}
+                  onClick={() => pickVerseFont(font.value)}
                   className={`px-4 py-3 rounded-xl font-sans text-sm font-medium transition-all ${
-                    verseFontFamily === font.value
+                    isActive
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
                   }`}
-                  style={{ fontFamily: font.value }}
+                  style={isA11yChoice ? undefined : { fontFamily: font.value }}
                 >
                   {font.label}
                 </button>
-              ))}
+                );
+              })}
             </div>
-            )}
           </div>
         </div>
         </div>
