@@ -460,11 +460,19 @@ async function buildPdf(opts, bible, onProgress) {
     const cellW = 26, lineH = 13;
     const startX = margin + 16;
     const maxX = pageW - margin;
-    let cx = startX;
     doc.setFont(F, 'normal'); doc.setFontSize(9);
+    // Make sure there's room for the first row before we start drawing.
+    ensureTocSpace(lineH);
+    let cx = startX;
     chapters.forEach(({ ch, page: chPage }) => {
-      if (cx + cellW > maxX) { cx = startX; ty += lineH; ensureTocSpace(lineH); }
-      if (cx === startX) ensureTocSpace(lineH);
+      // Wrap to a new line when the cell would overflow the right margin.
+      if (cx + cellW > maxX) {
+        cx = startX;
+        ty += lineH;
+        // Check for vertical space BEFORE drawing the next row. ensureTocSpace
+        // resets ty to the top margin if it moves to a new TOC page.
+        ensureTocSpace(lineH);
+      }
       doc.textWithLink(String(ch), cx, ty, { pageNumber: chPage });
       cx += cellW;
     });
