@@ -527,11 +527,12 @@ async function buildText(opts, bible, onProgress, format) {
       headerDivs.push(
         `<div style="mso-element:header" id="${hid}"><p class=MsoHeader style="text-align:center"><i>${escapeHtml(book.name)}</i></p></div>`
       );
-      // Close the previous book's section with a section-break paragraph that
-      // carries this section's properties (header + columns). The FIRST book
-      // closes the front-matter section instead.
+      // Close the previous section <div> and open this book's section <div>.
+      // The closing of one Section div + opening of the next, combined with the
+      // matching @page SectionN rules, is what makes Word treat each book as a
+      // separate section with its own running header.
       out.push(
-        `<p style="mso-element:section-break"></p></div>` +
+        `</div>` +
         `<div class="${sid}" style="page-break-before:always">` +
         `<a name="${anchorFor(book)}"></a>` +
         `<h1 style="text-align:center">${escapeHtml(book.name)}</h1>`
@@ -595,13 +596,21 @@ async function buildText(opts, bible, onProgress, format) {
   onProgress(98, 'Saving file…');
   let blob, name;
   if (isDocx) {
-    // Word reads @page section CSS for column count — emit 2 cols when requested.
-    const colCss = opts.twoColumn
-      ? '@page Section1 { columns: 2; column-gap: 24px; } div.Section1 { -webkit-column-count: 2; column-count: 2; column-gap: 24px; }'
-      : '@page Section1 {} div.Section1 {}';
-    const body = `<div class="Section1">${out.join('\n')}</div>`;
+    // Close the final book's section div.
+    out.push('</div>');
+
+    // Build per-section @page rules. Each book section references its own header
+    // (mso-header) so Word shows the book name as the running head. Two-column
+    // layout is applied per section when requested.
+    const colDecl = opts.twoColumn ? 'columns:2;column-gap:24px;' : '';
+    let pageRules = `@page SectionFront { mso-header-margin:0.5in; ${colDecl} } div.SectionFront { ${opts.twoColumn ? '-webkit-column-count:2;column-count:2;column-gap:24px;' : ''} }`;
+    for (let i = 1; i <= sectionCount; i++) {
+      pageRules += `@page Section${i} { mso-title-page:yes; mso-header: url("#h${i}") h${i}; mso-header-margin:0.5in; ${colDecl} } div.Section${i} { ${opts.twoColumn ? '-webkit-column-count:2;column-count:2;column-gap:24px;' : ''} }`;
+    }
+
+    const body = `${out.join('\n')}\n${headerDivs.join('\n')}`;
     const fontCss = getExportFont(opts.font).css;
-    const html = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>KJB</title><style>${colCss}</style></head><body style="font-family:${fontCss};font-size:11pt;">${body}</body></html>`;
+    const html = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>KJB</title><style>${pageRules} p.MsoHeader{margin:0;}</style></head><body style="font-family:${fontCss};font-size:11pt;">${body}</body></html>`;
     blob = new Blob(['\ufeff', html], { type: 'application/msword' });
     name = fileName(opts, 'doc');
   } else {
