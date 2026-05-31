@@ -209,7 +209,7 @@ async function buildPdf(opts, bible, onProgress) {
         flush();
       } else {
         verses.forEach(v => {
-          writeSegments([{ text: `${v.verse}  `, italic: false }, ...toSegments(v.text)]);
+          writeSegments([{ text: `${v.verse}    `, italic: false }, ...toSegments(v.text)]);
           y += 1;
         });
       }
@@ -362,7 +362,7 @@ async function buildText(opts, bible, onProgress, format) {
         });
         flush();
       } else {
-        verses.forEach(v => push(`${v.verse}  ${plainText(v.text, keepBrackets)}`));
+        verses.forEach(v => push(`${v.verse}    ${plainText(v.text, keepBrackets)}`));
       }
 
       if (colophons) {
@@ -480,7 +480,7 @@ async function buildRtf(opts, bible, onProgress) {
         });
         flush();
       } else {
-        verses.forEach(v => para(`{\\b ${v.verse}}  ${rtfInline(v.text)}`));
+        verses.forEach(v => para(`{\\b ${v.verse}}\\tab ${rtfInline(v.text)}`));
       }
 
       if (colophons) {
