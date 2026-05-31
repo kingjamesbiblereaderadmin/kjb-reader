@@ -6,6 +6,8 @@ import { renderVerseText } from '@/lib/bibleApi';
 // header with gradient separator, large serif verse, gold reference,
 // decorative gradient dashes, dark-purple date badge, footer URL.
 // Rendered off-screen and captured by html2canvas.
+const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png';
+
 const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc }, ref) {
   const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
@@ -83,15 +85,14 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc }, ref) {
       />
 
       <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '64px 72px' }}>
-        {/* Logo top-left — only render once we have a same-origin data URL,
-            so html2canvas never taints the canvas. */}
-        {logoSrc && (
-          <img
-            src={logoSrc}
-            alt="KJB Reader"
-            style={{ position: 'absolute', top: '64px', left: '48px', width: '104px', height: '104px', borderRadius: '14px', boxShadow: '0 4px 14px rgba(0,0,0,0.3)' }}
-          />
-        )}
+        {/* Logo top-left. Prefer the pre-fetched data URL (taint-free); fall
+            back to the direct CORS URL so it still appears if the fetch failed. */}
+        <img
+          src={logoSrc || LOGO_URL}
+          alt="KJB Reader"
+          crossOrigin="anonymous"
+          style={{ position: 'absolute', top: '64px', left: '48px', width: '104px', height: '104px', borderRadius: '14px', boxShadow: '0 4px 14px rgba(0,0,0,0.3)' }}
+        />
 
         {/* VERSE OF THE DAY header with gradient side rules */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginTop: '32px' }}>
@@ -165,7 +166,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc }, ref) {
                 <stop offset="100%" stopColor="rgba(120,60,200,0)" />
               </linearGradient>
             </defs>
-            <path d="M0,32 Q440,0 880,32" fill="none" stroke="url(#kjbCurveGrad)" strokeWidth="3" strokeLinecap="round" />
+            <path d="M0,32 Q440,0 880,32" fill="none" stroke="url(#kjbCurveGrad)" strokeWidth="6" strokeLinecap="round" />
           </svg>
           <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '38px', fontWeight: 700, color: '#ffffff', textShadow: '0 2px 6px rgba(0,0,0,0.35)' }}>
             KingJamesBibleReader.com

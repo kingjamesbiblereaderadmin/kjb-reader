@@ -225,9 +225,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             const done = () => res();
             img.onload = done;
             img.onerror = done;
-            setTimeout(done, 2000);
+            setTimeout(done, 4000);
           })
     )));
+    // Small settle delay so a just-decoded image is painted before capture.
+    await new Promise(r => setTimeout(r, 150));
     const canvas = await html2canvas(el, { backgroundColor: null, scale: 1, useCORS: true });
     return await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
   };
