@@ -7,7 +7,7 @@ import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { setGospelNav } from '@/lib/searchNav';
 import { getGospelResults } from '@/lib/gospelVerses';
 
-function VerseLink({ book, chapter, verse, children }) {
+function VerseLink({ book, chapter, verse, verseEnd, children }) {
   const navigate = useNavigate();
   const bookData = BIBLE_BOOKS.find(b => b.shortName === book || b.apiName === book);
 
@@ -17,14 +17,20 @@ function VerseLink({ book, chapter, verse, children }) {
     // starting at the clicked verse, so the reader shows "Gospel" with arrows.
     const results = getGospelResults();
     const index = Math.max(0, results.findIndex(r => r.abbr === bookData.abbr && r.chapter === chapter && r.verse === verse));
+    const hasRange = verseEnd && verseEnd > verse;
     try {
       localStorage.removeItem('kjb-search-term');
       setGospelNav(results, index);
-      localStorage.setItem('kjb-position', JSON.stringify({ abbr: bookData.abbr, chapter, verse }));
+      // For a range, store every verse in the selection so all are highlighted
+      const versePayload = hasRange
+        ? { abbr: bookData.abbr, chapter, verse, verseEnd, verses: Array.from({ length: verseEnd - verse + 1 }, (_, i) => verse + i) }
+        : { abbr: bookData.abbr, chapter, verse };
+      localStorage.setItem('kjb-position', JSON.stringify(versePayload));
     } catch {}
     window.scrollTo({ top: 0, behavior: 'smooth' });
     // Navigate with from=gospel so the reader scrolls, highlights and shows the stepper
-    navigate(`/read?book=${bookData.abbr}&chapter=${chapter}&verse=${verse}&from=gospel`);
+    const rangeParam = hasRange ? `&verseEnd=${verseEnd}` : '';
+    navigate(`/read?book=${bookData.abbr}&chapter=${chapter}&verse=${verse}${rangeParam}&from=gospel`);
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   };
 
@@ -349,7 +355,7 @@ export default function GospelPage() {
               {VERSE_TEXTS['Rom3:25']}
             </blockquote>
             <div className="flex flex-wrap gap-2">
-              <VerseLink book="1 Corinthians" chapter={15} verse={1}>1 Corinthians 15:1–4</VerseLink>
+              <VerseLink book="1 Corinthians" chapter={15} verse={1} verseEnd={4}>1 Corinthians 15:1–4</VerseLink>
               <VerseLink book="Romans" chapter={3} verse={25}>Romans 3:25</VerseLink>
             </div>
           </div>
