@@ -168,6 +168,27 @@ async function buildPdf(opts, bible, onProgress) {
     y += gapAfter;
   }
 
+  // Centered line where ONLY [bracketed] words are italic; the rest is roman.
+  // Splits into {text,italic} segments and centers the whole assembled line.
+  function writeCenteredMixed(rawText, { size = bodySize, gapAfter = 4 } = {}) {
+    doc.setFontSize(size);
+    const segs = toSegments(rawText); // keeps brackets as italic segments
+    // Measure total width to center
+    const measure = () => segs.reduce((w, s) => {
+      doc.setFont('times', s.italic ? 'italic' : 'normal');
+      return w + doc.getTextWidth(s.text);
+    }, 0);
+    ensureSpace(size + 4);
+    let lineW = measure();
+    let x = colX() + (colWidth - lineW) / 2;
+    segs.forEach(s => {
+      doc.setFont('times', s.italic ? 'italic' : 'normal');
+      doc.text(s.text, x, y, { baseline: 'top' });
+      x += doc.getTextWidth(s.text);
+    });
+    y += size + 3.5 + gapAfter;
+  }
+
   // Title pages
   titlePage(TITLE_WHOLE);
 
@@ -227,7 +248,7 @@ async function buildPdf(opts, bible, onProgress) {
 
       if (subscripts) {
         const sub = SUBSCRIPTS[`${book.apiName}:${ch}`];
-        if (sub) writeCentered(plainText(sub, false), { size: 8 });
+        if (sub) writeCenteredMixed(sub, { size: 8 });
       }
 
       if (paragraph) {
@@ -249,7 +270,7 @@ async function buildPdf(opts, bible, onProgress) {
 
       if (colophons) {
         const colo = COLOPHONS[`${book.apiName}:${ch}`];
-        if (colo) { y += 3; writeCentered('¶ ' + plainText(colo, false).replace(/^¶\s*/, ''), { size: 8 }); }
+        if (colo) { y += 3; writeCenteredMixed('¶ ' + normalise(colo).replace(/^¶\s*/, ''), { size: 8 }); }
       }
     }
     // End-of-section markers
@@ -377,7 +398,7 @@ async function buildText(opts, bible, onProgress, format) {
       const a = anchor ? `<a name="${anchor}"></a>` : '';
       if (kind === 'h1') out.push(`<h1 style="text-align:center">${a}${escapeHtml(txt)}</h1>`);
       else if (kind === 'h2') out.push(`<h2 style="text-align:center">${a}${escapeHtml(txt)}</h2>`);
-      else if (kind === 'center-italic') out.push(`<p style="text-align:center"><i>${escapeHtml(txt)}</i></p>`);
+      else if (kind === 'center-italic') out.push(`<p style="text-align:center">${docxInline(txt)}</p>`);
       else out.push(`<p>${docxInline(txt)}</p>`);
     } else {
       out.push(txt);
@@ -450,7 +471,7 @@ async function buildText(opts, bible, onProgress, format) {
 
       if (subscripts) {
         const sub = SUBSCRIPTS[`${book.apiName}:${ch}`];
-        if (sub) push(plainText(sub, keepBrackets), 'center-italic');
+        if (sub) push(plainText(sub, isDocx ? true : keepBrackets), 'center-italic');
       }
 
       if (paragraph) {
@@ -467,7 +488,7 @@ async function buildText(opts, bible, onProgress, format) {
 
       if (colophons) {
         const colo = COLOPHONS[`${book.apiName}:${ch}`];
-        if (colo) push('¶ ' + plainText(colo, keepBrackets).replace(/^¶\s*/, ''), 'center-italic');
+        if (colo) push('¶ ' + plainText(colo, isDocx ? true : keepBrackets).replace(/^¶\s*/, ''), 'center-italic');
       }
     }
     // End-of-section markers (with extra spacing before the NT title page)
