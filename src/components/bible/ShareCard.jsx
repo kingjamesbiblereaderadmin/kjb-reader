@@ -148,7 +148,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc }, ref) {
             height: '88px',
             padding: '0 44px',
             marginBottom: '56px',
-            boxShadow: '0 4px 14px rgba(140,90,220,0.45), inset 0 2px 6px rgba(0,0,0,0.35)',
+            boxShadow: '0 4px 14px rgba(140,90,220,0.45)',
           }}
         >
           <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '40px', fontWeight: 700, lineHeight: '40px', letterSpacing: '0.04em', color: '#ffffff' }}>
