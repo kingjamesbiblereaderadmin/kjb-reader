@@ -398,19 +398,19 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
       {/* Date display — centered at the bottom (above the URL during capture) */}
       <span
-        className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap ${capturing ? 'bottom-12' : 'bottom-4'}`}
+        className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap ${capturing ? 'bottom-14' : 'bottom-7'}`}
         style={{
           backgroundColor: 'rgba(55, 48, 163, 0.65)',
           border: '1px solid rgba(255,255,255,0.18)',
-          borderRadius: '14px',
+          borderRadius: '11px',
           color: 'rgba(255,255,255,0.98)',
           fontFamily: "'Inter', system-ui, sans-serif",
-          fontSize: '17px',
-          fontWeight: 800,
+          fontSize: '13px',
+          fontWeight: 700,
           letterSpacing: '0.03em',
-          lineHeight: '17px',
-          padding: '11px 26px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          lineHeight: '13px',
+          padding: '8px 18px',
+          boxShadow: '0 3px 9px rgba(0,0,0,0.3)',
         }}
       >
         {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
