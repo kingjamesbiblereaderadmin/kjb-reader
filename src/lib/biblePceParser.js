@@ -73,6 +73,18 @@ export function parsePceText(text) {
   const isChapterLine = (l) => /^(CHAPTER|PSALM)\s+\d+$/i.test(l.trim());
   const isVerseLine = (l) => /^\d+\s/.test(l);
 
+  // Psalm 119 is an acrostic: each 8-verse stanza is preceded by an unnumbered
+  // Hebrew letter heading ("ALEPH.", "BETH.", … "TAU."). These must NOT be parsed
+  // as verses. Match a single all-caps word (optionally hyphenated) ending in a dot.
+  const HEBREW_LETTERS = new Set([
+    'ALEPH','BETH','GIMEL','DALETH','HE','VAU','ZAIN','CHETH','TETH','JOD',
+    'CAPH','LAMED','MEM','NUN','SAMECH','AIN','PE','TZADDI','KOPH','RESH','SCHIN','TAU',
+  ]);
+  const isHebrewLetterHeading = (l) => {
+    const t = l.trim().replace(/\.$/, '').toUpperCase();
+    return HEBREW_LETTERS.has(t);
+  };
+
   const pushVerse = (vs, rawAfterNumber, hadParagraph) => {
     if (!currentBook || currentChapter == null) return;
     let t = rawAfterNumber.replace(/\s*<<[^>]*>>\s*$/, '').trim();
@@ -102,6 +114,13 @@ export function parsePceText(text) {
 
     // Blank line — flush any title buffer attempt (handled on chapter detection)
     if (!trimmed) continue;
+
+    // Psalm 119 acrostic letter heading (ALEPH., BETH., …) — skip entirely so it
+    // is never parsed as a verse and doesn't pollute the title buffer. Does NOT
+    // consume pendingFirstVerse, so the real verse 1 ("BLESSED…") is still captured.
+    if (currentBook === 'Psalms' && currentChapter === 119 && isHebrewLetterHeading(line)) {
+      continue;
+    }
 
     // Numbered verse (verse 2+)
     if (isVerseLine(line) && currentChapter != null) {

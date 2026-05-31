@@ -10,8 +10,8 @@ import { parsePceText } from '@/lib/biblePceParser';
 // Bump this version string whenever the Bible text file changes — every client
 // will then re-download and re-parse fresh. Replaces the old remote VERSION.txt
 // check (which 404'd/403'd and broke auto-updates).
-export const CACHE_VERSION = 'v77';
-const CACHE_KEY = 'bible_data_pce_v77_SINGLE_FILE';
+export const CACHE_VERSION = 'v78';
+const CACHE_KEY = 'bible_data_pce_v78_SINGLE_FILE';
 // Single clean PCE source file: book titles, CHAPTER headings, [bracketed] italics,
 // and double-space paragraph (pilcrow) markers. No separate italics file needed.
 const PCE_TEXT_FILE_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/b55b13158_KingJamesBible-PureCambridgeEditionTextfile1.txt';
@@ -35,7 +35,21 @@ function isPsalm9Correct(data) {
   const p9 = data?.['Psalms']?.[9];
   if (!Array.isArray(p9)) return true; // can't verify — don't block
   const v1 = p9.find(v => v.verse === 1);
-  return !!v1 && /^¶?\s*i will praise/i.test(v1.text);
+  if (!v1 || !/^¶?\s*i will praise/i.test(v1.text)) return false;
+  // Spot-check a few more superscription Psalms to catch any leaked headers.
+  const checks = [
+    [3, /^¶?\s*lord, how are they increased/i],
+    [23, /^¶?\s*the lord \[?is\]? my shepherd/i],
+    [51, /^¶?\s*have mercy upon me, o god/i],
+  ];
+  for (const [ch, re] of checks) {
+    const verses = data?.['Psalms']?.[ch];
+    if (Array.isArray(verses)) {
+      const first = verses.find(v => v.verse === 1);
+      if (first && !re.test(first.text)) return false;
+    }
+  }
+  return true;
 }
 
 async function fetchWithRetry(url, retries = 3, expectPilcrows = false) {
@@ -368,11 +382,15 @@ export async function autoDownloadBibleOnFirstLoad() {
     let needsUpdate = false;
     if (hasValidCache) {
       needsUpdate = await checkForUpdates();
-      if (!needsUpdate) {
+      // Self-heal on reload: if cached Psalms have leaked superscriptions
+      // (old buggy parser), force a re-download even when the version matches.
+      const cacheCorrupt = !isPsalm9Correct(cached);
+      if (cacheCorrupt) console.log('[AUTO-DOWNLOAD] ⚠️ Psalm numbering wrong in cache — forcing re-parse');
+      if (!needsUpdate && !cacheCorrupt) {
         console.log('[AUTO-DOWNLOAD] Cache up-to-date, skipping download');
         return { downloaded: false, updated: false };
       }
-      console.log('[AUTO-DOWNLOAD] New version detected, downloading fresh Bible data...');
+      console.log('[AUTO-DOWNLOAD] Update/repair needed, downloading fresh Bible data...');
     } else {
       console.log('[AUTO-DOWNLOAD] No cache found, downloading Bible data...');
       // Still need the remote version so saveToCache can record it
