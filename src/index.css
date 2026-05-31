@@ -271,12 +271,12 @@
     float: left;
     display: flex;
     align-items: flex-start;
-    padding-right: 0.1em;
-    padding-top: 0.04em;
+    padding-right: 0.12em;
+    margin-top: 0.02em;
   }
   .kjb-dropcap-letter {
-    font-size: 3.8em;
-    line-height: 0.82;
+    font-size: 4.2em;
+    line-height: 0.62;
     font-weight: 700;
     color: inherit;
     font-family: 'Cormorant Garamond', 'Merriweather', Georgia, serif;
