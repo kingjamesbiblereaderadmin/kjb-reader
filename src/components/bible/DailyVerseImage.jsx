@@ -187,6 +187,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     if (font === 'dyslexic' || font === 'hyperlegible') {
       setAccessibilityFont(font);
       setA11yFont(font);
+      window.dispatchEvent(new Event('kjb-fonts-changed'));
       return;
     }
     // Picking a normal font must turn OFF any active accessibility font.
@@ -199,6 +200,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       setA11yFont('default');
     }
     window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new Event('kjb-fonts-changed'));
   };
 
 
