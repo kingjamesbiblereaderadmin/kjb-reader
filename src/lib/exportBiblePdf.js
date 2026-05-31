@@ -140,7 +140,17 @@ async function buildPdf(opts, bible, onProgress) {
   // Title pages
   titlePage(TITLE_WHOLE);
 
+  // Reserve blank pages for the Table of Contents (filled in at the end once we
+  // know each book's page number). ~36 entries per page.
   const total = BIBLE_BOOKS.length;
+  const tocPagesNeeded = Math.ceil((total + 4) / 34);
+  const tocStartPage = doc.internal.getNumberOfPages();
+  for (let i = 0; i < tocPagesNeeded; i++) doc.addPage();
+  newPage(); // start scripture on a fresh page after the reserved TOC pages
+
+  // Track where each book begins for the TOC + PDF outline bookmarks
+  const bookPages = []; // { book, page }
+
   for (let bi = 0; bi < total; bi++) {
     const book = BIBLE_BOOKS[bi];
     const bookData = bible[book.apiName] || {};
@@ -148,9 +158,15 @@ async function buildPdf(opts, bible, onProgress) {
     if (book.apiName === 'Matthew') titlePage(TITLE_NT);
 
     if (!(y === margin && col === 0)) newPage();
-    doc.setFont('times', 'bold'); doc.setFontSize(16);
-    doc.text(book.shortName.toUpperCase(), colX() + colWidth / 2, y, { align: 'center', baseline: 'top' });
-    y += 24;
+    const startPage = doc.internal.getNumberOfPages();
+    bookPages.push({ book, page: startPage });
+    // PDF outline bookmark (clickable in the sidebar / Contents panel)
+    if (doc.outline?.add) doc.outline.add(null, book.shortName, { pageNumber: startPage });
+
+    doc.setFont('times', 'bold'); doc.setFontSize(15);
+    const titleLines = doc.splitTextToSize(book.name, colWidth);
+    titleLines.forEach(ln => { doc.text(ln, colX() + colWidth / 2, y, { align: 'center', baseline: 'top' }); y += 18; });
+    y += 8;
 
     for (let ch = 1; ch <= book.chapters; ch++) {
       const verses = bookData[ch] || [];
@@ -190,6 +206,36 @@ async function buildPdf(opts, bible, onProgress) {
     onProgress(Math.round(((bi + 1) / total) * 90) + 5, `Adding ${book.shortName}… (${bi + 1}/${total})`);
     await new Promise(r => setTimeout(r, 0));
   }
+
+  // ── Fill in the reserved Table of Contents pages with clickable links ──
+  onProgress(96, 'Building contents…');
+  let tocPage = tocStartPage;
+  doc.setPage(tocPage);
+  let ty = margin;
+  doc.setFont('times', 'bold'); doc.setFontSize(18);
+  doc.text('CONTENTS', pageW / 2, ty, { align: 'center', baseline: 'top' });
+  ty += 30;
+
+  const writeTocEntry = (label, page, { bold = false, indent = 0 } = {}) => {
+    if (ty > pageH - margin) { tocPage += 1; doc.setPage(tocPage); ty = margin; }
+    doc.setFont('times', bold ? 'bold' : 'normal');
+    doc.setFontSize(bold ? 12 : 10.5);
+    const leftX = margin + indent;
+    doc.textWithLink(label, leftX, ty, { pageNumber: page });
+    if (!bold) doc.text(String(page), pageW - margin, ty, { align: 'right' });
+    ty += bold ? 20 : 15;
+  };
+
+  let lastTestament = null;
+  bookPages.forEach(({ book, page }) => {
+    if (book.testament !== lastTestament) {
+      lastTestament = book.testament;
+      ty += 6;
+      writeTocEntry(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT', page, { bold: true });
+    }
+    writeTocEntry(book.name, page, { indent: 14 });
+  });
+
   onProgress(98, 'Finalising PDF…');
   doc.save(fileName(opts, 'pdf'));
 }
@@ -203,16 +249,18 @@ async function buildText(opts, bible, onProgress, format) {
   const keepBrackets = format === 'txt'; // TXT keeps [italics]
 
   const out = []; // lines (txt) or html paragraphs (docx)
-  const push = (txt, kind = 'body') => {
+  const push = (txt, kind = 'body', anchor = null) => {
     if (isDocx) {
-      if (kind === 'h1') out.push(`<h1 style="text-align:center">${escapeHtml(txt)}</h1>`);
-      else if (kind === 'h2') out.push(`<h2 style="text-align:center">${escapeHtml(txt)}</h2>`);
+      const a = anchor ? `<a name="${anchor}"></a>` : '';
+      if (kind === 'h1') out.push(`<h1 style="text-align:center">${a}${escapeHtml(txt)}</h1>`);
+      else if (kind === 'h2') out.push(`<h2 style="text-align:center">${a}${escapeHtml(txt)}</h2>`);
       else if (kind === 'center-italic') out.push(`<p style="text-align:center"><i>${escapeHtml(txt)}</i></p>`);
       else out.push(`<p>${docxInline(txt)}</p>`);
     } else {
       out.push(txt);
     }
   };
+  const anchorFor = (book) => 'bk_' + book.abbr;
 
   // DOCX inline: convert [word] → <i>word</i>
   function docxInline(text) {
@@ -226,9 +274,33 @@ async function buildText(opts, bible, onProgress, format) {
   // Title pages
   TITLE_WHOLE.forEach((b, i) => push(b.t, i === 1 ? 'h1' : 'h2'));
   push('');
-  push('');
 
   const total = BIBLE_BOOKS.length;
+
+  // Table of Contents (Word: clickable links to in-doc anchors; TXT: plain list)
+  if (isDocx) {
+    out.push('<h1 style="text-align:center">CONTENTS</h1>');
+    let lastT = null;
+    BIBLE_BOOKS.forEach(book => {
+      if (book.testament !== lastT) {
+        lastT = book.testament;
+        out.push(`<p style="margin:8px 0 2px"><b>${book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT'}</b></p>`);
+      }
+      out.push(`<p style="margin:1px 0 1px 18px"><a href="#${anchorFor(book)}">${escapeHtml(book.name)}</a></p>`);
+    });
+    out.push('<br style="page-break-after:always" />');
+  } else {
+    push('CONTENTS');
+    push('');
+    let lastT = null;
+    BIBLE_BOOKS.forEach(book => {
+      if (book.testament !== lastT) { lastT = book.testament; push(''); push(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT'); }
+      push('  ' + book.name);
+    });
+    push('');
+    push('');
+  }
+
   for (let bi = 0; bi < total; bi++) {
     const book = BIBLE_BOOKS[bi];
     const bookData = bible[book.apiName] || {};
@@ -236,7 +308,7 @@ async function buildText(opts, bible, onProgress, format) {
     if (book.apiName === 'Matthew') { TITLE_NT.forEach((b, i) => push(b.t, i === 1 ? 'h1' : 'h2')); push(''); }
 
     push('');
-    push(book.shortName.toUpperCase(), 'h1');
+    push(book.name, 'h1', anchorFor(book));
 
     for (let ch = 1; ch <= book.chapters; ch++) {
       const verses = bookData[ch] || [];
