@@ -172,12 +172,15 @@ async function buildPdf(opts, bible, onProgress) {
   function writeSegments(segments, { size = bodySize, indentFirst = 0 } = {}) {
     doc.setFontSize(size);
     const spaceW = () => { doc.setFont(F, 'normal'); return doc.getTextWidth(' '); };
-    let x = colX() + indentFirst;
-    const startX = colX();
-    let lineHasContent = false;
+    // Reserve space FIRST — this may switch to column 2, so capture x/startX
+    // afterwards using the final column position (otherwise wrapping uses the
+    // wrong column width and breaks one word per line).
     ensureSpace(size + 4);
+    let x = colX() + indentFirst;
+    let startX = colX();
+    let lineHasContent = false;
 
-    const wrap = () => { y += size + 3.5; ensureSpace(size + 4); x = colX(); lineHasContent = false; };
+    const wrap = () => { y += size + 3.5; ensureSpace(size + 4); x = colX(); startX = colX(); lineHasContent = false; };
 
     segments.forEach(seg => {
       doc.setFont(F, seg.italic ? 'italic' : 'normal');
