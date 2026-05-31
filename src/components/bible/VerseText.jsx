@@ -297,8 +297,8 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
               </span>
             )}
             <span
-              className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${dropCap && !selectMode ? 'block [&_.kjb-dropcap-group]:-ml-[1.5em]' : ''} ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
-              style={{ ...(dropCap && !selectMode ? { paddingLeft: '1.5em' } : {}), ...(isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle) }}
+              className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${dropCap && !selectMode ? 'block [&_.kjb-dropcap-group]:-ml-[1.25em]' : ''} ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+              style={{ ...(dropCap && !selectMode ? { paddingLeft: '1.25em' } : {}), ...(isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle) }}
               dangerouslySetInnerHTML={{ __html: html }}
             />
           </span>
@@ -325,8 +325,8 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           style={{ display: 'flow-root' }}
         >
           <span
-            className={`block leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left [&_.kjb-dropcap-group]:-ml-[1.5em] ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
-            style={{ paddingLeft: '1.5em', ...(isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle) }}
+            className={`block leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left [&_.kjb-dropcap-group]:-ml-[1.25em] ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+            style={{ paddingLeft: '1.25em', ...(isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle) }}
             dangerouslySetInnerHTML={{ __html: html }}
           />
         </span>
