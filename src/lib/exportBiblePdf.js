@@ -159,8 +159,9 @@ async function buildPdf(opts, bible, onProgress) {
   const atPageTop = () => col === 0 && y === (runningHead ? margin + headerGap : margin);
 
   // Render a title page (centered, vertical middle-ish). No running header.
+  // Leaves the cursor at the TOP of a fresh, header-LESS page so the caller can
+  // write the next book straight onto it (no extra blank page, no stale header).
   function titlePage(blocks) {
-    const prevHead = runningHead;
     runningHead = '';
     if (!atPageTop()) newPage();
     y = pageH / 4;
@@ -171,7 +172,8 @@ async function buildPdf(opts, bible, onProgress) {
       lines.forEach(ln => { doc.text(ln, pageW / 2, y, { align: 'center', baseline: 'top' }); y += b.size + 6; });
       y += b.gap || 10;
     });
-    runningHead = prevHead;
+    // Move to a fresh page for whatever follows; keep runningHead empty so this
+    // new page carries NO header. The cursor is now at page top.
     newPage();
   }
 
@@ -242,15 +244,16 @@ async function buildPdf(opts, bible, onProgress) {
   // below). Over-reserving previously left blank pages between Contents & Genesis.
   const total = BIBLE_BOOKS.length;
   const tocPagesNeeded = measureTocPages(doc, pageW, pageH, margin, F);
+  // titlePage() already left us on a fresh blank page — use THAT as the first
+  // TOC page, and only add the REMAINING (tocPagesNeeded - 1) pages. This avoids
+  // an orphan blank page between the title page and Contents.
   const tocStartPage = doc.internal.getNumberOfPages();
-  for (let i = 0; i < tocPagesNeeded; i++) doc.addPage();
+  for (let i = 0; i < tocPagesNeeded - 1; i++) doc.addPage();
   // Genesis must begin on a brand-new page right after the reserved TOC pages.
-  // Reset the layout cursor as "mid-page" so the first book's `if (!atPageTop())
-  // newPage()` reliably adds exactly ONE page (no extra blank gap, no overwrite
-  // of the last reserved TOC page).
+  // Force atPageTop() === false so the first book adds exactly ONE new page.
   runningHead = '';
   col = 0;
-  y = pageH; // force atPageTop() === false → exactly one newPage() for Genesis
+  y = pageH;
 
   // Track where each book begins (+ each chapter) for the TOC + PDF outline bookmarks
   const bookPages = []; // { book, page, chapters: [{ ch, page }] }
