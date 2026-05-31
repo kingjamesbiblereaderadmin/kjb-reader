@@ -938,10 +938,10 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             </label>
             {a11yFont !== 'default' && (
               <p className="font-sans text-[10px] text-slate-500 dark:text-slate-400 mb-2 leading-snug">
-                Accessibility font is on — it overrides this setting. Change it in Settings.
+                An accessibility font is active app-wide. Pick another font to switch, or it overrides other fonts.
               </p>
             )}
-            <div className={`grid grid-cols-3 gap-1 ${a11yFont !== 'default' ? 'opacity-40 pointer-events-none' : ''}`}>
+            <div className="grid grid-cols-3 gap-1">
               {[
                 { value: 'serif', label: 'Serif' },
                 { value: 'sans-serif', label: 'Sans' },
@@ -949,9 +949,15 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 { value: 'cursive', label: 'Cursive' },
                 { value: 'dyslexic', label: 'Dyslexic' },
                 { value: 'hyperlegible', label: 'Legible' },
-              ].map(font => (
+              ].map(font => {
+                const isA11yChoice = font.value === 'dyslexic' || font.value === 'hyperlegible';
+                const a11yActive = a11yFont !== 'default';
+                const isActive = a11yActive ? a11yFont === font.value : fontFamily === font.value;
+                const isDisabled = a11yActive && !isA11yChoice;
+                return (
                 <button
                   key={font.value}
+                  disabled={isDisabled}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -975,14 +981,15 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                     handleFontFamilyChange(font.value);
                   }}
                   className={`px-1.5 py-1.5 rounded-md font-sans text-[10px] font-medium transition-all ${
-                    fontFamily === font.value
+                    isActive
                       ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900'
                       : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                  }`}
+                  } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
                 >
                   {font.label}
                 </button>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
