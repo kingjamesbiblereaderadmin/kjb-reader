@@ -24,13 +24,13 @@ function resolveFontFamily(choice, a11yFont) {
 }
 
 const VERSE_BACKGROUNDS = [
-  { gradient: 'from-blue-700 via-indigo-600 to-purple-600', accent: 'text-blue-200' },     // Sun — blue/purple
-  { gradient: 'from-emerald-700 via-teal-600 to-cyan-600', accent: 'text-emerald-200' },   // Mon — green/teal
-  { gradient: 'from-rose-700 via-pink-600 to-fuchsia-600', accent: 'text-rose-200' },       // Tue — rose/pink
-  { gradient: 'from-amber-600 via-orange-600 to-red-600', accent: 'text-amber-200' },        // Wed — warm sunset
-  { gradient: 'from-cyan-700 via-sky-600 to-blue-600', accent: 'text-cyan-200' },           // Thu — ocean blue
-  { gradient: 'from-violet-700 via-purple-600 to-pink-600', accent: 'text-violet-200' },     // Fri — violet/pink
-  { gradient: 'from-slate-800 via-indigo-800 to-purple-800', accent: 'text-slate-300' }      // Sat — deep night
+  { gradient: 'from-blue-700 via-indigo-600 to-purple-600', accent: 'text-blue-200', pill: '79, 70, 229' },      // Sun — blue/purple
+  { gradient: 'from-emerald-700 via-teal-600 to-cyan-600', accent: 'text-emerald-200', pill: '13, 148, 136' },  // Mon — green/teal
+  { gradient: 'from-rose-700 via-pink-600 to-fuchsia-600', accent: 'text-rose-200', pill: '219, 39, 119' },      // Tue — rose/pink
+  { gradient: 'from-amber-600 via-orange-600 to-red-600', accent: 'text-amber-200', pill: '194, 65, 12' },       // Wed — warm sunset
+  { gradient: 'from-cyan-700 via-sky-600 to-blue-600', accent: 'text-cyan-200', pill: '2, 132, 199' },          // Thu — ocean blue
+  { gradient: 'from-violet-700 via-purple-600 to-pink-600', accent: 'text-violet-200', pill: '147, 51, 234' },   // Fri — violet/pink
+  { gradient: 'from-slate-800 via-indigo-800 to-purple-800', accent: 'text-slate-300', pill: '55, 48, 163' }     // Sat — deep night
 ];
 
 export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEnabled }) {
@@ -443,7 +443,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       <span
         className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap ${capturing ? 'bottom-12' : 'bottom-6'}`}
         style={{
-          backgroundColor: hasCustomBg ? 'rgba(0, 0, 0, 0.55)' : 'rgba(55, 48, 163, 0.65)',
+          backgroundColor: hasCustomBg ? 'rgba(0, 0, 0, 0.55)' : `rgba(${defaultBg.pill}, 0.65)`,
           border: '1px solid rgba(255,255,255,0.18)',
           borderRadius: '11px',
           color: 'rgba(255,255,255,0.98)',
