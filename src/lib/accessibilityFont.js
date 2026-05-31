@@ -24,8 +24,18 @@ export function applyAccessibilityFont(font) {
 
 export function setAccessibilityFont(font) {
   try {
-    if (font === 'default') localStorage.removeItem(STORAGE_KEY);
-    else localStorage.setItem(STORAGE_KEY, font);
+    if (font === 'default') {
+      localStorage.removeItem(STORAGE_KEY);
+    } else {
+      localStorage.setItem(STORAGE_KEY, font);
+      // Accessibility fonts and reader fonts are mutually exclusive. If the
+      // reader is in 'cursive' (which is excluded from the a11y CSS override and
+      // would keep rendering Dancing Script), reset it to serif so the chosen
+      // accessibility font actually takes effect everywhere.
+      if (localStorage.getItem('kjb-reader-font-family') === 'cursive') {
+        localStorage.setItem('kjb-reader-font-family', 'serif');
+      }
+    }
   } catch {}
   applyAccessibilityFont(font);
 }

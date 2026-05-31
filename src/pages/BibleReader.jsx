@@ -145,6 +145,17 @@ export default function BibleReader() {
   });
   const [a11yFont, setA11yFont] = useState(getAccessibilityFont);
   const a11yActive = a11yFont !== 'default';
+
+  // Self-heal a stuck conflicting state: an accessibility font + 'cursive' reader
+  // font can't both apply (cursive is excluded from the a11y override). Reset the
+  // reader font to serif so the active accessibility font renders correctly.
+  useEffect(() => {
+    if (a11yFont !== 'default' && fontFamily === 'cursive') {
+      setFontFamily('serif');
+      try { localStorage.setItem('kjb-reader-font-family', 'serif'); } catch {}
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   
   // Track search term for CurrentlyReadingIndicator
   const [searchTerm, setSearchTerm] = useState(() => getSearchNav().term || null);
