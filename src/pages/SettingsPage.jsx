@@ -733,22 +733,24 @@ export default function SettingsPage() {
           </button>
         </div>
           
-          {/* Hide Panel Toggle */}
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex-1">
-              <p className="font-sans text-sm text-foreground font-medium">Show Verse Panel</p>
-              <p className="font-sans text-xs text-muted-foreground">Display the "Verse of the Day" panel background</p>
+          {/* Hide Panel Toggle — only relevant when a custom background is set */}
+          {(customBg || pendingBg) && (
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-1">
+                <p className="font-sans text-sm text-foreground font-medium">Show Verse Panel</p>
+                <p className="font-sans text-xs text-muted-foreground">Display the "Verse of the Day" panel background</p>
+              </div>
+              <Switch
+                checked={showVersePanel}
+                onCheckedChange={(checked) => {
+                  setShowVersePanel(checked);
+                  localStorage.setItem('kjb-verse-panel-visible', String(checked));
+                  window.dispatchEvent(new Event('storage'));
+                }}
+                className="shrink-0"
+              />
             </div>
-            <Switch
-              checked={showVersePanel}
-              onCheckedChange={(checked) => {
-                setShowVersePanel(checked);
-                localStorage.setItem('kjb-verse-panel-visible', String(checked));
-                window.dispatchEvent(new Event('storage'));
-              }}
-              className="shrink-0"
-            />
-          </div>
+          )}
           
           {/* Text Color */}
           <div className="space-y-2">
