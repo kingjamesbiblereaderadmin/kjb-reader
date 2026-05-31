@@ -398,7 +398,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
       {/* Date display — centered at the bottom (above the URL during capture) */}
       <span
-        className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap ${capturing ? 'bottom-14' : 'bottom-7'}`}
+        className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap ${capturing ? 'bottom-12' : 'bottom-3'}`}
         style={{
           backgroundColor: 'rgba(55, 48, 163, 0.65)',
           border: '1px solid rgba(255,255,255,0.18)',
@@ -1007,7 +1007,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {showVersePanel ? (
-        <div className="px-2 pt-2 pb-14 text-center flex-1 flex flex-col w-full max-w-full overflow-hidden">
+        <div className="px-2 pt-2 pb-10 text-center flex-1 flex flex-col w-full max-w-full overflow-hidden">
           <div className="flex items-center justify-center gap-3 mt-3 mb-8">
             <span className="h-px w-10 bg-current opacity-40" style={{ color: textColor }} />
             <p 
@@ -1034,7 +1034,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
           </blockquote>
           <p 
-            className="font-sans text-base md:text-lg font-semibold mt-8 text-center"
+            className="font-sans text-base md:text-lg font-semibold mt-5 text-center"
             style={{ 
               opacity: Math.min(1, textOpacity + 0.05), 
               color: textColor, 
