@@ -116,7 +116,8 @@ function measureTocPages(doc, pageW, pageH, margin, F = 'times') {
 // PDF
 // ─────────────────────────────────────────────────────────────
 async function buildPdf(opts, bible, onProgress) {
-  const { twoColumn, paragraph, subscripts, colophons } = opts;
+  const { twoColumn, paragraph, subscripts, colophons, shortNames } = opts;
+  const nameOf = (b) => (shortNames ? b.shortName : b.name);
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   // Resolve the PDF font. Decorative fonts (cursive/dyslexic/legible) are real
   // TTFs embedded into the doc; standard fonts use jsPDF built-ins. On any
@@ -263,12 +264,12 @@ async function buildPdf(opts, bible, onProgress) {
     bookPages.push({ book, page: startPage, chapters: chapterPages });
 
     doc.setFont(F, 'bold'); doc.setFontSize(15);
-    const titleLines = doc.splitTextToSize(book.name, colWidth);
+    const titleLines = doc.splitTextToSize(nameOf(book), colWidth);
     titleLines.forEach(ln => { doc.text(ln, colX() + colWidth / 2, y, { align: 'center', baseline: 'top' }); y += 18; });
     y += 8;
 
-    // From now on, new pages within this book carry the full book name header.
-    runningHead = book.name;
+    // From now on, new pages within this book carry the book name header.
+    runningHead = nameOf(book);
 
     for (let ch = 1; ch <= book.chapters; ch++) {
       let verses = bookData[ch] || [];
@@ -389,7 +390,7 @@ async function buildPdf(opts, bible, onProgress) {
   const writeBookRow = (book, page) => {
     ensureTocSpace(16);
     doc.setFont(F, 'bold'); doc.setFontSize(10.5);
-    const label = `\u2022  ${book.name}`;
+    const label = `\u2022  ${nameOf(book)}`;
     const pageStr = String(page);
     const labelX = margin + 6;
     const pageX = pageW - margin;
