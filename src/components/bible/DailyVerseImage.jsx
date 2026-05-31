@@ -1350,7 +1350,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {/* Off-screen fixed-size card used for the shared/downloaded image */}
-      <ShareCard ref={shareCardRef} verse={verse} logoSrc={logoDataUrl} />
+      <ShareCard ref={shareCardRef} verse={verse} logoSrc={logoDataUrl} fontFamily={resolvedFont} />
     </div>
   );
 }

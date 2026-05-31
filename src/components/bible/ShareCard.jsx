@@ -9,8 +9,9 @@ import ShareCardLogo from './ShareCardLogo';
 // Rendered off-screen and captured by html2canvas.
 const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png';
 
-const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc }, ref) {
+const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFamily }, ref) {
   const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const verseFont = fontFamily || "'Merriweather', 'Cormorant Garamond', Georgia, serif";
 
   // Thin full-width gradient line (blue → purple) with soft glow
   const SeparatorLine = () => (
@@ -115,7 +116,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc }, ref) {
             style={{
               margin: 0,
               textAlign: 'center',
-              fontFamily: "'Merriweather', 'Cormorant Garamond', Georgia, serif",
+              fontFamily: verseFont,
               fontWeight: 700,
               fontSize: '64px',
               lineHeight: 1.32,
@@ -129,7 +130,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc }, ref) {
           <p
             style={{
               marginTop: '40px',
-              fontFamily: "'Merriweather', Georgia, serif",
+              fontFamily: verseFont,
               fontWeight: 700,
               fontSize: '38px',
               color: '#F4D35E',

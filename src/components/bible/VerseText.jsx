@@ -5,7 +5,7 @@ import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { formatVerseShare, buildVerseUrl } from '@/lib/formatDailyVerse';
 
-export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, isCursive = false, fontFamilyValue = null, zoomLevel = 100, hasSubscript = false, searchTerm = null }) {
+export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, isCursive = false, fontFamilyValue = null, zoomLevel = 100, hasSubscript = false, searchTerm = null, dropCap = false }) {
   const bookEntry = BIBLE_BOOKS.find(b => b.abbr === abbr);
   const shortBookName = bookEntry ? bookEntry.shortName : bookName;
   const [selected, setSelected] = useState(false);
@@ -282,7 +282,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
               </span>
             )}
             <span
-              className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+              className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${dropCap ? 'kjb-dropcap' : ''} ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
               style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
               dangerouslySetInnerHTML={{ __html: html }}
             />
@@ -311,7 +311,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             </span>
           )}
           <span
-            className={`flex-1 min-w-0 leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+            className={`flex-1 min-w-0 leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${dropCap ? 'kjb-dropcap' : ''} ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
             style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
             dangerouslySetInnerHTML={{ __html: html }}
           />

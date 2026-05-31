@@ -258,4 +258,16 @@
   #kjb-accessibility-section * {
     font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif !important;
   }
+
+  /* Drop cap — large decorative first letter on verse 1 of a chapter. */
+  .kjb-dropcap::first-letter {
+    float: left;
+    font-size: 3.4em;
+    line-height: 0.78;
+    font-weight: 700;
+    padding-right: 0.08em;
+    padding-top: 0.02em;
+    color: hsl(var(--accent));
+    font-family: 'Cormorant Garamond', 'Merriweather', Georgia, serif;
+  }
 }
