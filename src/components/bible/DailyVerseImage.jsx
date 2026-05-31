@@ -814,6 +814,29 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         >
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-sans text-sm font-semibold text-slate-800 dark:text-slate-200">Text Style</h3>
+            <div className="flex items-center gap-1.5">
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+                handleTextColorChange('#ffffff');
+                handleTextOpacityChange(0.95);
+                handleFontFamilyChange('serif');
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+                handleTextColorChange('#ffffff');
+                handleTextOpacityChange(0.95);
+                handleFontFamilyChange('serif');
+              }}
+              className="flex items-center gap-1 px-2 py-1 rounded-md bg-secondary hover:bg-accent/20 text-slate-700 dark:text-slate-300 font-sans text-[10px] font-medium transition-colors"
+            >
+              <RotateCcw className="w-2.5 h-2.5" />
+              Reset All
+            </button>
             <button
               onClick={(e) => {
                 e.preventDefault();
@@ -841,6 +864,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             >
               <Upload className="w-4 h-4 rotate-45 text-slate-600 dark:text-slate-400" />
             </button>
+            </div>
           </div>
 
           {/* Text Color */}
@@ -850,38 +874,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 <Palette className="w-3.5 h-3.5" />
                 Text Color
               </label>
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent.stopImmediatePropagation();
-                  handleTextColorChange('#ffffff');
-                  handleTextOpacityChange(0.95);
-                  handleFontFamilyChange('serif');
-                }}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent.stopImmediatePropagation();
-                }}
-                onTouchStart={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent.stopImmediatePropagation();
-                }}
-                onTouchEnd={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent.stopImmediatePropagation();
-                  handleTextColorChange('#ffffff');
-                  handleTextOpacityChange(0.95);
-                  handleFontFamilyChange('serif');
-                }}
-                className="flex items-center gap-1 px-2 py-1 rounded-md bg-secondary hover:bg-accent/20 text-slate-700 dark:text-slate-300 font-sans text-[10px] font-medium transition-colors"
-              >
-                <RotateCcw className="w-2.5 h-2.5" />
-                Reset
-              </button>
             </div>
             <div className="flex flex-wrap gap-2 mb-2">
               {[
