@@ -165,19 +165,19 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
   const handleTextColorChange = (color) => {
     setTextColor(color);
-    localStorage.setItem('kjb-verse-text-color', color);
+    try { localStorage.setItem('kjb-verse-text-color', color); } catch {}
     window.dispatchEvent(new Event('storage'));
   };
 
   const handleTextOpacityChange = (opacity) => {
     setTextOpacity(opacity);
-    localStorage.setItem('kjb-verse-text-opacity', String(opacity));
+    try { localStorage.setItem('kjb-verse-text-opacity', String(opacity)); } catch {}
     window.dispatchEvent(new Event('storage'));
   };
 
   const handleFontFamilyChange = (font) => {
     setFontFamily(font);
-    localStorage.setItem('kjb-verse-font-family', font);
+    try { localStorage.setItem('kjb-verse-font-family', font); } catch {}
     window.dispatchEvent(new Event('storage'));
   };
 
