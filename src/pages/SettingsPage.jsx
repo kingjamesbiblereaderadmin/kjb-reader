@@ -437,22 +437,24 @@ export default function SettingsPage() {
         </div>
         {a11yFont !== 'default' && (
           <p className="font-sans text-xs text-muted-foreground -mt-1 leading-snug">
-            An accessibility font is on (it applies across the whole app). Pick a reading font below to switch back.
+            An accessibility font is on and overrides reading fonts. Pick another accessibility font, or disable it in the Accessibility section.
           </p>
         )}
         <div className="flex flex-col gap-2">
         {[...VERSE_FONTS, ...A11Y_FONT_OPTIONS].map(font => {
           const isA11yChoice = font.value === 'dyslexic' || font.value === 'hyperlegible';
           const isActive = a11yFont !== 'default' ? a11yFont === font.value : readerFontFamily === font.value;
+          const isDisabled = a11yFont !== 'default' && !isA11yChoice;
           return (
           <button
             key={font.value}
+            disabled={isDisabled}
             onClick={() => pickReaderFont(font.value)}
             className={`w-full py-3 rounded-xl font-sans text-sm font-medium transition-all text-center border-2 ${
               isActive
                 ? 'bg-primary text-primary-foreground border-primary'
                 : 'bg-transparent text-foreground border-border hover:border-accent'
-            }`}
+            } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
             style={isA11yChoice ? undefined : { fontFamily: font.value }}
           >
             {font.label}
@@ -798,22 +800,24 @@ export default function SettingsPage() {
             </div>
             {a11yFont !== 'default' && (
               <p className="font-sans text-xs text-muted-foreground leading-snug">
-                An accessibility font is on (it applies across the whole app). Pick another font below to switch back.
+                An accessibility font is on and overrides reading fonts. Pick another accessibility font, or disable it in the Accessibility section.
               </p>
             )}
             <div className="grid grid-cols-2 gap-2">
               {[...VERSE_FONTS, ...A11Y_FONT_OPTIONS].map(font => {
                 const isA11yChoice = font.value === 'dyslexic' || font.value === 'hyperlegible';
                 const isActive = a11yFont !== 'default' ? a11yFont === font.value : verseFontFamily === font.value;
+                const isDisabled = a11yFont !== 'default' && !isA11yChoice;
                 return (
                 <button
                   key={font.value}
+                  disabled={isDisabled}
                   onClick={() => pickVerseFont(font.value)}
                   className={`px-4 py-3 rounded-xl font-sans text-sm font-medium transition-all ${
                     isActive
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-                  }`}
+                  } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
                   style={isA11yChoice ? undefined : { fontFamily: font.value }}
                 >
                   {font.label}
