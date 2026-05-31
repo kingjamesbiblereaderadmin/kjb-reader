@@ -36,7 +36,15 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   let displayVerseText = verse.text.replace(/^<<[^>]*>>\s*/, '');
 
   // renderVerseText handles [italics] and ¶ pilcrow styling, plus search term highlighting
-  const html = renderVerseText(displayVerseText, searchTerm);
+  let html = renderVerseText(displayVerseText, searchTerm);
+
+  // Drop cap: wrap the FIRST visible letter of the text in a styled span (instead
+  // of CSS ::first-letter, which doesn't work reliably in inline/paragraph flow
+  // and would otherwise enlarge the verse number). Skips any leading HTML tags
+  // (e.g. a pilcrow span) so the cap lands on the first real letter.
+  if (dropCap && !selectMode) {
+    html = html.replace(/([A-Za-z])/, '<span class="kjb-dropcap-letter">$1</span>');
+  }
 
   const verseRef = `${shortBookName} ${chapter}:${verse.verse}`;
   // Build the shared, consistent copy/share text (clean text + deep link).
@@ -274,7 +282,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             !selectMode && !isHighlighted ? 'hover:bg-secondary/60' : ''
           }`}
         >
-          {!dropCap && <sup className="text-accent font-sans font-bold text-[0.65em] mr-2 select-none">{verse.verse}</sup>}
+          <sup className="text-accent font-sans font-bold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
           <span className={selectMode && isSelected ? 'bg-primary/10 box-decoration-clone rounded px-[0.2em] py-[0.1em]' : ''}>
             {selectMode && (
               <span className="inline-flex items-center mr-1 text-primary align-middle">
@@ -282,12 +290,10 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
               </span>
             )}
             <span
-              className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${dropCap ? 'kjb-dropcap' : ''} ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+              className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
               style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
-            >
-              {dropCap && <span className="kjb-dropcap-num text-accent font-sans text-[0.65em] select-none">{verse.verse}</span>}
-              <span dangerouslySetInnerHTML={{ __html: html }} />
-            </span>
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
           </span>
           {' '}
         </span>
@@ -297,8 +303,8 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   }
 
   // ── LINE MODE (default): each verse is its own line ──
-  // Drop-cap verse 1: render the verse number INLINE before the text (not as a
-  // flex sibling) so it sits beside the first text line, not at the top of the cap.
+  // Drop-cap verse 1: number sits beside the first text line; the big first
+  // letter is wrapped (kjb-dropcap-letter) and floats left within the text.
   if (dropCap && !selectMode) {
     return (
       <span id={id} className="block relative mt-2">
@@ -306,15 +312,12 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           onClick={() => setSelected(s => !s)}
           className={`block leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.4em] py-[0.25em] ${!isHighlighted ? 'hover:bg-secondary/60' : ''}`}
         >
-          {/* Verse number is absolutely positioned to the left of the drop cap
-              so it never becomes the ::first-letter and never stacks on top. */}
+          <sup className="text-accent font-sans font-bold text-[0.6em] select-none mr-[0.3em] align-baseline">{verse.verse}</sup>
           <span
-            className={`kjb-dropcap leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+            className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
             style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
-          >
-            <span className="kjb-dropcap-num text-accent font-sans text-[0.6em] select-none">{verse.verse}</span>
-            <span dangerouslySetInnerHTML={{ __html: html }} />
-          </span>
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
         </span>
         {actionPopover}
       </span>
@@ -336,7 +339,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             </span>
           )}
           <span
-            className={`flex-1 min-w-0 leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${dropCap ? 'kjb-dropcap' : ''} ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+            className={`flex-1 min-w-0 leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
             style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
             dangerouslySetInnerHTML={{ __html: html }}
           />
