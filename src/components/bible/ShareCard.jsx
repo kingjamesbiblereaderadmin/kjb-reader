@@ -85,14 +85,15 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc }, ref) {
       />
 
       <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '64px 72px' }}>
-        {/* Logo top-left. Prefer the pre-fetched data URL (taint-free); fall
-            back to the direct CORS URL so it still appears if the fetch failed. */}
-        <img
-          src={logoSrc || LOGO_URL}
-          alt="KJB Reader"
-          crossOrigin="anonymous"
-          style={{ position: 'absolute', top: '64px', left: '48px', width: '104px', height: '104px', borderRadius: '14px', boxShadow: '0 4px 14px rgba(0,0,0,0.3)' }}
-        />
+        {/* Logo top-left — render ONLY once we have a same-origin data URL so
+            html2canvas never taints the canvas (which would drop the image). */}
+        {logoSrc && (
+          <img
+            src={logoSrc}
+            alt="KJB Reader"
+            style={{ position: 'absolute', top: '64px', left: '48px', width: '104px', height: '104px', borderRadius: '14px', boxShadow: '0 4px 14px rgba(0,0,0,0.3)' }}
+          />
+        )}
 
         {/* VERSE OF THE DAY header with gradient side rules */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginTop: '32px' }}>
@@ -143,12 +144,11 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc }, ref) {
             alignItems: 'center',
             justifyContent: 'center',
             background: '#3A1F5F',
-            border: '1px solid rgba(255,255,255,0.18)',
             borderRadius: '18px',
             height: '88px',
             padding: '0 44px',
             marginBottom: '56px',
-            boxShadow: '0 4px 14px rgba(140,90,220,0.45)',
+            boxShadow: '0 6px 18px rgba(0,0,0,0.3)',
           }}
         >
           <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '40px', fontWeight: 700, lineHeight: '40px', letterSpacing: '0.04em', color: '#ffffff' }}>

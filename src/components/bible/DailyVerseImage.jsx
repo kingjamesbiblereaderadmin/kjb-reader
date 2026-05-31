@@ -191,22 +191,55 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const [logoDataUrl, setLogoDataUrl] = useState('');
   const logoDataUrlRef = useRef('');
 
-  // Fetch the logo as a same-origin data URL so html2canvas can render it
-  // without tainting the canvas. Returns the data URL (and caches it).
+  // Convert the logo to a same-origin data URL so html2canvas can render it
+  // without tainting the canvas. Try fetch() first, then fall back to an
+  // <img> + canvas (works whenever the CDN sends CORS headers).
   const fetchLogoDataUrl = async () => {
     if (logoDataUrlRef.current) return logoDataUrlRef.current;
-    try {
-      const res = await fetch(LOGO_URL, { mode: 'cors', cache: 'force-cache' });
-      const blob = await res.blob();
-      const dataUrl = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(blob);
-      });
+
+    const store = (dataUrl) => {
       logoDataUrlRef.current = dataUrl;
       setLogoDataUrl(dataUrl);
       return dataUrl;
-    } catch {
+    };
+
+    // 1) fetch → blob → data URL
+    try {
+      const res = await fetch(LOGO_URL, { mode: 'cors' });
+      if (res.ok) {
+        const blob = await res.blob();
+        const dataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+        return store(dataUrl);
+      }
+    } catch (err) {
+      console.warn('[ShareCard] logo fetch failed, trying img fallback', err);
+    }
+
+    // 2) <img crossOrigin> → canvas → data URL
+    try {
+      const dataUrl = await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          try {
+            const c = document.createElement('canvas');
+            c.width = img.naturalWidth;
+            c.height = img.naturalHeight;
+            c.getContext('2d').drawImage(img, 0, 0);
+            resolve(c.toDataURL('image/png'));
+          } catch (e) { reject(e); }
+        };
+        img.onerror = reject;
+        img.src = LOGO_URL;
+      });
+      return store(dataUrl);
+    } catch (err) {
+      console.warn('[ShareCard] logo img fallback failed', err);
       return '';
     }
   };
