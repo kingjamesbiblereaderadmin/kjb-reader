@@ -138,15 +138,19 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc }, ref) {
         {/* Date badge — dark purple */}
         <div
           style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             background: '#3A1F5F',
             border: '1px solid rgba(255,255,255,0.18)',
             borderRadius: '18px',
-            padding: '18px 44px',
+            height: '88px',
+            padding: '0 44px',
             marginBottom: '56px',
             boxShadow: '0 4px 14px rgba(140,90,220,0.45), inset 0 2px 6px rgba(0,0,0,0.35)',
           }}
         >
-          <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '40px', fontWeight: 700, letterSpacing: '0.04em', color: '#ffffff' }}>
+          <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '40px', fontWeight: 700, lineHeight: '40px', letterSpacing: '0.04em', color: '#ffffff' }}>
             {dateStr}
           </span>
         </div>
