@@ -942,7 +942,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             </label>
             {a11yFont !== 'default' && (
               <p className="font-sans text-[10px] text-slate-500 dark:text-slate-400 mb-2 leading-snug">
-                An accessibility font is active app-wide. Pick another font to switch, or it overrides other fonts.
+                An accessibility font is active app-wide. Pick another font to switch, or go to Settings to disable it.
               </p>
             )}
             <div className="grid grid-cols-3 gap-1">
