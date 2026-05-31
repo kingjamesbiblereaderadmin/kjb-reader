@@ -252,12 +252,11 @@
     font-family: system-ui, -apple-system, sans-serif !important;
   }
 
-  /* Accessibility settings section: render headings/labels in OpenDyslexic so
-     it's easy to find regardless of the active app font — but EXCLUDE the font
-     option buttons (and their children) so each can show its own preview font
-     and the selected state stays clearly visible. */
-  #kjb-accessibility-section:not(:has(button)),
-  #kjb-accessibility-section *:not(button):not(button *) {
+  /* Accessibility settings section: always render in OpenDyslexic so it's
+     easy to find regardless of the active app font. Font-preview labels opt out
+     via .kjb-font-preview so each option shows in its own typeface. */
+  #kjb-accessibility-section,
+  #kjb-accessibility-section *:not(.kjb-font-preview) {
     font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif !important;
   }
 

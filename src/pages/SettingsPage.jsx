@@ -489,7 +489,7 @@ export default function SettingsPage() {
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="font-sans text-sm font-medium text-foreground" style={font.preview ? { fontFamily: font.preview } : undefined}>
+                    <p className="kjb-font-preview font-sans text-sm font-medium text-foreground" style={font.preview ? { fontFamily: font.preview } : undefined}>
                       {font.label}
                     </p>
                     <p className="font-sans text-xs text-muted-foreground mt-0.5">{font.desc}</p>
