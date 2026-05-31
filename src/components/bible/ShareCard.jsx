@@ -1,5 +1,6 @@
 import React from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
+import ShareCardLogo from './ShareCardLogo';
 
 // Fixed 1024×1024 square card used ONLY for the shared/downloaded image.
 // Style: vertical blue→purple gradient, logo top-left, "VERSE OF THE DAY"
@@ -85,15 +86,11 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc }, ref) {
       />
 
       <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '64px 72px' }}>
-        {/* Logo top-left — render ONLY once we have a same-origin data URL so
-            html2canvas never taints the canvas (which would drop the image). */}
-        {logoSrc && (
-          <img
-            src={logoSrc}
-            alt="KJB Reader"
-            style={{ position: 'absolute', top: '64px', left: '48px', width: '104px', height: '104px', borderRadius: '14px', boxShadow: '0 4px 14px rgba(0,0,0,0.3)' }}
-          />
-        )}
+        {/* Logo top-left — fully embedded inline SVG (no URL, no CORS) so it
+            always renders inside the html2canvas snapshot. */}
+        <div style={{ position: 'absolute', top: '64px', left: '48px' }}>
+          <ShareCardLogo size={104} />
+        </div>
 
         {/* VERSE OF THE DAY header with gradient side rules */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginTop: '32px' }}>
