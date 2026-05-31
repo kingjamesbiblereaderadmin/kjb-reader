@@ -450,6 +450,10 @@ async function buildText(opts, bible, onProgress, format) {
   const keepBrackets = format === 'txt'; // TXT keeps [italics]
 
   const out = []; // lines (txt) or html paragraphs (docx)
+  // Collected Word header definitions (one per book section). Each book gets its
+  // own <div style="mso-element:header"> that Word renders as the running head.
+  const headerDivs = [];
+  let sectionCount = 0;
   const push = (txt, kind = 'body', anchor = null) => {
     if (isDocx) {
       const a = anchor ? `<a name="${anchor}"></a>` : '';
@@ -471,6 +475,10 @@ async function buildText(opts, bible, onProgress, format) {
       return m ? `<i>${escapeHtml(m[1])}</i>` : escapeHtml(p);
     }).join('');
   }
+
+  // Open the front-matter section (title + contents). It has no running header;
+  // the first book's section open will close this div.
+  if (isDocx) out.push('<div class="SectionFront">');
 
   // Title pages
   TITLE_WHOLE.forEach((b, i) => push(b.t, i === 1 ? 'h1' : 'h2'));
@@ -508,8 +516,30 @@ async function buildText(opts, bible, onProgress, format) {
 
     if (book.apiName === 'Matthew') { TITLE_NT.forEach((b, i) => push(b.t, i === 1 ? 'h1' : 'h2')); push(''); }
 
-    push('');
-    push(book.name, 'h1', anchorFor(book));
+    // Word: each book is its own section so the running header shows the current
+    // book name. Close the previous section (its paragraph properties hold the
+    // section break + header reference), then open this book's section.
+    if (isDocx) {
+      sectionCount += 1;
+      const sid = `Section${sectionCount}`;
+      const hid = `h${sectionCount}`;
+      // Header band for this book — collected and emitted at the end of <body>.
+      headerDivs.push(
+        `<div style="mso-element:header" id="${hid}"><p class=MsoHeader style="text-align:center"><i>${escapeHtml(book.name)}</i></p></div>`
+      );
+      // Close the previous book's section with a section-break paragraph that
+      // carries this section's properties (header + columns). The FIRST book
+      // closes the front-matter section instead.
+      out.push(
+        `<p style="mso-element:section-break"></p></div>` +
+        `<div class="${sid}" style="page-break-before:always">` +
+        `<a name="${anchorFor(book)}"></a>` +
+        `<h1 style="text-align:center">${escapeHtml(book.name)}</h1>`
+      );
+    } else {
+      push('');
+      push(book.name, 'h1', anchorFor(book));
+    }
 
     for (let ch = 1; ch <= book.chapters; ch++) {
       let verses = bookData[ch] || [];
