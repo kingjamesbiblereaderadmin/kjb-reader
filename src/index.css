@@ -233,6 +233,24 @@
     font-style: italic !important;
   }
 
+  /* ── Reader reading-font ──
+     The reader sets data-reader-font on <html>; these rules apply the chosen
+     font to the scripture content (.kjb-reader-content) only — not UI chrome.
+     Verse numbers (sup) and explicit font-sans elements keep their own font.
+     Cursive is handled separately by .cursive-em-style, so it's excluded here. */
+  html[data-reader-font="serif"] .kjb-reader-content:not(.cursive-em-style),
+  html[data-reader-font="serif"] .kjb-reader-content:not(.cursive-em-style) *:not(sup):not(.font-sans):not(svg):not(svg *) {
+    font-family: 'Merriweather', 'Cormorant Garamond', Georgia, serif;
+  }
+  html[data-reader-font="sans-serif"] .kjb-reader-content:not(.cursive-em-style),
+  html[data-reader-font="sans-serif"] .kjb-reader-content:not(.cursive-em-style) *:not(sup):not(.font-sans):not(svg):not(svg *) {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  html[data-reader-font="monospace"] .kjb-reader-content:not(.cursive-em-style),
+  html[data-reader-font="monospace"] .kjb-reader-content:not(.cursive-em-style) *:not(sup):not(.font-sans):not(svg):not(svg *) {
+    font-family: 'Courier New', monospace;
+  }
+
   /* ── App-wide accessibility fonts ──
      Applied via data attribute on <html>. Overrides every font across the app
      (UI + scripture). Cursive scripture styling is intentionally left intact. */

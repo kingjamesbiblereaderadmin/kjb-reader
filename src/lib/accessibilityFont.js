@@ -3,6 +3,17 @@
 // Options: 'default' | 'dyslexic' | 'hyperlegible'
 
 const STORAGE_KEY = 'kjb-a11y-font';
+const READER_FONT_KEY = 'kjb-reader-font-family';
+
+// Apply the chosen reading font (serif/sans-serif/monospace/cursive) to the
+// reader content via a data attribute on <html>. CSS in index.css turns this
+// into an actual font-family. Keeping it on <html> guarantees every reading
+// mode (line/paragraph/column) picks it up consistently.
+export function applyReaderFont(font) {
+  const root = document.documentElement;
+  const valid = ['serif', 'sans-serif', 'monospace', 'cursive'];
+  root.setAttribute('data-reader-font', valid.includes(font) ? font : 'serif');
+}
 
 export function getAccessibilityFont() {
   try {

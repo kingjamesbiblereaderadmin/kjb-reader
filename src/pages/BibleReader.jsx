@@ -18,7 +18,7 @@ import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Accessibility } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
+import { getAccessibilityFont, setAccessibilityFont, applyReaderFont } from '@/lib/accessibilityFont';
 import { getSearchNav, setSearchNav, setSearchIndex, clearSearchNav, getGospelNav, setGospelNav, setGospelIndex, clearGospelNav } from '@/lib/searchNav';
 import { getGospelResults } from '@/lib/gospelVerses';
 
@@ -190,6 +190,7 @@ export default function BibleReader() {
     }
     setFontFamily(font);
     try { localStorage.setItem('kjb-reader-font-family', font); } catch {}
+    applyReaderFont(font);
     window.dispatchEvent(new Event('storage'));
   };
 
@@ -793,7 +794,11 @@ export default function BibleReader() {
   useEffect(() => {
     const sync = () => {
       try { setZoomLevel(parseInt(localStorage.getItem('kjb-zoom') || '100')); } catch {}
-      try { setFontFamily(localStorage.getItem('kjb-reader-font-family') || 'serif'); } catch {}
+      try {
+        const f = localStorage.getItem('kjb-reader-font-family') || 'serif';
+        setFontFamily(f);
+        applyReaderFont(f);
+      } catch {}
       try { setA11yFont(getAccessibilityFont()); } catch {}
     };
     sync(); // run immediately on mount / when pathname changes
@@ -1781,7 +1786,7 @@ export default function BibleReader() {
 
       {/* Title pages or verses */}
       <div 
-        className={`leading-loose text-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`}
+        className={`kjb-reader-content leading-loose text-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`}
         style={{ 
           fontSize: `${zoomLevel / 100 * 1.125}rem`, 
           lineHeight: zoomLevel > 100 ? '1.8' : '1.6',
