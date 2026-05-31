@@ -446,7 +446,8 @@ async function buildPdf(opts, bible, onProgress) {
 // TXT (keeps [brackets] for italics) & DOCX
 // ─────────────────────────────────────────────────────────────
 async function buildText(opts, bible, onProgress, format) {
-  const { twoColumn, paragraph, subscripts, colophons } = opts;
+  const { twoColumn, paragraph, subscripts, colophons, shortNames } = opts;
+  const nameOf = (b) => (shortNames ? b.shortName : b.name);
   const isDocx = format === 'docx';
   const keepBrackets = format === 'txt'; // TXT keeps [italics]
 
@@ -496,7 +497,7 @@ async function buildText(opts, bible, onProgress, format) {
         lastT = book.testament;
         out.push(`<p style="margin:8px 0 2px"><b>${book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT'}</b></p>`);
       }
-      out.push(`<p style="margin:1px 0 1px 28px;text-indent:-10px"><a href="#${anchorFor(book)}">&bull;&nbsp;${escapeHtml(book.name)}</a></p>`);
+      out.push(`<p style="margin:1px 0 1px 28px;text-indent:-10px"><a href="#${anchorFor(book)}">&bull;&nbsp;${escapeHtml(nameOf(book))}</a></p>`);
     });
     out.push('<br style="page-break-after:always" />');
   } else {
@@ -505,7 +506,7 @@ async function buildText(opts, bible, onProgress, format) {
     let lastT = null;
     BIBLE_BOOKS.forEach(book => {
       if (book.testament !== lastT) { lastT = book.testament; push(''); push(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT'); }
-      push('  \u2022 ' + book.name);
+      push('  \u2022 ' + nameOf(book));
     });
     push('');
     push('');
@@ -526,7 +527,7 @@ async function buildText(opts, bible, onProgress, format) {
       const hid = `h${sectionCount}`;
       // Header band for this book — collected and emitted at the end of <body>.
       headerDivs.push(
-        `<div style="mso-element:header" id="${hid}"><p class=MsoHeader style="text-align:center"><i>${escapeHtml(book.name)}</i></p></div>`
+        `<div style="mso-element:header" id="${hid}"><p class=MsoHeader style="text-align:center"><i>${escapeHtml(nameOf(book))}</i></p></div>`
       );
       // Close the previous section <div> and open this book's section <div>.
       // The closing of one Section div + opening of the next, combined with the
@@ -536,11 +537,11 @@ async function buildText(opts, bible, onProgress, format) {
         `</div>` +
         `<div class="${sid}" style="page-break-before:always">` +
         `<a name="${anchorFor(book)}"></a>` +
-        `<h1 style="text-align:center">${escapeHtml(book.name)}</h1>`
+        `<h1 style="text-align:center">${escapeHtml(nameOf(book))}</h1>`
       );
     } else {
       push('');
-      push(book.name, 'h1', anchorFor(book));
+      push(nameOf(book), 'h1', anchorFor(book));
     }
 
     for (let ch = 1; ch <= book.chapters; ch++) {
@@ -647,7 +648,8 @@ function rtfInline(text) {
 }
 
 async function buildRtf(opts, bible, onProgress) {
-  const { twoColumn, paragraph, subscripts, colophons } = opts;
+  const { twoColumn, paragraph, subscripts, colophons, shortNames } = opts;
+  const nameOf = (b) => (shortNames ? b.shortName : b.name);
   const lines = [];
   // Generic paragraph helper. spaceBefore/spaceAfter in twips, qc=centered.
   const para = (rtf, { center = false, bold = false, size = 22, sb = 0, sa = 80 } = {}) =>
@@ -681,7 +683,7 @@ async function buildRtf(opts, bible, onProgress) {
       para(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT', { bold: true, size: 26, sb: 160, sa: 80 });
     }
     // Bullet + indent
-    lines.push(`{\\pard\\fi-180\\li360\\sa40\\fs20 \\bullet\\tab ${rtfEscape(book.name)}\\par}`);
+    lines.push(`{\\pard\\fi-180\\li360\\sa40\\fs20 \\bullet\\tab ${rtfEscape(nameOf(book))}\\par}`);
   });
 
   const total = BIBLE_BOOKS.length;
@@ -699,9 +701,9 @@ async function buildRtf(opts, bible, onProgress) {
     // New section per book (also breaks to a new page) so the running header
     // shows the current book name.
     lines.push('\\sect ');
-    lines.push(`\\sectd\\headery720 ${headerFor(book.name)}`);
+    lines.push(`\\sectd\\headery720 ${headerFor(nameOf(book))}`);
 
-    para(rtfEscape(book.name), { center: true, bold: true, size: 32, sb: 120, sa: 160 });
+    para(rtfEscape(nameOf(book)), { center: true, bold: true, size: 32, sb: 120, sa: 160 });
 
     for (let ch = 1; ch <= book.chapters; ch++) {
       let verses = bookData[ch] || [];

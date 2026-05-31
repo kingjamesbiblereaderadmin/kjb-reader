@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, Loader2, Columns2, AlignLeft, AlignJustify, List, CheckCircle2, AlertCircle, FileType, FileText, File, FileType2 } from 'lucide-react';
+import { Download, Loader2, Columns2, AlignLeft, AlignJustify, List, CheckCircle2, AlertCircle, FileType, FileText, File, FileType2, Type, Tag } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { exportBiblePdf } from '@/lib/exportBiblePdf';
 import { EXPORT_FONTS, DEFAULT_EXPORT_FONT } from '@/lib/exportFonts';
@@ -26,6 +26,7 @@ export default function DownloadBibleSection() {
   const [paragraph, setParagraph] = useState(false);
   const [subscripts, setSubscripts] = useState(true);
   const [colophons, setColophons] = useState(true);
+  const [shortNames, setShortNames] = useState(false);
   const [format, setFormat] = useState('pdf');
   const [font, setFont] = useState(DEFAULT_EXPORT_FONT);
 
@@ -40,7 +41,7 @@ export default function DownloadBibleSection() {
     setProgress(0);
     setStatus('Preparing…');
     try {
-      await exportBiblePdf({ twoColumn, paragraph, subscripts, colophons, format, font }, (pct, msg) => {
+      await exportBiblePdf({ twoColumn, paragraph, subscripts, colophons, shortNames, format, font }, (pct, msg) => {
         setProgress(pct);
         setStatus(msg);
       });
@@ -117,6 +118,18 @@ export default function DownloadBibleSection() {
           <Toggle active={!paragraph} onClick={() => setParagraph(false)} icon={List} label="Line" />
           <Toggle active={paragraph} onClick={() => setParagraph(true)} icon={AlignJustify} label="Paragraph" />
         </div>
+      </div>
+
+      {/* Book names */}
+      <div className="space-y-2">
+        <p className="font-sans text-sm font-medium text-foreground">Book Names</p>
+        <div className="flex gap-2">
+          <Toggle active={!shortNames} onClick={() => setShortNames(false)} icon={Type} label="Full" />
+          <Toggle active={shortNames} onClick={() => setShortNames(true)} icon={Tag} label="Short" />
+        </div>
+        <p className="font-sans text-xs text-muted-foreground">
+          {shortNames ? 'e.g. "Gen", "Matt"' : 'e.g. "Genesis", "The Gospel According to St. Matthew"'}
+        </p>
       </div>
 
       {/* Includes */}
