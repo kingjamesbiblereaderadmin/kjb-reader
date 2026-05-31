@@ -198,7 +198,13 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     await Promise.all(imgs.map(img => (
       img.complete && img.naturalWidth > 0
         ? Promise.resolve()
-        : new Promise(res => { img.onload = res; img.onerror = res; })
+        // Resolve on load/error, but never hang — time out after 2.5s.
+        : new Promise(res => {
+            const done = () => res();
+            img.onload = done;
+            img.onerror = done;
+            setTimeout(done, 2500);
+          })
     )));
     const canvas = await html2canvas(el, { backgroundColor: null, scale: 1, useCORS: true, allowTaint: false });
     return await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
