@@ -352,7 +352,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   };
 
   return (
-    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full min-h-[300px] ${gradientClass} rounded-2xl shadow-lg px-6 pt-6 pb-12 text-center text-white relative flex flex-col ${uploadingComplete ? 'cursor-default' : 'cursor-pointer'}`} style={bgStyle} onTouchEnd={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }}>
+    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full min-h-[300px] ${gradientClass} rounded-2xl shadow-lg px-6 text-center text-white relative flex flex-col ${capturing ? 'pt-20 pb-24' : 'pt-6 pb-12'} ${uploadingComplete ? 'cursor-default' : 'cursor-pointer'}`} style={bgStyle} onTouchEnd={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }}>
       {/* Notification bell indicator button */}
       {showButtons && onToggleNotif && (
         <button
@@ -386,9 +386,19 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         </button>
       )}
 
-      {/* Date display */}
+      {/* Capture-only website URL — shown only in the downloaded/copied/shared image */}
+      {capturing && (
+        <span
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap font-sans font-bold z-10"
+          style={{ color: textColor, opacity: Math.min(1, textOpacity + 0.05), fontSize: '16px', textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}
+        >
+          KingJamesBibleReader.com
+        </span>
+      )}
+
+      {/* Date display — centered above the URL during capture, bottom-left on screen */}
       <span
-        className="absolute bottom-3 left-3 whitespace-nowrap"
+        className={`absolute whitespace-nowrap ${capturing ? 'bottom-12 left-1/2 -translate-x-1/2' : 'bottom-3 left-3'}`}
         style={{
           backgroundColor: 'rgba(0,0,0,0.3)',
           borderRadius: '6px',
@@ -973,14 +983,28 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         className="hidden"
       />
       
+      {/* Capture-only logo (top-left) — shown only in the downloaded/copied/shared image */}
+      {capturing && (
+        <img
+          src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png"
+          alt="KJB Reader"
+          crossOrigin="anonymous"
+          className="absolute top-4 left-4 w-14 h-14 rounded-lg shadow-md z-10"
+        />
+      )}
+
       {showVersePanel ? (
         <div className="bg-white/25 backdrop-blur-sm rounded-xl px-6 pt-4 pb-6 shadow-none text-center flex-1 flex flex-col w-full max-w-full overflow-hidden">
-          <p 
-            className={`font-sans text-base font-extrabold tracking-wide uppercase mt-3 mb-8 ${accentClass}`}
-            style={{ opacity: textOpacity, color: textColor, fontFamily: resolvedFont }}
-          >
-            Verse of the Day
-          </p>
+          <div className="flex items-center justify-center gap-3 mt-3 mb-8">
+            <span className="h-px w-8 bg-current opacity-50" style={{ color: textColor }} />
+            <p 
+              className={`font-sans text-base font-extrabold tracking-widest uppercase ${accentClass}`}
+              style={{ opacity: textOpacity, color: textColor, fontFamily: "'Inter', system-ui, sans-serif" }}
+            >
+              Verse of the Day
+            </p>
+            <span className="h-px w-8 bg-current opacity-50" style={{ color: textColor }} />
+          </div>
           <div className="flex-1 flex flex-col justify-center">
           <blockquote 
             className="text-center text-3xl md:text-4xl leading-relaxed [&_em]:italic break-words"
