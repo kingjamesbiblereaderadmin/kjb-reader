@@ -7,7 +7,7 @@ import ImageCropper from './ImageCropper';
 import ShareCard from './ShareCard.jsx';
 import { getNotificationsEnabled, requestNotificationPermission, disableNotifications, scheduleDailyNotification } from '@/lib/notifications';
 import { formatDailyVerseForCopy } from '@/lib/formatDailyVerse';
-import { getAccessibilityFont } from '@/lib/accessibilityFont';
+import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
 
 // Map a font choice to an actual CSS font-family. When an app-wide
 // accessibility font is active, it always takes priority.
@@ -176,6 +176,14 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   };
 
   const handleFontFamilyChange = (font) => {
+    // Dyslexic / hyperlegible are app-wide accessibility fonts — selecting them
+    // here enables them everywhere (reader, settings, verse card).
+    if (font === 'dyslexic' || font === 'hyperlegible') {
+      setAccessibilityFont(font);
+      setA11yFont(font);
+      window.dispatchEvent(new Event('storage'));
+      return;
+    }
     setFontFamily(font);
     localStorage.setItem('kjb-verse-font-family', font);
     window.dispatchEvent(new Event('storage'));
@@ -1350,7 +1358,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {/* Off-screen fixed-size card used for the shared/downloaded image */}
-      <ShareCard ref={shareCardRef} verse={verse} logoSrc={logoDataUrl} fontFamily={resolvedFont} />
+      <ShareCard ref={shareCardRef} verse={verse} logoSrc={logoDataUrl} fontFamily={resolvedFont} a11yFont={a11yFont} />
     </div>
   );
 }
