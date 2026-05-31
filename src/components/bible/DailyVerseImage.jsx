@@ -191,6 +191,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     : {};
   const gradientClass = (pendingBg || customBg) ? '' : `bg-gradient-to-br ${defaultBg.gradient}`;
   const accentClass = (pendingBg || customBg) ? 'text-white' : defaultBg.accent;
+  const hasCustomBg = !!(pendingBg || customBg);
 
   const handleDownload = async (e) => {
     e.stopPropagation();
@@ -400,7 +401,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       <span
         className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap ${capturing ? 'bottom-12' : 'bottom-6'}`}
         style={{
-          backgroundColor: 'rgba(55, 48, 163, 0.65)',
+          backgroundColor: hasCustomBg ? 'rgba(0, 0, 0, 0.55)' : 'rgba(55, 48, 163, 0.65)',
           border: '1px solid rgba(255,255,255,0.18)',
           borderRadius: '11px',
           color: 'rgba(255,255,255,0.98)',
@@ -1009,6 +1010,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
           </div>
           <div className="flex-1 flex flex-col justify-center">
+          <div className={hasCustomBg ? 'mx-auto max-w-2xl rounded-2xl bg-black/35 backdrop-blur-sm px-6 py-6' : ''}>
           <blockquote 
             className="text-center text-3xl md:text-4xl leading-relaxed [&_em]:italic break-words"
             style={{ 
@@ -1034,6 +1036,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           >
             — {verse.ref}
           </p>
+          </div>
           </div>
         </div>
       ) : (
