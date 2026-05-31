@@ -4,7 +4,7 @@ import { Download, ChevronDown, FileText, FileSpreadsheet, FileType, File } from
 const OPTIONS = [
   { format: 'pdf', label: 'PDF (.pdf)', Icon: FileType },
   { format: 'docx', label: 'Word (.doc)', Icon: FileText },
-  { format: 'xls', label: 'Excel (.xls)', Icon: FileSpreadsheet },
+  { format: 'xls', label: 'Excel (.csv)', Icon: FileSpreadsheet },
   { format: 'txt', label: 'Plain text (.txt)', Icon: File },
 ];
 

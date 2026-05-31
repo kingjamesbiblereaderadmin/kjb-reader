@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Check, Layers } from 'lucide-react';
 
-export default function VerseSelector({ totalVerses, currentVerse, onSelect, onClose, multiSelect = false, onGoToChapter = null }) {
+export default function VerseSelector({ totalVerses, currentVerse, onSelect, onClose, multiSelect = false, onGoToChapter = null, hasSubscript = false, hasColophon = false }) {
   const [selected, setSelected] = useState(() => new Set(currentVerse ? (Array.isArray(currentVerse) ? currentVerse : [currentVerse]) : []));
   const [multiMode, setMultiMode] = useState(false); // Default to single-select mode
 
@@ -40,6 +40,28 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
         </button>
       </div>
       <div className="overflow-y-auto flex-1 p-3">
+        {(hasSubscript || hasColophon) && (
+          <div className="flex flex-wrap gap-2 mb-3">
+            {hasSubscript && (
+              <button
+                onClick={() => { onSelect(1); onClose(); }}
+                className="px-3 h-9 rounded text-xs font-sans font-medium bg-secondary hover:bg-accent/20 text-foreground transition-colors"
+                title="Go to the superscription (before verse 1)"
+              >
+                Subscript
+              </button>
+            )}
+            {hasColophon && (
+              <button
+                onClick={() => { onSelect(totalVerses); onClose(); }}
+                className="px-3 h-9 rounded text-xs font-sans font-medium bg-secondary hover:bg-accent/20 text-foreground transition-colors"
+                title="Go to the colophon (after the last verse)"
+              >
+                Colophon
+              </button>
+            )}
+          </div>
+        )}
         <div className="grid grid-cols-6 sm:grid-cols-8 gap-2">
           {Array.from({ length: totalVerses }, (_, i) => i + 1).map(v => {
             const isActive = selected.has(v);

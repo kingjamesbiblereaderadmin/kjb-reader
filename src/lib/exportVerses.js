@@ -1,4 +1,5 @@
 import { jsPDF } from 'jspdf';
+import { mergeAdjacentBrackets } from '@/lib/bibleApi';
 
 // Trigger a browser download for a Blob
 function downloadBlob(blob, filename) {
@@ -20,7 +21,7 @@ function escapeHtml(s) {
 
 // Convert [bracketed] words into <em>…</em> (italics), escaping the rest.
 function bracketsToItalicHtml(text) {
-  const clean = (text || '').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
+  const clean = mergeAdjacentBrackets((text || '').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, ''));
   // Split on [bracketed] segments, italicise those, escape everything.
   return clean.replace(/\[([^\]]+)\]|([^[]+)/g, (m, inside, plain) => {
     if (inside !== undefined) return `<em>${escapeHtml(inside)}</em>`;
@@ -39,9 +40,9 @@ function plainNoBrackets(text) {
 
 // Plain text WITH brackets kept (for XLS / italics-aware contexts)
 function plainWithBrackets(text) {
-  return (text || '')
+  return mergeAdjacentBrackets((text || '')
     .replace(/¶\s*/g, '')
-    .replace(/^<<[^>]*>>\s*/, '');
+    .replace(/^<<[^>]*>>\s*/, ''));
 }
 
 const sanitizeFilename = (q) => (q || 'verses').replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '').slice(0, 30) || 'verses';
@@ -70,15 +71,21 @@ export function exportDocx(items, query) {
   downloadBlob(blob, `kjb-${sanitizeFilename(query)}.doc`);
 }
 
-// ── XLS (Excel-compatible HTML table) — brackets kept to mark italics ──
+// ── CSV (Excel-compatible) — opens cleanly without the .xls format warning.
+// Brackets kept to mark italics. Quotes/commas/newlines are CSV-escaped.
+function csvCell(s) {
+  const v = (s || '').replace(/"/g, '""');
+  return `"${v}"`;
+}
 export function exportXls(items, query) {
+  const header = `${csvCell('Reference')},${csvCell('Text ([brackets] = italics)')}`;
   const rows = items.map(it =>
-    `<tr><td>${escapeHtml(it.ref)}</td><td>${escapeHtml(plainWithBrackets(it.text))}</td></tr>`
-  ).join('');
-  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"></head><body>` +
-    `<table border="1"><thead><tr><th>Reference</th><th>Text ([brackets] = italics)</th></tr></thead><tbody>${rows}</tbody></table></body></html>`;
-  const blob = new Blob(['\uFEFF', html], { type: 'application/vnd.ms-excel' });
-  downloadBlob(blob, `kjb-${sanitizeFilename(query)}.xls`);
+    `${csvCell(it.ref)},${csvCell(plainWithBrackets(it.text))}`
+  );
+  const csv = [header, ...rows].join('\r\n');
+  // Leading BOM so Excel detects UTF-8.
+  const blob = new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8' });
+  downloadBlob(blob, `kjb-${sanitizeFilename(query)}.csv`);
 }
 
 // ── PDF (jsPDF) — italics preserved via font style switching ──

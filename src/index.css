@@ -316,5 +316,8 @@
     margin-top: 0.1em;
     color: hsl(var(--accent));
     font-family: 'Inter', system-ui, sans-serif;
+    /* Never let a verse highlight background tint the verse number — the
+       highlight should cover the scripture text + drop-cap letter only. */
+    background-color: transparent !important;
   }
 }

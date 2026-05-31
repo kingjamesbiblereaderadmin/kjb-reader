@@ -38,6 +38,16 @@ export function formatVerseShare({ text, ref, url, title } = {}) {
   return parts.join('\n\n');
 }
 
+// Append a colophon (after last verse) or prepend a subscript/superscription
+// (before Psalm verse 1) to the verse text for copy/share. Pilcrows and
+// [brackets] are kept intact (matching what's shown on screen).
+export function withExtras(text, { subscript, colophon } = {}) {
+  let out = cleanVerseText(text);
+  if (subscript) out = `${cleanVerseText(subscript)}\n${out}`;
+  if (colophon) out = `${out}\n${cleanVerseText(colophon)}`;
+  return out;
+}
+
 export function formatDailyVerseForCopy(verse) {
   const dateTitle = new Date().toLocaleDateString('en-US', {
     month: 'long', day: 'numeric', year: 'numeric',

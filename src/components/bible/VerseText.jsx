@@ -3,9 +3,9 @@ import { renderVerseText } from '@/lib/bibleApi';
 import { Copy, Share2, X, Highlighter, ChevronDown, Bookmark, BookmarkCheck, CheckSquare, Square } from 'lucide-react';
 import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
-import { formatVerseShare, buildVerseUrl } from '@/lib/formatDailyVerse';
+import { formatVerseShare, buildVerseUrl, withExtras } from '@/lib/formatDailyVerse';
 
-export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, isCursive = false, fontFamilyValue = null, zoomLevel = 100, hasSubscript = false, searchTerm = null, dropCap = false, columnMode = false }) {
+export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, subscript = null, isCursive = false, fontFamilyValue = null, zoomLevel = 100, hasSubscript = false, searchTerm = null, dropCap = false, columnMode = false }) {
   const bookEntry = BIBLE_BOOKS.find(b => b.abbr === abbr);
   const shortBookName = bookEntry ? bookEntry.shortName : bookName;
   const [selected, setSelected] = useState(false);
@@ -81,8 +81,10 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
 
   const verseRef = `${shortBookName} ${chapter}:${verse.verse}`;
   // Build the shared, consistent copy/share text (clean text + deep link).
+  // Include the Psalm subscript before verse 1, and the chapter colophon after
+  // the last verse — keeping pilcrows and [brackets] intact.
   const verseText = formatVerseShare({
-    text: verse.text,
+    text: withExtras(verse.text, { subscript, colophon }),
     ref: verseRef,
     url: buildVerseUrl({ abbr, chapter, verse: verse.verse, from: searchTerm ? 'search' : undefined }),
   });

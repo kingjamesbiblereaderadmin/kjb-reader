@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, Loader2, AlignJustify, AlignLeft, List, Columns2, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2 } from 'lucide-react';
-import { buildVerseUrl, formatVerseShare, cleanVerseText } from '@/lib/formatDailyVerse';
+import { buildVerseUrl, formatVerseShare, cleanVerseText, withExtras } from '@/lib/formatDailyVerse';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText, renderSubscriptText } from '@/lib/bibleApi';
 import { getBibleData, forceReloadBibleData } from '@/lib/bibleCache';
@@ -333,10 +333,24 @@ export default function BibleReader() {
     const firstVerse = selectedVersesList[0]?.verse || null;
     const lastVerse = selectedVersesList[selectedVersesList.length - 1]?.verse || null;
 
+    const subscriptKey = `${book.apiName}:${pos.chapter}`;
+    const chapterSubscript = SUBSCRIPTS[subscriptKey] || null;
+    const lastVerseNum = verses.length ? verses[verses.length - 1].verse : null;
     const blocks = groups.map((g) => {
       const range = formatVerseRange(g.map(v => v.verse));
+      // Include the Psalm subscript/superscription when verse 1 is in this group,
+      // and the chapter colophon when the chapter's last verse is in this group.
+      const includesV1 = g.some(v => v.verse === 1);
+      const includesLast = lastVerseNum != null && g.some(v => v.verse === lastVerseNum);
+      const text = withExtras(
+        g.map(v => cleanVerseText(v.text)).join(' '),
+        {
+          subscript: includesV1 ? chapterSubscript : null,
+          colophon: includesLast ? colophon : null,
+        }
+      );
       return formatVerseShare({
-        text: g.map(v => cleanVerseText(v.text)).join(' '),
+        text,
         ref: `${book.shortName} ${pos.chapter}:${range}`,
         url: buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: g[0].verse, verseEnd: g[g.length - 1].verse > g[0].verse ? g[g.length - 1].verse : undefined, from: searchTerm ? 'search' : undefined }),
       });
@@ -1164,6 +1178,8 @@ export default function BibleReader() {
                     totalVerses={verseCount}
                     currentVerse={highlightVerse}
                     multiSelect={true}
+                    hasSubscript={!!SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]}
+                    hasColophon={!!colophon}
                     onSelect={(v) => {
                       const first = Array.isArray(v) ? v[0] : v;
                       if (Array.isArray(v) && v.length > 1) {
@@ -1185,6 +1201,8 @@ export default function BibleReader() {
                   totalVerses={verseCount}
                   currentVerse={highlightVerse}
                   multiSelect={false}
+                  hasSubscript={!!SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]}
+                  hasColophon={!!colophon}
                   onSelect={(v) => {
                     const first = Array.isArray(v) ? v[0] : v;
                     if (Array.isArray(v) && v.length > 1) {
@@ -1849,7 +1867,8 @@ export default function BibleReader() {
                 isSelected={selectedVerses.has(v.verse)}
                 onSelect={toggleVerseSelect}
                 totalVerses={verseCount}
-                colophon={colophon}
+                colophon={verses.length > 0 && v.verse === verses[verses.length - 1].verse ? colophon : null}
+                subscript={v.verse === 1 ? (SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] || null) : null}
                 isCursive={fontFamily === 'cursive'}
                 fontFamilyValue={getFontFamilyValue(fontFamily)}
                 zoomLevel={zoomLevel}
