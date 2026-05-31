@@ -190,12 +190,14 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       return;
     }
     // Picking a normal font must turn OFF any active accessibility font.
+    // Write the verse font BEFORE disabling a11y (setAccessibilityFont fires
+    // 'kjb-fonts-changed' synchronously, which re-reads this key) to avoid revert.
+    try { localStorage.setItem('kjb-verse-font-family', font); } catch {}
+    setFontFamily(font);
     if (a11yFont !== 'default') {
       setAccessibilityFont('default');
       setA11yFont('default');
     }
-    setFontFamily(font);
-    try { localStorage.setItem('kjb-verse-font-family', font); } catch {}
     window.dispatchEvent(new Event('storage'));
   };
 
@@ -948,7 +950,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             </label>
             {a11yFont !== 'default' && (
               <p className="font-sans text-[10px] text-slate-500 dark:text-slate-400 mb-2 leading-snug">
-                An accessibility font is active app-wide. Pick another font to switch, or go to Settings to disable it.
+                An accessibility font is active app-wide. Pick any font below to switch.
               </p>
             )}
             <div className="grid grid-cols-3 gap-1">
@@ -960,14 +962,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 { value: 'dyslexic', label: 'Dyslexic' },
                 { value: 'hyperlegible', label: 'Legible' },
               ].map(font => {
-                const isA11yChoice = font.value === 'dyslexic' || font.value === 'hyperlegible';
                 const a11yActive = a11yFont !== 'default';
                 const isActive = a11yActive ? a11yFont === font.value : fontFamily === font.value;
-                const isDisabled = a11yActive && !isA11yChoice;
                 return (
                 <button
                   key={font.value}
-                  disabled={isDisabled}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -994,7 +993,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                     isActive
                       ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900'
                       : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                  } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
+                  }`}
                 >
                   {font.label}
                 </button>

@@ -122,9 +122,11 @@ export default function SettingsPage() {
       setAccessibilityFont(value);
       return;
     }
-    if (a11yFont !== 'default') { setA11yFont('default'); setAccessibilityFont('default'); }
-    setReaderFontFamily(value);
+    // Write the key BEFORE disabling a11y to avoid the sync listener reading a
+    // stale value and reverting the chosen font.
     try { localStorage.setItem('kjb-reader-font-family', value); } catch {}
+    setReaderFontFamily(value);
+    if (a11yFont !== 'default') { setA11yFont('default'); setAccessibilityFont('default'); }
     window.dispatchEvent(new Event('storage'));
     window.dispatchEvent(new Event('kjb-fonts-changed'));
   };
@@ -136,9 +138,9 @@ export default function SettingsPage() {
       setAccessibilityFont(value);
       return;
     }
-    if (a11yFont !== 'default') { setA11yFont('default'); setAccessibilityFont('default'); }
-    setVerseFontFamily(value);
     try { localStorage.setItem('kjb-verse-font-family', value); } catch {}
+    setVerseFontFamily(value);
+    if (a11yFont !== 'default') { setA11yFont('default'); setAccessibilityFont('default'); }
     window.dispatchEvent(new Event('storage'));
     window.dispatchEvent(new Event('kjb-fonts-changed'));
   };
