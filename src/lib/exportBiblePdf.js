@@ -85,7 +85,7 @@ function escapeHtml(s = '') {
 function measureTocPages(doc, pageW, pageH, margin, F = 'times') {
   doc.setFont(F, 'bold');
   let pages = 1;
-  let ty = margin + 28; // CONTENTS header
+  let ty = margin; // listing starts at top (CONTENTS now has its own title page)
   const advance = (h) => { if (ty + h > pageH - margin) { pages += 1; ty = margin; } ty += h; };
 
   // Chapter-grid geometry (must match writeChapterGrid)
@@ -242,11 +242,14 @@ async function buildPdf(opts, bible, onProgress) {
   // Reserve EXACTLY the right number of pages for the Table of Contents by
   // simulating its vertical layout first (mirrors the real TOC writer's spacing
   // below). Over-reserving previously left blank pages between Contents & Genesis.
+  // Dedicated "CONTENTS" title page (uses the fresh blank page titlePage() left).
+  titlePage([{ t: 'CONTENTS', size: 34, bold: true }]);
+
   const total = BIBLE_BOOKS.length;
   const tocPagesNeeded = measureTocPages(doc, pageW, pageH, margin, F);
-  // titlePage() already left us on a fresh blank page — use THAT as the first
-  // TOC page, and only add the REMAINING (tocPagesNeeded - 1) pages. This avoids
-  // an orphan blank page between the title page and Contents.
+  // titlePage() (above) already left us on a fresh blank page — use THAT as the
+  // first TOC listing page, and only add the REMAINING (tocPagesNeeded - 1)
+  // pages. This avoids an orphan blank page between the title page and Contents.
   const tocStartPage = doc.internal.getNumberOfPages();
   for (let i = 0; i < tocPagesNeeded - 1; i++) doc.addPage();
   // Genesis must begin on a brand-new page right after the reserved TOC pages.
@@ -383,9 +386,6 @@ async function buildPdf(opts, bible, onProgress) {
   let tocPage = tocStartPage;
   doc.setPage(tocPage);
   let ty = margin;
-  doc.setFont(F, 'bold'); doc.setFontSize(18);
-  doc.text('CONTENTS', pageW / 2, ty, { align: 'center', baseline: 'top' });
-  ty += 28;
 
   const ensureTocSpace = (needed) => {
     if (ty + needed > pageH - margin) { tocPage += 1; doc.setPage(tocPage); ty = margin; }
