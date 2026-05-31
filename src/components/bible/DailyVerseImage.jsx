@@ -1061,7 +1061,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           <div className="flex-1 flex flex-col justify-center">
           <div className={hasCustomBg ? 'mx-auto max-w-2xl rounded-2xl bg-black/20 backdrop-blur-[2px] px-6 py-6' : ''}>
           <blockquote 
-            className="text-center text-3xl md:text-4xl leading-relaxed [&_em]:italic break-words"
+            className={`text-center leading-relaxed [&_em]:italic break-words ${fontFamily === 'cursive' ? 'text-5xl md:text-6xl' : 'text-3xl md:text-4xl'}`}
             style={{ 
               color: textColor, 
               opacity: textOpacity, 
@@ -1101,7 +1101,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
           </div>
           <blockquote 
-            className={`text-center leading-relaxed [&_em]:italic break-words ${fontFamily === 'cursive' ? 'text-4xl md:text-5xl' : 'text-2xl md:text-3xl'}`}
+            className={`text-center leading-relaxed [&_em]:italic break-words ${fontFamily === 'cursive' ? 'text-5xl md:text-6xl' : 'text-2xl md:text-3xl'}`}
             style={{ 
               color: textColor, 
               opacity: textOpacity, 
