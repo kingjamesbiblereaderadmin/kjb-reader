@@ -155,6 +155,17 @@ export default function SettingsPage() {
     };
   }, []);
 
+  // Keep the accessibility font selection in sync if changed elsewhere
+  useEffect(() => {
+    const sync = () => { try { setA11yFont(getAccessibilityFont()); } catch {} };
+    window.addEventListener('kjb-a11y-change', sync);
+    window.addEventListener('focus', sync);
+    return () => {
+      window.removeEventListener('kjb-a11y-change', sync);
+      window.removeEventListener('focus', sync);
+    };
+  }, []);
+
   const handleToggleNotifications = async () => {
     if (notifEnabled) {
       disableNotifications();

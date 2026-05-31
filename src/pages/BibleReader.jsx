@@ -777,9 +777,11 @@ export default function BibleReader() {
     };
     window.addEventListener('storage', sync);
     window.addEventListener('focus', sync);
+    window.addEventListener('kjb-a11y-change', sync);
     return () => {
       window.removeEventListener('storage', sync);
       window.removeEventListener('focus', sync);
+      window.removeEventListener('kjb-a11y-change', sync);
     };
   }, []);
 
