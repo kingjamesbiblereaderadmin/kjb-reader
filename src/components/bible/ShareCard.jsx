@@ -24,6 +24,22 @@ const ShareCard = React.forwardRef(function ShareCard({ verse }, ref) {
     </svg>
   );
 
+  // Short side rule for the header (gradient fading toward the title)
+  const HeaderRule = ({ flip }) => (
+    <span
+      style={{
+        display: 'block',
+        width: '120px',
+        height: '3px',
+        borderRadius: '3px',
+        background: flip
+          ? 'linear-gradient(90deg, #a85aff, rgba(120,60,200,0))'
+          : 'linear-gradient(90deg, rgba(70,110,255,0), #4f7bff)',
+        boxShadow: '0 0 8px rgba(140,110,255,0.5)',
+      }}
+    />
+  );
+
   // Short decorative gradient dash (~50px) with soft glow
   const Dash = () => (
     <span
@@ -57,6 +73,14 @@ const ShareCard = React.forwardRef(function ShareCard({ verse }, ref) {
           background: 'linear-gradient(180deg, #1E2A78 0%, #6A2FA0 100%)',
         }}
       />
+      {/* Subtle diagonal light streaks */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(115deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 22%, rgba(255,255,255,0) 60%, rgba(255,255,255,0.07) 78%, rgba(255,255,255,0) 100%)',
+        }}
+      />
 
       <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '64px 72px' }}>
         {/* Logo top-left */}
@@ -67,14 +91,13 @@ const ShareCard = React.forwardRef(function ShareCard({ verse }, ref) {
           style={{ position: 'absolute', top: '64px', left: '48px', width: '104px', height: '104px', borderRadius: '14px', boxShadow: '0 4px 14px rgba(0,0,0,0.3)' }}
         />
 
-        {/* VERSE OF THE DAY header + gradient separator */}
-        <div style={{ width: '100%', textAlign: 'center', marginTop: '28px' }}>
-          <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '34px', fontWeight: 800, letterSpacing: '0.16em', color: '#ffffff', textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>
+        {/* VERSE OF THE DAY header with gradient side rules */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginTop: '32px' }}>
+          <HeaderRule />
+          <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '34px', fontWeight: 800, letterSpacing: '0.16em', color: '#ffffff', textShadow: '0 2px 8px rgba(0,0,0,0.4)', whiteSpace: 'nowrap' }}>
             VERSE OF THE DAY
           </span>
-          <div style={{ width: '100%', marginTop: '18px' }}>
-            <SeparatorLine />
-          </div>
+          <HeaderRule flip />
         </div>
 
         {/* Verse text — centered, fills the middle, decorative dashes above/below */}
