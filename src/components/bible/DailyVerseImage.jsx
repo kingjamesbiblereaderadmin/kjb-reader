@@ -400,17 +400,17 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       <span
         className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap ${capturing ? 'bottom-12' : 'bottom-4'}`}
         style={{
-          backgroundColor: 'rgba(49, 46, 129, 0.55)',
-          border: '1px solid rgba(255,255,255,0.15)',
-          borderRadius: '12px',
-          color: 'rgba(255,255,255,0.95)',
+          backgroundColor: 'rgba(55, 48, 163, 0.65)',
+          border: '1px solid rgba(255,255,255,0.18)',
+          borderRadius: '14px',
+          color: 'rgba(255,255,255,0.98)',
           fontFamily: "'Inter', system-ui, sans-serif",
-          fontSize: '15px',
-          fontWeight: 700,
-          letterSpacing: '0.02em',
-          lineHeight: '15px',
-          padding: '9px 18px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
+          fontSize: '17px',
+          fontWeight: 800,
+          letterSpacing: '0.03em',
+          lineHeight: '17px',
+          padding: '11px 26px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
         }}
       >
         {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
@@ -986,6 +986,16 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         className="hidden"
       />
       
+      {/* Faint divider lines (top under header, bottom above URL) — like the reference */}
+      <span
+        className="absolute left-8 right-8 h-px z-0 pointer-events-none"
+        style={{ top: capturing ? '88px' : '52px', backgroundColor: textColor, opacity: 0.18 }}
+      />
+      <span
+        className="absolute left-8 right-8 h-px z-0 pointer-events-none"
+        style={{ bottom: capturing ? '64px' : '14px', backgroundColor: textColor, opacity: 0.18 }}
+      />
+
       {/* Capture-only logo (top-left) — shown only in the downloaded/copied/shared image */}
       {capturing && (
         <img
