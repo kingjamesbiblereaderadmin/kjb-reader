@@ -95,6 +95,7 @@ export function useReadAloud(verses, meta = {}) {
     if (voice) u.voice = voice;
     u.rate = rateRef.current;
     u.onstart = () => {
+      if (v.verse == null) return;
       setActiveVerse(v.verse);
       // Keep the verse being read visible on screen.
       try {
@@ -112,7 +113,8 @@ export function useReadAloud(verses, meta = {}) {
     cancelledRef.current = false;
     setSpeaking(true);
     setPaused(false);
-    const list = versesRef.current || [];
+    itemsRef.current = buildItems();
+    const list = itemsRef.current;
     let startIdx = 0;
     if (startVerse != null) {
       const found = list.findIndex(v => v.verse === startVerse);

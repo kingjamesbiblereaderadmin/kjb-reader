@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Loader2, AlignJustify, AlignLeft, List, Colu
 import { buildVerseUrl, formatVerseShare, cleanVerseText, withExtras } from '@/lib/formatDailyVerse';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText, renderSubscriptText } from '@/lib/bibleApi';
-import { getBibleData, forceReloadBibleData } from '@/lib/bibleCache';
+import { getBibleData } from '@/lib/bibleCache';
 import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
 import BookSelector from '@/components/bible/BookSelector';
 import ChapterSelector from '@/components/bible/ChapterSelector';
@@ -144,8 +144,13 @@ export default function BibleReader() {
   const [showZoomPopover, setShowZoomPopover] = useState(false);
   const [showFontPopover, setShowFontPopover] = useState(false);
   const [showReadAloud, setShowReadAloud] = useState(false);
-  // Free, on-device text-to-speech for the current chapter (no credits).
-  const tts = useReadAloud(verses);
+  const _ttsBook = BIBLE_BOOKS.find(b => b.abbr === pos.abbr) || BIBLE_BOOKS[0];
+  const tts = useReadAloud(verses, {
+    bookName: _ttsBook.name,
+    chapter: pos.chapter,
+    subscript: SUBSCRIPTS[`${_ttsBook.apiName}:${pos.chapter}`] || null,
+    colophon,
+  });
   const [fontFamily, setFontFamily] = useState(() => {
     try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
   });
@@ -997,29 +1002,6 @@ export default function BibleReader() {
   const isLastChapterLastBook = pos.abbr === 'REV' && pos.chapter === 22;
   const isFirstChapterFirstBook = pos.abbr === 'GEN' && pos.chapter === 0;
   const isGenesisChapterOne = pos.abbr === 'GEN' && pos.chapter === 1;
-
-  // Force reload Bible data (for debugging colophons and italics)
-  const handleForceReload = async () => {
-    setLoading(true);
-    try {
-      console.log('[BibleReader] Forcing Bible cache reload...');
-      const freshData = await forceReloadBibleData();
-      console.log('[BibleReader] Fresh data loaded - checking for brackets...');
-      const sampleBook = freshData['1 John'];
-      if (sampleBook && sampleBook[2]) {
-        const verse23 = sampleBook[2].find(v => v.verse === 23);
-        if (verse23) {
-          console.log('[BibleReader] 1 John 2:23 has brackets?', verse23.text.includes('['));
-          console.log('[BibleReader] 1 John 2:23 text:', verse23.text.substring(0, 300));
-        }
-      }
-      window.location.reload();
-    } catch (err) {
-      console.error('Force reload failed:', err);
-      setError('Failed to reload. Please try again.');
-      setLoading(false);
-    }
-  };
 
   // Auto-track reading when chapter loads
   useEffect(() => {
