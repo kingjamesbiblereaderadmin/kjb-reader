@@ -110,6 +110,7 @@ const FIXES = {
   mahalaleel: 'muh-hal-uh-lee-el',
   jered: 'jeh-red',
   methuselah: 'muh-thoo-zuh-luh',
+  methusalah: 'muh-thoo-zuh-luh',
   lamech: 'lay-mek',
   japheth: 'jay-feth',
   gomer: 'goh-mer',
