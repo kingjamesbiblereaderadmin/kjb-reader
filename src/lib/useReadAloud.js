@@ -211,10 +211,10 @@ export function useReadAloud(verses, meta = {}) {
         setTimeout(() => {
           if (cancelledRef.current || boundaryFiredRef.current) return;
           let wi = 0;
-          // ~2.3 words/sec at rate 1 matches typical TTS pacing more closely,
-          // reducing the highlight running ahead of the audio.
-          const wps = 2.3 * (rateRef.current || 1);
-          const stepMs = Math.max(140, 1000 / wps);
+          // ~1.7 words/sec at rate 1 matches typical TTS pacing for KJV text,
+          // keeping the highlight from running ahead of the audio.
+          const wps = 1.7 * (rateRef.current || 1);
+          const stepMs = Math.max(200, 1000 / wps);
           setActiveWordStart(wordSpans[0][0]);
           setActiveWordEnd(wordSpans[0][1]);
           wordTimerRef.current = setInterval(() => {
