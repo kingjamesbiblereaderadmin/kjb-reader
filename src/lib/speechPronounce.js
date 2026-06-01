@@ -16,9 +16,55 @@
 
 import { CORE_DICT } from './pronunciationDict';
 import { NAME_DICT } from './pronunciationNames';
+import { base44 } from '@/api/base44Client';
 
 // Merge: book-by-book names override the core dictionary where they overlap.
-const DICT = { ...CORE_DICT, ...NAME_DICT };
+// `DICT` is `let` so the runtime-loaded generated dictionary (every remaining
+// KJB proper noun, stored in the Pronunciation entity) can be merged in once.
+let DICT = { ...CORE_DICT, ...NAME_DICT };
+
+// Load the full generated proper-noun dictionary from the Pronunciation entity
+// once per session and merge it in (curated CORE/NAME entries take priority).
+// Cached in localStorage so it's instant on subsequent loads / offline.
+let _generatedLoaded = false;
+export async function loadGeneratedPronunciations() {
+  if (_generatedLoaded) return;
+  _generatedLoaded = true;
+
+  // 1) Hydrate immediately from cache if present.
+  try {
+    const cached = localStorage.getItem('kjb-generated-pron');
+    if (cached) {
+      const obj = JSON.parse(cached);
+      DICT = { ...obj, ...CORE_DICT, ...NAME_DICT };
+    }
+  } catch {}
+
+  // 2) Refresh from the entity in the background.
+  try {
+    const map = {};
+    let skip = 0;
+    const pageSize = 500;
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const page = await base44.entities.Pronunciation.list('word', pageSize, skip);
+      for (const rec of page) {
+        const w = (rec.word || '').toLowerCase().trim();
+        const r = (rec.respelling || '').toLowerCase().trim();
+        if (w && r && !map[w]) map[w] = r;
+      }
+      if (page.length < pageSize) break;
+      skip += pageSize;
+    }
+    if (Object.keys(map).length) {
+      // Curated dictionaries always override the generated ones.
+      DICT = { ...map, ...CORE_DICT, ...NAME_DICT };
+      try { localStorage.setItem('kjb-generated-pron', JSON.stringify(map)); } catch {}
+    }
+  } catch {
+    // Offline / not signed in — the cached + curated dictionaries still work.
+  }
+}
 
 const matchCase = (orig, repl) => {
   // For all-caps words longer than one letter (e.g. "LORD", "GOD" in the KJV),

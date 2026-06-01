@@ -18,5 +18,11 @@
   "required": [
     "word",
     "respelling"
-  ]
+  ],
+  "rls": {
+    "read": {},
+    "write": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
 }

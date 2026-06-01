@@ -10,6 +10,7 @@ import { ThemeProvider } from '@/lib/themeContext';
 import { HeaderHideProvider } from '@/lib/HeaderHideContext';
 import { SoftReloadProvider, useSoftReload } from '@/lib/SoftReloadContext';
 import AppLayout from '@/components/layout/AppLayout';
+import { loadGeneratedPronunciations } from '@/lib/speechPronounce';
 import React, { lazy, Suspense, useEffect } from 'react';
 
 // Lazy-load pages. Each import() factory is kept as a reference so we can
@@ -97,6 +98,9 @@ const AuthenticatedApp = () => {
 
   // Preload all route chunks in the background once auth resolves
   useEffect(() => { preloadAllRoutes(); }, []);
+
+  // Load the full generated proper-noun pronunciation dictionary once.
+  useEffect(() => { loadGeneratedPronunciations(); }, []);
 
   // Don't return null while auth resolves — that causes a blank flash on reload.
   // The app shell (header/nav) renders immediately; only block on hard auth errors.
