@@ -298,7 +298,7 @@ export const CORE_DICT = {
   elisabeth: 'eh-liz-a-beth',
   herod: 'hair-od',
   pilate: 'py-lit',
-  judas: 'joo-das',
+  judas: 'judas',
   iscariot: 'is-kair-ee-ut',
   matthias: 'ma-thye-as',
   thaddaeus: 'tha-dee-us',
