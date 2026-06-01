@@ -1360,7 +1360,7 @@ export default function SettingsPage() {
               href="https://www.instagram.com/svdbyfaithinhisbloodr325av?igsh=NTl0NmM1NWoyb2F0"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
+              className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
             >
               <Instagram className="w-4 h-4 text-green-500 flex-shrink-0" />
               <div className="flex-1 min-w-0">
