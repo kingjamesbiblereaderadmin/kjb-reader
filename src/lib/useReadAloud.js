@@ -192,7 +192,6 @@ export function useReadAloud(verses, meta = {}) {
   const play = useCallback((startVerse = null) => {
     if (!supported) return;
     window.speechSynthesis.cancel();
-    cancelledRef.current = false;
     setSpeaking(true);
     setPaused(false);
     itemsRef.current = buildItems();
@@ -202,7 +201,14 @@ export function useReadAloud(verses, meta = {}) {
       const found = list.findIndex(v => v.verse === startVerse);
       if (found >= 0) startIdx = found;
     }
-    speakIndex(startIdx);
+    // Defer the actual speak slightly so it runs AFTER any pending stop() (e.g.
+    // the verses-change effect) and works around Chrome dropping speak() when
+    // it's called in the same tick as cancel(). Reset the cancelled flag here so
+    // a stop() that fired in between this and the timeout can't kill playback.
+    setTimeout(() => {
+      cancelledRef.current = false;
+      speakIndex(startIdx);
+    }, 80);
   }, [supported, speakIndex]);
 
   const pause = useCallback(() => {
