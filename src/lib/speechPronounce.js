@@ -104,6 +104,9 @@ const DICT = {
   priest: 'preest',
   priests: 'preests',
   priesthood: 'preest-hood',
+  levitical: 'leh-vit-ih-kul',
+  levite: 'lee-vite',
+  levites: 'lee-vites',
 
   // Frequently mispronounced proper names (people)
   melchizedek: 'mel kiz a deck',
