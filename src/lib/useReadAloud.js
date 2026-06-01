@@ -285,6 +285,7 @@ export function useReadAloud(verses, meta = {}) {
   const stop = useCallback(() => {
     if (!supported) return;
     cancelledRef.current = true;
+    continuationRef.current = false;
     clearWordTimer();
     window.speechSynthesis.cancel();
     setSpeaking(false);
@@ -303,8 +304,12 @@ export function useReadAloud(verses, meta = {}) {
     });
   }, []);
 
-  // Stop automatically whenever the chapter (verse list) changes
+  // Stop automatically whenever the chapter (verse list) changes — EXCEPT while
+  // auto-advancing into the next chapter, where the reader re-plays on its own.
+  // Cancelling here would set cancelledRef=true after play()'s reset and kill
+  // continuous reading (e.g. title page → chapter 1).
   useEffect(() => {
+    if (continuationRef.current) return;
     stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verses]);
