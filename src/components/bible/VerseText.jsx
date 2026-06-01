@@ -50,11 +50,10 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     // When highlighted, tint the big letter with the active highlight colour so
     // the highlight visually covers it (the float sits outside the parent's
     // inline background box, so it needs its own background).
-    // Paragraph/column mode: the floated drop-cap letter sits OUTSIDE the inline
-    // highlight box, so it needs its own tint to show the highlight. Line mode pulls
-    // the float back inside the highlighted block, so it needs none (no doubled box).
+    // The floated drop-cap letter always sits OUTSIDE the inline highlight box
+    // (in every mode), so it needs its own tint to show the highlight.
     // The verse number always stays clear (kjb-dropcap-num is transparent in CSS).
-    const needsOwnTint = showHighlight && (paragraphMode || columnMode);
+    const needsOwnTint = showHighlight;
     const dropRaw = needsOwnTint
       ? highlightColors.find(c => c.name === highlightColor)?.color
       : null;
