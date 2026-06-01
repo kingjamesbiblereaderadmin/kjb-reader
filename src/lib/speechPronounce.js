@@ -26,7 +26,7 @@ const FIXES = {
   soweth: 'so-eth',
   barabbas: 'beh-reh-buhs',
   begat: 'bee-gat',
-  urias: 'you-raye-us',
+  urias: 'yoo-rye-us',
   ozias: 'oh-zye-us',
   achaz: 'ay-kaz',
   ezekias: 'ez-eh-kye-us',
