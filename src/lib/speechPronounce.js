@@ -257,7 +257,7 @@ const DICT = {
   elimelech: 'eh-lim-eh-lek',
   hannah: 'han-ah',
   eli: 'ee-lye',
-  samuel: 'sam-yoo-el',
+  samuel: 'sam-you-el',
   saul: 'sawl',
   jonathan: 'jon-a-than',
   abner: 'ab-ner',
