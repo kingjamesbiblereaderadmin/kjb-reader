@@ -135,7 +135,7 @@ export const GENERATED_DICT = {
   "baalpeor": "ba-al-pee-or",
   "baanah": "bah-an-ah",
   "baasha": "bah-ash-ah",
-  "babylon": "bab-ih-lon",
+  "babylon": "babylon",
   "bahurim": "bah-hoo-rim",
   "balaam": "bal-am",
   "balak": "bal-ak",
