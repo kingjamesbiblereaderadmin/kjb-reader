@@ -15,10 +15,18 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
     ? `linear-gradient(180deg, ${gradient[0]} 0%, ${gradient[1]} 100%)`
     : 'linear-gradient(180deg, #1E2A78 0%, #6A2FA0 100%)';
   const dateBadgeBg = gradient ? gradient[1] : '#2A1750';
-  // Accent colours for the decorative header rules + footer curve — today's two
-  // gradient stops, or the default blue→purple pair.
-  const accentA = gradient ? gradient[0] : '#4f7bff';
-  const accentB = gradient ? gradient[1] : '#a85aff';
+  // Lighten a hex colour toward white so the decorative rules stay visible
+  // against a same-coloured background.
+  const lighten = (hex, amt = 0.5) => {
+    const n = parseInt(hex.replace('#', ''), 16);
+    const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    const mix = (c) => Math.round(c + (255 - c) * amt);
+    return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
+  };
+  // Accent colours for the decorative header rules + footer curve — lightened
+  // versions of today's two gradient stops so they pop against the background.
+  const accentA = lighten(gradient ? gradient[0] : '#4f7bff');
+  const accentB = lighten(gradient ? gradient[1] : '#a85aff');
   const verseFont = fontFamily || "'Merriweather', 'Cormorant Garamond', Georgia, serif";
   const verseColor = textColor || '#ffffff';
   const verseOpacity = textOpacity != null ? textOpacity : 1;
@@ -47,9 +55,9 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
         height: '3px',
         borderRadius: '3px',
         background: flip
-          ? `linear-gradient(90deg, ${accentB}, rgba(0,0,0,0))`
-          : `linear-gradient(90deg, rgba(0,0,0,0), ${accentA})`,
-        boxShadow: '0 0 8px rgba(255,255,255,0.35)',
+          ? `linear-gradient(90deg, ${accentB}, rgba(255,255,255,0.4))`
+          : `linear-gradient(90deg, rgba(255,255,255,0.4), ${accentA})`,
+        boxShadow: '0 0 10px rgba(255,255,255,0.5)',
       }}
     />
   );
@@ -159,9 +167,9 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
           <svg viewBox="0 0 880 40" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '40px', marginBottom: '24px' }}>
             <defs>
               <linearGradient id="kjbCurveGrad" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor={accentA} stopOpacity="0" />
-                <stop offset="50%" stopColor={accentB} stopOpacity="0.95" />
-                <stop offset="100%" stopColor={accentB} stopOpacity="0" />
+                <stop offset="0%" stopColor={accentA} stopOpacity="0.25" />
+                <stop offset="50%" stopColor={accentB} stopOpacity="1" />
+                <stop offset="100%" stopColor={accentA} stopOpacity="0.25" />
               </linearGradient>
             </defs>
             <path d="M0,32 Q440,0 880,32" fill="none" stroke="url(#kjbCurveGrad)" strokeWidth="11" strokeLinecap="round" />
