@@ -118,22 +118,26 @@ export default function DownloadBibleSection() {
         </p>
       </div>
 
-      {/* Includes */}
+      {/* Includes — subscripts are OT-only (Psalms), colophons are NT-only (Epistles) */}
       <div className="space-y-3 pt-2 border-t border-border">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="font-sans text-sm text-foreground font-medium">Include Subscripts</p>
-            <p className="font-sans text-xs text-muted-foreground">Psalm superscriptions / titles</p>
+        {scope !== 'new' && (
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="font-sans text-sm text-foreground font-medium">Include Subscripts</p>
+              <p className="font-sans text-xs text-muted-foreground">Psalm superscriptions / titles</p>
+            </div>
+            <Switch checked={subscripts} onCheckedChange={setSubscripts} className="shrink-0" />
           </div>
-          <Switch checked={subscripts} onCheckedChange={setSubscripts} className="shrink-0" />
-        </div>
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="font-sans text-sm text-foreground font-medium">Include Colophons</p>
-            <p className="font-sans text-xs text-muted-foreground">Epistle closing notes</p>
+        )}
+        {scope !== 'old' && (
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="font-sans text-sm text-foreground font-medium">Include Colophons</p>
+              <p className="font-sans text-xs text-muted-foreground">Epistle closing notes</p>
+            </div>
+            <Switch checked={colophons} onCheckedChange={setColophons} className="shrink-0" />
           </div>
-          <Switch checked={colophons} onCheckedChange={setColophons} className="shrink-0" />
-        </div>
+        )}
       </div>
 
       {/* Generate */}
