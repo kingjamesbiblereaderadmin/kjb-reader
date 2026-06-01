@@ -14,6 +14,8 @@ import TitlePage from '@/components/bible/TitlePage';
 import SelectorSheet from '@/components/bible/SelectorSheet';
 import RunningHead from '@/components/bible/RunningHead';
 import CurrentlyReadingIndicator from '@/components/bible/CurrentlyReadingIndicator';
+import ReadAloudControl from '@/components/bible/ReadAloudControl';
+import { useReadAloud } from '@/lib/useReadAloud';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Accessibility } from 'lucide-react';
@@ -141,6 +143,9 @@ export default function BibleReader() {
   });
   const [showZoomPopover, setShowZoomPopover] = useState(false);
   const [showFontPopover, setShowFontPopover] = useState(false);
+  const [showReadAloud, setShowReadAloud] = useState(false);
+  // Free, on-device text-to-speech for the current chapter (no credits).
+  const tts = useReadAloud(verses);
   const [fontFamily, setFontFamily] = useState(() => {
     try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
   });
@@ -1786,7 +1791,7 @@ export default function BibleReader() {
       )}
 
       {/* Click/tap outside to close desktop dropdowns and mobile sheets */}
-      {(showBookPicker || showChapterPicker || showVersePicker || showZoomPopover || showFontPopover) && (
+      {(showBookPicker || showChapterPicker || showVersePicker || showZoomPopover || showFontPopover || showReadAloud) && (
         <div
           className="fixed inset-0 z-[35]"
           onClick={(e) => {
@@ -1797,6 +1802,7 @@ export default function BibleReader() {
             setShowVersePicker(false); 
             setShowZoomPopover(false); 
             setShowFontPopover(false); 
+            setShowReadAloud(false);
           }}
           onTouchEnd={(e) => {
             e.preventDefault();
@@ -1806,6 +1812,7 @@ export default function BibleReader() {
             setShowVersePicker(false); 
             setShowZoomPopover(false); 
             setShowFontPopover(false); 
+            setShowReadAloud(false);
           }}
         />
       )}
@@ -1882,7 +1889,7 @@ export default function BibleReader() {
               <VerseText
                 key={v.verse}
                 verse={v}
-                highlight={highlightVerse === v.verse || highlightedVerses.has(v.verse)}
+                highlight={highlightVerse === v.verse || highlightedVerses.has(v.verse) || tts.activeVerse === v.verse}
                 id={`v${v.verse}`}
                 bookName={book.name}
                 abbr={pos.abbr}
