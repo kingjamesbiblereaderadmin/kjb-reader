@@ -77,8 +77,10 @@ export function applyDailyAccent(isDark = document.documentElement.classList.con
     root.style.setProperty('--muted', surface);
 
     // Borders + page background take the same hue at very low saturation.
-    root.style.setProperty('--border', isDark ? `${hue} 20% 22%` : `${hue} 25% 89%`);
-    root.style.setProperty('--input', isDark ? `${hue} 20% 22%` : `${hue} 25% 89%`);
+    // In light mode the border is a touch darker than the box surface so the
+    // boxes have a visible outline.
+    root.style.setProperty('--border', isDark ? `${hue} 20% 22%` : `${hue} 28% 82%`);
+    root.style.setProperty('--input', isDark ? `${hue} 20% 22%` : `${hue} 28% 82%`);
     root.style.setProperty('--background', isDark ? `${hue} 28% 8%` : `${hue} 35% 99%`);
     root.style.setProperty('--sidebar-background', isDark ? `${hue} 28% 9%` : `${hue} 30% 98%`);
     root.style.setProperty('--sidebar-accent', surface);
