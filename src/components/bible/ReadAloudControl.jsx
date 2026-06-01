@@ -51,6 +51,7 @@ export default function ReadAloudControl({ tts, open, setOpen, rangeText = null 
         {!speaking ? (
           <button
             onClick={() => { play(); setOpen(false); }}
+            onTouchEnd={(e) => { e.preventDefault(); play(); setOpen(false); }}
             className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
           >
             <Play className="w-4 h-4" /> Play
