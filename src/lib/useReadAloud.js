@@ -148,6 +148,7 @@ export function useReadAloud(verses, meta = {}) {
     if (voice) u.voice = voice;
     u.rate = rateRef.current;
     u.lang = voice?.lang || 'en-US';
+    console.log('[TTS] speakIndex', i, 'session', session, 'voice', voice?.name || 'default', 'text:', spoken.slice(0, 40));
 
     u.onstart = () => {
       if (session !== sessionRef.current) return;
@@ -181,6 +182,7 @@ export function useReadAloud(verses, meta = {}) {
     };
 
     u.onerror = (e) => {
+      console.log('[TTS] onerror', e?.error, 'session', session, 'current', sessionRef.current);
       // Expected when WE cancel (stop / next / rate change) — never retry.
       if (e?.error === 'interrupted' || e?.error === 'canceled') return;
       if (session !== sessionRef.current) return;
@@ -243,7 +245,7 @@ export function useReadAloud(verses, meta = {}) {
 
   // Stop when the hook unmounts (leaving the reader).
   useEffect(() => {
-    return () => { if (supported) { sessionRef.current++; synth.cancel(); } };
+    return () => { console.log('[TTS] hook UNMOUNT — cancelling'); if (supported) { sessionRef.current++; synth.cancel(); } };
   }, [supported, synth]);
 
   // Stop when the chapter (verse list) actually CHANGES — EXCEPT during
