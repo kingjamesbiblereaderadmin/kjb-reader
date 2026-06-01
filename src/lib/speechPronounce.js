@@ -44,6 +44,8 @@ const DICT = {
   hopeth: 'hope-uth',
   beareth: 'bare-uth',
   moveth: 'moove-uth',
+  creepeth: 'kreep-uth',
+  creeping: 'kreep-ing',
   moved: 'moovd',
   moveable: 'moove-uh-bul',
   doest: 'doo-est',
