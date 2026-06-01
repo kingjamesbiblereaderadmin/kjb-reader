@@ -6,7 +6,9 @@
 export const CURATED_DICT = {
   "jesus christ": "jee-zuss kryst",
   jesus: "jee-zuss",
-  christ: "kryst",
+  christ: "kryste",
+  matthew: "math-yoo",
+  saint: "saynt",
   david: "day-vid",
   abraham: "ay-bruh-ham",
   isaac: "eye-zuck",
