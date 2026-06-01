@@ -977,7 +977,7 @@ export default function BibleReader() {
     if (loading || !autoAdvanceNextRef.current) return;
     if (!isViewingTitlePage && !verses.length) return;
     autoAdvanceNextRef.current = false;
-    const t = setTimeout(() => tts.play(), 400);
+    const t = setTimeout(() => tts.play(null, true), 400);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verses, loading, isViewingTitlePage]);

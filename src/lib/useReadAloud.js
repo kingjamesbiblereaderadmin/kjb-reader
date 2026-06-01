@@ -37,6 +37,9 @@ export function useReadAloud(verses, meta = {}) {
   // Called when a chapter finishes AND auto-advance is on (set by the reader).
   const onChapterEndRef = useRef(null);
   const setOnChapterEnd = useCallback((fn) => { onChapterEndRef.current = fn; }, []);
+  // True only while auto-advancing into the next chapter — used to skip the
+  // book-name announcement during continuous reading.
+  const continuationRef = useRef(false);
 
   // Keep the latest verses/meta in refs so the speak loop reads fresh values.
   // Update them DURING render (not in an effect) so a play() triggered right
@@ -58,9 +61,10 @@ export function useReadAloud(verses, meta = {}) {
     // These meta items carry verse: null so they don't trigger (wrong) word
     // highlighting on verse 1 — only real verse items highlight.
     if (m.bookName && m.chapter != null) {
-      // Only announce the book name on chapter 1. From chapter 2 onward, just
-      // say "Chapter N" so continuous reading isn't repetitive.
-      const prefix = m.chapter > 1 ? `Chapter ${m.chapter}` : `${m.bookName}, Chapter ${m.chapter}`;
+      // Announce the book name when the user STARTS playback on a chapter.
+      // Skip the book name only when auto-advancing into the next chapter
+      // (continuous reading), where just "Chapter N" is less repetitive.
+      const prefix = continuationRef.current ? `Chapter ${m.chapter}` : `${m.bookName}, Chapter ${m.chapter}`;
       const intro = m.rangeLabel
         ? `${prefix}, verses ${m.rangeLabel}.`
         : `${prefix}.`;
@@ -123,6 +127,9 @@ export function useReadAloud(verses, meta = {}) {
       indexRef.current = 0;
       // Chapter finished naturally (not cancelled) — auto-advance if enabled.
       if (!cancelledRef.current && autoAdvanceRef.current && onChapterEndRef.current) {
+        // Mark the upcoming chapter as a continuation so its intro omits the
+        // book name. The reader's auto-advance calls play() shortly after.
+        continuationRef.current = true;
         try { onChapterEndRef.current(); } catch {}
       }
       return;
@@ -238,8 +245,11 @@ export function useReadAloud(verses, meta = {}) {
     window.speechSynthesis.speak(u);
   }, [resolveVoice]);
 
-  const play = useCallback((startVerse = null) => {
+  const play = useCallback((startVerse = null, isContinuation = false) => {
     if (!supported) return;
+    // A manual play (button press) always announces the book name; only an
+    // auto-advance continuation skips it.
+    continuationRef.current = isContinuation;
     window.speechSynthesis.cancel();
     setSpeaking(true);
     setPaused(false);
