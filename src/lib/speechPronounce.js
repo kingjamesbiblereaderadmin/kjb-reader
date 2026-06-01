@@ -25,6 +25,7 @@ const FIXES = {
   doeth: 'doo-eth',
   soweth: 'so-eth',
   barabbas: 'beh-reh-buhs',
+  begat: 'bee-gat',
 };
 
 // Words that LOOK like archaic "-eth" verbs but are NOT — never respell these.
