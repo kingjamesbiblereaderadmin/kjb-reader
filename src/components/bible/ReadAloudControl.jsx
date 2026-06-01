@@ -162,7 +162,7 @@ export default function ReadAloudControl({ tts, open, setOpen, rangeText = null 
         onClick={() => setOpen(p => !p)}
         onTouchEnd={(e) => { e.preventDefault(); setOpen(p => !p); }}
         title="Read aloud"
-        className={`flex items-center justify-center gap-1.5 px-3 rounded-lg font-sans text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap ${
+        className={`flex items-center justify-center gap-1.5 px-3 rounded-lg border border-border font-sans text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap ${
           speaking ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
         }`}
       >
