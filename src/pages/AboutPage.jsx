@@ -115,7 +115,7 @@ export default function AboutPage() {
             href="https://godisgracious1031ministriescom.odoo.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
+            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
           >
             <Globe className="w-4 h-4 text-accent" />
             <div>
@@ -128,7 +128,7 @@ export default function AboutPage() {
             href="https://kjbi.org"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
+            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
           >
             <BookOpen className="w-4 h-4 text-accent" />
             <div>
@@ -141,7 +141,7 @@ export default function AboutPage() {
             href="https://www.youtube.com/@godisgracious1031"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
+            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
           >
             <Youtube className="w-4 h-4 text-red-500" />
             <div>
@@ -154,7 +154,7 @@ export default function AboutPage() {
             href="https://www.instagram.com/godisgracious1031"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
+            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
           >
             <Instagram className="w-4 h-4 text-pink-500" />
             <div>
@@ -167,7 +167,7 @@ export default function AboutPage() {
             href="https://www.tiktok.com/@joyfullychurch"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
+            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
           >
             <TikTokIcon className="w-4 h-4 text-foreground" />
             <div>
@@ -178,7 +178,7 @@ export default function AboutPage() {
           </a>
           <a
             href="mailto:kingjamesbiblereader@outlook.sg"
-            className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
+            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
           >
             <Mail className="w-4 h-4 text-accent" />
             <div>
