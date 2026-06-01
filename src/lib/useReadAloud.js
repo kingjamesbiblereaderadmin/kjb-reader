@@ -41,7 +41,7 @@ export function useReadAloud(verses, meta = {}) {
   const versesRef = useRef(verses);
   useEffect(() => { versesRef.current = verses; }, [verses]);
   const metaRef = useRef(meta);
-  useEffect(() => { metaRef.current = meta; }, [meta.bookName, meta.chapter, meta.subscript, meta.colophon]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { metaRef.current = meta; }, [meta.bookName, meta.chapter, meta.subscript, meta.colophon, meta.rangeLabel]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Build the ordered list of spoken items from the verses + meta.
   // Each item: { text, verse } where `verse` is the real verse to highlight
@@ -50,9 +50,12 @@ export function useReadAloud(verses, meta = {}) {
     const list = versesRef.current || [];
     const m = metaRef.current || {};
     const items = [];
-    // Announce book + chapter first
+    // Announce book + chapter (+ verse range when reading only a selection)
     if (m.bookName && m.chapter != null) {
-      items.push({ text: `${m.bookName}, Chapter ${m.chapter}.`, verse: list[0]?.verse ?? null });
+      const intro = m.rangeLabel
+        ? `${m.bookName}, Chapter ${m.chapter}, verses ${m.rangeLabel}.`
+        : `${m.bookName}, Chapter ${m.chapter}.`;
+      items.push({ text: intro, verse: list[0]?.verse ?? null });
     }
     // Subscript (e.g. Psalm superscription) — read before verse 1
     if (m.subscript) items.push({ text: m.subscript, verse: list[0]?.verse ?? null });

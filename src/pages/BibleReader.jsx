@@ -108,13 +108,25 @@ export default function BibleReader() {
   const [showZoomPopover, setShowZoomPopover] = useState(false);
   const [showFontPopover, setShowFontPopover] = useState(false);
   const [showReadAloud, setShowReadAloud] = useState(false);
+  // Multi-select state (declared early so Read Aloud can read only a selected range)
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedVerses, setSelectedVerses] = useState(new Set());
+  const [filterMode, setFilterMode] = useState(false); // show only selected verses
   const _ttsBook = BIBLE_BOOKS.find(b => b.abbr === pos.abbr) || BIBLE_BOOKS[0];
-  const tts = useReadAloud(verses, {
+  // When a verse range is active (filter mode), read ONLY those verses and
+  // announce the range instead of the whole chapter.
+  const _ttsFilterActive = filterMode && selectedVerses.size > 0;
+  const _ttsVerses = _ttsFilterActive ? verses.filter(v => selectedVerses.has(v.verse)) : verses;
+  const _ttsRangeLabel = _ttsFilterActive ? formatVerseRange([...selectedVerses]) : null;
+  const tts = useReadAloud(_ttsVerses, {
     bookName: _ttsBook.name,
     chapter: pos.chapter,
-    subscript: SUBSCRIPTS[`${_ttsBook.apiName}:${pos.chapter}`] || null,
-    colophon,
+    rangeLabel: _ttsRangeLabel,
+    // Subscript only makes sense when verse 1 is part of what's read.
+    subscript: (!_ttsFilterActive || selectedVerses.has(1)) ? (SUBSCRIPTS[`${_ttsBook.apiName}:${pos.chapter}`] || null) : null,
+    colophon: (!_ttsFilterActive || (verses.length && selectedVerses.has(verses[verses.length - 1].verse))) ? colophon : null,
   });
+  const _ttsRangeText = _ttsRangeLabel ? `${_ttsBook.shortName} ${pos.chapter}:${_ttsRangeLabel}` : null;
   // When auto-advance finishes a chapter, go to the next one and keep reading.
   const autoAdvanceNextRef = useRef(false);
   const [fontFamily, setFontFamily] = useState(() => {
@@ -186,10 +198,7 @@ export default function BibleReader() {
     return family;
   };
 
-  // Multi-select state
-  const [selectMode, setSelectMode] = useState(false);
-  const [selectedVerses, setSelectedVerses] = useState(new Set());
-  const [filterMode, setFilterMode] = useState(false); // show only selected verses
+  // Multi-select state (selectMode/selectedVerses/filterMode declared earlier)
   const [copyFeedback, setCopyFeedback] = useState(false);
   const [showFilterOverlay, setShowFilterOverlay] = useState(false);
   // Track last reading position before navigating to daily verse/random chapter
@@ -1450,7 +1459,7 @@ export default function BibleReader() {
               </button>
 
               {/* Read Aloud (free, on-device TTS) */}
-              <ReadAloudControl tts={tts} open={showReadAloud} setOpen={setShowReadAloud} />
+              <ReadAloudControl tts={tts} open={showReadAloud} setOpen={setShowReadAloud} rangeText={_ttsRangeText} />
 
               {/* Prev */}
               <button

@@ -12,13 +12,19 @@ const SPEEDS = [
 
 // Toolbar control for the free, on-device Read Aloud feature.
 // `tts` is the object returned by useReadAloud.
-export default function ReadAloudControl({ tts, open, setOpen }) {
+export default function ReadAloudControl({ tts, open, setOpen, rangeText = null }) {
   const { supported, voices, voiceURI, rate, speaking, paused, autoAdvance, toggleAutoAdvance, play, pause, resume, stop, changeVoice, changeRate } = tts;
 
   if (!supported) return null;
 
   const Panel = (
     <div className="space-y-4 p-1">
+      {/* Verse range info — only when a range is selected */}
+      {rangeText && (
+        <div className="px-3 py-2 rounded-lg bg-accent/10 text-accent font-sans text-xs font-medium text-center">
+          Reading {rangeText}
+        </div>
+      )}
       {/* Playback */}
       <div className="flex items-center gap-2">
         {!speaking ? (
