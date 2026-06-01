@@ -145,7 +145,7 @@ export function ThemeProvider({ children }) {
       const dark = resolveIsDark(savedMode);
       document.documentElement.classList.toggle('dark', dark);
       applyPalette(savedColour, dark);
-      applyDailyAccent(); // accent matches today's verse-card colour
+      applyDailyAccent(dark); // accent + box tint match today's verse-card colour
       setIsInitialized(true);
     }
   }, []);
@@ -154,7 +154,7 @@ export function ThemeProvider({ children }) {
   // the accent with today's verse-card colour so they stay in sync each day.
   useEffect(() => {
     applyPalette(colourId, isDark);
-    applyDailyAccent();
+    applyDailyAccent(isDark);
   }, [colourId, isDark]);
 
   // Apply 1611 vs Modern theme and dyslexic font

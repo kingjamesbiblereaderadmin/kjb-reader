@@ -40,9 +40,20 @@ export function hexToHslString(hex, darken = 0) {
   return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
 }
 
-// Apply today's verse-card colour (a darker shade) as the app-wide accent.
-// Affects links, highlights, icons, focus rings across every page.
-export function applyDailyAccent() {
+// Build a light, low-saturation tint from a hex colour: keeps the hue of the
+// verse card but uses a high lightness / low saturation so boxes look subtly
+// tinted (not loud). `isDark` produces a dark tinted surface instead.
+function tintFromHex(hex, isDark) {
+  const [h, s] = hexToHslString(hex).split(' ');
+  const hue = parseInt(h, 10);
+  if (isDark) return `${hue} 22% 14%`;
+  return `${hue} 30% 95%`;
+}
+
+// Apply today's verse-card colour as the app-wide accent (links, icons, focus
+// rings) AND tint the box surfaces (cards, secondary, muted) toward the same
+// hue. Both change automatically each day.
+export function applyDailyAccent(isDark = document.documentElement.classList.contains('dark')) {
   try {
     const bg = getTodayVerseBackground();
     const root = document.documentElement;
@@ -51,5 +62,12 @@ export function applyDailyAccent() {
     root.style.setProperty('--accent', accent);
     root.style.setProperty('--ring', accent);
     root.style.setProperty('--sidebar-ring', accent);
+
+    // Tinted box surfaces — derived from the same gradient hue.
+    const surface = tintFromHex(bg.hex[1], isDark);
+    const cardTint = tintFromHex(bg.hex[1], isDark);
+    root.style.setProperty('--card', cardTint);
+    root.style.setProperty('--secondary', surface);
+    root.style.setProperty('--muted', surface);
   } catch {}
 }
