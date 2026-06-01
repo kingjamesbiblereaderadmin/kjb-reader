@@ -1284,13 +1284,13 @@ export default function SettingsPage() {
         {expandedSections.contact && (
           <div className="p-5 pt-0 space-y-2">
             <a
-              href="mailto:Godisgracious1031@outlook.com"
+              href="mailto:kingjamesbiblereader@outlook.com"
               className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
             >
               <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Email for Support</p>
-                <p className="font-sans text-xs text-muted-foreground">Godisgracious1031@outlook.com</p>
+                <p className="font-sans text-xs text-muted-foreground">kingjamesbiblereader@outlook.com</p>
               </div>
             </a>
             <a
