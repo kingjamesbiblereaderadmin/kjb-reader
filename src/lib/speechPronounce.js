@@ -287,7 +287,7 @@ const DICT = {
   bildad: 'bil-dad',
   zophar: 'zo-far',
   elihu: 'eh-lye-hew',
-  hosea: 'ho-zee-uh',
+  hosea: 'ho-say-ah',
   joel: 'jo-el',
   amos: 'ay-mos',
   jonah: 'jo-nah',
