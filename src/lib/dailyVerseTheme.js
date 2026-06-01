@@ -50,24 +50,37 @@ function tintFromHex(hex, isDark) {
   return `${hue} 30% 95%`;
 }
 
-// Apply today's verse-card colour as the app-wide accent (links, icons, focus
-// rings) AND tint the box surfaces (cards, secondary, muted) toward the same
-// hue. Both change automatically each day.
+// Apply today's verse-card colour across the WHOLE app theme — accent, primary,
+// focus rings, box surfaces, borders, and the page background — so the entire
+// app matches the daily verse card and changes automatically each day.
 export function applyDailyAccent(isDark = document.documentElement.classList.contains('dark')) {
   try {
     const bg = getTodayVerseBackground();
     const root = document.documentElement;
-    // Use the second gradient stop, darkened, as the accent.
+    const hue = parseInt(hexToHslString(bg.hex[1]).split(' ')[0], 10);
+
+    // Accent (links, icons, highlights) — second gradient stop, darkened.
     const accent = hexToHslString(bg.hex[1], 0.22);
     root.style.setProperty('--accent', accent);
     root.style.setProperty('--ring', accent);
     root.style.setProperty('--sidebar-ring', accent);
 
-    // Tinted box surfaces — derived from the same gradient hue.
+    // Primary (buttons, key actions) — first gradient stop, tuned per mode.
+    const primary = isDark ? hexToHslString(bg.hex[1], 0.1) : hexToHslString(bg.hex[0], 0.05);
+    root.style.setProperty('--primary', primary);
+    root.style.setProperty('--sidebar-primary', primary);
+
+    // Box surfaces — derived from the same hue.
     const surface = tintFromHex(bg.hex[1], isDark);
-    const cardTint = tintFromHex(bg.hex[1], isDark);
-    root.style.setProperty('--card', cardTint);
+    root.style.setProperty('--card', surface);
     root.style.setProperty('--secondary', surface);
     root.style.setProperty('--muted', surface);
+
+    // Borders + page background take the same hue at very low saturation.
+    root.style.setProperty('--border', isDark ? `${hue} 20% 22%` : `${hue} 25% 89%`);
+    root.style.setProperty('--input', isDark ? `${hue} 20% 22%` : `${hue} 25% 89%`);
+    root.style.setProperty('--background', isDark ? `${hue} 28% 8%` : `${hue} 35% 99%`);
+    root.style.setProperty('--sidebar-background', isDark ? `${hue} 28% 9%` : `${hue} 30% 98%`);
+    root.style.setProperty('--sidebar-accent', surface);
   } catch {}
 }
