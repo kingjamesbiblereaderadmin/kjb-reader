@@ -556,7 +556,16 @@ export default function SettingsPage() {
           </div>
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.readAloud ? 'rotate-180' : ''}`} />
         </button>
-        {expandedSections.readAloud && <ReadAloudSettings />}
+        {expandedSections.readAloud && (
+          <>
+            <div className="px-5 pb-1">
+              <p className="px-3 py-2 rounded-lg bg-muted text-muted-foreground font-sans text-[11px] leading-snug text-center">
+                Read Aloud uses your device's voice. Pronunciation of archaic and biblical words may not always be accurate.
+              </p>
+            </div>
+            <ReadAloudSettings />
+          </>
+        )}
       </div>
 
       {/* Appearance */}
