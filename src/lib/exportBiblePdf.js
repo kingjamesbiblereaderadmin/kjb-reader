@@ -717,6 +717,11 @@ async function buildText(opts, bible, onProgress, format) {
         }
       }
 
+      // Psalm 119 is an acrostic — 22 stanzas of 8 verses each (one per Hebrew
+      // letter). Force a paragraph break before each new stanza (every 8 verses).
+      const isPsalm119 = book.apiName === 'Psalms' && ch === 119;
+      const stanzaBreak = (v) => isPsalm119 && v.verse > 1 && (v.verse - 1) % 8 === 0;
+
       if (paragraph) {
         let buffer = '';
         let wroteFirst = false;
@@ -729,14 +734,14 @@ async function buildText(opts, bible, onProgress, format) {
           buffer = '';
         };
         verses.forEach((v, idx) => {
-          if (idx > 0 && hasPilcrow(v.text)) flush();
+          if (idx > 0 && (hasPilcrow(v.text) || stanzaBreak(v))) flush();
           buffer += `${v.verse} ${plainText(v.text, keepBrackets)}  `;
         });
         flush();
       } else {
         verses.forEach((v, idx) => {
-          // Gap above verses that begin a new paragraph (pilcrow).
-          if (idx > 0 && hasPilcrow(v.text)) {
+          // Gap above verses that begin a new paragraph (pilcrow) or Psalm 119 stanza.
+          if (idx > 0 && (hasPilcrow(v.text) || stanzaBreak(v))) {
             if (isDocx) out.push('<p style="margin:0;line-height:6pt">&nbsp;</p>');
             else push('');
           }
