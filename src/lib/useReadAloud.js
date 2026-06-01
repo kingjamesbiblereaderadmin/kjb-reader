@@ -55,6 +55,9 @@ export function useReadAloud(verses, meta = {}) {
   // Items + position within the current session.
   const itemsRef = useRef([]);
   const indexRef = useRef(0);
+  // Timestamp of the last speech "activity" (start/boundary/end). The watchdog
+  // uses this to detect a silently-stalled engine and restart it.
+  const lastActivityRef = useRef(0);
   // True only while auto-advancing (skip the book-name announcement).
   const continuationRef = useRef(false);
   // Reader-supplied callback fired when a chapter finishes & auto-advance is on.
@@ -151,6 +154,7 @@ export function useReadAloud(verses, meta = {}) {
 
     u.onstart = () => {
       if (session !== sessionRef.current) return;
+      lastActivityRef.current = Date.now();
       setActiveWordStart(-1);
       setActiveWordEnd(-1);
       if (item.verse == null) { setActiveVerse(null); return; }
@@ -168,6 +172,7 @@ export function useReadAloud(verses, meta = {}) {
 
     u.onboundary = (e) => {
       if (session !== sessionRef.current) return;
+      lastActivityRef.current = Date.now();
       if (item.verse == null || e.name === 'sentence') return;
       const span = wordSpans[mapWord(e.charIndex)];
       if (!span) return;
@@ -202,6 +207,7 @@ export function useReadAloud(verses, meta = {}) {
     // audio entirely (the "no audio" bug).
     const wasSpeaking = synth.speaking || synth.pending;
     const session = ++sessionRef.current; // new session — invalidates old callbacks
+    lastActivityRef.current = Date.now();
     setPaused(false);
     setSpeaking(true);
     itemsRef.current = buildItems();
@@ -241,18 +247,33 @@ export function useReadAloud(verses, meta = {}) {
     resetUi();
   }, [supported, synth, resetUi]);
 
-  // Chrome keep-alive: the engine silently stops long-running synthesis after
-  // ~15s. A periodic pause()+resume() resets that watchdog WITHOUT restarting
-  // the current utterance. Only runs while actually speaking and not user-paused.
+  // Watchdog: some engines (notably Chrome) silently stop synthesis mid-chapter
+  // without firing onend/onerror, leaving playback stalled. We poll while we
+  // believe we're speaking; if the engine reports it's no longer speaking (and
+  // the user hasn't paused), or no activity has been seen for a while, we
+  // restart from the current item. The session guard ensures the restarted
+  // chain doesn't collide with any late callback.
   useEffect(() => {
     if (!supported || !speaking || paused) return;
     const id = setInterval(() => {
-      if (synth.speaking && !synth.paused) {
-        try { synth.pause(); synth.resume(); } catch {}
+      if (paused) return;
+      const session = sessionRef.current;
+      const stalled =
+        (!synth.speaking && !synth.pending) ||
+        (Date.now() - lastActivityRef.current > 12000);
+      if (stalled) {
+        // Restart the current item cleanly under the same session.
+        lastActivityRef.current = Date.now();
+        try { synth.cancel(); } catch {}
+        setTimeout(() => {
+          if (session === sessionRef.current && !synth.speaking) {
+            speakIndex(indexRef.current, session);
+          }
+        }, 80);
       }
-    }, 10000);
+    }, 3000);
     return () => clearInterval(id);
-  }, [supported, synth, speaking, paused]);
+  }, [supported, synth, speaking, paused, speakIndex]);
 
   // Stop when the hook unmounts (leaving the reader).
   useEffect(() => {
