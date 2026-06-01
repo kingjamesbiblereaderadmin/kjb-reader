@@ -241,6 +241,19 @@ export function useReadAloud(verses, meta = {}) {
     resetUi();
   }, [supported, synth, resetUi]);
 
+  // Chrome keep-alive: the engine silently stops long-running synthesis after
+  // ~15s. A periodic pause()+resume() resets that watchdog WITHOUT restarting
+  // the current utterance. Only runs while actually speaking and not user-paused.
+  useEffect(() => {
+    if (!supported || !speaking || paused) return;
+    const id = setInterval(() => {
+      if (synth.speaking && !synth.paused) {
+        try { synth.pause(); synth.resume(); } catch {}
+      }
+    }, 10000);
+    return () => clearInterval(id);
+  }, [supported, synth, speaking, paused]);
+
   // Stop when the hook unmounts (leaving the reader).
   useEffect(() => {
     return () => { if (supported) { sessionRef.current++; synth.cancel(); } };
