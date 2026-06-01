@@ -664,7 +664,7 @@ export default function ResourcesPage() {
             href="https://godisgracious1031ministriescom.odoo.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
+            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
           >
             <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
             <div className="flex-1 min-w-0">
@@ -675,7 +675,7 @@ export default function ResourcesPage() {
           </a>
           <a
             href="mailto:Kingjamesbiblereader.com@outlook.com"
-            className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
+            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
           >
             <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
             <div className="flex-1 min-w-0">

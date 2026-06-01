@@ -101,21 +101,21 @@ export default function SavedVersesPage() {
               <div className="flex flex-col gap-1 flex-shrink-0 mt-0.5">
                 <button
                   onClick={() => handleCopy(entry)}
-                  className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                  className="p-2 rounded-lg border border-border hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
                   title="Copy"
                 >
                   <Copy className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => handleShare(entry)}
-                  className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                  className="p-2 rounded-lg border border-border hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
                   title="Share"
                 >
                   <Share2 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => handleRemove(entry.abbr, entry.chapter, entry.verse)}
-                  className="p-2 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                  className="p-2 rounded-lg border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
                   title="Remove"
                 >
                   <Trash2 className="w-4 h-4" />
