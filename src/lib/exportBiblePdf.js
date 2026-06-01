@@ -378,11 +378,23 @@ async function buildPdf(opts, bible, onProgress) {
         if (sub) writeCenteredMixed(sub, { size: 8 });
       }
 
+      // Psalm 119 acrostic — 22 stanzas of 8 verses, each headed by a Hebrew letter.
+      const isPsalm119 = book.apiName === 'Psalms' && ch === 119;
+      const stanzaStart = (v) => isPsalm119 && (v.verse - 1) % 8 === 0;
+      const hebrewLetterFor = (v) => PSALM119_LETTERS[Math.floor((v.verse - 1) / 8)];
+      const writeStanzaHeading = (v, isFirst) => {
+        const letter = hebrewLetterFor(v);
+        if (!letter) return;
+        if (!isFirst) y += 8;
+        writeCentered(letter, { size: 10, font: 'bold', gapAfter: 6 });
+      };
+
       if (paragraph) {
         let buffer = [];
         const flush = () => { if (buffer.length) { writeSegments(buffer, { indentFirst: 12 }); y += 3; } buffer = []; };
         verses.forEach((v, idx) => {
-          if (idx > 0 && hasPilcrow(v.text)) { flush(); y += 6; } // gap above new pilcrow paragraph
+          if (isPsalm119 && stanzaStart(v)) { flush(); writeStanzaHeading(v, idx === 0); }
+          else if (idx > 0 && hasPilcrow(v.text)) { flush(); y += 6; } // gap above new pilcrow paragraph
           buffer.push({ text: `${v.verse} `, italic: false });
           buffer.push(...toSegments(v.text));
           buffer.push({ text: '  ', italic: false });
@@ -390,7 +402,8 @@ async function buildPdf(opts, bible, onProgress) {
         flush();
       } else {
         verses.forEach((v, idx) => {
-          if (idx > 0 && hasPilcrow(v.text)) y += 6; // gap above new-paragraph verses
+          if (isPsalm119 && stanzaStart(v)) writeStanzaHeading(v, idx === 0);
+          else if (idx > 0 && hasPilcrow(v.text)) y += 6; // gap above new-paragraph verses
           writeSegments([{ text: `${v.verse} `, italic: false }, ...toSegments(v.text)]);
           y += 1;
         });
@@ -936,17 +949,29 @@ async function buildRtf(opts, bible, onProgress) {
         if (sub) para(`\\i0\\u182? ${rtfInline(sub).replace(/^\\u182\?\s*/, '')}`, { center: true, size: 18 });
       }
 
+      // Psalm 119 acrostic — 22 stanzas of 8 verses, each headed by a Hebrew letter.
+      const isPsalm119 = book.apiName === 'Psalms' && ch === 119;
+      const stanzaStart = (v) => isPsalm119 && (v.verse - 1) % 8 === 0;
+      const hebrewLetterFor = (v) => PSALM119_LETTERS[Math.floor((v.verse - 1) / 8)];
+      const writeStanzaHeading = (v, isFirst) => {
+        const letter = hebrewLetterFor(v);
+        if (!letter) return;
+        para(rtfEscape(letter), { center: true, bold: true, size: 20, sb: isFirst ? 80 : 160, sa: 80 });
+      };
+
       if (paragraph) {
         let buf = '';
         let nextSb = 0;
         const flush = () => { if (buf.trim()) para(buf.trim(), { sb: nextSb }); buf = ''; nextSb = 0; };
         verses.forEach((v, idx) => {
-          if (idx > 0 && hasPilcrow(v.text)) { flush(); nextSb = 120; } // gap above new pilcrow paragraph
+          if (isPsalm119 && stanzaStart(v)) { flush(); writeStanzaHeading(v, idx === 0); }
+          else if (idx > 0 && hasPilcrow(v.text)) { flush(); nextSb = 120; } // gap above new pilcrow paragraph
           buf += `{\\b ${v.verse}} ${rtfInline(v.text)}  `;
         });
         flush();
       } else {
         verses.forEach((v, idx) => {
+          if (isPsalm119 && stanzaStart(v)) { writeStanzaHeading(v, idx === 0); para(`{\\b ${v.verse}} ${rtfInline(v.text)}`); return; }
           // Extra space above verses that begin a new paragraph (pilcrow).
           const sb = idx > 0 && hasPilcrow(v.text) ? 120 : 0;
           para(`{\\b ${v.verse}} ${rtfInline(v.text)}`, { sb });
