@@ -177,13 +177,13 @@ export default function AboutPage() {
             <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
           </a>
           <a
-            href="mailto:Kingjamesbiblereader.com@outlook.com"
+            href="mailto:kingjamesbiblereader@outlook.sg"
             className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
           >
             <Mail className="w-4 h-4 text-accent" />
             <div>
               <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Email</p>
-              <p className="font-sans text-xs text-muted-foreground">Kingjamesbiblereader.com@outlook.com</p>
+              <p className="font-sans text-xs text-muted-foreground">kingjamesbiblereader@outlook.sg</p>
             </div>
           </a>
           <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary">
