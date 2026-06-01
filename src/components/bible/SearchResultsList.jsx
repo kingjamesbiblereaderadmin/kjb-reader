@@ -168,9 +168,9 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                 if (selectMode) {
                   onToggleSelect(i);
                 } else if (isColophon) {
-                  onGoToVerse(r.abbr, r.chapter, null, null, thisIndex);
+                  onGoToVerse(r.abbr, r.chapter, null, null, i);
                 } else {
-                  onGoToVerse(r.abbr, r.chapter, r.verse, null, thisIndex);
+                  onGoToVerse(r.abbr, r.chapter, r.verse, null, i);
                 }
               }}
               className={`w-full text-left p-4 rounded-xl border transition-colors cursor-pointer flex items-start gap-3 ${
