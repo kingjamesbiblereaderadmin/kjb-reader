@@ -1,7 +1,9 @@
 // Curated lexicon for words the TTS voice mispronounces. Keys are lowercase;
 // values are phonetic respellings (spoken only — on-screen text is unchanged).
 
-export const CURATED_DICT = {
+import { CURATED_DICT_EXTRA } from './pronunciationCuratedExtra';
+
+const CURATED_DICT_BASE = {
   urias: 'yoo-rye-as',
   obed: 'oh-bed',
 
@@ -1758,3 +1760,5 @@ export const CURATED_DICT = {
   putiel: 'pyoo-tee-ul',
   pygarg: 'py-gahrg',
 };
+
+export const CURATED_DICT = { ...CURATED_DICT_BASE, ...CURATED_DICT_EXTRA };
