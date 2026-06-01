@@ -90,8 +90,11 @@ export function useReadAloud(verses, meta = {}) {
   // still works. `boundaryFiredRef` tracks whether the real event has fired.
   const wordTimerRef = useRef(null);
   const boundaryFiredRef = useRef(false);
+  // Delays applying a boundary-driven highlight so it lands with the audio.
+  const boundaryDelayTimerRef = useRef(null);
   const clearWordTimer = () => {
     if (wordTimerRef.current) { clearInterval(wordTimerRef.current); wordTimerRef.current = null; }
+    if (boundaryDelayTimerRef.current) { clearTimeout(boundaryDelayTimerRef.current); boundaryDelayTimerRef.current = null; }
   };
 
   // Load device voices (they arrive asynchronously on some browsers)
@@ -211,10 +214,10 @@ export function useReadAloud(verses, meta = {}) {
         setTimeout(() => {
           if (cancelledRef.current || boundaryFiredRef.current) return;
           let wi = 0;
-          // ~1.7 words/sec at rate 1 matches typical TTS pacing for KJV text,
+          // ~1.4 words/sec at rate 1 matches typical TTS pacing for KJV text,
           // keeping the highlight from running ahead of the audio.
-          const wps = 1.7 * (rateRef.current || 1);
-          const stepMs = Math.max(200, 1000 / wps);
+          const wps = 1.4 * (rateRef.current || 1);
+          const stepMs = Math.max(260, 1000 / wps);
           setActiveWordStart(wordSpans[0][0]);
           setActiveWordEnd(wordSpans[0][1]);
           wordTimerRef.current = setInterval(() => {
@@ -237,10 +240,17 @@ export function useReadAloud(verses, meta = {}) {
       // word index, then highlight the matching word in the DISPLAYED text.
       const wi = spokenStartToWordIndex(e.charIndex);
       const span = wordSpans[wi];
-      if (span) {
+      if (!span) return;
+      // Boundary events fire slightly BEFORE the word is actually voiced, which
+      // makes the highlight appear to run ahead of the audio. Delay applying it
+      // a touch (scaled down at faster rates) so it lands when the word is heard.
+      if (boundaryDelayTimerRef.current) clearTimeout(boundaryDelayTimerRef.current);
+      const lagMs = Math.round(230 / (rateRef.current || 1));
+      boundaryDelayTimerRef.current = setTimeout(() => {
+        if (cancelledRef.current) return;
         setActiveWordStart(span[0]);
         setActiveWordEnd(span[1]);
-      }
+      }, lagMs);
     };
     u.onerror = () => {
       clearTimeout(watchdog);
