@@ -351,6 +351,8 @@ const DICT = {
   proselyte: 'pros-eh-lite',
   synagogue: 'sin-a-gog',
   sanhedrim: 'san-heh-drim',
+  priest: 'preest',
+  priests: 'preests',
   pharisees: 'fair-i-seez',
   sadducees: 'sad-yoo-seez',
   scribes: 'skribes',
