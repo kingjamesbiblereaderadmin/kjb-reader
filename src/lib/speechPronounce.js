@@ -21,6 +21,7 @@ const FIXES = {
   obed: 'oh-bed',
   jesse: 'jess-ee',
   saith: 'seth',
+  kir: 'keer',
 };
 
 // Words that LOOK like archaic "-eth" verbs but are NOT — never respell these.
