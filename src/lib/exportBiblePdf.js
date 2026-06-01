@@ -457,6 +457,10 @@ async function buildPdf(opts, bible, onProgress) {
       const parent = book.testament === 'old' ? otNode : ntNode;
       doc.outline.add(parent, book.shortName, { pageNumber: page });
     });
+    // Trailing top-level "The End" bookmark so Edge's outline panel has an entry
+    // below the last book (Revelation) and can scroll all the way down to it.
+    const lastPage = bookPages.length ? bookPages[bookPages.length - 1].endPage : doc.internal.getNumberOfPages();
+    doc.outline.add(null, 'The End', { pageNumber: lastPage });
   }
 
   // ── Fill in the reserved Table of Contents pages: OT/NT headers, each book
