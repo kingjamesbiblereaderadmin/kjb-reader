@@ -374,6 +374,9 @@ const DICT = {
   eve: 'eev',
   cain: 'kane',
   abel: 'ay-buhl',
+  lord: 'lord',
+  lords: 'lords',
+  god: 'god',
   seth: 'seth',
   enoch: 'ee-nuk',
   enos: 'ee-nos',
@@ -986,7 +989,12 @@ const DICT = {
 };
 
 const matchCase = (orig, repl) => {
-  if (orig === orig.toUpperCase()) return repl.toUpperCase();
+  // For all-caps words longer than one letter (e.g. "LORD", "GOD" in the KJV),
+  // do NOT return an all-caps respelling — many TTS voices spell those out
+  // letter-by-letter. Use title-case so the word is spoken normally.
+  if (orig.length > 1 && orig === orig.toUpperCase()) {
+    return repl.charAt(0).toUpperCase() + repl.slice(1);
+  }
   if (orig[0] === orig[0].toUpperCase()) return repl.charAt(0).toUpperCase() + repl.slice(1);
   return repl;
 };
