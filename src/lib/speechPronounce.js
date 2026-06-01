@@ -373,7 +373,7 @@ const DICT = {
   adam: 'ad-um',
   eve: 'eev',
   cain: 'kane',
-  abel: 'ay-bel',
+  abel: 'ay-buhl',
   seth: 'seth',
   enoch: 'ee-nuk',
   enos: 'ee-nos',
