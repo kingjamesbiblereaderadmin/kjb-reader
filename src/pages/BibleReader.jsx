@@ -575,6 +575,13 @@ export default function BibleReader() {
     const urlChapter = urlParams.get('chapter');
     const urlVerse = urlParams.get('verse');
 
+    const urlTitlePage = urlParams.get('titlePage');
+    if (urlTitlePage === 'old' || urlTitlePage === 'new') {
+      const abbr = urlTitlePage === 'new' ? 'MAT' : 'GEN';
+      setPos({ abbr, chapter: 0, verse: null });
+      loadChapter(abbr, 0, null);
+      return;
+    }
     const urlBookObj = resolveBook(urlBook);
     if (urlBookObj && urlChapter) {
       const chapterNum = parseInt(urlChapter, 10);
@@ -607,6 +614,18 @@ export default function BibleReader() {
 
     // 1) URL params take priority when present
     const urlParams = new URLSearchParams(routerLocation.search);
+    const urlTitlePage = urlParams.get('titlePage');
+    if (urlTitlePage === 'old' || urlTitlePage === 'new') {
+      const abbr = urlTitlePage === 'new' ? 'MAT' : 'GEN';
+      setSearchTerm(null);
+      setGospelMode(false);
+      setFilterMode(false);
+      setSelectedVerses(new Set());
+      setHighlightedVerses(new Set());
+      setPos({ abbr, chapter: 0, verse: null });
+      loadChapter(abbr, 0, null);
+      return;
+    }
     const urlBookObj = resolveBook(urlParams.get('book'));
     const urlChapter = urlParams.get('chapter');
     const isFromSearch = urlParams.get('from') === 'search';
@@ -919,8 +938,14 @@ export default function BibleReader() {
     // triggering the route effect (replaceState doesn't update routerLocation,
     // so loadChapter below runs exactly once — no double-load).
     try {
-      let url = `/read?book=${newAbbr}&chapter=${newChapter}`;
-      if (jumpVerse) url += `&verse=${jumpVerse}`;
+      let url;
+      if (newChapter === 0) {
+        // Title pages get a clean, descriptive URL instead of book=GEN/MAT&chapter=0
+        url = `/read?titlePage=${newAbbr === 'MAT' ? 'new' : 'old'}`;
+      } else {
+        url = `/read?book=${newAbbr}&chapter=${newChapter}`;
+        if (jumpVerse) url += `&verse=${jumpVerse}`;
+      }
       window.history.replaceState({}, '', url);
     } catch {}
     loadChapter(newAbbr, newChapter, jumpVerse);
