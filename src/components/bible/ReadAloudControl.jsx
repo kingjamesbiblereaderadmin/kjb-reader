@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Volume2, Play, Pause, Square, Gauge, Mic, Repeat } from 'lucide-react';
 import SelectorSheet from '@/components/bible/SelectorSheet';
 
@@ -10,12 +10,29 @@ const SPEEDS = [
   { label: 'Fast', value: 1.5 },
 ];
 
+// The Web Speech API doesn't expose voice gender, so infer it from the voice
+// name. These cover the common female/male voice names across OSes/browsers.
+const FEMALE_HINTS = ['female', 'woman', 'samantha', 'victoria', 'karen', 'moira', 'tessa', 'fiona', 'serena', 'allison', 'ava', 'susan', 'zira', 'hazel', 'catherine', 'linda', 'heather', 'sandy', 'shelley', 'google uk english female', 'google us english'];
+const MALE_HINTS = ['male', 'man', 'daniel', 'alex', 'fred', 'thomas', 'oliver', 'aaron', 'arthur', 'david', 'mark', 'george', 'james', 'gordon', 'lee', 'google uk english male'];
+
+const voiceGender = (v) => {
+  const n = (v.name || '').toLowerCase();
+  if (FEMALE_HINTS.some(h => n.includes(h))) return 'female';
+  if (MALE_HINTS.some(h => n.includes(h))) return 'male';
+  return 'unknown';
+};
+
 // Toolbar control for the free, on-device Read Aloud feature.
 // `tts` is the object returned by useReadAloud.
 export default function ReadAloudControl({ tts, open, setOpen, rangeText = null }) {
   const { supported, voices, voiceURI, rate, speaking, paused, autoAdvance, toggleAutoAdvance, play, pause, resume, stop, changeVoice, changeRate } = tts;
+  const [genderFilter, setGenderFilter] = useState('all'); // 'all' | 'male' | 'female'
 
   if (!supported) return null;
+
+  const filteredVoices = genderFilter === 'all'
+    ? voices
+    : voices.filter(v => voiceGender(v) === genderFilter);
 
   const Panel = (
     <div className="space-y-4 p-1">
@@ -96,18 +113,39 @@ export default function ReadAloudControl({ tts, open, setOpen, rangeText = null 
             <Mic className="w-3.5 h-3.5 text-muted-foreground" />
             <span className="font-sans text-xs font-medium text-foreground">Voice</span>
           </div>
+          {/* Gender filter */}
+          <div className="flex gap-2">
+            {[
+              { label: 'All', value: 'all' },
+              { label: 'Male', value: 'male' },
+              { label: 'Female', value: 'female' },
+            ].map(g => (
+              <button
+                key={g.value}
+                onClick={() => setGenderFilter(g.value)}
+                className={`flex-1 px-2 py-1.5 rounded-lg font-sans text-xs font-medium transition-all ${
+                  genderFilter === g.value ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                }`}
+              >
+                {g.label}
+              </button>
+            ))}
+          </div>
           <select
             value={voiceURI}
             onChange={(e) => changeVoice(e.target.value)}
             className="w-full px-3 py-2 rounded-lg bg-secondary text-foreground font-sans text-xs border border-border focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="">Default voice</option>
-            {voices.map(v => (
+            {filteredVoices.map(v => (
               <option key={v.voiceURI} value={v.voiceURI}>
                 {v.name} ({v.lang})
               </option>
             ))}
           </select>
+          {filteredVoices.length === 0 && (
+            <p className="font-sans text-[11px] text-muted-foreground">No {genderFilter} voices detected on this device.</p>
+          )}
         </div>
       )}
     </div>
