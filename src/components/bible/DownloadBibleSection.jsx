@@ -56,7 +56,7 @@ export default function DownloadBibleSection() {
   return (
     <div className="p-5 pt-0 space-y-5">
       <p className="font-sans text-sm text-muted-foreground">
-        Generate the entire King James Bible — including title pages, pilcrows and italics — in your chosen layout. Runs on your device, no internet or credits used.
+        Download the entire King James Bible — including title pages, pilcrows and italics — in your chosen layout. Runs on your device.
       </p>
 
       {/* Scope — whole Bible, Old Testament, or New Testament */}
@@ -147,7 +147,7 @@ export default function DownloadBibleSection() {
         className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 disabled:opacity-60 transition-opacity"
       >
         {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-        {busy ? 'Generating…' : `Download Bible (${format === 'docx' ? 'Word' : format.toUpperCase()})`}{/* RTF/PDF/TXT show as-is */}
+        {busy ? 'Downloading…' : `Download Bible (${format === 'docx' ? 'Word' : format.toUpperCase()})`}{/* RTF/PDF/TXT show as-is */}
         {!busy && <span className="opacity-70 text-xs font-normal">· {SIZE_ESTIMATES[format]}</span>}
       </button>
 
