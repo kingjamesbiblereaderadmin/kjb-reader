@@ -35,7 +35,15 @@ export function fixArchaicPronunciation(text = '') {
     // Words ending in "eth" (4+ letters) → voice the ending as a soft "uth"
     // syllable (e.g. "abideth" → "abide uth").
     if (lower.length > 4 && lower.endsWith('eth')) {
-      return matchCase(word, lower.slice(0, -3) + ' uth');
+      let stem = lower.slice(0, -3);
+      // Restore the silent "e" that the base verb had (escape→escapeth,
+      // make→maketh): stem ends consonant+vowel+single-consonant. Without it the
+      // voice shortens the vowel ("escap uth"). Don't add it after vowels (flee)
+      // or doubled/blend endings.
+      if (/[bcdfghklmnprstvz]$/.test(stem) && /[aeiou][^aeiou]$/.test(stem) && !/[aeiou]{2}[^aeiou]$/.test(stem)) {
+        stem += 'e';
+      }
+      return matchCase(word, stem + ' uth');
     }
     // Words ending in "est" (5+ letters) → "est" as a clear separate syllable.
     if (lower.length > 5 && lower.endsWith('est')) {
