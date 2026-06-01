@@ -6,7 +6,26 @@ function spokenDate(d = new Date()) {
   const day = d.getDate();
   const j = day % 10, k = day % 100;
   const suffix = (k >= 11 && k <= 13) ? 'th' : j === 1 ? 'st' : j === 2 ? 'nd' : j === 3 ? 'rd' : 'th';
-  return `${months[d.getMonth()]} ${day}${suffix}, ${d.getFullYear()}`;
+  return `${months[d.getMonth()]} ${day}${suffix}, ${spokenYear(d.getFullYear())}`;
+}
+
+// Read a year as two pairs so TTS says "twenty twenty-six" rather than
+// "two thousand twenty-six". e.g. 2026 → "twenty twenty-six", 2000 → "two thousand".
+function spokenYear(year) {
+  const ones = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+  const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+  const teens = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+  const twoDigit = (n) => {
+    if (n === 0) return '';
+    if (n < 10) return `oh ${ones[n]}`;
+    if (n < 20) return teens[n - 10];
+    const t = Math.floor(n / 10), o = n % 10;
+    return o ? `${tens[t]}-${ones[o]}` : tens[t];
+  };
+  const hi = Math.floor(year / 100), lo = year % 100;
+  const hiWord = twoDigit(hi);
+  if (lo === 0) return `${hiWord} hundred`;
+  return `${hiWord} ${twoDigit(lo)}`;
 }
 
 // Speak the daily verse aloud using the browser's free on-device TTS.
