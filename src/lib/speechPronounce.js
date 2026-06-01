@@ -527,7 +527,7 @@ const DICT = {
   jannes: 'jan-eez',
 
   // ── Additional places ──
-  eden: 'ee-den',
+  eden: 'ee-dun',
   havilah: 'hav-i-lah',
   havileth: 'hav-i-leth',
   pison: 'pye-son',
