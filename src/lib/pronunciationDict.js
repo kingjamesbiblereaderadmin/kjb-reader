@@ -263,7 +263,7 @@ export const CORE_DICT = {
   absalom: 'ab-sa-lom',
   bathsheba: 'bath-shee-bah',
   nathan: 'nay-than',
-  solomon: 'sol-o-mun',
+  solomon: 'sah-luh-mun',
   elijah: 'eh-lye-jah',
   elisha: 'eh-lye-shah',
   ahab: 'ay-hab',
