@@ -24,6 +24,13 @@ const TITLE_NT = [
   { t: 'APPOINTED TO BE READ IN CHURCHES', size: 10, gap: 18 },
 ];
 
+// Psalm 119 acrostic — the 22 Hebrew letter names heading each 8-verse stanza.
+const PSALM119_LETTERS = [
+  'ALEPH', 'BETH', 'GIMEL', 'DALETH', 'HE', 'VAU', 'ZAIN', 'CHETH', 'TETH', 'JOD',
+  'CAPH', 'LAMED', 'MEM', 'NUN', 'SAMECH', 'AIN', 'PE', 'TZADDI', 'KOPH', 'RESH',
+  'SCHIN', 'TAU',
+];
+
 // Normalise smart quotes / Australia marker; keep [brackets] + pilcrows intact.
 function normalise(text = '') {
   return mergeAdjacentBrackets(String(text))
@@ -718,9 +725,16 @@ async function buildText(opts, bible, onProgress, format) {
       }
 
       // Psalm 119 is an acrostic — 22 stanzas of 8 verses each (one per Hebrew
-      // letter). Force a paragraph break before each new stanza (every 8 verses).
+      // letter). Force a paragraph break + the Hebrew letter heading before each stanza.
       const isPsalm119 = book.apiName === 'Psalms' && ch === 119;
-      const stanzaBreak = (v) => isPsalm119 && v.verse > 1 && (v.verse - 1) % 8 === 0;
+      const stanzaStart = (v) => isPsalm119 && (v.verse - 1) % 8 === 0;
+      const hebrewLetterFor = (v) => PSALM119_LETTERS[Math.floor((v.verse - 1) / 8)];
+      const writeStanzaHeading = (v, isFirst) => {
+        const letter = hebrewLetterFor(v);
+        if (!letter) return;
+        if (isDocx) out.push(`<p style="text-align:center;margin-top:${isFirst ? 8 : 14}px"><b>${escapeHtml(letter)}</b></p>`);
+        else { if (!isFirst) push(''); push(letter); push(''); }
+      };
 
       if (paragraph) {
         let buffer = '';
@@ -734,14 +748,17 @@ async function buildText(opts, bible, onProgress, format) {
           buffer = '';
         };
         verses.forEach((v, idx) => {
-          if (idx > 0 && (hasPilcrow(v.text) || stanzaBreak(v))) flush();
+          if (isPsalm119 && stanzaStart(v)) { flush(); writeStanzaHeading(v, idx === 0); }
+          else if (idx > 0 && hasPilcrow(v.text)) flush();
           buffer += `${v.verse} ${plainText(v.text, keepBrackets)}  `;
         });
         flush();
       } else {
         verses.forEach((v, idx) => {
-          // Gap above verses that begin a new paragraph (pilcrow) or Psalm 119 stanza.
-          if (idx > 0 && (hasPilcrow(v.text) || stanzaBreak(v))) {
+          if (isPsalm119 && stanzaStart(v)) {
+            writeStanzaHeading(v, idx === 0);
+          } else if (idx > 0 && hasPilcrow(v.text)) {
+            // Gap above verses that begin a new paragraph (pilcrow).
             if (isDocx) out.push('<p style="margin:0;line-height:6pt">&nbsp;</p>');
             else push('');
           }
