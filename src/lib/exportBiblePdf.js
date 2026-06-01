@@ -954,6 +954,13 @@ async function buildRtf(opts, bible, onProgress) {
     if (book.apiName === 'Malachi') { para(scope === 'old' ? 'THE END.' : 'THE END OF THE PROPHETS.', { center: true, bold: true, size: 24 }); }
     if (book.apiName === 'Revelation') para('THE END.', { center: true, bold: true, size: 26 });
 
+    // In two-column mode, end each book with a CONTINUOUS section break so Word
+    // balances the columns on the book's final page (splits remaining text
+    // evenly across both columns instead of filling only the left). The next
+    // book then opens its own \sect (page break) as normal. Single-column
+    // export skips this (no balancing needed).
+    if (twoColumn) lines.push('\\sect \\sectd\\sbknone\\BALANCECOLS ');
+
     onProgress(Math.round(((bi + 1) / total) * 90) + 5, `Adding ${book.shortName}… (${bi + 1}/${total})`);
     await new Promise(r => setTimeout(r, 0));
   }
@@ -965,6 +972,8 @@ async function buildRtf(opts, bible, onProgress) {
   // (\sectdFRONT → stays single-column). Swap the front token back last.
   const body = lines.join('\n')
     .replace(/\\sectdFRONT/g, '\u0000FRONT\u0000')
+    // The book-end balancing break needs the column count on it too.
+    .replace(/\\BALANCECOLS/g, colsHeader)
     .replace(/\\sectd/g, `\\sectd${colsHeader}`)
     .replace(/\u0000FRONT\u0000/g, '\\sectd');
   const rtfFont = getExportFont(opts.font).rtf;
