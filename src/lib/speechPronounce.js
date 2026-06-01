@@ -13,7 +13,7 @@
 
 // Exact respellings for frequent words (lowercase keys).
 const DICT = {
-  abideth: 'a-bide-uth',
+  abideth: 'abydeth',
   believeth: 'be-leev-uth',
   receiveth: 're-seev-uth',
   liveth: 'liv-uth',
