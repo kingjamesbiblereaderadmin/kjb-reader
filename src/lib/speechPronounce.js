@@ -319,8 +319,12 @@ const DICT = {
 
   // More commonly mispronounced words
   propitiation: 'pro-pish-ee-ay-shun',
-  righteousness: 'ryechusness',
-  righteous: 'ryechus',
+  righteousness: 'rye chuss ness',
+  righteous: 'rye chuss',
+  righteously: 'rye chuss lee',
+  unrighteousness: 'un rye chuss ness',
+  unrighteous: 'un rye chuss',
+  self: 'self',
   iniquity: 'i-nik-wi-tee',
   iniquities: 'i-nik-wi-teez',
   transgression: 'tranz-gresh-un',
