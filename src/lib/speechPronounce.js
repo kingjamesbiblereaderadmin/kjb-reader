@@ -122,6 +122,7 @@ const FIXES = {
   ashchenaz: 'ash-keh-naz',
   kittim: 'kit-tim',
   put: 'put',
+  cush: 'kush',
   canaan: 'kay-nan',
   seba: 'see-buh',
   havilah: 'hav-ih-luh',
