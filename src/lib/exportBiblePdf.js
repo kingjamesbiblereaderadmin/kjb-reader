@@ -697,7 +697,7 @@ async function buildText(opts, bible, onProgress, format) {
         `<h1 style="text-align:center">${escapeHtml(nameOf(book))}</h1>`
       );
     } else {
-      push('');
+      push(''); push(''); push('');
       push(nameOf(book), 'h1', anchorFor(book));
     }
 
@@ -768,6 +768,7 @@ async function buildText(opts, bible, onProgress, format) {
         if (colo) {
           if (!isDocx) push(''); // blank line above colophon (TXT)
           push('¶ ' + plainText(colo, isDocx ? true : keepBrackets).replace(/^¶\s*/, ''), 'center-italic');
+          if (!isDocx) { push(''); push(''); } // extra gap below colophon (TXT)
         }
       }
     }
