@@ -186,7 +186,7 @@ export default function AboutPage() {
               <p className="font-sans text-xs text-muted-foreground">kingjamesbiblereader@outlook.sg</p>
             </div>
           </a>
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary">
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border">
             <MessageSquare className="w-4 h-4 text-accent" />
             <div>
               <p className="font-sans font-medium text-sm text-foreground">Discord</p>
