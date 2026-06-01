@@ -15,6 +15,7 @@ import SelectorSheet from '@/components/bible/SelectorSheet';
 import RunningHead from '@/components/bible/RunningHead';
 import CurrentlyReadingIndicator from '@/components/bible/CurrentlyReadingIndicator';
 import ReadAloudControl from '@/components/bible/ReadAloudControl';
+import MinimizedHeaderBar from '@/components/bible/MinimizedHeaderBar';
 import { useReadAloud } from '@/lib/useReadAloud';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -1461,6 +1462,19 @@ export default function BibleReader() {
               {/* Read Aloud (free, on-device TTS) */}
               <ReadAloudControl tts={tts} open={showReadAloud} setOpen={setShowReadAloud} rangeText={_ttsRangeText} />
 
+              {/* Stop narration — only visible while speaking, sits next to Prev */}
+              {tts.speaking && (
+                <button
+                  onClick={tts.stop}
+                  onTouchEnd={(e) => { e.preventDefault(); tts.stop(); }}
+                  title="Stop reading"
+                  className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"
+                >
+                  <Square className="w-5 h-5 flex-shrink-0" />
+                  <span className="hidden lg:inline">Stop</span>
+                </button>
+              )}
+
               {/* Prev */}
               <button
                 onClick={goPrev}
@@ -1742,41 +1756,14 @@ export default function BibleReader() {
 
       {/* Show header chevron when hidden — portaled to body so it stays truly
           fixed to the viewport (escapes the animated page wrapper) while text scrolls */}
-      {hideHeader && createPortal(
-        <div className="fixed top-0 left-0 right-0 border-b border-border bg-background/95 backdrop-blur z-[110]" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-          <div className="w-full px-5 sm:px-12 lg:px-16 py-1.5 flex items-center justify-end">
-            <div className="flex items-center gap-1">
-              {tts.supported && !isViewingTitlePage && (<>
-                <button onClick={() => { if (!tts.speaking) tts.play(); else if (tts.paused) tts.resume(); else tts.pause(); }} title={!tts.speaking ? 'Read aloud' : tts.paused ? 'Resume' : 'Pause'} className={`p-2 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center ${tts.speaking ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-accent/20 text-foreground'}`}>
-                  {tts.speaking && !tts.paused ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                </button>
-                {tts.speaking && (
-                  <button onClick={tts.stop} title="Stop reading" className="p-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center">
-                    <Square className="w-4 h-4" />
-                  </button>
-                )}
-                <button onClick={tts.toggleAutoAdvance} title={tts.autoAdvance ? 'Continue to next chapter: ON' : 'Continue to next chapter: OFF'} className={`p-2 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center ${tts.autoAdvance ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-accent/20 text-foreground'}`}>
-                  <Repeat className="w-4 h-4" />
-                </button>
-              </>)}
-              <button
-                onClick={toggleFullscreen}
-                title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-                className="p-2 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center"
-              >
-                {fullscreen ? <Minimize2 className="w-4 h-4 transition-transform duration-200" /> : <Maximize2 className="w-4 h-4 transition-transform duration-200" />}
-              </button>
-              <button
-                onClick={() => setHideHeader(false)}
-                className="p-2 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center"
-                title="Show header"
-              >
-                <ChevronDown className="w-4 h-4 rotate-180 transition-transform duration-200" />
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
+      {hideHeader && (
+        <MinimizedHeaderBar
+          tts={tts}
+          isViewingTitlePage={isViewingTitlePage}
+          fullscreen={fullscreen}
+          toggleFullscreen={toggleFullscreen}
+          setHideHeader={setHideHeader}
+        />
       )}
 
       {/* Click/tap outside to close desktop dropdowns and mobile sheets */}
