@@ -1274,7 +1274,7 @@ export default function BibleReader() {
                         step="5"
                         value={zoomLevel}
                         onChange={handleZoomChange}
-                        className="flex-1 h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                        className="flex-1 h-2 bg-muted-foreground/30 rounded-lg appearance-none cursor-pointer accent-primary"
                       />
                       <button
                         onClick={() => adjustZoom(5)}
@@ -1318,7 +1318,7 @@ export default function BibleReader() {
                       step="5"
                       value={zoomLevel}
                       onChange={handleZoomChange}
-                      className="flex-1 h-3 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                      className="flex-1 h-3 bg-muted-foreground/30 rounded-lg appearance-none cursor-pointer accent-primary"
                     />
                     <button
                       onClick={() => adjustZoom(5)}
