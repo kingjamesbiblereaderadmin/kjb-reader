@@ -28,6 +28,10 @@ const FIXES = {
   begat: 'bee-gat',
   urias: 'you-raye-us',
   ozias: 'oh-zye-us',
+  achaz: 'ay-kaz',
+  ezekias: 'ez-eh-kye-us',
+  manasses: 'muh-nass-eez',
+  josias: 'joh-zye-us',
 };
 
 // Words that LOOK like archaic "-eth" verbs but are NOT — never respell these.
