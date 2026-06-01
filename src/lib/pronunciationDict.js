@@ -82,7 +82,7 @@ export const CORE_DICT = {
   jesus: 'jesus',
   christ: 'christ',
   jesu: 'jesu',
-  jesse: 'jess-ee',
+  jesse: 'jessie',
 
   // Frequently mispronounced KJB names / words
   selah: 'see-lah',
