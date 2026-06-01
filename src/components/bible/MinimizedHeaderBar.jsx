@@ -10,7 +10,7 @@ export default function MinimizedHeaderBar({ tts, isViewingTitlePage, fullscreen
     <div className="fixed top-0 left-0 right-0 border-b border-border bg-background/95 backdrop-blur z-[110]" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
       <div className="w-full px-5 sm:px-12 lg:px-16 py-1.5 flex items-center justify-end">
         <div className="flex items-center gap-1">
-          {tts.supported && !isViewingTitlePage && (<>
+          {tts.supported && (<>
             <button onClick={() => { if (!tts.speaking) tts.play(); else if (tts.paused) tts.resume(); else tts.pause(); }} title={!tts.speaking ? 'Read aloud' : tts.paused ? 'Resume' : 'Pause'} className={`p-2 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center ${tts.speaking ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-accent/20 text-foreground'}`}>
               {tts.speaking && !tts.paused ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
             </button>
@@ -19,9 +19,11 @@ export default function MinimizedHeaderBar({ tts, isViewingTitlePage, fullscreen
                 <Square className="w-4 h-4" />
               </button>
             )}
-            <button onClick={tts.toggleAutoAdvance} title={tts.autoAdvance ? 'Continue to next chapter: ON' : 'Continue to next chapter: OFF'} className={`p-2 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center ${tts.autoAdvance ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-accent/20 text-foreground'}`}>
-              <Repeat className="w-4 h-4" />
-            </button>
+            {!isViewingTitlePage && (
+              <button onClick={tts.toggleAutoAdvance} title={tts.autoAdvance ? 'Continue to next chapter: ON' : 'Continue to next chapter: OFF'} className={`p-2 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center ${tts.autoAdvance ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-accent/20 text-foreground'}`}>
+                <Repeat className="w-4 h-4" />
+              </button>
+            )}
           </>)}
           <button
             onClick={toggleFullscreen}
