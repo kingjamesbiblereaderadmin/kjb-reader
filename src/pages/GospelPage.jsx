@@ -240,12 +240,12 @@ function GospelActions() {
     <div className="flex flex-wrap items-center justify-center gap-2">
       <button
         onClick={handleCopy}
-        className="inline-flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-accent/20 text-foreground rounded-lg font-sans text-sm font-medium transition-colors"
+        className="inline-flex items-center gap-2 px-4 py-2 bg-secondary border border-border hover:bg-accent/20 text-foreground rounded-lg font-sans text-sm font-medium transition-colors"
       >
         {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
         {copied ? 'Copied!' : 'Copy the Gospel'}
       </button>
-      <div className="inline-flex items-center bg-secondary rounded-lg overflow-hidden">
+      <div className="inline-flex items-center bg-secondary border border-border rounded-lg overflow-hidden">
         <button
           onClick={handleShare}
           className="inline-flex items-center gap-2 px-4 py-2 hover:bg-accent/20 text-foreground font-sans text-sm font-medium transition-colors"
