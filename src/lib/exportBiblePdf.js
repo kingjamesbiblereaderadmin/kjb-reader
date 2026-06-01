@@ -887,7 +887,6 @@ async function buildRtf(opts, bible, onProgress) {
       lastT = book.testament;
       // Title-page entries before their testament (matches PDF)
       if (book.testament === coverBeforeTestament) bulletRow('Cover Page');
-      if (book.testament === 'new' && scope === 'whole') lines.push(`{\\pard\\qr\\sa40\\fs20 The New Testament\\par}`);
       para(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT', { bold: true, size: 26, sb: 160, sa: 80 });
     }
     bulletRow(nameOf(book));
