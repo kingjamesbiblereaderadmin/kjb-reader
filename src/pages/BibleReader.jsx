@@ -915,6 +915,14 @@ export default function BibleReader() {
     freshNavRef.current = true;
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);
+    // Reflect the new position in the address bar (shareable URL) without
+    // triggering the route effect (replaceState doesn't update routerLocation,
+    // so loadChapter below runs exactly once — no double-load).
+    try {
+      let url = `/read?book=${newAbbr}&chapter=${newChapter}`;
+      if (jumpVerse) url += `&verse=${jumpVerse}`;
+      window.history.replaceState({}, '', url);
+    } catch {}
     loadChapter(newAbbr, newChapter, jumpVerse);
   };
 
