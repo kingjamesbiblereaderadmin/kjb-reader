@@ -419,9 +419,18 @@ export default function SearchPage() {
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null, verseEnd: verseEnd || null })); } catch {}
     // Clear last reading position (from daily verse/random) when navigating from search
     try { localStorage.removeItem('kjb-last-reading'); } catch {}
-    // Store search nav state (in-memory + localStorage backup)
-    const compact = results.map(r => ({ abbr: r.abbr, chapter: r.chapter, verse: r.verse }));
-    setSearchNav(compact, resultIndex !== null ? resultIndex : 0, q);
+    // Store search nav state (in-memory + localStorage backup).
+    // Exclude colophon matches (verse 0) so the indicator total matches the
+    // "X verses" count shown on the search page, and remap the clicked index
+    // to its position within the verse-only list.
+    const verseResults = results.filter(r => !r.isColophon && r.verse !== 0);
+    const compact = verseResults.map(r => ({ abbr: r.abbr, chapter: r.chapter, verse: r.verse }));
+    let navIndex = 0;
+    if (resultIndex !== null && results[resultIndex]) {
+      const clicked = results[resultIndex];
+      navIndex = Math.max(0, verseResults.findIndex(r => r.abbr === clicked.abbr && r.chapter === clicked.chapter && r.verse === clicked.verse));
+    }
+    setSearchNav(compact, navIndex, q);
     window.scrollTo({ top: 0 });
     // Navigate with URL params so the reader reliably scrolls to + highlights the verse.
     // Include the search term (&q=) so the URL is shareable/bookmarkable.
