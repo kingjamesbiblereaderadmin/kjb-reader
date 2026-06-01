@@ -15,7 +15,6 @@
 // utterance still flows naturally.
 
 import { CURATED_DICT } from './pronunciationCurated';
-import { phoneticRespell } from './phoneticRules';
 
 // Single source of truth: the app owner's hand-curated respellings.
 const DICT = { ...CURATED_DICT };
