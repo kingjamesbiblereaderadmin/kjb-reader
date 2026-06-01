@@ -78,6 +78,11 @@ export const CORE_DICT = {
   peradventure: 'per-ad-ven-cher',
   notwithstanding: 'not-with-stan-ding',
 
+  // Core names that must never be respelled oddly (override generated dict)
+  jesus: 'jesus',
+  christ: 'christ',
+  jesu: 'jesu',
+
   // Frequently mispronounced KJB names / words
   selah: 'see-lah',
   amen: 'ah-men',
