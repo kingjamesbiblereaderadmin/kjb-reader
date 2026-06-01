@@ -8,6 +8,7 @@ import ShareCard from './ShareCard.jsx';
 import { getNotificationsEnabled, requestNotificationPermission, disableNotifications, scheduleDailyNotification } from '@/lib/notifications';
 import { formatDailyVerseForCopy } from '@/lib/formatDailyVerse';
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
+import { VERSE_BACKGROUNDS } from '@/lib/dailyVerseTheme';
 
 // Map a font choice to an actual CSS font-family. When an app-wide
 // accessibility font is active, it always takes priority.
@@ -22,16 +23,6 @@ function resolveFontFamily(choice, a11yFont) {
   if (choice === 'hyperlegible') return "'Atkinson Hyperlegible', system-ui, sans-serif";
   return "'Merriweather', 'Cormorant Garamond', Georgia, serif";
 }
-
-const VERSE_BACKGROUNDS = [
-  { gradient: 'from-blue-700 via-indigo-600 to-purple-600', accent: 'text-blue-200', pill: '79, 70, 229', hex: ['#1d4ed8', '#9333ea'] },      // Sun — blue/purple
-  { gradient: 'from-emerald-700 via-teal-600 to-cyan-600', accent: 'text-emerald-200', pill: '13, 148, 136', hex: ['#047857', '#0891b2'] },  // Mon — green/teal
-  { gradient: 'from-rose-700 via-pink-600 to-fuchsia-600', accent: 'text-rose-200', pill: '219, 39, 119', hex: ['#be123c', '#c026d3'] },      // Tue — rose/pink
-  { gradient: 'from-amber-600 via-orange-600 to-red-600', accent: 'text-amber-200', pill: '194, 65, 12', hex: ['#d97706', '#dc2626'] },       // Wed — warm sunset
-  { gradient: 'from-cyan-700 via-sky-600 to-blue-600', accent: 'text-cyan-200', pill: '2, 132, 199', hex: ['#0e7490', '#2563eb'] },          // Thu — ocean blue
-  { gradient: 'from-violet-700 via-purple-600 to-pink-600', accent: 'text-violet-200', pill: '147, 51, 234', hex: ['#6d28d9', '#db2777'] },   // Fri — violet/pink
-  { gradient: 'from-slate-800 via-indigo-800 to-purple-800', accent: 'text-slate-300', pill: '55, 48, 163', hex: ['#1e293b', '#5b21b6'] }     // Sat — deep night
-];
 
 export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEnabled }) {
   const dow = new Date().getDay();

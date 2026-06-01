@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import { applyDailyAccent } from '@/lib/dailyVerseTheme';
 
 // theme modes: 'light' | 'dark' | 'system' | 'auto'
 // colour palettes: 'gold' | 'sapphire' | 'forest' | 'rose' | 'amethyst' | 'slate'
@@ -144,13 +145,16 @@ export function ThemeProvider({ children }) {
       const dark = resolveIsDark(savedMode);
       document.documentElement.classList.toggle('dark', dark);
       applyPalette(savedColour, dark);
+      applyDailyAccent(); // accent matches today's verse-card colour
       setIsInitialized(true);
     }
   }, []);
 
-  // Apply colour palette whenever palette or dark mode changes
+  // Apply colour palette whenever palette or dark mode changes, then override
+  // the accent with today's verse-card colour so they stay in sync each day.
   useEffect(() => {
     applyPalette(colourId, isDark);
+    applyDailyAccent();
   }, [colourId, isDark]);
 
   // Apply 1611 vs Modern theme and dyslexic font
