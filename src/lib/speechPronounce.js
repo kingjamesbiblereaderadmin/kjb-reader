@@ -529,6 +529,7 @@ const DICT = {
   // ── Additional places ──
   eden: 'ee-den',
   havilah: 'hav-i-lah',
+  havileth: 'hav-i-leth',
   pison: 'pye-son',
   gihon: 'gye-hon',
   hiddekel: 'hid-eh-kel',
