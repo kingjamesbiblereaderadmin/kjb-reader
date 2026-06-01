@@ -8,8 +8,13 @@ import { renderVerseText } from '@/lib/bibleApi';
 // Rendered off-screen and captured by html2canvas.
 const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png';
 
-const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFamily, textColor, textOpacity }, ref) {
+const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFamily, textColor, textOpacity, gradient }, ref) {
   const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  // Today's two-stop gradient (matches the on-site card). Falls back to blue→purple.
+  const bgGradient = gradient
+    ? `linear-gradient(180deg, ${gradient[0]} 0%, ${gradient[1]} 100%)`
+    : 'linear-gradient(180deg, #1E2A78 0%, #6A2FA0 100%)';
+  const dateBadgeBg = gradient ? gradient[1] : '#2A1750';
   const verseFont = fontFamily || "'Merriweather', 'Cormorant Garamond', Georgia, serif";
   const verseColor = textColor || '#ffffff';
   const verseOpacity = textOpacity != null ? textOpacity : 1;
@@ -61,7 +66,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'linear-gradient(180deg, #1E2A78 0%, #6A2FA0 100%)',
+          background: bgGradient,
         }}
       />
       {/* Subtle diagonal light streaks */}
@@ -134,7 +139,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
         <div
           style={{
             alignSelf: 'center',
-            background: '#2A1750',
+            background: dateBadgeBg,
             borderRadius: '999px',
             padding: '9px 28px 17px',
             marginBottom: '56px',
