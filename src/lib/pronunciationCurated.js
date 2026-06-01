@@ -2,6 +2,9 @@
 // values are phonetic respellings (spoken only — on-screen text is unchanged).
 
 export const CURATED_DICT = {
+  profiteth: 'prof-it-eth',
+  profited: 'prof-it-ed',
+  profiting: 'prof-it-ing',
   urias: 'yoo-rye-as',
   obed: 'oh-bed',
 
