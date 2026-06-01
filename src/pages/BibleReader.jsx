@@ -26,6 +26,7 @@ import { getSearchNav, setSearchNav, setSearchIndex, clearSearchNav, getGospelNa
 import { getGospelResults } from '@/lib/gospelVerses';
 import { useReaderUrlSync } from '@/lib/useReaderUrlSync';
 import { resolveBook, formatVerseRange } from '@/lib/readerHelpers';
+import { getTitlePageVerses, getTitlePageName } from '@/lib/titlePageSpeech';
 
 const isMobile = () => window.innerWidth < 640;
 
@@ -114,12 +115,24 @@ export default function BibleReader() {
   const [selectedVerses, setSelectedVerses] = useState(new Set());
   const [filterMode, setFilterMode] = useState(false); // show only selected verses
   const _ttsBook = BIBLE_BOOKS.find(b => b.abbr === pos.abbr) || BIBLE_BOOKS[0];
+  // On a title page (chapter 0), narrate the title-page text instead of verses.
+  const _ttsTitlePage = pos.chapter === 0 && (pos.abbr === 'GEN' || pos.abbr === 'MAT');
   // When a verse range is active (filter mode), read ONLY those verses and
   // announce the range instead of the whole chapter.
   const _ttsFilterActive = filterMode && selectedVerses.size > 0;
-  const _ttsVerses = _ttsFilterActive ? verses.filter(v => selectedVerses.has(v.verse)) : verses;
+  const _ttsTitleVerses = React.useMemo(
+    () => (_ttsTitlePage ? getTitlePageVerses(pos.abbr) : null),
+    [_ttsTitlePage, pos.abbr]
+  );
+  const _ttsVerses = _ttsTitlePage
+    ? _ttsTitleVerses
+    : (_ttsFilterActive ? verses.filter(v => selectedVerses.has(v.verse)) : verses);
   const _ttsRangeLabel = _ttsFilterActive ? formatVerseRange([...selectedVerses]) : null;
-  const tts = useReadAloud(_ttsVerses, {
+  const tts = useReadAloud(_ttsVerses, _ttsTitlePage ? {
+    // No book/chapter announcement on title pages — the text itself opens with
+    // "The Holy Bible." / "The New Testament...".
+    bookName: getTitlePageName(pos.abbr),
+  } : {
     bookName: _ttsBook.name,
     chapter: pos.chapter,
     rangeLabel: _ttsRangeLabel,
@@ -1634,6 +1647,8 @@ export default function BibleReader() {
             {/* Title page navigation — prev/next/fullscreen always available */}
             {isViewingTitlePage && (
               <>
+                {/* Read Aloud — narrate the title page */}
+                <ReadAloudControl tts={tts} open={showReadAloud} setOpen={setShowReadAloud} />
                 <button
                   onClick={goPrev}
                   onTouchEnd={(e) => { e.preventDefault(); goPrev(); }}
