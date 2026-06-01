@@ -15,7 +15,7 @@
 const DICT = {
   abideth: 'abydeth',
   believeth: 'be-leev-uth',
-  receiveth: 're-seev-uth',
+  receiveth: 'reseeveth',
   liveth: 'liv-uth',
   giveth: 'giv-uth',
   loveth: 'luv-uth',
@@ -224,7 +224,7 @@ const DICT = {
   aceldama: 'a-kel-da-mah',
 
   // More commonly mispronounced people
-  abraham: 'ay-bra-ham',
+  abraham: 'aybruhham',
   isaac: 'eye-zak',
   jacob: 'jay-kub',
   esau: 'ee-saw',
