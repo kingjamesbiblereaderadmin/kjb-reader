@@ -965,11 +965,12 @@ export default function BibleReader() {
   useEffect(() => {
     tts.setOnChapterEnd(() => {
       if (pos.abbr === 'REV' && pos.chapter === 22) return;
-      autoAdvanceNextRef.current = true;
+      // From a title page → 'announce-book' so chapter 1 announces the book name.
+      autoAdvanceNextRef.current = isViewingTitlePage ? 'announce-book' : true;
       goNext();
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pos.abbr, pos.chapter, book.chapters]);
+  }, [pos.abbr, pos.chapter, book.chapters, isViewingTitlePage]);
 
   useEffect(() => {
     // Re-play after auto-advancing. Trigger once the next page is ready — either
