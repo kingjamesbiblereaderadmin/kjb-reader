@@ -1078,8 +1078,8 @@ export default function BibleReader() {
 
             {/* Book selector */}
             <button
-              onClick={() => { setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); }}
-              onTouchEnd={(e) => { e.preventDefault(); setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); }}
+              onClick={() => { setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
+              onTouchEnd={(e) => { e.preventDefault(); setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
               className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11"
             >
               <span className="truncate text-center" style={{ maxWidth: '120px' }}>{isViewingTitlePage ? 'Title Page' : book.shortName}</span>
@@ -1131,8 +1131,8 @@ export default function BibleReader() {
               <>
               {/* Chapter selector */}
               <button
-                onClick={() => { setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); }}
-                onTouchEnd={(e) => { e.preventDefault(); setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); }}
+                onClick={() => { setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
+                onTouchEnd={(e) => { e.preventDefault(); setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
                 className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11"
               >
                 <span>Ch.{pos.chapter}</span>
@@ -1167,8 +1167,8 @@ export default function BibleReader() {
 
               {/* Verse selector */}
               <button
-                onClick={() => { setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); }}
-                onTouchEnd={(e) => { e.preventDefault(); setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); }}
+                onClick={() => { setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
+                onTouchEnd={(e) => { e.preventDefault(); setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
                 className={`flex items-center justify-center gap-1.5 px-3 rounded-lg border border-border font-sans text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 ${
                   selectMode
                     ? 'bg-primary text-primary-foreground'
@@ -1244,8 +1244,8 @@ export default function BibleReader() {
 
               {/* Zoom control */}
               <button
-                onClick={() => { setShowZoomPopover(p => !p); }}
-                onTouchEnd={(e) => { e.preventDefault(); setShowZoomPopover(p => !p); }}
+                onClick={() => { setShowZoomPopover(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowFontPopover(false); }}
+                onTouchEnd={(e) => { e.preventDefault(); setShowZoomPopover(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowFontPopover(false); }}
                 title={`Zoom: ${zoomLevel}%`}
                 className="flex flex-1 items-center justify-center gap-1 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 whitespace-nowrap"
               >
@@ -1343,8 +1343,8 @@ export default function BibleReader() {
 
               {/* Font family toggle */}
               <button
-                onClick={() => { setShowFontPopover(p => !p); }}
-                onTouchEnd={(e) => { e.preventDefault(); setShowFontPopover(p => !p); }}
+                onClick={() => { setShowFontPopover(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); }}
+                onTouchEnd={(e) => { e.preventDefault(); setShowFontPopover(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); }}
                 title="Font family"
                 className="flex flex-1 items-center justify-center gap-1 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 whitespace-nowrap"
               >
