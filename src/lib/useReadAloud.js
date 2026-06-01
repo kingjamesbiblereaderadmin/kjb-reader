@@ -106,7 +106,7 @@ export function useReadAloud(verses, meta = {}) {
     return list.find(v => v.voiceURI === voiceURIRef.current) || null;
   }, []);
 
-  const speakIndex = useCallback((i) => {
+  const speakIndex = useCallback((i, forceLocal = false) => {
     const list = itemsRef.current || [];
     if (cancelledRef.current || i >= list.length) {
       setSpeaking(false);
@@ -134,8 +134,19 @@ export function useReadAloud(verses, meta = {}) {
 
     const u = new SpeechSynthesisUtterance(spoken);
     const voice = resolveVoice();
-    if (voice) u.voice = voice;
+    // Some "Online/Natural" network voices fail silently (never start). Use the
+    // selected voice, but watch for a no-start and retry with a local voice.
+    if (voice && !forceLocal) u.voice = voice;
     u.rate = rateRef.current;
+
+    // Watchdog: if onstart never fires (silent network voice), retry this same
+    // item once forcing a reliable local voice.
+    let started = false;
+    const watchdog = setTimeout(() => {
+      if (cancelledRef.current || started) return;
+      window.speechSynthesis.cancel();
+      speakIndex(i, true); // retry with forceLocal
+    }, 1300);
 
     // Word [start,end] spans in the DISPLAYED (cleaned) text — these are what
     // we highlight. Indexed by word position.
@@ -160,6 +171,8 @@ export function useReadAloud(verses, meta = {}) {
     };
 
     u.onstart = () => {
+      started = true;
+      clearTimeout(watchdog);
       setActiveWordStart(-1);
       setActiveWordEnd(-1);
       boundaryFiredRef.current = false;
@@ -210,7 +223,12 @@ export function useReadAloud(verses, meta = {}) {
         setActiveWordEnd(span[1]);
       }
     };
-    u.onend = () => { clearWordTimer(); if (!cancelledRef.current) speakIndex(i + 1); };
+    u.onerror = () => {
+      clearTimeout(watchdog);
+      // A network/online voice errored — retry once with a local voice.
+      if (!cancelledRef.current && !forceLocal) { speakIndex(i, true); }
+    };
+    u.onend = () => { clearTimeout(watchdog); clearWordTimer(); if (!cancelledRef.current) speakIndex(i + 1); };
     window.speechSynthesis.speak(u);
   }, [resolveVoice]);
 
