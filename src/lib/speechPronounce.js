@@ -32,6 +32,7 @@ const FIXES = {
   ezekias: 'ez-eh-kye-us',
   manasses: 'muh-nass-eez',
   josias: 'joh-zye-us',
+  salathiel: 'suh-lay-thee-el',
 };
 
 // Words that LOOK like archaic "-eth" verbs but are NOT — never respell these.
