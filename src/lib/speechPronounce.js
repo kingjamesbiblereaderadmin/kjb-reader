@@ -378,7 +378,7 @@ const DICT = {
   lords: 'lords',
   god: 'god',
   seth: 'seth',
-  enoch: 'ee-nuk',
+  enoch: 'en-uk',
   enos: 'ee-nos',
   jared: 'jair-ed',
   lamech: 'lay-mek',
