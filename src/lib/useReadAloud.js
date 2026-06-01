@@ -196,8 +196,12 @@ export function useReadAloud(verses, meta = {}) {
   const play = useCallback((startVerse = null, isContinuation = false) => {
     if (!supported) return;
     continuationRef.current = isContinuation;
+    // Was something already speaking? If so we need to cancel and defer so the
+    // engine settles. On a FRESH start (nothing speaking) we must call speak()
+    // synchronously inside the user-gesture, or Chrome's autoplay policy blocks
+    // audio entirely (the "no audio" bug).
+    const wasSpeaking = synth.speaking || synth.pending;
     const session = ++sessionRef.current; // new session — invalidates old callbacks
-    synth.cancel();
     setPaused(false);
     setSpeaking(true);
     itemsRef.current = buildItems();
@@ -206,8 +210,14 @@ export function useReadAloud(verses, meta = {}) {
       const found = itemsRef.current.findIndex(v => v.verse === startVerse);
       if (found >= 0) startIdx = found;
     }
-    // Defer one tick so cancel() fully settles before speak() (Chrome quirk).
-    setTimeout(() => { if (session === sessionRef.current) speakIndex(startIdx, session); }, 60);
+    if (wasSpeaking) {
+      // Interrupting ongoing speech — cancel, then defer so cancel() settles.
+      synth.cancel();
+      setTimeout(() => { if (session === sessionRef.current) speakIndex(startIdx, session); }, 60);
+    } else {
+      // Fresh start — speak immediately to stay within the user gesture.
+      speakIndex(startIdx, session);
+    }
   }, [supported, synth, buildItems, speakIndex]);
 
   const pause = useCallback(() => {
