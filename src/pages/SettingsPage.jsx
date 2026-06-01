@@ -1200,6 +1200,7 @@ export default function SettingsPage() {
         <p>• <strong className="text-foreground">Merriweather:</strong> Google Fonts (SIL Open Font License)</p>
         <p>• <strong className="text-foreground">Dancing Script:</strong> Google Fonts (SIL Open Font License)</p>
         <p className="pt-2 text-[10px] opacity-75">All fonts are open source and freely available under the SIL Open Font License.</p>
+        <p className="pt-2 text-[11px] text-foreground/80">This app is public domain and freely shareable. Made in Singapore. 🇸🇬</p>
       </div>
         </div>
         )}
