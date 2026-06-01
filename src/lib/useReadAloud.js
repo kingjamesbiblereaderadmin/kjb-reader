@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { toSpeechText } from '@/lib/speechText';
+import { fixArchaicPronunciation } from '@/lib/speechPronounce';
 
 // Free, on-device text-to-speech using the browser's Web Speech API.
 // No integration credits are used. Reads an array of verses in order, one
@@ -122,21 +123,41 @@ export function useReadAloud(verses, meta = {}) {
     }
     indexRef.current = i;
     const v = list[i];
+    // `cleaned` = text shown on screen (drives highlight offsets).
+    // `spoken`  = same text with archaic -eth/-est words respelled for correct
+    //             pronunciation. Both have the SAME number of words, so we map
+    //             the engine's word boundaries by word INDEX (not char offset),
+    //             keeping the on-screen highlight aligned even when respelled.
     const cleaned = toSpeechText(v.text);
     if (!cleaned) { speakIndex(i + 1); return; }
+    const spoken = fixArchaicPronunciation(cleaned);
 
-    const u = new SpeechSynthesisUtterance(cleaned);
+    const u = new SpeechSynthesisUtterance(spoken);
     const voice = resolveVoice();
     if (voice) u.voice = voice;
     u.rate = rateRef.current;
 
-    // Precompute word [start,end] offsets for the timer fallback.
+    // Word [start,end] spans in the DISPLAYED (cleaned) text — these are what
+    // we highlight. Indexed by word position.
     const wordSpans = [];
     const wordRe = /\S+/g;
     let mm;
     while ((mm = wordRe.exec(cleaned)) !== null) {
       wordSpans.push([mm.index, mm.index + mm[0].length]);
     }
+    // Start offsets of each word in the SPOKEN text — used to convert a
+    // boundary charIndex (into spoken text) into a word index.
+    const spokenStarts = [];
+    const sRe = /\S+/g;
+    let sm;
+    while ((sm = sRe.exec(spoken)) !== null) spokenStarts.push(sm.index);
+    const spokenStartToWordIndex = (charIndex) => {
+      let idx = 0;
+      for (let k = 0; k < spokenStarts.length; k++) {
+        if (charIndex >= spokenStarts[k]) idx = k; else break;
+      }
+      return idx;
+    };
 
     u.onstart = () => {
       setActiveWordStart(-1);
@@ -151,14 +172,17 @@ export function useReadAloud(verses, meta = {}) {
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } catch {}
 
-      // Fallback timer: if no real boundary event arrives shortly, step words
-      // ourselves based on an estimated reading speed (~2.7 words/sec at rate 1).
+      // Fallback timer: if no real boundary event arrives, step words ourselves
+      // based on an estimated reading speed. Only engages when the browser/voice
+      // never fires onboundary — we wait longer (500ms) so real boundaries win.
       if (wordSpans.length > 0) {
         setTimeout(() => {
           if (cancelledRef.current || boundaryFiredRef.current) return;
           let wi = 0;
-          const wps = 2.7 * (rateRef.current || 1);
-          const stepMs = Math.max(120, 1000 / wps);
+          // ~2.3 words/sec at rate 1 matches typical TTS pacing more closely,
+          // reducing the highlight running ahead of the audio.
+          const wps = 2.3 * (rateRef.current || 1);
+          const stepMs = Math.max(140, 1000 / wps);
           setActiveWordStart(wordSpans[0][0]);
           setActiveWordEnd(wordSpans[0][1]);
           wordTimerRef.current = setInterval(() => {
@@ -168,7 +192,7 @@ export function useReadAloud(verses, meta = {}) {
             setActiveWordStart(wordSpans[wi][0]);
             setActiveWordEnd(wordSpans[wi][1]);
           }, stepMs);
-        }, 220);
+        }, 500);
       }
     };
     // Word-by-word highlighting: onboundary fires at each word with its char
@@ -177,16 +201,14 @@ export function useReadAloud(verses, meta = {}) {
       if (v.verse == null || e.name === 'sentence') return;
       boundaryFiredRef.current = true;
       clearWordTimer();
-      const start = e.charIndex;
-      // Derive the word length: prefer charLength, else read up to next space.
-      let len = e.charLength;
-      if (!len || len <= 0) {
-        const rest = cleaned.slice(start);
-        const m = rest.match(/^\S+/);
-        len = m ? m[0].length : 0;
+      // The boundary charIndex is into the SPOKEN (respelled) text. Map it to a
+      // word index, then highlight the matching word in the DISPLAYED text.
+      const wi = spokenStartToWordIndex(e.charIndex);
+      const span = wordSpans[wi];
+      if (span) {
+        setActiveWordStart(span[0]);
+        setActiveWordEnd(span[1]);
       }
-      setActiveWordStart(start);
-      setActiveWordEnd(start + len);
     };
     u.onend = () => { clearWordTimer(); if (!cancelledRef.current) speakIndex(i + 1); };
     window.speechSynthesis.speak(u);
