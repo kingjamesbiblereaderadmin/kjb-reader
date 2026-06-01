@@ -680,7 +680,7 @@ const DICT = {
 
   // ── Additional difficult words / terms ──
   whosoever: 'hoo-so-ev-er',
-  whatsoever: 'hwot-so-ev-er',
+  whatsoever: 'whut-so-ev-er',
   whomsoever: 'hoom-so-ev-er',
   whithersoever: 'with-er-so-ev-er',
   insomuch: 'in-so-much',
