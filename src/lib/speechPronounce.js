@@ -18,7 +18,7 @@ const DICT = {
   receiveth: 'reseeveth',
   liveth: 'liv-uth',
   giveth: 'giv-uth',
-  moveth: 'moov-uth',
+  moveth: 'moove-uth',
   loveth: 'luv-uth',
   doeth: 'doo-uth',
   goeth: 'go-uth',
