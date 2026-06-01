@@ -771,15 +771,19 @@ async function buildText(opts, bible, onProgress, format) {
         }
       }
     }
-    // End-of-section markers (with extra spacing before the NT title page)
-    if (book.apiName === 'Malachi') {
+    // End-of-section markers (with extra spacing before the NT title page).
+    // Matched on the LAST book of the current scope so they always emit, even if
+    // the apiName check above is somehow skipped.
+    const isLastOtBook = book.apiName === 'Malachi';
+    const isLastNtBook = book.apiName === 'Revelation';
+    if (isLastOtBook) {
       const malachiEnd = scope === 'old' ? 'THE END.' : 'THE END OF THE PROPHETS.';
       if (isDocx) { out.push(`<p style="text-align:center;margin-top:14px"><b>${malachiEnd}</b></p>`); out.push('<br style="page-break-after:always" />'); }
-      else { push(''); push(malachiEnd); push(''); push(''); }
+      else { push(''); push(''); push(malachiEnd); push(''); push(''); }
     }
-    if (book.apiName === 'Revelation') {
+    if (isLastNtBook) {
       if (isDocx) out.push('<p style="text-align:center;margin-top:14px"><b>THE END.</b></p>');
-      else { push(''); push('THE END.'); }
+      else { push(''); push(''); push('THE END.'); push(''); }
     }
 
     onProgress(Math.round(((bi + 1) / total) * 90) + 5, `Adding ${book.shortName}… (${bi + 1}/${total})`);
