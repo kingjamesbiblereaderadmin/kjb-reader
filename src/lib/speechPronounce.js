@@ -99,6 +99,7 @@ const DICT = {
   selvedge: 'sel-vij',
   habergeon: 'hab-er-jun',
   scapegoat: 'scape-goat',
+  read: 'red',
   firmament: 'firm-ment',
   firmaments: 'firm-ments',
   yielding: 'yeeld ing',
