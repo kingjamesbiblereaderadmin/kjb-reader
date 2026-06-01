@@ -1026,6 +1026,12 @@ export default function SearchPage() {
             </div>
           </div>
 
+          {/* Export formatting note */}
+          <p className="font-sans text-[11px] text-muted-foreground/70 mb-3 leading-snug">
+            There may be occasional formatting issues depending on your device and reader. For feedback or to report a bug, please contact{' '}
+            <a href="mailto:kingjamesbiblereader@outlook.sg" className="text-primary hover:underline">kingjamesbiblereader@outlook.sg</a>.
+          </p>
+
           {/* Selected verses reading panel */}
           {selectMode && selected.size > 0 && (
             <div className="mb-4 p-4 rounded-xl bg-primary/5 border border-primary/20">
