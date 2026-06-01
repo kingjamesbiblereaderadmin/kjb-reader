@@ -15,6 +15,7 @@
 // utterance still flows naturally.
 
 import { CURATED_DICT } from './pronunciationCurated';
+import { phoneticRespell } from './phoneticRules';
 
 // Single source of truth: the app owner's hand-curated respellings.
 const DICT = { ...CURATED_DICT };
@@ -63,6 +64,12 @@ export function fixArchaicPronunciation(text = '') {
     // Words ending in "est" (5+ letters) → "est" as a clear separate syllable.
     if (lower.length > 5 && lower.endsWith('est')) {
       return matchCase(word, lower.slice(0, -3) + ' est');
+    }
+    // Proper nouns (capitalized mid-text words, 3+ letters) that aren't in the
+    // curated dict → generate a respelling from the phonetic rules so every
+    // name across all 66 books is pronounced consistently.
+    if (word.length >= 3 && /^[A-Z]/.test(word)) {
+      return matchCase(word, deHyphen(phoneticRespell(lower)));
     }
     return word;
   });
