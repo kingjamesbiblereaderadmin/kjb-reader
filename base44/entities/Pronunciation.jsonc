@@ -1,0 +1,22 @@
+{
+  "name": "Pronunciation",
+  "type": "object",
+  "properties": {
+    "word": {
+      "type": "string",
+      "description": "Lowercase proper noun / word"
+    },
+    "respelling": {
+      "type": "string",
+      "description": "Phonetic respelling for TTS (lowercase, hyphen-separated syllables)"
+    },
+    "count": {
+      "type": "integer",
+      "description": "How many times the word appears capitalized in the KJB"
+    }
+  },
+  "required": [
+    "word",
+    "respelling"
+  ]
+}
