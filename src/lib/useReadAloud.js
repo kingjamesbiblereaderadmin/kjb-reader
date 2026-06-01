@@ -94,10 +94,9 @@ export function useReadAloud(verses, meta = {}) {
     keepAliveRef.current = setInterval(() => {
       if (cancelledRef.current) return;
       if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
-        window.speechSynthesis.pause();
         window.speechSynthesis.resume();
       }
-    }, 10000);
+    }, 5000);
   };
   const stopKeepAlive = () => {
     if (keepAliveRef.current) { clearInterval(keepAliveRef.current); keepAliveRef.current = null; }
