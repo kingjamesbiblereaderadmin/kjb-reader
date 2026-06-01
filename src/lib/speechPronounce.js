@@ -18,12 +18,20 @@ const matchCase = (orig, repl) => {
 // Targeted fixes for proper nouns some voices mispronounce.
 const FIXES = {
   judas: 'joo-dus',
+  obed: 'oh-bed',
+  jesse: 'jess-ee',
 };
+
+// Words that LOOK like archaic "-eth" verbs but are NOT — never respell these.
+const ETH_EST_WHITELIST = new Set([
+  'fleeth', // a proper noun, not "flee + eth"
+]);
 
 export function fixArchaicPronunciation(text = '') {
   return String(text).replace(/[A-Za-z]+/g, (word) => {
     const lower = word.toLowerCase();
     if (FIXES[lower]) return matchCase(word, FIXES[lower].replace(/-/g, ' '));
+    if (ETH_EST_WHITELIST.has(lower)) return word; // leave as-is for the voice
     // Words ending in "eth" (4+ letters) → voice the ending as a soft "uth"
     // syllable (e.g. "abideth" → "abide uth").
     if (lower.length > 4 && lower.endsWith('eth')) {
