@@ -1308,13 +1308,19 @@ export default function SettingsPage() {
               </div>
               <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
             </a>
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border">
+            <a
+              href="https://discord.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
+            >
               <MessageCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="font-sans font-medium text-sm text-foreground">Discord</p>
+                <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Discord</p>
                 <p className="font-sans text-xs text-muted-foreground">shawn_faithinhisbloodr325av</p>
               </div>
-            </div>
+              <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+            </a>
             <a
               href="https://www.tiktok.com/@svdbyfaithinr325av?_r=1&_t=ZS-96WRhWSLUoe"
               target="_blank"

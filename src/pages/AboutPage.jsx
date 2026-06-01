@@ -186,13 +186,19 @@ export default function AboutPage() {
               <p className="font-sans text-xs text-muted-foreground">kingjamesbiblereader@outlook.sg</p>
             </div>
           </a>
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border">
+          <a
+            href="https://discord.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
+          >
             <MessageSquare className="w-4 h-4 text-accent" />
             <div>
-              <p className="font-sans font-medium text-sm text-foreground">Discord</p>
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Discord</p>
               <p className="font-sans text-xs text-muted-foreground">shawn_svdbyfaithinhisbloodr325av</p>
             </div>
-          </div>
+            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+          </a>
         </div>
       </div>
 
