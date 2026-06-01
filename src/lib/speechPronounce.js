@@ -108,7 +108,7 @@ const FIXES = {
   kenan: 'kee-nan',
   mahalaleel: 'muh-hal-uh-lee-el',
   jered: 'jeh-red',
-  methuselah: 'meh-thoo-zuh-luh',
+  methuselah: 'muh-thoo-zuh-luh',
   lamech: 'lay-mek',
   japheth: 'jay-feth',
   gomer: 'goh-mer',
