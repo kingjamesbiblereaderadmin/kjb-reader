@@ -47,7 +47,7 @@ function tintFromHex(hex, isDark) {
   const [h, s] = hexToHslString(hex).split(' ');
   const hue = parseInt(h, 10);
   if (isDark) return `${hue} 22% 14%`;
-  return `${hue} 30% 95%`;
+  return `${hue} 32% 91%`;
 }
 
 // Apply today's verse-card colour across the WHOLE app theme — accent, primary,
@@ -79,8 +79,8 @@ export function applyDailyAccent(isDark = document.documentElement.classList.con
     // Borders + page background take the same hue at very low saturation.
     // In light mode the border is a touch darker than the box surface so the
     // boxes have a visible outline.
-    root.style.setProperty('--border', isDark ? `${hue} 20% 22%` : `${hue} 28% 82%`);
-    root.style.setProperty('--input', isDark ? `${hue} 20% 22%` : `${hue} 28% 82%`);
+    root.style.setProperty('--border', isDark ? `${hue} 20% 22%` : `${hue} 30% 78%`);
+    root.style.setProperty('--input', isDark ? `${hue} 20% 22%` : `${hue} 30% 78%`);
     root.style.setProperty('--background', isDark ? `${hue} 28% 8%` : `${hue} 35% 99%`);
     root.style.setProperty('--sidebar-background', isDark ? `${hue} 28% 9%` : `${hue} 30% 98%`);
     root.style.setProperty('--sidebar-accent', surface);
