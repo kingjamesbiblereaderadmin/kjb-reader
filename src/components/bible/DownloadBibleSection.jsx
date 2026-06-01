@@ -114,7 +114,7 @@ export default function DownloadBibleSection() {
           <Toggle active={shortNames} onClick={() => setShortNames(true)} icon={Tag} label="Short" />
         </div>
         <p className="font-sans text-xs text-muted-foreground">
-          {shortNames ? 'e.g. "Gen", "Matt"' : 'e.g. "Genesis", "The Gospel According to St. Matthew"'}
+          {shortNames ? 'e.g. "Gen", "Matt"' : 'e.g. "Genesis", "The Gospel According to Saint Matthew"'}
         </p>
       </div>
 
