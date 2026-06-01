@@ -305,6 +305,7 @@ export const NAME_DICT = {
   shealtiel: 'shee-al-tee-el',
 
   // ── Gospels / Acts / Epistles (extra) ──
+  manasses: 'ma-nas-eez',
   zacharias: 'zak-a-rye-as',
   urias: 'yoo-rye-as',
   elisabeth: 'eh-liz-a-beth',

@@ -191,16 +191,20 @@ export function useReadAloud(verses, meta = {}) {
     while ((mm = wordRe.exec(cleaned)) !== null) {
       wordSpans.push([mm.index, mm.index + mm[0].length]);
     }
-    // Start offsets of each word in the SPOKEN text — used to convert a
-    // boundary charIndex (into spoken text) into a word index.
-    const spokenStarts = [];
-    const sRe = /\S+/g;
-    let sm;
-    while ((sm = sRe.exec(spoken)) !== null) spokenStarts.push(sm.index);
-    const spokenStartToWordIndex = (charIndex) => {
+    // Map a boundary charIndex (into the SPOKEN/respelled text) to a DISPLAYED
+    // word by CHARACTER-POSITION RATIO, not word index. Respellings such as
+    // "abideth" → "abide uth" give the spoken text more words than the displayed
+    // text, so a word-index map races ahead (highlight too quick). Using the
+    // relative char position keeps the highlight aligned regardless of how many
+    // extra words the respelling introduces.
+    const spokenLen = Math.max(spoken.length, 1);
+    const charIndexToWordIndex = (charIndex) => {
+      const ratio = Math.min(Math.max(charIndex / spokenLen, 0), 0.999);
+      // Find the displayed word whose START position best matches that ratio.
+      const target = ratio * (cleaned.length || 1);
       let idx = 0;
-      for (let k = 0; k < spokenStarts.length; k++) {
-        if (charIndex >= spokenStarts[k]) idx = k; else break;
+      for (let k = 0; k < wordSpans.length; k++) {
+        if (target >= wordSpans[k][0]) idx = k; else break;
       }
       return idx;
     };
@@ -240,8 +244,9 @@ export function useReadAloud(verses, meta = {}) {
       boundaryFiredRef.current = true;
       clearWordTimer();
       // The boundary charIndex is into the SPOKEN (respelled) text. Map it to a
-      // word index, then highlight the matching word in the DISPLAYED text.
-      const wi = spokenStartToWordIndex(e.charIndex);
+      // displayed word by char-position ratio (handles respelling word-count
+      // differences without the highlight racing ahead).
+      const wi = charIndexToWordIndex(e.charIndex);
       const span = wordSpans[wi];
       if (!span) return;
       // Apply the highlight exactly when the engine reports the word boundary —
