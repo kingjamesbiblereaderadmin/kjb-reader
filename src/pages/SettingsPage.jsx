@@ -1295,6 +1295,30 @@ export default function SettingsPage() {
               </button>
 
             </div>
+
+            <button
+              onClick={async () => {
+                try {
+                  const res = await base44.functions.invoke('exportProperNouns', {});
+                  const text = typeof res.data === 'string' ? res.data : JSON.stringify(res.data, null, 2);
+                  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = 'bible-proper-nouns.txt';
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+                  URL.revokeObjectURL(url);
+                } catch (err) {
+                  alert('Download failed: ' + (err?.message || 'unknown error'));
+                }
+              }}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              Download Proper Nouns (.txt)
+            </button>
           </div>
         )}
       </div>
