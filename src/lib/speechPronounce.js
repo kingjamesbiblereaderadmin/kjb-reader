@@ -58,7 +58,7 @@ const DICT = {
   wilt: 'wilt',
 
   // Archaic pronouns / particles
-  unto: 'un-too',
+  unto: 'untoo',
   thou: 'thow',
   thee: 'thee',
   thy: 'thy',
