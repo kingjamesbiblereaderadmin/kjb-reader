@@ -681,7 +681,19 @@ async function buildText(opts, bible, onProgress, format) {
     const book = BOOKS[bi];
     const bookData = bible[book.apiName] || {};
 
-    if (book.apiName === 'Matthew' && scope === 'whole') { if (isDocx) { out.push('<br style="page-break-before:always" /><a name="nt_title"></a>'); } TITLE_NT.forEach((b, i) => push(b.t, i === 1 ? 'title-main' : 'title-line')); push(''); if (isDocx) out.push('<br style="page-break-after:always" />'); }
+    if (book.apiName === 'Matthew' && scope === 'whole') {
+      if (isDocx) {
+        out.push('<br style="page-break-before:always" /><a name="nt_title"></a>');
+        // Navigation Heading 1 for the New Testament lives ON the title page so
+        // clicking it in Word's panel jumps here (not to Matthew/Malachi). The
+        // visible big title is rendered separately below as plain paragraphs.
+        out.push('<h1 style="text-align:center">THE NEW TESTAMENT</h1>');
+        lastBodyTestament = 'new'; // suppress the duplicate NT heading in Matthew's section
+      }
+      TITLE_NT.forEach((b, i) => push(b.t, i === 1 ? 'title-main' : 'title-line'));
+      push('');
+      if (isDocx) out.push('<br style="page-break-after:always" />');
+    }
 
     // Word: each book is its own section so the running header shows the current
     // book name. Close the previous section (its paragraph properties hold the
