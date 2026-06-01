@@ -55,9 +55,12 @@ export function useReadAloud(verses, meta = {}) {
     // These meta items carry verse: null so they don't trigger (wrong) word
     // highlighting on verse 1 — only real verse items highlight.
     if (m.bookName && m.chapter != null) {
+      // Only announce the book name on chapter 1. From chapter 2 onward, just
+      // say "Chapter N" so continuous reading isn't repetitive.
+      const prefix = m.chapter > 1 ? `Chapter ${m.chapter}` : `${m.bookName}, Chapter ${m.chapter}`;
       const intro = m.rangeLabel
-        ? `${m.bookName}, Chapter ${m.chapter}, verses ${m.rangeLabel}.`
-        : `${m.bookName}, Chapter ${m.chapter}.`;
+        ? `${prefix}, verses ${m.rangeLabel}.`
+        : `${prefix}.`;
       items.push({ text: intro, verse: null });
     }
     // Subscript (e.g. Psalm superscription) — read before verse 1
