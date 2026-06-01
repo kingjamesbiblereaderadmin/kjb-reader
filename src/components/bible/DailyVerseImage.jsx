@@ -1314,6 +1314,19 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               e.nativeEvent.stopImmediatePropagation();
             }}
           >
+            {ttsSupported && (
+              <button
+                onClick={handleReadAloud}
+                onTouchEnd={handleReadAloud}
+                onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
+                onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
+                className="absolute top-4 left-4 p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors"
+                title={speaking ? 'Stop reading' : 'Read aloud'}
+                type="button"
+              >
+                {speaking ? <Square className="w-5 h-5 text-white" /> : <Volume2 className="w-5 h-5 text-white" />}
+              </button>
+            )}
             <button
               onClick={(e) => {
                 e.preventDefault();
