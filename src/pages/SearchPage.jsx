@@ -485,7 +485,7 @@ export default function SearchPage() {
       const ref = (r.isColophon || r.verse === 0)
         ? `${bookName} ${r.chapter} colophon`
         : `${bookName} ${r.chapter}:${r.verse}`;
-      return { text: r.text, ref };
+      return { text: r.text, ref, testament: bookEntry ? bookEntry.testament : 'old' };
     });
     exportVerses(format, items, q);
   };

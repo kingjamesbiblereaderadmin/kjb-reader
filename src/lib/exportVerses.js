@@ -47,10 +47,27 @@ function plainWithBrackets(text) {
 
 const sanitizeFilename = (q) => (q || 'verses').replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '').slice(0, 30) || 'verses';
 
+// Split items into Old / New Testament groups (preserving order). Returns an
+// array of { title, items } sections. Only includes a section if it has items,
+// so a search confined to one testament shows just that one section.
+function splitByTestament(items) {
+  const old = items.filter(it => it.testament !== 'new');
+  const neu = items.filter(it => it.testament === 'new');
+  const sections = [];
+  if (old.length) sections.push({ title: 'Old Testament', items: old });
+  if (neu.length) sections.push({ title: 'New Testament', items: neu });
+  return sections;
+}
+
 // ── TXT ──
 export function exportTxt(items, query) {
   const header = `KJB Search Results — "${query}"\n${'='.repeat(50)}\n\n`;
-  const body = items.map(it => `"${plainWithBrackets(it.text)}"\n— ${it.ref} (KJB)`).join('\n\n');
+  const sections = splitByTestament(items);
+  const body = sections.map(sec => {
+    const heading = `${sec.title.toUpperCase()}\n${'-'.repeat(sec.title.length)}\n\n`;
+    const verses = sec.items.map(it => `"${plainWithBrackets(it.text)}"\n— ${it.ref} (KJB)`).join('\n\n');
+    return heading + verses;
+  }).join('\n\n\n');
   const footer = `\n\n${'='.repeat(50)}\n${items.length} verse${items.length !== 1 ? 's' : ''} — King James Bible`;
   const blob = new Blob(['\uFEFF', header + body + footer], { type: 'text/plain;charset=utf-8' });
   downloadBlob(blob, `kjb-${sanitizeFilename(query)}.txt`);
@@ -58,11 +75,14 @@ export function exportTxt(items, query) {
 
 // ── DOCX (Word-compatible HTML) — italics preserved ──
 export function exportDocx(items, query) {
-  const rows = items.map(it =>
-    `<p style="margin:0 0 12pt 0;font-family:Georgia,serif;font-size:12pt;">` +
-    `&ldquo;${bracketsToItalicHtml(it.text)}&rdquo;<br/>` +
-    `<span style="font-size:10pt;color:#555;">&mdash; ${escapeHtml(it.ref)} (KJB)</span>` +
-    `</p>`
+  const rows = splitByTestament(items).map(sec =>
+    `<h3 style="font-family:Georgia,serif;font-size:13pt;margin:18pt 0 8pt 0;">${escapeHtml(sec.title)}</h3>` +
+    sec.items.map(it =>
+      `<p style="margin:0 0 12pt 0;font-family:Georgia,serif;font-size:12pt;">` +
+      `&ldquo;${bracketsToItalicHtml(it.text)}&rdquo;<br/>` +
+      `<span style="font-size:10pt;color:#555;">&mdash; ${escapeHtml(it.ref)} (KJB)</span>` +
+      `</p>`
+    ).join('')
   ).join('');
   const html = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>KJB Search</title></head><body>` +
     `<h2 style="font-family:Georgia,serif;">KJB Search Results — &ldquo;${escapeHtml(query)}&rdquo;</h2>${rows}` +
@@ -78,10 +98,13 @@ function csvCell(s) {
   return `"${v}"`;
 }
 export function exportXls(items, query) {
-  const header = `${csvCell('Reference')},${csvCell('Text ([brackets] = italics)')}`;
-  const rows = items.map(it =>
-    `${csvCell(it.ref)},${csvCell(plainWithBrackets(it.text))}`
-  );
+  const header = `${csvCell('Testament')},${csvCell('Reference')},${csvCell('Text ([brackets] = italics)')}`;
+  const rows = [];
+  splitByTestament(items).forEach(sec => {
+    sec.items.forEach(it => {
+      rows.push(`${csvCell(sec.title)},${csvCell(it.ref)},${csvCell(plainWithBrackets(it.text))}`);
+    });
+  });
   const csv = [header, ...rows].join('\r\n');
   // Leading BOM so Excel detects UTF-8.
   const blob = new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8' });
@@ -146,7 +169,21 @@ export function exportPdf(items, query) {
     if (y > pageH - 60) { doc.addPage(); y = marginTop; }
   };
 
-  items.forEach(it => renderVerse(it.text, it.ref));
+  const renderSectionHeading = (title) => {
+    y += 8;
+    if (y > pageH - 60) { doc.addPage(); y = marginTop; }
+    doc.setFont('times', 'bold');
+    doc.setFontSize(13);
+    doc.setTextColor(0);
+    doc.text(title, marginX, y);
+    y += lineH + 6;
+    if (y > pageH - 60) { doc.addPage(); y = marginTop; }
+  };
+
+  splitByTestament(items).forEach(sec => {
+    renderSectionHeading(sec.title);
+    sec.items.forEach(it => renderVerse(it.text, it.ref));
+  });
   doc.save(`kjb-${sanitizeFilename(query)}.pdf`);
 }
 
