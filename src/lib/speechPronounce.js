@@ -258,6 +258,7 @@ const DICT = {
   hannah: 'han-ah',
   eli: 'ee-lye',
   samuel: 'sam-you-el',
+  obed: 'oh-bed',
   saul: 'sawl',
   jonathan: 'jon-a-than',
   abner: 'ab-ner',
