@@ -50,18 +50,20 @@ export function useReadAloud(verses, meta = {}) {
     const list = versesRef.current || [];
     const m = metaRef.current || {};
     const items = [];
-    // Announce book + chapter (+ verse range when reading only a selection)
+    // Announce book + chapter (+ verse range when reading only a selection).
+    // These meta items carry verse: null so they don't trigger (wrong) word
+    // highlighting on verse 1 — only real verse items highlight.
     if (m.bookName && m.chapter != null) {
       const intro = m.rangeLabel
         ? `${m.bookName}, Chapter ${m.chapter}, verses ${m.rangeLabel}.`
         : `${m.bookName}, Chapter ${m.chapter}.`;
-      items.push({ text: intro, verse: list[0]?.verse ?? null });
+      items.push({ text: intro, verse: null });
     }
     // Subscript (e.g. Psalm superscription) — read before verse 1
-    if (m.subscript) items.push({ text: m.subscript, verse: list[0]?.verse ?? null });
+    if (m.subscript) items.push({ text: m.subscript, verse: null });
     list.forEach((v) => items.push({ text: v.text, verse: v.verse }));
     // Colophon (e.g. Epistle closing note) — read after the last verse
-    if (m.colophon) items.push({ text: m.colophon, verse: list[list.length - 1]?.verse ?? null });
+    if (m.colophon) items.push({ text: m.colophon, verse: null });
     return items;
   };
   const itemsRef = useRef([]);

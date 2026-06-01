@@ -1885,6 +1885,7 @@ export default function BibleReader() {
                 fontFamilyValue={getFontFamilyValue(fontFamily)}
                 zoomLevel={zoomLevel}
                 columnMode={columnMode}
+                onReadFromHere={(verseNum) => { setShowReadAloud(true); tts.play(verseNum); }}
                 dropCap={idx === 0 && v.verse === 1}
                 searchTerm={searchTerm && highlightVerse === v.verse ? searchTerm : null}
                 />

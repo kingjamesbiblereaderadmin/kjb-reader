@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Copy, Share2, X, Highlighter, ChevronDown, Bookmark, BookmarkCheck, CheckSquare, Square } from 'lucide-react';
+import { Copy, Share2, X, Highlighter, ChevronDown, Bookmark, BookmarkCheck, CheckSquare, Square, Play } from 'lucide-react';
 import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { formatVerseShare, buildVerseUrl, withExtras } from '@/lib/formatDailyVerse';
 import VersePopover from '@/components/bible/VersePopover';
 import ReadAloudVerseText from '@/components/bible/ReadAloudVerseText';
 
-export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, subscript = null, isCursive = false, fontFamilyValue = null, zoomLevel = 100, hasSubscript = false, searchTerm = null, dropCap = false, columnMode = false, ttsActive = false, ttsWordStart = -1, ttsWordEnd = -1 }) {
+export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, subscript = null, isCursive = false, fontFamilyValue = null, zoomLevel = 100, hasSubscript = false, searchTerm = null, dropCap = false, columnMode = false, ttsActive = false, ttsWordStart = -1, ttsWordEnd = -1, onReadFromHere = null }) {
   const bookEntry = BIBLE_BOOKS.find(b => b.abbr === abbr);
   const shortBookName = bookEntry ? bookEntry.shortName : bookName;
   const [selected, setSelected] = useState(false);
@@ -291,6 +291,15 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           {saved ? <BookmarkCheck className="w-3 h-3 text-accent" /> : <Bookmark className="w-3 h-3" />}
           {saved ? 'Saved' : 'Save'}
         </button>
+        {onReadFromHere && (
+          <button
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); onReadFromHere(verse.verse); setSelected(false); }}
+            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); onReadFromHere(verse.verse); setSelected(false); }}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+          >
+            <Play className="w-3 h-3" /> Read from here
+          </button>
+        )}
         <button
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setSelected(false); }}
           onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setSelected(false); }}
