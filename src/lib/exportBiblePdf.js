@@ -598,8 +598,10 @@ async function buildText(opts, bible, onProgress, format) {
   const push = (txt, kind = 'body', anchor = null) => {
     if (isDocx) {
       const a = anchor ? `<a name="${anchor}"></a>` : '';
-      if (kind === 'h1') out.push(`<h1 style="text-align:center">${a}${escapeHtml(txt)}</h1>`);
-      else if (kind === 'h2') out.push(`<h2 style="text-align:center">${a}${escapeHtml(txt)}</h2>`);
+      // Title-page lines must NOT be Word headings (they'd each appear in the
+      // navigation side panel). Render them as bold/large centered paragraphs.
+      if (kind === 'title-main') out.push(`<p style="text-align:center;font-size:26pt;font-weight:bold;margin:6px 0">${a}${escapeHtml(txt)}</p>`);
+      else if (kind === 'title-line') out.push(`<p style="text-align:center;font-size:13pt;margin:4px 0">${a}${escapeHtml(txt)}</p>`);
       else if (kind === 'center-italic') out.push(`<p style="text-align:center">${docxInline(txt)}</p>`);
       else out.push(`<p>${docxInline(txt)}</p>`);
     } else {
@@ -624,8 +626,10 @@ async function buildText(opts, bible, onProgress, format) {
   // Title pages — Holy Bible for whole/OT, New Testament for NT-only.
   // Anchor the cover so the Contents "Cover Page" entry can link back to it (DOCX).
   if (isDocx) out.push('<a name="cover_page"></a>');
-  (scope === 'new' ? TITLE_NT : TITLE_WHOLE).forEach((b, i) => push(b.t, i === 1 ? 'h1' : 'h2'));
+  (scope === 'new' ? TITLE_NT : TITLE_WHOLE).forEach((b, i) => push(b.t, i === 1 ? 'title-main' : 'title-line'));
   push('');
+  // Contents starts on its own page (DOCX), separate from the title page.
+  if (isDocx) out.push('<br style="page-break-after:always" />');
 
   const total = BOOKS.length;
 
@@ -636,7 +640,7 @@ async function buildText(opts, bible, onProgress, format) {
 
   // Table of Contents (Word: clickable links to in-doc anchors; TXT: plain list)
   if (isDocx) {
-    out.push('<h1 style="text-align:center">CONTENTS</h1>');
+    out.push('<p style="text-align:center;font-size:20pt;font-weight:bold;margin:6px 0">CONTENTS</p>');
     let lastT = null;
     BOOKS.forEach(book => {
       if (book.testament !== lastT) {
@@ -672,11 +676,12 @@ async function buildText(opts, bible, onProgress, format) {
     push('');
   }
 
+  let lastBodyTestament = null;
   for (let bi = 0; bi < total; bi++) {
     const book = BOOKS[bi];
     const bookData = bible[book.apiName] || {};
 
-    if (book.apiName === 'Matthew' && scope === 'whole') { if (isDocx) out.push('<a name="nt_title"></a>'); TITLE_NT.forEach((b, i) => push(b.t, i === 1 ? 'h1' : 'h2')); push(''); }
+    if (book.apiName === 'Matthew' && scope === 'whole') { if (isDocx) { out.push('<br style="page-break-before:always" /><a name="nt_title"></a>'); } TITLE_NT.forEach((b, i) => push(b.t, i === 1 ? 'title-main' : 'title-line')); push(''); if (isDocx) out.push('<br style="page-break-after:always" />'); }
 
     // Word: each book is its own section so the running header shows the current
     // book name. Close the previous section (its paragraph properties hold the
@@ -689,6 +694,14 @@ async function buildText(opts, bible, onProgress, format) {
       headerDivs.push(
         `<div style="mso-element:header" id="${hid}"><p class=MsoHeader style="text-align:center"><i>${escapeHtml(nameOf(book))}</i></p></div>`
       );
+      // Emit a Heading 1 once per testament so the Word navigation panel shows
+      // a collapsible Testament group; each book is a Heading 2 nested under it.
+      let testamentHeading = '';
+      if (book.testament !== lastBodyTestament) {
+        lastBodyTestament = book.testament;
+        const tLabel = book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT';
+        testamentHeading = `<h1 style="text-align:center">${escapeHtml(tLabel)}</h1>`;
+      }
       // Close the previous section <div> and open this book's section <div>.
       // The closing of one Section div + opening of the next, combined with the
       // matching @page SectionN rules, is what makes Word treat each book as a
@@ -696,8 +709,9 @@ async function buildText(opts, bible, onProgress, format) {
       out.push(
         `</div>` +
         `<div class="${sid}" style="page-break-before:always">` +
+        `${testamentHeading}` +
         `<a name="${anchorFor(book)}"></a>` +
-        `<h1 style="text-align:center">${escapeHtml(nameOf(book))}</h1>`
+        `<h2 style="text-align:center">${escapeHtml(nameOf(book))}</h2>`
       );
     } else {
       push(''); push(''); push('');
