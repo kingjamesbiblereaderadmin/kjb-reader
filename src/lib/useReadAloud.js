@@ -7,7 +7,10 @@ import { toSpeechText } from '@/lib/speechText';
 // reader can highlight it.
 //
 // verses: [{ verse: number, text: string }]
-export function useReadAloud(verses) {
+// meta: { bookName, chapter, subscript, colophon } — optional extra content to
+//       narrate (book + chapter announced first, subscript before verse 1,
+//       colophon after the last verse).
+export function useReadAloud(verses, meta = {}) {
   const supported = typeof window !== 'undefined' && 'speechSynthesis' in window;
 
   const [voices, setVoices] = useState([]);
@@ -24,6 +27,28 @@ export function useReadAloud(verses) {
   // Keep the latest verses/voice/rate in refs so the speak loop reads fresh values
   const versesRef = useRef(verses);
   useEffect(() => { versesRef.current = verses; }, [verses]);
+  const metaRef = useRef(meta);
+  useEffect(() => { metaRef.current = meta; }, [meta.bookName, meta.chapter, meta.subscript, meta.colophon]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Build the ordered list of spoken items from the verses + meta.
+  // Each item: { text, verse } where `verse` is the real verse to highlight
+  // (null for the book/chapter intro).
+  const buildItems = () => {
+    const list = versesRef.current || [];
+    const m = metaRef.current || {};
+    const items = [];
+    // Announce book + chapter first
+    if (m.bookName && m.chapter != null) {
+      items.push({ text: `${m.bookName}, Chapter ${m.chapter}.`, verse: list[0]?.verse ?? null });
+    }
+    // Subscript (e.g. Psalm superscription) — read before verse 1
+    if (m.subscript) items.push({ text: m.subscript, verse: list[0]?.verse ?? null });
+    list.forEach((v) => items.push({ text: v.text, verse: v.verse }));
+    // Colophon (e.g. Epistle closing note) — read after the last verse
+    if (m.colophon) items.push({ text: m.colophon, verse: list[list.length - 1]?.verse ?? null });
+    return items;
+  };
+  const itemsRef = useRef([]);
   const voiceURIRef = useRef(voiceURI);
   useEffect(() => { voiceURIRef.current = voiceURI; }, [voiceURI]);
   const rateRef = useRef(rate);
@@ -52,7 +77,7 @@ export function useReadAloud(verses) {
   }, []);
 
   const speakIndex = useCallback((i) => {
-    const list = versesRef.current || [];
+    const list = itemsRef.current || [];
     if (cancelledRef.current || i >= list.length) {
       setSpeaking(false);
       setPaused(false);
