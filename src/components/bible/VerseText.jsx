@@ -5,8 +5,9 @@ import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { formatVerseShare, buildVerseUrl, withExtras } from '@/lib/formatDailyVerse';
 import VersePopover from '@/components/bible/VersePopover';
+import ReadAloudVerseText from '@/components/bible/ReadAloudVerseText';
 
-export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, subscript = null, isCursive = false, fontFamilyValue = null, zoomLevel = 100, hasSubscript = false, searchTerm = null, dropCap = false, columnMode = false }) {
+export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, subscript = null, isCursive = false, fontFamilyValue = null, zoomLevel = 100, hasSubscript = false, searchTerm = null, dropCap = false, columnMode = false, ttsActive = false, ttsWordStart = -1, ttsWordEnd = -1 }) {
   const bookEntry = BIBLE_BOOKS.find(b => b.abbr === abbr);
   const shortBookName = bookEntry ? bookEntry.shortName : bookName;
   const [selected, setSelected] = useState(false);
@@ -322,11 +323,21 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
                   {isSelected ? <CheckSquare className="w-[1em] h-[1em]" /> : <Square className="w-[1em] h-[1em] text-muted-foreground" />}
                 </span>
               )}
-              <span
-                className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left inline ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
-                style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
-                dangerouslySetInnerHTML={{ __html: html }}
-              />
+              {ttsActive ? (
+                <ReadAloudVerseText
+                  rawText={displayVerseText}
+                  wordStart={ttsWordStart}
+                  wordEnd={ttsWordEnd}
+                  className={`leading-relaxed break-words text-left inline ${isCursive ? 'cursive-em-style' : ''}`}
+                  style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
+                />
+              ) : (
+                <span
+                  className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left inline ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+                  style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
+                  dangerouslySetInnerHTML={{ __html: html }}
+                />
+              )}
             </span>
           </span>
           {!selectMode && actionPopover}
@@ -352,11 +363,21 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
                 {isSelected ? <CheckSquare className="w-[1em] h-[1em]" /> : <Square className="w-[1em] h-[1em] text-muted-foreground" />}
               </span>
             )}
-            <span
-              className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
-              style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
-              dangerouslySetInnerHTML={{ __html: html }}
-            />
+            {ttsActive ? (
+              <ReadAloudVerseText
+                rawText={displayVerseText}
+                wordStart={ttsWordStart}
+                wordEnd={ttsWordEnd}
+                className={`leading-loose break-words text-left ${isCursive ? 'cursive-em-style' : ''}`}
+                style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
+              />
+            ) : (
+              <span
+                className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+                style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
+                dangerouslySetInnerHTML={{ __html: html }}
+              />
+            )}
           </span>
           {' '}
         </span>
@@ -407,11 +428,21 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
               {isSelected ? <CheckSquare className="w-[1.1em] h-[1.1em]" /> : <Square className="w-[1.1em] h-[1.1em] text-muted-foreground" />}
             </span>
           )}
-          <span
-            className={`flex-1 min-w-0 leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
-            style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
+          {ttsActive ? (
+            <ReadAloudVerseText
+              rawText={displayVerseText}
+              wordStart={ttsWordStart}
+              wordEnd={ttsWordEnd}
+              className={`flex-1 min-w-0 leading-relaxed break-words text-left ${isCursive ? 'cursive-em-style' : ''}`}
+              style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
+            />
+          ) : (
+            <span
+              className={`flex-1 min-w-0 leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+              style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          )}
         </span>
       </span>
       {!selectMode && actionPopover}

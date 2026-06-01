@@ -1,5 +1,5 @@
 import React from 'react';
-import { Volume2, Play, Pause, Square, Gauge, Mic } from 'lucide-react';
+import { Volume2, Play, Pause, Square, Gauge, Mic, Repeat } from 'lucide-react';
 import SelectorSheet from '@/components/bible/SelectorSheet';
 
 const isMobile = () => typeof window !== 'undefined' && window.innerWidth < 640;
@@ -13,7 +13,7 @@ const SPEEDS = [
 // Toolbar control for the free, on-device Read Aloud feature.
 // `tts` is the object returned by useReadAloud.
 export default function ReadAloudControl({ tts, open, setOpen }) {
-  const { supported, voices, voiceURI, rate, speaking, paused, play, pause, resume, stop, changeVoice, changeRate } = tts;
+  const { supported, voices, voiceURI, rate, speaking, paused, autoAdvance, toggleAutoAdvance, play, pause, resume, stop, changeVoice, changeRate } = tts;
 
   if (!supported) return null;
 
@@ -66,6 +66,22 @@ export default function ReadAloudControl({ tts, open, setOpen }) {
           ))}
         </div>
       </div>
+
+      {/* Continue to next chapter */}
+      <button
+        onClick={toggleAutoAdvance}
+        className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg font-sans text-xs font-medium transition-all ${
+          autoAdvance ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+        }`}
+      >
+        <span className="flex items-center gap-2">
+          <Repeat className="w-3.5 h-3.5" />
+          Continue to next chapter
+        </span>
+        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${autoAdvance ? 'bg-primary-foreground/20' : 'bg-background'}`}>
+          {autoAdvance ? 'ON' : 'OFF'}
+        </span>
+      </button>
 
       {/* Voice picker */}
       {voices.length > 0 && (

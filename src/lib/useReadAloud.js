@@ -23,6 +23,19 @@ export function useReadAloud(verses, meta = {}) {
   const [speaking, setSpeaking] = useState(false);
   const [paused, setPaused] = useState(false);
   const [activeVerse, setActiveVerse] = useState(null);
+  // Character index (into the cleaned spoken text of the active verse) where the
+  // word currently being spoken starts. Lets the reader highlight that word.
+  const [activeWordStart, setActiveWordStart] = useState(-1);
+  const [activeWordEnd, setActiveWordEnd] = useState(-1);
+  // Auto-advance to the next chapter when the current one finishes reading.
+  const [autoAdvance, setAutoAdvance] = useState(() => {
+    try { return localStorage.getItem('kjb-tts-autoadvance') === 'true'; } catch { return false; }
+  });
+  const autoAdvanceRef = useRef(autoAdvance);
+  useEffect(() => { autoAdvanceRef.current = autoAdvance; }, [autoAdvance]);
+  // Called when a chapter finishes AND auto-advance is on (set by the reader).
+  const onChapterEndRef = useRef(null);
+  const setOnChapterEnd = useCallback((fn) => { onChapterEndRef.current = fn; }, []);
 
   // Keep the latest verses/voice/rate in refs so the speak loop reads fresh values
   const versesRef = useRef(verses);
@@ -82,7 +95,13 @@ export function useReadAloud(verses, meta = {}) {
       setSpeaking(false);
       setPaused(false);
       setActiveVerse(null);
+      setActiveWordStart(-1);
+      setActiveWordEnd(-1);
       indexRef.current = 0;
+      // Chapter finished naturally (not cancelled) — auto-advance if enabled.
+      if (!cancelledRef.current && autoAdvanceRef.current && onChapterEndRef.current) {
+        try { onChapterEndRef.current(); } catch {}
+      }
       return;
     }
     indexRef.current = i;
@@ -95,6 +114,8 @@ export function useReadAloud(verses, meta = {}) {
     if (voice) u.voice = voice;
     u.rate = rateRef.current;
     u.onstart = () => {
+      setActiveWordStart(-1);
+      setActiveWordEnd(-1);
       if (v.verse == null) return;
       setActiveVerse(v.verse);
       // Keep the verse being read visible on screen.
@@ -102,6 +123,21 @@ export function useReadAloud(verses, meta = {}) {
         const el = document.getElementById(`v${v.verse}`);
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } catch {}
+    };
+    // Word-by-word highlighting: onboundary fires at each word with its char
+    // offset into the cleaned utterance text.
+    u.onboundary = (e) => {
+      if (v.verse == null || e.name === 'sentence') return;
+      const start = e.charIndex;
+      // Derive the word length: prefer charLength, else read up to next space.
+      let len = e.charLength;
+      if (!len || len <= 0) {
+        const rest = cleaned.slice(start);
+        const m = rest.match(/^\S+/);
+        len = m ? m[0].length : 0;
+      }
+      setActiveWordStart(start);
+      setActiveWordEnd(start + len);
     };
     u.onend = () => { if (!cancelledRef.current) speakIndex(i + 1); };
     window.speechSynthesis.speak(u);
@@ -142,8 +178,18 @@ export function useReadAloud(verses, meta = {}) {
     setSpeaking(false);
     setPaused(false);
     setActiveVerse(null);
+    setActiveWordStart(-1);
+    setActiveWordEnd(-1);
     indexRef.current = 0;
   }, [supported]);
+
+  const toggleAutoAdvance = useCallback(() => {
+    setAutoAdvance(prev => {
+      const next = !prev;
+      try { localStorage.setItem('kjb-tts-autoadvance', String(next)); } catch {}
+      return next;
+    });
+  }, []);
 
   // Stop automatically whenever the chapter (verse list) changes
   useEffect(() => {
@@ -174,6 +220,11 @@ export function useReadAloud(verses, meta = {}) {
     speaking,
     paused,
     activeVerse,
+    activeWordStart,
+    activeWordEnd,
+    autoAdvance,
+    toggleAutoAdvance,
+    setOnChapterEnd,
     play,
     pause,
     resume,

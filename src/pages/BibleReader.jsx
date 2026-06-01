@@ -24,47 +24,11 @@ import { getAccessibilityFont, setAccessibilityFont, applyReaderFont } from '@/l
 import { getSearchNav, setSearchNav, setSearchIndex, clearSearchNav, getGospelNav, setGospelNav, setGospelIndex, clearGospelNav } from '@/lib/searchNav';
 import { getGospelResults } from '@/lib/gospelVerses';
 import { useReaderUrlSync } from '@/lib/useReaderUrlSync';
+import { resolveBook, formatVerseRange } from '@/lib/readerHelpers';
 
 const isMobile = () => window.innerWidth < 640;
 
 const STORAGE_KEY = 'kjb-position';
-
-// Resolve a book from a URL/string token — accepts abbr (e.g. "GEN"),
-// short name, or api name (case-insensitive, ignores spaces).
-function resolveBook(token) {
-  if (!token) return null;
-  const t = String(token).trim().toLowerCase().replace(/\s+/g, '');
-  return BIBLE_BOOKS.find(b =>
-    b.abbr.toLowerCase() === t ||
-    b.shortName.toLowerCase().replace(/\s+/g, '') === t ||
-    (b.apiName && b.apiName.toLowerCase().replace(/\s+/g, '') === t) ||
-    (b.name && b.name.toLowerCase().replace(/\s+/g, '') === t)
-  ) || null;
-}
-
-// Format verses with dashes for consecutive, commas for gaps
-function formatVerseRange(verses) {
-  if (!verses || verses.length === 0) return '';
-  if (verses.length === 1) return String(verses[0]);
-  
-  const sorted = [...verses].sort((a, b) => a - b);
-  const ranges = [];
-  let start = sorted[0];
-  let end = sorted[0];
-  
-  for (let i = 1; i < sorted.length; i++) {
-    if (sorted[i] === end + 1) {
-      end = sorted[i];
-    } else {
-      ranges.push(start === end ? String(start) : `${start}-${end}`);
-      start = sorted[i];
-      end = sorted[i];
-    }
-  }
-  ranges.push(start === end ? String(start) : `${start}-${end}`);
-  
-  return ranges.join(',');
-}
 
 function loadPosition() {
   try {
@@ -151,6 +115,8 @@ export default function BibleReader() {
     subscript: SUBSCRIPTS[`${_ttsBook.apiName}:${pos.chapter}`] || null,
     colophon,
   });
+  // When auto-advance finishes a chapter, go to the next one and keep reading.
+  const autoAdvanceNextRef = useRef(false);
   const [fontFamily, setFontFamily] = useState(() => {
     try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
   });
@@ -968,11 +934,27 @@ export default function BibleReader() {
       navigate(pos.abbr, pos.chapter + 1);
     } else {
       const next = getNextBook(pos.abbr);
-      if (next) {
-        navigate(next.abbr, 1);
-      }
+      if (next) navigate(next.abbr, 1);
     }
   };
+
+  // Auto-advance: when a chapter finishes reading, go to the next & keep reading.
+  useEffect(() => {
+    tts.setOnChapterEnd(() => {
+      if (pos.abbr === 'REV' && pos.chapter === 22) return;
+      autoAdvanceNextRef.current = true;
+      goNext();
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pos.abbr, pos.chapter, book.chapters]);
+
+  useEffect(() => {
+    if (loading || !verses.length || !autoAdvanceNextRef.current) return;
+    autoAdvanceNextRef.current = false;
+    const t = setTimeout(() => tts.play(), 400);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [verses, loading]);
 
 
 
@@ -1875,6 +1857,9 @@ export default function BibleReader() {
                 key={v.verse}
                 verse={v}
                 highlight={highlightVerse === v.verse || highlightedVerses.has(v.verse) || tts.activeVerse === v.verse}
+                ttsActive={tts.speaking && tts.activeVerse === v.verse}
+                ttsWordStart={tts.activeVerse === v.verse ? tts.activeWordStart : -1}
+                ttsWordEnd={tts.activeVerse === v.verse ? tts.activeWordEnd : -1}
                 id={`v${v.verse}`}
                 bookName={book.name}
                 abbr={pos.abbr}
