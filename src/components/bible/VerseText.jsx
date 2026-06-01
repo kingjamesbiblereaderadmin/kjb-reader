@@ -445,9 +445,20 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
               className={`flex-1 min-w-0 leading-relaxed break-words text-left ${isCursive ? 'cursive-em-style' : ''}`}
               style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
             />
+          ) : isHighlighted ? (
+            // Highlighted: wrap text in an inline element so the background covers
+            // the text only (not the full-width column). box-decoration-clone keeps
+            // the tint consistent across wrapped lines.
+            <span className="flex-1 min-w-0 leading-relaxed break-words text-left">
+              <span
+                className={`[&_em]:italic [&_em]:text-foreground/75 ${isCursive ? 'cursive-em-style' : ''} ${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]`}
+                style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
+                dangerouslySetInnerHTML={{ __html: html }}
+              />
+            </span>
           ) : (
             <span
-              className={`flex-1 min-w-0 leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+              className={`flex-1 min-w-0 leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''}`}
               style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
               dangerouslySetInnerHTML={{ __html: html }}
             />
