@@ -359,7 +359,10 @@ async function buildPdf(opts, bible, onProgress) {
         const last = verses[verses.length - 1];
         verses = [...verses.slice(0, -1), { ...last, text: stripEndMarker(last.text) }];
       }
-      ensureSpace(34);
+      // Reserve room for the chapter heading PLUS its first verse line, so the
+      // heading never gets orphaned at the very bottom of a page/column. (heading
+      // 11pt + 22pt gap + first verse line ≈ 34 + bodySize + 4)
+      ensureSpace(34 + bodySize + 8);
       if (ch > 1 && !atPageTop()) y += 12; // breathing room before each new chapter
       chapterPages.push({ ch, page: doc.internal.getNumberOfPages() });
       doc.setFont(F, 'bold'); doc.setFontSize(11);
