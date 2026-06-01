@@ -306,6 +306,7 @@ export const NAME_DICT = {
 
   // ── Gospels / Acts / Epistles (extra) ──
   zacharias: 'zak-a-rye-as',
+  urias: 'yoo-rye-as',
   elisabeth: 'eh-liz-a-beth',
   augustus: 'aw-gus-tus',
   cyrenius: 'sye-ree-nee-us',
