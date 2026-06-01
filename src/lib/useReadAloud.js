@@ -74,6 +74,14 @@ export function useReadAloud(verses, meta = {}) {
 
   const indexRef = useRef(0);
   const cancelledRef = useRef(false);
+  // Fallback word-timer: some browsers/voices never fire `onboundary`. When that
+  // happens we step through words on an estimated timer so word highlighting
+  // still works. `boundaryFiredRef` tracks whether the real event has fired.
+  const wordTimerRef = useRef(null);
+  const boundaryFiredRef = useRef(false);
+  const clearWordTimer = () => {
+    if (wordTimerRef.current) { clearInterval(wordTimerRef.current); wordTimerRef.current = null; }
+  };
 
   // Load device voices (they arrive asynchronously on some browsers)
   useEffect(() => {
@@ -86,7 +94,7 @@ export function useReadAloud(verses, meta = {}) {
 
   // Always stop speech when the hook unmounts (e.g. leaving the reader)
   useEffect(() => {
-    return () => { if (supported) window.speechSynthesis.cancel(); };
+    return () => { clearWordTimer(); if (supported) window.speechSynthesis.cancel(); };
   }, [supported]);
 
   const resolveVoice = useCallback(() => {
@@ -118,9 +126,20 @@ export function useReadAloud(verses, meta = {}) {
     const voice = resolveVoice();
     if (voice) u.voice = voice;
     u.rate = rateRef.current;
+
+    // Precompute word [start,end] offsets for the timer fallback.
+    const wordSpans = [];
+    const wordRe = /\S+/g;
+    let mm;
+    while ((mm = wordRe.exec(cleaned)) !== null) {
+      wordSpans.push([mm.index, mm.index + mm[0].length]);
+    }
+
     u.onstart = () => {
       setActiveWordStart(-1);
       setActiveWordEnd(-1);
+      boundaryFiredRef.current = false;
+      clearWordTimer();
       if (v.verse == null) return;
       setActiveVerse(v.verse);
       // Keep the verse being read visible on screen.
@@ -128,11 +147,33 @@ export function useReadAloud(verses, meta = {}) {
         const el = document.getElementById(`v${v.verse}`);
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } catch {}
+
+      // Fallback timer: if no real boundary event arrives shortly, step words
+      // ourselves based on an estimated reading speed (~2.7 words/sec at rate 1).
+      if (wordSpans.length > 0) {
+        setTimeout(() => {
+          if (cancelledRef.current || boundaryFiredRef.current) return;
+          let wi = 0;
+          const wps = 2.7 * (rateRef.current || 1);
+          const stepMs = Math.max(120, 1000 / wps);
+          setActiveWordStart(wordSpans[0][0]);
+          setActiveWordEnd(wordSpans[0][1]);
+          wordTimerRef.current = setInterval(() => {
+            if (cancelledRef.current || boundaryFiredRef.current) { clearWordTimer(); return; }
+            wi += 1;
+            if (wi >= wordSpans.length) { clearWordTimer(); return; }
+            setActiveWordStart(wordSpans[wi][0]);
+            setActiveWordEnd(wordSpans[wi][1]);
+          }, stepMs);
+        }, 220);
+      }
     };
     // Word-by-word highlighting: onboundary fires at each word with its char
     // offset into the cleaned utterance text.
     u.onboundary = (e) => {
       if (v.verse == null || e.name === 'sentence') return;
+      boundaryFiredRef.current = true;
+      clearWordTimer();
       const start = e.charIndex;
       // Derive the word length: prefer charLength, else read up to next space.
       let len = e.charLength;
@@ -144,7 +185,7 @@ export function useReadAloud(verses, meta = {}) {
       setActiveWordStart(start);
       setActiveWordEnd(start + len);
     };
-    u.onend = () => { if (!cancelledRef.current) speakIndex(i + 1); };
+    u.onend = () => { clearWordTimer(); if (!cancelledRef.current) speakIndex(i + 1); };
     window.speechSynthesis.speak(u);
   }, [resolveVoice]);
 
@@ -179,6 +220,7 @@ export function useReadAloud(verses, meta = {}) {
   const stop = useCallback(() => {
     if (!supported) return;
     cancelledRef.current = true;
+    clearWordTimer();
     window.speechSynthesis.cancel();
     setSpeaking(false);
     setPaused(false);
