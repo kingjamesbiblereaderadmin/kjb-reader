@@ -869,8 +869,9 @@ async function buildRtf(opts, bible, onProgress) {
   const headerFor = (bookName) =>
     `\\titlepg{\\headerf \\pard\\par}{\\header \\pard\\qc\\fs18\\i ${rtfEscape(bookName)}\\i0\\par}`;
 
-  // Front matter (title + contents) — its own headerless section
-  lines.push('\\sectd ');
+  // Front matter (title + contents) — its own headerless, SINGLE-column section.
+  // Uses a unique token so the later \cols2 swap doesn't touch it.
+  lines.push('\\sectdFRONT ');
   // Title page — centered, generously spaced. Holy Bible for whole/OT, NT for NT-only.
   spacer(1800);
   (scope === 'new' ? TITLE_NT : TITLE_WHOLE).forEach((b, i) => para(rtfEscape(b.t), { center: true, bold: !!b.bold, size: i === 1 ? 64 : 26, sb: i === 1 ? 120 : 60, sa: i === 1 ? 200 : 120 }));
@@ -886,7 +887,7 @@ async function buildRtf(opts, bible, onProgress) {
       lastT = book.testament;
       // Title-page entries before their testament (matches PDF)
       if (book.testament === coverBeforeTestament) bulletRow('Cover Page');
-      if (book.testament === 'new' && scope === 'whole') bulletRow('The New Testament');
+      if (book.testament === 'new' && scope === 'whole') lines.push(`{\\pard\\qr\\sa40\\fs20 The New Testament\\par}`);
       para(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT', { bold: true, size: 26, sb: 160, sa: 80 });
     }
     bulletRow(nameOf(book));
@@ -960,7 +961,12 @@ async function buildRtf(opts, bible, onProgress) {
   onProgress(98, 'Saving file…');
   // Two-column applies per section; bake it into every \sectd via a token swap.
   const colsHeader = twoColumn ? '\\cols2\\colsx360' : '';
-  const body = lines.join('\n').replace(/\\sectd/g, `\\sectd${colsHeader}`);
+  // Apply columns to book sections (\sectd) but NOT the front matter
+  // (\sectdFRONT → stays single-column). Swap the front token back last.
+  const body = lines.join('\n')
+    .replace(/\\sectdFRONT/g, '\u0000FRONT\u0000')
+    .replace(/\\sectd/g, `\\sectd${colsHeader}`)
+    .replace(/\u0000FRONT\u0000/g, '\\sectd');
   const rtfFont = getExportFont(opts.font).rtf;
   const rtf = `{\\rtf1\\ansi\\deff0\\fet0{\\fonttbl{\\f0 ${rtfFont};}}\\f0\\fs20 ${body}}`;
   triggerDownload(new Blob([rtf], { type: 'application/rtf' }), fileName(opts, 'rtf'));
