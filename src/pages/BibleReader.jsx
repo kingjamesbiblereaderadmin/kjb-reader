@@ -883,7 +883,7 @@ export default function BibleReader() {
     }
   }, [filterMode, selectedVerses]);
 
-  const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false) => {
+  const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isAutoAdvance = false) => {
     // Prevent chapter 0 for non-GEN/MAT books
     if (newChapter === 0 && newAbbr !== 'GEN' && newAbbr !== 'MAT') {
       return;
@@ -909,12 +909,12 @@ export default function BibleReader() {
       lastReadingClearedRef.current = true;
       try { localStorage.removeItem('kjb-last-reading'); } catch {}
       setLastReadingPos(null);
-      // Also strip any stale ?from=daily / ?from=search etc. from the URL so the
-      // route effect (and focus handlers) can't restore the daily indicator.
-      // Use routerNavigate so React Router's location updates too (replaceState alone
-      // leaves routerLocation.search stale, letting the route effect re-apply daily).
+      // Strip stale ?from=daily/?from=search from the URL. During auto-advance,
+      // use replaceState only — routerNavigate would retrigger the route effect
+      // and reload the chapter, breaking continuous Read Aloud.
       if (routerLocation.search) {
-        try { routerNavigate('/read', { replace: true }); } catch {}
+        if (isAutoAdvance) { try { window.history.replaceState({}, '', '/read'); } catch {} }
+        else { try { routerNavigate('/read', { replace: true }); } catch {} }
       }
     }
     // Clear highlights when navigating without a specific verse
@@ -952,12 +952,12 @@ export default function BibleReader() {
     setHighlightVerse(null);
   };
 
-  const goNext = () => {
+  const goNext = (isAutoAdvance = false) => {
     if (pos.chapter < book.chapters) {
-      navigate(pos.abbr, pos.chapter + 1);
+      navigate(pos.abbr, pos.chapter + 1, null, false, false, isAutoAdvance);
     } else {
       const next = getNextBook(pos.abbr);
-      if (next) navigate(next.abbr, 1);
+      if (next) navigate(next.abbr, 1, null, false, false, isAutoAdvance);
     }
   };
 
@@ -967,7 +967,7 @@ export default function BibleReader() {
       if (pos.abbr === 'REV' && pos.chapter === 22) return;
       // From a title page → 'announce-book' so chapter 1 announces the book name.
       autoAdvanceNextRef.current = isViewingTitlePage ? 'announce-book' : true;
-      goNext();
+      goNext(true);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pos.abbr, pos.chapter, book.chapters, isViewingTitlePage]);
@@ -1505,7 +1505,7 @@ export default function BibleReader() {
               </button>
               {/* Next */}
               <button
-                onClick={goNext}
+                onClick={() => goNext()}
                 onTouchEnd={(e) => { e.preventDefault(); goNext(); }}
                 disabled={isLastChapterLastBook}
                 className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary hover:bg-accent/20 text-foreground disabled:opacity-30 transition-all duration-200 hover:scale-105 active:scale-95 disabled:hover:scale-100 disabled:active:scale-100 touch-manipulation h-11 whitespace-nowrap"
@@ -1665,7 +1665,7 @@ export default function BibleReader() {
                   <span className="hidden lg:inline">Prev</span>
                 </button>
                 <button
-                  onClick={goNext}
+                  onClick={() => goNext()}
                   onTouchEnd={(e) => { e.preventDefault(); goNext(); }}
                   title="Next"
                   className="flex flex-1 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px]"
@@ -1977,7 +1977,7 @@ export default function BibleReader() {
           </button>
 
           <button
-            onClick={goNext}
+            onClick={() => goNext()}
             disabled={isLastChapterLastBook}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-30 transition-colors min-h-[48px] touch-manipulation"
           >
