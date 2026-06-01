@@ -89,15 +89,13 @@ export function useReadAloud(verses, meta = {}) {
   // A periodic pause/resume "keep-alive" prevents the engine from cutting out
   // mid-chapter. Runs only while actively speaking (not paused).
   const keepAliveRef = useRef(null);
-  const startKeepAlive = () => {
-    if (keepAliveRef.current) return;
-    keepAliveRef.current = setInterval(() => {
-      if (cancelledRef.current) return;
-      if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
-        window.speechSynthesis.resume();
-      }
-    }, 5000);
-  };
+  // NOTE: We intentionally do NOT run a periodic resume() "keep-alive".
+  // Each verse is spoken as its own short utterance, so the Chrome ~15s
+  // continuous-speech cutoff doesn't apply. Calling resume() while a verse is
+  // already playing makes some engines (Android/Chromium voices) RESTART the
+  // current utterance — which is exactly the "repeating / going back and forth"
+  // bug. Keeping these as no-ops preserves all call sites without the side effect.
+  const startKeepAlive = () => {};
   const stopKeepAlive = () => {
     if (keepAliveRef.current) { clearInterval(keepAliveRef.current); keepAliveRef.current = null; }
   };
