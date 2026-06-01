@@ -1794,7 +1794,7 @@ export default function BibleReader() {
           {/* Subscript — centred below chapter name, fully italic, [bracketed] words roman within italic */}
           {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
             <p
-              className={`kjb-subscript text-sm text-muted-foreground mt-2 max-w-lg mx-auto leading-relaxed text-center ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
+              className={`kjb-subscript text-sm text-muted-foreground mt-2 mb-4 max-w-lg mx-auto leading-relaxed text-center ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
               style={{ fontSize: `${zoomLevel / 100}rem` }}
               dangerouslySetInnerHTML={{ __html: renderSubscriptText(SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]) }}
             />
