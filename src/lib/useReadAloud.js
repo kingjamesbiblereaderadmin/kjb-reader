@@ -261,6 +261,29 @@ export function useReadAloud(verses, meta = {}) {
     return () => clearInterval(id);
   }, [supported, synth, speaking, paused]);
 
+  // Stall watchdog: the Web Speech API sometimes finishes speaking an item but
+  // never fires its `onend` event (a known browser bug), leaving playback stuck
+  // mid-chapter. We detect this by watching for inactivity: if the engine is no
+  // longer speaking (and not user-paused) yet we never advanced, force the next
+  // item. We require a quiet period since the last activity to avoid cutting off
+  // audio that is still playing.
+  useEffect(() => {
+    if (!supported || !speaking || paused) return;
+    const id = setInterval(() => {
+      if (paused) return;
+      // Engine reports it's idle (not speaking, not pending) but our session is
+      // still active → the onend never fired. Advance after a short quiet gap.
+      const idle = !synth.speaking && !synth.pending;
+      const quietFor = Date.now() - lastActivityRef.current;
+      if (idle && quietFor > 1200) {
+        const session = sessionRef.current;
+        lastActivityRef.current = Date.now();
+        speakIndex(indexRef.current + 1, session);
+      }
+    }, 600);
+    return () => clearInterval(id);
+  }, [supported, synth, speaking, paused, speakIndex]);
+
   // Stop when the hook unmounts (leaving the reader).
   useEffect(() => {
     return () => { if (supported) { sessionRef.current++; synth.cancel(); } };
