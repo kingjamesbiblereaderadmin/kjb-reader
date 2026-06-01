@@ -103,6 +103,7 @@ const FIXES = {
   mibzar: 'mib-zar',
   magdiel: 'mag-dee-el',
   // 1 Chronicles 1 — additional names
+  shem: 'shem',
   sheth: 'sheth',
   enosh: 'ee-nosh',
   kenan: 'kee-nan',
