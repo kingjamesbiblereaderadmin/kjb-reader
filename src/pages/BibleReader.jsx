@@ -27,6 +27,7 @@ import { getGospelResults } from '@/lib/gospelVerses';
 import { useReaderUrlSync } from '@/lib/useReaderUrlSync';
 import { resolveBook, formatVerseRange } from '@/lib/readerHelpers';
 import { getTitlePageVerses, getTitlePageName } from '@/lib/titlePageSpeech';
+import { useClosePopovers } from '@/lib/useClosePopovers';
 
 const isMobile = () => window.innerWidth < 640;
 
@@ -757,8 +758,7 @@ export default function BibleReader() {
   useEffect(() => {
     if (loading) return;
     if (highlightVerse) {
-      // Align the verse start just below the sticky app header + reader toolbar
-      // (not hidden underneath, not mid-verse). Retry once after layout settles.
+      // Align verse start just below the sticky toolbar. Retry once after layout settles.
       const scrollToVerse = () => {
         const el = document.getElementById(`v${highlightVerse}`);
         if (!el) return;
@@ -926,13 +926,10 @@ export default function BibleReader() {
     freshNavRef.current = true;
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);
-    // Reflect the new position in the address bar (shareable URL) without
-    // triggering the route effect (replaceState doesn't update routerLocation,
-    // so loadChapter below runs exactly once — no double-load).
+    // Reflect new position in the address bar without triggering the route effect.
     try {
       let url;
       if (newChapter === 0) {
-        // Title pages get a clean, descriptive URL instead of book=GEN/MAT&chapter=0
         url = `/read?titlePage=${newAbbr === 'MAT' ? 'new' : 'old'}`;
       } else {
         url = `/read?book=${newAbbr}&chapter=${newChapter}`;

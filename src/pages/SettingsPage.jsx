@@ -370,7 +370,7 @@ export default function SettingsPage() {
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         <button
           onClick={toggleAll}
-          className="mt-4 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+          className="mt-4 px-4 py-2 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
         >
           {allExpanded ? 'Collapse All' : 'Expand All'}
         </button>
@@ -407,7 +407,7 @@ export default function SettingsPage() {
                   setZoomLevel(newZoom);
                   try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch {}
                 }}
-                className="p-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-colors"
+                className="p-2 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-colors"
               >
                 <ZoomOut className="w-4 h-4" />
               </button>
@@ -417,7 +417,7 @@ export default function SettingsPage() {
                   setZoomLevel(newZoom);
                   try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch {}
                 }}
-                className="p-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-colors"
+                className="p-2 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-colors"
               >
                 <ZoomIn className="w-4 h-4" />
               </button>
@@ -596,10 +596,10 @@ export default function SettingsPage() {
               <button
                 key={opt.id}
                 onClick={() => setMode(opt.id)}
-                className={`py-2 rounded-xl font-sans text-sm font-medium transition-colors ${
+                className={`py-2 rounded-xl font-sans text-sm font-medium border transition-colors ${
                   mode === opt.id
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-secondary text-secondary-foreground border-border hover:bg-accent/20'
                 }`}
               >
                 {opt.label}
@@ -850,10 +850,10 @@ export default function SettingsPage() {
                   key={font.value}
                   disabled={isDisabled}
                   onClick={() => pickVerseFont(font.value)}
-                  className={`px-4 py-3 rounded-xl font-sans text-sm font-medium transition-all ${
+                  className={`px-4 py-3 rounded-xl font-sans text-sm font-medium border transition-all ${
                     isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-secondary text-secondary-foreground border-border hover:bg-accent/20'
                   } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
                   style={isA11yChoice ? undefined : { fontFamily: font.value }}
                 >
@@ -980,7 +980,7 @@ export default function SettingsPage() {
                     setDownloading(false);
                   }}
                   disabled={downloading}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-60 transition-colors"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-60 transition-colors"
                 >
                   {downloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
                   {downloading ? 'Reloading Bible data…' : 'Reload Bible Data'}
@@ -1106,7 +1106,7 @@ export default function SettingsPage() {
             <div className="pt-1">
               <button
                 onClick={handleTestNotif}
-                className="px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+                className="px-4 py-2 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
               >
                 Test Notification
               </button>
@@ -1288,7 +1288,7 @@ export default function SettingsPage() {
                   try { localStorage.setItem('kjb-auto-redownload', 'true'); } catch {}
                   window.location.reload();
                 }}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
                 Clear Cache & Reload
@@ -1315,7 +1315,7 @@ export default function SettingsPage() {
           <div className="p-5 pt-0 space-y-2">
             <a
               href="mailto:kingjamesbiblereader@outlook.sg"
-              className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
+              className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
             >
               <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
               <div className="flex-1 min-w-0">
@@ -1327,7 +1327,7 @@ export default function SettingsPage() {
               href="https://godisgracious1031ministriescom.odoo.com/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
+              className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
             >
               <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
               <div className="flex-1 min-w-0">
@@ -1336,7 +1336,7 @@ export default function SettingsPage() {
               </div>
               <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
             </a>
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary">
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border">
               <MessageCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground">Discord</p>
@@ -1347,7 +1347,7 @@ export default function SettingsPage() {
               href="https://www.tiktok.com/@svdbyfaithinr325av?_r=1&_t=ZS-96WRhWSLUoe"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-accent/20 transition-colors group"
+              className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
             >
               <TikTokIcon />
               <div className="flex-1 min-w-0">
