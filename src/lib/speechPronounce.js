@@ -20,7 +20,7 @@ const FIXES = {
   judas: 'joo-dus',
   obed: 'oh-bed',
   jesse: 'jess-ee',
-  saith: 'seth',
+  saith: 'sayth',
   kir: 'keer',
 };
 
