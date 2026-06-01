@@ -900,7 +900,9 @@ async function buildRtf(opts, bible, onProgress) {
     // NT title page: its own section (no header), then Matthew starts a new section.
     // Only for whole-Bible export — for NT-only the front page already IS the NT title.
     if (book.apiName === 'Matthew' && scope === 'whole') {
-      lines.push('\\sect \\sectdFRONT ');
+      // Clear the running header (otherwise Word inherits "Malachi" from the
+      // previous section). \titlepg + empty headers blanks the header here.
+      lines.push('\\sect \\sectdFRONT\\titlepg{\\headerf \\pard\\par}{\\header \\pard\\par} ');
       spacer(1800);
       TITLE_NT.forEach((b, i) => para(rtfEscape(b.t), { center: true, bold: !!b.bold, size: i === 1 ? 56 : 24, sb: i === 1 ? 120 : 60, sa: i === 1 ? 200 : 120 }));
     }
