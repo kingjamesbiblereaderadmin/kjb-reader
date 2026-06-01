@@ -103,8 +103,8 @@ const DICT = {
   countenance: 'coun-ten-ents',
 
   // Frequently mispronounced proper names (people)
-  melchizedek: 'mel-kiz-eh-dek',
-  melchisedec: 'mel-kiz-eh-dek',
+  melchizedek: 'mel kiz a deck',
+  melchisedec: 'mel kiz a deck',
   nebuchadnezzar: 'neb-oo-kad-nez-er',
   abednego: 'a-bed-nee-go',
   shadrach: 'shad-rak',
