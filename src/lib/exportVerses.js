@@ -65,7 +65,7 @@ export function exportTxt(items, query) {
   const sections = splitByTestament(items);
   const body = sections.map(sec => {
     const heading = `${sec.title.toUpperCase()}\n${'-'.repeat(sec.title.length)}\n\n`;
-    const verses = sec.items.map(it => `"${plainWithBrackets(it.text)}"\n— ${it.ref} (KJB)`).join('\n\n');
+    const verses = sec.items.map(it => `"${plainWithBrackets(it.text)}"\n— ${it.ref} (KJB)${it.url ? `\nRead: ${it.url}` : ''}`).join('\n\n');
     return heading + verses;
   }).join('\n\n\n');
   const footer = `\n\n${'='.repeat(50)}\n${items.length} verse${items.length !== 1 ? 's' : ''} — King James Bible`;
@@ -81,6 +81,7 @@ export function exportDocx(items, query) {
       `<p style="margin:0 0 12pt 0;font-family:Georgia,serif;font-size:12pt;">` +
       `&ldquo;${bracketsToItalicHtml(it.text)}&rdquo;<br/>` +
       `<span style="font-size:10pt;color:#555;">&mdash; ${escapeHtml(it.ref)} (KJB)</span>` +
+      (it.url ? `<br/><a href="${escapeHtml(it.url)}" style="font-size:9pt;color:#2a5ac8;">${escapeHtml(it.url)}</a>` : '') +
       `</p>`
     ).join('')
   ).join('');
@@ -127,9 +128,14 @@ export function exportPdf(items, query) {
   y += 26;
 
   const lineH = 16;
+  // Ensure there's room for `needed` pts before drawing; only then add a page.
+  // (Adding pages eagerly *after* content caused a trailing blank page.)
+  const ensureSpace = (needed) => {
+    if (y + needed > pageH - 48) { doc.addPage(); y = marginTop; }
+  };
   // Render a verse, switching between roman and italic for [bracketed] runs,
   // wrapping words within the page width.
-  const renderVerse = (text, ref) => {
+  const renderVerse = (text, ref, url) => {
     const clean = `\u201C${plainWithBrackets(text)}\u201D`;
     // Tokenise into {str, italic} runs by brackets
     const runs = [];
@@ -151,7 +157,7 @@ export function exportPdf(items, query) {
         if (x + w > marginX + maxW && word.trim()) {
           x = marginX;
           y += lineH;
-          if (y > pageH - 60) { doc.addPage(); y = marginTop; }
+          ensureSpace(lineH);
         }
         doc.text(word, x, y);
         x += w;
@@ -159,30 +165,37 @@ export function exportPdf(items, query) {
     });
     // Reference line
     y += lineH;
-    if (y > pageH - 60) { doc.addPage(); y = marginTop; }
+    ensureSpace(lineH);
     doc.setFont('times', 'normal');
     doc.setFontSize(9);
     doc.setTextColor(90);
     doc.text(`— ${ref} (KJB)`, marginX, y);
-    doc.setTextColor(0);
+    // Clickable verse link
+    if (url) {
+      y += lineH - 2;
+      ensureSpace(lineH);
+      doc.setTextColor(40, 90, 200);
+      doc.textWithLink(url, marginX, y, { url });
+      doc.setTextColor(0);
+    } else {
+      doc.setTextColor(0);
+    }
     y += lineH + 8;
-    if (y > pageH - 60) { doc.addPage(); y = marginTop; }
   };
 
   const renderSectionHeading = (title) => {
     y += 8;
-    if (y > pageH - 60) { doc.addPage(); y = marginTop; }
+    ensureSpace(lineH + 6);
     doc.setFont('times', 'bold');
     doc.setFontSize(13);
     doc.setTextColor(0);
     doc.text(title, marginX, y);
     y += lineH + 6;
-    if (y > pageH - 60) { doc.addPage(); y = marginTop; }
   };
 
   splitByTestament(items).forEach(sec => {
     renderSectionHeading(sec.title);
-    sec.items.forEach(it => renderVerse(it.text, it.ref));
+    sec.items.forEach(it => renderVerse(it.text, it.ref, it.url));
   });
   doc.save(`kjb-${sanitizeFilename(query)}.pdf`);
 }

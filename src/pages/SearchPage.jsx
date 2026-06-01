@@ -8,6 +8,7 @@ import SearchResultsList from '@/components/bible/SearchResultsList';
 import { setSearchNav } from '@/lib/searchNav';
 import ExportMenu from '@/components/bible/ExportMenu';
 import { exportVerses } from '@/lib/exportVerses';
+import { buildVerseUrl } from '@/lib/formatDailyVerse';
 
 const OT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'old').map(b => b.apiName));
 const NT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'new').map(b => b.apiName));
@@ -482,10 +483,12 @@ export default function SearchPage() {
       const r = results[i];
       const bookEntry = BIBLE_BOOKS.find(b => b.apiName === r.book);
       const bookName = bookEntry ? bookEntry.shortName : r.book;
-      const ref = (r.isColophon || r.verse === 0)
+      const isColophon = r.isColophon || r.verse === 0;
+      const ref = isColophon
         ? `${bookName} ${r.chapter} colophon`
         : `${bookName} ${r.chapter}:${r.verse}`;
-      return { text: r.text, ref, testament: bookEntry ? bookEntry.testament : 'old' };
+      const url = buildVerseUrl({ abbr: r.abbr, chapter: r.chapter, verse: isColophon ? null : r.verse, from: 'search' }) + (q ? `&q=${encodeURIComponent(q)}` : '');
+      return { text: r.text, ref, testament: bookEntry ? bookEntry.testament : 'old', url };
     });
     exportVerses(format, items, q);
   };
