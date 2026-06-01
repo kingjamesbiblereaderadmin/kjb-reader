@@ -2,6 +2,14 @@
 // values are phonetic respellings (spoken only — on-screen text is unchanged).
 
 export const CURATED_DICT = {
+  "baptize": "bap-tyze",
+  "baptized": "bap-tyzed",
+  "baptizest": "bap-tyzest",
+  "baptizeth": "bap-tyzeth",
+  "baptizing": "bap-tyze-ing",
+  "baptism": "bap-tih-zum",
+  "baptisms": "bap-tih-zumz",
+  "baptist": "bap-tist",
   "aaron": "air-un",
   "abaddon": "uh-bad-un",
   "abagtha": "uh-bag-thuh",
