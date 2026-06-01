@@ -1753,6 +1753,11 @@ export default function BibleReader() {
                 <button onClick={tts.toggleAutoAdvance} title={tts.autoAdvance ? 'Continue to next chapter: ON' : 'Continue to next chapter: OFF'} className={`p-2 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center ${tts.autoAdvance ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-accent/20 text-foreground'}`}>
                   <Repeat className="w-4 h-4" />
                 </button>
+                {tts.speaking && (
+                  <button onClick={tts.stop} title="Stop reading" className="p-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center">
+                    <Square className="w-4 h-4" />
+                  </button>
+                )}
               </>)}
               <button
                 onClick={toggleFullscreen}
