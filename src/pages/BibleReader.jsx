@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronLeft, ChevronRight, Loader2, AlignJustify, AlignLeft, List, Columns2, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, AlignJustify, AlignLeft, List, Columns2, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2, Play, Pause } from 'lucide-react';
 import { buildVerseUrl, formatVerseShare, cleanVerseText, withExtras } from '@/lib/formatDailyVerse';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText, renderSubscriptText } from '@/lib/bibleApi';
@@ -1746,6 +1746,22 @@ export default function BibleReader() {
         <div className="fixed top-0 left-0 right-0 border-b border-border bg-background/95 backdrop-blur z-[110]" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="w-full px-5 sm:px-12 lg:px-16 py-1.5 flex items-center justify-end">
             <div className="flex items-center gap-1">
+              {/* Read Aloud — play / pause-resume directly from the minimized bar */}
+              {tts.supported && !isViewingTitlePage && (
+                <button
+                  onClick={() => {
+                    if (!tts.speaking) tts.play();
+                    else if (tts.paused) tts.resume();
+                    else tts.pause();
+                  }}
+                  title={!tts.speaking ? 'Read aloud' : tts.paused ? 'Resume' : 'Pause'}
+                  className={`p-2 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center ${
+                    tts.speaking ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-accent/20 text-foreground'
+                  }`}
+                >
+                  {tts.speaking && !tts.paused ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                </button>
+              )}
               <button
                 onClick={toggleFullscreen}
                 title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
