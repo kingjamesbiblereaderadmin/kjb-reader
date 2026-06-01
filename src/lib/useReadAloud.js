@@ -90,11 +90,8 @@ export function useReadAloud(verses, meta = {}) {
   // still works. `boundaryFiredRef` tracks whether the real event has fired.
   const wordTimerRef = useRef(null);
   const boundaryFiredRef = useRef(false);
-  // Delays applying a boundary-driven highlight so it lands with the audio.
-  const boundaryDelayTimerRef = useRef(null);
   const clearWordTimer = () => {
     if (wordTimerRef.current) { clearInterval(wordTimerRef.current); wordTimerRef.current = null; }
-    if (boundaryDelayTimerRef.current) { clearTimeout(boundaryDelayTimerRef.current); boundaryDelayTimerRef.current = null; }
   };
 
   // Load device voices (they arrive asynchronously on some browsers)
@@ -241,16 +238,10 @@ export function useReadAloud(verses, meta = {}) {
       const wi = spokenStartToWordIndex(e.charIndex);
       const span = wordSpans[wi];
       if (!span) return;
-      // Boundary events fire slightly BEFORE the word is actually voiced, which
-      // makes the highlight appear to run ahead of the audio. Delay applying it
-      // a touch (scaled down at faster rates) so it lands when the word is heard.
-      if (boundaryDelayTimerRef.current) clearTimeout(boundaryDelayTimerRef.current);
-      const lagMs = Math.round(230 / (rateRef.current || 1));
-      boundaryDelayTimerRef.current = setTimeout(() => {
-        if (cancelledRef.current) return;
-        setActiveWordStart(span[0]);
-        setActiveWordEnd(span[1]);
-      }, lagMs);
+      // Apply the highlight exactly when the engine reports the word boundary —
+      // these events are the voice's own word positions and stay in sync.
+      setActiveWordStart(span[0]);
+      setActiveWordEnd(span[1]);
     };
     u.onerror = () => {
       clearTimeout(watchdog);
