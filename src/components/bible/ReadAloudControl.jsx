@@ -42,6 +42,10 @@ export default function ReadAloudControl({ tts, open, setOpen, rangeText = null 
           Reading {rangeText}
         </div>
       )}
+      {/* Disclaimer */}
+      <p className="px-3 py-2 rounded-lg bg-muted text-muted-foreground font-sans text-[11px] leading-snug text-center">
+        Read Aloud uses your device's voice. Pronunciation of archaic and biblical words may not always be accurate.
+      </p>
       {/* Playback */}
       <div className="flex items-center gap-2">
         {!speaking ? (
