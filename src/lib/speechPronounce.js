@@ -15,9 +15,15 @@ const matchCase = (orig, repl) => {
   return repl;
 };
 
+// Targeted fixes for proper nouns some voices mispronounce.
+const FIXES = {
+  judas: 'joo-dus',
+};
+
 export function fixArchaicPronunciation(text = '') {
   return String(text).replace(/[A-Za-z]+/g, (word) => {
     const lower = word.toLowerCase();
+    if (FIXES[lower]) return matchCase(word, FIXES[lower].replace(/-/g, ' '));
     // Words ending in "eth" (4+ letters) → voice the ending as a soft "uth"
     // syllable (e.g. "abideth" → "abide uth").
     if (lower.length > 4 && lower.endsWith('eth')) {
