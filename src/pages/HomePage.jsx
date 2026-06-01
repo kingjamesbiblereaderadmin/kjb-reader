@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw, ChevronRight } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
-import { getDailyVerse } from '@/lib/dailyVerse';
+import { getDailyVerse, getDailyVerseFromBible } from '@/lib/dailyVerse';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications, showLocalNotification } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 
@@ -27,7 +27,9 @@ export default function HomePage() {
   const touchEndY = useRef(0);
 
   useEffect(() => {
-    setVerse(getDailyVerse());
+    // Use the full-Bible daily verse (deterministic per calendar day across all
+    // 31k+ verses). Falls back to the small static pool only if data isn't ready.
+    getDailyVerseFromBible().then(v => setVerse(v)).catch(() => setVerse(getDailyVerse()));
     // Preload Bible cache on home page mount to ensure italics are ready
     import('@/lib/bibleCache').then(({ getBibleData }) => {
       getBibleData().catch(() => {});
