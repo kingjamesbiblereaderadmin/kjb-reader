@@ -236,13 +236,21 @@ export function useReadAloud(verses, meta = {}) {
     return () => { if (supported) { sessionRef.current++; synth.cancel(); } };
   }, [supported, synth]);
 
-  // Stop when the chapter (verse list) changes — EXCEPT during auto-advance,
-  // where the reader re-plays the next chapter itself.
+  // Stop when the chapter (verse list) actually CHANGES — EXCEPT during
+  // auto-advance, where the reader re-plays the next chapter itself.
+  // We key on a stable content signature (book/chapter + verse count) instead of
+  // the `verses` array identity. The reader re-renders constantly and recreates
+  // that array on every render; depending on identity would fire stop() on every
+  // render and silently kill playback (the "no audio" bug).
+  const chapterSig = `${meta.bookName || ''}|${meta.chapter ?? ''}|${(verses || []).length}`;
+  const prevSigRef = useRef(chapterSig);
   useEffect(() => {
-    if (continuationRef.current) return;
+    if (prevSigRef.current === chapterSig) return; // same chapter — do nothing
+    prevSigRef.current = chapterSig;
+    if (continuationRef.current) return; // auto-advance handles its own replay
     stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [verses]);
+  }, [chapterSig]);
 
   const changeVoice = useCallback((uri) => {
     setVoiceURI(uri); voiceURIRef.current = uri;
