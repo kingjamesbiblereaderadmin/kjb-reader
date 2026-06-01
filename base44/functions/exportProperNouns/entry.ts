@@ -63,12 +63,14 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Proper noun = capitalized at least 2x and rarely lowercase (<15% of caps).
+    // Proper noun = a word that is ALWAYS (or almost always) capitalized,
+    // even if it appears only once (e.g. "Calvary" in Luke 23:33). We keep any
+    // word capitalized at least once and rarely lowercase (<15% of its caps).
     const nouns = Object.entries(capCount)
       .filter(([word, cap]) => {
         if (word.length < 2) return false;
         const low = lowerCount[word] || 0;
-        return cap >= 2 && low < cap * 0.15;
+        return cap >= 1 && low < cap * 0.15;
       })
       .map(([word]) => word)
       .sort((a, b) => a.localeCompare(b));
