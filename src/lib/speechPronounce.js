@@ -101,6 +101,9 @@ const DICT = {
   scapegoat: 'scape-goat',
   firmament: 'fur-muh-ment',
   countenance: 'coun-ten-ents',
+  priest: 'preest',
+  priests: 'preests',
+  priesthood: 'preest-hood',
 
   // Frequently mispronounced proper names (people)
   melchizedek: 'mel kiz a deck',
