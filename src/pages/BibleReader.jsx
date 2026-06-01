@@ -972,12 +972,15 @@ export default function BibleReader() {
   }, [pos.abbr, pos.chapter, book.chapters]);
 
   useEffect(() => {
-    if (loading || !verses.length || !autoAdvanceNextRef.current) return;
+    // Re-play after auto-advancing. Trigger once the next page is ready — either
+    // a normal chapter (verses loaded) or a title page (chapter 0, no verses).
+    if (loading || !autoAdvanceNextRef.current) return;
+    if (!isViewingTitlePage && !verses.length) return;
     autoAdvanceNextRef.current = false;
     const t = setTimeout(() => tts.play(), 400);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [verses, loading]);
+  }, [verses, loading, isViewingTitlePage]);
 
 
 
