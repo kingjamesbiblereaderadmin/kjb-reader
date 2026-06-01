@@ -1,5 +1,7 @@
-// Curated lexicon disabled — all words now use natural TTS / the rule-based
-// phonetic engine (lib/phoneticRules.js). Keeping this empty export so
-// lib/speechPronounce.js continues to import without changes.
+// Curated lexicon for words the TTS voice mispronounces. Keys are lowercase;
+// values are phonetic respellings (spoken only — on-screen text is unchanged).
 
-export const CURATED_DICT = {};
+export const CURATED_DICT = {
+  urias: 'yoo-rye-as',
+  obed: 'o-bed',
+};
