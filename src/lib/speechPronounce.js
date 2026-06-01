@@ -56,7 +56,6 @@ const DICT = {
   wast: 'wost',
   shalt: 'shalt',
   wilt: 'wilt',
-  unto: 'un-too',
 };
 
 const matchCase = (orig, repl) => {
