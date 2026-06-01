@@ -977,8 +977,9 @@ export default function BibleReader() {
     // a normal chapter (verses loaded) or a title page (chapter 0, no verses).
     if (loading || !autoAdvanceNextRef.current) return;
     if (!isViewingTitlePage && !verses.length) return;
+    const announceBook = autoAdvanceNextRef.current === 'announce-book'; // from title page → say book name
     autoAdvanceNextRef.current = false;
-    const t = setTimeout(() => tts.play(null, true), 400);
+    const t = setTimeout(() => tts.play(null, !announceBook), 400);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verses, loading, isViewingTitlePage]);
