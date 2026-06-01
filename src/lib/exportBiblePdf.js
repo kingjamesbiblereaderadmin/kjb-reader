@@ -382,7 +382,7 @@ async function buildPdf(opts, bible, onProgress) {
         let buffer = [];
         const flush = () => { if (buffer.length) { writeSegments(buffer, { indentFirst: 12 }); y += 3; } buffer = []; };
         verses.forEach((v, idx) => {
-          if (idx > 0 && hasPilcrow(v.text)) flush();
+          if (idx > 0 && hasPilcrow(v.text)) { flush(); y += 6; } // gap above new pilcrow paragraph
           buffer.push({ text: `${v.verse} `, italic: false });
           buffer.push(...toSegments(v.text));
           buffer.push({ text: '  ', italic: false });
@@ -736,17 +736,23 @@ async function buildText(opts, bible, onProgress, format) {
       if (paragraph) {
         let buffer = '';
         let wroteFirst = false;
+        let gapNext = false;
         const flush = () => {
           if (buffer.trim()) {
             if (wroteFirst && !isDocx) push(''); // blank line between paragraphs (TXT)
+            // Gap above a new pilcrow paragraph: extra blank line (TXT) /
+            // spaced paragraph (DOCX).
+            if (gapNext && isDocx) out.push('<p style="margin:0;line-height:6pt">&nbsp;</p>');
+            else if (gapNext && !isDocx) push('');
             push(buffer.trim());
             wroteFirst = true;
           }
+          gapNext = false;
           buffer = '';
         };
         verses.forEach((v, idx) => {
           if (isPsalm119 && stanzaStart(v)) { flush(); writeStanzaHeading(v, idx === 0); }
-          else if (idx > 0 && hasPilcrow(v.text)) flush();
+          else if (idx > 0 && hasPilcrow(v.text)) { flush(); gapNext = true; }
           buffer += `${v.verse} ${plainText(v.text, keepBrackets)}  `;
         });
         flush();
@@ -932,9 +938,10 @@ async function buildRtf(opts, bible, onProgress) {
 
       if (paragraph) {
         let buf = '';
-        const flush = () => { if (buf.trim()) para(buf.trim()); buf = ''; };
+        let nextSb = 0;
+        const flush = () => { if (buf.trim()) para(buf.trim(), { sb: nextSb }); buf = ''; nextSb = 0; };
         verses.forEach((v, idx) => {
-          if (idx > 0 && hasPilcrow(v.text)) flush();
+          if (idx > 0 && hasPilcrow(v.text)) { flush(); nextSb = 120; } // gap above new pilcrow paragraph
           buf += `{\\b ${v.verse}} ${rtfInline(v.text)}  `;
         });
         flush();
