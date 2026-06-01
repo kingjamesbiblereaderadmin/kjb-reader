@@ -38,11 +38,14 @@ export function useReadAloud(verses, meta = {}) {
   const onChapterEndRef = useRef(null);
   const setOnChapterEnd = useCallback((fn) => { onChapterEndRef.current = fn; }, []);
 
-  // Keep the latest verses/voice/rate in refs so the speak loop reads fresh values
+  // Keep the latest verses/meta in refs so the speak loop reads fresh values.
+  // Update them DURING render (not in an effect) so a play() triggered right
+  // after a chapter change (e.g. auto-advance) always sees the new chapter —
+  // otherwise the intro can fall back to "Book, Chapter 1" wording.
   const versesRef = useRef(verses);
-  useEffect(() => { versesRef.current = verses; }, [verses]);
+  versesRef.current = verses;
   const metaRef = useRef(meta);
-  useEffect(() => { metaRef.current = meta; }, [meta.bookName, meta.chapter, meta.subscript, meta.colophon, meta.rangeLabel]); // eslint-disable-line react-hooks/exhaustive-deps
+  metaRef.current = meta;
 
   // Build the ordered list of spoken items from the verses + meta.
   // Each item: { text, verse } where `verse` is the real verse to highlight
