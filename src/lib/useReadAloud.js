@@ -86,7 +86,10 @@ export function useReadAloud(verses, meta = {}) {
   // Load device voices (they arrive asynchronously on some browsers)
   useEffect(() => {
     if (!supported) return;
-    const load = () => setVoices(window.speechSynthesis.getVoices() || []);
+    // Only expose English voices — the device may have many non-English ones.
+    const load = () => setVoices(
+      (window.speechSynthesis.getVoices() || []).filter(v => /^en(-|_|$)/i.test(v.lang || ''))
+    );
     load();
     window.speechSynthesis.onvoiceschanged = load;
     return () => { window.speechSynthesis.onvoiceschanged = null; };
