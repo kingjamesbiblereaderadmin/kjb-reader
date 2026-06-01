@@ -926,7 +926,7 @@ async function buildRtf(opts, bible, onProgress) {
 
       if (subscripts) {
         const sub = SUBSCRIPTS[`${book.apiName}:${ch}`];
-        if (sub) para(`{\\i \u00B6 ${rtfInline(sub).replace(/^\\u182\?\s*/, '')}}`, { center: true, size: 18 });
+        if (sub) para(`\\u182? ${rtfInline(sub).replace(/^\\u182\?\s*/, '')}`, { center: true, size: 18 });
       }
 
       if (paragraph) {
@@ -947,7 +947,7 @@ async function buildRtf(opts, bible, onProgress) {
 
       if (colophons) {
         const colo = COLOPHONS[`${book.apiName}:${ch}`];
-        if (colo) para(`{\\i \u00B6 ${rtfInline(colo).replace(/^\\u182\?\s*/, '')}}`, { center: true, size: 18 });
+        if (colo) para(`\\u182? ${rtfInline(colo).replace(/^\\u182\?\s*/, '')}`, { center: true, size: 18 });
       }
     }
 
