@@ -718,7 +718,7 @@ async function buildText(opts, bible, onProgress, format) {
 
       if (subscripts) {
         const sub = SUBSCRIPTS[`${book.apiName}:${ch}`];
-        if (sub) push(plainText(sub, isDocx ? true : keepBrackets), 'center-italic');
+        if (sub) push('¶ ' + plainText(sub, isDocx ? true : keepBrackets).replace(/^¶\s*/, ''), 'center-italic');
       }
 
       // Psalm 119 is an acrostic — 22 stanzas of 8 verses each (one per Hebrew
@@ -920,7 +920,7 @@ async function buildRtf(opts, bible, onProgress) {
 
       if (subscripts) {
         const sub = SUBSCRIPTS[`${book.apiName}:${ch}`];
-        if (sub) para(`{\\i ${rtfInline(sub)}}`, { center: true, size: 18 });
+        if (sub) para(`{\\i \u00B6 ${rtfInline(sub).replace(/^\\u182\?\s*/, '')}}`, { center: true, size: 18 });
       }
 
       if (paragraph) {
