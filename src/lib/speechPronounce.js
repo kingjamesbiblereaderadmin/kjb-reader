@@ -22,6 +22,7 @@ const FIXES = {
   jesse: 'jess-ee',
   saith: 'sayth',
   kir: 'keer',
+  doeth: 'doo-eth',
 };
 
 // Words that LOOK like archaic "-eth" verbs but are NOT — never respell these.
