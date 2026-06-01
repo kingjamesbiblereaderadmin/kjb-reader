@@ -17,10 +17,13 @@
 import { CORE_DICT } from './pronunciationDict';
 import { NAME_DICT } from './pronunciationNames';
 import { GENERATED_DICT } from './pronunciationGenerated';
+import { WHITELIST_DICT } from './pronunciationWhitelist';
 
 // Merge order (later wins): generated proper-noun coverage first, then the
 // hand-curated core + book-by-book name dicts override it where they overlap.
-const DICT = { ...GENERATED_DICT, ...CORE_DICT, ...NAME_DICT };
+// Finally, the whitelist of common names maps each to itself so the TTS voice
+// uses its own natural pronunciation for familiar names (no robotic splits).
+const DICT = { ...GENERATED_DICT, ...CORE_DICT, ...NAME_DICT, ...WHITELIST_DICT };
 
 const matchCase = (orig, repl) => {
   // For all-caps words longer than one letter (e.g. "LORD", "GOD" in the KJV),
