@@ -1023,6 +1023,16 @@ const DICT = {
   pipings: 'py pingz',
   armageddon: 'ahr muh ged uhn',
   arimathea: 'air uh muh thee uh',
+
+  // ── Bible IPA lexicon batch (new high-value words only) ──
+  beelzebub: 'bee el zih bub',
+  chilion: 'kil ee un',
+  naked: 'nay kid',
+  wicked: 'wik id',
+  mahlon: 'mah lun',
+  jehoshabeath: 'jeh hoh shab ee ath',
+  shekinah: 'shuh ky nuh',
+  seraph: 'ser uf',
 };
 
 const matchCase = (orig, repl) => {
