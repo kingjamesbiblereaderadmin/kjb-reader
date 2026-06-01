@@ -106,9 +106,15 @@ export function useReadAloud(verses, meta = {}) {
     return () => { window.speechSynthesis.onvoiceschanged = null; };
   }, [supported]);
 
-  // Always stop speech when the hook unmounts (e.g. leaving the reader)
+  // Always stop speech when the hook unmounts (e.g. leaving the reader / switching
+  // pages). Mark cancelled so any pending speakIndex loop doesn't resume.
   useEffect(() => {
-    return () => { clearWordTimer(); if (supported) window.speechSynthesis.cancel(); };
+    return () => {
+      cancelledRef.current = true;
+      continuationRef.current = false;
+      clearWordTimer();
+      if (supported) window.speechSynthesis.cancel();
+    };
   }, [supported]);
 
   const resolveVoice = useCallback(() => {
