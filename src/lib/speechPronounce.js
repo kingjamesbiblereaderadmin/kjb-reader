@@ -107,7 +107,7 @@ const DICT = {
   yielding: 'yeeld ing',
   yield: 'yeeld',
   yieldeth: 'yeeld uth',
-  countenance: 'coun-ten-ents',
+  countenance: 'kown-tuh-nuhns',
   levitical: 'leh-vit-ih-kul',
   levite: 'lee-vite',
   levites: 'lee-vites',
