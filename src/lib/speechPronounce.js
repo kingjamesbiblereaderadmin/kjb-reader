@@ -15,9 +15,10 @@
 // utterance still flows naturally.
 
 import { CURATED_DICT } from './pronunciationCurated';
+import { CURATED_DICT_2 } from './pronunciationCurated2';
 
 // Single source of truth: the app owner's hand-curated respellings.
-const DICT = { ...CURATED_DICT };
+const DICT = { ...CURATED_DICT, ...CURATED_DICT_2 };
 
 // Multi-word phrases (e.g. "jesus christ", "holy ghost") must be replaced
 // BEFORE the per-word pass, since the word regex below only matches single
