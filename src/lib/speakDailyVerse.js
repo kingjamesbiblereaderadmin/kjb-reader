@@ -8,9 +8,15 @@ export function speakDailyVerse(verse) {
   const synth = window.speechSynthesis;
   synth.cancel();
 
-  const ref = verse?.ref || '';
+  // Announce the full book name + chapter + verse spelled out, then the text.
+  // e.g. "John, Chapter 3, verse 16. For God so loved the world..."
+  let intro = verse?.ref || '';
+  if (verse?.book && verse?.chapter != null) {
+    intro = `${verse.book}, Chapter ${verse.chapter}`;
+    if (verse.verse != null) intro += `, verse ${verse.verse}`;
+  }
   const text = toSpeechText(verse?.text || '');
-  const spoken = [ref, text].filter(Boolean).join('. ');
+  const spoken = [intro, text].filter(Boolean).join('. ');
   if (!spoken) return false;
 
   let rate = 1;
