@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronLeft, ChevronRight, Loader2, AlignJustify, AlignLeft, List, Columns2, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2, Play, Pause, Repeat } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, AlignJustify, AlignLeft, List, Columns2, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2 } from 'lucide-react';
 import { buildVerseUrl, formatVerseShare, cleanVerseText, withExtras } from '@/lib/formatDailyVerse';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText, renderSubscriptText } from '@/lib/bibleApi';
@@ -14,9 +14,7 @@ import TitlePage from '@/components/bible/TitlePage';
 import SelectorSheet from '@/components/bible/SelectorSheet';
 import RunningHead from '@/components/bible/RunningHead';
 import CurrentlyReadingIndicator from '@/components/bible/CurrentlyReadingIndicator';
-import ReadAloudControl from '@/components/bible/ReadAloudControl';
 import MinimizedHeaderBar from '@/components/bible/MinimizedHeaderBar';
-import { useReadAloud } from '@/lib/useReadAloud';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Accessibility } from 'lucide-react';
@@ -26,7 +24,6 @@ import { getSearchNav, setSearchNav, setSearchIndex, clearSearchNav, getGospelNa
 import { getGospelResults } from '@/lib/gospelVerses';
 import { useReaderUrlSync } from '@/lib/useReaderUrlSync';
 import { resolveBook, formatVerseRange } from '@/lib/readerHelpers';
-import { getTitlePageVerses, getTitlePageName } from '@/lib/titlePageSpeech';
 import { useClosePopovers } from '@/lib/useClosePopovers';
 
 const isMobile = () => window.innerWidth < 640;
@@ -110,43 +107,10 @@ export default function BibleReader() {
   });
   const [showZoomPopover, setShowZoomPopover] = useState(false);
   const [showFontPopover, setShowFontPopover] = useState(false);
-  const [showReadAloud, setShowReadAloud] = useState(false);
-  // Multi-select state (declared early so Read Aloud can read only a selected range)
+  // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
   const [selectedVerses, setSelectedVerses] = useState(new Set());
   const [filterMode, setFilterMode] = useState(false); // show only selected verses
-  const _ttsBook = BIBLE_BOOKS.find(b => b.abbr === pos.abbr) || BIBLE_BOOKS[0];
-  // On a title page (chapter 0), narrate the title-page text instead of verses.
-  const _ttsTitlePage = pos.chapter === 0 && (pos.abbr === 'GEN' || pos.abbr === 'MAT');
-  // When a verse range is active (filter mode), read ONLY those verses and
-  // announce the range instead of the whole chapter.
-  const _ttsFilterActive = filterMode && selectedVerses.size > 0;
-  const _ttsTitleVerses = React.useMemo(
-    () => (_ttsTitlePage ? getTitlePageVerses(pos.abbr) : null),
-    [_ttsTitlePage, pos.abbr]
-  );
-  const _ttsVerses = React.useMemo(
-    () => (_ttsTitlePage
-      ? _ttsTitleVerses
-      : (_ttsFilterActive ? verses.filter(v => selectedVerses.has(v.verse)) : verses)),
-    [_ttsTitlePage, _ttsTitleVerses, _ttsFilterActive, verses, selectedVerses]
-  );
-  const _ttsRangeLabel = _ttsFilterActive ? formatVerseRange([...selectedVerses]) : null;
-  const tts = useReadAloud(_ttsVerses, _ttsTitlePage ? {
-    // No book/chapter announcement on title pages — the text itself opens with
-    // "The Holy Bible." / "The New Testament...".
-    bookName: getTitlePageName(pos.abbr),
-  } : {
-    bookName: _ttsBook.name,
-    chapter: pos.chapter,
-    rangeLabel: _ttsRangeLabel,
-    // Subscript only makes sense when verse 1 is part of what's read.
-    subscript: (!_ttsFilterActive || selectedVerses.has(1)) ? (SUBSCRIPTS[`${_ttsBook.apiName}:${pos.chapter}`] || null) : null,
-    colophon: (!_ttsFilterActive || (verses.length && selectedVerses.has(verses[verses.length - 1].verse))) ? colophon : null,
-  });
-  const _ttsRangeText = _ttsRangeLabel ? `${_ttsBook.shortName} ${pos.chapter}:${_ttsRangeLabel}` : null;
-  // When auto-advance finishes a chapter, go to the next one and keep reading.
-  const autoAdvanceNextRef = useRef(false);
   const [fontFamily, setFontFamily] = useState(() => {
     try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
   });
@@ -961,31 +925,6 @@ export default function BibleReader() {
     }
   };
 
-  // Auto-advance: when a chapter finishes reading, go to the next & keep reading.
-  useEffect(() => {
-    tts.setOnChapterEnd(() => {
-      if (pos.abbr === 'REV' && pos.chapter === 22) return;
-      // From a title page → 'announce-book' so chapter 1 announces the book name.
-      autoAdvanceNextRef.current = isViewingTitlePage ? 'announce-book' : true;
-      goNext(true);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pos.abbr, pos.chapter, book.chapters, isViewingTitlePage]);
-
-  useEffect(() => {
-    // Re-play after auto-advancing. Trigger once the next page is ready — either
-    // a normal chapter (verses loaded) or a title page (chapter 0, no verses).
-    if (loading || !autoAdvanceNextRef.current) return;
-    if (!isViewingTitlePage && !verses.length) return;
-    const announceBook = autoAdvanceNextRef.current === 'announce-book'; // from title page → say book name
-    autoAdvanceNextRef.current = false;
-    const t = setTimeout(() => tts.play(null, !announceBook), 400);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [verses, loading, isViewingTitlePage]);
-
-
-
   const goPrev = () => {
     if (pos.chapter > 1) {
       navigate(pos.abbr, pos.chapter - 1);
@@ -1422,22 +1361,6 @@ export default function BibleReader() {
                 <span className="hidden lg:inline">{shareFeedback ? 'Copied!' : 'Share'}</span>
               </button>
 
-              {/* Read Aloud (free, on-device TTS) */}
-              <ReadAloudControl tts={tts} open={showReadAloud} setOpen={setShowReadAloud} rangeText={_ttsRangeText} />
-
-              {/* Stop narration — only visible while speaking, sits next to Prev */}
-              {tts.speaking && (
-                <button
-                  onClick={tts.stop}
-                  onTouchEnd={(e) => { e.preventDefault(); tts.stop(); }}
-                  title="Stop reading"
-                  className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"
-                >
-                  <Square className="w-5 h-5 flex-shrink-0" />
-                  <span className="hidden lg:inline">Stop</span>
-                </button>
-              )}
-
               {/* Prev */}
               <button
                 onClick={goPrev}
@@ -1597,8 +1520,6 @@ export default function BibleReader() {
             {/* Title page navigation — prev/next/fullscreen always available */}
             {isViewingTitlePage && (
               <>
-                {/* Read Aloud — narrate the title page */}
-                <ReadAloudControl tts={tts} open={showReadAloud} setOpen={setShowReadAloud} />
                 <button
                   onClick={goPrev}
                   onTouchEnd={(e) => { e.preventDefault(); goPrev(); }}
@@ -1723,8 +1644,6 @@ export default function BibleReader() {
           fixed to the viewport (escapes the animated page wrapper) while text scrolls */}
       {hideHeader && (
         <MinimizedHeaderBar
-          tts={tts}
-          isViewingTitlePage={isViewingTitlePage}
           fullscreen={fullscreen}
           toggleFullscreen={toggleFullscreen}
           setHideHeader={setHideHeader}
@@ -1732,7 +1651,7 @@ export default function BibleReader() {
       )}
 
       {/* Click/tap outside to close desktop dropdowns and mobile sheets */}
-      {(showBookPicker || showChapterPicker || showVersePicker || showZoomPopover || showFontPopover || showReadAloud) && (
+      {(showBookPicker || showChapterPicker || showVersePicker || showZoomPopover || showFontPopover) && (
         <div
           className="fixed inset-0 z-[35]"
           onClick={(e) => {
@@ -1743,7 +1662,6 @@ export default function BibleReader() {
             setShowVersePicker(false); 
             setShowZoomPopover(false); 
             setShowFontPopover(false); 
-            setShowReadAloud(false);
           }}
           onTouchEnd={(e) => {
             e.preventDefault();
@@ -1753,7 +1671,6 @@ export default function BibleReader() {
             setShowVersePicker(false); 
             setShowZoomPopover(false); 
             setShowFontPopover(false); 
-            setShowReadAloud(false);
           }}
         />
       )}
@@ -1830,10 +1747,7 @@ export default function BibleReader() {
               <VerseText
                 key={v.verse}
                 verse={v}
-                highlight={highlightVerse === v.verse || highlightedVerses.has(v.verse) || tts.activeVerse === v.verse}
-                ttsActive={tts.speaking && tts.activeVerse === v.verse}
-                ttsWordStart={tts.activeVerse === v.verse ? tts.activeWordStart : -1}
-                ttsWordEnd={tts.activeVerse === v.verse ? tts.activeWordEnd : -1}
+                highlight={highlightVerse === v.verse || highlightedVerses.has(v.verse)}
                 id={`v${v.verse}`}
                 bookName={book.name}
                 abbr={pos.abbr}
@@ -1850,7 +1764,6 @@ export default function BibleReader() {
                 fontFamilyValue={getFontFamilyValue(fontFamily)}
                 zoomLevel={zoomLevel}
                 columnMode={columnMode}
-                onReadFromHere={(verseNum) => { setShowReadAloud(false); tts.play(verseNum); }}
                 dropCap={idx === 0 && v.verse === 1}
                 searchTerm={searchTerm && highlightVerse === v.verse ? searchTerm : null}
                 />

@@ -1,8 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2, ChevronsDown, MoreVertical, Trash2, Image, Copy, Crop, RotateCcw, Volume2, Square } from 'lucide-react';
-import { speakDailyVerse, stopDailyVerse } from '@/lib/speakDailyVerse';
+import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2, ChevronsDown, MoreVertical, Trash2, Image, Copy, Crop, RotateCcw } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import ImageCropper from './ImageCropper';
 import ShareCard from './ShareCard.jsx';
@@ -58,30 +57,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   // The font actually rendered — accessibility font overrides the verse's own choice
   const resolvedFont = resolveFontFamily(fontFamily, a11yFont);
 
-  // Read-aloud (free on-device TTS) for the daily verse
-  const ttsSupported = typeof window !== 'undefined' && 'speechSynthesis' in window;
-  const [speaking, setSpeaking] = useState(false);
-  const handleReadAloud = (e) => {
-    e?.preventDefault?.();
-    e?.stopPropagation?.();
-    e?.nativeEvent?.stopImmediatePropagation?.();
-    if (speaking) {
-      stopDailyVerse();
-      setSpeaking(false);
-      return;
-    }
-    const started = speakDailyVerse(verse);
-    if (started) {
-      setSpeaking(true);
-      const synth = window.speechSynthesis;
-      const poll = setInterval(() => {
-        if (!synth.speaking) { clearInterval(poll); setSpeaking(false); }
-      }, 400);
-    }
-  };
-  // Stop speech if the card unmounts
-  useEffect(() => () => stopDailyVerse(), []);
-  
   useEffect(() => {
     const handleStorage = () => {
       try { setCustomBg(localStorage.getItem('kjb-daily-verse-bg') || ''); } catch {}
@@ -479,19 +454,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       <div className="absolute top-2 right-2 flex gap-1 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
         {!capturing && showButtons ? (
           <>
-            {ttsSupported && (
-              <button
-                onClick={handleReadAloud}
-                onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
-                onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
-                onTouchEnd={handleReadAloud}
-                className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
-                title={speaking ? 'Stop reading' : 'Read aloud'}
-                type="button"
-              >
-                {speaking ? <Square className="w-3.5 h-3.5 text-slate-800" /> : <Volume2 className="w-3.5 h-3.5 text-slate-800" />}
-              </button>
-            )}
             <button
               onClick={(e) => {
                 e.preventDefault();
@@ -1314,19 +1276,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               e.nativeEvent.stopImmediatePropagation();
             }}
           >
-            {ttsSupported && (
-              <button
-                onClick={handleReadAloud}
-                onTouchEnd={handleReadAloud}
-                onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
-                onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
-                className="absolute top-4 left-4 p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors"
-                title={speaking ? 'Stop reading' : 'Read aloud'}
-                type="button"
-              >
-                {speaking ? <Square className="w-5 h-5 text-white" /> : <Volume2 className="w-5 h-5 text-white" />}
-              </button>
-            )}
             <button
               onClick={(e) => {
                 e.preventDefault();

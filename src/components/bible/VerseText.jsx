@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Copy, Share2, X, Highlighter, ChevronDown, Bookmark, BookmarkCheck, CheckSquare, Square, Play } from 'lucide-react';
+import { Copy, Share2, X, Highlighter, ChevronDown, Bookmark, BookmarkCheck, CheckSquare, Square } from 'lucide-react';
 import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { formatVerseShare, buildVerseUrl, withExtras } from '@/lib/formatDailyVerse';
 import VersePopover from '@/components/bible/VersePopover';
-import ReadAloudVerseText from '@/components/bible/ReadAloudVerseText';
 
-export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, subscript = null, isCursive = false, fontFamilyValue = null, zoomLevel = 100, hasSubscript = false, searchTerm = null, dropCap = false, columnMode = false, ttsActive = false, ttsWordStart = -1, ttsWordEnd = -1, onReadFromHere = null }) {
+export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, subscript = null, isCursive = false, fontFamilyValue = null, zoomLevel = 100, hasSubscript = false, searchTerm = null, dropCap = false, columnMode = false }) {
   const bookEntry = BIBLE_BOOKS.find(b => b.abbr === abbr);
   const shortBookName = bookEntry ? bookEntry.shortName : bookName;
   const [selected, setSelected] = useState(false);
@@ -290,15 +289,6 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           {saved ? <BookmarkCheck className="w-3 h-3 text-accent" /> : <Bookmark className="w-3 h-3" />}
           {saved ? 'Saved' : 'Save'}
         </button>
-        {onReadFromHere && (
-          <button
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); onReadFromHere(verse.verse); setSelected(false); }}
-            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); onReadFromHere(verse.verse); setSelected(false); }}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
-          >
-            <Play className="w-3 h-3" /> Read from here
-          </button>
-        )}
         <button
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setSelected(false); }}
           onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setSelected(false); }}
@@ -331,21 +321,11 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
                   {isSelected ? <CheckSquare className="w-[1em] h-[1em]" /> : <Square className="w-[1em] h-[1em] text-muted-foreground" />}
                 </span>
               )}
-              {ttsActive ? (
-                <ReadAloudVerseText
-                  rawText={displayVerseText}
-                  wordStart={ttsWordStart}
-                  wordEnd={ttsWordEnd}
-                  className={`leading-relaxed break-words text-left inline ${isCursive ? 'cursive-em-style' : ''}`}
-                  style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
-                />
-              ) : (
-                <span
-                  className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left inline ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
-                  style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
-                  dangerouslySetInnerHTML={{ __html: html }}
-                />
-              )}
+              <span
+                className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left inline ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+                style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
+                dangerouslySetInnerHTML={{ __html: html }}
+              />
             </span>
           </span>
           {!selectMode && actionPopover}
@@ -371,21 +351,11 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
                 {isSelected ? <CheckSquare className="w-[1em] h-[1em]" /> : <Square className="w-[1em] h-[1em] text-muted-foreground" />}
               </span>
             )}
-            {ttsActive ? (
-              <ReadAloudVerseText
-                rawText={displayVerseText}
-                wordStart={ttsWordStart}
-                wordEnd={ttsWordEnd}
-                className={`leading-loose break-words text-left ${isCursive ? 'cursive-em-style' : ''}`}
-                style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
-              />
-            ) : (
-              <span
-                className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
-                style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
-                dangerouslySetInnerHTML={{ __html: html }}
-              />
-            )}
+            <span
+              className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+              style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
           </span>
           {' '}
         </span>
@@ -440,15 +410,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
               {isSelected ? <CheckSquare className="w-[1.1em] h-[1.1em]" /> : <Square className="w-[1.1em] h-[1.1em] text-muted-foreground" />}
             </span>
           )}
-          {ttsActive ? (
-            <ReadAloudVerseText
-              rawText={displayVerseText}
-              wordStart={ttsWordStart}
-              wordEnd={ttsWordEnd}
-              className={`flex-1 min-w-0 leading-relaxed break-words text-left ${isCursive ? 'cursive-em-style' : ''}`}
-              style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
-            />
-          ) : isHighlighted ? (
+          {isHighlighted ? (
             // Highlighted: wrap text in an inline element so the background covers
             // the text only (not the full-width column). box-decoration-clone keeps
             // the tint consistent across wrapped lines.
