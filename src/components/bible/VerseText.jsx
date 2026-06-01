@@ -412,10 +412,14 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           style={{ display: 'flow-root' }}
         >
           <span
-            className={`block leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left [&_.kjb-dropcap-group]:-ml-[1.25em] ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+            className={`block leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left [&_.kjb-dropcap-group]:-ml-[1.25em] ${isCursive ? 'cursive-em-style' : ''}`}
             style={{ paddingLeft: '1.25em', ...(isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle) }}
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
+          >
+            <span
+              className={isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          </span>
         </span>
         {actionPopover}
       </span>
