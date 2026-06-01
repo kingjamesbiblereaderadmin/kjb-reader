@@ -1016,6 +1016,13 @@ const DICT = {
   purtenance: 'pur ti nuhns',
   silverlings: 'sil ver lingz',
   taches: 'tach iz',
+  chedorlaomer: 'ked er lah oh mer',
+  hazarezontamar: 'haz uh ron tay mar',
+  zaphnathpaaneah: 'zaf nath pay uh nee uh',
+  bezaleel: 'buh zal ee el',
+  pipings: 'py pingz',
+  armageddon: 'ahr muh ged uhn',
+  arimathea: 'air uh muh thee uh',
 };
 
 const matchCase = (orig, repl) => {
