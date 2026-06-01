@@ -813,6 +813,10 @@ async function buildText(opts, bible, onProgress, format) {
   onProgress(98, 'Saving file…');
   let blob, name;
   if (isDocx) {
+    // Trailing spacer paragraphs after the final book (Revelation) so Word's
+    // navigation pane has content below the last heading and can scroll all the
+    // way down to it (otherwise the last entry stays cut off at the bottom).
+    out.push('<p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p>');
     // Close the final book's section div.
     out.push('</div>');
 
