@@ -65,12 +65,9 @@ export function fixArchaicPronunciation(text = '') {
     if (lower.length > 5 && lower.endsWith('est')) {
       return matchCase(word, lower.slice(0, -3) + ' est');
     }
-    // Proper nouns (capitalized mid-text words, 3+ letters) that aren't in the
-    // curated dict → generate a respelling from the phonetic rules so every
-    // name across all 66 books is pronounced consistently.
-    if (word.length >= 3 && /^[A-Z]/.test(word)) {
-      return matchCase(word, deHyphen(phoneticRespell(lower)));
-    }
+    // All other words (incl. proper nouns) are left untouched — the TTS voice
+    // reads them naturally. Only curated names + archaic -eth/-est endings are
+    // respelled.
     return word;
   });
 }
