@@ -33,7 +33,7 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
         </p>
         <button
           onClick={() => setMultiMode(!multiMode)}
-          className={`p-1.5 rounded-lg transition-colors ${multiMode ? 'bg-accent text-accent-foreground' : 'bg-secondary text-muted-foreground'}`}
+          className={`p-1.5 rounded-lg border transition-colors ${multiMode ? 'bg-accent text-accent-foreground border-accent' : 'bg-secondary text-muted-foreground border-border'}`}
           title="Toggle multi-select"
         >
           <Layers className="w-4 h-4" />
@@ -45,7 +45,7 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
             {hasSubscript && (
               <button
                 onClick={() => { onSelect(1); onClose(); }}
-                className="px-3 h-9 rounded text-xs font-sans font-medium bg-secondary hover:bg-accent/20 text-foreground transition-colors"
+                className="px-3 h-9 rounded text-xs font-sans font-medium bg-secondary border border-border hover:bg-accent/20 text-foreground transition-colors"
                 title="Go to the superscription (before verse 1)"
               >
                 Subscript
@@ -54,7 +54,7 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
             {hasColophon && (
               <button
                 onClick={() => { onSelect(totalVerses); onClose(); }}
-                className="px-3 h-9 rounded text-xs font-sans font-medium bg-secondary hover:bg-accent/20 text-foreground transition-colors"
+                className="px-3 h-9 rounded text-xs font-sans font-medium bg-secondary border border-border hover:bg-accent/20 text-foreground transition-colors"
                 title="Go to the colophon (after the last verse)"
               >
                 Colophon
@@ -85,7 +85,7 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
         <div className="px-3 pt-3">
           <button
             onClick={onGoToChapter}
-            className="w-full px-4 py-2.5 rounded-lg bg-accent/10 text-accent font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+            className="w-full px-4 py-2.5 rounded-lg bg-accent/10 border border-accent/30 text-accent font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
           >
             Go to whole chapter
           </button>
@@ -94,14 +94,14 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
       <div className="p-3 border-t border-border flex gap-2">
         <button
           onClick={onClose}
-          className="flex-1 px-4 py-2.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+          className="flex-1 px-4 py-2.5 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
         >
           Cancel
         </button>
         <button
           onClick={handleConfirm}
           disabled={selected.size === 0}
-          className="flex-1 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 disabled:opacity-30 transition-opacity"
+          className="flex-1 px-4 py-2.5 rounded-lg bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 disabled:opacity-30 transition-opacity"
         >
           Go
         </button>

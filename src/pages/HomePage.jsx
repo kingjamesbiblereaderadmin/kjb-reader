@@ -298,7 +298,7 @@ export default function HomePage() {
               <button
                 key="random"
                 onClick={handleRandomVerse}
-                className="flex items-center gap-4 p-5 rounded-2xl shadow-sm hover:opacity-90 transition-opacity bg-secondary text-secondary-foreground text-left"
+                className="flex items-center gap-4 p-5 rounded-2xl border border-border shadow-sm hover:opacity-90 transition-opacity bg-secondary text-secondary-foreground text-left"
               >
                 <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-white/20">
                   <Shuffle className="w-5 h-5" />
