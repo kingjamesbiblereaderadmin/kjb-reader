@@ -14,12 +14,17 @@
 // Case is preserved (Abideth → Abideth respelled, ABIDETH → upper) so the
 // utterance still flows naturally.
 
-// Proper-noun respelling dictionaries have been removed: modern on-device TTS
-// voices already pronounce Bible names (Babylon, Jerusalem, Manasses, etc.)
-// correctly on their own, and the custom respellings were causing more
-// mispronunciations than they fixed. We now only voice archaic -eth/-est verb
-// endings as soft syllables (handled by the general rule below).
-const DICT = {};
+import { CURATED_DICT } from './pronunciationCurated';
+
+// Single source of truth: the app owner's hand-curated respellings.
+const DICT = { ...CURATED_DICT };
+
+// Multi-word phrases (e.g. "jesus christ", "holy ghost") must be replaced
+// BEFORE the per-word pass, since the word regex below only matches single
+// words. Build a phrase list sorted longest-first so longer phrases win.
+const PHRASES = Object.keys(DICT)
+  .filter((k) => k.includes(' '))
+  .sort((a, b) => b.length - a.length);
 
 const matchCase = (orig, repl) => {
   // For all-caps words longer than one letter (e.g. "LORD", "GOD" in the KJV),
@@ -38,7 +43,16 @@ const matchCase = (orig, repl) => {
 const deHyphen = (s) => s.replace(/-/g, ' ');
 
 export function fixArchaicPronunciation(text = '') {
-  return String(text).replace(/[A-Za-z]+/g, (word) => {
+  let out = String(text);
+
+  // 1) Multi-word phrase pass (case-insensitive, whole-phrase match).
+  for (const phrase of PHRASES) {
+    const re = new RegExp(`\\b${phrase.replace(/\s+/g, '\\s+')}\\b`, 'gi');
+    out = out.replace(re, (m) => matchCase(m, deHyphen(DICT[phrase])));
+  }
+
+  // 2) Per-word pass.
+  return out.replace(/[A-Za-z]+/g, (word) => {
     const lower = word.toLowerCase();
     if (DICT[lower]) return matchCase(word, deHyphen(DICT[lower]));
     // General rule: words ending in "eth" (4+ letters) → voice the ending as a
