@@ -125,9 +125,12 @@ export default function BibleReader() {
     () => (_ttsTitlePage ? getTitlePageVerses(pos.abbr) : null),
     [_ttsTitlePage, pos.abbr]
   );
-  const _ttsVerses = _ttsTitlePage
-    ? _ttsTitleVerses
-    : (_ttsFilterActive ? verses.filter(v => selectedVerses.has(v.verse)) : verses);
+  const _ttsVerses = React.useMemo(
+    () => (_ttsTitlePage
+      ? _ttsTitleVerses
+      : (_ttsFilterActive ? verses.filter(v => selectedVerses.has(v.verse)) : verses)),
+    [_ttsTitlePage, _ttsTitleVerses, _ttsFilterActive, verses, selectedVerses]
+  );
   const _ttsRangeLabel = _ttsFilterActive ? formatVerseRange([...selectedVerses]) : null;
   const tts = useReadAloud(_ttsVerses, _ttsTitlePage ? {
     // No book/chapter announcement on title pages — the text itself opens with
