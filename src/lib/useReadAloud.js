@@ -165,20 +165,23 @@ export function useReadAloud(verses, meta = {}) {
     const spoken = fixArchaicPronunciation(cleaned);
 
     const u = new SpeechSynthesisUtterance(spoken);
-    const voice = resolveVoice();
-    // Some "Online/Natural" network voices fail silently (never start). Use the
-    // selected voice, but watch for a no-start and retry with a local voice.
-    if (voice && !forceLocal) u.voice = voice;
-    u.rate = rateRef.current;
 
     // Watchdog: if onstart never fires (silent network voice), retry this same
-    // item once forcing a reliable local voice.
+    // item ONCE forcing a reliable local voice. Only retry when we used a
+    // non-default voice — the default voice can be slow to start on some
+    // devices, and retrying it would restart the verse (the "repeating" bug).
     let started = false;
-    const watchdog = setTimeout(() => {
-      if (cancelledRef.current || started) return;
-      window.speechSynthesis.cancel();
-      speakIndex(i, true); // retry with forceLocal
-    }, 1300);
+    const voice = resolveVoice();
+    const watchdog = (voice && !forceLocal)
+      ? setTimeout(() => {
+          if (cancelledRef.current || started) return;
+          window.speechSynthesis.cancel();
+          speakIndex(i, true); // retry with forceLocal
+        }, 2500)
+      : null;
+    // Use the selected voice unless we're forcing a reliable local fallback.
+    if (voice && !forceLocal) u.voice = voice;
+    u.rate = rateRef.current;
 
     // Word [start,end] spans in the DISPLAYED (cleaned) text — these are what
     // we highlight. Indexed by word position.
@@ -251,9 +254,12 @@ export function useReadAloud(verses, meta = {}) {
       setActiveWordStart(span[0]);
       setActiveWordEnd(span[1]);
     };
-    u.onerror = () => {
+    u.onerror = (e) => {
       clearTimeout(watchdog);
-      // A network/online voice errored — retry once with a local voice.
+      // 'interrupted'/'canceled' fire whenever WE call cancel() (stop, rate
+      // change, next verse) — those are expected and must NOT retry, or the
+      // verse re-speaks ("repeating" bug). Only retry on genuine voice failures.
+      if (e?.error === 'interrupted' || e?.error === 'canceled') return;
       if (!cancelledRef.current && !forceLocal) { speakIndex(i, true); }
     };
     u.onend = () => { clearTimeout(watchdog); clearWordTimer(); if (!cancelledRef.current) speakIndex(i + 1); };
