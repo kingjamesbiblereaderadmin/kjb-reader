@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Volume2, Play, Pause, Square, Gauge, Mic, Repeat } from 'lucide-react';
+import { Volume2, Play, Pause, Square, Gauge, Mic, Repeat, X } from 'lucide-react';
 import SelectorSheet from '@/components/bible/SelectorSheet';
 
 const isMobile = () => typeof window !== 'undefined' && window.innerWidth < 640;
@@ -169,13 +169,23 @@ export default function ReadAloudControl({ tts, open, setOpen, rangeText = null 
         <span className="hidden lg:inline">{speaking ? (paused ? 'Paused' : 'Reading') : 'Read'}</span>
       </button>
 
-      {/* Desktop popover */}
+      {/* Desktop popover (with tap-outside backdrop) */}
       {open && !isMobile() && (
-        <div className="absolute top-full left-0 mt-1 z-50">
-          <div className="bg-card border border-border rounded-xl shadow-xl p-4 w-72">
-            {Panel}
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute top-full left-0 mt-1 z-50">
+            <div className="bg-card border border-border rounded-xl shadow-xl p-4 w-72 relative">
+              <button
+                onClick={() => setOpen(false)}
+                title="Close"
+                className="absolute top-2 right-2 p-1 rounded-md text-muted-foreground hover:bg-accent/20 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              {Panel}
+            </div>
           </div>
-        </div>
+        </>
       )}
       {/* Mobile bottom sheet */}
       <SelectorSheet open={open && isMobile()} onClose={() => setOpen(false)} title="Read Aloud">
