@@ -363,18 +363,23 @@ const matchCase = (orig, repl) => {
   return repl;
 };
 
+// Many TTS voices read a hyphen as a literal pause or spell the parts out
+// letter-by-letter. Convert respelling hyphens to spaces so each syllable is
+// spoken as a connected word part instead.
+const deHyphen = (s) => s.replace(/-/g, ' ');
+
 export function fixArchaicPronunciation(text = '') {
   return String(text).replace(/[A-Za-z]+/g, (word) => {
     const lower = word.toLowerCase();
-    if (DICT[lower]) return matchCase(word, DICT[lower]);
-    // General rule: words ending in "eth" (4+ letters) → insert a soft vowel so
-    // the ending is voiced as "-uth" rather than rhyming with "death".
+    if (DICT[lower]) return matchCase(word, deHyphen(DICT[lower]));
+    // General rule: words ending in "eth" (4+ letters) → voice the ending as a
+    // soft "uth" syllable (e.g. "abideth" → "abide uth"), without a hyphen.
     if (lower.length > 4 && lower.endsWith('eth')) {
-      return matchCase(word, lower.slice(0, -3) + '-uth');
+      return matchCase(word, lower.slice(0, -3) + ' uth');
     }
-    // Words ending in "est" (5+ letters) → "-est" as a clear separate syllable.
+    // Words ending in "est" (5+ letters) → "est" as a clear separate syllable.
     if (lower.length > 5 && lower.endsWith('est')) {
-      return matchCase(word, lower.slice(0, -3) + '-est');
+      return matchCase(word, lower.slice(0, -3) + ' est');
     }
     return word;
   });
