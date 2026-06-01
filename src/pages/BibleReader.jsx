@@ -21,6 +21,7 @@ import { base44 } from '@/api/base44Client';
 import { getAccessibilityFont, setAccessibilityFont, applyReaderFont } from '@/lib/accessibilityFont';
 import { getSearchNav, setSearchNav, setSearchIndex, clearSearchNav, getGospelNav, setGospelNav, setGospelIndex, clearGospelNav } from '@/lib/searchNav';
 import { getGospelResults } from '@/lib/gospelVerses';
+import { useReaderUrlSync } from '@/lib/useReaderUrlSync';
 
 const isMobile = () => window.innerWidth < 640;
 
@@ -442,6 +443,10 @@ export default function BibleReader() {
   useEffect(() => { posRef.current = pos; }, [pos]);
   const book = BIBLE_BOOKS.find(b => b.abbr === pos.abbr) || BIBLE_BOOKS[0];
 
+  // Keep the address bar in sync with the current position on every change —
+  // including direct setPos navigations (gospel/search steppers, daily/random).
+  useReaderUrlSync(pos, loading);
+
   // Determine if viewing a title page (chapter 0)
   const isViewingTitlePage = pos.chapter === 0 && (pos.abbr === 'GEN' || pos.abbr === 'MAT');
 
@@ -479,18 +484,6 @@ export default function BibleReader() {
         setHighlightVerse(jumpVerse);
       }
       savePosition(bookAbbr, chapter, jumpVerse || null);
-      
-      // Debug: log sample verses to check for brackets
-      console.log('[BibleReader] Loaded', data.verses.length, 'verses for', b.apiName, chapter);
-      const versesWithBrackets = data.verses.filter(v => v.text.includes('['));
-      console.log('[BibleReader] Has brackets?', versesWithBrackets.length > 0, `(${versesWithBrackets.length}/${data.verses.length})`);
-      if (versesWithBrackets.length > 0) {
-        console.log('[BibleReader] Sample verse WITH brackets:', versesWithBrackets[0]?.text?.substring(0, 200));
-      }
-      if (data.verses.length > 0 && versesWithBrackets.length === 0) {
-        console.log('[BibleReader] ⚠️ NO BRACKETS FOUND - Sample verse 1:', data.verses[0]?.text?.substring(0, 200));
-      }
-      console.log('[BibleReader] Colophon for', b.apiName, chapter, ':', data.colophon);
     } catch (err) {
       console.error('Load chapter error:', err);
       setError('Failed to load chapter. Please check your connection.');
