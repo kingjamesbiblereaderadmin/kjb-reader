@@ -1018,7 +1018,7 @@ export default function SettingsPage() {
           className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
         >
           <div>
-            <h2 className="font-serif text-lg font-semibold text-foreground">Download Bible (PDF)</h2>
+            <h2 className="font-serif text-lg font-semibold text-foreground">Download Bible</h2>
             <p className="font-sans text-xs text-muted-foreground">Whole Bible with layout options</p>
           </div>
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.downloadPdf ? 'rotate-180' : ''}`} />
