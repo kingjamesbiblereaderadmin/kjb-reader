@@ -39,7 +39,7 @@
     /* Vibrant blue→indigo→purple theme (matches Verse of the Day style) */
     --background: 240 30% 99%;
     --foreground: 248 55% 8%;
-    --card: 0 0% 100%;
+    --card: 245 30% 95%;
     --card-foreground: 248 55% 8%;
     --popover: 0 0% 100%;
     --popover-foreground: 248 55% 8%;
@@ -47,8 +47,8 @@
     --primary-foreground: 0 0% 100%;
     --secondary: 245 35% 88%;
     --secondary-foreground: 250 45% 24%;
-    --muted: 245 35% 96%;
-    --muted-foreground: 245 18% 42%;
+    --muted: 245 35% 90%;
+    --muted-foreground: 245 18% 40%;
     --accent: 248 80% 56%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
