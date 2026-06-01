@@ -8,6 +8,8 @@ const TikTokIcon = () => (
 );
 import ImageCropper from '@/components/bible/ImageCropper';
 import DownloadBibleSection from '@/components/bible/DownloadBibleSection';
+import ReadAloudSettings from '@/components/bible/ReadAloudSettings';
+import { Volume2 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { base44 } from '@/api/base44Client';
@@ -38,6 +40,7 @@ export default function SettingsPage() {
   const [expandedSections, setExpandedSections] = useState({
     text: true,
     accessibility: true,
+    readAloud: true,
     appearance: true,
     install: true,
     offline: true,
@@ -338,6 +341,7 @@ export default function SettingsPage() {
     setExpandedSections({
       text: newState,
       accessibility: newState,
+      readAloud: newState,
       appearance: newState,
       install: newState,
       offline: newState,
@@ -536,6 +540,23 @@ export default function SettingsPage() {
           )}
         </div>
         )}
+      </div>
+
+      {/* Read Aloud */}
+      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+        <button
+          onClick={() => toggleSection('readAloud')}
+          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+        >
+          <div>
+            <h2 className="font-serif text-lg font-semibold text-foreground flex items-center gap-2">
+              <Volume2 className="w-4 h-4 text-accent" /> Read Aloud
+            </h2>
+            <p className="font-sans text-xs text-muted-foreground">Voice, speed, and narration options</p>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.readAloud ? 'rotate-180' : ''}`} />
+        </button>
+        {expandedSections.readAloud && <ReadAloudSettings />}
       </div>
 
       {/* Appearance */}
