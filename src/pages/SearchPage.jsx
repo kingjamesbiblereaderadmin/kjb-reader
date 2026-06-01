@@ -630,15 +630,19 @@ export default function SearchPage() {
                       next.add('all');
                     }
                   } else {
-                    // Toggle specific testament
+                    // Selecting a specific testament always clears 'all'
+                    next.delete('all');
                     if (next.has(val)) {
                       next.delete(val);
-                      // If nothing left, add 'all' back
+                      // If nothing left, fall back to 'all'
                       if (next.size === 0) next.add('all');
                     } else {
                       next.add(val);
-                      // If both OT and NT are selected, also add 'all' for consistency
-                      if (next.has('old') && next.has('new')) next.add('all');
+                      // Both OT and NT selected = same as 'all'
+                      if (next.has('old') && next.has('new')) {
+                        next.clear();
+                        next.add('all');
+                      }
                     }
                   }
                   return next;
