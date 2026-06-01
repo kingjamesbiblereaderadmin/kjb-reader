@@ -229,7 +229,7 @@ export const CORE_DICT = {
   aceldama: 'a-kel-da-mah',
 
   // More commonly mispronounced people
-  abraham: 'ay-bra-ham',
+  abraham: 'abraham',
   isaac: 'eye-zak',
   jacob: 'jay-kub',
   esau: 'ee-saw',
