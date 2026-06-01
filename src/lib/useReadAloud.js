@@ -85,6 +85,23 @@ export function useReadAloud(verses, meta = {}) {
 
   const indexRef = useRef(0);
   const cancelledRef = useRef(false);
+  // Chrome bug: speechSynthesis silently stops after ~15s of continuous speech.
+  // A periodic pause/resume "keep-alive" prevents the engine from cutting out
+  // mid-chapter. Runs only while actively speaking (not paused).
+  const keepAliveRef = useRef(null);
+  const startKeepAlive = () => {
+    if (keepAliveRef.current) return;
+    keepAliveRef.current = setInterval(() => {
+      if (cancelledRef.current) return;
+      if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+        window.speechSynthesis.pause();
+        window.speechSynthesis.resume();
+      }
+    }, 10000);
+  };
+  const stopKeepAlive = () => {
+    if (keepAliveRef.current) { clearInterval(keepAliveRef.current); keepAliveRef.current = null; }
+  };
   // Fallback word-timer: some browsers/voices never fire `onboundary`. When that
   // happens we step through words on an estimated timer so word highlighting
   // still works. `boundaryFiredRef` tracks whether the real event has fired.
@@ -112,6 +129,7 @@ export function useReadAloud(verses, meta = {}) {
     return () => {
       cancelledRef.current = true;
       continuationRef.current = false;
+      stopKeepAlive();
       clearWordTimer();
       if (supported) window.speechSynthesis.cancel();
     };
@@ -125,6 +143,7 @@ export function useReadAloud(verses, meta = {}) {
   const speakIndex = useCallback((i, forceLocal = false) => {
     const list = itemsRef.current || [];
     if (cancelledRef.current || i >= list.length) {
+      stopKeepAlive();
       setSpeaking(false);
       setPaused(false);
       setActiveVerse(null);
@@ -274,11 +293,13 @@ export function useReadAloud(verses, meta = {}) {
     setTimeout(() => {
       cancelledRef.current = false;
       speakIndex(startIdx);
+      startKeepAlive();
     }, 80);
   }, [supported, speakIndex]);
 
   const pause = useCallback(() => {
     if (!supported) return;
+    stopKeepAlive();
     window.speechSynthesis.pause();
     setPaused(true);
   }, [supported]);
@@ -287,12 +308,14 @@ export function useReadAloud(verses, meta = {}) {
     if (!supported) return;
     window.speechSynthesis.resume();
     setPaused(false);
+    startKeepAlive();
   }, [supported]);
 
   const stop = useCallback(() => {
     if (!supported) return;
     cancelledRef.current = true;
     continuationRef.current = false;
+    stopKeepAlive();
     clearWordTimer();
     window.speechSynthesis.cancel();
     setSpeaking(false);
