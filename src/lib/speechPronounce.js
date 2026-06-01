@@ -80,6 +80,7 @@ const DICT = {
   behold: 'be-hold',
   wherefore: 'where-for',
   therefore: 'there-for',
+  thereof: 'thair-ov',
   henceforth: 'hents-forth',
   forasmuch: 'for-az-much',
   peradventure: 'per-ad-ven-cher',
