@@ -951,7 +951,7 @@ async function buildRtf(opts, bible, onProgress) {
       }
     }
 
-    if (book.apiName === 'Malachi') { para(scope === 'old' ? 'THE END.' : 'THE END OF THE PROPHETS.', { center: true, bold: true, size: 24 }); if (scope !== 'old') lines.push('\\page '); }
+    if (book.apiName === 'Malachi') { para(scope === 'old' ? 'THE END.' : 'THE END OF THE PROPHETS.', { center: true, bold: true, size: 24 }); }
     if (book.apiName === 'Revelation') para('THE END.', { center: true, bold: true, size: 26 });
 
     onProgress(Math.round(((bi + 1) / total) * 90) + 5, `Adding ${book.shortName}… (${bi + 1}/${total})`);
