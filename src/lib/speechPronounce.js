@@ -319,8 +319,8 @@ const DICT = {
 
   // More commonly mispronounced words
   propitiation: 'pro-pish-ee-ay-shun',
-  righteousness: 'rytchusness',
-  righteous: 'rytchus',
+  righteousness: 'rychusness',
+  righteous: 'rychus',
   iniquity: 'i-nik-wi-tee',
   iniquities: 'i-nik-wi-teez',
   transgression: 'tranz-gresh-un',
