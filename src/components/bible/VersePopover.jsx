@@ -28,9 +28,11 @@ export default function VersePopover({ children }) {
       const flipUp = spaceBelow < popRect.height + margin && parentRect.top > popRect.height + margin;
 
       // Horizontal: keep the popover fully inside the viewport
+      const maxWidth = vw - margin * 2;
+      const width = Math.min(popRect.width, maxWidth);
       let left = parentRect.left; // default align to anchor left
-      if (left + popRect.width > vw - margin) {
-        left = vw - margin - popRect.width;
+      if (left + width > vw - margin) {
+        left = vw - margin - width;
       }
       if (left < margin) left = margin;
       // Convert to offset relative to the anchor (parent) for absolute positioning
@@ -38,8 +40,8 @@ export default function VersePopover({ children }) {
 
       setStyle(
         flipUp
-          ? { bottom: '100%', marginBottom: 6, left: leftOffset }
-          : { top: '100%', marginTop: 6, left: leftOffset }
+          ? { bottom: '100%', marginBottom: 6, left: leftOffset, maxWidth }
+          : { top: '100%', marginTop: 6, left: leftOffset, maxWidth }
       );
     };
 
