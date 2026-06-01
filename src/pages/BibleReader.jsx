@@ -1467,6 +1467,9 @@ export default function BibleReader() {
                 <span className="hidden lg:inline">{shareFeedback ? 'Copied!' : 'Share'}</span>
               </button>
 
+              {/* Read Aloud (free, on-device TTS) */}
+              <ReadAloudControl tts={tts} open={showReadAloud} setOpen={setShowReadAloud} />
+
               {/* Prev */}
               <button
                 onClick={goPrev}
