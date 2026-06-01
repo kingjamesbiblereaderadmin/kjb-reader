@@ -102,14 +102,11 @@ export function useReadAloud(verses, meta = {}) {
   const stopKeepAlive = () => {
     if (keepAliveRef.current) { clearInterval(keepAliveRef.current); keepAliveRef.current = null; }
   };
-  // Fallback word-timer: some browsers/voices never fire `onboundary`. When that
-  // happens we step through words on an estimated timer so word highlighting
-  // still works. `boundaryFiredRef` tracks whether the real event has fired.
-  const wordTimerRef = useRef(null);
+  // `boundaryFiredRef` tracks whether the voice fired a real word-boundary event.
+  // We no longer run an estimated fallback timer (it drifted and looked jumpy);
+  // when no boundaries fire we simply highlight the whole active verse.
   const boundaryFiredRef = useRef(false);
-  const clearWordTimer = () => {
-    if (wordTimerRef.current) { clearInterval(wordTimerRef.current); wordTimerRef.current = null; }
-  };
+  const clearWordTimer = () => {};
 
   // Load device voices (they arrive asynchronously on some browsers)
   useEffect(() => {
@@ -217,34 +214,24 @@ export function useReadAloud(verses, meta = {}) {
       clearWordTimer();
       if (v.verse == null) return;
       setActiveVerse(v.verse);
-      // Keep the verse being read visible on screen.
+      // Keep the verse being read visible — but only scroll when it's actually
+      // outside the viewport. Scrolling on every verse (even visible ones)
+      // causes the stuttering/jumping. When we do scroll, 'auto' (instant) is
+      // far less jarring than 'smooth' during continuous reading.
       try {
         const el = document.getElementById(`v${v.verse}`);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (el) {
+          const r = el.getBoundingClientRect();
+          const vh = window.innerHeight || document.documentElement.clientHeight;
+          if (r.top < 80 || r.bottom > vh - 40) {
+            el.scrollIntoView({ behavior: 'auto', block: 'center' });
+          }
+        }
       } catch {}
-
-      // Fallback timer: if no real boundary event arrives, step words ourselves
-      // based on an estimated reading speed. Only engages when the browser/voice
-      // never fires onboundary — we wait longer (500ms) so real boundaries win.
-      if (wordSpans.length > 0) {
-        setTimeout(() => {
-          if (cancelledRef.current || boundaryFiredRef.current) return;
-          let wi = 0;
-          // ~1.4 words/sec at rate 1 matches typical TTS pacing for KJV text,
-          // keeping the highlight from running ahead of the audio.
-          const wps = 1.4 * (rateRef.current || 1);
-          const stepMs = Math.max(260, 1000 / wps);
-          setActiveWordStart(wordSpans[0][0]);
-          setActiveWordEnd(wordSpans[0][1]);
-          wordTimerRef.current = setInterval(() => {
-            if (cancelledRef.current || boundaryFiredRef.current) { clearWordTimer(); return; }
-            wi += 1;
-            if (wi >= wordSpans.length) { clearWordTimer(); return; }
-            setActiveWordStart(wordSpans[wi][0]);
-            setActiveWordEnd(wordSpans[wi][1]);
-          }, stepMs);
-        }, 500);
-      }
+      // No fallback word-timer: estimating word timing drifts out of sync with
+      // the voice (too fast/too slow) and looks jumpy. When the voice fires real
+      // onboundary events the word highlights accurately; when it doesn't, we
+      // simply highlight the whole active verse — never wrong, never jittery.
     };
     // Word-by-word highlighting: onboundary fires at each word with its char
     // offset into the cleaned utterance text.
