@@ -247,33 +247,19 @@ export function useReadAloud(verses, meta = {}) {
     resetUi();
   }, [supported, synth, resetUi]);
 
-  // Watchdog: some engines (notably Chrome) silently stop synthesis mid-chapter
-  // without firing onend/onerror, leaving playback stalled. We poll while we
-  // believe we're speaking; if the engine reports it's no longer speaking (and
-  // the user hasn't paused), or no activity has been seen for a while, we
-  // restart from the current item. The session guard ensures the restarted
-  // chain doesn't collide with any late callback.
+  // Chrome keep-alive: long-running synthesis can silently stop after a while.
+  // A gentle, periodic pause()+resume() resets the engine's internal watchdog
+  // WITHOUT restarting the current utterance. We never call cancel() here, so we
+  // can never cut off audio that is still playing correctly.
   useEffect(() => {
     if (!supported || !speaking || paused) return;
     const id = setInterval(() => {
-      if (paused) return;
-      const session = sessionRef.current;
-      const stalled =
-        (!synth.speaking && !synth.pending) ||
-        (Date.now() - lastActivityRef.current > 12000);
-      if (stalled) {
-        // Restart the current item cleanly under the same session.
-        lastActivityRef.current = Date.now();
-        try { synth.cancel(); } catch {}
-        setTimeout(() => {
-          if (session === sessionRef.current && !synth.speaking) {
-            speakIndex(indexRef.current, session);
-          }
-        }, 80);
+      if (synth.speaking && !synth.paused) {
+        try { synth.pause(); synth.resume(); } catch {}
       }
-    }, 3000);
+    }, 10000);
     return () => clearInterval(id);
-  }, [supported, synth, speaking, paused, speakIndex]);
+  }, [supported, synth, speaking, paused]);
 
   // Stop when the hook unmounts (leaving the reader).
   useEffect(() => {
