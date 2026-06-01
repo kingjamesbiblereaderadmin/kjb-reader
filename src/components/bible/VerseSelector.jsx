@@ -69,10 +69,10 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
               <button
                 key={v}
                 onClick={() => toggle(v)}
-                className={`h-9 w-full rounded text-sm font-sans font-medium transition-colors ${
+                className={`h-9 w-full rounded text-sm font-sans font-medium border transition-colors ${
                   isActive
-                    ? 'bg-accent text-accent-foreground font-bold ring-2 ring-accent/50'
-                    : 'bg-secondary hover:bg-accent/20 text-foreground'
+                    ? 'bg-accent text-accent-foreground font-bold ring-2 ring-accent/50 border-accent'
+                    : 'bg-secondary hover:bg-accent/20 text-foreground border-border'
                 }`}
               >
                 {v}

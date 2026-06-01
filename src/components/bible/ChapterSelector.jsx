@@ -15,10 +15,10 @@ export default function ChapterSelector({ totalChapters, currentChapter, onSelec
             <button
               key={ch}
               onClick={() => setSelectedChapter(ch)}
-              className={`h-9 w-full rounded text-sm font-sans font-medium transition-colors ${
+              className={`h-9 w-full rounded text-sm font-sans font-medium border transition-colors ${
                 ch === selectedChapter
-                  ? 'bg-accent text-accent-foreground font-bold'
-                  : 'bg-secondary hover:bg-accent/20 text-foreground'
+                  ? 'bg-accent text-accent-foreground font-bold border-accent'
+                  : 'bg-secondary hover:bg-accent/20 text-foreground border-border'
               }`}
             >
               {ch}
