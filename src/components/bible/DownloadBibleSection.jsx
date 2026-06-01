@@ -169,6 +169,13 @@ export default function DownloadBibleSection() {
           <AlertCircle className="w-4 h-4" /> {error}
         </p>
       )}
+
+      <p className="font-sans text-xs text-muted-foreground pt-2 border-t border-border">
+        There may be occasional formatting issues depending on your device and reader. For feedback or to report a bug, please contact{' '}
+        <a href="mailto:kingjamesbiblereader@outlook.com" className="text-primary font-medium underline">
+          kingjamesbiblereader@outlook.com
+        </a>.
+      </p>
     </div>
   );
 }
