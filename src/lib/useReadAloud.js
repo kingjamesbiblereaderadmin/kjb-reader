@@ -19,7 +19,7 @@ export function useReadAloud(verses, meta = {}) {
     try { return localStorage.getItem('kjb-tts-voice') || ''; } catch { return ''; }
   });
   const [rate, setRate] = useState(() => {
-    try { return parseFloat(localStorage.getItem('kjb-tts-rate') || '1'); } catch { return 1; }
+    try { return parseFloat(localStorage.getItem('kjb-tts-rate') || '1.1'); } catch { return 1.1; }
   });
   const [speaking, setSpeaking] = useState(false);
   const [paused, setPaused] = useState(false);

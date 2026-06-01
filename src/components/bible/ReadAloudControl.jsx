@@ -5,9 +5,9 @@ import SelectorSheet from '@/components/bible/SelectorSheet';
 const isMobile = () => typeof window !== 'undefined' && window.innerWidth < 640;
 
 const SPEEDS = [
-  { label: 'Slow', value: 0.75 },
-  { label: 'Normal', value: 1 },
-  { label: 'Fast', value: 1.5 },
+  { label: 'Slow', value: 0.9 },
+  { label: 'Normal', value: 1.1 },
+  { label: 'Fast', value: 1.4 },
 ];
 
 // The Web Speech API doesn't expose voice gender, so infer it from the voice
