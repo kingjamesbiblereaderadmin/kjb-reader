@@ -981,7 +981,7 @@ export default function BibleReader() {
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
         <div ref={topRef} className="sticky top-0 z-[100] border-b border-border pb-2 pt-2 mb-2 relative shadow-sm before:content-[''] before:absolute before:bottom-full before:-left-5 before:-right-5 sm:before:-left-12 sm:before:-right-12 lg:before:-left-16 lg:before:-right-16 before:h-12 before:bg-background" style={{ backgroundColor: 'hsl(var(--background))' }}>
-          <div className="flex flex-wrap items-stretch justify-stretch gap-1.5 w-full [&>button:not(.kjb-fixed-btn)]:flex-1 [&>div.relative]:flex-1 [&>div.relative>button]:w-full">
+          <div className="flex flex-wrap items-stretch justify-stretch gap-1.5 w-full [&>button:not(.kjb-fixed-btn)]:flex-grow [&>button:not(.kjb-fixed-btn)]:basis-auto [&>div.relative]:flex-grow [&>div.relative>button]:w-full">
 
             {/* Book selector */}
             <button
