@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Loader2, CheckCircle2 } from 'lucide-react';
-import { downloadBibleForOffline } from '@/lib/bibleCache';
+import { downloadBibleForOfflineWithRetry } from '@/lib/bibleCache';
 
 export default function RefreshCache() {
   const [refreshing, setRefreshing] = useState(false);
@@ -21,8 +21,8 @@ export default function RefreshCache() {
       const registrations = await navigator.serviceWorker.getRegistrations();
       await Promise.all(registrations.map(reg => reg.unregister()));
 
-      // Download fresh Bible data
-      await downloadBibleForOffline((pct) => setProgress(pct));
+      // Download fresh Bible data (auto-retries on transient server errors)
+      await downloadBibleForOfflineWithRetry((pct) => setProgress(pct));
 
       setSuccess(true);
       

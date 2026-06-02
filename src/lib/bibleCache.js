@@ -327,6 +327,26 @@ export async function downloadBibleForOffline(onProgress) {
   return data;
 }
 
+// Download with automatic re-attempts after a delay. Used by Refresh Cache /
+// Reset Settings so a transient failure (e.g. 503) self-heals without the user
+// having to tap again. Tries up to `attempts` times, waiting `delayMs` between.
+export async function downloadBibleForOfflineWithRetry(onProgress, attempts = 3, delayMs = 4000) {
+  let lastErr;
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      return await downloadBibleForOffline(onProgress);
+    } catch (err) {
+      lastErr = err;
+      console.warn(`[DOWNLOAD] Attempt ${i}/${attempts} failed:`, err.message);
+      if (i < attempts) {
+        onProgress && onProgress(0, `Server busy — retrying in ${Math.round(delayMs / 1000)}s…`);
+        await new Promise(r => setTimeout(r, delayMs));
+      }
+    }
+  }
+  throw lastErr;
+}
+
 const CACHE_REFRESH_INTERVAL = 24 * 60 * 60 * 1000;
 const LAST_REFRESH_KEY = 'bible_last_refresh';
 

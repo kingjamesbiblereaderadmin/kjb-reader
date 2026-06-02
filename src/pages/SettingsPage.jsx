@@ -20,7 +20,7 @@ import {
 } from '@/lib/notifications';
 
 import { getDailyVerse } from '@/lib/dailyVerse';
-import { downloadBibleForOffline, clearBibleCache, isBibleCached } from '@/lib/bibleCache';
+import { downloadBibleForOffline, downloadBibleForOfflineWithRetry, clearBibleCache, isBibleCached } from '@/lib/bibleCache';
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
 
 const A11Y_FONTS = [
@@ -164,9 +164,9 @@ export default function SettingsPage() {
       setCached(isCached);
       // If user just triggered "Clear Cache & Reload", auto-start the download now
       try {
-        if (!isCached && localStorage.getItem('kjb-auto-redownload') === 'true') {
+        if (localStorage.getItem('kjb-auto-redownload') === 'true') {
           localStorage.removeItem('kjb-auto-redownload');
-          handleDownload();
+          handleDownload(null, true); // retry on transient failures
         }
       } catch {}
     });
@@ -287,7 +287,7 @@ export default function SettingsPage() {
 
 
 
-  const handleDownload = async (e) => {
+  const handleDownload = async (e, withRetry = false) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -297,7 +297,8 @@ export default function SettingsPage() {
     setDlProgress(0);
     setDlStatus('Starting download...');
     try {
-      await downloadBibleForOffline((pct, msg) => {
+      const dl = withRetry ? downloadBibleForOfflineWithRetry : downloadBibleForOffline;
+      await dl((pct, msg) => {
         setDlProgress(pct);
         setDlStatus(msg);
       });
@@ -1227,7 +1228,7 @@ export default function SettingsPage() {
           <div className="p-5 pt-0 space-y-4">
             <div className="flex gap-3 pt-2">
               <button
-                onClick={() => {
+                onClick={async () => {
                   if (confirm('Reset all settings to default? This cannot be undone. (Your daily verse background image is kept.)')) {
                     // Reset all localStorage settings — but KEEP the custom
                     // daily-verse background image (kjb-daily-verse-bg), since the
@@ -1239,8 +1240,10 @@ export default function SettingsPage() {
                     localStorage.removeItem('kjb-verse-panel-visible');
                     localStorage.removeItem('kjb-zoom');
                     localStorage.removeItem('kjb-notif-image');
-                    // Reload to apply defaults
-                    window.location.reload();
+                    // Flag a fresh re-download, THEN clear the Bible cache.
+                    // clearBibleCache() reloads the page itself, so set the flag first.
+                    try { localStorage.setItem('kjb-auto-redownload', 'true'); } catch {}
+                    await clearBibleCache(); // clears cache + reloads the page
                   }
                 }}
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-destructive/10 text-destructive font-sans text-sm font-medium hover:bg-destructive/20 transition-colors"
