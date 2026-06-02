@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useLayoutEffect } from 'react';
 import { getBookCompletion, getBookAcceptValue, getNumberedBookHint, getNumberedBookVariants, getNumberedSiblings } from '@/lib/bookCompletion';
 
 // A text input that shows a lighter "ghost" completion of the book name the
@@ -48,6 +48,25 @@ const GhostInput = React.forwardRef(function GhostInput(
   const ghost = suffix || (isPrepend ? ` → Tab: ${numberedHint}` : siblingHint);
   const canAccept = !!acceptValue || variants.length > 0;
 
+  // Hide the ghost hint when it would overflow the input width (e.g. on narrow
+  // mobile screens). We measure the rendered ghost layer against the input box.
+  const ghostLayerRef = useRef(null);
+  const [ghostFits, setGhostFits] = useState(true);
+  useLayoutEffect(() => {
+    if (!ghost) { setGhostFits(true); return; }
+    const measure = () => {
+      const layer = ghostLayerRef.current;
+      const input = innerRef.current;
+      if (!layer || !input) return;
+      // scrollWidth includes the full (typed + ghost) content; clientWidth is the
+      // visible box. If content is wider, the ghost can't fully fit → hide it.
+      setGhostFits(layer.scrollWidth <= layer.clientWidth + 1);
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [ghost, value]);
+
   const accept = () => {
     // Cycle through numbered variants on each Tab. If the current segment is
     // already a variant, advance to the next (wrapping); otherwise pick the first.
@@ -91,8 +110,9 @@ const GhostInput = React.forwardRef(function GhostInput(
       {/* Ghost layer — sits behind the input, shows typed text transparent + completion faded */}
       {ghost && (
         <div
+          ref={ghostLayerRef}
           aria-hidden="true"
-          className={`absolute inset-0 ${leftPadClass} pr-8 flex items-center pointer-events-none overflow-hidden whitespace-pre ${inputClassName}`}
+          className={`absolute inset-0 ${leftPadClass} pr-8 flex items-center pointer-events-none overflow-hidden whitespace-pre ${inputClassName} ${ghostFits ? '' : 'opacity-0'}`}
           style={{ background: 'transparent', borderColor: 'transparent' }}
         >
           <span className="invisible">{value}</span>
