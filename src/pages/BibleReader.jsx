@@ -16,6 +16,7 @@ import RunningHead from '@/components/bible/RunningHead';
 import CurrentlyReadingIndicator from '@/components/bible/CurrentlyReadingIndicator';
 import MinimizedHeaderBar from '@/components/bible/MinimizedHeaderBar';
 import ReadingRangeBar from '@/components/bible/ReadingRangeBar';
+import SelectActionBar from '@/components/bible/SelectActionBar';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Accessibility } from 'lucide-react';
@@ -1718,63 +1719,40 @@ export default function BibleReader() {
 
           {/* Select action bar — merged into the sticky toolbar so it sticks together */}
           {selectMode && (
-            <div className="mt-2 pt-2 border-t border-border flex items-center gap-2 overflow-x-auto scrollbar-hide">
-              <span className="font-sans text-xs text-muted-foreground font-medium whitespace-nowrap">
-                {selectedVerses.size === 0 ? '0' : selectedVerses.size}{selectedVerses.size === 0 ? '' : `/${verses.length}`} selected
-              </span>
-              <div className="w-px h-4 bg-border" />
-              <button
-                onClick={selectAllVerses}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors whitespace-nowrap"
-              >
-                <CheckSquare className="w-3.5 h-3.5" /> All
-              </button>
-              <button
-                onClick={toggleSelectMode}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors whitespace-nowrap"
-              >
-                <X className="w-3.5 h-3.5" /> Cancel
-              </button>
-              {selectedVerses.size > 0 && (
-                <>
-                  <button
-                    onClick={handleCopySelected}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors whitespace-nowrap"
-                  >
-                    <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy'}
-                  </button>
-                  <button
-                    onClick={handleShareChapter}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors whitespace-nowrap"
-                  >
-                    <Share2 className="w-3.5 h-3.5" /> {shareFeedback ? 'Copied!' : 'Share'}
-                  </button>
-                  <button
-                    onClick={handleReadSelected}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
-                  >
-                    <BookMarked className="w-3.5 h-3.5" /> Read Selected
-                  </button>
-                  <button
-                    onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 font-sans text-xs font-medium transition-colors whitespace-nowrap"
-                  >
-                    <AlignLeft className="w-3.5 h-3.5" /> Show Full Chapter
-                  </button>
-                </>
-              )}
-            </div>
+            <SelectActionBar
+              selectedCount={selectedVerses.size}
+              totalVerses={verses.length}
+              copyFeedback={copyFeedback}
+              shareFeedback={shareFeedback}
+              onSelectAll={selectAllVerses}
+              onCancel={toggleSelectMode}
+              onCopy={handleCopySelected}
+              onShare={handleShareChapter}
+              onReadSelected={handleReadSelected}
+              onShowFull={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
+            />
           )}
 
-          {/* Reading a verse range — merged into the sticky toolbar like the copy bar */}
-          {!selectMode && filterMode && selectedVerses.size > 0 && (
+          {/* Reading a verse range — merged into the sticky toolbar like the copy bar.
+              Shown whenever verses are selected (in either filtered or full-chapter view). */}
+          {!selectMode && selectedVerses.size > 0 && (
             <ReadingRangeBar
               label={`Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`}
+              filterMode={filterMode}
               copyFeedback={copyFeedback}
               shareFeedback={shareFeedback}
               onCopy={handleCopySelected}
               onShare={handleShareChapter}
-              onShowFull={() => { rangeHighlightRef.current = false; setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setHighlightedVerses(new Set()); setShowFilterOverlay(false); }}
+              onToggleView={() => {
+                // Toggle between filtered (verses only) and full-chapter view,
+                // keeping the same verse selection/highlight either way.
+                setFilterMode(prev => {
+                  const next = !prev;
+                  rangeHighlightRef.current = next;
+                  return next;
+                });
+              }}
+              onClear={() => { rangeHighlightRef.current = false; setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setHighlightedVerses(new Set()); setShowFilterOverlay(false); }}
             />
           )}
         </div>
