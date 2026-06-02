@@ -289,7 +289,16 @@ export default function BibleSearchBar({ onClose }) {
       inputRef.current?.blur();
       return;
     }
-    if (!open || suggestions.length === 0) return;
+    if (!open || suggestions.length === 0) {
+      // Enter with no open dropdown / no suggestions must still submit via the
+      // form handler — and never trigger a native form submit (which navigates
+      // to "/" and bounces to Home on mobile when the soft keyboard fires Enter).
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleSubmit(e);
+      }
+      return;
+    }
     
     if (e.key === 'ArrowDown') {
       e.preventDefault();
