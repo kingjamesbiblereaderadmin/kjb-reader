@@ -930,6 +930,27 @@ export default function BibleReader() {
     loadChapter(newAbbr, newChapter, jumpVerse);
   };
 
+  // Step the search/gospel stepper to a result. If it's in the SAME chapter we're
+  // already viewing, skip loadChapter (which flickers loading and can interrupt
+  // the smooth scroll) and just move the highlight so the scroll effect re-fires.
+  const stepToResult = (r) => {
+    const section = r.section || null;
+    const targetVerse = section ? null : (r.verse || null);
+    const sameChapter = r.abbr === pos.abbr && r.chapter === pos.chapter && verses.length > 0;
+    setHighlightSection(section);
+    setPos({ abbr: r.abbr, chapter: r.chapter, verse: targetVerse });
+    if (sameChapter) {
+      // Force the scroll effect to re-run even if the verse number is unchanged:
+      // clear highlight first, then set it on the next tick.
+      setHighlightVerse(null);
+      setTimeout(() => setHighlightVerse(targetVerse), 0);
+      try { savePosition(r.abbr, r.chapter, targetVerse); } catch {}
+    } else {
+      setHighlightVerse(targetVerse);
+      loadChapter(r.abbr, r.chapter, targetVerse);
+    }
+  };
+
   const clearSearchContext = () => {
     searchClearedRef.current = true;
     clearSearchNav();
@@ -1461,11 +1482,7 @@ export default function BibleReader() {
                     if (r) {
                       setSearchIndex(prevIndex);
                       setSearchResultIndex(prevIndex);
-                      const section = r.section || null;
-                      setHighlightSection(section);
-                      setPos({ abbr: r.abbr, chapter: r.chapter, verse: section ? null : (r.verse || null) });
-                      setHighlightVerse(section ? null : (r.verse || null));
-                      loadChapter(r.abbr, r.chapter, section ? null : (r.verse || null));
+                      stepToResult(r);
                     }
                   }}
                   onNextResult={() => {
@@ -1492,11 +1509,7 @@ export default function BibleReader() {
                     if (r) {
                       setSearchIndex(nextIndex);
                       setSearchResultIndex(nextIndex);
-                      const section = r.section || null;
-                      setHighlightSection(section);
-                      setPos({ abbr: r.abbr, chapter: r.chapter, verse: section ? null : (r.verse || null) });
-                      setHighlightVerse(section ? null : (r.verse || null));
-                      loadChapter(r.abbr, r.chapter, section ? null : (r.verse || null));
+                      stepToResult(r);
                     }
                   }}
                   onClear={() => {
