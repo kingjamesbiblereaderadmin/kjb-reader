@@ -22,7 +22,7 @@ import { base44 } from '@/api/base44Client';
 import { getAccessibilityFont, setAccessibilityFont, applyReaderFont } from '@/lib/accessibilityFont';
 import { getSearchNav, setSearchNav, setSearchIndex, clearSearchNav, getGospelNav, setGospelNav, setGospelIndex, clearGospelNav } from '@/lib/searchNav';
 import { getGospelResults } from '@/lib/gospelVerses';
-import { getOccurrenceLabel } from '@/lib/occurrenceLabel';
+import { getOccurrenceLabel, scrollToOccurrence } from '@/lib/occurrenceLabel';
 import { useReaderUrlSync } from '@/lib/useReaderUrlSync';
 import { resolveBook, formatVerseRange } from '@/lib/readerHelpers';
 import { useClosePopovers } from '@/lib/useClosePopovers';
@@ -1017,8 +1017,17 @@ export default function BibleReader() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: r.verse || null, verseEnd: null }));
       } catch {}
     }
+    const sameChapter = !loading && verses.length > 0 && posRef.current.abbr === r.abbr && posRef.current.chapter === r.chapter;
+    const sameVerse = sameChapter && posRef.current.verse === targetVerse;
     setPos({ abbr: r.abbr, chapter: r.chapter, verse: targetVerse, occurrence: r.occurrence || 0 });
     setHighlightVerse(targetVerse);
+    // Already on this chapter → don't reload (no spinner, no jump to top). The
+    // highlightVerse change re-fires the scroll effect; when only the occurrence
+    // changed within the SAME verse, scroll to that <mark> directly here.
+    if (sameChapter) {
+      if (sameVerse && targetVerse) scrollToOccurrence(targetVerse, r.occurrence || 0, topRef);
+      return;
+    }
     loadChapter(r.abbr, r.chapter, targetVerse);
   };
 
@@ -1929,23 +1938,10 @@ export default function BibleReader() {
 
 
       {/* End-of-section text footers */}
-      {!loading && !error && pos.abbr === 'MAL' && pos.chapter === 4 && (
+      {!loading && !error && ((pos.abbr === 'MAL' && pos.chapter === 4) || (pos.abbr === 'REV' && pos.chapter === 22)) && (
         <div className="text-center mt-12 mb-4">
-          <p 
-            className={`text-sm text-muted-foreground tracking-widest uppercase ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
-            style={{ fontSize: `${zoomLevel / 100}rem`, fontStyle: 'normal' }}
-          >
-            The End of the Prophets
-          </p>
-        </div>
-      )}
-      {!loading && !error && pos.abbr === 'REV' && pos.chapter === 22 && (
-        <div className="text-center mt-12 mb-4">
-          <p 
-            className={`text-sm text-muted-foreground tracking-widest uppercase ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
-            style={{ fontSize: `${zoomLevel / 100}rem`, fontStyle: 'normal' }}
-          >
-            The End
+          <p className={`text-sm text-muted-foreground tracking-widest uppercase ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`} style={{ fontSize: `${zoomLevel / 100}rem`, fontStyle: 'normal' }}>
+            {pos.abbr === 'MAL' ? 'The End of the Prophets' : 'The End'}
           </p>
         </div>
       )}
