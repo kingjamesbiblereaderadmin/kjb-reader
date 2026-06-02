@@ -40,10 +40,8 @@ export default function HomePage() {
     if (refreshing) return;
     setRefreshing(true);
     try {
-      // Refresh with a random verse from the fallback pool
-      const idx = Math.floor(Math.random() * 100);
-      setVerse(getDailyVerse());
-      await new Promise(resolve => setTimeout(resolve, 600));
+      const v = await getDailyVerseFromBible();
+      setVerse(v);
     } finally {
       setRefreshing(false);
     }
