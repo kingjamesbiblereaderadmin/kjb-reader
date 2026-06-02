@@ -585,6 +585,7 @@ export default function SearchPage() {
       abbr: r.abbr,
       chapter: r.chapter,
       verse: r.verse,
+      verseEnd: r.verseEnd || null,
       section: r.isColophon ? 'colophon' : r.isSubscript ? 'subscript' : null,
     }));
     setSearchNav(compact, resultIndex !== null ? resultIndex : 0, q);
