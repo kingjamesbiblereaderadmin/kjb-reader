@@ -543,6 +543,21 @@ export default function BibleReader() {
     if (urlBookObj && urlChapter) {
       const chapterNum = parseInt(urlChapter, 10);
       const verseNum = urlVerse ? parseInt(urlVerse, 10) : null;
+      // A verse range (verseEnd) may be carried in localStorage for filter mode —
+      // apply it on first mount so a multi-reference / range load highlights the
+      // whole range immediately (not just the first verse).
+      let verseEnd = null;
+      try {
+        const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        if (p.abbr === urlBookObj.abbr && p.chapter === chapterNum && p.verseEnd) verseEnd = p.verseEnd;
+      } catch {}
+      if (verseNum && verseEnd && verseEnd > verseNum) {
+        const range = new Set();
+        for (let v = verseNum; v <= verseEnd; v++) range.add(v);
+        setSelectedVerses(range);
+        setHighlightedVerses(range);
+        setFilterMode(true);
+      }
       setPos({ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum });
       setHighlightVerse(verseNum || null);
       loadChapter(urlBookObj.abbr, chapterNum, verseNum);
