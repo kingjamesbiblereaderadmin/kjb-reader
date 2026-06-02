@@ -763,11 +763,17 @@ export default function SearchPage() {
   useEffect(() => {
     if (!results.length) return;
     const handler = (e) => {
-      // Don't steal keys when typing in an input/textarea (check both the active
-      // element and the event target so a focused GhostInput is never hijacked).
       const tag = document.activeElement?.tagName;
       const targetTag = e.target?.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || targetTag === 'INPUT' || targetTag === 'TEXTAREA') return;
+      const inInput = tag === 'INPUT' || tag === 'TEXTAREA' || targetTag === 'INPUT' || targetTag === 'TEXTAREA';
+      const isArrowNav = e.key === 'ArrowDown' || e.key === 'ArrowUp';
+
+      // While typing in the search box, let it handle everything EXCEPT the arrow
+      // keys — those should always move through results (blur the input first so
+      // typing 'j'/'k' still works as text, but arrows navigate).
+      if (inInput && !isArrowNav) return;
+      if (inInput && isArrowNav) document.activeElement?.blur();
+
       // Only act on Enter when a result is explicitly focused via arrow keys.
       if (e.key === 'Enter' && focusedIndex < 0) return;
 
