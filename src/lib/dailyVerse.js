@@ -31,6 +31,17 @@ const EXCLUDED_VERSES = new Set([
   'Deuteronomy 17:12', 'Exodus 22:18', 'Exodus 31:15', 'Exodus 35:2',
   'Leviticus 20:13', 'Leviticus 20:27', 'Numbers 31:17', 'Numbers 25:5',
   '1 Samuel 15:3', 'Ezekiel 9:6',
+  // "Thou shalt not kill"
+  'Exodus 20:13', 'Deuteronomy 5:17',
+  // "dash to pieces" / dash the little ones
+  'Psalms 137:9', 'Isaiah 13:16', 'Isaiah 13:18', 'Hosea 13:16', 'Nahum 3:10',
+  '2 Kings 8:12', 'Psalms 2:9',
+  // "shall surely be put to death" / death-sentence verses
+  'Exodus 21:12', 'Exodus 21:15', 'Exodus 21:16', 'Exodus 21:17',
+  'Exodus 22:19', 'Leviticus 20:2', 'Leviticus 20:9', 'Leviticus 20:10',
+  'Leviticus 20:11', 'Leviticus 20:12', 'Leviticus 20:15', 'Leviticus 20:16',
+  'Leviticus 24:16', 'Leviticus 24:17', 'Numbers 15:35', 'Deuteronomy 13:5',
+  'Deuteronomy 22:21', 'Deuteronomy 22:22', 'Deuteronomy 22:24',
 ]);
 
 // Seeded pseudo-random (deterministic for a given seed)
