@@ -22,30 +22,34 @@ export function cleanVerseText(text = '') {
     .trim();
 }
 
+// Ensure a colophon/subscript line starts with a pilcrow (¶) so the copied text
+// matches what's shown on screen (which renders both with a leading pilcrow).
+function withPilcrow(text = '') {
+  const clean = cleanVerseText(text).replace(/^[\u00B6\uFFFD]\s*/, '');
+  return `¶ ${clean}`;
+}
+
 // The canonical share/copy format used everywhere — a clean, professional layout:
 //
+//   ¶ <subscript>          ← outside the quotes (Psalm superscription)
 //   “<text>” - <Reference> (KJB)
+//   ¶ <colophon>           ← outside the quotes (epistle closing note)
 //
 //   Read more: <link>
 //
 // Optional title (e.g. "Verse of the Day") sits on its own line at the very top.
-export function formatVerseShare({ text, ref, url, title } = {}) {
+export function formatVerseShare({ text, ref, url, title, subscript, colophon } = {}) {
   const clean = cleanVerseText(text);
   const parts = [];
   if (title) parts.push(title);
-  parts.push(`“${clean}” - ${ref} (KJB)`);
+  // Subscript, quoted verse + ref, then colophon — grouped together as one block.
+  const quoteBlock = [];
+  if (subscript) quoteBlock.push(withPilcrow(subscript));
+  quoteBlock.push(`“${clean}” - ${ref} (KJB)`);
+  if (colophon) quoteBlock.push(withPilcrow(colophon));
+  parts.push(quoteBlock.join('\n'));
   if (url) parts.push(`Read more: <${url}>`);
   return parts.join('\n\n');
-}
-
-// Append a colophon (after last verse) or prepend a subscript/superscription
-// (before Psalm verse 1) to the verse text for copy/share. Pilcrows and
-// [brackets] are kept intact (matching what's shown on screen).
-export function withExtras(text, { subscript, colophon } = {}) {
-  let out = cleanVerseText(text);
-  if (subscript) out = `${cleanVerseText(subscript)}\n${out}`;
-  if (colophon) out = `${out}\n${cleanVerseText(colophon)}`;
-  return out;
 }
 
 export function formatDailyVerseForCopy(verse) {

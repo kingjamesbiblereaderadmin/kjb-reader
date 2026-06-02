@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, Loader2, AlignJustify, AlignLeft, List, Columns2, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2 } from 'lucide-react';
-import { buildVerseUrl, formatVerseShare, cleanVerseText, withExtras } from '@/lib/formatDailyVerse';
+import { buildVerseUrl, formatVerseShare, cleanVerseText } from '@/lib/formatDailyVerse';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText, renderSubscriptText } from '@/lib/bibleApi';
 import { getBibleData } from '@/lib/bibleCache';
@@ -310,15 +310,10 @@ export default function BibleReader() {
       // and the chapter colophon when the chapter's last verse is in this group.
       const includesV1 = g.some(v => v.verse === 1);
       const includesLast = lastVerseNum != null && g.some(v => v.verse === lastVerseNum);
-      const text = withExtras(
-        g.map(v => cleanVerseText(v.text)).join(' '),
-        {
-          subscript: includesV1 ? chapterSubscript : null,
-          colophon: includesLast ? colophon : null,
-        }
-      );
       return formatVerseShare({
-        text,
+        text: g.map(v => cleanVerseText(v.text)).join(' '),
+        subscript: includesV1 ? chapterSubscript : null,
+        colophon: includesLast ? colophon : null,
         ref: `${book.shortName} ${pos.chapter}:${range}`,
         url: buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: g[0].verse, verseEnd: g[g.length - 1].verse > g[0].verse ? g[g.length - 1].verse : undefined, from: searchTerm ? 'search' : undefined }),
       });

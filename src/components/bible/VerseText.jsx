@@ -3,7 +3,7 @@ import { renderVerseText } from '@/lib/bibleApi';
 import { Copy, Share2, X, Highlighter, ChevronDown, Bookmark, BookmarkCheck, CheckSquare, Square } from 'lucide-react';
 import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
-import { formatVerseShare, buildVerseUrl, withExtras } from '@/lib/formatDailyVerse';
+import { formatVerseShare, buildVerseUrl } from '@/lib/formatDailyVerse';
 import VersePopover from '@/components/bible/VersePopover';
 
 export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, subscript = null, isCursive = false, fontFamilyValue = null, zoomLevel = 100, hasSubscript = false, searchTerm = null, dropCap = false, columnMode = false }) {
@@ -107,7 +107,9 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // Include the Psalm subscript before verse 1, and the chapter colophon after
   // the last verse — keeping pilcrows and [brackets] intact.
   const verseText = formatVerseShare({
-    text: withExtras(verse.text, { subscript, colophon }),
+    text: verse.text,
+    subscript,
+    colophon,
     ref: verseRef,
     url: buildVerseUrl({ abbr, chapter, verse: verse.verse, from: searchTerm ? 'search' : undefined }),
   });
