@@ -540,6 +540,10 @@ export default function SearchPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    // Clear any focused result so the global Enter handler can't open a stale
+    // result alongside this submit.
+    setFocusedIndex(-1);
     const kw = query.trim();
     if (!kw) return;
 
@@ -809,6 +813,15 @@ export default function SearchPage() {
             value={query}
             onChange={e => setQuery(e.target.value)}
             onAccept={(full) => setQuery(full)}
+            onKeyDown={(e) => {
+              // Enter in the box always submits THIS query — never let the global
+              // results keydown handler open a stale result instead.
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSubmit(e);
+              }
+            }}
             placeholder="e.g. grace, faith, blood..."
             leftPadClass="pl-9"
             inputClassName="w-full pl-9 pr-4 py-2 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors"
