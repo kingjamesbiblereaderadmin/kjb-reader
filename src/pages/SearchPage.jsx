@@ -763,6 +763,10 @@ export default function SearchPage() {
           return next;
         });
       } else if (e.key === 'Enter') {
+        // Only open when the user is NOT typing in the search box AND a result is
+        // explicitly arrow-focused. Otherwise leave Enter for the search form so
+        // it can't accidentally open a stale result (e.g. typing a new reference).
+        e.preventDefault();
         setFocusedIndex(prev => {
           if (prev >= 0 && prev < results.length) {
             const r = results[prev];
