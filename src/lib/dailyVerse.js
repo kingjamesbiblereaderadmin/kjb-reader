@@ -12,40 +12,54 @@ const FALLBACK_POOL = [
   { abbr: "EPH", book: "Ephesians", chapter: 2, verse: 8, text: "For by grace are ye saved through faith; and that not of yourselves: [it is] the gift of God:" },
   { abbr: "PHP", book: "Philippians", chapter: 4, verse: 13, text: "I can do all things through Christ which strengtheneth me." },
   { abbr: "2TI", book: "2 Timothy", chapter: 3, verse: 16, text: "All scripture [is] given by inspiration of God, and [is] profitable for doctrine, for reproof, for correction, for instruction in righteousness:" },
-  { abbr: "REV", book: "Revelation", chapter: 22, verse: 20, text: "He which testifieth these things saith, Surely I come quickly. Amen. Even so, come, Lord Jesus." },
   { abbr: "MAT", book: "Matthew", chapter: 11, verse: 28, text: "Come unto me, all [ye] that labour and are heavy laden, and I will give you rest." },
   { abbr: "1CO", book: "1 Corinthians", chapter: 15, verse: 3, text: "For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures;" },
 ];
 
-// Books NOT suitable for the Church Age daily verse (per Robert Breaker's
-// dispensational teaching). These books are written TO/FOR Kingdom/Tribulation
-// saints, not the Body of Christ. Paul's epistles (Romans–Philemon) + OT
-// devotional passages are safe. The Gospels, Acts, Hebrews–Revelation are
-// largely for other dispensations and will be skipped.
-const EXCLUDED_BOOKS = new Set([
-  // The Gospels — Kingdom gospel (endure to end, water baptism, keep law)
-  'Matthew', 'Mark', 'Luke', 'John',
-  // Acts — transitional / Kingdom program (Acts 2:38, water baptism, etc.)
-  'Acts',
-  // Hebrew-Christian epistles — written to Tribulation/Kingdom saints
-  'Hebrews', 'James', '1 Peter', '2 Peter',
-  '1 John', '2 John', '3 John', 'Jude',
-  // Revelation — Tribulation / Kingdom program
-  'Revelation',
-]);
-
-// Individual verses to exclude even from otherwise-allowed books
+// Verses to exclude from the daily verse (not suitable for Church Age per
+// Robert Breaker's dispensational teaching, or otherwise problematic)
 const EXCLUDED_VERSES = new Set([
-  // Violence / killing commands (Old Testament)
+  // ── Acts ── water baptism / Kingdom program verses
+  'Acts 2:38', 'Acts 10:48', 'Acts 22:16',
+
+  // ── Gospels ── Kingdom/Law verses not applicable to Church Age
+  'Matthew 10:22', 'Matthew 24:13', 'Mark 13:13',   // endure unto the end
+  'Matthew 19:16', 'Matthew 19:17',                   // keep commandments for life
+  'Matthew 5:19', 'Matthew 5:20',                     // Sermon on the Mount law-keeping
+  'Matthew 28:19',                                     // Great Commission water baptism
+  'Luke 10:28',                                        // "Do this and thou shalt live"
+  'Luke 13:3', 'Luke 13:5',                           // "except ye repent ye shall perish"
+  'Mark 16:16',                                        // "believeth and is baptized"
+  'John 14:15', 'John 15:6', 'John 15:10',            // keep commandments / abide or cast out
+
+  // ── Hebrews ── falling-away / endurance warnings
+  'Hebrews 3:6', 'Hebrews 3:14',
+  'Hebrews 6:4', 'Hebrews 6:5', 'Hebrews 6:6',
+  'Hebrews 10:26', 'Hebrews 10:27', 'Hebrews 12:14',
+
+  // ── James ── faith + works / law-keeping
+  'James 2:14', 'James 2:17', 'James 2:18', 'James 2:20', 'James 2:24', 'James 2:26',
+
+  // ── 1 & 2 Peter ── endurance / works / falling away
+  '1 Peter 1:9', '2 Peter 1:10', '2 Peter 2:20', '2 Peter 2:21',
+
+  // ── 1 John ── keep commandments
+  '1 John 2:3', '1 John 2:4', '1 John 3:22', '1 John 5:3',
+
+  // ── Revelation ── Tribulation endurance / keep commandments
+  'Revelation 2:10', 'Revelation 3:10', 'Revelation 13:10', 'Revelation 14:12',
+  'Revelation 22:14',
+
+  // ── Romans ── can imply two-step works (confession + belief)
+  'Romans 10:9',
+
+  // ── OT Violence / killing commands ──
   'Deuteronomy 17:12', 'Exodus 22:18', 'Exodus 31:15', 'Exodus 35:2',
   'Leviticus 20:13', 'Leviticus 20:27', 'Numbers 31:17', 'Numbers 25:5',
   '1 Samuel 15:3', 'Ezekiel 9:6',
-  // "Thou shalt not kill"
   'Exodus 20:13', 'Deuteronomy 5:17',
-  // "dash to pieces" / dash the little ones
   'Psalms 137:9', 'Isaiah 13:16', 'Isaiah 13:18', 'Hosea 13:16', 'Nahum 3:10',
   '2 Kings 8:12', 'Psalms 2:9',
-  // "shall surely be put to death" / death-sentence verses
   'Exodus 21:12', 'Exodus 21:15', 'Exodus 21:16', 'Exodus 21:17',
   'Exodus 22:19', 'Leviticus 20:2', 'Leviticus 20:9', 'Leviticus 20:10',
   'Leviticus 20:11', 'Leviticus 20:12', 'Leviticus 20:15', 'Leviticus 20:16',
@@ -83,7 +97,7 @@ export async function getDailyVerseFromBible() {
       displayName = bookData ? bookData.shortName : bookName;
       step++;
     } while (
-      (EXCLUDED_BOOKS.has(displayName) || EXCLUDED_VERSES.has(`${displayName} ${chapter}:${verseObj.verse}`))
+      EXCLUDED_VERSES.has(`${displayName} ${chapter}:${verseObj.verse}`)
       && step < 50
     );
 
