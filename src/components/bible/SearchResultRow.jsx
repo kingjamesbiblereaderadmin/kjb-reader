@@ -2,38 +2,57 @@ import React from 'react';
 import { BookOpen, CheckSquare, Square } from 'lucide-react';
 import { BOOK_BY_API_NAME } from '@/lib/bibleData';
 
-// Render [bracketed] words as <em> italics, with optional search-term highlighting
+// Render [bracketed] words as <em> italics, with optional search-term highlighting.
+//
+// Highlighting is computed over the BRACKET-STRIPPED text so that a match can
+// span across italic boundaries (e.g. "lov[e]d" still highlights "love"). We
+// build a per-character map of (isItalic, isHighlight) and then emit runs that
+// share the same state, wrapping italics in <em> and highlights in <mark>.
 function renderWithItalics(text, searchTerm, caseSensitive) {
-  const segments = [];
-  const italicRegex = /\[([^\]]+)\]/g;
-  let lastIdx = 0;
-  let m;
-  while ((m = italicRegex.exec(text)) !== null) {
-    if (m.index > lastIdx) segments.push({ italic: false, text: text.slice(lastIdx, m.index) });
-    segments.push({ italic: true, text: m[1] });
-    lastIdx = m.index + m[0].length;
+  // 1. Strip brackets → clean text, tracking which clean-char indices are italic.
+  let clean = '';
+  const italicFlags = []; // italicFlags[i] === true if clean char i was bracketed
+  let inItalic = false;
+  for (let k = 0; k < text.length; k++) {
+    const ch = text[k];
+    if (ch === '[') { inItalic = true; continue; }
+    if (ch === ']') { inItalic = false; continue; }
+    clean += ch;
+    italicFlags.push(inItalic);
   }
-  if (lastIdx < text.length) segments.push({ italic: false, text: text.slice(lastIdx) });
 
-  const renderHighlighted = (str, keyBase) => {
-    if (!searchTerm) return str;
+  // 2. Mark which clean-char indices fall inside a search-term match.
+  const highlightFlags = new Array(clean.length).fill(false);
+  if (searchTerm) {
     const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const flags = caseSensitive ? 'g' : 'gi';
-    const regex = new RegExp(`(${escaped})`, flags);
-    const testRegex = new RegExp(escaped, flags);
-    const parts = str.split(regex);
-    return parts.map((part, i) =>
-      testRegex.test(part)
-        ? <mark key={`${keyBase}-${i}`} className="bg-accent/40 text-foreground rounded px-0.5">{part}</mark>
-        : <React.Fragment key={`${keyBase}-${i}`}>{part}</React.Fragment>
-    );
-  };
+    const regex = new RegExp(escaped, caseSensitive ? 'g' : 'gi');
+    let mm;
+    while ((mm = regex.exec(clean)) !== null) {
+      for (let p = mm.index; p < mm.index + mm[0].length; p++) highlightFlags[p] = true;
+      if (mm.index === regex.lastIndex) regex.lastIndex++; // avoid zero-width loops
+    }
+  }
 
-  return segments.map((seg, i) =>
-    seg.italic
-      ? <em key={i} className="text-foreground/75">{renderHighlighted(seg.text, `i${i}`)}</em>
-      : <React.Fragment key={i}>{renderHighlighted(seg.text, `n${i}`)}</React.Fragment>
-  );
+  // 3. Emit runs sharing the same (italic, highlight) state.
+  const nodes = [];
+  let i = 0;
+  let key = 0;
+  while (i < clean.length) {
+    const it = italicFlags[i];
+    const hl = highlightFlags[i];
+    let j = i + 1;
+    while (j < clean.length && italicFlags[j] === it && highlightFlags[j] === hl) j++;
+    const run = clean.slice(i, j);
+    let node = hl
+      ? <mark key={key} className="bg-accent/40 text-foreground rounded px-0.5">{run}</mark>
+      : run;
+    if (it) node = <em key={key} className="text-foreground/75">{node}</em>;
+    else if (!hl) node = <React.Fragment key={key}>{run}</React.Fragment>;
+    nodes.push(node);
+    key++;
+    i = j;
+  }
+  return nodes;
 }
 
 // A single search result row. Memoized so only the rows whose props actually

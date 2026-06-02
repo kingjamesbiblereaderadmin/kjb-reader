@@ -118,23 +118,23 @@ async function checkForUpdates() {
 }
 
 async function saveToCache(data) {
-  try {
-    await clearIndexedDB();
-    // Clear old localStorage keys
-    for (let i = 1; i <= 50; i++) {
-      localStorage.removeItem(`bible_data_pce_v${i}`);
-    }
-    localStorage.removeItem('bible_data_complete');
-    localStorage.removeItem('bible_data_complete_v2');
-    await saveToIndexedDB(data);
-    if (remoteVersion) {
-      localStorage.setItem('bible_cache_version', remoteVersion);
-    }
-    const colophonCount = data.__colophons ? Object.keys(data.__colophons).length : 0;
-    console.log('[CACHE] ✓ Saved to IndexedDB, version:', remoteVersion, ',', colophonCount, 'colophons');
-  } catch (e) {
-    console.error('Cache save failed:', e.message);
+  await clearIndexedDB();
+  // Clear old localStorage keys
+  for (let i = 1; i <= 50; i++) {
+    localStorage.removeItem(`bible_data_pce_v${i}`);
   }
+  localStorage.removeItem('bible_data_complete');
+  localStorage.removeItem('bible_data_complete_v2');
+  // saveToIndexedDB resolves `false` (or throws) on failure — treat both as an
+  // error so callers (the offline download) don't falsely report success when
+  // nothing was actually persisted (e.g. after a storage reset in Chrome).
+  const ok = await saveToIndexedDB(data);
+  if (ok === false) throw new Error('Could not save Bible to device storage');
+  if (remoteVersion) {
+    localStorage.setItem('bible_cache_version', remoteVersion);
+  }
+  const colophonCount = data.__colophons ? Object.keys(data.__colophons).length : 0;
+  console.log('[CACHE] ✓ Saved to IndexedDB, version:', remoteVersion, ',', colophonCount, 'colophons');
 }
 
 async function loadFromCache() {

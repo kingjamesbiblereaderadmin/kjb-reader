@@ -24,6 +24,11 @@ function openDB() {
 
     request.onsuccess = () => {
       dbInstance = request.result;
+      // If the connection is closed or version-changed (e.g. after the user
+      // clears storage / unregisters the SW in Chrome), drop the cached handle
+      // so the next call opens a fresh connection instead of using a dead one.
+      dbInstance.onclose = () => { dbInstance = null; openRequest = null; };
+      dbInstance.onversionchange = () => { try { dbInstance.close(); } catch {} dbInstance = null; openRequest = null; };
       resolve(dbInstance);
     };
 
