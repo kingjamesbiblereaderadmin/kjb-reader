@@ -322,7 +322,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
                 </span>
               )}
               <span
-                className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left inline transition-colors duration-200 rounded box-decoration-clone px-[0.3em] py-[0.1em] ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? highlightBg : (!selectMode ? 'hover:bg-secondary/60' : '')}`}
+                className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left inline transition-colors duration-200 rounded box-decoration-clone pr-[0.3em] py-[0.1em] ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? highlightBg : (!selectMode ? 'hover:bg-secondary/60' : '')}`}
                 style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
                 dangerouslySetInnerHTML={{ __html: html }}
               />
@@ -350,7 +350,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
               </span>
             )}
             <span
-              className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-left transition-colors duration-200 rounded box-decoration-clone px-[0.3em] py-[0.1em] ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? highlightBg : (!selectMode ? 'hover:bg-secondary/60' : '')}`}
+              className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-left transition-colors duration-200 rounded box-decoration-clone pr-[0.3em] py-[0.1em] ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? highlightBg : (!selectMode ? 'hover:bg-secondary/60' : '')}`}
               style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
               dangerouslySetInnerHTML={{ __html: html }}
             />
@@ -412,7 +412,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             // the tint consistent across wrapped lines.
             <span className="flex-1 min-w-0 leading-relaxed break-words text-left">
               <span
-                className={`inline [&_em]:italic [&_em]:text-foreground/75 ${isCursive ? 'cursive-em-style' : ''} ${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]`}
+                className={`inline [&_em]:italic [&_em]:text-foreground/75 ${isCursive ? 'cursive-em-style' : ''} ${highlightBg} box-decoration-clone rounded pr-[0.3em] py-[0.1em]`}
                 style={{ display: 'inline', ...(isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle) }}
                 dangerouslySetInnerHTML={{ __html: html }}
               />
