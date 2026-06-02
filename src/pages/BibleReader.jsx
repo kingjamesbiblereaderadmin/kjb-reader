@@ -998,17 +998,17 @@ export default function BibleReader() {
     const section = r.section || null;
     const targetVerse = section ? null : (r.verse || null);
     setHighlightSection(section);
-    // All results show the FULL chapter and just highlight + scroll to the verse(s)
-    // — never filter to a subset, for consistent navigation. A range highlights
-    // every verse in it; a single verse highlights just that one.
+    // A verse RANGE (e.g. multi-reference / passage step) filters the reader to
+    // show ONLY those verses. A single verse highlights + scrolls within the
+    // full chapter.
     if (!section && r.verse && r.verseEnd && r.verseEnd > r.verse) {
       const end = r.verseEnd;
       const range = new Set();
       for (let v = r.verse; v <= end; v++) range.add(v);
       rangeHighlightRef.current = true;
       setHighlightedVerses(range);
-      setSelectedVerses(new Set());
-      setFilterMode(false);
+      setSelectedVerses(range);
+      setFilterMode(true);
       try {
         const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: r.verse, verseEnd: end }));
