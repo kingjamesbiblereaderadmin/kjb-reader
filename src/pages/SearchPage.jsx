@@ -759,17 +759,19 @@ export default function SearchPage() {
   // Reset focus when results change
   useEffect(() => { setFocusedIndex(-1); resultRefs.current = []; }, [results]);
 
-  // Scroll the window so the given row sits near the top, just below the
-  // sticky header (offset). Deferred to the next frame so it reads the row's
-  // final position after the focus-state re-render, and uses instant (auto)
-  // scrolling so rapid key presses don't queue competing smooth animations
-  // (which caused the jump-to-top-then-down-then-up jitter).
+  // Scroll so the given row sits near the top of the viewport. The app's real
+  // scroll container is <main id="kjb-scroll"> (not the window), so we scroll
+  // that element. Deferred to the next frame so it reads the row's final
+  // position after the focus-state re-render, and uses instant (auto) scrolling
+  // so rapid key presses don't queue competing smooth animations.
   const scrollRowToTop = (el) => {
     if (!el) return;
     requestAnimationFrame(() => {
-      const HEADER_OFFSET = 80;
-      const top = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
-      window.scrollTo({ top, behavior: 'auto' });
+      const container = document.getElementById('kjb-scroll');
+      if (!container) return;
+      const HEADER_OFFSET = 16;
+      const delta = el.getBoundingClientRect().top - container.getBoundingClientRect().top - HEADER_OFFSET;
+      container.scrollTo({ top: container.scrollTop + delta, behavior: 'auto' });
     });
   };
 
