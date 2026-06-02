@@ -52,16 +52,16 @@ function isPsalm9Correct(data) {
   return true;
 }
 
-async function fetchWithRetry(url, retries = 3, expectPilcrows = false) {
+async function fetchWithRetry(url, retries = 5, expectPilcrows = false) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       // Add timestamp to bypass browser/CDN cache
       const separator = url.includes('?') ? '&' : '?';
       const cacheBusterUrl = `${url}${separator}t=${Date.now()}`;
       
-      // Use AbortSignal for timeout (10 seconds per attempt)
+      // Use AbortSignal for timeout (20 seconds per attempt — the file is ~4MB)
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
       
       const res = await fetch(cacheBusterUrl, { 
         cache: 'no-store', 
@@ -71,7 +71,15 @@ async function fetchWithRetry(url, retries = 3, expectPilcrows = false) {
       clearTimeout(timeoutId);
       
       console.log('[FETCH] Attempt', attempt, '- Status:', res.status, '- URL:', url.substring(0, 80));
-      if (!res.ok) throw new Error('HTTP ' + res.status);
+      if (!res.ok) {
+        // 503/502/429/500 are transient server errors — worth retrying with backoff.
+        // Surface a friendly message on the final attempt so the user knows to retry.
+        const transient = [500, 502, 503, 429].includes(res.status);
+        if (transient && attempt === retries) {
+          throw new Error(`The Bible server is temporarily busy (HTTP ${res.status}). Please try again in a moment.`);
+        }
+        throw new Error('HTTP ' + res.status);
+      }
       const buf = await res.arrayBuffer();
       const text = new TextDecoder('windows-1252').decode(buf);
       console.log('[FETCH] Received', text.length, 'characters');
@@ -99,8 +107,8 @@ async function fetchWithRetry(url, retries = 3, expectPilcrows = false) {
     } catch (err) {
       console.error('Fetch attempt ' + attempt + '/' + retries + ' failed:', err.message);
       if (attempt === retries) throw err;
-      // Exponential backoff: 500ms, 1000ms, 2000ms
-      await new Promise(r => setTimeout(r, 500 * Math.pow(2, attempt - 1)));
+      // Exponential backoff: 800ms, 1.6s, 3.2s, 6.4s — gives a busy/503 server time to recover
+      await new Promise(r => setTimeout(r, 800 * Math.pow(2, attempt - 1)));
     }
   }
 }
