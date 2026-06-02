@@ -28,6 +28,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
   const accentA = lighten(gradient ? gradient[0] : '#4f7bff');
   const accentB = lighten(gradient ? gradient[1] : '#a85aff');
   const verseFont = fontFamily || "'Merriweather', 'Cormorant Garamond', Georgia, serif";
+  const isCursive = /dancing script/i.test(verseFont);
   const verseColor = textColor || '#ffffff';
   const verseOpacity = textOpacity != null ? textOpacity : 1;
 
@@ -127,7 +128,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
           >
             {/* Force KJB italic words (<em>) to render italic in every font —
                 html2canvas does not reliably apply the browser's default em style. */}
-            <style>{`.kjb-sharecard-verse em { font-style: italic !important; font-weight: inherit; }`}</style>
+            <style>{`.kjb-sharecard-verse em { font-style: italic !important; font-weight: inherit;${isCursive ? ' color: rgba(255,255,255,0.6) !important;' : ''} }`}</style>
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
           </blockquote>
           <p
