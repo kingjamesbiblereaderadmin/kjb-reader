@@ -43,7 +43,6 @@ export default function SearchPage() {
   const [testamentFilter, setTestamentFilter] = useState(new Set(['all'])); // Multi-select: 'all', 'old', 'new'
   const [wholeWord, setWholeWord] = useState(false);
   const [caseSensitive, setCaseSensitive] = useState(false);
-  const [exactMatch, setExactMatch] = useState(false);
   const [numberedBookFilter, setNumberedBookFilter] = useState(null);
   const [showBookFilter, setShowBookFilter] = useState(false);
   const [selectedBooks, setSelectedBooks] = useState(new Set());
@@ -91,11 +90,9 @@ export default function SearchPage() {
       // "Prince" matches only the capitalized form, not "prince".
       const effectiveCaseSensitive = isQuotedPhrase ? true : caseSensitive;
       const effectiveWholeWord = isQuotedPhrase ? true : wholeWord;
-      const effectiveExactMatch = isQuotedPhrase ? true : exactMatch;
       setHighlightCaseSensitive(effectiveCaseSensitive);
       if (isQuotedPhrase) {
         if (!wholeWord) setWholeWord(true);
-        if (!exactMatch) setExactMatch(true);
         if (!caseSensitive) setCaseSensitive(true);
       }
       
@@ -246,14 +243,7 @@ export default function SearchPage() {
             const searchText = verseObj.text.replace(/[[\]]/g, '');
             const searchTextLower = searchText.toLowerCase();
             
-            if (effectiveExactMatch) {
-              // True exact match: the ENTIRE verse text must equal the term
-              // (ignoring surrounding whitespace and trailing punctuation).
-              const hayRaw = searchText.trim().replace(/[.,;:!?'"]+$/, '');
-              const hay = effectiveCaseSensitive ? hayRaw : hayRaw.toLowerCase();
-              const needle = effectiveCaseSensitive ? searchTerm.trim() : searchTermLower.trim();
-              found = hay === needle;
-            } else if (effectiveCaseSensitive) {
+            if (effectiveCaseSensitive) {
               if (effectiveWholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const wordRegex = new RegExp(`(^|[^A-Za-z'])${escapedTerm}($|[^A-Za-z'])`);
@@ -293,11 +283,7 @@ export default function SearchPage() {
             const headingLower = headingClean.toLowerCase();
             let headingFound = false;
 
-            if (effectiveExactMatch) {
-              const hay = effectiveCaseSensitive ? headingClean : headingLower;
-              const needle = effectiveCaseSensitive ? searchTerm.trim() : searchTermLower.trim();
-              headingFound = hay === needle;
-            } else if (effectiveCaseSensitive) {
+            if (effectiveCaseSensitive) {
               if (effectiveWholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 headingFound = new RegExp(`(^|[^A-Za-z'])${escapedTerm}($|[^A-Za-z'])`).test(headingClean);
@@ -337,12 +323,7 @@ export default function SearchPage() {
             const colophonLower = colophonText.toLowerCase();
             let colophonFound = false;
             
-            if (effectiveExactMatch) {
-              const hayRaw = colophonText.trim().replace(/[.,;:!?'"]+$/, '');
-              const hay = effectiveCaseSensitive ? hayRaw : hayRaw.toLowerCase();
-              const needle = effectiveCaseSensitive ? searchTerm.trim() : searchTermLower.trim();
-              colophonFound = hay === needle;
-            } else if (effectiveCaseSensitive) {
+            if (effectiveCaseSensitive) {
               if (effectiveWholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
@@ -385,12 +366,7 @@ export default function SearchPage() {
             const subscriptLower = subscriptClean.toLowerCase();
             let subscriptFound = false;
 
-            if (effectiveExactMatch) {
-              const hayRaw = subscriptClean.trim().replace(/[.,;:!?'"]+$/, '');
-              const hay = effectiveCaseSensitive ? hayRaw : hayRaw.toLowerCase();
-              const needle = effectiveCaseSensitive ? searchTerm.trim() : searchTermLower.trim();
-              subscriptFound = hay === needle;
-            } else if (effectiveCaseSensitive) {
+            if (effectiveCaseSensitive) {
               if (effectiveWholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const wordRegex = new RegExp(`(^|[^A-Za-z'])${escapedTerm}($|[^A-Za-z'])`);
@@ -456,7 +432,7 @@ export default function SearchPage() {
       setResults([]);
     }
     setLoading(false);
-  }, [testamentFilter, wholeWord, caseSensitive, exactMatch, selectedBooks, numberedBookFilter]);
+  }, [testamentFilter, wholeWord, caseSensitive, selectedBooks, numberedBookFilter]);
 
   // Re-run the search whenever filters change (after an initial search has been done)
   // Note: selectedBooks is NOT included - book selection filters results without re-searching
@@ -466,7 +442,7 @@ export default function SearchPage() {
       runSearch(q);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [testamentFilter, wholeWord, caseSensitive, exactMatch, numberedBookFilter]);
+  }, [testamentFilter, wholeWord, caseSensitive, numberedBookFilter]);
 
   // Re-run search whenever URL changes (fixes header search bar)
   useEffect(() => {
@@ -773,16 +749,6 @@ export default function SearchPage() {
             className="w-3.5 h-3.5 accent-[hsl(var(--accent))] cursor-pointer"
           />
           <label htmlFor="case-sensitive" className="font-sans text-xs text-muted-foreground cursor-pointer select-none">Match case</label>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <input
-            id="exact-match"
-            type="checkbox"
-            checked={exactMatch}
-            onChange={e => setExactMatch(e.target.checked)}
-            className="w-3.5 h-3.5 accent-[hsl(var(--accent))] cursor-pointer"
-          />
-          <label htmlFor="exact-match" className="font-sans text-xs text-muted-foreground cursor-pointer select-none">Exact match</label>
         </div>
       </div>
 
