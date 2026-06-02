@@ -22,7 +22,7 @@ import { base44 } from '@/api/base44Client';
 import { getAccessibilityFont, setAccessibilityFont, applyReaderFont } from '@/lib/accessibilityFont';
 import { getSearchNav, setSearchNav, setSearchIndex, clearSearchNav, getGospelNav, setGospelNav, setGospelIndex, clearGospelNav } from '@/lib/searchNav';
 import { getGospelResults } from '@/lib/gospelVerses';
-import { getOccurrenceLabel, scrollToOccurrence } from '@/lib/occurrenceLabel';
+import { getOccurrenceLabel, scrollToOccurrence, emphasizeOccurrence } from '@/lib/occurrenceLabel';
 import { useReaderUrlSync } from '@/lib/useReaderUrlSync';
 import { resolveBook, formatVerseRange } from '@/lib/readerHelpers';
 import { useClosePopovers } from '@/lib/useClosePopovers';
@@ -782,7 +782,8 @@ export default function BibleReader() {
         if (!verseEl) return;
         const occ = posRef.current?.occurrence || 0;
         const marks = verseEl.querySelectorAll('mark[data-occ]');
-        const el = (occ > 0 && marks[occ]) ? marks[occ] : verseEl;
+        emphasizeOccurrence(marks, occ);
+        const el = marks[occ] || verseEl;
         const scroller = document.getElementById('kjb-scroll');
         const toolbarH = topRef.current ? topRef.current.getBoundingClientRect().height : 0;
         const stickyOffset = toolbarH + 12;

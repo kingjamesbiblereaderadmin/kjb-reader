@@ -15,6 +15,20 @@ export function getOccurrenceLabel(searchResultIndex) {
   return String.fromCharCode(97 + Math.min(occ, 25));
 }
 
+// Emphasize only the active occurrence's <mark>; dim the rest. When occ is 0 and
+// there's a single match, this is a no-op visually.
+export function emphasizeOccurrence(marks, occ) {
+  marks.forEach((m, i) => {
+    if (i === occ) {
+      m.style.backgroundColor = 'rgba(250, 204, 21, 0.95)';
+      m.style.outline = '2px solid rgba(202, 138, 4, 0.9)';
+    } else {
+      m.style.backgroundColor = 'rgba(250, 204, 21, 0.22)';
+      m.style.outline = 'none';
+    }
+  });
+}
+
 // Smoothly scroll to a specific occurrence's <mark> within a verse already on
 // screen (used when stepping between occurrences without reloading the chapter).
 export function scrollToOccurrence(verseNum, occ, topRef) {
@@ -22,7 +36,8 @@ export function scrollToOccurrence(verseNum, occ, topRef) {
     const verseEl = document.getElementById(`v${verseNum}`);
     if (!verseEl) return;
     const marks = verseEl.querySelectorAll('mark[data-occ]');
-    const el = (occ > 0 && marks[occ]) ? marks[occ] : verseEl;
+    emphasizeOccurrence(marks, occ);
+    const el = marks[occ] || verseEl;
     const scroller = document.getElementById('kjb-scroll');
     const toolbarH = topRef?.current ? topRef.current.getBoundingClientRect().height : 0;
     const off = toolbarH + 12;
