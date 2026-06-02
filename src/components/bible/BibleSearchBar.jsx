@@ -2,10 +2,42 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { useNavigate } from 'react-router-dom';
+import { expandPassage } from '@/lib/expandPassage';
+import { setSearchNav } from '@/lib/searchNav';
 
-// Parse input like "John 3:16", "Romans 8", "Romans 1:20-22", "Genesis", or plain keyword
+// Resolve a book token to a BIBLE_BOOKS entry (shortName starts-with or abbr).
+function matchBook(token) {
+  const s = token.trim().toLowerCase();
+  return BIBLE_BOOKS.find(b =>
+    b.shortName.toLowerCase().startsWith(s) || b.abbr.toLowerCase() === s
+  );
+}
+
+// Parse input like "John 3:16", "Romans 8", "Romans 1:20-22",
+// "John 3:16-4:2" (cross-chapter), "Matthew 28:1-Mark 1:5" (cross-book),
+// "Genesis", or plain keyword.
 function parseReference(input) {
   const trimmed = input.trim();
+
+  // Cross-chapter / cross-book range: "Book Ch:V - [Book2] Ch:V"
+  // The end side may carry its own book name (cross-book) or omit it (cross-chapter).
+  const crossMatch = trimmed.match(/^(\d?\s?[a-zA-Z]+(?:\s+[a-zA-Z]+)?)\s+(\d+):(\d+)\s*-\s*((?:\d?\s?[a-zA-Z]+(?:\s+[a-zA-Z]+)?)\s+)?(\d+):(\d+)$/);
+  if (crossMatch) {
+    const startBook = matchBook(crossMatch[1].trim());
+    const startCh = parseInt(crossMatch[2]);
+    const startV = parseInt(crossMatch[3]);
+    const endBook = crossMatch[4] ? matchBook(crossMatch[4].trim()) : startBook;
+    const endCh = parseInt(crossMatch[5]);
+    const endV = parseInt(crossMatch[6]);
+    if (startBook && endBook && startCh >= 1 && startCh <= startBook.chapters && endCh >= 1 && endCh <= endBook.chapters) {
+      // Same chapter & book → treat as a normal in-chapter range (tints all).
+      if (startBook.abbr === endBook.abbr && startCh === endCh && startV <= endV) {
+        return { type: 'reference', book: startBook, chapter: startCh, verse: startV, verseEnd: endV };
+      }
+      // Spans chapters/books → expand into a multi-verse passage.
+      return { type: 'passage', startBook, startCh, startV, endBook, endCh, endV };
+    }
+  }
 
   // Try to match "Book Chapter:Verse-Verse" range e.g. Romans 1:20-22
   const rangeMatch = trimmed.match(/^(\d?\s?[a-zA-Z]+(?:\s+[a-zA-Z]+)?)\s+(\d+):(\d+)-(\d+)$/);
@@ -14,10 +46,7 @@ function parseReference(input) {
     const chapter = parseInt(rangeMatch[2]);
     const verseStart = parseInt(rangeMatch[3]);
     const verseEnd = parseInt(rangeMatch[4]);
-    const book = BIBLE_BOOKS.find(b =>
-      b.shortName.toLowerCase().startsWith(bookStr.toLowerCase()) ||
-      b.abbr.toLowerCase() === bookStr.toLowerCase()
-    );
+    const book = matchBook(bookStr);
     if (book && chapter >= 1 && chapter <= book.chapters && verseStart <= verseEnd) {
       return { type: 'reference', book, chapter, verse: verseStart, verseEnd };
     }
@@ -141,8 +170,30 @@ export default function BibleSearchBar({ onClose }) {
 
     // Reference hint if they typed book + number (including ranges)
     const refSuggestions = [];
+    // Cross-chapter / cross-book passage: "Book Ch:V - [Book2] Ch:V"
+    const crossMatch = query.match(/^(\d?\s?[a-zA-Z]+(?:\s+[a-zA-Z]+)?)\s+(\d+):(\d+)\s*-\s*((?:\d?\s?[a-zA-Z]+(?:\s+[a-zA-Z]+)?)\s+)?(\d+):(\d+)$/);
+    if (crossMatch) {
+      const sBook = BIBLE_BOOKS.find(b => b.shortName.toLowerCase().startsWith(crossMatch[1].trim().toLowerCase()));
+      const sCh = parseInt(crossMatch[2]);
+      const sV = parseInt(crossMatch[3]);
+      const eBook = crossMatch[4]
+        ? BIBLE_BOOKS.find(b => b.shortName.toLowerCase().startsWith(crossMatch[4].trim().toLowerCase()))
+        : sBook;
+      const eCh = parseInt(crossMatch[5]);
+      const eV = parseInt(crossMatch[6]);
+      const sameSpot = sBook && eBook && sBook.abbr === eBook.abbr && sCh === eCh;
+      if (sBook && eBook && sCh >= 1 && sCh <= sBook.chapters && eCh >= 1 && eCh <= eBook.chapters && !sameSpot) {
+        refSuggestions.push({
+          type: 'passage',
+          startBook: sBook, startCh: sCh, startV: sV,
+          endBook: eBook, endCh: eCh, endV: eV,
+          label: `${sBook.shortName} ${sCh}:${sV} – ${eBook.abbr === sBook.abbr ? '' : eBook.shortName + ' '}${eCh}:${eV}`,
+          sub: 'Go to passage (spans chapters)',
+        });
+      }
+    }
     // Range: Book Ch:V1-V2
-    const rangeMatch = query.match(/^(\d?\s?[a-zA-Z]+(?:\s+[a-zA-Z]+)?)\s+(\d+):(\d+)-(\d+)$/);
+    const rangeMatch = !crossMatch && query.match(/^(\d?\s?[a-zA-Z]+(?:\s+[a-zA-Z]+)?)\s+(\d+):(\d+)-(\d+)$/);
     if (rangeMatch) {
       const bookStr = rangeMatch[1].trim();
       const ch = parseInt(rangeMatch[2]);
@@ -163,7 +214,7 @@ export default function BibleSearchBar({ onClose }) {
     }
     // Single ref or chapter
     const refMatch = query.match(/^(\d?\s?[a-zA-Z]+(?:\s+[a-zA-Z]+)?)\s+(\d+)(?::(\d+))?$/);
-    if (!rangeMatch && refMatch) {
+    if (!rangeMatch && !crossMatch && refMatch) {
       const bookStr = refMatch[1].trim();
       const ch = parseInt(refMatch[2]);
       const v = refMatch[3] ? parseInt(refMatch[3]) : null;
@@ -271,6 +322,27 @@ export default function BibleSearchBar({ onClose }) {
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   };
 
+  const goPassage = async (p) => {
+    setQuery('');
+    setSuggestions([]);
+    setOpen(false);
+    onClose?.();
+    const blocks = await expandPassage(p);
+    if (!blocks.length) return;
+    // Store the blocks as a stepper so the reader's up/down arrows walk through
+    // each chapter of the passage. Each block carries its verse range.
+    const results = blocks.map(b => ({ abbr: b.abbr, chapter: b.chapter, verse: b.vStart, verseEnd: b.vEnd }));
+    const label = `${p.startBook.shortName} ${p.startCh}:${p.startV}–${p.endBook.abbr === p.startBook.abbr ? '' : p.endBook.shortName + ' '}${p.endCh}:${p.endV}`;
+    setSearchNav(results, 0, label);
+    const first = blocks[0];
+    try {
+      localStorage.setItem('kjb-position', JSON.stringify({ abbr: first.abbr, chapter: first.chapter, verse: first.vStart, verseEnd: first.vEnd }));
+      localStorage.removeItem('kjb-last-reading');
+    } catch {}
+    navigate(`/read?book=${first.abbr}&chapter=${first.chapter}&verse=${first.vStart}&from=search`);
+    setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
+  };
+
   const goKeyword = (kw) => {
     setQuery('');
     setSuggestions([]);
@@ -282,6 +354,7 @@ export default function BibleSearchBar({ onClose }) {
   const handleSelect = (s) => {
     if (s.type === 'book') goTo(s.book.abbr, 1, null);
     else if (s.type === 'ref') goTo(s.book.abbr, s.chapter, s.verse, s.verseEnd);
+    else if (s.type === 'passage') goPassage(s);
     else if (s.type === 'keyword') goKeyword(s.query || query.trim());
   };
 
@@ -291,6 +364,8 @@ export default function BibleSearchBar({ onClose }) {
     const parsed = parseReference(query);
     if (parsed?.type === 'reference') {
       goTo(parsed.book.abbr, parsed.chapter, parsed.verse, parsed.verseEnd);
+    } else if (parsed?.type === 'passage') {
+      goPassage(parsed);
     } else if (query.trim().length >= 3) {
       goKeyword(query.trim());
     }

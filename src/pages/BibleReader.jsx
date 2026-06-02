@@ -940,6 +940,22 @@ export default function BibleReader() {
     const section = r.section || null;
     const targetVerse = section ? null : (r.verse || null);
     setHighlightSection(section);
+    // Passage block with a verse range → tint the whole range (filter mode off,
+    // so surrounding verses still show in context).
+    if (!section && r.verse && r.verseEnd && r.verseEnd > r.verse) {
+      const range = new Set();
+      for (let v = r.verse; v <= r.verseEnd; v++) range.add(v);
+      setHighlightedVerses(range);
+      setSelectedVerses(range);
+      setFilterMode(true);
+      try {
+        const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: r.verse, verseEnd: r.verseEnd }));
+      } catch {}
+    } else {
+      setHighlightedVerses(new Set());
+      setSelectedVerses(new Set());
+    }
     setPos({ abbr: r.abbr, chapter: r.chapter, verse: targetVerse });
     setHighlightVerse(targetVerse);
     loadChapter(r.abbr, r.chapter, targetVerse);
