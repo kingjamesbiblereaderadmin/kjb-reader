@@ -1068,7 +1068,12 @@ export default function SearchPage() {
             </div>
             <div className="p-3 sm:p-4 border-t border-border flex-shrink-0">
               <button
-                onClick={() => setShowBookFilter(false)}
+                onClick={() => {
+                  setShowBookFilter(false);
+                  // Apply the book filter immediately by re-running the search.
+                  const q = (getQueryFromUrl() || query).trim();
+                  if (searched && q.length >= 2) runSearch(q);
+                }}
                 className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-card"
               >
                 Search {selectedBooks.size > 0 && selectedBooks.size < 66 ? `(${selectedBooks.size} book${selectedBooks.size !== 1 ? 's' : ''})` : selectedBooks.size === 66 ? '(All 66 books)' : 'All Books'}
