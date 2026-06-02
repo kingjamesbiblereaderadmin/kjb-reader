@@ -651,9 +651,10 @@ export default function BibleReader() {
         // Fall back to the ?q= URL param so shared/bookmarked links restore the term.
         const urlTerm = urlParams.get('q') || term;
         // Shared/bookmarked link: no in-memory results — seed a single-result nav
-        // from the URL so the search indicator (and term) still show.
+        // from the URL (carrying any verseEnd from storage) so the search
+        // indicator shows AND the first result still filters its full range.
         if (urlTerm && results.length === 0) {
-          results = [{ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum }];
+          results = [{ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum, verseEnd: verseEnd || null }];
           index = 0;
           setSearchNav(results, index, urlTerm);
         }
