@@ -52,7 +52,18 @@ function loadPosition() {
 }
 
 function savePosition(abbr, chapter, verse = null) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr, chapter, verse })); } catch {}
+  try {
+    // Preserve an existing verseEnd (verse-range / multi-reference filter) when
+    // it still applies to the same book+chapter+verse. Otherwise drop it.
+    let verseEnd = null;
+    try {
+      const prev = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      if (prev.abbr === abbr && prev.chapter === chapter && prev.verse === verse && prev.verseEnd) {
+        verseEnd = prev.verseEnd;
+      }
+    } catch {}
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr, chapter, verse, verseEnd }));
+  } catch {}
 }
 
 
