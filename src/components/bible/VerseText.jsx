@@ -399,9 +399,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
       {stanzaHeading}
       <span
         onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
-        className={`flex items-start leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.4em] py-[0.25em] gap-[0.6em] w-full ${
-          !selectMode && !isHighlighted ? 'hover:bg-secondary/60' : ''
-        }`}
+        className="flex items-start leading-relaxed rounded cursor-pointer px-[0.4em] py-[0.25em] gap-[0.6em] w-full"
       >
         <sup className="text-accent font-sans font-bold text-[0.6em] shrink-0 select-none mt-[0.2em] mr-[0.3em]">{verse.verse}</sup>
         <span className={`flex-1 min-w-0 flex items-start gap-[0.6em] ${selectMode && isSelected ? 'bg-primary/10 border border-primary/30 rounded-[0.5em] px-[0.3em] py-[0.1em]' : ''}`}>
@@ -422,11 +420,13 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
               />
             </span>
           ) : (
-            <span
-              className={`flex-1 min-w-0 leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''}`}
-              style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
-              dangerouslySetInnerHTML={{ __html: html }}
-            />
+            <span className="flex-1 min-w-0 leading-relaxed break-words text-left">
+              <span
+                className={`[&_em]:italic [&_em]:text-foreground/75 transition-colors duration-200 rounded box-decoration-clone px-[0.3em] py-[0.1em] ${isCursive ? 'cursive-em-style' : ''} ${!selectMode ? 'hover:bg-secondary/60' : ''}`}
+                style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
+                dangerouslySetInnerHTML={{ __html: html }}
+              />
+            </span>
           )}
         </span>
       </span>
