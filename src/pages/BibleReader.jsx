@@ -750,6 +750,9 @@ export default function BibleReader() {
       (document.getElementById('kjb-scroll') || window).scrollTo({ top: 0 });
       return;
     }
+    // A colophon/subscript section is being targeted — let effect #2 handle the
+    // scroll. Don't restore the saved offset (it would fight the section scroll).
+    if (highlightSection) return;
     // No highlight: restore saved scroll offset for this chapter
     const timer = setTimeout(() => {
       try {
@@ -759,7 +762,7 @@ export default function BibleReader() {
       } catch {}
     }, 80);
     return () => clearTimeout(timer);
-  }, [verses, loading, highlightVerse, pos.abbr, pos.chapter]);
+  }, [verses, loading, highlightVerse, highlightSection, pos.abbr, pos.chapter]);
 
   // Scroll to + briefly highlight a colophon/subscript when navigated from search
   useEffect(() => {
