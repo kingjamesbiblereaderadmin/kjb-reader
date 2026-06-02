@@ -918,9 +918,11 @@ export default function BibleReader() {
 
 
 
-  // Reset verse status when exiting filter mode or clearing selection
+  // Reset verse status when exiting filter mode or clearing selection.
+  // Don't clear when a multi-verse range highlight is active (search/multi-ref
+  // steps highlight a range without entering filter mode).
   useEffect(() => {
-    if (!filterMode && selectedVerses.size === 0) {
+    if (!filterMode && selectedVerses.size === 0 && highlightedVerses.size <= 1) {
       try {
         const current = JSON.parse(localStorage.getItem('kjb-position') || '{}');
         if (current.verse || current.verseEnd) {
@@ -929,7 +931,7 @@ export default function BibleReader() {
       } catch {}
       setHighlightedVerses(new Set());
     }
-  }, [filterMode, selectedVerses]);
+  }, [filterMode, selectedVerses, highlightedVerses]);
 
   const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isAutoAdvance = false) => {
     // Prevent chapter 0 for non-GEN/MAT books
