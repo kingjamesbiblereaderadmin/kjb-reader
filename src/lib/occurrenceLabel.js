@@ -37,7 +37,9 @@ export function scrollToOccurrence(verseNum, occ, topRef) {
     if (!verseEl) return;
     const marks = verseEl.querySelectorAll('mark[data-occ]');
     emphasizeOccurrence(marks, occ);
-    const el = marks[occ] || verseEl;
+    // For verse 1, scroll to the verse top (not the matched word) so the
+    // chapter's first line never gets clipped above the toolbar.
+    const el = verseNum === 1 ? verseEl : (marks[occ] || verseEl);
     const scroller = document.getElementById('kjb-scroll');
     const toolbarH = topRef?.current ? topRef.current.getBoundingClientRect().height : 0;
     const off = toolbarH + 12;
