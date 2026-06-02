@@ -67,28 +67,80 @@ function hexToHsl(hex) {
   return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
 }
 
+// Pull the hue out of an "H S% L%" HSL string.
+function hueOf(hsl) {
+  const m = /^\s*(\d+)/.exec(hsl);
+  return m ? parseInt(m[1], 10) : 245;
+}
+
+// Tint every surface (background, cards, borders, secondary, muted) with the
+// palette's hue so the whole app — not just buttons — matches the theme colour.
+function applySurfaceTint(root, hue, isDark) {
+  if (isDark) {
+    root.style.setProperty('--background', `${hue} 30% 8%`);
+    root.style.setProperty('--foreground', `${hue} 25% 92%`);
+    root.style.setProperty('--card', `${hue} 28% 12%`);
+    root.style.setProperty('--card-foreground', `${hue} 25% 92%`);
+    root.style.setProperty('--popover', `${hue} 28% 12%`);
+    root.style.setProperty('--popover-foreground', `${hue} 25% 92%`);
+    root.style.setProperty('--secondary', `${hue} 22% 18%`);
+    root.style.setProperty('--secondary-foreground', `${hue} 25% 88%`);
+    root.style.setProperty('--muted', `${hue} 22% 18%`);
+    root.style.setProperty('--muted-foreground', `${hue} 15% 60%`);
+    root.style.setProperty('--border', `${hue} 20% 22%`);
+    root.style.setProperty('--input', `${hue} 20% 22%`);
+    root.style.setProperty('--sidebar-background', `${hue} 30% 9%`);
+    root.style.setProperty('--sidebar-foreground', `${hue} 25% 88%`);
+    root.style.setProperty('--sidebar-accent', `${hue} 22% 18%`);
+    root.style.setProperty('--sidebar-accent-foreground', `${hue} 25% 88%`);
+    root.style.setProperty('--sidebar-border', `${hue} 20% 22%`);
+  } else {
+    root.style.setProperty('--background', `${hue} 30% 99%`);
+    root.style.setProperty('--foreground', `${hue} 55% 8%`);
+    root.style.setProperty('--card', `${hue} 12% 95%`);
+    root.style.setProperty('--card-foreground', `${hue} 55% 8%`);
+    root.style.setProperty('--popover', `0 0% 100%`);
+    root.style.setProperty('--popover-foreground', `${hue} 55% 8%`);
+    root.style.setProperty('--secondary', `${hue} 14% 89%`);
+    root.style.setProperty('--secondary-foreground', `${hue} 30% 24%`);
+    root.style.setProperty('--muted', `${hue} 14% 91%`);
+    root.style.setProperty('--muted-foreground', `${hue} 12% 40%`);
+    root.style.setProperty('--border', `${hue} 30% 89%`);
+    root.style.setProperty('--input', `${hue} 30% 89%`);
+    root.style.setProperty('--sidebar-background', `${hue} 40% 98%`);
+    root.style.setProperty('--sidebar-foreground', `${hue} 35% 15%`);
+    root.style.setProperty('--sidebar-accent', `${hue} 40% 95%`);
+    root.style.setProperty('--sidebar-accent-foreground', `${hue} 45% 25%`);
+    root.style.setProperty('--sidebar-border', `${hue} 30% 89%`);
+  }
+}
+
 function applyPalette(paletteId, isDark) {
   const p = COLOUR_PALETTES.find(c => c.id === paletteId) || COLOUR_PALETTES[0];
   const root = document.documentElement;
-  
+
+  let accentHsl, primaryHsl;
   if (p.id === 'custom') {
     const customHex = localStorage.getItem('kjb-custom-accent') || '#B8860B';
-    const hsl = hexToHsl(customHex);
-    root.style.setProperty('--accent', hsl);
-    root.style.setProperty('--primary', isDark ? hexToHsl('#6B4E05') : hexToHsl('#D4A017'));
-    root.style.setProperty('--ring', isDark ? hexToHsl('#6B4E05') : hexToHsl('#D4A017'));
-    root.style.setProperty('--sidebar-primary', isDark ? hexToHsl('#6B4E05') : hexToHsl('#D4A017'));
-    root.style.setProperty('--sidebar-ring', isDark ? hexToHsl('#6B4E05') : hexToHsl('#D4A017'));
+    accentHsl = hexToHsl(customHex);
+    primaryHsl = isDark ? hexToHsl('#6B4E05') : hexToHsl('#D4A017');
   } else {
-    root.style.setProperty('--accent', p.accent);
-    root.style.setProperty('--primary', isDark ? p.primary_dark : p.primary_light);
-    root.style.setProperty('--ring', isDark ? p.primary_dark : p.primary_light);
-    root.style.setProperty('--sidebar-primary', isDark ? p.primary_dark : p.primary_light);
-    root.style.setProperty('--sidebar-ring', isDark ? p.primary_dark : p.primary_light);
+    accentHsl = p.accent;
+    primaryHsl = isDark ? p.primary_dark : p.primary_light;
   }
+  root.style.setProperty('--accent', accentHsl);
+  root.style.setProperty('--primary', primaryHsl);
+  root.style.setProperty('--ring', primaryHsl);
+  root.style.setProperty('--sidebar-primary', primaryHsl);
+  root.style.setProperty('--sidebar-ring', primaryHsl);
+
+  // Tint all surfaces with the palette hue.
+  applySurfaceTint(root, hueOf(accentHsl), isDark);
+
   // Vivid mid-tone palettes need white text on accent/primary for contrast.
   root.style.setProperty('--accent-foreground', '0 0% 100%');
   root.style.setProperty('--primary-foreground', '0 0% 100%');
+  root.style.setProperty('--sidebar-primary-foreground', '0 0% 100%');
 }
 
 export function ThemeProvider({ children }) {
