@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { getBookCompletion } from '@/lib/bookCompletion';
+import { getBookCompletion, getBookAcceptValue } from '@/lib/bookCompletion';
 
 // A text input that shows a lighter "ghost" completion of the book name the
 // user is typing (e.g. typing "Josh" shows "ua" in faded text). Press Tab or →
@@ -18,18 +18,24 @@ const GhostInput = React.forwardRef(function GhostInput(
     else if (forwardedRef) forwardedRef.current = el;
   };
 
-  const ghost = getBookCompletion(value);
+  const suffix = getBookCompletion(value); // normal case: letters to append
+  const acceptValue = getBookAcceptValue(value); // full name on accept (may prepend a number)
+  // Numbered prepend case (e.g. "Corinthians" → "1 Corinthians"): there's no
+  // plain suffix, so show the full target name faded as a hint.
+  const isPrepend = !suffix && acceptValue && !acceptValue.toLowerCase().startsWith(value.toLowerCase());
+  const ghost = suffix || (isPrepend ? ` → ${acceptValue}` : '');
+  const canAccept = !!acceptValue;
 
   const accept = () => {
-    if (!ghost) return false;
-    onAccept?.(value + ghost);
+    if (!canAccept) return false;
+    onAccept?.(acceptValue);
     return true;
   };
 
   const handleKeyDown = (e) => {
     const el = innerRef.current;
     const atEnd = el && el.selectionStart === value.length && el.selectionEnd === value.length;
-    if (ghost && (e.key === 'Tab' || (e.key === 'ArrowRight' && atEnd))) {
+    if (canAccept && (e.key === 'Tab' || (e.key === 'ArrowRight' && atEnd))) {
       // Don't hijack Tab when there's no ghost; only accept when one exists.
       if (e.key === 'Tab') e.preventDefault();
       if (e.key === 'ArrowRight') e.preventDefault();
