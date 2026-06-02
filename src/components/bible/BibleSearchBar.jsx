@@ -3,6 +3,7 @@ import { Search, X } from 'lucide-react';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { useNavigate } from 'react-router-dom';
 import { expandPassage } from '@/lib/expandPassage';
+import { isMultiReference, expandMultiReference } from '@/lib/multiReference';
 import { setSearchNav } from '@/lib/searchNav';
 import GhostInput from '@/components/bible/GhostInput';
 
@@ -171,6 +172,16 @@ export default function BibleSearchBar({ onClose }) {
 
     // Reference hint if they typed book + number (including ranges)
     const refSuggestions = [];
+    // Comma-separated multi-reference (e.g. "Romans 3:25, 1 Corinthians 15:1-4")
+    if (isMultiReference(query.trim())) {
+      const count = query.trim().split(',').filter(s => s.trim()).length;
+      refSuggestions.push({
+        type: 'multi',
+        input: query.trim(),
+        label: query.trim(),
+        sub: `Go to ${count} references`,
+      });
+    }
     // Cross-chapter / cross-book passage: "Book Ch:V - [Book2] Ch:V"
     const crossMatch = query.match(/^(\d?\s?[a-zA-Z]+(?:\s+[a-zA-Z]+)?)\s+(\d+):(\d+)\s*-\s*((?:\d?\s?[a-zA-Z]+(?:\s+[a-zA-Z]+)?)\s+)?(\d+):(\d+)$/);
     if (crossMatch) {
@@ -344,6 +355,25 @@ export default function BibleSearchBar({ onClose }) {
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   };
 
+  const goMulti = async (input) => {
+    setQuery('');
+    setSuggestions([]);
+    setOpen(false);
+    onClose?.();
+    const expanded = await expandMultiReference(input);
+    if (!expanded) return;
+    const { results, label } = expanded;
+    setSearchNav(results, 0, label);
+    const first = results[0];
+    try {
+      localStorage.setItem('kjb-position', JSON.stringify({ abbr: first.abbr, chapter: first.chapter, verse: first.verse, verseEnd: first.verseEnd || null }));
+      localStorage.removeItem('kjb-last-reading');
+    } catch {}
+    const vParam = first.verse ? `&verse=${first.verse}` : '';
+    navigate(`/read?book=${first.abbr}&chapter=${first.chapter}${vParam}&from=search`);
+    setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
+  };
+
   const goKeyword = (kw) => {
     setQuery('');
     setSuggestions([]);
@@ -356,12 +386,17 @@ export default function BibleSearchBar({ onClose }) {
     if (s.type === 'book') goTo(s.book.abbr, 1, null);
     else if (s.type === 'ref') goTo(s.book.abbr, s.chapter, s.verse, s.verseEnd);
     else if (s.type === 'passage') goPassage(s);
+    else if (s.type === 'multi') goMulti(s.input);
     else if (s.type === 'keyword') goKeyword(s.query || query.trim());
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!query.trim()) return;
+    if (isMultiReference(query.trim())) {
+      goMulti(query.trim());
+      return;
+    }
     const parsed = parseReference(query);
     if (parsed?.type === 'reference') {
       goTo(parsed.book.abbr, parsed.chapter, parsed.verse, parsed.verseEnd);

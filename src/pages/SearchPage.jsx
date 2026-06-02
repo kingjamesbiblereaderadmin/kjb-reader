@@ -125,6 +125,11 @@ export default function SearchPage() {
       // Check if the query is a scripture reference (by name OR abbreviation),
       // e.g. "jn 3:16", "gen 1", "1 cor 13:4-7", "psalm 23". If so, jump straight to it.
       if (!isQuotedPhrase) {
+        if (isMultiReference(searchTerm)) {
+          goToMultiReference(searchTerm);
+          setLoading(false);
+          return;
+        }
         const passage = parsePassage(searchTerm);
         if (passage) {
           goToPassage(passage);
@@ -538,6 +543,12 @@ export default function SearchPage() {
     const kw = query.trim();
     if (!kw) return;
 
+    // Comma-separated multi-reference (e.g. "Romans 3:25, 1 Corinthians 15:1-4")
+    if (isMultiReference(kw)) {
+      goToMultiReference(kw);
+      return;
+    }
+
     // Check for a cross-chapter / cross-book passage first (e.g. "John 3:16-4:2"
     // or "Matthew 28:1-Mark 1:5") — go straight to the reader as a passage.
     const passage = parsePassage(kw);
@@ -605,6 +616,23 @@ export default function SearchPage() {
       localStorage.removeItem('kjb-last-reading');
     } catch {}
     navigate(`/read?book=${first.abbr}&chapter=${first.chapter}&verse=${first.vStart}&from=search`);
+    setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
+  }, [navigate]);
+
+  // Navigate a comma-separated multi-reference (e.g. "Romans 3:25, 1 Cor 15:1-4")
+  // as a stepper: expand every segment into ordered blocks and walk through them.
+  const goToMultiReference = useCallback(async (input) => {
+    const expanded = await expandMultiReference(input);
+    if (!expanded) return;
+    const { results, label } = expanded;
+    setSearchNav(results, 0, label);
+    const first = results[0];
+    try {
+      localStorage.setItem('kjb-position', JSON.stringify({ abbr: first.abbr, chapter: first.chapter, verse: first.verse, verseEnd: first.verseEnd || null }));
+      localStorage.removeItem('kjb-last-reading');
+    } catch {}
+    const vParam = first.verse ? `&verse=${first.verse}` : '';
+    navigate(`/read?book=${first.abbr}&chapter=${first.chapter}${vParam}&from=search`);
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   }, [navigate]);
 
