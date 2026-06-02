@@ -1092,6 +1092,10 @@ export default function BibleReader() {
                     ? `${selectedVerses.size > 0 ? selectedVerses.size : '0'} selected`
                     : filterMode && selectedVerses.size > 0
                     ? `vv.${formatVerseRange([...selectedVerses])}`
+                    : highlightSection === 'colophon'
+                    ? 'Colophon'
+                    : highlightSection === 'subscript'
+                    ? 'Subscript'
                     : highlightVerse
                     ? `v.${highlightVerse}`
                     : 'Verse'}
