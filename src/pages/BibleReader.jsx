@@ -412,8 +412,8 @@ export default function BibleReader() {
   };
 
   const topRef = useRef(null);
-  // When true, the next chapter load is a fresh navigation and must start at the
-  // top (do NOT restore the saved scroll offset for that chapter).
+  const rangeHighlightRef = useRef(false); // guards reset effect while a range highlight is active
+  // When true, the next chapter load is a fresh navigation and must start at the top.
   const freshNavRef = useRef(false);
   const posRef = useRef(pos);
   useEffect(() => { posRef.current = pos; }, [pos]);
@@ -922,7 +922,7 @@ export default function BibleReader() {
   // Don't clear when a multi-verse range highlight is active (search/multi-ref
   // steps highlight a range without entering filter mode).
   useEffect(() => {
-    if (!filterMode && selectedVerses.size === 0 && highlightedVerses.size <= 1) {
+    if (!filterMode && selectedVerses.size === 0 && !rangeHighlightRef.current) {
       try {
         const current = JSON.parse(localStorage.getItem('kjb-position') || '{}');
         if (current.verse || current.verseEnd) {
@@ -931,7 +931,7 @@ export default function BibleReader() {
       } catch {}
       setHighlightedVerses(new Set());
     }
-  }, [filterMode, selectedVerses, highlightedVerses]);
+  }, [filterMode, selectedVerses]);
 
   const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isAutoAdvance = false) => {
     // Prevent chapter 0 for non-GEN/MAT books
@@ -972,8 +972,8 @@ export default function BibleReader() {
       setHighlightVerse(null);
     }
     setHighlightSection(null);
-    // Mark this as a fresh navigation so the reader starts at the top of the
-    // new chapter (skips scroll restoration).
+    // Mark fresh navigation (start at top); clear any active range highlight.
+    rangeHighlightRef.current = false;
     freshNavRef.current = true;
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);
@@ -1005,6 +1005,7 @@ export default function BibleReader() {
       const end = r.verseEnd;
       const range = new Set();
       for (let v = r.verse; v <= end; v++) range.add(v);
+      rangeHighlightRef.current = true;
       setHighlightedVerses(range);
       setSelectedVerses(new Set());
       setFilterMode(false);
@@ -1013,6 +1014,7 @@ export default function BibleReader() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: r.verse, verseEnd: end }));
       } catch {}
     } else {
+      rangeHighlightRef.current = false;
       setFilterMode(false);
       setHighlightedVerses(new Set());
       setSelectedVerses(new Set());
