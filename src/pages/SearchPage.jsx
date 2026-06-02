@@ -9,6 +9,7 @@ import { setSearchNav } from '@/lib/searchNav';
 import ExportMenu from '@/components/bible/ExportMenu';
 import { exportVerses } from '@/lib/exportVerses';
 import { buildVerseUrl } from '@/lib/formatDailyVerse';
+import { SUBSCRIPTS } from '@/lib/bibleSubscripts';
 
 const OT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'old').map(b => b.apiName));
 const NT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'new').map(b => b.apiName));
@@ -341,6 +342,59 @@ export default function SearchPage() {
               }
             }
           }
+
+          // Search in subscript (Psalm superscription) for this chapter
+          const subscript = SUBSCRIPTS[`${bookName}:${chapterNum}`];
+          if (subscript) {
+            const subscriptText = subscript.replace(/¶\s*/g, '');
+            const subscriptClean = subscriptText.replace(/[[\]]/g, '');
+            const subscriptLower = subscriptClean.toLowerCase();
+            let subscriptFound = false;
+
+            if (effectiveExactMatch) {
+              const hay = effectiveCaseSensitive ? subscriptClean : subscriptLower;
+              const needle = effectiveCaseSensitive ? searchTerm : searchTermLower;
+              if (effectiveWholeWord) {
+                const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const re = new RegExp(`(^|[^A-Za-z'])${escaped}($|[^A-Za-z'])`, effectiveCaseSensitive ? '' : 'i');
+                subscriptFound = re.test(subscriptClean);
+              } else {
+                subscriptFound = hay.includes(needle);
+              }
+            } else if (effectiveCaseSensitive) {
+              if (effectiveWholeWord) {
+                const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const wordRegex = new RegExp(`(^|[^A-Za-z'])${escapedTerm}($|[^A-Za-z'])`);
+                subscriptFound = wordRegex.test(subscriptClean);
+              } else {
+                subscriptFound = subscriptClean.includes(searchTerm);
+              }
+            } else {
+              if (effectiveWholeWord) {
+                const escapedTerm = searchTermLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const wordRegex = new RegExp(`(^|[^a-z'])${escapedTerm}($|[^a-z'])`, 'i');
+                subscriptFound = wordRegex.test(subscriptClean);
+              } else {
+                subscriptFound = subscriptLower.includes(searchTermLower);
+              }
+            }
+
+            if (subscriptFound) {
+              const key = `${bookName}-${chapterNum}-subscript`;
+              if (!seen.has(key)) {
+                seen.add(key);
+                const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+                matches.push({
+                  book: bookName,
+                  chapter: parseInt(chapterNum),
+                  verse: 0, // Subscript sits before verse 1
+                  text: subscriptText,
+                  isSubscript: true,
+                  abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
+                });
+              }
+            }
+          }
         }
       }
 
@@ -459,7 +513,9 @@ export default function SearchPage() {
         .replace(/\[([^\]]+)\]/g, '$1');
       const bookEntry = BIBLE_BOOKS.find(b => b.apiName === r.book);
       const bookName = bookEntry ? bookEntry.shortName : r.book;
-      const ref = (r.isColophon || r.verse === 0)
+      const ref = r.isSubscript
+        ? `${bookName} ${r.chapter} superscription`
+        : (r.isColophon || r.verse === 0)
         ? `${bookName} ${r.chapter} colophon`
         : `${bookName} ${r.chapter}:${r.verse}`;
       return `"${text}"\n— ${ref} (KJB)`;
@@ -483,11 +539,14 @@ export default function SearchPage() {
       const r = results[i];
       const bookEntry = BIBLE_BOOKS.find(b => b.apiName === r.book);
       const bookName = bookEntry ? bookEntry.shortName : r.book;
-      const isColophon = r.isColophon || r.verse === 0;
-      const ref = isColophon
+      const isColophon = r.isColophon || (r.verse === 0 && !r.isSubscript);
+      const isSubscript = r.isSubscript;
+      const ref = isSubscript
+        ? `${bookName} ${r.chapter} superscription`
+        : isColophon
         ? `${bookName} ${r.chapter} colophon`
         : `${bookName} ${r.chapter}:${r.verse}`;
-      const url = buildVerseUrl({ abbr: r.abbr, chapter: r.chapter, verse: isColophon ? null : r.verse, from: 'search' }) + (q ? `&q=${encodeURIComponent(q)}` : '');
+      const url = buildVerseUrl({ abbr: r.abbr, chapter: r.chapter, verse: (isColophon || isSubscript) ? null : r.verse, from: 'search' }) + (q ? `&q=${encodeURIComponent(q)}` : '');
       return { text: r.text, ref, testament: bookEntry ? bookEntry.testament : 'old', url };
     });
     exportVerses(format, items, q);

@@ -94,7 +94,8 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
     <div className="space-y-2">
       {results.map((r, i) => {
         const isSelected = selected.has(i);
-        const isColophon = r.isColophon || r.verse === 0;
+        const isSubscript = r.isSubscript;
+        const isColophon = r.isColophon || (r.verse === 0 && !isSubscript);
         const isNT = NT_BOOKS.has(r.book);
         const prevIsNT = i > 0 ? NT_BOOKS.has(results[i - 1].book) : null;
         const showOTHeader = i === 0 && !isNT;
@@ -167,7 +168,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
               onClick={() => {
                 if (selectMode) {
                   onToggleSelect(i);
-                } else if (isColophon) {
+                } else if (isColophon || isSubscript) {
                   onGoToVerse(r.abbr, r.chapter, null, null, i);
                 } else {
                   onGoToVerse(r.abbr, r.chapter, r.verse, null, i);
@@ -193,11 +194,11 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                   <p className="font-sans text-xs text-accent font-semibold mb-1 flex items-center gap-1">
                     <BookOpen className="w-3 h-3" />
                     {BIBLE_BOOKS.find(b => b.apiName === r.book)?.shortName || r.book} {r.chapter}
-                    {isColophon ? ' (Colophon)' : `:${r.verse}`}
+                    {isSubscript ? ' (Superscription)' : isColophon ? ' (Colophon)' : `:${r.verse}`}
                   </p>
                   <p className="text-base text-foreground leading-relaxed" style={fontStyle}>
-                    {isColophon ? (
-                      <span className="italic text-muted-foreground">¶ {renderWithItalics(r.text, highlightTerm, highlightCaseSensitive)}</span>
+                    {(isColophon || isSubscript) ? (
+                      <span className="italic text-muted-foreground">{renderWithItalics(r.text, highlightTerm, highlightCaseSensitive)}</span>
                     ) : (
                       <span>"{renderWithItalics(r.text, highlightTerm, highlightCaseSensitive)}"</span>
                     )}
