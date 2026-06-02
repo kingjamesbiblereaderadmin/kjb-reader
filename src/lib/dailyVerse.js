@@ -17,19 +17,25 @@ const FALLBACK_POOL = [
   { abbr: "1CO", book: "1 Corinthians", chapter: 15, verse: 3, text: "For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures;" },
 ];
 
-// Verses to exclude from the featured verse (by "BOOK chapter:verse" key)
+// Books NOT suitable for the Church Age daily verse (per Robert Breaker's
+// dispensational teaching). These books are written TO/FOR Kingdom/Tribulation
+// saints, not the Body of Christ. Paul's epistles (Romans–Philemon) + OT
+// devotional passages are safe. The Gospels, Acts, Hebrews–Revelation are
+// largely for other dispensations and will be skipped.
+const EXCLUDED_BOOKS = new Set([
+  // The Gospels — Kingdom gospel (endure to end, water baptism, keep law)
+  'Matthew', 'Mark', 'Luke', 'John',
+  // Acts — transitional / Kingdom program (Acts 2:38, water baptism, etc.)
+  'Acts',
+  // Hebrew-Christian epistles — written to Tribulation/Kingdom saints
+  'Hebrews', 'James', '1 Peter', '2 Peter',
+  '1 John', '2 John', '3 John', 'Jude',
+  // Revelation — Tribulation / Kingdom program
+  'Revelation',
+]);
+
+// Individual verses to exclude even from otherwise-allowed books
 const EXCLUDED_VERSES = new Set([
-  // Romans 10:9 (works-based salvation concern)
-  'Romans 10:9',
-  // Acts 2:38 (baptism for remission of sins)
-  'Acts 2:38',
-  // "faith without works is dead" - James 2
-  'James 2:17', 'James 2:20', 'James 2:24', 'James 2:26',
-  // "endure unto the end" / tribulation endurance verses
-  'Matthew 10:22', 'Matthew 24:13', 'Mark 13:13',
-  'Revelation 2:10', 'Revelation 3:10', 'Revelation 13:10', 'Revelation 14:12',
-  // "keep the commandments" to enter / inherit life
-  'Matthew 19:17', 'Revelation 22:14',
   // Violence / killing commands (Old Testament)
   'Deuteronomy 17:12', 'Exodus 22:18', 'Exodus 31:15', 'Exodus 35:2',
   'Leviticus 20:13', 'Leviticus 20:27', 'Numbers 31:17', 'Numbers 25:5',
@@ -76,7 +82,10 @@ export async function getDailyVerseFromBible() {
       bookData = BIBLE_BOOKS.find(b => b.apiName === bookName);
       displayName = bookData ? bookData.shortName : bookName;
       step++;
-    } while (EXCLUDED_VERSES.has(`${displayName} ${chapter}:${verseObj.verse}`) && step < 20);
+    } while (
+      (EXCLUDED_BOOKS.has(displayName) || EXCLUDED_VERSES.has(`${displayName} ${chapter}:${verseObj.verse}`))
+      && step < 50
+    );
 
     const abbr = bookData ? bookData.abbr : bookName.slice(0, 3).toUpperCase();
     const cleanText = verseObj.text
