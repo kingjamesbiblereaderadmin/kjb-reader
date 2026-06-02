@@ -23,6 +23,7 @@ export default function CurrentlyReadingIndicator({
   lastReadingPos,
   book,
   pos,
+  highlightSection,
   onClear,
   searchTerm,
   onPrevResult,
@@ -36,6 +37,12 @@ export default function CurrentlyReadingIndicator({
   const isRandom = lastReadingPos && lastReadingPos.fromRandom;
   const isDaily = lastReadingPos && lastReadingPos.fromDailyVerse;
   const verseNum = pos.verse;
+  // Suffix for non-verse sections (Psalm superscription / book colophon)
+  const sectionSuffix = highlightSection === 'colophon'
+    ? ' (Colophon)'
+    : highlightSection === 'subscript'
+    ? ' (Superscription)'
+    : '';
 
   // Build label — no double colons
   let typeLabel = '';
@@ -51,7 +58,7 @@ export default function CurrentlyReadingIndicator({
     clearLabel = 'Clear';
   } else if (searchTerm) {
     typeLabel = `Search: "${searchTerm}"`;
-    reference = `${book.shortName} ${pos.chapter}${verseNum ? `:${verseNum}` : ''}`;
+    reference = `${book.shortName} ${pos.chapter}${verseNum ? `:${verseNum}` : ''}${sectionSuffix}`;
     clearLabel = 'Clear search';
   } else if (isFilterMode) {
     typeLabel = 'Reading';

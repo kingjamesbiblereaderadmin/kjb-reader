@@ -1447,6 +1447,7 @@ export default function BibleReader() {
                   lastReadingPos={lastReadingActive ? lastReadingPos : null}
                   book={book}
                   pos={pos}
+                  highlightSection={highlightSection}
                   searchTerm={searchTerm}
                   gospelMode={gospelMode}
                   gospelLabel={gospelMode ? (getGospelNav().results[gospelResultIndex]?.label || 'Gospel') : null}
