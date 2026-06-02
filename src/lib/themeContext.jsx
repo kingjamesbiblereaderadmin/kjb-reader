@@ -9,12 +9,19 @@ const ThemeContext = createContext();
 // Each palette: { name, accent (HSL), primary_light (HSL), primary_dark (HSL) }
 // 1611-inspired historical color schemes
 export const COLOUR_PALETTES = [
-  { id: 'antique',   name: 'Antique',   swatch: '#8B4513', accent: '30 40% 35%',  primary_light: '30 35% 25%', primary_dark: '45 65% 50%'  },
-  { id: 'parchment', name: 'Parchment', swatch: '#D2B48C', accent: '35 35% 60%',  primary_light: '30 30% 20%', primary_dark: '35 40% 65%' },
-  { id: 'leather',   name: 'Leather',   swatch: '#654321', accent: '25 35% 30%',  primary_light: '25 40% 25%', primary_dark: '30 45% 35%' },
-  { id: 'gold',      name: 'Gold Leaf', swatch: '#B8860B', accent: '45 70% 45%',  primary_light: '30 35% 20%', primary_dark: '45 75% 50%' },
-  { id: 'burgundy',  name: 'Burgundy',  swatch: '#800020', accent: '350 60% 30%', primary_light: '350 55% 25%', primary_dark: '350 65% 35%' },
-  { id: 'forest',    name: 'Forest',    swatch: '#2D5016', accent: '120 45% 25%', primary_light: '120 40% 20%', primary_dark: '120 50% 30%' },
+  { id: 'indigo',    name: 'Indigo',    swatch: '#4f46e5', accent: '245 80% 56%', primary_light: '245 80% 52%', primary_dark: '255 80% 68%' },
+  { id: 'sapphire',  name: 'Sapphire',  swatch: '#1d4ed8', accent: '222 80% 50%', primary_light: '222 80% 48%', primary_dark: '218 85% 62%' },
+  { id: 'sky',       name: 'Sky',       swatch: '#0284c7', accent: '200 85% 45%', primary_light: '200 85% 42%', primary_dark: '199 85% 56%' },
+  { id: 'teal',      name: 'Teal',      swatch: '#0d9488', accent: '174 70% 35%', primary_light: '174 72% 32%', primary_dark: '172 65% 45%' },
+  { id: 'forest',    name: 'Forest',    swatch: '#16a34a', accent: '142 60% 38%', primary_light: '142 62% 34%', primary_dark: '142 55% 48%' },
+  { id: 'amethyst',  name: 'Amethyst',  swatch: '#9333ea', accent: '271 70% 50%', primary_light: '271 72% 48%', primary_dark: '270 70% 64%' },
+  { id: 'rose',      name: 'Rose',      swatch: '#e11d48', accent: '347 75% 50%', primary_light: '347 77% 48%', primary_dark: '347 75% 62%' },
+  { id: 'crimson',   name: 'Crimson',   swatch: '#b91c1c', accent: '0 70% 45%',   primary_light: '0 72% 42%',   primary_dark: '0 70% 58%' },
+  { id: 'amber',     name: 'Amber',     swatch: '#d97706', accent: '32 90% 45%',  primary_light: '32 90% 42%',  primary_dark: '38 90% 55%' },
+  { id: 'gold',      name: 'Gold Leaf', swatch: '#B8860B', accent: '45 70% 45%',  primary_light: '43 74% 42%',  primary_dark: '45 75% 55%' },
+  { id: 'burgundy',  name: 'Burgundy',  swatch: '#800020', accent: '350 60% 38%', primary_light: '350 60% 34%', primary_dark: '350 60% 50%' },
+  { id: 'slate',     name: 'Slate',     swatch: '#475569', accent: '215 25% 40%', primary_light: '215 25% 38%', primary_dark: '215 22% 58%' },
+  { id: 'antique',   name: 'Antique',   swatch: '#8B4513', accent: '30 40% 38%',  primary_light: '30 38% 34%',  primary_dark: '30 45% 50%' },
   { id: 'custom',    name: 'Custom',    swatch: localStorage.getItem('kjb-custom-accent') || '#B8860B', accent: 'auto', primary_light: 'auto', primary_dark: 'auto' },
 ];
 
@@ -79,8 +86,9 @@ function applyPalette(paletteId, isDark) {
     root.style.setProperty('--sidebar-primary', isDark ? p.primary_dark : p.primary_light);
     root.style.setProperty('--sidebar-ring', isDark ? p.primary_dark : p.primary_light);
   }
-  root.style.setProperty('--accent-foreground', isDark ? '220 20% 7%' : '220 20% 10%');
-  root.style.setProperty('--primary-foreground', isDark ? '220 20% 7%' : '40 20% 98%');
+  // Vivid mid-tone palettes need white text on accent/primary for contrast.
+  root.style.setProperty('--accent-foreground', '0 0% 100%');
+  root.style.setProperty('--primary-foreground', '0 0% 100%');
 }
 
 export function ThemeProvider({ children }) {
