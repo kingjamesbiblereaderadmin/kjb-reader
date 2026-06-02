@@ -307,10 +307,13 @@ export default function BibleSearchBar({ onClose }) {
       }
     } else if (e.key === 'Enter') {
       e.preventDefault();
+      // Only honour an explicitly highlighted suggestion (arrow/hover). Otherwise
+      // submit the literal typed text so a freshly-typed reference like
+      // "Romans 3:25" is parsed live — never a stale suggestions[0].
       if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
         handleSelect(suggestions[selectedIndex]);
-      } else if (suggestions.length > 0) {
-        handleSelect(suggestions[0]);
+      } else {
+        handleSubmit(e);
       }
     } else if (e.key === 'Escape') {
       setOpen(false);
@@ -416,7 +419,7 @@ export default function BibleSearchBar({ onClose }) {
             ref={inputRef}
             type="text"
             value={query}
-            onChange={e => { setQuery(e.target.value); setOpen(true); }}
+            onChange={e => { setQuery(e.target.value); setOpen(true); setSelectedIndex(-1); }}
             onAccept={(full) => { setQuery(full); setOpen(true); inputRef.current?.focus(); }}
             onFocus={() => setOpen(true)}
             onKeyDown={handleKeyDown}
