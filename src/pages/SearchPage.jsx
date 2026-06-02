@@ -760,13 +760,17 @@ export default function SearchPage() {
   useEffect(() => { setFocusedIndex(-1); resultRefs.current = []; }, [results]);
 
   // Scroll the window so the given row sits near the top, just below the
-  // sticky header (offset). Uses the element's absolute page position instead
-  // of scrollIntoView, which can scroll an inner container instead of the page.
+  // sticky header (offset). Deferred to the next frame so it reads the row's
+  // final position after the focus-state re-render, and uses instant (auto)
+  // scrolling so rapid key presses don't queue competing smooth animations
+  // (which caused the jump-to-top-then-down-then-up jitter).
   const scrollRowToTop = (el) => {
     if (!el) return;
-    const HEADER_OFFSET = 80;
-    const top = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
-    window.scrollTo({ top, behavior: 'smooth' });
+    requestAnimationFrame(() => {
+      const HEADER_OFFSET = 80;
+      const top = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
+      window.scrollTo({ top, behavior: 'auto' });
+    });
   };
 
   // Keyboard shortcuts: ↑/↓ or J/K to navigate, Enter to open, Escape to blur
