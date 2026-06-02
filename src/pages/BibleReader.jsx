@@ -991,12 +991,13 @@ export default function BibleReader() {
     const section = r.section || null;
     const targetVerse = section ? null : (r.verse || null);
     setHighlightSection(section);
-    // A verse or verse-range result → show ONLY that range and highlight every
-    // verse in it (filter mode), so stepping forward/back is consistent. A
-    // single verse is treated as a 1-verse range. Whole-chapter results (no
-    // verse) and section results show the full chapter without filtering.
-    if (!section && r.verse) {
-      const end = r.verseEnd && r.verseEnd > r.verse ? r.verseEnd : r.verse;
+    // Only an actual multi-verse RANGE (verseEnd > verse) filters to show just
+    // that range. A single-verse result shows the FULL chapter and simply
+    // highlights + scrolls to the matched verse — this keeps the toolbar from
+    // reflowing as you step up/down through keyword results. Whole-chapter and
+    // section results also show the full chapter without filtering.
+    if (!section && r.verse && r.verseEnd && r.verseEnd > r.verse) {
+      const end = r.verseEnd;
       const range = new Set();
       for (let v = r.verse; v <= end; v++) range.add(v);
       setHighlightedVerses(range);
@@ -1004,12 +1005,16 @@ export default function BibleReader() {
       setFilterMode(true);
       try {
         const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: r.verse, verseEnd: end > r.verse ? end : null }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: r.verse, verseEnd: end }));
       } catch {}
     } else {
       setFilterMode(false);
       setHighlightedVerses(new Set());
       setSelectedVerses(new Set());
+      try {
+        const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: r.verse || null, verseEnd: null }));
+      } catch {}
     }
     setPos({ abbr: r.abbr, chapter: r.chapter, verse: targetVerse });
     setHighlightVerse(targetVerse);
@@ -1173,7 +1178,7 @@ export default function BibleReader() {
                 }`}
                 disabled={verseCount === 0}
               >
-                <span className="truncate">
+                <span className="truncate min-w-[3.5rem] text-center">
                   {selectMode
                     ? `${selectedVerses.size > 0 ? selectedVerses.size : '0'} selected`
                     : filterMode && selectedVerses.size > 0
