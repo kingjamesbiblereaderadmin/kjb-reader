@@ -310,9 +310,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           {stanzaHeading}
           <span
             onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
-            className={`inline leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.3em] py-[0.2em] ${
-              !selectMode && !isHighlighted ? 'hover:bg-secondary/60' : ''
-            }`}
+            className="inline leading-relaxed rounded cursor-pointer px-[0.3em] py-[0.2em]"
           >
             <sup className="text-accent font-sans font-bold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
             <span className={selectMode && isSelected ? 'bg-primary/10 border border-primary/30 rounded-[0.4em] box-decoration-clone px-[0.2em] py-[0.1em]' : ''}>
@@ -322,7 +320,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
                 </span>
               )}
               <span
-                className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left inline ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+                className={`leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left inline transition-colors duration-200 rounded box-decoration-clone px-[0.3em] py-[0.1em] ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? highlightBg : (!selectMode ? 'hover:bg-secondary/60' : '')}`}
                 style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
                 dangerouslySetInnerHTML={{ __html: html }}
               />
@@ -338,9 +336,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         {stanzaHeading}
         <span
           onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
-          className={`inline leading-loose transition-colors duration-200 rounded cursor-pointer px-[0.3em] py-[0.2em] ${
-            !selectMode && !isHighlighted ? 'hover:bg-secondary/60' : ''
-          }`}
+          className="inline leading-loose rounded cursor-pointer px-[0.3em] py-[0.2em]"
         >
           {!(dropCap && !selectMode) && (
             <sup className="text-accent font-sans font-bold text-[0.65em] mr-2 select-none">{verse.verse}</sup>
@@ -352,7 +348,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
               </span>
             )}
             <span
-              className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-left ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}`}
+              className={`leading-loose [&_em]:italic [&_em]:text-foreground/75 break-words text-left transition-colors duration-200 rounded box-decoration-clone px-[0.3em] py-[0.1em] ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? highlightBg : (!selectMode ? 'hover:bg-secondary/60' : '')}`}
               style={isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle}
               dangerouslySetInnerHTML={{ __html: html }}
             />
@@ -377,7 +373,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         {stanzaHeading}
         <span
           onClick={() => setSelected(s => !s)}
-          className={`block leading-relaxed transition-colors duration-200 rounded cursor-pointer px-[0.4em] py-[0.25em] ${!isHighlighted ? 'hover:bg-secondary/60' : ''}`}
+          className="block leading-relaxed rounded cursor-pointer px-[0.4em] py-[0.25em]"
           style={{ display: 'flow-root' }}
         >
           <span
@@ -385,7 +381,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
             style={{ paddingLeft: '1.25em', ...(isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle) }}
           >
             <span
-              className={isHighlighted ? `${highlightBg} box-decoration-clone rounded px-[0.3em] py-[0.1em]` : ''}
+              className={`box-decoration-clone rounded transition-colors duration-200 px-[0.3em] py-[0.1em] ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
               dangerouslySetInnerHTML={{ __html: html }}
             />
           </span>
