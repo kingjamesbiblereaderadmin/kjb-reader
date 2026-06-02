@@ -15,6 +15,7 @@ import SelectorSheet from '@/components/bible/SelectorSheet';
 import RunningHead from '@/components/bible/RunningHead';
 import CurrentlyReadingIndicator from '@/components/bible/CurrentlyReadingIndicator';
 import MinimizedHeaderBar from '@/components/bible/MinimizedHeaderBar';
+import ReadingRangeBar from '@/components/bible/ReadingRangeBar';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Accessibility } from 'lucide-react';
@@ -1013,6 +1014,17 @@ export default function BibleReader() {
         const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: r.verse, verseEnd: end }));
       } catch {}
+    } else if (!section && targetVerse) {
+      // Single-verse search result → filter the reader to show ONLY that verse.
+      const single = new Set([targetVerse]);
+      rangeHighlightRef.current = true;
+      setHighlightedVerses(single);
+      setSelectedVerses(single);
+      setFilterMode(true);
+      try {
+        const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: targetVerse, verseEnd: null }));
+      } catch {}
     } else {
       rangeHighlightRef.current = false;
       setFilterMode(false);
@@ -1756,30 +1768,14 @@ export default function BibleReader() {
 
           {/* Reading a verse range — merged into the sticky toolbar like the copy bar */}
           {!selectMode && filterMode && selectedVerses.size > 0 && (
-            <div className="mt-2 pt-2 border-t border-border flex items-center gap-2 overflow-x-auto scrollbar-hide">
-              <span className="font-sans text-xs text-muted-foreground font-medium whitespace-nowrap">
-                Reading {book.shortName} {pos.chapter}:{formatVerseRange([...selectedVerses])}
-              </span>
-              <div className="w-px h-4 bg-border" />
-              <button
-                onClick={handleCopySelected}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors whitespace-nowrap"
-              >
-                <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy'}
-              </button>
-              <button
-                onClick={handleShareChapter}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors whitespace-nowrap"
-              >
-                <Share2 className="w-3.5 h-3.5" /> {shareFeedback ? 'Copied!' : 'Share'}
-              </button>
-              <button
-                onClick={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 font-sans text-xs font-medium transition-colors whitespace-nowrap"
-              >
-                <AlignLeft className="w-3.5 h-3.5" /> Show Full Chapter
-              </button>
-            </div>
+            <ReadingRangeBar
+              label={`Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`}
+              copyFeedback={copyFeedback}
+              shareFeedback={shareFeedback}
+              onCopy={handleCopySelected}
+              onShare={handleShareChapter}
+              onShowFull={() => { rangeHighlightRef.current = false; setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setHighlightedVerses(new Set()); setShowFilterOverlay(false); }}
+            />
           )}
         </div>
       )}
