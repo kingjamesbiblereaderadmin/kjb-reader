@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Palette, Sparkles } from 'lucide-react';
 import { useTheme, COLOUR_PALETTES } from '@/lib/themeContext';
 
@@ -7,6 +7,23 @@ import { useTheme, COLOUR_PALETTES } from '@/lib/themeContext';
 export default function ThemeColorPicker({ compact = false }) {
   const { colorMode, setColorMode, colourId, setColourId } = useTheme();
   const palettes = COLOUR_PALETTES.filter(p => p.id !== 'custom');
+
+  const [customHex, setCustomHex] = useState(() => {
+    try { return localStorage.getItem('kjb-custom-accent') || '#B8860B'; } catch { return '#B8860B'; }
+  });
+
+  // Save the chosen hex and (re)apply the Custom palette. Toggling colourId off
+  // and back to 'custom' forces the theme effect to re-read the new hex.
+  const applyCustom = (hex) => {
+    setCustomHex(hex);
+    try { localStorage.setItem('kjb-custom-accent', hex); } catch {}
+    if (colourId === 'custom') {
+      setColourId('gold');
+      setTimeout(() => setColourId('custom'), 0);
+    } else {
+      setColourId('custom');
+    }
+  };
 
   return (
     <div className="space-y-3">
@@ -63,6 +80,24 @@ export default function ThemeColorPicker({ compact = false }) {
               <span className="font-sans text-xs font-medium text-foreground">{p.name}</span>
             </button>
           ))}
+
+          {/* Custom colour picker */}
+          <label
+            className={`flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-lg border-2 cursor-pointer transition-all ${
+              colourId === 'custom' ? 'border-foreground' : 'border-border hover:border-accent'
+            }`}
+            title="Custom colour"
+          >
+            <span className="relative w-5 h-5 rounded-full border border-black/10 overflow-hidden" style={{ backgroundColor: customHex }}>
+              <input
+                type="color"
+                value={customHex}
+                onChange={(e) => applyCustom(e.target.value)}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </span>
+            <span className="font-sans text-xs font-medium text-foreground">Custom</span>
+          </label>
         </div>
       )}
     </div>
