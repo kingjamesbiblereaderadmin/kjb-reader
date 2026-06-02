@@ -77,6 +77,9 @@ export default function SearchPage() {
   // The book-filter panel uses this so you can always clear back to every matching book,
   // even after a search was narrowed to a selected subset.
   const [allBooksWithResults, setAllBooksWithResults] = useState(null);
+  // Tracks the last query text we searched, so we only reset the book selection
+  // on a genuinely new query (not when re-running to apply the book filter).
+  const lastQueryRef = useRef(getQueryFromUrl());
 
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
@@ -98,7 +101,9 @@ export default function SearchPage() {
     setSelected(new Set());
     setSelectMode(false);
     setNumberedBookFilter(null);
-    setSelectedBooks(new Set()); // Clear book filter on new search
+    // NOTE: do NOT clear selectedBooks here — runSearch also runs when applying
+    // the book filter, and clearing it would wipe the user's selection. New
+    // queries clear it explicitly in handleSubmit and the URL-change effect.
 
     try {
       console.log('[SEARCH] Starting search for:', kw);
@@ -547,6 +552,12 @@ export default function SearchPage() {
     const q = getQueryFromUrl();
     if (q) {
       setQuery(q);
+      // Only treat as a brand-new search (clearing book selection) when the
+      // query text actually changed — not on filter-driven re-renders.
+      if (q !== lastQueryRef.current) {
+        lastQueryRef.current = q;
+        setSelectedBooks(new Set());
+      }
       runSearch(q);
     }
   }, [location.search]);
@@ -591,6 +602,9 @@ export default function SearchPage() {
       window.history.replaceState({}, '', `/search?q=${encodeURIComponent(kw)}`);
       setSearched(true);
       setShowBookResult(null);
+      // New query typed → start fresh with all books.
+      setSelectedBooks(new Set());
+      lastQueryRef.current = kw;
       runSearch(kw);
     }
   };
@@ -993,7 +1007,7 @@ export default function SearchPage() {
                 onClick={() => setSelectedBooks(new Set())}
                 className="px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-card"
               >
-                {searched ? 'Clear (all matching books)' : 'Clear'}
+                {selectedBooks.size > 0 ? 'Clear (all matching books)' : 'Clear'}
               </button>
             </div>
             <div className="flex-1 overflow-y-auto px-3 sm:px-4 pb-2" style={{ minHeight: '200px' }}>
@@ -1020,7 +1034,8 @@ export default function SearchPage() {
                             onClick={() => {
                               setSelectedBooks(prev => {
                                 const next = new Set(prev);
-                                next.has(book.abbr) ? next.delete(book.abbr) : next.add(book.abbr);
+                                if (next.has(book.abbr)) next.delete(book.abbr);
+                                else next.add(book.abbr);
                                 return next;
                               });
                             }}
@@ -1060,7 +1075,8 @@ export default function SearchPage() {
                             onClick={() => {
                               setSelectedBooks(prev => {
                                 const next = new Set(prev);
-                                next.has(book.abbr) ? next.delete(book.abbr) : next.add(book.abbr);
+                                if (next.has(book.abbr)) next.delete(book.abbr);
+                                else next.add(book.abbr);
                                 return next;
                               });
                             }}
