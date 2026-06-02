@@ -119,8 +119,20 @@ export function renderVerseText(text, searchTerm = null) {
   return result;
 }
 
+// Highlight search terms inside an already-rendered HTML string, only touching
+// text nodes (never inside HTML tags).
+function highlightInHtml(html, searchTerm) {
+  if (!searchTerm || !searchTerm.trim()) return html;
+  const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const termRegex = new RegExp(`(${escaped})`, 'gi');
+  return html.replace(/(<[^>]+>)|([^<]+)/g, (chunk, tag, text) => {
+    if (tag) return tag;
+    return text.replace(termRegex, '<mark style="background-color: rgba(250, 204, 21, 0.55); border-radius: 3px; padding: 0 2px;">$1</mark>');
+  });
+}
+
 // Render colophon text (epistolary closing notes): pilcrow prefix + [brackets] → italic
-export function renderColophonText(text) {
+export function renderColophonText(text, searchTerm = null) {
   if (!text || typeof text !== 'string') return '';
   const normalized = mergeAdjacentBrackets(text
     .replace(/\u2019/g, "'").replace(/\u2018/g, "'")
@@ -130,12 +142,12 @@ export function renderColophonText(text) {
   const rendered = parts.map((part, i) =>
     i % 2 === 1 ? `<em>${part}</em>` : part
   ).join('');
-  return `<span class="pilcrow">¶</span> ${rendered}`;
+  return `<span class="pilcrow">¶</span> ${highlightInHtml(rendered, searchTerm)}`;
 }
 
 // Render Psalm subscript/superscription text:
 // Non-italic by default, [bracketed] words italic, with a pilcrow prefix.
-export function renderSubscriptText(text) {
+export function renderSubscriptText(text, searchTerm = null) {
   if (!text || typeof text !== 'string') return '';
   const normalized = mergeAdjacentBrackets(text
     .replace(/\u2019/g, "'").replace(/\u2018/g, "'")
@@ -144,5 +156,5 @@ export function renderSubscriptText(text) {
   const rendered = parts.map((part, i) =>
     i % 2 === 1 ? `<em>${part}</em>` : part
   ).join('');
-  return `<span class="pilcrow">¶</span> ${rendered}`;
+  return `<span class="pilcrow">¶</span> ${highlightInHtml(rendered, searchTerm)}`;
 }
