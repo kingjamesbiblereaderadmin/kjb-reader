@@ -73,6 +73,10 @@ export default function SearchPage() {
   const [showBookResult, setShowBookResult] = useState(null); // { bookName, abbr, chapters, testament }
   const [bookFilterQuery, setBookFilterQuery] = useState('');
   const [booksWithResults, setBooksWithResults] = useState(null); // Track which books have results for current search (null = no search yet)
+  // The full set of books that contain the word, computed from an UNFILTERED search.
+  // The book-filter panel uses this so you can always clear back to every matching book,
+  // even after a search was narrowed to a selected subset.
+  const [allBooksWithResults, setAllBooksWithResults] = useState(null);
 
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
@@ -288,6 +292,9 @@ export default function SearchPage() {
         setResults(matches);
         const booksWithHits = new Set(matches.map(m => m.abbr));
         setBooksWithResults(booksWithHits);
+        // Only capture the full matching-book list when the search wasn't narrowed
+        // by a book selection — so the panel can always offer every matching book.
+        if (selectedBooks.size === 0) setAllBooksWithResults(booksWithHits);
         setTotalOccurrences(matches.length);
         setLoading(false);
         return;
@@ -499,6 +506,9 @@ export default function SearchPage() {
         return bookEntry ? bookEntry.abbr : null;
       }).filter(Boolean));
       setBooksWithResults(booksWithHits);
+      // Only capture the full matching-book list when the search wasn't narrowed
+      // by a book selection — so the panel can always offer every matching book.
+      if (selectedBooks.size === 0) setAllBooksWithResults(booksWithHits);
 
       // Compute total occurrences (multiple hits per verse counted) so the
       // results header matches standard concordance figures.
@@ -900,7 +910,9 @@ export default function SearchPage() {
           type="button"
           onClick={() => setShowBookFilter(!showBookFilter)}
           className={`px-2.5 py-1 rounded-lg font-sans text-xs font-medium transition-colors flex items-center gap-1 ${
-            showBookFilter ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+            showBookFilter || (selectedBooks.size > 0 && selectedBooks.size < 66)
+              ? 'bg-primary text-primary-foreground ring-2 ring-primary/40'
+              : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
           }`}
         >
           <BookOpen className="w-3 h-3" />
@@ -981,7 +993,7 @@ export default function SearchPage() {
                 onClick={() => setSelectedBooks(new Set())}
                 className="px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-card"
               >
-                Clear
+                {searched ? 'Clear (all matching books)' : 'Clear'}
               </button>
             </div>
             <div className="flex-1 overflow-y-auto px-3 sm:px-4 pb-2" style={{ minHeight: '200px' }}>
@@ -989,14 +1001,15 @@ export default function SearchPage() {
                 {/* Old Testament section */}
                 <div>
                   <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 sticky top-0 bg-card py-1">
-                    Old Testament {searched && booksWithResults && booksWithResults.size > 0 && <span className="font-normal normal-case text-muted-foreground/60">({[...booksWithResults].filter(abbr => OLD_TESTAMENT.some(b => b.abbr === abbr)).length})</span>}
+                    Old Testament {searched && allBooksWithResults && allBooksWithResults.size > 0 && <span className="font-normal normal-case text-muted-foreground/60">({[...allBooksWithResults].filter(abbr => OLD_TESTAMENT.some(b => b.abbr === abbr)).length})</span>}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {OLD_TESTAMENT
                       .filter(book => {
                         const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
-                        // Only show books that have results for the current search (if searched)
-                        const hasResults = !searched || !booksWithResults || booksWithResults.has(book.abbr);
+                        // Show every book that contains the word (from the unfiltered search),
+                        // so you can re-add books after narrowing or after clearing.
+                        const hasResults = !searched || !allBooksWithResults || allBooksWithResults.has(book.abbr);
                         return matchesQuery && hasResults;
                       })
                       .map(book => {
@@ -1028,14 +1041,15 @@ export default function SearchPage() {
                 {/* New Testament section */}
                 <div>
                   <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 sticky top-0 bg-card py-1">
-                    New Testament {searched && booksWithResults && booksWithResults.size > 0 && <span className="font-normal normal-case text-muted-foreground/60">({[...booksWithResults].filter(abbr => NEW_TESTAMENT.some(b => b.abbr === abbr)).length})</span>}
+                    New Testament {searched && allBooksWithResults && allBooksWithResults.size > 0 && <span className="font-normal normal-case text-muted-foreground/60">({[...allBooksWithResults].filter(abbr => NEW_TESTAMENT.some(b => b.abbr === abbr)).length})</span>}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {NEW_TESTAMENT
                       .filter(book => {
                         const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
-                        // Only show books that have results for the current search (if searched)
-                        const hasResults = !searched || !booksWithResults || booksWithResults.has(book.abbr);
+                        // Show every book that contains the word (from the unfiltered search),
+                        // so you can re-add books after narrowing or after clearing.
+                        const hasResults = !searched || !allBooksWithResults || allBooksWithResults.has(book.abbr);
                         return matchesQuery && hasResults;
                       })
                       .map(book => {
