@@ -78,8 +78,12 @@ export function getBookByAbbr(abbr) {
   return BIBLE_BOOKS.find(b => b.abbr === abbr);
 }
 
+// Fast lookup map (apiName → book entry) so hot search loops avoid O(n)
+// Array.find calls per match.
+export const BOOK_BY_API_NAME = Object.fromEntries(BIBLE_BOOKS.map(b => [b.apiName, b]));
+
 export function getBookByApiName(apiName) {
-  return BIBLE_BOOKS.find(b => b.apiName === apiName);
+  return BOOK_BY_API_NAME[apiName];
 }
 
 export function getBookIndex(abbr) {

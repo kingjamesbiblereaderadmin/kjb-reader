@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { BookOpen, CheckSquare, Square, ChevronDown, ChevronUp, ArrowDown, ChevronRight } from 'lucide-react';
-import { BIBLE_BOOKS } from '@/lib/bibleData';
+import { BIBLE_BOOKS, BOOK_BY_API_NAME } from '@/lib/bibleData';
 
 const NT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'NT' || BIBLE_BOOKS.indexOf(b) >= 39).map(b => b.apiName));
 
@@ -196,7 +196,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                 <div className="flex-1 min-w-0">
                   <p className="font-sans text-xs text-accent font-semibold mb-1 flex items-center gap-1">
                     <BookOpen className="w-3 h-3" />
-                    {BIBLE_BOOKS.find(b => b.apiName === r.book)?.shortName || r.book} {r.chapter}
+                    {BOOK_BY_API_NAME[r.book]?.shortName || r.book} {r.chapter}
                     {isSubscript ? ' (Superscription)' : isColophon ? ' (Colophon)' : isHeading ? `:${r.verse} (Stanza)` : `:${r.verse}`}
                   </p>
                   <p className="text-base text-foreground leading-relaxed" style={fontStyle}>

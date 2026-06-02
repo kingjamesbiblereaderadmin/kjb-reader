@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked, ChevronDown, Share2, ChevronUp, ChevronDown as ChevronDownIcon, ChevronRight } from 'lucide-react';
 import { getBibleData } from '@/lib/bibleCache';
-import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
+import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT, BOOK_BY_API_NAME } from '@/lib/bibleData';
 import { parseReference, resolveBook } from '@/lib/parseReference';
 import { expandPassage } from '@/lib/expandPassage';
 import { isMultiReference, expandMultiReference } from '@/lib/multiReference';
@@ -357,7 +357,7 @@ export default function SearchPage() {
               const key = `${bookName}-${chapterNum}-${verseObj.verse}`;
               if (seen.has(key)) continue;
               seen.add(key);
-              const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+              const bookEntry = BOOK_BY_API_NAME[bookName];
               matches.push({
                 book: bookName,
                 chapter: parseInt(chapterNum),
@@ -395,7 +395,7 @@ export default function SearchPage() {
               const key = `${bookName}-${chapterNum}-${verseObj.verse}-heading`;
               if (!seen.has(key)) {
                 seen.add(key);
-                const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+                const bookEntry = BOOK_BY_API_NAME[bookName];
                 matches.push({
                   book: bookName,
                   chapter: parseInt(chapterNum),
@@ -437,7 +437,7 @@ export default function SearchPage() {
               const key = `${bookName}-${chapterNum}-colophon`;
               if (!seen.has(key)) {
                 seen.add(key);
-                const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+                const bookEntry = BOOK_BY_API_NAME[bookName];
                 matches.push({
                   book: bookName,
                   chapter: parseInt(chapterNum),
@@ -480,7 +480,7 @@ export default function SearchPage() {
               const key = `${bookName}-${chapterNum}-subscript`;
               if (!seen.has(key)) {
                 seen.add(key);
-                const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+                const bookEntry = BOOK_BY_API_NAME[bookName];
                 matches.push({
                   book: bookName,
                   chapter: parseInt(chapterNum),
@@ -499,7 +499,7 @@ export default function SearchPage() {
 
       // Track which books have results
       const booksWithHits = new Set(matches.map(m => {
-        const bookEntry = BIBLE_BOOKS.find(b => b.apiName === m.book);
+        const bookEntry = BOOK_BY_API_NAME[m.book];
         return bookEntry ? bookEntry.abbr : null;
       }).filter(Boolean));
       setBooksWithResults(booksWithHits);
