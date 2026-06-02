@@ -939,19 +939,10 @@ export default function BibleReader() {
   const stepToResult = (r) => {
     const section = r.section || null;
     const targetVerse = section ? null : (r.verse || null);
-    const sameChapter = r.abbr === pos.abbr && r.chapter === pos.chapter && verses.length > 0;
     setHighlightSection(section);
     setPos({ abbr: r.abbr, chapter: r.chapter, verse: targetVerse });
-    if (sameChapter) {
-      // Force the scroll effect to re-run even if the verse number is unchanged:
-      // clear highlight first, then set it on the next tick.
-      setHighlightVerse(null);
-      setTimeout(() => setHighlightVerse(targetVerse), 0);
-      try { savePosition(r.abbr, r.chapter, targetVerse); } catch {}
-    } else {
-      setHighlightVerse(targetVerse);
-      loadChapter(r.abbr, r.chapter, targetVerse);
-    }
+    setHighlightVerse(targetVerse);
+    loadChapter(r.abbr, r.chapter, targetVerse);
   };
 
   const clearSearchContext = () => {
