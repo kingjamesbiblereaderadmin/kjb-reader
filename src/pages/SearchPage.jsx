@@ -141,14 +141,7 @@ export default function SearchPage() {
         }
         const ref = parseReference(searchTerm);
         if (ref) {
-          try {
-            localStorage.setItem('kjb-position', JSON.stringify({ abbr: ref.abbr, chapter: ref.chapter, verse: ref.verse || null, verseEnd: ref.verseEnd || null }));
-            localStorage.removeItem('kjb-last-reading');
-          } catch {}
-          clearSearchNav();
-          const vParam = ref.verse ? `&verse=${ref.verse}` : '';
-          navigate(`/read?book=${ref.abbr}&chapter=${ref.chapter}${vParam}`);
-          setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
+          goToReference(ref);
           setLoading(false);
           return;
         }
@@ -580,14 +573,7 @@ export default function SearchPage() {
     // the first stale result instead of this reference.
     const ref = parseReference(kw);
     if (ref) {
-      try {
-        localStorage.setItem('kjb-position', JSON.stringify({ abbr: ref.abbr, chapter: ref.chapter, verse: ref.verse || null, verseEnd: ref.verseEnd || null }));
-        localStorage.removeItem('kjb-last-reading');
-      } catch {}
-      clearSearchNav();
-      const vParam = ref.verse ? `&verse=${ref.verse}` : '';
-      navigate(`/read?book=${ref.abbr}&chapter=${ref.chapter}${vParam}`);
-      setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
+      goToReference(ref);
       return;
     }
     
@@ -652,6 +638,32 @@ export default function SearchPage() {
     // If already on /read, notify the mounted reader to load this passage.
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   }, [navigate, results]);
+
+  // Navigate to a single parsed reference. A plain verse/chapter is a clean
+  // navigation. A single-book verse RANGE (e.g. "John 3:16-18") is routed
+  // through a one-step search nav so the reader shows the FULL chapter and
+  // highlights the whole range (consistent with multi-reference results) —
+  // instead of entering filter mode and highlighting only the first verse.
+  const goToReference = useCallback((ref) => {
+    if (ref.verse && ref.verseEnd && ref.verseEnd > ref.verse) {
+      setSearchNav([{ abbr: ref.abbr, chapter: ref.chapter, verse: ref.verse, verseEnd: ref.verseEnd }], 0, null);
+      try {
+        localStorage.setItem('kjb-position', JSON.stringify({ abbr: ref.abbr, chapter: ref.chapter, verse: ref.verse, verseEnd: ref.verseEnd }));
+        localStorage.removeItem('kjb-last-reading');
+      } catch {}
+      navigate(`/read?book=${ref.abbr}&chapter=${ref.chapter}&verse=${ref.verse}&from=search`);
+      setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
+      return;
+    }
+    try {
+      localStorage.setItem('kjb-position', JSON.stringify({ abbr: ref.abbr, chapter: ref.chapter, verse: ref.verse || null, verseEnd: null }));
+      localStorage.removeItem('kjb-last-reading');
+    } catch {}
+    clearSearchNav();
+    const vParam = ref.verse ? `&verse=${ref.verse}` : '';
+    navigate(`/read?book=${ref.abbr}&chapter=${ref.chapter}${vParam}`);
+    setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
+  }, [navigate]);
 
   // Navigate to a multi-chapter/multi-book passage as a stepper (matches the
   // header search bar): expand into per-chapter blocks, store as search nav so
