@@ -198,7 +198,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                   </p>
                   <p className="text-base text-foreground leading-relaxed" style={fontStyle}>
                     {(isColophon || isSubscript) ? (
-                      <span className="italic text-muted-foreground">{renderWithItalics(r.text, highlightTerm, highlightCaseSensitive)}</span>
+                      <span className="italic text-muted-foreground">¶ {renderWithItalics(r.text, highlightTerm, highlightCaseSensitive)}</span>
                     ) : (
                       <span>"{renderWithItalics(r.text, highlightTerm, highlightCaseSensitive)}"</span>
                     )}
