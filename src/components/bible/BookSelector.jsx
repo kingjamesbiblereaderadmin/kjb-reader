@@ -12,10 +12,10 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
       <button
         key={book.abbr}
         onClick={() => { onSelect(book, false, true); onClose(); }}
-        className={`w-full text-left px-3 py-1.5 rounded text-sm font-sans transition-colors ${
+        className={`w-full text-left px-3 py-1.5 rounded text-sm font-sans border transition-colors ${
           active
-            ? 'bg-accent text-accent-foreground font-semibold'
-            : 'hover:bg-secondary text-foreground'
+            ? 'bg-accent text-accent-foreground font-semibold border-accent'
+            : 'border-border hover:bg-secondary text-foreground'
         }`}
       >
         <span>{book.shortName}</span>
