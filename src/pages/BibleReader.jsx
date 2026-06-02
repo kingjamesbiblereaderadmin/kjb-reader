@@ -72,6 +72,8 @@ export default function BibleReader() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [highlightVerse, setHighlightVerse] = useState(pos.verse || null);
+  // 'colophon' | 'subscript' | null — highlight a non-verse section (from search)
+  const [highlightSection, setHighlightSection] = useState(null);
   const [highlightedVerses, setHighlightedVerses] = useState(new Set());
   const [verseCount, setVerseCount] = useState(0);
 
@@ -586,6 +588,8 @@ export default function BibleReader() {
     const isFromSearch = urlParams.get('from') === 'search';
     const isFromDaily = urlParams.get('from') === 'daily';
     const isFromGospel = urlParams.get('from') === 'gospel';
+    const urlHighlightSection = urlParams.get('highlight');
+    setHighlightSection(urlHighlightSection === 'colophon' || urlHighlightSection === 'subscript' ? urlHighlightSection : null);
     if (urlBookObj && urlChapter) {
       const chapterNum = parseInt(urlChapter, 10);
       const verseNum = urlParams.get('verse') ? parseInt(urlParams.get('verse'), 10) : null;
@@ -757,6 +761,29 @@ export default function BibleReader() {
     return () => clearTimeout(timer);
   }, [verses, loading, highlightVerse, pos.abbr, pos.chapter]);
 
+  // Scroll to + briefly highlight a colophon/subscript when navigated from search
+  useEffect(() => {
+    if (loading || !highlightSection) return;
+    const anchorId = highlightSection === 'colophon' ? 'kjb-colophon-anchor' : 'kjb-subscript-anchor';
+    const scrollToSection = () => {
+      const el = document.getElementById(anchorId);
+      if (!el) return;
+      const scroller = document.getElementById('kjb-scroll');
+      const toolbarH = topRef.current ? topRef.current.getBoundingClientRect().height : 0;
+      const stickyOffset = toolbarH + 12;
+      if (scroller) {
+        const top = el.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - stickyOffset;
+        scroller.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      } else {
+        const top = el.getBoundingClientRect().top + window.scrollY - stickyOffset;
+        window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      }
+    };
+    const t1 = setTimeout(scrollToSection, 250);
+    const t2 = setTimeout(scrollToSection, 650);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [loading, highlightSection, verses, colophon, pos.abbr, pos.chapter]);
+
   // Continuously save scroll position for the current chapter
   useEffect(() => {
     if (loading || isViewingTitlePage) return;
@@ -883,6 +910,7 @@ export default function BibleReader() {
     if (!jumpVerse) {
       setHighlightVerse(null);
     }
+    setHighlightSection(null);
     // Mark this as a fresh navigation so the reader starts at the top of the
     // new chapter (skips scroll restoration).
     freshNavRef.current = true;
@@ -1684,7 +1712,8 @@ export default function BibleReader() {
           {/* Subscript — centred below chapter name, fully italic, [bracketed] words roman within italic */}
           {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
             <p
-              className={`kjb-subscript text-sm text-muted-foreground mt-2 mb-4 max-w-lg mx-auto leading-relaxed text-center ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
+              id="kjb-subscript-anchor"
+              className={`kjb-subscript text-sm text-muted-foreground mt-2 mb-4 max-w-lg mx-auto leading-relaxed text-center transition-colors duration-500 rounded-lg ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} ${highlightSection === 'subscript' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`}
               style={{ fontSize: `${zoomLevel / 100}rem` }}
               dangerouslySetInnerHTML={{ __html: renderSubscriptText(SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]) }}
             />
@@ -1735,7 +1764,8 @@ export default function BibleReader() {
             {/* Subscript (Psalm superscription) — centred, fully italic, [bracketed] words roman */}
             {columnMode && !isViewingTitlePage && SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
               <p
-                className={`kjb-subscript text-center text-muted-foreground mb-4 leading-relaxed ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
+                id="kjb-subscript-anchor"
+                className={`kjb-subscript text-center text-muted-foreground mb-4 leading-relaxed transition-colors duration-500 rounded-lg ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} ${highlightSection === 'subscript' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`}
                 style={{ fontSize: `${zoomLevel / 100}rem`, breakInside: 'avoid' }}
                 dangerouslySetInnerHTML={{ __html: renderSubscriptText(SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]) }}
               />
@@ -1771,7 +1801,7 @@ export default function BibleReader() {
         )}
         {/* Colophon - column mode: centered across both columns; non-column: footer with line on top */}
         {!loading && !error && colophon && (
-          <div className={`${columnMode ? 'mt-6 mb-4' : 'mt-12 mb-4 border-t border-border pt-6'} text-center`}>
+          <div id="kjb-colophon-anchor" className={`${columnMode ? 'mt-6 mb-4' : 'mt-12 mb-4 border-t border-border pt-6'} text-center transition-colors duration-500 rounded-lg ${highlightSection === 'colophon' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`}>
             <p
               className={`text-sm text-muted-foreground leading-relaxed ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
               style={{ 

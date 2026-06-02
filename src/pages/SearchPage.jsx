@@ -473,10 +473,10 @@ export default function SearchPage() {
     }
   };
 
-  const goToVerse = useCallback((abbr, chapter, verse, verseEnd, resultIndex = null) => {
+  const goToVerse = useCallback((abbr, chapter, verse, verseEnd, resultIndex = null, section = null) => {
     // Store the search term for the CurrentlyReadingIndicator
     const q = getQueryFromUrl() || query;
-    try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null, verseEnd: verseEnd || null })); } catch {}
+    try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null, verseEnd: verseEnd || null, highlight: section || null })); } catch {}
     // Clear last reading position (from daily verse/random) when navigating from search
     try { localStorage.removeItem('kjb-last-reading'); } catch {}
     // Store search nav state (in-memory + localStorage backup)
@@ -486,9 +486,10 @@ export default function SearchPage() {
     // Navigate with URL params so the reader reliably scrolls to + highlights the verse.
     // Include the search term (&q=) so the URL is shareable/bookmarkable.
     const qParam = q ? `&q=${encodeURIComponent(q)}` : '';
+    const hlParam = section ? `&highlight=${section}` : '';
     const url = verse
       ? `/read?book=${abbr}&chapter=${chapter}&verse=${verse}&from=search${qParam}`
-      : `/read?book=${abbr}&chapter=${chapter}&from=search${qParam}`;
+      : `/read?book=${abbr}&chapter=${chapter}&from=search${hlParam}${qParam}`;
     navigate(url);
     // If already on /read, notify the mounted reader to load this passage.
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);

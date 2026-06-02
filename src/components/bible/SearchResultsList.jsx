@@ -169,8 +169,10 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
               onClick={() => {
                 if (selectMode) {
                   onToggleSelect(i);
-                } else if (isColophon || isSubscript) {
-                  onGoToVerse(r.abbr, r.chapter, null, null, i);
+                } else if (isSubscript) {
+                  onGoToVerse(r.abbr, r.chapter, null, null, i, 'subscript');
+                } else if (isColophon) {
+                  onGoToVerse(r.abbr, r.chapter, null, null, i, 'colophon');
                 } else {
                   onGoToVerse(r.abbr, r.chapter, r.verse, null, i);
                 }
