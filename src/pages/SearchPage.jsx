@@ -205,6 +205,56 @@ export default function SearchPage() {
       const seen = new Set();
       const searchTermLower = searchTerm.toLowerCase();
 
+      // Special keyword: "colophon(s)" lists every book colophon; "subscript(s)"
+      // / "superscription(s)" lists every Psalm superscription.
+      const listAllColophons = !isQuotedPhrase && ['colophon', 'colophons'].includes(kwLower);
+      const listAllSubscripts = !isQuotedPhrase && ['subscript', 'subscripts', 'superscription', 'superscriptions'].includes(kwLower);
+      if (listAllColophons || listAllSubscripts) {
+        setHighlightTerm('');
+        setShowBookResult(null);
+        if (listAllColophons && bible.__colophons) {
+          for (const key in bible.__colophons) {
+            const [bookName, chapterNum] = key.split(':');
+            if (!OT_BOOKS.has(bookName) && !NT_BOOKS.has(bookName)) continue;
+            const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+            matches.push({
+              book: bookName,
+              chapter: parseInt(chapterNum),
+              verse: 0,
+              text: bible.__colophons[key].replace(/¶\s*/g, ''),
+              isColophon: true,
+              abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
+            });
+          }
+        }
+        if (listAllSubscripts) {
+          for (const key in SUBSCRIPTS) {
+            const [bookName, chapterNum] = key.split(':');
+            const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+            matches.push({
+              book: bookName,
+              chapter: parseInt(chapterNum),
+              verse: 0,
+              text: SUBSCRIPTS[key].replace(/¶\s*/g, ''),
+              isSubscript: true,
+              abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
+            });
+          }
+        }
+        // Sort by canonical book order, then chapter
+        matches.sort((a, b) => {
+          const ai = BIBLE_BOOKS.findIndex(x => x.apiName === a.book);
+          const bi = BIBLE_BOOKS.findIndex(x => x.apiName === b.book);
+          return ai !== bi ? ai - bi : a.chapter - b.chapter;
+        });
+        setResults(matches);
+        const booksWithHits = new Set(matches.map(m => m.abbr));
+        setBooksWithResults(booksWithHits);
+        setTotalOccurrences(matches.length);
+        setLoading(false);
+        return;
+      }
+
       for (const bookName in bible) {
         if (bookName === '__colophons') continue;
         // Multi-select testament filter
