@@ -89,8 +89,6 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
     });
   }, []);
 
-  // Running flat index to map each rendered row back to its keyboard-focus index.
-  let renderIndex = -1;
   let firstNTSeen = false;
 
   return (
@@ -175,15 +173,16 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                 {!bookCollapsed && (
                   <div className="p-2 space-y-2">
                     {group.items.map(({ r, i }) => {
-                      renderIndex++;
-                      const thisIndex = renderIndex;
+                      // Key refs and focus by the ABSOLUTE results index (i), not
+                      // visible render order — the keyboard handler steps through
+                      // `results` by index, so they must stay aligned regardless of grouping.
                       return (
                         <SearchResultRow
                           key={`row-${i}`}
                           r={r}
                           i={i}
-                          thisIndex={thisIndex}
-                          isFocused={focusedIndex === thisIndex}
+                          thisIndex={i}
+                          isFocused={focusedIndex === i}
                           isSelected={selected.has(i)}
                           selectMode={selectMode}
                           highlightTerm={highlightTerm}
