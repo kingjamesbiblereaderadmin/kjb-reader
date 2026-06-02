@@ -95,7 +95,8 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
       {results.map((r, i) => {
         const isSelected = selected.has(i);
         const isSubscript = r.isSubscript;
-        const isColophon = r.isColophon || (r.verse === 0 && !isSubscript);
+        const isHeading = r.isHeading;
+        const isColophon = r.isColophon || (r.verse === 0 && !isSubscript && !isHeading);
         const isNT = NT_BOOKS.has(r.book);
         const prevIsNT = i > 0 ? NT_BOOKS.has(results[i - 1].book) : null;
         const showOTHeader = i === 0 && !isNT;
@@ -194,10 +195,12 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                   <p className="font-sans text-xs text-accent font-semibold mb-1 flex items-center gap-1">
                     <BookOpen className="w-3 h-3" />
                     {BIBLE_BOOKS.find(b => b.apiName === r.book)?.shortName || r.book} {r.chapter}
-                    {isSubscript ? ' (Superscription)' : isColophon ? ' (Colophon)' : `:${r.verse}`}
+                    {isSubscript ? ' (Superscription)' : isColophon ? ' (Colophon)' : isHeading ? `:${r.verse} (Stanza)` : `:${r.verse}`}
                   </p>
                   <p className="text-base text-foreground leading-relaxed" style={fontStyle}>
-                    {(isColophon || isSubscript) ? (
+                    {isHeading ? (
+                      <span className="font-bold tracking-wide">{renderWithItalics(r.text, highlightTerm, highlightCaseSensitive)}</span>
+                    ) : (isColophon || isSubscript) ? (
                       <span>¶ {renderWithItalics(r.text, highlightTerm, highlightCaseSensitive)}</span>
                     ) : (
                       <span>"{renderWithItalics(r.text, highlightTerm, highlightCaseSensitive)}"</span>

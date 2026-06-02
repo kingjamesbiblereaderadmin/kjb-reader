@@ -235,7 +235,8 @@ export default function SearchPage() {
           // Keep italics in brackets for search and display
           const processedVerses = verses.map(v => ({
             verse: v.verse,
-            text: v.text.replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '')
+            text: v.text.replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, ''),
+            heading: v.heading || null
           }));
           
           // Search in verses
@@ -291,6 +292,56 @@ export default function SearchPage() {
             }
           }
           
+          // Search in Psalm 119 acrostic stanza headings (ALEPH, BETH, JOD, …)
+          for (const verseObj of processedVerses) {
+            if (!verseObj.heading) continue;
+            const headingClean = verseObj.heading.trim();
+            const headingLower = headingClean.toLowerCase();
+            let headingFound = false;
+
+            if (effectiveExactMatch) {
+              const hay = effectiveCaseSensitive ? headingClean : headingLower;
+              const needle = effectiveCaseSensitive ? searchTerm : searchTermLower;
+              if (effectiveWholeWord) {
+                const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const re = new RegExp(`(^|[^A-Za-z'])${escaped}($|[^A-Za-z'])`, effectiveCaseSensitive ? '' : 'i');
+                headingFound = re.test(headingClean);
+              } else {
+                headingFound = hay.includes(needle);
+              }
+            } else if (effectiveCaseSensitive) {
+              if (effectiveWholeWord) {
+                const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                headingFound = new RegExp(`(^|[^A-Za-z'])${escapedTerm}($|[^A-Za-z'])`).test(headingClean);
+              } else {
+                headingFound = headingClean.includes(searchTerm);
+              }
+            } else {
+              if (effectiveWholeWord) {
+                const escapedTerm = searchTermLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                headingFound = new RegExp(`(^|[^a-z'])${escapedTerm}($|[^a-z'])`, 'i').test(headingClean);
+              } else {
+                headingFound = headingLower.includes(searchTermLower);
+              }
+            }
+
+            if (headingFound) {
+              const key = `${bookName}-${chapterNum}-${verseObj.verse}-heading`;
+              if (!seen.has(key)) {
+                seen.add(key);
+                const bookEntry = BIBLE_BOOKS.find(b => b.apiName === bookName);
+                matches.push({
+                  book: bookName,
+                  chapter: parseInt(chapterNum),
+                  verse: verseObj.verse,
+                  text: headingClean.charAt(0) + headingClean.slice(1).toLowerCase(),
+                  isHeading: true,
+                  abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
+                });
+              }
+            }
+          }
+
           // Search in colophons for this chapter (keyed flat as "BookName:chapter")
           const colophon = bible.__colophons?.[`${bookName}:${chapterNum}`];
           if (colophon) {
@@ -515,6 +566,8 @@ export default function SearchPage() {
       const bookName = bookEntry ? bookEntry.shortName : r.book;
       const ref = r.isSubscript
         ? `${bookName} ${r.chapter} superscription`
+        : r.isHeading
+        ? `${bookName} ${r.chapter}:${r.verse} (stanza)`
         : (r.isColophon || r.verse === 0)
         ? `${bookName} ${r.chapter} colophon`
         : `${bookName} ${r.chapter}:${r.verse}`;
@@ -539,10 +592,13 @@ export default function SearchPage() {
       const r = results[i];
       const bookEntry = BIBLE_BOOKS.find(b => b.apiName === r.book);
       const bookName = bookEntry ? bookEntry.shortName : r.book;
-      const isColophon = r.isColophon || (r.verse === 0 && !r.isSubscript);
+      const isColophon = r.isColophon || (r.verse === 0 && !r.isSubscript && !r.isHeading);
       const isSubscript = r.isSubscript;
+      const isHeading = r.isHeading;
       const ref = isSubscript
         ? `${bookName} ${r.chapter} superscription`
+        : isHeading
+        ? `${bookName} ${r.chapter}:${r.verse} (stanza)`
         : isColophon
         ? `${bookName} ${r.chapter} colophon`
         : `${bookName} ${r.chapter}:${r.verse}`;
