@@ -844,19 +844,16 @@ export default function SearchPage() {
             onChange={e => { setQuery(e.target.value); setFocusedIndex(-1); }}
             onAccept={(full) => setQuery(full)}
             onKeyDown={(e) => {
-              // Enter in the box always submits THIS query — never let the global
-              // results keydown handler open a stale result instead. React's
-              // stopPropagation does NOT stop native window listeners, so stop the
-              // native event immediately too. We DON'T call handleSubmit here —
-              // the form's onSubmit handles it. Calling it here too caused a
-              // double-submit on mobile that bounced the user to the home page.
+              // Enter in the box always submits THIS query. We preventDefault to
+              // stop the browser's native form GET-submit (which bounces to "/" on
+              // some mobile keyboards), and call handleSubmit ourselves so Enter
+              // still works. stopPropagation keeps the global results-list keydown
+              // handler from opening a stale result instead.
               if (e.key === 'Enter') {
-                // Prevent the browser's native form submission (which navigates
-                // to the page root "/" → bounces to Home on mobile when the soft
-                // keyboard's Go/Search key fires). The form's onSubmit still runs.
                 e.preventDefault();
                 e.stopPropagation();
                 e.nativeEvent?.stopImmediatePropagation?.();
+                handleSubmit();
               }
             }}
             enterKeyHint="search"
