@@ -20,11 +20,12 @@ const GhostInput = React.forwardRef(function GhostInput(
 
   const suffix = getBookCompletion(value); // normal case: letters to append
   const acceptValue = getBookAcceptValue(value); // full name on accept (may prepend a number)
-  // Numbered prepend case (e.g. "Corinthians" → "1 Corinthians"): there's no
-  // plain suffix, so show the full target name faded as a hint.
-  const isPrepend = !suffix && acceptValue && !acceptValue.toLowerCase().startsWith(value.toLowerCase());
-  const numberedHint = isPrepend ? getNumberedBookHint(value) : null;
-  const ghost = suffix || (isPrepend ? ` → type ${numberedHint || acceptValue}` : '');
+  // Numbered prepend case (e.g. "Corinthians" → "1 Corinthians", "Kings" → "1 Kings"):
+  // only show this hint when there's a real numbered variant. A plain book like
+  // "Romans" must NOT show it.
+  const numberedHint = !suffix ? getNumberedBookHint(value) : null;
+  const isPrepend = !!numberedHint;
+  const ghost = suffix || (isPrepend ? ` → type ${numberedHint}` : '');
   const canAccept = !!acceptValue;
 
   const accept = () => {
