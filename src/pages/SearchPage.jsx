@@ -775,14 +775,14 @@ export default function SearchPage() {
         e.preventDefault();
         setFocusedIndex(prev => {
           const next = Math.min(prev + 1, results.length - 1);
-          resultRefs.current[next]?.scrollIntoView({ block: 'nearest' });
+          resultRefs.current[next]?.scrollIntoView({ block: 'start' });
           return next;
         });
       } else if (e.key === 'ArrowUp' || e.key === 'k') {
         e.preventDefault();
         setFocusedIndex(prev => {
           const next = Math.max(prev - 1, 0);
-          resultRefs.current[next]?.scrollIntoView({ block: 'nearest' });
+          resultRefs.current[next]?.scrollIntoView({ block: 'start' });
           return next;
         });
       } else if (e.key === 'Enter') {
