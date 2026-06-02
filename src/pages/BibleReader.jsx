@@ -415,6 +415,9 @@ export default function BibleReader() {
 
   const topRef = useRef(null);
   const rangeHighlightRef = useRef(false); // guards reset effect while a range highlight is active
+  // Remembers the user's preferred result view ('filter' = verses only, 'full' =
+  // full chapter) so stepping up/down through results keeps it until they toggle.
+  const resultViewRef = useRef('filter');
   // When true, the next chapter load is a fresh navigation and must start at the top.
   const freshNavRef = useRef(false);
   const posRef = useRef(pos);
@@ -969,6 +972,8 @@ export default function BibleReader() {
         else { try { routerNavigate('/read', { replace: true }); } catch {} }
       }
     }
+    // Manual navigation resets the result-view preference back to the default.
+    resultViewRef.current = 'filter';
     // Clear highlights when navigating without a specific verse
     if (!jumpVerse) {
       setHighlightVerse(null);
@@ -1003,6 +1008,8 @@ export default function BibleReader() {
     // A verse RANGE (e.g. multi-reference / passage step) filters the reader to
     // show ONLY those verses. A single verse highlights + scrolls within the
     // full chapter.
+    // Honour the user's chosen view: 'filter' (verses only) or 'full' (full chapter).
+    const useFilter = resultViewRef.current !== 'full';
     if (!section && r.verse && r.verseEnd && r.verseEnd > r.verse) {
       const end = r.verseEnd;
       const range = new Set();
@@ -1010,7 +1017,7 @@ export default function BibleReader() {
       rangeHighlightRef.current = true;
       setHighlightedVerses(range);
       setSelectedVerses(range);
-      setFilterMode(true);
+      setFilterMode(useFilter);
       try {
         const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: r.verse, verseEnd: end }));
@@ -1021,7 +1028,7 @@ export default function BibleReader() {
       rangeHighlightRef.current = true;
       setHighlightedVerses(single);
       setSelectedVerses(single);
-      setFilterMode(true);
+      setFilterMode(useFilter);
       try {
         const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: targetVerse, verseEnd: null }));
@@ -1749,6 +1756,8 @@ export default function BibleReader() {
                 setFilterMode(prev => {
                   const next = !prev;
                   rangeHighlightRef.current = next;
+                  // Remember the manual choice so stepping up/down keeps this view.
+                  resultViewRef.current = next ? 'filter' : 'full';
                   // When switching TO full chapter, scroll down to the first
                   // highlighted verse (re-fires the scroll-to-verse effect).
                   if (!next && selectedVerses.size > 0) {
