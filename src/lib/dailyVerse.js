@@ -21,10 +21,13 @@ const FALLBACK_POOL = [
 const EXCLUDED_VERSES = new Set([
   // Romans 10:9 (works-based salvation concern)
   'Romans 10:9',
+  // Acts 2:38 (baptism for remission of sins)
+  'Acts 2:38',
   // "faith without works is dead" - James 2
   'James 2:17', 'James 2:20', 'James 2:24', 'James 2:26',
-  // "endure unto the end"
+  // "endure unto the end" / tribulation endurance verses
   'Matthew 10:22', 'Matthew 24:13', 'Mark 13:13',
+  'Revelation 2:10', 'Revelation 3:10', 'Revelation 13:10', 'Revelation 14:12',
   // "keep the commandments" to enter / inherit life
   'Matthew 19:17', 'Revelation 22:14',
   // Violence / killing commands (Old Testament)
