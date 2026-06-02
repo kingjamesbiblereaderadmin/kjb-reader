@@ -1795,10 +1795,18 @@ export default function BibleReader() {
         {!loading && !error && verses.length > 0 && columnMode && !isViewingTitlePage && pos.chapter !== 1 && (
           <RunningHead bookName={book.name} chapter={pos.chapter} baseFontRem={zoomLevel / 100 * 0.7} isCursive={fontFamily === 'cursive'} />
         )}
-        {!loading && !error && verses.length > 0 && (
+        {!loading && !error && verses.length > 0 && (() => {
+          // Verses actually shown (respecting filter mode for ranges/selections)
+          const shownCount = filterMode
+            ? verses.filter(v => selectedVerses.has(v.verse)).length
+            : verses.length;
+          // Only use two columns when there's enough content to fill them.
+          // A short selection (a few verses) reads better in a single column.
+          const useColumns = columnMode && shownCount > 6;
+          return (
           <div
-            className={`${columnMode ? 'kjb-two-col text-left hyphens-auto' : 'text-left'} ${paragraphMode ? 'text-left px-2 sm:px-4' : ''}`}
-            style={columnMode ? {
+            className={`${useColumns ? 'kjb-two-col text-left hyphens-auto' : 'text-left'} ${paragraphMode ? 'text-left px-2 sm:px-4' : ''}`}
+            style={useColumns ? {
               fontSize: 'inherit',
               columnCount: 2,
               columnGap: '1.5rem',
@@ -1836,13 +1844,14 @@ export default function BibleReader() {
                 isCursive={fontFamily === 'cursive'}
                 fontFamilyValue={getFontFamilyValue(fontFamily)}
                 zoomLevel={zoomLevel}
-                columnMode={columnMode}
+                columnMode={useColumns}
                 dropCap={idx === 0 && v.verse === 1}
                 searchTerm={searchTerm && highlightVerse === v.verse ? searchTerm : null}
                 />
                 ))}
           </div>
-        )}
+          );
+        })()}
         {/* Colophon - column mode: centered across both columns; non-column: footer with line on top */}
         {!loading && !error && colophon && (
           <div id="kjb-colophon-anchor" className={`${columnMode ? 'mt-6 mb-4' : 'mt-12 mb-4 border-t border-border pt-6'} text-center transition-colors duration-500 rounded-lg ${highlightSection === 'colophon' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`}>
