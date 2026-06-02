@@ -815,14 +815,17 @@ export default function SearchPage() {
           <GhostInput
             type="text"
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={e => { setQuery(e.target.value); setFocusedIndex(-1); }}
             onAccept={(full) => setQuery(full)}
             onKeyDown={(e) => {
               // Enter in the box always submits THIS query — never let the global
-              // results keydown handler open a stale result instead.
+              // results keydown handler open a stale result instead. React's
+              // stopPropagation does NOT stop native window listeners, so stop the
+              // native event immediately too.
               if (e.key === 'Enter') {
                 e.preventDefault();
                 e.stopPropagation();
+                e.nativeEvent?.stopImmediatePropagation?.();
                 handleSubmit(e);
               }
             }}
