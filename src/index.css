@@ -224,6 +224,16 @@
     color: #c4c4c4 !important;
   }
 
+  /* Daily verse card: keep the user-chosen text colour for the base text
+     (the card sits on a coloured/dark gradient), but still render the
+     [bracketed] italic words in a lighter shade, matching search/read. */
+  .kjb-verse-card.cursive-em-style {
+    color: inherit !important;
+  }
+  .kjb-verse-card.cursive-em-style em {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
   /* Colophon and subscript italics: only [bracketed] words (rendered as <em>)
      are italic. The surrounding subscript/colophon text stays roman.
      In cursive mode the .cursive-em-style em rule takes over (Dancing Script
