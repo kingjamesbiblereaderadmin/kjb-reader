@@ -550,6 +550,12 @@ export default function BibleReader() {
       loadChapter(abbr, 0, null);
       return;
     }
+    // When arriving from a search navigation, let the route effect own the load
+    // via stepToResult (it has the in-memory result with verseEnd). Running the
+    // mount handler too would race it and wipe the verse-range filter.
+    if (initParams.get('from') === 'search') {
+      return;
+    }
     const urlBookObj = resolveBook(urlBook);
     if (urlBookObj && urlChapter) {
       const chapterNum = parseInt(urlChapter, 10);
