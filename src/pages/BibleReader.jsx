@@ -1436,9 +1436,11 @@ export default function BibleReader() {
                   onPrevResult={() => {
                     if (gospelMode) {
                       const { results, index } = getGospelNav();
-                      const prevIndex = index - 1;
-                      if (prevIndex >= 0 && results[prevIndex]) {
-                        const r = results[prevIndex];
+                      if (results.length === 0) return;
+                      // Wrap: first → last
+                      const prevIndex = (index - 1 + results.length) % results.length;
+                      const r = results[prevIndex];
+                      if (r) {
                         setGospelIndex(prevIndex);
                         setGospelResultIndex(prevIndex);
                         setPos({ abbr: r.abbr, chapter: r.chapter, verse: r.verse || null });
@@ -1448,9 +1450,11 @@ export default function BibleReader() {
                       return;
                     }
                     const { results, index } = getSearchNav();
-                    const prevIndex = index - 1;
-                    if (prevIndex >= 0 && results[prevIndex]) {
-                      const r = results[prevIndex];
+                    if (results.length === 0) return;
+                    // Wrap: first → last
+                    const prevIndex = (index - 1 + results.length) % results.length;
+                    const r = results[prevIndex];
+                    if (r) {
                       setSearchIndex(prevIndex);
                       setSearchResultIndex(prevIndex);
                       setPos({ abbr: r.abbr, chapter: r.chapter, verse: r.verse || null });
@@ -1461,9 +1465,11 @@ export default function BibleReader() {
                   onNextResult={() => {
                     if (gospelMode) {
                       const { results, index } = getGospelNav();
-                      const nextIndex = index + 1;
-                      if (nextIndex < results.length && results[nextIndex]) {
-                        const r = results[nextIndex];
+                      if (results.length === 0) return;
+                      // Wrap: last → first
+                      const nextIndex = (index + 1) % results.length;
+                      const r = results[nextIndex];
+                      if (r) {
                         setGospelIndex(nextIndex);
                         setGospelResultIndex(nextIndex);
                         setPos({ abbr: r.abbr, chapter: r.chapter, verse: r.verse || null });
@@ -1473,9 +1479,11 @@ export default function BibleReader() {
                       return;
                     }
                     const { results, index } = getSearchNav();
-                    const nextIndex = index + 1;
-                    if (nextIndex < results.length && results[nextIndex]) {
-                      const r = results[nextIndex];
+                    if (results.length === 0) return;
+                    // Wrap: last → first
+                    const nextIndex = (index + 1) % results.length;
+                    const r = results[nextIndex];
+                    if (r) {
                       setSearchIndex(nextIndex);
                       setSearchResultIndex(nextIndex);
                       setPos({ abbr: r.abbr, chapter: r.chapter, verse: r.verse || null });

@@ -94,18 +94,16 @@ export default function CurrentlyReadingIndicator({
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onPrevResult(); }}
             onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); onPrevResult(); }}
-            disabled={currentResultIndex <= 0}
-            title="Previous result"
-            className="p-0.5 rounded hover:bg-black/20 transition-colors flex-shrink-0 disabled:opacity-30"
+            title="Previous result (wraps to last)"
+            className="p-0.5 rounded hover:bg-black/20 transition-colors flex-shrink-0"
           >
             <ChevronUp className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onNextResult(); }}
             onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); onNextResult(); }}
-            disabled={currentResultIndex >= totalResults - 1}
-            title="Next result"
-            className="p-0.5 rounded hover:bg-black/20 transition-colors flex-shrink-0 disabled:opacity-30"
+            title="Next result (wraps to first)"
+            className="p-0.5 rounded hover:bg-black/20 transition-colors flex-shrink-0"
           >
             <ChevronDown className="w-3.5 h-3.5" />
           </button>
