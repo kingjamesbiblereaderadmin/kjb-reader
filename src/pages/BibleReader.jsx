@@ -1420,7 +1420,7 @@ export default function BibleReader() {
               </button>
 
               {/* Currently reading indicator - integrated into toolbar */}
-              {(highlightVerse || (filterMode && selectedVerses.size > 0) || lastReadingActive || searchTerm || gospelMode) && (
+              {(highlightVerse || (filterMode && selectedVerses.size > 0) || lastReadingActive || searchTerm || gospelMode || highlightSection) && (
                 <CurrentlyReadingIndicator
                   highlightVerse={highlightVerse}
                   filterMode={filterMode}
@@ -1428,6 +1428,7 @@ export default function BibleReader() {
                   lastReadingPos={lastReadingActive ? lastReadingPos : null}
                   book={book}
                   pos={pos}
+                  highlightSection={highlightSection}
                   searchTerm={searchTerm}
                   gospelMode={gospelMode}
                   gospelLabel={gospelMode ? (getGospelNav().results[gospelResultIndex]?.label || 'Gospel') : null}
@@ -1499,6 +1500,7 @@ export default function BibleReader() {
                       try { window.history.replaceState({}, '', '/read'); } catch {}
                       return;
                     }
+                    setHighlightSection(null);
                     if (searchTerm) {
                       clearSearchContext();
                     } else if (lastReadingPos && lastReadingPos.abbr && lastReadingPos.chapter && !lastReadingPos.cleared) {
