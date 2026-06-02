@@ -42,8 +42,7 @@ const GhostInput = React.forwardRef(function GhostInput(
   const siblings = getNumberedSiblings(seg);
   const siblingHint = (() => {
     if (suffix || siblings.length === 0) return '';
-    const cur = seg.match(/^(\d)\s+/)?.[1];
-    const others = siblings.map(s => s.match(/^(\d)\s+/)?.[1]).filter(n => n && n !== cur);
+    const others = siblings.filter(s => s.toLowerCase() !== seg.toLowerCase());
     return others.length ? ` → Tab: ${others.join(' or ')}` : '';
   })();
   const ghost = suffix || (isPrepend ? ` → Tab: ${numberedHint}` : siblingHint);
