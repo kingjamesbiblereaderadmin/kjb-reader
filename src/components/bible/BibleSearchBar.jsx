@@ -199,6 +199,14 @@ export default function BibleSearchBar({ onClose }) {
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       setSelectedIndex(prev => (prev > 0 ? prev - 1 : suggestions.length - 1));
+    } else if (e.key === 'Tab') {
+      // Tab / Shift+Tab cycles through suggestions instead of leaving the field
+      e.preventDefault();
+      if (e.shiftKey) {
+        setSelectedIndex(prev => (prev > 0 ? prev - 1 : suggestions.length - 1));
+      } else {
+        setSelectedIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : 0));
+      }
     } else if (e.key === 'Enter') {
       e.preventDefault();
       if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
@@ -289,11 +297,14 @@ export default function BibleSearchBar({ onClose }) {
             <button
               key={i}
               onClick={() => handleSelect(s)}
+              onMouseEnter={() => setSelectedIndex(i)}
               className={`w-full flex items-center gap-3 px-3 py-3 min-h-[48px] transition-colors text-left border-b border-border last:border-0 touch-manipulation ${
-                i === selectedIndex ? 'bg-secondary' : 'hover:bg-secondary'
+                i === selectedIndex
+                  ? 'bg-accent/15 ring-1 ring-inset ring-accent/40 border-l-2 border-l-accent'
+                  : 'hover:bg-secondary'
               }`}
             >
-              <Search className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+              <Search className={`w-3.5 h-3.5 flex-shrink-0 ${i === selectedIndex ? 'text-accent' : 'text-muted-foreground'}`} />
               <div className="flex-1 min-w-0">
                 <p className="font-sans text-sm font-medium text-foreground truncate">{s.label}</p>
                 <p className="font-sans text-xs text-muted-foreground">{s.sub}</p>
