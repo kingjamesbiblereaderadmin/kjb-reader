@@ -14,7 +14,15 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
   const bgGradient = gradient
     ? `linear-gradient(180deg, ${gradient[0]} 0%, ${gradient[1]} 100%)`
     : 'linear-gradient(180deg, #1E2A78 0%, #6A2FA0 100%)';
-  const dateBadgeBg = gradient ? gradient[1] : '#2A1750';
+  // Darken today's bottom gradient stop so the date pill reads as a distinct
+  // badge instead of blending into the same-coloured background.
+  const darken = (hex, amt = 0.45) => {
+    const n = parseInt(hex.replace('#', ''), 16);
+    const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    const mix = (c) => Math.round(c * (1 - amt));
+    return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
+  };
+  const dateBadgeBg = gradient ? darken(gradient[1]) : '#2A1750';
   // Lighten a hex colour toward white so the decorative rules stay visible
   // against a same-coloured background.
   const lighten = (hex, amt = 0.5) => {
