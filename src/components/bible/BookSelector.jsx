@@ -30,14 +30,14 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
         {/* Title Page - Above Old Testament */}
         <button
           onClick={() => { onSelect({ abbr: 'GEN', name: 'Genesis', chapters: 50, shortName: 'Gen' }, true, false); onClose(); }}
-          className="w-full text-left px-3 py-2 rounded text-sm font-sans transition-colors hover:bg-secondary text-foreground font-medium text-primary"
+          className="w-full text-left px-3 py-2 rounded text-sm font-sans border border-border transition-colors hover:bg-secondary text-foreground font-medium text-primary"
         >
           <span>Title Page</span>
         </button>
 
         {/* Old Testament */}
         <button
-          className="w-full flex items-center justify-between px-3 py-2 rounded font-sans font-semibold text-sm text-primary hover:bg-secondary transition-colors"
+          className="w-full flex items-center justify-between px-3 py-2 rounded border border-border font-sans font-semibold text-sm text-primary hover:bg-secondary transition-colors"
           onClick={() => setOldOpen(o => !o)}
         >
           <span>Old Testament <span className="text-muted-foreground font-normal">(39 books)</span></span>
@@ -51,7 +51,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
 
         {/* New Testament */}
         <button
-          className="w-full flex items-center justify-between px-3 py-2 rounded font-sans font-semibold text-sm text-primary hover:bg-secondary transition-colors"
+          className="w-full flex items-center justify-between px-3 py-2 rounded border border-border font-sans font-semibold text-sm text-primary hover:bg-secondary transition-colors"
           onClick={() => setNewOpen(o => !o)}
         >
           <span>New Testament <span className="text-muted-foreground font-normal">(27 books)</span></span>
@@ -61,7 +61,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
           <div className="space-y-0.5">
             <button
               onClick={() => { onSelect({ abbr: 'MAT', name: 'Matthew', chapters: 28, shortName: 'Mat' }, true); onClose(); }}
-              className="w-full text-left px-3 py-1.5 rounded text-sm font-sans transition-colors hover:bg-secondary text-foreground"
+              className="w-full text-left px-3 py-1.5 rounded text-sm font-sans border border-border transition-colors hover:bg-secondary text-foreground"
             >
               <span>Title Page</span>
             </button>
