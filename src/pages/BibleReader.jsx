@@ -996,10 +996,14 @@ export default function BibleReader() {
     const section = r.section || null;
     const targetVerse = section ? null : (r.verse || null);
     setHighlightSection(section);
-    // Only an actual multi-verse RANGE (verseEnd > verse) filters to that range.
-    // A single-verse result shows the FULL chapter and just highlights + scrolls.
-    if (!section && r.verse && r.verseEnd && r.verseEnd > r.verse) {
-      const end = r.verseEnd;
+    // A multi-verse RANGE (verseEnd > verse) filters to that range. A single-verse
+    // result normally shows the FULL chapter and just highlights + scrolls —
+    // EXCEPT multi-reference steps (filterToVerse) which always filter to the verse
+    // for consistency across the list.
+    const isRange = !section && r.verse && r.verseEnd && r.verseEnd > r.verse;
+    const filterSingle = !section && r.verse && r.filterToVerse;
+    if (isRange || filterSingle) {
+      const end = r.verseEnd && r.verseEnd > r.verse ? r.verseEnd : r.verse;
       const range = new Set();
       for (let v = r.verse; v <= end; v++) range.add(v);
       setHighlightedVerses(range);

@@ -57,10 +57,12 @@ export async function expandMultiReference(input) {
   for (const p of parsed) {
     if (p.kind === 'passage') {
       const blocks = await expandPassage(p);
-      blocks.forEach(b => results.push({ abbr: b.abbr, chapter: b.chapter, verse: b.vStart, verseEnd: b.vEnd }));
+      blocks.forEach(b => results.push({ abbr: b.abbr, chapter: b.chapter, verse: b.vStart, verseEnd: b.vEnd, filterToVerse: true }));
       labelParts.push(`${p.startBook.shortName} ${p.startCh}:${p.startV}–${p.endBook.abbr === p.startBook.abbr ? '' : p.endBook.shortName + ' '}${p.endCh}:${p.endV}`);
     } else {
-      results.push({ abbr: p.abbr, chapter: p.chapter, verse: p.verse, verseEnd: p.verseEnd || null });
+      // filterToVerse: in a multi-reference, every segment (even a single verse)
+      // should filter to its verse(s) — not show the full chapter — for consistency.
+      results.push({ abbr: p.abbr, chapter: p.chapter, verse: p.verse, verseEnd: p.verseEnd || null, filterToVerse: !!p.verse });
       const vLabel = p.verse ? `:${p.verse}${p.verseEnd && p.verseEnd > p.verse ? `-${p.verseEnd}` : ''}` : '';
       labelParts.push(`${p.book ? p.book.shortName : p.abbr} ${p.chapter}${vLabel}`);
     }
