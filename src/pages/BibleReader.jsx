@@ -1749,6 +1749,12 @@ export default function BibleReader() {
                 setFilterMode(prev => {
                   const next = !prev;
                   rangeHighlightRef.current = next;
+                  // When switching TO full chapter, scroll down to the first
+                  // highlighted verse (re-fires the scroll-to-verse effect).
+                  if (!next && selectedVerses.size > 0) {
+                    const first = Math.min(...selectedVerses);
+                    setHighlightVerse(first);
+                  }
                   return next;
                 });
               }}
