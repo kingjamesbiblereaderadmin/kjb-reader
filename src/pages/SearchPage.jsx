@@ -99,6 +99,9 @@ export default function SearchPage() {
     try {
       console.log('[SEARCH] Starting search for:', kw);
       const bible = await getBibleData();
+      // Yield a frame so the loading spinner actually paints before the heavy
+      // synchronous scan begins (otherwise the UI looks frozen on big terms).
+      await new Promise(r => requestAnimationFrame(() => r()));
       console.log('[SEARCH] Bible data loaded, books:', Object.keys(bible).filter(k => k !== '__colophons').length);
       let searchTerm = kw.trim();
       // If query is wrapped in quotes, treat as exact phrase: strip the quotes
