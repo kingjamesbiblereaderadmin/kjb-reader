@@ -1,7 +1,7 @@
 // Notification helpers for KJB PWA
 // Strategy: store next-fire timestamp, check on page load/focus + SW periodic sync
 
-import { getDailyVerse } from './dailyVerse';
+import { getDailyVerse, getDailyVerseFromBible } from './dailyVerse';
 
 const NOTIF_KEY = 'kjb-notifications-enabled';
 const NOTIF_TIME_KEY = 'kjb-notification-time'; // HH:MM
@@ -175,9 +175,17 @@ export async function showLocalNotification(title, body, imageUrl = null) {
   }
 }
 
-function fireNotificationNow(verse) {
+async function fireNotificationNow() {
   const today = todayString();
   localStorage.setItem(NOTIF_LAST_KEY, today);
+  // Always prefer the full Bible verse; fall back to the static pool only if
+  // the Bible data genuinely isn't available (first offline launch).
+  let verse;
+  try {
+    verse = await getDailyVerseFromBible();
+  } catch {
+    verse = getDailyVerse();
+  }
   showLocalNotification(
     'King James Bible — Daily Verse',
     `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref} (KJB)`,
@@ -187,21 +195,21 @@ function fireNotificationNow(verse) {
 
 // Fire once per day: when the app is opened on a new day (and we haven't
 // shown today's verse yet). No time scheduling — just a new-day check.
-function checkNewDayNotification(verse) {
+async function checkNewDayNotification() {
   if (!getNotificationsEnabled()) return;
   if (localStorage.getItem(NOTIF_LAST_KEY) === todayString()) return;
-  fireNotificationNow(verse || getDailyVerse());
+  await fireNotificationNow();
 }
 
 // Kept for callers (Settings toggle). Fires today's verse immediately if not
 // yet shown today, so enabling on a new day gives instant feedback.
-export function scheduleDailyNotification(verse) {
-  checkNewDayNotification(verse);
+export function scheduleDailyNotification() {
+  checkNewDayNotification();
 }
 
 // Call once on app load - checks for missed notifications and arms timer
 let _notificationsInitialized = false;
-export function initNotifications(verse) {
+export function initNotifications() {
   console.log('[Notif] ========== initNotifications START ==========');
   console.log('[Notif] initNotifications called');
   console.log('[Notif] Service Worker supported:', 'serviceWorker' in navigator);
@@ -224,23 +232,23 @@ export function initNotifications(verse) {
   console.log('[Notif] Last notified:', localStorage.getItem(NOTIF_LAST_KEY));
 
   // Fire today's verse if the app is opened on a new day
-  checkNewDayNotification(verse);
+  checkNewDayNotification();
 
   // Re-check on visibility change (e.g. user switches back to the app)
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
-      checkNewDayNotification(getDailyVerse());
+      checkNewDayNotification();
     }
   });
 
   // Check on window focus
   window.addEventListener('focus', () => {
-    checkNewDayNotification(getDailyVerse());
+    checkNewDayNotification();
   });
 
   // Check on pageshow — covers PWA resume from back/forward cache
   window.addEventListener('pageshow', () => {
-    checkNewDayNotification(getDailyVerse());
+    checkNewDayNotification();
   });
   
   console.log('[Notif] Notifications initialized successfully');

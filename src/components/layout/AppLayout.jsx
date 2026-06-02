@@ -8,8 +8,7 @@ import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import ScrollToTop from '@/components/ScrollToTop';
 import AutoUpdateHandler from '@/components/AutoUpdateHandler';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
-import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, showLocalNotification, initNotifications } from '@/lib/notifications';
-import { getDailyVerse } from '@/lib/dailyVerse';
+import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, initNotifications } from '@/lib/notifications';
 import { getBibleData, isBibleCached, initPeriodicCacheRefresh, downloadBibleForOffline, refreshCacheIfDue, CACHE_VERSION } from '@/lib/bibleCache';
 import { toast } from 'sonner';
 import { useSoftReload } from '@/lib/SoftReloadContext';
@@ -146,12 +145,9 @@ export default function AppLayout() {
       }
     };
     
-    // Run initialization in background to avoid blocking UI
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(initializeApp, { timeout: 10000 });
-    } else {
-      setTimeout(initializeApp, 500);
-    }
+    // Run initialization shortly after first paint — don't wait for idle so
+    // the download starts quickly and users get offline access ASAP.
+    setTimeout(initializeApp, 300);
 
     // Initialize periodic cache refresh (checks every 24 hours when user opens app)
     initPeriodicCacheRefresh();
@@ -159,8 +155,16 @@ export default function AppLayout() {
     // Initialize daily-verse notifications app-wide (not just on HomePage), so the
     // in-page poll is armed regardless of which page the user is on.
     if (getNotificationsEnabled()) {
-      initNotifications(getDailyVerse());
+      initNotifications();
     }
+
+    // When device comes back online, kick off the Bible download so users get
+    // offline access as soon as connectivity is restored (fixes the no-cache error).
+    const handleOnline = () => {
+      console.log('[AppLayout] Back online — triggering Bible download check');
+      initializeApp();
+    };
+    window.addEventListener('online', handleOnline);
 
     // Show prompt once per session, after a delay
     const alreadyInstalled = window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
@@ -417,7 +421,7 @@ function useAppLayoutPrompt() {
       const result = await requestNotificationPermission();
       setNotifPermission(result);
       if (result === 'granted' || result === 'unsupported') {
-        scheduleDailyNotification(getDailyVerse());
+        scheduleDailyNotification();
         setNotifEnabled(true);
         window.dispatchEvent(new Event('storage'));
       } else if (result === 'denied') {
