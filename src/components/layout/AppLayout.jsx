@@ -158,11 +158,19 @@ export default function AppLayout() {
       initNotifications();
     }
 
-    // When device comes back online, kick off the Bible download so users get
-    // offline access as soon as connectivity is restored (fixes the no-cache error).
-    const handleOnline = () => {
-      console.log('[AppLayout] Back online — triggering Bible download check');
-      initializeApp();
+    // When device comes back online and has no cache yet, download the Bible
+    // so they get offline access. If already cached, do nothing.
+    const handleOnline = async () => {
+      try {
+        const { isBibleCached, autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
+        const cached = await isBibleCached();
+        if (cached) return; // already have it — don't re-download
+        console.log('[AppLayout] Back online, no cache — downloading Bible');
+        const result = await autoDownloadBibleOnFirstLoad();
+        if (result?.downloaded) toast.success('📖 Bible downloaded for offline access');
+      } catch (err) {
+        console.error('[AppLayout] Online handler failed:', err.message);
+      }
     };
     window.addEventListener('online', handleOnline);
 
