@@ -22,6 +22,7 @@ import { base44 } from '@/api/base44Client';
 import { getAccessibilityFont, setAccessibilityFont, applyReaderFont } from '@/lib/accessibilityFont';
 import { getSearchNav, setSearchNav, setSearchIndex, clearSearchNav, getGospelNav, setGospelNav, setGospelIndex, clearGospelNav } from '@/lib/searchNav';
 import { getGospelResults } from '@/lib/gospelVerses';
+import { getOccurrenceLabel } from '@/lib/occurrenceLabel';
 import { useReaderUrlSync } from '@/lib/useReaderUrlSync';
 import { resolveBook, formatVerseRange } from '@/lib/readerHelpers';
 import { useClosePopovers } from '@/lib/useClosePopovers';
@@ -994,11 +995,8 @@ export default function BibleReader() {
     const section = r.section || null;
     const targetVerse = section ? null : (r.verse || null);
     setHighlightSection(section);
-    // Only an actual multi-verse RANGE (verseEnd > verse) filters to show just
-    // that range. A single-verse result shows the FULL chapter and simply
-    // highlights + scrolls to the matched verse — this keeps the toolbar from
-    // reflowing as you step up/down through keyword results. Whole-chapter and
-    // section results also show the full chapter without filtering.
+    // Only an actual multi-verse RANGE (verseEnd > verse) filters to that range.
+    // A single-verse result shows the FULL chapter and just highlights + scrolls.
     if (!section && r.verse && r.verseEnd && r.verseEnd > r.verse) {
       const end = r.verseEnd;
       const range = new Set();
@@ -1532,6 +1530,7 @@ export default function BibleReader() {
                   gospelLabel={gospelMode ? (getGospelNav().results[gospelResultIndex]?.label || 'Gospel') : null}
                   currentResultIndex={gospelMode ? gospelResultIndex : searchResultIndex}
                   totalResults={gospelMode ? gospelTotalResults : searchTotalResults}
+                  occurrenceLabel={!gospelMode && searchTerm ? getOccurrenceLabel(searchResultIndex) : ''}
                   onPrevResult={() => {
                     if (gospelMode) {
                       const { results, index } = getGospelNav();

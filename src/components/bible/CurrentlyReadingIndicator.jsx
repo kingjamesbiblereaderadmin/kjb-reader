@@ -32,6 +32,7 @@ export default function CurrentlyReadingIndicator({
   totalResults,
   gospelMode,
   gospelLabel,
+  occurrenceLabel,
 }) {
   const isFilterMode = filterMode && selectedVerses.size > 0;
   const isRandom = lastReadingPos && lastReadingPos.fromRandom;
@@ -58,7 +59,7 @@ export default function CurrentlyReadingIndicator({
     clearLabel = 'Clear';
   } else if (searchTerm) {
     typeLabel = `Search: "${searchTerm}"`;
-    reference = `${book.shortName} ${pos.chapter}${verseNum ? `:${verseNum}` : ''}${sectionSuffix}`;
+    reference = `${book.shortName} ${pos.chapter}${verseNum ? `:${verseNum}${occurrenceLabel || ''}` : ''}${sectionSuffix}`;
     clearLabel = 'Clear search';
   } else if (isFilterMode) {
     typeLabel = 'Reading';
