@@ -549,8 +549,11 @@ export default function SearchPage() {
   }, [location.search]);
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.nativeEvent?.stopImmediatePropagation?.();
+    }
     // Clear any focused result so the global Enter handler can't open a stale
     // result alongside this submit.
     setFocusedIndex(-1);
@@ -799,14 +802,15 @@ export default function SearchPage() {
               // Enter in the box always submits THIS query — never let the global
               // results keydown handler open a stale result instead. React's
               // stopPropagation does NOT stop native window listeners, so stop the
-              // native event immediately too.
+              // native event immediately too. We DON'T call handleSubmit here —
+              // the form's onSubmit handles it. Calling it here too caused a
+              // double-submit on mobile that bounced the user to the home page.
               if (e.key === 'Enter') {
-                e.preventDefault();
                 e.stopPropagation();
                 e.nativeEvent?.stopImmediatePropagation?.();
-                handleSubmit(e);
               }
             }}
+            enterKeyHint="search"
             placeholder="e.g. grace, faith, blood..."
             leftPadClass="pl-9"
             inputClassName="w-full pl-9 pr-4 py-2 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors"
