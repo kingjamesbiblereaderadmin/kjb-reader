@@ -1127,6 +1127,7 @@ export default function BibleReader() {
               </SelectorSheet>
 
               {/* Zoom control */}
+              <div className="relative">
               <button
                 onClick={() => { setShowZoomPopover(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowFontPopover(false); }}
                 onTouchEnd={(e) => { e.preventDefault(); setShowZoomPopover(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowFontPopover(false); }}
@@ -1224,8 +1225,10 @@ export default function BibleReader() {
                   )}
                 </div>
               </SelectorSheet>
+              </div>
 
               {/* Font family toggle */}
+              <div className="relative">
               <button
                 onClick={() => { setShowFontPopover(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); }}
                 onTouchEnd={(e) => { e.preventDefault(); setShowFontPopover(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); }}
@@ -1319,6 +1322,7 @@ export default function BibleReader() {
                   })}
                 </div>
               </SelectorSheet>
+              </div>
 
               {/* Flow toggle (Line ↔ Paragraph) */}
               <button
