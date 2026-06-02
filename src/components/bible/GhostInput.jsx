@@ -18,21 +18,31 @@ const GhostInput = React.forwardRef(function GhostInput(
     else if (forwardedRef) forwardedRef.current = el;
   };
 
-  const suffix = getBookCompletion(value); // normal case: letters to append
-  const acceptValue = getBookAcceptValue(value); // full name on accept (may prepend a number)
+  // Support comma-separated multi-references: completion always operates on the
+  // LAST segment after a comma (e.g. "Romans 3:25, Cor" → completes "Cor").
+  // `prefix` is everything before that segment, restored on accept.
+  const lastComma = value.lastIndexOf(',');
+  const prefix = lastComma >= 0 ? value.slice(0, lastComma + 1) : '';
+  const rawSeg = lastComma >= 0 ? value.slice(lastComma + 1) : value;
+  const leadWs = rawSeg.match(/^\s*/)[0]; // preserve leading space after comma
+  const seg = rawSeg.trim();
+  const restore = (full) => `${prefix}${leadWs}${full}`;
+
+  const suffix = getBookCompletion(seg); // normal case: letters to append
+  const acceptValue = getBookAcceptValue(seg); // full name on accept (may prepend a number)
   // Numbered prepend case (e.g. "Corinthians" → "1 Corinthians", "Kings" → "1 Kings"):
   // only show this hint when there's a real numbered variant. A plain book like
   // "Romans" must NOT show it.
-  const numberedHint = !suffix ? getNumberedBookHint(value) : null;
+  const numberedHint = !suffix ? getNumberedBookHint(seg) : null;
   const isPrepend = !!numberedHint;
   // Numbered variants (e.g. ["1 Corinthians", "2 Corinthians"]) for Tab-cycling.
-  const variants = isPrepend ? getNumberedBookVariants(value) : [];
-  // Sibling hint when value is already a complete numbered book — show the OTHER
+  const variants = isPrepend ? getNumberedBookVariants(seg) : [];
+  // Sibling hint when segment is already a complete numbered book — show the OTHER
   // number(s) so the user knows Tab cycles (e.g. "1 Corinthians" → "Tab: 2").
-  const siblings = getNumberedSiblings(value);
+  const siblings = getNumberedSiblings(seg);
   const siblingHint = (() => {
     if (suffix || siblings.length === 0) return '';
-    const cur = value.match(/^(\d)\s+/)?.[1];
+    const cur = seg.match(/^(\d)\s+/)?.[1];
     const others = siblings.map(s => s.match(/^(\d)\s+/)?.[1]).filter(n => n && n !== cur);
     return others.length ? ` → Tab: ${others.join(' or ')}` : '';
   })();
@@ -40,22 +50,22 @@ const GhostInput = React.forwardRef(function GhostInput(
   const canAccept = !!acceptValue || variants.length > 0;
 
   const accept = () => {
-    // Cycle through numbered variants on each Tab. If the current value is
+    // Cycle through numbered variants on each Tab. If the current segment is
     // already a variant, advance to the next (wrapping); otherwise pick the first.
     if (variants.length > 0) {
-      const idx = variants.findIndex(v => v.toLowerCase() === value.toLowerCase());
+      const idx = variants.findIndex(v => v.toLowerCase() === seg.toLowerCase());
       const next = variants[(idx + 1) % variants.length];
-      onAccept?.(next);
+      onAccept?.(restore(next));
       return true;
     }
     if (!acceptValue) return false;
-    onAccept?.(acceptValue);
+    onAccept?.(restore(acceptValue));
     return true;
   };
 
-  // When the current value already equals a numbered variant, Tab should still
+  // When the current segment already equals a numbered variant, Tab should still
   // cycle to the next one (e.g. "1 Corinthians" → "2 Corinthians").
-  const valueIsVariant = getNumberedSiblings(value);
+  const valueIsVariant = getNumberedSiblings(seg);
 
   const handleKeyDown = (e) => {
     const el = innerRef.current;
@@ -63,8 +73,8 @@ const GhostInput = React.forwardRef(function GhostInput(
     // Cycle numbered variants when value is already a complete variant.
     if (valueIsVariant.length > 0 && (e.key === 'Tab' || (e.key === 'ArrowRight' && atEnd))) {
       e.preventDefault();
-      const idx = valueIsVariant.findIndex(v => v.toLowerCase() === value.toLowerCase());
-      onAccept?.(valueIsVariant[(idx + 1) % valueIsVariant.length]);
+      const idx = valueIsVariant.findIndex(v => v.toLowerCase() === seg.toLowerCase());
+      onAccept?.(restore(valueIsVariant[(idx + 1) % valueIsVariant.length]));
       return;
     }
     if (canAccept && (e.key === 'Tab' || (e.key === 'ArrowRight' && atEnd))) {

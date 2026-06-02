@@ -648,6 +648,13 @@ export default function BibleReader() {
           setSearchResultIndex(index);
           setSearchTotalResults(results.length);
         }
+        // Drive the initial load through the SAME stepper logic so the very first
+        // result filters/highlights its range consistently with up/down stepping.
+        const cur = results[index];
+        if (cur) {
+          stepToResult(cur);
+          return;
+        }
       } else {
         // Non-search URL navigation — clear any lingering search state
         searchClearedRef.current = true;
@@ -699,6 +706,17 @@ export default function BibleReader() {
       let p;
       try { p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return; }
       if (!p || !resolveBook(p.abbr)) return;
+      // If this navigation came from a search/multi-ref stepper, route it through
+      // stepToResult so the first result filters/highlights its range consistently.
+      const fromSearch = new URLSearchParams(window.location.search).get('from') === 'search';
+      const nav = getSearchNav();
+      if (fromSearch && nav.results.length > 0) {
+        const cur = nav.results[nav.index] || nav.results[0];
+        if (cur && cur.abbr === p.abbr && cur.chapter === p.chapter) {
+          stepToResult(cur);
+          return;
+        }
+      }
       if (p.verse && p.verseEnd && p.verseEnd > p.verse) {
         const range = new Set();
         for (let v = p.verse; v <= p.verseEnd; v++) range.add(v);
