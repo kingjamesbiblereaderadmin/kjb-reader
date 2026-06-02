@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { getBookCompletion, getBookAcceptValue, getNumberedBookHint } from '@/lib/bookCompletion';
+import { getBookCompletion, getBookAcceptValue, getNumberedBookHint, getNumberedBookVariants, getNumberedSiblings } from '@/lib/bookCompletion';
 
 // A text input that shows a lighter "ghost" completion of the book name the
 // user is typing (e.g. typing "Josh" shows "ua" in faded text). Press Tab or →
@@ -25,18 +25,48 @@ const GhostInput = React.forwardRef(function GhostInput(
   // "Romans" must NOT show it.
   const numberedHint = !suffix ? getNumberedBookHint(value) : null;
   const isPrepend = !!numberedHint;
-  const ghost = suffix || (isPrepend ? ` → type ${numberedHint}` : '');
-  const canAccept = !!acceptValue;
+  // Numbered variants (e.g. ["1 Corinthians", "2 Corinthians"]) for Tab-cycling.
+  const variants = isPrepend ? getNumberedBookVariants(value) : [];
+  // Sibling hint when value is already a complete numbered book — show the OTHER
+  // number(s) so the user knows Tab cycles (e.g. "1 Corinthians" → "Tab: 2").
+  const siblings = getNumberedSiblings(value);
+  const siblingHint = (() => {
+    if (suffix || siblings.length === 0) return '';
+    const cur = value.match(/^(\d)\s+/)?.[1];
+    const others = siblings.map(s => s.match(/^(\d)\s+/)?.[1]).filter(n => n && n !== cur);
+    return others.length ? ` → Tab: ${others.join(' or ')}` : '';
+  })();
+  const ghost = suffix || (isPrepend ? ` → Tab: ${numberedHint}` : siblingHint);
+  const canAccept = !!acceptValue || variants.length > 0;
 
   const accept = () => {
-    if (!canAccept) return false;
+    // Cycle through numbered variants on each Tab. If the current value is
+    // already a variant, advance to the next (wrapping); otherwise pick the first.
+    if (variants.length > 0) {
+      const idx = variants.findIndex(v => v.toLowerCase() === value.toLowerCase());
+      const next = variants[(idx + 1) % variants.length];
+      onAccept?.(next);
+      return true;
+    }
+    if (!acceptValue) return false;
     onAccept?.(acceptValue);
     return true;
   };
 
+  // When the current value already equals a numbered variant, Tab should still
+  // cycle to the next one (e.g. "1 Corinthians" → "2 Corinthians").
+  const valueIsVariant = getNumberedSiblings(value);
+
   const handleKeyDown = (e) => {
     const el = innerRef.current;
     const atEnd = el && el.selectionStart === value.length && el.selectionEnd === value.length;
+    // Cycle numbered variants when value is already a complete variant.
+    if (valueIsVariant.length > 0 && (e.key === 'Tab' || (e.key === 'ArrowRight' && atEnd))) {
+      e.preventDefault();
+      const idx = valueIsVariant.findIndex(v => v.toLowerCase() === value.toLowerCase());
+      onAccept?.(valueIsVariant[(idx + 1) % valueIsVariant.length]);
+      return;
+    }
     if (canAccept && (e.key === 'Tab' || (e.key === 'ArrowRight' && atEnd))) {
       // Don't hijack Tab when there's no ghost; only accept when one exists.
       if (e.key === 'Tab') e.preventDefault();

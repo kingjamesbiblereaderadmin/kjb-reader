@@ -78,3 +78,40 @@ export function getNumberedBookHint(value) {
   const unique = [...new Set(nums)];
   return `${unique.join(' or ')} ${nameLabel}`;
 }
+
+// For a numbered book typed without its number (e.g. "Corinthians"), return the
+// ordered list of full variant names, e.g. ["1 Corinthians", "2 Corinthians"].
+// Returns [] when not applicable. Lets the UI cycle through them with Tab.
+export function getNumberedBookVariants(value) {
+  if (!value) return [];
+  const m = value.match(/^(\d?\s?[a-zA-Z]+(?:\s+[a-zA-Z]+)?)(.*)$/);
+  if (!m) return [];
+  const typed = m[1];
+  if (m[2].trim().length > 0) return [];
+  const lower = typed.toLowerCase();
+  if (BIBLE_BOOKS.some(b => b.shortName.toLowerCase().startsWith(lower))) return [];
+
+  return BIBLE_BOOKS
+    .filter(b => {
+      const mm = b.shortName.match(/^\d\s+(.+)$/);
+      return mm && mm[1].toLowerCase().startsWith(lower);
+    })
+    .map(b => b.shortName);
+}
+
+// When the value is already a complete numbered book (e.g. "1 Corinthians"),
+// return all sibling variants sharing the same name part (["1 Corinthians",
+// "2 Corinthians"]) so the UI can cycle with Tab. Returns [] if only one exists.
+export function getNumberedSiblings(value) {
+  if (!value) return [];
+  const m = value.match(/^\d\s+(.+)$/);
+  if (!m) return [];
+  const name = m[1].trim().toLowerCase();
+  const siblings = BIBLE_BOOKS
+    .filter(b => {
+      const mm = b.shortName.match(/^\d\s+(.+)$/);
+      return mm && mm[1].toLowerCase() === name;
+    })
+    .map(b => b.shortName);
+  return siblings.length > 1 ? siblings : [];
+}
