@@ -198,12 +198,22 @@ export default function BibleSearchBar({ onClose }) {
       ];
     }
 
+    // Special section suggestions — typing "colophon" or "subscript"/"superscription"
+    // offers to list every colophon / Psalm superscription in the Bible.
+    const sectionSuggestions = [];
+    if ('colophons'.startsWith(q) && q.length >= 3) {
+      sectionSuggestions.push({ type: 'keyword', query: 'colophons', label: 'List all Colophons', sub: 'End-notes appended to the New Testament books' });
+    }
+    if (('subscripts'.startsWith(q) || 'superscriptions'.startsWith(q)) && q.length >= 3) {
+      sectionSuggestions.push({ type: 'keyword', query: 'superscriptions', label: 'List all Superscriptions', sub: 'Psalm titles shown above the first verse' });
+    }
+
     // Keyword hint (only if no book match)
     const kwSuggestions = query.trim().length >= 3 && bookMatches.length === 0 && refSuggestions.length === 0
       ? [{ type: 'keyword', query: query.trim(), label: `Search: "${query.trim()}"`, sub: 'Keyword search across the Bible' }]
       : [];
 
-    setSuggestions([...finalSuggestions, ...kwSuggestions]);
+    setSuggestions([...sectionSuggestions, ...finalSuggestions, ...kwSuggestions]);
     setSelectedIndex(-1); // Reset selection when suggestions change
   }, [query]);
 
