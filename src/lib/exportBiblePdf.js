@@ -387,7 +387,13 @@ async function buildPdf(opts, bible, onProgress) {
         const flush = () => { if (buffer.length) { writeSegments(buffer, { indentFirst: 12 }); y += 3; } buffer = []; };
         verses.forEach((v, idx) => {
           if (v.heading) { flush(); writeStanzaHeading(v, idx === 0); }
-          else if (idx > 0 && hasPilcrow(v.text)) { flush(); y += 6; } // gap above new pilcrow paragraph
+          else if (idx > 0 && hasPilcrow(v.text)) {
+            flush();
+            y += 6; // gap above new pilcrow paragraph
+            // Don't let a new pilcrow paragraph start on the very last line of a
+            // page/column — reserve room for 2 lines so it moves down with its text.
+            ensureSpace((bodySize + 3.5) * 2 + 6);
+          }
           buffer.push({ text: `${v.verse} `, italic: false });
           buffer.push(...toSegments(v.text));
           buffer.push({ text: '  ', italic: false });
@@ -609,15 +615,18 @@ async function buildText(opts, bible, onProgress, format) {
   // own <div style="mso-element:header"> that Word renders as the running head.
   const headerDivs = [];
   let sectionCount = 0;
-  const push = (txt, kind = 'body', anchor = null) => {
+  const push = (txt, kind = 'body', anchor = null, keepNext = false) => {
     if (isDocx) {
       const a = anchor ? `<a name="${anchor}"></a>` : '';
+      // keep-with-next + no internal break so a new pilcrow paragraph isn't
+      // orphaned at the bottom of a page/column, split from its continuation.
+      const keepStyle = keepNext ? 'page-break-inside:avoid;page-break-after:avoid;' : '';
       // Title-page lines must NOT be Word headings (they'd each appear in the
       // navigation side panel). Render them as bold/large centered paragraphs.
       if (kind === 'title-main') out.push(`<p style="text-align:center;font-size:26pt;font-weight:bold;margin:6px 0">${a}${escapeHtml(txt)}</p>`);
       else if (kind === 'title-line') out.push(`<p style="text-align:center;font-size:13pt;margin:4px 0">${a}${escapeHtml(txt)}</p>`);
       else if (kind === 'center-italic') out.push(`<p style="text-align:center">${docxInline(txt)}</p>`);
-      else out.push(`<p>${docxInline(txt)}</p>`);
+      else out.push(`<p style="${keepStyle}">${docxInline(txt)}</p>`);
     } else {
       out.push(txt);
     }
@@ -783,7 +792,9 @@ async function buildText(opts, bible, onProgress, format) {
             // spaced paragraph (DOCX).
             if (gapNext && isDocx) out.push('<p style="margin:0;line-height:6pt">&nbsp;</p>');
             else if (gapNext && !isDocx) push('');
-            push(buffer.trim());
+            // keep-with-next on a new pilcrow paragraph (DOCX) so it isn't
+            // orphaned at the bottom of a page/column.
+            push(buffer.trim(), 'body', null, gapNext);
             wroteFirst = true;
           }
           gapNext = false;
@@ -797,14 +808,16 @@ async function buildText(opts, bible, onProgress, format) {
         flush();
       } else {
         verses.forEach((v, idx) => {
+          const isPilcrow = idx > 0 && hasPilcrow(v.text);
           if (v.heading) {
             writeStanzaHeading(v, idx === 0);
-          } else if (idx > 0 && hasPilcrow(v.text)) {
+          } else if (isPilcrow) {
             // Gap above verses that begin a new paragraph (pilcrow).
             if (isDocx) out.push('<p style="margin:0;line-height:6pt">&nbsp;</p>');
             else push('');
           }
-          push(`${v.verse} ${plainText(v.text, keepBrackets)}`);
+          // keep-with-next on pilcrow verses (DOCX) so they aren't orphaned.
+          push(`${v.verse} ${plainText(v.text, keepBrackets)}`, 'body', null, isPilcrow);
         });
       }
 
@@ -989,10 +1002,11 @@ async function buildRtf(opts, bible, onProgress) {
       if (paragraph) {
         let buf = '';
         let nextSb = 0;
-        const flush = () => { if (buf.trim()) para(buf.trim(), { sb: nextSb }); buf = ''; nextSb = 0; };
+        let nextKeep = false;
+        const flush = () => { if (buf.trim()) para(buf.trim(), { sb: nextSb, keepNext: nextKeep }); buf = ''; nextSb = 0; nextKeep = false; };
         verses.forEach((v, idx) => {
           if (v.heading) { flush(); writeStanzaHeading(v, idx === 0); }
-          else if (idx > 0 && hasPilcrow(v.text)) { flush(); nextSb = 120; } // gap above new pilcrow paragraph
+          else if (idx > 0 && hasPilcrow(v.text)) { flush(); nextSb = 120; nextKeep = true; } // gap above new pilcrow paragraph + keep with next
           buf += `{\\b ${v.verse}} ${rtfInline(v.text)}  `;
         });
         flush();
