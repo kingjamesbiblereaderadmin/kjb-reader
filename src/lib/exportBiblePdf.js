@@ -396,7 +396,13 @@ async function buildPdf(opts, bible, onProgress) {
       } else {
         verses.forEach((v, idx) => {
           if (v.heading) writeStanzaHeading(v, idx === 0);
-          else if (idx > 0 && hasPilcrow(v.text)) y += 6; // gap above new-paragraph verses
+          else if (idx > 0 && hasPilcrow(v.text)) {
+            y += 6; // gap above new-paragraph verses
+            // Don't let a pilcrow (paragraph-starting) verse be the last line of
+            // a page/column — reserve room for the heading-gap + 2 lines so it
+            // moves to the next column/page together with its continuation.
+            ensureSpace((bodySize + 3.5) * 2 + 6);
+          }
           writeSegments([{ text: `${v.verse} `, italic: false }, ...toSegments(v.text)]);
           y += 1;
         });
