@@ -903,8 +903,8 @@ async function buildRtf(opts, bible, onProgress) {
     : BIBLE_BOOKS;
   const lines = [];
   // Generic paragraph helper. spaceBefore/spaceAfter in twips, qc=centered.
-  const para = (rtf, { center = false, bold = false, size = 22, sb = 0, sa = 80 } = {}) =>
-    lines.push(`{\\pard${center ? '\\qc' : '\\ql'}\\sb${sb}\\sa${sa}\\fs${size}${bold ? '\\b' : ''} ${rtf}${bold ? '\\b0' : ''}\\par}`);
+  const para = (rtf, { center = false, bold = false, size = 22, sb = 0, sa = 80, keepNext = false } = {}) =>
+    lines.push(`{\\pard${center ? '\\qc' : '\\ql'}${keepNext ? '\\keepn' : ''}\\sb${sb}\\sa${sa}\\fs${size}${bold ? '\\b' : ''} ${rtf}${bold ? '\\b0' : ''}\\par}`);
   const spacer = (h = 200) => lines.push(`{\\pard\\sa${h}\\par}`);
 
   // ── Running header: book name (left) + "Chapter N" (right), on every page ──
@@ -1000,8 +1000,11 @@ async function buildRtf(opts, bible, onProgress) {
         verses.forEach((v, idx) => {
           if (v.heading) { writeStanzaHeading(v, idx === 0); para(`{\\b ${v.verse}} ${rtfInline(v.text)}`); return; }
           // Extra space above verses that begin a new paragraph (pilcrow).
-          const sb = idx > 0 && hasPilcrow(v.text) ? 120 : 0;
-          para(`{\\b ${v.verse}} ${rtfInline(v.text)}`, { sb });
+          const isPilcrow = idx > 0 && hasPilcrow(v.text);
+          const sb = isPilcrow ? 120 : 0;
+          // keep-with-next on pilcrow verses so they don't end up orphaned as the
+          // last line of a page/column, split from their continuation.
+          para(`{\\b ${v.verse}} ${rtfInline(v.text)}`, { sb, keepNext: isPilcrow });
         });
       }
 
