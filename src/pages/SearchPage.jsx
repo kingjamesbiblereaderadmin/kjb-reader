@@ -73,6 +73,7 @@ export default function SearchPage() {
   const [showBookResult, setShowBookResult] = useState(null); // { bookName, abbr, chapters, testament }
   const [bookFilterQuery, setBookFilterQuery] = useState('');
   const [booksWithResults, setBooksWithResults] = useState(null); // Track which books have results for current search (null = no search yet)
+  const [showAllBooks, setShowAllBooks] = useState(false); // When true, show every book in the filter (ignore last search's results)
 
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
@@ -95,6 +96,7 @@ export default function SearchPage() {
     setSelectMode(false);
     setNumberedBookFilter(null);
     setSelectedBooks(new Set()); // Clear book filter on new search
+    setShowAllBooks(false); // Reset to showing only books with results on a new search
 
     try {
       console.log('[SEARCH] Starting search for:', kw);
@@ -966,7 +968,7 @@ export default function SearchPage() {
                 autoFocus
               />
             </div>
-            <div className="flex gap-2 p-3 sm:p-4 pb-0 flex-shrink-0">
+            <div className="flex flex-wrap gap-2 p-3 sm:p-4 pb-0 flex-shrink-0">
               <button
                 onClick={() => {
                   const booksToSelect = BIBLE_BOOKS
@@ -978,11 +980,21 @@ export default function SearchPage() {
                 Select All
               </button>
               <button
-                onClick={() => setSelectedBooks(new Set())}
+                onClick={() => { setSelectedBooks(new Set()); setShowAllBooks(true); }}
                 className="px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-card"
               >
                 Clear
               </button>
+              {searched && booksWithResults && (
+                <button
+                  onClick={() => setShowAllBooks(v => !v)}
+                  className={`px-3 py-1.5 rounded-lg font-sans text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-card ${
+                    showAllBooks ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                  }`}
+                >
+                  {showAllBooks ? 'Showing all books' : 'Show all books'}
+                </button>
+              )}
             </div>
             <div className="flex-1 overflow-y-auto px-3 sm:px-4 pb-2" style={{ minHeight: '200px' }}>
               <div className="space-y-4">
@@ -995,8 +1007,9 @@ export default function SearchPage() {
                     {OLD_TESTAMENT
                       .filter(book => {
                         const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
-                        // Only show books that have results for the current search (if searched)
-                        const hasResults = !searched || !booksWithResults || booksWithResults.has(book.abbr);
+                        // Only show books that have results for the current search (if searched),
+                        // unless "Show all books" is on.
+                        const hasResults = showAllBooks || !searched || !booksWithResults || booksWithResults.has(book.abbr);
                         return matchesQuery && hasResults;
                       })
                       .map(book => {
@@ -1034,8 +1047,9 @@ export default function SearchPage() {
                     {NEW_TESTAMENT
                       .filter(book => {
                         const matchesQuery = !bookFilterQuery || book.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase());
-                        // Only show books that have results for the current search (if searched)
-                        const hasResults = !searched || !booksWithResults || booksWithResults.has(book.abbr);
+                        // Only show books that have results for the current search (if searched),
+                        // unless "Show all books" is on.
+                        const hasResults = showAllBooks || !searched || !booksWithResults || booksWithResults.has(book.abbr);
                         return matchesQuery && hasResults;
                       })
                       .map(book => {
