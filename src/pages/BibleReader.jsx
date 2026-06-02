@@ -981,7 +981,7 @@ export default function BibleReader() {
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
         <div ref={topRef} className="sticky top-0 z-[100] border-b border-border pb-2 pt-2 mb-2 relative shadow-sm before:content-[''] before:absolute before:bottom-full before:-left-5 before:-right-5 sm:before:-left-12 sm:before:-right-12 lg:before:-left-16 lg:before:-right-16 before:h-12 before:bg-background" style={{ backgroundColor: 'hsl(var(--background))' }}>
-          <div className="flex flex-wrap items-stretch justify-start gap-1.5 w-full">
+          <div className="flex flex-wrap items-stretch justify-stretch gap-1.5 w-full [&>button:not(.kjb-fixed-btn)]:flex-1 [&>div.relative]:flex-1 [&>div.relative>button]:w-full">
 
             {/* Book selector */}
             <button
@@ -1545,7 +1545,7 @@ export default function BibleReader() {
                 onClick={(e) => { e.stopPropagation(); setHideHeader(!hideHeader); }}
                 onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setHideHeader(!hideHeader); }}
                 title={hideHeader ? "Show header" : "Hide header"}
-                className="flex items-center justify-center px-2.5 rounded-lg bg-secondary border border-border hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap flex-shrink-0"
+                className="kjb-fixed-btn flex items-center justify-center px-2.5 rounded-lg bg-secondary border border-border hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap flex-shrink-0"
               >
                 <ChevronDown className={`w-5 h-5 transition-transform duration-200 flex-shrink-0 ${hideHeader ? '' : 'rotate-180'}`} />
               </button>
