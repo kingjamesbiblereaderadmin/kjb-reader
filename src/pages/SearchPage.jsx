@@ -291,8 +291,8 @@ export default function SearchPage() {
             }
           }
           
-          // Search in colophons for this chapter
-          const colophon = bible.__colophons?.[bookName]?.[chapterNum];
+          // Search in colophons for this chapter (keyed flat as "BookName:chapter")
+          const colophon = bible.__colophons?.[`${bookName}:${chapterNum}`];
           if (colophon) {
             const colophonText = colophon.replace(/¶\s*/g, '');
             const colophonLower = colophonText.toLowerCase();
