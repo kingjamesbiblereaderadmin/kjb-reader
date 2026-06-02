@@ -759,51 +759,8 @@ export default function SearchPage() {
   // Reset focus when results change
   useEffect(() => { setFocusedIndex(-1); resultRefs.current = []; }, [results]);
 
-  // Keyboard shortcuts: ↑/↓ or J/K to navigate, Enter to open, Escape to blur
-  useEffect(() => {
-    if (!results.length) return;
-    const handler = (e) => {
-      const tag = document.activeElement?.tagName;
-      const targetTag = e.target?.tagName;
-      const inInput = tag === 'INPUT' || tag === 'TEXTAREA' || targetTag === 'INPUT' || targetTag === 'TEXTAREA';
-      const isArrowNav = e.key === 'ArrowDown' || e.key === 'ArrowUp';
-
-      // While typing in the search box, let it handle everything EXCEPT the arrow
-      // keys — those should always move through results (blur the input first so
-      // typing 'j'/'k' still works as text, but arrows navigate).
-      if (inInput && !isArrowNav) return;
-      if (inInput && isArrowNav) document.activeElement?.blur();
-
-      // Only act on Enter when a result is explicitly focused via arrow keys.
-      if (e.key === 'Enter' && focusedIndex < 0) return;
-
-      if (e.key === 'ArrowDown' || e.key === 'j') {
-        e.preventDefault();
-        setFocusedIndex(prev => Math.min(prev + 1, results.length - 1));
-      } else if (e.key === 'ArrowUp' || e.key === 'k') {
-        e.preventDefault();
-        setFocusedIndex(prev => Math.max(prev - 1, 0));
-      } else if (e.key === 'Enter') {
-        // Only open when the user is NOT typing in the search box AND a result is
-        // explicitly arrow-focused. Otherwise leave Enter for the search form so
-        // it can't accidentally open a stale result (e.g. typing a new reference).
-        e.preventDefault();
-        setFocusedIndex(prev => {
-          if (prev >= 0 && prev < results.length) {
-            const r = results[prev];
-            const section = r.isColophon ? 'colophon' : r.isSubscript ? 'subscript' : null;
-            if (r.isColophon || r.isSubscript || r.verse === 0) goToVerse(r.abbr, r.chapter, null, null, prev, section);
-            else goToVerse(r.abbr, r.chapter, r.verse, null, prev);
-          }
-          return prev;
-        });
-      } else if (e.key === 'Escape') {
-        setFocusedIndex(-1);
-      }
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [results, goToVerse, focusedIndex]);
+  // Arrow/J-K/Enter navigation (including book-header stops) is owned by
+  // SearchResultsList, which knows the grouped order. We only reset focus here.
 
   // Navigate to previous/next search result
   const handlePrevResult = () => {
@@ -1307,7 +1264,7 @@ export default function SearchPage() {
           {/* Keyboard hint */}
           {results.length > 0 && (
             <p className="font-sans text-xs text-muted-foreground/60 mb-2 hidden sm:block">
-              ↑ ↓ or J / K to navigate · Enter to open · Tab to a book header, then Enter to collapse / expand
+              ↑ ↓ or J / K to navigate verses & book headers · Enter to open a verse or collapse / expand a book
             </p>
           )}
           {/* Verse list */}
@@ -1319,7 +1276,6 @@ export default function SearchPage() {
             selected={selected}
             onToggleSelect={toggleSelect}
             onGoToVerse={goToVerse}
-            focusedIndex={focusedIndex}
             resultRefs={resultRefs}
           />
         </div>

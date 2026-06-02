@@ -24,7 +24,7 @@ function countOccurrences(text, term, caseSensitive) {
   return (clean.match(re) || []).length;
 }
 
-function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, selectMode, selected, onToggleSelect, onGoToVerse, focusedIndex = -1, resultRefs }) {
+function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, selectMode, selected, onToggleSelect, onGoToVerse, resultRefs }) {
   // Stable ref setter so rows don't re-render just because the callback identity changed.
   const setRowRef = useCallback((idx, el) => {
     if (resultRefs) resultRefs.current[idx] = el;
@@ -36,6 +36,12 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
   const [collapsedBooks, setCollapsedBooks] = useState(() => new Set());
   const otRef = useRef(null);
   const ntRef = useRef(null);
+  // Unified keyboard-navigation cursor over a flat list of "stops" that
+  // interleaves book headers and their verses. -1 = nothing focused.
+  const [navPos, setNavPos] = useState(-1);
+  // Refs to each book-header button, keyed by book apiName, for scroll-into-view.
+  const headerRefs = useRef({});
+  const setHeaderRef = useCallback((book, el) => { headerRefs.current[book] = el; }, []);
 
   const [fontFamily, setFontFamily] = useState(() => {
     try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
@@ -81,42 +87,6 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
     };
   }, [results, highlightTerm, highlightCaseSensitive]);
 
-  // When the focused row changes (via keyboard nav), make sure its book group
-  // is expanded, then scroll the app's real scroll container (#kjb-scroll) so
-  // the focused row sits just below the header. Deferred a frame so it reads
-  // the final layout after any expand + focus re-render.
-  useEffect(() => {
-    if (focusedIndex < 0) return;
-    const focused = results[focusedIndex];
-    if (focused && collapsedBooks.has(focused.book)) {
-      setCollapsedBooks(prev => {
-        const next = new Set(prev);
-        next.delete(focused.book);
-        return next;
-      });
-    }
-    requestAnimationFrame(() => {
-      const el = resultRefs?.current?.[focusedIndex];
-      const container = document.getElementById('kjb-scroll');
-      if (!el || !container) return;
-      const elRect = el.getBoundingClientRect();
-      const cRect = container.getBoundingClientRect();
-      const MARGIN = 16;
-      // Only scroll when the focused row is out of view. Going DOWN past the
-      // bottom edge: bring the row to the top so navigation continues from the
-      // top. Going UP past the top edge: align it to the top too. Rows already
-      // visible stay put — the selection just moves down naturally.
-      if (elRect.bottom > cRect.bottom) {
-        const delta = elRect.top - cRect.top - MARGIN;
-        container.scrollTo({ top: container.scrollTop + delta, behavior: 'auto' });
-      } else if (elRect.top < cRect.top) {
-        const delta = elRect.top - cRect.top - MARGIN;
-        container.scrollTo({ top: container.scrollTop + delta, behavior: 'auto' });
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [focusedIndex]);
-
   const toggleBook = useCallback((apiName) => {
     setCollapsedBooks(prev => {
       const next = new Set(prev);
@@ -124,6 +94,98 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
       return next;
     });
   }, []);
+
+  // Flat sequence of navigation stops in visual order: each book contributes a
+  // 'header' stop, followed by its 'verse' stops (skipped while the book is
+  // collapsed). Arrow keys / J / K walk this list; Enter acts on the stop.
+  const navStops = useMemo(() => {
+    const stops = [];
+    groups.forEach(group => {
+      stops.push({ type: 'header', book: group.book });
+      if (!collapsedBooks.has(group.book)) {
+        group.items.forEach(({ i }) => stops.push({ type: 'verse', index: i }));
+      }
+    });
+    return stops;
+  }, [groups, collapsedBooks]);
+
+  // Keep navPos in range when the stop list changes (e.g. a book collapses).
+  useEffect(() => {
+    setNavPos(prev => (prev >= navStops.length ? navStops.length - 1 : prev));
+  }, [navStops.length]);
+
+  // The currently-focused verse index (for highlighting rows) — derived from navPos.
+  const currentStop = navPos >= 0 && navPos < navStops.length ? navStops[navPos] : null;
+  const focusedVerseIndex = currentStop?.type === 'verse' ? currentStop.index : -1;
+  const focusedHeaderBook = currentStop?.type === 'header' ? currentStop.book : null;
+
+  // Scroll the focused stop into view within the app's scroll container.
+  useEffect(() => {
+    if (!currentStop) return;
+    requestAnimationFrame(() => {
+      const el = currentStop.type === 'header'
+        ? headerRefs.current[currentStop.book]
+        : resultRefs?.current?.[currentStop.index];
+      const container = document.getElementById('kjb-scroll');
+      if (!el || !container) return;
+      const elRect = el.getBoundingClientRect();
+      const cRect = container.getBoundingClientRect();
+      const MARGIN = 16;
+      // Only scroll when out of view — let the selection move naturally otherwise.
+      if (elRect.bottom > cRect.bottom || elRect.top < cRect.top) {
+        const delta = elRect.top - cRect.top - MARGIN;
+        container.scrollTo({ top: container.scrollTop + delta, behavior: 'auto' });
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navPos]);
+
+  // Reset cursor when results change.
+  useEffect(() => { setNavPos(-1); }, [results]);
+
+  // Unified keyboard navigation: ↑/↓ or J/K to move between headers & verses,
+  // Enter to open a verse OR collapse/expand a book header, Escape to clear.
+  useEffect(() => {
+    if (!navStops.length) return;
+    const handler = (e) => {
+      const tag = document.activeElement?.tagName;
+      const targetTag = e.target?.tagName;
+      const inInput = tag === 'INPUT' || tag === 'TEXTAREA' || targetTag === 'INPUT' || targetTag === 'TEXTAREA';
+      const isArrowNav = e.key === 'ArrowDown' || e.key === 'ArrowUp';
+
+      // While typing, let the input handle everything except arrow keys (which
+      // always move through the list — blur first so the list takes over).
+      if (inInput && !isArrowNav) return;
+      if (inInput && isArrowNav) document.activeElement?.blur();
+
+      if (e.key === 'Enter' && navPos < 0) return;
+
+      if (e.key === 'ArrowDown' || e.key === 'j') {
+        e.preventDefault();
+        setNavPos(prev => Math.min(prev + 1, navStops.length - 1));
+      } else if (e.key === 'ArrowUp' || e.key === 'k') {
+        e.preventDefault();
+        setNavPos(prev => Math.max(prev - 1, 0));
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        const stop = navStops[navPos];
+        if (!stop) return;
+        if (stop.type === 'header') {
+          toggleBook(stop.book);
+        } else {
+          const r = results[stop.index];
+          if (!r) return;
+          const section = r.isColophon ? 'colophon' : r.isSubscript ? 'subscript' : null;
+          if (r.isColophon || r.isSubscript || r.verse === 0) onGoToVerse(r.abbr, r.chapter, null, null, stop.index, section);
+          else onGoToVerse(r.abbr, r.chapter, r.verse, null, stop.index);
+        }
+      } else if (e.key === 'Escape') {
+        setNavPos(-1);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [navStops, navPos, results, onGoToVerse, toggleBook]);
 
   let firstNTSeen = false;
 
@@ -196,8 +258,11 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
             {!sectionCollapsed && (
               <div className="rounded-xl border border-border/60 overflow-hidden">
                 <button
+                  ref={(el) => setHeaderRef(group.book, el)}
                   onClick={() => toggleBook(group.book)}
-                  className="w-full flex items-center gap-2 px-3 py-2 bg-secondary/60 hover:bg-accent/15 transition-colors text-left"
+                  className={`w-full flex items-center gap-2 px-3 py-2 bg-secondary/60 hover:bg-accent/15 transition-colors text-left ${
+                    focusedHeaderBook === group.book ? 'ring-2 ring-inset ring-accent bg-accent/15' : ''
+                  }`}
                 >
                   {bookCollapsed ? <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
                   <span className="font-sans text-sm font-semibold text-foreground">{bookName}</span>
@@ -218,7 +283,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                           r={r}
                           i={i}
                           thisIndex={i}
-                          isFocused={focusedIndex === i}
+                          isFocused={focusedVerseIndex === i}
                           isSelected={selected.has(i)}
                           selectMode={selectMode}
                           highlightTerm={highlightTerm}
