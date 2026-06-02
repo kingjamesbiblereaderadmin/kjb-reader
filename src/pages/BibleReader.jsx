@@ -776,30 +776,34 @@ export default function BibleReader() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routerLocation.search, loadChapter]);
 
+  // Smoothly scroll a verse element just below the sticky toolbar. Reusable so
+  // the scroll effect AND the "Full Chapter" toggle can both call it.
+  const scrollToVerseEl = useCallback((verseNum) => {
+    const verseEl = document.getElementById(`v${verseNum}`);
+    if (!verseEl) return;
+    const occ = posRef.current?.occurrence || 0;
+    const marks = verseEl.querySelectorAll('mark[data-occ]');
+    emphasizeOccurrence(marks, occ);
+    const el = marks[occ] || verseEl;
+    const scroller = document.getElementById('kjb-scroll');
+    const toolbarH = topRef.current ? topRef.current.getBoundingClientRect().height : 0;
+    const stickyOffset = toolbarH + 12;
+    if (scroller) {
+      const top = el.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - stickyOffset;
+      scroller.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    } else {
+      const top = el.getBoundingClientRect().top + window.scrollY - stickyOffset;
+      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    }
+  }, []);
+
   // Scroll to verse when highlight is set; otherwise restore last scroll
   // position for this chapter (so switching pages and back resumes reading).
   useEffect(() => {
     if (loading) return;
     if (highlightVerse) {
       // Align verse start just below the sticky toolbar. Retry once after layout settles.
-      const scrollToVerse = () => {
-        const verseEl = document.getElementById(`v${highlightVerse}`);
-        if (!verseEl) return;
-        const occ = posRef.current?.occurrence || 0;
-        const marks = verseEl.querySelectorAll('mark[data-occ]');
-        emphasizeOccurrence(marks, occ);
-        const el = marks[occ] || verseEl;
-        const scroller = document.getElementById('kjb-scroll');
-        const toolbarH = topRef.current ? topRef.current.getBoundingClientRect().height : 0;
-        const stickyOffset = toolbarH + 12;
-        if (scroller) {
-          const top = el.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - stickyOffset;
-          scroller.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
-        } else {
-          const top = el.getBoundingClientRect().top + window.scrollY - stickyOffset;
-          window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
-        }
-      };
+      const scrollToVerse = () => scrollToVerseEl(highlightVerse);
       const t1 = setTimeout(scrollToVerse, 200);
       const t2 = setTimeout(scrollToVerse, 600);
       return () => { clearTimeout(t1); clearTimeout(t2); };
@@ -1759,10 +1763,15 @@ export default function BibleReader() {
                   // Remember the manual choice so stepping up/down keeps this view.
                   resultViewRef.current = next ? 'filter' : 'full';
                   // When switching TO full chapter, scroll down to the first
-                  // highlighted verse (re-fires the scroll-to-verse effect).
+                  // highlighted verse. highlightVerse may already equal `first`,
+                  // so scroll explicitly here instead of relying on a state change.
                   if (!next && selectedVerses.size > 0) {
                     const first = Math.min(...selectedVerses);
                     setHighlightVerse(first);
+                    // Defer until the full chapter has re-rendered (more verses
+                    // appear), then scroll to the first highlighted verse.
+                    setTimeout(() => scrollToVerseEl(first), 80);
+                    setTimeout(() => scrollToVerseEl(first), 350);
                   }
                   return next;
                 });
