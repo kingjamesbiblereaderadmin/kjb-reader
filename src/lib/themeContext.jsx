@@ -90,6 +90,16 @@ export function ThemeProvider({ children }) {
   const [colourId, setColourIdState] = useState(() => {
     try { return localStorage.getItem('kjb-colour') || 'gold'; } catch { return 'gold'; }
   });
+  // 'daily' = accent matches the daily verse card (auto-changes each day).
+  // 'fixed' = use the chosen colour palette (colourId) instead.
+  const [colorMode, setColorModeState] = useState(() => {
+    try { return localStorage.getItem('kjb-color-mode') || 'daily'; } catch { return 'daily'; }
+  });
+
+  const setColorMode = (m) => {
+    setColorModeState(m);
+    try { localStorage.setItem('kjb-color-mode', m); } catch {}
+  };
   const [isDark, setIsDark] = useState(() => {
     const savedMode = (() => { try { return localStorage.getItem('kjb-theme-mode') || 'system'; } catch { return 'system'; } })();
     return resolveIsDark(savedMode);
@@ -143,9 +153,11 @@ export function ThemeProvider({ children }) {
       const savedMode = localStorage.getItem('kjb-theme-mode') || 'system';
       const savedColour = localStorage.getItem('kjb-colour') || 'gold';
       const dark = resolveIsDark(savedMode);
+      const savedColorMode = localStorage.getItem('kjb-color-mode') || 'daily';
       document.documentElement.classList.toggle('dark', dark);
       applyPalette(savedColour, dark);
-      applyDailyAccent(dark); // accent + box tint match today's verse-card colour
+      // Only override with the daily-verse accent when in 'daily' colour mode.
+      if (savedColorMode !== 'fixed') applyDailyAccent(dark);
       setIsInitialized(true);
     }
   }, []);
@@ -154,8 +166,10 @@ export function ThemeProvider({ children }) {
   // the accent with today's verse-card colour so they stay in sync each day.
   useEffect(() => {
     applyPalette(colourId, isDark);
-    applyDailyAccent(isDark);
-  }, [colourId, isDark]);
+    // In 'daily' mode the daily-verse accent overrides the palette so the whole
+    // app matches the verse card. In 'fixed' mode we keep the chosen palette.
+    if (colorMode !== 'fixed') applyDailyAccent(isDark);
+  }, [colourId, isDark, colorMode]);
 
   // Apply 1611 vs Modern theme and dyslexic font
   useEffect(() => {
@@ -202,7 +216,7 @@ export function ThemeProvider({ children }) {
   }, []);
 
   return (
-    <ThemeContext.Provider value={{ isDark, mode, setMode, colourId, setColourId, toggleTheme }}>
+    <ThemeContext.Provider value={{ isDark, mode, setMode, colourId, setColourId, colorMode, setColorMode, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
