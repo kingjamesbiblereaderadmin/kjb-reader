@@ -988,7 +988,7 @@ export default function SearchPage() {
                   >
                     <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy All'}
                   </button>
-                  <ExportMenu onExport={handleExport} label="Export" />
+                  <ExportMenu onExport={handleExport} label="Export" warning />
                   <button
                     onClick={handleShare}
                     className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
@@ -1012,7 +1012,7 @@ export default function SearchPage() {
                       >
                         <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : `Copy (${selected.size})`}
                       </button>
-                      <ExportMenu onExport={handleExport} count={selected.size} label="Export" />
+                      <ExportMenu onExport={handleExport} count={selected.size} label="Export" warning />
                       <button
                         onClick={handleShare}
                         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
@@ -1025,12 +1025,6 @@ export default function SearchPage() {
               )}
             </div>
           </div>
-
-          {/* Export formatting note */}
-          <p className="font-sans text-[11px] text-muted-foreground/70 mb-3 leading-snug">
-            There may be occasional formatting issues depending on your device and reader. For feedback or to report a bug, please contact{' '}
-            <a href="mailto:kingjamesbiblereader@outlook.sg" className="text-primary hover:underline">kingjamesbiblereader@outlook.sg</a>.
-          </p>
 
           {/* Selected verses reading panel */}
           {selectMode && selected.size > 0 && (

@@ -8,7 +8,7 @@ const OPTIONS = [
   { format: 'txt', label: 'Plain text (.txt)', Icon: File },
 ];
 
-export default function ExportMenu({ onExport, count, label = 'Export' }) {
+export default function ExportMenu({ onExport, count, label = 'Export', warning = false }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -33,7 +33,7 @@ export default function ExportMenu({ onExport, count, label = 'Export' }) {
         <ChevronDown className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className="absolute right-0 mt-1 z-50 w-44 bg-card border border-border rounded-xl shadow-xl overflow-hidden py-1">
+        <div className="absolute right-0 mt-1 z-50 w-56 bg-card border border-border rounded-xl shadow-xl overflow-hidden py-1">
           {OPTIONS.map(({ format, label: l, Icon }) => (
             <button
               key={format}
@@ -44,6 +44,12 @@ export default function ExportMenu({ onExport, count, label = 'Export' }) {
               {l}
             </button>
           ))}
+          {warning && (
+            <p className="px-3 pt-2 mt-1 border-t border-border font-sans text-[11px] text-muted-foreground/70 leading-snug">
+              Formatting may vary by device and reader. To report a bug, contact{' '}
+              <a href="mailto:kingjamesbiblereader@outlook.sg" className="text-primary hover:underline">kingjamesbiblereader@outlook.sg</a>.
+            </p>
+          )}
         </div>
       )}
     </div>
