@@ -37,8 +37,9 @@ const EXCLUDED_VERSES = new Set([
   'Hebrews 6:4', 'Hebrews 6:5', 'Hebrews 6:6',
   'Hebrews 10:26', 'Hebrews 10:27', 'Hebrews 12:14',
 
-  // ── James ── faith + works / law-keeping
-  'James 2:14', 'James 2:17', 'James 2:18', 'James 2:20', 'James 2:24', 'James 2:26',
+  // ── James ── faith + works / law-keeping (2:14–26, end of chapter)
+  'James 2:14', 'James 2:15', 'James 2:16', 'James 2:17', 'James 2:18', 'James 2:19',
+  'James 2:20', 'James 2:21', 'James 2:22', 'James 2:23', 'James 2:24', 'James 2:25', 'James 2:26',
 
   // ── 1 & 2 Peter ── endurance / works / falling away
   '1 Peter 1:9', '2 Peter 1:10', '2 Peter 2:20', '2 Peter 2:21',
