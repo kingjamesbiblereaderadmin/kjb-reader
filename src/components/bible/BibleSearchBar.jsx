@@ -58,7 +58,25 @@ export default function BibleSearchBar({ onClose }) {
   const [suggestions, setSuggestions] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef(null);
+  const containerRef = useRef(null);
   const navigate = useNavigate();
+
+  // Close the dropdown when clicking/tapping outside the search box
+  useEffect(() => {
+    if (!open) return;
+    const handleOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false);
+        setSelectedIndex(-1);
+      }
+    };
+    document.addEventListener('mousedown', handleOutside);
+    document.addEventListener('touchstart', handleOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleOutside);
+      document.removeEventListener('touchstart', handleOutside);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!query.trim()) { setSuggestions([]); return; }
@@ -191,6 +209,13 @@ export default function BibleSearchBar({ onClose }) {
 
   // Keyboard navigation
   const handleKeyDown = (e) => {
+    // Esc always closes the dropdown and blurs, even with no suggestions
+    if (e.key === 'Escape') {
+      setOpen(false);
+      setSelectedIndex(-1);
+      inputRef.current?.blur();
+      return;
+    }
     if (!open || suggestions.length === 0) return;
     
     if (e.key === 'ArrowDown') {
@@ -262,7 +287,7 @@ export default function BibleSearchBar({ onClose }) {
   };
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full" ref={containerRef}>
       <form onSubmit={handleSubmit} className="relative">
         <div className="relative flex items-center">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none flex-shrink-0" />
