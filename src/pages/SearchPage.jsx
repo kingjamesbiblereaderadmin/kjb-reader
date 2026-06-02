@@ -8,7 +8,7 @@ import { expandPassage } from '@/lib/expandPassage';
 import { isMultiReference, expandMultiReference } from '@/lib/multiReference';
 import SearchResultsList from '@/components/bible/SearchResultsList';
 import GhostInput from '@/components/bible/GhostInput';
-import { setSearchNav } from '@/lib/searchNav';
+import { setSearchNav, clearSearchNav } from '@/lib/searchNav';
 import ExportMenu from '@/components/bible/ExportMenu';
 import { exportVerses } from '@/lib/exportVerses';
 import { buildVerseUrl } from '@/lib/formatDailyVerse';
@@ -138,7 +138,14 @@ export default function SearchPage() {
         }
         const ref = parseReference(searchTerm);
         if (ref) {
-          goToVerse(ref.abbr, ref.chapter, ref.verse, ref.verseEnd);
+          try {
+            localStorage.setItem('kjb-position', JSON.stringify({ abbr: ref.abbr, chapter: ref.chapter, verse: ref.verse || null, verseEnd: ref.verseEnd || null }));
+            localStorage.removeItem('kjb-last-reading');
+          } catch {}
+          clearSearchNav();
+          const vParam = ref.verse ? `&verse=${ref.verse}` : '';
+          navigate(`/read?book=${ref.abbr}&chapter=${ref.chapter}${vParam}`);
+          setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
           setLoading(false);
           return;
         }
@@ -561,10 +568,20 @@ export default function SearchPage() {
       return;
     }
 
-    // Check if it's a single verse reference - if so, navigate directly to it
+    // Check if it's a single verse reference - if so, navigate directly to it.
+    // Use a clean navigation (NOT goToVerse) so we don't reuse the previous
+    // keyword results as the search stepper — otherwise the reader would open
+    // the first stale result instead of this reference.
     const ref = parseReference(kw);
     if (ref) {
-      goToVerse(ref.abbr, ref.chapter, ref.verse, ref.verseEnd);
+      try {
+        localStorage.setItem('kjb-position', JSON.stringify({ abbr: ref.abbr, chapter: ref.chapter, verse: ref.verse || null, verseEnd: ref.verseEnd || null }));
+        localStorage.removeItem('kjb-last-reading');
+      } catch {}
+      clearSearchNav();
+      const vParam = ref.verse ? `&verse=${ref.verse}` : '';
+      navigate(`/read?book=${ref.abbr}&chapter=${ref.chapter}${vParam}`);
+      setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
       return;
     }
     
