@@ -56,7 +56,7 @@ const GhostInput = React.forwardRef(function GhostInput(
           style={{ background: 'transparent', borderColor: 'transparent' }}
         >
           <span className="invisible">{value}</span>
-          <span className="text-muted-foreground/45">{ghost}</span>
+          <span className="text-muted-foreground/80 font-semibold">{ghost}</span>
         </div>
       )}
       <input
