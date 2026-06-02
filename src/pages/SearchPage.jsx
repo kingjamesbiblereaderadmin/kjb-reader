@@ -759,6 +759,16 @@ export default function SearchPage() {
   // Reset focus when results change
   useEffect(() => { setFocusedIndex(-1); resultRefs.current = []; }, [results]);
 
+  // Scroll the window so the given row sits near the top, just below the
+  // sticky header (offset). Uses the element's absolute page position instead
+  // of scrollIntoView, which can scroll an inner container instead of the page.
+  const scrollRowToTop = (el) => {
+    if (!el) return;
+    const HEADER_OFFSET = 80;
+    const top = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
+    window.scrollTo({ top, behavior: 'smooth' });
+  };
+
   // Keyboard shortcuts: ↑/↓ or J/K to navigate, Enter to open, Escape to blur
   useEffect(() => {
     if (!results.length) return;
@@ -781,14 +791,14 @@ export default function SearchPage() {
         e.preventDefault();
         setFocusedIndex(prev => {
           const next = Math.min(prev + 1, results.length - 1);
-          resultRefs.current[next]?.scrollIntoView({ block: 'start' });
+          scrollRowToTop(resultRefs.current[next]);
           return next;
         });
       } else if (e.key === 'ArrowUp' || e.key === 'k') {
         e.preventDefault();
         setFocusedIndex(prev => {
           const next = Math.max(prev - 1, 0);
-          resultRefs.current[next]?.scrollIntoView({ block: 'start' });
+          scrollRowToTop(resultRefs.current[next]);
           return next;
         });
       } else if (e.key === 'Enter') {
