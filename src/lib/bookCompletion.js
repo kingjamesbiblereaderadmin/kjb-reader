@@ -49,3 +49,32 @@ export function getBookAcceptValue(value) {
 
   return null;
 }
+
+// For a numbered book typed without its number (e.g. "Corinthians"), return a
+// hint listing every available number variant, e.g. "1 or 2 Corinthians".
+// Returns null when not applicable (direct prefix match, or no numbered match).
+export function getNumberedBookHint(value) {
+  if (!value) return null;
+  const m = value.match(/^(\d?\s?[a-zA-Z]+(?:\s+[a-zA-Z]+)?)(.*)$/);
+  if (!m) return null;
+  const typed = m[1];
+  if (m[2].trim().length > 0) return null;
+  const lower = typed.toLowerCase();
+
+  // Skip if it's already a direct prefix match (handled by suffix completion).
+  if (BIBLE_BOOKS.some(b => b.shortName.toLowerCase().startsWith(lower))) return null;
+
+  // Collect all numbered variants whose name part matches what was typed.
+  const nums = [];
+  let nameLabel = null;
+  for (const b of BIBLE_BOOKS) {
+    const mm = b.shortName.match(/^(\d)\s+(.+)$/);
+    if (mm && mm[2].toLowerCase().startsWith(lower)) {
+      nums.push(mm[1]);
+      nameLabel = mm[2];
+    }
+  }
+  if (!nums.length) return null;
+  const unique = [...new Set(nums)];
+  return `${unique.join(' or ')} ${nameLabel}`;
+}

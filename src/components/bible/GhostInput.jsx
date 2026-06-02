@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { getBookCompletion, getBookAcceptValue } from '@/lib/bookCompletion';
+import { getBookCompletion, getBookAcceptValue, getNumberedBookHint } from '@/lib/bookCompletion';
 
 // A text input that shows a lighter "ghost" completion of the book name the
 // user is typing (e.g. typing "Josh" shows "ua" in faded text). Press Tab or →
@@ -23,7 +23,8 @@ const GhostInput = React.forwardRef(function GhostInput(
   // Numbered prepend case (e.g. "Corinthians" → "1 Corinthians"): there's no
   // plain suffix, so show the full target name faded as a hint.
   const isPrepend = !suffix && acceptValue && !acceptValue.toLowerCase().startsWith(value.toLowerCase());
-  const ghost = suffix || (isPrepend ? ` → ${acceptValue}` : '');
+  const numberedHint = isPrepend ? getNumberedBookHint(value) : null;
+  const ghost = suffix || (isPrepend ? ` → type ${numberedHint || acceptValue}` : '');
   const canAccept = !!acceptValue;
 
   const accept = () => {

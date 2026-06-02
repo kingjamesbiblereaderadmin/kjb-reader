@@ -5,6 +5,7 @@ import { getBibleData } from '@/lib/bibleCache';
 import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
 import { parseReference, resolveBook } from '@/lib/parseReference';
 import { expandPassage } from '@/lib/expandPassage';
+import { isMultiReference, expandMultiReference } from '@/lib/multiReference';
 import SearchResultsList from '@/components/bible/SearchResultsList';
 import GhostInput from '@/components/bible/GhostInput';
 import { setSearchNav } from '@/lib/searchNav';
