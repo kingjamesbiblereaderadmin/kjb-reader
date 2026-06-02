@@ -594,8 +594,11 @@ export default function SearchPage() {
   };
 
   const goToVerse = useCallback((abbr, chapter, verse, verseEnd, resultIndex = null, section = null) => {
-    // Store the search term for the CurrentlyReadingIndicator
-    const q = getQueryFromUrl() || query;
+    // Store the search term for the CurrentlyReadingIndicator.
+    // Read the query from the URL (not the `query` state) so this callback's
+    // identity stays stable while typing — otherwise SearchResultsList's
+    // React.memo breaks and the whole list re-renders on every keystroke.
+    const q = getQueryFromUrl();
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null, verseEnd: verseEnd || null, highlight: section || null })); } catch {}
     // Clear last reading position (from daily verse/random) when navigating from search
     try { localStorage.removeItem('kjb-last-reading'); } catch {}
@@ -621,7 +624,7 @@ export default function SearchPage() {
     navigate(url);
     // If already on /read, notify the mounted reader to load this passage.
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
-  }, [navigate, query, results]);
+  }, [navigate, results]);
 
   // Navigate to a multi-chapter/multi-book passage as a stepper (matches the
   // header search bar): expand into per-chapter blocks, store as search nav so
