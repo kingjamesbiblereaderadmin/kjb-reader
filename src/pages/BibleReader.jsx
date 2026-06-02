@@ -940,19 +940,23 @@ export default function BibleReader() {
     const section = r.section || null;
     const targetVerse = section ? null : (r.verse || null);
     setHighlightSection(section);
-    // Passage block with a verse range → tint the whole range (filter mode off,
-    // so surrounding verses still show in context).
-    if (!section && r.verse && r.verseEnd && r.verseEnd > r.verse) {
+    // A verse or verse-range result → show ONLY that range and highlight every
+    // verse in it (filter mode), so stepping forward/back is consistent. A
+    // single verse is treated as a 1-verse range. Whole-chapter results (no
+    // verse) and section results show the full chapter without filtering.
+    if (!section && r.verse) {
+      const end = r.verseEnd && r.verseEnd > r.verse ? r.verseEnd : r.verse;
       const range = new Set();
-      for (let v = r.verse; v <= r.verseEnd; v++) range.add(v);
+      for (let v = r.verse; v <= end; v++) range.add(v);
       setHighlightedVerses(range);
       setSelectedVerses(range);
       setFilterMode(true);
       try {
         const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: r.verse, verseEnd: r.verseEnd }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: r.verse, verseEnd: end > r.verse ? end : null }));
       } catch {}
     } else {
+      setFilterMode(false);
       setHighlightedVerses(new Set());
       setSelectedVerses(new Set());
     }
