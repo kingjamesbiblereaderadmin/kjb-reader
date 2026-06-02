@@ -1461,9 +1461,11 @@ export default function BibleReader() {
                     if (r) {
                       setSearchIndex(prevIndex);
                       setSearchResultIndex(prevIndex);
-                      setPos({ abbr: r.abbr, chapter: r.chapter, verse: r.verse || null });
-                      setHighlightVerse(r.verse || null);
-                      loadChapter(r.abbr, r.chapter, r.verse || null);
+                      const section = r.section || null;
+                      setHighlightSection(section);
+                      setPos({ abbr: r.abbr, chapter: r.chapter, verse: section ? null : (r.verse || null) });
+                      setHighlightVerse(section ? null : (r.verse || null));
+                      loadChapter(r.abbr, r.chapter, section ? null : (r.verse || null));
                     }
                   }}
                   onNextResult={() => {
@@ -1490,9 +1492,11 @@ export default function BibleReader() {
                     if (r) {
                       setSearchIndex(nextIndex);
                       setSearchResultIndex(nextIndex);
-                      setPos({ abbr: r.abbr, chapter: r.chapter, verse: r.verse || null });
-                      setHighlightVerse(r.verse || null);
-                      loadChapter(r.abbr, r.chapter, r.verse || null);
+                      const section = r.section || null;
+                      setHighlightSection(section);
+                      setPos({ abbr: r.abbr, chapter: r.chapter, verse: section ? null : (r.verse || null) });
+                      setHighlightVerse(section ? null : (r.verse || null));
+                      loadChapter(r.abbr, r.chapter, section ? null : (r.verse || null));
                     }
                   }}
                   onClear={() => {

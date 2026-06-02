@@ -479,8 +479,15 @@ export default function SearchPage() {
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null, verseEnd: verseEnd || null, highlight: section || null })); } catch {}
     // Clear last reading position (from daily verse/random) when navigating from search
     try { localStorage.removeItem('kjb-last-reading'); } catch {}
-    // Store search nav state (in-memory + localStorage backup)
-    const compact = results.map(r => ({ abbr: r.abbr, chapter: r.chapter, verse: r.verse }));
+    // Store search nav state (in-memory + localStorage backup).
+    // Include the section (colophon/subscript) so the reader's prev/next stepper
+    // can re-highlight non-verse sections instead of just loading the chapter.
+    const compact = results.map(r => ({
+      abbr: r.abbr,
+      chapter: r.chapter,
+      verse: r.verse,
+      section: r.isColophon ? 'colophon' : r.isSubscript ? 'subscript' : null,
+    }));
     setSearchNav(compact, resultIndex !== null ? resultIndex : 0, q);
     window.scrollTo({ top: 0 });
     // Navigate with URL params so the reader reliably scrolls to + highlights the verse.
@@ -616,7 +623,8 @@ export default function SearchPage() {
         setFocusedIndex(prev => {
           if (prev >= 0 && prev < results.length) {
             const r = results[prev];
-            if (r.isColophon || r.verse === 0) goToVerse(r.abbr, r.chapter, null, null, prev);
+            const section = r.isColophon ? 'colophon' : r.isSubscript ? 'subscript' : null;
+            if (r.isColophon || r.isSubscript || r.verse === 0) goToVerse(r.abbr, r.chapter, null, null, prev, section);
             else goToVerse(r.abbr, r.chapter, r.verse, null, prev);
           }
           return prev;
@@ -633,16 +641,20 @@ export default function SearchPage() {
   const handlePrevResult = () => {
     if (currentResultIndex > 0) {
       const prevIndex = currentResultIndex - 1;
-      const result = results[prevIndex];
-      goToVerse(result.abbr, result.chapter, result.verse, null, prevIndex);
+      const r = results[prevIndex];
+      const section = r.isColophon ? 'colophon' : r.isSubscript ? 'subscript' : null;
+      if (section) goToVerse(r.abbr, r.chapter, null, null, prevIndex, section);
+      else goToVerse(r.abbr, r.chapter, r.verse, null, prevIndex);
     }
   };
   
   const handleNextResult = () => {
     if (currentResultIndex < results.length - 1) {
       const nextIndex = currentResultIndex + 1;
-      const result = results[nextIndex];
-      goToVerse(result.abbr, result.chapter, result.verse, null, nextIndex);
+      const r = results[nextIndex];
+      const section = r.isColophon ? 'colophon' : r.isSubscript ? 'subscript' : null;
+      if (section) goToVerse(r.abbr, r.chapter, null, null, nextIndex, section);
+      else goToVerse(r.abbr, r.chapter, r.verse, null, nextIndex);
     }
   };
 
