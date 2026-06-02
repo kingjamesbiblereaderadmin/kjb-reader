@@ -167,7 +167,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                   <span className="font-sans text-sm font-semibold text-foreground">{bookName}</span>
                   <span className="font-sans text-xs text-muted-foreground">
                     · {group.items.length} verse{group.items.length !== 1 ? 's' : ''}
-                    {group.count > group.items.length ? ` · ${group.count} hits` : ''}
+                    {group.count > group.items.length ? ` · ${group.count} occurrence${group.count !== 1 ? 's' : ''}` : ''}
                   </span>
                 </button>
                 {!bookCollapsed && (
