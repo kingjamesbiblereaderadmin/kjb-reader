@@ -1270,10 +1270,10 @@ export default function BibleReader() {
                           key={font.value}
                           disabled={isDisabled}
                           onClick={() => { handleFontChange(font.value); setShowFontPopover(false); }}
-                          className={`px-3 py-2 rounded-lg font-sans text-xs font-medium transition-all ${
+                          className={`px-3 py-2 rounded-lg border font-sans text-xs font-medium transition-all ${
                             isActive
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                              ? 'bg-primary text-primary-foreground border-primary'
+                              : 'bg-secondary text-secondary-foreground border-border hover:bg-accent/20'
                           } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
                           style={{ fontFamily: getFontFamilyValue(font.value) }}
                         >
@@ -1309,10 +1309,10 @@ export default function BibleReader() {
                       key={font.value}
                       disabled={isDisabled}
                       onClick={() => { handleFontChange(font.value); setShowFontPopover(false); }}
-                      className={`w-full px-4 py-3 rounded-lg font-sans text-sm font-medium transition-all ${
+                      className={`w-full px-4 py-3 rounded-lg border font-sans text-sm font-medium transition-all ${
                         isActive
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : 'bg-secondary text-secondary-foreground border-border hover:bg-accent/20'
                       } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
                       style={{ fontFamily: getFontFamilyValue(font.value) }}
                     >
