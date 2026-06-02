@@ -25,7 +25,6 @@ export default function CurrentlyReadingIndicator({
   pos,
   onClear,
   searchTerm,
-  highlightSection,
   onPrevResult,
   onNextResult,
   currentResultIndex,
@@ -43,15 +42,7 @@ export default function CurrentlyReadingIndicator({
   let reference = '';
   let clearLabel = 'Clear';
 
-  if (highlightSection === 'colophon') {
-    typeLabel = 'Colophon';
-    reference = `${book.shortName} ${pos.chapter}`;
-    clearLabel = 'Clear';
-  } else if (highlightSection === 'subscript') {
-    typeLabel = 'Subscript';
-    reference = `${book.shortName} ${pos.chapter}`;
-    clearLabel = 'Clear';
-  } else if (gospelMode) {
+  if (gospelMode) {
     typeLabel = gospelLabel || 'Gospel';
     const gospelVerses = selectedVerses && selectedVerses.size > 1
       ? `:${formatVerseRange([...selectedVerses])}`
