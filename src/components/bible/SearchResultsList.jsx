@@ -99,9 +99,20 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
       const el = resultRefs?.current?.[focusedIndex];
       const container = document.getElementById('kjb-scroll');
       if (!el || !container) return;
-      const HEADER_OFFSET = 16;
-      const delta = el.getBoundingClientRect().top - container.getBoundingClientRect().top - HEADER_OFFSET;
-      container.scrollTo({ top: container.scrollTop + delta, behavior: 'auto' });
+      const elRect = el.getBoundingClientRect();
+      const cRect = container.getBoundingClientRect();
+      const MARGIN = 16;
+      // Only scroll when the focused row is out of view. Going DOWN past the
+      // bottom edge: bring the row to the top so navigation continues from the
+      // top. Going UP past the top edge: align it to the top too. Rows already
+      // visible stay put — the selection just moves down naturally.
+      if (elRect.bottom > cRect.bottom) {
+        const delta = elRect.top - cRect.top - MARGIN;
+        container.scrollTo({ top: container.scrollTop + delta, behavior: 'auto' });
+      } else if (elRect.top < cRect.top) {
+        const delta = elRect.top - cRect.top - MARGIN;
+        container.scrollTo({ top: container.scrollTop + delta, behavior: 'auto' });
+      }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusedIndex]);
