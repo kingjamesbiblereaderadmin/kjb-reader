@@ -23,32 +23,75 @@ const EXCLUDED_VERSES = new Set([
   'Acts 2:38', 'Acts 10:48', 'Acts 22:16',
 
   // ── Gospels ── Kingdom/Law verses not applicable to Church Age
-  'Matthew 10:22', 'Matthew 24:13', 'Mark 13:13',   // endure unto the end
-  'Matthew 19:16', 'Matthew 19:17',                   // keep commandments for life
-  'Matthew 5:19', 'Matthew 5:20',                     // Sermon on the Mount law-keeping
-  'Matthew 28:19',                                     // Great Commission water baptism
-  'Luke 10:28',                                        // "Do this and thou shalt live"
-  'Luke 13:3', 'Luke 13:5',                           // "except ye repent ye shall perish"
-  'Mark 16:16',                                        // "believeth and is baptized"
-  'John 14:15', 'John 15:6', 'John 15:10',            // keep commandments / abide or cast out
+  // Matthew — Sermon on the Mount law-keeping, Kingdom program, endurance, baptism
+  'Matthew 5:19', 'Matthew 5:20', 'Matthew 5:22', 'Matthew 5:29', 'Matthew 5:30',
+  'Matthew 5:48',                                    // "Be ye therefore perfect"
+  'Matthew 6:14', 'Matthew 6:15',                    // forgive or not forgiven
+  'Matthew 7:21',                                    // "doeth the will of my Father"
+  'Matthew 10:22', 'Matthew 24:13',                  // endure unto the end
+  'Matthew 19:16', 'Matthew 19:17',                  // keep commandments for life
+  'Matthew 19:21',                                   // sell all / follow for eternal life
+  'Matthew 24:42', 'Matthew 25:13',                  // watch / Tribulation readiness
+  'Matthew 28:19',                                   // Great Commission water baptism
 
-  // ── Hebrews ── falling-away / endurance warnings
+  // Mark
+  'Mark 13:13',                                      // endure unto the end
+  'Mark 16:16',                                      // "believeth and is baptized"
+
+  // Luke
+  'Luke 10:28',                                      // "Do this and thou shalt live"
+  'Luke 13:3', 'Luke 13:5',                          // "except ye repent ye shall perish"
+  'Luke 18:22',                                      // sell all for treasure in heaven
+  'Luke 21:19',                                      // "in your patience possess your souls"
+
+  // John
+  'John 14:15', 'John 14:21', 'John 14:23', 'John 14:24',  // keep commandments / love = obey
+  'John 15:4', 'John 15:6', 'John 15:10', 'John 15:14',    // abide / obey or cast out
+  'John 8:51',                                       // "keep my saying, shall never see death"
+
+  // ── Acts ── Kingdom/Pentecostal program
+  'Acts 3:19',                                       // repent + be converted for blotting out sins
+  'Acts 8:37',                                       // believe + confess for baptism
+
+  // ── Hebrews ── written to Hebrews under Law/transition; falling-away / endurance warnings
   'Hebrews 3:6', 'Hebrews 3:14',
   'Hebrews 6:4', 'Hebrews 6:5', 'Hebrews 6:6',
-  'Hebrews 10:26', 'Hebrews 10:27', 'Hebrews 12:14',
+  'Hebrews 10:26', 'Hebrews 10:27', 'Hebrews 10:36',
+  'Hebrews 12:14',                                   // "holiness, without which no man shall see the Lord"
 
-  // ── James ── faith + works / law-keeping (2:14–26, end of chapter)
+  // ── James ── faith + works / law-keeping (whole of ch.2 from v.14, plus scattered)
+  'James 1:12',                                      // endure temptation / crown of life = works
+  'James 2:10',                                      // offend in one point = guilty of all
   'James 2:14', 'James 2:15', 'James 2:16', 'James 2:17', 'James 2:18', 'James 2:19',
   'James 2:20', 'James 2:21', 'James 2:22', 'James 2:23', 'James 2:24', 'James 2:25', 'James 2:26',
+  'James 4:4',                                       // friendship with world = enmity with God
 
   // ── 1 & 2 Peter ── endurance / works / falling away
-  '1 Peter 1:9', '2 Peter 1:10', '2 Peter 2:20', '2 Peter 2:21',
+  '1 Peter 1:9',                                     // end of faith = salvation (process idea)
+  '1 Peter 4:18',                                    // "if the righteous scarcely be saved"
+  '2 Peter 1:10',                                    // make your calling sure by works
+  '2 Peter 2:20', '2 Peter 2:21',                    // worse off after knowing the way
 
-  // ── 1 John ── keep commandments
-  '1 John 2:3', '1 John 2:4', '1 John 3:22', '1 John 5:3',
+  // ── 1 John ── keep commandments / abide
+  '1 John 2:3', '1 John 2:4',
+  '1 John 2:15',                                     // "love not the world / love of Father not in him"
+  '1 John 3:6', '1 John 3:8', '1 John 3:9',         // sinneth not / born of God cannot sin
+  '1 John 3:15',                                     // "no murderer hath eternal life abiding in him"
+  '1 John 3:22', '1 John 5:3',
+
+  // ── 2 John / 3 John ── walk in commandments
+  '2 John 1:6',                                      // "this is love, that we walk after his commandments"
+  '2 John 1:9',                                      // "transgresseth / not abideth in doctrine of Christ"
+
+  // ── Jude ── keep yourselves / perseverance warnings
+  'Jude 1:21',                                       // "keep yourselves in the love of God"
 
   // ── Revelation ── Tribulation endurance / keep commandments
-  'Revelation 2:10', 'Revelation 3:10', 'Revelation 13:10', 'Revelation 14:12',
+  'Revelation 2:7', 'Revelation 2:10', 'Revelation 2:11', 'Revelation 2:17',
+  'Revelation 2:26',                                 // overcometh + keepeth works
+  'Revelation 3:5',                                  // "I will not blot out his name" (conditional)
+  'Revelation 3:10',
+  'Revelation 13:10', 'Revelation 14:12',
   'Revelation 22:14',
 
   // ── Romans ── can imply two-step works (confession + belief)
