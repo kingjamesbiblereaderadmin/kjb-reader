@@ -125,6 +125,34 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
     });
   }, []);
 
+  // Keyboard shortcuts for collapsing/expanding book groups:
+  //  • Space  — toggle the focused verse's book group
+  //  • [      — collapse ALL book groups
+  //  • ]      — expand ALL book groups
+  useEffect(() => {
+    if (!results.length) return;
+    const handler = (e) => {
+      const tag = document.activeElement?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+      if (e.key === ' ' || e.code === 'Space') {
+        if (focusedIndex < 0) return;
+        const focused = results[focusedIndex];
+        if (!focused) return;
+        e.preventDefault();
+        toggleBook(focused.book);
+      } else if (e.key === '[') {
+        e.preventDefault();
+        setCollapsedBooks(new Set(groups.map(g => g.book)));
+      } else if (e.key === ']') {
+        e.preventDefault();
+        setCollapsedBooks(new Set());
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [results, focusedIndex, groups, toggleBook]);
+
   let firstNTSeen = false;
 
   return (

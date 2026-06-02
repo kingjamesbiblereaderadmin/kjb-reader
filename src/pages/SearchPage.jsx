@@ -1307,7 +1307,7 @@ export default function SearchPage() {
           {/* Keyboard hint */}
           {results.length > 0 && (
             <p className="font-sans text-xs text-muted-foreground/60 mb-2 hidden sm:block">
-              ↑ ↓ or J / K to navigate · Enter to open
+              ↑ ↓ or J / K to navigate · Enter to open · Space to collapse book · [ / ] collapse / expand all
             </p>
           )}
           {/* Verse list */}
