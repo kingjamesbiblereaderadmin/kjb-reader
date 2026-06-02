@@ -4,6 +4,7 @@ import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { useNavigate } from 'react-router-dom';
 import { expandPassage } from '@/lib/expandPassage';
 import { setSearchNav } from '@/lib/searchNav';
+import GhostInput from '@/components/bible/GhostInput';
 
 // Resolve a book token to a BIBLE_BOOKS entry (shortName starts-with or abbr).
 function matchBook(token) {
@@ -375,16 +376,18 @@ export default function BibleSearchBar({ onClose }) {
     <div className="relative w-full" ref={containerRef}>
       <form onSubmit={handleSubmit} className="relative">
         <div className="relative flex items-center">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none flex-shrink-0" />
-          <input
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none flex-shrink-0 z-10" />
+          <GhostInput
             ref={inputRef}
             type="text"
             value={query}
             onChange={e => { setQuery(e.target.value); setOpen(true); }}
+            onAccept={(full) => { setQuery(full); setOpen(true); inputRef.current?.focus(); }}
             onFocus={() => setOpen(true)}
             onKeyDown={handleKeyDown}
             placeholder="Search..."
-            className="w-full pl-9 pr-8 py-1.5 h-9 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors truncate"
+            leftPadClass="pl-9"
+            inputClassName="w-full pl-9 pr-8 py-1.5 h-9 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors truncate"
           />
           {query && (
             <button

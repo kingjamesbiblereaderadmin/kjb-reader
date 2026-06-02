@@ -5,6 +5,7 @@ import { getBibleData } from '@/lib/bibleCache';
 import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
 import { parseReference } from '@/lib/parseReference';
 import SearchResultsList from '@/components/bible/SearchResultsList';
+import GhostInput from '@/components/bible/GhostInput';
 import { setSearchNav } from '@/lib/searchNav';
 import ExportMenu from '@/components/bible/ExportMenu';
 import { exportVerses } from '@/lib/exportVerses';
@@ -714,13 +715,15 @@ export default function SearchPage() {
 
       <form onSubmit={handleSubmit} className="flex gap-2 mb-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-          <input
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
+          <GhostInput
             type="text"
             value={query}
             onChange={e => setQuery(e.target.value)}
+            onAccept={(full) => setQuery(full)}
             placeholder="e.g. grace, faith, blood..."
-            className="w-full pl-9 pr-4 py-2 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors"
+            leftPadClass="pl-9"
+            inputClassName="w-full pl-9 pr-4 py-2 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors"
             autoFocus
           />
         </div>
