@@ -47,6 +47,19 @@ function plainWithBrackets(text) {
 
 const sanitizeFilename = (q) => (q || 'verses').replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '').slice(0, 30) || 'verses';
 
+// Build a short filename suffix describing the active search filters, e.g.
+// "-wholeword-matchcase-NT" or "-3books". Returns '' when no filters are set.
+function filterSuffix(filters) {
+  if (!filters) return '';
+  const parts = [];
+  if (filters.wholeWord) parts.push('wholeword');
+  if (filters.caseSensitive) parts.push('matchcase');
+  if (filters.testament === 'old') parts.push('OT');
+  else if (filters.testament === 'new') parts.push('NT');
+  if (filters.bookCount > 0) parts.push(`${filters.bookCount}books`);
+  return parts.length ? `-${parts.join('-')}` : '';
+}
+
 // Split items into Old / New Testament groups (preserving order). Returns an
 // array of { title, items } sections. Only includes a section if it has items,
 // so a search confined to one testament shows just that one section.
@@ -60,7 +73,7 @@ function splitByTestament(items) {
 }
 
 // ── TXT ──
-export function exportTxt(items, query) {
+export function exportTxt(items, query, filters) {
   const header = `KJB Search Results — "${query}"\n${'='.repeat(50)}\n\n`;
   const sections = splitByTestament(items);
   const body = sections.map(sec => {
@@ -70,11 +83,11 @@ export function exportTxt(items, query) {
   }).join('\n\n\n');
   const footer = `\n\n${'='.repeat(50)}\n${items.length} verse${items.length !== 1 ? 's' : ''} — King James Bible`;
   const blob = new Blob(['\uFEFF', header + body + footer], { type: 'text/plain;charset=utf-8' });
-  downloadBlob(blob, `kjb-${sanitizeFilename(query)}.txt`);
+  downloadBlob(blob, `kjb-${sanitizeFilename(query)}${filterSuffix(filters)}.txt`);
 }
 
 // ── DOCX (Word-compatible HTML) — italics preserved ──
-export function exportDocx(items, query) {
+export function exportDocx(items, query, filters) {
   const rows = splitByTestament(items).map(sec =>
     `<h3 style="font-family:Georgia,serif;font-size:13pt;margin:18pt 0 8pt 0;">${escapeHtml(sec.title)}</h3>` +
     sec.items.map(it =>
@@ -89,7 +102,7 @@ export function exportDocx(items, query) {
     `<h2 style="font-family:Georgia,serif;">KJB Search Results — &ldquo;${escapeHtml(query)}&rdquo;</h2>${rows}` +
     `<p style="font-size:10pt;color:#777;">${items.length} verse${items.length !== 1 ? 's' : ''} — King James Bible</p></body></html>`;
   const blob = new Blob(['\uFEFF', html], { type: 'application/msword' });
-  downloadBlob(blob, `kjb-${sanitizeFilename(query)}.doc`);
+  downloadBlob(blob, `kjb-${sanitizeFilename(query)}${filterSuffix(filters)}.doc`);
 }
 
 // ── CSV (Excel-compatible) — opens cleanly without the .xls format warning.
@@ -98,7 +111,7 @@ function csvCell(s) {
   const v = (s || '').replace(/"/g, '""');
   return `"${v}"`;
 }
-export function exportXls(items, query) {
+export function exportXls(items, query, filters) {
   const header = `${csvCell('Testament')},${csvCell('Reference')},${csvCell('Text ([brackets] = italics)')}`;
   const rows = [];
   splitByTestament(items).forEach(sec => {
@@ -109,11 +122,11 @@ export function exportXls(items, query) {
   const csv = [header, ...rows].join('\r\n');
   // Leading BOM so Excel detects UTF-8.
   const blob = new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8' });
-  downloadBlob(blob, `kjb-${sanitizeFilename(query)}.csv`);
+  downloadBlob(blob, `kjb-${sanitizeFilename(query)}${filterSuffix(filters)}.csv`);
 }
 
 // ── PDF (jsPDF) — italics preserved via font style switching ──
-export function exportPdf(items, query) {
+export function exportPdf(items, query, filters) {
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const marginX = 48;
   const marginTop = 56;
@@ -197,16 +210,16 @@ export function exportPdf(items, query) {
     renderSectionHeading(sec.title);
     sec.items.forEach(it => renderVerse(it.text, it.ref, it.url));
   });
-  doc.save(`kjb-${sanitizeFilename(query)}.pdf`);
+  doc.save(`kjb-${sanitizeFilename(query)}${filterSuffix(filters)}.pdf`);
 }
 
 // Single entry point
-export function exportVerses(format, items, query) {
+export function exportVerses(format, items, query, filters) {
   switch (format) {
-    case 'txt': return exportTxt(items, query);
-    case 'docx': return exportDocx(items, query);
-    case 'xls': return exportXls(items, query);
-    case 'pdf': return exportPdf(items, query);
-    default: return exportTxt(items, query);
+    case 'txt': return exportTxt(items, query, filters);
+    case 'docx': return exportDocx(items, query, filters);
+    case 'xls': return exportXls(items, query, filters);
+    case 'pdf': return exportPdf(items, query, filters);
+    default: return exportTxt(items, query, filters);
   }
 }

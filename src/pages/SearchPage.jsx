@@ -777,7 +777,21 @@ export default function SearchPage() {
       const url = buildVerseUrl({ abbr: r.abbr, chapter: r.chapter, verse: (isColophon || isSubscript) ? null : r.verse, from: 'search' }) + (q ? `&q=${encodeURIComponent(q)}` : '');
       return { text: r.text, ref, testament: bookEntry ? bookEntry.testament : 'old', url };
     });
-    exportVerses(format, items, q);
+    // Describe the active filters so the export filename reflects them.
+    const testament = testamentFilter.has('all')
+      ? null
+      : testamentFilter.has('old') && !testamentFilter.has('new')
+      ? 'old'
+      : testamentFilter.has('new') && !testamentFilter.has('old')
+      ? 'new'
+      : null;
+    const filters = {
+      wholeWord,
+      caseSensitive,
+      testament,
+      bookCount: selectedBooks.size > 0 && selectedBooks.size < 66 ? selectedBooks.size : 0,
+    };
+    exportVerses(format, items, q, filters);
   };
 
   const handleShare = async () => {
