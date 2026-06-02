@@ -796,13 +796,13 @@ export default function SearchPage() {
                     .filter(b => !bookFilterQuery || b.shortName.toLowerCase().includes(bookFilterQuery.toLowerCase()));
                   setSelectedBooks(new Set(booksToSelect.map(b => b.abbr)));
                 }}
-                className="px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+                className="px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-card"
               >
                 Select All
               </button>
               <button
                 onClick={() => setSelectedBooks(new Set())}
-                className="px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+                className="px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-card"
               >
                 Clear
               </button>
@@ -834,11 +834,12 @@ export default function SearchPage() {
                                 return next;
                               });
                             }}
-                            className={`px-3 py-2 rounded-lg font-sans text-xs font-medium transition-colors whitespace-normal text-left ${
+                            className={`px-3 py-2 rounded-lg font-sans text-xs font-medium transition-colors whitespace-normal text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-card ${
                               isSelected
-                                ? 'bg-primary text-primary-foreground'
+                                ? 'bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2 ring-offset-card'
                                 : 'bg-secondary text-foreground hover:bg-accent/20'
                             }`}
+                            aria-pressed={isSelected}
                             title={book.shortName}
                           >
                             {book.shortName}
@@ -872,11 +873,12 @@ export default function SearchPage() {
                                 return next;
                               });
                             }}
-                            className={`px-3 py-2 rounded-lg font-sans text-xs font-medium transition-colors whitespace-normal text-left ${
+                            className={`px-3 py-2 rounded-lg font-sans text-xs font-medium transition-colors whitespace-normal text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-card ${
                               isSelected
-                                ? 'bg-primary text-primary-foreground'
+                                ? 'bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2 ring-offset-card'
                                 : 'bg-secondary text-foreground hover:bg-accent/20'
                             }`}
+                            aria-pressed={isSelected}
                             title={book.shortName}
                           >
                             {book.shortName}
@@ -890,7 +892,7 @@ export default function SearchPage() {
             <div className="p-3 sm:p-4 border-t border-border flex-shrink-0">
               <button
                 onClick={() => setShowBookFilter(false)}
-                className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+                className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-card"
               >
                 Search {selectedBooks.size > 0 && selectedBooks.size < 66 ? `(${selectedBooks.size} book${selectedBooks.size !== 1 ? 's' : ''})` : selectedBooks.size === 66 ? '(All 66 books)' : 'All Books'}
               </button>
