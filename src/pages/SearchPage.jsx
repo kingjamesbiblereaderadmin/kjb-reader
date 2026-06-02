@@ -247,18 +247,12 @@ export default function SearchPage() {
             const searchTextLower = searchText.toLowerCase();
             
             if (effectiveExactMatch) {
-              // Exact phrase match: the term must appear verbatim as a contiguous
-              // phrase (respecting Match case + Whole word toggles), NOT the whole
-              // verse equalling the term.
-              const hay = effectiveCaseSensitive ? searchText : searchTextLower;
-              const needle = effectiveCaseSensitive ? searchTerm : searchTermLower;
-              if (effectiveWholeWord) {
-                const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const re = new RegExp(`(^|[^A-Za-z'])${escaped}($|[^A-Za-z'])`, effectiveCaseSensitive ? '' : 'i');
-                found = re.test(searchText);
-              } else {
-                found = hay.includes(needle);
-              }
+              // True exact match: the ENTIRE verse text must equal the term
+              // (ignoring surrounding whitespace and trailing punctuation).
+              const hayRaw = searchText.trim().replace(/[.,;:!?'"]+$/, '');
+              const hay = effectiveCaseSensitive ? hayRaw : hayRaw.toLowerCase();
+              const needle = effectiveCaseSensitive ? searchTerm.trim() : searchTermLower.trim();
+              found = hay === needle;
             } else if (effectiveCaseSensitive) {
               if (effectiveWholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -301,14 +295,8 @@ export default function SearchPage() {
 
             if (effectiveExactMatch) {
               const hay = effectiveCaseSensitive ? headingClean : headingLower;
-              const needle = effectiveCaseSensitive ? searchTerm : searchTermLower;
-              if (effectiveWholeWord) {
-                const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const re = new RegExp(`(^|[^A-Za-z'])${escaped}($|[^A-Za-z'])`, effectiveCaseSensitive ? '' : 'i');
-                headingFound = re.test(headingClean);
-              } else {
-                headingFound = hay.includes(needle);
-              }
+              const needle = effectiveCaseSensitive ? searchTerm.trim() : searchTermLower.trim();
+              headingFound = hay === needle;
             } else if (effectiveCaseSensitive) {
               if (effectiveWholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -350,15 +338,10 @@ export default function SearchPage() {
             let colophonFound = false;
             
             if (effectiveExactMatch) {
-              const hay = effectiveCaseSensitive ? colophonText : colophonLower;
-              const needle = effectiveCaseSensitive ? searchTerm : searchTermLower;
-              if (effectiveWholeWord) {
-                const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const re = new RegExp(`(^|[^A-Za-z'])${escaped}($|[^A-Za-z'])`, effectiveCaseSensitive ? '' : 'i');
-                colophonFound = re.test(colophonText);
-              } else {
-                colophonFound = hay.includes(needle);
-              }
+              const hayRaw = colophonText.trim().replace(/[.,;:!?'"]+$/, '');
+              const hay = effectiveCaseSensitive ? hayRaw : hayRaw.toLowerCase();
+              const needle = effectiveCaseSensitive ? searchTerm.trim() : searchTermLower.trim();
+              colophonFound = hay === needle;
             } else if (effectiveCaseSensitive) {
               if (effectiveWholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -403,15 +386,10 @@ export default function SearchPage() {
             let subscriptFound = false;
 
             if (effectiveExactMatch) {
-              const hay = effectiveCaseSensitive ? subscriptClean : subscriptLower;
-              const needle = effectiveCaseSensitive ? searchTerm : searchTermLower;
-              if (effectiveWholeWord) {
-                const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const re = new RegExp(`(^|[^A-Za-z'])${escaped}($|[^A-Za-z'])`, effectiveCaseSensitive ? '' : 'i');
-                subscriptFound = re.test(subscriptClean);
-              } else {
-                subscriptFound = hay.includes(needle);
-              }
+              const hayRaw = subscriptClean.trim().replace(/[.,;:!?'"]+$/, '');
+              const hay = effectiveCaseSensitive ? hayRaw : hayRaw.toLowerCase();
+              const needle = effectiveCaseSensitive ? searchTerm.trim() : searchTermLower.trim();
+              subscriptFound = hay === needle;
             } else if (effectiveCaseSensitive) {
               if (effectiveWholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
