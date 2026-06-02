@@ -3,7 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked, ChevronDown, Share2, ChevronUp, ChevronDown as ChevronDownIcon, ChevronRight } from 'lucide-react';
 import { getBibleData } from '@/lib/bibleCache';
 import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
-import { parseReference } from '@/lib/parseReference';
+import { parseReference, resolveBook } from '@/lib/parseReference';
+import { expandPassage } from '@/lib/expandPassage';
 import SearchResultsList from '@/components/bible/SearchResultsList';
 import GhostInput from '@/components/bible/GhostInput';
 import { setSearchNav } from '@/lib/searchNav';
@@ -11,6 +12,27 @@ import ExportMenu from '@/components/bible/ExportMenu';
 import { exportVerses } from '@/lib/exportVerses';
 import { buildVerseUrl } from '@/lib/formatDailyVerse';
 import { SUBSCRIPTS } from '@/lib/bibleSubscripts';
+
+// Parse a cross-chapter / cross-book passage like "John 3:16-4:2" (same book,
+// spans chapters) or "Matthew 28:1-Mark 1:5" (spans books). Returns
+// { startBook, startCh, startV, endBook, endCh, endV } or null. Same-chapter
+// ranges (e.g. "John 3:16-18") return null so parseReference handles them.
+function parsePassage(input) {
+  const trimmed = (input || '').trim();
+  const m = trimmed.match(/^(\d?\s?[a-zA-Z]+(?:\s+[a-zA-Z]+)?)\s+(\d+):(\d+)\s*-\s*((?:\d?\s?[a-zA-Z]+(?:\s+[a-zA-Z]+)?)\s+)?(\d+):(\d+)$/);
+  if (!m) return null;
+  const startBook = resolveBook(m[1].trim());
+  const startCh = parseInt(m[2], 10);
+  const startV = parseInt(m[3], 10);
+  const endBook = m[4] ? resolveBook(m[4].trim()) : startBook;
+  const endCh = parseInt(m[5], 10);
+  const endV = parseInt(m[6], 10);
+  if (!startBook || !endBook) return null;
+  if (startCh < 1 || startCh > startBook.chapters || endCh < 1 || endCh > endBook.chapters) return null;
+  // Same book + same chapter → not a passage; let parseReference handle the range.
+  if (startBook.abbr === endBook.abbr && startCh === endCh) return null;
+  return { startBook, startCh, startV, endBook, endCh, endV };
+}
 
 const OT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'old').map(b => b.apiName));
 const NT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'new').map(b => b.apiName));
@@ -102,6 +124,12 @@ export default function SearchPage() {
       // Check if the query is a scripture reference (by name OR abbreviation),
       // e.g. "jn 3:16", "gen 1", "1 cor 13:4-7", "psalm 23". If so, jump straight to it.
       if (!isQuotedPhrase) {
+        const passage = parsePassage(searchTerm);
+        if (passage) {
+          goToPassage(passage);
+          setLoading(false);
+          return;
+        }
         const ref = parseReference(searchTerm);
         if (ref) {
           goToVerse(ref.abbr, ref.chapter, ref.verse, ref.verseEnd);
@@ -508,8 +536,16 @@ export default function SearchPage() {
     e.preventDefault();
     const kw = query.trim();
     if (!kw) return;
-    
-    // Check if it's a verse reference - if so, navigate directly to it
+
+    // Check for a cross-chapter / cross-book passage first (e.g. "John 3:16-4:2"
+    // or "Matthew 28:1-Mark 1:5") — go straight to the reader as a passage.
+    const passage = parsePassage(kw);
+    if (passage) {
+      goToPassage(passage);
+      return;
+    }
+
+    // Check if it's a single verse reference - if so, navigate directly to it
     const ref = parseReference(kw);
     if (ref) {
       goToVerse(ref.abbr, ref.chapter, ref.verse, ref.verseEnd);
@@ -552,6 +588,24 @@ export default function SearchPage() {
     // If already on /read, notify the mounted reader to load this passage.
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   }, [navigate, query, results]);
+
+  // Navigate to a multi-chapter/multi-book passage as a stepper (matches the
+  // header search bar): expand into per-chapter blocks, store as search nav so
+  // the reader's up/down arrows walk through each chapter with its verse range.
+  const goToPassage = useCallback(async (p) => {
+    const blocks = await expandPassage(p);
+    if (!blocks.length) return;
+    const results = blocks.map(b => ({ abbr: b.abbr, chapter: b.chapter, verse: b.vStart, verseEnd: b.vEnd }));
+    const label = `${p.startBook.shortName} ${p.startCh}:${p.startV}–${p.endBook.abbr === p.startBook.abbr ? '' : p.endBook.shortName + ' '}${p.endCh}:${p.endV}`;
+    setSearchNav(results, 0, label);
+    const first = blocks[0];
+    try {
+      localStorage.setItem('kjb-position', JSON.stringify({ abbr: first.abbr, chapter: first.chapter, verse: first.vStart, verseEnd: first.vEnd }));
+      localStorage.removeItem('kjb-last-reading');
+    } catch {}
+    navigate(`/read?book=${first.abbr}&chapter=${first.chapter}&verse=${first.vStart}&from=search`);
+    setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
+  }, [navigate]);
 
   // Selection helpers
   const toggleSelect = useCallback((i) => {
