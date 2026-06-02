@@ -81,6 +81,31 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
     };
   }, [results, highlightTerm, highlightCaseSensitive]);
 
+  // When the focused row changes (via keyboard nav), make sure its book group
+  // is expanded, then scroll the app's real scroll container (#kjb-scroll) so
+  // the focused row sits just below the header. Deferred a frame so it reads
+  // the final layout after any expand + focus re-render.
+  useEffect(() => {
+    if (focusedIndex < 0) return;
+    const focused = results[focusedIndex];
+    if (focused && collapsedBooks.has(focused.book)) {
+      setCollapsedBooks(prev => {
+        const next = new Set(prev);
+        next.delete(focused.book);
+        return next;
+      });
+    }
+    requestAnimationFrame(() => {
+      const el = resultRefs?.current?.[focusedIndex];
+      const container = document.getElementById('kjb-scroll');
+      if (!el || !container) return;
+      const HEADER_OFFSET = 16;
+      const delta = el.getBoundingClientRect().top - container.getBoundingClientRect().top - HEADER_OFFSET;
+      container.scrollTo({ top: container.scrollTop + delta, behavior: 'auto' });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusedIndex]);
+
   const toggleBook = useCallback((apiName) => {
     setCollapsedBooks(prev => {
       const next = new Set(prev);

@@ -759,22 +759,6 @@ export default function SearchPage() {
   // Reset focus when results change
   useEffect(() => { setFocusedIndex(-1); resultRefs.current = []; }, [results]);
 
-  // Scroll so the given row sits near the top of the viewport. The app's real
-  // scroll container is <main id="kjb-scroll"> (not the window), so we scroll
-  // that element. Deferred to the next frame so it reads the row's final
-  // position after the focus-state re-render, and uses instant (auto) scrolling
-  // so rapid key presses don't queue competing smooth animations.
-  const scrollRowToTop = (el) => {
-    if (!el) return;
-    requestAnimationFrame(() => {
-      const container = document.getElementById('kjb-scroll');
-      if (!container) return;
-      const HEADER_OFFSET = 16;
-      const delta = el.getBoundingClientRect().top - container.getBoundingClientRect().top - HEADER_OFFSET;
-      container.scrollTo({ top: container.scrollTop + delta, behavior: 'auto' });
-    });
-  };
-
   // Keyboard shortcuts: ↑/↓ or J/K to navigate, Enter to open, Escape to blur
   useEffect(() => {
     if (!results.length) return;
@@ -795,18 +779,10 @@ export default function SearchPage() {
 
       if (e.key === 'ArrowDown' || e.key === 'j') {
         e.preventDefault();
-        setFocusedIndex(prev => {
-          const next = Math.min(prev + 1, results.length - 1);
-          scrollRowToTop(resultRefs.current[next]);
-          return next;
-        });
+        setFocusedIndex(prev => Math.min(prev + 1, results.length - 1));
       } else if (e.key === 'ArrowUp' || e.key === 'k') {
         e.preventDefault();
-        setFocusedIndex(prev => {
-          const next = Math.max(prev - 1, 0);
-          scrollRowToTop(resultRefs.current[next]);
-          return next;
-        });
+        setFocusedIndex(prev => Math.max(prev - 1, 0));
       } else if (e.key === 'Enter') {
         // Only open when the user is NOT typing in the search box AND a result is
         // explicitly arrow-focused. Otherwise leave Enter for the search form so
