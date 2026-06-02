@@ -334,7 +334,7 @@ export default function SearchPage() {
                   book: bookName,
                   chapter: parseInt(chapterNum),
                   verse: verseObj.verse,
-                  text: headingClean.charAt(0) + headingClean.slice(1).toLowerCase(),
+                  text: headingClean.toUpperCase(),
                   isHeading: true,
                   abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
                 });
