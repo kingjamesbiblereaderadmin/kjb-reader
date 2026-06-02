@@ -105,14 +105,18 @@ export function renderVerseText(text, searchTerm = null) {
     i % 2 === 1 ? `<em>${part}</em>` : part
   ).join('');
   
-  // Highlight search terms — split on HTML tags so we only replace inside text nodes
+  // Highlight search terms — split on HTML tags so we only replace inside text nodes.
+  // Each match gets a sequential data-occ index so the reader can scroll to a
+  // specific occurrence when a verse contains the term more than once.
   if (searchTerm && searchTerm.trim().length > 0) {
     const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const termRegex = new RegExp(`(${escaped})`, 'gi');
+    let occ = 0;
     // Split the HTML string into tag and text segments, only replace in text segments
     result = result.replace(/(<[^>]+>)|([^<]+)/g, (chunk, tag, text) => {
       if (tag) return tag; // keep HTML tags untouched
-      return text.replace(termRegex, '<mark style="background-color: rgba(250, 204, 21, 0.55); border-radius: 3px; padding: 0 2px;">$1</mark>');
+      return text.replace(termRegex, (m) =>
+        `<mark data-occ="${occ++}" style="background-color: rgba(250, 204, 21, 0.55); border-radius: 3px; padding: 0 2px;">${m}</mark>`);
     });
   }
   

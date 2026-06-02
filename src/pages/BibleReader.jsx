@@ -777,8 +777,11 @@ export default function BibleReader() {
     if (highlightVerse) {
       // Align verse start just below the sticky toolbar. Retry once after layout settles.
       const scrollToVerse = () => {
-        const el = document.getElementById(`v${highlightVerse}`);
-        if (!el) return;
+        const verseEl = document.getElementById(`v${highlightVerse}`);
+        if (!verseEl) return;
+        const occ = posRef.current?.occurrence || 0;
+        const marks = verseEl.querySelectorAll('mark[data-occ]');
+        const el = (occ > 0 && marks[occ]) ? marks[occ] : verseEl;
         const scroller = document.getElementById('kjb-scroll');
         const toolbarH = topRef.current ? topRef.current.getBoundingClientRect().height : 0;
         const stickyOffset = toolbarH + 12;
@@ -1016,7 +1019,7 @@ export default function BibleReader() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: r.verse || null, verseEnd: null }));
       } catch {}
     }
-    setPos({ abbr: r.abbr, chapter: r.chapter, verse: targetVerse });
+    setPos({ abbr: r.abbr, chapter: r.chapter, verse: targetVerse, occurrence: r.occurrence || 0 });
     setHighlightVerse(targetVerse);
     loadChapter(r.abbr, r.chapter, targetVerse);
   };

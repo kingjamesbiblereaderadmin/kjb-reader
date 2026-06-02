@@ -611,14 +611,35 @@ export default function SearchPage() {
     // Store search nav state (in-memory + localStorage backup).
     // Include the section (colophon/subscript) so the reader's prev/next stepper
     // can re-highlight non-verse sections instead of just loading the chapter.
-    const compact = results.map(r => ({
-      abbr: r.abbr,
-      chapter: r.chapter,
-      verse: r.verse,
-      verseEnd: r.verseEnd || null,
-      section: r.isColophon ? 'colophon' : r.isSubscript ? 'subscript' : null,
-    }));
-    setSearchNav(compact, resultIndex !== null ? resultIndex : 0, q);
+    // Expand each verse into ONE entry per occurrence of the term, so stepping
+    // up/down stops at every occurrence within the same verse separately.
+    const occRe = (() => {
+      if (!q) return null;
+      const cleaned = (q.startsWith('"') && q.endsWith('"')) || (q.startsWith('\u201C') && q.endsWith('\u201D')) ? q.slice(1, -1) : q;
+      const esc = cleaned.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      try { return new RegExp(esc, highlightCaseSensitive ? 'g' : 'gi'); } catch { return null; }
+    })();
+    const compact = [];
+    let startNavIndex = 0;
+    const clickedIdx = resultIndex !== null ? resultIndex : 0;
+    results.forEach((r, ri) => {
+      if (ri === clickedIdx) startNavIndex = compact.length;
+      const base = {
+        abbr: r.abbr,
+        chapter: r.chapter,
+        verse: r.verse,
+        verseEnd: r.verseEnd || null,
+        section: r.isColophon ? 'colophon' : r.isSubscript ? 'subscript' : null,
+      };
+      // Count occurrences in plain verses only (not ranges/colophons/subscripts).
+      let count = 1;
+      if (!base.section && !base.verseEnd && occRe) {
+        const clean = (r.text || '').replace(/[[\]]/g, '');
+        count = Math.max(1, (clean.match(occRe) || []).length);
+      }
+      for (let o = 0; o < count; o++) compact.push({ ...base, occurrence: o });
+    });
+    setSearchNav(compact, startNavIndex, q);
     window.scrollTo({ top: 0 });
     // Navigate with URL params so the reader reliably scrolls to + highlights the verse.
     // Include the search term (&q=) so the URL is shareable/bookmarkable.
