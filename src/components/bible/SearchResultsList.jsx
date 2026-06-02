@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { ChevronDown, ChevronUp, ArrowDown, ChevronRight } from 'lucide-react';
-import { BIBLE_BOOKS } from '@/lib/bibleData';
+import { ChevronDown, ArrowDown, ChevronRight } from 'lucide-react';
+import { BIBLE_BOOKS, BOOK_BY_API_NAME } from '@/lib/bibleData';
 import SearchResultRow from '@/components/bible/SearchResultRow';
 
 const NT_BOOKS = new Set(BIBLE_BOOKS.filter(b => b.testament === 'NT' || BIBLE_BOOKS.indexOf(b) >= 39).map(b => b.apiName));
@@ -15,22 +15,32 @@ function getFontFamilyValue(family) {
   return "'Merriweather', 'Cormorant Garamond', Georgia, serif";
 }
 
+// Count occurrences of the search term within a verse's text (multiple hits per verse)
+function countOccurrences(text, term, caseSensitive) {
+  if (!term) return 1;
+  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp(escaped, caseSensitive ? 'g' : 'gi');
+  const clean = (text || '').replace(/[[\]]/g, '');
+  return (clean.match(re) || []).length;
+}
+
 function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, selectMode, selected, onToggleSelect, onGoToVerse, focusedIndex = -1, resultRefs }) {
   // Stable ref setter so rows don't re-render just because the callback identity changed.
   const setRowRef = useCallback((idx, el) => {
     if (resultRefs) resultRefs.current[idx] = el;
   }, [resultRefs]);
-  // Track a flat index across results for keyboard focus
-  let resultIndex = -1;
+
   const [otExpanded, setOtExpanded] = useState(true);
   const [ntExpanded, setNtExpanded] = useState(true);
-  const otRef = React.useRef(null);
-  const ntRef = React.useRef(null);
-  
-  const [fontFamily, setFontFamily] = React.useState(() => {
+  // Which book groups are collapsed (by apiName). Default: all expanded.
+  const [collapsedBooks, setCollapsedBooks] = useState(() => new Set());
+  const otRef = useRef(null);
+  const ntRef = useRef(null);
+
+  const [fontFamily, setFontFamily] = useState(() => {
     try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
   });
-  React.useEffect(() => {
+  useEffect(() => {
     const sync = () => {
       try { setFontFamily(localStorage.getItem('kjb-reader-font-family') || 'serif'); } catch {}
     };
@@ -41,45 +51,62 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
       window.removeEventListener('focus', sync);
     };
   }, []);
-  const fontStyle = React.useMemo(() => ({ fontFamily: getFontFamilyValue(fontFamily) }), [fontFamily]);
+  const fontStyle = useMemo(() => ({ fontFamily: getFontFamilyValue(fontFamily) }), [fontFamily]);
 
-  // Count total occurrences of the search term (includes multiple hits per verse)
-  // split by testament, so the OT/NT headers can show a subtle bracketed count.
-  const { otCount, ntCount } = React.useMemo(() => {
+  // Group results by testament → book, preserving canonical order and each
+  // result's original flat index (used for keyboard focus, selection, navigation).
+  const { groups, otCount, ntCount } = useMemo(() => {
+    const byBook = new Map(); // apiName -> { book, items: [{ r, i }], count }
     let ot = 0, nt = 0;
-    if (!highlightTerm) {
-      results.forEach(r => (NT_BOOKS.has(r.book) ? nt++ : ot++));
-      return { otCount: ot, ntCount: nt };
-    }
-    const escaped = highlightTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const re = new RegExp(escaped, highlightCaseSensitive ? 'g' : 'gi');
-    results.forEach(r => {
-      const clean = (r.text || '').replace(/[[\]]/g, '');
-      const n = (clean.match(re) || []).length;
-      if (NT_BOOKS.has(r.book)) nt += n; else ot += n;
+    results.forEach((r, i) => {
+      const occ = countOccurrences(r.text, highlightTerm, highlightCaseSensitive);
+      if (NT_BOOKS.has(r.book)) nt += occ; else ot += occ;
+      if (!byBook.has(r.book)) {
+        byBook.set(r.book, { book: r.book, items: [], count: 0 });
+      }
+      const g = byBook.get(r.book);
+      g.items.push({ r, i });
+      g.count += occ;
     });
-    return { otCount: ot, ntCount: nt };
+    // Order book groups canonically
+    const ordered = [...byBook.values()].sort((a, b) => {
+      const ai = BIBLE_BOOKS.findIndex(x => x.apiName === a.book);
+      const bi = BIBLE_BOOKS.findIndex(x => x.apiName === b.book);
+      return ai - bi;
+    });
+    return {
+      groups: ordered.map(g => ({ ...g, isNT: NT_BOOKS.has(g.book) })),
+      otCount: ot,
+      ntCount: nt,
+    };
   }, [results, highlightTerm, highlightCaseSensitive]);
+
+  const toggleBook = useCallback((apiName) => {
+    setCollapsedBooks(prev => {
+      const next = new Set(prev);
+      next.has(apiName) ? next.delete(apiName) : next.add(apiName);
+      return next;
+    });
+  }, []);
+
+  // Running flat index to map each rendered row back to its keyboard-focus index.
+  let renderIndex = -1;
+  let firstNTSeen = false;
 
   return (
     <div className="space-y-2">
-      {results.map((r, i) => {
-        const isSelected = selected.has(i);
-        const isSubscript = r.isSubscript;
-        const isHeading = r.isHeading;
-        const isColophon = r.isColophon || (r.verse === 0 && !isSubscript && !isHeading);
-        const isNT = NT_BOOKS.has(r.book);
-        const prevIsNT = i > 0 ? NT_BOOKS.has(results[i - 1].book) : null;
-        const showOTHeader = i === 0 && !isNT;
-        const showNTHeader = isNT && (i === 0 || !prevIsNT);
-        // Skip rendering this result if its section is collapsed
-        const isOTCollapsed = !isNT && !otExpanded;
-        const isNTCollapsed = isNT && !ntExpanded;
-        // When collapsed: show only the header row, skip all result rows
-        if (isOTCollapsed && !showOTHeader) return null;
-        if (isNTCollapsed && !showNTHeader) return null;
+      {groups.map((group, gi) => {
+        const isNT = group.isNT;
+        const showOTHeader = gi === 0 && !isNT;
+        const showNTHeader = isNT && !firstNTSeen;
+        if (isNT) firstNTSeen = true;
+        const sectionCollapsed = isNT ? !ntExpanded : !otExpanded;
+        const bookEntry = BOOK_BY_API_NAME[group.book];
+        const bookName = bookEntry?.shortName || group.book;
+        const bookCollapsed = collapsedBooks.has(group.book);
+
         return (
-          <React.Fragment key={`frag-${i}`}>
+          <React.Fragment key={`grp-${group.book}`}>
             {showOTHeader && (
               <div ref={otRef} className="flex items-center gap-2 pt-2 pb-1 border-b border-border mb-1">
                 {ntCount > 0 ? (
@@ -130,27 +157,48 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                 )}
               </div>
             )}
-            {!isOTCollapsed && !isNTCollapsed && (() => {
-              resultIndex++;
-              const isFocused = focusedIndex === resultIndex;
-              const thisIndex = resultIndex;
-              return (
-                <SearchResultRow
-                  r={r}
-                  i={i}
-                  thisIndex={thisIndex}
-                  isFocused={isFocused}
-                  isSelected={isSelected}
-                  selectMode={selectMode}
-                  highlightTerm={highlightTerm}
-                  highlightCaseSensitive={highlightCaseSensitive}
-                  fontStyle={fontStyle}
-                  onToggleSelect={onToggleSelect}
-                  onGoToVerse={onGoToVerse}
-                  setRef={setRowRef}
-                />
-              );
-            })()}
+
+            {/* Per-book dropdown header + its verses (hidden if testament collapsed) */}
+            {!sectionCollapsed && (
+              <div className="rounded-xl border border-border/60 overflow-hidden">
+                <button
+                  onClick={() => toggleBook(group.book)}
+                  className="w-full flex items-center gap-2 px-3 py-2 bg-secondary/60 hover:bg-accent/15 transition-colors text-left"
+                >
+                  {bookCollapsed ? <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
+                  <span className="font-sans text-sm font-semibold text-foreground">{bookName}</span>
+                  <span className="font-sans text-xs text-muted-foreground">
+                    · {group.items.length} verse{group.items.length !== 1 ? 's' : ''}
+                    {group.count > group.items.length ? ` · ${group.count} hits` : ''}
+                  </span>
+                </button>
+                {!bookCollapsed && (
+                  <div className="p-2 space-y-2">
+                    {group.items.map(({ r, i }) => {
+                      renderIndex++;
+                      const thisIndex = renderIndex;
+                      return (
+                        <SearchResultRow
+                          key={`row-${i}`}
+                          r={r}
+                          i={i}
+                          thisIndex={thisIndex}
+                          isFocused={focusedIndex === thisIndex}
+                          isSelected={selected.has(i)}
+                          selectMode={selectMode}
+                          highlightTerm={highlightTerm}
+                          highlightCaseSensitive={highlightCaseSensitive}
+                          fontStyle={fontStyle}
+                          onToggleSelect={onToggleSelect}
+                          onGoToVerse={onGoToVerse}
+                          setRef={setRowRef}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
           </React.Fragment>
         );
       })}
