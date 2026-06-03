@@ -106,7 +106,7 @@ const APP_LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c
 // worker (showLocalNotification). No server push / VAPID is used.
 
 // Show a notification via SW (required on Android PWA)
-export async function showLocalNotification(title, body, imageUrl = null) {
+export async function showLocalNotification(title, body, imageUrl = null, targetUrl = null) {
   console.log('[Notif] showLocalNotification called:', title);
   console.log('[Notif] Body:', body);
   console.log('[Notif] Service Worker available:', 'serviceWorker' in navigator);
@@ -136,7 +136,7 @@ export async function showLocalNotification(title, body, imageUrl = null) {
         silent: false,
         requireInteraction: false,
         data: {
-          url: window.location.origin ? (window.location.origin + '/') : '/'
+          url: targetUrl ? (window.location.origin ? (window.location.origin + targetUrl) : targetUrl) : (window.location.origin ? (window.location.origin + '/') : '/')
         }
       });
       console.log('[Notif] ✅ Service worker notification sent successfully');
@@ -162,7 +162,7 @@ export async function showLocalNotification(title, body, imageUrl = null) {
         vibrate: [200, 100, 200],
         silent: false,
         data: {
-          url: window.location.origin ? (window.location.origin + '/') : '/'
+          url: targetUrl ? (window.location.origin ? (window.location.origin + targetUrl) : targetUrl) : (window.location.origin ? (window.location.origin + '/') : '/')
         }
       });
       
@@ -189,8 +189,9 @@ async function fireNotificationNow() {
   
   showLocalNotification(
     'King James Bible — Daily Verse',
-    `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref} (KJB)`,
-    null
+    `"${verse.text}" — ${verse.ref} (KJB)`,
+    null,
+    `/read?book=${verse.abbr}&chapter=${verse.chapter}&verse=${verse.verse}&from=daily`
   );
 }
 
@@ -273,8 +274,9 @@ export async function triggerScheduledNotification() {
   localStorage.setItem(NOTIF_LAST_KEY, today);
   await showLocalNotification(
     'KJB — Manual Test',
-    `"${verse.text.slice(0, 100)}${verse.text.length > 100 ? '…' : ''}" — ${verse.ref} (KJB)`,
-    null
+    `"${verse.text}" — ${verse.ref} (KJB)`,
+    null,
+    `/read?book=${verse.abbr}&chapter=${verse.chapter}&verse=${verse.verse}&from=daily`
   );
   console.log('[Notif] Manual trigger completed');
 }

@@ -1348,7 +1348,7 @@ export default function SettingsPage() {
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
             >
-              <Instagram className="w-4 h-4 text-green-500 flex-shrink-0" />
+              <Instagram className="w-4 h-4 text-pink-500 flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Instagram</p>
                 <p className="font-sans text-xs text-muted-foreground">@svdbyfaithinhisbloodr325av</p>
@@ -1361,7 +1361,7 @@ export default function SettingsPage() {
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
             >
-              <Youtube className="w-4 h-4 text-green-500 flex-shrink-0" />
+              <Youtube className="w-4 h-4 text-red-500 flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">YouTube</p>
                 <p className="font-sans text-xs text-muted-foreground">@shawnr325av</p>
