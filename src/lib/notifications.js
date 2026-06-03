@@ -183,8 +183,11 @@ async function fireNotificationNow() {
   let verse;
   try {
     verse = await getDailyVerseFromBible();
+    // Don't fire the notification if we got the offline fallback message
+    if (verse.ref === "Offline Mode") {
+      return;
+    }
   } catch {
-    // Don't fire until sure we have the real Bible data (not the static fallback pool)
     return;
   }
   
@@ -267,6 +270,11 @@ export async function triggerScheduledNotification() {
   let verse;
   try {
     verse = await getDailyVerseFromBible();
+    if (verse.ref === "Offline Mode") {
+      console.log('[Notif] Bible data not ready, aborting manual test');
+      alert('Please wait for the Bible data to load before testing notifications.');
+      return;
+    }
   } catch {
     console.log('[Notif] Bible data not ready, aborting manual test');
     alert('Please wait for the Bible data to load before testing notifications.');
