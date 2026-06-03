@@ -138,7 +138,7 @@ export default function AboutPage() {
             <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
           </a>
           <a
-            href="https://www.youtube.com/@godisgracious1031"
+            href="https://youtube.com/@shawnr325av?si=zC_gQm4I2S_xj-NS"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
@@ -146,12 +146,12 @@ export default function AboutPage() {
             <Youtube className="w-4 h-4 text-red-500" />
             <div>
               <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">YouTube</p>
-              <p className="font-sans text-xs text-muted-foreground">@godisgracious1031</p>
+              <p className="font-sans text-xs text-muted-foreground">@shawnr325av</p>
             </div>
             <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
           </a>
           <a
-            href="https://www.instagram.com/godisgracious1031"
+            href="https://www.instagram.com/svdbyfaithinhisbloodr325av?igsh=NTl0NmM1NWoyb2F0"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
@@ -159,7 +159,7 @@ export default function AboutPage() {
             <Instagram className="w-4 h-4 text-pink-500" />
             <div>
               <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Instagram</p>
-              <p className="font-sans text-xs text-muted-foreground">@godisgracious1031</p>
+              <p className="font-sans text-xs text-muted-foreground">@svdbyfaithinhisbloodr325av</p>
             </div>
             <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
           </a>
