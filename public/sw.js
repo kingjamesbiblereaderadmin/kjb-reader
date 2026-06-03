@@ -1,147 +1,119 @@
-// KJB Reader Service Worker — offline-first PWA
-// Caches the app shell (HTML/JS/CSS) so the app loads without network.
-// Bible text data is stored separately in IndexedDB by bibleCache.js.
+// KJB Reader Service Worker — offline-first app shell cache
+const CACHE_NAME = 'kjb-shell-v4';
+const OFFLINE_URL = '/offline.html';
 
-const SHELL_CACHE = 'kjb-shell-v5';
-
-// Minimal shell assets to pre-cache on install
+// App shell files to cache on install
 const SHELL_ASSETS = [
   '/',
-  '/index.html',
   '/offline.html',
+  '/manifest.json',
 ];
 
-// ── Install: pre-cache the shell ────────────────────────────────────────────
+// ── Install: pre-cache shell assets ─────────────────────────────────────────
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing, caching shell...');
   event.waitUntil(
-    caches.open(SHELL_CACHE).then(cache => {
-      return Promise.allSettled(
-        SHELL_ASSETS.map(url =>
-          fetch(url, { cache: 'no-store' })
-            .then(res => { if (res.ok) cache.put(url, res); })
-            .catch(() => {})
-        )
-      );
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(SHELL_ASSETS).catch(() => {
+        // If offline.html isn't ready yet, pre-cache only the root
+        return cache.add('/').catch(() => {});
+      });
     }).then(() => self.skipWaiting())
   );
 });
 
-// ── Activate: clean up old shell caches ─────────────────────────────────────
+// ── Activate: remove old caches ──────────────────────────────────────────────
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating...');
   event.waitUntil(
-    caches.keys().then(keys =>
+    caches.keys().then((names) =>
       Promise.all(
-        keys
-          .filter(k => k !== SHELL_CACHE)
-          .map(k => {
-            console.log('[SW] Deleting old cache:', k);
-            return caches.delete(k);
-          })
+        names
+          .filter((n) => n !== CACHE_NAME)
+          .map((n) => caches.delete(n))
       )
     ).then(() => self.clients.claim())
   );
 });
 
-// ── Fetch: cache-first for assets, network-first for navigation ──────────────
+// ── Fetch: network-first for API/Bible data, cache-first for app shell ───────
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Only handle same-origin GET requests
-  if (url.origin !== self.location.origin) return;
+  // Skip non-GET and cross-origin requests that aren't our media CDN
   if (request.method !== 'GET') return;
 
-  // Skip Base44 API / auth calls — always go to network
-  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/auth/')) return;
+  // Skip Base44 API calls — always need fresh data
+  if (url.hostname.includes('base44.com') && url.pathname.startsWith('/api')) return;
 
-  // JS/CSS/font/image assets (fingerprinted) — cache-first, populate on miss
-  const isAsset =
-    url.pathname.startsWith('/assets/') ||
-    url.pathname.match(/\.(js|css|woff2?|ttf|otf|eot|png|jpg|jpeg|gif|svg|ico|webp)$/);
-
-  if (isAsset) {
+  // Bible text file — network-first with cache fallback (large file, don't block)
+  if (url.hostname.includes('media.base44.com') && url.pathname.endsWith('.txt')) {
     event.respondWith(
-      caches.match(request).then(cached => {
+      fetch(request).then((res) => {
+        if (res.ok) {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then((c) => c.put(request, clone));
+        }
+        return res;
+      }).catch(() => caches.match(request))
+    );
+    return;
+  }
+
+  // Images and fonts from our CDN — cache-first
+  if (url.hostname.includes('media.base44.com') || url.hostname.includes('fonts.gstatic.com')) {
+    event.respondWith(
+      caches.match(request).then((cached) => {
         if (cached) return cached;
-        return fetch(request).then(response => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(SHELL_CACHE).then(cache => cache.put(request, clone));
+        return fetch(request).then((res) => {
+          if (res.ok) {
+            const clone = res.clone();
+            caches.open(CACHE_NAME).then((c) => c.put(request, clone));
           }
-          return response;
-        }).catch(() => new Response('', { status: 408 }));
+          return res;
+        });
       })
     );
     return;
   }
 
-  // Navigation (HTML) — network-first, fall back to cached index.html
-  if (request.mode === 'navigate') {
+  // App shell (HTML, JS chunks, CSS) — network-first, cache fallback
+  if (url.origin === self.location.origin) {
     event.respondWith(
-      fetch(request)
-        .then(response => {
-          const clone = response.clone();
-          caches.open(SHELL_CACHE).then(cache => cache.put(request, clone));
-          return response;
-        })
-        .catch(() =>
-          caches.match('/index.html')
-            .then(cached => cached || caches.match('/offline.html'))
-            .then(fallback => fallback || new Response('<h1>Offline</h1>', { headers: { 'Content-Type': 'text/html' } }))
-        )
+      fetch(request).then((res) => {
+        if (res.ok && res.status < 400) {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then((c) => c.put(request, clone));
+        }
+        return res;
+      }).catch(async () => {
+        const cached = await caches.match(request);
+        if (cached) return cached;
+        // For navigation requests, serve the app shell so React Router handles it
+        if (request.mode === 'navigate') {
+          const shell = await caches.match('/');
+          if (shell) return shell;
+          return caches.match(OFFLINE_URL);
+        }
+        return new Response('', { status: 408 });
+      })
     );
     return;
   }
 });
 
-// ── Manual cache warm-up (sent from preloadAllRoutes in App.jsx) ─────────────
+// ── Message: handle PREWARM_ASSETS and SKIP_WAITING ─────────────────────────
 self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
   if (event.data?.type === 'PREWARM_ASSETS') {
     const urls = event.data.urls || [];
-    if (!urls.length) return;
-    caches.open(SHELL_CACHE).then(cache => {
-      urls.forEach(url => {
-        cache.match(url).then(hit => {
-          if (!hit) {
-            fetch(url, { cache: 'no-store' }).then(res => {
-              if (res.ok) cache.put(url, res);
-            }).catch(() => {});
-          }
-        });
+    caches.open(CACHE_NAME).then((cache) => {
+      urls.forEach((url) => {
+        fetch(url, { cache: 'no-cache' }).then((res) => {
+          if (res.ok) cache.put(url, res);
+        }).catch(() => {});
       });
     });
   }
-});
-
-// ── Push notifications ───────────────────────────────────────────────────────
-self.addEventListener('push', (event) => {
-  if (!event.data) return;
-  try {
-    const data = event.data.json();
-    event.waitUntil(
-      self.registration.showNotification(data.title || 'KJB Daily Verse', {
-        body: data.body || '',
-        icon: data.icon || '/icons/icon-192.png',
-        badge: data.icon || '/icons/icon-192.png',
-        tag: 'daily-verse',
-        renotify: true,
-        data: { url: data.url || '/' },
-      })
-    );
-  } catch {}
-});
-
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  const url = event.notification.data?.url || '/';
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
-      for (const client of list) {
-        if (client.url === url && 'focus' in client) return client.focus();
-      }
-      if (clients.openWindow) return clients.openWindow(url);
-    })
-  );
 });
