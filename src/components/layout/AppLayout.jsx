@@ -131,14 +131,7 @@ export default function AppLayout() {
 
         const result = await Promise.race([downloadPromise, timeoutPromise]);
 
-        // Only show toast when something actually changed
-        if (result?.updated) {
-          toast.success('📖 Bible updated to latest version');
-        } else if (result?.downloaded) {
-          toast.success('📖 Bible downloaded for offline access');
-        }
-
-        console.log('[AppLayout] App initialized');
+        console.log('[AppLayout] App initialized', result);
       } catch (err) {
         console.error('[AppLayout] Initialization failed:', err.message);
         // Don't show error to user - app can still work with cached data
