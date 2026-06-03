@@ -22,9 +22,15 @@ export function SoftReloadProvider({ children }) {
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
     const onControllerChange = () => {
-      // Intentionally do nothing here so it's a completely silent background update.
-      // The new SW is activated, but we don't force a reload that interrupts reading.
       console.log('[SW] Controller changed. New service worker active in background.');
+      toast.info('App update available', {
+        description: 'New features and text changes have been downloaded.',
+        duration: 10000,
+        action: {
+          label: 'Update Now',
+          onClick: () => window.location.reload()
+        }
+      });
     };
     navigator.serviceWorker.addEventListener('controllerchange', onControllerChange);
     return () => navigator.serviceWorker.removeEventListener('controllerchange', onControllerChange);
