@@ -197,10 +197,37 @@ function seededRandom(seed) {
   return x - Math.floor(x);
 }
 
-// Pick a deterministic verse for today from the full cached Bible.
-// Same verse all day; a new one each calendar day. Falls back to the
-// static pool if Bible data isn't loaded yet.
+const DAILY_VERSE_CACHE_KEY = 'kjb-daily-verse-cache';
+
+function getTodayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
+
+function loadCachedDailyVerse() {
+  try {
+    const raw = localStorage.getItem(DAILY_VERSE_CACHE_KEY);
+    if (!raw) return null;
+    const { dateKey, verse } = JSON.parse(raw);
+    if (dateKey === getTodayKey()) return verse;
+  } catch {}
+  return null;
+}
+
+function saveCachedDailyVerse(verse) {
+  try {
+    localStorage.setItem(DAILY_VERSE_CACHE_KEY, JSON.stringify({ dateKey: getTodayKey(), verse }));
+  } catch {}
+}
+
+// Pick a random verse from the full cached Bible for today.
+// Result is cached in localStorage so online and offline always show the same verse.
+// Falls back to the static pool if Bible data isn't loaded yet.
 export async function getDailyVerseFromBible() {
+  // Return today's cached verse if already picked
+  const cached = loadCachedDailyVerse();
+  if (cached) return cached;
+
   try {
     const bible = await getBibleData();
     const bookNames = Object.keys(bible).filter(k => k !== '__colophons').sort();
@@ -230,7 +257,7 @@ export async function getDailyVerseFromBible() {
       .replace(/¶\s*/g, '')
       .replace(/^<<[^>]*>>\s*/, '');
 
-    return {
+    const result = {
       abbr,
       book: displayName,
       chapter: parseInt(chapter),
@@ -238,13 +265,21 @@ export async function getDailyVerseFromBible() {
       text: cleanText,
       ref: `${displayName} ${chapter}:${verseObj.verse}`
     };
+
+    // Cache so offline uses the same verse picked today
+    saveCachedDailyVerse(result);
+    return result;
   } catch {
     return getDailyVerse();
   }
 }
 
-// Get date-based daily verse (one per day)
+// Get date-based daily verse (one per day).
+// Returns the localStorage-cached verse if one was picked online today,
+// otherwise falls back to the seeded pool so offline always has something.
 export function getDailyVerse() {
+  const cached = loadCachedDailyVerse();
+  if (cached) return cached;
   const today = new Date();
   const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
   const idx = seed % FALLBACK_POOL.length;
