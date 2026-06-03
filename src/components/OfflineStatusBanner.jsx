@@ -58,8 +58,8 @@ export default function OfflineStatusBanner() {
     }
   };
 
-  // Online + Bible ready + not stale → no banner needed
-  if (isOnline && bibleReady && !cacheStale && !done) return null;
+  // Online + Bible ready (stale or not) → no banner needed; auto-update runs silently in background
+  if (isOnline && bibleReady && !done) return null;
   // Still checking
   if (bibleReady === null) return null;
 
