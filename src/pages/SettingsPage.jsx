@@ -275,7 +275,8 @@ export default function SettingsPage() {
     const v = getDailyVerse();
     console.log('[Settings] Showing test notification...');
     try {
-      await showLocalNotification('KJB — Daily Verse Test', `"${v.text}" — ${v.ref} (KJB)`);
+      // Use timestamp string to prevent notification caching/overwriting the real one
+      await showLocalNotification('KJB — Daily Verse Test', `"${v.text}" — ${v.ref} (KJB)`, null, `/?test=${Date.now()}`);
       console.log('[Settings] Test notification completed');
     } catch (err) {
       console.error('[Settings] Test notification failed:', err);

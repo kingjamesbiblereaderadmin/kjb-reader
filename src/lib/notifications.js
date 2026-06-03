@@ -274,8 +274,6 @@ export async function triggerScheduledNotification() {
   }
   const today = todayString();
   
-  // Force fire for testing
-  localStorage.setItem(NOTIF_LAST_KEY, today);
   await showLocalNotification(
     'KJB — Manual Test',
     `"${verse.text}" — ${verse.ref} (KJB)`,
