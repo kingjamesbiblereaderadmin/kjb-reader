@@ -118,29 +118,33 @@ export async function showLocalNotification(title, body, imageUrl = null, target
   // Try service worker first (works on Android, PWA, all platforms)
   if ('serviceWorker' in navigator) {
     try {
-      console.log('[Notif] Waiting for service worker to be ready...');
-      const reg = await navigator.serviceWorker.ready;
-      console.log('[Notif] Service worker ready:', reg);
-      console.log('[Notif] SW registration scope:', reg.scope);
-      console.log('[Notif] SW active:', reg.active ? 'yes' : 'no');
-      console.log('[Notif] showNotification method exists:', typeof reg.showNotification);
-      
-      // Show notification using service worker with app logo
-      await reg.showNotification(title, {
-        body: body,
-        icon: APP_LOGO_URL,
-        badge: APP_LOGO_URL,
-        tag: 'daily-verse',
-        renotify: true,
-        vibrate: [200, 100, 200],
-        silent: false,
-        requireInteraction: false,
-        data: {
-          url: targetUrl ? (window.location.origin ? (window.location.origin + targetUrl) : targetUrl) : (window.location.origin ? (window.location.origin + '/') : '/')
-        }
-      });
-      console.log('[Notif] ✅ Service worker notification sent successfully');
-      return;
+      console.log('[Notif] Checking for active service worker...');
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg && reg.active) {
+        console.log('[Notif] Service worker ready:', reg);
+        console.log('[Notif] SW registration scope:', reg.scope);
+        console.log('[Notif] SW active:', reg.active ? 'yes' : 'no');
+        console.log('[Notif] showNotification method exists:', typeof reg.showNotification);
+        
+        // Show notification using service worker with app logo
+        await reg.showNotification(title, {
+          body: body,
+          icon: APP_LOGO_URL,
+          badge: APP_LOGO_URL,
+          tag: 'daily-verse',
+          renotify: true,
+          vibrate: [200, 100, 200],
+          silent: false,
+          requireInteraction: false,
+          data: {
+            url: targetUrl ? (window.location.origin ? (window.location.origin + targetUrl) : targetUrl) : (window.location.origin ? (window.location.origin + '/') : '/')
+          }
+        });
+        console.log('[Notif] ✅ Service worker notification sent successfully');
+        return;
+      } else {
+        console.log('[Notif] No active service worker found, falling back to standard API.');
+      }
     } catch (err) {
       console.error('[Notif] ❌ Service worker notification failed:', err.message);
       console.error('[Notif] Error stack:', err.stack);
