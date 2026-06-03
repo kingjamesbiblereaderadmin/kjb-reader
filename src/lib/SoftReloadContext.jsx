@@ -22,15 +22,8 @@ export function SoftReloadProvider({ children }) {
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
     const onControllerChange = () => {
-      console.log('[SW] Controller changed. New service worker active in background.');
-      toast.info('App update available', {
-        description: 'New features and text changes have been downloaded.',
-        duration: 10000,
-        action: {
-          label: 'Update Now',
-          onClick: () => window.location.reload()
-        }
-      });
+      console.log('[SW] Controller changed. Reloading automatically for app update.');
+      window.location.reload();
     };
     navigator.serviceWorker.addEventListener('controllerchange', onControllerChange);
     return () => navigator.serviceWorker.removeEventListener('controllerchange', onControllerChange);
