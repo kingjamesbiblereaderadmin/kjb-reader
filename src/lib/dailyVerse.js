@@ -159,7 +159,7 @@ export async function getDailyVerseFromBible() {
       step++;
     } while (
       EXCLUDED_VERSES.has(`${displayName} ${chapter}:${verseObj.verse}`)
-      && step < 50
+      && step < 100
     );
 
     const abbr = bookData ? bookData.abbr : bookName.slice(0, 3).toUpperCase();
