@@ -1132,7 +1132,7 @@ export default function BibleReader() {
 
             {/* Desktop popover */}
             {showBookPicker && !isMobile() && (
-              <div className="absolute top-full left-0 mt-1 z-50">
+              <div className="absolute top-full left-0 mt-1 z-[100]">
                 <BookSelector
                   currentAbbr={pos.abbr}
                   onSelect={(b, isTitlePage, showChapter) => {
@@ -1179,7 +1179,7 @@ export default function BibleReader() {
                 <ChevronRight className={`w-3 h-3 opacity-70 transition-transform duration-200 flex-shrink-0 ${showChapterPicker ? 'rotate-90' : ''}`} />
               </button>
               {showChapterPicker && !isMobile() && (
-                <div className="absolute top-full left-0 mt-1 z-50">
+                <div className="absolute top-full left-0 mt-1 z-[100]">
                   <ChapterSelector
                     totalChapters={book.chapters}
                     currentChapter={pos.chapter}
@@ -1240,7 +1240,7 @@ export default function BibleReader() {
                 )}
               </button>
               {showVersePicker && verseCount > 0 && !isMobile() && (
-                <div className="absolute top-full left-0 mt-1 z-50">
+                <div className="absolute top-full left-0 mt-1 z-[100]">
                   <VerseSelector
                     totalVerses={verseCount}
                     currentVerse={highlightVerse}
@@ -1299,7 +1299,7 @@ export default function BibleReader() {
               </button>
               {/* Desktop popover */}
               {showZoomPopover && !isMobile() && (
-                <div className="absolute top-full left-0 mt-1 z-50">
+                <div className="absolute top-full left-0 mt-1 z-[100]">
                   <div className="bg-card border border-border rounded-xl shadow-xl p-4 w-64">
                     <div className="flex items-center justify-between mb-3">
                       <span className="font-sans text-xs font-medium text-foreground">Text Size</span>
@@ -1403,7 +1403,7 @@ export default function BibleReader() {
               </button>
               {/* Desktop popover */}
               {showFontPopover && !isMobile() && (
-                <div className="absolute top-full left-0 mt-1 z-50">
+                <div className="absolute top-full left-0 mt-1 z-[100]">
                   <div className="bg-card border border-border rounded-xl shadow-xl p-4 w-64">
                     <div className="flex items-center justify-between mb-3">
                       <span className="font-sans text-xs font-medium text-foreground">Font Family</span>
@@ -1797,7 +1797,7 @@ export default function BibleReader() {
       {/* Click/tap outside to close desktop dropdowns and mobile sheets */}
       {(showBookPicker || showChapterPicker || showVersePicker || showZoomPopover || showFontPopover) && (
         <div
-          className="fixed inset-0 z-[35]"
+          className="fixed inset-0 z-[99]"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
