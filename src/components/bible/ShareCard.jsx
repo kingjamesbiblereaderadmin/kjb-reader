@@ -8,7 +8,7 @@ import { renderVerseText } from '@/lib/bibleApi';
 // Rendered off-screen and captured by html2canvas.
 const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png';
 
-const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFamily, textColor, textOpacity, gradient }, ref) {
+const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFamily, textColor, textOpacity, gradient, isOffline }, ref) {
   const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
   // Today's two-stop gradient (matches the on-site card). Falls back to blue→purple.
   const bgGradient = gradient
@@ -112,7 +112,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginTop: '32px' }}>
           <HeaderRule />
           <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '34px', fontWeight: 800, letterSpacing: '0.16em', color: '#ffffff', textShadow: '0 2px 8px rgba(0,0,0,0.4)', whiteSpace: 'nowrap' }}>
-            VERSE OF THE DAY
+            {isOffline ? 'OFFLINE VERSE OF THE DAY' : 'VERSE OF THE DAY'}
           </span>
           <HeaderRule flip />
         </div>

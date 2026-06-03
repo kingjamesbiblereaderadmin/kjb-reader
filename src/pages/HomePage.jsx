@@ -22,7 +22,8 @@ const QUICK_LINKS = [
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const [verse, setVerse] = useState(getDailyVerse());
+  const [verse, setVerse] = useState(null);
+  const [isOffline, setIsOffline] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const touchStartY = useRef(0);
   const touchEndY = useRef(0);
@@ -30,7 +31,13 @@ export default function HomePage() {
   useEffect(() => {
     // Use the full-Bible daily verse (deterministic per calendar day across all
     // 31k+ verses). Falls back to the small static pool only if data isn't ready.
-    getDailyVerseFromBible().then(v => setVerse(v)).catch(() => setVerse(getDailyVerse()));
+    getDailyVerseFromBible().then(v => {
+      setVerse(v);
+      setIsOffline(false);
+    }).catch(() => {
+      setVerse(getDailyVerse());
+      setIsOffline(true);
+    });
     // Preload Bible cache on home page mount to ensure italics are ready
     import('@/lib/bibleCache').then(({ getBibleData }) => {
       getBibleData().catch(() => {});
@@ -260,7 +267,13 @@ export default function HomePage() {
 
       {/* Daily verse card */}
       <div className="w-full mb-6 relative">
-        <DailyVerseImage verse={verse} onClick={handleVerseCardClick} onToggleNotif={handleToggleNotif} notifEnabled={notifEnabled} />
+        {verse ? (
+          <DailyVerseImage verse={verse} onClick={handleVerseCardClick} onToggleNotif={handleToggleNotif} notifEnabled={notifEnabled} isOffline={isOffline} />
+        ) : (
+          <div className="w-full min-h-[300px] bg-secondary/50 animate-pulse border border-border rounded-2xl shadow-lg flex items-center justify-center">
+            <span className="font-sans text-sm text-muted-foreground">Loading daily verse...</span>
+          </div>
+        )}
       </div>
 
 

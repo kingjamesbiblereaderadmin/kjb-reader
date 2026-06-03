@@ -24,7 +24,7 @@ function resolveFontFamily(choice, a11yFont) {
   return "'Merriweather', 'Cormorant Garamond', Georgia, serif";
 }
 
-export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEnabled }) {
+export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEnabled, isOffline }) {
   const dow = new Date().getDay();
   const defaultBg = VERSE_BACKGROUNDS[dow];
   const [customBg, setCustomBg] = useState(() => {
@@ -1039,7 +1039,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               className={`font-sans text-lg md:text-xl font-black tracking-[0.22em] uppercase ${accentClass}`}
               style={{ opacity: 1, color: textColor, fontFamily: "'Inter', system-ui, sans-serif", textShadow: '0 2px 10px rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.45)' }}
             >
-              Verse of the Day
+              {isOffline ? 'Offline Verse of the Day' : 'Verse of the Day'}
             </p>
             <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
           </div>
@@ -1081,7 +1081,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               className={`font-sans text-lg md:text-xl font-black tracking-[0.22em] uppercase ${accentClass}`}
               style={{ opacity: 1, color: textColor, fontFamily: "'Inter', system-ui, sans-serif", textShadow: '0 2px 10px rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.45)' }}
             >
-              Verse of the Day
+              {isOffline ? 'Offline Verse of the Day' : 'Verse of the Day'}
             </p>
             <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
           </div>
@@ -1303,7 +1303,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               className={`font-sans text-xs font-semibold tracking-widest uppercase mb-6 ${accentClass}`}
               style={{ opacity: 0.8 * textOpacity, color: textColor, fontFamily: resolvedFont }}
             >
-              Verse of the Day
+              {isOffline ? 'Offline Verse of the Day' : 'Verse of the Day'}
             </p>
             <blockquote 
               className={`text-3xl md:text-5xl leading-relaxed mb-8 [&_em]:italic ${fontFamily === 'cursive' ? 'kjb-verse-card cursive-em-style' : ''}`}
@@ -1337,7 +1337,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {/* Off-screen fixed-size card used for the shared/downloaded image */}
-      <ShareCard ref={shareCardRef} verse={verse} logoSrc={logoDataUrl} fontFamily={resolvedFont} textColor={textColor} textOpacity={textOpacity} gradient={hasCustomBg ? null : defaultBg.hex} />
+      <ShareCard ref={shareCardRef} verse={verse} logoSrc={logoDataUrl} fontFamily={resolvedFont} textColor={textColor} textOpacity={textOpacity} gradient={hasCustomBg ? null : defaultBg.hex} isOffline={isOffline} />
     </div>
   );
 }
