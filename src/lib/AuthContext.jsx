@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
         setIsLoadingAuth(false);
         setIsLoadingPublicSettings(false);
       }
-    }, 10000); // 10 second timeout
+    }, 3000); // 3 second timeout — faster offline recovery
     
     checkAppState();
     
@@ -62,7 +62,8 @@ export const AuthProvider = ({ children }) => {
         console.error('App state check failed:', appError);
         
         // Check if this is a network error (offline mode)
-        const isNetworkError = !appError.status || appError.status === 0 || !navigator.onLine;
+        const isNetworkError = !appError.status || appError.status === 0 || !navigator.onLine ||
+          appError.code === 'ECONNABORTED' || appError.message?.toLowerCase().includes('network');
         
         if (isNetworkError) {
           // Allow app to continue in offline mode
