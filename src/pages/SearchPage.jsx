@@ -892,6 +892,11 @@ export default function SearchPage() {
         <Filter className="w-3.5 h-3.5 text-muted-foreground" />
         <span className="font-sans text-xs text-muted-foreground">Testament:</span>
         {[['all', 'All'], ['old', 'OT'], ['new', 'NT']].map(([val, label]) => {
+          // Hide OT/NT option if no results exist in that testament after a search
+          if (searched && results.length > 0 && val !== 'all') {
+            const hasAny = results.some(r => val === 'old' ? OT_BOOKS.has(r.book) : NT_BOOKS.has(r.book));
+            if (!hasAny) return null;
+          }
           const isActive = testamentFilter.has(val);
           return (
             <button
