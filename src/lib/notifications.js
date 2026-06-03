@@ -176,16 +176,17 @@ export async function showLocalNotification(title, body, imageUrl = null) {
 }
 
 async function fireNotificationNow() {
-  const today = todayString();
-  localStorage.setItem(NOTIF_LAST_KEY, today);
-  // Always prefer the full Bible verse; fall back to the static pool only if
-  // the Bible data genuinely isn't available (first offline launch).
   let verse;
   try {
     verse = await getDailyVerseFromBible();
   } catch {
-    verse = getDailyVerse();
+    // Don't fire until sure we have the real Bible data (not the static fallback pool)
+    return;
   }
+  
+  const today = todayString();
+  localStorage.setItem(NOTIF_LAST_KEY, today);
+  
   showLocalNotification(
     'King James Bible — Daily Verse',
     `"${verse.text.slice(0, 120)}${verse.text.length > 120 ? '…' : ''}" — ${verse.ref} (KJB)`,
@@ -258,7 +259,14 @@ export function initNotifications() {
 // Manual trigger for debugging/testing
 export async function triggerScheduledNotification() {
   console.log('[Notif] Manual trigger called');
-  const verse = getDailyVerse();
+  let verse;
+  try {
+    verse = await getDailyVerseFromBible();
+  } catch {
+    console.log('[Notif] Bible data not ready, aborting manual test');
+    alert('Please wait for the Bible data to load before testing notifications.');
+    return;
+  }
   const today = todayString();
   
   // Force fire for testing
@@ -268,6 +276,5 @@ export async function triggerScheduledNotification() {
     `"${verse.text.slice(0, 100)}${verse.text.length > 100 ? '…' : ''}" — ${verse.ref} (KJB)`,
     null
   );
-  scheduleDailyNotification(verse);
   console.log('[Notif] Manual trigger completed');
 }
