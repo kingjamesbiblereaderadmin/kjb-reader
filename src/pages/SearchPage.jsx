@@ -874,7 +874,7 @@ export default function SearchPage() {
             placeholder="e.g. grace, faith, blood..."
             leftPadClass="pl-9"
             inputClassName="w-full pl-9 pr-4 py-2 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors"
-            autoFocus
+            autoFocus={!getQueryFromUrl()}
           />
         </div>
         <button
