@@ -94,8 +94,12 @@ const EXCLUDED_VERSES = new Set([
   'Revelation 13:10', 'Revelation 14:12',
   'Revelation 22:14',
 
-  // ── Romans ── can imply two-step works (confession + belief)
-  'Romans 10:9',
+  // ── Romans 10 ── Israel/Law-program context; works/confession confusion
+  'Romans 10:1', 'Romans 10:2', 'Romans 10:3', 'Romans 10:4', 'Romans 10:5',
+  'Romans 10:6', 'Romans 10:7', 'Romans 10:8', 'Romans 10:9', 'Romans 10:10',
+  'Romans 10:11', 'Romans 10:12', 'Romans 10:13', 'Romans 10:14', 'Romans 10:15',
+  'Romans 10:16', 'Romans 10:17', 'Romans 10:18', 'Romans 10:19', 'Romans 10:20',
+  'Romans 10:21',
 
   // ── OT Violence / killing commands ──
   'Deuteronomy 17:12', 'Exodus 22:18', 'Exodus 31:15', 'Exodus 35:2',
