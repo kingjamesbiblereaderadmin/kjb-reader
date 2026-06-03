@@ -599,6 +599,10 @@ export default function SearchPage() {
     }
     
     if (kw.length >= 2) {
+      // Dismiss mobile keyboard explicitly before navigating state
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
       window.history.replaceState({}, '', `/search?q=${encodeURIComponent(kw)}`);
       setSearched(true);
       setShowBookResult(null);
@@ -849,7 +853,7 @@ export default function SearchPage() {
     <div className="w-full max-w-[90rem] mx-auto px-4 sm:px-8 lg:px-16 py-6">
       <h1 className="font-serif text-2xl font-bold text-foreground mb-4">Search Bible</h1>
 
-      <form onSubmit={handleSubmit} action="javascript:void(0)" className="flex gap-2 mb-3">
+      <form onSubmit={handleSubmit} action="#" className="flex gap-2 mb-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
           <GhostInput
