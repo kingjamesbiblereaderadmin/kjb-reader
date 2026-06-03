@@ -27,7 +27,17 @@ export default function OfflineStatusBanner() {
       setBibleReady(cached);
       if (cached) {
         const localVer = localStorage.getItem('bible_cache_version');
-        setCacheStale(!!localVer && localVer !== CACHE_VERSION);
+        const stale = !!localVer && localVer !== CACHE_VERSION;
+        setCacheStale(stale);
+        // Auto-update immediately when stale and online
+        if (stale && navigator.onLine) {
+          setUpdating(true);
+          downloadBibleForOffline().then(() => {
+            setDone(true);
+            setCacheStale(false);
+            setTimeout(() => setDone(false), 2000);
+          }).catch(() => setUpdating(false));
+        }
       }
     });
   }, [isOnline]);
@@ -79,14 +89,7 @@ export default function OfflineStatusBanner() {
         <p className="font-sans text-xs font-medium flex-1">
           {updating ? 'Updating Bible data…' : 'A Bible update is available.'}
         </p>
-        {!updating && (
-          <button
-            onClick={handleUpdate}
-            className="font-sans text-xs font-semibold underline underline-offset-2 hover:opacity-75 transition-opacity shrink-0"
-          >
-            Update
-          </button>
-        )}
+
       </div>
     );
   }
