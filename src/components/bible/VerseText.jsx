@@ -20,6 +20,30 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   const [highlightColor, setHighlightColor] = useState('accent');
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [saved, setSaved] = useState(() => isVerseSaved(abbr, chapter, verse.verse));
+  const [currentText, setCurrentText] = useState(verse.text);
+
+  useEffect(() => {
+    setCurrentText(verse.text);
+  }, [verse.text]);
+
+  useEffect(() => {
+    const handleUpdate = async () => {
+      try {
+        const { fetchChapter } = await import('@/lib/bibleApi');
+        const bookEntry = BIBLE_BOOKS.find(b => b.abbr === abbr);
+        if (!bookEntry) return;
+        const data = await fetchChapter(bookEntry.apiName, chapter);
+        const updatedVerse = data.verses.find(v => v.verse === verse.verse);
+        if (updatedVerse && updatedVerse.text !== currentText) {
+          setCurrentText(updatedVerse.text);
+        }
+      } catch (err) {
+        console.error('Failed to update verse silently:', err);
+      }
+    };
+    window.addEventListener('kjb-cache-updated', handleUpdate);
+    return () => window.removeEventListener('kjb-cache-updated', handleUpdate);
+  }, [abbr, chapter, verse.verse, currentText]);
 
   const highlightColors = [
     { name: 'accent', bg: 'bg-accent/40 dark:bg-accent/30', label: 'Default', color: 'hsl(var(--accent))' },
@@ -34,7 +58,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // verse; the highlight overlay only appears when the user taps and applies it.
 
   // Strip <<...>> superscription markers
-  let displayVerseText = verse.text.replace(/^<<[^>]*>>\s*/, '');
+  let displayVerseText = currentText.replace(/^<<[^>]*>>\s*/, '');
 
   // renderVerseText handles [italics] and ¶ pilcrow styling, plus search term highlighting
   let html = renderVerseText(displayVerseText, searchTerm);
@@ -106,8 +130,8 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // Build the shared, consistent copy/share text (clean text + deep link).
   // Include the Psalm subscript before verse 1, and the chapter colophon after
   // the last verse — keeping pilcrows and [brackets] intact.
-  const verseText = formatVerseShare({
-    text: verse.text,
+  const verseTextToShare = formatVerseShare({
+    text: currentText,
     subscript,
     colophon,
     ref: verseRef,
@@ -123,11 +147,11 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   const handleCopy = async (e) => {
     e.stopPropagation();
     console.log('[VerseText] handleCopy called for', verseRef);
-    console.log('[VerseText] Text to copy:', verseText.substring(0, 100) + '...');
+    console.log('[VerseText] Text to copy:', verseTextToShare.substring(0, 100) + '...');
     try {
       // Use deprecated execCommand to avoid Chrome toast notification
       const textarea = document.createElement('textarea');
-      textarea.value = verseText;
+      textarea.value = verseTextToShare;
       textarea.style.position = 'fixed';
       textarea.style.opacity = '0';
       textarea.style.left = '-9999px';
@@ -138,7 +162,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
       console.log('[VerseText] ✅ Copy via execCommand (no toast)');
     } catch (err) {
       // Fallback to modern API
-      await navigator.clipboard.writeText(verseText);
+      await navigator.clipboard.writeText(verseTextToShare);
       console.log('[VerseText] ✅ Clipboard write successful (fallback)');
     }
     setSelected(false);
@@ -146,7 +170,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
 
   const handleToggleSave = (e) => {
     e.stopPropagation();
-    const ct = verse.text.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
+    const ct = currentText.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
     if (saved) {
       removeSavedVerse(abbr, chapter, verse.verse);
       setSaved(false);
@@ -162,10 +186,10 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     console.log('[VerseText] handleShare called for', verseRef);
     if (navigator.share) {
       console.log('[VerseText] Using native share');
-      navigator.share({ text: verseText });
+      navigator.share({ text: verseTextToShare });
     } else {
       console.log('[VerseText] Using clipboard fallback');
-      navigator.clipboard.writeText(verseText);
+      navigator.clipboard.writeText(verseTextToShare);
       console.log('[VerseText] ✅ Clipboard write successful');
     }
     setSelected(false);
@@ -303,7 +327,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   );
 
   // ── PARAGRAPH MODE: verses flow inline; pilcrow verses break to a new line ──
-  const hasPilcrow = verse.text.includes('\u00B6') || verse.text.includes('\u000F');
+  const hasPilcrow = currentText.includes('\u00B6') || currentText.includes('\u000F');
   if (paragraphMode) {
     // Pilcrow verse: render as a block (new paragraph) with gap above, no indent
     if (hasPilcrow && !isFirstVerse) {

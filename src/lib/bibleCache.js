@@ -367,6 +367,7 @@ export async function refreshCacheIfDue() {
       localStorage.setItem(LAST_REFRESH_KEY, String(now));
       console.log('[REFRESH] ✓ Cache refreshed successfully');
       window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new Event('kjb-cache-updated'));
       return true;
     } catch (e) {
       console.error('[REFRESH] Failed to refresh cache:', e.message);
