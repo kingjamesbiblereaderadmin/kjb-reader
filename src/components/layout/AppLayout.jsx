@@ -240,7 +240,7 @@ export default function AppLayout() {
                     await downloadBibleForOffline();
                     toast.loading('Reloading…', { id: checkToastId });
                     setTimeout(() => toast.dismiss(checkToastId), 1200);
-                    softReload('Bible updated, refreshing…');
+                    window.location.reload();
                   } else {
                     toast.success('✅ Already up to date', { id: checkToastId });
                   }

@@ -65,12 +65,7 @@ export default function OfflineStatusBanner() {
 
   // Done state
   if (done) {
-    return (
-      <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/40 text-green-800 dark:text-green-300 mb-4">
-        <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
-        <p className="font-sans text-xs font-medium flex-1">Bible updated successfully.</p>
-      </div>
-    );
+    return null; // Silently finish update
   }
 
   // Offline + Bible ready
@@ -83,17 +78,9 @@ export default function OfflineStatusBanner() {
     );
   }
 
-  // Online + cache is stale (new version available) — auto-update in place
+  // Online + cache is stale (new version available) — auto-update in place silently
   if (isOnline && bibleReady && cacheStale) {
-    return (
-      <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/40 text-blue-800 dark:text-blue-300 mb-4">
-        <RefreshCw className={`w-4 h-4 flex-shrink-0 ${updating ? 'animate-spin' : ''}`} />
-        <p className="font-sans text-xs font-medium flex-1">
-          {updating ? 'Updating Bible data…' : 'A Bible update is available.'}
-        </p>
-
-      </div>
-    );
+    return null; // Silently update in background, no banner
   }
 
   // Offline + no Bible cache = can't read

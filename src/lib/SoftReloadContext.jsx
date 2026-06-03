@@ -18,15 +18,15 @@ export function SoftReloadProvider({ children }) {
     }, 400);
   }, []);
 
-  // Listen for service-worker controller change → trigger soft reload
+  // Listen for service-worker controller change → trigger a silent hard reload
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
     const onControllerChange = () => {
-      softReload('Updating to new version…');
+      window.location.reload();
     };
     navigator.serviceWorker.addEventListener('controllerchange', onControllerChange);
     return () => navigator.serviceWorker.removeEventListener('controllerchange', onControllerChange);
-  }, [softReload]);
+  }, []);
 
   return (
     <SoftReloadContext.Provider value={{ reloadKey, softReload, isReloading }}>
