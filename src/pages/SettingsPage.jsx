@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Instagram, RotateCcw, Accessibility } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Instagram, Youtube, RotateCcw, Accessibility } from 'lucide-react';
 
 const TikTokIcon = () => (
   <svg className="w-4 h-4 text-green-500" viewBox="0 0 24 24" fill="currentColor">
@@ -1352,6 +1352,19 @@ export default function SettingsPage() {
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Instagram</p>
                 <p className="font-sans text-xs text-muted-foreground">@svdbyfaithinhisbloodr325av</p>
+              </div>
+              <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+            </a>
+            <a
+              href="https://youtube.com/@shawnr325av?si=zC_gQm4I2S_xj-NS"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
+            >
+              <Youtube className="w-4 h-4 text-green-500 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">YouTube</p>
+                <p className="font-sans text-xs text-muted-foreground">@shawnr325av</p>
               </div>
               <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
             </a>
