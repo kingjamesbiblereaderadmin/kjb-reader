@@ -160,7 +160,7 @@ export default function AppLayout() {
         if (cached) return; // already have it — don't re-download
         console.log('[AppLayout] Back online, no cache — downloading Bible');
         const result = await autoDownloadBibleOnFirstLoad();
-        if (result?.downloaded) toast.success('📖 Bible downloaded for offline access');
+        // Silent — no toast needed
       } catch (err) {
         console.error('[AppLayout] Online handler failed:', err.message);
       }
