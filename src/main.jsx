@@ -99,12 +99,12 @@ window.addEventListener('load', async () => {
         });
       }
 
-      // Check for updates periodically (every 5 minutes when app is open)
+      // Check for updates periodically (every 15 minutes when app is open)
       setInterval(() => {
         registration.update().then(() => {
           console.log('[SW] Checked for updates');
         }).catch(() => {});
-      }, 300000);
+      }, 900000);
       
       navigator.serviceWorker.addEventListener('message', event => {
         // Silent — just log, no toast or reload

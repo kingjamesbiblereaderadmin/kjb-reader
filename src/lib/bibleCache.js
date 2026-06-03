@@ -347,7 +347,7 @@ export async function downloadBibleForOfflineWithRetry(onProgress, attempts = 3,
   throw lastErr;
 }
 
-const CACHE_REFRESH_INTERVAL = 24 * 60 * 60 * 1000;
+const CACHE_REFRESH_INTERVAL = 15 * 60 * 1000; // 15 minutes
 const LAST_REFRESH_KEY = 'bible_last_refresh';
 
 export async function refreshCacheIfDue() {

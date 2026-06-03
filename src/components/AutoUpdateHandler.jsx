@@ -3,9 +3,15 @@ import { refreshCacheIfDue } from '@/lib/bibleCache';
 
 export default function AutoUpdateHandler({ children }) {
   useEffect(() => {
-    // Only refresh if 24 hours have passed since last refresh
-    // This ensures we only update when there are actual changes
+    // Initial check on mount
     refreshCacheIfDue();
+
+    // Periodically check for updates in the background (e.g. every 15 minutes)
+    const interval = setInterval(() => {
+      refreshCacheIfDue();
+    }, 15 * 60 * 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
   // Always render children - update check happens in background

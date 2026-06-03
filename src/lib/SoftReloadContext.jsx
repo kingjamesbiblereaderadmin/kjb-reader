@@ -18,11 +18,13 @@ export function SoftReloadProvider({ children }) {
     }, 400);
   }, []);
 
-  // Listen for service-worker controller change → trigger a silent hard reload
+  // Listen for service-worker controller change
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
     const onControllerChange = () => {
-      window.location.reload();
+      // Intentionally do nothing here so it's a completely silent background update.
+      // The new SW is activated, but we don't force a reload that interrupts reading.
+      console.log('[SW] Controller changed. New service worker active in background.');
     };
     navigator.serviceWorker.addEventListener('controllerchange', onControllerChange);
     return () => navigator.serviceWorker.removeEventListener('controllerchange', onControllerChange);
