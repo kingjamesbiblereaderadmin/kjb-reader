@@ -18,22 +18,16 @@ window.addEventListener('load', async () => {
   // DEV: Aggressive cleanup - unregister all service workers and clear ALL caches
   if (import.meta.env.DEV) {
     try {
-      console.log('[SW] DEV mode - cleaning up all service workers and caches...');
+      // Silently clean up any stale SW registrations and caches in dev.
+      // Do NOT reload — Vite HMR handles freshness and a reload mid-render
+      // tears React's hook state (null useState errors).
       const registrations = await navigator.serviceWorker.getRegistrations();
       for (const reg of registrations) {
         await reg.unregister();
-        console.log('[SW] Unregistered:', reg.scope);
       }
       const cacheNames = await caches.keys();
-      console.log('[SW] Found caches to delete:', cacheNames);
       for (const cacheName of cacheNames) {
         await caches.delete(cacheName);
-        console.log('[SW] Deleted cache:', cacheName);
-      }
-      // Force reload to ensure fresh React code
-      if (cacheNames.length > 0 || registrations.length > 0) {
-        console.log('[SW] Reloading to clear stale code...');
-        window.location.reload();
       }
     } catch (err) {
       console.error('[SW] Dev cleanup failed:', err);
