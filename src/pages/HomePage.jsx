@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw, ChevronRight } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
+import OfflineStatusBanner from '@/components/OfflineStatusBanner';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { getDailyVerse, getDailyVerseFromBible } from '@/lib/dailyVerse';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications, showLocalNotification } from '@/lib/notifications';
@@ -254,6 +255,8 @@ export default function HomePage() {
           </div>
         </div>
       )}
+
+      <OfflineStatusBanner />
 
       {/* Daily verse card */}
       <div className="w-full mb-6 relative">
