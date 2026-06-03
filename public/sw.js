@@ -2,24 +2,27 @@
 // Caches the app shell (HTML/JS/CSS) so the app loads without network.
 // Bible text data is stored separately in IndexedDB by bibleCache.js.
 
-const SHELL_CACHE = 'kjb-shell-v4';
+const SHELL_CACHE = 'kjb-shell-v5';
 
-// App shell assets to pre-cache on install
+// Minimal shell assets to pre-cache on install
 const SHELL_ASSETS = [
   '/',
   '/index.html',
   '/offline.html',
 ];
 
-// ── Install: pre-cache the minimal shell ────────────────────────────────────
+// ── Install: pre-cache the shell ────────────────────────────────────────────
 self.addEventListener('install', (event) => {
   console.log('[SW] Installing, caching shell...');
   event.waitUntil(
     caches.open(SHELL_CACHE).then(cache => {
-      // Cache what we can; ignore failures (some assets may not exist yet)
-      return cache.addAll(SHELL_ASSETS).catch(err => {
-        console.warn('[SW] Some shell assets failed to cache:', err.message);
-      });
+      return Promise.allSettled(
+        SHELL_ASSETS.map(url =>
+          fetch(url, { cache: 'no-store' })
+            .then(res => { if (res.ok) cache.put(url, res); })
+            .catch(() => {})
+        )
+      );
     }).then(() => self.skipWaiting())
   );
 });
@@ -41,74 +44,53 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// ── Fetch: network-first for navigation, cache-first for assets ──────────────
+// ── Fetch: cache-first for assets, network-first for navigation ──────────────
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Only handle same-origin requests
+  // Only handle same-origin GET requests
   if (url.origin !== self.location.origin) return;
-
-  // Skip non-GET requests
   if (request.method !== 'GET') return;
 
-  // Skip Base44 API / auth calls
+  // Skip Base44 API / auth calls — always go to network
   if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/auth/')) return;
 
-  // Navigation requests (HTML pages): network-first, fall back to cached /index.html
+  // JS/CSS/font/image assets (fingerprinted) — cache-first, populate on miss
+  const isAsset =
+    url.pathname.startsWith('/assets/') ||
+    url.pathname.match(/\.(js|css|woff2?|ttf|otf|eot|png|jpg|jpeg|gif|svg|ico|webp)$/);
+
+  if (isAsset) {
+    event.respondWith(
+      caches.match(request).then(cached => {
+        if (cached) return cached;
+        return fetch(request).then(response => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(SHELL_CACHE).then(cache => cache.put(request, clone));
+          }
+          return response;
+        }).catch(() => new Response('', { status: 408 }));
+      })
+    );
+    return;
+  }
+
+  // Navigation (HTML) — network-first, fall back to cached index.html
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
         .then(response => {
-          // Cache the fresh response
           const clone = response.clone();
           caches.open(SHELL_CACHE).then(cache => cache.put(request, clone));
           return response;
         })
-        .catch(() => {
-          // Offline: serve cached index.html for all navigation
-          return caches.match('/index.html').then(cached => {
-            if (cached) return cached;
-            return caches.match('/offline.html');
-          });
-        })
-    );
-    return;
-  }
-
-  // JS/CSS/font assets: cache-first (they're fingerprinted, safe to cache long-term)
-  if (
-    url.pathname.match(/\.(js|css|woff2?|ttf|otf|eot)$/) ||
-    url.pathname.startsWith('/assets/')
-  ) {
-    event.respondWith(
-      caches.match(request).then(cached => {
-        if (cached) return cached;
-        return fetch(request).then(response => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(SHELL_CACHE).then(cache => cache.put(request, clone));
-          }
-          return response;
-        });
-      })
-    );
-    return;
-  }
-
-  // Images: cache-first with network fallback
-  if (url.pathname.match(/\.(png|jpg|jpeg|gif|svg|ico|webp)$/)) {
-    event.respondWith(
-      caches.match(request).then(cached => {
-        if (cached) return cached;
-        return fetch(request).then(response => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(SHELL_CACHE).then(cache => cache.put(request, clone));
-          }
-          return response;
-        }).catch(() => new Response('', { status: 404 }));
-      })
+        .catch(() =>
+          caches.match('/index.html')
+            .then(cached => cached || caches.match('/offline.html'))
+            .then(fallback => fallback || new Response('<h1>Offline</h1>', { headers: { 'Content-Type': 'text/html' } }))
+        )
     );
     return;
   }

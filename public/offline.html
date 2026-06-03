@@ -1,66 +1,59 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#0f1623" />
-    <title>King James Bible — Offline</title>
-    <link rel="icon" type="image/png" href="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" />
-    <style>
-      :root { color-scheme: light dark; }
-      * { box-sizing: border-box; }
-      html, body { margin: 0; padding: 0; height: 100%; }
-      body {
-        font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
-        background: #f7f7f5;
-        color: #1a1a1a;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 24px;
-        text-align: center;
-      }
-      @media (prefers-color-scheme: dark) {
-        body { background: #0f1623; color: #e5e5e5; }
-        .card { background: #1a2235; border-color: #2a3550; }
-        button { background: #c89a4b; color: #0f1623; }
-        .muted { color: #9aa5bd; }
-      }
-      .card {
-        max-width: 480px;
-        width: 100%;
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
-        padding: 32px 24px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      }
-      img.logo { width: 64px; height: 64px; border-radius: 12px; margin-bottom: 16px; }
-      h1 { font-size: 1.5rem; margin: 0 0 8px; }
-      p { margin: 8px 0; line-height: 1.5; }
-      .muted { color: #6b7280; font-size: 0.9rem; }
-      button {
-        margin-top: 20px;
-        background: #1a1a1a;
-        color: #ffffff;
-        border: 0;
-        border-radius: 10px;
-        padding: 12px 24px;
-        font-size: 1rem;
-        font-family: inherit;
-        font-weight: 600;
-        cursor: pointer;
-      }
-      button:hover { opacity: 0.9; }
-    </style>
-  </head>
-  <body>
-    <div class="card">
-      <img class="logo" src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png" alt="KJB" />
-      <h1>You're offline</h1>
-      <p>The app shell hasn't been cached yet. Connect to the internet once to load the app — after that, the Bible will work offline.</p>
-      <p class="muted">If you've already opened the app before, try reloading.</p>
-      <button onclick="window.location.reload()">Try again</button>
-    </div>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1e1b4b" />
+  <title>KJB Reader — Offline</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f5f4ff;
+      color: #1e1b4b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100dvh;
+      padding: 1.5rem;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { background: #0f0d24; color: #e0ddff; }
+      .card { background: #1a1730; border-color: #2e2a50; }
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #ddd8ff;
+      border-radius: 1.25rem;
+      padding: 2.5rem 2rem;
+      max-width: 360px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(80,60,200,0.08);
+    }
+    .icon { font-size: 3rem; margin-bottom: 1rem; }
+    h1 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; }
+    p { font-size: 0.9rem; opacity: 0.7; line-height: 1.6; margin-bottom: 1.5rem; }
+    button {
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.75rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    button:hover { opacity: 0.85; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">📖</div>
+    <h1>You're offline</h1>
+    <p>The King James Bible app couldn't load. Make sure you've opened the app online at least once to cache it for offline use.</p>
+    <button onclick="location.reload()">Try again</button>
+  </div>
+</body>
 </html>
