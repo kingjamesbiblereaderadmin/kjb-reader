@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { WifiOff, Wifi, RefreshCw, AlertTriangle } from 'lucide-react';
-import { isBibleCached, CACHE_VERSION } from '@/lib/bibleCache';
+import { WifiOff, Wifi, RefreshCw, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { isBibleCached, CACHE_VERSION, downloadBibleForOffline } from '@/lib/bibleCache';
 import { useNavigate } from 'react-router-dom';
 
 export default function OfflineStatusBanner() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [bibleReady, setBibleReady] = useState(null); // null = checking
   const [cacheStale, setCacheStale] = useState(false);
+  const [updating, setUpdating] = useState(false);
+  const [done, setDone] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,10 +32,34 @@ export default function OfflineStatusBanner() {
     });
   }, [isOnline]);
 
+  const handleUpdate = async () => {
+    if (updating) return;
+    setUpdating(true);
+    try {
+      await downloadBibleForOffline();
+      setDone(true);
+      setCacheStale(false);
+      // Hide banner after 2 seconds
+      setTimeout(() => setDone(false), 2000);
+    } catch {
+      setUpdating(false);
+    }
+  };
+
   // Online + Bible ready + not stale → no banner needed
-  if (isOnline && bibleReady && !cacheStale) return null;
+  if (isOnline && bibleReady && !cacheStale && !done) return null;
   // Still checking
   if (bibleReady === null) return null;
+
+  // Done state
+  if (done) {
+    return (
+      <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/40 text-green-800 dark:text-green-300 mb-4">
+        <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+        <p className="font-sans text-xs font-medium flex-1">Bible updated successfully.</p>
+      </div>
+    );
+  }
 
   // Offline + Bible ready
   if (!isOnline && bibleReady) {
@@ -45,18 +71,22 @@ export default function OfflineStatusBanner() {
     );
   }
 
-  // Online + cache is stale (new version available)
+  // Online + cache is stale (new version available) — auto-update in place
   if (isOnline && bibleReady && cacheStale) {
     return (
       <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/40 text-blue-800 dark:text-blue-300 mb-4">
-        <RefreshCw className="w-4 h-4 flex-shrink-0" />
-        <p className="font-sans text-xs font-medium flex-1">A Bible update is available.</p>
-        <button
-          onClick={() => navigate('/settings')}
-          className="font-sans text-xs font-semibold underline underline-offset-2 hover:opacity-75 transition-opacity shrink-0"
-        >
-          Update
-        </button>
+        <RefreshCw className={`w-4 h-4 flex-shrink-0 ${updating ? 'animate-spin' : ''}`} />
+        <p className="font-sans text-xs font-medium flex-1">
+          {updating ? 'Updating Bible data…' : 'A Bible update is available.'}
+        </p>
+        {!updating && (
+          <button
+            onClick={handleUpdate}
+            className="font-sans text-xs font-semibold underline underline-offset-2 hover:opacity-75 transition-opacity shrink-0"
+          >
+            Update
+          </button>
+        )}
       </div>
     );
   }
