@@ -1044,7 +1044,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
       {showVersePanel ? (
         <div className="px-2 pt-2 pb-10 text-center flex-1 flex flex-col w-full max-w-full overflow-hidden">
-          <div className={`inline-flex self-center items-center justify-center gap-4 mt-3 mb-8 ${hasCustomBg ? 'rounded-2xl bg-black/25 backdrop-blur-[2px] px-5 py-2' : ''}`}>
+          <div className={`inline-flex self-center items-center justify-center gap-4 mt-3 mb-10 ${hasCustomBg ? 'rounded-2xl bg-black/25 backdrop-blur-[2px] px-5 py-2' : ''}`}>
             <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
             <p 
               className={`font-sans text-lg md:text-xl font-black tracking-[0.22em] uppercase ${accentClass}`}
@@ -1311,7 +1311,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               <Upload className="w-5 h-5 text-white rotate-45" />
             </button>
             <p 
-              className={`font-sans text-xs font-semibold tracking-widest uppercase mb-6 ${accentClass}`}
+              className={`font-sans text-xs font-semibold tracking-widest uppercase mb-10 ${accentClass}`}
               style={{ opacity: 0.8 * textOpacity, color: textColor, fontFamily: resolvedFont }}
             >
               {isOffline ? 'Offline Verse of the Day' : 'Verse of the Day'}
