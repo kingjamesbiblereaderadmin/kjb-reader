@@ -1019,7 +1019,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
       {showVersePanel ? (
         <div className="px-2 pt-2 pb-2 text-center flex-1 flex flex-col w-full max-w-full overflow-hidden">
-          <div className={`inline-flex self-center items-center justify-center gap-4 mt-3 mb-10 ${hasCustomBg ? 'rounded-2xl bg-black/25 backdrop-blur-[2px] px-5 py-2' : ''}`}>
+          <div className={`inline-flex self-center items-center justify-center gap-4 mt-3 mb-6 ${hasCustomBg ? 'rounded-2xl bg-black/25 backdrop-blur-[2px] px-5 py-2' : ''}`}>
             <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
             <p 
               className={`font-sans text-lg md:text-xl font-black tracking-[0.22em] uppercase ${accentClass}`}
@@ -1046,7 +1046,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
           </blockquote>
           <p 
-            className="font-sans text-base md:text-lg font-semibold mt-5 text-center"
+            className="font-sans text-base md:text-lg font-semibold mt-3 text-center"
             style={{ 
               opacity: Math.min(1, textOpacity + 0.05), 
               color: textColor, 
@@ -1075,7 +1075,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {/* Date display — naturally stacked at the bottom of the content flow */}
-      <div className="mt-auto pt-4 flex flex-col items-center justify-center w-full relative z-10">
+      <div className="mt-auto pt-8 flex flex-col items-center justify-center w-full relative z-10">
         <span
           className="whitespace-nowrap"
           style={{

@@ -169,7 +169,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
                 background: dateBadgeBg,
                 borderRadius: '999px',
                 padding: '10px 28px 16px',
-                marginTop: '24px',
+                marginTop: '40px',
                 flexShrink: 0,
               }}
             >
