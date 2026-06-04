@@ -39,13 +39,14 @@ export function scrollToOccurrence(verseNum, occ, topRef) {
     emphasizeOccurrence(marks, occ);
     // Always scroll to the verse top (not the matched word) so the verse's
     // first line never gets clipped above the sticky toolbar.
-    const el = verseEl;
     const scroller = document.getElementById('kjb-scroll');
     const toolbarH = topRef?.current ? topRef.current.getBoundingClientRect().height : 0;
     const off = toolbarH + 12;
 
-    const rects = el.getClientRects();
-    const topRect = rects.length > 0 ? rects[0].top : el.getBoundingClientRect().top;
+    // Find the verse number element to reliably get the top position,
+    // avoiding CSS column fragmentation issues on the parent block.
+    const numEl = verseEl.querySelector('sup, .kjb-dropcap-num');
+    const topRect = numEl ? numEl.getBoundingClientRect().top : verseEl.getBoundingClientRect().top;
 
     if (scroller) {
       const top = topRect - scroller.getBoundingClientRect().top + scroller.scrollTop - off;

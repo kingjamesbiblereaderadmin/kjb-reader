@@ -45,35 +45,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     return () => window.removeEventListener('kjb-cache-updated', handleUpdate);
   }, [abbr, chapter, verse.verse, currentText]);
 
-  // Fix for CSS columns and inline wrapping: getBoundingClientRect() can return 
-  // the Y of the second column fragment or the bounding box of multiple lines. 
-  // We override it on the DOM node so that parent components (like BibleReader)
-  // scrolling to this verse will get the top of the *first* fragment/line instead.
-  useEffect(() => {
-    if (!id) return;
-    const el = document.getElementById(id);
-    if (el && !el._rectPatched) {
-      el._rectPatched = true;
-      el.getBoundingClientRect = function() {
-        const rects = this.getClientRects();
-        const rect = Element.prototype.getBoundingClientRect.call(this);
-        if (rects.length > 0) {
-          return {
-            top: rects[0].top,
-            right: rect.right,
-            bottom: rect.bottom,
-            left: rect.left,
-            width: rect.width,
-            height: rect.height,
-            x: rect.x,
-            y: rects[0].top,
-            toJSON: function() { return this; }
-          };
-        }
-        return rect;
-      };
-    }
-  }); // Runs after every render to ensure it re-attaches if the element is recreated
+
 
   const highlightColors = [
     { name: 'accent', bg: 'bg-accent/40 dark:bg-accent/30', label: 'Default', color: 'hsl(var(--accent))' },

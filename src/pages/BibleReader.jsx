@@ -770,8 +770,11 @@ export default function BibleReader() {
     const scroller = document.getElementById('kjb-scroll');
     const toolbarH = topRef.current ? topRef.current.getBoundingClientRect().height : 0;
     const stickyOffset = toolbarH + 12;
-    const rects = verseEl.getClientRects();
-    const topRect = rects.length > 0 ? rects[0].top : verseEl.getBoundingClientRect().top;
+    
+    // Find the verse number element to reliably get the top position,
+    // avoiding CSS column fragmentation issues on the parent block.
+    const numEl = verseEl.querySelector('sup, .kjb-dropcap-num');
+    const topRect = numEl ? numEl.getBoundingClientRect().top : verseEl.getBoundingClientRect().top;
     
     if (scroller) {
       scroller.scrollTo({ top: Math.max(0, topRect - scroller.getBoundingClientRect().top + scroller.scrollTop - stickyOffset), behavior: 'smooth' });
