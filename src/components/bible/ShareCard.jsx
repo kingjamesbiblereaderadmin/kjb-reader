@@ -41,10 +41,11 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
   const verseOpacity = textOpacity != null ? textOpacity : 1;
 
   const textLen = verse?.text?.length || 0;
-  let dynamicFontSize = '64px';
-  if (textLen > 400) dynamicFontSize = '36px';
-  else if (textLen > 250) dynamicFontSize = '44px';
-  else if (textLen > 150) dynamicFontSize = '52px';
+  let dynamicFontSize = '60px';
+  if (textLen > 400) dynamicFontSize = '32px';
+  else if (textLen > 300) dynamicFontSize = '38px';
+  else if (textLen > 200) dynamicFontSize = '44px';
+  else if (textLen > 120) dynamicFontSize = '50px';
 
   // Thin full-width gradient line (blue → purple) with soft glow
   const SeparatorLine = () => (
@@ -115,7 +116,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
         />
 
         {/* VERSE OF THE DAY header with gradient side rules */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginTop: '40px', marginBottom: '80px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginTop: '40px', marginBottom: '64px' }}>
           <HeaderRule />
           <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '34px', fontWeight: 800, letterSpacing: '0.16em', color: '#ffffff', textShadow: '0 2px 8px rgba(0,0,0,0.4)', whiteSpace: 'nowrap' }}>
             {isOffline ? 'OFFLINE VERSE OF THE DAY' : 'VERSE OF THE DAY'}
@@ -123,41 +124,42 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
           <HeaderRule flip />
         </div>
 
-        {/* Verse text — centered, fills the middle */}
-        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', paddingBottom: '80px' }}>
-          <blockquote
-            className="kjb-sharecard-verse"
-            style={{
-              margin: 0,
-              textAlign: 'center',
-              fontFamily: verseFont,
-              fontWeight: 700,
-              fontSize: dynamicFontSize,
-              lineHeight: 1.45,
-              color: verseColor,
-              opacity: verseOpacity,
-              textShadow: '0 3px 10px rgba(0,0,0,0.4)',
-              maxWidth: '880px',
-            }}
-          >
-            {/* Force KJB italic words (<em>) to render italic in every font —
-                html2canvas does not reliably apply the browser's default em style. */}
-            <style>{`.kjb-sharecard-verse em { font-style: italic !important; font-weight: inherit;${isCursive ? ' color: rgba(255,255,255,0.6) !important;' : ''} }`}</style>
-            "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
-          </blockquote>
-          <p
-            style={{
-              marginTop: '80px',
-              fontFamily: verseFont,
-              fontWeight: 700,
-              fontSize: '38px',
-              color: verseColor,
-              opacity: Math.min(1, verseOpacity + 0.05),
-              textShadow: '0 2px 6px rgba(0,0,0,0.35)',
-            }}
-          >
-            — {verse.ref}
-          </p>
+        {/* Verse text — safely centered without overflowing the top header */}
+        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', width: '100%', paddingBottom: '24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: 'auto 0' }}>
+            <blockquote
+              className="kjb-sharecard-verse"
+              style={{
+                margin: 0,
+                textAlign: 'center',
+                fontFamily: verseFont,
+                fontWeight: 700,
+                fontSize: dynamicFontSize,
+                lineHeight: 1.45,
+                color: verseColor,
+                opacity: verseOpacity,
+                textShadow: '0 3px 10px rgba(0,0,0,0.4)',
+                maxWidth: '880px',
+              }}
+            >
+              {/* Force KJB italic words (<em>) to render italic in every font */}
+              <style>{`.kjb-sharecard-verse em { font-style: italic !important; font-weight: inherit;${isCursive ? ' color: rgba(255,255,255,0.6) !important;' : ''} }`}</style>
+              "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
+            </blockquote>
+            <p
+              style={{
+                marginTop: '40px',
+                fontFamily: verseFont,
+                fontWeight: 700,
+                fontSize: '36px',
+                color: verseColor,
+                opacity: Math.min(1, verseOpacity + 0.05),
+                textShadow: '0 2px 6px rgba(0,0,0,0.35)',
+              }}
+            >
+              — {verse.ref}
+            </p>
+          </div>
         </div>
 
         {/* Date badge — clean dark-purple pill, snug fit.
