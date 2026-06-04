@@ -476,24 +476,7 @@ export default function BibleReader() {
 
   useEffect(() => {
     // Preload and cache ALL Bible data with italics on first mount
-    const preloadAndCache = async () => {
-      try {
-        console.log('[BibleReader] Preloading and caching all Bible data with italics...');
-        const data = await getBibleData();
-        // Verify cache has italics by checking for brackets
-        const sampleBook = data['1 John'];
-        if (sampleBook && sampleBook[2]) {
-          const verse23 = sampleBook[2].find(v => v.verse === 23);
-          if (verse23) {
-            console.log('[BibleReader] Cache verification - 1 John 2:23 has brackets?', verse23.text.includes('['));
-          }
-        }
-        console.log('[BibleReader] Bible cache ready with italics');
-      } catch (err) {
-        console.error('[BibleReader] Cache preload failed:', err);
-      }
-    };
-    preloadAndCache();
+    getBibleData().catch(err => console.error('[BibleReader] Cache preload failed:', err));
     
     // Only restore search nav if we're arriving from a search navigation
     const initParams = new URLSearchParams(window.location.search);
@@ -782,20 +765,18 @@ export default function BibleReader() {
     const verseEl = document.getElementById(`v${verseNum}`);
     if (!verseEl) return;
     const occ = posRef.current?.occurrence || 0;
-    const marks = verseEl.querySelectorAll('mark[data-occ]');
-    emphasizeOccurrence(marks, occ);
-    // Always scroll to the verse top (not the matched word) so the verse's
-    // first line never gets clipped above the sticky toolbar.
-    const el = verseEl;
+    emphasizeOccurrence(verseEl.querySelectorAll('mark[data-occ]'), occ);
+    
     const scroller = document.getElementById('kjb-scroll');
     const toolbarH = topRef.current ? topRef.current.getBoundingClientRect().height : 0;
     const stickyOffset = toolbarH + 12;
+    const rects = verseEl.getClientRects();
+    const topRect = rects.length > 0 ? rects[0].top : verseEl.getBoundingClientRect().top;
+    
     if (scroller) {
-      const top = el.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - stickyOffset;
-      scroller.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      scroller.scrollTo({ top: Math.max(0, topRect - scroller.getBoundingClientRect().top + scroller.scrollTop - stickyOffset), behavior: 'smooth' });
     } else {
-      const top = el.getBoundingClientRect().top + window.scrollY - stickyOffset;
-      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      window.scrollTo({ top: Math.max(0, topRect + window.scrollY - stickyOffset), behavior: 'smooth' });
     }
   }, []);
 
