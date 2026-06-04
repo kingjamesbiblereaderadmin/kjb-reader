@@ -771,10 +771,11 @@ export default function BibleReader() {
     const toolbarH = topRef.current ? topRef.current.getBoundingClientRect().height : 0;
     const stickyOffset = toolbarH + 12;
     
-    // Find the verse number element to reliably get the top position,
-    // avoiding CSS column fragmentation issues on the parent block.
-    const numEl = verseEl.querySelector('sup, .kjb-dropcap-num');
-    const topRect = numEl ? numEl.getBoundingClientRect().top : verseEl.getBoundingClientRect().top;
+    // Get the first visual fragment of the verse to handle CSS columns correctly.
+    // getBoundingClientRect() creates a union box of all fragments, which fails 
+    // if the verse spans columns. getClientRects()[0] gets the actual first line/block.
+    const rects = verseEl.getClientRects();
+    const topRect = rects.length > 0 ? rects[0].top : verseEl.getBoundingClientRect().top;
     
     if (scroller) {
       scroller.scrollTo({ top: Math.max(0, topRect - scroller.getBoundingClientRect().top + scroller.scrollTop - stickyOffset), behavior: 'smooth' });
@@ -825,11 +826,15 @@ export default function BibleReader() {
       const scroller = document.getElementById('kjb-scroll');
       const toolbarH = topRef.current ? topRef.current.getBoundingClientRect().height : 0;
       const stickyOffset = toolbarH + 12;
+      
+      const rects = el.getClientRects();
+      const topRect = rects.length > 0 ? rects[0].top : el.getBoundingClientRect().top;
+      
       if (scroller) {
-        const top = el.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - stickyOffset;
+        const top = topRect - scroller.getBoundingClientRect().top + scroller.scrollTop - stickyOffset;
         scroller.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
       } else {
-        const top = el.getBoundingClientRect().top + window.scrollY - stickyOffset;
+        const top = topRect + window.scrollY - stickyOffset;
         window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
       }
     };
