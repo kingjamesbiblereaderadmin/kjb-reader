@@ -150,7 +150,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             </blockquote>
             <p
               style={{
-                marginTop: '16px',
+                marginTop: '20px',
                 fontFamily: verseFont,
                 fontWeight: 700,
                 fontSize: '32px',
@@ -161,22 +161,24 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             >
               — {verse.ref}
             </p>
+          </div>
 
-            {/* Date badge — clean dark-purple pill, snug fit.
-                Moved inside the verse container so it naturally stacks below the reference without overlapping. */}
-            <div
-              style={{
-                background: dateBadgeBg,
-                borderRadius: '999px',
-                padding: '10px 28px 16px',
-                marginTop: '64px',
-                flexShrink: 0,
-              }}
-            >
-              <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '26px', fontWeight: 700, lineHeight: 1, letterSpacing: '0.04em', color: '#ffffff' }}>
-                {dateStr}
-              </span>
-            </div>
+          {/* Date badge — clean dark-purple pill, snug fit.
+              Pulled out of the text container so it drops closer to the footer,
+              and allows the verse text to center slightly higher. */}
+          <div
+            style={{
+              background: dateBadgeBg,
+              borderRadius: '999px',
+              padding: '10px 28px 16px',
+              marginTop: '40px',
+              marginBottom: '16px',
+              flexShrink: 0,
+            }}
+          >
+            <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '26px', fontWeight: 700, lineHeight: 1, letterSpacing: '0.04em', color: '#ffffff' }}>
+              {dateStr}
+            </span>
           </div>
         </div>
 
