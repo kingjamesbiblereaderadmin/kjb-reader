@@ -35,32 +35,16 @@ export function scrollToOccurrence(verseNum, occ, topRef) {
   requestAnimationFrame(() => {
     const verseEl = document.getElementById(`v${verseNum}`);
     if (!verseEl) return;
-    const marks = verseEl.querySelectorAll('mark[data-occ]');
-    emphasizeOccurrence(marks, occ);
-    // Always scroll to the verse top (not the matched word) so the verse's
-    // first line never gets clipped above the sticky toolbar.
+    emphasizeOccurrence(verseEl.querySelectorAll('mark[data-occ]'), occ);
     const scroller = document.getElementById('kjb-scroll');
-    const toolbarH = topRef?.current ? topRef.current.getBoundingClientRect().height : 0;
-    const off = toolbarH + 12;
-
-    // Find the verse number element to reliably get the top position,
-    // avoiding CSS column fragmentation issues on the parent block.
-    const numEl = verseEl.querySelector('sup, .kjb-dropcap-num');
-    let topRect = numEl ? numEl.getBoundingClientRect().top : verseEl.getBoundingClientRect().top;
-    
-    // If a stanza heading (e.g., ALEPH in Psalm 119) exists above the verse number,
-    // scroll to the heading instead so it isn't hidden behind the sticky toolbar.
-    const heading = verseEl.querySelector('.font-bold.text-center');
-    if (heading && heading.getBoundingClientRect().top < topRect) {
-      topRect = heading.getBoundingClientRect().top;
-    }
-
+    const off = (topRef?.current ? topRef.current.getBoundingClientRect().height : 0) + 12;
+    const numEl = verseEl.querySelector('sup, .kjb-dropcap-num') || verseEl;
+    const rects = numEl.getClientRects();
+    const topRect = rects.length > 0 ? rects[0].top : numEl.getBoundingClientRect().top;
     if (scroller) {
-      const top = topRect - scroller.getBoundingClientRect().top + scroller.scrollTop - off;
-      scroller.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      scroller.scrollTo({ top: Math.max(0, topRect - scroller.getBoundingClientRect().top + scroller.scrollTop - off), behavior: 'smooth' });
     } else {
-      const top = topRect + window.scrollY - off;
-      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      window.scrollTo({ top: Math.max(0, topRect + window.scrollY - off), behavior: 'smooth' });
     }
   });
 }

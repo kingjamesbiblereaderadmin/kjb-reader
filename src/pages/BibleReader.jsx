@@ -790,32 +790,26 @@ export default function BibleReader() {
     }
   }, []);
 
-  // Scroll to verse when highlight is set; otherwise restore last scroll
-  // position for this chapter (so switching pages and back resumes reading).
   useEffect(() => {
     if (loading) return;
     if (highlightVerse) {
-      // Align verse start just below the sticky toolbar. Retry once after layout settles.
       const scrollToVerse = () => scrollToVerseEl(highlightVerse);
-      const t1 = setTimeout(scrollToVerse, 200);
-      const t2 = setTimeout(scrollToVerse, 600);
-      return () => { clearTimeout(t1); clearTimeout(t2); };
+      const t1 = setTimeout(scrollToVerse, 50), t2 = setTimeout(scrollToVerse, 200), t3 = setTimeout(scrollToVerse, 600);
+      const container = document.querySelector('.kjb-reader-content');
+      let ro = null;
+      if (container && window.ResizeObserver) { ro = new ResizeObserver(scrollToVerse); ro.observe(container); }
+      const tStop = setTimeout(() => ro && ro.disconnect(), 2000);
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(tStop); ro && ro.disconnect(); };
     }
-    // Fresh navigation (book/chapter picker, prev/next, etc.) — always start at the
-    // top and do NOT restore a previously-saved scroll offset for this chapter.
     if (freshNavRef.current) {
       freshNavRef.current = false;
       (document.getElementById('kjb-scroll') || window).scrollTo({ top: 0 });
       return;
     }
-    // A colophon/subscript section is being targeted — let effect #2 handle the
-    // scroll. Don't restore the saved offset (it would fight the section scroll).
     if (highlightSection) return;
-    // No highlight: restore saved scroll offset for this chapter
     const timer = setTimeout(() => {
       try {
-        const key = `kjb-scroll-${pos.abbr}-${pos.chapter}`;
-        const saved = parseInt(sessionStorage.getItem(key) || '0', 10);
+        const saved = parseInt(sessionStorage.getItem(`kjb-scroll-${pos.abbr}-${pos.chapter}`) || '0', 10);
         if (saved > 0) (document.getElementById('kjb-scroll') || window).scrollTo({ top: saved });
       } catch {}
     }, 80);
