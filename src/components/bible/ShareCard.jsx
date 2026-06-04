@@ -43,7 +43,8 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
   const textLen = verse?.text?.length || 0;
   let dynamicFontSize = '56px';
   if (textLen > 400) dynamicFontSize = '28px';
-  else if (textLen > 300) dynamicFontSize = '34px';
+  else if (textLen > 300) dynamicFontSize = '32px';
+  else if (textLen > 250) dynamicFontSize = '36px';
   else if (textLen > 200) dynamicFontSize = '40px';
   else if (textLen > 120) dynamicFontSize = '48px';
 
@@ -179,7 +180,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
         </div>
 
         {/* Footer URL with curved gradient divider above */}
-        <div style={{ width: '100%', textAlign: 'center' }}>
+        <div style={{ width: '100%', textAlign: 'center', marginTop: '48px', flexShrink: 0 }}>
           <svg viewBox="0 0 880 40" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '40px', marginBottom: '32px' }}>
             <defs>
               <linearGradient id="kjbCurveGrad" x1="0" y1="0" x2="1" y2="0">
