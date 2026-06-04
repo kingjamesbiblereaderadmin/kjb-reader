@@ -41,11 +41,11 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
   const verseOpacity = textOpacity != null ? textOpacity : 1;
 
   const textLen = verse?.text?.length || 0;
-  let dynamicFontSize = '60px';
-  if (textLen > 400) dynamicFontSize = '32px';
-  else if (textLen > 300) dynamicFontSize = '38px';
-  else if (textLen > 200) dynamicFontSize = '44px';
-  else if (textLen > 120) dynamicFontSize = '50px';
+  let dynamicFontSize = '56px';
+  if (textLen > 400) dynamicFontSize = '28px';
+  else if (textLen > 300) dynamicFontSize = '34px';
+  else if (textLen > 200) dynamicFontSize = '40px';
+  else if (textLen > 120) dynamicFontSize = '48px';
 
   // Thin full-width gradient line (blue → purple) with soft glow
   const SeparatorLine = () => (
@@ -159,26 +159,23 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             >
               — {verse.ref}
             </p>
-          </div>
-        </div>
 
-        {/* Date badge — clean dark-purple pill, snug fit.
-            html2canvas mis-centers flex text vertically, so we use a plain
-            inline-block with balanced top/bottom padding instead. */}
-        <div
-          style={{
-            alignSelf: 'center',
-            background: dateBadgeBg,
-            borderRadius: '999px',
-            padding: '12px 32px 20px',
-            marginTop: '24px',
-            marginBottom: '48px',
-            flexShrink: 0,
-          }}
-        >
-          <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '30px', fontWeight: 700, lineHeight: 1, letterSpacing: '0.04em', color: '#ffffff' }}>
-            {dateStr}
-          </span>
+            {/* Date badge — clean dark-purple pill, snug fit.
+                Moved inside the verse container so it naturally stacks below the reference without overlapping. */}
+            <div
+              style={{
+                background: dateBadgeBg,
+                borderRadius: '999px',
+                padding: '12px 32px 20px',
+                marginTop: '48px',
+                flexShrink: 0,
+              }}
+            >
+              <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '30px', fontWeight: 700, lineHeight: 1, letterSpacing: '0.04em', color: '#ffffff' }}>
+                {dateStr}
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Footer URL with curved gradient divider above */}
