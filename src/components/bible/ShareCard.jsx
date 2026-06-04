@@ -41,13 +41,13 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
   const verseOpacity = textOpacity != null ? textOpacity : 1;
 
   const textLen = verse?.text?.length || 0;
-  let dynamicFontSize = '58px';
-  if (textLen > 500) dynamicFontSize = '28px';
-  else if (textLen > 400) dynamicFontSize = '32px';
-  else if (textLen > 300) dynamicFontSize = '38px';
-  else if (textLen > 250) dynamicFontSize = '42px';
-  else if (textLen > 200) dynamicFontSize = '46px';
-  else if (textLen > 120) dynamicFontSize = '52px';
+  let dynamicFontSize = '54px';
+  if (textLen > 500) dynamicFontSize = '26px';
+  else if (textLen > 400) dynamicFontSize = '30px';
+  else if (textLen > 300) dynamicFontSize = '34px';
+  else if (textLen > 250) dynamicFontSize = '38px';
+  else if (textLen > 200) dynamicFontSize = '42px';
+  else if (textLen > 120) dynamicFontSize = '48px';
 
   // Thin full-width gradient line (blue → purple) with soft glow
   const SeparatorLine = () => (
@@ -118,7 +118,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
         />
 
         {/* VERSE OF THE DAY header with gradient side rules */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginTop: '40px', marginBottom: '32px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginTop: '24px', marginBottom: '16px' }}>
           <HeaderRule />
           <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '34px', fontWeight: 800, letterSpacing: '0.16em', color: '#ffffff', textShadow: '0 2px 8px rgba(0,0,0,0.4)', whiteSpace: 'nowrap' }}>
             {isOffline ? 'OFFLINE VERSE OF THE DAY' : 'VERSE OF THE DAY'}
@@ -128,7 +128,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
 
         {/* Verse text — safely centered without overflowing the top header */}
         <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', width: '100%', paddingBottom: '0' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: 'auto 0', paddingBottom: '32px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: 'auto 0', paddingBottom: '0' }}>
             <blockquote
               className="kjb-sharecard-verse"
               style={{
@@ -150,10 +150,10 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             </blockquote>
             <p
               style={{
-                marginTop: '40px',
+                marginTop: '24px',
                 fontFamily: verseFont,
                 fontWeight: 700,
-                fontSize: '36px',
+                fontSize: '32px',
                 color: verseColor,
                 opacity: Math.min(1, verseOpacity + 0.05),
                 textShadow: '0 2px 6px rgba(0,0,0,0.35)',
@@ -168,12 +168,12 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
               style={{
                 background: dateBadgeBg,
                 borderRadius: '999px',
-                padding: '12px 32px 20px',
-                marginTop: '48px',
+                padding: '10px 28px 16px',
+                marginTop: '24px',
                 flexShrink: 0,
               }}
             >
-              <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '30px', fontWeight: 700, lineHeight: 1, letterSpacing: '0.04em', color: '#ffffff' }}>
+              <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '26px', fontWeight: 700, lineHeight: 1, letterSpacing: '0.04em', color: '#ffffff' }}>
                 {dateStr}
               </span>
             </div>
@@ -181,7 +181,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
         </div>
 
         {/* Footer URL with curved gradient divider above */}
-        <div style={{ width: '100%', textAlign: 'center', marginTop: '40px', flexShrink: 0 }}>
+        <div style={{ width: '100%', textAlign: 'center', marginTop: '24px', flexShrink: 0 }}>
           <svg viewBox="0 0 880 40" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '40px', marginBottom: '32px' }}>
             <defs>
               <linearGradient id="kjbCurveGrad" x1="0" y1="0" x2="1" y2="0">
