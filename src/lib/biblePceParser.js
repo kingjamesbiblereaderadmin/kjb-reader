@@ -93,10 +93,10 @@ export function parsePceText(text) {
     let t = rawAfterNumber.replace(/\s*<<[^>]*>>\s*$/, '').trim();
     if (hadParagraph) t = '¶ ' + t;
 
-    // Fix 1 John 2:23 Wharton PCE syntax: replace literal parentheses used for italics-brackets
+    // Fix 1 John 2:23 PCE syntax: replace double brackets used for italics-brackets
     // with HTML entities so the parser correctly renders them as literal brackets inside the <em> tag.
     if (currentBook === '1 John' && currentChapter === 2 && vs === 23) {
-      t = t.replace('[(but)', '[&#91;but&#93;');
+      t = t.replace('[[but]]', '[&#91;but&#93;]');
     }
 
     if (!data[currentBook][currentChapter]) data[currentBook][currentChapter] = [];
