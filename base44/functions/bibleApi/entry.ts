@@ -72,6 +72,12 @@ async function loadBible() {
 
     if (!verseText.trim()) continue;
 
+    // Fix 1 John 2:23 Wharton PCE syntax: replace literal parentheses used for italics-brackets
+    // with HTML entities so the frontend renderer correctly outputs literal brackets inside the <em> tag.
+    if (bookName === '1 John' && chapter === 2 && verse === 23) {
+      verseText = verseText.replace('[(but)', '[&#91;but&#93;');
+    }
+
     if (!data[bookName]) data[bookName] = {};
     if (!data[bookName][chapter]) data[bookName][chapter] = [];
     data[bookName][chapter].push({ verse, text: verseText });
