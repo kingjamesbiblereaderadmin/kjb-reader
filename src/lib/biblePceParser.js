@@ -96,7 +96,7 @@ export function parsePceText(text) {
     // Fix 1 John 2:23 PCE syntax: replace double brackets with single brackets
     // so it renders as standard italics without literal brackets.
     if (currentBook === '1 John' && currentChapter === 2 && vs === 23) {
-      t = t.replace('[(but)', '[but]');
+      t = t.replace('[(but)', '[but'); // omit closing bracket so the trailing ] covers the whole phrase
       t = t.replace('[[but]]', '[but]');
     }
 

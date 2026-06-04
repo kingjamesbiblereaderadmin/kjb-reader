@@ -75,7 +75,7 @@ async function loadBible() {
     // Fix 1 John 2:23 PCE syntax: replace double brackets with single brackets
     // so it renders as standard italics without literal brackets.
     if (bookName === '1 John' && chapter === 2 && verse === 23) {
-      verseText = verseText.replace('[(but)', '[but]');
+      verseText = verseText.replace('[(but)', '[but'); // omit closing bracket so the trailing ] covers the whole phrase
       verseText = verseText.replace('[[but]]', '[but]');
     }
 
