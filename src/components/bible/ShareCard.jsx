@@ -125,8 +125,8 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
         </div>
 
         {/* Verse text — safely centered without overflowing the top header */}
-        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', width: '100%', paddingBottom: '24px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: 'auto 0' }}>
+        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', width: '100%', paddingBottom: '0' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: 'auto 0', paddingBottom: '32px' }}>
             <blockquote
               className="kjb-sharecard-verse"
               style={{
@@ -171,8 +171,8 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             background: dateBadgeBg,
             borderRadius: '999px',
             padding: '12px 32px 20px',
-            marginTop: '40px',
-            marginBottom: '64px',
+            marginTop: '24px',
+            marginBottom: '48px',
             flexShrink: 0,
           }}
         >
