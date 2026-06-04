@@ -771,11 +771,17 @@ export default function BibleReader() {
     const toolbarH = topRef.current ? topRef.current.getBoundingClientRect().height : 0;
     const stickyOffset = toolbarH + 12;
     
-    // Get the first visual fragment of the verse to handle CSS columns correctly.
-    // getBoundingClientRect() creates a union box of all fragments, which fails 
-    // if the verse spans columns. getClientRects()[0] gets the actual first line/block.
-    const rects = verseEl.getClientRects();
-    const topRect = rects.length > 0 ? rects[0].top : verseEl.getBoundingClientRect().top;
+    // Find the verse number element to reliably get the top position,
+    // avoiding CSS column fragmentation issues on the parent block.
+    const numEl = verseEl.querySelector('sup, .kjb-dropcap-num');
+    let topRect = numEl ? numEl.getBoundingClientRect().top : verseEl.getBoundingClientRect().top;
+    
+    // If a stanza heading (e.g., ALEPH in Psalm 119) exists above the verse number,
+    // scroll to the heading instead so it isn't hidden behind the sticky toolbar.
+    const heading = verseEl.querySelector('.font-bold.text-center');
+    if (heading && heading.getBoundingClientRect().top < topRect) {
+      topRect = heading.getBoundingClientRect().top;
+    }
     
     if (scroller) {
       scroller.scrollTo({ top: Math.max(0, topRect - scroller.getBoundingClientRect().top + scroller.scrollTop - stickyOffset), behavior: 'smooth' });
@@ -826,15 +832,11 @@ export default function BibleReader() {
       const scroller = document.getElementById('kjb-scroll');
       const toolbarH = topRef.current ? topRef.current.getBoundingClientRect().height : 0;
       const stickyOffset = toolbarH + 12;
-      
-      const rects = el.getClientRects();
-      const topRect = rects.length > 0 ? rects[0].top : el.getBoundingClientRect().top;
-      
       if (scroller) {
-        const top = topRect - scroller.getBoundingClientRect().top + scroller.scrollTop - stickyOffset;
+        const top = el.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - stickyOffset;
         scroller.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
       } else {
-        const top = topRect + window.scrollY - stickyOffset;
+        const top = el.getBoundingClientRect().top + window.scrollY - stickyOffset;
         window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
       }
     };

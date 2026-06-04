@@ -46,7 +46,14 @@ export function scrollToOccurrence(verseNum, occ, topRef) {
     // Find the verse number element to reliably get the top position,
     // avoiding CSS column fragmentation issues on the parent block.
     const numEl = verseEl.querySelector('sup, .kjb-dropcap-num');
-    const topRect = numEl ? numEl.getBoundingClientRect().top : verseEl.getBoundingClientRect().top;
+    let topRect = numEl ? numEl.getBoundingClientRect().top : verseEl.getBoundingClientRect().top;
+    
+    // If a stanza heading (e.g., ALEPH in Psalm 119) exists above the verse number,
+    // scroll to the heading instead so it isn't hidden behind the sticky toolbar.
+    const heading = verseEl.querySelector('.font-bold.text-center');
+    if (heading && heading.getBoundingClientRect().top < topRect) {
+      topRect = heading.getBoundingClientRect().top;
+    }
 
     if (scroller) {
       const top = topRect - scroller.getBoundingClientRect().top + scroller.scrollTop - off;
