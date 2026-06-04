@@ -41,13 +41,13 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
   const verseOpacity = textOpacity != null ? textOpacity : 1;
 
   const textLen = verse?.text?.length || 0;
-  let dynamicFontSize = '54px';
-  if (textLen > 500) dynamicFontSize = '26px';
-  else if (textLen > 400) dynamicFontSize = '30px';
-  else if (textLen > 300) dynamicFontSize = '34px';
-  else if (textLen > 250) dynamicFontSize = '38px';
-  else if (textLen > 200) dynamicFontSize = '42px';
-  else if (textLen > 120) dynamicFontSize = '48px';
+  let dynamicFontSize = '56px';
+  if (textLen > 500) dynamicFontSize = '28px';
+  else if (textLen > 400) dynamicFontSize = '32px';
+  else if (textLen > 300) dynamicFontSize = '36px';
+  else if (textLen > 250) dynamicFontSize = '40px';
+  else if (textLen > 200) dynamicFontSize = '44px';
+  else if (textLen > 120) dynamicFontSize = '50px';
 
   // Thin full-width gradient line (blue → purple) with soft glow
   const SeparatorLine = () => (
@@ -118,7 +118,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
         />
 
         {/* VERSE OF THE DAY header with gradient side rules */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginTop: '24px', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginTop: '24px', marginBottom: '24px' }}>
           <HeaderRule />
           <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '34px', fontWeight: 800, letterSpacing: '0.16em', color: '#ffffff', textShadow: '0 2px 8px rgba(0,0,0,0.4)', whiteSpace: 'nowrap' }}>
             {isOffline ? 'OFFLINE VERSE OF THE DAY' : 'VERSE OF THE DAY'}
@@ -150,7 +150,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             </blockquote>
             <p
               style={{
-                marginTop: '24px',
+                marginTop: '16px',
                 fontFamily: verseFont,
                 fontWeight: 700,
                 fontSize: '32px',
@@ -169,7 +169,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
                 background: dateBadgeBg,
                 borderRadius: '999px',
                 padding: '10px 28px 16px',
-                marginTop: '40px',
+                marginTop: '64px',
                 flexShrink: 0,
               }}
             >
