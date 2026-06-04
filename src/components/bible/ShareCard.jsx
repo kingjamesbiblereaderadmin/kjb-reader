@@ -40,6 +40,12 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
   const verseColor = textColor || '#ffffff';
   const verseOpacity = textOpacity != null ? textOpacity : 1;
 
+  const textLen = verse?.text?.length || 0;
+  let dynamicFontSize = '64px';
+  if (textLen > 400) dynamicFontSize = '36px';
+  else if (textLen > 250) dynamicFontSize = '44px';
+  else if (textLen > 150) dynamicFontSize = '52px';
+
   // Thin full-width gradient line (blue → purple) with soft glow
   const SeparatorLine = () => (
     <svg viewBox="0 0 880 8" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '8px' }}>
@@ -126,7 +132,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
               textAlign: 'center',
               fontFamily: verseFont,
               fontWeight: 700,
-              fontSize: '64px',
+              fontSize: dynamicFontSize,
               lineHeight: 1.32,
               color: verseColor,
               opacity: verseOpacity,

@@ -57,6 +57,17 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   // The font actually rendered — accessibility font overrides the verse's own choice
   const resolvedFont = resolveFontFamily(fontFamily, a11yFont);
 
+  const textLen = verse?.text?.length || 0;
+  let panelTextClass = fontFamily === 'cursive' ? 'text-5xl md:text-6xl' : 'text-3xl md:text-4xl';
+  let lightboxTextClass = fontFamily === 'cursive' ? 'text-4xl md:text-6xl' : 'text-3xl md:text-5xl';
+  if (textLen > 350) {
+    panelTextClass = fontFamily === 'cursive' ? 'text-3xl md:text-4xl' : 'text-xl md:text-2xl';
+    lightboxTextClass = fontFamily === 'cursive' ? 'text-3xl md:text-4xl' : 'text-2xl md:text-3xl';
+  } else if (textLen > 150) {
+    panelTextClass = fontFamily === 'cursive' ? 'text-4xl md:text-5xl' : 'text-2xl md:text-3xl';
+    lightboxTextClass = fontFamily === 'cursive' ? 'text-4xl md:text-5xl' : 'text-3xl md:text-4xl';
+  }
+
   useEffect(() => {
     const handleStorage = () => {
       try { setCustomBg(localStorage.getItem('kjb-daily-verse-bg') || ''); } catch {}
@@ -1046,7 +1057,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           <div className="flex-1 flex flex-col justify-center">
           <div className={hasCustomBg ? 'mx-auto max-w-2xl rounded-2xl bg-black/20 backdrop-blur-[2px] px-6 py-6' : ''}>
           <blockquote 
-            className={`text-center leading-relaxed [&_em]:italic break-words ${fontFamily === 'cursive' ? 'kjb-verse-card cursive-em-style text-5xl md:text-6xl' : 'text-3xl md:text-4xl'}`}
+            className={`text-center leading-relaxed [&_em]:italic break-words ${fontFamily === 'cursive' ? 'kjb-verse-card cursive-em-style' : ''} ${panelTextClass}`}
             style={{ 
               color: textColor, 
               opacity: textOpacity, 
@@ -1306,7 +1317,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               {isOffline ? 'Offline Verse of the Day' : 'Verse of the Day'}
             </p>
             <blockquote 
-              className={`text-3xl md:text-5xl leading-relaxed mb-8 [&_em]:italic ${fontFamily === 'cursive' ? 'kjb-verse-card cursive-em-style' : ''}`}
+              className={`leading-relaxed mb-8 [&_em]:italic ${fontFamily === 'cursive' ? 'kjb-verse-card cursive-em-style' : ''} ${lightboxTextClass}`}
               style={{ 
                 color: textColor, 
                 opacity: textOpacity, 
