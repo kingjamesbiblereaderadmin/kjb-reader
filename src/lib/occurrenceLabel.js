@@ -43,11 +43,15 @@ export function scrollToOccurrence(verseNum, occ, topRef) {
     const scroller = document.getElementById('kjb-scroll');
     const toolbarH = topRef?.current ? topRef.current.getBoundingClientRect().height : 0;
     const off = toolbarH + 12;
+
+    const rects = el.getClientRects();
+    const topRect = rects.length > 0 ? rects[0].top : el.getBoundingClientRect().top;
+
     if (scroller) {
-      const top = el.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - off;
+      const top = topRect - scroller.getBoundingClientRect().top + scroller.scrollTop - off;
       scroller.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
     } else {
-      const top = el.getBoundingClientRect().top + window.scrollY - off;
+      const top = topRect + window.scrollY - off;
       window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
     }
   });
