@@ -115,7 +115,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
         />
 
         {/* VERSE OF THE DAY header with gradient side rules */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginTop: '40px', marginBottom: '48px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginTop: '40px', marginBottom: '80px' }}>
           <HeaderRule />
           <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '34px', fontWeight: 800, letterSpacing: '0.16em', color: '#ffffff', textShadow: '0 2px 8px rgba(0,0,0,0.4)', whiteSpace: 'nowrap' }}>
             {isOffline ? 'OFFLINE VERSE OF THE DAY' : 'VERSE OF THE DAY'}
