@@ -42,10 +42,11 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
 
   const textLen = verse?.text?.length || 0;
   let dynamicFontSize = '58px';
-  if (textLen > 400) dynamicFontSize = '34px';
-  else if (textLen > 300) dynamicFontSize = '40px';
-  else if (textLen > 250) dynamicFontSize = '44px';
-  else if (textLen > 200) dynamicFontSize = '48px';
+  if (textLen > 500) dynamicFontSize = '28px';
+  else if (textLen > 400) dynamicFontSize = '32px';
+  else if (textLen > 300) dynamicFontSize = '38px';
+  else if (textLen > 250) dynamicFontSize = '42px';
+  else if (textLen > 200) dynamicFontSize = '46px';
   else if (textLen > 120) dynamicFontSize = '52px';
 
   // Thin full-width gradient line (blue → purple) with soft glow
