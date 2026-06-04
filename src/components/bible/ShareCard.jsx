@@ -180,7 +180,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
         </div>
 
         {/* Footer URL with curved gradient divider above */}
-        <div style={{ width: '100%', textAlign: 'center', marginTop: '48px', flexShrink: 0 }}>
+        <div style={{ width: '100%', textAlign: 'center', marginTop: '80px', flexShrink: 0 }}>
           <svg viewBox="0 0 880 40" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '40px', marginBottom: '32px' }}>
             <defs>
               <linearGradient id="kjbCurveGrad" x1="0" y1="0" x2="1" y2="0">
