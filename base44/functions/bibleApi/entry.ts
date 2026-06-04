@@ -23,7 +23,7 @@ const ABBR_TO_NAME = {
 async function loadBible() {
   if (bibleData) return bibleData;
 
-  const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/e74bc3070_KingJamesBible-PureCambridgeEditionTextfile2.txt';
+  const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
   
   const res = await fetch(TEXT_URL);
   if (!res.ok) throw new Error('Failed to fetch Bible text');
@@ -72,10 +72,11 @@ async function loadBible() {
 
     if (!verseText.trim()) continue;
 
-    // Fix 1 John 2:23 PCE syntax: replace double brackets used for italics-brackets
-    // with HTML entities so the frontend renderer correctly outputs literal brackets inside the <em> tag.
+    // Fix 1 John 2:23 PCE syntax: replace double brackets with single brackets
+    // so it renders as standard italics without literal brackets.
     if (bookName === '1 John' && chapter === 2 && verse === 23) {
-      verseText = verseText.replace('[[but]]', '[&#91;but&#93;]');
+      verseText = verseText.replace('[(but)', '[but]');
+      verseText = verseText.replace('[[but]]', '[but]');
     }
 
     if (!data[bookName]) data[bookName] = {};
