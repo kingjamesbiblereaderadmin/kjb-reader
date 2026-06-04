@@ -60,12 +60,15 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const textLen = verse?.text?.length || 0;
   let panelTextClass = fontFamily === 'cursive' ? 'text-5xl md:text-6xl' : 'text-3xl md:text-4xl';
   let lightboxTextClass = fontFamily === 'cursive' ? 'text-4xl md:text-6xl' : 'text-3xl md:text-5xl';
-  if (textLen > 350) {
+  if (textLen > 400) {
+    panelTextClass = fontFamily === 'cursive' ? 'text-2xl md:text-3xl' : 'text-lg md:text-xl';
+    lightboxTextClass = fontFamily === 'cursive' ? 'text-3xl md:text-4xl' : 'text-xl md:text-2xl';
+  } else if (textLen > 250) {
     panelTextClass = fontFamily === 'cursive' ? 'text-3xl md:text-4xl' : 'text-xl md:text-2xl';
-    lightboxTextClass = fontFamily === 'cursive' ? 'text-3xl md:text-4xl' : 'text-2xl md:text-3xl';
+    lightboxTextClass = fontFamily === 'cursive' ? 'text-4xl md:text-5xl' : 'text-2xl md:text-3xl';
   } else if (textLen > 150) {
     panelTextClass = fontFamily === 'cursive' ? 'text-4xl md:text-5xl' : 'text-2xl md:text-3xl';
-    lightboxTextClass = fontFamily === 'cursive' ? 'text-4xl md:text-5xl' : 'text-3xl md:text-4xl';
+    lightboxTextClass = fontFamily === 'cursive' ? 'text-5xl md:text-6xl' : 'text-3xl md:text-4xl';
   }
 
   useEffect(() => {
@@ -397,7 +400,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   };
 
   return (
-    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full min-h-[300px] ${gradientClass} border border-border rounded-2xl shadow-lg px-6 text-center text-white relative flex flex-col ${capturing ? 'pt-20 pb-24' : 'pt-6 pb-12'} ${uploadingComplete ? 'cursor-default' : 'cursor-pointer'}`} style={bgStyle} onTouchEnd={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }}>
+    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full min-h-[300px] ${gradientClass} border border-border rounded-2xl shadow-lg px-6 text-center text-white relative flex flex-col ${capturing ? 'pt-20 pb-8' : 'pt-6 pb-6'} ${uploadingComplete ? 'cursor-default' : 'cursor-pointer'}`} style={bgStyle} onTouchEnd={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }}>
       {/* Notification bell indicator button */}
       {showButtons && onToggleNotif && (
         <button
@@ -431,35 +434,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         </button>
       )}
 
-      {/* Capture-only website URL — shown only in the downloaded/copied/shared image */}
-      {capturing && (
-        <span
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap font-sans font-bold z-10"
-          style={{ color: textColor, opacity: Math.min(1, textOpacity + 0.05), fontSize: '16px', textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}
-        >
-          KingJamesBibleReader.com
-        </span>
-      )}
 
-      {/* Date display — centered at the bottom (above the URL during capture) */}
-      <span
-        className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap ${capturing ? 'bottom-12' : 'bottom-6'}`}
-        style={{
-          backgroundColor: hasCustomBg ? 'rgba(0, 0, 0, 0.55)' : `rgba(${defaultBg.pill}, 0.65)`,
-          border: '1px solid rgba(255,255,255,0.18)',
-          borderRadius: '11px',
-          color: 'rgba(255,255,255,0.98)',
-          fontFamily: "'Inter', system-ui, sans-serif",
-          fontSize: '13px',
-          fontWeight: 700,
-          letterSpacing: '0.03em',
-          lineHeight: '13px',
-          padding: '8px 18px',
-          boxShadow: '0 3px 9px rgba(0,0,0,0.3)',
-        }}
-      >
-        {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-      </span>
 
       {/* Action buttons */}
       <div className="absolute top-2 right-2 flex gap-1 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
@@ -1043,7 +1018,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {showVersePanel ? (
-        <div className="px-2 pt-2 pb-10 text-center flex-1 flex flex-col w-full max-w-full overflow-hidden">
+        <div className="px-2 pt-2 pb-2 text-center flex-1 flex flex-col w-full max-w-full overflow-hidden">
           <div className={`inline-flex self-center items-center justify-center gap-4 mt-3 mb-10 ${hasCustomBg ? 'rounded-2xl bg-black/25 backdrop-blur-[2px] px-5 py-2' : ''}`}>
             <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
             <p 
@@ -1098,6 +1073,39 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           </div>
         </div>
       )}
+
+      {/* Date display — naturally stacked at the bottom of the content flow */}
+      <div className="mt-auto pt-4 flex flex-col items-center justify-center w-full relative z-10">
+        <span
+          className="whitespace-nowrap"
+          style={{
+            backgroundColor: hasCustomBg ? 'rgba(0, 0, 0, 0.55)' : `rgba(${defaultBg.pill}, 0.65)`,
+            border: '1px solid rgba(255,255,255,0.18)',
+            borderRadius: '11px',
+            color: 'rgba(255,255,255,0.98)',
+            fontFamily: "'Inter', system-ui, sans-serif",
+            fontSize: '13px',
+            fontWeight: 700,
+            letterSpacing: '0.03em',
+            lineHeight: '13px',
+            padding: '8px 18px',
+            boxShadow: '0 3px 9px rgba(0,0,0,0.3)',
+          }}
+        >
+          {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+        </span>
+
+        {/* Capture-only website URL — shown only in the downloaded/copied/shared image */}
+        {capturing && (
+          <span
+            className="mt-3 whitespace-nowrap font-sans font-bold"
+            style={{ color: textColor, opacity: Math.min(1, textOpacity + 0.05), fontSize: '16px', textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}
+          >
+            KingJamesBibleReader.com
+          </span>
+        )}
+      </div>
+
       {/* Crop Modal - positioned near verse card */}
       {cropImage && (
         <ImageCropper
