@@ -115,7 +115,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
         />
 
         {/* VERSE OF THE DAY header with gradient side rules */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginTop: '32px', marginBottom: '40px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginTop: '40px', marginBottom: '48px' }}>
           <HeaderRule />
           <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '34px', fontWeight: 800, letterSpacing: '0.16em', color: '#ffffff', textShadow: '0 2px 8px rgba(0,0,0,0.4)', whiteSpace: 'nowrap' }}>
             {isOffline ? 'OFFLINE VERSE OF THE DAY' : 'VERSE OF THE DAY'}
@@ -124,7 +124,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
         </div>
 
         {/* Verse text — centered, fills the middle */}
-        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', paddingBottom: '24px' }}>
+        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', paddingBottom: '40px' }}>
           <blockquote
             className="kjb-sharecard-verse"
             style={{
@@ -147,7 +147,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
           </blockquote>
           <p
             style={{
-              marginTop: '40px',
+              marginTop: '48px',
               fontFamily: verseFont,
               fontWeight: 700,
               fontSize: '38px',
@@ -168,9 +168,9 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             alignSelf: 'center',
             background: dateBadgeBg,
             borderRadius: '999px',
-            padding: '9px 28px 17px',
-            marginTop: '28px',
-            marginBottom: '56px',
+            padding: '12px 32px 20px',
+            marginTop: '40px',
+            marginBottom: '64px',
             flexShrink: 0,
           }}
         >
@@ -181,7 +181,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
 
         {/* Footer URL with curved gradient divider above */}
         <div style={{ width: '100%', textAlign: 'center' }}>
-          <svg viewBox="0 0 880 40" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '40px', marginBottom: '24px' }}>
+          <svg viewBox="0 0 880 40" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '40px', marginBottom: '32px' }}>
             <defs>
               <linearGradient id="kjbCurveGrad" x1="0" y1="0" x2="1" y2="0">
                 <stop offset="0%" stopColor={accentA} stopOpacity="0.25" />
