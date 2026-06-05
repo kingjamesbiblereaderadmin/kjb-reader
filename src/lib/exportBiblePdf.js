@@ -874,7 +874,7 @@ async function buildText(opts, bible, onProgress, format) {
     blob = new Blob(['\ufeff', html], { type: 'application/msword' });
     name = fileName(opts, 'doc');
   } else {
-    blob = new Blob([out.join('\r\n')], { type: 'text/plain;charset=utf-8' });
+    blob = new Blob(['\uFEFF', out.join('\r\n')], { type: 'text/plain;charset=utf-8' });
     name = fileName(opts, 'txt');
   }
   triggerDownload(blob, name);
