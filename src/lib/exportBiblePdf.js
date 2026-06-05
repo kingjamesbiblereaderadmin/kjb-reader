@@ -500,10 +500,10 @@ async function buildPdf(opts, bible, onProgress) {
     ty += 20;
   };
 
-  const writeBookRow = (book, page) => {
+  const writeBookRow = (book, page, bookIndex) => {
     ensureTocSpace(16);
     doc.setFont(F, 'bold'); doc.setFontSize(10.5);
-    const label = `\u2022  ${nameOf(book)}`;
+    const label = `${bookIndex}.  ${nameOf(book)}`;
     // Right-hand value is the chapter count, not the page number.
     const pageStr = `${book.chapters} ch.`;
     const labelX = margin + 6;
@@ -580,6 +580,7 @@ async function buildPdf(opts, bible, onProgress) {
   ty += 34;
 
   let lastTestament = null;
+  let bookIndex = 1;
   bookPages.forEach(({ book, page, chapters }) => {
     if (book.testament !== lastTestament) {
       lastTestament = book.testament;
@@ -590,7 +591,7 @@ async function buildPdf(opts, bible, onProgress) {
       if (book.testament === 'new' && ntTitlePageNum) writeLinkRow('The New Testament', ntTitlePageNum);
       writeTestament(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT', page);
     }
-    writeBookRow(book, page);
+    writeBookRow(book, page, bookIndex++);
     if (chapters.length > 1) writeChapterGrid(chapters);
   });
 
@@ -665,6 +666,7 @@ async function buildText(opts, bible, onProgress, format) {
   if (isDocx) {
     out.push('<p style="text-align:center;font-size:20pt;font-weight:bold;margin:6px 0">CONTENTS</p>');
     let lastT = null;
+    let bookIndex = 1;
     BOOKS.forEach(book => {
       if (book.testament !== lastT) {
         lastT = book.testament;
@@ -676,13 +678,14 @@ async function buildText(opts, bible, onProgress, format) {
         }
         out.push(`<p style="margin:8px 0 2px"><b>${book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT'}</b></p>`);
       }
-      out.push(`<p style="margin:1px 0 1px 28px;text-indent:-10px"><a href="#${anchorFor(book)}">&bull;&nbsp;${escapeHtml(nameOf(book))}</a></p>`);
+      out.push(`<p style="margin:1px 0 1px 28px;text-indent:-20px"><a href="#${anchorFor(book)}">${bookIndex++}.&nbsp;&nbsp;${escapeHtml(nameOf(book))}</a></p>`);
     });
     out.push('<br style="page-break-after:always" />');
   } else {
     push('CONTENTS');
     push('');
     let lastT = null;
+    let bookIndex = 1;
     BOOKS.forEach(book => {
       if (book.testament !== lastT) {
         lastT = book.testament;
@@ -692,7 +695,7 @@ async function buildText(opts, bible, onProgress, format) {
         push(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT');
       }
       push('');
-      push('  \u2022 ' + nameOf(book));
+      push(`  ${bookIndex++}. ${nameOf(book)}`);
       push('');
     });
     push('');
@@ -939,11 +942,13 @@ async function buildRtf(opts, bible, onProgress) {
   (scope === 'new' ? TITLE_NT : TITLE_WHOLE).forEach((b, i) => para(rtfEscape(b.t), { center: true, bold: !!b.bold, size: i === 1 ? 64 : 26, sb: i === 1 ? 120 : 60, sa: i === 1 ? 200 : 120 }));
   lines.push('\\page ');
 
-  // Contents — bulleted list grouped by testament
+  // Contents — numbered list grouped by testament
   para('CONTENTS', { center: true, bold: true, size: 34, sa: 240 });
   const coverBeforeTestament = scope === 'new' ? 'new' : 'old';
   const bulletRow = (text) => lines.push(`{\\pard\\fi-180\\li360\\sa40\\fs20 \\bullet\\tab ${rtfEscape(text)}\\par}`);
+  const numberRow = (text, idx) => lines.push(`{\\pard\\fi-240\\li360\\sa40\\fs20 ${idx}.\\tab ${rtfEscape(text)}\\par}`);
   let lastT = null;
+  let bookIndex = 1;
   BOOKS.forEach(book => {
     if (book.testament !== lastT) {
       lastT = book.testament;
@@ -951,7 +956,7 @@ async function buildRtf(opts, bible, onProgress) {
       if (book.testament === coverBeforeTestament) bulletRow('Cover Page');
       para(book.testament === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT', { bold: true, size: 26, sb: 160, sa: 80 });
     }
-    bulletRow(nameOf(book));
+    numberRow(nameOf(book), bookIndex++);
   });
 
   const total = BOOKS.length;
