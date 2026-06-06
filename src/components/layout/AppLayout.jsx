@@ -133,9 +133,6 @@ export default function AppLayout() {
         return;
       }
       
-      const firstLoadToastId = 'first-load-update';
-      toast.loading('Checking for updates...', { id: firstLoadToastId });
-      
       try {
         let swUpdated = false;
         if ('serviceWorker' in navigator) {
@@ -156,11 +153,8 @@ export default function AppLayout() {
 
         if (swUpdated) {
           localStorage.removeItem('kjb-daily-verse-cache');
-          toast.loading('Updating...', { id: firstLoadToastId });
           setTimeout(() => window.location.reload(), 3000); // Fallback if controllerchange fails
           return;
-        } else {
-          toast.dismiss(firstLoadToastId);
         }
 
         const { autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
@@ -277,7 +271,6 @@ export default function AppLayout() {
                 }
 
                 setRefreshing(true);
-                const checkToastId = toast.loading('Checking for updates...');
                 try {
                   let swUpdated = false;
                   if ('serviceWorker' in navigator) {
@@ -301,7 +294,6 @@ export default function AppLayout() {
                   const bibleUpdated = (localVer && localVer !== CACHE_VERSION);
 
                   if (bibleUpdated) {
-                    toast.loading('Updating Bible data...', { id: checkToastId });
                     localStorage.removeItem('bible_cache_version');
                     localStorage.removeItem('bible_last_refresh');
                     await downloadBibleForOffline();
@@ -310,21 +302,17 @@ export default function AppLayout() {
                   if (swUpdated) {
                     // Wipe daily verse cache on code update so new verse logic applies immediately
                     localStorage.removeItem('kjb-daily-verse-cache');
-                    toast.loading('Updating...', { id: checkToastId });
                     // Don't hard-reload immediately. main.jsx will reload when the new SW takes control.
                     // Fallback reload just in case controllerchange doesn't fire
                     setTimeout(() => window.location.reload(), 3000);
                   } else if (bibleUpdated) {
-                    toast.dismiss(checkToastId);
                     setRefreshing(false);
                     softReload();
                   } else {
-                    toast.success('No new updates found.', { id: checkToastId, duration: 2000 });
                     setRefreshing(false);
                   }
                 } catch (err) {
                   console.error('Refresh failed:', err);
-                  toast.error('Failed to check for updates', { id: checkToastId });
                   setRefreshing(false);
                 }
               }}
