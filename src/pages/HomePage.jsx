@@ -26,6 +26,7 @@ export default function HomePage() {
   const [verse, setVerse] = useState(null);
   const [isOffline, setIsOffline] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [updateText, setUpdateText] = useState("Updating today's verse...");
   const touchStartY = useRef(0);
   const touchEndY = useRef(0);
 
@@ -36,6 +37,7 @@ export default function HomePage() {
       setVerse(lastCached);
       if (!lastCached.isToday) {
         setIsUpdating(true);
+        setUpdateText("Loading today's verse...");
         toast("Showing yesterday's verse while we fetch today's...", { icon: '⏳' });
       }
     }
@@ -70,6 +72,7 @@ export default function HomePage() {
       
       midnightTimer = setTimeout(() => {
         setIsUpdating(true);
+        setUpdateText("Updating today's verse...");
         getDailyVerseFromBible().then(v => {
           setVerse(v);
           setIsUpdating(false);
@@ -114,8 +117,9 @@ export default function HomePage() {
     // Pull down to refresh if at the top of the page
     if (pullDistance > 100 && window.scrollY <= 0) {
       setIsUpdating(true);
+      setUpdateText("Checking for updates...");
       if (typeof navigator !== 'undefined' && navigator.onLine) {
-        toast.loading('Checking for updates...');
+        toast.loading('Checking for updates...', { id: 'pull-refresh' });
         (async () => {
           try {
             let swUpdated = false;
@@ -125,37 +129,40 @@ export default function HomePage() {
               if (reg.waiting || reg.installing) swUpdated = true;
             }
             if (swUpdated) {
-              toast.loading('Applying updates...');
+              setUpdateText("Updating...");
+              toast.loading('Updating...', { id: 'pull-refresh' });
               setTimeout(() => window.location.reload(), 500);
               return;
             }
             
             // If no app updates, just get the verse
+            setUpdateText("Loading today's verse...");
             const v = await getDailyVerseFromBible();
             setVerse(v);
             setIsUpdating(false);
             setIsOffline(false);
-            toast.success("Today's verse loaded.");
+            toast.success("Today's verse loaded.", { id: 'pull-refresh' });
             scheduleDailyNotification();
           } catch (e) {
             setVerse(getDailyVerse());
             setIsUpdating(false);
             setIsOffline(true);
-            toast('You are offline. Showing a random verse.', { icon: '📴' });
+            toast('You are offline. Showing a random verse.', { icon: '📴', id: 'pull-refresh' });
           }
         })();
       } else {
+        setUpdateText("Loading today's verse...");
         getDailyVerseFromBible().then(v => {
           setVerse(v);
           setIsUpdating(false);
           setIsOffline(false);
-          toast.success("Today's verse loaded.");
+          toast.success("Today's verse loaded.", { id: 'pull-refresh' });
           scheduleDailyNotification();
         }).catch(() => {
           setVerse(getDailyVerse());
           setIsUpdating(false);
           setIsOffline(true);
-          toast('You are offline. Showing a random verse.', { icon: '📴' });
+          toast('You are offline. Showing a random verse.', { icon: '📴', id: 'pull-refresh' });
         });
       }
     }
@@ -208,6 +215,7 @@ export default function HomePage() {
       // Only fetch if we don't have today's verse cached
       if (!lastCached || !lastCached.isToday) {
         setIsUpdating(true);
+        setUpdateText("Loading today's verse...");
         getDailyVerseFromBible().then(v => {
           setVerse(v);
           setIsUpdating(false);
@@ -364,7 +372,7 @@ export default function HomePage() {
         {isUpdating && (
           <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-secondary text-secondary-foreground text-xs px-3 py-1 rounded-full shadow-sm z-10 flex items-center gap-1.5 border border-border">
             <RotateCw className="w-3 h-3 animate-spin" />
-            Updating today's verse...
+            {updateText}
           </div>
         )}
         {verse ? (
