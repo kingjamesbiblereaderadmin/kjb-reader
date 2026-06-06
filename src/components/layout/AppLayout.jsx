@@ -144,14 +144,20 @@ export default function AppLayout() {
             await reg.update().catch(() => {});
             if (reg.waiting || reg.installing) {
               swUpdated = true;
+              if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+              if (reg.installing) {
+                reg.installing.addEventListener('statechange', () => {
+                  if (reg.installing?.state === 'installed') reg.installing.postMessage({ type: 'SKIP_WAITING' });
+                });
+              }
             }
           }
         }
-        
+
         if (swUpdated) {
           localStorage.removeItem('kjb-daily-verse-cache');
           toast.loading('Updating...', { id: firstLoadToastId });
-          setTimeout(() => window.location.reload(), 500);
+          setTimeout(() => window.location.reload(), 3000); // Fallback if controllerchange fails
           return;
         } else {
           toast.dismiss(firstLoadToastId);
@@ -280,6 +286,12 @@ export default function AppLayout() {
                       await reg.update().catch(() => {});
                       if (reg.waiting || reg.installing) {
                         swUpdated = true;
+                        if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                        if (reg.installing) {
+                          reg.installing.addEventListener('statechange', () => {
+                            if (reg.installing.state === 'installed') reg.installing.postMessage({ type: 'SKIP_WAITING' });
+                          });
+                        }
                       }
                     }
                   }
@@ -299,7 +311,9 @@ export default function AppLayout() {
                     // Wipe daily verse cache on code update so new verse logic applies immediately
                     localStorage.removeItem('kjb-daily-verse-cache');
                     toast.loading('Updating...', { id: checkToastId });
-                    setTimeout(() => window.location.reload(), 500);
+                    // Don't hard-reload immediately. main.jsx will reload when the new SW takes control.
+                    // Fallback reload just in case controllerchange doesn't fire
+                    setTimeout(() => window.location.reload(), 3000);
                   } else if (bibleUpdated) {
                     toast.dismiss(checkToastId);
                     setRefreshing(false);
