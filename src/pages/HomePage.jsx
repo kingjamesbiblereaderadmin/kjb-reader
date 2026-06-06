@@ -72,34 +72,27 @@ export default function HomePage() {
       getBibleData().catch(() => {});
     });
 
-    // Schedule an automatic refresh exactly at local midnight
-    let midnightTimer;
-    const scheduleMidnightRefresh = () => {
-      const now = new Date();
-      const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-      const msUntilMidnight = tomorrow.getTime() - now.getTime() + 1000; // 1 second after midnight
-      
-      midnightTimer = setTimeout(() => {
+    // Check every minute if the day has rolled over to midnight
+    const minuteInterval = setInterval(() => {
+      const lastCached = getLastCachedDailyVerse();
+      // If we don't have today's verse cached, it's time to update
+      if (!lastCached || !lastCached.isToday) {
         setIsUpdating(true);
         setUpdateText("Updating today's verse...");
         getDailyVerseFromBible().then(v => {
           setVerse(v);
           setIsUpdating(false);
           setIsOffline(false);
-          scheduleMidnightRefresh(); // Schedule for the next night
         }).catch(() => {
           setVerse(getDailyVerse());
           setIsUpdating(false);
           setIsOffline(true);
-          scheduleMidnightRefresh();
         });
-      }, msUntilMidnight);
-    };
-
-    scheduleMidnightRefresh();
+      }
+    }, 60000);
 
     return () => {
-      if (midnightTimer) clearTimeout(midnightTimer);
+      clearInterval(minuteInterval);
     };
   }, []);
 
