@@ -146,7 +146,7 @@ export async function getDailyVerseFromBible() {
 
   try {
     const isCached = await isBibleCached();
-    if (!isCached && typeof navigator !== 'undefined' && navigator.onLine) {
+    if (typeof navigator !== 'undefined' && navigator.onLine) {
       try {
         const res = await base44.functions.invoke('bibleApi', { action: 'daily_verse' });
         if (res.data && res.data.verse) {
