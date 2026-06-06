@@ -13,6 +13,7 @@ import { Switch } from '@/components/ui/switch';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { base44 } from '@/api/base44Client';
 import { useTheme, COLOUR_PALETTES } from '@/lib/themeContext';
+import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import {
   getNotificationsEnabled, getNotificationTime, setNotificationTime,
@@ -158,6 +159,7 @@ export default function SettingsPage() {
   const [dlProgress, setDlProgress] = useState(0);
   const [dlStatus, setDlStatus] = useState('');
   const [dlError, setDlError] = useState('');
+  const [debugReport, setDebugReport] = useState('');
 
   useEffect(() => {
     isBibleCached().then(async (isCached) => {
@@ -1230,6 +1232,20 @@ export default function SettingsPage() {
             <button
                 onClick={async () => {
                   try {
+                    let report = "--- CURRENT CACHED VERSE (What you see on the card) ---\n";
+                    const cachedRaw = localStorage.getItem('kjb-daily-verse-cache');
+                    if (cachedRaw) {
+                      try {
+                        const parsed = JSON.parse(cachedRaw);
+                        report += JSON.stringify(parsed, null, 2) + "\n\n";
+                      } catch(e) {
+                        report += cachedRaw + "\n\n";
+                      }
+                    } else {
+                      report += "No cached verse found.\n\n";
+                    }
+
+                    report += "--- LIVE CALCULATIONS (What it would pick right now) ---\n";
                     const bible = await import('@/lib/bibleCache').then(m => m.getBibleData());
                     const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
                     const d = new Date();
@@ -1244,19 +1260,19 @@ export default function SettingsPage() {
                     const idx3 = seed % verses.length;
                     const verseObj = verses[idx3];
                     
-                    let msg = `Date: ${d.toLocaleDateString()}\nSeed: ${seed}\nOffline Book: ${idx1}=${bookName}\nOffline Chap: ${idx2}=${chapterNum}\nOffline Verse: ${idx3}=${verseObj.verse}\n\n`;
+                    report += `Date: ${d.toLocaleDateString()}\nSeed: ${seed}\nOffline Book: ${idx1}=${bookName}\nOffline Chap: ${idx2}=${chapterNum}\nOffline Verse: ${idx3}=${verseObj.verse}\n\n`;
                     
                     try {
                       const res = await base44.functions.invoke('bibleApi', { action: 'daily_verse', clientDate: `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}` });
                       const apiVerse = res.data?.verse;
-                      msg += `API returned: ${apiVerse?.book} ${apiVerse?.chapter}:${apiVerse?.verse}`;
+                      report += `API returned: ${apiVerse?.book} ${apiVerse?.chapter}:${apiVerse?.verse}`;
                     } catch (apiErr) {
-                      msg += `API Error: ${apiErr.message}`;
+                      report += `API Error: ${apiErr.message}`;
                     }
                     
-                    alert("DEBUG REPORT:\n" + msg);
+                    setDebugReport(report);
                   } catch (e) {
-                    alert("Debug Error: " + e.message);
+                    setDebugReport("Debug Error: " + e.message);
                   }
                 }}
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
@@ -1264,6 +1280,20 @@ export default function SettingsPage() {
                 <Bug className="w-4 h-4" />
                 Debug Daily Verse (Temp)
             </button>
+            {debugReport && (
+              <div className="mt-3 p-3 bg-secondary rounded-xl">
+                <pre className="text-xs text-secondary-foreground whitespace-pre-wrap font-mono mb-3 max-h-64 overflow-y-auto">{debugReport}</pre>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(debugReport);
+                    toast.success("Copied to clipboard!");
+                  }}
+                  className="w-full py-2 bg-foreground text-background rounded font-sans text-sm font-medium"
+                >
+                  Copy Report
+                </button>
+              </div>
+            )}
             <div className="flex gap-3 pt-2">
               <button
                 onClick={async () => {
