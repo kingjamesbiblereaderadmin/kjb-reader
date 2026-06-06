@@ -1,8 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
-// In-memory cache
-let bibleData = null;
-
 const ABBR_TO_NAME = {
   'Ge':'Genesis','Ex':'Exodus','Le':'Leviticus','Nu':'Numbers','De':'Deuteronomy',
   'Jos':'Joshua','Jg':'Judges','Ru':'Ruth','1Sa':'1 Samuel','2Sa':'2 Samuel',
@@ -21,7 +18,6 @@ const ABBR_TO_NAME = {
 };
 
 async function loadBible() {
-  if (bibleData) return bibleData;
   const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
   const res = await fetch(TEXT_URL);
   const text = await res.text();
@@ -46,16 +42,12 @@ async function loadBible() {
     if (!data[bookName][chapter]) data[bookName][chapter] = [];
     data[bookName][chapter].push({ verse, text: verseText });
   }
-  bibleData = data;
   return data;
 }
 
 Deno.serve(async (req) => {
-  const bible = await loadBible();
-  const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
-  
   let report = "--- ALGORITHM SYNC ANALYSIS ---\n";
-  let targetBook = null, targetChapter = null, targetVerse = null;
+  let targetBook = "Galatians", targetChapter = 2, targetVerse = 3;
   
   try {
     const body = await req.json().catch(() => ({}));
@@ -63,113 +55,93 @@ Deno.serve(async (req) => {
       targetBook = body.book;
       targetChapter = body.chapter;
       targetVerse = body.verse;
-      report += `Searching for how: ${targetBook} ${targetChapter}:${targetVerse} was generated...\n\n`;
-    } else {
-      report += "No target verse provided in request body. Using Galatians 2:3 as default.\n\n";
-      targetBook = "Galatians";
-      targetChapter = 2;
-      targetVerse = 3;
     }
-  } catch(e) {
-    targetBook = "Galatians";
-    targetChapter = 2;
-    targetVerse = 3;
-  }
-  
+  } catch(e) {}
+
+  report += `Searching for how: ${targetBook} ${targetChapter}:${targetVerse} was generated...\n\n`;
+
   try {
+    const bible = await loadBible();
+    const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
+    
     let foundMatch = false;
     let matchCount = 0;
 
-    // Scan dates from 2020 to 2030 for deep analysis
+    // Scan dates from 2020 to 2030
     for (let year = 2020; year <= 2030; year++) {
       for (let month = 1; month <= 12; month++) {
         for (let day = 1; day <= 31; day++) {
-          // Verify valid date
           const dateObj = new Date(year, month - 1, day);
           if (dateObj.getFullYear() !== year || dateObj.getMonth() !== month - 1 || dateObj.getDate() !== day) continue;
           
-          const testSeed = year * 10000 + month * 100 + day;
           const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          
+          // Seed variations
+          const seedsToTest = [
+            { name: "Standard (YYYYMMDD)", val: year * 10000 + month * 100 + day },
+            { name: "0-indexed Month (YYYY[M-1]DD)", val: year * 10000 + (month - 1) * 100 + day },
+            { name: "Reversed (DDMMYYYY)", val: day * 1000000 + month * 10000 + year },
+            { name: "Just Date.getTime() mock", val: dateObj.getTime() }
+          ];
 
-          // --- ALGORITHM 1: Modulo (Standard) ---
-          let bIdxMod = testSeed % bookNames.length;
-          let bkMod = bookNames[bIdxMod];
-          let cIdxMod = testSeed % Object.keys(bible[bkMod]).length;
-          let chMod = Object.keys(bible[bkMod])[cIdxMod];
-          let vIdxMod = testSeed % bible[bkMod][chMod].length;
-          let vsMod = bible[bkMod][chMod][vIdxMod].verse;
-          
-          if (bkMod === targetBook && parseInt(chMod) === parseInt(targetChapter) && parseInt(vsMod) === parseInt(targetVerse)) {
-            report += `[MATCH] 'Modulo' logic on date: ${dateStr} (Seed: ${testSeed})\n`;
-            foundMatch = true;
-            matchCount++;
-          }
-          
-          // --- ALGORITHM 1B: Modulo with month - 1 bug ---
-          const bugSeedMod = year * 10000 + (month - 1) * 100 + day;
-          let bIdxModB = bugSeedMod % bookNames.length;
-          let bkModB = bookNames[bIdxModB];
-          let cIdxModB = bugSeedMod % Object.keys(bible[bkModB]).length;
-          let chModB = Object.keys(bible[bkModB])[cIdxModB];
-          let vIdxModB = bugSeedMod % bible[bkModB][chModB].length;
-          let vsModB = bible[bkModB][chModB][vIdxModB].verse;
-          
-          if (bkModB === targetBook && parseInt(chModB) === parseInt(targetChapter) && parseInt(vsModB) === parseInt(targetVerse)) {
-            report += `[MATCH] 'Modulo (0-indexed month bug)' logic on date: ${dateStr} (Seed: ${bugSeedMod})\n`;
-            foundMatch = true;
-            matchCount++;
-          }
+          for (const seedObj of seedsToTest) {
+            const seed = seedObj.val;
+            
+            // Alg 1: Modulo
+            try {
+              let bIdxMod = Math.abs(seed) % bookNames.length;
+              let bkMod = bookNames[bIdxMod];
+              let chs = Object.keys(bible[bkMod]);
+              let chMod = chs[Math.abs(seed) % chs.length];
+              let vss = bible[bkMod][chMod];
+              let vsMod = vss[Math.abs(seed) % vss.length].verse;
+              
+              if (bkMod === targetBook && parseInt(chMod) === parseInt(targetChapter) && parseInt(vsMod) === parseInt(targetVerse)) {
+                report += `[MATCH] Modulo algorithm with ${seedObj.name} generated this on: ${dateStr} (Seed: ${seed})\n`;
+                foundMatch = true;
+                matchCount++;
+              }
+            } catch(e) {}
 
-          // --- ALGORITHM 2: Math.sin (Standard) ---
-          let cs = testSeed;
-          let nr = () => {
-            const x = Math.sin(cs++) * 10000;
-            return x - Math.floor(x);
-          };
-          let bIdxSin = Math.floor(nr() * bookNames.length);
-          let bkSin = bookNames[bIdxSin];
-          let cIdxSin = Math.floor(nr() * Object.keys(bible[bkSin]).length);
-          let chSin = Object.keys(bible[bkSin])[cIdxSin];
-          let vIdxSin = Math.floor(nr() * bible[bkSin][chSin].length);
-          let vsSin = bible[bkSin][chSin][vIdxSin].verse;
-          
-          if (bkSin === targetBook && parseInt(chSin) === parseInt(targetChapter) && parseInt(vsSin) === parseInt(targetVerse)) {
-            report += `[MATCH] 'Math.sin' logic on date: ${dateStr} (Seed: ${testSeed})\n`;
-            foundMatch = true;
-            matchCount++;
-          }
-          
-          // --- ALGORITHM 2B: Math.sin with month - 1 bug ---
-          let csB = bugSeedMod;
-          let nrB = () => {
-            const x = Math.sin(csB++) * 10000;
-            return x - Math.floor(x);
-          };
-          let bIdxSinB = Math.floor(nrB() * bookNames.length);
-          let bkSinB = bookNames[bIdxSinB];
-          let cIdxSinB = Math.floor(nrB() * Object.keys(bible[bkSinB]).length);
-          let chSinB = Object.keys(bible[bkSinB])[cIdxSinB];
-          let vIdxSinB = Math.floor(nrB() * bible[bkSinB][chSinB].length);
-          let vsSinB = bible[bkSinB][chSinB][vIdxSinB].verse;
-          
-          if (bkSinB === targetBook && parseInt(chSinB) === parseInt(targetChapter) && parseInt(vsSinB) === parseInt(targetVerse)) {
-            report += `[MATCH] 'Math.sin (0-indexed month bug)' logic on date: ${dateStr} (Seed: ${bugSeedMod})\n`;
-            foundMatch = true;
-            matchCount++;
-          }
+            // Alg 2: Math.sin with currentSeed++
+            try {
+              let cs = seed;
+              let nr = () => {
+                const x = Math.sin(cs++) * 10000;
+                return x - Math.floor(x);
+              };
+              let bIdxSin = Math.floor(nr() * bookNames.length);
+              let bkSin = bookNames[bIdxSin];
+              let chs = Object.keys(bible[bkSin]);
+              let chSin = chs[Math.floor(nr() * chs.length)];
+              let vss = bible[bkSin][chSin];
+              let vsSin = vss[Math.floor(nr() * vss.length)].verse;
+              
+              if (bkSin === targetBook && parseInt(chSin) === parseInt(targetChapter) && parseInt(vsSin) === parseInt(targetVerse)) {
+                report += `[MATCH] Math.sin algorithm with ${seedObj.name} generated this on: ${dateStr} (Seed: ${seed})\n`;
+                foundMatch = true;
+                matchCount++;
+              }
+            } catch(e) {}
 
-          if (matchCount > 100) {
-              report += `\n[INFO] Reached 100 matches, stopping scan to keep report clean.\n`;
-              break;
+            // Alg 3: Random pool algorithm (using a global random fallback that may have cached)
+            // It's impossible to predict a purely random generation, but if it was seeded random we might catch it.
           }
+          
+          if (matchCount > 50) break;
         }
-        if (matchCount > 100) break;
+        if (matchCount > 50) break;
       }
-      if (matchCount > 100) break;
+      if (matchCount > 50) break;
     }
     
     if (!foundMatch) {
-      report += `[RESULT] The target verse ${targetBook} ${targetChapter}:${targetVerse} was not generated by ANY known algorithm between 2020 and 2030.\n`;
+      report += `[RESULT] No known algorithm generated ${targetBook} ${targetChapter}:${targetVerse} for any date between 2020 and 2030.\n\n`;
+      report += `It's highly likely this verse was generated using a completely different legacy logic (e.g. pure Math.random, or an old fallback pool) which got stuck in your local cache.\n`;
+    } else {
+      if (matchCount > 50) {
+        report += `\n[INFO] Reached 50 matches, stopping scan to keep report clean.\n`;
+      }
     }
     
   } catch (e) {
