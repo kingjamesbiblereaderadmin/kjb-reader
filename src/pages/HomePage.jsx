@@ -24,7 +24,6 @@ export default function HomePage() {
   const navigate = useNavigate();
   const [verse, setVerse] = useState(null);
   const [isOffline, setIsOffline] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
   const touchStartY = useRef(0);
   const touchEndY = useRef(0);
 
@@ -44,17 +43,6 @@ export default function HomePage() {
     });
   }, []);
 
-  const handleRefresh = async () => {
-    if (refreshing) return;
-    setRefreshing(true);
-    try {
-      const v = await getDailyVerseFromBible();
-      setVerse(v);
-    } finally {
-      setRefreshing(false);
-    }
-  };
-
   const swipedRef = useRef(false);
 
   const handleTouchStart = (e) => {
@@ -71,11 +59,7 @@ export default function HomePage() {
   };
 
   const handleTouchEnd = () => {
-    const diff = touchEndY.current - touchStartY.current;
-    // Pull down more than 100px from the very top
-    if (diff > 100 && window.scrollY === 0) {
-      handleRefresh();
-    }
+    // Just keep the touch handlers for swipe detection
   };
 
   const handleVerseCardClick = () => {
@@ -253,16 +237,6 @@ export default function HomePage() {
       onTouchEnd={handleTouchEnd}
     >
       <div className="w-full max-w-[90rem] mx-auto px-4 sm:px-8 lg:px-16 py-6">
-      {/* Pull-to-refresh indicator */}
-      {refreshing && (
-        <div className="fixed top-16 left-0 right-0 z-50 flex justify-center pointer-events-none">
-          <div className="bg-card/90 backdrop-blur border border-border rounded-full px-4 py-2 shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-4">
-            <RotateCw className="w-4 h-4 text-accent animate-spin" />
-            <span className="font-sans text-sm font-medium text-foreground">Refreshing...</span>
-          </div>
-        </div>
-      )}
-
       <OfflineStatusBanner />
 
       {/* Daily verse card */}
