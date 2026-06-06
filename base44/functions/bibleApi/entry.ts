@@ -167,6 +167,11 @@ Deno.serve(async (req) => {
           verse: verseObj.verse,
           text,
           ref: `${bookName} ${chapterNum}:${verseObj.verse}`
+        },
+        _debug: {
+          seed,
+          booksLength: bookNames.length,
+          modResult: seed % bookNames.length
         }
       });
     }

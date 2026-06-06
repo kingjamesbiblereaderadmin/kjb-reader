@@ -63,6 +63,8 @@ Deno.serve(async (req) => {
   try {
     const bible = await loadBible();
     const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
+    report += `Server book count: ${bookNames.length}\n`;
+    report += `Server books: ${bookNames.join(', ')}\n\n`;
     
     let foundMatch = false;
     let matchCount = 0;

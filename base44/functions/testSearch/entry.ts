@@ -3,6 +3,9 @@ Deno.serve(async (req) => {
   const fs = await import("node:fs");
   const path = await import("node:path");
 
+  const body = await req.json().catch(() => ({}));
+  const query = 'kjb-daily-verse-cache';
+  
   const searchFiles = (dir) => {
     let results = [];
     const files = fs.readdirSync(dir);
@@ -16,8 +19,8 @@ Deno.serve(async (req) => {
       } else {
         if (fullPath.endsWith('.js') || fullPath.endsWith('.jsx')) {
           const content = fs.readFileSync(fullPath, 'utf-8');
-          if (content.toLowerCase().includes('galatians')) {
-            results.push(fullPath);
+          if (fullPath.includes('sw.js')) {
+            results.push({path: fullPath, content});
           }
         }
       }
@@ -25,6 +28,6 @@ Deno.serve(async (req) => {
     return results;
   };
 
-  const results = searchFiles('/app');
+  const results = searchFiles(Deno.cwd());
   return Response.json({ results });
 });
