@@ -7,6 +7,12 @@ export default function UpdateBanner() {
   const [progressStatus, setProgressStatus] = useState('loading');
 
   useEffect(() => {
+    if (waitingWorker) {
+      waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+    }
+  }, [waitingWorker]);
+
+  useEffect(() => {
     const handleUpdate = (e) => {
       setWaitingWorker(e.detail.waitingWorker);
     };
@@ -32,20 +38,11 @@ export default function UpdateBanner() {
 
   if (waitingWorker) {
     return (
-      <div className="w-full bg-primary text-primary-foreground py-2 px-5 sm:px-12 lg:px-16 flex items-center justify-between text-sm font-medium shadow-inner border-b border-border/20 z-40 animate-in slide-in-from-top-2">
+      <div className="w-full bg-primary text-primary-foreground py-2 px-5 sm:px-12 lg:px-16 flex items-center justify-center text-sm font-medium shadow-inner border-b border-border/20 z-40 animate-in slide-in-from-top-2">
         <div className="flex items-center gap-2">
-          <RefreshCw className="w-4 h-4" />
-          <span>Update ready. Reload to apply.</span>
+          <RotateCw className="w-4 h-4 animate-spin" />
+          <span>Updating app...</span>
         </div>
-        <button 
-          onClick={() => {
-            waitingWorker.postMessage({ type: 'SKIP_WAITING' });
-            // controllerchange will handle the reload
-          }}
-          className="px-3 py-1 bg-white/20 hover:bg-white/30 rounded-md transition-colors"
-        >
-          Reload
-        </button>
       </div>
     );
   }

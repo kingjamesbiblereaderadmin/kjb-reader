@@ -102,14 +102,8 @@ export default function OfflineStatusBanner() {
   if (isOnline && !bibleReady) {
     return (
       <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/40 text-blue-800 dark:text-blue-300 mb-4">
-        <Wifi className="w-4 h-4 flex-shrink-0" />
-        <p className="font-sans text-xs font-medium flex-1">Bible not yet saved for offline use.</p>
-        <button
-          onClick={() => navigate('/settings')}
-          className="font-sans text-xs font-semibold underline underline-offset-2 hover:opacity-75 transition-opacity shrink-0"
-        >
-          Download
-        </button>
+        <RefreshCw className="w-4 h-4 flex-shrink-0 animate-spin" />
+        <p className="font-sans text-xs font-medium flex-1">Downloading the offline Bible...</p>
       </div>
     );
   }
