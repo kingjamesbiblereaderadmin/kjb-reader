@@ -286,11 +286,11 @@ export default function AppLayout() {
                     }
                   }
 
-                  // Compare the in-code CACHE_VERSION against what's stored locally.
-                  const localVer = localStorage.getItem('bible_cache_version');
-                  const bibleUpdated = (localVer && localVer !== CACHE_VERSION);
+                  // Check if the remote Bible file has actually changed via ETag/Last-Modified
+                  const { checkForUpdates } = await import('@/lib/bibleCache');
+                  const bibleNeedsUpdate = await checkForUpdates();
 
-                  if (bibleUpdated) {
+                  if (bibleNeedsUpdate) {
                     window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Updating Bible data...' } }));
                     localStorage.removeItem('bible_cache_version');
                     localStorage.removeItem('bible_last_refresh');
@@ -303,7 +303,7 @@ export default function AppLayout() {
                     localStorage.removeItem('kjb-daily-verse-cache');
                     // Banner will automatically show "Update ready" since swUpdated logic triggers 'kjb-update-available'
                     setRefreshing(false);
-                  } else if (bibleUpdated) {
+                  } else if (bibleNeedsUpdate) {
                     window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Update complete.', status: 'success' } }));
                     setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
                     setRefreshing(false);

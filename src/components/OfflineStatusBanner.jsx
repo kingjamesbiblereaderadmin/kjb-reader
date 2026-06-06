@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { WifiOff, Wifi, RefreshCw, AlertTriangle, CheckCircle2 } from 'lucide-react';
-import { isBibleCached, CACHE_VERSION, downloadBibleForOffline } from '@/lib/bibleCache';
+import { isBibleCached, checkForUpdates, downloadBibleForOffline } from '@/lib/bibleCache';
 import { useNavigate } from 'react-router-dom';
 
 export default function OfflineStatusBanner() {
@@ -25,11 +25,10 @@ export default function OfflineStatusBanner() {
 
   useEffect(() => {
     const checkCache = () => {
-      isBibleCached().then(cached => {
+      isBibleCached().then(async (cached) => {
         setBibleReady(cached);
         if (cached) {
-          const localVer = localStorage.getItem('bible_cache_version');
-          const stale = !!localVer && localVer !== CACHE_VERSION;
+          const stale = navigator.onLine ? await checkForUpdates() : false;
           setCacheStale(stale);
           // Auto-update immediately when stale and online
           if (stale && navigator.onLine && !didAutoUpdate.current) {
