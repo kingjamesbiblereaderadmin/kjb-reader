@@ -48,12 +48,12 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
 
 
   const highlightColors = [
-    { name: 'accent', bg: 'bg-accent/60 dark:bg-accent/50', label: 'Default', color: 'hsl(var(--accent))' },
-    { name: 'yellow', bg: 'bg-yellow-400/60 dark:bg-yellow-500/50', label: 'Yellow', color: '#facc15' },
-    { name: 'green', bg: 'bg-green-400/60 dark:bg-green-500/50', label: 'Green', color: '#4ade80' },
-    { name: 'blue', bg: 'bg-blue-400/60 dark:bg-blue-500/50', label: 'Blue', color: '#60a5fa' },
-    { name: 'pink', bg: 'bg-pink-400/60 dark:bg-pink-500/50', label: 'Pink', color: '#f472b6' },
-    { name: 'purple', bg: 'bg-purple-400/60 dark:bg-purple-500/50', label: 'Purple', color: '#c084fc' },
+    { name: 'accent', bg: 'bg-accent/70 dark:bg-accent/60', label: 'Default', color: 'hsl(var(--accent))' },
+    { name: 'yellow', bg: 'bg-yellow-400/70 dark:bg-yellow-500/60', label: 'Yellow', color: '#facc15' },
+    { name: 'green', bg: 'bg-green-400/70 dark:bg-green-500/60', label: 'Green', color: '#4ade80' },
+    { name: 'blue', bg: 'bg-blue-400/70 dark:bg-blue-500/60', label: 'Blue', color: '#60a5fa' },
+    { name: 'pink', bg: 'bg-pink-400/70 dark:bg-pink-500/60', label: 'Pink', color: '#f472b6' },
+    { name: 'purple', bg: 'bg-purple-400/70 dark:bg-purple-500/60', label: 'Purple', color: '#c084fc' },
   ];
 
   // Intentionally no auto-highlight on navigation — the reader scrolls to the

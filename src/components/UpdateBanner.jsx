@@ -7,9 +7,8 @@ export default function UpdateBanner() {
   const [progressStatus, setProgressStatus] = useState('loading');
 
   useEffect(() => {
-    if (waitingWorker) {
-      waitingWorker.postMessage({ type: 'SKIP_WAITING' });
-    }
+    // Disable automatic SKIP_WAITING to prevent infinite reload loops.
+    // The new service worker will take over on the next app restart.
   }, [waitingWorker]);
 
   useEffect(() => {
