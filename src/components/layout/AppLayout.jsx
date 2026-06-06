@@ -305,6 +305,9 @@ export default function AppLayout() {
                     await downloadBibleForOffline();
                   }
                   
+                  // Ensure the checking message is visible for at least a brief moment so it doesn't flash
+                  await new Promise(r => setTimeout(r, 600));
+                  
                   window.dispatchEvent(new Event('kjb-progress-clear'));
                   if (swUpdated && bibleNeedsUpdate) {
                     localStorage.removeItem('kjb-daily-verse-cache');
