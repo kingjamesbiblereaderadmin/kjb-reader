@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked, List } from 'lucide-react';
+import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked, List, Wifi, WifiOff } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
@@ -52,6 +52,18 @@ export default function AppLayout() {
   const { reloadKey, softReload } = useSoftReload();
   const [menuOpen, setMenuOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Close hamburger menu whenever the route changes
   useEffect(() => {
@@ -213,6 +225,13 @@ export default function AppLayout() {
 
           {/* Actions - responsive button sizes with visible square touch targets */}
           <div className="flex items-center gap-0.5 sm:gap-2 pointer-events-none shrink-0">
+            <div 
+              className={`w-9 h-9 sm:w-10 sm:h-10 pointer-events-auto shrink-0 rounded-lg border transition-all duration-200 flex items-center justify-center cursor-pointer ${isOnline ? 'border-border bg-secondary/30 text-green-600 dark:text-green-400 hover:bg-secondary/50' : 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/40'}`}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); toast(isOnline ? 'You are online' : 'You are offline (reading from cache)', { icon: isOnline ? '📶' : '📴' }); }}
+              title={isOnline ? 'Online' : 'Offline'}
+            >
+              {isOnline ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
+            </div>
             <div className="w-9 h-9 sm:w-10 sm:h-10 pointer-events-auto shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
               onClick={async (e) => {
                 e.preventDefault();

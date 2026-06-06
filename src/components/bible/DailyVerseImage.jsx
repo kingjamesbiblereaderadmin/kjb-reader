@@ -1,11 +1,11 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2, ChevronsDown, MoreVertical, Trash2, Image, Copy, Crop, RotateCcw } from 'lucide-react';
+import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2, ChevronsDown, MoreVertical, Trash2, Image, Copy, Crop, RotateCcw, Wifi, WifiOff } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import ImageCropper from './ImageCropper';
+import ShareCard from './ShareCard.jsx';
 import { getNotificationsEnabled, requestNotificationPermission, disableNotifications, scheduleDailyNotification } from '@/lib/notifications';
-
-const ImageCropper = React.lazy(() => import('./ImageCropper'));
-const ShareCard = React.lazy(() => import('./ShareCard.jsx'));
 import { formatDailyVerseForCopy } from '@/lib/formatDailyVerse';
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
 import { VERSE_BACKGROUNDS } from '@/lib/dailyVerseTheme';
@@ -263,7 +263,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     )));
     // Small settle delay so a just-decoded image is painted before capture.
     await new Promise(r => setTimeout(r, 150));
-    const html2canvas = (await import('html2canvas')).default;
     const canvas = await html2canvas(el, { backgroundColor: null, scale: 1, useCORS: true });
     return await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
   };
@@ -323,7 +322,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       } else {
         // No custom image, capture verse card as before
         await new Promise(resolve => setTimeout(resolve, 100));
-        const html2canvas = (await import('html2canvas')).default;
         const canvas = await html2canvas(verseRef.current, {
           backgroundColor: null,
           scale: 2,
@@ -403,37 +401,67 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
   return (
     <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full min-h-[300px] ${gradientClass} border border-border rounded-2xl shadow-lg px-6 text-center text-white relative flex flex-col ${capturing ? 'pt-20 pb-8' : 'pt-6 pb-6'} ${uploadingComplete ? 'cursor-default' : 'cursor-pointer'}`} style={bgStyle} onTouchEnd={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }}>
-      {/* Notification bell indicator button */}
-      {showButtons && onToggleNotif && (
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            e.nativeEvent.stopImmediatePropagation();
-            onToggleNotif();
-          }}
-          onMouseDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            e.nativeEvent.stopImmediatePropagation();
-          }}
-          onTouchStart={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            e.nativeEvent.stopImmediatePropagation();
-          }}
-          onTouchEnd={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            e.nativeEvent.stopImmediatePropagation();
-            onToggleNotif();
-          }}
-          className="absolute top-2 left-2 p-1.5 rounded-md bg-white/90 hover:bg-white transition-colors z-10 shadow-md"
-          title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
-          type="button"
-        >
-          {notifEnabled ? <Bell className="w-4 h-4 text-slate-800" /> : <BellOff className="w-4 h-4 text-slate-800" />}
-        </button>
+      {/* Top-left indicators (Bell & Wifi) */}
+      {showButtons && (
+        <div className="absolute top-2 left-2 flex gap-1 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
+          {onToggleNotif && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+                onToggleNotif();
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+              }}
+              onTouchStart={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+                onToggleNotif();
+              }}
+              className="p-1.5 rounded-md bg-white/90 hover:bg-white transition-colors shadow-md"
+              title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
+              type="button"
+            >
+              {notifEnabled ? <Bell className="w-4 h-4 text-slate-800" /> : <BellOff className="w-4 h-4 text-slate-800" />}
+            </button>
+          )}
+          <div 
+            className="p-1.5 rounded-md bg-white/90 shadow-md flex items-center justify-center cursor-default"
+            title={isOffline ? 'Offline Mode' : 'Online'}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+            }}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+            }}
+            onTouchStart={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+            }}
+          >
+            {isOffline ? <WifiOff className="w-4 h-4 text-slate-500" /> : <Wifi className="w-4 h-4 text-slate-800" />}
+          </div>
+        </div>
       )}
 
 
@@ -1110,8 +1138,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
       {/* Crop Modal - positioned near verse card */}
       {cropImage && (
-        <React.Suspense fallback={null}>
-          <ImageCropper
+        <ImageCropper
           image={cropImage}
           positionMode="overlay"
           onCrop={(cropped) => {
@@ -1140,7 +1167,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             setPendingBg(null);
           }}
         />
-        </React.Suspense>
       )}
 
       {/* Save/Cancel buttons for pending background (only for crop-to-background flow) */}
@@ -1360,9 +1386,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {/* Off-screen fixed-size card used for the shared/downloaded image */}
-      <React.Suspense fallback={null}>
-        <ShareCard ref={shareCardRef} verse={verse} logoSrc={logoDataUrl} fontFamily={resolvedFont} textColor={textColor} textOpacity={textOpacity} gradient={hasCustomBg ? null : defaultBg.hex} isOffline={isOffline} />
-      </React.Suspense>
+      <ShareCard ref={shareCardRef} verse={verse} logoSrc={logoDataUrl} fontFamily={resolvedFont} textColor={textColor} textOpacity={textOpacity} gradient={hasCustomBg ? null : defaultBg.hex} isOffline={isOffline} />
     </div>
   );
 }
