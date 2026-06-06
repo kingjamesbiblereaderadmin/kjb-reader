@@ -134,8 +134,7 @@ export default function AppLayout() {
         return;
       }
       
-      const firstLoadToastId = 'first-load-update';
-      toast.loading('Checking for updates...', { id: firstLoadToastId });
+      window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Checking for updates...', status: 'loading' } }));
       
       try {
         let swUpdated = false;
@@ -153,7 +152,7 @@ export default function AppLayout() {
         if (swUpdated) {
           localStorage.removeItem('kjb-daily-verse-cache');
         }
-        toast.dismiss(firstLoadToastId);
+        window.dispatchEvent(new Event('kjb-progress-clear'));
 
         const { autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
 
@@ -167,7 +166,7 @@ export default function AppLayout() {
 
         console.log('[AppLayout] App initialized', result);
       } catch (err) {
-        toast.dismiss('first-load-update');
+        window.dispatchEvent(new Event('kjb-progress-clear'));
         console.error('[AppLayout] Initialization failed:', err.message);
         // Don't show error to user - app can still work with cached data
       }
@@ -310,7 +309,7 @@ export default function AppLayout() {
                     setRefreshing(false);
                     softReload();
                   } else {
-                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'No new updates found.', status: 'success' } }));
+                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'No new updates found.', status: 'info' } }));
                     setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
                     setRefreshing(false);
                   }

@@ -7,7 +7,6 @@ import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { getDailyVerse, getDailyVerseFromBible, getLastCachedDailyVerse } from '@/lib/dailyVerse';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications, showLocalNotification } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
-import { toast } from 'sonner';
 
 const READ_LINK = { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', color: 'bg-primary text-primary-foreground' };
 
@@ -55,6 +54,7 @@ export default function HomePage() {
       setVerse(v);
       setIsUpdating(false);
       setIsOffline(false);
+      window.dispatchEvent(new Event('kjb-progress-clear'));
       // Trigger notification if enabled
       scheduleDailyNotification();
     }).catch((err) => {
@@ -85,11 +85,13 @@ export default function HomePage() {
           setVerse(v);
           setIsUpdating(false);
           setIsOffline(false);
+          window.dispatchEvent(new Event('kjb-progress-clear'));
           scheduleMidnightRefresh(); // Schedule for the next night
         }).catch(() => {
           setVerse(getDailyVerse());
           setIsUpdating(false);
           setIsOffline(true);
+          window.dispatchEvent(new Event('kjb-progress-clear'));
           scheduleMidnightRefresh();
         });
       }, msUntilMidnight);
@@ -241,6 +243,7 @@ export default function HomePage() {
           setVerse(getDailyVerse());
           setIsUpdating(false);
           setIsOffline(true);
+          window.dispatchEvent(new Event('kjb-progress-clear'));
         });
       }
     };
