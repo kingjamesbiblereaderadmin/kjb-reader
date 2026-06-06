@@ -25,44 +25,27 @@ export default function HomePage() {
   const navigate = useNavigate();
   const [verse, setVerse] = useState(null);
   const [isOffline, setIsOffline] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [updateText, setUpdateText] = useState("Updating today's verse...");
   const touchStartY = useRef(0);
   const touchEndY = useRef(0);
-
-  useEffect(() => {
-    if (isUpdating) {
-      window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: updateText, status: 'loading' } }));
-    }
-  }, [isUpdating, updateText]);
 
   useEffect(() => {
     // 1. Immediately show the last cached verse (even if it's from yesterday)
     const lastCached = getLastCachedDailyVerse();
     if (lastCached) {
       setVerse(lastCached);
-      if (!lastCached.isToday) {
-        setIsUpdating(true);
-        setUpdateText("Updating today's verse...");
-      }
     }
 
-    // 2. Fetch today's verse in the background
+    // 2. Fetch today's verse in the background quietly
     getDailyVerseFromBible().then(v => {
       console.log("[DEBUG] Verse generated for today:", v?.ref);
       setVerse(v);
-      setIsUpdating(false);
       setIsOffline(false);
-      window.dispatchEvent(new Event('kjb-progress-clear'));
       // Trigger notification if enabled
       scheduleDailyNotification();
     }).catch((err) => {
       console.error("[DEBUG] getDailyVerseFromBible failed:", err);
       setVerse(getDailyVerse());
-      setIsUpdating(false);
       setIsOffline(true);
-      window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'You are offline. Showing a random verse.', status: 'info' } }));
-      setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
     });
     
     // Preload Bible cache on home page mount to ensure italics are ready
@@ -73,17 +56,13 @@ export default function HomePage() {
     // Check every minute if the day has rolled over to midnight
     const minuteInterval = setInterval(() => {
       const lastCached = getLastCachedDailyVerse();
-      // If we don't have today's verse cached, it's time to update
+      // If we don't have today's verse cached, it's time to update silently
       if (!lastCached || !lastCached.isToday) {
-        setIsUpdating(true);
-        setUpdateText("Updating today's verse...");
         getDailyVerseFromBible().then(v => {
           setVerse(v);
-          setIsUpdating(false);
           setIsOffline(false);
         }).catch(() => {
           setVerse(getDailyVerse());
-          setIsUpdating(false);
           setIsOffline(true);
         });
       }
@@ -116,8 +95,7 @@ export default function HomePage() {
     
     // Pull down to refresh if at the top of the page
     if (pullDistance > 100 && window.scrollY <= 0) {
-      setIsUpdating(true);
-      setUpdateText("Checking for updates...");
+      window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Checking for updates...", status: 'loading' } }));
       if (typeof navigator !== 'undefined' && navigator.onLine) {
         (async () => {
           try {
@@ -132,40 +110,35 @@ export default function HomePage() {
               }
             }
             if (swUpdated) {
-              setUpdateText("Update ready");
-              setIsUpdating(false);
+              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Update ready", status: 'loading' } }));
               return;
             }
             
             // If no app updates, just get the verse
-            setUpdateText("Loading today's verse...");
+            window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Loading today's verse...", status: 'loading' } }));
             const v = await getDailyVerseFromBible();
             setVerse(v);
-            setIsUpdating(false);
             setIsOffline(false);
             window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "App is up to date.", status: 'success' } }));
             setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
             scheduleDailyNotification();
           } catch (e) {
             setVerse(getDailyVerse());
-            setIsUpdating(false);
             setIsOffline(true);
             window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'You are offline.', status: 'info' } }));
             setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
           }
         })();
       } else {
-        setUpdateText("Loading today's verse...");
+        window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Loading today's verse...", status: 'loading' } }));
         getDailyVerseFromBible().then(v => {
           setVerse(v);
-          setIsUpdating(false);
           setIsOffline(false);
           window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Today's verse loaded.", status: 'success' } }));
           setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
           scheduleDailyNotification();
         }).catch(() => {
           setVerse(getDailyVerse());
-          setIsUpdating(false);
           setIsOffline(true);
           window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'You are offline.', status: 'info' } }));
           setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
@@ -220,18 +193,12 @@ export default function HomePage() {
       const lastCached = getLastCachedDailyVerse();
       // Only fetch if we don't have today's verse cached
       if (!lastCached || !lastCached.isToday) {
-        setIsUpdating(true);
-        setUpdateText("Loading today's verse...");
         getDailyVerseFromBible().then(v => {
           setVerse(v);
-          setIsUpdating(false);
           setIsOffline(false);
-          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Internet restored. Today's verse loaded.", status: 'success' } }));
-          setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
           scheduleDailyNotification();
         }).catch(() => {
           setVerse(getDailyVerse());
-          setIsUpdating(false);
           setIsOffline(true);
         });
       }
