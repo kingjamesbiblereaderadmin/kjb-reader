@@ -948,6 +948,41 @@ export default function SettingsPage() {
                     />
                   </div>
                 )}
+                {!downloading && (
+                  <button
+                    onClick={async () => {
+                      setDownloading(true);
+                      setDlError('');
+                      setDlProgress(0);
+                      setDlStatus('Starting reload...');
+                      try {
+                        await downloadBibleForOffline((pct, msg) => {
+                          setDlProgress(pct);
+                          setDlStatus(msg);
+                        });
+                        setCached(true);
+                        window.dispatchEvent(new Event('storage'));
+                        setDlStatus('Update downloaded. Will apply on next restart.');
+                        setTimeout(() => {
+                          setDlStatus('');
+                        }, 5000);
+                      } catch (err) {
+                        setDlError('Refresh failed: ' + err.message);
+                      }
+                      setDownloading(false);
+                    }}
+                    disabled={downloading}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-60 transition-colors"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    Check for Updates & Reload
+                  </button>
+                )}
+                {dlStatus && !downloading && (
+                  <p className="font-sans text-sm text-green-600 text-green-600 dark:text-green-400 flex items-center gap-1.5 mt-2">
+                    <CheckCircle2 className="w-4 h-4" /> {dlStatus}
+                  </p>
+                )}
               </div>
             ) : (
               <div className="space-y-3">
