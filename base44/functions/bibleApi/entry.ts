@@ -129,6 +129,10 @@ Deno.serve(async (req) => {
       return Response.json({ colophons: bible.__colophons });
     }
 
+
+
+
+
     if (action === 'daily_verse') {
       // Use client's local date if provided, otherwise fallback to UTC
       let seed;
