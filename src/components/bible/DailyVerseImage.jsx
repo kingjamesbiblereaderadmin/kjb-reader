@@ -410,7 +410,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             e.stopPropagation();
             onToggleNotif();
           }}
-          className="absolute top-2 left-2 w-6 h-6 flex items-center justify-center rounded-md bg-white/90 hover:bg-white transition-colors z-10 shadow-md touch-manipulation"
+          className="absolute top-1.5 left-1.5 w-6 h-6 flex items-center justify-center rounded-md bg-white/90 hover:bg-white transition-colors z-10 shadow-md touch-manipulation"
           title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
           type="button"
         >
@@ -419,7 +419,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {/* Action buttons */}
-      <div className="absolute top-2 right-2 flex gap-1 z-10" onClick={(e) => e.stopPropagation()}>
+      <div className="absolute top-1.5 right-1.5 flex gap-0.5 z-10" onClick={(e) => e.stopPropagation()}>
         {!capturing && showButtons ? (
           <>
             <button

@@ -124,9 +124,11 @@ export default function HomePage() {
           try {
             let swUpdated = false;
             if ('serviceWorker' in navigator) {
-              const reg = await navigator.serviceWorker.ready;
-              await reg.update();
-              if (reg.waiting || reg.installing) swUpdated = true;
+              const reg = await navigator.serviceWorker.getRegistration();
+              if (reg) {
+                await reg.update().catch(() => {});
+                if (reg.waiting || reg.installing) swUpdated = true;
+              }
             }
             if (swUpdated) {
               setUpdateText("Updating...");
