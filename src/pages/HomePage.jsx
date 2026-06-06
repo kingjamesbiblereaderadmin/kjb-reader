@@ -84,14 +84,35 @@ export default function HomePage() {
     if (pullDistance > 100 && window.scrollY <= 0) {
       setIsUpdating(true);
       if (typeof navigator !== 'undefined' && navigator.onLine) {
-        toast.loading('Updating app features & verse...');
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.ready.then(reg => reg.update()).finally(() => {
-            setTimeout(() => window.location.reload(), 500);
-          });
-        } else {
-          setTimeout(() => window.location.reload(), 500);
-        }
+        toast.loading('Checking for updates...');
+        (async () => {
+          try {
+            let swUpdated = false;
+            if ('serviceWorker' in navigator) {
+              const reg = await navigator.serviceWorker.ready;
+              await reg.update();
+              if (reg.waiting || reg.installing) swUpdated = true;
+            }
+            if (swUpdated) {
+              toast.loading('Applying updates...');
+              setTimeout(() => window.location.reload(), 500);
+              return;
+            }
+            
+            // If no app updates, just get the verse
+            const v = await getDailyVerseFromBible();
+            setVerse(v);
+            setIsUpdating(false);
+            setIsOffline(false);
+            toast.success("Today's verse loaded.");
+            scheduleDailyNotification();
+          } catch (e) {
+            setVerse(getDailyVerse());
+            setIsUpdating(false);
+            setIsOffline(true);
+            toast('You are offline. Showing a random verse.', { icon: '📴' });
+          }
+        })();
       } else {
         getDailyVerseFromBible().then(v => {
           setVerse(v);

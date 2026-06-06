@@ -246,26 +246,35 @@ export default function AppLayout() {
                 }
 
                 setRefreshing(true);
-                const checkToastId = toast.loading('Updating app features & text…');
+                const checkToastId = toast.loading('Checking for updates…');
                 try {
+                  let swUpdated = false;
                   if ('serviceWorker' in navigator) {
                     const reg = await navigator.serviceWorker.ready;
                     await reg.update();
+                    if (reg.waiting || reg.installing) {
+                      swUpdated = true;
+                    }
                   }
 
                   // Compare the in-code CACHE_VERSION against what's stored locally.
                   const localVer = localStorage.getItem('bible_cache_version');
+                  const bibleUpdated = (localVer && localVer !== CACHE_VERSION);
 
-                  if (localVer && localVer !== CACHE_VERSION) {
-                    // Actual new version available
+                  if (bibleUpdated) {
                     toast.loading('Updating Bible data…', { id: checkToastId });
                     localStorage.removeItem('bible_cache_version');
                     localStorage.removeItem('bible_last_refresh');
                     await downloadBibleForOffline();
                   }
                   
-                  toast.loading('Reloading…', { id: checkToastId });
-                  setTimeout(() => window.location.reload(), 500);
+                  if (swUpdated || bibleUpdated) {
+                    toast.loading('Updates applied. Reloading…', { id: checkToastId });
+                    setTimeout(() => window.location.reload(), 500);
+                  } else {
+                    toast.success('✅ Already up to date', { id: checkToastId });
+                    setRefreshing(false);
+                  }
                 } catch (err) {
                   console.error('Refresh failed:', err);
                   toast.error('Failed to check for updates', { id: checkToastId });
