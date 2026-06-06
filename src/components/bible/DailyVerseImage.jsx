@@ -428,7 +428,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             e.nativeEvent.stopImmediatePropagation();
             onToggleNotif();
           }}
-          className="absolute top-2 left-2 p-1.5 rounded-md bg-white/90 hover:bg-white transition-colors z-10 shadow-md"
+          className="absolute top-2 left-2 p-3 -m-1 rounded-md bg-white/90 hover:bg-white transition-colors z-10 shadow-md"
           title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
           type="button"
         >
@@ -439,7 +439,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
 
       {/* Action buttons */}
-      <div className="absolute top-2 right-2 flex gap-1 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
+      <div className="absolute top-2 right-2 flex gap-2 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
         {!capturing && showButtons ? (
           <>
             <button
@@ -465,11 +465,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 e.nativeEvent.stopImmediatePropagation();
                 setShowLightbox(true);
               }}
-              className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+              className="p-2 -m-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
               title="View in full screen"
               type="button"
             >
-              <Maximize2 className="w-3.5 h-3.5 text-slate-800" />
+              <Maximize2 className="w-4 h-4 text-slate-800" />
             </button>
             <button
               onClick={(e) => {
@@ -495,14 +495,14 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 handleShare(e);
               }}
               disabled={capturing}
-              className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
+              className="p-2 -m-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
               title="Share verse image"
               type="button"
             >
               {capturing ? (
-                <span className="w-3.5 h-3.5 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
+                <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
               ) : (
-                <Share2 className="w-3.5 h-3.5 text-slate-800" />
+                <Share2 className="w-4 h-4 text-slate-800" />
               )}
             </button>
             <button
@@ -529,18 +529,18 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 handleDownload(e);
               }}
               disabled={capturing}
-              className="p-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
+              className="p-2 -m-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
               title="Download verse image"
               type="button"
             >
               {capturing ? (
-                <span className="w-3.5 h-3.5 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
+                <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
               ) : (
-                <Download className="w-3.5 h-3.5 text-slate-800" />
+                <Download className="w-4 h-4 text-slate-800" />
               )}
             </button>
             {/* Unified menu button */}
-            <div ref={menuRef} className="relative">
+            <div ref={menuRef} className="relative ml-1">
               <button
                 onClick={(e) => {
                   e.preventDefault();
@@ -568,7 +568,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                     setShowMenu(!showMenu);
                   }
                 }}
-                className="p-1.5 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+                className="p-2 -m-1 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
                 title="More options"
                 type="button"
               >
@@ -1317,7 +1317,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 e.stopPropagation();
                 e.nativeEvent.stopImmediatePropagation();
               }}
-              className="absolute top-4 right-4 p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors"
+              className="absolute top-2 right-2 p-4 -m-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors"
               type="button"
             >
               <Upload className="w-5 h-5 text-white rotate-45" />
