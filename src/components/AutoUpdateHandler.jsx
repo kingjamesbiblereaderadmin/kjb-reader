@@ -11,7 +11,24 @@ export default function AutoUpdateHandler({ children }) {
       refreshCacheIfDue();
     }, 15 * 60 * 1000);
 
-    return () => clearInterval(interval);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refreshCacheIfDue();
+      }
+    };
+
+    const handleFocus = () => {
+      refreshCacheIfDue();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
 
   // Always render children - update check happens in background
