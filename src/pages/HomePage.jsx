@@ -257,9 +257,13 @@ export default function HomePage() {
   }, []);
 
   const handleVerseClick = () => {
+    // If verse.abbr is missing (e.g. from API), try to find it using verse.book
+    const bookData = BIBLE_BOOKS.find(b => b.shortName === verse.book || b.apiName === verse.book);
+    const abbr = verse.abbr || bookData?.abbr || verse.book?.slice(0, 3).toUpperCase();
+
     // Ensure we have valid verse data before navigating
-    if (!verse.abbr || !verse.chapter || !verse.verse) {
-      console.warn('Invalid verse data:', verse);
+    if (!abbr || !verse.chapter || !verse.verse) {
+      console.warn('Invalid verse data:', verse, { resolvedAbbr: abbr });
       return;
     }
     // Clear search term when navigating to daily verse
@@ -274,7 +278,7 @@ export default function HomePage() {
     try {
       const currentPos = JSON.parse(localStorage.getItem('kjb-position') || '{}');
       localStorage.setItem('kjb-last-reading', JSON.stringify({
-        abbr: verse.abbr,
+        abbr: abbr,
         chapter: verse.chapter,
         verse: verse.verse,
         fromDailyVerse: true,
@@ -282,7 +286,7 @@ export default function HomePage() {
         prevChapter: currentPos.chapter || null,
       }));
     } catch {}
-    const savedData = { abbr: verse.abbr, chapter: verse.chapter, verse: verse.verse };
+    const savedData = { abbr: abbr, chapter: verse.chapter, verse: verse.verse };
     try {
       localStorage.setItem('kjb-position', JSON.stringify(savedData));
     } catch (err) {
@@ -290,7 +294,7 @@ export default function HomePage() {
     }
     // Navigate with URL params so the reader scrolls + highlights reliably,
     // whether it's freshly mounted or already open.
-    navigate(`/read?book=${verse.abbr}&chapter=${verse.chapter}&verse=${verse.verse}&from=daily`);
+    navigate(`/read?book=${abbr}&chapter=${verse.chapter}&verse=${verse.verse}&from=daily`);
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   };
 
