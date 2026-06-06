@@ -6,7 +6,7 @@ import { base44 } from '@/api/base44Client';
 
 // Daily verses are now fetched entirely from the API so all users see the same verse.
 
-const DAILY_VERSE_CACHE_KEY = 'kjb-daily-verse-cache-v5';
+const DAILY_VERSE_CACHE_KEY = 'kjb-daily-verse-cache-v6';
 
 function getTodayKey() {
   const d = new Date();
@@ -67,7 +67,12 @@ export async function getDailyVerseFromBible() {
         return offlineVerse;
       }
 
-      const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
+      const PAULINE_EPISTLES = [
+        'Romans', '1 Corinthians', '2 Corinthians', 'Galatians', 'Ephesians', 
+        'Philippians', 'Colossians', '1 Thessalonians', '2 Thessalonians', 
+        '1 Timothy', '2 Timothy', 'Titus', 'Philemon'
+      ];
+      const bookNames = Object.keys(bible).filter(k => PAULINE_EPISTLES.includes(k));
       
       const bookName = bookNames[seed % bookNames.length];
       const chapters = Object.keys(bible[bookName]);
