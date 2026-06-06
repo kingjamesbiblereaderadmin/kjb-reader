@@ -149,17 +149,11 @@ Deno.serve(async (req) => {
         return Response.json({ error: 'No bible data' }, { status: 500 });
       }
 
-      let currentSeed = seed;
-      const nextRandom = () => {
-        const x = Math.sin(currentSeed++) * 10000;
-        return x - Math.floor(x);
-      };
-
-      const bookName = bookNames[Math.floor(nextRandom() * bookNames.length)];
+      const bookName = bookNames[seed % bookNames.length];
       const chapters = Object.keys(bible[bookName]);
-      const chapterNum = chapters[Math.floor(nextRandom() * chapters.length)];
+      const chapterNum = chapters[seed % chapters.length];
       const verses = bible[bookName][chapterNum];
-      const verseObj = verses[Math.floor(nextRandom() * verses.length)];
+      const verseObj = verses[seed % verses.length];
 
       // Preserve [italics] brackets; strip only pilcrow + superscription markers
       const text = verseObj.text

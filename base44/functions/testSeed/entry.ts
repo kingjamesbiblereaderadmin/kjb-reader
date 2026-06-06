@@ -78,14 +78,10 @@ Deno.serve(async (req) => {
   
   try {
     const today = new Date();
-    // Scan past 100 days and future 100 days
+    // Scan a massive range of seeds
     let foundMatch = false;
     
-    for (let offset = -100; offset <= 100; offset++) {
-      const d = new Date(today);
-      d.setDate(d.getDate() + offset);
-      const testSeed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
-      
+    for (let testSeed = 20000000; testSeed <= 20300000; testSeed++) {
       // Algorithm 1: Modulo (offline fallback)
       let bIdxMod = testSeed % bookNames.length;
       let bkMod = bookNames[bIdxMod];
