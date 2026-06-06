@@ -2,61 +2,77 @@ import { useState, useEffect } from 'react';
 
 const DISMISSED_KEY = 'kjb-install-dismissed';
 
+let globalDeferredPrompt = null;
+let globalIsInstallable = false;
+let globalIsInstalled = false;
+
+if (typeof window !== 'undefined') {
+  if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+    globalIsInstalled = true;
+  }
+  
+  window.addEventListener('beforeinstallprompt', (e) => {
+    console.log('[PWA] global beforeinstallprompt fired', e);
+    e.preventDefault();
+    globalDeferredPrompt = e;
+    globalIsInstallable = true;
+    window.dispatchEvent(new Event('pwa-installable'));
+  });
+
+  window.addEventListener('appinstalled', () => {
+    console.log('[PWA] global app installed');
+    globalIsInstalled = true;
+    globalIsInstallable = false;
+    globalDeferredPrompt = null;
+    window.dispatchEvent(new Event('pwa-installed'));
+  });
+}
+
 export function useInstallPrompt() {
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [isInstallable, setIsInstallable] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(globalDeferredPrompt);
+  const [isInstallable, setIsInstallable] = useState(globalIsInstallable);
+  const [isInstalled, setIsInstalled] = useState(globalIsInstalled);
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
-    // Already installed (standalone mode)
-    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-      setIsInstalled(true);
-      return;
-    }
-
-    const handler = (e) => {
-      console.log('[PWA] beforeinstallprompt fired', e);
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setIsInstallable(true);
+    const handleInstallable = () => {
+      setDeferredPrompt(globalDeferredPrompt);
+      setIsInstallable(globalIsInstallable);
+    };
+    const handleInstalled = () => {
+      setIsInstalled(globalIsInstalled);
+      setIsInstallable(globalIsInstallable);
+      setDeferredPrompt(globalDeferredPrompt);
     };
 
-    window.addEventListener('beforeinstallprompt', handler);
-    
-    window.addEventListener('appinstalled', () => {
-      console.log('[PWA] app installed');
-      setIsInstalled(true);
-      setIsInstallable(false);
-      setDeferredPrompt(null);
-    });
+    window.addEventListener('pwa-installable', handleInstallable);
+    window.addEventListener('pwa-installed', handleInstalled);
 
-    // Debug: log if event never fires
-    const timeout = setTimeout(() => {
-      if (!isInstallable && !isInstalled) {
-        console.log('[PWA] No install prompt after 3s - likely iOS or missing manifest/service worker');
-        console.log('[PWA] manifest.json exists:', !!document.querySelector('link[rel="manifest"]'));
-        console.log('[PWA] serviceWorker registered:', !!navigator.serviceWorker?.controller);
-      }
-    }, 3000);
+    handleInstallable();
+    handleInstalled();
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handler);
-      clearTimeout(timeout);
+      window.removeEventListener('pwa-installable', handleInstallable);
+      window.removeEventListener('pwa-installed', handleInstalled);
     };
-  }, [isInstallable, isInstalled]);
+  }, []);
 
   const promptInstall = async () => {
-    if (!deferredPrompt) {
-      // No beforeinstallprompt event (likely iOS Safari or already handled)
-      // Return false to indicate manual install instructions should be shown
+    if (!globalDeferredPrompt) {
       return false;
     }
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    setDeferredPrompt(null);
-    setIsInstallable(false);
-    return outcome === 'accepted';
+    try {
+      globalDeferredPrompt.prompt();
+      const { outcome } = await globalDeferredPrompt.userChoice;
+      globalDeferredPrompt = null;
+      globalIsInstallable = false;
+      setDeferredPrompt(null);
+      setIsInstallable(false);
+      return outcome === 'accepted';
+    } catch (err) {
+      console.error('Failed to prompt install', err);
+      return false;
+    }
   };
 
   const wasDismissed = () => {

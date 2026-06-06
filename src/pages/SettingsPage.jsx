@@ -885,15 +885,16 @@ export default function SettingsPage() {
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
             >
               <Smartphone className="w-4 h-4" />
-              Add to Home Screen
+              {/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? 'Add to Home Screen' : 'Install App'}
             </button>
             <div className="space-y-2 bg-secondary/50 rounded-xl p-4">
               <p className="font-sans text-xs text-muted-foreground mb-2">
                 <strong>Install instructions:</strong>
               </p>
               <div className="font-sans text-xs text-muted-foreground space-y-1.5">
-                <p>• <strong>iPhone (Safari):</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Share</span> button at bottom, then <span className="text-foreground font-medium">"Add to Home Screen"</span></p>
-                <p>• <strong>Android (Chrome):</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">⋮ Menu</span> (top right), then <span className="text-foreground font-medium">"Install app"</span> or <span className="text-foreground font-medium">"Add to Home screen"</span></p>
+                <p>• <strong>iPhone/iPad:</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Share</span> button, then <span className="text-foreground font-medium">"Add to Home Screen"</span></p>
+                <p>• <strong>Android:</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">⋮ Menu</span>, then <span className="text-foreground font-medium">"Install app"</span></p>
+                <p>• <strong>Desktop:</strong> Click the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Install</span> icon in the address bar, or use the browser menu</p>
               </div>
               <div className="mt-3 pt-3 border-t border-border">
                 <p className="font-sans text-xs text-primary font-medium flex items-center gap-1.5">

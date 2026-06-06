@@ -139,7 +139,10 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
               )}
               {showIOSHint && !isIOS() && (
                 <p className="mt-2 font-sans text-xs text-muted-foreground leading-relaxed px-1">
-                  Use your browser menu → <strong>"Install app"</strong> or <strong>"Add to Home Screen"</strong>.
+                  {isMobile() 
+                    ? <>Use your browser menu → <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</>
+                    : <>Click the <strong>Install</strong> icon in the address bar, or use the browser menu.</>
+                  }
                 </p>
               )}
             </div>
