@@ -41,10 +41,11 @@ export async function registerSW() {
       reg.waiting.postMessage({ type: 'SKIP_WAITING' });
     }
     reg.addEventListener('updatefound', () => {
-      if (reg.installing) {
-        reg.installing.addEventListener('statechange', () => {
-          if (reg.installing.state === 'installed' && navigator.serviceWorker.controller) {
-            reg.installing.postMessage({ type: 'SKIP_WAITING' });
+      const installingWorker = reg.installing;
+      if (installingWorker) {
+        installingWorker.addEventListener('statechange', () => {
+          if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            installingWorker.postMessage({ type: 'SKIP_WAITING' });
           }
         });
       }
