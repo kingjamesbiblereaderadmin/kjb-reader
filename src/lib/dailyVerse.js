@@ -71,8 +71,9 @@ export async function getDailyVerseFromBible() {
       
       let currentSeed = seed;
       const nextRandom = () => {
-        const x = Math.sin(currentSeed++) * 10000;
-        return x - Math.floor(x);
+        // Simple LCG (Linear Congruential Generator) for 100% cross-platform deterministic results
+        currentSeed = (currentSeed * 1664525 + 1013904223) >>> 0;
+        return currentSeed / 4294967296;
       };
 
       const bookName = bookNames[Math.floor(nextRandom() * bookNames.length)];
