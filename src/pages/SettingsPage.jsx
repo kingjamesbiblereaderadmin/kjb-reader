@@ -939,30 +939,7 @@ export default function SettingsPage() {
                     </div>
                   </div>
                 )}
-                <button
-                  onClick={async () => {
-                    setDownloading(true);
-                    setDlError('');
-                    setDlProgress(0);
-                    setDlStatus('Starting reload...');
-                    try {
-                      await downloadBibleForOffline((pct, msg) => {
-                        setDlProgress(pct);
-                        setDlStatus(msg);
-                      });
-                      setCached(true);
-                      window.dispatchEvent(new Event('storage'));
-                    } catch (err) {
-                      setDlError('Refresh failed: ' + err.message);
-                    }
-                    setDownloading(false);
-                  }}
-                  disabled={downloading}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-60 transition-colors"
-                >
-                  {downloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-                  {downloading ? 'Reloading Bible data…' : 'Reload Bible Data'}
-                </button>
+
                 {downloading && (
                   <div className="w-full bg-secondary rounded-full h-2">
                     <div
@@ -1255,42 +1232,7 @@ export default function SettingsPage() {
                 <Trash2 className="w-4 h-4" />
                 Reset All Settings
               </button>
-              <button
-                onClick={async () => {
-                  // Clear ALL caches and reload
-                  await clearBibleCache();
-                  if ('caches' in window) {
-                    const cacheNames = await caches.keys();
-                    await Promise.all(cacheNames.map(name => caches.delete(name)));
-                  }
-                  if ('serviceWorker' in navigator) {
-                    const regs = await navigator.serviceWorker.getRegistrations();
-                    await Promise.all(regs.map(reg => reg.unregister()));
-                  }
-                  localStorage.clear();
-                  // Re-set the auto-redownload flag after localStorage.clear()
-                  try { localStorage.setItem('kjb-auto-redownload', 'true'); } catch {}
-                  
-                  const overlay = document.createElement('div');
-                  overlay.style.position = 'fixed';
-                  overlay.style.inset = '0';
-                  overlay.style.zIndex = '999999';
-                  overlay.style.backgroundColor = 'hsl(var(--background))';
-                  overlay.style.display = 'flex';
-                  overlay.style.flexDirection = 'column';
-                  overlay.style.alignItems = 'center';
-                  overlay.style.justifyContent = 'center';
-                  overlay.innerHTML = '<svg class="animate-spin" style="width: 2.5rem; height: 2.5rem; margin-bottom: 1rem; color: hsl(var(--primary));" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg><div style="font-family: var(--font-sans); font-size: 1.125rem; font-weight: 500; color: hsl(var(--foreground));">Restarting app...</div>';
-                  document.body.appendChild(overlay);
-                  setTimeout(() => {
-                    window.location.reload();
-                  }, 300);
-                }}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-                Clear Cache & Reload
-              </button>
+
 
             </div>
           </div>
