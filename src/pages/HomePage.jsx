@@ -274,13 +274,7 @@ export default function HomePage() {
   };
 
   const handleRandomVerse = () => {
-    const PAULINE_EPISTLES = [
-      'Romans', '1 Corinthians', '2 Corinthians', 'Galatians', 'Ephesians', 
-      'Philippians', 'Colossians', '1 Thessalonians', '2 Thessalonians', 
-      '1 Timothy', '2 Timothy', 'Titus', 'Philemon'
-    ];
-    const paulineBooks = BIBLE_BOOKS.filter(b => PAULINE_EPISTLES.includes(b.name) || PAULINE_EPISTLES.includes(b.shortName));
-    const randomBook = paulineBooks[Math.floor(Math.random() * paulineBooks.length)];
+    const randomBook = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
     const randomChapter = Math.floor(Math.random() * randomBook.chapters) + 1;
     // Clear search term when navigating to random chapter
     try {

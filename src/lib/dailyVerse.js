@@ -6,7 +6,7 @@ import { base44 } from '@/api/base44Client';
 
 // Daily verses are now fetched entirely from the API so all users see the same verse.
 
-const DAILY_VERSE_CACHE_KEY = 'kjb-daily-verse-cache-v6';
+const DAILY_VERSE_CACHE_KEY = 'kjb-daily-verse-cache-v7';
 
 function getTodayKey() {
   const d = new Date();
@@ -67,18 +67,25 @@ export async function getDailyVerseFromBible() {
         return offlineVerse;
       }
 
-      const PAULINE_EPISTLES = [
-        'Romans', '1 Corinthians', '2 Corinthians', 'Galatians', 'Ephesians', 
-        'Philippians', 'Colossians', '1 Thessalonians', '2 Thessalonians', 
-        '1 Timothy', '2 Timothy', 'Titus', 'Philemon'
-      ];
-      const bookNames = Object.keys(bible).filter(k => PAULINE_EPISTLES.includes(k));
+      const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
       
-      const bookName = bookNames[seed % bookNames.length];
-      const chapters = Object.keys(bible[bookName]);
-      const chapterNum = chapters[seed % chapters.length];
-      const verses = bible[bookName][chapterNum];
-      const verseObj = verses[seed % verses.length];
+      let currentSeed = seed;
+      let bookName, chapterNum, verseObj;
+      while (true) {
+        bookName = bookNames[currentSeed % bookNames.length];
+        const chapters = Object.keys(bible[bookName]);
+        chapterNum = chapters[currentSeed % chapters.length];
+        const verses = bible[bookName][chapterNum];
+        verseObj = verses[currentSeed % verses.length];
+        
+        const txt = verseObj.text.toLowerCase();
+        const excluded = (txt.includes('endure') && txt.includes('end')) ||
+                         txt.includes('faith without works is dead') ||
+                         txt.includes('put to death') ||
+                         (txt.includes('dash') && txt.includes('pieces'));
+        if (!excluded) break;
+        currentSeed++;
+      }
       
       const text = verseObj.text.replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
       const bookData = BIBLE_BOOKS.find(b => b.name === bookName || b.shortName === bookName);

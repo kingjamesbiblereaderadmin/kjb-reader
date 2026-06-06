@@ -144,21 +144,29 @@ Deno.serve(async (req) => {
         seed = today.getUTCFullYear() * 10000 + (today.getUTCMonth() + 1) * 100 + today.getUTCDate();
       }
 
-      const PAULINE_EPISTLES = [
-        'Romans', '1 Corinthians', '2 Corinthians', 'Galatians', 'Ephesians', 
-        'Philippians', 'Colossians', '1 Thessalonians', '2 Thessalonians', 
-        '1 Timothy', '2 Timothy', 'Titus', 'Philemon'
-      ];
-      const bookNames = Object.keys(bible).filter(k => PAULINE_EPISTLES.includes(k));
+      const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
       if (!bookNames.length) {
         return Response.json({ error: 'No bible data' }, { status: 500 });
       }
 
-      const bookName = bookNames[seed % bookNames.length];
-      const chapters = Object.keys(bible[bookName]);
-      const chapterNum = chapters[seed % chapters.length];
-      const verses = bible[bookName][chapterNum];
-      const verseObj = verses[seed % verses.length];
+      let currentSeed = seed;
+      let bookName, chapterNum, verseObj;
+      
+      while (true) {
+        bookName = bookNames[currentSeed % bookNames.length];
+        const chapters = Object.keys(bible[bookName]);
+        chapterNum = chapters[currentSeed % chapters.length];
+        const verses = bible[bookName][chapterNum];
+        verseObj = verses[currentSeed % verses.length];
+        
+        const txt = verseObj.text.toLowerCase();
+        const excluded = (txt.includes('endure') && txt.includes('end')) ||
+                         txt.includes('faith without works is dead') ||
+                         txt.includes('put to death') ||
+                         (txt.includes('dash') && txt.includes('pieces'));
+        if (!excluded) break;
+        currentSeed++;
+      }
 
       // Preserve [italics] brackets; strip only pilcrow + superscription markers
       const text = verseObj.text
