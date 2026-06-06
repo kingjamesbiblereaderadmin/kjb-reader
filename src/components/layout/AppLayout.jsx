@@ -247,15 +247,16 @@ export default function AppLayout() {
           </div>
 
           {/* Actions - responsive button sizes with visible square touch targets */}
-          <div className="flex items-center gap-0.5 sm:gap-2 pointer-events-none shrink-0">
-            <div 
-              className={`w-9 h-9 sm:w-10 sm:h-10 pointer-events-auto shrink-0 rounded-lg border transition-all duration-200 flex items-center justify-center cursor-pointer ${isOnline ? 'border-border bg-secondary/30 text-green-600 dark:text-green-400 hover:bg-secondary/50' : 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/40'}`}
+          <div className="flex items-center gap-0.5 sm:gap-2 shrink-0">
+            <button 
+              className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border transition-all duration-200 flex items-center justify-center cursor-pointer ${isOnline ? 'border-border bg-secondary/30 text-green-600 dark:text-green-400 hover:bg-secondary/50' : 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/40'}`}
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); toast(isOnline ? 'You are online' : 'You are offline (reading from cache)', { icon: isOnline ? '📶' : '📴' }); }}
               title={isOnline ? 'Online' : 'Offline'}
+              type="button"
             >
               {isOnline ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
-            </div>
-            <div className="w-9 h-9 sm:w-10 sm:h-10 pointer-events-auto shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
+            </button>
+            <button className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
               onClick={async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -311,27 +312,27 @@ export default function AppLayout() {
                 }
               }}
               style={{ touchAction: 'manipulation' }}
-              role="button"
+              type="button"
               aria-label="Refresh and update cache"
             >
               <RotateCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-            </div>
-            <div className="w-9 h-9 sm:w-10 sm:h-10 pointer-events-auto shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
+            </button>
+            <button className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {} toggleTheme(); }}
               style={{ touchAction: 'manipulation' }}
-              role="button"
+              type="button"
               aria-label="Toggle theme"
             >
               {mode === 'auto' ? <SunMoon className="w-4 h-4 transition-transform duration-200" /> : isDark ? <Moon className="w-4 h-4 transition-transform duration-200" /> : <Sun className="w-4 h-4 transition-transform duration-200" />}
-            </div>
-            <div data-kjb-menu-toggle className="w-9 h-9 sm:w-10 sm:h-10 pointer-events-auto shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
+            </button>
+            <button data-kjb-menu-toggle className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
               style={{ touchAction: 'manipulation' }}
-              role="button"
+              type="button"
               aria-label="Open menu"
             >
               {menuOpen ? <X className="w-4 h-4 transition-transform duration-200" /> : <Menu className="w-4 h-4 transition-transform duration-200" />}
-            </div>
+            </button>
           </div>
         </div>
 
