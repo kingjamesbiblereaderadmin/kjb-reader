@@ -21,6 +21,9 @@ export default function RefreshCache() {
       const registrations = await navigator.serviceWorker.getRegistrations();
       await Promise.all(registrations.map(reg => reg.unregister()));
 
+      // Clear local storage daily verse cache so it's forced to re-fetch
+      localStorage.removeItem('kjb-daily-verse-cache');
+
       // Download fresh Bible data (auto-retries on transient server errors)
       await downloadBibleForOfflineWithRetry((pct) => setProgress(pct));
 
