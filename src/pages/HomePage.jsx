@@ -43,9 +43,7 @@ export default function HomePage() {
       setVerse(lastCached);
       if (!lastCached.isToday) {
         setIsUpdating(true);
-        setUpdateText("Loading today's verse...");
-        window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Showing yesterday's verse while we fetch today's...", status: 'info' } }));
-        setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
+        setUpdateText("Updating today's verse...");
       }
     }
 
@@ -145,7 +143,7 @@ export default function HomePage() {
             setVerse(v);
             setIsUpdating(false);
             setIsOffline(false);
-            window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "No new updates found. Today's verse loaded.", status: 'success' } }));
+            window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "App is up to date.", status: 'success' } }));
             setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
             scheduleDailyNotification();
           } catch (e) {

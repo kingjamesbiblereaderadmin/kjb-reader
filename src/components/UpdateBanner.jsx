@@ -37,14 +37,7 @@ export default function UpdateBanner() {
   if (!waitingWorker && !progressMsg) return null;
 
   if (waitingWorker) {
-    return (
-      <div className="w-full bg-primary text-primary-foreground py-2 px-5 sm:px-12 lg:px-16 flex items-center justify-center text-sm font-medium shadow-inner border-b border-border/20 z-40 animate-in slide-in-from-top-2">
-        <div className="flex items-center gap-2">
-          <RotateCw className="w-4 h-4 animate-spin" />
-          <span>Updating app...</span>
-        </div>
-      </div>
-    );
+    return null; // Skip waiting automatically handles reload, no need to show a banner
   }
 
   let Icon = RotateCw;
