@@ -39,11 +39,16 @@ function saveCachedDailyVerse(verse) {
 // Fetch today's daily verse from the API.
 // Result is cached in localStorage so online and offline always show the same verse.
 export async function getDailyVerseFromBible() {
+  console.log("[DEBUG] getDailyVerseFromBible called");
   // Return today's cached verse if already picked
   const cached = loadCachedDailyVerse(true); // requireToday=true
-  if (cached) return cached;
+  if (cached) {
+    console.log("[DEBUG] Returning today's cached verse:", cached.ref);
+    return cached;
+  }
 
   if (typeof navigator !== 'undefined' && navigator.onLine) {
+    console.log("[DEBUG] Fetching daily verse from API...");
     try {
       // Pass the client's local date so the daily verse rolls over exactly at local midnight
       const res = await base44.functions.invoke('bibleApi', { action: 'daily_verse', clientDate: getTodayKey() });
@@ -64,6 +69,7 @@ export async function getDailyVerseFromBible() {
   try {
     const bible = await getBibleData();
     if (bible && bible['Genesis']) {
+      console.log("[DEBUG] Generating offline fallback verse...");
       const d = new Date();
       const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
 

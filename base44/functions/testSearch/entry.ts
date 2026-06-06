@@ -19,8 +19,8 @@ Deno.serve(async (req) => {
       } else {
         if (fullPath.endsWith('.js') || fullPath.endsWith('.jsx')) {
           const content = fs.readFileSync(fullPath, 'utf-8');
-          if (fullPath.includes('sw.js')) {
-            results.push({path: fullPath, content});
+          if (content.includes(query)) {
+            results.push(fullPath);
           }
         }
       }

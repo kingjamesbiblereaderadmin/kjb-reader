@@ -42,12 +42,14 @@ export default function HomePage() {
 
     // 2. Fetch today's verse in the background
     getDailyVerseFromBible().then(v => {
+      console.log("[DEBUG] Verse generated for today:", v?.ref);
       setVerse(v);
       setIsUpdating(false);
       setIsOffline(false);
       // Trigger notification if enabled
       scheduleDailyNotification();
-    }).catch(() => {
+    }).catch((err) => {
+      console.error("[DEBUG] getDailyVerseFromBible failed:", err);
       setVerse(getDailyVerse());
       setIsUpdating(false);
       setIsOffline(true);
