@@ -136,8 +136,8 @@ Deno.serve(async (req) => {
     }
     
     if (!foundMatch) {
-      report += `[RESULT] No known algorithm generated ${targetBook} ${targetChapter}:${targetVerse} for any date between 2020 and 2030.\n\n`;
-      report += `It's highly likely this verse was generated using a completely different legacy logic (e.g. pure Math.random, or an old fallback pool) which got stuck in your local cache.\n`;
+      report += `[RESULT] No known math algorithm generated ${targetBook} ${targetChapter}:${targetVerse} for any date between 2020 and 2030.\n\n`;
+      report += `💡 VERDICT: This verse was almost certainly pulled from the old "hardcoded fallback pool" that used to exist in the app before it was removed. Because it was saved to your device's LocalStorage back then, your phone is just infinitely reloading that saved record.\n\nTo fix this on your phone: tap "Clear Cache & Reload" below to wipe out the stuck verse and force the app to use the new daily algorithm!\n`;
     } else {
       if (matchCount > 50) {
         report += `\n[INFO] Reached 50 matches, stopping scan to keep report clean.\n`;
