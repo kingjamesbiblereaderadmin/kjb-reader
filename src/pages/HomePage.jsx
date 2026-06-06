@@ -36,6 +36,7 @@ export default function HomePage() {
       setVerse(lastCached);
       if (!lastCached.isToday) {
         setIsUpdating(true);
+        toast("Showing yesterday's verse while we fetch today's...", { icon: '⏳' });
       }
     }
 
