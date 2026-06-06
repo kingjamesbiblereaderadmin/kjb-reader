@@ -120,13 +120,13 @@ export default function HomePage() {
             setVerse(v);
             setIsOffline(false);
             window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "App is up to date.", status: 'success' } }));
-            setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
+            setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
             scheduleDailyNotification();
           } catch (e) {
             setVerse(getDailyVerse());
             setIsOffline(true);
             window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'You are offline.', status: 'info' } }));
-            setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
+            setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
           }
         })();
       } else {
@@ -135,13 +135,13 @@ export default function HomePage() {
           setVerse(v);
           setIsOffline(false);
           window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Today's verse loaded.", status: 'success' } }));
-          setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
+          setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
           scheduleDailyNotification();
         }).catch(() => {
           setVerse(getDailyVerse());
           setIsOffline(true);
           window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'You are offline.', status: 'info' } }));
-          setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
+          setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
         });
       }
     }

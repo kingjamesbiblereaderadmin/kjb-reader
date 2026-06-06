@@ -252,7 +252,7 @@ export default function AppLayout() {
               onClick={(e) => { 
                 e.stopPropagation(); 
                 window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: isOnline ? 'You are online' : 'You are offline (reading from cache)', status: 'info' } }));
-                setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
+                setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
               }}
               title={isOnline ? 'Online' : 'Offline'}
               type="button"
@@ -267,9 +267,9 @@ export default function AppLayout() {
 
                 // Offline: don't try to fetch — just confirm cached data is in use
                 if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Offline — using cached Bible', status: 'info' } }));
-                  setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
-                  return;
+                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Offline — using cached Bible', status: 'info' } }));
+                setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
+                return;
                 }
 
                 setRefreshing(true);
@@ -305,18 +305,18 @@ export default function AppLayout() {
                     setRefreshing(false);
                   } else if (bibleUpdated) {
                     window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Update complete.', status: 'success' } }));
-                    setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
+                    setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
                     setRefreshing(false);
                     softReload();
                   } else {
                     window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'No new updates found.', status: 'info' } }));
-                    setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
+                    setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
                     setRefreshing(false);
                   }
                 } catch (err) {
                   console.error('Refresh failed:', err);
                   window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Failed to check for updates', status: 'error' } }));
-                  setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
+                  setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
                   setRefreshing(false);
                 }
               }}
