@@ -246,28 +246,31 @@ export default function AppLayout() {
                 }
 
                 setRefreshing(true);
-                const checkToastId = toast.loading('Checking for updates…');
+                const checkToastId = toast.loading('Updating app features & text…');
                 try {
+                  if ('serviceWorker' in navigator) {
+                    const reg = await navigator.serviceWorker.ready;
+                    await reg.update();
+                  }
+
                   // Compare the in-code CACHE_VERSION against what's stored locally.
                   const localVer = localStorage.getItem('bible_cache_version');
 
                   if (localVer && localVer !== CACHE_VERSION) {
                     // Actual new version available
-                    toast.loading('New version found — updating Bible data…', { id: checkToastId });
+                    toast.loading('Updating Bible data…', { id: checkToastId });
                     localStorage.removeItem('bible_cache_version');
                     localStorage.removeItem('bible_last_refresh');
                     await downloadBibleForOffline();
-                    toast.loading('Reloading…', { id: checkToastId });
-                    setTimeout(() => toast.dismiss(checkToastId), 1200);
-                    window.location.reload();
-                  } else {
-                    toast.success('✅ Already up to date', { id: checkToastId });
                   }
+                  
+                  toast.loading('Reloading…', { id: checkToastId });
+                  setTimeout(() => window.location.reload(), 500);
                 } catch (err) {
                   console.error('Refresh failed:', err);
                   toast.error('Failed to check for updates', { id: checkToastId });
+                  setRefreshing(false);
                 }
-                setRefreshing(false);
               }}
               style={{ touchAction: 'manipulation' }}
               role="button"

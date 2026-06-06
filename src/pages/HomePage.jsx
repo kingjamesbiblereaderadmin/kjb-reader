@@ -83,19 +83,29 @@ export default function HomePage() {
     // Pull down to refresh if at the top of the page
     if (pullDistance > 100 && window.scrollY <= 0) {
       setIsUpdating(true);
-      getDailyVerseFromBible().then(v => {
-        setVerse(v);
-        setIsUpdating(false);
-        setIsOffline(false);
-        toast.success("Today's verse loaded.");
-        // Trigger notification if enabled
-        scheduleDailyNotification();
-      }).catch(() => {
-        setVerse(getDailyVerse());
-        setIsUpdating(false);
-        setIsOffline(true);
-        toast('You are offline. Showing a random verse.', { icon: '📴' });
-      });
+      if (typeof navigator !== 'undefined' && navigator.onLine) {
+        toast.loading('Updating app features & verse...');
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.ready.then(reg => reg.update()).finally(() => {
+            setTimeout(() => window.location.reload(), 500);
+          });
+        } else {
+          setTimeout(() => window.location.reload(), 500);
+        }
+      } else {
+        getDailyVerseFromBible().then(v => {
+          setVerse(v);
+          setIsUpdating(false);
+          setIsOffline(false);
+          toast.success("Today's verse loaded.");
+          scheduleDailyNotification();
+        }).catch(() => {
+          setVerse(getDailyVerse());
+          setIsUpdating(false);
+          setIsOffline(true);
+          toast('You are offline. Showing a random verse.', { icon: '📴' });
+        });
+      }
     }
   };
 
