@@ -247,16 +247,16 @@ export default function AppLayout() {
           </div>
 
           {/* Actions - responsive button sizes with visible square touch targets */}
-          <div className="flex items-center gap-0.5 sm:gap-2 shrink-0 pointer-events-auto relative z-20">
+          <div className="flex items-center gap-0.5 sm:gap-2 shrink-0">
             <button 
-              className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation ${isOnline ? 'border-border bg-secondary/30 text-green-600 dark:text-green-400 hover:bg-secondary/50' : 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/40'}`}
+              className={`w-8 h-8 sm:w-9 sm:h-9 shrink-0 rounded-lg border transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation ${isOnline ? 'border-border bg-secondary/30 text-green-600 dark:text-green-400 hover:bg-secondary/50' : 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/40'}`}
               onClick={(e) => { e.stopPropagation(); toast(isOnline ? 'You are online' : 'You are offline (reading from cache)', { icon: isOnline ? '📶' : '📴' }); }}
               title={isOnline ? 'Online' : 'Offline'}
               type="button"
             >
               {isOnline ? <Wifi className="w-4 h-4 pointer-events-none" /> : <WifiOff className="w-4 h-4 pointer-events-none" />}
             </button>
-            <button className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer touch-manipulation"
+            <button className="w-8 h-8 sm:w-9 sm:h-9 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer touch-manipulation"
               onClick={async (e) => {
                 e.stopPropagation();
                 try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {}
@@ -315,14 +315,14 @@ export default function AppLayout() {
             >
               <RotateCw className={`w-4 h-4 pointer-events-none ${refreshing ? 'animate-spin' : ''}`} />
             </button>
-            <button className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer touch-manipulation"
+            <button className="w-8 h-8 sm:w-9 sm:h-9 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer touch-manipulation"
               onClick={(e) => { e.stopPropagation(); try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {} toggleTheme(); }}
               type="button"
               aria-label="Toggle theme"
             >
               {mode === 'auto' ? <SunMoon className="w-4 h-4 pointer-events-none transition-transform duration-200" /> : isDark ? <Moon className="w-4 h-4 pointer-events-none transition-transform duration-200" /> : <Sun className="w-4 h-4 pointer-events-none transition-transform duration-200" />}
             </button>
-            <button data-kjb-menu-toggle className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer touch-manipulation"
+            <button data-kjb-menu-toggle className="w-8 h-8 sm:w-9 sm:h-9 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer touch-manipulation"
               onClick={(e) => { e.stopPropagation(); setMenuOpen(o => !o); }}
               type="button"
               aria-label="Open menu"
