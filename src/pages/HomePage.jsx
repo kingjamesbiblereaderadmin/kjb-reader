@@ -380,7 +380,7 @@ export default function HomePage() {
       {/* Daily verse card */}
       <div className="w-full mb-6 relative">
         {isUpdating && (
-          <div className="absolute top-6 left-1/2 -translate-x-1/2 bg-secondary/95 backdrop-blur-md text-secondary-foreground text-xs px-4 py-1.5 rounded-full shadow-md z-[60] flex items-center gap-2 border border-border transition-all animate-in fade-in slide-in-from-top-4">
+          <div className="fixed top-20 left-1/2 -translate-x-1/2 bg-secondary/95 backdrop-blur-md text-secondary-foreground text-xs px-4 py-1.5 rounded-full shadow-md z-[100] flex items-center gap-2 border border-border transition-all animate-in fade-in slide-in-from-top-4">
             <RotateCw className="w-3.5 h-3.5 animate-spin" />
             {updateText}
           </div>
