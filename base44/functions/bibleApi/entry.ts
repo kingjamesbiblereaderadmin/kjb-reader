@@ -151,8 +151,8 @@ Deno.serve(async (req) => {
 
       let currentSeed = seed;
       const nextRandom = () => {
-        currentSeed = (currentSeed * 1664525 + 1013904223) >>> 0;
-        return currentSeed / 4294967296;
+        const x = Math.sin(currentSeed++) * 10000;
+        return x - Math.floor(x);
       };
 
       const bookName = bookNames[Math.floor(nextRandom() * bookNames.length)];
