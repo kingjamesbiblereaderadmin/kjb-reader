@@ -1,5 +1,6 @@
 import React from 'react';
 import { Drawer } from 'vaul';
+import { X } from 'lucide-react';
 
 /**
  * Mobile-first bottom sheet wrapper for selectors.
@@ -14,9 +15,17 @@ export default function SelectorSheet({ open, onClose, title, children }) {
         <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 flex flex-col rounded-t-2xl bg-card border-t border-border max-h-[80vh] sm:max-h-[85vh]">
           {/* Drag handle */}
           <div className="mx-auto mt-3 mb-2 w-10 h-1.5 rounded-full bg-border flex-shrink-0" />
-          {title && (
-            <p className="font-sans text-sm font-semibold text-foreground text-center pb-3 flex-shrink-0 px-4">{title}</p>
-          )}
+          <div className="flex items-center justify-center relative pb-3 flex-shrink-0 px-4">
+            {title && (
+              <p className="font-sans text-sm font-semibold text-foreground text-center">{title}</p>
+            )}
+            <button 
+              onClick={onClose} 
+              className="absolute right-4 p-1 rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
           <div className="overflow-y-auto flex-1 px-4 pb-6">
             {children}
           </div>

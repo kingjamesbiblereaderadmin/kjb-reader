@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, X } from 'lucide-react';
 
 export default function ChapterSelector({ totalChapters, currentChapter, onSelect, onClose }) {
   const [selectedChapter, setSelectedChapter] = useState(currentChapter);
 
   return (
-    <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden w-[90vw] max-w-sm max-h-[70vh] flex flex-col">
-      <div className="px-4 py-3 border-b border-border">
-        <p className="font-serif font-semibold text-foreground text-center">Select Chapter</p>
+    <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden w-[90vw] max-w-sm max-h-[70vh] flex flex-col relative">
+      <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+        <p className="font-serif font-semibold text-foreground text-center flex-1">Select Chapter</p>
+        <button 
+          onClick={onClose}
+          className="p-1 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <X className="w-4 h-4" />
+        </button>
       </div>
       <div className="overflow-y-auto flex-1 p-3">
         <div className="grid grid-cols-6 sm:grid-cols-8 gap-2">

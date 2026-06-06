@@ -1285,11 +1285,17 @@ export default function BibleReader() {
               {/* Desktop popover */}
               {showZoomPopover && !isMobile() && (
                 <div className="absolute top-full left-0 mt-1 z-[100]">
-                  <div className="bg-card border border-border rounded-xl shadow-xl p-4 w-64">
-                    <div className="flex items-center justify-between mb-3">
+                  <div className="bg-card border border-border rounded-xl shadow-xl p-4 w-64 relative">
+                    <div className="flex items-center justify-between mb-3 pr-6">
                       <span className="font-sans text-xs font-medium text-foreground">Text Size</span>
                       <span className="font-sans text-xs font-semibold text-primary">{zoomLevel}%</span>
                     </div>
+                    <button 
+                      onClick={() => setShowZoomPopover(false)}
+                      className="absolute top-3 right-3 p-1 rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
                     <div className="flex items-center gap-2 mb-2">
                       <button
                         onClick={() => adjustZoom(-5)}
@@ -1389,10 +1395,16 @@ export default function BibleReader() {
               {/* Desktop popover */}
               {showFontPopover && !isMobile() && (
                 <div className="absolute top-full left-0 mt-1 z-[100]">
-                  <div className="bg-card border border-border rounded-xl shadow-xl p-4 w-64">
-                    <div className="flex items-center justify-between mb-3">
+                  <div className="bg-card border border-border rounded-xl shadow-xl p-4 w-64 relative">
+                    <div className="flex items-center justify-between mb-3 pr-6">
                       <span className="font-sans text-xs font-medium text-foreground">Font Family</span>
                     </div>
+                    <button 
+                      onClick={() => setShowFontPopover(false)}
+                      className="absolute top-3 right-3 p-1 rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
                     {a11yActive && (
                       <p className="font-sans text-[11px] text-muted-foreground mb-2 leading-snug">
                         An accessibility font is active app-wide and overrides reading fonts. Pick another accessibility font, or disable it in Settings → Accessibility.

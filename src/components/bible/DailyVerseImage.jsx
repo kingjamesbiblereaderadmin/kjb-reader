@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect, Suspense } from 'react';
 import { base44 } from '@/api/base44Client';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2, ChevronsDown, MoreVertical, Trash2, Image, Copy, Crop, RotateCcw } from 'lucide-react';
+import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2, ChevronsDown, MoreVertical, Trash2, Image, Copy, Crop, RotateCcw, X } from 'lucide-react';
 import { getNotificationsEnabled, requestNotificationPermission, disableNotifications, scheduleDailyNotification } from '@/lib/notifications';
 
 const ImageCropper = React.lazy(() => import('./ImageCropper'));
@@ -485,6 +485,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 <div
                   className="absolute right-0 top-8 z-30 bg-white rounded-lg shadow-xl border border-slate-200 py-1 w-48"
                   onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
+                  onTouchEnd={(e) => e.stopPropagation()}
                 >
                   <button
                     onClick={(e) => {
@@ -655,7 +658,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               }}
               className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors touch-manipulation"
             >
-              <Upload className="w-4 h-4 rotate-45 text-slate-600 dark:text-slate-400 pointer-events-none" />
+              <X className="w-4 h-4 text-slate-600 dark:text-slate-400 pointer-events-none" />
             </button>
             </div>
           </div>
@@ -924,6 +927,13 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
       {/* Crop Modal - positioned near verse card */}
       {cropImage && (
+        <div 
+          onClick={(e) => e.stopPropagation()} 
+          onTouchStart={(e) => e.stopPropagation()}
+          onTouchEnd={(e) => e.stopPropagation()} 
+          onMouseDown={(e) => e.stopPropagation()}
+          onMouseUp={(e) => e.stopPropagation()}
+        >
         <Suspense fallback={null}>
           <ImageCropper
           image={cropImage}
@@ -955,6 +965,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           }}
         />
         </Suspense>
+        </div>
       )}
 
       {/* Save/Cancel buttons for pending background (only for crop-to-background flow) */}
@@ -1134,7 +1145,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               className="absolute top-2 right-2 p-4 -m-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors"
               type="button"
             >
-              <Upload className="w-5 h-5 text-white rotate-45" />
+              <X className="w-5 h-5 text-white" />
             </button>
             <p 
               className={`font-sans text-xs font-semibold tracking-widest uppercase mb-10 ${accentClass}`}

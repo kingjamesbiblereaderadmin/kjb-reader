@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Layers } from 'lucide-react';
+import { Check, Layers, X } from 'lucide-react';
 
 export default function VerseSelector({ totalVerses, currentVerse, onSelect, onClose, multiSelect = false, onGoToChapter = null, hasSubscript = false, hasColophon = false }) {
   const [selected, setSelected] = useState(() => new Set(currentVerse ? (Array.isArray(currentVerse) ? currentVerse : [currentVerse]) : []));
@@ -31,13 +31,21 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
         <p className="font-serif font-semibold text-foreground text-center flex-1">
           {multiMode ? `Select Verses${selected.size > 0 ? ` (${selected.size})` : ''}` : 'Select Verse'}
         </p>
-        <button
-          onClick={() => setMultiMode(!multiMode)}
-          className={`p-1.5 rounded-lg border transition-colors ${multiMode ? 'bg-accent text-accent-foreground border-accent' : 'bg-secondary text-muted-foreground border-border'}`}
-          title="Toggle multi-select"
-        >
-          <Layers className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setMultiMode(!multiMode)}
+            className={`p-1.5 rounded-lg border transition-colors ${multiMode ? 'bg-accent text-accent-foreground border-accent' : 'bg-secondary text-muted-foreground border-border'}`}
+            title="Toggle multi-select"
+          >
+            <Layers className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={onClose}
+            className="p-1 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
       </div>
       <div className="overflow-y-auto flex-1 p-3">
         {(hasSubscript || hasColophon) && (

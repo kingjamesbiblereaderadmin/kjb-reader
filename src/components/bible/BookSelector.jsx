@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, X } from 'lucide-react';
 import { OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
 
 export default function BookSelector({ currentAbbr, onSelect, onClose }) {
@@ -25,7 +25,16 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
   };
 
   return (
-    <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden w-[95vw] max-w-md max-h-[70vh] flex flex-col">
+    <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden w-[95vw] max-w-md max-h-[70vh] flex flex-col relative">
+      <div className="flex items-center justify-between p-3 border-b border-border bg-muted/30">
+        <span className="font-sans text-sm font-semibold">Select Book</span>
+        <button 
+          onClick={onClose}
+          className="p-1 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
       <div className="overflow-y-auto flex-1 p-3 pb-6 space-y-1 overscroll-contain">
         {/* Title Page - Above Old Testament */}
         <button
