@@ -127,15 +127,31 @@ export default function HomePage() {
               const reg = await navigator.serviceWorker.getRegistration();
               if (reg) {
                 await reg.update().catch(() => {});
-                if (reg.waiting || (reg.installing && reg.installing.state === 'installed')) {
+                if (reg.waiting || reg.installing) {
                   swUpdated = true;
+                  if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                  if (reg.installing) {
+                    reg.installing.addEventListener('statechange', () => {
+                      if (reg.installing?.state === 'installed') reg.installing.postMessage({ type: 'SKIP_WAITING' });
+                    });
+                  }
+                }
+                
+                // Force an app cache clear so that even if sw.js hasn't changed byte-for-byte,
+                // we flush out the old HTML/JS/CSS assets and fetch fresh ones on reload.
+                const cacheKeys = await caches.keys();
+                for (const key of cacheKeys) {
+                  if (key.startsWith('kjb-shell')) {
+                    await caches.delete(key);
+                    swUpdated = true;
+                  }
                 }
               }
             }
             if (swUpdated) {
-              setUpdateText("Update ready");
-              toast.success('Update ready. Click the banner above to reload.', { id: 'pull-refresh', duration: 4000 });
-              setIsUpdating(false);
+              setUpdateText("Updating...");
+              toast.loading('Updating...', { id: 'pull-refresh' });
+              setTimeout(() => window.location.reload(), 3000); // Fallback if controllerchange fails
               return;
             }
             
