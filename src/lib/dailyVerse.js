@@ -40,7 +40,7 @@ function saveCachedDailyVerse(verse) {
 // Result is cached in localStorage so online and offline always show the same verse.
 export async function getDailyVerseFromBible() {
   // Return today's cached verse if already picked
-  const cached = loadCachedDailyVerse();
+  const cached = loadCachedDailyVerse(true); // requireToday=true
   if (cached) return cached;
 
   if (typeof navigator !== 'undefined' && navigator.onLine) {
@@ -59,15 +59,20 @@ export async function getDailyVerseFromBible() {
     }
   }
 
-  // If offline or API fails, return the offline fallback
+  // If offline or API fails, return the offline fallback (which will include yesterday's verse if available)
   return getDailyVerse();
 }
 
 // Get date-based daily verse (one per day).
-// Returns the localStorage-cached verse if one was picked online today.
-// If not loaded, we return a fallback offline message.
+// Returns the localStorage-cached verse if one was picked today.
+// If not loaded, returns yesterday's verse. If no cache at all, returns offline message.
 export function getDailyVerse() {
-  const cached = loadCachedDailyVerse();
+  // Try today's first
+  let cached = loadCachedDailyVerse(true);
+  if (cached) return cached;
+  
+  // Try yesterday's (or any older) as fallback
+  cached = loadCachedDailyVerse(false);
   if (cached) return cached;
   
   return {
