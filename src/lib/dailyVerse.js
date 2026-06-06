@@ -146,7 +146,7 @@ export async function getDailyVerseFromBible() {
 
   try {
     const isCached = await isBibleCached();
-    if (typeof navigator !== 'undefined' && navigator.onLine) {
+    if (!isCached && typeof navigator !== 'undefined' && navigator.onLine) {
       try {
         const res = await base44.functions.invoke('bibleApi', { action: 'daily_verse' });
         if (res.data && res.data.verse) {
@@ -207,21 +207,26 @@ export async function getDailyVerseFromBible() {
   }
 }
 
+const FALLBACK_POOL = [
+  { abbr: "JOH", book: "John", chapter: 3, verse: 16, text: "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.", ref: "John 3:16" },
+  { abbr: "ROM", book: "Romans", chapter: 8, verse: 28, text: "And we know that all things work together for good to them that love God, to them who are the called according to his purpose.", ref: "Romans 8:28" },
+  { abbr: "PHI", book: "Philippians", chapter: 4, verse: 13, text: "I can do all things through Christ which strengtheneth me.", ref: "Philippians 4:13" },
+  { abbr: "PRO", book: "Proverbs", chapter: 3, verse: 5, text: "Trust in the LORD with all thine heart; and lean not unto thine own understanding.", ref: "Proverbs 3:5" },
+  { abbr: "PSA", book: "Psalms", chapter: 119, verse: 105, text: "Thy word is a lamp unto my feet, and a light unto my path.", ref: "Psalms 119:105" },
+  { abbr: 'ISA', book: 'Isaiah', chapter: 40, verse: 31, text: 'But they that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles; they shall run, and not be weary; and they shall walk, and not faint.', ref: 'Isaiah 40:31' },
+  { abbr: 'EPH', book: 'Ephesians', chapter: 2, verse: 8, text: 'For by grace are ye saved through faith; and that not of yourselves: it is the gift of God:', ref: 'Ephesians 2:8' }
+];
+
 // Get date-based daily verse (one per day).
 // Returns the localStorage-cached verse if one was picked online today.
-// If not loaded, we return a fallback offline message, completely removing the pool.
+// If not loaded, we return a fallback verse from the pool.
 export function getDailyVerse() {
   const cached = loadCachedDailyVerse();
   if (cached) return cached;
   
-  return {
-    abbr: "GEN",
-    book: "Offline",
-    chapter: 1,
-    verse: 1,
-    text: "Please connect to the internet or download the Bible in settings to load today's daily verse.",
-    ref: "Offline Mode"
-  };
+  const d = new Date();
+  const daySeed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+  return FALLBACK_POOL[daySeed % FALLBACK_POOL.length];
 }
 
 // Synchronous fallback used for initial render / offline first load
