@@ -41,27 +41,34 @@ window.addEventListener('load', async () => {
       const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
       console.log('[SW] Registered:', registration.scope);
 
-      // Silent update: when a new SW is installed and waiting, activate it
-      // immediately in the background. No toast, no reload — the new code
-      // will be used on the next navigation/refresh the user makes naturally.
-      const activateSilently = (waitingWorker) => {
+      // When a new SW is installed and waiting, activate it
+      const activateUpdate = (waitingWorker) => {
         waitingWorker?.postMessage({ type: 'SKIP_WAITING' });
       };
 
-      // If a worker is already waiting when we register, activate it silently
+      // If a worker is already waiting when we register, activate it
       if (registration.waiting && navigator.serviceWorker.controller) {
-        activateSilently(registration.waiting);
+        activateUpdate(registration.waiting);
       }
 
-      // Listen for newly-found workers and activate them silently
+      // Listen for newly-found workers and activate them
       registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing;
         if (!newWorker) return;
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            activateSilently(newWorker);
+            activateUpdate(newWorker);
           }
         });
+      });
+
+      // Reload the page when the new service worker takes over
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
       });
 
       // Prewarm: tell SW to cache every <script> and <link rel=stylesheet> on the page
@@ -99,17 +106,16 @@ window.addEventListener('load', async () => {
         });
       }
 
-      // Check for updates periodically (every 15 minutes when app is open)
+      // Check for updates periodically (every 3 minutes when app is open)
       setInterval(() => {
         registration.update().then(() => {
           console.log('[SW] Checked for updates');
         }).catch(() => {});
-      }, 900000);
+      }, 180000);
       
       navigator.serviceWorker.addEventListener('message', event => {
-        // Silent — just log, no toast or reload
         if (event.data?.type === 'UPDATE_AVAILABLE') {
-          console.log('[SW] Update available (applied silently), version:', event.data.cacheVersion);
+          console.log('[SW] Update available, version:', event.data.cacheVersion);
         }
         if (event.data?.type === 'CACHE_VERSION') {
           console.log('[SW] Cache version:', event.data.cacheVersion);
