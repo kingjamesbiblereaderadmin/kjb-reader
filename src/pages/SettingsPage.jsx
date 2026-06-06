@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Instagram, Youtube, RotateCcw, Accessibility } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Instagram, Youtube, RotateCcw, Accessibility, Bug } from 'lucide-react';
 
 const TikTokIcon = () => (
   <svg className="w-4 h-4 text-green-500" viewBox="0 0 24 24" fill="currentColor">
@@ -1227,6 +1227,43 @@ export default function SettingsPage() {
         </button>
         {expandedSections.advanced && (
           <div className="p-5 pt-0 space-y-4">
+            <button
+                onClick={async () => {
+                  try {
+                    const bible = await import('@/lib/bibleCache').then(m => m.getBibleData());
+                    const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
+                    const d = new Date();
+                    const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+                    
+                    const idx1 = seed % bookNames.length;
+                    const bookName = bookNames[idx1];
+                    const chapters = Object.keys(bible[bookName]);
+                    const idx2 = seed % chapters.length;
+                    const chapterNum = chapters[idx2];
+                    const verses = bible[bookName][chapterNum];
+                    const idx3 = seed % verses.length;
+                    const verseObj = verses[idx3];
+                    
+                    let msg = `Date: ${d.toLocaleDateString()}\nSeed: ${seed}\nOffline Book: ${idx1}=${bookName}\nOffline Chap: ${idx2}=${chapterNum}\nOffline Verse: ${idx3}=${verseObj.verse}\n\n`;
+                    
+                    try {
+                      const res = await base44.functions.invoke('bibleApi', { action: 'daily_verse', clientDate: `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}` });
+                      const apiVerse = res.data?.verse;
+                      msg += `API returned: ${apiVerse?.book} ${apiVerse?.chapter}:${apiVerse?.verse}`;
+                    } catch (apiErr) {
+                      msg += `API Error: ${apiErr.message}`;
+                    }
+                    
+                    alert("DEBUG REPORT:\n" + msg);
+                  } catch (e) {
+                    alert("Debug Error: " + e.message);
+                  }
+                }}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+              >
+                <Bug className="w-4 h-4" />
+                Debug Daily Verse (Temp)
+            </button>
             <div className="flex gap-3 pt-2">
               <button
                 onClick={async () => {
