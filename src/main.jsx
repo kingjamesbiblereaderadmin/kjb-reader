@@ -64,11 +64,13 @@ window.addEventListener('load', async () => {
 
       // Reload the page when the new service worker takes over
       let refreshing = false;
+      let hasExistingController = !!navigator.serviceWorker.controller;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!refreshing) {
+        if (hasExistingController && !refreshing) {
           refreshing = true;
           window.location.reload();
         }
+        hasExistingController = true;
       });
 
       // Prewarm: tell SW to cache every <script> and <link rel=stylesheet> on the page
@@ -106,12 +108,12 @@ window.addEventListener('load', async () => {
         });
       }
 
-      // Check for updates periodically (every 3 minutes when app is open)
+      // Check for updates periodically (every 5 minutes when app is open)
       setInterval(() => {
         registration.update().then(() => {
           console.log('[SW] Checked for updates');
         }).catch(() => {});
-      }, 180000);
+      }, 300000);
       
       navigator.serviceWorker.addEventListener('message', event => {
         if (event.data?.type === 'UPDATE_AVAILABLE') {
