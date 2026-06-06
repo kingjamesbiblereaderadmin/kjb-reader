@@ -23,9 +23,11 @@ export function getLastCachedDailyVerse() {
   return null;
 }
 
-function loadCachedDailyVerse() {
+function loadCachedDailyVerse(requireToday = true) {
   const last = getLastCachedDailyVerse();
-  return (last && last.isToday) ? last : null;
+  if (!last) return null;
+  if (requireToday && !last.isToday) return null;
+  return last;
 }
 
 function saveCachedDailyVerse(verse) {
