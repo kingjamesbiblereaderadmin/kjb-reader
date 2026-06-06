@@ -410,11 +410,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             e.stopPropagation();
             onToggleNotif();
           }}
-          className="absolute top-2 left-2 p-1.5 flex items-center justify-center rounded-md bg-white/90 hover:bg-white transition-colors z-10 shadow-md touch-manipulation"
+          className="absolute top-2 left-2 w-6 h-6 flex items-center justify-center rounded-md bg-white/90 hover:bg-white transition-colors z-10 shadow-md touch-manipulation"
           title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
           type="button"
         >
-          {notifEnabled ? <Bell className="w-4 h-4 text-slate-800 pointer-events-none" /> : <BellOff className="w-4 h-4 text-slate-800 pointer-events-none" />}
+          {notifEnabled ? <Bell className="w-3.5 h-3.5 text-slate-800 pointer-events-none" /> : <BellOff className="w-3.5 h-3.5 text-slate-800 pointer-events-none" />}
         </button>
       )}
 
@@ -427,11 +427,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 e.stopPropagation();
                 setShowLightbox(true);
               }}
-              className="p-1.5 flex items-center justify-center rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md touch-manipulation"
+              className="w-6 h-6 flex items-center justify-center rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md touch-manipulation"
               title="View in full screen"
               type="button"
             >
-              <Maximize2 className="w-4 h-4 text-slate-800 pointer-events-none" />
+              <Maximize2 className="w-3.5 h-3.5 text-slate-800 pointer-events-none" />
             </button>
             <button
               onClick={(e) => {
@@ -439,14 +439,14 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 handleShare(e);
               }}
               disabled={capturing}
-              className="p-1.5 flex items-center justify-center rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50 touch-manipulation"
+              className="w-6 h-6 flex items-center justify-center rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50 touch-manipulation"
               title="Share verse image"
               type="button"
             >
               {capturing ? (
-                <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block pointer-events-none" />
+                <span className="w-3.5 h-3.5 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block pointer-events-none" />
               ) : (
-                <Share2 className="w-4 h-4 text-slate-800 pointer-events-none" />
+                <Share2 className="w-3.5 h-3.5 text-slate-800 pointer-events-none" />
               )}
             </button>
             <button
@@ -455,14 +455,14 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 handleDownload(e);
               }}
               disabled={capturing}
-              className="p-1.5 flex items-center justify-center rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50 touch-manipulation"
+              className="w-6 h-6 flex items-center justify-center rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50 touch-manipulation"
               title="Download verse image"
               type="button"
             >
               {capturing ? (
-                <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block pointer-events-none" />
+                <span className="w-3.5 h-3.5 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block pointer-events-none" />
               ) : (
-                <Download className="w-4 h-4 text-slate-800 pointer-events-none" />
+                <Download className="w-3.5 h-3.5 text-slate-800 pointer-events-none" />
               )}
             </button>
             {/* Unified menu button */}
@@ -474,11 +474,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                     setShowMenu(!showMenu);
                   }
                 }}
-                className="p-1.5 flex items-center justify-center rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md touch-manipulation"
+                className="w-6 h-6 flex items-center justify-center rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md touch-manipulation"
                 title="More options"
                 type="button"
               >
-                <MoreVertical className="w-4 h-4 text-slate-800 pointer-events-none" />
+                <MoreVertical className="w-3.5 h-3.5 text-slate-800 pointer-events-none" />
               </button>
               {/* Dropdown menu */}
               {showMenu && (
@@ -603,11 +603,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               e.stopPropagation();
               setShowButtons(true);
             }}
-            className="p-1.5 flex items-center justify-center rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md touch-manipulation"
+            className="w-6 h-6 flex items-center justify-center rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md touch-manipulation"
             title="Show buttons"
             type="button"
           >
-            <ChevronsDown className="w-4 h-4 text-slate-800 rotate-90 pointer-events-none" />
+            <ChevronsDown className="w-3.5 h-3.5 text-slate-800 rotate-90 pointer-events-none" />
           </button>
         ) : null}
       </div>
