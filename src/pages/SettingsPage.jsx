@@ -159,7 +159,6 @@ export default function SettingsPage() {
   const [dlProgress, setDlProgress] = useState(0);
   const [dlStatus, setDlStatus] = useState('');
   const [dlError, setDlError] = useState('');
-  const [debugReport, setDebugReport] = useState('');
 
   useEffect(() => {
     isBibleCached().then(async (isCached) => {
@@ -1229,86 +1228,6 @@ export default function SettingsPage() {
         </button>
         {expandedSections.advanced && (
           <div className="p-5 pt-0 space-y-4">
-            <button
-                onClick={async () => {
-                  try {
-                    let report = "--- CURRENT CACHED VERSE (What you see on the card) ---\n";
-                    const cachedRaw = localStorage.getItem('kjb-daily-verse-cache');
-                    let targetVerse = null;
-                    if (cachedRaw) {
-                      try {
-                        const parsed = JSON.parse(cachedRaw);
-                        if (parsed.verse) {
-                           targetVerse = parsed.verse;
-                        }
-                        report += JSON.stringify(parsed, null, 2) + "\n\n";
-                      } catch(e) {
-                        report += cachedRaw + "\n\n";
-                      }
-                    } else {
-                      report += "No cached verse found.\n\n";
-                    }
-
-                    report += "--- LIVE CALCULATIONS (What it would pick right now) ---\n";
-                    const bible = await import('@/lib/bibleCache').then(m => m.getBibleData());
-                    const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
-                    const d = new Date();
-                    const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
-                    
-                    const idx1 = seed % bookNames.length;
-                    const bookName = bookNames[idx1];
-                    const chapters = Object.keys(bible[bookName]);
-                    const idx2 = seed % chapters.length;
-                    const chapterNum = chapters[idx2];
-                    const verses = bible[bookName][chapterNum];
-                    const idx3 = seed % verses.length;
-                    const verseObj = verses[idx3];
-                    
-                    report += `Date: ${d.toLocaleDateString()}\nSeed: ${seed}\nOffline Book: ${idx1}=${bookName}\nOffline Chap: ${idx2}=${chapterNum}\nOffline Verse: ${idx3}=${verseObj.verse}\n\n`;
-                    
-                    try {
-                      const res = await base44.functions.invoke('bibleApi', { action: 'daily_verse', clientDate: `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}` });
-                      const apiVerse = res.data?.verse;
-                      report += `API returned: ${apiVerse?.book} ${apiVerse?.chapter}:${apiVerse?.verse}\n\n`;
-                    } catch (apiErr) {
-                      report += `API Error: ${apiErr.message}\n\n`;
-                    }
-                    
-                    report += "--- ALGORITHM SYNC ANALYSIS ---\n";
-                    try {
-                      const reqBody = targetVerse ? { book: targetVerse.book, chapter: targetVerse.chapter, verse: targetVerse.verse } : {};
-                      const syncRes = await base44.functions.invoke('testSeed', reqBody);
-                      if (syncRes.data && syncRes.data.report) {
-                        report += syncRes.data.report;
-                      }
-                    } catch (err) {
-                      report += `Sync analysis failed: ${err.message}\n`;
-                    }
-                    
-                    setDebugReport(report);
-                  } catch (e) {
-                    setDebugReport("Debug Error: " + e.message);
-                  }
-                }}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
-              >
-                <Bug className="w-4 h-4" />
-                Debug Daily Verse (Temp)
-            </button>
-            {debugReport && (
-              <div className="mt-3 p-3 bg-secondary rounded-xl">
-                <pre className="text-xs text-secondary-foreground whitespace-pre-wrap font-mono mb-3 max-h-64 overflow-y-auto">{debugReport}</pre>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(debugReport);
-                    toast.success("Copied to clipboard!");
-                  }}
-                  className="w-full py-2 bg-foreground text-background rounded font-sans text-sm font-medium"
-                >
-                  Copy Report
-                </button>
-              </div>
-            )}
             <div className="flex gap-3 pt-2">
               <button
                 onClick={async () => {
