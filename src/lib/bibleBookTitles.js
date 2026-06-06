@@ -29,6 +29,7 @@ export const RTF_TITLE_MAP = {
   'BOOK OF PSALMS': 'Psalms',
   'THE PROVERBS': 'Proverbs',
   'ECCLESIASTES': 'Ecclesiastes',
+  'ECCLESIASTES; OR THE PREACHER': 'Ecclesiastes',
   'THE SONG OF SOLOMON': 'Song of Solomon',
   'THE BOOK OF THE PROPHET ISAIAH': 'Isaiah',
   'THE BOOK OF THE PROPHET JEREMIAH': 'Jeremiah',

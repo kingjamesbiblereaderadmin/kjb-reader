@@ -6,7 +6,7 @@ import { base44 } from '@/api/base44Client';
 
 // Daily verses are now fetched entirely from the API so all users see the same verse.
 
-const DAILY_VERSE_CACHE_KEY = 'kjb-daily-verse-cache';
+const DAILY_VERSE_CACHE_KEY = 'kjb-daily-verse-cache-v2';
 
 function getTodayKey() {
   const d = new Date();

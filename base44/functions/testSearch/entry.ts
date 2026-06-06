@@ -4,7 +4,7 @@ Deno.serve(async (req) => {
   const path = await import("node:path");
 
   const body = await req.json().catch(() => ({}));
-  const query = 'kjb-daily-verse-cache';
+  const query = 'Galatians 2:3';
   
   const searchFiles = (dir) => {
     let results = [];
