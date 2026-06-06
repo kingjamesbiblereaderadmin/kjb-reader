@@ -69,17 +69,11 @@ export async function getDailyVerseFromBible() {
 
       const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
       
-      let currentSeed = seed;
-      const nextRandom = () => {
-        const x = Math.sin(currentSeed++) * 10000;
-        return x - Math.floor(x);
-      };
-
-      const bookName = bookNames[Math.floor(nextRandom() * bookNames.length)];
+      const bookName = bookNames[seed % bookNames.length];
       const chapters = Object.keys(bible[bookName]);
-      const chapterNum = chapters[Math.floor(nextRandom() * chapters.length)];
+      const chapterNum = chapters[seed % chapters.length];
       const verses = bible[bookName][chapterNum];
-      const verseObj = verses[Math.floor(nextRandom() * verses.length)];
+      const verseObj = verses[seed % verses.length];
       
       const text = verseObj.text.replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
       const bookData = BIBLE_BOOKS.find(b => b.name === bookName || b.shortName === bookName);
