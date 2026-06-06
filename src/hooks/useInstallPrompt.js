@@ -61,13 +61,18 @@ export function useInstallPrompt() {
     if (!globalDeferredPrompt) {
       return false;
     }
+    // Prevent "prompt() may only be called once" if user clicks multiple times rapidly
+    const promptEvent = globalDeferredPrompt;
+    globalDeferredPrompt = null;
+    setDeferredPrompt(null);
+    
     try {
-      globalDeferredPrompt.prompt();
-      const { outcome } = await globalDeferredPrompt.userChoice;
-      globalDeferredPrompt = null;
-      globalIsInstallable = false;
-      setDeferredPrompt(null);
-      setIsInstallable(false);
+      promptEvent.prompt();
+      const { outcome } = await promptEvent.userChoice;
+      if (outcome === 'accepted') {
+        globalIsInstallable = false;
+        setIsInstallable(false);
+      }
       return outcome === 'accepted';
     } catch (err) {
       console.error('Failed to prompt install', err);

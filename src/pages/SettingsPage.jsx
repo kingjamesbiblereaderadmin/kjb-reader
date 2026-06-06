@@ -879,7 +879,7 @@ export default function SettingsPage() {
               onClick={async () => {
                 const accepted = await promptInstall();
                 if (!accepted) {
-                  // Manual install instructions will show below
+                  alert('To install the app, please follow the manual instructions below using your browser menu.');
                 }
               }}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
