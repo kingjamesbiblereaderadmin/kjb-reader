@@ -107,9 +107,25 @@ export default function HomePage() {
                 if (reg.waiting) {
                   swUpdated = true;
                   reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                } else if (reg.installing && reg.installing.state === 'installed') {
-                  swUpdated = true;
-                  reg.installing.postMessage({ type: 'SKIP_WAITING' });
+                } else if (reg.installing) {
+                  if (reg.installing.state === 'installed') {
+                    swUpdated = true;
+                    reg.installing.postMessage({ type: 'SKIP_WAITING' });
+                  } else {
+                    await new Promise(resolve => {
+                      const worker = reg.installing;
+                      worker.addEventListener('statechange', () => {
+                        if (worker.state === 'installed') {
+                          swUpdated = true;
+                          worker.postMessage({ type: 'SKIP_WAITING' });
+                          resolve();
+                        } else if (worker.state === 'redundant') {
+                          resolve();
+                        }
+                      });
+                      setTimeout(resolve, 5000);
+                    });
+                  }
                 }
               }
             }
@@ -140,13 +156,13 @@ export default function HomePage() {
             await new Promise(r => setTimeout(r, 600));
 
             if (swUpdated && bibleNeedsUpdate) {
-              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "App & Bible updated successfully.", status: 'success' } }));
-              setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
-              return; // The service worker will reload the page shortly
+              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "App & Bible updated successfully. Reloading...", status: 'success' } }));
+              setTimeout(() => window.location.reload(), 1500);
+              return;
             } else if (swUpdated) {
-              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "App updated successfully.", status: 'success' } }));
-              setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
-              return; // The service worker will reload the page shortly
+              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "App updated successfully. Reloading...", status: 'success' } }));
+              setTimeout(() => window.location.reload(), 1500);
+              return;
             }
 
             // If no SW updates (or just Bible update), load the verse
