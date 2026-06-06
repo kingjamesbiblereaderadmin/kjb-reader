@@ -47,7 +47,7 @@ export default function RefreshCache() {
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="min-h-[50vh] flex flex-col items-center justify-center bg-background py-12">
       <div className="text-center space-y-4">
         {refreshing && !success ? (
           <>

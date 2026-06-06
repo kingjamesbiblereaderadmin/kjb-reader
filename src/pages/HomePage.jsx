@@ -32,9 +32,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (isUpdating) {
-      window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: updateText } }));
-    } else {
-      window.dispatchEvent(new Event('kjb-progress-clear'));
+      window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: updateText, status: 'loading' } }));
     }
   }, [isUpdating, updateText]);
 
@@ -46,7 +44,8 @@ export default function HomePage() {
       if (!lastCached.isToday) {
         setIsUpdating(true);
         setUpdateText("Loading today's verse...");
-        toast("Showing yesterday's verse while we fetch today's...", { icon: '⏳', duration: 3000 });
+        window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Showing yesterday's verse while we fetch today's...", status: 'info' } }));
+        setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
       }
     }
 
@@ -63,7 +62,8 @@ export default function HomePage() {
       setVerse(getDailyVerse());
       setIsUpdating(false);
       setIsOffline(true);
-      toast('You are offline. Showing a random verse.', { icon: '📴' });
+      window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'You are offline. Showing a random verse.', status: 'info' } }));
+      setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
     });
     
     // Preload Bible cache on home page mount to ensure italics are ready
@@ -151,13 +151,15 @@ export default function HomePage() {
             setVerse(v);
             setIsUpdating(false);
             setIsOffline(false);
-            toast.success("No new updates found. Today's verse loaded.", { duration: 2000 });
+            window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "No new updates found. Today's verse loaded.", status: 'success' } }));
+            setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
             scheduleDailyNotification();
           } catch (e) {
             setVerse(getDailyVerse());
             setIsUpdating(false);
             setIsOffline(true);
-            toast('You are offline. Showing a random verse.', { icon: '📴', duration: 2000 });
+            window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'You are offline. Showing a random verse.', status: 'info' } }));
+            setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
           }
         })();
       } else {
@@ -166,13 +168,15 @@ export default function HomePage() {
           setVerse(v);
           setIsUpdating(false);
           setIsOffline(false);
-          toast.success("Today's verse loaded.", { duration: 2000 });
+          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Today's verse loaded.", status: 'success' } }));
+          setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
           scheduleDailyNotification();
         }).catch(() => {
           setVerse(getDailyVerse());
           setIsUpdating(false);
           setIsOffline(true);
-          toast('You are offline. Showing a random verse.', { icon: '📴', id: 'pull-refresh' });
+          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'You are offline. Showing a random verse.', status: 'info' } }));
+          setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
         });
       }
     }
@@ -230,7 +234,8 @@ export default function HomePage() {
           setVerse(v);
           setIsUpdating(false);
           setIsOffline(false);
-          toast.success("Internet restored. Today's verse loaded.");
+          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Internet restored. Today's verse loaded.", status: 'success' } }));
+          setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
           scheduleDailyNotification();
         }).catch(() => {
           setVerse(getDailyVerse());

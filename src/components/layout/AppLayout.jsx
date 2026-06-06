@@ -250,7 +250,11 @@ export default function AppLayout() {
           <div className="flex items-center gap-0.5 sm:gap-2 shrink-0">
             <button 
               className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation ${isOnline ? 'border-border bg-secondary/30 text-green-600 dark:text-green-400 hover:bg-secondary/50' : 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/40'}`}
-              onClick={(e) => { e.stopPropagation(); toast(isOnline ? 'You are online' : 'You are offline (reading from cache)', { icon: isOnline ? '📶' : '📴' }); }}
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: isOnline ? 'You are online' : 'You are offline (reading from cache)', status: 'info' } }));
+                setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
+              }}
               title={isOnline ? 'Online' : 'Offline'}
               type="button"
             >
@@ -264,7 +268,8 @@ export default function AppLayout() {
 
                 // Offline: don't try to fetch — just confirm cached data is in use
                 if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-                  toast.info('Offline — using cached Bible');
+                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Offline — using cached Bible', status: 'info' } }));
+                  setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
                   return;
                 }
 
@@ -300,17 +305,19 @@ export default function AppLayout() {
                     // Banner will automatically show "Update ready" since swUpdated logic triggers 'kjb-update-available'
                     setRefreshing(false);
                   } else if (bibleUpdated) {
-                    toast.success('Update complete.', { duration: 2000 });
+                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Update complete.', status: 'success' } }));
+                    setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
                     setRefreshing(false);
                     softReload();
                   } else {
-                    toast.success('No new updates found.', { duration: 2000 });
+                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'No new updates found.', status: 'success' } }));
+                    setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
                     setRefreshing(false);
                   }
                 } catch (err) {
                   console.error('Refresh failed:', err);
-                  window.dispatchEvent(new Event('kjb-progress-clear'));
-                  toast.error('Failed to check for updates');
+                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Failed to check for updates', status: 'error' } }));
+                  setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
                   setRefreshing(false);
                 }
               }}
