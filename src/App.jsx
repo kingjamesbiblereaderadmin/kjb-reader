@@ -102,28 +102,7 @@ const AuthenticatedApp = () => {
 
   // Preload all route chunks in the background once auth resolves
   useEffect(() => { 
-    preloadAllRoutes(); 
-    
-    // Automatically check for service worker updates when the app becomes visible
-    const checkSWUpdate = () => {
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.ready.then(registration => {
-          registration.update();
-        });
-      }
-    };
-    
-    window.addEventListener('focus', checkSWUpdate);
-    window.addEventListener('online', checkSWUpdate);
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') checkSWUpdate();
-    });
-    
-    return () => {
-      window.removeEventListener('focus', checkSWUpdate);
-      window.removeEventListener('online', checkSWUpdate);
-      // document event listener is anonymous so it won't be perfectly removed here, but App rarely unmounts
-    };
+    preloadAllRoutes();
   }, []);
 
   // Don't return null while auth resolves — that causes a blank flash on reload.

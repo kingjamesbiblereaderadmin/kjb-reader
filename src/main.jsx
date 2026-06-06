@@ -108,13 +108,6 @@ window.addEventListener('load', async () => {
         });
       }
 
-      // Check for updates periodically (every 10 minutes when app is open)
-      setInterval(() => {
-        registration.update().then(() => {
-          console.log('[SW] Checked for updates');
-        }).catch(() => {});
-      }, 600000);
-      
       navigator.serviceWorker.addEventListener('message', event => {
         if (event.data?.type === 'UPDATE_AVAILABLE') {
           console.log('[SW] Update available, version:', event.data.cacheVersion);
