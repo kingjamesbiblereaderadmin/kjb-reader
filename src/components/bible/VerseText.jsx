@@ -48,12 +48,12 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
 
 
   const highlightColors = [
-    { name: 'accent', bg: 'bg-accent/40 dark:bg-accent/30', label: 'Default', color: 'hsl(var(--accent))' },
-    { name: 'yellow', bg: 'bg-yellow-300/40', label: 'Yellow', color: '#fde047' },
-    { name: 'green', bg: 'bg-green-300/40', label: 'Green', color: '#86efac' },
-    { name: 'blue', bg: 'bg-blue-300/40', label: 'Blue', color: '#93c5fd' },
-    { name: 'pink', bg: 'bg-pink-300/40', label: 'Pink', color: '#f9a8d4' },
-    { name: 'purple', bg: 'bg-purple-300/40', label: 'Purple', color: '#d8b4fe' },
+    { name: 'accent', bg: 'bg-accent/60 dark:bg-accent/50', label: 'Default', color: 'hsl(var(--accent))' },
+    { name: 'yellow', bg: 'bg-yellow-400/60 dark:bg-yellow-500/50', label: 'Yellow', color: '#facc15' },
+    { name: 'green', bg: 'bg-green-400/60 dark:bg-green-500/50', label: 'Green', color: '#4ade80' },
+    { name: 'blue', bg: 'bg-blue-400/60 dark:bg-blue-500/50', label: 'Blue', color: '#60a5fa' },
+    { name: 'pink', bg: 'bg-pink-400/60 dark:bg-pink-500/50', label: 'Pink', color: '#f472b6' },
+    { name: 'purple', bg: 'bg-purple-400/60 dark:bg-purple-500/50', label: 'Purple', color: '#c084fc' },
   ];
 
   // Intentionally no auto-highlight on navigation — the reader scrolls to the
@@ -83,13 +83,13 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
       ? highlightColors.find(c => c.name === highlightColor)?.color
       : null;
     const dropHighlight = dropRaw
-      ? (dropRaw.startsWith('#') ? `${dropRaw}66` : `hsl(var(--accent) / 0.4)`)
+      ? (dropRaw.startsWith('#') ? `${dropRaw}99` : `hsl(var(--accent) / 0.6)`)
       : null;
     const letterStyle = dropHighlight
       ? ` style="background-color:${dropHighlight};border-radius:0.1em;"`
       : '';
     // When the letter carries its own tint, mask the inline highlight behind the
-    // float with the page background so the two 40% layers don't stack into a
+    // float with the page background so the two layers don't stack into a
     // darker box. The number cell stays transparent (only the letter is masked).
     const groupStyle = dropHighlight
       ? ` style="background-color:hsl(var(--background));"`
