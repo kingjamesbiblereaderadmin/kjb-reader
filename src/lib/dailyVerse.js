@@ -6,7 +6,7 @@ import { base44 } from '@/api/base44Client';
 
 // Daily verses are now fetched entirely from the API so all users see the same verse.
 
-const DAILY_VERSE_CACHE_KEY = 'kjb-daily-verse-cache-v3';
+const DAILY_VERSE_CACHE_KEY = 'kjb-daily-verse-cache-v4';
 
 function getTodayKey() {
   const d = new Date();
@@ -52,27 +52,15 @@ export async function getDailyVerseFromBible() {
     if (bible && bible['Genesis']) {
       console.log("[DEBUG] Generating on-device daily verse...");
       const d = new Date();
-      let seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+      const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
 
-      const prng = () => {
-        const x = Math.sin(seed++) * 10000;
-        return x - Math.floor(x);
-      };
-
-      // Dispensational exceptions: Focus on Paul's Epistles to the Church
-      const paulineEpistles = [
-        'Romans', '1 Corinthians', '2 Corinthians', 'Galatians', 'Ephesians', 
-        'Philippians', 'Colossians', '1 Thessalonians', '2 Thessalonians', 
-        '1 Timothy', '2 Timothy', 'Titus', 'Philemon'
-      ];
+      const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
       
-      const bookNames = Object.keys(bible).filter(k => paulineEpistles.includes(k));
-      
-      const bookName = bookNames[Math.floor(prng() * bookNames.length)];
+      const bookName = bookNames[seed % bookNames.length];
       const chapters = Object.keys(bible[bookName]);
-      const chapterNum = chapters[Math.floor(prng() * chapters.length)];
+      const chapterNum = chapters[seed % chapters.length];
       const verses = bible[bookName][chapterNum];
-      const verseObj = verses[Math.floor(prng() * verses.length)];
+      const verseObj = verses[seed % verses.length];
       
       const text = verseObj.text.replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
       const bookData = BIBLE_BOOKS.find(b => b.name === bookName || b.shortName === bookName);
