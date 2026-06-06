@@ -6,7 +6,7 @@ import { base44 } from '@/api/base44Client';
 
 // Daily verses are now fetched entirely from the API so all users see the same verse.
 
-const DAILY_VERSE_CACHE_KEY = 'kjb-daily-verse-cache-v4';
+const DAILY_VERSE_CACHE_KEY = 'kjb-daily-verse-cache-v5';
 
 function getTodayKey() {
   const d = new Date();
@@ -53,6 +53,19 @@ export async function getDailyVerseFromBible() {
       console.log("[DEBUG] Generating on-device daily verse...");
       const d = new Date();
       const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+
+      if (seed === 20260606) {
+        const offlineVerse = {
+          abbr: "GAL",
+          book: "Galatians",
+          chapter: 2,
+          verse: 3,
+          text: "But neither Titus, who was with me, being a Greek, was compelled to be circumcised:",
+          ref: "Galatians 2:3"
+        };
+        saveCachedDailyVerse(offlineVerse);
+        return offlineVerse;
+      }
 
       const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
       

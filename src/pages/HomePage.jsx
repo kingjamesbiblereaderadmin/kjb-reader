@@ -60,6 +60,35 @@ export default function HomePage() {
     import('@/lib/bibleCache').then(({ getBibleData }) => {
       getBibleData().catch(() => {});
     });
+
+    // Schedule an automatic refresh exactly at local midnight
+    let midnightTimer;
+    const scheduleMidnightRefresh = () => {
+      const now = new Date();
+      const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      const msUntilMidnight = tomorrow.getTime() - now.getTime() + 1000; // 1 second after midnight
+      
+      midnightTimer = setTimeout(() => {
+        setIsUpdating(true);
+        getDailyVerseFromBible().then(v => {
+          setVerse(v);
+          setIsUpdating(false);
+          setIsOffline(false);
+          scheduleMidnightRefresh(); // Schedule for the next night
+        }).catch(() => {
+          setVerse(getDailyVerse());
+          setIsUpdating(false);
+          setIsOffline(true);
+          scheduleMidnightRefresh();
+        });
+      }, msUntilMidnight);
+    };
+
+    scheduleMidnightRefresh();
+
+    return () => {
+      if (midnightTimer) clearTimeout(midnightTimer);
+    };
   }, []);
 
   const swipedRef = useRef(false);
