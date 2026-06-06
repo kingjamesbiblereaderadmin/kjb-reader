@@ -150,7 +150,7 @@ function App() {
                 <AuthenticatedApp />
               </Router>
               <Toaster />
-              <SonnerToaster position="top-center" />
+              <SonnerToaster position="top-center" offset={70} />
             </QueryClientProvider>
           </SoftReloadProvider>
         </HeaderHideProvider>
