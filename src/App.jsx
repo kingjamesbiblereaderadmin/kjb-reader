@@ -109,12 +109,14 @@ const AuthenticatedApp = () => {
     };
     
     window.addEventListener('focus', checkSWUpdate);
+    window.addEventListener('online', checkSWUpdate);
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') checkSWUpdate();
     });
     
     return () => {
       window.removeEventListener('focus', checkSWUpdate);
+      window.removeEventListener('online', checkSWUpdate);
       // document event listener is anonymous so it won't be perfectly removed here, but App rarely unmounts
     };
   }, []);
