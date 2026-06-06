@@ -126,6 +126,16 @@ function loadCachedDailyVerse() {
   return null;
 }
 
+export function getLastCachedVerse() {
+  try {
+    const raw = localStorage.getItem(DAILY_VERSE_CACHE_KEY);
+    if (!raw) return null;
+    const { dateKey, verse } = JSON.parse(raw);
+    return { verse, isOld: dateKey !== getTodayKey() };
+  } catch {}
+  return null;
+}
+
 function saveCachedDailyVerse(verse) {
   try {
     localStorage.setItem(DAILY_VERSE_CACHE_KEY, JSON.stringify({ dateKey: getTodayKey(), verse }));
