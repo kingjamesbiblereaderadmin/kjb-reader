@@ -169,8 +169,12 @@ Deno.serve(async (req) => {
         .replace(/¶\s*/g, '')
         .replace(/^<<[^>]*>>\s*/, '');
 
+      const abbrMatches = Object.entries(ABBR_TO_NAME).find(([k, v]) => v === bookName);
+      const abbr = abbrMatches ? abbrMatches[0] : bookName.slice(0, 3).toUpperCase();
+
       return Response.json({
         verse: {
+          abbr,
           book: bookName,
           chapter: parseInt(chapterNum),
           verse: verseObj.verse,
