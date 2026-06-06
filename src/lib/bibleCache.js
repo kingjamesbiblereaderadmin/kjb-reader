@@ -113,13 +113,21 @@ async function fetchWithRetry(url, retries = 5, expectPilcrows = false) {
   }
 }
 
-// Version is now an in-code constant — no network call. We compare it to the
-// version stored alongside the cached data; if they differ, we re-download.
+// We dynamically check the remote file's ETag or Last-Modified header.
+// This ensures that whenever the Bible text file changes on the server,
+// the cache automatically invalidates without needing a code update.
 async function checkForUpdates() {
-  remoteVersion = CACHE_VERSION;
   const localVersion = localStorage.getItem('bible_cache_version');
-  if (localVersion !== CACHE_VERSION) {
-    console.log('[UPDATE] Code version', CACHE_VERSION, 'differs from cached', localVersion);
+  try {
+    const res = await fetch(PCE_TEXT_FILE_URL, { method: 'HEAD', cache: 'no-store' });
+    const etag = res.headers.get('etag') || res.headers.get('last-modified');
+    remoteVersion = etag || CACHE_VERSION;
+  } catch (err) {
+    // If offline or fetch fails, assume no updates are needed so we don't break the cache
+    remoteVersion = localVersion || CACHE_VERSION; 
+  }
+  if (localVersion !== remoteVersion) {
+    console.log('[UPDATE] Remote version', remoteVersion, 'differs from cached', localVersion);
     return true;
   }
   return false;
@@ -245,11 +253,23 @@ export async function getBibleData() {
         console.log('[CACHE] Cache outdated, fetching fresh...');
       }
 
-      console.log('[FETCH] No cache, fetching fresh Bible data...');
-      parsedData = await fetchAndParse();
-      await saveToCache(parsedData);
-      console.log('[CACHE] ✓ Fresh data saved');
-      return parsedData;
+      if (!cached) {
+        console.log('[FETCH] No cache, fetching fresh Bible data...');
+      }
+      
+      try {
+        parsedData = await fetchAndParse();
+        await saveToCache(parsedData);
+        console.log('[CACHE] ✓ Fresh data saved');
+        return parsedData;
+      } catch (fetchErr) {
+        if (cached) {
+          console.warn('[FETCH] Update failed, falling back to existing cache:', fetchErr.message);
+          parsedData = cached;
+          return parsedData;
+        }
+        throw fetchErr;
+      }
     } catch (error) {
       console.error('All fetch attempts failed:', error.message);
       // Return minimal data with colophons for offline mode
