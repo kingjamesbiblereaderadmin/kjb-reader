@@ -144,7 +144,12 @@ Deno.serve(async (req) => {
         seed = today.getUTCFullYear() * 10000 + (today.getUTCMonth() + 1) * 100 + today.getUTCDate();
       }
 
-      const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
+      const PAULINE_EPISTLES = [
+        'Romans', '1 Corinthians', '2 Corinthians', 'Galatians', 'Ephesians', 
+        'Philippians', 'Colossians', '1 Thessalonians', '2 Thessalonians', 
+        '1 Timothy', '2 Timothy', 'Titus', 'Philemon'
+      ];
+      const bookNames = Object.keys(bible).filter(k => PAULINE_EPISTLES.includes(k));
       if (!bookNames.length) {
         return Response.json({ error: 'No bible data' }, { status: 500 });
       }

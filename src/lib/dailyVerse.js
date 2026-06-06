@@ -6,7 +6,7 @@ import { base44 } from '@/api/base44Client';
 
 // Daily verses are now fetched entirely from the API so all users see the same verse.
 
-const DAILY_VERSE_CACHE_KEY = 'kjb-daily-verse-cache-v2';
+const DAILY_VERSE_CACHE_KEY = 'kjb-daily-verse-cache-v3';
 
 function getTodayKey() {
   const d = new Date();
@@ -36,8 +36,7 @@ function saveCachedDailyVerse(verse) {
   } catch {}
 }
 
-// Fetch today's daily verse from the API.
-// Result is cached in localStorage so online and offline always show the same verse.
+// Generate today's daily verse entirely on-device (no API).
 export async function getDailyVerseFromBible() {
   console.log("[DEBUG] getDailyVerseFromBible called");
   // Return today's cached verse if already picked
@@ -47,39 +46,33 @@ export async function getDailyVerseFromBible() {
     return cached;
   }
 
-  if (typeof navigator !== 'undefined' && navigator.onLine) {
-    console.log("[DEBUG] Fetching daily verse from API...");
-    try {
-      // Pass the client's local date so the daily verse rolls over exactly at local midnight
-      const res = await base44.functions.invoke('bibleApi', { action: 'daily_verse', clientDate: getTodayKey() });
-      if (res.data && res.data.verse) {
-        const verse = res.data.verse;
-        const bookData = BIBLE_BOOKS.find(b => b.name === verse.book || b.shortName === verse.book);
-        verse.abbr = bookData ? bookData.abbr : verse.book.slice(0, 3).toUpperCase();
-        verse.book = bookData ? bookData.shortName : verse.book;
-        saveCachedDailyVerse(verse);
-        return verse;
-      }
-    } catch (e) {
-      console.error('Failed to fetch daily verse from API', e);
-    }
-  }
-
-  // Try to generate a deterministic offline verse using cached data to match the server exactly
+  // Try to generate a deterministic offline verse using cached data
   try {
     const bible = await getBibleData();
     if (bible && bible['Genesis']) {
-      console.log("[DEBUG] Generating offline fallback verse...");
+      console.log("[DEBUG] Generating on-device daily verse...");
       const d = new Date();
-      const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+      let seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
 
-      const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
+      const prng = () => {
+        const x = Math.sin(seed++) * 10000;
+        return x - Math.floor(x);
+      };
+
+      // Dispensational exceptions: Focus on Paul's Epistles to the Church
+      const paulineEpistles = [
+        'Romans', '1 Corinthians', '2 Corinthians', 'Galatians', 'Ephesians', 
+        'Philippians', 'Colossians', '1 Thessalonians', '2 Thessalonians', 
+        '1 Timothy', '2 Timothy', 'Titus', 'Philemon'
+      ];
       
-      const bookName = bookNames[seed % bookNames.length];
+      const bookNames = Object.keys(bible).filter(k => paulineEpistles.includes(k));
+      
+      const bookName = bookNames[Math.floor(prng() * bookNames.length)];
       const chapters = Object.keys(bible[bookName]);
-      const chapterNum = chapters[seed % chapters.length];
+      const chapterNum = chapters[Math.floor(prng() * chapters.length)];
       const verses = bible[bookName][chapterNum];
-      const verseObj = verses[seed % verses.length];
+      const verseObj = verses[Math.floor(prng() * verses.length)];
       
       const text = verseObj.text.replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
       const bookData = BIBLE_BOOKS.find(b => b.name === bookName || b.shortName === bookName);
@@ -97,10 +90,10 @@ export async function getDailyVerseFromBible() {
       return offlineVerse;
     }
   } catch (e) {
-    console.error('Failed to pick offline verse', e);
+    console.error('Failed to pick on-device verse', e);
   }
 
-  // If offline or API fails and no local data, return the offline fallback
+  // If local data fails, return the offline fallback
   return getDailyVerse();
 }
 
