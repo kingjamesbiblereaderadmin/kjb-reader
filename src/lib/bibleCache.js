@@ -113,21 +113,13 @@ async function fetchWithRetry(url, retries = 5, expectPilcrows = false) {
   }
 }
 
-// We dynamically check the remote file's ETag or Last-Modified header.
-// This ensures that whenever the Bible text file changes on the server,
-// the cache automatically invalidates without needing a code update.
+// We use the CACHE_VERSION constant from code to determine if updates are needed.
+// This avoids unnecessary network requests and prevents false-positive version mismatches.
 export async function checkForUpdates() {
   const localVersion = localStorage.getItem('bible_cache_version');
-  try {
-    const res = await fetch(PCE_TEXT_FILE_URL, { method: 'HEAD', cache: 'no-store' });
-    const etag = res.headers.get('etag') || res.headers.get('last-modified');
-    remoteVersion = etag || CACHE_VERSION;
-  } catch (err) {
-    // If offline or fetch fails, assume no updates are needed so we don't break the cache
-    remoteVersion = localVersion || CACHE_VERSION; 
-  }
+  remoteVersion = CACHE_VERSION;
   if (localVersion !== remoteVersion) {
-    console.log('[UPDATE] Remote version', remoteVersion, 'differs from cached', localVersion);
+    console.log('[UPDATE] Code version', remoteVersion, 'differs from cached', localVersion);
     return true;
   }
   return false;

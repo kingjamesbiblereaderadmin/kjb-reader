@@ -106,17 +106,9 @@ export default function OfflineStatusBanner() {
     );
   }
 
-  // Online but no Bible cache yet
+  // Online but no Bible cache yet - handled silently in background
   if (isOnline && !bibleReady) {
-    return (
-      <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/40 text-blue-800 dark:text-blue-300 mb-4 relative">
-        <RefreshCw className="w-4 h-4 flex-shrink-0 animate-spin" />
-        <p className="font-sans text-xs font-medium flex-1 pr-6">Downloading the offline Bible...</p>
-        <button onClick={() => setDismissed(true)} className="absolute right-3 p-1 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-md transition-colors">
-          <X className="w-4 h-4 opacity-70 hover:opacity-100" />
-        </button>
-      </div>
-    );
+    return null;
   }
 
   return null;
