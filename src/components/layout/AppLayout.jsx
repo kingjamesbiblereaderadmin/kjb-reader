@@ -132,7 +132,29 @@ export default function AppLayout() {
         console.log('[AppLayout] Offline — skipping Bible update check');
         return;
       }
+      
+      const firstLoadToastId = 'first-load-update';
+      toast.loading('Checking for updates...', { id: firstLoadToastId });
+      
       try {
+        let swUpdated = false;
+        if ('serviceWorker' in navigator) {
+          const reg = await navigator.serviceWorker.ready;
+          await reg.update();
+          if (reg.waiting || reg.installing) {
+            swUpdated = true;
+          }
+        }
+        
+        if (swUpdated) {
+          localStorage.removeItem('kjb-daily-verse-cache');
+          toast.loading('Updating...', { id: firstLoadToastId });
+          setTimeout(() => window.location.reload(), 500);
+          return;
+        } else {
+          toast.dismiss(firstLoadToastId);
+        }
+
         const { autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
 
         // Use Promise.race to timeout after 30 seconds
@@ -145,6 +167,7 @@ export default function AppLayout() {
 
         console.log('[AppLayout] App initialized', result);
       } catch (err) {
+        toast.dismiss('first-load-update');
         console.error('[AppLayout] Initialization failed:', err.message);
         // Don't show error to user - app can still work with cached data
       }
@@ -246,7 +269,7 @@ export default function AppLayout() {
                 }
 
                 setRefreshing(true);
-                const checkToastId = toast.loading('Checking for updates…');
+                const checkToastId = toast.loading('Checking for updates...');
                 try {
                   let swUpdated = false;
                   if ('serviceWorker' in navigator) {
@@ -262,7 +285,7 @@ export default function AppLayout() {
                   const bibleUpdated = (localVer && localVer !== CACHE_VERSION);
 
                   if (bibleUpdated) {
-                    toast.loading('Updating Bible data…', { id: checkToastId });
+                    toast.loading('Updating Bible data...', { id: checkToastId });
                     localStorage.removeItem('bible_cache_version');
                     localStorage.removeItem('bible_last_refresh');
                     await downloadBibleForOffline();
@@ -271,7 +294,7 @@ export default function AppLayout() {
                   if (swUpdated) {
                     // Wipe daily verse cache on code update so new verse logic applies immediately
                     localStorage.removeItem('kjb-daily-verse-cache');
-                    toast.loading('Applying updates…', { id: checkToastId });
+                    toast.loading('Updating...', { id: checkToastId });
                     setTimeout(() => window.location.reload(), 500);
                   } else {
                     toast.dismiss(checkToastId);
