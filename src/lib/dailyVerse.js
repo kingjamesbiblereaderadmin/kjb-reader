@@ -116,24 +116,19 @@ function getTodayKey() {
   return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 }
 
-function loadCachedDailyVerse() {
+export function getLastCachedDailyVerse() {
   try {
     const raw = localStorage.getItem(DAILY_VERSE_CACHE_KEY);
     if (!raw) return null;
     const { dateKey, verse } = JSON.parse(raw);
-    if (dateKey === getTodayKey()) return verse;
+    return { ...verse, isToday: dateKey === getTodayKey() };
   } catch {}
   return null;
 }
 
-export function getLastCachedVerse() {
-  try {
-    const raw = localStorage.getItem(DAILY_VERSE_CACHE_KEY);
-    if (!raw) return null;
-    const { dateKey, verse } = JSON.parse(raw);
-    return { verse, isOld: dateKey !== getTodayKey() };
-  } catch {}
-  return null;
+function loadCachedDailyVerse() {
+  const last = getLastCachedDailyVerse();
+  return (last && last.isToday) ? last : null;
 }
 
 function saveCachedDailyVerse(verse) {

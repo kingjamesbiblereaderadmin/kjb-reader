@@ -4,7 +4,7 @@ import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import OfflineStatusBanner from '@/components/OfflineStatusBanner';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
-import { getDailyVerse, getDailyVerseFromBible, getLastCachedVerse } from '@/lib/dailyVerse';
+import { getDailyVerse, getDailyVerseFromBible, getLastCachedDailyVerse } from '@/lib/dailyVerse';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications, showLocalNotification } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 
@@ -24,32 +24,31 @@ export default function HomePage() {
   const navigate = useNavigate();
   const [verse, setVerse] = useState(null);
   const [isOffline, setIsOffline] = useState(false);
-  const [isUpdatingDaily, setIsUpdatingDaily] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const touchStartY = useRef(0);
   const touchEndY = useRef(0);
 
   useEffect(() => {
-    const cached = getLastCachedVerse();
-    if (cached) {
-      setVerse(cached.verse);
-      if (cached.isOld) setIsUpdatingDaily(true);
-    } else {
-      setIsUpdatingDaily(true);
+    // 1. Immediately show the last cached verse (even if it's from yesterday)
+    const lastCached = getLastCachedDailyVerse();
+    if (lastCached) {
+      setVerse(lastCached);
+      if (!lastCached.isToday) {
+        setIsUpdating(true);
+      }
     }
 
-    // Use the full-Bible daily verse (deterministic per calendar day across all
-    // 31k+ verses). Falls back to the small static pool only if data isn't ready.
+    // 2. Fetch today's verse in the background
     getDailyVerseFromBible().then(v => {
       setVerse(v);
+      setIsUpdating(false);
       setIsOffline(false);
-      setIsUpdatingDaily(false);
     }).catch(() => {
-      if (!cached) {
-        setVerse(getDailyVerse());
-      }
+      setVerse(getDailyVerse());
+      setIsUpdating(false);
       setIsOffline(true);
-      setIsUpdatingDaily(false);
     });
+    
     // Preload Bible cache on home page mount to ensure italics are ready
     import('@/lib/bibleCache').then(({ getBibleData }) => {
       getBibleData().catch(() => {});
@@ -254,10 +253,10 @@ export default function HomePage() {
 
       {/* Daily verse card */}
       <div className="w-full mb-6 relative">
-        {isUpdatingDaily && verse && (
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 bg-secondary/90 backdrop-blur text-secondary-foreground text-xs px-3 py-1.5 rounded-full shadow-sm border border-border flex items-center gap-2 font-sans">
-            <div className="w-3 h-3 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-            Updating to today's verse...
+        {isUpdating && (
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-secondary text-secondary-foreground text-xs px-3 py-1 rounded-full shadow-sm z-10 flex items-center gap-1.5 border border-border">
+            <RotateCw className="w-3 h-3 animate-spin" />
+            Updating today's verse...
           </div>
         )}
         {verse ? (
