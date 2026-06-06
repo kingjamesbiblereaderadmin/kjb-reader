@@ -7,7 +7,6 @@ import BibleSearchBar from '@/components/bible/BibleSearchBar';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import ScrollToTop from '@/components/ScrollToTop';
 import AutoUpdateHandler from '@/components/AutoUpdateHandler';
-import UpdateBanner from '@/components/UpdateBanner';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, initNotifications } from '@/lib/notifications';
 import { getBibleData, isBibleCached, initPeriodicCacheRefresh, downloadBibleForOffline, refreshCacheIfDue, CACHE_VERSION } from '@/lib/bibleCache';
@@ -143,17 +142,26 @@ export default function AppLayout() {
           const reg = await navigator.serviceWorker.getRegistration();
           if (reg) {
             await reg.update().catch(() => {});
-            // The banner handles user interaction. Just check if an update is pending.
-            if (reg.waiting || (reg.installing && reg.installing.state === 'installed')) {
+            if (reg.waiting || reg.installing) {
               swUpdated = true;
+              if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+              if (reg.installing) {
+                reg.installing.addEventListener('statechange', () => {
+                  if (reg.installing?.state === 'installed') reg.installing.postMessage({ type: 'SKIP_WAITING' });
+                });
+              }
             }
           }
         }
 
         if (swUpdated) {
           localStorage.removeItem('kjb-daily-verse-cache');
+          toast.loading('Updating...', { id: firstLoadToastId });
+          setTimeout(() => window.location.reload(), 3000); // Fallback if controllerchange fails
+          return;
+        } else {
+          toast.dismiss(firstLoadToastId);
         }
-        toast.dismiss(firstLoadToastId);
 
         const { autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
 
@@ -276,7 +284,24 @@ export default function AppLayout() {
                     const reg = await navigator.serviceWorker.getRegistration();
                     if (reg) {
                       await reg.update().catch(() => {});
-                      if (reg.waiting || (reg.installing && reg.installing.state === 'installed')) {
+                      // If the SW was updated (sw.js changed), activate it
+                      if (reg.waiting || reg.installing) {
+                        swUpdated = true;
+                        if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                        if (reg.installing) {
+                          reg.installing.addEventListener('statechange', () => {
+                            if (reg.installing.state === 'installed') reg.installing.postMessage({ type: 'SKIP_WAITING' });
+                          });
+                        }
+                      }
+                    }
+                    
+                    // Force an app cache clear so that even if sw.js hasn't changed byte-for-byte,
+                    // we flush out the old HTML/JS/CSS assets and fetch fresh ones on reload.
+                    const cacheKeys = await caches.keys();
+                    for (const key of cacheKeys) {
+                      if (key.startsWith('kjb-shell')) {
+                        await caches.delete(key);
                         swUpdated = true;
                       }
                     }
@@ -296,8 +321,10 @@ export default function AppLayout() {
                   if (swUpdated) {
                     // Wipe daily verse cache on code update so new verse logic applies immediately
                     localStorage.removeItem('kjb-daily-verse-cache');
-                    toast.success('Update ready. Click the banner above to reload.', { id: checkToastId, duration: 4000 });
-                    setRefreshing(false);
+                    toast.loading('Updating...', { id: checkToastId });
+                    // Don't hard-reload immediately. main.jsx will reload when the new SW takes control.
+                    // Fallback reload just in case controllerchange doesn't fire
+                    setTimeout(() => window.location.reload(), 3000);
                   } else if (bibleUpdated) {
                     toast.success('Update complete.', { id: checkToastId, duration: 2000 });
                     setRefreshing(false);
@@ -334,8 +361,6 @@ export default function AppLayout() {
           </div>
         </div>
 
-        <UpdateBanner />
-        
         {menuOpen && (
           <>
             <div
