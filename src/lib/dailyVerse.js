@@ -49,7 +49,8 @@ export async function getDailyVerseFromBible() {
 
   if (typeof navigator !== 'undefined' && navigator.onLine) {
     try {
-      const res = await base44.functions.invoke('bibleApi', { action: 'daily_verse' });
+      // Pass the client's local date so the daily verse rolls over exactly at local midnight
+      const res = await base44.functions.invoke('bibleApi', { action: 'daily_verse', clientDate: getTodayKey() });
       if (res.data && res.data.verse) {
         const verse = res.data.verse;
         const bookData = BIBLE_BOOKS.find(b => b.name === verse.book || b.shortName === verse.book);

@@ -24,24 +24,29 @@ export default function OfflineStatusBanner() {
   }, []);
 
   useEffect(() => {
-    isBibleCached().then(cached => {
-      setBibleReady(cached);
-      if (cached) {
-        const localVer = localStorage.getItem('bible_cache_version');
-        const stale = !!localVer && localVer !== CACHE_VERSION;
-        setCacheStale(stale);
-        // Auto-update immediately when stale and online
-        if (stale && navigator.onLine && !didAutoUpdate.current) {
-          didAutoUpdate.current = true;
-          setUpdating(true);
-          downloadBibleForOffline().then(() => {
-            setDone(true);
-            setCacheStale(false);
-            setTimeout(() => setDone(false), 2000);
-          }).catch(() => setUpdating(false));
+    const checkCache = () => {
+      isBibleCached().then(cached => {
+        setBibleReady(cached);
+        if (cached) {
+          const localVer = localStorage.getItem('bible_cache_version');
+          const stale = !!localVer && localVer !== CACHE_VERSION;
+          setCacheStale(stale);
+          // Auto-update immediately when stale and online
+          if (stale && navigator.onLine && !didAutoUpdate.current) {
+            didAutoUpdate.current = true;
+            setUpdating(true);
+            downloadBibleForOffline().then(() => {
+              setDone(true);
+              setCacheStale(false);
+              setTimeout(() => setDone(false), 2000);
+            }).catch(() => setUpdating(false));
+          }
         }
-      }
-    });
+      });
+    };
+    checkCache();
+    window.addEventListener('kjb-cache-updated', checkCache);
+    return () => window.removeEventListener('kjb-cache-updated', checkCache);
   }, [isOnline]);
 
   const handleUpdate = async () => {

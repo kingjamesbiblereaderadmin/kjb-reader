@@ -428,6 +428,7 @@ export async function autoDownloadBibleOnFirstLoad() {
 
     const data = await fetchAndParse();
     await saveToCache(data);
+    if (typeof window !== 'undefined') window.dispatchEvent(new Event('kjb-cache-updated'));
     console.log('[AUTO-DOWNLOAD] ✓ Bible saved for offline access');
     return { downloaded: true, updated: hasValidCache };
   } catch (err) {

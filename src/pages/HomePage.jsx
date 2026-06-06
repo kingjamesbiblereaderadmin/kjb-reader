@@ -138,12 +138,13 @@ export default function HomePage() {
     // Listen for storage events (syncs across tabs/pages)
     window.addEventListener('storage', handleStorageChange);
     
-    // Also check on focus (when user returns to the app)
+    // Also check on focus and online (when user returns to the app or internet is restored)
     const handleFocus = () => {
       setNotifEnabled(getNotificationsEnabled());
       // Check if it's a new day and update the verse if needed
       const lastCached = getLastCachedDailyVerse();
-      if (lastCached && !lastCached.isToday && !isUpdating) {
+      // Only fetch if we don't have today's verse cached
+      if (!lastCached || !lastCached.isToday) {
         setIsUpdating(true);
         getDailyVerseFromBible().then(v => {
           setVerse(v);
@@ -159,6 +160,7 @@ export default function HomePage() {
       }
     };
     window.addEventListener('focus', handleFocus);
+    window.addEventListener('online', handleFocus);
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') handleFocus();
     });
@@ -166,6 +168,7 @@ export default function HomePage() {
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('online', handleFocus);
       document.removeEventListener('visibilitychange', handleFocus);
     };
   }, []);

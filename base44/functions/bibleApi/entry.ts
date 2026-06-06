@@ -130,9 +130,15 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'daily_verse') {
-      // Date-seeded daily verse (same verse for all users on a given UTC day)
-      const today = new Date();
-      const seed = today.getUTCFullYear() * 10000 + (today.getUTCMonth() + 1) * 100 + today.getUTCDate();
+      // Use client's local date if provided, otherwise fallback to UTC
+      let seed;
+      if (body.clientDate) {
+        const [y, m, d] = body.clientDate.split('-').map(Number);
+        seed = y * 10000 + m * 100 + d;
+      } else {
+        const today = new Date();
+        seed = today.getUTCFullYear() * 10000 + (today.getUTCMonth() + 1) * 100 + today.getUTCDate();
+      }
 
       const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
       if (!bookNames.length) {
