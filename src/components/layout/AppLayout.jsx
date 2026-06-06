@@ -233,45 +233,21 @@ export default function AppLayout() {
               {isOnline ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
             </div>
             <div className="w-9 h-9 sm:w-10 sm:h-10 pointer-events-auto shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
-              onClick={async (e) => {
+              onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {}
-                if (refreshing) return;
-
-                // Offline: don't try to fetch — just confirm cached data is in use
+                
                 if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-                  toast.info('Offline — using cached Bible');
+                  toast.error('You must be online to refresh the cache.');
                   return;
                 }
-
-                setRefreshing(true);
-                const checkToastId = toast.loading('Checking for updates…');
-                try {
-                  // Compare the in-code CACHE_VERSION against what's stored locally.
-                  const localVer = localStorage.getItem('bible_cache_version');
-
-                  if (localVer && localVer !== CACHE_VERSION) {
-                    // Actual new version available
-                    toast.loading('New version found — updating Bible data…', { id: checkToastId });
-                    localStorage.removeItem('bible_cache_version');
-                    localStorage.removeItem('bible_last_refresh');
-                    await downloadBibleForOffline();
-                    toast.loading('Reloading…', { id: checkToastId });
-                    setTimeout(() => toast.dismiss(checkToastId), 1200);
-                    window.location.reload();
-                  } else {
-                    toast.success('✅ Already up to date', { id: checkToastId });
-                  }
-                } catch (err) {
-                  console.error('Refresh failed:', err);
-                  toast.error('Failed to check for updates', { id: checkToastId });
-                }
-                setRefreshing(false);
+                
+                navigate('/refresh-cache');
               }}
               style={{ touchAction: 'manipulation' }}
               role="button"
-              aria-label="Refresh and update cache"
+              aria-label="Refresh cache"
             >
               <RotateCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             </div>
