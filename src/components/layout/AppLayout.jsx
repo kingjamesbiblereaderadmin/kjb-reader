@@ -256,6 +256,106 @@ export default function AppLayout() {
               {isOnline ? <Wifi className="w-4 h-4 pointer-events-none" /> : <WifiOff className="w-4 h-4 pointer-events-none" />}
             </button>
             <button className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer touch-manipulation"
+              onClick={async (e) => {
+                e.stopPropagation();
+                try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {}
+                if (refreshing) return;
+
+                // Offline: don't try to fetch — just confirm cached data is in use
+                if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Offline — using cached Bible', status: 'info' } }));
+                setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
+                return;
+                }
+
+                setRefreshing(true);
+                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Checking for updates...' } }));
+                try {
+                  let swUpdated = false;
+                  if ('serviceWorker' in navigator) {
+                    const reg = await navigator.serviceWorker.getRegistration();
+                    if (reg) {
+                      await reg.update().catch(() => {});
+                      if (reg.waiting) {
+                        swUpdated = true;
+                        // Tell waiting worker to skip waiting to apply the update immediately
+                        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                      } else if (reg.installing) {
+                        if (reg.installing.state === 'installed') {
+                          swUpdated = true;
+                          reg.installing.postMessage({ type: 'SKIP_WAITING' });
+                        } else {
+                          await new Promise(resolve => {
+                            const worker = reg.installing;
+                            worker.addEventListener('statechange', () => {
+                              if (worker.state === 'installed') {
+                                swUpdated = true;
+                                worker.postMessage({ type: 'SKIP_WAITING' });
+                                resolve();
+                              } else if (worker.state === 'redundant') {
+                                resolve();
+                              }
+                            });
+                            setTimeout(resolve, 5000);
+                          });
+                        }
+                      }
+                    }
+                  }
+
+                  // Check if the remote Bible file has actually changed via ETag/Last-Modified
+                  const { checkForUpdates } = await import('@/lib/bibleCache');
+                  const bibleNeedsUpdate = await checkForUpdates();
+
+                  if (bibleNeedsUpdate && swUpdated) {
+                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Updating app & Bible data...' } }));
+                  } else if (bibleNeedsUpdate) {
+                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Updating Bible data...' } }));
+                  } else if (swUpdated) {
+                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Updating app...' } }));
+                  }
+
+                  if (bibleNeedsUpdate) {
+                    localStorage.removeItem('bible_cache_version');
+                    localStorage.removeItem('bible_last_refresh');
+                    await downloadBibleForOffline();
+                  }
+                  
+                  // Ensure the checking message is visible for at least a brief moment so it doesn't flash
+                  await new Promise(r => setTimeout(r, 600));
+                  
+                  window.dispatchEvent(new Event('kjb-progress-clear'));
+                  if (swUpdated && bibleNeedsUpdate) {
+                    localStorage.removeItem('kjb-daily-verse-cache');
+                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App & Bible updated successfully. Reloading...', status: 'success' } }));
+                    setTimeout(() => window.location.reload(), 1500);
+                  } else if (swUpdated) {
+                    localStorage.removeItem('kjb-daily-verse-cache');
+                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App updated successfully. Reloading...', status: 'success' } }));
+                    setTimeout(() => window.location.reload(), 1500);
+                  } else if (bibleNeedsUpdate) {
+                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Bible updated successfully.', status: 'success' } }));
+                    setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
+                    setRefreshing(false);
+                    softReload();
+                  } else {
+                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App & Bible are up to date.', status: 'info' } }));
+                    setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
+                    setRefreshing(false);
+                  }
+                } catch (err) {
+                  console.error('Refresh failed:', err);
+                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Failed to check for updates', status: 'error' } }));
+                  setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
+                  setRefreshing(false);
+                }
+              }}
+              type="button"
+              aria-label="Refresh and update cache"
+            >
+              <RotateCw className={`w-4 h-4 pointer-events-none ${refreshing ? 'animate-spin' : ''}`} />
+            </button>
+            <button className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer touch-manipulation"
               onClick={(e) => { e.stopPropagation(); try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {} toggleTheme(); }}
               type="button"
               aria-label="Toggle theme"
