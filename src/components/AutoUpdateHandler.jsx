@@ -6,10 +6,10 @@ export default function AutoUpdateHandler({ children }) {
     // Initial check on mount
     refreshCacheIfDue();
 
-    // Periodically check for updates in the background (every 3 minutes)
+    // Periodically check for updates in the background (every 10 minutes)
     const interval = setInterval(() => {
       refreshCacheIfDue();
-    }, 3 * 60 * 1000);
+    }, 10 * 60 * 1000);
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
