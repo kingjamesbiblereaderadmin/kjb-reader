@@ -9,12 +9,10 @@ export function SoftReloadProvider({ children }) {
 
   const softReload = useCallback((message = 'Refreshing…') => {
     setIsReloading(true);
-    toast.loading(message, { id: 'soft-reload', duration: 1200 });
     // Remount the page content (header/footer stay mounted)
     setTimeout(() => {
       setReloadKey(k => k + 1);
       setIsReloading(false);
-      toast.success('Refreshed', { id: 'soft-reload', duration: 1500 });
     }, 400);
   }, []);
 
