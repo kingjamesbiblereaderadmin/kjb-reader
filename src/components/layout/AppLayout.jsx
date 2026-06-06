@@ -248,13 +248,9 @@ export default function AppLayout() {
                 setRefreshing(true);
                 const checkToastId = toast.loading('Checking for updates…');
                 try {
-                  let swUpdated = false;
                   if ('serviceWorker' in navigator) {
                     const reg = await navigator.serviceWorker.ready;
                     await reg.update();
-                    if (reg.waiting || reg.installing) {
-                      swUpdated = true;
-                    }
                   }
 
                   // Compare the in-code CACHE_VERSION against what's stored locally.
@@ -268,13 +264,8 @@ export default function AppLayout() {
                     await downloadBibleForOffline();
                   }
                   
-                  if (swUpdated || bibleUpdated) {
-                    toast.loading('Updates applied. Reloading…', { id: checkToastId });
-                    setTimeout(() => window.location.reload(), 500);
-                  } else {
-                    toast.success('✅ Already up to date', { id: checkToastId });
-                    setRefreshing(false);
-                  }
+                  toast.loading('Reloading…', { id: checkToastId });
+                  setTimeout(() => window.location.reload(), 500);
                 } catch (err) {
                   console.error('Refresh failed:', err);
                   toast.error('Failed to check for updates', { id: checkToastId });
