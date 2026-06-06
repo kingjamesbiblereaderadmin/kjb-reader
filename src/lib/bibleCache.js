@@ -288,6 +288,7 @@ export async function clearBibleCache() {
   localStorage.removeItem('bible_cache_version');
   localStorage.removeItem('bible_last_refresh');
   localStorage.removeItem('kjb-theme-preference');
+  localStorage.removeItem('kjb-daily-verse-cache');
   await clearIndexedDB();
   parsedData = null;
   // Force reload to clear in-memory cache

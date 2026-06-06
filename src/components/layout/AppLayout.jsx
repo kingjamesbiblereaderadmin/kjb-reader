@@ -248,9 +248,13 @@ export default function AppLayout() {
                 setRefreshing(true);
                 const checkToastId = toast.loading('Checking for updates…');
                 try {
+                  let swUpdated = false;
                   if ('serviceWorker' in navigator) {
                     const reg = await navigator.serviceWorker.ready;
                     await reg.update();
+                    if (reg.waiting || reg.installing) {
+                      swUpdated = true;
+                    }
                   }
 
                   // Compare the in-code CACHE_VERSION against what's stored locally.
@@ -262,6 +266,11 @@ export default function AppLayout() {
                     localStorage.removeItem('bible_cache_version');
                     localStorage.removeItem('bible_last_refresh');
                     await downloadBibleForOffline();
+                  }
+                  
+                  if (swUpdated) {
+                    // Wipe daily verse cache on code update so new verse logic applies immediately
+                    localStorage.removeItem('kjb-daily-verse-cache');
                   }
                   
                   toast.loading('Reloading…', { id: checkToastId });

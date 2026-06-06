@@ -1308,6 +1308,7 @@ export default function SettingsPage() {
                     localStorage.removeItem('kjb-verse-panel-visible');
                     localStorage.removeItem('kjb-zoom');
                     localStorage.removeItem('kjb-notif-image');
+                    localStorage.removeItem('kjb-daily-verse-cache');
                     // Flag a fresh re-download, THEN clear the Bible cache.
                     // clearBibleCache() reloads the page itself, so set the flag first.
                     try { localStorage.setItem('kjb-auto-redownload', 'true'); } catch {}
