@@ -43,7 +43,7 @@ function saveCachedDailyVerse(verse) {
   } catch {}
 }
 
-// Generate today's daily verse entirely on-device (no API).
+// Generate today's daily verse. Uses API when online, on-device logic when offline.
 export async function getDailyVerseFromBible() {
   console.log("[DEBUG] getDailyVerseFromBible called");
   // Return today's cached verse if already picked
@@ -53,6 +53,22 @@ export async function getDailyVerseFromBible() {
     return cached;
   }
 
+  // Try to use the API first if online
+  if (typeof navigator !== 'undefined' && navigator.onLine) {
+    try {
+      const d = new Date();
+      const clientDate = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+      const res = await base44.functions.invoke('bibleApi', { action: 'daily_verse', clientDate });
+      if (res.data?.verse) {
+        console.log("[DEBUG] Verse generated from API:", res.data.verse.ref);
+        saveCachedDailyVerse(res.data.verse);
+        return res.data.verse;
+      }
+    } catch (err) {
+      console.warn("[DEBUG] API fetch failed, falling back to local:", err.message);
+    }
+  }
+
   // Try to generate a deterministic offline verse using cached data
   try {
     const bible = await getBibleData();
@@ -60,19 +76,6 @@ export async function getDailyVerseFromBible() {
       console.log("[DEBUG] Generating on-device daily verse...");
       const d = new Date();
       const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
-
-      if (seed === 20260606) {
-        const offlineVerse = {
-          abbr: "GAL",
-          book: "Galatians",
-          chapter: 2,
-          verse: 3,
-          text: "But neither Titus, who was with me, being a Greek, was compelled to be circumcised:",
-          ref: "Galatians 2:3"
-        };
-        saveCachedDailyVerse(offlineVerse);
-        return offlineVerse;
-      }
 
       const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
       

@@ -140,6 +140,46 @@ Deno.serve(async (req) => {
 
 
 
+    if (action === 'random_verse') {
+      const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
+      if (!bookNames.length) {
+        return Response.json({ error: 'No bible data' }, { status: 500 });
+      }
+
+      let currentSeed = Math.floor(Math.random() * 10000000);
+      let bookName, chapterNum, verseObj;
+      
+      while (true) {
+        bookName = bookNames[currentSeed % bookNames.length];
+        const chapters = Object.keys(bible[bookName]);
+        chapterNum = chapters[currentSeed % chapters.length];
+        const verses = bible[bookName][chapterNum];
+        verseObj = verses[currentSeed % verses.length];
+        
+        const ref = `${bookName} ${chapterNum}:${verseObj.verse}`;
+        const isExcludedChapter = bookName === 'Romans' && parseInt(chapterNum) === 10;
+        const hasExcludedText = EXCLUDED_REFS.has(ref);
+        
+        if (!hasExcludedText && !isExcludedChapter) break;
+        currentSeed++;
+      }
+
+      // Preserve [italics] brackets; strip only pilcrow + superscription markers
+      const text = verseObj.text
+        .replace(/¶\s*/g, '')
+        .replace(/^<<[^>]*>>\s*/, '');
+
+      return Response.json({
+        verse: {
+          book: bookName,
+          chapter: parseInt(chapterNum),
+          verse: verseObj.verse,
+          text,
+          ref: `${bookName} ${chapterNum}:${verseObj.verse}`
+        }
+      });
+    }
+
     if (action === 'daily_verse') {
       // Use client's local date if provided, otherwise fallback to UTC
       let seed;

@@ -7,6 +7,7 @@ import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { getDailyVerse, getDailyVerseFromBible, getLastCachedDailyVerse } from '@/lib/dailyVerse';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications, showLocalNotification } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
+import { toast } from 'sonner';
 
 const READ_LINK = { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', color: 'bg-primary text-primary-foreground' };
 
@@ -85,13 +86,11 @@ export default function HomePage() {
           setVerse(v);
           setIsUpdating(false);
           setIsOffline(false);
-          window.dispatchEvent(new Event('kjb-progress-clear'));
           scheduleMidnightRefresh(); // Schedule for the next night
         }).catch(() => {
           setVerse(getDailyVerse());
           setIsUpdating(false);
           setIsOffline(true);
-          window.dispatchEvent(new Event('kjb-progress-clear'));
           scheduleMidnightRefresh();
         });
       }, msUntilMidnight);
@@ -160,7 +159,7 @@ export default function HomePage() {
             setVerse(getDailyVerse());
             setIsUpdating(false);
             setIsOffline(true);
-            window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'You are offline. Showing a random verse.', status: 'info' } }));
+            window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'You are offline.', status: 'info' } }));
             setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
           }
         })();
@@ -177,7 +176,7 @@ export default function HomePage() {
           setVerse(getDailyVerse());
           setIsUpdating(false);
           setIsOffline(true);
-          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'You are offline. Showing a random verse.', status: 'info' } }));
+          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'You are offline.', status: 'info' } }));
           setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
         });
       }
@@ -243,7 +242,6 @@ export default function HomePage() {
           setVerse(getDailyVerse());
           setIsUpdating(false);
           setIsOffline(true);
-          window.dispatchEvent(new Event('kjb-progress-clear'));
         });
       }
     };
@@ -299,32 +297,88 @@ export default function HomePage() {
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   };
 
-  const handleRandomVerse = () => {
-    const randomBook = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
-    const randomChapter = Math.floor(Math.random() * randomBook.chapters) + 1;
-    // Clear search term when navigating to random chapter
+  const handleRandomVerse = async () => {
+    let bookName, chapterNum, verseNum;
+    let abbr;
+
+    const navigateToVerse = () => {
+      try {
+        localStorage.removeItem('kjb-search-term');
+        localStorage.removeItem('kjb-search-index');
+        localStorage.removeItem('kjb-search-total');
+        localStorage.removeItem('kjb-search-results');
+      } catch {}
+      try {
+        const currentPos = JSON.parse(localStorage.getItem('kjb-position') || '{}');
+        localStorage.setItem('kjb-last-reading', JSON.stringify({
+          abbr: abbr,
+          chapter: chapterNum,
+          verse: verseNum,
+          fromRandom: true,
+          prevAbbr: currentPos.abbr || null,
+          prevChapter: currentPos.chapter || null,
+        }));
+        localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter: chapterNum, verse: verseNum }));
+      } catch {}
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      navigate(`/read?book=${abbr}&chapter=${chapterNum}&verse=${verseNum}&from=random`);
+      setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
+    };
+
+    if (typeof navigator !== 'undefined' && navigator.onLine) {
+      try {
+        const { base44 } = await import('@/api/base44Client');
+        const res = await base44.functions.invoke('bibleApi', { action: 'random_verse' });
+        if (res.data?.verse) {
+          bookName = res.data.verse.book;
+          chapterNum = res.data.verse.chapter;
+          verseNum = res.data.verse.verse;
+          const bookData = BIBLE_BOOKS.find(b => b.name === bookName || b.shortName === bookName);
+          abbr = bookData ? bookData.abbr : bookName.slice(0, 3).toUpperCase();
+          navigateToVerse();
+          return;
+        }
+      } catch (err) {
+        console.warn("Random verse API failed, falling back to local:", err);
+      }
+    }
+
     try {
-      localStorage.removeItem('kjb-search-term');
-      localStorage.removeItem('kjb-search-index');
-      localStorage.removeItem('kjb-search-total');
-      localStorage.removeItem('kjb-search-results');
-    } catch {}
-    // Save the DESTINATION random chapter (so the reader shows the "Random Chapter"
-    // indicator) plus the PREVIOUS chapter (so Clear can return to it).
-    try {
-      const currentPos = JSON.parse(localStorage.getItem('kjb-position') || '{}');
-      localStorage.setItem('kjb-last-reading', JSON.stringify({
-        abbr: randomBook.abbr,
-        chapter: randomChapter,
-        fromRandom: true,
-        prevAbbr: currentPos.abbr || null,
-        prevChapter: currentPos.chapter || null,
-      }));
-    } catch {}
-    try { localStorage.setItem('kjb-position', JSON.stringify({ abbr: randomBook.abbr, chapter: randomChapter, verse: null })); } catch {}
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    navigate(`/read?book=${randomBook.abbr}&chapter=${randomChapter}&from=daily`);
-    setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
+      const { getBibleData } = await import('@/lib/bibleCache');
+      const bible = await getBibleData();
+      if (!bible || !bible['Genesis']) throw new Error();
+      const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
+      
+      let currentSeed = Math.floor(Math.random() * 10000000);
+      let verseObj;
+      while (true) {
+        bookName = bookNames[currentSeed % bookNames.length];
+        const chapters = Object.keys(bible[bookName]);
+        chapterNum = chapters[currentSeed % chapters.length];
+        const verses = bible[bookName][chapterNum];
+        verseObj = verses[currentSeed % verses.length];
+        
+        const ref = `${bookName} ${chapterNum}:${verseObj.verse}`;
+        // Import EXCLUDED_REFS logic for offline match
+        const isExcludedChapter = bookName === 'Romans' && parseInt(chapterNum) === 10;
+        const EXCLUDED_REFS = new Set(["Genesis 26:11","Genesis 33:14","Exodus 15:6","Exodus 18:23","Exodus 19:12","Exodus 21:12","Exodus 21:15","Exodus 21:16","Exodus 21:17","Exodus 21:29","Exodus 22:19","Exodus 31:14","Exodus 31:15","Exodus 35:2","Leviticus 5:5","Leviticus 16:21","Leviticus 19:20","Leviticus 20:2","Leviticus 20:9","Leviticus 20:10","Leviticus 20:11","Leviticus 20:12","Leviticus 20:13","Leviticus 20:15","Leviticus 20:16","Leviticus 20:27","Leviticus 24:16","Leviticus 24:17","Leviticus 24:21","Leviticus 27:29","Numbers 1:51","Numbers 3:10","Numbers 3:38","Numbers 5:7","Numbers 15:35","Numbers 18:7","Numbers 35:16","Numbers 35:17","Numbers 35:18","Numbers 35:21","Numbers 35:30","Numbers 35:31","Deuteronomy 13:5","Deuteronomy 17:6","Deuteronomy 21:22","Deuteronomy 24:16","Joshua 1:18","Judges 6:31","Judges 21:5","1 Samuel 11:13","2 Samuel 8:2","2 Samuel 19:21","2 Samuel 19:22","2 Samuel 21:9","1 Kings 1:12","1 Kings 2:24","1 Kings 8:33","1 Kings 8:35","1 Kings 20:31","2 Kings 14:6","1 Chronicles 16:34","1 Chronicles 16:41","2 Chronicles 5:13","2 Chronicles 6:24","2 Chronicles 6:26","2 Chronicles 7:3","2 Chronicles 7:6","2 Chronicles 15:13","2 Chronicles 20:21","2 Chronicles 23:7","Ezra 3:11","Nehemiah 1:6","Nehemiah 9:2","Esther 8:6","Job 8:15","Job 31:23","Psalms 2:9","Psalms 9:7","Psalms 30:5","Psalms 32:5","Psalms 52:1","Psalms 72:5","Psalms 72:7","Psalms 72:17","Psalms 81:15","Psalms 89:29","Psalms 89:36","Psalms 100:5","Psalms 102:12","Psalms 102:26","Psalms 104:31","Psalms 106:1","Psalms 107:1","Psalms 111:3","Psalms 111:10","Psalms 112:3","Psalms 112:9","Psalms 117:2","Psalms 118:1","Psalms 118:2","Psalms 118:3","Psalms 118:4","Psalms 118:29","Psalms 119:160","Psalms 135:13","Psalms 136:1","Psalms 136:2","Psalms 136:3","Psalms 136:4","Psalms 136:5","Psalms 136:6","Psalms 136:7","Psalms 136:8","Psalms 136:9","Psalms 136:10","Psalms 136:11","Psalms 136:12","Psalms 136:13","Psalms 136:14","Psalms 136:15","Psalms 136:16","Psalms 136:17","Psalms 136:18","Psalms 136:19","Psalms 136:20","Psalms 136:21","Psalms 136:22","Psalms 136:23","Psalms 136:24","Psalms 136:25","Psalms 136:26","Psalms 138:8","Psalms 145:13","Proverbs 27:24","Proverbs 28:13","Isaiah 13:16","Isaiah 13:18","Isaiah 45:20","Jeremiah 18:21","Jeremiah 33:11","Jeremiah 38:4","Ezekiel 22:14","Daniel 9:20","Hosea 10:14","Hosea 13:16","Nahum 2:1","Nahum 3:10","Matthew 3:6","Matthew 10:21","Matthew 10:22","Matthew 24:13","Mark 1:5","Mark 4:17","Mark 13:12","Mark 13:13","Luke 21:16","Luke 23:32","John 6:27","Acts 12:19","Acts 26:10","Romans 9:22","Romans 10:1","Romans 15:9","1 Corinthians 13:7","2 Thessalonians 1:4","2 Timothy 2:3","2 Timothy 2:10","2 Timothy 3:11","2 Timothy 4:3","2 Timothy 4:5","Hebrews 5:7","Hebrews 6:15","Hebrews 10:32","Hebrews 11:27","Hebrews 12:2","Hebrews 12:3","Hebrews 12:7","Hebrews 12:20","James 1:12","James 2:20","James 2:26","James 5:11","James 5:15","1 Peter 1:25","1 Peter 2:19","1 Peter 3:18","1 John 1:9"]);
+        
+        if (!EXCLUDED_REFS.has(ref) && !isExcludedChapter) break;
+        currentSeed++;
+      }
+      const bookData = BIBLE_BOOKS.find(b => b.name === bookName || b.shortName === bookName);
+      abbr = bookData ? bookData.abbr : bookName.slice(0, 3).toUpperCase();
+      verseNum = verseObj.verse;
+      navigateToVerse();
+    } catch (e) {
+      // Fallback if local cache is not available and offline
+      const randomBook = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
+      const randomChapter = Math.floor(Math.random() * randomBook.chapters) + 1;
+      abbr = randomBook.abbr;
+      chapterNum = randomChapter;
+      verseNum = null;
+      navigateToVerse();
+    }
   };
 
   const handleToggleNotif = async () => {
@@ -440,8 +494,8 @@ export default function HomePage() {
                   <Shuffle className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="font-serif font-bold text-lg leading-tight">Random Chapter</p>
-                  <p className="font-sans text-xs opacity-75 mt-0.5">Jump to a random chapter</p>
+                  <p className="font-serif font-bold text-lg leading-tight">Random Verse</p>
+                  <p className="font-sans text-xs opacity-75 mt-0.5">Jump to a random verse</p>
                 </div>
               </button>
             );
