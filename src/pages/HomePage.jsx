@@ -31,6 +31,14 @@ export default function HomePage() {
   const touchEndY = useRef(0);
 
   useEffect(() => {
+    if (isUpdating) {
+      window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: updateText } }));
+    } else {
+      window.dispatchEvent(new Event('kjb-progress-clear'));
+    }
+  }, [isUpdating, updateText]);
+
+  useEffect(() => {
     // 1. Immediately show the last cached verse (even if it's from yesterday)
     const lastCached = getLastCachedDailyVerse();
     if (lastCached) {
@@ -38,7 +46,7 @@ export default function HomePage() {
       if (!lastCached.isToday) {
         setIsUpdating(true);
         setUpdateText("Loading today's verse...");
-        toast("Showing yesterday's verse while we fetch today's...", { icon: '⏳' });
+        toast("Showing yesterday's verse while we fetch today's...", { icon: '⏳', duration: 3000 });
       }
     }
 
@@ -119,7 +127,6 @@ export default function HomePage() {
       setIsUpdating(true);
       setUpdateText("Checking for updates...");
       if (typeof navigator !== 'undefined' && navigator.onLine) {
-        toast.loading('Checking for updates...', { id: 'pull-refresh' });
         (async () => {
           try {
             let swUpdated = false;
@@ -127,31 +134,14 @@ export default function HomePage() {
               const reg = await navigator.serviceWorker.getRegistration();
               if (reg) {
                 await reg.update().catch(() => {});
-                if (reg.waiting || reg.installing) {
+                if (reg.waiting || (reg.installing && reg.installing.state === 'installed')) {
                   swUpdated = true;
-                  if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                  if (reg.installing) {
-                    reg.installing.addEventListener('statechange', () => {
-                      if (reg.installing?.state === 'installed') reg.installing.postMessage({ type: 'SKIP_WAITING' });
-                    });
-                  }
-                }
-                
-                // Force an app cache clear so that even if sw.js hasn't changed byte-for-byte,
-                // we flush out the old HTML/JS/CSS assets and fetch fresh ones on reload.
-                const cacheKeys = await caches.keys();
-                for (const key of cacheKeys) {
-                  if (key.startsWith('kjb-shell')) {
-                    await caches.delete(key);
-                    swUpdated = true;
-                  }
                 }
               }
             }
             if (swUpdated) {
-              setUpdateText("Updating...");
-              toast.loading('Updating...', { id: 'pull-refresh' });
-              setTimeout(() => window.location.reload(), 3000); // Fallback if controllerchange fails
+              setUpdateText("Update ready");
+              setIsUpdating(false);
               return;
             }
             
@@ -161,13 +151,13 @@ export default function HomePage() {
             setVerse(v);
             setIsUpdating(false);
             setIsOffline(false);
-            toast.success("No new updates found. Today's verse loaded.", { id: 'pull-refresh' });
+            toast.success("No new updates found. Today's verse loaded.", { duration: 2000 });
             scheduleDailyNotification();
           } catch (e) {
             setVerse(getDailyVerse());
             setIsUpdating(false);
             setIsOffline(true);
-            toast('You are offline. Showing a random verse.', { icon: '📴', id: 'pull-refresh' });
+            toast('You are offline. Showing a random verse.', { icon: '📴', duration: 2000 });
           }
         })();
       } else {
@@ -176,7 +166,7 @@ export default function HomePage() {
           setVerse(v);
           setIsUpdating(false);
           setIsOffline(false);
-          toast.success("Today's verse loaded.", { id: 'pull-refresh' });
+          toast.success("Today's verse loaded.", { duration: 2000 });
           scheduleDailyNotification();
         }).catch(() => {
           setVerse(getDailyVerse());
@@ -389,12 +379,6 @@ export default function HomePage() {
 
       {/* Daily verse card */}
       <div className="w-full mb-6 relative">
-        {isUpdating && (
-          <div className="fixed top-20 left-1/2 -translate-x-1/2 bg-secondary/95 backdrop-blur-md text-secondary-foreground text-xs px-4 py-1.5 rounded-full shadow-md z-[100] flex items-center gap-2 border border-border transition-all animate-in fade-in slide-in-from-top-4">
-            <RotateCw className="w-3.5 h-3.5 animate-spin" />
-            {updateText}
-          </div>
-        )}
         {verse ? (
           <DailyVerseImage verse={verse} onClick={handleVerseCardClick} onToggleNotif={handleToggleNotif} notifEnabled={notifEnabled} isOffline={isOffline} />
         ) : (
