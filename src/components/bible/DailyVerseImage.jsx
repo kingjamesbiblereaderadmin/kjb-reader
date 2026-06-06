@@ -410,7 +410,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             e.stopPropagation();
             onToggleNotif();
           }}
-          className="absolute top-2 left-2 p-2 rounded-md bg-white/90 hover:bg-white transition-colors z-10 shadow-md touch-manipulation"
+          className="absolute top-2 left-2 p-1.5 flex items-center justify-center rounded-md bg-white/90 hover:bg-white transition-colors z-10 shadow-md touch-manipulation"
           title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
           type="button"
         >
@@ -427,7 +427,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 e.stopPropagation();
                 setShowLightbox(true);
               }}
-              className="p-2 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md touch-manipulation"
+              className="p-1.5 flex items-center justify-center rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md touch-manipulation"
               title="View in full screen"
               type="button"
             >
@@ -439,7 +439,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 handleShare(e);
               }}
               disabled={capturing}
-              className="p-2 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50 touch-manipulation"
+              className="p-1.5 flex items-center justify-center rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50 touch-manipulation"
               title="Share verse image"
               type="button"
             >
@@ -455,7 +455,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 handleDownload(e);
               }}
               disabled={capturing}
-              className="p-2 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50 touch-manipulation"
+              className="p-1.5 flex items-center justify-center rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50 touch-manipulation"
               title="Download verse image"
               type="button"
             >
@@ -474,7 +474,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                     setShowMenu(!showMenu);
                   }
                 }}
-                className="p-2 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md touch-manipulation"
+                className="p-1.5 flex items-center justify-center rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md touch-manipulation"
                 title="More options"
                 type="button"
               >
@@ -603,7 +603,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               e.stopPropagation();
               setShowButtons(true);
             }}
-            className="p-2 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md touch-manipulation"
+            className="p-1.5 flex items-center justify-center rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md touch-manipulation"
             title="Show buttons"
             type="button"
           >
