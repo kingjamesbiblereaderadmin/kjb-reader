@@ -962,7 +962,7 @@ export default function SettingsPage() {
                         });
                         setCached(true);
                         window.dispatchEvent(new Event('storage'));
-                        setDlStatus('Update downloaded. Will apply on next restart.');
+                        setDlStatus('App & Bible updates downloaded. They will apply naturally on your next navigation.');
                         setTimeout(() => {
                           setDlStatus('');
                         }, 5000);

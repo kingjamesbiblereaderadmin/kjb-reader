@@ -412,7 +412,7 @@ export default function AppLayout() {
                   
                   window.dispatchEvent(new Event('kjb-progress-clear'));
                   if (swUpdated || bibleNeedsUpdate) {
-                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Updates downloaded. They will apply naturally on your next navigation.', status: 'success' } }));
+                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App & Bible updates downloaded. They will apply naturally on your next navigation.', status: 'success' } }));
                     setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
                     setRefreshing(false);
                     if (bibleNeedsUpdate) {
