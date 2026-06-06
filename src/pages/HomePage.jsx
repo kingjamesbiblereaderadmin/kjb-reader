@@ -7,6 +7,7 @@ import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { getDailyVerse, getDailyVerseFromBible, getLastCachedDailyVerse } from '@/lib/dailyVerse';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications, showLocalNotification } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
+import { toast } from 'sonner';
 
 const READ_LINK = { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', color: 'bg-primary text-primary-foreground' };
 
@@ -49,6 +50,7 @@ export default function HomePage() {
       setVerse(getDailyVerse());
       setIsUpdating(false);
       setIsOffline(true);
+      toast('You are offline. Showing a random verse.', { icon: '📴' });
     });
     
     // Preload Bible cache on home page mount to ensure italics are ready
@@ -84,12 +86,14 @@ export default function HomePage() {
         setVerse(v);
         setIsUpdating(false);
         setIsOffline(false);
+        toast.success("Today's verse loaded.");
         // Trigger notification if enabled
         scheduleDailyNotification();
       }).catch(() => {
         setVerse(getDailyVerse());
         setIsUpdating(false);
         setIsOffline(true);
+        toast('You are offline. Showing a random verse.', { icon: '📴' });
       });
     }
   };
@@ -144,6 +148,7 @@ export default function HomePage() {
           setVerse(v);
           setIsUpdating(false);
           setIsOffline(false);
+          toast.success("Internet restored. Today's verse loaded.");
           scheduleDailyNotification();
         }).catch(() => {
           setVerse(getDailyVerse());
