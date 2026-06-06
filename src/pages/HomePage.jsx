@@ -109,17 +109,49 @@ export default function HomePage() {
                 }
               }
             }
-            if (swUpdated) {
-              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Update ready", status: 'loading' } }));
-              return;
-            }
+            const { checkForUpdates, downloadBibleForOffline } = await import('@/lib/bibleCache');
+            const bibleNeedsUpdate = await checkForUpdates();
             
-            // If no app updates, just get the verse
-            window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Loading today's verse...", status: 'loading' } }));
+            if (bibleNeedsUpdate && swUpdated) {
+              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Updating app & Bible data...", status: 'loading' } }));
+            } else if (bibleNeedsUpdate) {
+              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Updating Bible data...", status: 'loading' } }));
+            } else if (swUpdated) {
+              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Updating app...", status: 'loading' } }));
+            } else {
+              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Loading today's verse...", status: 'loading' } }));
+            }
+
+            if (bibleNeedsUpdate) {
+              localStorage.removeItem('bible_cache_version');
+              localStorage.removeItem('bible_last_refresh');
+              await downloadBibleForOffline();
+            }
+
+            if (swUpdated) {
+              localStorage.removeItem('kjb-daily-verse-cache');
+            }
+
+            if (swUpdated && bibleNeedsUpdate) {
+              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "App & Bible updated successfully.", status: 'success' } }));
+              setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
+              return; // The service worker will reload the page shortly
+            } else if (swUpdated) {
+              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "App updated successfully.", status: 'success' } }));
+              setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
+              return; // The service worker will reload the page shortly
+            }
+
+            // If no SW updates (or just Bible update), load the verse
             const v = await getDailyVerseFromBible();
             setVerse(v);
             setIsOffline(false);
-            window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "App is up to date.", status: 'success' } }));
+            
+            if (bibleNeedsUpdate) {
+              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Bible updated successfully.", status: 'success' } }));
+            } else {
+              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "App & Bible are up to date.", status: 'info' } }));
+            }
             setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
             scheduleDailyNotification();
           } catch (e) {
