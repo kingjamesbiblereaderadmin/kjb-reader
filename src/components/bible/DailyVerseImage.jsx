@@ -401,67 +401,37 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
   return (
     <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full min-h-[300px] ${gradientClass} border border-border rounded-2xl shadow-lg px-6 text-center text-white relative flex flex-col ${capturing ? 'pt-20 pb-8' : 'pt-6 pb-6'} ${uploadingComplete ? 'cursor-default' : 'cursor-pointer'}`} style={bgStyle} onTouchEnd={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }}>
-      {/* Top-left indicators (Bell & Wifi) */}
-      {showButtons && (
-        <div className="absolute top-2 left-2 flex gap-1 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
-          {onToggleNotif && (
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
-                onToggleNotif();
-              }}
-              onMouseDown={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
-              }}
-              onTouchStart={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
-              }}
-              onTouchEnd={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
-                onToggleNotif();
-              }}
-              className="p-1.5 rounded-md bg-white/90 hover:bg-white transition-colors shadow-md"
-              title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
-              type="button"
-            >
-              {notifEnabled ? <Bell className="w-4 h-4 text-slate-800" /> : <BellOff className="w-4 h-4 text-slate-800" />}
-            </button>
-          )}
-          <div 
-            className="p-1.5 rounded-md bg-white/90 shadow-md flex items-center justify-center cursor-default"
-            title={isOffline ? 'Offline Mode' : 'Online'}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              e.nativeEvent.stopImmediatePropagation();
-            }}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              e.nativeEvent.stopImmediatePropagation();
-            }}
-            onTouchStart={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              e.nativeEvent.stopImmediatePropagation();
-            }}
-            onTouchEnd={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              e.nativeEvent.stopImmediatePropagation();
-            }}
-          >
-            {isOffline ? <WifiOff className="w-4 h-4 text-slate-500" /> : <Wifi className="w-4 h-4 text-slate-800" />}
-          </div>
-        </div>
+      {/* Notification bell indicator button */}
+      {showButtons && onToggleNotif && (
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation();
+            onToggleNotif();
+          }}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation();
+          }}
+          onTouchStart={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation();
+          }}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation();
+            onToggleNotif();
+          }}
+          className="absolute top-2 left-2 p-1.5 rounded-md bg-white/90 hover:bg-white transition-colors z-10 shadow-md"
+          title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
+          type="button"
+        >
+          {notifEnabled ? <Bell className="w-4 h-4 text-slate-800" /> : <BellOff className="w-4 h-4 text-slate-800" />}
+        </button>
       )}
 
 
