@@ -134,8 +134,6 @@ export default function AppLayout() {
         return;
       }
       
-      window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Checking for updates...', status: 'loading' } }));
-      
       try {
         let swUpdated = false;
         if ('serviceWorker' in navigator) {
@@ -152,7 +150,6 @@ export default function AppLayout() {
         if (swUpdated) {
           localStorage.removeItem('kjb-daily-verse-cache');
         }
-        window.dispatchEvent(new Event('kjb-progress-clear'));
 
         const { autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
 
@@ -166,7 +163,6 @@ export default function AppLayout() {
 
         console.log('[AppLayout] App initialized', result);
       } catch (err) {
-        window.dispatchEvent(new Event('kjb-progress-clear'));
         console.error('[AppLayout] Initialization failed:', err.message);
         // Don't show error to user - app can still work with cached data
       }
