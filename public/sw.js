@@ -78,8 +78,10 @@ self.addEventListener('fetch', (event) => {
 
   // App shell (HTML, JS chunks, CSS) — network-first, cache fallback
   if (url.origin === self.location.origin) {
+    // For HTML, force network fetch bypassing HTTP cache to ensure latest version is fetched
+    const fetchOpts = request.mode === 'navigate' ? { cache: 'no-cache' } : {};
     event.respondWith(
-      fetch(request).then((res) => {
+      fetch(request, fetchOpts).then((res) => {
         if (res.ok && res.status < 400) {
           const clone = res.clone();
           caches.open(CACHE_NAME).then((c) => c.put(request, clone));
