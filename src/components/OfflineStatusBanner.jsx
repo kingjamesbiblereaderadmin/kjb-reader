@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { WifiOff, Wifi, RefreshCw, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { WifiOff, Wifi, RefreshCw, AlertTriangle, CheckCircle2, X } from 'lucide-react';
 import { isBibleCached, checkForUpdates, downloadBibleForOffline } from '@/lib/bibleCache';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,6 +9,7 @@ export default function OfflineStatusBanner() {
   const [cacheStale, setCacheStale] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [done, setDone] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
   const didAutoUpdate = useRef(false);
   const navigate = useNavigate();
 
@@ -62,6 +63,8 @@ export default function OfflineStatusBanner() {
     }
   };
 
+  if (dismissed) return null;
+
   // Online + Bible ready (stale or not) → no banner needed; auto-update runs silently in background
   if (isOnline && bibleReady && !done) return null;
   // Still checking
@@ -75,9 +78,12 @@ export default function OfflineStatusBanner() {
   // Offline + Bible ready
   if (!isOnline && bibleReady) {
     return (
-      <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 mb-4">
+      <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 mb-4 relative">
         <WifiOff className="w-4 h-4 flex-shrink-0" />
-        <p className="font-sans text-xs font-medium flex-1">You're offline — reading from cached Bible data.</p>
+        <p className="font-sans text-xs font-medium flex-1 pr-6">You're offline — reading from cached Bible data.</p>
+        <button onClick={() => setDismissed(true)} className="absolute right-3 p-1 hover:bg-amber-100 dark:hover:bg-amber-900/40 rounded-md transition-colors">
+          <X className="w-4 h-4 opacity-70 hover:opacity-100" />
+        </button>
       </div>
     );
   }
@@ -90,9 +96,12 @@ export default function OfflineStatusBanner() {
   // Offline + no Bible cache = can't read
   if (!isOnline && !bibleReady) {
     return (
-      <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 text-red-800 dark:text-red-300 mb-4">
+      <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 text-red-800 dark:text-red-300 mb-4 relative">
         <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-        <p className="font-sans text-xs font-medium flex-1">Offline & Bible not downloaded. Connect to the internet to download it.</p>
+        <p className="font-sans text-xs font-medium flex-1 pr-6">Offline & Bible not downloaded. Connect to the internet to download it.</p>
+        <button onClick={() => setDismissed(true)} className="absolute right-3 p-1 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-md transition-colors">
+          <X className="w-4 h-4 opacity-70 hover:opacity-100" />
+        </button>
       </div>
     );
   }
@@ -100,9 +109,12 @@ export default function OfflineStatusBanner() {
   // Online but no Bible cache yet
   if (isOnline && !bibleReady) {
     return (
-      <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/40 text-blue-800 dark:text-blue-300 mb-4">
+      <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/40 text-blue-800 dark:text-blue-300 mb-4 relative">
         <RefreshCw className="w-4 h-4 flex-shrink-0 animate-spin" />
-        <p className="font-sans text-xs font-medium flex-1">Downloading the offline Bible...</p>
+        <p className="font-sans text-xs font-medium flex-1 pr-6">Downloading the offline Bible...</p>
+        <button onClick={() => setDismissed(true)} className="absolute right-3 p-1 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-md transition-colors">
+          <X className="w-4 h-4 opacity-70 hover:opacity-100" />
+        </button>
       </div>
     );
   }
