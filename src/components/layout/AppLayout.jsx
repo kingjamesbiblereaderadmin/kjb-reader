@@ -296,10 +296,13 @@ export default function AppLayout() {
                     localStorage.removeItem('kjb-daily-verse-cache');
                     toast.loading('Updating...', { id: checkToastId });
                     setTimeout(() => window.location.reload(), 500);
-                  } else {
+                  } else if (bibleUpdated) {
                     toast.dismiss(checkToastId);
                     setRefreshing(false);
                     softReload();
+                  } else {
+                    toast.success('No new updates found.', { id: checkToastId, duration: 2000 });
+                    setRefreshing(false);
                   }
                 } catch (err) {
                   console.error('Refresh failed:', err);

@@ -141,7 +141,7 @@ export default function HomePage() {
             setVerse(v);
             setIsUpdating(false);
             setIsOffline(false);
-            toast.success("Today's verse loaded.", { id: 'pull-refresh' });
+            toast.success("No new updates found. Today's verse loaded.", { id: 'pull-refresh' });
             scheduleDailyNotification();
           } catch (e) {
             setVerse(getDailyVerse());
