@@ -1234,9 +1234,13 @@ export default function SettingsPage() {
                   try {
                     let report = "--- CURRENT CACHED VERSE (What you see on the card) ---\n";
                     const cachedRaw = localStorage.getItem('kjb-daily-verse-cache');
+                    let targetVerse = null;
                     if (cachedRaw) {
                       try {
                         const parsed = JSON.parse(cachedRaw);
+                        if (parsed.verse) {
+                           targetVerse = parsed.verse;
+                        }
                         report += JSON.stringify(parsed, null, 2) + "\n\n";
                       } catch(e) {
                         report += cachedRaw + "\n\n";
@@ -1265,9 +1269,20 @@ export default function SettingsPage() {
                     try {
                       const res = await base44.functions.invoke('bibleApi', { action: 'daily_verse', clientDate: `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}` });
                       const apiVerse = res.data?.verse;
-                      report += `API returned: ${apiVerse?.book} ${apiVerse?.chapter}:${apiVerse?.verse}`;
+                      report += `API returned: ${apiVerse?.book} ${apiVerse?.chapter}:${apiVerse?.verse}\n\n`;
                     } catch (apiErr) {
-                      report += `API Error: ${apiErr.message}`;
+                      report += `API Error: ${apiErr.message}\n\n`;
+                    }
+                    
+                    report += "--- ALGORITHM SYNC ANALYSIS ---\n";
+                    try {
+                      const reqBody = targetVerse ? { book: targetVerse.book, chapter: targetVerse.chapter, verse: targetVerse.verse } : {};
+                      const syncRes = await base44.functions.invoke('testSeed', reqBody);
+                      if (syncRes.data && syncRes.data.report) {
+                        report += syncRes.data.report;
+                      }
+                    } catch (err) {
+                      report += `Sync analysis failed: ${err.message}\n`;
                     }
                     
                     setDebugReport(report);

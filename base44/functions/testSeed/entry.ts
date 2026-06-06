@@ -54,51 +54,74 @@ Deno.serve(async (req) => {
   const bible = await loadBible();
   const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
   
-  let report = "--- BRUTE FORCE CACHE ANALYSIS FOR SEED 20260606 ---\n";
-  let seed = 20260606;
+  let report = "--- ALGORITHM SYNC ANALYSIS ---\n";
+  let targetBook = null, targetChapter = null, targetVerse = null;
   
   try {
-    // 1. Math.sin * 10000 with currentSeed++ (What was in bibleApi recently)
-    let currentSeed = seed;
-    let nextRandom1 = () => {
-      const x = Math.sin(currentSeed++) * 10000;
-      return x - Math.floor(x);
-    };
-    let bIdx1 = Math.floor(nextRandom1() * bookNames.length);
-    let cIdx1 = Math.floor(nextRandom1() * Object.keys(bible[bookNames[bIdx1]]).length);
-    let vIdx1 = Math.floor(nextRandom1() * bible[bookNames[bIdx1]][Object.keys(bible[bookNames[bIdx1]])[cIdx1]].length);
-    
-    let bk1 = bookNames[bIdx1];
-    let ch1 = Object.keys(bible[bk1])[cIdx1];
-    let vs1 = bible[bk1][ch1][vIdx1].verse;
-    report += `Math.sin(currentSeed++) * 10000: ${bk1} ${ch1}:${vs1} (Indices: ${bIdx1}, ${cIdx1}, ${vIdx1})\n`;
-
-    // 2. Modulo approach (offline fallback)
-    let bIdx2 = seed % bookNames.length;
-    let bk2 = bookNames[bIdx2];
-    let cIdx2 = seed % Object.keys(bible[bk2]).length;
-    let ch2 = Object.keys(bible[bk2])[cIdx2];
-    let vIdx2 = seed % bible[bk2][ch2].length;
-    let vs2 = bible[bk2][ch2][vIdx2].verse;
-    report += `Modulo approach (seed % length): ${bk2} ${ch2}:${vs2} (Indices: ${bIdx2}, ${cIdx2}, ${vIdx2})\n`;
-    
-    // 3. Search what multiplier or seed logic yields Galatians 2:3
-    // Galatians is index 47. Chapter 2 is index 1. Verse 3 is index 2.
-    // If we use currentSeed++ with Math.sin, does ANY recent date yield Galatians 2:3?
-    for (let d = 1; d <= 30; d++) {
-        let testSeed = 20260600 + d;
-        let cs = testSeed;
-        let nr = () => {
-          const x = Math.sin(cs++) * 10000;
-          return x - Math.floor(x);
-        };
-        let b = Math.floor(nr() * bookNames.length);
-        let c = Math.floor(nr() * Object.keys(bible[bookNames[b]]).length);
-        let v = Math.floor(nr() * bible[bookNames[b]][Object.keys(bible[bookNames[b]])[c]].length);
-        if (bookNames[b] === 'Galatians') {
-            report += `Math.sin found Galatians on seed ${testSeed}: ${bookNames[b]} ${Object.keys(bible[bookNames[b]])[c]}:${bible[bookNames[b]][Object.keys(bible[bookNames[b]])[c]][v].verse}\n`;
-        }
+    const body = await req.json().catch(() => ({}));
+    if (body.book && body.chapter && body.verse) {
+      targetBook = body.book;
+      targetChapter = body.chapter;
+      targetVerse = body.verse;
+      report += `Searching for how: ${targetBook} ${targetChapter}:${targetVerse} was generated...\n\n`;
+    } else {
+      report += "No target verse provided in request body. Using Galatians 2:3 as default.\n\n";
+      targetBook = "Galatians";
+      targetChapter = 2;
+      targetVerse = 3;
     }
+  } catch(e) {
+    targetBook = "Galatians";
+    targetChapter = 2;
+    targetVerse = 3;
+  }
+  
+  try {
+    const today = new Date();
+    // Scan past 100 days and future 100 days
+    let foundMatch = false;
+    
+    for (let offset = -100; offset <= 100; offset++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() + offset);
+      const testSeed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+      
+      // Algorithm 1: Modulo (offline fallback)
+      let bIdxMod = testSeed % bookNames.length;
+      let bkMod = bookNames[bIdxMod];
+      let cIdxMod = testSeed % Object.keys(bible[bkMod]).length;
+      let chMod = Object.keys(bible[bkMod])[cIdxMod];
+      let vIdxMod = testSeed % bible[bkMod][chMod].length;
+      let vsMod = bible[bkMod][chMod][vIdxMod].verse;
+      
+      if (bkMod === targetBook && parseInt(chMod) === parseInt(targetChapter) && parseInt(vsMod) === parseInt(targetVerse)) {
+        report += `[MATCH] Modulo algorithm generated this verse on date: ${d.toISOString().split('T')[0]} (Seed: ${testSeed})\n`;
+        foundMatch = true;
+      }
+      
+      // Algorithm 2: Math.sin(currentSeed++) * 10000
+      let cs = testSeed;
+      let nr = () => {
+        const x = Math.sin(cs++) * 10000;
+        return x - Math.floor(x);
+      };
+      let bIdxSin = Math.floor(nr() * bookNames.length);
+      let bkSin = bookNames[bIdxSin];
+      let cIdxSin = Math.floor(nr() * Object.keys(bible[bkSin]).length);
+      let chSin = Object.keys(bible[bkSin])[cIdxSin];
+      let vIdxSin = Math.floor(nr() * bible[bkSin][chSin].length);
+      let vsSin = bible[bkSin][chSin][vIdxSin].verse;
+      
+      if (bkSin === targetBook && parseInt(chSin) === parseInt(targetChapter) && parseInt(vsSin) === parseInt(targetVerse)) {
+        report += `[MATCH] Math.sin(currentSeed++) algorithm generated this verse on date: ${d.toISOString().split('T')[0]} (Seed: ${testSeed})\n`;
+        foundMatch = true;
+      }
+    }
+    
+    if (!foundMatch) {
+      report += `[RESULT] The target verse ${targetBook} ${targetChapter}:${targetVerse} was not generated by known algorithms in the +/- 100 day window.\n`;
+    }
+    
   } catch (e) {
     report += `Error: ${e.message}\n`;
   }
