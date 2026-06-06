@@ -163,7 +163,9 @@ Deno.serve(async (req) => {
         const hasExcludedText = (txt.includes('endure') && txt.includes('end')) ||
                                 txt.includes('faith without works is dead') ||
                                 txt.includes('put to death') ||
-                                (txt.includes('dash') && txt.includes('pieces'));
+                                (txt.includes('dash') && txt.includes('pieces')) ||
+                                (txt.includes('confess') && txt.includes('sin')) ||
+                                (txt.includes('pray') && txt.includes('save'));
                                 
         const isExcludedChapter = bookName === 'Romans' && parseInt(chapterNum) === 10;
         

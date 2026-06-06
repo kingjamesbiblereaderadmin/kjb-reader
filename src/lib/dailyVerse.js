@@ -6,7 +6,7 @@ import { base44 } from '@/api/base44Client';
 
 // Daily verses are now fetched entirely from the API so all users see the same verse.
 
-const DAILY_VERSE_CACHE_KEY = 'kjb-daily-verse-cache-v8';
+const DAILY_VERSE_CACHE_KEY = 'kjb-daily-verse-cache-v9';
 
 function getTodayKey() {
   const d = new Date();
@@ -82,7 +82,9 @@ export async function getDailyVerseFromBible() {
         const hasExcludedText = (txt.includes('endure') && txt.includes('end')) ||
                                 txt.includes('faith without works is dead') ||
                                 txt.includes('put to death') ||
-                                (txt.includes('dash') && txt.includes('pieces'));
+                                (txt.includes('dash') && txt.includes('pieces')) ||
+                                (txt.includes('confess') && txt.includes('sin')) ||
+                                (txt.includes('pray') && txt.includes('save'));
                                 
         const isExcludedChapter = bookName === 'Romans' && parseInt(chapterNum) === 10;
         
