@@ -25,10 +25,22 @@ export function setNotificationTime(time) {
 export async function registerSW() {
   if (!('serviceWorker' in navigator)) return null;
   try {
-    // If already registered, return existing registration without re-registering
-    const existing = await navigator.serviceWorker.getRegistration('/');
-    if (existing) return existing;
-    return await navigator.serviceWorker.register('/sw.js');
+    const reg = await navigator.serviceWorker.register('/sw.js');
+    if (reg.waiting) {
+      reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+    }
+    reg.addEventListener('updatefound', () => {
+      if (reg.installing) {
+        reg.installing.addEventListener('statechange', () => {
+          if (reg.installing.state === 'installed' && navigator.serviceWorker.controller) {
+            reg.installing.postMessage({ type: 'SKIP_WAITING' });
+          }
+        });
+      }
+    });
+    // Force an update check to ensure users get the latest app shell features (e.g. WiFi icon)
+    reg.update();
+    return reg;
   } catch { return null; }
 }
 
