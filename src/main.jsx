@@ -41,23 +41,23 @@ window.addEventListener('load', async () => {
       const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
       console.log('[SW] Registered:', registration.scope);
 
-      // When a new SW is installed and waiting, activate it
-      const activateUpdate = (waitingWorker) => {
-        waitingWorker?.postMessage({ type: 'SKIP_WAITING' });
+      // Instead of forcing a reload, notify the UI to show the update banner
+      const notifyUpdate = (waitingWorker) => {
+        window.dispatchEvent(new CustomEvent('kjb-update-available', { detail: { waitingWorker } }));
       };
 
-      // If a worker is already waiting when we register, activate it
+      // If a worker is already waiting when we register, notify the UI
       if (registration.waiting && navigator.serviceWorker.controller) {
-        activateUpdate(registration.waiting);
+        notifyUpdate(registration.waiting);
       }
 
-      // Listen for newly-found workers and activate them
+      // Listen for newly-found workers and notify the UI
       registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing;
         if (!newWorker) return;
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            activateUpdate(newWorker);
+            notifyUpdate(newWorker);
           }
         });
       });

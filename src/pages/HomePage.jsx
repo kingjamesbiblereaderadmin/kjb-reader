@@ -127,21 +127,15 @@ export default function HomePage() {
               const reg = await navigator.serviceWorker.getRegistration();
               if (reg) {
                 await reg.update().catch(() => {});
-                if (reg.waiting || reg.installing) {
+                if (reg.waiting || (reg.installing && reg.installing.state === 'installed')) {
                   swUpdated = true;
-                  if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                  if (reg.installing) {
-                    reg.installing.addEventListener('statechange', () => {
-                      if (reg.installing?.state === 'installed') reg.installing.postMessage({ type: 'SKIP_WAITING' });
-                    });
-                  }
                 }
               }
             }
             if (swUpdated) {
-              setUpdateText("Updating...");
-              toast.loading('Updating...', { id: 'pull-refresh' });
-              setTimeout(() => window.location.reload(), 3000); // Fallback if controllerchange fails
+              setUpdateText("Update ready");
+              toast.success('Update ready. Click the banner above to reload.', { id: 'pull-refresh', duration: 4000 });
+              setIsUpdating(false);
               return;
             }
             
