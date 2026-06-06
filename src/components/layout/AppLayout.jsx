@@ -251,6 +251,9 @@ export default function AppLayout() {
             <button 
               className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border transition-all duration-200 flex items-center justify-center cursor-pointer ${isOnline ? 'border-border bg-secondary/30 text-green-600 dark:text-green-400 hover:bg-secondary/50' : 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/40'}`}
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); toast(isOnline ? 'You are online' : 'You are offline (reading from cache)', { icon: isOnline ? '📶' : '📴' }); }}
+              onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); toast(isOnline ? 'You are online' : 'You are offline (reading from cache)', { icon: isOnline ? '📶' : '📴' }); }}
               title={isOnline ? 'Online' : 'Offline'}
               type="button"
             >
@@ -258,6 +261,62 @@ export default function AppLayout() {
             </button>
             <button className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
               onClick={async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {}
+                if (refreshing) return;
+
+                // Offline: don't try to fetch — just confirm cached data is in use
+                if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+                  toast.info('Offline — using cached Bible');
+                  return;
+                }
+
+                setRefreshing(true);
+                const checkToastId = toast.loading('Checking for updates...');
+                try {
+                  let swUpdated = false;
+                  if ('serviceWorker' in navigator) {
+                    const reg = await navigator.serviceWorker.ready;
+                    await reg.update();
+                    if (reg.waiting || reg.installing) {
+                      swUpdated = true;
+                    }
+                  }
+
+                  // Compare the in-code CACHE_VERSION against what's stored locally.
+                  const localVer = localStorage.getItem('bible_cache_version');
+                  const bibleUpdated = (localVer && localVer !== CACHE_VERSION);
+
+                  if (bibleUpdated) {
+                    toast.loading('Updating Bible data...', { id: checkToastId });
+                    localStorage.removeItem('bible_cache_version');
+                    localStorage.removeItem('bible_last_refresh');
+                    await downloadBibleForOffline();
+                  }
+                  
+                  if (swUpdated) {
+                    // Wipe daily verse cache on code update so new verse logic applies immediately
+                    localStorage.removeItem('kjb-daily-verse-cache');
+                    toast.loading('Updating...', { id: checkToastId });
+                    setTimeout(() => window.location.reload(), 500);
+                  } else if (bibleUpdated) {
+                    toast.dismiss(checkToastId);
+                    setRefreshing(false);
+                    softReload();
+                  } else {
+                    toast.success('No new updates found.', { id: checkToastId, duration: 2000 });
+                    setRefreshing(false);
+                  }
+                } catch (err) {
+                  console.error('Refresh failed:', err);
+                  toast.error('Failed to check for updates', { id: checkToastId });
+                  setRefreshing(false);
+                }
+              }}
+              onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              onTouchEnd={async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {}
@@ -319,6 +378,9 @@ export default function AppLayout() {
             </button>
             <button className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {} toggleTheme(); }}
+              onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {} toggleTheme(); }}
               style={{ touchAction: 'manipulation' }}
               type="button"
               aria-label="Toggle theme"
@@ -327,6 +389,9 @@ export default function AppLayout() {
             </button>
             <button data-kjb-menu-toggle className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
+              onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(o => !o); }}
               style={{ touchAction: 'manipulation' }}
               type="button"
               aria-label="Open menu"
