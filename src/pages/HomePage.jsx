@@ -73,7 +73,25 @@ export default function HomePage() {
   };
 
   const handleTouchEnd = () => {
-    // Just keep the touch handlers for swipe detection
+    if (!swipedRef.current) return;
+    
+    const pullDistance = touchEndY.current - touchStartY.current;
+    
+    // Pull down to refresh if at the top of the page
+    if (pullDistance > 100 && window.scrollY <= 0) {
+      setIsUpdating(true);
+      getDailyVerseFromBible().then(v => {
+        setVerse(v);
+        setIsUpdating(false);
+        setIsOffline(false);
+        // Trigger notification if enabled
+        scheduleDailyNotification();
+      }).catch(() => {
+        setVerse(getDailyVerse());
+        setIsUpdating(false);
+        setIsOffline(true);
+      });
+    }
   };
 
   const handleVerseCardClick = () => {

@@ -38,6 +38,10 @@ function saveCachedDailyVerse(verse) {
 
 // Fetch today's daily verse from the API.
 // Result is cached in localStorage so online and offline always show the same verse.
+let tempOfflineVerse = null;
+
+// Fetch today's daily verse from the API.
+// Result is cached in localStorage so online and offline always show the same verse.
 export async function getDailyVerseFromBible() {
   // Return today's cached verse if already picked
   const cached = loadCachedDailyVerse(true); // requireToday=true
@@ -52,6 +56,7 @@ export async function getDailyVerseFromBible() {
         verse.abbr = bookData ? bookData.abbr : verse.book.slice(0, 3).toUpperCase();
         verse.book = bookData ? bookData.shortName : verse.book;
         saveCachedDailyVerse(verse);
+        tempOfflineVerse = null; // clear temporary fallback
         return verse;
       }
     } catch (e) {
@@ -59,7 +64,37 @@ export async function getDailyVerseFromBible() {
     }
   }
 
-  // If offline or API fails, return the offline fallback (which will include yesterday's verse if available)
+  // Try to generate a random offline verse using cached data
+  if (tempOfflineVerse) return tempOfflineVerse;
+  
+  try {
+    const bible = await getBibleData();
+    if (bible && bible['Genesis']) {
+      const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
+      const randomBook = bookNames[Math.floor(Math.random() * bookNames.length)];
+      const chapters = Object.keys(bible[randomBook]);
+      const randomChapter = chapters[Math.floor(Math.random() * chapters.length)];
+      const verses = bible[randomBook][randomChapter];
+      const randomVerse = verses[Math.floor(Math.random() * verses.length)];
+      
+      const text = randomVerse.text.replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
+      const bookData = BIBLE_BOOKS.find(b => b.name === randomBook || b.shortName === randomBook);
+      
+      tempOfflineVerse = {
+        abbr: bookData ? bookData.abbr : randomBook.slice(0, 3).toUpperCase(),
+        book: bookData ? bookData.shortName : randomBook,
+        chapter: parseInt(randomChapter),
+        verse: randomVerse.verse,
+        text,
+        ref: `${randomBook} ${randomChapter}:${randomVerse.verse} (Offline Random)`
+      };
+      return tempOfflineVerse;
+    }
+  } catch (e) {
+    console.error('Failed to pick offline random verse', e);
+  }
+
+  // If offline or API fails and no local data, return the offline fallback
   return getDailyVerse();
 }
 
