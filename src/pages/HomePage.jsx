@@ -136,9 +136,26 @@ export default function HomePage() {
     // Also check on focus (when user returns to the app)
     const handleFocus = () => {
       setNotifEnabled(getNotificationsEnabled());
+      // Check if it's a new day and update the verse if needed
+      const lastCached = getLastCachedDailyVerse();
+      if (lastCached && !lastCached.isToday && !isUpdating) {
+        setIsUpdating(true);
+        getDailyVerseFromBible().then(v => {
+          setVerse(v);
+          setIsUpdating(false);
+          setIsOffline(false);
+          scheduleDailyNotification();
+        }).catch(() => {
+          setVerse(getDailyVerse());
+          setIsUpdating(false);
+          setIsOffline(true);
+        });
+      }
     };
     window.addEventListener('focus', handleFocus);
-    document.addEventListener('visibilitychange', handleFocus);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') handleFocus();
+    });
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
