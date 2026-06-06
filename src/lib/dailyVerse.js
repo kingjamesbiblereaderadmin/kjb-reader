@@ -1,5 +1,6 @@
-import { getBibleData } from '@/lib/bibleCache';
+import { getBibleData, isBibleCached } from '@/lib/bibleCache';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
+import { base44 } from '@/api/base44Client';
 
 // We no longer use a fallback pool to ensure random seeding comes from all over the Bible.
 
@@ -139,6 +140,23 @@ export async function getDailyVerseFromBible() {
   if (cached) return cached;
 
   try {
+    const isCached = await isBibleCached();
+    if (!isCached && typeof navigator !== 'undefined' && navigator.onLine) {
+      try {
+        const res = await base44.functions.invoke('bibleApi', { action: 'daily_verse' });
+        if (res.data && res.data.verse) {
+          const verse = res.data.verse;
+          const bookData = BIBLE_BOOKS.find(b => b.name === verse.book || b.shortName === verse.book);
+          verse.abbr = bookData ? bookData.abbr : verse.book.slice(0, 3).toUpperCase();
+          verse.book = bookData ? bookData.shortName : verse.book;
+          saveCachedDailyVerse(verse);
+          return verse;
+        }
+      } catch (e) {
+        console.error('Failed to fetch daily verse from API', e);
+      }
+    }
+
     const bible = await getBibleData();
     const bookNames = Object.keys(bible).filter(k => k !== '__colophons').sort();
     if (!bookNames.length) throw new Error('no data');
