@@ -146,6 +146,13 @@ async function saveToCache(data) {
   // nothing was actually persisted (e.g. after a storage reset in Chrome).
   const ok = await saveToIndexedDB(data);
   if (ok === false) throw new Error('Could not save Bible to device storage');
+  
+  if (!remoteVersion) {
+    try {
+      await checkForUpdates();
+    } catch {}
+  }
+
   if (remoteVersion) {
     localStorage.setItem('bible_cache_version', remoteVersion);
   }

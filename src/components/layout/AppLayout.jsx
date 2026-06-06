@@ -276,8 +276,13 @@ export default function AppLayout() {
                     const reg = await navigator.serviceWorker.getRegistration();
                     if (reg) {
                       await reg.update().catch(() => {});
-                      if (reg.waiting || (reg.installing && reg.installing.state === 'installed')) {
+                      if (reg.waiting) {
                         swUpdated = true;
+                        // Tell waiting worker to skip waiting to apply the update immediately
+                        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                      } else if (reg.installing && reg.installing.state === 'installed') {
+                        swUpdated = true;
+                        reg.installing.postMessage({ type: 'SKIP_WAITING' });
                       }
                     }
                   }
