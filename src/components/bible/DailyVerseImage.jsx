@@ -402,245 +402,132 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   };
 
   return (
-    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full min-h-[300px] ${gradientClass} border border-border rounded-2xl shadow-lg px-6 text-center text-white relative flex flex-col ${capturing ? 'pt-20 pb-8' : 'pt-6 pb-6'} ${uploadingComplete ? 'cursor-default' : 'cursor-pointer'}`} style={bgStyle} onTouchEnd={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }}>
+    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full min-h-[300px] ${gradientClass} border border-border rounded-2xl shadow-lg px-6 text-center text-white relative flex flex-col ${capturing ? 'pt-20 pb-8' : 'pt-6 pb-6'} ${uploadingComplete ? 'cursor-default' : 'cursor-pointer'}`} style={bgStyle}>
       {/* Notification bell indicator button */}
       {showButtons && onToggleNotif && (
         <button
           onClick={(e) => {
-            e.preventDefault();
             e.stopPropagation();
-            e.nativeEvent.stopImmediatePropagation();
             onToggleNotif();
           }}
-          onMouseDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            e.nativeEvent.stopImmediatePropagation();
-          }}
-          onTouchStart={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            e.nativeEvent.stopImmediatePropagation();
-          }}
-          onTouchEnd={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            e.nativeEvent.stopImmediatePropagation();
-            onToggleNotif();
-          }}
-          className="absolute top-2 left-2 p-2 rounded-md bg-white/90 hover:bg-white transition-colors z-10 shadow-md"
+          className="absolute top-2 left-2 p-2 rounded-md bg-white/90 hover:bg-white transition-colors z-10 shadow-md touch-manipulation"
           title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
           type="button"
         >
-          {notifEnabled ? <Bell className="w-3.5 h-3.5 text-slate-800" /> : <BellOff className="w-3.5 h-3.5 text-slate-800" />}
+          {notifEnabled ? <Bell className="w-4 h-4 text-slate-800 pointer-events-none" /> : <BellOff className="w-4 h-4 text-slate-800 pointer-events-none" />}
         </button>
       )}
 
-
-
       {/* Action buttons */}
-      <div className="absolute top-2 right-2 flex gap-1 z-10" onClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
+      <div className="absolute top-2 right-2 flex gap-1 z-10" onClick={(e) => e.stopPropagation()}>
         {!capturing && showButtons ? (
           <>
             <button
               onClick={(e) => {
-                e.preventDefault();
                 e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
                 setShowLightbox(true);
               }}
-              onMouseDown={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
-              }}
-              onTouchStart={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
-              }}
-              onTouchEnd={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
-                setShowLightbox(true);
-              }}
-              className="p-2 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+              className="p-2 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md touch-manipulation"
               title="View in full screen"
               type="button"
             >
-              <Maximize2 className="w-3.5 h-3.5 text-slate-800" />
+              <Maximize2 className="w-4 h-4 text-slate-800 pointer-events-none" />
             </button>
             <button
               onClick={(e) => {
-                e.preventDefault();
                 e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
-                handleShare(e);
-              }}
-              onMouseDown={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
-              }}
-              onTouchStart={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
-              }}
-              onTouchEnd={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
                 handleShare(e);
               }}
               disabled={capturing}
-              className="p-2 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
+              className="p-2 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50 touch-manipulation"
               title="Share verse image"
               type="button"
             >
               {capturing ? (
-                <span className="w-3.5 h-3.5 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
+                <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block pointer-events-none" />
               ) : (
-                <Share2 className="w-3.5 h-3.5 text-slate-800" />
+                <Share2 className="w-4 h-4 text-slate-800 pointer-events-none" />
               )}
             </button>
             <button
               onClick={(e) => {
-                e.preventDefault();
                 e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
-                handleDownload(e);
-              }}
-              onMouseDown={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
-              }}
-              onTouchStart={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
-              }}
-              onTouchEnd={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
                 handleDownload(e);
               }}
               disabled={capturing}
-              className="p-2 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50"
+              className="p-2 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md disabled:opacity-50 touch-manipulation"
               title="Download verse image"
               type="button"
             >
               {capturing ? (
-                <span className="w-3.5 h-3.5 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block" />
+                <span className="w-4 h-4 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block pointer-events-none" />
               ) : (
-                <Download className="w-3.5 h-3.5 text-slate-800" />
+                <Download className="w-4 h-4 text-slate-800 pointer-events-none" />
               )}
             </button>
             {/* Unified menu button */}
             <div ref={menuRef} className="relative">
               <button
                 onClick={(e) => {
-                  e.preventDefault();
                   e.stopPropagation();
-                  e.nativeEvent.stopImmediatePropagation();
                   if (!showStyleEditor) {
                     setShowMenu(!showMenu);
                   }
                 }}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent.stopImmediatePropagation();
-                }}
-                onTouchStart={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent.stopImmediatePropagation();
-                }}
-                onTouchEnd={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent.stopImmediatePropagation();
-                  if (!showStyleEditor) {
-                    setShowMenu(!showMenu);
-                  }
-                }}
-                className="p-2 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+                className="p-2 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md touch-manipulation"
                 title="More options"
                 type="button"
               >
-                <MoreVertical className="w-3.5 h-3.5 text-slate-800" />
+                <MoreVertical className="w-4 h-4 text-slate-800 pointer-events-none" />
               </button>
               {/* Dropdown menu */}
               {showMenu && (
                 <div
                   className="absolute right-0 top-8 z-30 bg-white rounded-lg shadow-xl border border-slate-200 py-1 w-48"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.nativeEvent.stopImmediatePropagation();
-                  }}
-                  onTouchEnd={(e) => {
-                    e.stopPropagation();
-                    e.nativeEvent.stopImmediatePropagation();
-                  }}
-                  onMouseDown={(e) => {
-                    e.stopPropagation();
-                    e.nativeEvent.stopImmediatePropagation();
-                  }}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <button
                     onClick={(e) => {
-                      e.preventDefault();
                       e.stopPropagation();
-                      e.nativeEvent.stopImmediatePropagation();
                       handleCopyVerse(e);
                     }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors touch-manipulation"
                   >
-                    <Copy className="w-4 h-4" />
+                    <Copy className="w-4 h-4 pointer-events-none" />
                     Copy Verse
                   </button>
                   {hasCustomBg && (
                     <button
                       onClick={(e) => {
-                        e.preventDefault();
                         e.stopPropagation();
-                        e.nativeEvent.stopImmediatePropagation();
                         const newValue = !showVersePanel;
                         setShowVersePanel(newValue);
                         localStorage.setItem('kjb-verse-panel-visible', String(newValue));
                         window.dispatchEvent(new Event('storage'));
                         setShowMenu(false);
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors touch-manipulation"
                     >
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-4 h-4 pointer-events-none" />
                       {showVersePanel ? 'Hide Panel' : 'Show Panel'}
                     </button>
                   )}
                   {!showStyleEditor && (
                     <button
                       onClick={(e) => {
-                        e.preventDefault();
                         e.stopPropagation();
-                        e.nativeEvent.stopImmediatePropagation();
                         setShowStyleEditor(true);
                         setShowMenu(false);
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors touch-manipulation"
                     >
-                      <Palette className="w-4 h-4" />
+                      <Palette className="w-4 h-4 pointer-events-none" />
                       Text Style
                     </button>
                   )}
                   <button
                     onClick={(e) => {
-                      e.preventDefault();
                       e.stopPropagation();
-                      e.nativeEvent.stopImmediatePropagation();
                       setCropImageForNotif(false);
                       setShowMenu(false);
                       // Trigger file input immediately
@@ -648,56 +535,31 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                         fileInputRef.current.click();
                       }
                     }}
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      e.nativeEvent.stopImmediatePropagation();
-                    }}
-                    onTouchStart={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      e.nativeEvent.stopImmediatePropagation();
-                    }}
-                    onTouchEnd={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      e.nativeEvent.stopImmediatePropagation();
-                      setCropImageForNotif(false);
-                      setShowMenu(false);
-                      // Trigger file input immediately on mobile
-                      if (fileInputRef.current) {
-                        fileInputRef.current.click();
-                      }
-                    }}
                     disabled={uploading}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-50"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-50 touch-manipulation"
                   >
-                    <Image className="w-4 h-4" />
+                    <Image className="w-4 h-4 pointer-events-none" />
                     {uploading ? 'Uploading...' : 'Change Background'}
                   </button>
                   {(originalBg || customBg || pendingBg) && (
                     <button
                       onClick={(e) => {
-                        e.preventDefault();
                         e.stopPropagation();
-                        e.nativeEvent.stopImmediatePropagation();
                         setCropImageForNotif(false);
                         // Prefer original (uncropped) image when re-cropping
                         setCropImage(originalBg || pendingBg || customBg);
                         setShowMenu(false);
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors touch-manipulation"
                     >
-                      <Crop className="w-4 h-4" />
+                      <Crop className="w-4 h-4 pointer-events-none" />
                       Crop Background
                     </button>
                   )}
                   {(customBg || pendingBg) && (
                     <button
                       onClick={(e) => {
-                        e.preventDefault();
                         e.stopPropagation();
-                        e.nativeEvent.stopImmediatePropagation();
                         if (pendingBg) {
                           setPendingBg(null);
                         } else {
@@ -713,23 +575,21 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                         }
                         setShowMenu(false);
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors touch-manipulation"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4 pointer-events-none" />
                       Remove Custom Background
                     </button>
                   )}
                   <button
                     onClick={(e) => {
-                      e.preventDefault();
                       e.stopPropagation();
-                      e.nativeEvent.stopImmediatePropagation();
                       setShowButtons(false);
                       setShowMenu(false);
                     }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors touch-manipulation"
                   >
-                    <ChevronsDown className="w-4 h-4 rotate-180" />
+                    <ChevronsDown className="w-4 h-4 rotate-180 pointer-events-none" />
                     Hide All Buttons
                   </button>
                 </div>
@@ -740,32 +600,14 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         ) : !capturing ? (
           <button
             onClick={(e) => {
-              e.preventDefault();
               e.stopPropagation();
-              e.nativeEvent.stopImmediatePropagation();
               setShowButtons(true);
             }}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              e.nativeEvent.stopImmediatePropagation();
-            }}
-            onTouchStart={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              e.nativeEvent.stopImmediatePropagation();
-            }}
-            onTouchEnd={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              e.nativeEvent.stopImmediatePropagation();
-              setShowButtons(true);
-            }}
-            className="p-2 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md"
+            className="p-2 rounded-md bg-white hover:bg-slate-100 transition-colors shadow-md touch-manipulation"
             title="Show buttons"
             type="button"
           >
-            <ChevronsDown className="w-3.5 h-3.5 text-slate-800 rotate-90" />
+            <ChevronsDown className="w-4 h-4 text-slate-800 rotate-90 pointer-events-none" />
           </button>
         ) : null}
       </div>
@@ -796,52 +638,24 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             <div className="flex items-center gap-1.5">
             <button
               onClick={(e) => {
-                e.preventDefault();
                 e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
                 handleTextColorChange('#ffffff');
                 handleTextOpacityChange(0.95);
                 handleFontFamilyChange('serif');
               }}
-              onTouchEnd={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
-                handleTextColorChange('#ffffff');
-                handleTextOpacityChange(0.95);
-                handleFontFamilyChange('serif');
-              }}
-              className="flex items-center gap-1 px-2 py-1 rounded-md bg-secondary hover:bg-accent/20 text-slate-700 dark:text-slate-300 font-sans text-[10px] font-medium transition-colors"
+              className="flex items-center gap-1 px-2 py-1 rounded-md bg-secondary hover:bg-accent/20 text-slate-700 dark:text-slate-300 font-sans text-[10px] font-medium transition-colors touch-manipulation"
             >
-              <RotateCcw className="w-2.5 h-2.5" />
+              <RotateCcw className="w-2.5 h-2.5 pointer-events-none" />
               Reset All
             </button>
             <button
               onClick={(e) => {
-                e.preventDefault();
                 e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
                 setShowStyleEditor(false);
               }}
-              onMouseDown={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
-              }}
-              onTouchStart={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
-              }}
-              onTouchEnd={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent.stopImmediatePropagation();
-                setShowStyleEditor(false);
-              }}
-              className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+              className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors touch-manipulation"
             >
-              <Upload className="w-4 h-4 rotate-45 text-slate-600 dark:text-slate-400" />
+              <Upload className="w-4 h-4 rotate-45 text-slate-600 dark:text-slate-400 pointer-events-none" />
             </button>
             </div>
           </div>
