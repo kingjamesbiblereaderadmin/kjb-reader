@@ -160,11 +160,14 @@ Deno.serve(async (req) => {
         verseObj = verses[currentSeed % verses.length];
         
         const txt = verseObj.text.toLowerCase();
-        const excluded = (txt.includes('endure') && txt.includes('end')) ||
-                         txt.includes('faith without works is dead') ||
-                         txt.includes('put to death') ||
-                         (txt.includes('dash') && txt.includes('pieces'));
-        if (!excluded) break;
+        const hasExcludedText = (txt.includes('endure') && txt.includes('end')) ||
+                                txt.includes('faith without works is dead') ||
+                                txt.includes('put to death') ||
+                                (txt.includes('dash') && txt.includes('pieces'));
+                                
+        const isExcludedChapter = bookName === 'Romans' && parseInt(chapterNum) === 10;
+        
+        if (!hasExcludedText && !isExcludedChapter) break;
         currentSeed++;
       }
 
