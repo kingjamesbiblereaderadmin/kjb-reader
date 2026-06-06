@@ -77,8 +77,13 @@ function preloadAllRoutes() {
   }
 }
 
-// No spinner — render nothing while a chunk loads (usually instant once cached)
-const PageLoader = () => null;
+// Provide a subtle loading spinner instead of a blank screen when loading chunks/reloading
+import { Loader2 } from 'lucide-react';
+const PageLoader = () => (
+  <div className="min-h-[50vh] w-full flex items-center justify-center">
+    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground opacity-50" />
+  </div>
+);
 
 // Wraps each route in a fast CSS fade so transitions feel smooth, not blank.
 // Keyed by pathname so the animation replays on every navigation —
@@ -122,10 +127,9 @@ const AuthenticatedApp = () => {
   }, []);
 
   // Don't return null while auth resolves — that causes a blank flash on reload.
-  // The app shell (header/nav) renders immediately; only block on hard auth errors.
+  // We'll show the loader animation while auth initializes
   if (isLoadingPublicSettings || isLoadingAuth) {
-    // Keep the previously-rendered tree alive (no flash). Routes will hydrate
-    // as soon as auth resolves.
+    return <PageLoader />;
   }
 
   if (authError) {
