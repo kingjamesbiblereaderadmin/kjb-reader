@@ -49,7 +49,7 @@ export default function AppLayout() {
   const { pathname } = useLocation();
   const { isDark, mode, toggleTheme } = useTheme();
   const { hideHeader } = useHeaderHide();
-  const { reloadKey, softReload } = useSoftReload();
+  const { reloadKey, softReload, isReloading } = useSoftReload();
   const [menuOpen, setMenuOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
@@ -271,10 +271,13 @@ export default function AppLayout() {
                   if (swUpdated) {
                     // Wipe daily verse cache on code update so new verse logic applies immediately
                     localStorage.removeItem('kjb-daily-verse-cache');
+                    toast.loading('Applying updates…', { id: checkToastId });
+                    setTimeout(() => window.location.reload(), 500);
+                  } else {
+                    toast.dismiss(checkToastId);
+                    setRefreshing(false);
+                    softReload();
                   }
-                  
-                  toast.loading('Reloading…', { id: checkToastId });
-                  setTimeout(() => window.location.reload(), 500);
                 } catch (err) {
                   console.error('Refresh failed:', err);
                   toast.error('Failed to check for updates', { id: checkToastId });
@@ -343,8 +346,13 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main id="kjb-scroll" className="flex-1 overflow-y-auto pb-[calc(5rem+env(safe-area-inset-bottom))] sm:!pb-0 px-1 sm:px-2">
-        <div key={reloadKey}>
+      <main id="kjb-scroll" className="flex-1 overflow-y-auto pb-[calc(5rem+env(safe-area-inset-bottom))] sm:!pb-0 px-1 sm:px-2 relative">
+        {isReloading && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm kjb-fade-in">
+            <RotateCw className="w-8 h-8 text-primary animate-spin" />
+          </div>
+        )}
+        <div key={reloadKey} className={isReloading ? 'opacity-50 pointer-events-none' : ''}>
           <Outlet />
         </div>
       </main>
