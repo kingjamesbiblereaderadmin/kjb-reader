@@ -10,6 +10,7 @@ import SearchResultsList from '@/components/bible/SearchResultsList';
 import GhostInput from '@/components/bible/GhostInput';
 import { setSearchNav, clearSearchNav } from '@/lib/searchNav';
 import ExportMenu from '@/components/bible/ExportMenu';
+import PrintDropdown from '@/components/bible/PrintDropdown';
 import { exportVerses } from '@/lib/exportVerses';
 import { buildVerseUrl } from '@/lib/formatDailyVerse';
 import { SUBSCRIPTS } from '@/lib/bibleSubscripts';
@@ -1288,6 +1289,12 @@ export default function SearchPage() {
                     <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy All'}
                   </button>
                   <ExportMenu onExport={handleExport} label="Export" warning />
+                  <PrintDropdown 
+                    onPrintFull={() => window.print()} 
+                    onPrintContents={() => handleExport('print')} 
+                    contentLabel="Results"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+                  />
                   <button
                     onClick={handleShare}
                     className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
@@ -1312,6 +1319,12 @@ export default function SearchPage() {
                         <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : `Copy (${selected.size})`}
                       </button>
                       <ExportMenu onExport={handleExport} count={selected.size} label="Export" warning />
+                      <PrintDropdown 
+                        onPrintFull={() => window.print()} 
+                        onPrintContents={() => handleExport('print')} 
+                        contentLabel="Results"
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+                      />
                       <button
                         onClick={handleShare}
                         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"

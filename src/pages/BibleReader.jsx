@@ -294,9 +294,7 @@ export default function BibleReader() {
   };
 
   const handleCopySelected = async () => {
-    console.log('[BibleReader] handleCopySelected called');
-    console.log('[BibleReader] Selected verses:', selectedVerses.size);
-    console.log('[BibleReader] Copy feedback state before:', copyFeedback);
+
     
     const toUse = selectedVerses.size > 0 ? selectedVerses : new Set(verses.map(v => v.verse));
     const selectedVersesList = verses.filter(v => toUse.has(v.verse)).sort((a, b) => a.verse - b.verse);

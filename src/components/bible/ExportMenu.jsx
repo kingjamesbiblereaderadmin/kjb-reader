@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Download, ChevronDown, FileText, FileSpreadsheet, FileType, File, Printer } from 'lucide-react';
 
 const OPTIONS = [
-  { format: 'print', label: 'Print', Icon: Printer },
   { format: 'pdf', label: 'PDF (.pdf)', Icon: FileType },
   { format: 'docx', label: 'Word (.doc)', Icon: FileText },
   { format: 'xls', label: 'Excel (.csv)', Icon: FileSpreadsheet },

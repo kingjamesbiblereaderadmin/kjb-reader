@@ -329,3 +329,20 @@
     background-color: transparent !important;
   }
 }
+
+@media print {
+  html, body, #root {
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .h-screen {
+    height: auto !important;
+  }
+  .overflow-hidden {
+    overflow: visible !important;
+  }
+  main, #kjb-scroll, .overflow-y-auto, .overflow-x-hidden {
+    height: auto !important;
+    overflow: visible !important;
+  }
+}
