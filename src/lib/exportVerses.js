@@ -501,7 +501,7 @@ export function exportPrint(items, query, filters, options = {}) {
 
   // Use a clean, generic title for the browser's print header so we avoid
   // showing hyphenated file names or "about:blank".
-  const printTitle = 'King James Bible';
+  const printTitle = '\u200B';
 
   const footerHtml = isReading 
     ? '' 

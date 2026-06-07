@@ -870,7 +870,7 @@ export default function SearchPage() {
 
       {/* Print-only title */}
       <h1 className="hidden print:block font-serif text-2xl font-bold text-black mb-4">
-        {stripQuotes(getQueryFromUrl() || query)}
+        Search Results for "{stripQuotes(getQueryFromUrl() || query)}"
       </h1>
 
       <form onSubmit={handleSubmit} action="#" className="flex gap-2 mb-3 print:hidden">
