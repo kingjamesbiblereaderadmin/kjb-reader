@@ -53,6 +53,7 @@ export default function AppLayout() {
   const { reloadKey, softReload, isReloading } = useSoftReload();
   const [menuOpen, setMenuOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [updateOverlayText, setUpdateOverlayText] = useState('');
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
   useEffect(() => {
@@ -269,8 +270,22 @@ export default function AppLayout() {
                 }
 
                 setRefreshing(true);
-                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Refreshing app...' } }));
                 try {
+                  let hasUpdates = false;
+                  try {
+                    const { checkForUpdates, autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
+                    hasUpdates = await checkForUpdates();
+                    if (hasUpdates) {
+                      setUpdateOverlayText('Found updates, updating...');
+                      await autoDownloadBibleOnFirstLoad();
+                      setUpdateOverlayText('Reloading...');
+                    }
+                  } catch (e) {}
+
+                  if (!hasUpdates) {
+                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App is up to date. Reloading...', status: 'success' } }));
+                  }
+
                   // Clear service worker cache to ensure latest code is fetched
                   if ('caches' in window) {
                     const cacheNames = await caches.keys();
@@ -284,28 +299,17 @@ export default function AppLayout() {
                       await reg.unregister();
                     }
                   }
-
-                  // Safely check if there's a new Bible version available.
-                  // If there is an update, download it. If not, the offline file is untouched.
-                  try {
-                    const { checkForUpdates, autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
-                    if (await checkForUpdates()) {
-                      window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Updating Bible text...', status: 'info' } }));
-                      await autoDownloadBibleOnFirstLoad();
-                    }
-                  } catch (e) {}
-
-                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Refreshed successfully. Reloading...', status: 'success' } }));
                   
                   // Force a hard reload with a cache-busting query parameter to guarantee the browser bypasses its internal memory
                   setTimeout(() => {
                     window.location.href = window.location.pathname + '?refresh=' + Date.now();
-                  }, 500);
+                  }, 800);
                 } catch (err) {
                   console.error('Refresh failed:', err);
                   window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Failed to force update', status: 'error' } }));
                   setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
                   setRefreshing(false);
+                  setUpdateOverlayText('');
                 }
               }}
               type="button"
@@ -397,6 +401,17 @@ export default function AppLayout() {
       )}
 
       <DesktopFooter navigate={navigate} setMenuOpen={setMenuOpen} />
+
+      {updateOverlayText && (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/80 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="flex flex-col items-center gap-4 p-6 rounded-2xl bg-card border border-border shadow-2xl scale-in-95 duration-200">
+            <RotateCw className="w-10 h-10 text-primary animate-spin" />
+            <div className="text-center space-y-1">
+              <h3 className="font-serif text-lg font-semibold text-foreground">{updateOverlayText}</h3>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
     </AutoUpdateHandler>
   );
