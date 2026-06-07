@@ -98,6 +98,12 @@ const PageLoader = ({ isFadingOut }) => (
   </div>
 );
 
+const RouteLoader = () => (
+  <div className="flex justify-center py-24">
+    <Loader2 className="w-8 h-8 animate-spin text-accent" />
+  </div>
+);
+
 // Wraps each route in a fast CSS fade so transitions feel smooth, not blank.
 // Keyed by pathname so the animation replays on every navigation —
 // but skipped on the very first render to avoid a flash on refresh.
@@ -249,16 +255,16 @@ const AuthenticatedApp = () => {
       {!isInitializing && !authError && (
         <Routes location={location}>
           <Route element={<AppLayout />}>
-        <Route path="/" element={<Suspense fallback={<PageLoader />}><FadeIn><HomePage /></FadeIn></Suspense>} />
-        <Route path="/read" element={<Suspense fallback={<PageLoader />}><FadeIn><BibleReader /></FadeIn></Suspense>} />
-        <Route path="/gospel" element={<Suspense fallback={<PageLoader />}><FadeIn><GospelPage /></FadeIn></Suspense>} />
-        <Route path="/resources" element={<Suspense fallback={<PageLoader />}><FadeIn><ResourcesPage /></FadeIn></Suspense>} />
-        <Route path="/about" element={<Suspense fallback={<PageLoader />}><FadeIn><AboutPage /></FadeIn></Suspense>} />
-        <Route path="/contents" element={<Suspense fallback={<PageLoader />}><FadeIn><ContentsPage /></FadeIn></Suspense>} />
-        <Route path="/settings" element={<Suspense fallback={<PageLoader />}><FadeIn><SettingsPage /></FadeIn></Suspense>} />
-        <Route path="/search" element={<Suspense fallback={<PageLoader />}><FadeIn><SearchPage /></FadeIn></Suspense>} />
-        <Route path="/saved" element={<Suspense fallback={<PageLoader />}><FadeIn><SavedVersesPage /></FadeIn></Suspense>} />
-        <Route path="/refresh-cache" element={<Suspense fallback={<PageLoader />}><FadeIn><RefreshCache /></FadeIn></Suspense>} />
+        <Route path="/" element={<Suspense fallback={<RouteLoader />}><FadeIn><HomePage /></FadeIn></Suspense>} />
+        <Route path="/read" element={<Suspense fallback={<RouteLoader />}><FadeIn><BibleReader /></FadeIn></Suspense>} />
+        <Route path="/gospel" element={<Suspense fallback={<RouteLoader />}><FadeIn><GospelPage /></FadeIn></Suspense>} />
+        <Route path="/resources" element={<Suspense fallback={<RouteLoader />}><FadeIn><ResourcesPage /></FadeIn></Suspense>} />
+        <Route path="/about" element={<Suspense fallback={<RouteLoader />}><FadeIn><AboutPage /></FadeIn></Suspense>} />
+        <Route path="/contents" element={<Suspense fallback={<RouteLoader />}><FadeIn><ContentsPage /></FadeIn></Suspense>} />
+        <Route path="/settings" element={<Suspense fallback={<RouteLoader />}><FadeIn><SettingsPage /></FadeIn></Suspense>} />
+        <Route path="/search" element={<Suspense fallback={<RouteLoader />}><FadeIn><SearchPage /></FadeIn></Suspense>} />
+        <Route path="/saved" element={<Suspense fallback={<RouteLoader />}><FadeIn><SavedVersesPage /></FadeIn></Suspense>} />
+        <Route path="/refresh-cache" element={<Suspense fallback={<RouteLoader />}><FadeIn><RefreshCache /></FadeIn></Suspense>} />
           </Route>
           <Route path="*" element={<PageNotFound />} />
         </Routes>
