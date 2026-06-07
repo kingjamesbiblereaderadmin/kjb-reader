@@ -139,9 +139,9 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                   </span>
                 </button>
               ) : (
-                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl p-3">
-                  <p className="font-sans text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
-                    <strong>Your browser doesn't support automatic installation.</strong>
+                <div className="bg-secondary/40 border border-border rounded-xl p-3">
+                  <p className="font-sans text-xs text-foreground leading-relaxed">
+                    <strong>Install KJB Reader from your browser menu:</strong>
                     <br />
                     {isIOS() ? (
                       <>Tap <strong>Share</strong>, then <strong>"Add to Home Screen"</strong>.</>

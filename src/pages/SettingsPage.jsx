@@ -895,13 +895,13 @@ export default function SettingsPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            <div className="flex items-start gap-2 text-amber-600 dark:text-amber-400">
-              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-              <span className="font-sans text-xs">Your browser doesn't support automatic installation. Follow the manual instructions below:</span>
+            <div className="flex items-start gap-2 text-foreground">
+              <Smartphone className="w-4 h-4 flex-shrink-0 mt-0.5 text-primary" />
+              <span className="font-sans text-xs">Install KJB Reader directly from your browser menu:</span>
             </div>
             <div className="space-y-2 bg-secondary/50 rounded-xl p-4">
               <p className="font-sans text-xs text-muted-foreground mb-2">
-                <strong>Install instructions:</strong>
+                <strong>Instructions:</strong>
               </p>
               <div className="font-sans text-xs text-muted-foreground space-y-1.5">
                 <p>• <strong>iPhone/iPad:</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Share</span> button, then <span className="text-foreground font-medium">"Add to Home Screen"</span></p>
