@@ -155,12 +155,7 @@ export default function HomePage() {
             // Ensure the checking message is visible for at least a brief moment so it doesn't flash
             await new Promise(r => setTimeout(r, 600));
 
-            if (swUpdated && bibleNeedsUpdate) {
-              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Updates applied.", status: 'success' } }));
-              window.dispatchEvent(new Event('kjb-reloading'));
-              setTimeout(() => { window.location.reload(); }, 800);
-              return;
-            } else if (swUpdated) {
+            if (swUpdated || bibleNeedsUpdate) {
               window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Updates applied.", status: 'success' } }));
               window.dispatchEvent(new Event('kjb-reloading'));
               setTimeout(() => { window.location.reload(); }, 800);

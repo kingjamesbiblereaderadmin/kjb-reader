@@ -284,26 +284,31 @@ export default function AppLayout() {
                     }
                   } catch (e) {}
 
-                  let hasCodeUpdates = false;
                   if ('serviceWorker' in navigator) {
                     const reg = await navigator.serviceWorker.getRegistration();
                     if (reg) {
-                      await reg.update();
+                      await reg.update().catch(() => {});
                       if (reg.waiting) {
-                        hasCodeUpdates = true;
                         reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                      } else if (reg.installing && reg.installing.state === 'installed') {
-                        hasCodeUpdates = true;
-                        reg.installing.postMessage({ type: 'SKIP_WAITING' });
+                      } else if (reg.installing) {
+                        if (reg.installing.state === 'installed') {
+                          reg.installing.postMessage({ type: 'SKIP_WAITING' });
+                        } else {
+                          await new Promise(resolve => {
+                            const worker = reg.installing;
+                            worker.addEventListener('statechange', () => {
+                              if (worker.state === 'installed') {
+                                worker.postMessage({ type: 'SKIP_WAITING' });
+                                resolve();
+                              } else if (worker.state === 'redundant') {
+                                resolve();
+                              }
+                            });
+                            setTimeout(resolve, 3000);
+                          });
+                        }
                       }
                     }
-                  }
-
-                  if (!hasBibleUpdates && !hasCodeUpdates) {
-                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App is up to date', status: 'success' } }));
-                    setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
-                    setRefreshing(false);
-                    return;
                   }
 
                   window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Applying updates...', status: 'loading' } }));
