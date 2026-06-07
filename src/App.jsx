@@ -95,9 +95,16 @@ function preloadAllRoutes() {
 import { Loader2 } from 'lucide-react';
 const PageLoader = ({ isFadingOut }) => {
   // Capture the updateType once on mount so it doesn't change when checkUpdatesSilently removes it
-  const [updateType] = useState(() => 
-    typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null
-  );
+  const [updateType] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('updated') === 'true') {
+        try { window.history.replaceState({}, '', window.location.pathname); } catch(e) {}
+        return 'forced_update';
+      }
+    }
+    return typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null;
+  });
   const [dynamicText, setDynamicText] = useState(null);
 
   const [isFirstVisit] = useState(() => {
@@ -138,7 +145,9 @@ const PageLoader = ({ isFadingOut }) => {
   if (dynamicText) {
     text = dynamicText;
   } else if (updateType) {
-    text = updateType === 'bible_first_load' ? "Ready to read..." : "Loading KJB Reader...";
+    if (updateType === 'bible_first_load') text = "Ready to read...";
+    else if (updateType === 'forced_update' || updateType === 'app' || updateType === 'both') text = "Updates applied successfully...";
+    else text = "Loading KJB Reader...";
   }
 
   return (
