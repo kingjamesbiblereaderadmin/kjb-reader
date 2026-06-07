@@ -295,6 +295,53 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
     }
   };
 
+  const handlePrint = async (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setShowMenu(false);
+    try {
+      const blob = await captureShareCard();
+      const url = URL.createObjectURL(blob);
+      
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'fixed';
+      iframe.style.right = '0';
+      iframe.style.bottom = '0';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = '0';
+      document.body.appendChild(iframe);
+      
+      iframe.contentWindow.document.open();
+      iframe.contentWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Print Verse</title>
+            <style>
+              @page { margin: 0; size: auto; }
+              body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: white; }
+              img { max-width: 100%; max-height: 100vh; object-fit: contain; }
+            </style>
+          </head>
+          <body>
+            <img src="${url}" onload="setTimeout(() => { window.print(); }, 150);" />
+          </body>
+        </html>
+      `);
+      iframe.contentWindow.document.close();
+      
+      setTimeout(() => {
+        try {
+          document.body.removeChild(iframe);
+          URL.revokeObjectURL(url);
+        } catch (err) {}
+      }, 10000);
+    } catch (err) {
+      console.error('Failed to print image:', err);
+    }
+  };
+
   const handleSetWallpaper = async (e) => {
     e.stopPropagation();
     setCapturing(true);
@@ -467,10 +514,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               )}
             </button>
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                window.print();
-              }}
+              onClick={handlePrint}
               disabled={capturing}
               className="p-1.5 flex items-center justify-center rounded-lg bg-white/20 hover:bg-white/30 transition-colors disabled:opacity-50 touch-manipulation"
               title="Print verse image"
