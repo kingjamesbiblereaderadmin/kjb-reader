@@ -295,9 +295,9 @@ export default function AppLayout() {
                   const { forceReloadBibleData } = await import('@/lib/bibleCache');
                   await forceReloadBibleData().catch(() => {});
                   
-                  // Force a hard reload to fetch new JS/CSS assets and clear old scripts
+                  // Force a hard reload with a cache-busting query parameter to guarantee the browser bypasses its internal memory
                   setTimeout(() => {
-                    window.location.reload();
+                    window.location.href = window.location.pathname + '?refresh=' + Date.now();
                   }, 500);
                 } catch (err) {
                   console.error('Refresh failed:', err);
