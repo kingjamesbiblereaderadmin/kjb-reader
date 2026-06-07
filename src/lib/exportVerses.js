@@ -281,9 +281,14 @@ export function exportPrint(items, query, filters, options = {}) {
 
   const now = new Date();
   const dateStr = now.toLocaleDateString() + ' at ' + now.toLocaleTimeString();
+  
+  const headerHtml = isReading 
+    ? `<h1 style="font-family:Georgia,serif;font-size:24pt;margin-bottom:20pt;text-align:center;">${escapeHtml(query)}</h1>`
+    : `<h1 style="font-family:Georgia,serif;font-size:20pt;margin-bottom:20pt;">${escapeHtml(titlePrefix)} &mdash; &ldquo;${escapeHtml(query)}&rdquo;</h1>`;
+
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>&#8203;</title><style>@page { margin: 0; } body { margin: 1.5cm !important; }</style></head><body onload="window.print(); setTimeout(() => window.close(), 500);" style="padding:20px;max-width:800px;margin:0 auto;color:#000;">` +
-    `<h1 style="font-family:Georgia,serif;font-size:20pt;margin-bottom:20pt;">${escapeHtml(titlePrefix)} &mdash; &ldquo;${escapeHtml(query)}&rdquo;</h1>${rows}` +
-    `<p style="font-size:10pt;color:#777;margin-top:40pt;border-top:1px solid #eee;padding-top:10pt;">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</p></body></html>`;
+    `${headerHtml}${rows}` +
+    `<p style="font-size:10pt;color:#777;margin-top:40pt;border-top:1px solid #eee;padding-top:10pt;${isReading ? 'text-align:center;' : ''}">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</p></body></html>`;
   
   const printWindow = window.open('', '_blank');
   if (printWindow) {
