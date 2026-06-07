@@ -186,9 +186,14 @@ const AuthenticatedApp = () => {
 
   useEffect(() => {
     let isMounted = true;
+    let updateCheckInProgress = false;
+
     const checkUpdatesSilently = async () => {
+      if (updateCheckInProgress) return;
+      updateCheckInProgress = true;
       try {
         if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+          updateCheckInProgress = false;
           return; // Skip if offline
         }
 
@@ -276,12 +281,71 @@ const AuthenticatedApp = () => {
         if (isMounted) {
           setUpdateCheckDone(true);
         }
+        updateCheckInProgress = false;
       }
     };
 
     checkUpdatesSilently();
-    return () => { isMounted = false; };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkUpdatesSilently();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', checkUpdatesSilently);
+
+    return () => { 
+      isMounted = false; 
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', checkUpdatesSilently);
+    };
   }, []);
+
+  // Check for updates on route change (e.g. navigating around)
+  useEffect(() => {
+    if (!updateCheckDone) return;
+    
+    let isMounted = true;
+    const checkNavUpdates = async () => {
+      try {
+        if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
+        
+        let hasAppUpdates = false;
+        if ('serviceWorker' in navigator) {
+          const reg = await navigator.serviceWorker.getRegistration();
+          if (reg && reg.active) {
+            await reg.update().catch(() => {});
+            if (reg.waiting) {
+              hasAppUpdates = true;
+              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            } else if (reg.installing) {
+              if (reg.installing.state === 'installed') {
+                hasAppUpdates = true;
+                reg.installing.postMessage({ type: 'SKIP_WAITING' });
+              }
+            }
+          }
+        }
+        
+        if (hasAppUpdates && isMounted) {
+          sessionStorage.setItem('kjb_sw_updated', 'app');
+          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Applying update...', status: 'loading' } }));
+          setTimeout(() => window.location.reload(), 2000);
+        }
+      } catch (err) {
+        // ignore
+      }
+    };
+    
+    // Small delay so it doesn't block the actual page transition
+    const timer = setTimeout(checkNavUpdates, 1000);
+    return () => { 
+      isMounted = false;
+      clearTimeout(timer);
+    };
+  }, [location.pathname, updateCheckDone]);
 
   // Preload all route chunks in the background once auth resolves
   useEffect(() => { 
