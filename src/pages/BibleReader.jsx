@@ -776,7 +776,7 @@ export default function BibleReader() {
     
     const scroller = document.getElementById('kjb-scroll');
     const toolbarH = topRef.current ? topRef.current.getBoundingClientRect().height : 0;
-    const stickyOffset = toolbarH + 96; // Give extra comfortable breathing room above the verse
+    const stickyOffset = toolbarH + 16; // Give just enough breathing room so it scrolls to the top of the verse number
     
     // Find the verse number element to reliably get the top position,
     // avoiding CSS column fragmentation issues on the parent block.
