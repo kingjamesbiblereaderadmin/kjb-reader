@@ -152,23 +152,28 @@ export default function HomePage() {
                 localStorage.removeItem('bible_cache_version');
                 localStorage.removeItem('bible_last_refresh');
                 await downloadBibleForOffline();
+              } else if (swUpdated) {
+                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Installing updates...', status: 'loading' } }));
+                await new Promise(r => setTimeout(r, 1000));
               }
 
               window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Applying updates...', status: 'loading' } }));
               await new Promise(r => setTimeout(r, 1000));
 
+              sessionStorage.setItem('kjb_sw_updated', updateType);
+
               if (swUpdated && 'serviceWorker' in navigator) {
                 const reg = await navigator.serviceWorker.getRegistration();
                 if (reg && reg.waiting) {
                   reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                } else if (reg && reg.installing && reg.installing.state === 'installed') {
+                } else if (reg && reg.installing && (reg.installing.state === 'installed' || reg.installing.state === 'activating' || reg.installing.state === 'activated')) {
                   reg.installing.postMessage({ type: 'SKIP_WAITING' });
                 }
                 console.log('[UpdateCheck] Activating new service worker...');
+                return; // main.jsx reloads it
               }
 
               console.log('[UpdateCheck] Reloading application...');
-              sessionStorage.setItem('kjb_sw_updated', updateType);
               setTimeout(() => { window.location.href = window.location.pathname + '?refresh=' + Date.now(); }, 500);
               return;
             }
