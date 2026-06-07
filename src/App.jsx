@@ -194,6 +194,15 @@ const AuthenticatedApp = () => {
   const [minSplashDone, setMinSplashDone] = useState(false);
   const [updateCheckDone, setUpdateCheckDone] = useState(false);
   const [routeLoaded, setRouteLoaded] = useState(false);
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  useEffect(() => {
+    if (document.fonts) {
+      document.fonts.ready.then(() => setFontsLoaded(true));
+    } else {
+      setFontsLoaded(true);
+    }
+  }, []);
 
   useEffect(() => {
     const loader = getLoaderForPath(location.pathname);
@@ -399,7 +408,7 @@ const AuthenticatedApp = () => {
   }, []);
 
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
-  const showSplash = isInitializing || !minSplashDone || !updateCheckDone || !routeLoaded;
+  const showSplash = isInitializing || !minSplashDone || !updateCheckDone || !routeLoaded || !fontsLoaded;
 
   const [renderSplash, setRenderSplash] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
