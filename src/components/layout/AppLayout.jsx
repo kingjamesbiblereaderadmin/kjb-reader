@@ -192,7 +192,10 @@ export default function AppLayout() {
             }}
             className="flex items-center gap-2 flex-shrink-0 pointer-events-auto"
           >
-            <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" className="h-8 w-auto" />
+            <div className="flex items-center gap-1.5">
+              <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" className="h-8 w-auto" />
+              <span className="bg-amber-500/25 text-amber-600 dark:text-amber-400 text-[10px] font-bold px-1.5 py-0.5 rounded-full select-none">Test v2</span>
+            </div>
           </Link>
 
           {/* Search - expands to fill all available space so icons sit flush right */}
