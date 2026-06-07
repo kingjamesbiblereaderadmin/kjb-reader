@@ -89,7 +89,10 @@ function splitBySections(items) {
 // ── TXT ──
 export function exportTxt(items, query, filters, options = {}) {
   const titlePrefix = options.titlePrefix || 'KJB Search Results';
-  const header = `${titlePrefix} — "${query}"\n${'='.repeat(50)}\n\n`;
+  const isReading = titlePrefix === 'KJB Reading';
+  const header = isReading 
+    ? `${query}\n${'='.repeat(50)}\n\n`
+    : `${titlePrefix} — "${query}"\n${'='.repeat(50)}\n\n`;
   const sections = splitBySections(items);
   const body = sections.map(sec => {
     if (sec.isTestament) return `${sec.title.toUpperCase()}\n${'='.repeat(sec.title.length)}`;
@@ -105,6 +108,7 @@ export function exportTxt(items, query, filters, options = {}) {
 // ── DOCX (Word-compatible HTML) — italics preserved ──
 export function exportDocx(items, query, filters, options = {}) {
   const titlePrefix = options.titlePrefix || 'KJB Search Results';
+  const isReading = titlePrefix === 'KJB Reading';
   const rows = splitBySections(items).map(sec => {
     if (sec.isTestament) return `<h2 style="font-family:Georgia,serif;font-size:15pt;margin:24pt 0 12pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;">${escapeHtml(sec.title.toUpperCase())}</h2>`;
     return `<h3 style="font-family:Georgia,serif;font-size:13pt;margin:18pt 0 8pt 0;">${escapeHtml(sec.title)}</h3>` +
@@ -116,9 +120,13 @@ export function exportDocx(items, query, filters, options = {}) {
         `</p>`
       ).join('');
   }).join('');
+  const headerHtml = isReading
+    ? `<h2 style="font-family:Georgia,serif;text-align:center;">${escapeHtml(query)}</h2>`
+    : `<h2 style="font-family:Georgia,serif;">${escapeHtml(titlePrefix)} — &ldquo;${escapeHtml(query)}&rdquo;</h2>`;
+
   const html = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>KJB Search</title></head><body>` +
-    `<h2 style="font-family:Georgia,serif;">${escapeHtml(titlePrefix)} — &ldquo;${escapeHtml(query)}&rdquo;</h2>${rows}` +
-    `<p style="font-size:10pt;color:#777;">${items.length} verse${items.length !== 1 ? 's' : ''} — King James Bible</p></body></html>`;
+    `${headerHtml}${rows}` +
+    `<p style="font-size:10pt;color:#777;${isReading ? 'text-align:center;' : ''}">${items.length} verse${items.length !== 1 ? 's' : ''} — King James Bible</p></body></html>`;
   const blob = new Blob(['\uFEFF', html], { type: 'application/msword' });
   downloadBlob(blob, `kjb-${sanitizeFilename(query)}${filterSuffix(filters)}.doc`);
 }
@@ -152,6 +160,7 @@ export function exportXls(items, query, filters, options = {}) {
 // ── PDF (jsPDF) — italics preserved via font style switching ──
 export function exportPdf(items, query, filters, options = {}) {
   const titlePrefix = options.titlePrefix || 'KJB Search Results';
+  const isReading = titlePrefix === 'KJB Reading';
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const marginX = 48;
   const marginTop = 56;
@@ -161,8 +170,16 @@ export function exportPdf(items, query, filters, options = {}) {
   let y = marginTop;
 
   doc.setFont('times', 'bold');
-  doc.setFontSize(16);
-  doc.text(`${titlePrefix} — "${query}"`, marginX, y);
+  
+  if (isReading) {
+    doc.setFontSize(18);
+    // Centre the book name and chapter
+    const textWidth = doc.getTextWidth(query);
+    doc.text(query, (pageW - textWidth) / 2, y);
+  } else {
+    doc.setFontSize(16);
+    doc.text(`${titlePrefix} — "${query}"`, marginX, y);
+  }
   y += 26;
 
   const lineH = 16;
