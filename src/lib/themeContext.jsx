@@ -229,6 +229,13 @@ export function ThemeProvider({ children }) {
     // In 'daily' mode the daily-verse accent overrides the palette so the whole
     // app matches the verse card. In 'fixed' mode we keep the chosen palette.
     if (colorMode !== 'fixed') applyDailyAccent(isDark);
+
+    // Listen for verse updates to apply the accent silently
+    const handleVerseUpdate = () => {
+      if (colorMode !== 'fixed') applyDailyAccent(isDark);
+    };
+    window.addEventListener('kjb-daily-verse-updated', handleVerseUpdate);
+    return () => window.removeEventListener('kjb-daily-verse-updated', handleVerseUpdate);
   }, [colourId, isDark, colorMode]);
 
   // Apply 1611 vs Modern theme and dyslexic font

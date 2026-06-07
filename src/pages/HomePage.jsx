@@ -37,6 +37,7 @@ export default function HomePage() {
       console.log("[DEBUG] Verse generated for today:", v?.ref);
       setVerse(v);
       setIsOffline(false);
+      window.dispatchEvent(new Event('kjb-daily-verse-updated'));
       // Trigger notification if enabled
       scheduleDailyNotification();
     }).catch((err) => {
@@ -58,6 +59,7 @@ export default function HomePage() {
         getDailyVerseFromBible().then(v => {
           setVerse(v);
           setIsOffline(false);
+          window.dispatchEvent(new Event('kjb-daily-verse-updated'));
         }).catch(() => {
           setVerse(getDailyVerse());
           setIsOffline(true);
@@ -183,6 +185,7 @@ export default function HomePage() {
             const v = await getDailyVerseFromBible();
             setVerse(v);
             setIsOffline(false);
+            window.dispatchEvent(new Event('kjb-daily-verse-updated'));
             
             window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "App & Bible are up to date.", status: 'success' } }));
             setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
@@ -199,6 +202,7 @@ export default function HomePage() {
         getDailyVerseFromBible().then(v => {
           setVerse(v);
           setIsOffline(false);
+          window.dispatchEvent(new Event('kjb-daily-verse-updated'));
           window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Verse refreshed.", status: 'success' } }));
           setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
           scheduleDailyNotification();
@@ -261,6 +265,7 @@ export default function HomePage() {
         getDailyVerseFromBible().then(v => {
           setVerse(v);
           setIsOffline(false);
+          window.dispatchEvent(new Event('kjb-daily-verse-updated'));
           scheduleDailyNotification();
         }).catch(() => {
           setVerse(getDailyVerse());

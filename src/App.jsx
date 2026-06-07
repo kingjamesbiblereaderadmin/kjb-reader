@@ -122,8 +122,6 @@ const PageLoader = ({ isFadingOut, forcedText }) => {
     window.addEventListener('kjb-splash-update', handleProgress);
     return () => window.removeEventListener('kjb-splash-update', handleProgress);
   }, []);
-
-  if (isFadingOut) return null;
   
   let text = (isFirstVisit || updateType === 'bible_first_load') ? "Welcome to KJB Reader..." : 
              "Welcome back to KJB Reader...";
@@ -138,6 +136,13 @@ const PageLoader = ({ isFadingOut, forcedText }) => {
     else if (updateType === 'up_to_date') text = "App is up to date...";
     else text = "Welcome back to KJB Reader...";
   }
+
+  // Right before fading out, change text to "Ready to read..."
+  useEffect(() => {
+    if (isFadingOut && !dynamicText && !forcedText) {
+      setDynamicText("Ready to read...");
+    }
+  }, [isFadingOut, dynamicText, forcedText]);
 
   return (
     <div className={`fixed inset-0 z-[999999] bg-background flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
