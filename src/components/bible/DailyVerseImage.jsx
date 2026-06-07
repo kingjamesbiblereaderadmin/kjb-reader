@@ -327,7 +327,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               </style>
             </head>
             <body>
-              <img src="${dataUrl}" onload="setTimeout(() => { window.print(); setTimeout(() => window.close(), 500); }, 150);" />
+              <img src="${dataUrl}" onload="setTimeout(() => { window.print(); }, 150);" />
             </body>
           </html>
         `);
