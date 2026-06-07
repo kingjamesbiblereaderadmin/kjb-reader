@@ -118,6 +118,14 @@ async function fetchWithRetry(url, retries = 5, expectPilcrows = false) {
 export async function checkForUpdates() {
   const localVersion = localStorage.getItem('bible_cache_version');
   remoteVersion = CACHE_VERSION;
+  
+  if (!localVersion) {
+    // If there is no local version, this is a fresh install or missing cache.
+    // It's not an "update", so we return false to prevent unnecessary reloads.
+    // The auto-downloader will fetch it silently in the background.
+    return false;
+  }
+
   if (localVersion !== remoteVersion) {
     console.log('[UPDATE] Code version', remoteVersion, 'differs from cached', localVersion);
     return true;
