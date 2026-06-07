@@ -12,8 +12,11 @@ const A11Y_FONTS = [
 const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
 const isMobile = () => /iphone|ipad|ipod|android/i.test(navigator.userAgent);
 const isAndroid = () => /android/i.test(navigator.userAgent);
-const isInStandaloneMode = () =>
-  window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
+const isInStandaloneMode = () => {
+  if (typeof window === 'undefined') return false;
+  if (window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone) return true;
+  try { return localStorage.getItem('kjb-is-installed') === 'true'; } catch { return false; }
+};
 
 const DISMISSED_KEY = 'kjb-prompt-dismissed';
 

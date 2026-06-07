@@ -1,14 +1,22 @@
 import { useState, useEffect } from 'react';
 
 const DISMISSED_KEY = 'kjb-install-dismissed';
+const INSTALLED_KEY = 'kjb-is-installed';
 
 let globalDeferredPrompt = null;
 let globalIsInstallable = false;
 let globalIsInstalled = false;
 
 if (typeof window !== 'undefined') {
+  try {
+    if (localStorage.getItem(INSTALLED_KEY) === 'true') {
+      globalIsInstalled = true;
+    }
+  } catch {}
+
   if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
     globalIsInstalled = true;
+    try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
   }
   
   window.addEventListener('beforeinstallprompt', (e) => {
@@ -16,7 +24,10 @@ if (typeof window !== 'undefined') {
     e.preventDefault();
     globalDeferredPrompt = e;
     globalIsInstallable = true;
+    globalIsInstalled = false;
+    try { localStorage.removeItem(INSTALLED_KEY); } catch {}
     window.dispatchEvent(new Event('pwa-installable'));
+    window.dispatchEvent(new Event('pwa-installed'));
   });
 
   window.addEventListener('appinstalled', () => {
@@ -24,6 +35,7 @@ if (typeof window !== 'undefined') {
     globalIsInstalled = true;
     globalIsInstallable = false;
     globalDeferredPrompt = null;
+    try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
     window.dispatchEvent(new Event('pwa-installed'));
   });
 }
@@ -78,6 +90,9 @@ export function useInstallPrompt() {
         if (outcome === 'accepted') {
           globalIsInstallable = false;
           setIsInstallable(false);
+          globalIsInstalled = true;
+          setIsInstalled(true);
+          try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
           // Dispatch to sync other hooks
           window.dispatchEvent(new Event('pwa-installed')); 
         }
