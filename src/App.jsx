@@ -133,7 +133,7 @@ const PageLoader = ({ isFadingOut, forcedText }) => {
   } else if (forcedText) {
     text = forcedText;
   } else if (updateType) {
-    if (updateType === 'bible_first_load') text = "Welcome to KJB Reader...";
+    if (updateType === 'bible_first_load' || isFirstVisit) text = "Welcome to KJB Reader...";
     else if (updateType === 'forced_update' || updateType === 'app' || updateType === 'both' || updateType === 'bible') text = "Updates applied successfully...";
     else if (updateType === 'up_to_date') text = "App is up to date...";
     else text = "Welcome back to KJB Reader...";
