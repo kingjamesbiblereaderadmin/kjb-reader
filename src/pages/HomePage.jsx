@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw, ChevronRight } from 'lucide-react';
+import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw, ChevronRight, Bug } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import OfflineStatusBanner from '@/components/OfflineStatusBanner';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
@@ -498,7 +498,7 @@ export default function HomePage() {
       </div>
 
       {/* Gospel call */}
-      <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-6 text-center">
+      <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-6 text-center mb-6">
         <p className="font-serif text-xl font-bold text-red-700 dark:text-red-400 mb-2">Are you saved?</p>
         <p className="font-sans text-sm text-foreground/80 mb-4">
           Jesus Christ died for your sins, shed his blood, was buried, and rose again on the third day. Trust the blood — believe the gospel and be saved.
@@ -510,6 +510,46 @@ export default function HomePage() {
           <Heart className="w-4 h-4" />
           Learn How to be Saved
         </Link>
+      </div>
+
+      {/* Developer Tools */}
+      <div className="bg-card border border-border rounded-2xl p-6 text-center">
+        <p className="font-serif text-xl font-bold text-foreground mb-4">Developer Tools</p>
+        <div className="flex flex-col gap-3 max-w-sm mx-auto">
+          <button
+            onClick={() => {
+              window.dispatchEvent(new Event('kjb-progress-clear'));
+              window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: 'Loading KJB Reader...' } }));
+              setTimeout(() => window.location.reload(), 2500);
+            }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+          >
+            <Bug className="w-4 h-4" />
+            Test Splash Screen
+          </button>
+          <button
+            onClick={() => {
+              window.dispatchEvent(new Event('kjb-progress-clear'));
+              window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: 'Applying App Updates...' } }));
+              setTimeout(() => window.location.reload(), 2500);
+            }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+          >
+            <Bug className="w-4 h-4" />
+            Test Splash Screen (App Update)
+          </button>
+          <button
+            onClick={() => {
+              window.dispatchEvent(new Event('kjb-progress-clear'));
+              window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: 'Applying Bible Data Updates...' } }));
+              setTimeout(() => window.location.reload(), 2500);
+            }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+          >
+            <Bug className="w-4 h-4" />
+            Test Refresh with Updates
+          </button>
+        </div>
       </div>
       </div>
     </div>
