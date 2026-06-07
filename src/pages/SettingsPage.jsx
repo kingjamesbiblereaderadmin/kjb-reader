@@ -8,6 +8,7 @@ const TikTokIcon = () => (
 );
 import ImageCropper from '@/components/bible/ImageCropper';
 import DownloadBibleSection from '@/components/bible/DownloadBibleSection';
+import ThemeColorPicker from '@/components/bible/ThemeColorPicker';
 import { Switch } from '@/components/ui/switch';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { base44 } from '@/api/base44Client';
@@ -590,7 +591,10 @@ export default function SettingsPage() {
           </p>
         </div>
 
-
+        {/* Theme Color */}
+        <div className="pt-4 border-t border-border">
+          <ThemeColorPicker />
+        </div>
 
         {/* Custom Daily Verse Background */}
         <div className="pt-4 border-t border-border space-y-3">

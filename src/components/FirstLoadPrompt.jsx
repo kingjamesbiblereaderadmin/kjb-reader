@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, X, Share, MonitorSmartphone, Download, Accessibility, Palette, Type } from 'lucide-react';
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
+import ThemeColorPicker from '@/components/bible/ThemeColorPicker';
 
 const VERSE_FONTS = [
   { value: 'serif', label: 'Serif' },
@@ -282,7 +283,14 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             </div>
           </div>
 
-
+          {/* Theme color — match daily verse or pick a fixed colour */}
+          <div className="rounded-xl bg-secondary/40 border border-border p-2.5">
+            <div className="flex items-center gap-1.5 mb-2 px-0.5">
+              <Palette className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <span className="font-sans text-xs font-medium text-foreground">Theme Color</span>
+            </div>
+            <ThemeColorPicker compact />
+          </div>
 
           {showNotif && (
             <button

@@ -57,16 +57,16 @@ export function applyDailyAccent(isDark = document.documentElement.classList.con
   try {
     const bg = getTodayVerseBackground();
     const root = document.documentElement;
-    const hue = parseInt(hexToHslString(bg.hex[1]).split(' ')[0], 10);
+    const hue = parseInt(hexToHslString(bg.hex[0]).split(' ')[0], 10);
 
-    // Accent (links, icons, highlights) — second gradient stop, darkened.
-    const accent = hexToHslString(bg.hex[1], 0.22);
+    // Accent (links, icons, highlights) — exact second gradient stop.
+    const accent = hexToHslString(bg.hex[1]);
     root.style.setProperty('--accent', accent);
     root.style.setProperty('--ring', accent);
     root.style.setProperty('--sidebar-ring', accent);
 
-    // Primary (buttons, key actions) — first gradient stop, tuned per mode.
-    const primary = isDark ? hexToHslString(bg.hex[1], 0.1) : hexToHslString(bg.hex[0], 0.05);
+    // Primary (buttons, key actions) — exact first gradient stop.
+    const primary = hexToHslString(bg.hex[0]);
     root.style.setProperty('--primary', primary);
     root.style.setProperty('--sidebar-primary', primary);
 

@@ -150,9 +150,16 @@ export function ThemeProvider({ children }) {
   const [colourId, setColourIdState] = useState(() => {
     try { return localStorage.getItem('kjb-colour') || 'gold'; } catch { return 'gold'; }
   });
-  // Force daily mode for theme colours
-  const colorMode = 'daily';
-  const setColorMode = () => {};
+  // 'daily' = accent matches the daily verse card (auto-changes each day).
+  // 'fixed' = use the chosen colour palette (colourId) instead.
+  const [colorMode, setColorModeState] = useState(() => {
+    try { return localStorage.getItem('kjb-color-mode') || 'daily'; } catch { return 'daily'; }
+  });
+
+  const setColorMode = (m) => {
+    setColorModeState(m);
+    try { localStorage.setItem('kjb-color-mode', m); } catch {}
+  };
   const [isDark, setIsDark] = useState(() => {
     const savedMode = (() => { try { return localStorage.getItem('kjb-theme-mode') || 'system'; } catch { return 'system'; } })();
     return resolveIsDark(savedMode);
@@ -204,24 +211,32 @@ export function ThemeProvider({ children }) {
   useEffect(() => {
     if (!isInitialized) {
       const savedMode = localStorage.getItem('kjb-theme-mode') || 'system';
+      const savedColour = localStorage.getItem('kjb-colour') || 'gold';
       const dark = resolveIsDark(savedMode);
+      const savedColorMode = localStorage.getItem('kjb-color-mode') || 'daily';
       document.documentElement.classList.toggle('dark', dark);
-      applyDailyAccent(dark);
+      applyPalette(savedColour, dark);
+      // Only override with the daily-verse accent when in 'daily' colour mode.
+      if (savedColorMode !== 'fixed') applyDailyAccent(dark);
       setIsInitialized(true);
     }
   }, []);
 
-  // Apply colour palette whenever dark mode changes, and sync with today's verse-card colour
+  // Apply colour palette whenever palette or dark mode changes, then override
+  // the accent with today's verse-card colour so they stay in sync each day.
   useEffect(() => {
-    applyDailyAccent(isDark);
+    applyPalette(colourId, isDark);
+    // In 'daily' mode the daily-verse accent overrides the palette so the whole
+    // app matches the verse card. In 'fixed' mode we keep the chosen palette.
+    if (colorMode !== 'fixed') applyDailyAccent(isDark);
 
     // Listen for verse updates to apply the accent silently
     const handleVerseUpdate = () => {
-      applyDailyAccent(isDark);
+      if (colorMode !== 'fixed') applyDailyAccent(isDark);
     };
     window.addEventListener('kjb-daily-verse-updated', handleVerseUpdate);
     return () => window.removeEventListener('kjb-daily-verse-updated', handleVerseUpdate);
-  }, [isDark]);
+  }, [colourId, isDark, colorMode]);
 
   // Apply 1611 vs Modern theme and dyslexic font
   useEffect(() => {
