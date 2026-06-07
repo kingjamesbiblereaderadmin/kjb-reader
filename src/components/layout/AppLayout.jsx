@@ -271,20 +271,36 @@ export default function AppLayout() {
 
                 setRefreshing(true);
                 try {
-                  let hasUpdates = false;
+                  let hasBibleUpdates = false;
                   try {
                     const { checkForUpdates, autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
-                    hasUpdates = await checkForUpdates();
-                    if (hasUpdates) {
+                    hasBibleUpdates = await checkForUpdates();
+                    if (hasBibleUpdates) {
                       setUpdateOverlayText('Found updates, updating...');
                       await autoDownloadBibleOnFirstLoad();
-                      setUpdateOverlayText('Reloading...');
                     }
                   } catch (e) {}
 
-                  if (!hasUpdates) {
-                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App is up to date. Reloading...', status: 'success' } }));
+                  let hasCodeUpdates = false;
+                  if ('serviceWorker' in navigator) {
+                    const reg = await navigator.serviceWorker.getRegistration();
+                    if (reg) {
+                      await reg.update();
+                      if (reg.waiting || (reg.installing && reg.installing.state === 'installed')) {
+                        hasCodeUpdates = true;
+                      }
+                    }
                   }
+
+                  if (!hasBibleUpdates && !hasCodeUpdates) {
+                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App is up to date', status: 'success' } }));
+                    setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
+                    setRefreshing(false);
+                    setUpdateOverlayText('');
+                    return;
+                  }
+
+                  setUpdateOverlayText('Applying updates...');
 
                   // Clear service worker cache to ensure latest code is fetched
                   if ('caches' in window) {
