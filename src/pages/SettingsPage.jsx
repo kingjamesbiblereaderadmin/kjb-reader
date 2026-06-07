@@ -37,6 +37,7 @@ export default function SettingsPage() {
   const [deleteInput, setDeleteInput] = useState('');
   const [deleting, setDeleting] = useState(false);
   const [a11yFont, setA11yFont] = useState(getAccessibilityFont);
+  const [showInstallHint, setShowInstallHint] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     text: true,
     accessibility: true,
@@ -875,45 +876,42 @@ export default function SettingsPage() {
               <span className="font-sans text-xs font-medium">Notifications work when the app is open or in background</span>
             </div>
           </div>
-        ) : isInstallable ? (
+        ) : (
           <div className="space-y-3">
             <button
               onClick={() => {
-                promptInstall();
+                if (isInstallable) {
+                  promptInstall().then((accepted) => {
+                    if (!accepted) setShowInstallHint(h => !h);
+                  });
+                } else {
+                  setShowInstallHint(h => !h);
+                }
               }}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] border-2 border-primary"
             >
               <Smartphone className="w-4 h-4" />
               {/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? 'Add to Home Screen' : 'Install App'}
             </button>
+            
+            {(!isInstallable || showInstallHint) && (
+              <div className="space-y-2 bg-secondary/50 rounded-xl p-4 mt-3">
+                <p className="font-sans text-xs text-foreground mb-2">
+                  <strong>Install KJB Reader from your browser menu:</strong>
+                </p>
+                <div className="font-sans text-xs text-muted-foreground space-y-1.5">
+                  <p>• <strong>iPhone/iPad:</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Share</span> button, then <span className="text-foreground font-medium">"Add to Home Screen"</span></p>
+                  <p>• <strong>Android:</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">⋮ Menu</span>, then <span className="text-foreground font-medium">"Install app"</span></p>
+                  <p>• <strong>Desktop:</strong> Click the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Install</span> icon in the address bar, or use the browser menu</p>
+                </div>
+              </div>
+            )}
+            
             <div className="mt-3 pt-3 border-t border-border">
               <p className="font-sans text-xs text-primary font-medium flex items-center gap-1.5">
                 <Bell className="w-3.5 h-3.5" />
                 After installing, enable notifications below to receive daily verses
               </p>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <div className="flex items-start gap-2 text-foreground">
-              <Smartphone className="w-4 h-4 flex-shrink-0 mt-0.5 text-primary" />
-              <span className="font-sans text-xs">Install KJB Reader directly from your browser menu:</span>
-            </div>
-            <div className="space-y-2 bg-secondary/50 rounded-xl p-4">
-              <p className="font-sans text-xs text-muted-foreground mb-2">
-                <strong>Instructions:</strong>
-              </p>
-              <div className="font-sans text-xs text-muted-foreground space-y-1.5">
-                <p>• <strong>iPhone/iPad:</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Share</span> button, then <span className="text-foreground font-medium">"Add to Home Screen"</span></p>
-                <p>• <strong>Android:</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">⋮ Menu</span>, then <span className="text-foreground font-medium">"Install app"</span></p>
-                <p>• <strong>Desktop:</strong> Click the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Install</span> icon in the address bar, or use the browser menu</p>
-              </div>
-              <div className="mt-3 pt-3 border-t border-border">
-                <p className="font-sans text-xs text-primary font-medium flex items-center gap-1.5">
-                  <Bell className="w-3.5 h-3.5" />
-                  After installing, enable notifications below to receive daily verses
-                </p>
-              </div>
             </div>
           </div>
         )}
