@@ -74,6 +74,79 @@ export default function AppLayout() {
     };
   }, []);
 
+  // Check for updates automatically when the app returns to the foreground
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible' && isOnline && !isFullReloading) {
+        try {
+          let hasBibleUpdates = false;
+          let hasCodeUpdates = false;
+          
+          // Check Bible Updates
+          try {
+            const { checkForUpdates } = await import('@/lib/bibleCache');
+            hasBibleUpdates = await checkForUpdates();
+          } catch (e) {}
+
+          // Check Code Updates
+          let swReg = null;
+          if ('serviceWorker' in navigator) {
+            swReg = await navigator.serviceWorker.getRegistration();
+            if (swReg) {
+              await swReg.update().catch(() => {});
+              if (swReg.waiting) {
+                hasCodeUpdates = true;
+              }
+            }
+          }
+
+          if (hasBibleUpdates || hasCodeUpdates) {
+            let reloadText = 'Applying Updates...';
+            if (hasCodeUpdates && hasBibleUpdates) reloadText = 'Applying App & Bible Updates...';
+            else if (hasBibleUpdates) reloadText = 'Applying Bible Data Updates...';
+            else if (hasCodeUpdates) reloadText = 'Applying App Updates...';
+            
+            window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: reloadText } }));
+
+            if (hasBibleUpdates) {
+              const { autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
+              await autoDownloadBibleOnFirstLoad();
+            }
+
+            if (hasCodeUpdates && swReg && swReg.waiting) {
+              swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+
+            // Clear service worker cache to ensure latest code is fetched
+            if ('caches' in window) {
+              const cacheNames = await caches.keys();
+              await Promise.all(cacheNames.map(name => caches.delete(name)));
+            }
+            
+            // Unregister service worker (this forces new UI files to load)
+            if ('serviceWorker' in navigator) {
+              const regs = await navigator.serviceWorker.getRegistrations();
+              for (const reg of regs) {
+                await reg.unregister();
+              }
+            }
+            
+            setTimeout(() => {
+              window.location.href = window.location.pathname + '?refresh=' + Date.now();
+            }, 800);
+          }
+        } catch (err) {
+          console.error('Foreground update check failed:', err);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isOnline, isFullReloading]);
+
   // Close hamburger menu whenever the route changes
   useEffect(() => {
     setMenuOpen(false);
