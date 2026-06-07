@@ -127,7 +127,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                 <button
                   type="button"
                   onClick={handleInstallClick}
-                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] touch-manipulation bg-primary text-primary-foreground border-2 border-primary"
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100 disabled:active:scale-100 touch-manipulation bg-primary text-primary-foreground border-2 border-primary"
                 >
                   {isIOS() ? <Share className="w-4 h-4 shrink-0" /> : isMobile() ? <Download className="w-4 h-4 shrink-0" /> : <MonitorSmartphone className="w-4 h-4 shrink-0" />}
                   <span className="text-left">
@@ -191,8 +191,8 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
           {showNotif && (
             <button
               type="button"
-              onClick={handleNotifClick}
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-left touch-manipulation"
+              onPointerUp={handleNotifClick}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary font-sans text-sm font-medium hover:bg-primary/20 active:bg-primary/25 transition-colors text-left touch-manipulation"
             >
               <Bell className="w-4 h-4 shrink-0" />
               <span className="flex-1">

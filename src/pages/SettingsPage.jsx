@@ -1068,7 +1068,7 @@ export default function SettingsPage() {
                   onClick={handleDownload}
                   onTouchEnd={(e) => { e.preventDefault(); handleDownload(e); }}
                   disabled={downloading}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 disabled:opacity-60 transition-opacity"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100 disabled:active:scale-100 disabled:opacity-60"
                 >
                   {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                   {downloading ? 'Downloading…' : 'Download All 66 Books'}
@@ -1165,7 +1165,7 @@ export default function SettingsPage() {
             <div className="pt-1">
               <button
                 onClick={handleTestNotif}
-                className="px-4 py-2 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+                className="px-4 py-2 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:bg-accent/20"
               >
                 Test Notification
               </button>
@@ -1331,14 +1331,14 @@ export default function SettingsPage() {
                     await clearBibleCache(); // clears cache + reloads the page
                   }
                 }}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-destructive/10 text-destructive font-sans text-sm font-medium hover:bg-destructive/20 transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-destructive/10 text-destructive font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:bg-destructive/20"
               >
                 <Trash2 className="w-4 h-4" />
                 Reset All Settings
               </button>
               <button
                 onClick={handleClearCache}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:bg-accent/20"
               >
                 <RotateCcw className="w-4 h-4" />
                 Clear Cache & Reload
