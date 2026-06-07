@@ -192,7 +192,7 @@ export default function AppLayout() {
     <AutoUpdateHandler>
     <div className="h-screen bg-background flex flex-col overflow-hidden">
       <header className={`border-b border-border bg-card/95 backdrop-blur-md z-50 flex-shrink-0 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
-        <div className="w-full px-5 sm:px-12 lg:px-16 h-14 flex items-center gap-2 sm:gap-3">
+        <div className="w-full max-w-[90rem] mx-auto px-5 sm:px-12 lg:px-16 h-14 flex items-center gap-2 sm:gap-3">
           {/* Logo */}
           <Link
             to="/"
