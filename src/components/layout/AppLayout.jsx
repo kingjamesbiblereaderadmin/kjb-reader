@@ -318,22 +318,6 @@ export default function AppLayout() {
                     }
                     console.log('[UpdateCheck] Activating new service worker...');
                   }
-
-                  // Clear service worker cache to ensure latest code is fetched
-                  if ('caches' in window) {
-                    const cacheNames = await caches.keys();
-                    await Promise.all(cacheNames.map(name => caches.delete(name)));
-                    console.log('[UpdateCheck] Cleared HTTP caches.');
-                  }
-                  
-                  // Unregister service worker (this forces new UI files to load)
-                  if ('serviceWorker' in navigator) {
-                    const regs = await navigator.serviceWorker.getRegistrations();
-                    for (const reg of regs) {
-                      await reg.unregister();
-                    }
-                    console.log('[UpdateCheck] Unregistered service workers.');
-                  }
                   
                   // Wait for the minimum time to elapse before reloading
                   await minWaitPromise;

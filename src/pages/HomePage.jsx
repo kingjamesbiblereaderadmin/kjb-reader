@@ -165,19 +165,6 @@ export default function HomePage() {
                 console.log('[UpdateCheck] Activating new service worker...');
               }
 
-              if ('caches' in window) {
-                const cacheNames = await caches.keys();
-                await Promise.all(cacheNames.map(name => caches.delete(name)));
-                console.log('[UpdateCheck] Cleared HTTP caches.');
-              }
-              if ('serviceWorker' in navigator) {
-                const regs = await navigator.serviceWorker.getRegistrations();
-                for (const reg of regs) {
-                  await reg.unregister();
-                }
-                console.log('[UpdateCheck] Unregistered service workers.');
-              }
-
               console.log('[UpdateCheck] Reloading application...');
               setTimeout(() => { window.location.href = window.location.pathname + '?refresh=' + Date.now(); }, 800);
               return;

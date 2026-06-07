@@ -178,7 +178,9 @@ const AuthenticatedApp = () => {
         // 1. Check App/Code Updates
         if ('serviceWorker' in navigator) {
           const reg = await navigator.serviceWorker.getRegistration();
-          if (reg) {
+          // ONLY trigger automatic update reload if there is ALREADY an active SW.
+          // Otherwise, it's a first-time install, and we don't want to reload the user.
+          if (reg && reg.active) {
             await reg.update().catch(() => {});
             if (reg.waiting) {
               hasUpdates = true;
@@ -210,10 +212,14 @@ const AuthenticatedApp = () => {
         const bibleNeedsUpdate = await checkForUpdates().catch(() => false);
         
         if (bibleNeedsUpdate) {
-          hasUpdates = true;
           localStorage.removeItem('bible_cache_version');
           localStorage.removeItem('bible_last_refresh');
-          await downloadBibleForOffline().catch(() => {});
+          try {
+            await downloadBibleForOffline();
+            hasUpdates = true;
+          } catch(e) {
+            console.error('Failed to download bible updates', e);
+          }
         } else {
           // ensure initial load happens if no updates but cache is missing
           // Use Promise.race to timeout after 30 seconds so it never hangs forever
@@ -224,11 +230,10 @@ const AuthenticatedApp = () => {
 
         if (hasUpdates) {
           sessionStorage.setItem('kjb_sw_updated', 'true');
-          if ('caches' in window) {
-            const cacheNames = await caches.keys();
-            await Promise.all(cacheNames.map(name => caches.delete(name)));
-          }
-          window.location.reload();
+          window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: 'Applying Updates...' } }));
+          setTimeout(() => {
+            window.location.reload();
+          }, 500);
           return; 
         }
 
