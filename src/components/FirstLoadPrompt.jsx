@@ -84,11 +84,12 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   // TEMP: promo screenshot mode — prompt disabled while capturing marketing shots.
   const PROMO_SCREENSHOT_MODE = false;
 
-  // Once dismissed (or all tasks done), never show again. Respect the user's choice.
-  const shouldShow = !dismissed && (showInstall || showNotif);
+  // In splashMode, we always show it because it contains the quick setup for fonts/themes.
+  // Outside of splash mode, we only show it if there's an install/notif prompt pending.
+  const shouldShow = splashMode ? true : (!dismissed && (showInstall || showNotif));
 
   useEffect(() => {
-    if (splashMode && (!shouldShow || PROMO_SCREENSHOT_MODE)) {
+    if (!splashMode && !shouldShow && !PROMO_SCREENSHOT_MODE) {
       if (onDismiss) onDismiss();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

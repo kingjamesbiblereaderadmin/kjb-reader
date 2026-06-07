@@ -155,17 +155,18 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
     <div className={`fixed inset-0 z-[9999] bg-background overflow-hidden ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
       <div className={`flex flex-col items-center w-full h-[100dvh] px-4 max-w-xl mx-auto pt-8 ${isFirstVisit ? 'pb-8' : 'pb-32'} space-y-6 overflow-y-auto`}>
         
-        {/* Logo (Only show on first visit before continuing) */}
+        {/* Logo and Welcome Banner (Only show on first visit before continuing) */}
         {isFirstVisit && (
-          <div className="flex flex-col items-center justify-center pt-8">
-            <div className="relative mb-6">
+          <div className="flex flex-col items-center justify-center pt-6 mb-4">
+            <div className="relative mb-4">
               <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
               <img 
                 src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
                 alt="KJB Reader" 
-                className="relative w-32 h-32 object-contain drop-shadow-2xl"
+                className="relative w-28 h-28 object-contain drop-shadow-2xl"
               />
             </div>
+            <h1 className="text-3xl font-serif font-bold text-foreground text-center">Welcome to KJB Reader</h1>
           </div>
         )}
 
@@ -196,21 +197,41 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
                 </div>
                 
                 <div className="w-full shrink-0 mb-6 px-1">
-                 <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-6 text-center shadow-md flex flex-col justify-center">
-                   <p className="font-serif text-xl font-bold text-red-700 dark:text-red-400 mb-3">Are you saved?</p>
-                   <p className="font-sans text-sm text-foreground/80 mb-6 leading-relaxed">
-                     Jesus Christ died for your sins, shed his blood, was buried, and rose again on the third day. Trust the blood — believe the gospel and be saved.
-                   </p>
-                   <button
-                     onClick={() => {
-                       onDismiss();
-                       setTimeout(() => { window.location.href = '/gospel'; }, 100);
-                     }}
-                     className="inline-flex items-center justify-center gap-2 w-full px-5 py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-sans text-sm font-bold transition-all duration-200 shadow-md active:scale-[0.98]"
-                   >
-                     <Heart className="w-4 h-4" />
-                     Learn How to be Saved
-                   </button>
+                 <div className="bg-gradient-to-br from-[#0c3483] via-[#592b98] to-[#9925a1] border border-white/20 rounded-2xl p-6 text-center shadow-xl flex flex-col justify-center relative overflow-hidden">
+                   <div className="absolute inset-0 bg-black/10"></div>
+                   <div className="relative z-10">
+                     <p className="font-serif text-2xl font-bold text-white mb-1" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>The Gospel of Salvation</p>
+                     <p className="font-sans text-xs font-bold text-[#eec759] mb-4" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>1 Corinthians 15:1–4 & Romans 3:25</p>
+                     
+                     <div className="w-3/4 mx-auto h-px bg-white/20 mb-4" />
+
+                     <p className="font-serif text-lg font-bold text-[#f5d970] mb-4 leading-relaxed" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
+                       Trust that Jesus is God, died on the cross, shed His Blood, was buried, and rose again the third day for our sins.
+                     </p>
+
+                     <div className="w-3/4 mx-auto h-px bg-white/20 mb-4" />
+
+                     <p className="font-serif text-[13px] font-medium text-white italic mb-3 leading-relaxed" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+                       How Christ died: He shed His blood as the full payment for sin — the propitiation through faith in His blood.
+                     </p>
+
+                     <div className="w-1/2 mx-auto h-px bg-white/20 mb-3" />
+
+                     <p className="font-serif text-[13px] font-medium text-white italic mb-6 leading-relaxed" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+                       The Gospel — the power of God unto salvation to everyone that believeth.
+                     </p>
+
+                     <button
+                       onClick={() => {
+                         onDismiss();
+                         setTimeout(() => { window.location.href = '/gospel'; }, 100);
+                       }}
+                       className="inline-flex items-center justify-center gap-2 w-full px-5 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/30 rounded-xl font-sans text-sm font-bold transition-all duration-200 shadow-md active:scale-[0.98]"
+                     >
+                       <Heart className="w-4 h-4 fill-white" />
+                       Learn How to be Saved
+                     </button>
+                   </div>
                  </div>
                 </div>
 
