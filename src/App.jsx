@@ -109,11 +109,7 @@ const PageLoader = ({ isFadingOut }) => {
 
   const [isFirstVisit] = useState(() => {
     try {
-      if (!localStorage.getItem('kjb_has_visited')) {
-        localStorage.setItem('kjb_has_visited', 'true');
-        return true;
-      }
-      return false;
+      return !localStorage.getItem('kjb-prompt-dismissed');
     } catch {
       return false;
     }
@@ -174,17 +170,15 @@ const RouteLoader = () => (
 // Wraps each route in a fast CSS fade so transitions feel smooth, not blank.
 // Keyed by pathname so the animation replays on every navigation —
 // but skipped on the very first render to avoid a flash on refresh.
-let _firstRender = true;
+let _firstRenderDone = false;
 const FadeIn = ({ children }) => {
   const { pathname } = useLocation();
-  const [isFirst] = React.useState(() => {
-    if (_firstRender) {
-      _firstRender = false;
-      return true;
-    }
-    return false;
-  });
-  return <div key={pathname} className={isFirst ? '' : 'kjb-fade-in'}>{children}</div>;
+  
+  useEffect(() => {
+    _firstRenderDone = true;
+  }, [pathname]);
+
+  return <div key={pathname} className={_firstRenderDone ? 'kjb-fade-in' : ''}>{children}</div>;
 };
 
 const AuthenticatedApp = () => {
