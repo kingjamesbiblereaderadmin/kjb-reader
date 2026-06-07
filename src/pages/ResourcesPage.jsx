@@ -483,7 +483,7 @@ function WhyKJBSection({ expanded, toggle }) {
 function PreachersSection({ openPreachers, togglePreacher }) {
   return (
     <div className="mb-10">
-      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 mb-4">
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700/60 mb-4">
         <Users className="w-4 h-4 text-amber-600" />
         <h2 className="font-sans font-semibold text-sm text-amber-600">Verified KJB Preachers</h2>
       </div>
@@ -650,7 +650,7 @@ export default function ResourcesPage() {
           className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] text-left"
         >
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-900/20 mb-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-300 dark:border-purple-700/60 mb-2">
               <Globe className="w-4 h-4 text-purple-500" />
               <h2 className="font-sans font-semibold text-sm text-purple-600 dark:text-purple-400">Ministry Links</h2>
             </div>
