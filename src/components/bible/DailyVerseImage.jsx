@@ -59,17 +59,17 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const resolvedFont = resolveFontFamily(fontFamily, a11yFont);
 
   const textLen = verse?.text?.length || 0;
-  let panelTextClass = fontFamily === 'cursive' ? 'text-5xl md:text-6xl' : 'text-3xl md:text-4xl';
-  let lightboxTextClass = fontFamily === 'cursive' ? 'text-4xl md:text-6xl' : 'text-3xl md:text-5xl';
+  let panelTextClass = fontFamily === 'cursive' ? 'text-5xl md:text-6xl' : 'text-4xl md:text-5xl';
+  let lightboxTextClass = fontFamily === 'cursive' ? 'text-4xl md:text-6xl' : 'text-4xl md:text-6xl';
   if (textLen > 400) {
-    panelTextClass = fontFamily === 'cursive' ? 'text-2xl md:text-3xl' : 'text-lg md:text-xl';
-    lightboxTextClass = fontFamily === 'cursive' ? 'text-3xl md:text-4xl' : 'text-xl md:text-2xl';
+    panelTextClass = fontFamily === 'cursive' ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl';
+    lightboxTextClass = fontFamily === 'cursive' ? 'text-3xl md:text-4xl' : 'text-2xl md:text-3xl';
   } else if (textLen > 250) {
-    panelTextClass = fontFamily === 'cursive' ? 'text-3xl md:text-4xl' : 'text-xl md:text-2xl';
-    lightboxTextClass = fontFamily === 'cursive' ? 'text-4xl md:text-5xl' : 'text-2xl md:text-3xl';
+    panelTextClass = fontFamily === 'cursive' ? 'text-3xl md:text-4xl' : 'text-2xl md:text-3xl';
+    lightboxTextClass = fontFamily === 'cursive' ? 'text-4xl md:text-5xl' : 'text-3xl md:text-4xl';
   } else if (textLen > 150) {
-    panelTextClass = fontFamily === 'cursive' ? 'text-4xl md:text-5xl' : 'text-2xl md:text-3xl';
-    lightboxTextClass = fontFamily === 'cursive' ? 'text-5xl md:text-6xl' : 'text-3xl md:text-4xl';
+    panelTextClass = fontFamily === 'cursive' ? 'text-4xl md:text-5xl' : 'text-3xl md:text-4xl';
+    lightboxTextClass = fontFamily === 'cursive' ? 'text-5xl md:text-6xl' : 'text-4xl md:text-5xl';
   }
 
   useEffect(() => {
@@ -850,7 +850,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
           </div>
           <div className="flex-1 flex flex-col justify-center">
-          <div className={hasCustomBg ? 'mx-auto max-w-3xl rounded-2xl bg-black/20 backdrop-blur-[2px] px-6 py-6' : 'mx-auto max-w-4xl px-4'}>
+          <div className={hasCustomBg ? 'mx-auto max-w-4xl rounded-2xl bg-black/20 backdrop-blur-[2px] px-6 py-6' : 'mx-auto max-w-5xl px-2 sm:px-6'}>
           <blockquote 
             className={`text-center leading-relaxed [&_em]:italic break-words ${fontFamily === 'cursive' ? 'kjb-verse-card cursive-em-style' : ''} ${panelTextClass}`}
             style={{ 
