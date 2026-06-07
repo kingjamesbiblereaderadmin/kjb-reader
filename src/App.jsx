@@ -10,7 +10,7 @@ import { ThemeProvider } from '@/lib/themeContext';
 import { HeaderHideProvider } from '@/lib/HeaderHideContext';
 import { SoftReloadProvider, useSoftReload } from '@/lib/SoftReloadContext';
 import AppLayout from '@/components/layout/AppLayout';
-import React, { lazy, Suspense, useEffect } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 
 // Lazy-load pages. Each import() factory is kept as a reference so we can
 // also trigger it manually in the background to preload all routes.
@@ -112,6 +112,13 @@ const FadeIn = ({ children }) => {
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const location = useLocation();
+  const [minSplashDone, setMinSplashDone] = useState(false);
+
+  useEffect(() => {
+    // Enforce a minimum display time for the splash screen so it doesn't flash too fast
+    const timer = setTimeout(() => setMinSplashDone(true), 1200);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Preload all route chunks in the background once auth resolves
   useEffect(() => { 
@@ -120,7 +127,7 @@ const AuthenticatedApp = () => {
 
   // Don't return null while auth resolves — that causes a blank flash on reload.
   // We'll show the loader animation while auth initializes
-  if (isLoadingPublicSettings || isLoadingAuth) {
+  if (isLoadingPublicSettings || isLoadingAuth || !minSplashDone) {
     return <PageLoader />;
   }
 
