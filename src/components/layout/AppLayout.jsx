@@ -53,31 +53,25 @@ export default function AppLayout() {
   const { reloadKey, softReload, isReloading } = useSoftReload();
   const [menuOpen, setMenuOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [isFullReloading, setIsFullReloading] = useState(false);
-  const [isFullReloadingText, setIsFullReloadingText] = useState('Applying Updates...');
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const isCheckingUpdatesRef = useRef(false);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
-    const handleReloading = (e) => {
-      setIsFullReloading(true);
-      if (e && e.detail && e.detail.text) setIsFullReloadingText(e.detail.text);
-    };
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-    window.addEventListener('kjb-reloading', handleReloading);
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
-      window.removeEventListener('kjb-reloading', handleReloading);
     };
   }, []);
 
   // Check for updates automatically when the app returns to the foreground
   useEffect(() => {
     const handleVisibilityChange = async () => {
-      if (document.visibilityState === 'visible' && isOnline && !isFullReloading) {
+      if (document.visibilityState === 'visible' && isOnline && !isCheckingUpdatesRef.current) {
+        isCheckingUpdatesRef.current = true;
         try {
           console.log('[UpdateCheck] App returned to foreground. Checking for updates...');
           window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Checking for updates...', status: 'loading' } }));
@@ -157,6 +151,8 @@ export default function AppLayout() {
         } catch (err) {
           console.error('[UpdateCheck] Foreground update check failed:', err);
           window.dispatchEvent(new Event('kjb-progress-clear'));
+        } finally {
+          isCheckingUpdatesRef.current = false;
         }
       }
     };
@@ -165,7 +161,7 @@ export default function AppLayout() {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [isOnline, isFullReloading]);
+  }, [isOnline]);
 
   // Close hamburger menu whenever the route changes
   useEffect(() => {
@@ -554,16 +550,6 @@ export default function AppLayout() {
       )}
 
       <DesktopFooter navigate={navigate} setMenuOpen={setMenuOpen} />
-
-      {/* Full screen splash overlay during reload */}
-      {isFullReloading && (
-        <div className="fixed inset-0 z-[9999] bg-background/90 backdrop-blur-sm flex flex-col items-center justify-center animate-in fade-in duration-200">
-          <div className="flex items-center gap-3 bg-card p-4 rounded-2xl shadow-xl border border-border">
-            <RotateCw className="w-5 h-5 text-primary animate-spin" />
-            <p className="font-sans text-sm font-medium text-foreground pr-2">{isFullReloadingText}</p>
-          </div>
-        </div>
-      )}
     </div>
     </AutoUpdateHandler>
   );

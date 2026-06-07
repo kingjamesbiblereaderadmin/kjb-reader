@@ -450,7 +450,7 @@ export default function HomePage() {
           }}
           className="px-4 py-2 bg-secondary text-secondary-foreground border border-border rounded-lg font-sans text-sm font-medium w-full shadow hover:opacity-90 active:scale-[0.98] transition-all"
         >
-          [TEST] Show Splash Screen Overlay
+          [TEST] Show Unified Overlay
         </button>
       </div>
 
