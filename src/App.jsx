@@ -109,7 +109,12 @@ const PageLoader = ({ isFadingOut, forcedText, updateCheckDone }) => {
 
   const [isFirstVisit] = useState(() => {
     try {
-      return !localStorage.getItem('kjb-prompt-dismissed');
+      const visited = localStorage.getItem('kjb-has-visited-app');
+      if (!visited) {
+        localStorage.setItem('kjb-has-visited-app', 'true');
+        return true;
+      }
+      return false;
     } catch {
       return false;
     }
@@ -123,14 +128,7 @@ const PageLoader = ({ isFadingOut, forcedText, updateCheckDone }) => {
     return () => window.removeEventListener('kjb-splash-update', handleProgress);
   }, []);
   
-  let text = "Loading...";
-  if (isFirstVisit || updateType === 'bible_first_load') {
-    text = "Welcome to KJB Reader...";
-  } else if (updateType) {
-    text = "Welcome back to KJB Reader...";
-  } else if (updateCheckDone) {
-    text = "Welcome back to KJB Reader...";
-  }
+  let text = isFirstVisit ? "Welcome to KJB Reader..." : "Welcome back to KJB Reader...";
              
   if (dynamicText) {
     text = dynamicText;
@@ -141,10 +139,9 @@ const PageLoader = ({ isFadingOut, forcedText, updateCheckDone }) => {
   // Right before fading out, ensure it transitions smoothly
   useEffect(() => {
     if (isFadingOut && !dynamicText && !forcedText) {
-      const isFirst = isFirstVisit || updateType === 'bible_first_load';
-      setDynamicText(isFirst ? "Ready to read..." : "Welcome back to KJB Reader...");
+      setDynamicText(isFirstVisit ? "Ready to read..." : "Welcome back to KJB Reader...");
     }
-  }, [isFadingOut, dynamicText, forcedText, isFirstVisit, updateType]);
+  }, [isFadingOut, dynamicText, forcedText, isFirstVisit]);
 
   return (
     <div className={`fixed inset-0 z-[999999] bg-background flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
@@ -389,7 +386,12 @@ const AuthenticatedApp = () => {
           }
 
           sessionStorage.setItem('kjb_sw_updated', updateType);
-          const applyMsg = !bibleIsCached ? 'Welcome to KJB Reader...' : 'Applying updates...';
+          let isVeryFirstAppLoad = true;
+          try { 
+            isVeryFirstAppLoad = !localStorage.getItem('kjb-has-dl-app'); 
+            localStorage.setItem('kjb-has-dl-app', 'true'); 
+          } catch {}
+          const applyMsg = (!bibleIsCached && isVeryFirstAppLoad) ? 'Welcome to KJB Reader...' : 'Applying updates...';
           setApplyMessage(applyMsg);
           window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: applyMsg } }));
           setIsApplyingUpdates(true);
