@@ -99,10 +99,21 @@ const PageLoader = ({ isFadingOut }) => {
     typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null
   );
 
+  const [phase, setPhase] = useState('applying');
+
+  useEffect(() => {
+    if (updateType) {
+      const timer = setTimeout(() => {
+        setPhase('loading');
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [updateType]);
+
   if (isFadingOut) return null;
   
   let text = "Loading KJB Reader...";
-  if (updateType) {
+  if (updateType && phase === 'applying') {
     if (updateType === 'both') text = "Applying app & Bible updates...";
     else if (updateType === 'bible') text = "Applying Bible data updates...";
     else text = "Applying app updates...";
