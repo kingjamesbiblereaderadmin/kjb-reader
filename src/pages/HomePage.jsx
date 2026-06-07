@@ -178,7 +178,7 @@ export default function HomePage() {
               }
 
               console.log('[UpdateCheck] Reloading application...');
-              setTimeout(() => { window.location.href = window.location.pathname + '?refresh=' + Date.now(); }, 1200);
+              setTimeout(() => { window.location.href = window.location.pathname + '?refresh=' + Date.now(); }, 800);
               return;
             }
 

@@ -320,7 +320,7 @@ export default function AppLayout() {
                   console.log('[UpdateCheck] Reloading application...');
                   setTimeout(() => {
                     window.location.href = window.location.pathname + '?refresh=' + Date.now();
-                  }, 1500);
+                  }, 800);
                 } catch (err) {
                   console.error('[UpdateCheck] Refresh failed:', err);
                   window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Failed to force update', status: 'error' } }));

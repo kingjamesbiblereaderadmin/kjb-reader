@@ -122,7 +122,7 @@ const AuthenticatedApp = () => {
 
   useEffect(() => {
     // Enforce a minimum display time for the splash screen so it doesn't flash too fast
-    const timer = setTimeout(() => setMinSplashDone(true), 1500); // 1.5s gives 1.5 spinner cycles and time to read
+    const timer = setTimeout(() => setMinSplashDone(true), 800); // Reduced to 0.8s for faster perceived loading
     return () => clearTimeout(timer);
   }, []);
 
