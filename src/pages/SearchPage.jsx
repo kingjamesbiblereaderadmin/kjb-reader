@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked, ChevronDown, Share2, ChevronUp, ChevronDown as ChevronDownIcon, ChevronRight } from 'lucide-react';
+import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked, ChevronDown, Share2, ChevronUp, ChevronDown as ChevronDownIcon, ChevronRight, Printer } from 'lucide-react';
 import { getBibleData } from '@/lib/bibleCache';
 import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT, BOOK_BY_API_NAME } from '@/lib/bibleData';
 import { parseReference, resolveBook } from '@/lib/parseReference';
@@ -10,7 +10,7 @@ import SearchResultsList from '@/components/bible/SearchResultsList';
 import GhostInput from '@/components/bible/GhostInput';
 import { setSearchNav, clearSearchNav } from '@/lib/searchNav';
 import ExportMenu from '@/components/bible/ExportMenu';
-import PrintDropdown from '@/components/bible/PrintDropdown';
+
 import { exportVerses } from '@/lib/exportVerses';
 import { buildVerseUrl } from '@/lib/formatDailyVerse';
 import { SUBSCRIPTS } from '@/lib/bibleSubscripts';
@@ -1289,12 +1289,12 @@ export default function SearchPage() {
                     <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy All'}
                   </button>
                   <ExportMenu onExport={handleExport} label="Export" warning />
-                  <PrintDropdown 
-                    onPrintFull={() => window.print()} 
-                    onPrintContents={() => handleExport('print')} 
-                    contentLabel="Results"
+                  <button
+                    onClick={() => handleExport('print')}
                     className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
-                  />
+                  >
+                    <Printer className="w-3.5 h-3.5" /> Print
+                  </button>
                   <button
                     onClick={handleShare}
                     className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
@@ -1319,12 +1319,12 @@ export default function SearchPage() {
                         <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : `Copy (${selected.size})`}
                       </button>
                       <ExportMenu onExport={handleExport} count={selected.size} label="Export" warning />
-                      <PrintDropdown 
-                        onPrintFull={() => window.print()} 
-                        onPrintContents={() => handleExport('print')} 
-                        contentLabel="Results"
+                      <button
+                        onClick={() => handleExport('print')}
                         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
-                      />
+                      >
+                        <Printer className="w-3.5 h-3.5" /> Print
+                      </button>
                       <button
                         onClick={handleShare}
                         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"

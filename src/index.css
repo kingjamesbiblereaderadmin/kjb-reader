@@ -331,18 +331,29 @@
 }
 
 @media print {
-  html, body, #root {
+  html, body, #root, .h-screen {
     height: auto !important;
+    max-height: none !important;
     overflow: visible !important;
+    position: static !important;
   }
-  .h-screen {
+  main, #kjb-scroll, .overflow-y-auto, .overflow-x-hidden, .overflow-hidden {
     height: auto !important;
-  }
-  .overflow-hidden {
+    max-height: none !important;
     overflow: visible !important;
+    position: static !important;
   }
-  main, #kjb-scroll, .overflow-y-auto, .overflow-x-hidden {
-    height: auto !important;
-    overflow: visible !important;
+  /* Avoid breaking verses inside if possible, but allow natural flow */
+  h1, h2, h3, h4 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+  .kjb-reader-content {
+    page-break-inside: auto;
+    break-inside: auto;
+  }
+  /* Prevent layout jumps when printing the UI */
+  .fixed, .sticky {
+    position: static !important;
   }
 }
