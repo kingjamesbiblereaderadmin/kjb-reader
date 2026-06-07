@@ -230,6 +230,11 @@ export default function AppLayout() {
                 setRefreshing(true);
                 console.log('[UpdateCheck] Manual refresh clicked. Checking for updates...');
                 window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Checking for updates...', status: 'loading' } }));
+                
+                // Introduce an artificial minimum wait time so the "Checking for updates..." 
+                // banner is visible long enough for the user to register that something is actually happening.
+                const minWaitPromise = new Promise(resolve => setTimeout(resolve, 1500));
+                
                 try {
                   let hasBibleUpdates = false;
                   let hasCodeUpdates = false;
@@ -269,11 +274,20 @@ export default function AppLayout() {
                     console.log(`[UpdateCheck] App code updates found: ${hasCodeUpdates}`);
                   }
 
+                  // Wait for the minimum time to elapse before showing the success message
+                  await minWaitPromise;
+                  
                   if (!hasBibleUpdates && !hasCodeUpdates) {
                     console.log('[UpdateCheck] No updates found.');
                     window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App is up to date', status: 'success' } }));
-                    setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
-                    setRefreshing(false);
+                    
+                    // Force the banner to stay visible for at least 3 seconds,
+                    // so it doesn't flicker away instantly if the check is too fast.
+                    setTimeout(() => {
+                      window.dispatchEvent(new Event('kjb-progress-clear'));
+                      setRefreshing(false);
+                    }, 3000);
+                    
                     return;
                   }
 
@@ -316,6 +330,9 @@ export default function AppLayout() {
                     }
                     console.log('[UpdateCheck] Unregistered service workers.');
                   }
+                  
+                  // Wait for the minimum time to elapse before reloading
+                  await minWaitPromise;
                   
                   console.log('[UpdateCheck] Reloading application...');
                   setTimeout(() => {
