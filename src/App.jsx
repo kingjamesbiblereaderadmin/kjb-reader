@@ -145,7 +145,7 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
     else if (updateType === 'bible') loadingText = "Applying Bible data updates...";
     else loadingText = "Applying app updates...";
   } else if (!isReady || !minTimePassed) {
-    loadingText = "Loading KJB Reader...";
+    loadingText = isFirstVisit ? "Loading KJB Reader..." : "Welcome back";
   }
 
   const isAppReady = isReady && minTimePassed;
