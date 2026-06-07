@@ -9,7 +9,7 @@ import { registerSW, scheduleDailyNotification, getNotificationsEnabled, request
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { toast } from 'sonner';
 
-const READ_LINK = { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', color: 'bg-primary text-primary-foreground' };
+const READ_LINK = { path: '/read', icon: BookOpen, label: 'Read the King James Bible', desc: 'KJB Pure Cambridge Edition', color: 'bg-primary text-primary-foreground' };
 
 const QUICK_LINKS = [
   { path: '/contents', icon: List, label: 'Table of Contents', desc: 'Browse all 66 books', color: 'bg-secondary text-secondary-foreground' },
