@@ -9,7 +9,7 @@ export function printChapterContents(verses, book, pos, filterMode, selectedVers
 
   const itemsToPrint = [];
   const subscriptKey = `${book.apiName}:${pos.chapter}`;
-  if (SUBSCRIPTS[subscriptKey] && (!filterMode || selectedVerses.has(1))) {
+  if (SUBSCRIPTS[subscriptKey]) {
     itemsToPrint.push({
       text: SUBSCRIPTS[subscriptKey],
       ref: `${book.shortName} ${pos.chapter} superscription`,
@@ -30,7 +30,7 @@ export function printChapterContents(verses, book, pos, filterMode, selectedVers
     });
   });
 
-  if (colophon && (!filterMode || selectedVerses.has(verses[verses.length - 1].verse))) {
+  if (colophon) {
     itemsToPrint.push({
       text: colophon,
       ref: `${book.shortName} ${pos.chapter} colophon`,
