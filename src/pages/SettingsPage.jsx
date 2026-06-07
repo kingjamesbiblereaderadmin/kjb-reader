@@ -30,6 +30,7 @@ const A11Y_FONTS = [
 ];
 
 const LAST_REVISED = 'June 7th, 2026 v2';
+const WORKER_VERSION = 'v20260607_62';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -1212,7 +1213,11 @@ export default function SettingsPage() {
                 <span className="text-foreground font-medium text-right">{LAST_REVISED}</span>
               </div>
               <div className="flex justify-between items-center font-sans text-sm gap-4">
-                <span className="text-muted-foreground shrink-0">Cache Version</span>
+                <span className="text-muted-foreground shrink-0">Worker Version</span>
+                <span className="text-foreground font-medium text-right">{WORKER_VERSION}</span>
+              </div>
+              <div className="flex justify-between items-center font-sans text-sm gap-4">
+                <span className="text-muted-foreground shrink-0">Data Cache</span>
                 <span className="text-foreground font-medium text-right">{CACHE_VERSION}</span>
               </div>
               <div className="flex justify-between items-center font-sans text-sm gap-4">
