@@ -448,7 +448,7 @@ export default function HomePage() {
               <button
                 key="random"
                 onClick={handleRandomChapter}
-                className="flex items-center gap-4 p-5 rounded-2xl border border-border shadow-sm hover:opacity-90 transition-opacity bg-secondary text-secondary-foreground text-left"
+                className="flex items-center gap-4 p-5 rounded-2xl border border-border shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all bg-secondary text-secondary-foreground text-left"
               >
                 <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-white/20">
                   <Shuffle className="w-5 h-5" />
@@ -466,7 +466,7 @@ export default function HomePage() {
               key={link.path}
               to={link.path}
               onClick={() => window.scrollTo({ top: 0 })}
-              className={`flex items-center gap-4 p-5 rounded-2xl border border-border shadow-sm hover:opacity-90 transition-opacity ${link.color}`}
+              className={`flex items-center gap-4 p-5 rounded-2xl border border-border shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all ${link.color}`}
             >
               <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-white/20">
                 <Icon className="w-5 h-5" />
