@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, X, Share, MonitorSmartphone, Download, Accessibility, Palette } from 'lucide-react';
+import { Bell, X, Share, MonitorSmartphone, Download, Accessibility, Palette, Type } from 'lucide-react';
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
 import ThemeColorPicker from '@/components/bible/ThemeColorPicker';
+
+const READING_FONTS = [
+  { value: 'serif', label: 'Serif', preview: "'Merriweather', 'Cormorant Garamond', Georgia, serif" },
+  { value: 'sans-serif', label: 'Sans', preview: "'Inter', system-ui, -apple-system, sans-serif" },
+  { value: 'monospace', label: 'Mono', preview: "'Courier New', monospace" },
+  { value: 'cursive', label: 'Cursive', preview: "'Dancing Script', cursive" },
+];
 
 const A11Y_FONTS = [
   { value: 'default', label: 'Off' },
@@ -30,6 +37,28 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     'Notification' in window && Notification.permission === 'granted'
   );
   const [a11yFont, setA11yFont] = useState(getAccessibilityFont);
+  const [readingFont, setReadingFont] = useState(() => {
+    try { return localStorage.getItem('kjb-verse-font-family') || 'serif'; } catch { return 'serif'; }
+  });
+
+  const handleFontSelect = (val) => {
+    setReadingFont(val);
+    try {
+      localStorage.setItem('kjb-verse-font-family', val);
+      localStorage.setItem('kjb-reader-font', val);
+      document.documentElement.setAttribute('data-reader-font', val);
+      window.dispatchEvent(new Event('storage'));
+    } catch {}
+    if (a11yFont !== 'default') {
+      setA11yFont('default');
+      setAccessibilityFont('default');
+    }
+  };
+
+  const handleA11ySelect = (val) => {
+    setA11yFont(val);
+    setAccessibilityFont(val);
+  };
 
   // Keep notifDone in sync when permission changes externally
   useEffect(() => {
@@ -141,6 +170,31 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
           <div className="space-y-3">
             <div className="rounded-xl bg-secondary/40 border border-border p-3">
               <div className="flex items-center gap-2 mb-3">
+                <Type className="w-4 h-4 text-muted-foreground" />
+                <span className="font-sans text-sm font-medium">Reading Font</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {READING_FONTS.map(font => {
+                  const isActive = a11yFont === 'default' && readingFont === font.value;
+                  return (
+                    <button
+                      key={font.value}
+                      type="button"
+                      onClick={() => handleFontSelect(font.value)}
+                      className={`px-2 py-2.5 rounded-lg font-sans text-xs font-medium transition-all ${
+                        isActive ? 'bg-primary text-primary-foreground' : 'bg-card border border-border hover:border-accent'
+                      }`}
+                      style={font.preview ? { fontFamily: font.preview } : undefined}
+                    >
+                      {font.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-secondary/40 border border-border p-3">
+              <div className="flex items-center gap-2 mb-3">
                 <Accessibility className="w-4 h-4 text-muted-foreground" />
                 <span className="font-sans text-sm font-medium">Font Accessibility</span>
               </div>
@@ -149,7 +203,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                   <button
                     key={font.value}
                     type="button"
-                    onClick={() => { setA11yFont(font.value); setAccessibilityFont(font.value); }}
+                    onClick={() => handleA11ySelect(font.value)}
                     className={`px-2 py-2.5 rounded-lg font-sans text-xs font-medium transition-all ${
                       a11yFont === font.value ? 'bg-primary text-primary-foreground' : 'bg-card border border-border hover:border-accent'
                     }`}
@@ -250,6 +304,35 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             </div>
           )}
 
+          {/* Reading font */}
+          <div className="rounded-xl bg-secondary/40 border border-border p-2.5">
+            <div className="flex items-center gap-1.5 mb-2 px-0.5">
+              <Type className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <span className="font-sans text-xs font-medium text-foreground">Reading Font</span>
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
+              {READING_FONTS.map(font => {
+                const isActive = a11yFont === 'default' && readingFont === font.value;
+                return (
+                  <button
+                    key={font.value}
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); handleFontSelect(font.value); }}
+                    onPointerDown={e => e.stopPropagation()}
+                    className={`px-2 py-2 rounded-lg font-sans text-xs font-medium transition-all touch-manipulation ${
+                      isActive
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-card text-foreground border border-border hover:border-accent'
+                    }`}
+                    style={font.preview ? { fontFamily: font.preview } : undefined}
+                  >
+                    {font.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Accessibility font — dyslexic & high-legibility options */}
           <div className="rounded-xl bg-secondary/40 border border-border p-2.5">
             <div className="flex items-center gap-1.5 mb-2 px-0.5">
@@ -261,7 +344,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                 <button
                   key={font.value}
                   type="button"
-                  onClick={(e) => { e.stopPropagation(); setA11yFont(font.value); setAccessibilityFont(font.value); }}
+                  onClick={(e) => { e.stopPropagation(); handleA11ySelect(font.value); }}
                   onPointerDown={e => e.stopPropagation()}
                   className={`px-2 py-2 rounded-lg font-sans text-xs font-medium transition-all touch-manipulation ${
                     a11yFont === font.value
