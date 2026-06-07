@@ -282,7 +282,7 @@ export default function AppLayout() {
                   await minWaitPromise;
                   
                   if (!hasBibleUpdates && !hasCodeUpdates) {
-                    console.log('[UpdateCheck] No updates found.');
+                    console.log('[UpdateCheck] No updates found. (Code is v103)');
                     window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App is up to date', status: 'success' } }));
                     
                     // Force the banner to stay visible for at least 3 seconds,
