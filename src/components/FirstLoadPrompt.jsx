@@ -140,9 +140,9 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     return (
       <div className="w-full max-w-sm mx-auto pointer-events-auto">
         <div className="bg-card/90 backdrop-blur-sm border border-border rounded-2xl shadow-2xl p-6 space-y-5 relative">
-          <div className="flex flex-col items-center justify-center gap-2 mb-4">
-            <h2 className="font-serif text-2xl font-bold text-foreground">Welcome!</h2>
-            <p className="font-sans text-sm text-muted-foreground text-center">Let's set up your reading experience.</p>
+          <div className="flex flex-col items-center justify-center gap-1 mb-4">
+            <h2 className="font-serif text-xl font-bold text-foreground">Quick Setup</h2>
+            <p className="font-sans text-sm text-muted-foreground text-center">Customize your reading experience</p>
           </div>
 
           {showInstall && (

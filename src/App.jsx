@@ -154,34 +154,36 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
     <div className={`fixed inset-0 z-[9999] bg-background overflow-y-auto overflow-x-hidden ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
       <div className="flex flex-col items-center w-full min-h-full px-4 py-12 md:py-16 max-w-xl mx-auto space-y-8">
         
-        {/* Logo and Welcome Banner */}
-        <div className="flex flex-col items-center justify-center pt-4">
-          <div className="relative mb-6">
-            <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
-            <img 
-              src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
-              alt="KJB Reader" 
-              className="relative w-28 h-28 object-contain drop-shadow-2xl"
-            />
-          </div>
-          <div className="px-6 py-2.5 rounded-full bg-secondary/80 border border-border/50 backdrop-blur-md shadow-sm">
-            <span className="font-sans text-sm font-bold tracking-wide text-foreground">{welcomeText}</span>
-          </div>
-        </div>
-
         {isFirstVisit ? (
           <>
-            {/* Gospel Banner */}
-            <div className="w-full relative drop-shadow-xl rounded-2xl overflow-hidden border border-border bg-black flex items-center justify-center">
-              <img 
-                src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/cc6071d88_2.jpg" 
-                alt="The Gospel of Salvation" 
-                className="w-full object-contain"
+            {/* Logo and Welcome Banner */}
+            <div className="flex flex-col items-center justify-center pt-4">
+              <div className="relative mb-6">
+                <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
+                <img 
+                  src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
+                  alt="KJB Reader" 
+                  className="relative w-28 h-28 object-contain drop-shadow-2xl"
+                />
+              </div>
+              <div className="px-6 py-2.5 rounded-full bg-secondary/80 border border-border/50 backdrop-blur-md shadow-sm">
+                <span className="font-sans text-sm font-bold tracking-wide text-foreground">{welcomeText}</span>
+              </div>
+            </div>
+
+            {/* Daily Verse */}
+            <div className="w-full relative px-2">
+              <DailyVerseImage 
+                verse={dailyVerse} 
+                splashMode={true} 
+                onClick={() => {}} 
+                onToggleNotif={promptProps.handleEnableNotif}
+                notifEnabled={'Notification' in window && Notification.permission === 'granted'}
               />
             </div>
             
             {/* Setup Prompt (passes loadingText and isAppReady down) */}
-            <div className="w-full pb-8">
+            <div className="w-full pb-8 mt-4">
               <FirstLoadPrompt 
                 splashMode={true}
                 isInstallable={promptProps.isInstallable}
@@ -196,8 +198,8 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
           </>
         ) : (
           <>
-            {/* Daily Verse */}
-            <div className="w-full relative px-2">
+            {/* Daily Verse ONLY for subsequent visits */}
+            <div className="w-full relative px-2 pt-8">
               <DailyVerseImage 
                 verse={dailyVerse} 
                 splashMode={true} 
