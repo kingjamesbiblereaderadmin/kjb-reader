@@ -280,16 +280,22 @@ export default function AppLayout() {
                   // Clear local storage daily verse cache just in case
                   localStorage.removeItem('kjb-daily-verse-cache');
                   
-                  // Tell any service worker to update
+                  // Unregister service worker so next reload is completely fresh from network
                   if ('serviceWorker' in navigator) {
-                    const reg = await navigator.serviceWorker.getRegistration();
-                    if (reg) {
-                      await reg.update().catch(() => {});
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    for (const reg of regs) {
+                      await reg.unregister();
                     }
                   }
 
-                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App updating successfully. Reloading...', status: 'success' } }));
-                  setTimeout(() => window.location.reload(), 1000);
+                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App updated successfully. Reloading...', status: 'success' } }));
+                  
+                  // Force a hard reload from the server bypassing any remaining cache
+                  setTimeout(() => {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('t', Date.now());
+                    window.location.href = url.toString();
+                  }, 1000);
                 } catch (err) {
                   console.error('Refresh failed:', err);
                   window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Failed to force update', status: 'error' } }));
