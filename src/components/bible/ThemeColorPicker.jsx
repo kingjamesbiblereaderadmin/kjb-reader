@@ -38,7 +38,7 @@ export default function ThemeColorPicker({ compact = false }) {
       <div className="grid grid-cols-2 gap-2">
         <button
           onClick={() => setColorMode('daily')}
-          className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-sans text-sm font-medium border transition-colors ${
+          className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-sans text-sm font-medium border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
             colorMode !== 'fixed'
               ? 'bg-primary text-primary-foreground border-primary'
               : 'bg-secondary text-secondary-foreground border-border hover:bg-accent/20'
@@ -48,7 +48,7 @@ export default function ThemeColorPicker({ compact = false }) {
         </button>
         <button
           onClick={() => setColorMode('fixed')}
-          className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-sans text-sm font-medium border transition-colors ${
+          className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-sans text-sm font-medium border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
             colorMode === 'fixed'
               ? 'bg-primary text-primary-foreground border-primary'
               : 'bg-secondary text-secondary-foreground border-border hover:bg-accent/20'
@@ -72,7 +72,7 @@ export default function ThemeColorPicker({ compact = false }) {
               key={p.id}
               onClick={() => setColourId(p.id)}
               title={p.name}
-              className={`flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-lg border-2 transition-all ${
+              className={`flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-lg border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
                 colourId === p.id ? 'border-foreground' : 'border-border hover:border-accent'
               }`}
             >
@@ -83,7 +83,7 @@ export default function ThemeColorPicker({ compact = false }) {
 
           {/* Custom colour picker */}
           <label
-            className={`flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-lg border-2 cursor-pointer transition-all ${
+            className={`flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
               colourId === 'custom' ? 'border-foreground' : 'border-border hover:border-accent'
             }`}
             title="Custom colour"

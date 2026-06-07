@@ -373,7 +373,7 @@ export default function SettingsPage() {
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         <button
           onClick={toggleAll}
-          className="mt-4 px-4 py-2 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+          className="mt-4 px-4 py-2 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
           {allExpanded ? 'Collapse All' : 'Expand All'}
         </button>
@@ -410,7 +410,7 @@ export default function SettingsPage() {
                   setZoomLevel(newZoom);
                   try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch {}
                 }}
-                className="p-2 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-colors"
+                className="p-2 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               >
                 <ZoomOut className="w-4 h-4" />
               </button>
@@ -420,7 +420,7 @@ export default function SettingsPage() {
                   setZoomLevel(newZoom);
                   try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch {}
                 }}
-                className="p-2 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-colors"
+                className="p-2 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               >
                 <ZoomIn className="w-4 h-4" />
               </button>
@@ -430,7 +430,7 @@ export default function SettingsPage() {
                     setZoomLevel(100);
                     try { localStorage.setItem('kjb-zoom', '100'); } catch {}
                   }}
-                  className="px-3 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+                  className="px-3 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Reset
                 </button>
@@ -460,7 +460,7 @@ export default function SettingsPage() {
             key={font.value}
             disabled={isDisabled}
             onClick={() => pickReaderFont(font.value)}
-            className={`w-full py-3 rounded-xl font-sans text-sm font-medium transition-all text-center border-2 ${
+            className={`w-full py-3 rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center border-2 ${
               isActive
                 ? 'bg-primary text-primary-foreground border-primary'
                 : 'bg-transparent text-foreground border-border hover:border-accent'
@@ -474,7 +474,7 @@ export default function SettingsPage() {
         {a11yFont === 'default' && (
           <button
             onClick={() => pickReaderFont('serif')}
-            className="w-full py-3 rounded-xl font-sans text-sm font-medium transition-all text-center bg-secondary text-secondary-foreground border-2 border-border hover:border-accent"
+            className="w-full py-3 rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center bg-secondary text-secondary-foreground border-2 border-border hover:border-accent"
           >
             Reset to Default
           </button>
@@ -514,7 +514,7 @@ export default function SettingsPage() {
                   setA11yFont(font.value);
                   setAccessibilityFont(font.value);
                 }}
-                className={`w-full p-3 rounded-xl transition-all text-left border-2 ${
+                className={`w-full p-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-left border-2 ${
                   a11yFont === font.value
                     ? 'bg-primary/10 border-primary'
                     : 'bg-transparent border-border hover:border-accent'
@@ -535,7 +535,7 @@ export default function SettingsPage() {
           {a11yFont !== 'default' && (
             <button
               onClick={() => { setA11yFont('default'); setAccessibilityFont('default'); }}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-destructive/10 text-destructive font-sans text-sm font-medium hover:bg-destructive/20 transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-destructive/10 text-destructive font-sans text-sm font-medium hover:bg-destructive/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Disable
@@ -573,7 +573,7 @@ export default function SettingsPage() {
               <button
                 key={opt.id}
                 onClick={() => setMode(opt.id)}
-                className={`py-2 rounded-xl font-sans text-sm font-medium border transition-colors ${
+                className={`py-2 rounded-xl font-sans text-sm font-medium border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
                   mode === opt.id
                     ? 'bg-primary text-primary-foreground border-primary'
                     : 'bg-secondary text-secondary-foreground border-border hover:bg-accent/20'
@@ -609,7 +609,7 @@ export default function SettingsPage() {
                     onClick={() => {
                       setPendingBg(null);
                     }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <Upload className="w-3.5 h-3.5 rotate-180" />
                     Cancel
@@ -626,7 +626,7 @@ export default function SettingsPage() {
                         console.error('localStorage quota exceeded:', err);
                       }
                     }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <CheckCircle className="w-3.5 h-3.5" />
                     Save Image
@@ -641,7 +641,7 @@ export default function SettingsPage() {
                       localStorage.removeItem('kjb-daily-verse-bg');
                       window.dispatchEvent(new Event('storage'));
                     }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive font-sans text-xs font-medium hover:bg-destructive/20 transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive font-sans text-xs font-medium hover:bg-destructive/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     Remove Image
@@ -651,7 +651,7 @@ export default function SettingsPage() {
                       const current = localStorage.getItem('kjb-daily-verse-bg');
                       if (current) setCropImage(current);
                     }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <Crop className="w-3.5 h-3.5" />
                     Re-crop
@@ -739,7 +739,7 @@ export default function SettingsPage() {
               localStorage.setItem('kjb-verse-panel-visible', 'true');
               window.dispatchEvent(new Event('storage'));
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             Reset
@@ -777,7 +777,7 @@ export default function SettingsPage() {
                     localStorage.setItem('kjb-verse-text-color', color);
                     window.dispatchEvent(new Event('storage'));
                   }}
-                  className={`w-8 h-8 rounded-lg border-2 transition-all ${
+                  className={`w-8 h-8 rounded-lg border-2 transition-all duration-200 hover:scale-110 active:scale-95 ${
                     verseTextColor === color ? 'border-foreground scale-110' : 'border-slate-300 hover:border-slate-500'
                   }`}
                   style={{ backgroundColor: color }}
@@ -830,7 +830,7 @@ export default function SettingsPage() {
                   key={font.value}
                   disabled={isDisabled}
                   onClick={() => pickVerseFont(font.value)}
-                  className={`px-4 py-3 rounded-xl font-sans text-sm font-medium border transition-all ${
+                  className={`px-4 py-3 rounded-xl font-sans text-sm font-medium border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
                     isActive
                       ? 'bg-primary text-primary-foreground border-primary'
                       : 'bg-secondary text-secondary-foreground border-border hover:bg-accent/20'
@@ -1362,7 +1362,7 @@ export default function SettingsPage() {
           <div className="px-5 pb-6 pt-3 space-y-2">
             <a
               href="mailto:kingjamesbiblereader@outlook.sg"
-              className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
+              className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
             >
               <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
               <div className="flex-1 min-w-0">
@@ -1374,7 +1374,7 @@ export default function SettingsPage() {
               href="https://godisgracious1031ministriescom.odoo.com/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
+              className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
             >
               <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
               <div className="flex-1 min-w-0">
@@ -1387,7 +1387,7 @@ export default function SettingsPage() {
               href="https://discord.com/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
+              className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
             >
               <MessageCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
               <div className="flex-1 min-w-0">
@@ -1400,7 +1400,7 @@ export default function SettingsPage() {
               href="https://www.tiktok.com/@svdbyfaithinr325av?_r=1&_t=ZS-96WRhWSLUoe"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
+              className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
             >
               <TikTokIcon />
               <div className="flex-1 min-w-0">
@@ -1413,7 +1413,7 @@ export default function SettingsPage() {
               href="https://www.instagram.com/svdbyfaithinhisbloodr325av?igsh=NTl0NmM1NWoyb2F0"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
+              className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
             >
               <Instagram className="w-4 h-4 text-pink-500 flex-shrink-0" />
               <div className="flex-1 min-w-0">
@@ -1426,7 +1426,7 @@ export default function SettingsPage() {
               href="https://youtube.com/@shawnr325av?si=zC_gQm4I2S_xj-NS"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
+              className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
             >
               <Youtube className="w-4 h-4 text-red-500 flex-shrink-0" />
               <div className="flex-1 min-w-0">
