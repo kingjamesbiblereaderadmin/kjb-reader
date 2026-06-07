@@ -516,12 +516,6 @@ const AuthenticatedApp = () => {
       {renderSplash && <PageLoader isFadingOut={fadeSplash} isReady={isAppReady} onDismiss={() => setSplashDismissed(true)} />}
       {!isInitializing && !authError && (
         <>
-          <button 
-            onClick={() => { setSplashDismissed(false); setRenderSplash(true); }}
-            className="fixed bottom-24 right-4 z-50 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-bold shadow-lg"
-          >
-            TEST SPLASH
-          </button>
           <Routes location={location}>
             <Route element={<AppLayout />}>
         <Route path="/" element={<Suspense fallback={<RouteLoader />}><FadeIn><HomePage /></FadeIn></Suspense>} />
