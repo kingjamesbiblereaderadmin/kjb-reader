@@ -53,7 +53,6 @@ export default function AppLayout() {
   const { reloadKey, softReload, isReloading } = useSoftReload();
   const [menuOpen, setMenuOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [updateOverlayText, setUpdateOverlayText] = useState('');
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
   useEffect(() => {
@@ -276,7 +275,7 @@ export default function AppLayout() {
                     const { checkForUpdates, autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
                     hasBibleUpdates = await checkForUpdates();
                     if (hasBibleUpdates) {
-                      setUpdateOverlayText('Found updates, updating...');
+                      window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Updating Bible data...', status: 'loading' } }));
                       await autoDownloadBibleOnFirstLoad();
                     }
                   } catch (e) {}
@@ -300,11 +299,10 @@ export default function AppLayout() {
                     window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App is up to date', status: 'success' } }));
                     setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
                     setRefreshing(false);
-                    setUpdateOverlayText('');
                     return;
                   }
 
-                  setUpdateOverlayText('Applying updates...');
+                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Applying updates...', status: 'loading' } }));
 
                   // Clear service worker cache to ensure latest code is fetched
                   if ('caches' in window) {
@@ -329,7 +327,6 @@ export default function AppLayout() {
                   window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Failed to force update', status: 'error' } }));
                   setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
                   setRefreshing(false);
-                  setUpdateOverlayText('');
                 }
               }}
               type="button"
@@ -394,11 +391,6 @@ export default function AppLayout() {
       </header>
 
       <main id="kjb-scroll" className="flex-1 overflow-y-auto pb-[calc(5rem+env(safe-area-inset-bottom))] sm:!pb-0 px-1 sm:px-2 relative">
-        {isReloading && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm kjb-fade-in">
-            <RotateCw className="w-8 h-8 text-primary animate-spin" />
-          </div>
-        )}
         <div key={reloadKey} className={isReloading ? 'opacity-50 pointer-events-none' : ''}>
           <Outlet />
         </div>
@@ -422,16 +414,7 @@ export default function AppLayout() {
 
       <DesktopFooter navigate={navigate} setMenuOpen={setMenuOpen} />
 
-      {updateOverlayText && (
-        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/80 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="flex flex-col items-center gap-4 p-6 rounded-2xl bg-card border border-border shadow-2xl scale-in-95 duration-200">
-            <RotateCw className="w-10 h-10 text-primary animate-spin" />
-            <div className="text-center space-y-1">
-              <h3 className="font-serif text-lg font-semibold text-foreground">{updateOverlayText}</h3>
-            </div>
-          </div>
-        </div>
-      )}
+
     </div>
     </AutoUpdateHandler>
   );
