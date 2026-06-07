@@ -97,11 +97,9 @@ import { Loader2, ChevronRight } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 
 const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
-  // Capture the updateType once on mount so it doesn't change when checkUpdatesSilently removes it
   const [updateType] = useState(() => 
     typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null
   );
-  const [showLoading, setShowLoading] = useState(!updateType);
   const [dynamicText, setDynamicText] = useState(null);
 
   const [isFirstVisit] = useState(() => {
@@ -117,6 +115,7 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
   });
 
   const [gospelDismissed, setGospelDismissed] = useState(!isFirstVisit);
+  const [phase, setPhase] = useState('logo');
 
   useEffect(() => {
     const handleProgress = (e) => {
@@ -127,13 +126,11 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
   }, []);
 
   useEffect(() => {
-    if (updateType) {
-      const timer = setTimeout(() => {
-        setShowLoading(true);
-      }, 2500);
-      return () => clearTimeout(timer);
-    }
-  }, [updateType]);
+    const timer = setTimeout(() => {
+      setPhase(isFirstVisit && !gospelDismissed ? 'gospel' : 'verse');
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [isFirstVisit, gospelDismissed]);
 
   if (isFadingOut) return null;
   
@@ -142,15 +139,34 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
   let text = isFirstVisit ? "Welcome to KJB Reader..." : "Welcome back to KJB Reader...";
   if (dynamicText) {
     text = dynamicText;
-  } else if (updateType && !showLoading) {
+  } else if (updateType) {
     if (updateType === 'both') text = "Applying app & Bible updates...";
     else if (updateType === 'bible') text = "Applying Bible data updates...";
     else text = "Applying app updates...";
   }
 
-  const showLoadingState = dynamicText || updateType;
+  if (phase === 'logo') {
+    return (
+      <div className={`fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
+        <div className="flex flex-col items-center justify-center -mt-16">
+          <div className="relative mb-6">
+            <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
+            <img 
+              src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
+              alt="KJB Reader" 
+              className="relative w-32 h-32 object-contain drop-shadow-2xl"
+            />
+          </div>
+          <div className="flex items-center gap-3 text-foreground bg-card/90 px-6 py-3 rounded-2xl shadow-xl backdrop-blur-sm border border-border/50">
+            <Loader2 className="w-5 h-5 animate-spin text-foreground shrink-0" />
+            <span className="font-sans text-sm font-semibold tracking-wide">{text}</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  if (!gospelDismissed) {
+  if (phase === 'gospel') {
     return (
       <div className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300 bg-black`}>
         <div className="flex-1 w-full flex items-center justify-center min-h-0">
@@ -162,7 +178,10 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
         </div>
         <div className="shrink-0 p-6 pb-env-safe w-full flex justify-center">
           <button 
-            onClick={() => setGospelDismissed(true)}
+            onClick={() => {
+              setGospelDismissed(true);
+              setPhase('verse');
+            }}
             className="flex items-center gap-2 px-8 py-3.5 bg-white text-slate-900 rounded-full font-sans text-lg font-bold transition-all duration-200 hover:scale-105 active:scale-95 shadow-2xl border border-slate-200"
           >
             Continue
@@ -174,11 +193,16 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
   }
 
   return (
-  <div className={`fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
-    {!showLoadingState && dailyVerse && dailyVerse.book !== "Offline" ? (
+    <div className={`fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
       <div className="w-full h-full relative flex flex-col items-center justify-center p-6 pb-32">
         <div className="w-full max-w-lg relative pointer-events-none drop-shadow-2xl">
-          <DailyVerseImage verse={dailyVerse} onClick={() => {}} splashMode={true} />
+          {dailyVerse ? (
+            <DailyVerseImage verse={dailyVerse} onClick={() => {}} splashMode={true} />
+          ) : (
+            <div className="w-full min-h-[300px] bg-secondary/50 animate-pulse border border-border rounded-2xl shadow-lg flex items-center justify-center">
+              <span className="font-sans text-sm text-muted-foreground">Loading verse...</span>
+            </div>
+          )}
         </div>
         <div className="absolute bottom-12 left-0 right-0 flex justify-center z-50 pb-env-safe px-4 pointer-events-auto">
           {!isReady ? (
@@ -197,25 +221,7 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
           )}
         </div>
       </div>
-    ) : (
-      <div className="flex flex-col items-center justify-center w-full h-full px-6">
-        <div className="flex flex-col items-center justify-center -mt-16">
-          <div className="relative mb-6">
-            <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
-            <img 
-              src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
-              alt="KJB Reader" 
-              className="relative w-32 h-32 object-contain drop-shadow-2xl"
-            />
-          </div>
-          <div className="flex items-center gap-3 text-foreground bg-card/90 px-6 py-3 rounded-2xl shadow-xl backdrop-blur-sm border border-border/50">
-            <Loader2 className="w-5 h-5 animate-spin text-foreground shrink-0" />
-            <span className="font-sans text-sm font-semibold tracking-wide">{text}</span>
-          </div>
-        </div>
-      </div>
-    )}
-  </div>
+    </div>
   );
 };
 

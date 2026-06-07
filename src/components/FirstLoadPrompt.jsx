@@ -20,7 +20,7 @@ const isInStandaloneMode = () => {
 
 const DISMISSED_KEY = 'kjb-prompt-dismissed';
 
-export default function FirstLoadPrompt({ isInstallable, notifPermission, onInstall, onDismiss, onEnableNotif }) {
+export default function FirstLoadPrompt({ isInstallable, notifPermission, onInstall, onDismiss, onEnableNotif, splashMode = false }) {
   const [dismissed, setDismissed] = useState(() => {
     try { return localStorage.getItem(DISMISSED_KEY) === 'true'; } catch { return false; }
   });
