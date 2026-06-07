@@ -72,7 +72,7 @@ export default function UpdateBanner() {
     );
   }
 
-  let Icon = RotateCw;
+  let Icon = Loader2;
   let iconClass = "w-4 h-4 text-muted-foreground";
   if (progressStatus === 'loading') iconClass += " animate-spin";
   else if (progressStatus === 'success') { Icon = CheckCircle2; iconClass = "w-4 h-4 text-green-600 dark:text-green-400"; }
