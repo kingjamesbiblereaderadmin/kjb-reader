@@ -152,36 +152,36 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
 
   return (
     <div className={`fixed inset-0 z-[9999] bg-background overflow-hidden ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
-      <div className={`flex flex-col items-center w-full h-[100dvh] px-4 max-w-xl mx-auto ${isFirstVisit ? 'py-8 space-y-6 overflow-y-auto' : 'justify-center overflow-y-auto'}`}>
+      <div className="flex flex-col items-center w-full h-[100dvh] px-4 max-w-xl mx-auto py-8 space-y-6 overflow-y-auto">
         
+        {/* Logo and Welcome Banner */}
+        <div className="flex flex-col items-center justify-center pt-4">
+          <div className="relative mb-6">
+            <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
+            <img 
+              src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
+              alt="KJB Reader" 
+              className="relative w-28 h-28 object-contain drop-shadow-2xl"
+            />
+          </div>
+          <div className="px-6 py-2.5 rounded-full bg-secondary/80 border border-border/50 backdrop-blur-md shadow-sm">
+            <span className="font-sans text-sm font-bold tracking-wide text-foreground">{welcomeText}</span>
+          </div>
+        </div>
+
+        {/* Daily Verse */}
+        <div className="w-full relative px-2">
+          <DailyVerseImage 
+            verse={dailyVerse} 
+            splashMode={true} 
+            onClick={() => {}} 
+            onToggleNotif={promptProps.handleEnableNotif}
+            notifEnabled={'Notification' in window && Notification.permission === 'granted'}
+          />
+        </div>
+
         {isFirstVisit ? (
           <>
-            {/* Logo and Welcome Banner */}
-            <div className="flex flex-col items-center justify-center pt-4">
-              <div className="relative mb-6">
-                <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
-                <img 
-                  src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
-                  alt="KJB Reader" 
-                  className="relative w-28 h-28 object-contain drop-shadow-2xl"
-                />
-              </div>
-              <div className="px-6 py-2.5 rounded-full bg-secondary/80 border border-border/50 backdrop-blur-md shadow-sm">
-                <span className="font-sans text-sm font-bold tracking-wide text-foreground">{welcomeText}</span>
-              </div>
-            </div>
-
-            {/* Daily Verse */}
-            <div className="w-full relative px-2">
-              <DailyVerseImage 
-                verse={dailyVerse} 
-                splashMode={true} 
-                onClick={() => {}} 
-                onToggleNotif={promptProps.handleEnableNotif}
-                notifEnabled={'Notification' in window && Notification.permission === 'granted'}
-              />
-            </div>
-            
             {/* Setup Prompt (passes loadingText and isAppReady down) */}
             <div className="w-full pb-8 mt-4">
               <FirstLoadPrompt 
@@ -198,19 +198,8 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
           </>
         ) : (
           <>
-            {/* Daily Verse ONLY for subsequent visits */}
-            <div className="w-full relative px-2 mb-8">
-              <DailyVerseImage 
-                verse={dailyVerse} 
-                splashMode={true} 
-                onClick={() => {}} 
-                onToggleNotif={promptProps.handleEnableNotif}
-                notifEnabled={'Notification' in window && Notification.permission === 'granted'}
-              />
-            </div>
-
             {/* Loading / Updating Banner OR Continue Button */}
-            <div className="w-full flex justify-center shrink-0">
+            <div className="w-full flex justify-center shrink-0 mt-4 pb-8">
               {loadingText ? (
                 <div className="flex items-center gap-3 text-foreground bg-card px-6 py-3.5 rounded-2xl shadow-lg border border-border/80">
                   <Loader2 className="w-5 h-5 animate-spin text-accent shrink-0" />
