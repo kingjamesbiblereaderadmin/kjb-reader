@@ -23,18 +23,15 @@ const QUICK_LINKS = [
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const [verse, setVerse] = useState(null);
+  const [verse, setVerse] = useState(() => {
+    const lastCached = getLastCachedDailyVerse();
+    return (lastCached && lastCached.isToday) ? lastCached : null;
+  });
   const [isOffline, setIsOffline] = useState(false);
   const touchStartY = useRef(0);
   const touchEndY = useRef(0);
 
   useEffect(() => {
-    // 1. Immediately show the cached verse only if it belongs to today
-    const lastCached = getLastCachedDailyVerse();
-    if (lastCached && lastCached.isToday) {
-      setVerse(lastCached);
-    }
-
     // 2. Fetch today's verse in the background quietly
     getDailyVerseFromBible().then(v => {
       console.log("[DEBUG] Verse generated for today:", v?.ref);

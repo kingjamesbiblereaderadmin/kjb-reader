@@ -37,6 +37,20 @@ const SearchPage = lazy(loaders.Search);
 const SavedVersesPage = lazy(loaders.Saved);
 const RefreshCache = lazy(loaders.RefreshCache);
 
+const getLoaderForPath = (pathname) => {
+  if (pathname === '/') return loaders.Home;
+  if (pathname === '/read') return loaders.BibleReader;
+  if (pathname === '/gospel') return loaders.Gospel;
+  if (pathname === '/resources') return loaders.Resources;
+  if (pathname === '/about') return loaders.About;
+  if (pathname === '/contents') return loaders.Contents;
+  if (pathname === '/settings') return loaders.Settings;
+  if (pathname === '/search') return loaders.Search;
+  if (pathname === '/saved') return loaders.Saved;
+  if (pathname === '/refresh-cache') return loaders.RefreshCache;
+  return null;
+};
+
 // Preload all route chunks in the background after first paint so subsequent
 // navigations are instant (no Suspense delay = no blank page).
 let _preloaded = false;
@@ -125,6 +139,16 @@ const AuthenticatedApp = () => {
   const location = useLocation();
   const [minSplashDone, setMinSplashDone] = useState(false);
   const [updateCheckDone, setUpdateCheckDone] = useState(false);
+  const [routeLoaded, setRouteLoaded] = useState(false);
+
+  useEffect(() => {
+    const loader = getLoaderForPath(location.pathname);
+    if (loader) {
+      loader().then(() => setRouteLoaded(true)).catch(() => setRouteLoaded(true));
+    } else {
+      setRouteLoaded(true);
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     // If we just reloaded from an update, skip the delay so it's snappy
@@ -224,7 +248,7 @@ const AuthenticatedApp = () => {
   }, []);
 
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
-  const showSplash = isInitializing || !minSplashDone || !updateCheckDone;
+  const showSplash = isInitializing || !minSplashDone || !updateCheckDone || !routeLoaded;
 
   const [renderSplash, setRenderSplash] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
