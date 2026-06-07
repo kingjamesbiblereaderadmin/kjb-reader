@@ -8,6 +8,42 @@ export function getSavedVerses() {
   }
 }
 
+export function getSavedFolders() {
+  try {
+    const folders = JSON.parse(localStorage.getItem('kjb-saved-folders') || '["Favorites"]');
+    // Ensure "Favorites" is always there
+    if (!folders.includes('Favorites')) {
+      folders.unshift('Favorites');
+    }
+    return folders;
+  } catch {
+    return ['Favorites'];
+  }
+}
+
+export function createFolder(name) {
+  const folders = getSavedFolders();
+  if (!folders.includes(name)) {
+    folders.push(name);
+    localStorage.setItem('kjb-saved-folders', JSON.stringify(folders));
+  }
+}
+
+export function deleteFolder(name) {
+  if (name === 'Favorites') return; // Cannot delete default
+  const folders = getSavedFolders().filter(f => f !== name);
+  localStorage.setItem('kjb-saved-folders', JSON.stringify(folders));
+  
+  // Move verses from deleted folder to 'Favorites'
+  const saved = getSavedVerses().map(v => {
+    if (v.folder === name) {
+      return { ...v, folder: 'Favorites' };
+    }
+    return v;
+  });
+  localStorage.setItem(SAVED_KEY, JSON.stringify(saved));
+}
+
 export function isVerseSaved(abbr, chapter, verse) {
   return getSavedVerses().some(v => v.abbr === abbr && v.chapter === chapter && v.verse === verse);
 }
@@ -15,9 +51,20 @@ export function isVerseSaved(abbr, chapter, verse) {
 export function saveVerse(entry) {
   const saved = getSavedVerses();
   if (!isVerseSaved(entry.abbr, entry.chapter, entry.verse)) {
-    saved.unshift(entry); // newest first
+    // Default folder to Favorites if not specified
+    saved.unshift({ ...entry, folder: entry.folder || 'Favorites' }); // newest first
     localStorage.setItem(SAVED_KEY, JSON.stringify(saved));
   }
+}
+
+export function updateVerseFolder(abbr, chapter, verse, newFolder) {
+  const saved = getSavedVerses().map(v => {
+    if (v.abbr === abbr && v.chapter === chapter && v.verse === verse) {
+      return { ...v, folder: newFolder };
+    }
+    return v;
+  });
+  localStorage.setItem(SAVED_KEY, JSON.stringify(saved));
 }
 
 export function removeSavedVerse(abbr, chapter, verse) {

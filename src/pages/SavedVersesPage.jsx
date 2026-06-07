@@ -1,21 +1,63 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bookmark, Trash2, BookOpen, Share2, Copy } from 'lucide-react';
-import { getSavedVerses, removeSavedVerse } from '@/lib/savedVerses';
+import { Bookmark, Trash2, BookOpen, Share2, Copy, FolderPlus, Folder, MoreVertical, Edit2 } from 'lucide-react';
+import { getSavedVerses, removeSavedVerse, getSavedFolders, createFolder, deleteFolder, updateVerseFolder } from '@/lib/savedVerses';
 import { formatVerseShare, buildVerseUrl } from '@/lib/formatDailyVerse';
 import { toast } from 'sonner';
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+
 export default function SavedVersesPage() {
   const [saved, setSaved] = useState([]);
+  const [folders, setFolders] = useState([]);
+  const [activeFolder, setActiveFolder] = useState('All');
+  
   const navigate = useNavigate();
 
-  useEffect(() => {
+  const loadData = () => {
     setSaved(getSavedVerses());
+    setFolders(getSavedFolders());
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
 
   const handleRemove = (abbr, chapter, verse) => {
     removeSavedVerse(abbr, chapter, verse);
-    setSaved(getSavedVerses());
+    loadData();
+  };
+
+  const handleCreateFolder = () => {
+    const name = window.prompt("Enter new folder name:");
+    if (name && name.trim()) {
+      createFolder(name.trim());
+      loadData();
+      setActiveFolder(name.trim());
+    }
+  };
+
+  const handleDeleteFolder = (name) => {
+    if (window.confirm(`Are you sure you want to delete the folder "${name}"? Verses will be moved to Favorites.`)) {
+      deleteFolder(name);
+      loadData();
+      setActiveFolder('All');
+    }
+  };
+
+  const handleMoveVerse = (entry, newFolder) => {
+    updateVerseFolder(entry.abbr, entry.chapter, entry.verse, newFolder);
+    loadData();
+    toast.success(`Moved to ${newFolder}`);
   };
 
   const buildShareText = (entry) =>
@@ -66,6 +108,51 @@ export default function SavedVersesPage() {
         <p className="font-sans text-sm text-muted-foreground">{saved.length} verse{saved.length !== 1 ? 's' : ''} saved</p>
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
       </div>
+      
+      {/* Folder Navigation */}
+      <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
+        <button
+          onClick={() => setActiveFolder('All')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-full font-sans text-sm font-medium whitespace-nowrap transition-colors ${
+            activeFolder === 'All' 
+              ? 'bg-primary text-primary-foreground' 
+              : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+          }`}
+        >
+          All
+        </button>
+        {folders.map(folder => (
+          <div key={folder} className="flex items-center">
+            <button
+              onClick={() => setActiveFolder(folder)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full font-sans text-sm font-medium whitespace-nowrap transition-colors ${
+                activeFolder === folder 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+              }`}
+            >
+              <Folder className="w-3.5 h-3.5" />
+              {folder}
+            </button>
+            {activeFolder === folder && folder !== 'Favorites' && (
+              <button 
+                onClick={() => handleDeleteFolder(folder)}
+                className="ml-1 p-2 text-muted-foreground hover:text-destructive transition-colors rounded-full"
+                title="Delete Folder"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        ))}
+        <button
+          onClick={handleCreateFolder}
+          className="flex items-center gap-2 px-4 py-2 rounded-full font-sans text-sm font-medium whitespace-nowrap bg-secondary/50 text-secondary-foreground border border-dashed border-border hover:bg-secondary transition-colors"
+        >
+          <FolderPlus className="w-4 h-4" />
+          New Folder
+        </button>
+      </div>
 
       {saved.length === 0 ? (
         <div className="text-center py-16">
@@ -82,7 +169,9 @@ export default function SavedVersesPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {saved.map((entry, i) => (
+          {saved
+            .filter(entry => activeFolder === 'All' || (entry.folder || 'Favorites') === activeFolder)
+            .map((entry, i) => (
             <div
               key={i}
               className="bg-card border border-border rounded-xl p-5 flex items-start gap-4"
@@ -92,13 +181,43 @@ export default function SavedVersesPage() {
                 className="flex-1 text-left"
               >
                 <p className="font-sans text-xs font-semibold text-accent tracking-wide uppercase mb-2">
-                  {entry.ref}
+                  {entry.ref} {activeFolder === 'All' && <span className="ml-2 px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground text-[10px] lowercase tracking-normal">{entry.folder || 'Favorites'}</span>}
                 </p>
                 <blockquote className="font-serif text-lg text-foreground leading-relaxed">
                   "{entry.text}"
                 </blockquote>
               </button>
+              
               <div className="flex flex-col gap-1 flex-shrink-0 mt-0.5">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className="p-2 rounded-lg border border-border hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                      title="Move"
+                    >
+                      <Folder className="w-4 h-4" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Move to...</div>
+                    {folders.map(f => (
+                      <DropdownMenuItem 
+                        key={f}
+                        onClick={() => handleMoveVerse(entry, f)}
+                        className={(entry.folder || 'Favorites') === f ? 'bg-secondary' : ''}
+                      >
+                        <Folder className="w-4 h-4 mr-2" />
+                        {f}
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleCreateFolder}>
+                      <FolderPlus className="w-4 h-4 mr-2" />
+                      New Folder...
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
                 <button
                   onClick={() => handleCopy(entry)}
                   className="p-2 rounded-lg border border-border hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
@@ -123,6 +242,11 @@ export default function SavedVersesPage() {
               </div>
             </div>
           ))}
+          {saved.filter(entry => activeFolder === 'All' || (entry.folder || 'Favorites') === activeFolder).length === 0 && (
+            <div className="text-center py-12">
+              <p className="font-sans text-sm text-muted-foreground">No verses in this folder.</p>
+            </div>
+          )}
         </div>
       )}
     </div>
