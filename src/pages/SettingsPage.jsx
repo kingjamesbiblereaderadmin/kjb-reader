@@ -896,14 +896,16 @@ export default function SettingsPage() {
         ) : (
           <div className="space-y-3">
             <button
-              onClick={() => {
-                alert('To install the app, please follow the manual instructions below using your browser menu.');
-              }}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+              disabled
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-secondary text-secondary-foreground font-sans text-sm font-medium opacity-50 cursor-not-allowed"
             >
               <Smartphone className="w-4 h-4" />
               {/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? 'Add to Home Screen' : 'Install App'}
             </button>
+            <div className="flex items-start gap-2 text-amber-600 dark:text-amber-400 mt-2">
+              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span className="font-sans text-xs">Your browser doesn't support automatic installation. Follow the manual instructions below:</span>
+            </div>
             <div className="space-y-2 bg-secondary/50 rounded-xl p-4">
               <p className="font-sans text-xs text-muted-foreground mb-2">
                 <strong>Install instructions:</strong>

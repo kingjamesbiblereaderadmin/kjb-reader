@@ -127,9 +127,12 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             <div>
               <button
                 type="button"
-                onClick={handleInstallClick}
+                onClick={isInstallable ? handleInstallClick : undefined}
+                disabled={!isInstallable}
                 onPointerDown={e => e.stopPropagation()}
-                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 active:opacity-80 transition-opacity touch-manipulation"
+                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl font-sans text-sm font-medium transition-opacity touch-manipulation ${
+                  isInstallable ? 'bg-primary text-primary-foreground hover:opacity-90 active:opacity-80' : 'bg-secondary text-secondary-foreground opacity-50 cursor-not-allowed'
+                }`}
               >
                 {isIOS() ? <Share className="w-4 h-4 shrink-0" /> : isMobile() ? <Download className="w-4 h-4 shrink-0" /> : <MonitorSmartphone className="w-4 h-4 shrink-0" />}
                 <span className="text-left">
@@ -137,17 +140,15 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                   <span className="block text-xs opacity-80">Offline access, faster loading</span>
                 </span>
               </button>
-              {showIOSHint && isIOS() && (
-                <p className="mt-2 font-sans text-xs text-muted-foreground leading-relaxed px-1">
-                  Tap the <strong>Share ⎕</strong> button in Safari, then choose <strong>"Add to Home Screen"</strong>.
-                </p>
-              )}
-              {showIOSHint && !isIOS() && (
-                <p className="mt-2 font-sans text-xs text-muted-foreground leading-relaxed px-1">
-                  {isMobile() 
-                    ? <>Use your browser menu → <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</>
-                    : <>Click the <strong>Install</strong> icon in the address bar, or use the browser menu.</>
-                  }
+              {!isInstallable && (
+                <p className="mt-2 font-sans text-xs text-amber-600 dark:text-amber-400 leading-relaxed px-1">
+                  Your browser doesn't support automatic installation. {isIOS() ? (
+                    <>Tap <strong>Share</strong>, then <strong>"Add to Home Screen"</strong>.</>
+                  ) : isMobile() ? (
+                    <>Use browser menu → <strong>"Install app"</strong>.</>
+                  ) : (
+                    <>Use the browser menu to install.</>
+                  )}
                 </p>
               )}
             </div>
