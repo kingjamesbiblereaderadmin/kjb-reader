@@ -59,6 +59,9 @@ export function useInstallPrompt() {
 
   const promptInstall = () => {
     if (!globalDeferredPrompt) {
+      if (globalIsInstallable) {
+        alert("The installation prompt was already used. Please install via your browser's menu, or reload the page to try again.");
+      }
       return Promise.resolve(false);
     }
     // Prevent "prompt() may only be called once" if user clicks multiple times rapidly
@@ -70,10 +73,13 @@ export function useInstallPrompt() {
       promptEvent.prompt();
       return promptEvent.userChoice.then((choice) => {
         const outcome = choice.outcome;
-        globalIsInstallable = false;
-        setIsInstallable(false);
-        // Dispatch to sync other hooks
-        window.dispatchEvent(new Event('pwa-installed')); 
+        if (outcome === 'accepted') {
+          globalIsInstallable = false;
+          setIsInstallable(false);
+          // Dispatch to sync other hooks
+          window.dispatchEvent(new Event('pwa-installed')); 
+        }
+        // If not accepted, keep isInstallable true so the button remains visible.
         return outcome === 'accepted';
       });
     } catch (err) {
