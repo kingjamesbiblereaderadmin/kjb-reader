@@ -158,7 +158,7 @@ const PageLoader = ({ isFadingOut }) => {
         
         <div className="flex flex-col items-center gap-6 w-full">
           <div className="flex flex-col items-center gap-3 text-center">
-            <Loader2 className="w-6 h-6 animate-spin text-primary/70" />
+            <Loader2 className="w-6 h-6 animate-spin text-primary/70" style={{ animationDuration: '2s' }} />
             <span className="font-sans text-xs text-foreground/70 font-medium tracking-[0.2em] uppercase">
               {text}
             </span>
@@ -211,7 +211,7 @@ const AuthenticatedApp = () => {
     const isPostUpdate = sessionStorage.getItem('kjb_sw_updated');
     // If we just reloaded from an update, stagger the splash screen longer
     // to give time for the "Applying updates..." and "Loading KJB Reader..." phases
-    const timer = setTimeout(() => setMinSplashDone(true), isPostUpdate ? 5500 : 1500); 
+    const timer = setTimeout(() => setMinSplashDone(true), isPostUpdate ? 5500 : 2000); 
     return () => clearTimeout(timer);
   }, []);
 
