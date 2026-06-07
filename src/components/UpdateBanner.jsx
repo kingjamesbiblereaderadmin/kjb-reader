@@ -34,9 +34,9 @@ export default function UpdateBanner() {
 
   if (waitingWorker) {
     return (
-      <div className="w-full py-2 px-5 sm:px-12 lg:px-16 flex items-center justify-between text-sm font-medium shadow-inner border-b z-40 relative bg-primary text-primary-foreground border-primary">
+      <div className="w-full py-2 px-5 sm:px-12 lg:px-16 flex items-center justify-between text-sm font-medium shadow-inner border-b z-40 relative bg-secondary text-secondary-foreground border-border">
         <div className="flex items-center gap-2">
-          <Download className="w-4 h-4" />
+          <Download className="w-4 h-4 text-primary" />
           <span>App update available</span>
         </div>
         <div className="flex items-center gap-2">
@@ -54,17 +54,17 @@ export default function UpdateBanner() {
               
               setTimeout(() => {
                 window.location.href = window.location.pathname + '?refresh=' + Date.now();
-              }, 3500);
+              }, 2000);
             }}
-            className="px-3 py-1 bg-background text-foreground hover:bg-secondary rounded-md transition-colors text-xs font-semibold"
+            className="px-3 py-1 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md transition-colors text-xs font-semibold"
           >
             Update Now
           </button>
           <button 
             onClick={() => setWaitingWorker(null)}
-            className="p-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-md transition-colors"
+            className="p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded-md transition-colors"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4 opacity-70 hover:opacity-100" />
           </button>
         </div>
       </div>

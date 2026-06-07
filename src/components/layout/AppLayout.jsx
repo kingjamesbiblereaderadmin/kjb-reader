@@ -234,8 +234,8 @@ export default function AppLayout() {
                 const minWaitPromise = new Promise(resolve => setTimeout(resolve, 1500));
                 
                 try {
-                  // Clear cached versions to guarantee we fetch the newest data and check properly
-                  localStorage.removeItem('bible_cache_version');
+                  // Remove the last refresh throttle to force a network check, 
+                  // but keep the cache_version so we can actually compare if it changed!
                   localStorage.removeItem('bible_last_refresh');
 
                   let hasBibleUpdates = false;
@@ -325,7 +325,7 @@ export default function AppLayout() {
                   sessionStorage.setItem('kjb_sw_updated', updateType);
                   setTimeout(() => {
                     window.location.href = window.location.pathname + '?refresh=' + Date.now();
-                  }, 3500);
+                  }, 2000);
                 } catch (err) {
                   console.error('[UpdateCheck] Refresh failed:', err);
                   window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Failed to force update', status: 'error' } }));

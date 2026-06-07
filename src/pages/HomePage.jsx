@@ -125,8 +125,7 @@ export default function HomePage() {
             }
             console.log(`[UpdateCheck] App code updates found (pull): ${swUpdated}`);
             
-            // Clear cached versions to guarantee we fetch the newest data and check properly
-            localStorage.removeItem('bible_cache_version');
+            // Remove the last refresh throttle to force a network check
             localStorage.removeItem('bible_last_refresh');
 
             const { checkForUpdates, downloadBibleForOffline } = await import('@/lib/bibleCache');
@@ -166,7 +165,7 @@ export default function HomePage() {
 
               console.log('[UpdateCheck] Reloading application...');
               sessionStorage.setItem('kjb_sw_updated', updateType);
-              setTimeout(() => { window.location.href = window.location.pathname + '?refresh=' + Date.now(); }, 3500);
+              setTimeout(() => { window.location.href = window.location.pathname + '?refresh=' + Date.now(); }, 2000);
               return;
             }
 
