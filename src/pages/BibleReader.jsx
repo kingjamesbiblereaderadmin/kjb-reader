@@ -1101,11 +1101,11 @@ export default function BibleReader() {
   const isGenesisChapterOne = pos.abbr === 'GEN' && pos.chapter === 1;
 
   return (
-    <div className={`w-full max-w-7xl mx-auto px-5 sm:px-12 lg:px-16 py-3 ${hideHeader ? 'pt-16' : ''}`}>
+    <div className={`w-full max-w-7xl mx-auto px-3 sm:px-8 lg:px-12 py-3 ${hideHeader ? 'pt-16' : ''}`}>
 
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
-        <div ref={topRef} className="sticky top-0 z-[100] border-b border-border pb-2 pt-2 mb-2 relative shadow-sm -mx-5 sm:-mx-12 lg:-mx-16 px-5 sm:px-12 lg:px-16 bg-background before:content-[''] before:absolute before:bottom-full before:left-0 before:right-0 before:h-12 before:bg-background">
+        <div ref={topRef} className="sticky top-0 z-[100] border-b border-border pb-2 pt-2 mb-2 relative shadow-sm -mx-5 sm:-mx-12 lg:-mx-16 px-3 sm:px-8 lg:px-12 bg-background before:content-[''] before:absolute before:bottom-full before:left-0 before:right-0 before:h-12 before:bg-background">
           <div className="flex flex-wrap items-stretch justify-stretch gap-1.5 w-full max-w-7xl mx-auto [&>button:not(.kjb-fixed-btn)]:flex-grow [&>button:not(.kjb-fixed-btn)]:basis-auto [&>div.relative]:flex-grow [&>div.relative>button]:w-full">
 
             {/* Book selector */}

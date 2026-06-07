@@ -362,7 +362,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-5 sm:px-12 lg:px-16 pt-10 pb-32">
+    <div className="w-full max-w-7xl mx-auto px-3 sm:px-8 lg:px-12 pt-10 pb-32">
       {/* Header */}
       <div className="text-center mb-8">
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-secondary mb-4">

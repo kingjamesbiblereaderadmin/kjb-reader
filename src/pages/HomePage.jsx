@@ -396,7 +396,7 @@ export default function HomePage() {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      <div className="w-full max-w-7xl mx-auto px-5 sm:px-12 lg:px-16 py-6">
+      <div className="w-full max-w-7xl mx-auto px-3 sm:px-8 lg:px-12 py-6">
       <OfflineStatusBanner />
 
       {/* Daily verse card */}
