@@ -1498,7 +1498,7 @@ export default function BibleReader() {
               {/* Share / Print */}
               <button onClick={handleShareChapter} onTouchEnd={(e) => { e.preventDefault(); handleShareChapter(); }} title={shareFeedback ? 'Link copied!' : 'Share this chapter'} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"><Share2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /><span className="hidden lg:inline">{shareFeedback ? 'Copied!' : 'Share'}</span></button>
               <button
-                onClick={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon)}
+                onClick={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode)}
                 title="Print Chapter"
                 className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"
               >
@@ -1722,7 +1722,7 @@ export default function BibleReader() {
               onReadSelected={handleReadSelected}
               onShowFull={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
               onPrintPage={() => window.print()}
-              onPrintContents={() => printChapterContents(verses, book, pos, true, selectedVerses, colophon)}
+              onPrintContents={() => printChapterContents(verses, book, pos, true, selectedVerses, colophon, columnMode)}
             />
           )}
 
@@ -1737,7 +1737,7 @@ export default function BibleReader() {
               onCopy={handleCopySelected}
               onShare={handleShareChapter}
               onPrintPage={() => window.print()}
-              onPrintContents={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon)}
+              onPrintContents={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode)}
               onToggleView={() => {
                 // Toggle between filtered (verses only) and full-chapter view,
                 // keeping the same verse selection/highlight either way.
