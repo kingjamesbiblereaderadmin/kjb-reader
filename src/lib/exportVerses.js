@@ -459,6 +459,10 @@ export function exportPrint(items, query, filters, options = {}) {
       currentParagraphs.push(`<p style="margin:0 0 10pt 0; page-break-inside:avoid; break-inside:avoid;">${currentBlock.join('')}</p>`);
     }
 
+    const now = new Date();
+    const dateStr = now.toLocaleDateString() + ' at ' + now.toLocaleTimeString();
+    currentParagraphs.push(`<div style="margin-top: 30pt; padding-top: 10pt; border-top: 1px solid #eee; font-size: 10pt; color: #777; text-align: center; page-break-inside: avoid; break-inside: avoid;">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</div>`);
+
     const content = currentParagraphs.join('');
     rows = `<div style="text-align:justify;margin-top:20px;${options.columnMode ? 'column-count:2;column-gap:1.5cm;column-rule:1px solid #ccc;' : 'display:block;'}">${content}</div>`;
   } else {
@@ -497,9 +501,12 @@ export function exportPrint(items, query, filters, options = {}) {
 
   const printTitle = `KJB-${sanitizeFilename(options.bookName || query)}${filterSuffix(filters)}`;
 
+  const footerHtml = isReading 
+    ? '' 
+    : `<div style="margin-top: 40pt; page-break-inside: avoid;"><p style="font-size:10pt;color:#777;border-top:1px solid #eee;padding-top:10pt;margin:0;">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</p></div>`;
+
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${escapeHtml(printTitle)}</title><style>@page { margin: 1.5cm; } body { margin: 0 !important; display: block !important; height: auto !important; position: static !important; overflow: visible !important; }</style></head><body onload="window.print(); setTimeout(() => window.close(), 500);" style="padding:20px;max-width:800px;margin:0 auto;color:#000;">` +
-    `${headerHtml}${rows}` +
-    `<div style="margin-top: 40pt; page-break-inside: avoid;"><p style="font-size:10pt;color:#777;border-top:1px solid #eee;padding-top:10pt;margin:0;${isReading ? 'text-align:center;' : ''}">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</p></div></body></html>`;
+    `${headerHtml}${rows}${footerHtml}</body></html>`;
   
   const printWindow = window.open('', '_blank');
   if (printWindow) {
