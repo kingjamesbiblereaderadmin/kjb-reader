@@ -1809,7 +1809,7 @@ export default function BibleReader() {
             <p
               id="kjb-subscript-anchor"
               className={`kjb-subscript text-sm text-muted-foreground mt-2 mb-4 max-w-lg mx-auto leading-relaxed text-center transition-colors duration-500 rounded-lg ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} ${highlightSection === 'subscript' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`}
-              style={{ fontSize: `${zoomLevel / 100}rem` }}
+              style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem` }}
               dangerouslySetInnerHTML={{ __html: renderSubscriptText(SUBSCRIPTS[`${book.apiName}:${pos.chapter}`], highlightSection === 'subscript' ? searchTerm : null) }}
             />
           )}
@@ -1869,7 +1869,7 @@ export default function BibleReader() {
               <p
                 id="kjb-subscript-anchor"
                 className={`kjb-subscript text-center text-muted-foreground mb-4 leading-relaxed transition-colors duration-500 rounded-lg ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} ${highlightSection === 'subscript' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`}
-                style={{ fontSize: `${zoomLevel / 100}rem`, breakInside: 'avoid' }}
+                style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, breakInside: 'avoid' }}
                 dangerouslySetInnerHTML={{ __html: renderSubscriptText(SUBSCRIPTS[`${book.apiName}:${pos.chapter}`], highlightSection === 'subscript' ? searchTerm : null) }}
               />
             )}

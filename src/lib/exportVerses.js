@@ -20,33 +20,45 @@ function escapeHtml(s) {
 }
 
 // Convert [bracketed] words into <em>…</em> (italics), escaping the rest.
-function bracketsToItalicHtml(text, keepPilcrow = false) {
+function bracketsToItalicHtml(text, keepPilcrow = false, isColophonOrSubscript = false) {
   let clean = text || '';
   if (!keepPilcrow) {
     clean = clean.replace(/¶\s*/g, '');
   }
   clean = mergeAdjacentBrackets(clean.replace(/^<<[^>]*>>\s*/, ''));
   // Split on [bracketed] segments, italicise those, escape everything.
-  return clean.replace(/\[([^\]]+)\]|([^[]+)/g, (m, inside, plain) => {
+  let html = clean.replace(/\[([^\]]+)\]|([^[]+)/g, (m, inside, plain) => {
     if (inside !== undefined) return `<em>${escapeHtml(inside)}</em>`;
     return escapeHtml(plain);
   });
+  if (isColophonOrSubscript) {
+    if (!html.includes('¶') && !html.includes('&para;')) {
+      html = '<span style="opacity:0.5;">&para;</span> ' + html;
+    } else if (html.includes('¶')) {
+      html = html.replace(/¶\s*/g, '<span style="opacity:0.5;">&para;</span> ');
+    }
+  }
+  return html;
 }
 
 // Plain text WITHOUT brackets (for TXT readability)
-function plainNoBrackets(text) {
-  return (text || '')
+function plainNoBrackets(text, isColophonOrSubscript = false) {
+  let res = (text || '')
     .replace(/¶\s*/g, '')
     .replace(/^<<[^>]*>>\s*/, '')
     .replace(/\[([^\]]*)\]/g, '$1') // remove matched [italic] brackets, keep inner word
     .replace(/[[\]]/g, '');          // strip any stray/unmatched brackets
+  if (isColophonOrSubscript && !res.includes('¶')) res = '¶ ' + res;
+  return res;
 }
 
 // Plain text WITH brackets kept (for XLS / italics-aware contexts)
-function plainWithBrackets(text) {
-  return mergeAdjacentBrackets((text || '')
+function plainWithBrackets(text, isColophonOrSubscript = false) {
+  let res = mergeAdjacentBrackets((text || '')
     .replace(/¶\s*/g, '')
     .replace(/^<<[^>]*>>\s*/, ''));
+  if (isColophonOrSubscript && !res.includes('¶')) res = '¶ ' + res;
+  return res;
 }
 
 const sanitizeFilename = (q) => (q || 'verses').replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '').slice(0, 30) || 'verses';
@@ -105,8 +117,13 @@ export function exportTxt(items, query, filters, options = {}) {
     const headingText = `${fullBookName}:`;
     const heading = `${headingText}\n${'-'.repeat(headingText.length)}\n\n`;
     const verses = sec.items.map(it => {
+      const isSpecial = it.isColophon || it.isSubscript;
       const heading = it.heading ? `\n   ${it.heading.charAt(0) + it.heading.slice(1).toLowerCase()}\n\n` : '';
-      return `${heading}• "${plainWithBrackets(it.text)}"\n  — ${it.ref} (KJB)${it.url ? `\n  Read: ${it.url}` : ''}`;
+      const text = plainWithBrackets(it.text, isSpecial);
+      if (isSpecial) {
+        return `${heading}${text}\n  — ${it.ref} (KJB)${it.url ? `\n  Read: ${it.url}` : ''}`;
+      }
+      return `${heading}• "${text}"\n  — ${it.ref} (KJB)${it.url ? `\n  Read: ${it.url}` : ''}`;
     }).join('\n\n');
     return heading + verses;
   }).join('\n\n\n');
@@ -126,9 +143,12 @@ export function exportDocx(items, query, filters, options = {}) {
     return `<h3 style="font-family:Georgia,serif;font-size:13pt;margin:18pt 0 8pt 0;">${escapeHtml(fullBookName)}:</h3>` +
       `<ul style="margin:0 0 12pt 0; padding-left: 20px;">` +
       sec.items.map(it => {
+        const isSpecial = it.isColophon || it.isSubscript;
         const heading = it.heading ? `</ul><div style="margin:18pt 0 8pt 0;font-family:Georgia,serif;font-size:14pt;font-weight:bold;text-align:center;page-break-after:avoid;">${escapeHtml(it.heading.charAt(0) + it.heading.slice(1).toLowerCase())}</div><ul style="margin:0 0 12pt 0; padding-left: 20px;">` : '';
-        return `${heading}<li style="margin:0 0 8pt 0;font-family:Georgia,serif;font-size:12pt;">` +
-        `&ldquo;${bracketsToItalicHtml(it.text)}&rdquo;<br/>` +
+        const textHtml = bracketsToItalicHtml(it.text, isSpecial, isSpecial);
+        const formattedText = isSpecial ? textHtml : `&ldquo;${textHtml}&rdquo;`;
+        return `${heading}<li style="margin:0 0 8pt 0;font-family:Georgia,serif;font-size:12pt;${isSpecial ? 'list-style-type:none;text-align:center;color:#555;' : ''}">` +
+        `${formattedText}<br/>` +
         `<span style="font-size:10pt;color:#555;">&mdash; ${escapeHtml(it.ref)} (KJB)</span>` +
         (it.url ? `<br/><a href="${escapeHtml(it.url)}" style="font-size:9pt;color:#2a5ac8;">${escapeHtml(it.url)}</a>` : '') +
         `</li>`;
@@ -160,10 +180,12 @@ export function exportXls(items, query, filters, options = {}) {
   const neu = items.filter(it => it.testament === 'new');
   
   old.forEach(it => {
-    rows.push(`${csvCell('Old Testament')},${csvCell(it.bookName || it.book || '')},${csvCell(it.ref)},${csvCell(plainWithBrackets(it.text))}`);
+    const isSpecial = it.isColophon || it.isSubscript;
+    rows.push(`${csvCell('Old Testament')},${csvCell(it.bookName || it.book || '')},${csvCell(it.ref)},${csvCell(plainWithBrackets(it.text, isSpecial))}`);
   });
   neu.forEach(it => {
-    rows.push(`${csvCell('New Testament')},${csvCell(it.bookName || it.book || '')},${csvCell(it.ref)},${csvCell(plainWithBrackets(it.text))}`);
+    const isSpecial = it.isColophon || it.isSubscript;
+    rows.push(`${csvCell('New Testament')},${csvCell(it.bookName || it.book || '')},${csvCell(it.ref)},${csvCell(plainWithBrackets(it.text, isSpecial))}`);
   });
   
   const csv = [header, ...rows].join('\r\n');
@@ -218,8 +240,8 @@ export function exportPdf(items, query, filters, options = {}) {
   };
   // Render a verse, switching between roman and italic for [bracketed] runs,
   // wrapping words within the page width.
-  const renderVerse = (text, ref, url) => {
-    const clean = `\u201C${plainWithBrackets(text)}\u201D`;
+  const renderVerse = (text, ref, url, isSpecial = false) => {
+    const clean = isSpecial ? plainWithBrackets(text, true) : `\u201C${plainWithBrackets(text)}\u201D`;
     // Tokenise into {str, italic} runs by brackets
     const runs = [];
     clean.replace(/\[([^\]]+)\]|([^[]+)/g, (m, inside, plain) => {
@@ -231,7 +253,14 @@ export function exportPdf(items, query, filters, options = {}) {
     let x = marginX + 15;
     doc.setFontSize(11);
     doc.setFont('times', 'normal');
-    doc.text("•", marginX, y);
+    if (isSpecial) {
+      doc.setTextColor(90); // Use grey for subscripts/colophons
+      x = marginX; // Start from left edge (no bullet)
+    } else {
+      doc.setTextColor(0);
+      doc.text("•", marginX, y);
+    }
+    
     runs.forEach(run => {
       doc.setFont('times', run.italic ? 'italic' : 'normal');
       // Split into words to allow wrapping
@@ -310,7 +339,7 @@ export function exportPdf(items, query, filters, options = {}) {
         if (it.heading) {
           renderStanzaHeading(it.heading.charAt(0) + it.heading.slice(1).toLowerCase());
         }
-        renderVerse(it.text, it.ref, it.url);
+        renderVerse(it.text, it.ref, it.url, it.isColophon || it.isSubscript);
       });
     }
   });
@@ -335,7 +364,8 @@ export function exportPrint(items, query, filters, options = {}) {
           isFirstParagraph = false;
           currentBlock = [];
         }
-        currentParagraphs.push(`<div style="margin:14pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;font-style:italic;color:#555;text-align:center;column-span:all;page-break-inside:avoid;break-inside:avoid;">${escapeHtml(it.text)}</div>`);
+        let textHtml = bracketsToItalicHtml(it.text, true, true);
+        currentParagraphs.push(`<div style="margin:14pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;color:#555;text-align:center;column-span:all;page-break-inside:avoid;break-inside:avoid;">${textHtml}</div>`);
         return;
       }
 
