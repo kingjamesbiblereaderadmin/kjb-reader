@@ -99,6 +99,7 @@ import { Loader2, ChevronRight, Heart } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 
 const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
+  const [firstVisitStep, setFirstVisitStep] = useState(1);
   const [activeCard, setActiveCard] = useState('gospel');
   const [updateType] = useState(() => 
     typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null
