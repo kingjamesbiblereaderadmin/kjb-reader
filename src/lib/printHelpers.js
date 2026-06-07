@@ -25,7 +25,8 @@ export function printChapterContents(verses, book, pos, filterMode, selectedVers
       verse: r.verse,
       ref: `${book.shortName} ${pos.chapter}:${r.verse}`,
       testament: book.testament,
-      bookName: book.name
+      bookName: book.name,
+      heading: r.heading
     });
   });
 

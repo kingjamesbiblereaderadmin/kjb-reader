@@ -105,7 +105,8 @@ export function exportTxt(items, query, filters, options = {}) {
     const headingText = `${fullBookName}:`;
     const heading = `${headingText}\n${'-'.repeat(headingText.length)}\n\n`;
     const verses = sec.items.map(it => {
-      return `• "${plainWithBrackets(it.text)}"\n  — ${it.ref} (KJB)${it.url ? `\n  Read: ${it.url}` : ''}`;
+      const heading = it.heading ? `\n   ${it.heading.charAt(0) + it.heading.slice(1).toLowerCase()}\n\n` : '';
+      return `${heading}• "${plainWithBrackets(it.text)}"\n  — ${it.ref} (KJB)${it.url ? `\n  Read: ${it.url}` : ''}`;
     }).join('\n\n');
     return heading + verses;
   }).join('\n\n\n');
@@ -125,7 +126,8 @@ export function exportDocx(items, query, filters, options = {}) {
     return `<h3 style="font-family:Georgia,serif;font-size:13pt;margin:18pt 0 8pt 0;">${escapeHtml(fullBookName)}:</h3>` +
       `<ul style="margin:0 0 12pt 0; padding-left: 20px;">` +
       sec.items.map(it => {
-        return `<li style="margin:0 0 8pt 0;font-family:Georgia,serif;font-size:12pt;">` +
+        const heading = it.heading ? `</ul><div style="margin:18pt 0 8pt 0;font-family:Georgia,serif;font-size:14pt;font-weight:bold;text-align:center;page-break-after:avoid;">${escapeHtml(it.heading.charAt(0) + it.heading.slice(1).toLowerCase())}</div><ul style="margin:0 0 12pt 0; padding-left: 20px;">` : '';
+        return `${heading}<li style="margin:0 0 8pt 0;font-family:Georgia,serif;font-size:12pt;">` +
         `&ldquo;${bracketsToItalicHtml(it.text)}&rdquo;<br/>` +
         `<span style="font-size:10pt;color:#555;">&mdash; ${escapeHtml(it.ref)} (KJB)</span>` +
         (it.url ? `<br/><a href="${escapeHtml(it.url)}" style="font-size:9pt;color:#2a5ac8;">${escapeHtml(it.url)}</a>` : '') +
@@ -276,6 +278,17 @@ export function exportPdf(items, query, filters, options = {}) {
     y += lineH + 6;
   };
 
+  const renderStanzaHeading = (title) => {
+    y += 12;
+    ensureSpace(lineH + 10);
+    doc.setFont('times', 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(0);
+    const w = doc.getTextWidth(title);
+    doc.text(title, (pageW - w) / 2, y);
+    y += lineH + 6;
+  };
+
   const renderBookHeading = (title) => {
     y += 8;
     ensureSpace(lineH + 6);
@@ -294,6 +307,9 @@ export function exportPdf(items, query, filters, options = {}) {
       const fullBookName = bookNameObj ? bookNameObj.name : sec.title;
       renderBookHeading(`${fullBookName}:`);
       sec.items.forEach(it => {
+        if (it.heading) {
+          renderStanzaHeading(it.heading.charAt(0) + it.heading.slice(1).toLowerCase());
+        }
         renderVerse(it.text, it.ref, it.url);
       });
     }
@@ -315,12 +331,23 @@ export function exportPrint(items, query, filters, options = {}) {
     items.forEach(it => {
       if (it.isColophon || it.isSubscript) {
         if (currentBlock.length > 0) {
-          currentParagraphs.push(`<p style="margin:0 0 10pt 0;text-indent:${isFirstParagraph || !options.paragraphMode ? '0' : '1.5em'};">${currentBlock.join('')}</p>`);
+          currentParagraphs.push(`<p style="margin:0 0 10pt 0;text-indent:${isFirstParagraph || !options.paragraphMode ? '0' : '1.5em'}; page-break-inside:avoid; break-inside:avoid;">${currentBlock.join('')}</p>`);
           isFirstParagraph = false;
           currentBlock = [];
         }
         currentParagraphs.push(`<div style="margin:14pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;font-style:italic;color:#555;text-align:center;column-span:all;page-break-inside:avoid;break-inside:avoid;">${escapeHtml(it.text)}</div>`);
         return;
+      }
+
+      if (it.heading) {
+        if (currentBlock.length > 0) {
+          currentParagraphs.push(`<p style="margin:0 0 10pt 0;text-indent:${isFirstParagraph || !options.paragraphMode ? '0' : '1.5em'}; page-break-inside:avoid; break-inside:avoid;">${currentBlock.join('')}</p>`);
+          isFirstParagraph = false;
+          currentBlock = [];
+        }
+        const headingLabel = it.heading.charAt(0) + it.heading.slice(1).toLowerCase();
+        currentParagraphs.push(`<div style="margin:24pt 0 10pt 0;font-family:Georgia,serif;font-size:14pt;font-weight:bold;text-align:center;column-span:all;page-break-after:avoid;break-after:avoid;page-break-inside:avoid;break-inside:avoid;">${escapeHtml(headingLabel)}</div>`);
+        isFirstParagraph = true;
       }
 
       const hasPilcrow = (it.text || '').includes('¶');
@@ -361,7 +388,8 @@ export function exportPrint(items, query, filters, options = {}) {
       return `<h3 style="font-family:Georgia,serif;font-size:14pt;margin:20pt 0 10pt 0;">${escapeHtml(fullBookName)}:</h3>` +
         `<ul style="margin:0 0 14pt 0; padding-left: 20px;">` +
         sec.items.map(it => {
-          return `<li style="margin:0 0 10pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;padding-left:4px;">` +
+          const heading = it.heading ? `</ul><div style="margin:18pt 0 8pt 0;font-family:Georgia,serif;font-size:14pt;font-weight:bold;text-align:center;page-break-after:avoid;">${escapeHtml(it.heading.charAt(0) + it.heading.slice(1).toLowerCase())}</div><ul style="margin:0 0 14pt 0; padding-left: 20px;">` : '';
+          return `${heading}<li style="margin:0 0 10pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;padding-left:4px;">` +
           `&ldquo;${bracketsToItalicHtml(it.text)}&rdquo; ` +
           `<span style="font-size:10pt;color:#555;">&mdash; ${escapeHtml(it.ref)} (KJB)</span>` +
           `</li>`;
