@@ -93,7 +93,7 @@ function preloadAllRoutes() {
 
 // Provide a beautiful splash screen for initial app loading
 import { Loader2 } from 'lucide-react';
-const PageLoader = ({ isFadingOut }) => {
+const PageLoader = ({ isFadingOut, forcedText }) => {
   // Capture the updateType once on mount so it doesn't change when checkUpdatesSilently removes it
   const [updateType] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -132,8 +132,9 @@ const PageLoader = ({ isFadingOut }) => {
     text = dynamicText;
   } else if (updateType) {
     if (updateType === 'bible_first_load') text = "Ready to read...";
-    else if (updateType === 'forced_update' || updateType === 'app' || updateType === 'both') text = "Updates applied successfully...";
-    else text = "Loading KJB Reader...";
+    else if (updateType === 'forced_update' || updateType === 'app' || updateType === 'both' || updateType === 'bible') text = "Updates applied successfully...";
+    else if (updateType === 'up_to_date') text = "App is up to date...";
+    else text = "Welcome back to KJB Reader...";
   }
 
   return (
@@ -354,7 +355,8 @@ const AuthenticatedApp = () => {
           }
 
           sessionStorage.setItem('kjb_sw_updated', updateType);
-          window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: !bibleIsCached ? 'Loading...' : 'Applying updates...' } }));
+          setApplyMessage(!bibleIsCached ? 'Loading...' : 'Applying updates...');
+          setIsApplyingUpdates(true);
           willReload = true;
           setTimeout(() => {
             window.location.reload();
@@ -419,7 +421,8 @@ const AuthenticatedApp = () => {
         
         if (hasAppUpdates && isMounted) {
           sessionStorage.setItem('kjb_sw_updated', 'app');
-          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Updates applied successfully...', status: 'loading' } }));
+          setApplyMessage('Applying updates...');
+          setIsApplyingUpdates(true);
           setTimeout(() => window.location.reload(), 2500);
         }
       } catch (err) {
@@ -440,8 +443,11 @@ const AuthenticatedApp = () => {
     preloadAllRoutes();
   }, []);
 
+  const [isApplyingUpdates, setIsApplyingUpdates] = useState(false);
+  const [applyMessage, setApplyMessage] = useState('');
+
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
-  const showSplash = isInitializing || !minSplashDone || !updateCheckDone || !routeLoaded || !fontsLoaded;
+  const showSplash = isInitializing || !minSplashDone || !updateCheckDone || !routeLoaded || !fontsLoaded || isApplyingUpdates;
 
   const [renderSplash, setRenderSplash] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
@@ -473,7 +479,7 @@ const AuthenticatedApp = () => {
 
   return (
     <>
-      {renderSplash && <PageLoader isFadingOut={fadeSplash} />}
+      {renderSplash && <PageLoader isFadingOut={fadeSplash} forcedText={applyMessage} />}
       {!isInitializing && !authError && (
         <Routes location={location}>
           <Route element={<AppLayout />}>

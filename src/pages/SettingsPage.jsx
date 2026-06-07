@@ -30,7 +30,7 @@ const A11Y_FONTS = [
 ];
 
 const LAST_REVISED = 'June 7th, 2026';
-const WORKER_VERSION = 'v20260607_77';
+const WORKER_VERSION = 'v20260607_80';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -1006,6 +1006,7 @@ export default function SettingsPage() {
 
                         if (!hasCodeUpdates && !hasBibleUpdates) {
                           setDlStatus('App & Bible data are up to date. Reloading to ensure latest version...');
+                          sessionStorage.setItem('kjb_sw_updated', 'up_to_date');
                           setTimeout(() => {
                             window.location.href = window.location.pathname + '?refresh=' + Date.now();
                           }, 1500);
