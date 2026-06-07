@@ -134,7 +134,7 @@ const PageLoader = ({ isFadingOut, forcedText }) => {
     text = forcedText;
   } else if (updateType) {
     if (updateType === 'bible_first_load' || isFirstVisit) text = "Welcome to KJB Reader...";
-    else if (updateType === 'forced_update' || updateType === 'app' || updateType === 'both' || updateType === 'bible') text = "Updates applied successfully...";
+    else if (updateType === 'forced_update' || updateType === 'app' || updateType === 'both' || updateType === 'bible') text = "Welcome back to KJB Reader...";
     else if (updateType === 'up_to_date') text = "App is up to date...";
     else text = "Welcome back to KJB Reader...";
   }
@@ -288,8 +288,8 @@ const AuthenticatedApp = () => {
                   setApplyMessage('Found updates...');
                   window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
                   await new Promise(r => setTimeout(r, 1000));
-                  setApplyMessage('Downloading updates...');
-                  window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Downloading updates...' } }));
+                  setApplyMessage('Installing updates...');
+                  window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Installing updates...' } }));
                   hasAppUpdates = await new Promise(resolve => {
                     let resolved = false;
                     const worker = reg.installing;
@@ -337,7 +337,7 @@ const AuthenticatedApp = () => {
               window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
               await new Promise(r => setTimeout(r, 1000));
             }
-            const dlMessage = !bibleIsCached ? 'Downloading offline Bible...' : 'Downloading updates...';
+            const dlMessage = !bibleIsCached ? 'Downloading offline Bible...' : 'Installing updates...';
             setIsApplyingUpdates(true);
             setApplyMessage(dlMessage);
             window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: dlMessage } }));

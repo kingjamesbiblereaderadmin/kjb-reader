@@ -147,7 +147,7 @@ export default function HomePage() {
               await new Promise(r => setTimeout(r, 1200));
 
               if (bibleNeedsUpdate) {
-                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Downloading updates...', status: 'loading' } }));
+                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Installing updates...', status: 'loading' } }));
                 console.log('[UpdateCheck] Downloading new Bible data...');
                 localStorage.removeItem('bible_cache_version');
                 localStorage.removeItem('bible_last_refresh');
