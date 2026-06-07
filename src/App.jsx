@@ -176,20 +176,27 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
   return (
   <div className={`fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
     {!showLoadingState && dailyVerse && dailyVerse.book !== "Offline" ? (
-      <div className="w-full max-w-2xl mx-auto flex flex-col h-full max-h-[85vh] p-4 sm:p-8">
-        <div className="flex-1 min-h-0 rounded-3xl overflow-hidden shadow-2xl relative pointer-events-none">
+      <div className="w-full h-full flex flex-col relative">
+        <div className="absolute top-6 left-6 z-50">
+          <img 
+            src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
+            alt="KJB Reader" 
+            className="w-12 h-12 object-contain drop-shadow-md"
+          />
+        </div>
+        <div className="flex-1 w-full relative pointer-events-none">
           <DailyVerseImage verse={dailyVerse} onClick={() => {}} splashMode={true} />
         </div>
-        <div className="mt-6 flex justify-center shrink-0 min-h-[4rem]">
+        <div className="absolute bottom-12 left-0 right-0 flex justify-center z-50 px-4 pb-env-safe pointer-events-none">
           {!isReady ? (
-            <div className="flex items-center gap-3 text-foreground bg-card/80 px-6 py-3 rounded-2xl shadow-lg border border-border/50">
+            <div className="flex items-center gap-3 text-foreground bg-card/90 px-6 py-3 rounded-2xl shadow-xl backdrop-blur-sm border border-border/50">
               <Loader2 className="w-5 h-5 animate-spin text-foreground shrink-0" />
               <span className="font-sans text-sm font-semibold tracking-wide">{text}</span>
             </div>
           ) : (
             <button 
               onClick={onDismiss}
-              className="flex items-center gap-2 px-8 py-3.5 bg-primary text-primary-foreground rounded-full font-sans text-lg font-bold transition-all duration-200 hover:scale-105 active:scale-95 shadow-xl"
+              className="flex items-center gap-2 px-8 py-3.5 bg-primary text-primary-foreground rounded-full font-sans text-lg font-bold transition-all duration-200 hover:scale-105 active:scale-95 shadow-xl pointer-events-auto"
             >
               Continue to App
               <ChevronRight className="w-5 h-5" />
@@ -199,7 +206,7 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
       </div>
     ) : (
       <div className="flex flex-col items-center justify-center w-full h-full px-6">
-        <div className="flex-1 flex flex-col items-center justify-center -mt-16">
+        <div className="flex flex-col items-center justify-center -mt-16">
           <div className="relative mb-8">
             <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
             <img 
@@ -208,8 +215,6 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
               className="relative w-32 h-32 object-contain drop-shadow-2xl"
             />
           </div>
-        </div>
-        <div className="absolute bottom-12 left-0 right-0 flex justify-center z-[100] pb-env-safe">
           <div className="flex items-center gap-3 text-foreground bg-card/90 px-6 py-3 rounded-2xl shadow-2xl backdrop-blur-sm border border-border/50">
             <Loader2 className="w-5 h-5 animate-spin text-foreground shrink-0" />
             <span className="font-sans text-sm font-semibold tracking-wide">{text}</span>
