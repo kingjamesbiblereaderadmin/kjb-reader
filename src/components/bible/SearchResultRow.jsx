@@ -98,7 +98,9 @@ function SearchResultRow({ r, i, thisIndex, isFocused, isSelected, selectMode, h
         <p className="font-sans text-xs text-accent font-semibold mb-1 flex items-center gap-1 print:text-black">
           <span className="mr-1 text-accent print:text-black font-serif text-lg leading-none">&bull;</span>
           <BookOpen className="w-3 h-3 print:hidden" />
-          {BOOK_BY_API_NAME[r.book]?.name || r.book}: {r.chapter}
+          <span className="print:hidden">{BOOK_BY_API_NAME[r.book]?.name || r.book}</span>
+          <span className="hidden print:inline">{BOOK_BY_API_NAME[r.book]?.shortName || r.book}</span>
+          <span className="print:hidden">:</span> <span className="hidden print:inline"> </span>{r.chapter}
           {isSubscript ? ' (Superscription)' : isColophon ? ' (Colophon)' : isHeading ? `:${r.verse} (Stanza)` : `:${r.verse}`}
         </p>
         <p className="text-base text-foreground leading-relaxed print:text-black" style={fontStyle}>

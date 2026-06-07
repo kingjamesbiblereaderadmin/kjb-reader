@@ -100,8 +100,13 @@ export function exportTxt(items, query, filters, options = {}) {
   const sections = splitBySections(items);
   const body = sections.map(sec => {
     if (sec.isTestament) return `${sec.title.toUpperCase()}\n${'='.repeat(sec.title.length)}`;
-    const heading = `${sec.title}\n${'-'.repeat(sec.title.length)}\n\n`;
-    const verses = sec.items.map(it => `• "${plainWithBrackets(it.text)}"\n  — ${it.ref} (KJB)${it.url ? `\n  Read: ${it.url}` : ''}`).join('\n\n');
+    const bookNameObj = sec.items[0]?.bookNameObj;
+    const fullBookName = bookNameObj ? bookNameObj.name : sec.title;
+    const headingText = `${fullBookName}:`;
+    const heading = `${headingText}\n${'-'.repeat(headingText.length)}\n\n`;
+    const verses = sec.items.map(it => {
+      return `• "${plainWithBrackets(it.text)}"\n  — ${it.ref} (KJB)${it.url ? `\n  Read: ${it.url}` : ''}`;
+    }).join('\n\n');
     return heading + verses;
   }).join('\n\n\n');
   const footer = `\n\n${'='.repeat(50)}\n${items.length} verse${items.length !== 1 ? 's' : ''} — King James Bible`;
@@ -115,15 +120,17 @@ export function exportDocx(items, query, filters, options = {}) {
   const isReading = titlePrefix === 'KJB Reading';
   const rows = splitBySections(items).map(sec => {
     if (sec.isTestament) return `<h2 style="font-family:Georgia,serif;font-size:15pt;margin:24pt 0 12pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;">${escapeHtml(sec.title.toUpperCase())}</h2>`;
-    return `<h3 style="font-family:Georgia,serif;font-size:13pt;margin:18pt 0 8pt 0;">${escapeHtml(sec.title)}</h3>` +
+    const bookNameObj = sec.items[0]?.bookNameObj;
+    const fullBookName = bookNameObj ? bookNameObj.name : sec.title;
+    return `<h3 style="font-family:Georgia,serif;font-size:13pt;margin:18pt 0 8pt 0;">${escapeHtml(fullBookName)}:</h3>` +
       `<ul style="margin:0 0 12pt 0; padding-left: 20px;">` +
-      sec.items.map(it =>
-        `<li style="margin:0 0 8pt 0;font-family:Georgia,serif;font-size:12pt;">` +
+      sec.items.map(it => {
+        return `<li style="margin:0 0 8pt 0;font-family:Georgia,serif;font-size:12pt;">` +
         `&ldquo;${bracketsToItalicHtml(it.text)}&rdquo;<br/>` +
         `<span style="font-size:10pt;color:#555;">&mdash; ${escapeHtml(it.ref)} (KJB)</span>` +
         (it.url ? `<br/><a href="${escapeHtml(it.url)}" style="font-size:9pt;color:#2a5ac8;">${escapeHtml(it.url)}</a>` : '') +
-        `</li>`
-      ).join('') + `</ul>`;
+        `</li>`;
+      }).join('') + `</ul>`;
   }).join('');
   const headerHtml = isReading
     ? `<h1 style="font-family:Georgia,serif;font-size:24pt;font-weight:bold;text-align:center;margin-bottom:4pt;">${escapeHtml(options.bookName || query)}</h1>` +
@@ -283,8 +290,12 @@ export function exportPdf(items, query, filters, options = {}) {
     if (sec.isTestament) {
       renderTestamentHeading(sec.title.toUpperCase());
     } else {
-      renderBookHeading(sec.title);
-      sec.items.forEach(it => renderVerse(it.text, it.ref, it.url));
+      const bookNameObj = sec.items[0]?.bookNameObj;
+      const fullBookName = bookNameObj ? bookNameObj.name : sec.title;
+      renderBookHeading(`${fullBookName}:`);
+      sec.items.forEach(it => {
+        renderVerse(it.text, it.ref, it.url);
+      });
     }
   });
   doc.save(`kjb-${sanitizeFilename(query)}${filterSuffix(filters)}.pdf`);
@@ -339,14 +350,18 @@ export function exportPrint(items, query, filters, options = {}) {
   } else {
     rows = splitBySections(items).map(sec => {
       if (sec.isTestament) return `<h2 style="font-family:Georgia,serif;font-size:16pt;margin:30pt 0 16pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;">${escapeHtml(sec.title.toUpperCase())}</h2>`;
-      return `<h3 style="font-family:Georgia,serif;font-size:14pt;margin:20pt 0 10pt 0;">${escapeHtml(sec.title)}</h3>` +
+      
+      const bookNameObj = sec.items[0]?.bookNameObj;
+      const fullBookName = bookNameObj ? bookNameObj.name : sec.title;
+      
+      return `<h3 style="font-family:Georgia,serif;font-size:14pt;margin:20pt 0 10pt 0;">${escapeHtml(fullBookName)}:</h3>` +
         `<ul style="margin:0 0 14pt 0; padding-left: 20px;">` +
-        sec.items.map(it =>
-          `<li style="margin:0 0 10pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;padding-left:4px;">` +
+        sec.items.map(it => {
+          return `<li style="margin:0 0 10pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;padding-left:4px;">` +
           `&ldquo;${bracketsToItalicHtml(it.text)}&rdquo; ` +
           `<span style="font-size:10pt;color:#555;">&mdash; ${escapeHtml(it.ref)} (KJB)</span>` +
-          `</li>`
-        ).join('') + `</ul>`;
+          `</li>`;
+        }).join('') + `</ul>`;
     }).join('');
   }
 

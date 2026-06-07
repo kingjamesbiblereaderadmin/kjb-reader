@@ -199,6 +199,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
         const sectionCollapsed = isNT ? !ntExpanded : !otExpanded;
         const bookEntry = BOOK_BY_API_NAME[group.book];
         const bookName = bookEntry?.shortName || group.book;
+        const fullBookName = bookEntry?.name || group.book;
         const bookCollapsed = collapsedBooks.has(group.book);
 
         return (
@@ -265,7 +266,8 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                   }`}
                 >
                   {bookCollapsed ? <ChevronRight className="w-3.5 h-3.5 text-muted-foreground print:hidden" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground print:hidden" />}
-                  <span className="font-sans text-sm font-semibold text-foreground print:text-black">{bookName}</span>
+                  <span className="font-sans text-sm font-semibold text-foreground print:hidden">{bookName}</span>
+                  <span className="hidden print:inline font-sans text-sm font-semibold text-black">{fullBookName}:</span>
                   <span className="font-sans text-xs text-muted-foreground print:text-black/60">
                     · {group.items.length} verse{group.items.length !== 1 ? 's' : ''}
                     {group.count > group.items.length ? ` · ${group.count} occurrence${group.count !== 1 ? 's' : ''}` : ''}

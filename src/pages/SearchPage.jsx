@@ -746,14 +746,14 @@ export default function SearchPage() {
         .replace(/^<<[^>]*>>\s*/, '')
         .replace(/\[([^\]]+)\]/g, '$1');
       const bookEntry = BIBLE_BOOKS.find(b => b.apiName === r.book);
-      const bookName = bookEntry ? bookEntry.name : r.book;
+      const bookName = bookEntry ? bookEntry.shortName : r.book;
       const ref = r.isSubscript
-        ? `${bookName}: ${r.chapter} superscription`
+        ? `${bookName} ${r.chapter} superscription`
         : r.isHeading
-        ? `${bookName}: ${r.chapter}:${r.verse} (stanza)`
+        ? `${bookName} ${r.chapter}:${r.verse} (stanza)`
         : (r.isColophon || r.verse === 0)
-        ? `${bookName}: ${r.chapter} colophon`
-        : `${bookName}: ${r.chapter}:${r.verse}`;
+        ? `${bookName} ${r.chapter} colophon`
+        : `${bookName} ${r.chapter}:${r.verse}`;
       return `• "${text}"\n  — ${ref} (KJB)`;
     });
     return lines.join('\n\n');
@@ -774,7 +774,7 @@ export default function SearchPage() {
     const items = sorted.map(i => {
       const r = results[i];
       const bookEntry = BIBLE_BOOKS.find(b => b.apiName === r.book);
-      const bookName = bookEntry ? bookEntry.name : r.book;
+      const bookName = bookEntry ? bookEntry.shortName : r.book;
       const isColophon = r.isColophon || (r.verse === 0 && !r.isSubscript && !r.isHeading);
       const isSubscript = r.isSubscript;
       const isHeading = r.isHeading;
@@ -786,7 +786,15 @@ export default function SearchPage() {
         ? `${bookName}: ${r.chapter} colophon`
         : `${bookName}: ${r.chapter}:${r.verse}`;
       const url = buildVerseUrl({ abbr: r.abbr, chapter: r.chapter, verse: (isColophon || isSubscript) ? null : r.verse, from: 'search' }) + (q ? `&q=${encodeURIComponent(q)}` : '');
-      return { text: r.text, ref, testament: bookEntry ? bookEntry.testament : 'old', url, bookName: bookName || r.book };
+      return { 
+        text: r.text, 
+        ref, 
+        testament: bookEntry ? bookEntry.testament : 'old', 
+        url, 
+        bookName: bookEntry ? bookEntry.name : r.book,
+        bookShortName: bookName,
+        bookNameObj: bookEntry 
+      };
     });
     // Describe the active filters so the export filename reflects them.
     const testament = testamentFilter.has('all')
