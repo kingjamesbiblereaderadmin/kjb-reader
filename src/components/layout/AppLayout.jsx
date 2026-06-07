@@ -277,10 +277,12 @@ export default function AppLayout() {
                     await Promise.all(cacheNames.map(name => caches.delete(name)));
                   }
                   
-                  // Clear local storage daily verse cache just in case
+                  // Clear local storage items that might hold old state
                   localStorage.removeItem('kjb-daily-verse-cache');
+                  localStorage.removeItem('bible_cache_version');
+                  localStorage.removeItem('bible_last_refresh');
                   
-                  // Unregister service worker so next reload is completely fresh from network
+                  // Unregister service worker
                   if ('serviceWorker' in navigator) {
                     const regs = await navigator.serviceWorker.getRegistrations();
                     for (const reg of regs) {
@@ -290,11 +292,9 @@ export default function AppLayout() {
 
                   window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App updated successfully. Reloading...', status: 'success' } }));
                   
-                  // Force a hard reload from the server bypassing any remaining cache
+                  // Reload the page
                   setTimeout(() => {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('t', Date.now());
-                    window.location.href = url.toString();
+                    window.location.href = window.location.pathname + '?reset=' + Date.now();
                   }, 1000);
                 } catch (err) {
                   console.error('Refresh failed:', err);

@@ -68,7 +68,8 @@ window.addEventListener('load', async () => {
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (hasExistingController && !refreshing) {
           refreshing = true;
-          window.location.reload();
+          // Clean reload bypassing cache to ensure fresh assets
+          window.location.href = window.location.pathname + '?v=' + Date.now();
         }
         hasExistingController = true;
       });

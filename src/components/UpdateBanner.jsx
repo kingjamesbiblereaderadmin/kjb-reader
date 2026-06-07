@@ -7,11 +7,6 @@ export default function UpdateBanner() {
   const [progressStatus, setProgressStatus] = useState('loading');
 
   useEffect(() => {
-    // Disable automatic SKIP_WAITING to prevent infinite reload loops.
-    // The new service worker will take over on the next app restart.
-  }, [waitingWorker]);
-
-  useEffect(() => {
     const handleUpdate = (e) => {
       setWaitingWorker(e.detail.waitingWorker);
     };
@@ -36,7 +31,23 @@ export default function UpdateBanner() {
   if (!waitingWorker && !progressMsg) return null;
 
   if (waitingWorker) {
-    return null; // Skip waiting automatically handles reload, no need to show a banner
+    return (
+      <div className={`w-full py-2 px-5 sm:px-12 lg:px-16 flex items-center justify-between text-sm font-medium shadow-inner border-b z-40 animate-in slide-in-from-top-2 relative bg-primary/10 text-primary border-primary/20`}>
+        <div className="flex-1 flex items-center gap-2">
+          <RotateCw className="w-4 h-4" />
+          <span>A new version is available!</span>
+        </div>
+        <button 
+          onClick={() => {
+            waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+            setWaitingWorker(null);
+          }}
+          className="px-3 py-1 bg-primary text-primary-foreground rounded-md text-xs hover:bg-primary/90 transition-colors"
+        >
+          Update Now
+        </button>
+      </div>
+    );
   }
 
   let Icon = RotateCw;
