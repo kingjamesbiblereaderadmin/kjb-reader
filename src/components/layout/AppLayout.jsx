@@ -229,10 +229,8 @@ export default function AppLayout() {
 
                 setRefreshing(true);
                 console.log('[UpdateCheck] Manual refresh clicked. Checking for updates...');
-                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Checking for updates...', status: 'loading' } }));
                 
-                // Introduce an artificial minimum wait time so the "Checking for updates..." 
-                // banner is visible long enough for the user to register that something is actually happening.
+                // Introduce an artificial minimum wait time so the button spinning is visible.
                 const minWaitPromise = new Promise(resolve => setTimeout(resolve, 1500));
                 
                 try {
@@ -302,7 +300,7 @@ export default function AppLayout() {
                   else if (hasCodeUpdates) reloadText = 'Applying App Updates...';
                   
                   window.dispatchEvent(new Event('kjb-progress-clear'));
-                  window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: reloadText } }));
+                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: reloadText, status: 'loading' } }));
 
                   if (hasBibleUpdates) {
                     console.log('[UpdateCheck] Downloading new Bible data...');
