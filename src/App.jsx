@@ -192,6 +192,26 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
                     continueText="Hidden"
                   />
                 </div>
+                
+                <div className="w-full shrink-0 mb-6 px-1">
+                 <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-6 text-center shadow-md flex flex-col justify-center">
+                   <p className="font-serif text-xl font-bold text-red-700 dark:text-red-400 mb-3">Are you saved?</p>
+                   <p className="font-sans text-sm text-foreground/80 mb-6 leading-relaxed">
+                     Jesus Christ died for your sins, shed his blood, was buried, and rose again on the third day. Trust the blood — believe the gospel and be saved.
+                   </p>
+                   <button
+                     onClick={() => {
+                       onDismiss();
+                       setTimeout(() => { window.location.href = '/gospel'; }, 100);
+                     }}
+                     className="inline-flex items-center justify-center gap-2 w-full px-5 py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-sans text-sm font-bold transition-all duration-200 shadow-md active:scale-[0.98]"
+                   >
+                     <Heart className="w-4 h-4" />
+                     Learn How to be Saved
+                   </button>
+                 </div>
+                </div>
+
                 <div className="w-full px-1">
                   <button 
                     onClick={onDismiss}
