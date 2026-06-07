@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw, ChevronRight, Bug } from 'lucide-react';
+import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw, ChevronRight } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import OfflineStatusBanner from '@/components/OfflineStatusBanner';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
@@ -512,45 +512,7 @@ export default function HomePage() {
         </Link>
       </div>
 
-      {/* Developer Tools */}
-      <div className="bg-card border border-border rounded-2xl p-6 text-center">
-        <p className="font-serif text-xl font-bold text-foreground mb-4">Developer Tools</p>
-        <div className="flex flex-col gap-3 max-w-sm mx-auto">
-          <button
-            onClick={() => {
-              window.dispatchEvent(new Event('kjb-progress-clear'));
-              window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: 'Loading KJB Reader...' } }));
-              setTimeout(() => window.location.reload(), 1200);
-            }}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-          >
-            <Bug className="w-4 h-4" />
-            Test Splash Screen
-          </button>
-          <button
-            onClick={() => {
-              window.dispatchEvent(new Event('kjb-progress-clear'));
-              window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: 'Applying App Updates...' } }));
-              setTimeout(() => window.location.reload(), 1200);
-            }}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-          >
-            <Bug className="w-4 h-4" />
-            Test Splash Screen (App Update)
-          </button>
-          <button
-            onClick={() => {
-              window.dispatchEvent(new Event('kjb-progress-clear'));
-              window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: 'Applying Bible Data Updates...' } }));
-              setTimeout(() => window.location.reload(), 1200);
-            }}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-          >
-            <Bug className="w-4 h-4" />
-            Test Refresh with Updates
-          </button>
-        </div>
-      </div>
+
       </div>
     </div>
   );

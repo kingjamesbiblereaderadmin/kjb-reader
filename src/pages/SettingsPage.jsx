@@ -1304,7 +1304,7 @@ export default function SettingsPage() {
                 onClick={() => {
                   window.dispatchEvent(new Event('kjb-progress-clear'));
                   window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: 'Loading KJB Reader...' } }));
-                  setTimeout(() => window.location.reload(), 1200);
+                  setTimeout(() => window.location.reload(), 1500);
                 }}
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
               >
@@ -1315,7 +1315,7 @@ export default function SettingsPage() {
                 onClick={() => {
                   window.dispatchEvent(new Event('kjb-progress-clear'));
                   window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: 'Applying App Updates...' } }));
-                  setTimeout(() => window.location.reload(), 1200);
+                  setTimeout(() => window.location.reload(), 1500);
                 }}
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
               >
@@ -1326,7 +1326,7 @@ export default function SettingsPage() {
                 onClick={() => {
                   window.dispatchEvent(new Event('kjb-progress-clear'));
                   window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: 'Applying Bible Data Updates...' } }));
-                  setTimeout(() => window.location.reload(), 1200);
+                  setTimeout(() => window.location.reload(), 1500);
                 }}
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
               >
