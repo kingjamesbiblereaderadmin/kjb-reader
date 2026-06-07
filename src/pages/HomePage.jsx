@@ -138,7 +138,7 @@ export default function HomePage() {
             console.log(`[UpdateCheck] Bible updates found (pull): ${bibleNeedsUpdate}`);
 
             // Ensure the checking message is visible for at least a brief moment so it doesn't flash
-            await new Promise(r => setTimeout(r, 1500));
+            await new Promise(r => setTimeout(r, 400));
 
             if (swUpdated || bibleNeedsUpdate) {
               console.log('[UpdateCheck] Updates found (pull). Triggering splash screen and applying...');

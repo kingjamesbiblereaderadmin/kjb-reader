@@ -239,12 +239,12 @@ const AuthenticatedApp = () => {
       sessionStorage.setItem('kjb_session_active_timer', 'true');
     } catch {}
     
-    // Extend minimum splash times so text is readable
-    let delay = 2500; // Fresh load: 2.5s
+    // Extend minimum splash times just enough to not flash abruptly
+    let delay = 1000; // Fresh load
     if (isPostUpdate || isForcedUpdate) {
-      delay = 2500; // Update applied: 2.5s (gives time to read "Updates applied successfully")
+      delay = 1500; // Update applied
     } else if (!isFresh) {
-      delay = 1200; // Returning session: 1.2s
+      delay = 400; // Returning session
     }
 
     const timer = setTimeout(() => setMinSplashDone(true), delay); 
