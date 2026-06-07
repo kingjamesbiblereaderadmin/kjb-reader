@@ -10,10 +10,7 @@ import { ThemeProvider } from '@/lib/themeContext';
 import { HeaderHideProvider } from '@/lib/HeaderHideContext';
 import { SoftReloadProvider, useSoftReload } from '@/lib/SoftReloadContext';
 import AppLayout from '@/components/layout/AppLayout';
-import { getDailyVerse } from '@/lib/dailyVerse';
 import React, { lazy, Suspense, useEffect, useState } from 'react';
-import FirstLoadPrompt from '@/components/FirstLoadPrompt';
-import { useAppLayoutPrompt } from '@/hooks/useAppLayoutPrompt';
 
 // Lazy-load pages. Each import() factory is kept as a reference so we can
 // also trigger it manually in the background to preload all routes.
@@ -95,20 +92,19 @@ function preloadAllRoutes() {
 }
 
 // Provide a beautiful splash screen for initial app loading
-import { Loader2, ChevronRight, Heart } from 'lucide-react';
-import DailyVerseImage from '@/components/bible/DailyVerseImage';
-
-const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
-  const [activeCard, setActiveCard] = useState('gospel');
+import { Loader2 } from 'lucide-react';
+const PageLoader = ({ isFadingOut }) => {
+  // Capture the updateType once on mount so it doesn't change when checkUpdatesSilently removes it
   const [updateType] = useState(() => 
     typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null
   );
+  const [showLoading, setShowLoading] = useState(!updateType);
   const [dynamicText, setDynamicText] = useState(null);
 
   const [isFirstVisit] = useState(() => {
     try {
-      if (!localStorage.getItem('kjb_has_visited_v2')) {
-        localStorage.setItem('kjb_has_visited_v2', 'true');
+      if (!localStorage.getItem('kjb_has_visited')) {
+        localStorage.setItem('kjb_has_visited', 'true');
         return true;
       }
       return false;
@@ -116,9 +112,6 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
       return false;
     }
   });
-
-  const promptProps = useAppLayoutPrompt();
-  const [dailyVerse] = useState(() => getDailyVerse());
 
   useEffect(() => {
     const handleProgress = (e) => {
@@ -128,165 +121,43 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
     return () => window.removeEventListener('kjb-splash-update', handleProgress);
   }, []);
 
-  const [minTimePassed, setMinTimePassed] = useState(true);
+  useEffect(() => {
+    if (updateType) {
+      const timer = setTimeout(() => {
+        setShowLoading(true);
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [updateType]);
 
   if (isFadingOut) return null;
-
-  let welcomeText = isFirstVisit ? "Welcome to KJB Reader" : "Welcome back";
-  let loadingText = null;
   
+  let text = isFirstVisit ? "Welcome to KJB Reader..." : "Welcome back to KJB Reader...";
   if (dynamicText) {
-    loadingText = dynamicText;
-  } else if (updateType) {
-    if (updateType === 'both') loadingText = "Applying app & Bible updates...";
-    else if (updateType === 'bible') loadingText = "Applying Bible data updates...";
-    else loadingText = "Applying app updates...";
-  } else if (!isReady) {
-    loadingText = isFirstVisit ? "Loading KJB Reader..." : "Welcome back...";
+    text = dynamicText;
+  } else if (updateType && !showLoading) {
+    if (updateType === 'both') text = "Applying app & Bible updates...";
+    else if (updateType === 'bible') text = "Applying Bible data updates...";
+    else text = "Applying app updates...";
   }
 
-  const isAppReady = isReady;
-
   return (
-    <div className={`fixed inset-0 z-[9999] bg-background overflow-hidden ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
-      <div className={`flex flex-col items-center w-full h-[100dvh] px-4 max-w-xl mx-auto pt-8 ${isFirstVisit ? 'pb-8' : 'pb-32'} space-y-6 overflow-y-auto`}>
-        
-        {/* Logo and Welcome Banner (Only show on first visit before continuing) */}
-        {isFirstVisit && (
-          <div className="flex flex-col items-center justify-center pt-6 mb-4">
-            <div className="relative mb-4">
-              <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
-              <img 
-                src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
-                alt="KJB Reader" 
-                className="relative w-28 h-28 object-contain drop-shadow-2xl"
-              />
-            </div>
-            <h1 className="text-3xl font-serif font-bold text-foreground text-center">Welcome to KJB Reader</h1>
-          </div>
-        )}
-
-        {/* First Visit Flow */}
-        {isFirstVisit ? (
-          <>
-            {loadingText ? (
-              <div className="flex flex-col items-center mt-4 w-full">
-                <div className="flex items-center gap-3 text-foreground bg-card px-6 py-4 rounded-2xl shadow-lg border border-border/80 justify-center w-full">
-                  <Loader2 className="w-5 h-5 animate-spin text-accent shrink-0" />
-                  <span className="font-sans text-sm font-semibold tracking-wide truncate">{loadingText}</span>
-                </div>
-              </div>
-            ) : (
-              <div className="w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="w-full shrink-0 mb-6 px-1">
-                  <FirstLoadPrompt 
-                    splashMode={true}
-                    isInstallable={promptProps.isInstallable}
-                    notifPermission={promptProps.notifPermission}
-                    onInstall={promptProps.handleInstall}
-                    onEnableNotif={promptProps.handleEnableNotif}
-                    onDismiss={() => {}}
-                    loadingText={null}
-                    isAppReady={true}
-                    continueText="Hidden"
-                  />
-                </div>
-                
-                <div className="w-full shrink-0 mb-6 px-1">
-                 <div className="bg-gradient-to-br from-[#0c3483] via-[#592b98] to-[#9925a1] border border-white/20 rounded-2xl p-6 text-center shadow-xl flex flex-col justify-center relative overflow-hidden">
-                   <div className="absolute inset-0 bg-black/10"></div>
-                   <div className="relative z-10">
-                     <p className="font-serif text-2xl font-bold text-white mb-1" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>The Gospel of Salvation</p>
-                     <p className="font-sans text-xs font-bold text-[#eec759] mb-4" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>1 Corinthians 15:1–4 & Romans 3:25</p>
-                     
-                     <div className="w-3/4 mx-auto h-px bg-white/20 mb-4" />
-
-                     <p className="font-serif text-lg font-bold text-[#f5d970] mb-4 leading-relaxed" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
-                       Trust that Jesus is God, died on the cross, shed His Blood, was buried, and rose again the third day for our sins.
-                     </p>
-
-                     <div className="w-3/4 mx-auto h-px bg-white/20 mb-4" />
-
-                     <p className="font-serif text-[13px] font-medium text-white italic mb-3 leading-relaxed" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
-                       How Christ died: He shed His blood as the full payment for sin — the propitiation through faith in His blood.
-                     </p>
-
-                     <div className="w-1/2 mx-auto h-px bg-white/20 mb-3" />
-
-                     <p className="font-serif text-[13px] font-medium text-white italic mb-6 leading-relaxed" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
-                       The Gospel — the power of God unto salvation to everyone that believeth.
-                     </p>
-
-                     <button
-                       onClick={() => {
-                         onDismiss();
-                         setTimeout(() => { window.location.href = '/gospel'; }, 100);
-                       }}
-                       className="inline-flex items-center justify-center gap-2 w-full px-5 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/30 rounded-xl font-sans text-sm font-bold transition-all duration-200 shadow-md active:scale-[0.98]"
-                     >
-                       <Heart className="w-4 h-4 fill-white" />
-                       Learn How to be Saved
-                     </button>
-                   </div>
-                 </div>
-                </div>
-
-                <div className="w-full relative px-1 shrink-0 mb-6">
-                  <DailyVerseImage 
-                    verse={dailyVerse} 
-                    splashMode={true} 
-                    onClick={() => {}} 
-                    onToggleNotif={promptProps.handleEnableNotif}
-                    notifEnabled={'Notification' in window && Notification.permission === 'granted'}
-                  />
-                </div>
-
-                <div className="w-full px-1">
-                  <button 
-                    onClick={onDismiss}
-                    className="flex items-center justify-center gap-2 py-4 bg-primary text-primary-foreground font-sans font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-xl hover:shadow-2xl border border-primary/20 w-full rounded-2xl text-lg"
-                  >
-                    Continue to App
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            )}
-          </>
-        ) : (
-          /* Returning Visit Flow */
-          <>
-            <div className="w-full relative px-2 shrink-0 mb-4 pt-16">
-              <DailyVerseImage 
-                verse={dailyVerse} 
-                splashMode={true} 
-                onClick={() => {}} 
-                onToggleNotif={promptProps.handleEnableNotif}
-                notifEnabled={'Notification' in window && Notification.permission === 'granted'}
-              />
-            </div>
-            
-            <div className="w-full flex flex-col items-center justify-center shrink-0 pb-6 pt-2 px-4 bg-background absolute bottom-0 left-0 right-0 z-50">
-              {loadingText ? (
-                <div className="flex items-center gap-3 text-foreground bg-card px-6 py-3.5 rounded-2xl shadow-lg border border-border/80 w-full justify-center max-w-xl mx-auto">
-                  <Loader2 className="w-5 h-5 animate-spin text-accent shrink-0" />
-                  <span className="font-sans text-sm font-semibold tracking-wide truncate">{loadingText}</span>
-                </div>
-              ) : (
-                <button 
-                  onClick={onDismiss}
-                  className="flex items-center justify-center gap-2 py-4 bg-primary text-primary-foreground font-sans font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-xl hover:shadow-2xl border border-primary/20 max-w-xl mx-auto px-10 rounded-full text-lg"
-                >
-                  Continue
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              )}
-            </div>
-          </>
-        )}
-
+  <div className={`fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center`}>
+    <div className="flex flex-col items-center justify-center -mt-16">
+      <div className="relative mb-8">
+        <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
+        <img 
+          src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
+          alt="KJB Reader" 
+          className="relative w-32 h-32 object-contain drop-shadow-2xl"
+        />
+      </div>
+      <div className="flex items-center gap-3 text-foreground bg-card/80 px-6 py-3 rounded-2xl shadow-lg border border-border/50">
+        <Loader2 className="w-5 h-5 animate-spin text-foreground" />
+        <span className="font-sans text-sm font-semibold tracking-wide">{text}</span>
       </div>
     </div>
+  </div>
   );
 };
 
@@ -318,14 +189,6 @@ const AuthenticatedApp = () => {
   const [minSplashDone, setMinSplashDone] = useState(false);
   const [updateCheckDone, setUpdateCheckDone] = useState(false);
   const [routeLoaded, setRouteLoaded] = useState(false);
-  const [splashDismissed, setSplashDismissed] = useState(false);
-  const [failsafeTriggered, setFailsafeTriggered] = useState(false);
-
-  // Global failsafe to guarantee the splash screen / prompt never loads indefinitely
-  useEffect(() => {
-    const failsafeTimer = setTimeout(() => setFailsafeTriggered(true), 6000);
-    return () => clearTimeout(failsafeTimer);
-  }, []);
 
   useEffect(() => {
     const loader = getLoaderForPath(location.pathname);
@@ -340,7 +203,7 @@ const AuthenticatedApp = () => {
     const isPostUpdate = sessionStorage.getItem('kjb_sw_updated');
     // If we just reloaded from an update, stagger the splash screen longer
     // to give time for the "Applying updates..." and "Loading KJB Reader..." phases
-    const timer = setTimeout(() => setMinSplashDone(true), isPostUpdate ? 5000 : 0); 
+    const timer = setTimeout(() => setMinSplashDone(true), isPostUpdate ? 5000 : 800); 
     return () => clearTimeout(timer);
   }, []);
 
@@ -517,8 +380,7 @@ const AuthenticatedApp = () => {
   }, []);
 
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
-  const isAppReady = (!isInitializing && minSplashDone && updateCheckDone && routeLoaded) || failsafeTriggered;
-  const showSplash = !isAppReady || !splashDismissed;
+  const showSplash = isInitializing || !minSplashDone || !updateCheckDone || !routeLoaded;
 
   const [renderSplash, setRenderSplash] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
@@ -526,8 +388,7 @@ const AuthenticatedApp = () => {
   useEffect(() => {
     if (!showSplash) {
       setFadeSplash(true);
-      const t = setTimeout(() => setRenderSplash(false), 280);
-      return () => clearTimeout(t);
+      setRenderSplash(false);
     } else {
       setRenderSplash(true);
       setFadeSplash(false);
@@ -545,34 +406,10 @@ const AuthenticatedApp = () => {
 
   return (
     <>
-      {renderSplash && <PageLoader isFadingOut={fadeSplash} isReady={isAppReady} onDismiss={() => setSplashDismissed(true)} />}
+      {renderSplash && <PageLoader isFadingOut={fadeSplash} />}
       {!isInitializing && !authError && (
-        <>
-          {/* TEST BUTTONS */}
-          <div className="fixed bottom-24 right-4 z-50 flex flex-col gap-2 pointer-events-auto">
-            <button 
-              onClick={() => { 
-                localStorage.removeItem('kjb_has_visited_v2');
-                localStorage.removeItem('kjb-prompt-dismissed');
-                localStorage.removeItem('kjb-install-dismissed');
-                window.location.reload(); 
-              }}
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-bold shadow-lg"
-            >
-              TEST FIRST TIME
-            </button>
-            <button 
-              onClick={() => { 
-                localStorage.setItem('kjb_has_visited_v2', 'true');
-                window.location.reload(); 
-              }}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-bold shadow-lg"
-            >
-              TEST SUBSEQUENT
-            </button>
-          </div>
-          <Routes location={location}>
-            <Route element={<AppLayout />}>
+        <Routes location={location}>
+          <Route element={<AppLayout />}>
         <Route path="/" element={<Suspense fallback={<RouteLoader />}><FadeIn><HomePage /></FadeIn></Suspense>} />
         <Route path="/read" element={<Suspense fallback={<RouteLoader />}><FadeIn><BibleReader /></FadeIn></Suspense>} />
         <Route path="/gospel" element={<Suspense fallback={<RouteLoader />}><FadeIn><GospelPage /></FadeIn></Suspense>} />
@@ -586,7 +423,6 @@ const AuthenticatedApp = () => {
           </Route>
           <Route path="*" element={<PageNotFound />} />
         </Routes>
-        </>
       )}
     </>
   );

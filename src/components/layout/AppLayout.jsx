@@ -8,8 +8,8 @@ import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import ScrollToTop from '@/components/ScrollToTop';
 import AutoUpdateHandler from '@/components/AutoUpdateHandler';
 import UpdateBanner from '@/components/UpdateBanner';
-import { useAppLayoutPrompt } from '@/hooks/useAppLayoutPrompt';
-import { getNotificationsEnabled, initNotifications } from '@/lib/notifications';
+import { useInstallPrompt } from '@/hooks/useInstallPrompt';
+import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, initNotifications } from '@/lib/notifications';
 import { getBibleData, isBibleCached, initPeriodicCacheRefresh, downloadBibleForOffline, refreshCacheIfDue, CACHE_VERSION } from '@/lib/bibleCache';
 import { toast } from 'sonner';
 import { useSoftReload } from '@/lib/SoftReloadContext';
@@ -413,8 +413,9 @@ export default function AppLayout() {
       {/* Scroll to top button - appears on all pages when scrolling */}
       <ScrollToTop />
 
+      {/* FirstLoadPrompt - shows once per session */}
       {showPrompt && (
-        <FirstLoadPrompt 
+        <FirstLoadPrompt
           isInstallable={isInstallable}
           notifPermission={notifPermission}
           onInstall={handleInstall}
@@ -490,7 +491,44 @@ function DesktopFooter({ navigate, setMenuOpen }) {
   );
 }
 
+function useAppLayoutPrompt() {
+  const installPromptResult = useInstallPrompt();
+  const { isInstallable, isInstalled, promptInstall, dismiss } = installPromptResult;
+  
+  const [notifPermission, setNotifPermission] = useState(() => {
+    if (!('serviceWorker' in navigator)) return 'unsupported';
+    if (!('Notification' in window)) return 'supported';
+    return Notification.permission;
+  });
+  const [notifEnabled, setNotifEnabled] = useState(() => getNotificationsEnabled());
 
+  const handleInstall = () => {
+    return promptInstall();
+  };
+
+  const handleEnableNotif = async () => {
+    try {
+      const result = await requestNotificationPermission();
+      setNotifPermission(result);
+      if (result === 'granted' || result === 'unsupported') {
+        scheduleDailyNotification();
+        setNotifEnabled(true);
+        window.dispatchEvent(new Event('storage'));
+      } else if (result === 'denied') {
+        alert('Notifications are blocked. Please allow notifications in your browser/app settings for this site.');
+      }
+    } catch (err) {
+      console.error('Notification permission error:', err);
+    }
+  };
+
+  const handleDismiss = () => {
+    dismiss();
+    try { localStorage.setItem('kjb-prompt-dismissed', 'true'); } catch {}
+  };
+
+  return { isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss };
+}
 
 function BottomNav({ pathname, navigate }) {
   const [showMode, setShowMode] = useState(() => {
