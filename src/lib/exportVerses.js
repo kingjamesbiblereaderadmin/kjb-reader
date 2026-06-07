@@ -367,6 +367,31 @@ export function exportPdf(items, query, filters, options = {}) {
       });
     }
   });
+
+  const totalPages = doc.internal.getNumberOfPages();
+  const now = new Date();
+  const dateStr = now.toLocaleDateString() + ' at ' + now.toLocaleTimeString();
+
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    doc.setFont('times', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(150);
+    
+    const pageText = `Page ${i} of ${totalPages}`;
+    const pageTextWidth = doc.getTextWidth(pageText);
+    doc.text(pageText, (pageW - pageTextWidth) / 2, pageH - 25);
+    
+    if (i === totalPages) {
+      const leftText = `${items.length} verse${items.length !== 1 ? 's' : ''} — King James Bible`;
+      doc.text(leftText, marginX, pageH - 25);
+      
+      const rightText = `Printed on ${dateStr}`;
+      const rightWidth = doc.getTextWidth(rightText);
+      doc.text(rightText, pageW - marginX - rightWidth, pageH - 25);
+    }
+  }
+
   doc.save(`kjb-${sanitizeFilename(query)}${filterSuffix(filters)}.pdf`);
 }
 
@@ -470,7 +495,9 @@ export function exportPrint(items, query, filters, options = {}) {
       (options.chapterText ? `<p style="font-family:system-ui,-apple-system,sans-serif;font-size:10pt;letter-spacing:0.1em;text-transform:uppercase;color:#666;margin-top:0;margin-bottom:25pt;text-align:center;">${escapeHtml(options.chapterText)}</p>` : '')
     : `<h1 style="font-family:Georgia,serif;font-size:20pt;margin-bottom:20pt;">${escapeHtml(titlePrefix)} &mdash; &ldquo;${escapeHtml(query)}&rdquo;</h1>`;
 
-  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>&#8203;</title><style>@page { margin: 1.5cm; } body { margin: 0 !important; display: block !important; height: auto !important; position: static !important; overflow: visible !important; }</style></head><body onload="window.print(); setTimeout(() => window.close(), 500);" style="padding:20px;max-width:800px;margin:0 auto;color:#000;">` +
+  const printTitle = `KJB-${sanitizeFilename(options.bookName || query)}${filterSuffix(filters)}`;
+
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${escapeHtml(printTitle)}</title><style>@page { margin: 1.5cm; } body { margin: 0 !important; display: block !important; height: auto !important; position: static !important; overflow: visible !important; }</style></head><body onload="window.print(); setTimeout(() => window.close(), 500);" style="padding:20px;max-width:800px;margin:0 auto;color:#000;">` +
     `${headerHtml}${rows}` +
     `<div style="margin-top: 40pt; page-break-inside: avoid;"><p style="font-size:10pt;color:#777;border-top:1px solid #eee;padding-top:10pt;margin:0;${isReading ? 'text-align:center;' : ''}">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</p></div></body></html>`;
   
