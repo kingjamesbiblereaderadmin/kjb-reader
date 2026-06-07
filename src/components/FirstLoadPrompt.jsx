@@ -138,8 +138,13 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
 
   if (splashMode) {
     return (
-      <div className="w-full pointer-events-auto">
-        <div className="space-y-6 relative">
+      <div className="w-full pointer-events-auto px-2">
+        <div className="bg-card/90 backdrop-blur-sm border border-border rounded-2xl shadow-lg p-6 space-y-5 relative">
+          <div className="flex flex-col items-center justify-center gap-1 mb-4">
+            <h2 className="font-serif text-xl font-bold text-foreground">Quick Setup</h2>
+            <p className="font-sans text-sm text-muted-foreground text-center">Customize your reading experience</p>
+          </div>
+
           {showInstall && (
             <div className="space-y-3">
               <button

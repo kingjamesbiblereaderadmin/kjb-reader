@@ -95,7 +95,7 @@ function preloadAllRoutes() {
 }
 
 // Provide a beautiful splash screen for initial app loading
-import { Loader2, ChevronRight } from 'lucide-react';
+import { Loader2, ChevronRight, Heart } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 
 const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
@@ -169,10 +169,41 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
           </div>
         </div>
 
+        {/* Daily Verse */}
+        <div className="w-full relative px-2 shrink-0">
+          <DailyVerseImage 
+            verse={dailyVerse} 
+            splashMode={true} 
+            onClick={() => {}} 
+            onToggleNotif={promptProps.handleEnableNotif}
+            notifEnabled={'Notification' in window && Notification.permission === 'granted'}
+          />
+        </div>
+
         {isFirstVisit ? (
           <>
-            {/* Setup Prompt ONLY for first visit (No Daily Verse) */}
-            <div className="w-full pb-8 mt-4 flex-1 flex flex-col justify-center">
+            {/* Gospel Call */}
+            <div className="w-full shrink-0 px-2 mt-4">
+              <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-6 text-center shadow-md">
+                <p className="font-serif text-xl font-bold text-red-700 dark:text-red-400 mb-2">Are you saved?</p>
+                <p className="font-sans text-sm text-foreground/80 mb-4">
+                  Jesus Christ died for your sins, shed his blood, was buried, and rose again on the third day. Trust the blood — believe the gospel and be saved.
+                </p>
+                <button
+                  onClick={() => {
+                    onDismiss();
+                    setTimeout(() => { window.location.href = '/gospel'; }, 100);
+                  }}
+                  className="inline-flex items-center justify-center gap-2 w-full px-5 py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-sans text-sm font-bold transition-all duration-200 shadow-md active:scale-[0.98]"
+                >
+                  <Heart className="w-4 h-4" />
+                  Learn How to be Saved
+                </button>
+              </div>
+            </div>
+
+            {/* Setup Prompt Container */}
+            <div className="w-full pb-8 mt-4 shrink-0 flex flex-col justify-center">
               <FirstLoadPrompt 
                 splashMode={true}
                 isInstallable={promptProps.isInstallable}
@@ -187,19 +218,8 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
           </>
         ) : (
           <>
-            {/* Daily Verse ONLY for subsequent visits */}
-            <div className="w-full relative px-2 mb-8">
-              <DailyVerseImage 
-                verse={dailyVerse} 
-                splashMode={true} 
-                onClick={() => {}} 
-                onToggleNotif={promptProps.handleEnableNotif}
-                notifEnabled={'Notification' in window && Notification.permission === 'granted'}
-              />
-            </div>
-
             {/* Loading / Updating Banner OR Continue Button */}
-            <div className="w-full flex justify-center shrink-0 mt-4 pb-8">
+            <div className="w-full flex justify-center shrink-0 mt-8 pb-8">
               {loadingText ? (
                 <div className="flex items-center gap-3 text-foreground bg-card px-6 py-3.5 rounded-2xl shadow-lg border border-border/80">
                   <Loader2 className="w-5 h-5 animate-spin text-accent shrink-0" />
