@@ -54,7 +54,7 @@ export default function UpdateBanner() {
               
               setTimeout(() => {
                 window.location.href = window.location.pathname + '?refresh=' + Date.now();
-              }, 800);
+              }, 2000);
             }}
             className="px-3 py-1 bg-background text-foreground hover:bg-secondary rounded-md transition-colors text-xs font-semibold"
           >

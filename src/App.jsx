@@ -94,12 +94,30 @@ function preloadAllRoutes() {
 // Provide a beautiful splash screen for initial app loading
 import { Loader2 } from 'lucide-react';
 const PageLoader = ({ isFadingOut }) => {
+  const [stage, setStage] = useState(0);
+
+  useEffect(() => {
+    const updateType = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null;
+    if (updateType) {
+      const timer = setTimeout(() => setStage(1), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   if (isFadingOut) return null;
   const updateType = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null;
+  
   let text = "Loading KJB Reader...";
-  if (updateType === 'both') text = "Applying app & Bible updates, loading app...";
-  else if (updateType === 'bible') text = "Applying Bible data updates, loading app...";
-  else if (updateType === 'app' || updateType === 'true') text = "Applying app updates, loading app...";
+  if (updateType) {
+    if (stage === 0) {
+      if (updateType === 'both') text = "Applying app & Bible updates...";
+      else if (updateType === 'bible') text = "Applying Bible data updates...";
+      else text = "Applying app updates...";
+    } else {
+      text = "Loading KJB Reader...";
+    }
+  }
+
   return (
   <div className={`fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center`}>
     <div className="flex flex-col items-center justify-center -mt-16">
@@ -160,9 +178,9 @@ const AuthenticatedApp = () => {
 
   useEffect(() => {
     const isPostUpdate = sessionStorage.getItem('kjb_sw_updated');
-    // If we just reloaded from an update, show the splash screen slightly longer
-    // so the user can read "Applying updates, loading app..."
-    const timer = setTimeout(() => setMinSplashDone(true), isPostUpdate ? 1200 : 800); 
+    // If we just reloaded from an update, stagger the splash screen longer
+    // to give time for the "Applying updates..." and "Loading KJB Reader..." phases
+    const timer = setTimeout(() => setMinSplashDone(true), isPostUpdate ? 2500 : 800); 
     return () => clearTimeout(timer);
   }, []);
 
