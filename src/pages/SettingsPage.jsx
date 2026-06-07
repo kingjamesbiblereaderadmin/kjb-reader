@@ -1369,6 +1369,7 @@ export default function SettingsPage() {
                 <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Email for Support</p>
                 <p className="font-sans text-xs text-muted-foreground">kingjamesbiblereader@outlook.sg</p>
               </div>
+              <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
             </a>
             <a
               href="https://godisgracious1031ministriescom.odoo.com/"
