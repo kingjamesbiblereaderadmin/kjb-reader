@@ -539,10 +539,10 @@ export default function BibleReader() {
       loadChapter(abbr, 0, null);
       return;
     }
-    // When arriving from a search navigation, let the route effect own the load
+    // When arriving from a search or gospel navigation, let the route effect own the load
     // via stepToResult (it has the in-memory result with verseEnd). Running the
     // mount handler too would race it and wipe the verse-range filter.
-    if (initParams.get('from') === 'search') {
+    if (initParams.get('from') === 'search' || initParams.get('from') === 'gospel') {
       return;
     }
     const urlBookObj = resolveBook(urlBook);
@@ -615,10 +615,12 @@ export default function BibleReader() {
       const chapterNum = parseInt(urlChapter, 10);
       const verseNum = urlParams.get('verse') ? parseInt(urlParams.get('verse'), 10) : null;
       // A verse range (verseEnd) may be carried in localStorage for filter mode.
-      let verseEnd = null;
+      let verseEnd = urlParams.get('verseEnd') ? parseInt(urlParams.get('verseEnd'), 10) : null;
       try {
-        const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        if (p.abbr === urlBookObj.abbr && p.chapter === chapterNum && p.verseEnd) verseEnd = p.verseEnd;
+        if (!verseEnd) {
+          const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+          if (p.abbr === urlBookObj.abbr && p.chapter === chapterNum && p.verseEnd) verseEnd = p.verseEnd;
+        }
       } catch {}
       if (verseNum && verseEnd && verseEnd > verseNum) {
         const range = new Set();
@@ -646,6 +648,11 @@ export default function BibleReader() {
           setGospelMode(true);
           setGospelResultIndex(g.index);
           setGospelTotalResults(g.results.length);
+          const cur = g.results[g.index];
+          if (cur) {
+            stepToResult(cur);
+            return;
+          }
         }
       } else {
         setGospelMode(false);
@@ -1579,9 +1586,7 @@ export default function BibleReader() {
                       if (r) {
                         setGospelIndex(prevIndex);
                         setGospelResultIndex(prevIndex);
-                        setPos({ abbr: r.abbr, chapter: r.chapter, verse: r.verse || null });
-                        setHighlightVerse(r.verse || null);
-                        loadChapter(r.abbr, r.chapter, r.verse || null);
+                        stepToResult(r);
                       }
                       return;
                     }
@@ -1606,9 +1611,7 @@ export default function BibleReader() {
                       if (r) {
                         setGospelIndex(nextIndex);
                         setGospelResultIndex(nextIndex);
-                        setPos({ abbr: r.abbr, chapter: r.chapter, verse: r.verse || null });
-                        setHighlightVerse(r.verse || null);
-                        loadChapter(r.abbr, r.chapter, r.verse || null);
+                        stepToResult(r);
                       }
                       return;
                     }
