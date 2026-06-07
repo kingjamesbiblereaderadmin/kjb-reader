@@ -101,6 +101,18 @@ const PageLoader = ({ isFadingOut }) => {
   const [showLoading, setShowLoading] = useState(!updateType);
   const [dynamicText, setDynamicText] = useState(null);
 
+  const [isFirstVisit] = useState(() => {
+    try {
+      if (!localStorage.getItem('kjb_has_visited')) {
+        localStorage.setItem('kjb_has_visited', 'true');
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  });
+
   useEffect(() => {
     const handleProgress = (e) => {
       if (e.detail?.message) setDynamicText(e.detail.message);
@@ -120,7 +132,7 @@ const PageLoader = ({ isFadingOut }) => {
 
   if (isFadingOut) return null;
   
-  let text = "Loading KJB Reader...";
+  let text = isFirstVisit ? "Welcome to KJB Reader..." : "Welcome back to KJB Reader...";
   if (dynamicText) {
     text = dynamicText;
   } else if (updateType && !showLoading) {
