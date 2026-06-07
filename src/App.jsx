@@ -287,14 +287,14 @@ const AuthenticatedApp = () => {
                 setIsApplyingUpdates(true);
                 setApplyMessage('Found updates...');
                 window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
-                await new Promise(r => setTimeout(r, 1000));
+                await new Promise(r => setTimeout(r, 300));
                 setApplyMessage('Installing updates...');
                 window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Installing updates...' } }));
-                await new Promise(r => setTimeout(r, 1000));
+                await new Promise(r => setTimeout(r, 300));
                 
                 setApplyMessage('Applying updates...');
                 window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Applying updates...' } }));
-                await new Promise(r => setTimeout(r, 1000));
+                await new Promise(r => setTimeout(r, 300));
                 
                 if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
                 else if (reg.installing) reg.installing.postMessage({ type: 'SKIP_WAITING' });
@@ -303,7 +303,7 @@ const AuthenticatedApp = () => {
                 setIsApplyingUpdates(true);
                 setApplyMessage('Found updates...');
                 window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
-                await new Promise(r => setTimeout(r, 1000));
+                await new Promise(r => setTimeout(r, 300));
                 setApplyMessage('Installing updates...');
                 window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Installing updates...' } }));
                 
@@ -336,7 +336,7 @@ const AuthenticatedApp = () => {
                 if (installed) {
                   setApplyMessage('Applying updates...');
                   window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Applying updates...' } }));
-                  await new Promise(r => setTimeout(r, 1000));
+                  await new Promise(r => setTimeout(r, 300));
                   workerToSkip.postMessage({ type: 'SKIP_WAITING' });
                   return; // Let main.jsx handle reload
                 }
@@ -358,7 +358,7 @@ const AuthenticatedApp = () => {
               setIsApplyingUpdates(true);
               setApplyMessage('Found updates...');
               window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
-              await new Promise(r => setTimeout(r, 1000));
+              await new Promise(r => setTimeout(r, 300));
             }
             const dlMessage = !bibleIsCached ? 'Downloading offline Bible...' : 'Installing updates...';
             setIsApplyingUpdates(true);
@@ -399,7 +399,7 @@ const AuthenticatedApp = () => {
           willReload = true;
           setTimeout(() => {
             window.location.reload();
-          }, 1200);
+          }, 500);
           return; 
         }
 
@@ -461,15 +461,15 @@ const AuthenticatedApp = () => {
           setIsApplyingUpdates(true);
           setApplyMessage('Found updates...');
           window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
-          await new Promise(r => setTimeout(r, 1000));
+          await new Promise(r => setTimeout(r, 300));
           setApplyMessage('Installing updates...');
           window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Installing updates...' } }));
-          await new Promise(r => setTimeout(r, 1000));
+          await new Promise(r => setTimeout(r, 300));
           
           sessionStorage.setItem('kjb_sw_updated', 'app');
           setApplyMessage('Applying updates...');
           window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Applying updates...' } }));
-          await new Promise(r => setTimeout(r, 1000));
+          await new Promise(r => setTimeout(r, 300));
           
           workerToSkip.postMessage({ type: 'SKIP_WAITING' });
         }

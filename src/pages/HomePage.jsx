@@ -151,7 +151,7 @@ export default function HomePage() {
               window.dispatchEvent(new Event('kjb-progress-clear'));
               window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: reloadText, status: 'loading' } }));
 
-              await new Promise(r => setTimeout(r, 1200));
+              await new Promise(r => setTimeout(r, 400));
 
               if (bibleNeedsUpdate) {
                 window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Installing updates...', status: 'loading' } }));
@@ -161,11 +161,11 @@ export default function HomePage() {
                 await downloadBibleForOffline();
               } else if (swUpdated) {
                 window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Installing updates...', status: 'loading' } }));
-                await new Promise(r => setTimeout(r, 1000));
+                await new Promise(r => setTimeout(r, 400));
               }
 
               window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Applying updates...', status: 'loading' } }));
-              await new Promise(r => setTimeout(r, 1000));
+              await new Promise(r => setTimeout(r, 400));
 
               sessionStorage.setItem('kjb_sw_updated', updateType);
 
