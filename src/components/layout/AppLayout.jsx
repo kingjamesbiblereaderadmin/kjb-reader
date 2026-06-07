@@ -277,11 +277,7 @@ export default function AppLayout() {
                     await Promise.all(cacheNames.map(name => caches.delete(name)));
                   }
                   
-                  // Clear local storage items that might hold old state
-                  localStorage.removeItem('bible_cache_version');
-                  localStorage.removeItem('bible_last_refresh');
-                  
-                  // Unregister service worker
+                  // Unregister service worker (this forces new UI files to load)
                   if ('serviceWorker' in navigator) {
                     const regs = await navigator.serviceWorker.getRegistrations();
                     for (const reg of regs) {
@@ -291,11 +287,8 @@ export default function AppLayout() {
 
                   window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Refreshed successfully. Reloading...', status: 'success' } }));
                   
-                  // Try to fetch fresh bible data immediately
-                  const { forceReloadBibleData } = await import('@/lib/bibleCache');
-                  await forceReloadBibleData().catch(() => {});
-                  
                   // Force a hard reload with a cache-busting query parameter to guarantee the browser bypasses its internal memory
+                  // Note: We intentionally skip clearing the offline Bible data so it stays safely stored on the device!
                   setTimeout(() => {
                     window.location.href = window.location.pathname + '?refresh=' + Date.now();
                   }, 500);
