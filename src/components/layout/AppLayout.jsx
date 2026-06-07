@@ -250,7 +250,7 @@ export default function AppLayout() {
               onClick={() => setMenuOpen(false)}
             />
             <div data-kjb-menu className="absolute top-full right-0 left-0 z-50 bg-card backdrop-blur-md border-b border-border shadow-lg">
-              <div className="w-full px-5 sm:px-12 lg:px-16 py-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="w-full max-w-[90rem] mx-auto px-5 sm:px-12 lg:px-16 py-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {NAV_ITEMS.map(item => {
                   const Icon = item.icon;
                   const active = item.path === '/' ? pathname === '/' : pathname === item.path;
@@ -321,7 +321,7 @@ function DesktopFooter({ navigate, setMenuOpen }) {
   };
   return (
       <footer className={`hidden sm:block border-t border-border bg-card/80 flex-shrink-0 ${open ? 'py-3' : 'py-0.5'}`}>
-        <div className="max-w-5xl mx-auto px-4">
+        <div className="w-full max-w-[90rem] mx-auto px-5 sm:px-12 lg:px-16">
           <div className={`flex justify-center ${open ? 'mb-2' : 'mb-0'}`}>
             <button
               onClick={toggle}
