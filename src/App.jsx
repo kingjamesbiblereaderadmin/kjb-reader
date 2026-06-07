@@ -149,20 +149,22 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
   const showLoadingState = dynamicText || updateType;
 
   return (
-  <div className={`fixed inset-0 z-[9999] bg-background flex flex-col ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
+  <div className={`fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
     {!showLoadingState && dailyVerse && dailyVerse.book !== "Offline" ? (
-      <div className="w-full h-full flex flex-col relative [&>div]:h-full [&>div]:rounded-none [&>div]:border-none [&>div]:shadow-none">
-        <DailyVerseImage verse={dailyVerse} onClick={() => {}} />
-        <div className="absolute bottom-12 left-0 right-0 flex justify-center z-[100] pb-env-safe">
+      <div className="w-full max-w-2xl mx-auto flex flex-col h-full max-h-[85vh] p-4 sm:p-8">
+        <div className="flex-1 min-h-0 rounded-3xl overflow-hidden shadow-2xl relative pointer-events-none">
+          <DailyVerseImage verse={dailyVerse} onClick={() => {}} />
+        </div>
+        <div className="mt-6 flex justify-center shrink-0 min-h-[4rem]">
           {!isReady ? (
-            <div className="flex items-center gap-3 text-foreground bg-card/90 px-6 py-3 rounded-2xl shadow-2xl backdrop-blur-sm border border-border/50">
+            <div className="flex items-center gap-3 text-foreground bg-card/80 px-6 py-3 rounded-2xl shadow-lg border border-border/50">
               <Loader2 className="w-5 h-5 animate-spin text-foreground shrink-0" />
               <span className="font-sans text-sm font-semibold tracking-wide">{text}</span>
             </div>
           ) : (
             <button 
               onClick={onDismiss}
-              className="flex items-center gap-2 px-8 py-3.5 bg-white text-slate-900 rounded-full font-sans text-lg font-bold transition-all duration-200 hover:scale-105 active:scale-95 shadow-2xl border border-slate-200"
+              className="flex items-center gap-2 px-8 py-3.5 bg-primary text-primary-foreground rounded-full font-sans text-lg font-bold transition-all duration-200 hover:scale-105 active:scale-95 shadow-xl"
             >
               Continue to App
               <ChevronRight className="w-5 h-5" />
