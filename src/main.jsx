@@ -118,23 +118,6 @@ window.addEventListener('load', async () => {
         }
       });
       
-      // Pre-fetch Bible data with priority
-      import('@/lib/bibleCache').then(({ isBibleCached, preloadBibleData }) => {
-        isBibleCached().then(cached => {
-          if (!cached) {
-            console.log('[APP] Preloading Bible data (high priority)...');
-            // Use requestIdleCallback to avoid blocking main thread
-            if ('requestIdleCallback' in window) {
-              requestIdleCallback(() => preloadBibleData(), { timeout: 5000 });
-            } else {
-              setTimeout(() => preloadBibleData(), 100);
-            }
-          } else {
-            console.log('[APP] Bible data already cached, skipping preload');
-          }
-        });
-      }).catch(() => {});
-      
       initNotifications(getDailyVerse());
     } catch (err) {
       console.warn('[SW] Registration failed:', err);
