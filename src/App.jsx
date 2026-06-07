@@ -112,6 +112,16 @@ const PageLoader = ({ isFadingOut }) => {
     }
   });
 
+  const [isFreshSession] = useState(() => {
+    try {
+      const active = sessionStorage.getItem('kjb_session_active');
+      sessionStorage.setItem('kjb_session_active', 'true');
+      return !active;
+    } catch {
+      return true;
+    }
+  });
+
   useEffect(() => {
     const handleProgress = (e) => {
       if (e.detail?.message) setDynamicText(e.detail.message);
@@ -122,7 +132,9 @@ const PageLoader = ({ isFadingOut }) => {
 
   if (isFadingOut) return null;
   
-  let text = (isFirstVisit || updateType === 'bible_first_load') ? "Welcome to KJB Reader..." : "Welcome back to KJB Reader...";
+  let text = (isFirstVisit || updateType === 'bible_first_load') ? "Welcome to KJB Reader..." : 
+             (isFreshSession ? "Welcome back to KJB Reader..." : "Loading...");
+             
   if (dynamicText) {
     text = dynamicText;
   } else if (updateType) {
@@ -194,8 +206,16 @@ const AuthenticatedApp = () => {
 
   useEffect(() => {
     const isPostUpdate = sessionStorage.getItem('kjb_sw_updated');
-    // If we just reloaded from an update, skip the artificial delay so we land right into the app
-    const timer = setTimeout(() => setMinSplashDone(true), isPostUpdate ? 0 : 2000); 
+    let isFresh = true;
+    try {
+      // If PageLoader already set it, it will be 'true' here, but we can check if kjb_session_active_timer exists
+      // to know if we already ran this once. Actually, PageLoader sets kjb_session_active.
+      // We can use a separate key for the timer to be safe.
+      isFresh = !sessionStorage.getItem('kjb_session_active_timer');
+      sessionStorage.setItem('kjb_session_active_timer', 'true');
+    } catch {}
+    // If we just reloaded from an update OR it's not a fresh session, skip the artificial delay
+    const timer = setTimeout(() => setMinSplashDone(true), (isPostUpdate || !isFresh) ? 0 : 2000); 
     return () => clearTimeout(timer);
   }, []);
 
