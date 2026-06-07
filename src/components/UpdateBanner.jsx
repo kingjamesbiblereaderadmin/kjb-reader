@@ -75,9 +75,9 @@ export default function UpdateBanner() {
   let Icon = Loader2;
   let iconClass = "w-4 h-4 text-muted-foreground";
   if (progressStatus === 'loading') iconClass += " animate-spin";
-  else if (progressStatus === 'success') { Icon = CheckCircle2; iconClass = "w-4 h-4 text-green-600 dark:text-green-400"; }
-  else if (progressStatus === 'error') { Icon = AlertCircle; iconClass = "w-4 h-4 text-red-600 dark:text-red-400"; }
-  else if (progressStatus === 'info') { Icon = Info; iconClass = "w-4 h-4 text-blue-600 dark:text-blue-400"; }
+  else if (progressStatus === 'success') { Icon = CheckCircle2; }
+  else if (progressStatus === 'error') { Icon = AlertCircle; }
+  else if (progressStatus === 'info') { Icon = Info; }
 
   return (
     <div className="w-full py-2 px-5 sm:px-12 lg:px-16 flex items-center text-sm font-medium shadow-inner border-b z-40 relative bg-secondary text-secondary-foreground border-border">
