@@ -746,15 +746,15 @@ export default function SearchPage() {
         .replace(/^<<[^>]*>>\s*/, '')
         .replace(/\[([^\]]+)\]/g, '$1');
       const bookEntry = BIBLE_BOOKS.find(b => b.apiName === r.book);
-      const bookName = bookEntry ? bookEntry.shortName : r.book;
+      const bookName = bookEntry ? bookEntry.name : r.book;
       const ref = r.isSubscript
-        ? `${bookName} ${r.chapter} superscription`
+        ? `${bookName}: ${r.chapter} superscription`
         : r.isHeading
-        ? `${bookName} ${r.chapter}:${r.verse} (stanza)`
+        ? `${bookName}: ${r.chapter}:${r.verse} (stanza)`
         : (r.isColophon || r.verse === 0)
-        ? `${bookName} ${r.chapter} colophon`
-        : `${bookName} ${r.chapter}:${r.verse}`;
-      return `"${text}"\n— ${ref} (KJB)`;
+        ? `${bookName}: ${r.chapter} colophon`
+        : `${bookName}: ${r.chapter}:${r.verse}`;
+      return `• "${text}"\n  — ${ref} (KJB)`;
     });
     return lines.join('\n\n');
   };
@@ -774,17 +774,17 @@ export default function SearchPage() {
     const items = sorted.map(i => {
       const r = results[i];
       const bookEntry = BIBLE_BOOKS.find(b => b.apiName === r.book);
-      const bookName = bookEntry ? bookEntry.shortName : r.book;
+      const bookName = bookEntry ? bookEntry.name : r.book;
       const isColophon = r.isColophon || (r.verse === 0 && !r.isSubscript && !r.isHeading);
       const isSubscript = r.isSubscript;
       const isHeading = r.isHeading;
       const ref = isSubscript
-        ? `${bookName} ${r.chapter} superscription`
+        ? `${bookName}: ${r.chapter} superscription`
         : isHeading
-        ? `${bookName} ${r.chapter}:${r.verse} (stanza)`
+        ? `${bookName}: ${r.chapter}:${r.verse} (stanza)`
         : isColophon
-        ? `${bookName} ${r.chapter} colophon`
-        : `${bookName} ${r.chapter}:${r.verse}`;
+        ? `${bookName}: ${r.chapter} colophon`
+        : `${bookName}: ${r.chapter}:${r.verse}`;
       const url = buildVerseUrl({ abbr: r.abbr, chapter: r.chapter, verse: (isColophon || isSubscript) ? null : r.verse, from: 'search' }) + (q ? `&q=${encodeURIComponent(q)}` : '');
       return { text: r.text, ref, testament: bookEntry ? bookEntry.testament : 'old', url, bookName: bookName || r.book };
     });
@@ -1361,8 +1361,9 @@ export default function SearchPage() {
               <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                 {selectedList.map(i => (
                   <div key={i} className="text-sm">
-                    <span className="font-sans text-xs text-accent font-semibold mr-2">
-                      {BIBLE_BOOKS.find(b => b.apiName === results[i].book)?.shortName || results[i].book} {results[i].chapter}:{results[i].verse}
+                    <span className="font-sans text-xs text-accent font-semibold mr-2 flex items-center gap-1">
+                      <span className="text-accent font-serif text-lg leading-none">&bull;</span>
+                      {BIBLE_BOOKS.find(b => b.apiName === results[i].book)?.name || results[i].book}: {results[i].chapter}:{results[i].verse}
                     </span>
                     <span className="font-serif text-foreground leading-relaxed">{results[i].text}</span>
                   </div>

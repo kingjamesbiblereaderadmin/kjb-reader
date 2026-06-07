@@ -101,7 +101,7 @@ export function exportTxt(items, query, filters, options = {}) {
   const body = sections.map(sec => {
     if (sec.isTestament) return `${sec.title.toUpperCase()}\n${'='.repeat(sec.title.length)}`;
     const heading = `${sec.title}\n${'-'.repeat(sec.title.length)}\n\n`;
-    const verses = sec.items.map(it => `"${plainWithBrackets(it.text)}"\n— ${it.ref} (KJB)${it.url ? `\nRead: ${it.url}` : ''}`).join('\n\n');
+    const verses = sec.items.map(it => `• "${plainWithBrackets(it.text)}"\n  — ${it.ref} (KJB)${it.url ? `\n  Read: ${it.url}` : ''}`).join('\n\n');
     return heading + verses;
   }).join('\n\n\n');
   const footer = `\n\n${'='.repeat(50)}\n${items.length} verse${items.length !== 1 ? 's' : ''} — King James Bible`;
@@ -116,13 +116,14 @@ export function exportDocx(items, query, filters, options = {}) {
   const rows = splitBySections(items).map(sec => {
     if (sec.isTestament) return `<h2 style="font-family:Georgia,serif;font-size:15pt;margin:24pt 0 12pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;">${escapeHtml(sec.title.toUpperCase())}</h2>`;
     return `<h3 style="font-family:Georgia,serif;font-size:13pt;margin:18pt 0 8pt 0;">${escapeHtml(sec.title)}</h3>` +
+      `<ul style="margin:0 0 12pt 0; padding-left: 20px;">` +
       sec.items.map(it =>
-        `<p style="margin:0 0 12pt 0;font-family:Georgia,serif;font-size:12pt;">` +
+        `<li style="margin:0 0 8pt 0;font-family:Georgia,serif;font-size:12pt;">` +
         `&ldquo;${bracketsToItalicHtml(it.text)}&rdquo;<br/>` +
         `<span style="font-size:10pt;color:#555;">&mdash; ${escapeHtml(it.ref)} (KJB)</span>` +
         (it.url ? `<br/><a href="${escapeHtml(it.url)}" style="font-size:9pt;color:#2a5ac8;">${escapeHtml(it.url)}</a>` : '') +
-        `</p>`
-      ).join('');
+        `</li>`
+      ).join('') + `</ul>`;
   }).join('');
   const headerHtml = isReading
     ? `<h1 style="font-family:Georgia,serif;font-size:24pt;font-weight:bold;text-align:center;margin-bottom:4pt;">${escapeHtml(options.bookName || query)}</h1>` +
@@ -218,8 +219,10 @@ export function exportPdf(items, query, filters, options = {}) {
       return m;
     });
 
-    let x = marginX;
+    let x = marginX + 15;
     doc.setFontSize(11);
+    doc.setFont('times', 'normal');
+    doc.text("•", marginX, y);
     runs.forEach(run => {
       doc.setFont('times', run.italic ? 'italic' : 'normal');
       // Split into words to allow wrapping
@@ -228,7 +231,7 @@ export function exportPdf(items, query, filters, options = {}) {
         if (!word) return;
         const w = doc.getTextWidth(word);
         if (x + w > marginX + maxW && word.trim()) {
-          x = marginX;
+          x = marginX + 15;
           y += lineH;
           ensureSpace(lineH);
         }
@@ -242,13 +245,13 @@ export function exportPdf(items, query, filters, options = {}) {
     doc.setFont('times', 'normal');
     doc.setFontSize(9);
     doc.setTextColor(90);
-    doc.text(`— ${ref} (KJB)`, marginX, y);
+    doc.text(`— ${ref} (KJB)`, marginX + 15, y);
     // Clickable verse link
     if (url) {
       y += lineH - 2;
       ensureSpace(lineH);
       doc.setTextColor(40, 90, 200);
-      doc.textWithLink(url, marginX, y, { url });
+      doc.textWithLink(url, marginX + 15, y, { url });
       doc.setTextColor(0);
     } else {
       doc.setTextColor(0);
@@ -337,12 +340,13 @@ export function exportPrint(items, query, filters, options = {}) {
     rows = splitBySections(items).map(sec => {
       if (sec.isTestament) return `<h2 style="font-family:Georgia,serif;font-size:16pt;margin:30pt 0 16pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;">${escapeHtml(sec.title.toUpperCase())}</h2>`;
       return `<h3 style="font-family:Georgia,serif;font-size:14pt;margin:20pt 0 10pt 0;">${escapeHtml(sec.title)}</h3>` +
+        `<ul style="margin:0 0 14pt 0; padding-left: 20px;">` +
         sec.items.map(it =>
-          `<p style="margin:0 0 14pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;">` +
-          `&ldquo;${bracketsToItalicHtml(it.text)}&rdquo;<br/>` +
+          `<li style="margin:0 0 10pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;padding-left:4px;">` +
+          `&ldquo;${bracketsToItalicHtml(it.text)}&rdquo; ` +
           `<span style="font-size:10pt;color:#555;">&mdash; ${escapeHtml(it.ref)} (KJB)</span>` +
-          `</p>`
-        ).join('');
+          `</li>`
+        ).join('') + `</ul>`;
     }).join('');
   }
 
