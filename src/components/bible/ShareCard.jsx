@@ -153,7 +153,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
                 marginTop: '20px',
                 fontFamily: verseFont,
                 fontWeight: 700,
-                fontSize: '32px',
+                fontSize: '44px',
                 color: verseColor,
                 opacity: Math.min(1, verseOpacity + 0.05),
                 textShadow: '0 2px 6px rgba(0,0,0,0.35)',
