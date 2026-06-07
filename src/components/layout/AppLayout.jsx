@@ -148,7 +148,7 @@ export default function AppLayout() {
         }
 
         if (swUpdated) {
-          localStorage.removeItem('kjb-daily-verse-cache');
+          // localStorage.removeItem('kjb-daily-verse-cache'); // removed per user request
         }
 
         const { autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
