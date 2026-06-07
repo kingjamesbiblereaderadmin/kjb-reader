@@ -33,12 +33,12 @@ export default function ExportMenu({ onExport, count, label = 'Export', warning 
         <ChevronDown className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className="absolute left-0 mt-1 z-50 w-56 bg-card border border-border rounded-xl shadow-xl overflow-hidden py-1">
+        <div className="absolute left-0 mt-1 z-50 w-56 bg-card border border-border rounded-xl shadow-xl overflow-hidden py-0">
           {OPTIONS.map(({ format, label: l, Icon }) => (
             <button
               key={format}
               onClick={() => { setOpen(false); onExport(format); }}
-              className="w-full flex items-center gap-2.5 px-3 py-2 text-left font-sans text-xs text-foreground hover:bg-accent/20 transition-colors"
+              className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left font-sans text-xs text-foreground hover:bg-accent/20 transition-colors"
             >
               <Icon className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               {l}

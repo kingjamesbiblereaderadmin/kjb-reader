@@ -1269,7 +1269,7 @@ export default function BibleReader() {
               {/* Desktop popover */}
               {showZoomPopover && !isMobile() && (
                 <div className="absolute top-full left-0 mt-1 z-[100]">
-                  <div className="bg-card border border-border rounded-xl shadow-xl p-4 w-64 relative">
+                  <div className="bg-card border border-border rounded-xl shadow-xl p-4 w-64 relative overflow-hidden">
                     <div className="flex items-center justify-between mb-3 pr-6">
                       <span className="font-sans text-xs font-medium text-foreground">Text Size</span>
                       <span className="font-sans text-xs font-semibold text-primary">{zoomLevel}%</span>
@@ -1379,7 +1379,7 @@ export default function BibleReader() {
               {/* Desktop popover */}
               {showFontPopover && !isMobile() && (
                 <div className="absolute top-full left-0 mt-1 z-[100]">
-                  <div className="bg-card border border-border rounded-xl shadow-xl p-4 w-64 relative">
+                  <div className="bg-card border border-border rounded-xl shadow-xl p-4 w-64 relative overflow-hidden">
                     <div className="flex items-center justify-between mb-3 pr-6">
                       <span className="font-sans text-xs font-medium text-foreground">Font Family</span>
                     </div>

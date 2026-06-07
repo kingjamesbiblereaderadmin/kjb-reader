@@ -496,7 +496,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               {/* Dropdown menu */}
               {showMenu && (
                 <div
-                  className="absolute right-0 top-8 z-30 bg-white rounded-lg shadow-xl border border-slate-200 py-1 w-48"
+                  className="absolute right-0 top-8 z-30 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden w-48 py-0"
                   onClick={(e) => e.stopPropagation()}
                   onMouseDown={(e) => e.stopPropagation()}
                   onTouchStart={(e) => e.stopPropagation()}
