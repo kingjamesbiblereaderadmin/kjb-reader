@@ -217,29 +217,6 @@ export default function AppLayout() {
               {isOnline ? <Wifi className="w-4 h-4 pointer-events-none" /> : <WifiOff className="w-4 h-4 pointer-events-none" />}
             </button>
             <button className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer touch-manipulation"
-              onClick={(e) => {
-                e.stopPropagation();
-                try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {}
-                if (refreshing) return;
-
-                // Offline: don't try to fetch — just confirm cached data is in use
-                if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Offline — using cached Bible', status: 'info' } }));
-                  setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
-                  return;
-                }
-
-                setRefreshing(true);
-                // Navigate to the robust Refresh Cache flow which guarantees 
-                // all old service workers and caches are purged.
-                navigate('/refresh-cache');
-              }}
-              type="button"
-              aria-label="Refresh and update cache"
-            >
-              <RotateCw className={`w-4 h-4 pointer-events-none ${refreshing ? 'animate-spin' : ''}`} />
-            </button>
-            <button className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer touch-manipulation"
               onClick={(e) => { e.stopPropagation(); try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {} toggleTheme(); }}
               type="button"
               aria-label="Toggle theme"

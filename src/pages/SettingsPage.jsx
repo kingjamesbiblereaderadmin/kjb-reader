@@ -1191,6 +1191,17 @@ export default function SettingsPage() {
         </button>
         {expandedSections.info && (
           <div className="px-5 pb-6 pt-3 space-y-3">
+            <div className="p-3 mb-4 rounded-xl bg-secondary/50 border border-border">
+              <div className="flex items-start gap-2 text-primary">
+                <Shield className="w-4 h-4 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-sans text-sm font-medium">Automatic Updates</p>
+                  <p className="font-sans text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                    This app connects to the internet in the background to automatically apply new features, typo corrections, and security fixes. You never have to refresh manually!
+                  </p>
+                </div>
+              </div>
+            </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center font-sans text-sm gap-4">
                 <span className="text-muted-foreground shrink-0">Bible Text</span>
