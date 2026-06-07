@@ -42,5 +42,5 @@ export function printChapterContents(verses, book, pos, filterMode, selectedVers
     ? `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
     : `${book.name} ${pos.chapter}`;
 
-  exportVerses('print', itemsToPrint, queryStr);
+  exportVerses('print', itemsToPrint, queryStr, null, { titlePrefix: 'KJB Reading' });
 }

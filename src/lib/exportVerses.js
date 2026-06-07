@@ -87,8 +87,9 @@ function splitBySections(items) {
 }
 
 // ── TXT ──
-export function exportTxt(items, query, filters) {
-  const header = `KJB Search Results — "${query}"\n${'='.repeat(50)}\n\n`;
+export function exportTxt(items, query, filters, options = {}) {
+  const titlePrefix = options.titlePrefix || 'KJB Search Results';
+  const header = `${titlePrefix} — "${query}"\n${'='.repeat(50)}\n\n`;
   const sections = splitBySections(items);
   const body = sections.map(sec => {
     if (sec.isTestament) return `${sec.title.toUpperCase()}\n${'='.repeat(sec.title.length)}`;
@@ -102,7 +103,8 @@ export function exportTxt(items, query, filters) {
 }
 
 // ── DOCX (Word-compatible HTML) — italics preserved ──
-export function exportDocx(items, query, filters) {
+export function exportDocx(items, query, filters, options = {}) {
+  const titlePrefix = options.titlePrefix || 'KJB Search Results';
   const rows = splitBySections(items).map(sec => {
     if (sec.isTestament) return `<h2 style="font-family:Georgia,serif;font-size:15pt;margin:24pt 0 12pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;">${escapeHtml(sec.title.toUpperCase())}</h2>`;
     return `<h3 style="font-family:Georgia,serif;font-size:13pt;margin:18pt 0 8pt 0;">${escapeHtml(sec.title)}</h3>` +
@@ -115,7 +117,7 @@ export function exportDocx(items, query, filters) {
       ).join('');
   }).join('');
   const html = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>KJB Search</title></head><body>` +
-    `<h2 style="font-family:Georgia,serif;">KJB Search Results — &ldquo;${escapeHtml(query)}&rdquo;</h2>${rows}` +
+    `<h2 style="font-family:Georgia,serif;">${escapeHtml(titlePrefix)} — &ldquo;${escapeHtml(query)}&rdquo;</h2>${rows}` +
     `<p style="font-size:10pt;color:#777;">${items.length} verse${items.length !== 1 ? 's' : ''} — King James Bible</p></body></html>`;
   const blob = new Blob(['\uFEFF', html], { type: 'application/msword' });
   downloadBlob(blob, `kjb-${sanitizeFilename(query)}${filterSuffix(filters)}.doc`);
@@ -127,7 +129,7 @@ function csvCell(s) {
   const v = (s || '').replace(/"/g, '""');
   return `"${v}"`;
 }
-export function exportXls(items, query, filters) {
+export function exportXls(items, query, filters, options = {}) {
   const header = `${csvCell('Testament')},${csvCell('Book')},${csvCell('Reference')},${csvCell('Text ([brackets] = italics)')}`;
   const rows = [];
   
@@ -148,7 +150,8 @@ export function exportXls(items, query, filters) {
 }
 
 // ── PDF (jsPDF) — italics preserved via font style switching ──
-export function exportPdf(items, query, filters) {
+export function exportPdf(items, query, filters, options = {}) {
+  const titlePrefix = options.titlePrefix || 'KJB Search Results';
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const marginX = 48;
   const marginTop = 56;
@@ -159,7 +162,7 @@ export function exportPdf(items, query, filters) {
 
   doc.setFont('times', 'bold');
   doc.setFontSize(16);
-  doc.text(`KJB Search Results — "${query}"`, marginX, y);
+  doc.text(`${titlePrefix} — "${query}"`, marginX, y);
   y += 26;
 
   const lineH = 16;
@@ -250,7 +253,8 @@ export function exportPdf(items, query, filters) {
 }
 
 // ── Print ──
-export function exportPrint(items, query, filters) {
+export function exportPrint(items, query, filters, options = {}) {
+  const titlePrefix = options.titlePrefix || 'KJB Search Results';
   const rows = splitBySections(items).map(sec => {
     if (sec.isTestament) return `<h2 style="font-family:Georgia,serif;font-size:16pt;margin:30pt 0 16pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;">${escapeHtml(sec.title.toUpperCase())}</h2>`;
     return `<h3 style="font-family:Georgia,serif;font-size:14pt;margin:20pt 0 10pt 0;">${escapeHtml(sec.title)}</h3>` +
@@ -264,7 +268,7 @@ export function exportPrint(items, query, filters) {
   const now = new Date();
   const dateStr = now.toLocaleDateString() + ' at ' + now.toLocaleTimeString();
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>&#8203;</title></head><body onload="window.print(); setTimeout(() => window.close(), 500);" style="padding:20px;max-width:800px;margin:0 auto;color:#000;">` +
-    `<h1 style="font-family:Georgia,serif;font-size:20pt;">KJB Search Results &mdash; &ldquo;${escapeHtml(query)}&rdquo;</h1>${rows}` +
+    `<h1 style="font-family:Georgia,serif;font-size:20pt;">${escapeHtml(titlePrefix)} &mdash; &ldquo;${escapeHtml(query)}&rdquo;</h1>${rows}` +
     `<p style="font-size:10pt;color:#777;margin-top:40pt;border-top:1px solid #eee;padding-top:10pt;">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</p></body></html>`;
   
   const printWindow = window.open('', '_blank');
@@ -277,13 +281,13 @@ export function exportPrint(items, query, filters) {
 }
 
 // Single entry point
-export function exportVerses(format, items, query, filters) {
+export function exportVerses(format, items, query, filters, options = {}) {
   switch (format) {
-    case 'txt': return exportTxt(items, query, filters);
-    case 'docx': return exportDocx(items, query, filters);
-    case 'xls': return exportXls(items, query, filters);
-    case 'pdf': return exportPdf(items, query, filters);
-    case 'print': return exportPrint(items, query, filters);
-    default: return exportTxt(items, query, filters);
+    case 'txt': return exportTxt(items, query, filters, options);
+    case 'docx': return exportDocx(items, query, filters, options);
+    case 'xls': return exportXls(items, query, filters, options);
+    case 'pdf': return exportPdf(items, query, filters, options);
+    case 'print': return exportPrint(items, query, filters, options);
+    default: return exportTxt(items, query, filters, options);
   }
 }

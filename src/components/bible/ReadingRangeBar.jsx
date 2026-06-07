@@ -23,24 +23,12 @@ export default function ReadingRangeBar({ label, filterMode, copyFeedback, share
         <Share2 className="w-3.5 h-3.5" /> {shareFeedback ? 'Copied!' : 'Share'}
       </button>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap">
-            <Printer className="w-3.5 h-3.5" /> Print
-            <ChevronDown className="w-3 h-3 opacity-70" />
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-48">
-          <DropdownMenuItem onClick={onPrintPage} className="cursor-pointer">
-            <Printer className="w-4 h-4 mr-2" />
-            Print Full Page
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={onPrintContents} className="cursor-pointer">
-            <BookMarked className="w-4 h-4 mr-2" />
-            Print {filterMode ? 'Verses Only' : 'Chapter Contents'}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <button
+        onClick={onPrintContents}
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
+      >
+        <Printer className="w-3.5 h-3.5" /> Print
+      </button>
 
       {/* Toggle between filtered (verses only) and full-chapter views */}
       <button

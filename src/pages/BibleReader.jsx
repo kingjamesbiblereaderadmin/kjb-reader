@@ -1486,25 +1486,14 @@ export default function BibleReader() {
               </button>
               {/* Share / Print */}
               <button onClick={handleShareChapter} onTouchEnd={(e) => { e.preventDefault(); handleShareChapter(); }} title={shareFeedback ? 'Link copied!' : 'Share this chapter'} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"><Share2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /><span className="hidden lg:inline">{shareFeedback ? 'Copied!' : 'Share'}</span></button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button title="Print" className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap">
-                    <Printer className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
-                    <span className="hidden lg:inline">Print</span>
-                    <ChevronDown className="w-3 h-3 opacity-70 flex-shrink-0" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48">
-                  <DropdownMenuItem onClick={() => window.print()} className="cursor-pointer">
-                    <Printer className="w-4 h-4 mr-2" />
-                    Print Full Page
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon)} className="cursor-pointer">
-                    <BookMarked className="w-4 h-4 mr-2" />
-                    Print Chapter Contents
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <button
+                onClick={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon)}
+                title="Print Chapter"
+                className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"
+              >
+                <Printer className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
+                <span className="hidden lg:inline">Print</span>
+              </button>
 
               {/* Prev */}
               <button
@@ -1804,9 +1793,6 @@ export default function BibleReader() {
       {/* Book title — hidden when showing title page or in two-column (uses running head), EXCEPT chapter 1 which always shows centered title. ALWAYS shown when printing. */}
       {!isViewingTitlePage && (
         <div className={`text-center mb-6 pt-8 ${(!columnMode || pos.chapter === 1) ? '' : 'hidden print:block'}`} style={{ fontSize: `${zoomLevel / 100}rem` }}>
-          <div className="hidden print:block font-sans text-sm font-bold uppercase tracking-widest text-muted-foreground mb-4">
-            {book.testament === 'old' ? 'Old Testament' : 'New Testament'}
-          </div>
           <h1 className={`${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} text-3xl md:text-4xl font-bold text-foreground mb-2 leading-tight`} style={{ fontStyle: 'normal', fontWeight: '900' }}>{book.name}</h1>
           <p className={`font-sans text-muted-foreground tracking-widest uppercase mt-5 ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100 * 0.875}rem`, fontWeight: fontFamily === 'cursive' ? '400' : undefined }}>
             Chapter {pos.chapter}
