@@ -337,17 +337,20 @@
   body {
     margin: 0 !important;
   }
-  html, body, #root, .h-screen {
+  html, body, #root, .h-screen, .min-h-screen {
     height: auto !important;
+    min-height: 0 !important;
     max-height: none !important;
     overflow: visible !important;
     position: static !important;
+    display: block !important;
   }
-  main, #kjb-scroll, .overflow-y-auto, .overflow-x-hidden, .overflow-hidden {
+  main, #kjb-scroll, .overflow-y-auto, .overflow-x-hidden, .overflow-hidden, .flex-1, .flex-col {
     height: auto !important;
     max-height: none !important;
     overflow: visible !important;
     position: static !important;
+    display: block !important;
   }
   /* Avoid breaking verses inside if possible, but allow natural flow */
   h1, h2, h3, h4 {

@@ -310,14 +310,16 @@ export function exportPrint(items, query, filters, options = {}) {
   if (isReading) {
     const currentParagraphs = [];
     let currentBlock = [];
+    let isFirstParagraph = true;
 
     items.forEach(it => {
       if (it.isColophon || it.isSubscript) {
         if (currentBlock.length > 0) {
-          currentParagraphs.push(`<p style="margin:0 0 10pt 0;text-indent:${options.paragraphMode ? '1.5em' : '0'};">${currentBlock.join('')}</p>`);
+          currentParagraphs.push(`<p style="margin:0 0 10pt 0;text-indent:${isFirstParagraph || !options.paragraphMode ? '0' : '1.5em'};">${currentBlock.join('')}</p>`);
+          isFirstParagraph = false;
           currentBlock = [];
         }
-        currentParagraphs.push(`<div style="margin:14pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;font-style:italic;color:#555;text-align:center;column-span:all;">${escapeHtml(it.text)}</div>`);
+        currentParagraphs.push(`<div style="margin:14pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;font-style:italic;color:#555;text-align:center;column-span:all;page-break-inside:avoid;break-inside:avoid;">${escapeHtml(it.text)}</div>`);
         return;
       }
 
@@ -326,7 +328,8 @@ export function exportPrint(items, query, filters, options = {}) {
       
       if (options.paragraphMode) {
         if (hasPilcrow && currentBlock.length > 0) {
-          currentParagraphs.push(`<p style="margin:0 0 10pt 0;text-indent:1.5em;">${currentBlock.join('')}</p>`);
+          currentParagraphs.push(`<p style="margin:0 0 10pt 0;text-indent:${isFirstParagraph ? '0' : '1.5em'};">${currentBlock.join('')}</p>`);
+          isFirstParagraph = false;
           currentBlock = [];
         }
         textHtml = textHtml.replace(/¶/g, `<span style="opacity:0.5;">&para;</span>`);
@@ -336,17 +339,18 @@ export function exportPrint(items, query, filters, options = {}) {
       currentBlock.push(verseHtml);
       
       if (!options.paragraphMode) {
-        currentParagraphs.push(`<p style="margin:0 0 6pt 0;">${currentBlock.join('')}</p>`);
+        currentParagraphs.push(`<p style="margin:0 0 6pt 0; page-break-inside:avoid; break-inside:avoid;">${currentBlock.join('')}</p>`);
+        isFirstParagraph = false;
         currentBlock = [];
       }
     });
 
     if (currentBlock.length > 0) {
-      currentParagraphs.push(`<p style="margin:0 0 10pt 0;text-indent:${options.paragraphMode ? '1.5em' : '0'};">${currentBlock.join('')}</p>`);
+      currentParagraphs.push(`<p style="margin:0 0 10pt 0;text-indent:${isFirstParagraph || !options.paragraphMode ? '0' : '1.5em'}; page-break-inside:avoid; break-inside:avoid;">${currentBlock.join('')}</p>`);
     }
 
     const content = currentParagraphs.join('');
-    rows = `<div style="text-align:justify;margin-top:20px;${options.columnMode ? 'column-count:2;column-gap:1.5cm;column-rule:1px solid #ccc;' : ''}">${content}</div>`;
+    rows = `<div style="text-align:justify;margin-top:20px;${options.columnMode ? 'column-count:2;column-gap:1.5cm;column-rule:1px solid #ccc;' : 'display:block;'}">${content}</div>`;
   } else {
     rows = splitBySections(items).map(sec => {
       if (sec.isTestament) return `<h2 style="font-family:Georgia,serif;font-size:16pt;margin:30pt 0 16pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;">${escapeHtml(sec.title.toUpperCase())}</h2>`;
@@ -373,7 +377,7 @@ export function exportPrint(items, query, filters, options = {}) {
       (options.chapterText ? `<p style="font-family:system-ui,-apple-system,sans-serif;font-size:10pt;letter-spacing:0.1em;text-transform:uppercase;color:#666;margin-top:0;margin-bottom:25pt;text-align:center;">${escapeHtml(options.chapterText)}</p>` : '')
     : `<h1 style="font-family:Georgia,serif;font-size:20pt;margin-bottom:20pt;">${escapeHtml(titlePrefix)} &mdash; &ldquo;${escapeHtml(query)}&rdquo;</h1>`;
 
-  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>&#8203;</title><style>@page { margin: 1.5cm; } body { margin: 0 !important; }</style></head><body onload="window.print(); setTimeout(() => window.close(), 500);" style="padding:20px;max-width:800px;margin:0 auto;color:#000;">` +
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>&#8203;</title><style>@page { margin: 1.5cm; } body { margin: 0 !important; display: block !important; height: auto !important; position: static !important; overflow: visible !important; }</style></head><body onload="window.print(); setTimeout(() => window.close(), 500);" style="padding:20px;max-width:800px;margin:0 auto;color:#000;">` +
     `${headerHtml}${rows}` +
     `<p style="font-size:10pt;color:#777;margin-top:40pt;border-top:1px solid #eee;padding-top:10pt;${isReading ? 'text-align:center;' : ''}">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</p></body></html>`;
   
