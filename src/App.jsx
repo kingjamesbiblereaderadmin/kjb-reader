@@ -198,7 +198,13 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
           <>
             {/* Daily Verse */}
             <div className="w-full relative px-2">
-              <DailyVerseImage verse={dailyVerse} splashMode={true} onClick={() => {}} />
+              <DailyVerseImage 
+                verse={dailyVerse} 
+                splashMode={true} 
+                onClick={() => {}} 
+                onToggleNotif={promptProps.handleEnableNotif}
+                notifEnabled={'Notification' in window && Notification.permission === 'granted'}
+              />
             </div>
 
             {/* Loading / Updating Banner OR Continue Button */}
