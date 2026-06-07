@@ -126,6 +126,10 @@ export default function HomePage() {
             }
             console.log(`[UpdateCheck] App code updates found (pull): ${swUpdated}`);
             
+            // Clear cached versions to guarantee we fetch the newest data and check properly
+            localStorage.removeItem('bible_cache_version');
+            localStorage.removeItem('bible_last_refresh');
+
             const { checkForUpdates, downloadBibleForOffline } = await import('@/lib/bibleCache');
             const bibleNeedsUpdate = await checkForUpdates();
             console.log(`[UpdateCheck] Bible updates found (pull): ${bibleNeedsUpdate}`);

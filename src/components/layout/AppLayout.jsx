@@ -236,6 +236,10 @@ export default function AppLayout() {
                 const minWaitPromise = new Promise(resolve => setTimeout(resolve, 1500));
                 
                 try {
+                  // Clear cached versions to guarantee we fetch the newest data and check properly
+                  localStorage.removeItem('bible_cache_version');
+                  localStorage.removeItem('bible_last_refresh');
+
                   let hasBibleUpdates = false;
                   let hasCodeUpdates = false;
                   
