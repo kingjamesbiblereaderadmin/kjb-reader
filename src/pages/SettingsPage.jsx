@@ -29,7 +29,7 @@ const A11Y_FONTS = [
   { value: 'hyperlegible', label: 'Atkinson Hyperlegible', desc: 'High legibility for low vision', preview: "'Atkinson Hyperlegible', system-ui, sans-serif" },
 ];
 
-const LAST_REVISED = 'June 7th, 2026';
+const LAST_REVISED = 'June 7th, 2026 v2';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
