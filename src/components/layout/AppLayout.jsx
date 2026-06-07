@@ -217,7 +217,7 @@ export default function AppLayout() {
               {isOnline ? <Wifi className="w-4 h-4 pointer-events-none" /> : <WifiOff className="w-4 h-4 pointer-events-none" />}
             </button>
             <button className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer touch-manipulation"
-              onClick={async (e) => {
+              onClick={(e) => {
                 e.stopPropagation();
                 try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {}
                 if (refreshing) return;
@@ -230,116 +230,9 @@ export default function AppLayout() {
                 }
 
                 setRefreshing(true);
-                console.log('[UpdateCheck] Manual refresh clicked. Checking for updates...');
-                
-                // Introduce an artificial minimum wait time so the button spinning is visible.
-                const minWaitPromise = new Promise(resolve => setTimeout(resolve, 1500));
-                
-                try {
-                  // Remove the last refresh throttle to force a network check, 
-                  // but keep the cache_version so we can actually compare if it changed!
-                  localStorage.removeItem('bible_last_refresh');
-
-                  let hasBibleUpdates = false;
-                  let hasCodeUpdates = false;
-                  
-                  // Check Bible Updates
-                  try {
-                    const { checkForUpdates, isBibleCached } = await import('@/lib/bibleCache');
-                    hasBibleUpdates = await checkForUpdates();
-                    if (!hasBibleUpdates) {
-                      const cached = await isBibleCached();
-                      if (!cached) hasBibleUpdates = true; // Force download if completely missing
-                    }
-                    console.log(`[UpdateCheck] Bible updates found: ${hasBibleUpdates}`);
-                  } catch (e) {
-                    console.error(`[UpdateCheck] Bible check failed:`, e);
-                  }
-
-                  // Check Code Updates
-                  let swReg = null;
-                  if ('serviceWorker' in navigator) {
-                    swReg = await navigator.serviceWorker.getRegistration();
-                    if (swReg) {
-                      await swReg.update().catch(() => {});
-                      if (swReg.waiting) {
-                        hasCodeUpdates = true;
-                      } else if (swReg.installing) {
-                        if (swReg.installing.state === 'installed') {
-                          hasCodeUpdates = true;
-                        } else {
-                          hasCodeUpdates = await new Promise(resolve => {
-                            const worker = swReg.installing;
-                            worker.addEventListener('statechange', () => {
-                              if (worker.state === 'installed') resolve(true);
-                              else if (worker.state === 'redundant') resolve(false);
-                            });
-                            setTimeout(() => resolve(false), 3000);
-                          });
-                        }
-                      }
-                    }
-                    console.log(`[UpdateCheck] App code updates found: ${hasCodeUpdates}`);
-                  }
-
-                  // Wait for the minimum time to elapse before showing the success message
-                  await minWaitPromise;
-                  
-                  if (!hasBibleUpdates && !hasCodeUpdates) {
-                    console.log('[UpdateCheck] No updates found.');
-                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App is up to date', status: 'success' } }));
-                    
-                    // Force the banner to stay visible for at least 3 seconds,
-                    // so it doesn't flicker away instantly if the check is too fast.
-                    setTimeout(() => {
-                      window.dispatchEvent(new Event('kjb-progress-clear'));
-                      setRefreshing(false);
-                    }, 3000);
-                    
-                    return;
-                  }
-
-                  console.log('[UpdateCheck] Updates found. Triggering splash screen and applying...');
-                  let updateType = 'app';
-                  if (hasCodeUpdates && hasBibleUpdates) { updateType = 'both'; }
-                  else if (hasBibleUpdates) { updateType = 'bible'; }
-                  
-                  window.dispatchEvent(new Event('kjb-progress-clear'));
-                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Found updates...', status: 'loading' } }));
-                  await new Promise(r => setTimeout(r, 800));
-                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Downloading updates...', status: 'loading' } }));
-
-                  if (hasBibleUpdates) {
-                    console.log('[UpdateCheck] Downloading new Bible data...');
-                    localStorage.removeItem('bible_cache_version');
-                    localStorage.removeItem('bible_last_refresh');
-                    const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-                    await downloadBibleForOffline();
-                  }
-
-                  if (hasCodeUpdates && swReg) {
-                    if (swReg.waiting) {
-                      swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                    } else if (swReg.installing && swReg.installing.state === 'installed') {
-                      swReg.installing.postMessage({ type: 'SKIP_WAITING' });
-                    }
-                    console.log('[UpdateCheck] Activating new service worker...');
-                  }
-                  
-                  // Wait for the minimum time to elapse before reloading
-                  await minWaitPromise;
-                  
-                  console.log('[UpdateCheck] Reloading application...');
-                  sessionStorage.setItem('kjb_sw_updated', updateType);
-                  setTimeout(() => {
-                    window.location.href = window.location.pathname + '?refresh=' + Date.now();
-                  }, 2000);
-                } catch (err) {
-                  console.error('[UpdateCheck] Refresh failed:', err);
-                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Failed to force update', status: 'error' } }));
-                  setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
-                  setRefreshing(false);
-                }
+                // Navigate to the robust Refresh Cache flow which guarantees 
+                // all old service workers and caches are purged.
+                navigate('/refresh-cache');
               }}
               type="button"
               aria-label="Refresh and update cache"
