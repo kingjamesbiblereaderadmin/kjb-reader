@@ -231,6 +231,17 @@ export default function BibleReader() {
     };
   }, []);
 
+  // Ensure popovers are dismissed when navigating away from the page
+  useEffect(() => {
+    return () => {
+      setShowBookPicker(false);
+      setShowChapterPicker(false);
+      setShowVersePicker(false);
+      setShowZoomPopover(false);
+      setShowFontPopover(false);
+    };
+  }, [routerLocation.pathname]);
+
 
 
   const toggleFlow = () => {
@@ -1355,7 +1366,7 @@ export default function BibleReader() {
               <div className="relative flex">
               <button
                 onClick={() => { setShowFontPopover(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); }}
-                onTouchEnd={(e) => { e.preventDefault(); setShowFontPopover(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); }}
+                onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setShowFontPopover(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); }}
                 title="Font family"
                 className="flex items-center justify-center gap-1 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 whitespace-nowrap"
               >
@@ -1770,17 +1781,13 @@ export default function BibleReader() {
         <div
           className="fixed inset-0 z-[99]"
           onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
             setShowBookPicker(false); 
             setShowChapterPicker(false); 
             setShowVersePicker(false); 
             setShowZoomPopover(false); 
             setShowFontPopover(false); 
           }}
-          onTouchEnd={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
+          onTouchStart={(e) => {
             setShowBookPicker(false); 
             setShowChapterPicker(false); 
             setShowVersePicker(false); 
