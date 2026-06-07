@@ -155,106 +155,58 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
     <div className={`fixed inset-0 z-[9999] bg-background overflow-hidden ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
       <div className={`flex flex-col items-center w-full h-[100dvh] px-4 max-w-xl mx-auto pt-8 ${isFirstVisit ? 'pb-8' : 'pb-32'} space-y-6 overflow-y-auto`}>
         
-        {/* Logo and Welcome Banner (First Visit Only) */}
-        {isFirstVisit && (
-          <div className="flex flex-col items-center justify-center pt-4">
-            <div className="relative mb-6">
-              <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
-              <img 
-                src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
-                alt="KJB Reader" 
-                className="relative w-28 h-28 object-contain drop-shadow-2xl"
-              />
-            </div>
-            <div className="px-6 py-2.5 rounded-full bg-secondary/80 border border-border/50 backdrop-blur-md shadow-sm">
-              <span className="font-sans text-sm font-bold tracking-wide text-foreground">{welcomeText}</span>
-            </div>
-          </div>
-        )}
-
+        {/* First Visit Flow */}
         {isFirstVisit ? (
-          <div className="w-full flex-col flex w-full">
-            {/* First time prompt */}
-            <div className="w-full shrink-0 mb-4 px-1">
-              <FirstLoadPrompt 
-                splashMode={true}
-                isInstallable={promptProps.isInstallable}
-                notifPermission={promptProps.notifPermission}
-                onInstall={promptProps.handleInstall}
-                onEnableNotif={promptProps.handleEnableNotif}
-                onDismiss={() => {}}
-                loadingText={loadingText}
-                isAppReady={isAppReady}
-                continueText="Hidden"
-              />
+          <>
+            {/* Logo */}
+            <div className="flex flex-col items-center justify-center pt-8">
+              <div className="relative mb-6">
+                <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
+                <img 
+                  src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
+                  alt="KJB Reader" 
+                  className="relative w-32 h-32 object-contain drop-shadow-2xl"
+                />
+              </div>
             </div>
 
-            {/* INLINE Loading / Continue Button for First Visit */}
-            <div className="w-full flex flex-col items-center justify-center shrink-0 mb-6 px-1">
-              {loadingText ? (
-                <div className="flex items-center gap-3 text-foreground bg-card px-6 py-3.5 rounded-2xl shadow-lg border border-border/80 w-full justify-center">
+            {loadingText ? (
+              <div className="flex flex-col items-center mt-4 w-full">
+                <div className="flex items-center gap-3 text-foreground bg-card px-6 py-4 rounded-2xl shadow-lg border border-border/80 justify-center w-full">
                   <Loader2 className="w-5 h-5 animate-spin text-accent shrink-0" />
                   <span className="font-sans text-sm font-semibold tracking-wide truncate">{loadingText}</span>
                 </div>
-              ) : (
-                <button 
-                  onClick={onDismiss}
-                  className="flex items-center justify-center gap-2 py-4 bg-primary text-primary-foreground font-sans font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-xl hover:shadow-2xl border border-primary/20 w-full rounded-2xl text-lg"
-                >
-                  Continue to App
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              )}
-            </div>
-
-            {/* Cards Container */}
-            <div className="w-full shrink-0 mb-4 relative min-h-[300px]">
-              <div className={`w-full absolute inset-0 transition-all duration-300 ${activeCard === 'gospel' ? 'opacity-100 z-10 scale-100' : 'opacity-0 z-0 scale-95 pointer-events-none'}`}>
-                 <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-6 text-center shadow-md h-full flex flex-col justify-center mr-8 ml-2">
-                   <p className="font-serif text-xl font-bold text-red-700 dark:text-red-400 mb-3">Are you saved?</p>
-                   <p className="font-sans text-sm text-foreground/80 mb-6 leading-relaxed">
-                     Jesus Christ died for your sins, shed his blood, was buried, and rose again on the third day. Trust the blood — believe the gospel and be saved.
-                   </p>
-                   <button
-                     onClick={() => {
-                       onDismiss();
-                       setTimeout(() => { window.location.href = '/gospel'; }, 100);
-                     }}
-                     className="inline-flex items-center justify-center gap-2 w-full px-5 py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-sans text-sm font-bold transition-all duration-200 shadow-md active:scale-[0.98]"
-                   >
-                     <Heart className="w-4 h-4" />
-                     Learn How to be Saved
-                   </button>
-                 </div>
               </div>
-              
-              <div className={`w-full absolute inset-0 transition-all duration-300 ${activeCard === 'verse' ? 'opacity-100 z-10 scale-100' : 'opacity-0 z-0 scale-95 pointer-events-none'}`}>
-                 <div className="transform origin-top w-full h-full flex flex-col justify-center mr-8 ml-2">
-                   <DailyVerseImage 
-                     verse={dailyVerse} 
-                     splashMode={true} 
-                     onClick={() => {}} 
-                     onToggleNotif={promptProps.handleEnableNotif}
-                     notifEnabled={'Notification' in window && Notification.permission === 'granted'}
-                   />
-                 </div>
+            ) : (
+              <div className="w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="w-full shrink-0 mb-6 px-1">
+                  <FirstLoadPrompt 
+                    splashMode={true}
+                    isInstallable={promptProps.isInstallable}
+                    notifPermission={promptProps.notifPermission}
+                    onInstall={promptProps.handleInstall}
+                    onEnableNotif={promptProps.handleEnableNotif}
+                    onDismiss={() => {}}
+                    loadingText={null}
+                    isAppReady={true}
+                    continueText="Hidden"
+                  />
+                </div>
+                <div className="w-full px-1">
+                  <button 
+                    onClick={onDismiss}
+                    className="flex items-center justify-center gap-2 py-4 bg-primary text-primary-foreground font-sans font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-xl hover:shadow-2xl border border-primary/20 w-full rounded-2xl text-lg"
+                  >
+                    Continue to App
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
-
-              {/* Toggle Button on the right side */}
-              <div className="absolute right-0 top-0 bottom-0 w-8 flex items-center justify-center z-20">
-                <button 
-                  onClick={() => setActiveCard(activeCard === 'gospel' ? 'verse' : 'gospel')}
-                  className="w-8 h-16 bg-card/80 backdrop-blur-sm border border-border shadow-md rounded-l-xl flex items-center justify-center text-foreground hover:bg-secondary transition-colors"
-                  title="Switch Card"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          </div>
+            )}
+          </>
         ) : (
+          /* Returning Visit Flow */
           <>
-            {/* Daily Verse ONLY for subsequent visits */}
             <div className="w-full relative px-2 shrink-0 mb-4 pt-16">
               <DailyVerseImage 
                 verse={dailyVerse} 
@@ -264,30 +216,27 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
                 notifEnabled={'Notification' in window && Notification.permission === 'granted'}
               />
             </div>
+            
+            <div className="w-full flex flex-col items-center justify-center shrink-0 pb-6 pt-2 px-4 bg-background absolute bottom-0 left-0 right-0 z-50">
+              {loadingText ? (
+                <div className="flex items-center gap-3 text-foreground bg-card px-6 py-3.5 rounded-2xl shadow-lg border border-border/80 w-full justify-center max-w-xl mx-auto">
+                  <Loader2 className="w-5 h-5 animate-spin text-accent shrink-0" />
+                  <span className="font-sans text-sm font-semibold tracking-wide truncate">{loadingText}</span>
+                </div>
+              ) : (
+                <button 
+                  onClick={onDismiss}
+                  className="flex items-center justify-center gap-2 py-4 bg-primary text-primary-foreground font-sans font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-xl hover:shadow-2xl border border-primary/20 max-w-xl mx-auto px-10 rounded-full text-lg"
+                >
+                  Continue
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              )}
+            </div>
           </>
         )}
 
       </div>
-      
-      {/* Global Loading / Updating Banner OR Continue Button at the very bottom (ONLY FOR RETURNING USERS) */}
-      {!isFirstVisit && (
-        <div className="w-full flex flex-col items-center justify-center shrink-0 pb-6 pt-2 px-4 bg-background absolute bottom-0 left-0 right-0 z-50">
-          {loadingText ? (
-            <div className="flex items-center gap-3 text-foreground bg-card px-6 py-3.5 rounded-2xl shadow-lg border border-border/80 w-full justify-center max-w-xl mx-auto">
-              <Loader2 className="w-5 h-5 animate-spin text-accent shrink-0" />
-              <span className="font-sans text-sm font-semibold tracking-wide truncate">{loadingText}</span>
-            </div>
-          ) : (
-            <button 
-              onClick={onDismiss}
-              className="flex items-center justify-center gap-2 py-4 bg-primary text-primary-foreground font-sans font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-xl hover:shadow-2xl border border-primary/20 max-w-xl mx-auto px-10 rounded-full text-lg"
-            >
-              Continue
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          )}
-        </div>
-      )}
     </div>
   );
 };
