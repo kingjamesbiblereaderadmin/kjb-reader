@@ -212,6 +212,16 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
                  </div>
                 </div>
 
+                <div className="w-full relative px-1 shrink-0 mb-6">
+                  <DailyVerseImage 
+                    verse={dailyVerse} 
+                    splashMode={true} 
+                    onClick={() => {}} 
+                    onToggleNotif={promptProps.handleEnableNotif}
+                    notifEnabled={'Notification' in window && Notification.permission === 'granted'}
+                  />
+                </div>
+
                 <div className="w-full px-1">
                   <button 
                     onClick={onDismiss}
@@ -227,6 +237,16 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
         ) : (
           /* Returning Visit Flow */
           <>
+            <div className="w-full relative px-2 shrink-0 mb-4 pt-16">
+              <DailyVerseImage 
+                verse={dailyVerse} 
+                splashMode={true} 
+                onClick={() => {}} 
+                onToggleNotif={promptProps.handleEnableNotif}
+                notifEnabled={'Notification' in window && Notification.permission === 'granted'}
+              />
+            </div>
+            
             <div className="w-full flex flex-col items-center justify-center shrink-0 pb-6 pt-2 px-4 bg-background absolute bottom-0 left-0 right-0 z-50">
               {loadingText ? (
                 <div className="flex items-center gap-3 text-foreground bg-card px-6 py-3.5 rounded-2xl shadow-lg border border-border/80 w-full justify-center max-w-xl mx-auto">
