@@ -421,7 +421,7 @@ export default function BibleSearchBar({ onClose }) {
 
   return (
     <div className="relative w-full px-1" ref={containerRef}>
-      <form onSubmit={handleSubmit} className="relative transition-all duration-200 focus-within:scale-[1.01]">
+      <form onSubmit={handleSubmit} className="relative">
         <div className="relative flex items-center">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none flex-shrink-0 z-10" />
           <GhostInput
