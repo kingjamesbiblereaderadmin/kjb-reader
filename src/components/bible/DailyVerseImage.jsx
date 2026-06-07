@@ -24,7 +24,7 @@ function resolveFontFamily(choice, a11yFont) {
   return "'Merriweather', 'Cormorant Garamond', Georgia, serif";
 }
 
-export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEnabled, isOffline, splashMode }) {
+export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEnabled, isOffline }) {
   const dow = new Date().getDay();
   const defaultBg = VERSE_BACKGROUNDS[dow];
   const [customBg, setCustomBg] = useState(() => {
@@ -402,27 +402,25 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   };
 
   return (
-    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full min-h-[300px] border border-border rounded-2xl shadow-lg ${gradientClass} px-6 text-center text-white relative flex flex-col ${capturing ? 'pt-20 pb-8' : splashMode ? 'pt-8 pb-8' : 'pt-6 pb-6'} ${uploadingComplete ? 'cursor-default' : 'cursor-pointer'}`} style={bgStyle}>
-      {/* Notification bell indicator button (Top Left, hidden on splash screen) */}
-      {!splashMode && showButtons && onToggleNotif && (
-        <div className="absolute top-1.5 left-1.5 z-10" onClick={(e) => e.stopPropagation()}>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleNotif();
-            }}
-            className="w-6 h-6 flex items-center justify-center rounded-md bg-white/90 hover:bg-white transition-colors shadow-md touch-manipulation"
-            title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
-            type="button"
-          >
-            {notifEnabled ? <Bell className="w-3.5 h-3.5 text-slate-800 pointer-events-none" /> : <BellOff className="w-3.5 h-3.5 text-slate-800 pointer-events-none" />}
-          </button>
-        </div>
+    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full min-h-[300px] ${gradientClass} border border-border rounded-2xl shadow-lg px-6 text-center text-white relative flex flex-col ${capturing ? 'pt-20 pb-8' : 'pt-6 pb-6'} ${uploadingComplete ? 'cursor-default' : 'cursor-pointer'}`} style={bgStyle}>
+      {/* Notification bell indicator button */}
+      {showButtons && onToggleNotif && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleNotif();
+          }}
+          className="absolute top-1.5 left-1.5 w-6 h-6 flex items-center justify-center rounded-md bg-white/90 hover:bg-white transition-colors z-10 shadow-md touch-manipulation"
+          title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
+          type="button"
+        >
+          {notifEnabled ? <Bell className="w-3.5 h-3.5 text-slate-800 pointer-events-none" /> : <BellOff className="w-3.5 h-3.5 text-slate-800 pointer-events-none" />}
+        </button>
       )}
 
-      {/* Action buttons (Top Right) */}
+      {/* Action buttons */}
       <div className="absolute top-1.5 right-1.5 flex gap-0.5 z-10" onClick={(e) => e.stopPropagation()}>
-        {!splashMode && !capturing && showButtons ? (
+        {!capturing && showButtons ? (
           <>
             <button
               onClick={(e) => {
@@ -535,6 +533,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                       e.stopPropagation();
                       setCropImageForNotif(false);
                       setShowMenu(false);
+                      // Trigger file input immediately
                       if (fileInputRef.current) {
                         fileInputRef.current.click();
                       }
@@ -550,6 +549,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                       onClick={(e) => {
                         e.stopPropagation();
                         setCropImageForNotif(false);
+                        // Prefer original (uncropped) image when re-cropping
                         setCropImage(originalBg || pendingBg || customBg);
                         setShowMenu(false);
                       }}
@@ -570,6 +570,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                           setOriginalBg('');
                           localStorage.removeItem('kjb-daily-verse-bg');
                           localStorage.removeItem('kjb-daily-verse-bg-original');
+                          // Reset text color and opacity to defaults
                           handleTextColorChange('#ffffff');
                           handleTextOpacityChange(0.95);
                           handleFontFamilyChange('serif');
@@ -597,8 +598,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 </div>
               )}
             </div>
+
           </>
-        ) : !splashMode && !capturing ? (
+        ) : !capturing ? (
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -824,7 +826,15 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         className="hidden"
       />
       
-
+      {/* Capture-only logo (top-left) — shown only in the downloaded/copied/shared image */}
+      {capturing && (
+        <img
+          src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png"
+          alt="KJB Reader"
+          crossOrigin="anonymous"
+          className="absolute top-4 left-4 w-14 h-14 rounded-lg shadow-md z-10"
+        />
+      )}
 
       {showVersePanel ? (
         <div className="px-2 pt-2 pb-2 text-center flex-1 flex flex-col w-full max-w-full overflow-hidden">
