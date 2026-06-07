@@ -1002,11 +1002,11 @@ export default function SettingsPage() {
                           return;
                         }
 
-                        let reloadText = 'Applying updates...';
+                        let reloadText = 'Found updates...';
                         let updateType = 'app';
-                        if (hasCodeUpdates && hasBibleUpdates) { reloadText = 'Applying app & Bible updates...'; updateType = 'both'; }
-                        else if (hasBibleUpdates) { reloadText = 'Applying Bible data updates...'; updateType = 'bible'; }
-                        else if (hasCodeUpdates) { reloadText = 'Applying app updates...'; updateType = 'app'; }
+                        if (hasCodeUpdates && hasBibleUpdates) { reloadText = 'Found app & Bible updates...'; updateType = 'both'; }
+                        else if (hasBibleUpdates) { reloadText = 'Found Bible data updates...'; updateType = 'bible'; }
+                        else if (hasCodeUpdates) { reloadText = 'Found app updates...'; updateType = 'app'; }
 
                         setDlStatus(reloadText);
                         

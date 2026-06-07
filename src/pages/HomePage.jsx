@@ -135,11 +135,11 @@ export default function HomePage() {
 
             if (swUpdated || bibleNeedsUpdate) {
               console.log('[UpdateCheck] Updates found (pull). Triggering splash screen and applying...');
-              let reloadText = 'Applying updates...';
+              let reloadText = 'Found updates...';
               let updateType = 'app';
-              if (swUpdated && bibleNeedsUpdate) { reloadText = 'Applying app & Bible updates...'; updateType = 'both'; }
-              else if (bibleNeedsUpdate) { reloadText = 'Applying Bible data updates...'; updateType = 'bible'; }
-              else if (swUpdated) { reloadText = 'Applying app updates...'; updateType = 'app'; }
+              if (swUpdated && bibleNeedsUpdate) { reloadText = 'Found app & Bible updates...'; updateType = 'both'; }
+              else if (bibleNeedsUpdate) { reloadText = 'Found Bible data updates...'; updateType = 'bible'; }
+              else if (swUpdated) { reloadText = 'Found app updates...'; updateType = 'app'; }
               
               window.dispatchEvent(new Event('kjb-progress-clear'));
               window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: reloadText, status: 'loading' } }));
