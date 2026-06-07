@@ -875,24 +875,26 @@ export default function SettingsPage() {
               <span className="font-sans text-xs font-medium">Notifications work when the app is open or in background</span>
             </div>
           </div>
-        ) : (
+        ) : isInstallable ? (
           <div className="space-y-3">
             <button
               onClick={() => {
-                const result = promptInstall();
-                if (result && result.then) {
-                  result.then(accepted => {
-                    if (!accepted) {
-                      alert('To install the app, please follow the manual instructions below using your browser menu.');
-                    }
-                  });
-                }
+                promptInstall();
               }}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
             >
               <Smartphone className="w-4 h-4" />
               {/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? 'Add to Home Screen' : 'Install App'}
             </button>
+            <div className="mt-3 pt-3 border-t border-border">
+              <p className="font-sans text-xs text-primary font-medium flex items-center gap-1.5">
+                <Bell className="w-3.5 h-3.5" />
+                After installing, enable notifications below to receive daily verses
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-3">
             <div className="space-y-2 bg-secondary/50 rounded-xl p-4">
               <p className="font-sans text-xs text-muted-foreground mb-2">
                 <strong>Install instructions:</strong>
