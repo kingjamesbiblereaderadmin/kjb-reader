@@ -136,13 +136,9 @@ const PageLoader = ({ isFadingOut }) => {
     text = dynamicText;
   } else if (updateType && updatePhase !== 'done') {
     if (updatePhase === 'applying') {
-      if (updateType === 'both') text = "Applying app & Bible updates...";
-      else if (updateType === 'bible') text = "Applying Bible data updates...";
-      else text = "Applying app updates...";
+      text = "Applying updates...";
     } else {
-      if (updateType === 'both') text = "App & Bible updates applied successfully...";
-      else if (updateType === 'bible') text = "Bible data updates applied successfully...";
-      else text = "App updates applied successfully...";
+      text = "Updates applied successfully...";
     }
   }
 
@@ -255,7 +251,9 @@ const AuthenticatedApp = () => {
                   hasAppUpdates = true;
                   reg.installing.postMessage({ type: 'SKIP_WAITING' });
                 } else {
-                  window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Downloading app updates...' } }));
+                  window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
+                  await new Promise(r => setTimeout(r, 800));
+                  window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Downloading updates...' } }));
                   hasAppUpdates = await new Promise(resolve => {
                     const worker = reg.installing;
                     worker.addEventListener('statechange', () => {
@@ -282,7 +280,11 @@ const AuthenticatedApp = () => {
           localStorage.removeItem('bible_cache_version');
           localStorage.removeItem('bible_last_refresh');
           try {
-            window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Downloading Bible data...' } }));
+            if (!hasAppUpdates) {
+              window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
+              await new Promise(r => setTimeout(r, 800));
+            }
+            window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Downloading updates...' } }));
             await downloadBibleForOffline();
             hasBibleUpdates = true;
           } catch(e) {

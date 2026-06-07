@@ -300,14 +300,14 @@ export default function AppLayout() {
                   }
 
                   console.log('[UpdateCheck] Updates found. Triggering splash screen and applying...');
-                  let reloadText = 'Found updates...';
                   let updateType = 'app';
-                  if (hasCodeUpdates && hasBibleUpdates) { reloadText = 'Found app & Bible updates...'; updateType = 'both'; }
-                  else if (hasBibleUpdates) { reloadText = 'Found Bible data updates...'; updateType = 'bible'; }
-                  else if (hasCodeUpdates) { reloadText = 'Found app updates...'; updateType = 'app'; }
+                  if (hasCodeUpdates && hasBibleUpdates) { updateType = 'both'; }
+                  else if (hasBibleUpdates) { updateType = 'bible'; }
                   
                   window.dispatchEvent(new Event('kjb-progress-clear'));
-                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: reloadText, status: 'loading' } }));
+                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Found updates...', status: 'loading' } }));
+                  await new Promise(r => setTimeout(r, 800));
+                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Downloading updates...', status: 'loading' } }));
 
                   if (hasBibleUpdates) {
                     console.log('[UpdateCheck] Downloading new Bible data...');
