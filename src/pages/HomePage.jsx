@@ -139,9 +139,10 @@ export default function HomePage() {
             if (swUpdated || bibleNeedsUpdate) {
               console.log('[UpdateCheck] Updates found (pull). Triggering splash screen and applying...');
               let reloadText = 'Found updates...';
-              if (swUpdated && bibleNeedsUpdate) reloadText = 'Found app & Bible updates...';
-              else if (bibleNeedsUpdate) reloadText = 'Found Bible data updates...';
-              else if (swUpdated) reloadText = 'Found app updates...';
+              let updateType = 'app';
+              if (swUpdated && bibleNeedsUpdate) { reloadText = 'Found app & Bible updates...'; updateType = 'both'; }
+              else if (bibleNeedsUpdate) { reloadText = 'Found Bible data updates...'; updateType = 'bible'; }
+              else if (swUpdated) { reloadText = 'Found app updates...'; updateType = 'app'; }
               
               window.dispatchEvent(new Event('kjb-progress-clear'));
               window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: reloadText, status: 'loading' } }));
@@ -164,7 +165,7 @@ export default function HomePage() {
               }
 
               console.log('[UpdateCheck] Reloading application...');
-              sessionStorage.setItem('kjb_sw_updated', 'true');
+              sessionStorage.setItem('kjb_sw_updated', updateType);
               setTimeout(() => { window.location.href = window.location.pathname + '?refresh=' + Date.now(); }, 800);
               return;
             }

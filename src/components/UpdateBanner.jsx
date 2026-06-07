@@ -43,7 +43,7 @@ export default function UpdateBanner() {
           <button 
             onClick={() => {
               if (sessionStorage.getItem('kjb_sw_updated')) return;
-              sessionStorage.setItem('kjb_sw_updated', 'true');
+              sessionStorage.setItem('kjb_sw_updated', 'app');
               setTimeout(() => sessionStorage.removeItem('kjb_sw_updated'), 10000);
               
               setWaitingWorker(null);

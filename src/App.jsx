@@ -95,8 +95,11 @@ function preloadAllRoutes() {
 import { Loader2 } from 'lucide-react';
 const PageLoader = ({ isFadingOut }) => {
   if (isFadingOut) return null;
-  const isPostUpdate = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : false;
-  const text = isPostUpdate ? "Applying updates, loading app..." : "Loading KJB Reader...";
+  const updateType = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null;
+  let text = "Loading KJB Reader...";
+  if (updateType === 'both') text = "Applying app & Bible updates, loading app...";
+  else if (updateType === 'bible') text = "Applying Bible data updates, loading app...";
+  else if (updateType === 'app' || updateType === 'true') text = "Applying app updates, loading app...";
   return (
   <div className={`fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center`}>
     <div className="flex flex-col items-center justify-center -mt-16">
@@ -176,7 +179,8 @@ const AuthenticatedApp = () => {
           return; // We just reloaded from an update, skip checking again
         }
 
-        let hasUpdates = false;
+        let hasAppUpdates = false;
+        let hasBibleUpdates = false;
 
         // 1. Check App/Code Updates
         if ('serviceWorker' in navigator) {
@@ -186,14 +190,14 @@ const AuthenticatedApp = () => {
           if (reg && reg.active) {
             await reg.update().catch(() => {});
             if (reg.waiting) {
-              hasUpdates = true;
+              hasAppUpdates = true;
               reg.waiting.postMessage({ type: 'SKIP_WAITING' });
             } else if (reg.installing) {
               if (reg.installing.state === 'installed') {
-                hasUpdates = true;
+                hasAppUpdates = true;
                 reg.installing.postMessage({ type: 'SKIP_WAITING' });
               } else {
-                hasUpdates = await new Promise(resolve => {
+                hasAppUpdates = await new Promise(resolve => {
                   const worker = reg.installing;
                   worker.addEventListener('statechange', () => {
                     if (worker.state === 'installed') {
@@ -219,7 +223,7 @@ const AuthenticatedApp = () => {
           localStorage.removeItem('bible_last_refresh');
           try {
             await downloadBibleForOffline();
-            hasUpdates = true;
+            hasBibleUpdates = true;
           } catch(e) {
             console.error('Failed to download bible updates', e);
           }
@@ -231,8 +235,11 @@ const AuthenticatedApp = () => {
           await Promise.race([downloadPromise, timeoutPromise]).catch(() => {});
         }
 
-        if (hasUpdates) {
-          sessionStorage.setItem('kjb_sw_updated', 'true');
+        if (hasAppUpdates || hasBibleUpdates) {
+          let updateType = 'app';
+          if (hasAppUpdates && hasBibleUpdates) updateType = 'both';
+          else if (hasBibleUpdates) updateType = 'bible';
+          sessionStorage.setItem('kjb_sw_updated', updateType);
           window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: 'Applying Updates...' } }));
           setTimeout(() => {
             window.location.reload();
