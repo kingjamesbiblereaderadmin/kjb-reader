@@ -129,11 +129,6 @@ const PageLoader = ({ isFadingOut, forcedText }) => {
     text = dynamicText;
   } else if (forcedText) {
     text = forcedText;
-  } else if (updateType) {
-    if (updateType === 'bible_first_load' || isFirstVisit) text = "Welcome to KJB Reader...";
-    else if (updateType === 'forced_update' || updateType === 'app' || updateType === 'both' || updateType === 'bible') text = "Welcome back to KJB Reader...";
-    else if (updateType === 'up_to_date') text = "App is up to date...";
-    else text = "Welcome back to KJB Reader...";
   }
 
   // Right before fading out, change text to "Ready to read..."
