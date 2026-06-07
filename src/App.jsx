@@ -263,6 +263,13 @@ const AuthenticatedApp = () => {
   const [updateCheckDone, setUpdateCheckDone] = useState(false);
   const [routeLoaded, setRouteLoaded] = useState(false);
   const [splashDismissed, setSplashDismissed] = useState(false);
+  const [failsafeTriggered, setFailsafeTriggered] = useState(false);
+
+  // Global failsafe to guarantee the splash screen / prompt never loads indefinitely
+  useEffect(() => {
+    const failsafeTimer = setTimeout(() => setFailsafeTriggered(true), 6000);
+    return () => clearTimeout(failsafeTimer);
+  }, []);
 
   useEffect(() => {
     const loader = getLoaderForPath(location.pathname);
@@ -454,7 +461,7 @@ const AuthenticatedApp = () => {
   }, []);
 
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
-  const isAppReady = !isInitializing && minSplashDone && updateCheckDone && routeLoaded;
+  const isAppReady = (!isInitializing && minSplashDone && updateCheckDone && routeLoaded) || failsafeTriggered;
   const showSplash = !isAppReady || !splashDismissed;
 
   const [renderSplash, setRenderSplash] = useState(true);
