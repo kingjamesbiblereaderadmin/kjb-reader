@@ -10,6 +10,7 @@ import { ThemeProvider } from '@/lib/themeContext';
 import { HeaderHideProvider } from '@/lib/HeaderHideContext';
 import { SoftReloadProvider, useSoftReload } from '@/lib/SoftReloadContext';
 import AppLayout from '@/components/layout/AppLayout';
+import { getDailyVerse } from '@/lib/dailyVerse';
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 
 // Lazy-load pages. Each import() factory is kept as a reference so we can
@@ -132,6 +133,8 @@ const PageLoader = ({ isFadingOut }) => {
 
   if (isFadingOut) return null;
   
+  const dailyVerse = getDailyVerse();
+
   let text = isFirstVisit ? "Welcome to KJB Reader..." : "Welcome back to KJB Reader...";
   if (dynamicText) {
     text = dynamicText;
@@ -143,7 +146,7 @@ const PageLoader = ({ isFadingOut }) => {
 
   return (
   <div className={`fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center`}>
-    <div className="flex flex-col items-center justify-center -mt-16">
+    <div className="flex flex-col items-center justify-center -mt-16 w-full max-w-md px-6">
       <div className="relative mb-8">
         <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
         <img 
@@ -152,8 +155,20 @@ const PageLoader = ({ isFadingOut }) => {
           className="relative w-32 h-32 object-contain drop-shadow-2xl"
         />
       </div>
+      
+      {!dynamicText && !updateType && dailyVerse && dailyVerse.book !== "Offline" && (
+        <div className="mb-8 text-center px-4 w-full">
+          <p className="font-serif text-lg italic text-foreground mb-3 leading-relaxed">
+            "{dailyVerse.text}"
+          </p>
+          <p className="font-sans text-sm font-medium text-accent">
+            — {dailyVerse.ref}
+          </p>
+        </div>
+      )}
+
       <div className="flex items-center gap-3 text-foreground bg-card/80 px-6 py-3 rounded-2xl shadow-lg border border-border/50">
-        <Loader2 className="w-5 h-5 animate-spin text-foreground" />
+        <Loader2 className="w-5 h-5 animate-spin text-foreground shrink-0" />
         <span className="font-sans text-sm font-semibold tracking-wide">{text}</span>
       </div>
     </div>
