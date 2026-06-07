@@ -85,7 +85,7 @@ export default function UpdateBanner() {
 
   if (isReloading) {
     return createPortal(
-      <div className="fixed inset-0 z-[99999] bg-background/95 backdrop-blur-md flex flex-col items-center justify-center">
+      <div className="fixed inset-0 z-[99999] bg-background flex flex-col items-center justify-center">
         <div className="flex flex-col items-center justify-center -mt-16">
           <div className="relative mb-8">
             <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
@@ -95,7 +95,7 @@ export default function UpdateBanner() {
               className="relative w-32 h-32 object-contain drop-shadow-2xl"
             />
           </div>
-          <div className="flex items-center gap-3 text-foreground bg-card/80 px-6 py-3 rounded-2xl backdrop-blur-md shadow-lg border border-border/50">
+          <div className="flex items-center gap-3 text-foreground bg-card/80 px-6 py-3 rounded-2xl shadow-lg border border-border/50">
             <Loader2 className="w-5 h-5 animate-spin text-foreground" />
             <span className="font-sans text-sm font-semibold tracking-wide">{progressMsg}</span>
           </div>
