@@ -283,8 +283,10 @@ const AuthenticatedApp = () => {
                   reg.installing.postMessage({ type: 'SKIP_WAITING' });
                 } else {
                   window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
+                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Found updates...', status: 'loading' } }));
                   await new Promise(r => setTimeout(r, 1000));
                   window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Downloading updates...' } }));
+                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Downloading updates...', status: 'loading' } }));
                   hasAppUpdates = await new Promise(resolve => {
                     let resolved = false;
                     const worker = reg.installing;
@@ -328,10 +330,12 @@ const AuthenticatedApp = () => {
           try {
             if (!hasAppUpdates && bibleNeedsUpdate) {
               window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
+              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Found updates...', status: 'loading' } }));
               await new Promise(r => setTimeout(r, 1000));
             }
             const dlMessage = !bibleIsCached ? 'Downloading offline Bible...' : 'Downloading updates...';
             window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: dlMessage } }));
+            window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: dlMessage, status: 'loading' } }));
             await downloadBibleForOffline();
             hasBibleUpdates = true;
           } catch(e) {
@@ -358,6 +362,7 @@ const AuthenticatedApp = () => {
           const applyMsg = !bibleIsCached ? 'Loading...' : 'Applying updates...';
           setApplyMessage(applyMsg);
           window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: applyMsg } }));
+          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: applyMsg, status: 'loading' } }));
           setIsApplyingUpdates(true);
           willReload = true;
           setTimeout(() => {
@@ -424,8 +429,9 @@ const AuthenticatedApp = () => {
         if (hasAppUpdates && isMounted) {
           sessionStorage.setItem('kjb_sw_updated', 'app');
           setApplyMessage('Applying updates...');
+          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Applying updates...', status: 'loading' } }));
           setIsApplyingUpdates(true);
-          setTimeout(() => window.location.reload(), 2500);
+          setTimeout(() => window.location.reload(), 1200);
         }
       } catch (err) {
         // ignore
