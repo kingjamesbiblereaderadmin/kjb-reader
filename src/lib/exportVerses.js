@@ -91,7 +91,7 @@ export function exportTxt(items, query, filters, options = {}) {
   const titlePrefix = options.titlePrefix || 'KJB Search Results';
   const isReading = titlePrefix === 'KJB Reading';
   const header = isReading 
-    ? `${query}\n${'='.repeat(50)}\n\n`
+    ? `${options.bookName || query}\n${options.chapterText ? options.chapterText.toUpperCase() + '\n' : ''}${'='.repeat(50)}\n\n`
     : `${titlePrefix} — "${query}"\n${'='.repeat(50)}\n\n`;
   const sections = splitBySections(items);
   const body = sections.map(sec => {
@@ -121,7 +121,8 @@ export function exportDocx(items, query, filters, options = {}) {
       ).join('');
   }).join('');
   const headerHtml = isReading
-    ? `<h2 style="font-family:Georgia,serif;text-align:center;">${escapeHtml(query)}</h2>`
+    ? `<h1 style="font-family:Georgia,serif;font-size:24pt;font-weight:bold;text-align:center;margin-bottom:4pt;">${escapeHtml(options.bookName || query)}</h1>` +
+      (options.chapterText ? `<p style="font-family:sans-serif;font-size:10pt;color:#555;text-align:center;text-transform:uppercase;letter-spacing:1px;margin-bottom:20pt;">${escapeHtml(options.chapterText)}</p>` : '')
     : `<h2 style="font-family:Georgia,serif;">${escapeHtml(titlePrefix)} — &ldquo;${escapeHtml(query)}&rdquo;</h2>`;
 
   const html = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>KJB Search</title></head><body>` +
@@ -172,10 +173,23 @@ export function exportPdf(items, query, filters, options = {}) {
   doc.setFont('times', 'bold');
   
   if (isReading) {
-    doc.setFontSize(18);
-    // Centre the book name and chapter
-    const textWidth = doc.getTextWidth(query);
-    doc.text(query, (pageW - textWidth) / 2, y);
+    doc.setFontSize(22);
+    const bookTitle = options.bookName || query;
+    const bookWidth = doc.getTextWidth(bookTitle);
+    doc.text(bookTitle, (pageW - bookWidth) / 2, y);
+    y += 20;
+    
+    if (options.chapterText) {
+      doc.setFont('times', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(100);
+      const chapText = options.chapterText.toUpperCase();
+      const chapWidth = doc.getTextWidth(chapText);
+      doc.text(chapText, (pageW - chapWidth) / 2, y);
+      doc.setTextColor(0);
+      doc.setFont('times', 'bold');
+      y += 10;
+    }
   } else {
     doc.setFontSize(16);
     doc.text(`${titlePrefix} — "${query}"`, marginX, y);
@@ -300,7 +314,8 @@ export function exportPrint(items, query, filters, options = {}) {
   const dateStr = now.toLocaleDateString() + ' at ' + now.toLocaleTimeString();
   
   const headerHtml = isReading 
-    ? `<h1 style="font-family:Georgia,serif;font-size:24pt;margin-bottom:20pt;text-align:center;">${escapeHtml(query)}</h1>`
+    ? `<h1 style="font-family:Georgia,serif;font-size:24pt;font-weight:900;margin-bottom:5pt;text-align:center;">${escapeHtml(options.bookName || query)}</h1>` +
+      (options.chapterText ? `<p style="font-family:system-ui,-apple-system,sans-serif;font-size:10pt;letter-spacing:0.1em;text-transform:uppercase;color:#666;margin-top:0;margin-bottom:25pt;text-align:center;">${escapeHtml(options.chapterText)}</p>` : '')
     : `<h1 style="font-family:Georgia,serif;font-size:20pt;margin-bottom:20pt;">${escapeHtml(titlePrefix)} &mdash; &ldquo;${escapeHtml(query)}&rdquo;</h1>`;
 
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>&#8203;</title><style>@page { margin: 0; } body { margin: 1.5cm !important; }</style></head><body onload="window.print(); setTimeout(() => window.close(), 500);" style="padding:20px;max-width:800px;margin:0 auto;color:#000;">` +
