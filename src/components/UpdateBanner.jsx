@@ -9,6 +9,11 @@ export default function UpdateBanner() {
     const handleUpdate = (e) => {
       const worker = e.detail.waitingWorker;
       if (worker) {
+        // Prevent looping updates
+        if (sessionStorage.getItem('kjb_sw_updated')) return;
+        sessionStorage.setItem('kjb_sw_updated', 'true');
+        setTimeout(() => sessionStorage.removeItem('kjb_sw_updated'), 10000);
+        
         // Automatically install update (triggers controllerchange and clean reload)
         worker.postMessage({ type: 'SKIP_WAITING' });
       }

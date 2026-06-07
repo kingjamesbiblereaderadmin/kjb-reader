@@ -269,7 +269,7 @@ export default function AppLayout() {
                 }
 
                 setRefreshing(true);
-                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Forcing app update...' } }));
+                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Refreshing app...' } }));
                 try {
                   // Clear service worker cache to ensure latest code is fetched
                   if ('caches' in window) {
@@ -289,7 +289,11 @@ export default function AppLayout() {
                     }
                   }
 
-                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App updated successfully. Reloading...', status: 'success' } }));
+                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Refreshed successfully. Reloading...', status: 'success' } }));
+                  
+                  // Try to fetch fresh bible data immediately
+                  const { forceReloadBibleData } = await import('@/lib/bibleCache');
+                  await forceReloadBibleData().catch(() => {});
                   
                   // Reload the page
                   setTimeout(() => {

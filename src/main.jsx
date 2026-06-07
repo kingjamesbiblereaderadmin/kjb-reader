@@ -68,7 +68,16 @@ window.addEventListener('load', async () => {
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (hasExistingController && !refreshing) {
           refreshing = true;
-          // Clean reload to ensure fresh assets, keeping url params (e.g. read position) intact
+          console.log('[SW] Controller changed. Reloading automatically for app update.');
+          
+          // Prevent infinite reload loops
+          if (sessionStorage.getItem('kjb_sw_reloading')) {
+             console.warn('[SW] Reload loop detected, aborting reload.');
+             return;
+          }
+          sessionStorage.setItem('kjb_sw_reloading', 'true');
+          setTimeout(() => sessionStorage.removeItem('kjb_sw_reloading'), 5000);
+          
           window.location.reload();
         }
         hasExistingController = true;
