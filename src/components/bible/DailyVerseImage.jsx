@@ -411,16 +411,16 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             e.stopPropagation();
             onToggleNotif();
           }}
-          className="absolute top-2 left-2 w-5 h-5 flex items-center justify-center rounded bg-white/80 hover:bg-white transition-colors z-10 shadow-sm touch-manipulation"
+          className="absolute top-2 left-2 p-1.5 flex items-center justify-center rounded-lg bg-white/20 hover:bg-white/30 transition-colors z-10 touch-manipulation"
           title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
           type="button"
         >
-          {notifEnabled ? <Bell className="w-3 h-3 text-slate-800 pointer-events-none" /> : <BellOff className="w-3 h-3 text-slate-800 pointer-events-none" />}
+          {notifEnabled ? <Bell className="w-3.5 h-3.5 pointer-events-none" style={{ color: textColor }} /> : <BellOff className="w-3.5 h-3.5 opacity-70 pointer-events-none" style={{ color: textColor }} />}
         </button>
       )}
 
       {/* Action buttons */}
-      <div className="absolute top-2 right-2 flex gap-0.5 z-10" onClick={(e) => e.stopPropagation()}>
+      <div className="absolute top-2 right-2 flex gap-1 z-10" onClick={(e) => e.stopPropagation()}>
         {!capturing && showButtons ? (
           <>
             <button
@@ -428,11 +428,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 e.stopPropagation();
                 setShowLightbox(true);
               }}
-              className="w-5 h-5 flex items-center justify-center rounded bg-white/80 hover:bg-white transition-colors shadow-sm touch-manipulation"
+              className="p-1.5 flex items-center justify-center rounded-lg bg-white/20 hover:bg-white/30 transition-colors touch-manipulation"
               title="View in full screen"
               type="button"
             >
-              <Maximize2 className="w-3 h-3 text-slate-800 pointer-events-none" />
+              <Maximize2 className="w-3.5 h-3.5 pointer-events-none" style={{ color: textColor }} />
             </button>
             <button
               onClick={(e) => {
@@ -440,14 +440,14 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 handleShare(e);
               }}
               disabled={capturing}
-              className="w-5 h-5 flex items-center justify-center rounded bg-white/80 hover:bg-white transition-colors shadow-sm disabled:opacity-50 touch-manipulation"
+              className="p-1.5 flex items-center justify-center rounded-lg bg-white/20 hover:bg-white/30 transition-colors disabled:opacity-50 touch-manipulation"
               title="Share verse image"
               type="button"
             >
               {capturing ? (
-                <span className="w-3 h-3 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block pointer-events-none" />
+                <span className="w-3.5 h-3.5 border-2 border-t-transparent rounded-full animate-spin block pointer-events-none" style={{ borderColor: textColor, borderTopColor: 'transparent' }} />
               ) : (
-                <Share2 className="w-3 h-3 text-slate-800 pointer-events-none" />
+                <Share2 className="w-3.5 h-3.5 pointer-events-none" style={{ color: textColor }} />
               )}
             </button>
             <button
@@ -456,14 +456,14 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 handleDownload(e);
               }}
               disabled={capturing}
-              className="w-5 h-5 flex items-center justify-center rounded bg-white/80 hover:bg-white transition-colors shadow-sm disabled:opacity-50 touch-manipulation"
+              className="p-1.5 flex items-center justify-center rounded-lg bg-white/20 hover:bg-white/30 transition-colors disabled:opacity-50 touch-manipulation"
               title="Download verse image"
               type="button"
             >
               {capturing ? (
-                <span className="w-3 h-3 border-2 border-slate-800 border-t-transparent rounded-full animate-spin block pointer-events-none" />
+                <span className="w-3.5 h-3.5 border-2 border-t-transparent rounded-full animate-spin block pointer-events-none" style={{ borderColor: textColor, borderTopColor: 'transparent' }} />
               ) : (
-                <Download className="w-3 h-3 text-slate-800 pointer-events-none" />
+                <Download className="w-3.5 h-3.5 pointer-events-none" style={{ color: textColor }} />
               )}
             </button>
             {/* Unified menu button */}
@@ -475,11 +475,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                     setShowMenu(!showMenu);
                   }
                 }}
-                className="w-5 h-5 flex items-center justify-center rounded bg-white/80 hover:bg-white transition-colors shadow-sm touch-manipulation"
+                className="p-1.5 flex items-center justify-center rounded-lg bg-white/20 hover:bg-white/30 transition-colors touch-manipulation"
                 title="More options"
                 type="button"
               >
-                <MoreVertical className="w-3 h-3 text-slate-800 pointer-events-none" />
+                <MoreVertical className="w-3.5 h-3.5 pointer-events-none" style={{ color: textColor }} />
               </button>
               {/* Dropdown menu */}
               {showMenu && (
@@ -607,11 +607,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               e.stopPropagation();
               setShowButtons(true);
             }}
-            className="w-5 h-5 flex items-center justify-center rounded bg-white/80 hover:bg-slate-100 transition-colors shadow-sm touch-manipulation"
+            className="p-1.5 flex items-center justify-center rounded-lg bg-white/20 hover:bg-white/30 transition-colors touch-manipulation"
             title="Show buttons"
             type="button"
           >
-            <ChevronsDown className="w-3 h-3 text-slate-800 rotate-90 pointer-events-none" />
+            <ChevronsDown className="w-3.5 h-3.5 rotate-90 pointer-events-none" style={{ color: textColor }} />
           </button>
         ) : null}
       </div>
