@@ -379,19 +379,19 @@ export default function SettingsPage() {
       </div>
 
       {/* Text Settings */}
-      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+      <div className="bg-card border border-border rounded-2xl mb-4 overflow-hidden shadow-sm">
         <button
           onClick={() => toggleSection('text')}
-          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
         >
-          <div>
+          <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Text</h2>
             <p className="font-sans text-xs text-muted-foreground">Customize text size and font</p>
           </div>
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.text ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.text && (
-        <div className="p-5 pt-0 space-y-4">
+        <div className="px-5 pb-6 pt-0 space-y-4">
         
         {/* Zoom Level */}
         <div className="pt-2 space-y-3">
@@ -488,16 +488,16 @@ export default function SettingsPage() {
       <div id="kjb-accessibility-section" className="bg-card border border-border rounded-2xl mb-6 overflow-hidden scroll-mt-4">
         <button
           onClick={() => toggleSection('accessibility')}
-          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
         >
-          <div>
+          <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Accessibility</h2>
             <p className="font-sans text-xs text-muted-foreground">Reading fonts for the whole app</p>
           </div>
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.accessibility ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.accessibility && (
-        <div className="p-5 pt-0 space-y-4">
+        <div className="px-5 pb-6 pt-0 space-y-4">
           <div className="flex items-center gap-2">
             <Accessibility className="w-4 h-4 text-muted-foreground" />
             <p className="font-sans text-sm text-foreground font-medium">Accessibility Font</p>
@@ -545,19 +545,19 @@ export default function SettingsPage() {
       </div>
 
       {/* Appearance */}
-      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+      <div className="bg-card border border-border rounded-2xl mb-4 overflow-hidden shadow-sm">
         <button
           onClick={() => toggleSection('appearance')}
-          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
         >
-          <div>
+          <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Appearance</h2>
             <p className="font-sans text-xs text-muted-foreground">Customize the look and feel</p>
           </div>
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.appearance ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.appearance && (
-        <div className="p-5 pt-0 space-y-4">
+        <div className="px-5 pb-6 pt-0 space-y-4">
         
         {/* Theme Mode */}
         <div className="space-y-3">
@@ -848,19 +848,19 @@ export default function SettingsPage() {
       </div>
 
       {/* Install App */}
-      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+      <div className="bg-card border border-border rounded-2xl mb-4 overflow-hidden shadow-sm">
         <button
           onClick={() => toggleSection('install')}
-          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
         >
-          <div>
+          <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Install App</h2>
             <p className="font-sans text-xs text-muted-foreground">Add to home screen for notifications</p>
           </div>
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.install ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.install && (
-        <div className="p-5 pt-0 space-y-3">
+        <div className="px-5 pb-6 pt-0 space-y-3">
         <p className="font-sans text-sm text-muted-foreground leading-relaxed">
           Add the KJB Reader to your home screen for quick access and to receive daily verse notifications even when the app is closed.
         </p>
@@ -916,19 +916,19 @@ export default function SettingsPage() {
       </div>
 
       {/* Offline Library */}
-      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+      <div className="bg-card border border-border rounded-2xl mb-4 overflow-hidden shadow-sm">
         <button
           onClick={() => toggleSection('offline')}
-          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
         >
-          <div>
+          <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Bible Cache</h2>
             <p className="font-sans text-xs text-muted-foreground">Download for offline reading</p>
           </div>
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.offline ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.offline && (
-          <div className="p-5 pt-0">
+          <div className="px-5 pb-6 pt-0">
             <p className="font-sans text-sm text-muted-foreground mb-4">
               Download all 66 books to your device for offline reading. Once downloaded, the Bible is available without an internet connection.
             </p>
@@ -1095,12 +1095,12 @@ export default function SettingsPage() {
       </div>
 
       {/* Download Bible as PDF */}
-      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+      <div className="bg-card border border-border rounded-2xl mb-4 overflow-hidden shadow-sm">
         <button
           onClick={() => toggleSection('downloadPdf')}
-          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
         >
-          <div>
+          <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Download Bible</h2>
             <p className="font-sans text-xs text-muted-foreground">Whole Bible with layout options</p>
           </div>
@@ -1110,19 +1110,19 @@ export default function SettingsPage() {
       </div>
 
       {/* Notifications */}
-      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+      <div className="bg-card border border-border rounded-2xl mb-4 overflow-hidden shadow-sm">
         <button
           onClick={() => toggleSection('notifications')}
-          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
         >
-          <div>
+          <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Daily Verse Reminders</h2>
             <p className="font-sans text-xs text-muted-foreground">Get daily verse notifications</p>
           </div>
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.notifications ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.notifications && (
-        <div className="p-5 pt-0 space-y-4">
+        <div className="px-5 pb-6 pt-0 space-y-4">
         {notifPermission === 'unsupported' ? (
           <div className="space-y-3">
             <p className="font-sans text-sm text-muted-foreground">
@@ -1174,19 +1174,19 @@ export default function SettingsPage() {
       </div>
 
       {/* App Info */}
-      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+      <div className="bg-card border border-border rounded-2xl mb-4 overflow-hidden shadow-sm">
         <button
           onClick={() => toggleSection('info')}
-          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
         >
-          <div>
+          <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">App Info</h2>
             <p className="font-sans text-xs text-muted-foreground">Version and features</p>
           </div>
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.info ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.info && (
-          <div className="p-5 pt-0 space-y-3">
+          <div className="px-5 pb-6 pt-0 space-y-3">
             <div className="space-y-2">
               <div className="flex justify-between items-center font-sans text-sm gap-4">
                 <span className="text-muted-foreground shrink-0">Bible Text</span>
@@ -1262,19 +1262,19 @@ export default function SettingsPage() {
       </div>
 
       {/* Credits */}
-      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+      <div className="bg-card border border-border rounded-2xl mb-4 overflow-hidden shadow-sm">
         <button
           onClick={() => toggleSection('credits')}
-          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
         >
-          <div>
+          <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Credits</h2>
             <p className="font-sans text-xs text-muted-foreground">Attributions and licenses</p>
           </div>
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.credits ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.credits && (
-        <div className="p-5 pt-0 space-y-3">
+        <div className="px-5 pb-6 pt-0 space-y-3">
           <div className="space-y-2 font-sans text-xs text-muted-foreground">
         <p>• <strong className="text-foreground">App Platform:</strong> Built with <a href="https://base44.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Base44</a></p>
         <p>• <strong className="text-foreground">Bible Text:</strong> King James Bible: Pure Cambridge Edition: Wharton Text Format</p>
@@ -1291,19 +1291,19 @@ export default function SettingsPage() {
       </div>
 
       {/* Advanced */}
-      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+      <div className="bg-card border border-border rounded-2xl mb-4 overflow-hidden shadow-sm">
         <button
           onClick={() => toggleSection('advanced')}
-          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
         >
-          <div>
+          <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Advanced</h2>
             <p className="font-sans text-xs text-muted-foreground">Reset settings and check for updates</p>
           </div>
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.advanced ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.advanced && (
-          <div className="p-5 pt-0 space-y-4">
+          <div className="px-5 pb-6 pt-0 space-y-4">
             <div className="flex gap-3 pt-2">
               <button
                 onClick={async () => {
@@ -1343,19 +1343,19 @@ export default function SettingsPage() {
       </div>
 
       {/* Contact & Feedback */}
-      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
+      <div className="bg-card border border-border rounded-2xl mb-4 overflow-hidden shadow-sm">
         <button
           onClick={() => toggleSection('contact')}
-          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
         >
-          <div>
+          <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Contact & Feedback</h2>
             <p className="font-sans text-xs text-muted-foreground">Report bugs or share feedback</p>
           </div>
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.contact ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.contact && (
-          <div className="p-5 pt-0 space-y-2">
+          <div className="px-5 pb-6 pt-0 space-y-2">
             <a
               href="mailto:kingjamesbiblereader@outlook.sg"
               className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"

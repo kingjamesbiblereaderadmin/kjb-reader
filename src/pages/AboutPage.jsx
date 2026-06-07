@@ -4,16 +4,16 @@ import { Info, Mail, MessageSquare, ExternalLink, BookOpen, Globe, ChevronDown, 
 function AccordionSection({ title, children }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border border-border rounded-xl overflow-hidden mb-3">
+    <div className="border border-border rounded-xl overflow-hidden mb-4 shadow-sm">
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-5 py-4 bg-card hover:bg-secondary/50 transition-colors text-left"
+        className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-secondary/50 transition-colors text-left"
       >
         <h3 className="font-serif text-lg font-semibold text-foreground">{title}</h3>
         {open ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground rotate-[-90deg]" />}
       </button>
       {open && (
-        <div className="px-5 py-4 bg-card border-t border-border">
+        <div className="px-5 pb-6 pt-4 bg-card border-t border-border">
           {children}
         </div>
       )}
