@@ -37,7 +37,7 @@ export default function RunningHead({ bookName, chapter, baseFontRem, isCursive 
             className="inline-block max-w-full whitespace-nowrap font-semibold tracking-wide text-foreground"
             style={{ fontSize, fontStyle: 'normal' }}
           >
-            {/* bookName removed as requested */}
+            {bookName}
           </span>
         </div>
         <div className="flex-1 min-w-0 text-right">
