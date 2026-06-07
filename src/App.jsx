@@ -99,7 +99,7 @@ const PageLoader = ({ isFadingOut }) => {
   useEffect(() => {
     const updateType = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null;
     if (updateType) {
-      const timer = setTimeout(() => setStage(1), 1500);
+      const timer = setTimeout(() => setStage(1), 3000);
       return () => clearTimeout(timer);
     }
   }, []);
@@ -180,7 +180,7 @@ const AuthenticatedApp = () => {
     const isPostUpdate = sessionStorage.getItem('kjb_sw_updated');
     // If we just reloaded from an update, stagger the splash screen longer
     // to give time for the "Applying updates..." and "Loading KJB Reader..." phases
-    const timer = setTimeout(() => setMinSplashDone(true), isPostUpdate ? 2500 : 800); 
+    const timer = setTimeout(() => setMinSplashDone(true), isPostUpdate ? 5000 : 800); 
     return () => clearTimeout(timer);
   }, []);
 
@@ -261,7 +261,7 @@ const AuthenticatedApp = () => {
           window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: 'Applying Updates...' } }));
           setTimeout(() => {
             window.location.reload();
-          }, 500);
+          }, 3500);
           return; 
         }
 

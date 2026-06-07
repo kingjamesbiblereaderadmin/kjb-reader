@@ -325,7 +325,7 @@ export default function AppLayout() {
                   sessionStorage.setItem('kjb_sw_updated', updateType);
                   setTimeout(() => {
                     window.location.href = window.location.pathname + '?refresh=' + Date.now();
-                  }, 2000);
+                  }, 3500);
                 } catch (err) {
                   console.error('[UpdateCheck] Refresh failed:', err);
                   window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Failed to force update', status: 'error' } }));
