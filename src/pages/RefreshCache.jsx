@@ -74,37 +74,48 @@ export default function RefreshCache() {
   }, []);
 
   return (
-    <div className="min-h-[50vh] flex flex-col items-center justify-center bg-background py-12">
-      <div className="text-center space-y-4">
-        {status === 'checking' && (
-          <>
-            <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
-            <p className="font-sans text-lg text-foreground">Checking for updates...</p>
-          </>
-        )}
-        {status === 'updating' && (
-          <>
-            <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
-            <p className="font-sans text-lg text-foreground">Updating cache...</p>
-            {progress > 0 && (
-              <div className="w-48 mx-auto bg-secondary rounded-full h-2 mt-3">
-                <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
-              </div>
-            )}
-          </>
-        )}
-        {status === 'success' && (
-          <>
-            <CheckCircle2 className="w-12 h-12 text-green-600 mx-auto" />
-            <p className="font-sans text-lg text-foreground">Cache updated! Redirecting...</p>
-          </>
-        )}
-        {status === 'no_update' && (
-          <>
-            <Info className="w-12 h-12 text-blue-500 mx-auto" />
-            <p className="font-sans text-lg text-foreground">App is already up to date! Redirecting...</p>
-          </>
-        )}
+    <div className="fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center opacity-100">
+      <div className="flex flex-col items-center justify-center -mt-16 w-full max-w-sm px-6">
+        <div className="relative mb-12">
+          <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full scale-150 animate-pulse"></div>
+          <img 
+            src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
+            alt="KJB Reader" 
+            className="relative w-32 h-32 object-contain drop-shadow-xl"
+          />
+        </div>
+
+        <div className="flex flex-col items-center gap-6 w-full">
+          {status === 'checking' && (
+            <div className="flex flex-col items-center gap-3 text-center">
+              <Loader2 className="w-6 h-6 animate-spin text-primary/70" style={{ animationDuration: '2s' }} />
+              <span className="font-sans text-xs text-foreground/70 font-medium tracking-[0.2em] uppercase">Checking for updates...</span>
+            </div>
+          )}
+          {status === 'updating' && (
+            <div className="flex flex-col items-center gap-3 w-full text-center">
+              <Loader2 className="w-6 h-6 animate-spin text-primary/70" style={{ animationDuration: '2s' }} />
+              <span className="font-sans text-xs text-foreground/70 font-medium tracking-[0.2em] uppercase">Updating cache...</span>
+              {progress > 0 && (
+                <div className="w-48 max-w-full bg-secondary rounded-full h-1 mt-1">
+                  <div className="bg-primary h-1 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+                </div>
+              )}
+            </div>
+          )}
+          {status === 'success' && (
+            <div className="flex flex-col items-center gap-3 text-center">
+              <CheckCircle2 className="w-6 h-6 text-green-600" />
+              <span className="font-sans text-xs text-foreground/70 font-medium tracking-[0.2em] uppercase">Cache updated...</span>
+            </div>
+          )}
+          {status === 'no_update' && (
+            <div className="flex flex-col items-center gap-3 text-center">
+              <Info className="w-6 h-6 text-blue-500" />
+              <span className="font-sans text-xs text-foreground/70 font-medium tracking-[0.2em] uppercase">App is up to date...</span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
