@@ -2,22 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { RefreshCw, RotateCw, CheckCircle2, AlertCircle, Info, X, Loader2 } from 'lucide-react';
 
+import { Download } from 'lucide-react';
+
 export default function UpdateBanner() {
   const [progressMsg, setProgressMsg] = useState(null);
   const [progressStatus, setProgressStatus] = useState('loading');
   const [isReloading, setIsReloading] = useState(false);
+  const [waitingWorker, setWaitingWorker] = useState(null);
 
   useEffect(() => {
     const handleUpdate = (e) => {
       const worker = e.detail.waitingWorker;
       if (worker) {
-        // Prevent looping updates
-        if (sessionStorage.getItem('kjb_sw_updated')) return;
-        sessionStorage.setItem('kjb_sw_updated', 'true');
-        setTimeout(() => sessionStorage.removeItem('kjb_sw_updated'), 10000);
-        
-        // Automatically install update (triggers controllerchange and clean reload)
-        worker.postMessage({ type: 'SKIP_WAITING' });
+        setWaitingWorker(worker);
       }
     };
     const handleProgress = (e) => {
@@ -47,6 +44,42 @@ export default function UpdateBanner() {
       window.removeEventListener('kjb-reloading', handleReloading);
     };
   }, []);
+
+  if (waitingWorker && !isReloading) {
+    return (
+      <div className="w-full py-2 px-5 sm:px-12 lg:px-16 flex items-center justify-between text-sm font-medium shadow-inner border-b z-40 relative bg-primary text-primary-foreground border-primary">
+        <div className="flex items-center gap-2">
+          <Download className="w-4 h-4" />
+          <span>App update available</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => {
+              if (sessionStorage.getItem('kjb_sw_updated')) return;
+              sessionStorage.setItem('kjb_sw_updated', 'true');
+              setTimeout(() => sessionStorage.removeItem('kjb_sw_updated'), 10000);
+              
+              setWaitingWorker(null);
+              setIsReloading(true);
+              setProgressMsg('Applying App Updates...');
+              setProgressStatus('loading');
+              
+              waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+            }}
+            className="px-3 py-1 bg-background text-foreground hover:bg-secondary rounded-md transition-colors text-xs font-semibold"
+          >
+            Update Now
+          </button>
+          <button 
+            onClick={() => setWaitingWorker(null)}
+            className="p-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-md transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!progressMsg) return null;
 

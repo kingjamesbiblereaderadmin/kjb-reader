@@ -134,35 +134,13 @@ const AuthenticatedApp = () => {
           return; // Skip if offline
         }
 
-        let hasUpdates = false;
-
-        // 1. Check App/Code Updates
+        // 1. Check App/Code Updates (Passive)
+        // Let the service worker update naturally. If an update is found, 
+        // the kjb-update-available event will fire and UpdateBanner will show a prompt.
         if ('serviceWorker' in navigator) {
           const reg = await navigator.serviceWorker.getRegistration();
           if (reg) {
             await reg.update().catch(() => {});
-            if (reg.waiting) {
-              hasUpdates = true;
-              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-            } else if (reg.installing) {
-              if (reg.installing.state === 'installed') {
-                hasUpdates = true;
-                reg.installing.postMessage({ type: 'SKIP_WAITING' });
-              } else {
-                hasUpdates = await new Promise(resolve => {
-                  const worker = reg.installing;
-                  worker.addEventListener('statechange', () => {
-                    if (worker.state === 'installed') {
-                      worker.postMessage({ type: 'SKIP_WAITING' });
-                      resolve(true);
-                    } else if (worker.state === 'redundant') {
-                      resolve(false);
-                    }
-                  });
-                  setTimeout(() => resolve(false), 3000);
-                });
-              }
-            }
           }
         }
 
@@ -171,7 +149,6 @@ const AuthenticatedApp = () => {
         const bibleNeedsUpdate = await checkForUpdates().catch(() => false);
         
         if (bibleNeedsUpdate) {
-          hasUpdates = true;
           localStorage.removeItem('bible_cache_version');
           localStorage.removeItem('bible_last_refresh');
           await downloadBibleForOffline().catch(() => {});
@@ -181,17 +158,6 @@ const AuthenticatedApp = () => {
           const downloadPromise = autoDownloadBibleOnFirstLoad().catch(() => {});
           const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 30000));
           await Promise.race([downloadPromise, timeoutPromise]).catch(() => {});
-        }
-
-        if (hasUpdates) {
-          // Clear caches so the new SW fetches fresh assets
-          if ('caches' in window) {
-            const cacheNames = await caches.keys();
-            await Promise.all(cacheNames.map(name => caches.delete(name)));
-          }
-          // Smooth silent reload - splash screen will persist since we don't set updateCheckDone
-          window.location.reload();
-          return; 
         }
 
       } catch (err) {
