@@ -245,8 +245,12 @@ export default function AppLayout() {
                   
                   // Check Bible Updates
                   try {
-                    const { checkForUpdates } = await import('@/lib/bibleCache');
+                    const { checkForUpdates, isBibleCached } = await import('@/lib/bibleCache');
                     hasBibleUpdates = await checkForUpdates();
+                    if (!hasBibleUpdates) {
+                      const cached = await isBibleCached();
+                      if (!cached) hasBibleUpdates = true; // Force download if completely missing
+                    }
                     console.log(`[UpdateCheck] Bible updates found: ${hasBibleUpdates}`);
                   } catch (e) {
                     console.error(`[UpdateCheck] Bible check failed:`, e);

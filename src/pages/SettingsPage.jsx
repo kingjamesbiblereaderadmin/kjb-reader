@@ -988,19 +988,47 @@ export default function SettingsPage() {
                           }
                         }
 
-                        if (!hasCodeUpdates) {
-                          setDlStatus('App & Bible are up to date.');
+                        const { checkForUpdates, downloadBibleForOffline, isBibleCached } = await import('@/lib/bibleCache');
+                        let hasBibleUpdates = await checkForUpdates().catch(() => false);
+                        if (!hasBibleUpdates) {
+                          const cached = await isBibleCached().catch(() => false);
+                          if (!cached) hasBibleUpdates = true;
+                        }
+
+                        if (!hasCodeUpdates && !hasBibleUpdates) {
+                          setDlStatus('App & Bible data are up to date.');
                           setTimeout(() => setDlStatus(''), 3000);
                           setDownloading(false);
                           return;
                         }
 
-                        setDlStatus('Found new updates. Reloading...');
+                        let reloadText = 'Found new updates...';
+                        let updateType = 'app';
+                        if (hasCodeUpdates && hasBibleUpdates) { reloadText = 'Found new app & Bible updates...'; updateType = 'both'; }
+                        else if (hasBibleUpdates) { reloadText = 'Found new Bible data updates...'; updateType = 'bible'; }
+                        else if (hasCodeUpdates) { reloadText = 'Found new app updates...'; updateType = 'app'; }
+
+                        setDlStatus(reloadText);
+                        
+                        // Force UI feedback event so banner shows
+                        window.dispatchEvent(new Event('kjb-progress-clear'));
+                        window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: reloadText, status: 'loading' } }));
+
+                        if (hasBibleUpdates) {
+                          localStorage.removeItem('bible_cache_version');
+                          localStorage.removeItem('bible_last_refresh');
+                          await downloadBibleForOffline((pct, msg) => {
+                             setDlProgress(pct);
+                             setDlStatus(msg);
+                          });
+                        }
+
                         if (hasCodeUpdates && swReg) {
                           if (swReg.waiting) swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
                           else if (swReg.installing && swReg.installing.state === 'installed') swReg.installing.postMessage({ type: 'SKIP_WAITING' });
                         }
                         
+                        sessionStorage.setItem('kjb_sw_updated', updateType);
                         setTimeout(() => {
                           window.location.href = window.location.pathname + '?refresh=' + Date.now();
                         }, 1500);
