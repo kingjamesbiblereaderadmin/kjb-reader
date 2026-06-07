@@ -1,6 +1,6 @@
 // KJB Reader Service Worker — offline-first app shell cache
-// updated worker 10
-const CACHE_NAME = 'kjb-shell-v20260607_72';
+// updated worker 11
+const CACHE_NAME = 'kjb-shell-v20260607_73';
 const OFFLINE_URL = '/offline.html';
 
 // App shell files to cache on install
@@ -12,7 +12,6 @@ const SHELL_ASSETS = [
 
 // ── Install: pre-cache shell assets ─────────────────────────────────────────
 self.addEventListener('install', (event) => {
-  self.skipWaiting(); // Force activate immediately to rescue old devices!
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(SHELL_ASSETS).catch(() => {

@@ -30,7 +30,7 @@ const A11Y_FONTS = [
 ];
 
 const LAST_REVISED = 'June 7th, 2026';
-const WORKER_VERSION = 'v20260607_72';
+const WORKER_VERSION = 'v20260607_73';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -978,12 +978,19 @@ export default function SettingsPage() {
                               if (swReg.installing.state === 'installed' || swReg.installing.state === 'activating' || swReg.installing.state === 'activated') hasCodeUpdates = true;
                               else {
                                 hasCodeUpdates = await new Promise(resolve => {
+                                  let resolved = false;
                                   const worker = swReg.installing;
-                                  worker.addEventListener('statechange', () => {
-                                    if (worker.state === 'installed' || worker.state === 'activating' || worker.state === 'activated') resolve(true);
-                                    else if (worker.state === 'redundant') resolve(false);
-                                  });
-                                  setTimeout(() => resolve(false), 3000);
+                                  const handler = () => {
+                                    if (worker.state === 'installed' || worker.state === 'activating' || worker.state === 'activated') {
+                                      if (!resolved) { resolved = true; resolve(true); }
+                                    } else if (worker.state === 'redundant') {
+                                      if (!resolved) { resolved = true; resolve(false); }
+                                    }
+                                  };
+                                  worker.addEventListener('statechange', handler);
+                                  setTimeout(() => {
+                                    if (!resolved) { resolved = true; worker.removeEventListener('statechange', handler); resolve(false); }
+                                  }, 6000);
                                 });
                               }
                             }

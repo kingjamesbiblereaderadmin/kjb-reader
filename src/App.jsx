@@ -301,16 +301,30 @@ const AuthenticatedApp = () => {
                   await new Promise(r => setTimeout(r, 800));
                   window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Downloading updates...' } }));
                   hasAppUpdates = await new Promise(resolve => {
+                    let resolved = false;
                     const worker = reg.installing;
-                    worker.addEventListener('statechange', () => {
+                    const handler = () => {
                       if (worker.state === 'installed' || worker.state === 'activating' || worker.state === 'activated') {
-                        worker.postMessage({ type: 'SKIP_WAITING' });
-                        resolve(true);
+                        if (!resolved) {
+                          resolved = true;
+                          worker.postMessage({ type: 'SKIP_WAITING' });
+                          resolve(true);
+                        }
                       } else if (worker.state === 'redundant') {
+                        if (!resolved) {
+                          resolved = true;
+                          resolve(false);
+                        }
+                      }
+                    };
+                    worker.addEventListener('statechange', handler);
+                    setTimeout(() => {
+                      if (!resolved) {
+                        resolved = true;
+                        worker.removeEventListener('statechange', handler);
                         resolve(false);
                       }
-                    });
-                    setTimeout(() => resolve(false), 3000);
+                    }, 6000);
                   });
                 }
               }
