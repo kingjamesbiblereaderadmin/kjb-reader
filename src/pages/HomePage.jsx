@@ -125,16 +125,31 @@ export default function HomePage() {
             }
             console.log(`[UpdateCheck] App code updates found (pull): ${swUpdated}`);
             
+            // Check Bible updates
+            const { checkForUpdates, downloadBibleForOffline } = await import('@/lib/bibleCache');
+            const bibleNeedsUpdate = await checkForUpdates().catch(() => false);
+            console.log(`[UpdateCheck] Bible updates found (pull): ${bibleNeedsUpdate}`);
+
             // Ensure the checking message is visible for at least a brief moment so it doesn't flash
             await new Promise(r => setTimeout(r, 1500));
 
-            if (swUpdated) {
+            if (swUpdated || bibleNeedsUpdate) {
               console.log('[UpdateCheck] Updates found (pull). Triggering splash screen and applying...');
-              let reloadText = 'Found new app updates...';
+              let reloadText = 'Found new updates...';
               let updateType = 'app';
+              if (swUpdated && bibleNeedsUpdate) { reloadText = 'Found new app & Bible updates...'; updateType = 'both'; }
+              else if (bibleNeedsUpdate) { reloadText = 'Found new Bible data updates...'; updateType = 'bible'; }
+              else if (swUpdated) { reloadText = 'Found new app updates...'; updateType = 'app'; }
               
               window.dispatchEvent(new Event('kjb-progress-clear'));
               window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: reloadText, status: 'loading' } }));
+
+              if (bibleNeedsUpdate) {
+                console.log('[UpdateCheck] Downloading new Bible data...');
+                localStorage.removeItem('bible_cache_version');
+                localStorage.removeItem('bible_last_refresh');
+                await downloadBibleForOffline();
+              }
 
               if (swUpdated && 'serviceWorker' in navigator) {
                 const reg = await navigator.serviceWorker.getRegistration();

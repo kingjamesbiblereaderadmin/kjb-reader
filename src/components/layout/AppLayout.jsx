@@ -241,8 +241,18 @@ export default function AppLayout() {
                   // but keep the cache_version so we can actually compare if it changed!
                   localStorage.removeItem('bible_last_refresh');
 
+                  let hasBibleUpdates = false;
                   let hasCodeUpdates = false;
                   
+                  // Check Bible Updates
+                  try {
+                    const { checkForUpdates } = await import('@/lib/bibleCache');
+                    hasBibleUpdates = await checkForUpdates();
+                    console.log(`[UpdateCheck] Bible updates found: ${hasBibleUpdates}`);
+                  } catch (e) {
+                    console.error(`[UpdateCheck] Bible check failed:`, e);
+                  }
+
                   // Check Code Updates
                   let swReg = null;
                   if ('serviceWorker' in navigator) {
@@ -272,7 +282,7 @@ export default function AppLayout() {
                   // Wait for the minimum time to elapse before showing the success message
                   await minWaitPromise;
                   
-                  if (!hasCodeUpdates) {
+                  if (!hasBibleUpdates && !hasCodeUpdates) {
                     console.log('[UpdateCheck] No updates found.');
                     window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App is up to date', status: 'success' } }));
                     
@@ -287,11 +297,20 @@ export default function AppLayout() {
                   }
 
                   console.log('[UpdateCheck] Updates found. Triggering splash screen and applying...');
-                  let reloadText = 'Found new app updates...';
+                  let reloadText = 'Found new updates...';
                   let updateType = 'app';
+                  if (hasCodeUpdates && hasBibleUpdates) { reloadText = 'Found new app & Bible updates...'; updateType = 'both'; }
+                  else if (hasBibleUpdates) { reloadText = 'Found new Bible data updates...'; updateType = 'bible'; }
+                  else if (hasCodeUpdates) { reloadText = 'Found new app updates...'; updateType = 'app'; }
                   
                   window.dispatchEvent(new Event('kjb-progress-clear'));
                   window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: reloadText, status: 'loading' } }));
+
+                  if (hasBibleUpdates) {
+                    console.log('[UpdateCheck] Downloading new Bible data...');
+                    const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+                    await downloadBibleForOffline();
+                  }
 
                   if (hasCodeUpdates && swReg) {
                     if (swReg.waiting) {
