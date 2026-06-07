@@ -1,6 +1,6 @@
 // KJB Reader Service Worker — offline-first app shell cache
 // updated worker 8
-const CACHE_NAME = 'kjb-shell-v20260607_66';
+const CACHE_NAME = 'kjb-shell-v20260607_67';
 const OFFLINE_URL = '/offline.html';
 
 // App shell files to cache on install
@@ -25,13 +25,25 @@ self.addEventListener('install', (event) => {
 // ── Activate: remove old caches ──────────────────────────────────────────────
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((names) =>
-      Promise.all(
+    caches.keys().then(async (names) => {
+      const hadOldCaches = names.some(n => n.startsWith('kjb-shell-') && n !== CACHE_NAME);
+      await Promise.all(
         names
           .filter((n) => n !== CACHE_NAME)
           .map((n) => caches.delete(n))
-      )
-    ).then(() => self.clients.claim())
+      );
+      await self.clients.claim();
+      
+      // Force reload clients on upgrade to rescue devices stuck on old app shells
+      if (hadOldCaches) {
+        const windowClients = await self.clients.matchAll({ type: 'window' });
+        for (let client of windowClients) {
+          if ('navigate' in client && client.url) {
+            client.navigate(client.url);
+          }
+        }
+      }
+    })
   );
 });
 
