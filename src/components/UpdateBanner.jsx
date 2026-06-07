@@ -54,26 +54,29 @@ export default function UpdateBanner() {
 
   const isBlocking = progressStatus === 'loading';
   const overlayClass = isBlocking 
-    ? "fixed inset-0 z-[9999] bg-background/50 backdrop-blur-sm flex flex-col items-center justify-center animate-in fade-in duration-200"
-    : "fixed inset-0 z-[9999] pointer-events-none flex flex-col items-center justify-center animate-in fade-in duration-200 pb-20";
+    ? "fixed inset-0 z-[9999] bg-background/70 backdrop-blur-md flex flex-col items-center justify-center animate-in fade-in duration-300"
+    : "fixed bottom-24 left-0 right-0 z-[9999] pointer-events-none flex flex-col items-center justify-end animate-in slide-in-from-bottom-10 fade-in duration-300";
 
   return (
     <div className={overlayClass}>
-      <div className="pointer-events-auto flex flex-col items-center gap-4 bg-card p-5 rounded-2xl shadow-xl border border-border max-w-[90vw] text-center">
+      <div className={`pointer-events-auto flex items-center justify-center bg-card/95 backdrop-blur-xl border border-border/50 text-center shadow-2xl ${isBlocking ? 'flex-col gap-6 p-8 rounded-3xl max-w-[85vw] animate-in zoom-in-95 duration-300' : 'flex-row gap-3 px-5 py-3 rounded-2xl max-w-[90vw]'}`}>
         {isBlocking && (
-          <img 
-            src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
-            alt="KJB Reader Logo" 
-            className="w-24 h-24 object-contain animate-pulse"
-          />
+          <div className="relative">
+            <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full animate-pulse"></div>
+            <img 
+              src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
+              alt="KJB Reader Logo" 
+              className="relative w-28 h-28 object-contain animate-pulse drop-shadow-2xl"
+            />
+          </div>
         )}
-        <div className="flex items-center gap-3 justify-center">
+        <div className={`flex items-center gap-3 justify-center ${isBlocking ? 'bg-secondary/60 px-5 py-2.5 rounded-2xl' : ''}`}>
           <Icon className={iconClass} />
-          <p className="font-sans text-sm font-medium text-foreground pr-2">{progressMsg}</p>
+          <p className="font-sans text-sm font-semibold text-foreground tracking-wide pr-1">{progressMsg}</p>
           {(progressStatus !== 'loading') && (
             <button 
               onClick={() => setProgressMsg(null)}
-              className="ml-2 p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded-md transition-colors shrink-0"
+              className="ml-1 p-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-lg transition-colors shrink-0"
             >
               <X className="w-4 h-4 opacity-70 hover:opacity-100" />
             </button>

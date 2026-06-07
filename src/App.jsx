@@ -77,11 +77,24 @@ function preloadAllRoutes() {
   }
 }
 
-// Provide a subtle loading spinner instead of a blank screen when loading chunks/reloading
+// Provide a beautiful splash screen for initial app loading
 import { Loader2 } from 'lucide-react';
 const PageLoader = () => (
-  <div className="min-h-[50vh] w-full flex items-center justify-center">
-    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground opacity-50" />
+  <div className="fixed inset-0 z-[9999] bg-background/95 backdrop-blur-md flex flex-col items-center justify-center animate-in fade-in duration-500">
+    <div className="flex flex-col items-center justify-center -mt-16">
+      <div className="relative mb-8">
+        <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full animate-pulse"></div>
+        <img 
+          src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
+          alt="KJB Reader" 
+          className="relative w-32 h-32 object-contain animate-pulse drop-shadow-2xl"
+        />
+      </div>
+      <div className="flex items-center gap-3 text-foreground bg-card/80 px-6 py-3 rounded-2xl backdrop-blur-md shadow-lg border border-border/50">
+        <Loader2 className="w-5 h-5 animate-spin text-primary" />
+        <span className="font-sans text-sm font-semibold tracking-wide">Loading KJB Reader...</span>
+      </div>
+    </div>
   </div>
 );
 
