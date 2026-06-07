@@ -1212,6 +1212,10 @@ export default function SettingsPage() {
                 <span className="text-foreground font-medium text-right">{LAST_REVISED}</span>
               </div>
               <div className="flex justify-between items-center font-sans text-sm gap-4">
+                <span className="text-muted-foreground shrink-0">Cache Version</span>
+                <span className="text-foreground font-medium text-right">{CACHE_VERSION}</span>
+              </div>
+              <div className="flex justify-between items-center font-sans text-sm gap-4">
                 <span className="text-muted-foreground shrink-0">Offline Support</span>
                 <span className="text-foreground font-medium text-right flex items-center gap-1">
                   {cached ? (
