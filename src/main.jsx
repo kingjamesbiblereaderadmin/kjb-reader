@@ -38,7 +38,7 @@ window.addEventListener('load', async () => {
   // Register fresh service worker (production only)
   if ('serviceWorker' in navigator && !import.meta.env.DEV) {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+      const registration = await navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }, { scope: '/' });
       console.log('[SW] Registered:', registration.scope);
 
       // Instead of forcing a reload, notify the UI to show the update banner
