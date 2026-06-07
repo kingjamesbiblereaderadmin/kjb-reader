@@ -27,7 +27,7 @@ const isInStandaloneMode = () => {
 
 const DISMISSED_KEY = 'kjb-prompt-dismissed';
 
-export default function FirstLoadPrompt({ isInstallable, notifPermission, onInstall, onDismiss, onEnableNotif, splashMode = false }) {
+export default function FirstLoadPrompt({ isInstallable, notifPermission, onInstall, onDismiss, onEnableNotif, splashMode = false, isAppReady = true, loadingText = null }) {
   const [dismissed, setDismissed] = useState(() => {
     try { return localStorage.getItem(DISMISSED_KEY) === 'true'; } catch { return false; }
   });
@@ -236,12 +236,19 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
           </div>
 
           <div className="pt-4 mt-2 border-t border-border">
-            <button
-              onClick={handleClose}
-              className="w-full py-3 rounded-xl font-sans text-sm font-bold bg-secondary hover:bg-secondary/80 text-foreground transition-all"
-            >
-              Continue to App
-            </button>
+            {!isAppReady ? (
+               <div className="w-full py-3.5 rounded-xl bg-secondary/50 flex justify-center items-center gap-2.5 border border-border/30">
+                 <div className="w-4 h-4 rounded-full border-2 border-muted-foreground border-t-transparent animate-spin"></div>
+                 <span className="font-sans text-sm font-bold text-muted-foreground">{loadingText || "Loading..."}</span>
+               </div>
+            ) : (
+              <button
+                onClick={handleClose}
+                className="w-full py-3.5 rounded-xl font-sans text-sm font-bold bg-primary hover:bg-primary/90 text-primary-foreground transition-all shadow-md active:scale-[0.98]"
+              >
+                Continue to App
+              </button>
+            )}
           </div>
         </div>
       </div>
