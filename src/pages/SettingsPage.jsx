@@ -1271,8 +1271,13 @@ export default function SettingsPage() {
                 <Trash2 className="w-4 h-4" />
                 Reset All Settings
               </button>
-
-
+              <button
+                onClick={handleClearCache}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Clear Cache & Reload
+              </button>
             </div>
           </div>
         )}
