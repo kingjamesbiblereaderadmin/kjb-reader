@@ -78,7 +78,7 @@ function SearchResultRow({ r, i, thisIndex, isFocused, isSelected, selectMode, h
           onGoToVerse(r.abbr, r.chapter, r.verse, null, i);
         }
       }}
-      className={`w-full text-left p-4 rounded-xl border transition-colors cursor-pointer flex items-start gap-3 ${
+      className={`w-full text-left p-4 rounded-xl border transition-colors cursor-pointer flex items-start gap-3 print:p-0 print:border-none print:rounded-none print:bg-transparent print:mb-3 print:break-inside-avoid ${
         isFocused
           ? 'bg-accent/10 border-accent/60 ring-1 ring-accent/40'
           : isSelected
@@ -87,7 +87,7 @@ function SearchResultRow({ r, i, thisIndex, isFocused, isSelected, selectMode, h
       }`}
     >
       {selectMode && (
-        <div className="shrink-0 mt-0.5">
+        <div className="shrink-0 mt-0.5 print:hidden">
           {isSelected
             ? <CheckSquare className="w-4 h-4 text-primary" />
             : <Square className="w-4 h-4 text-muted-foreground" />
@@ -95,12 +95,12 @@ function SearchResultRow({ r, i, thisIndex, isFocused, isSelected, selectMode, h
         </div>
       )}
       <div className="flex-1 min-w-0">
-        <p className="font-sans text-xs text-accent font-semibold mb-1 flex items-center gap-1">
-          <BookOpen className="w-3 h-3" />
+        <p className="font-sans text-xs text-accent font-semibold mb-1 flex items-center gap-1 print:text-black">
+          <BookOpen className="w-3 h-3 print:hidden" />
           {BOOK_BY_API_NAME[r.book]?.shortName || r.book} {r.chapter}
           {isSubscript ? ' (Superscription)' : isColophon ? ' (Colophon)' : isHeading ? `:${r.verse} (Stanza)` : `:${r.verse}`}
         </p>
-        <p className="text-base text-foreground leading-relaxed" style={fontStyle}>
+        <p className="text-base text-foreground leading-relaxed print:text-black" style={fontStyle}>
           {isHeading ? (
             <span className="font-bold tracking-wide">{renderWithItalics(r.text, highlightTerm, highlightCaseSensitive)}</span>
           ) : (isColophon || isSubscript) ? (

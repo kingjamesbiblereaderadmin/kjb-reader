@@ -857,10 +857,15 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-6">
-      <h1 className="font-serif text-2xl font-bold text-foreground mb-4">Search Bible</h1>
+    <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-6 print:p-0 print:pt-4">
+      <h1 className="font-serif text-2xl font-bold text-foreground mb-4 print:hidden">Search Bible</h1>
 
-      <form onSubmit={handleSubmit} action="#" className="flex gap-2 mb-3">
+      {/* Print-only title */}
+      <h1 className="hidden print:block font-serif text-2xl font-bold text-black mb-4">
+        Search Results for "{stripQuotes(getQueryFromUrl() || query)}"
+      </h1>
+
+      <form onSubmit={handleSubmit} action="#" className="flex gap-2 mb-3 print:hidden">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
           <GhostInput
@@ -899,7 +904,7 @@ export default function SearchPage() {
       </form>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-2 mb-5">
+      <div className="flex flex-wrap items-center gap-2 mb-5 print:hidden">
         <Filter className="w-3.5 h-3.5 text-muted-foreground" />
         <span className="font-sans text-xs text-muted-foreground">Testament:</span>
         {[['all', 'All'], ['old', 'OT'], ['new', 'NT']].map(([val, label]) => {
@@ -1159,9 +1164,9 @@ export default function SearchPage() {
 
       {!loading && searched && results.length === 0 && (
         <div className="space-y-4">
-          <p className="font-sans text-sm text-muted-foreground text-center py-12">No results found for "{stripQuotes(query)}".</p>
+          <p className="font-sans text-sm text-muted-foreground text-center py-12 print:text-black">No results found for "{stripQuotes(query)}".</p>
           {showBookResult && (
-            <div className="max-w-md mx-auto p-4 rounded-xl bg-primary/5 border border-primary/20">
+            <div className="max-w-md mx-auto p-4 rounded-xl bg-primary/5 border border-primary/20 print:hidden">
               <p className="font-sans text-xs text-muted-foreground mb-3 text-center">
                 Did you mean the book of <span className="font-semibold text-foreground">{showBookResult.bookName}</span>?
               </p>
@@ -1184,7 +1189,7 @@ export default function SearchPage() {
         <div>
           {/* Book match suggestion - shown when search term also matches a book name */}
           {showBookResult && (
-            <div className="mb-4 p-4 rounded-xl bg-primary/5 border border-primary/20">
+            <div className="mb-4 p-4 rounded-xl bg-primary/5 border border-primary/20 print:hidden">
               <p className="font-sans text-xs text-muted-foreground mb-3">
                 {showBookResult.allMatches && showBookResult.allMatches.length > 1
                   ? `Found multiple books. Which one did you mean?`
@@ -1260,7 +1265,7 @@ export default function SearchPage() {
           )}
 
           {/* Results header + action bar */}
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-3 print:hidden">
             <div>
               <p className="font-sans text-xs text-muted-foreground">
                 {results.length} verse{results.length !== 1 ? 's' : ''} for "{stripQuotes(getQueryFromUrl() || query)}"
@@ -1295,12 +1300,24 @@ export default function SearchPage() {
                     <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy All'}
                   </button>
                   <ExportMenu onExport={handleExport} label="Export" warning />
-                  <button
-                    onClick={() => handleExport('print')}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
-                  >
-                    <Printer className="w-3.5 h-3.5" /> Print
-                  </button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors">
+                        <Printer className="w-3.5 h-3.5" /> Print
+                        <ChevronDown className="w-3 h-3 opacity-70" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-48">
+                      <DropdownMenuItem onClick={() => window.print()} className="cursor-pointer">
+                        <Printer className="w-4 h-4 mr-2" />
+                        Print Full Page
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleExport('print')} className="cursor-pointer">
+                        <BookMarked className="w-4 h-4 mr-2" />
+                        Print Search Results
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <button
                     onClick={handleShare}
                     className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
@@ -1325,12 +1342,24 @@ export default function SearchPage() {
                         <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : `Copy (${selected.size})`}
                       </button>
                       <ExportMenu onExport={handleExport} count={selected.size} label="Export" warning />
-                      <button
-                        onClick={() => handleExport('print')}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
-                      >
-                        <Printer className="w-3.5 h-3.5" /> Print
-                      </button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors">
+                            <Printer className="w-3.5 h-3.5" /> Print
+                            <ChevronDown className="w-3 h-3 opacity-70" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="w-48">
+                          <DropdownMenuItem onClick={() => window.print()} className="cursor-pointer">
+                            <Printer className="w-4 h-4 mr-2" />
+                            Print Full Page
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleExport('print')} className="cursor-pointer">
+                            <BookMarked className="w-4 h-4 mr-2" />
+                            Print Search Results
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                       <button
                         onClick={handleShare}
                         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
@@ -1346,7 +1375,7 @@ export default function SearchPage() {
 
           {/* Selected verses reading panel */}
           {selectMode && selected.size > 0 && (
-            <div className="mb-4 p-4 rounded-xl bg-primary/5 border border-primary/20">
+            <div className="mb-4 p-4 rounded-xl bg-primary/5 border border-primary/20 print:hidden">
               <div className="flex items-center justify-between mb-2">
                 <p className="font-sans text-xs font-semibold text-primary flex items-center gap-1.5">
                   <BookMarked className="w-3.5 h-3.5" />
@@ -1368,7 +1397,7 @@ export default function SearchPage() {
 
           {/* Keyboard hint */}
           {results.length > 0 && (
-            <p className="font-sans text-xs text-muted-foreground/60 mb-2 hidden sm:block">
+            <p className="font-sans text-xs text-muted-foreground/60 mb-2 hidden sm:block print:hidden">
               ↑ ↓ or J / K to navigate verses & book headers · Enter to open a verse or collapse / expand a book
             </p>
           )}
@@ -1387,7 +1416,7 @@ export default function SearchPage() {
       )}
 
       {!searched && !loading && (
-        <p className="font-sans text-sm text-muted-foreground text-center py-12">
+        <p className="font-sans text-sm text-muted-foreground text-center py-12 print:hidden">
           Type a word or phrase above and press Search.
         </p>
       )}

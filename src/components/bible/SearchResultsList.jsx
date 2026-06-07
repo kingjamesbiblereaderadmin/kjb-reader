@@ -204,24 +204,24 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
         return (
           <React.Fragment key={`grp-${group.book}`}>
             {showOTHeader && (
-              <div ref={otRef} className="flex items-center gap-2 pt-2 pb-1 border-b border-border mb-1">
+              <div ref={otRef} className="flex items-center gap-2 pt-2 pb-1 border-b border-border mb-1 print:border-black/20">
                 {ntCount > 0 ? (
                   <button
                     onClick={() => setOtExpanded(!otExpanded)}
-                    className="flex items-center gap-1 font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors"
+                    className="flex items-center gap-1 font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors print:text-black"
                   >
-                    {otExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                    Old Testament <span className="font-normal normal-case text-muted-foreground/60">[{otCount}]</span>
+                    {otExpanded ? <ChevronDown className="w-3 h-3 print:hidden" /> : <ChevronRight className="w-3 h-3 print:hidden" />}
+                    Old Testament <span className="font-normal normal-case text-muted-foreground/60 print:text-black/60">[{otCount}]</span>
                   </button>
                 ) : (
-                  <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground">
-                    Old Testament <span className="font-normal normal-case text-muted-foreground/60">[{otCount}]</span>
+                  <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground print:text-black">
+                    Old Testament <span className="font-normal normal-case text-muted-foreground/60 print:text-black/60">[{otCount}]</span>
                   </p>
                 )}
                 {ntCount > 0 && (
                   <button
                     onClick={() => { setNtExpanded(true); setTimeout(() => ntRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50); }}
-                    className="ml-auto flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+                    className="ml-auto flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors print:hidden"
                   >
                     Jump to NT <ArrowDown className="w-3 h-3" />
                   </button>
@@ -229,24 +229,24 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
               </div>
             )}
             {showNTHeader && (
-              <div ref={ntRef} className="flex items-center gap-2 pt-3 pb-1 border-b border-border mb-1">
+              <div ref={ntRef} className="flex items-center gap-2 pt-3 pb-1 border-b border-border mb-1 print:border-black/20 print:pt-4">
                 {otCount > 0 ? (
                   <button
                     onClick={() => setNtExpanded(!ntExpanded)}
-                    className="flex items-center gap-1 font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors"
+                    className="flex items-center gap-1 font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors print:text-black"
                   >
-                    {ntExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                    New Testament <span className="font-normal normal-case text-muted-foreground/60">[{ntCount}]</span>
+                    {ntExpanded ? <ChevronDown className="w-3 h-3 print:hidden" /> : <ChevronRight className="w-3 h-3 print:hidden" />}
+                    New Testament <span className="font-normal normal-case text-muted-foreground/60 print:text-black/60">[{ntCount}]</span>
                   </button>
                 ) : (
-                  <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground">
-                    New Testament <span className="font-normal normal-case text-muted-foreground/60">[{ntCount}]</span>
+                  <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground print:text-black">
+                    New Testament <span className="font-normal normal-case text-muted-foreground/60 print:text-black/60">[{ntCount}]</span>
                   </p>
                 )}
                 {otCount > 0 && (
                   <button
                     onClick={() => { setOtExpanded(true); setTimeout(() => otRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50); }}
-                    className="ml-auto flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors"
+                    className="ml-auto flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors print:hidden"
                   >
                     Jump to OT <ArrowDown className="w-3 h-3 rotate-180" />
                   </button>
@@ -256,17 +256,17 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
 
             {/* Per-book dropdown header + its verses (hidden if testament collapsed) */}
             {!sectionCollapsed && (
-              <div className="rounded-xl border border-border/60 overflow-hidden">
+              <div className="rounded-xl border border-border/60 overflow-hidden print:border-none print:rounded-none print:overflow-visible print:mt-2">
                 <button
                   ref={(el) => setHeaderRef(group.book, el)}
                   onClick={() => toggleBook(group.book)}
-                  className={`w-full flex items-center gap-2 px-3 py-2 bg-secondary/60 hover:bg-accent/15 transition-colors text-left ${
+                  className={`w-full flex items-center gap-2 px-3 py-2 bg-secondary/60 hover:bg-accent/15 transition-colors text-left print:bg-transparent print:px-0 print:py-1 print:border-b print:border-border/50 ${
                     focusedHeaderBook === group.book ? 'ring-2 ring-inset ring-accent bg-accent/15' : ''
                   }`}
                 >
-                  {bookCollapsed ? <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
-                  <span className="font-sans text-sm font-semibold text-foreground">{bookName}</span>
-                  <span className="font-sans text-xs text-muted-foreground">
+                  {bookCollapsed ? <ChevronRight className="w-3.5 h-3.5 text-muted-foreground print:hidden" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground print:hidden" />}
+                  <span className="font-sans text-sm font-semibold text-foreground print:text-black">{bookName}</span>
+                  <span className="font-sans text-xs text-muted-foreground print:text-black/60">
                     · {group.items.length} verse{group.items.length !== 1 ? 's' : ''}
                     {group.count > group.items.length ? ` · ${group.count} occurrence${group.count !== 1 ? 's' : ''}` : ''}
                   </span>

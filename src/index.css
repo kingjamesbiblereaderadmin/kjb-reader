@@ -331,6 +331,12 @@
 }
 
 @media print {
+  @page {
+    margin: 0;
+  }
+  body {
+    margin: 1.5cm !important;
+  }
   html, body, #root, .h-screen {
     height: auto !important;
     max-height: none !important;
