@@ -470,9 +470,9 @@ export function exportPrint(items, query, filters, options = {}) {
       (options.chapterText ? `<p style="font-family:system-ui,-apple-system,sans-serif;font-size:10pt;letter-spacing:0.1em;text-transform:uppercase;color:#666;margin-top:0;margin-bottom:25pt;text-align:center;">${escapeHtml(options.chapterText)}</p>` : '')
     : `<h1 style="font-family:Georgia,serif;font-size:20pt;margin-bottom:20pt;">${escapeHtml(titlePrefix)} &mdash; &ldquo;${escapeHtml(query)}&rdquo;</h1>`;
 
-  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>&#8203;</title><style>@page { margin: 1.5cm; } body { margin: 0 !important; display: flex !important; flex-direction: column !important; min-height: 100vh !important; height: auto !important; position: static !important; overflow: visible !important; box-sizing: border-box; }</style></head><body onload="window.print(); setTimeout(() => window.close(), 500);" style="padding:20px;max-width:800px;margin:0 auto;color:#000;">` +
-    `<div style="flex: 1 0 auto;">${headerHtml}${rows}</div>` +
-    `<div style="margin-top: auto; padding-top: 40pt; page-break-inside: avoid;"><p style="font-size:10pt;color:#777;border-top:1px solid #eee;padding-top:10pt;margin:0;${isReading ? 'text-align:center;' : ''}">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</p></div></body></html>`;
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>&#8203;</title><style>@page { margin: 1.5cm; } body { margin: 0 !important; display: block !important; height: auto !important; position: static !important; overflow: visible !important; }</style></head><body onload="window.print(); setTimeout(() => window.close(), 500);" style="padding:20px;max-width:800px;margin:0 auto;color:#000;">` +
+    `${headerHtml}${rows}` +
+    `<div style="margin-top: 40pt; page-break-inside: avoid;"><p style="font-size:10pt;color:#777;border-top:1px solid #eee;padding-top:10pt;margin:0;${isReading ? 'text-align:center;' : ''}">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</p></div></body></html>`;
   
   const printWindow = window.open('', '_blank');
   if (printWindow) {
