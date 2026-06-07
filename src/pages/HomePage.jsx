@@ -5,6 +5,8 @@ import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import OfflineStatusBanner from '@/components/OfflineStatusBanner';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { getDailyVerse, getDailyVerseFromBible, getLastCachedDailyVerse } from '@/lib/dailyVerse';
+import { getTodayVerseBackground } from '@/lib/dailyVerseTheme';
+import { useTheme } from '@/lib/themeContext';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications, showLocalNotification } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { toast } from 'sonner';
@@ -23,6 +25,9 @@ const QUICK_LINKS = [
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const { colorMode } = useTheme();
+  const dailyBg = getTodayVerseBackground();
+  
   const [verse, setVerse] = useState(() => {
     const lastCached = getLastCachedDailyVerse();
     return (lastCached && lastCached.isToday) ? lastCached : null;
@@ -433,9 +438,9 @@ export default function HomePage() {
       <Link
         to={READ_LINK.path}
         onClick={() => window.scrollTo({ top: 0 })}
-        className={`print:hidden flex items-center gap-5 p-6 rounded-3xl shadow-lg border-2 border-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all mb-4 sm:hidden ${READ_LINK.color}`}
+        className={`print:hidden flex items-center gap-5 p-6 rounded-3xl shadow-lg border-2 border-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all mb-4 sm:hidden ${colorMode === 'daily' ? `bg-gradient-to-br ${dailyBg.gradient} text-white` : READ_LINK.color}`}
       >
-        <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-2xl bg-white/30">
+        <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-2xl bg-white/30 text-white">
           <BookOpen className="w-6 h-6" />
         </div>
         <div>
@@ -448,7 +453,7 @@ export default function HomePage() {
         <Link
           to={READ_LINK.path}
           onClick={() => window.scrollTo({ top: 0 })}
-          className={`hidden sm:flex items-center gap-5 p-6 rounded-3xl shadow-lg border-2 border-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all ${READ_LINK.color}`}
+          className={`hidden sm:flex items-center gap-5 p-6 rounded-3xl shadow-lg border-2 border-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all ${colorMode === 'daily' ? `bg-gradient-to-br ${dailyBg.gradient} text-white` : READ_LINK.color}`}
         >
           <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-2xl bg-white/30">
             <BookOpen className="w-6 h-6" />
