@@ -85,6 +85,11 @@ export default function RefreshCache() {
 
       setStatus('success');
       
+      // Indicate to the splash screen that updates were applied
+      try {
+        sessionStorage.setItem('kjb_sw_updated', hasCodeUpdates && hasBibleUpdates ? 'both' : hasBibleUpdates ? 'bible' : hasCodeUpdates ? 'app' : 'forced_update');
+      } catch (e) {}
+
       // Reload after success
       setTimeout(() => {
         window.location.href = '/';

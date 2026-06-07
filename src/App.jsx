@@ -132,8 +132,8 @@ const PageLoader = ({ isFadingOut }) => {
     text = dynamicText;
   } else if (updateType) {
     if (updateType === 'bible_first_load') text = "Ready to read...";
-    else if (updateType === 'forced_update' || updateType === 'app' || updateType === 'both') text = "Updates applied successfully...";
-    else text = "Loading KJB Reader...";
+    else if (updateType === 'forced_update' || updateType === 'app' || updateType === 'both' || updateType === 'bible') text = "Updates applied successfully...";
+    else text = "Welcome back to KJB Reader...";
   }
 
   return (
