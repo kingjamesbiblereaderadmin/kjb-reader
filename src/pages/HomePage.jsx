@@ -29,9 +29,9 @@ export default function HomePage() {
   const touchEndY = useRef(0);
 
   useEffect(() => {
-    // 1. Immediately show the last cached verse (even if it's from yesterday)
+    // 1. Immediately show the cached verse only if it belongs to today
     const lastCached = getLastCachedDailyVerse();
-    if (lastCached) {
+    if (lastCached && lastCached.isToday) {
       setVerse(lastCached);
     }
 
@@ -53,7 +53,7 @@ export default function HomePage() {
       getBibleData().catch(() => {});
     });
 
-    // Check every minute if the day has rolled over to midnight
+    // Check frequently to instantly update the verse when midnight hits
     const minuteInterval = setInterval(() => {
       const lastCached = getLastCachedDailyVerse();
       // If we don't have today's verse cached, it's time to update silently
@@ -66,7 +66,7 @@ export default function HomePage() {
           setIsOffline(true);
         });
       }
-    }, 60000);
+    }, 2000);
 
     return () => {
       clearInterval(minuteInterval);
