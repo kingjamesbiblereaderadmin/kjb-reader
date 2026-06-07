@@ -130,13 +130,10 @@ const AuthenticatedApp = () => {
     preloadAllRoutes();
   }, []);
 
-  // Don't return null while auth resolves — that causes a blank flash on reload.
-  // We'll show the loader animation while auth initializes
-  if (isLoadingPublicSettings || isLoadingAuth || !minSplashDone) {
-    return <PageLoader />;
-  }
+  const isInitializing = isLoadingPublicSettings || isLoadingAuth;
+  const showSplash = isInitializing || !minSplashDone;
 
-  if (authError) {
+  if (authError && !isInitializing) {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
@@ -146,8 +143,11 @@ const AuthenticatedApp = () => {
   }
 
   return (
-    <Routes location={location}>
-      <Route element={<AppLayout />}>
+    <>
+      {showSplash && <PageLoader />}
+      {!isInitializing && !authError && (
+        <Routes location={location}>
+          <Route element={<AppLayout />}>
         <Route path="/" element={<Suspense fallback={<PageLoader />}><FadeIn><HomePage /></FadeIn></Suspense>} />
         <Route path="/read" element={<Suspense fallback={<PageLoader />}><FadeIn><BibleReader /></FadeIn></Suspense>} />
         <Route path="/gospel" element={<Suspense fallback={<PageLoader />}><FadeIn><GospelPage /></FadeIn></Suspense>} />
@@ -158,9 +158,11 @@ const AuthenticatedApp = () => {
         <Route path="/search" element={<Suspense fallback={<PageLoader />}><FadeIn><SearchPage /></FadeIn></Suspense>} />
         <Route path="/saved" element={<Suspense fallback={<PageLoader />}><FadeIn><SavedVersesPage /></FadeIn></Suspense>} />
         <Route path="/refresh-cache" element={<Suspense fallback={<PageLoader />}><FadeIn><RefreshCache /></FadeIn></Suspense>} />
-      </Route>
-      <Route path="*" element={<PageNotFound />} />
-    </Routes>
+          </Route>
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+      )}
+    </>
   );
 };
 
