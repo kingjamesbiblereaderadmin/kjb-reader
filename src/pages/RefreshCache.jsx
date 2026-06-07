@@ -55,7 +55,7 @@ export default function RefreshCache() {
             <p className="font-sans text-lg text-foreground">Updating cache...</p>
             {progress > 0 && (
               <div className="w-48 mx-auto bg-secondary rounded-full h-2 mt-3">
-                <div className="bg-primary h-2 rounded-full transition-all" style={{ width: `${progress}%` }} />
+                <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
               </div>
             )}
           </>

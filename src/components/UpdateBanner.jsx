@@ -80,7 +80,7 @@ export default function UpdateBanner() {
   else if (progressStatus === 'info') { Icon = Info; iconClass = "w-4 h-4 text-blue-600 dark:text-blue-400"; }
 
   return (
-    <div className={`w-full py-2 px-5 sm:px-12 lg:px-16 flex items-center text-sm font-medium shadow-inner border-b z-40 relative ${progressStatus === 'error' ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:border-red-900/30' : progressStatus === 'success' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:border-green-900/30' : 'bg-secondary text-secondary-foreground border-border'}`}>
+    <div className="w-full py-2 px-5 sm:px-12 lg:px-16 flex items-center text-sm font-medium shadow-inner border-b z-40 relative bg-secondary text-secondary-foreground border-border">
       <div className="flex-1 flex justify-center items-center gap-2">
         <Icon className={iconClass} />
         <span>{progressMsg}</span>
