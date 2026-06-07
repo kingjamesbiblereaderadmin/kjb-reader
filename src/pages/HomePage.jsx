@@ -400,7 +400,7 @@ export default function HomePage() {
       <OfflineStatusBanner />
 
       {/* Daily verse card */}
-      <div className="w-full max-w-3xl mx-auto mb-8 relative">
+      <div className="w-full max-w-xl mx-auto mb-8 relative">
         {verse ? (
           <DailyVerseImage verse={verse} onClick={handleVerseCardClick} onToggleNotif={handleToggleNotif} notifEnabled={notifEnabled} isOffline={isOffline} />
         ) : (
