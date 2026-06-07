@@ -182,41 +182,43 @@ const AuthenticatedApp = () => {
           return; // Skip if offline
         }
 
-        if (sessionStorage.getItem('kjb_sw_updated')) {
+        const justUpdated = sessionStorage.getItem('kjb_sw_updated');
+        if (justUpdated) {
           sessionStorage.removeItem('kjb_sw_updated');
-          return; // We just reloaded from an update, skip checking again
         }
 
         let hasAppUpdates = false;
         let hasBibleUpdates = false;
 
-        // 1. Check App/Code Updates
-        if ('serviceWorker' in navigator) {
-          const reg = await navigator.serviceWorker.getRegistration();
-          // ONLY trigger automatic update reload if there is ALREADY an active SW.
-          // Otherwise, it's a first-time install, and we don't want to reload the user.
-          if (reg && reg.active) {
-            await reg.update().catch(() => {});
-            if (reg.waiting) {
-              hasAppUpdates = true;
-              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-            } else if (reg.installing) {
-              if (reg.installing.state === 'installed') {
+        // 1. Check App/Code Updates (Skip if we just performed an update reload, to avoid loops)
+        if (!justUpdated || justUpdated === 'bible') {
+          if ('serviceWorker' in navigator) {
+            const reg = await navigator.serviceWorker.getRegistration();
+            // ONLY trigger automatic update reload if there is ALREADY an active SW.
+            // Otherwise, it's a first-time install, and we don't want to reload the user.
+            if (reg && reg.active) {
+              await reg.update().catch(() => {});
+              if (reg.waiting) {
                 hasAppUpdates = true;
-                reg.installing.postMessage({ type: 'SKIP_WAITING' });
-              } else {
-                hasAppUpdates = await new Promise(resolve => {
-                  const worker = reg.installing;
-                  worker.addEventListener('statechange', () => {
-                    if (worker.state === 'installed') {
-                      worker.postMessage({ type: 'SKIP_WAITING' });
-                      resolve(true);
-                    } else if (worker.state === 'redundant') {
-                      resolve(false);
-                    }
+                reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+              } else if (reg.installing) {
+                if (reg.installing.state === 'installed') {
+                  hasAppUpdates = true;
+                  reg.installing.postMessage({ type: 'SKIP_WAITING' });
+                } else {
+                  hasAppUpdates = await new Promise(resolve => {
+                    const worker = reg.installing;
+                    worker.addEventListener('statechange', () => {
+                      if (worker.state === 'installed') {
+                        worker.postMessage({ type: 'SKIP_WAITING' });
+                        resolve(true);
+                      } else if (worker.state === 'redundant') {
+                        resolve(false);
+                      }
+                    });
+                    setTimeout(() => resolve(false), 3000);
                   });
-                  setTimeout(() => resolve(false), 3000);
-                });
+                }
               }
             }
           }
