@@ -24,7 +24,7 @@ function resolveFontFamily(choice, a11yFont) {
   return "'Merriweather', 'Cormorant Garamond', Georgia, serif";
 }
 
-export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEnabled, isOffline }) {
+export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEnabled, isOffline, splashMode }) {
   const dow = new Date().getDay();
   const defaultBg = VERSE_BACKGROUNDS[dow];
   const [customBg, setCustomBg] = useState(() => {
@@ -402,7 +402,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   };
 
   return (
-    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full min-h-[300px] ${gradientClass} border border-border rounded-2xl shadow-lg px-6 text-center text-white relative flex flex-col ${capturing ? 'pt-20 pb-8' : 'pt-6 pb-6'} ${uploadingComplete ? 'cursor-default' : 'cursor-pointer'}`} style={bgStyle}>
+    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full ${splashMode ? 'h-full flex-1' : 'min-h-[300px] border border-border rounded-2xl shadow-lg'} ${gradientClass} px-6 text-center text-white relative flex flex-col ${capturing ? 'pt-20 pb-8' : splashMode ? 'pt-12 pb-24' : 'pt-6 pb-6'} ${uploadingComplete ? 'cursor-default' : 'cursor-pointer'}`} style={bgStyle}>
       {/* Notification bell indicator button */}
       {showButtons && onToggleNotif && (
         <button

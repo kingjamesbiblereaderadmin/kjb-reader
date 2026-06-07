@@ -93,10 +93,10 @@ function preloadAllRoutes() {
 }
 
 // Provide a beautiful splash screen for initial app loading
-import { Loader2 } from 'lucide-react';
+import { Loader2, ChevronRight } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 
-const PageLoader = ({ isFadingOut }) => {
+const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
   // Capture the updateType once on mount so it doesn't change when checkUpdatesSilently removes it
   const [updateType] = useState(() => 
     typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null
@@ -150,31 +150,46 @@ const PageLoader = ({ isFadingOut }) => {
 
   return (
   <div className={`fixed inset-0 z-[9999] bg-background flex flex-col ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
-    <div className="flex-1 w-full max-w-[90rem] mx-auto p-4 sm:p-8 lg:p-16 flex flex-col justify-center">
-      
-      <div className="w-full flex-1 min-h-[300px] flex flex-col justify-center max-w-2xl mx-auto">
-        {dailyVerse ? (
-          <div className="pointer-events-none w-full">
-            <DailyVerseImage verse={dailyVerse} onClick={() => {}} />
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center">
+    {!showLoadingState && dailyVerse && dailyVerse.book !== "Offline" ? (
+      <div className="w-full h-full flex flex-col relative [&>div]:h-full [&>div]:rounded-none [&>div]:border-none [&>div]:shadow-none">
+        <DailyVerseImage verse={dailyVerse} onClick={() => {}} />
+        <div className="absolute bottom-12 left-0 right-0 flex justify-center z-[100] pb-env-safe">
+          {!isReady ? (
+            <div className="flex items-center gap-3 text-foreground bg-card/90 px-6 py-3 rounded-2xl shadow-2xl backdrop-blur-sm border border-border/50">
+              <Loader2 className="w-5 h-5 animate-spin text-foreground shrink-0" />
+              <span className="font-sans text-sm font-semibold tracking-wide">{text}</span>
+            </div>
+          ) : (
+            <button 
+              onClick={onDismiss}
+              className="flex items-center gap-2 px-8 py-3.5 bg-white text-slate-900 rounded-full font-sans text-lg font-bold transition-all duration-200 hover:scale-105 active:scale-95 shadow-2xl border border-slate-200"
+            >
+              Continue to App
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+      </div>
+    ) : (
+      <div className="flex flex-col items-center justify-center w-full h-full px-6">
+        <div className="flex-1 flex flex-col items-center justify-center -mt-16">
+          <div className="relative mb-8">
+            <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
             <img 
               src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
               alt="KJB Reader" 
-              className="w-32 h-32 object-contain drop-shadow-2xl mb-8"
+              className="relative w-32 h-32 object-contain drop-shadow-2xl"
             />
           </div>
-        )}
-      </div>
-
-      <div className="mt-8 text-center min-h-[4rem] flex flex-col items-center justify-center">
-        <div className="flex items-center gap-3 text-foreground bg-card/80 px-6 py-3 rounded-2xl shadow-lg border border-border/50">
-          <Loader2 className="w-5 h-5 animate-spin text-foreground shrink-0" />
-          <span className="font-sans text-sm font-semibold tracking-wide">{text}</span>
+        </div>
+        <div className="absolute bottom-12 left-0 right-0 flex justify-center z-[100] pb-env-safe">
+          <div className="flex items-center gap-3 text-foreground bg-card/90 px-6 py-3 rounded-2xl shadow-2xl backdrop-blur-sm border border-border/50">
+            <Loader2 className="w-5 h-5 animate-spin text-foreground shrink-0" />
+            <span className="font-sans text-sm font-semibold tracking-wide">{text}</span>
+          </div>
         </div>
       </div>
-    </div>
+    )}
   </div>
   );
 };
@@ -399,7 +414,8 @@ const AuthenticatedApp = () => {
   }, []);
 
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
-  const showSplash = isInitializing || !minSplashDone || !updateCheckDone || !routeLoaded;
+  const isAppReady = !isInitializing && minSplashDone && updateCheckDone && routeLoaded;
+  const showSplash = !isAppReady || !splashDismissed;
 
   const [renderSplash, setRenderSplash] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
@@ -426,10 +442,17 @@ const AuthenticatedApp = () => {
 
   return (
     <>
-      {renderSplash && <PageLoader isFadingOut={fadeSplash} />}
+      {renderSplash && <PageLoader isFadingOut={fadeSplash} isReady={isAppReady} onDismiss={() => setSplashDismissed(true)} />}
       {!isInitializing && !authError && (
-        <Routes location={location}>
-          <Route element={<AppLayout />}>
+        <>
+          <button 
+            onClick={() => { setSplashDismissed(false); setRenderSplash(true); }}
+            className="fixed bottom-24 right-4 z-50 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-bold shadow-lg"
+          >
+            TEST SPLASH
+          </button>
+          <Routes location={location}>
+            <Route element={<AppLayout />}>
         <Route path="/" element={<Suspense fallback={<RouteLoader />}><FadeIn><HomePage /></FadeIn></Suspense>} />
         <Route path="/read" element={<Suspense fallback={<RouteLoader />}><FadeIn><BibleReader /></FadeIn></Suspense>} />
         <Route path="/gospel" element={<Suspense fallback={<RouteLoader />}><FadeIn><GospelPage /></FadeIn></Suspense>} />
@@ -443,6 +466,7 @@ const AuthenticatedApp = () => {
           </Route>
           <Route path="*" element={<PageNotFound />} />
         </Routes>
+        </>
       )}
     </>
   );
