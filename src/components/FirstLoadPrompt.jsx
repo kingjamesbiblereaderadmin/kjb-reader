@@ -43,6 +43,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   const [verseFontFamily, setVerseFontFamily] = useState(() => {
     try { return localStorage.getItem('kjb-verse-font-family') || 'serif'; } catch { return 'serif'; }
   });
+  const [notifFailed, setNotifFailed] = useState(false);
 
   const pickReaderFont = (value) => {
     try { localStorage.setItem('kjb-reader-font-family', value); } catch {}
@@ -118,13 +119,21 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   const handleNotifClick = async (e) => {
     e.stopPropagation();
     if (onEnableNotif) {
-      await onEnableNotif();
-      setNotifDone(true);
-      // If there's nothing else to show, dismiss the whole prompt
-      if (!showInstall) {
-        setDismissed(true);
-        try { localStorage.setItem(DISMISSED_KEY, 'true'); } catch {}
-        if (onDismiss) onDismiss();
+      try {
+        await onEnableNotif();
+        if ('Notification' in window && Notification.permission === 'granted') {
+          setNotifDone(true);
+          // If there's nothing else to show, dismiss the whole prompt
+          if (!showInstall) {
+            setDismissed(true);
+            try { localStorage.setItem(DISMISSED_KEY, 'true'); } catch {}
+            if (onDismiss) onDismiss();
+          }
+        } else {
+          setNotifFailed(true);
+        }
+      } catch (err) {
+        setNotifFailed(true);
       }
     }
   };
@@ -286,13 +295,20 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
           {showNotif && (
             <button
               type="button"
-              onPointerUp={handleNotifClick}
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary font-sans text-sm font-medium hover:bg-primary/20 active:bg-primary/25 transition-colors text-left touch-manipulation"
+              disabled={notifFailed}
+              onPointerUp={notifFailed ? undefined : handleNotifClick}
+              className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-left touch-manipulation transition-colors ${
+                notifFailed 
+                  ? 'bg-secondary/40 border-border text-muted-foreground cursor-not-allowed' 
+                  : 'bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 active:bg-primary/25 font-medium'
+              }`}
             >
               <Bell className="w-4 h-4 shrink-0" />
               <span className="flex-1">
-                <span className="block font-semibold">Enable Daily Notifications</span>
-                <span className="block text-xs opacity-80">Get the daily verse every morning</span>
+                <span className={`block ${notifFailed ? 'font-medium' : 'font-semibold'}`}>Enable Daily Notifications</span>
+                <span className="block text-xs opacity-80">
+                  {notifFailed ? 'Blocked or not supported by browser' : 'Get the daily verse every morning'}
+                </span>
               </span>
             </button>
           )}
