@@ -269,83 +269,30 @@ export default function AppLayout() {
                 }
 
                 setRefreshing(true);
-                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Checking for updates...' } }));
+                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Forcing app update...' } }));
                 try {
-                  let swUpdated = false;
+                  // Clear service worker cache to ensure latest code is fetched
+                  if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(name => caches.delete(name)));
+                  }
+                  
+                  // Clear local storage daily verse cache just in case
+                  localStorage.removeItem('kjb-daily-verse-cache');
+                  
+                  // Tell any service worker to update
                   if ('serviceWorker' in navigator) {
                     const reg = await navigator.serviceWorker.getRegistration();
                     if (reg) {
                       await reg.update().catch(() => {});
-                      if (reg.waiting) {
-                        swUpdated = true;
-                        // Tell waiting worker to skip waiting to apply the update immediately
-                        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                      } else if (reg.installing) {
-                        if (reg.installing.state === 'installed') {
-                          swUpdated = true;
-                          reg.installing.postMessage({ type: 'SKIP_WAITING' });
-                        } else {
-                          await new Promise(resolve => {
-                            const worker = reg.installing;
-                            worker.addEventListener('statechange', () => {
-                              if (worker.state === 'installed') {
-                                swUpdated = true;
-                                worker.postMessage({ type: 'SKIP_WAITING' });
-                                resolve();
-                              } else if (worker.state === 'redundant') {
-                                resolve();
-                              }
-                            });
-                            setTimeout(resolve, 5000);
-                          });
-                        }
-                      }
                     }
                   }
 
-                  // Check if the remote Bible file has actually changed via ETag/Last-Modified
-                  const { checkForUpdates } = await import('@/lib/bibleCache');
-                  const bibleNeedsUpdate = await checkForUpdates();
-
-                  if (bibleNeedsUpdate && swUpdated) {
-                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Updating app & Bible data...' } }));
-                  } else if (bibleNeedsUpdate) {
-                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Updating Bible data...' } }));
-                  } else if (swUpdated) {
-                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Updating app...' } }));
-                  }
-
-                  if (bibleNeedsUpdate) {
-                    localStorage.removeItem('bible_cache_version');
-                    localStorage.removeItem('bible_last_refresh');
-                    await downloadBibleForOffline();
-                  }
-                  
-                  // Ensure the checking message is visible for at least a brief moment so it doesn't flash
-                  await new Promise(r => setTimeout(r, 600));
-                  
-                  window.dispatchEvent(new Event('kjb-progress-clear'));
-                  if (swUpdated && bibleNeedsUpdate) {
-                    localStorage.removeItem('kjb-daily-verse-cache');
-                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App & Bible updated successfully. Reloading...', status: 'success' } }));
-                    setTimeout(() => window.location.reload(), 1500);
-                  } else if (swUpdated) {
-                    localStorage.removeItem('kjb-daily-verse-cache');
-                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App updated successfully. Reloading...', status: 'success' } }));
-                    setTimeout(() => window.location.reload(), 1500);
-                  } else if (bibleNeedsUpdate) {
-                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Bible updated successfully.', status: 'success' } }));
-                    setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
-                    setRefreshing(false);
-                    softReload();
-                  } else {
-                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App & Bible are up to date.', status: 'info' } }));
-                    setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
-                    setRefreshing(false);
-                  }
+                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App updating successfully. Reloading...', status: 'success' } }));
+                  setTimeout(() => window.location.reload(), 1000);
                 } catch (err) {
                   console.error('Refresh failed:', err);
-                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Failed to check for updates', status: 'error' } }));
+                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Failed to force update', status: 'error' } }));
                   setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
                   setRefreshing(false);
                 }
