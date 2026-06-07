@@ -328,7 +328,11 @@ const AuthenticatedApp = () => {
           else if (hasBibleUpdates) { updateType = 'bible'; }
           else if (hasAppUpdates) { updateType = 'app'; }
           
-          if (window.location.pathname !== '/' && updateType !== 'bible_first_load') {
+          // If we activated a new service worker, we MUST reload the page to load the new JS bundle.
+          // Otherwise, manual update checks will think there's no update because the worker is already active,
+          // but the old JS remains in memory.
+          // We only skip reload for minor bible updates if not on root, but app code updates MUST reload.
+          if (window.location.pathname !== '/' && updateType === 'bible') {
             return;
           }
 
