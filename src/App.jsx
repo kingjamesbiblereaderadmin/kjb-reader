@@ -276,47 +276,52 @@ const AuthenticatedApp = () => {
             // Otherwise, it's a first-time install, and we don't want to reload the user.
             if (reg && reg.active) {
               await reg.update().catch(() => {});
-              if (reg.waiting) {
+              const isReadyToActivate = reg.waiting || (reg.installing && (reg.installing.state === 'installed' || reg.installing.state === 'activating' || reg.installing.state === 'activated'));
+              
+              if (isReadyToActivate) {
+                setIsApplyingUpdates(true);
+                setApplyMessage('Found updates...');
+                window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
+                await new Promise(r => setTimeout(r, 1000));
+                setApplyMessage('Installing updates...');
+                window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Installing updates...' } }));
+                await new Promise(r => setTimeout(r, 1000));
                 hasAppUpdates = true;
-                reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                else if (reg.installing) reg.installing.postMessage({ type: 'SKIP_WAITING' });
               } else if (reg.installing) {
-                if (reg.installing.state === 'installed' || reg.installing.state === 'activating' || reg.installing.state === 'activated') {
-                  hasAppUpdates = true;
-                  reg.installing.postMessage({ type: 'SKIP_WAITING' });
-                } else {
-                  setIsApplyingUpdates(true);
-                  setApplyMessage('Found updates...');
-                  window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
-                  await new Promise(r => setTimeout(r, 1000));
-                  setApplyMessage('Installing updates...');
-                  window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Installing updates...' } }));
-                  hasAppUpdates = await new Promise(resolve => {
-                    let resolved = false;
-                    const worker = reg.installing;
-                    const handler = () => {
-                      if (worker.state === 'installed' || worker.state === 'activating' || worker.state === 'activated') {
-                        if (!resolved) {
-                          resolved = true;
-                          worker.postMessage({ type: 'SKIP_WAITING' });
-                          resolve(true);
-                        }
-                      } else if (worker.state === 'redundant') {
-                        if (!resolved) {
-                          resolved = true;
-                          resolve(false);
-                        }
-                      }
-                    };
-                    worker.addEventListener('statechange', handler);
-                    setTimeout(() => {
+                setIsApplyingUpdates(true);
+                setApplyMessage('Found updates...');
+                window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
+                await new Promise(r => setTimeout(r, 1000));
+                setApplyMessage('Installing updates...');
+                window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Installing updates...' } }));
+                hasAppUpdates = await new Promise(resolve => {
+                  let resolved = false;
+                  const worker = reg.installing;
+                  const handler = () => {
+                    if (worker.state === 'installed' || worker.state === 'activating' || worker.state === 'activated') {
                       if (!resolved) {
                         resolved = true;
-                        worker.removeEventListener('statechange', handler);
+                        worker.postMessage({ type: 'SKIP_WAITING' });
+                        resolve(true);
+                      }
+                    } else if (worker.state === 'redundant') {
+                      if (!resolved) {
+                        resolved = true;
                         resolve(false);
                       }
-                    }, 6000);
-                  });
-                }
+                    }
+                  };
+                  worker.addEventListener('statechange', handler);
+                  setTimeout(() => {
+                    if (!resolved) {
+                      resolved = true;
+                      worker.removeEventListener('statechange', handler);
+                      resolve(false);
+                    }
+                  }, 6000);
+                });
               }
             }
           }
@@ -431,9 +436,17 @@ const AuthenticatedApp = () => {
         }
         
         if (hasAppUpdates && isMounted) {
+          setIsApplyingUpdates(true);
+          setApplyMessage('Found updates...');
+          window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
+          await new Promise(r => setTimeout(r, 1000));
+          setApplyMessage('Installing updates...');
+          window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Installing updates...' } }));
+          await new Promise(r => setTimeout(r, 1000));
+          
           sessionStorage.setItem('kjb_sw_updated', 'app');
           setApplyMessage('Applying updates...');
-          setIsApplyingUpdates(true);
+          window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Applying updates...' } }));
           setTimeout(() => window.location.reload(), 1200);
         }
       } catch (err) {
