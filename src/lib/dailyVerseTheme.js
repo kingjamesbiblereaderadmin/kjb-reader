@@ -65,8 +65,8 @@ export function applyDailyAccent(isDark = document.documentElement.classList.con
     root.style.setProperty('--ring', accent);
     root.style.setProperty('--sidebar-ring', accent);
 
-    // Primary (buttons, key actions) — exact first gradient stop.
-    const primary = hexToHslString(bg.hex[0]);
+    // Primary (buttons, key actions) — use brighter stop for dark mode
+    const primary = hexToHslString(isDark ? bg.hex[1] : bg.hex[0]);
     root.style.setProperty('--primary', primary);
     root.style.setProperty('--sidebar-primary', primary);
 
