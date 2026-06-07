@@ -228,22 +228,22 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                 <span>Enable Daily Reminders</span>
               </button>
             )}
-          </div>
 
-          <div className="pt-4 mt-2 border-t border-border">
-            {!isAppReady ? (
-               <div className="w-full py-3.5 rounded-xl bg-secondary/50 flex justify-center items-center gap-2.5 border border-border/30">
-                 <div className="w-4 h-4 rounded-full border-2 border-muted-foreground border-t-transparent animate-spin"></div>
-                 <span className="font-sans text-sm font-bold text-muted-foreground">{loadingText || "Loading..."}</span>
-               </div>
-            ) : (
-              <button
-                onClick={handleClose}
-                className="w-full py-3.5 rounded-xl font-sans text-sm font-bold bg-primary hover:bg-primary/90 text-primary-foreground transition-all shadow-md active:scale-[0.98]"
-              >
-                Continue to App
-              </button>
-            )}
+            <div className="pt-2 mt-2">
+              {!isAppReady ? (
+                 <div className="w-full py-3.5 rounded-xl bg-secondary/50 flex justify-center items-center gap-2.5 border border-border/30">
+                   <div className="w-4 h-4 rounded-full border-2 border-muted-foreground border-t-transparent animate-spin"></div>
+                   <span className="font-sans text-sm font-bold text-muted-foreground">{loadingText || "Loading..."}</span>
+                 </div>
+              ) : (
+                <button
+                  onClick={handleClose}
+                  className="w-full py-3.5 rounded-xl font-sans text-sm font-bold bg-primary hover:bg-primary/90 text-primary-foreground transition-all shadow-md active:scale-[0.98]"
+                >
+                  Continue to App
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -254,26 +254,14 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-[99998] bg-background/80 backdrop-blur-md flex items-center justify-center p-4"
+        className="fixed inset-0 z-[99998] bg-background/95 backdrop-blur-sm flex flex-col items-center py-12 px-6 overflow-y-auto"
         onPointerDown={handleClose}
       >
-        <div className="w-full max-w-sm pointer-events-auto">
-          <div
-            className="bg-card border border-border rounded-2xl shadow-2xl p-6 space-y-5 relative"
-            onPointerDown={e => e.stopPropagation()}
-          >
-            <div className="flex flex-col items-center justify-center gap-1 mb-2">
-              <button
-                type="button"
-                onPointerDown={handleClose}
-                className="absolute top-4 right-4 shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary active:bg-secondary transition-colors cursor-pointer touch-manipulation"
-                aria-label="Dismiss"
-              >
-                <X className="w-5 h-5" />
-              </button>
-              <h2 className="font-serif text-xl font-bold text-foreground">Quick Setup</h2>
-              <p className="font-sans text-sm text-muted-foreground text-center">Customize your reading experience</p>
-            </div>
+        <div className="w-full max-w-md pointer-events-auto space-y-6" onPointerDown={e => e.stopPropagation()}>
+          <div className="flex flex-col items-center justify-center gap-1 mb-8">
+            <h2 className="font-serif text-3xl font-bold text-foreground text-center">Quick Setup</h2>
+            <p className="font-sans text-base text-muted-foreground text-center mt-2">Customize your reading experience</p>
+          </div>
 
             {showInstall && (
               <div className="space-y-3">
@@ -365,15 +353,14 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
               )}
             </div>
             
-            <div className="pt-4 mt-2 border-t border-border">
+            <div className="pt-6 mt-4">
               <button
                 onClick={handleClose}
-                className="w-full py-3.5 rounded-xl font-sans text-sm font-bold bg-primary hover:bg-primary/90 text-primary-foreground transition-all shadow-md active:scale-[0.98]"
+                className="w-full py-4 rounded-xl font-sans text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground transition-all shadow-lg active:scale-[0.98]"
               >
-                Close Setup
+                Continue to App
               </button>
             </div>
-          </div>
         </div>
       </div>
     </>
