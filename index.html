@@ -60,8 +60,21 @@
   </head>
   <body>
     <div id="root">
-      <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: -4rem;">
-        <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" style="width: 8rem; height: 8rem; object-fit: contain;" />
+      <div class="fixed inset-0 z-[9999] bg-background/95 backdrop-blur-md flex flex-col items-center justify-center">
+        <div class="flex flex-col items-center justify-center -mt-16">
+          <div class="relative mb-8">
+            <div class="absolute inset-0 bg-primary/20 blur-3xl rounded-full"></div>
+            <img 
+              src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
+              alt="KJB Reader" 
+              class="relative w-32 h-32 object-contain drop-shadow-2xl"
+            />
+          </div>
+          <div class="flex items-center gap-3 text-foreground bg-card/80 px-6 py-3 rounded-2xl backdrop-blur-md shadow-lg border border-border/50">
+            <svg class="w-5 h-5 animate-spin text-primary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+            <span class="font-sans text-sm font-semibold tracking-wide">Loading KJB Reader...</span>
+          </div>
+        </div>
       </div>
     </div>
     <script type="module" src="/src/main.jsx"></script>
