@@ -95,6 +95,8 @@ function preloadAllRoutes() {
 import { Loader2 } from 'lucide-react';
 const PageLoader = ({ isFadingOut }) => {
   if (isFadingOut) return null;
+  const isPostUpdate = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : false;
+  const text = isPostUpdate ? "Applying updates, loading app..." : "Loading KJB Reader...";
   return (
   <div className={`fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center`}>
     <div className="flex flex-col items-center justify-center -mt-16">
@@ -108,7 +110,7 @@ const PageLoader = ({ isFadingOut }) => {
       </div>
       <div className="flex items-center gap-3 text-foreground bg-card/80 px-6 py-3 rounded-2xl shadow-lg border border-border/50">
         <Loader2 className="w-5 h-5 animate-spin text-foreground" />
-        <span className="font-sans text-sm font-semibold tracking-wide">Loading KJB Reader...</span>
+        <span className="font-sans text-sm font-semibold tracking-wide">{text}</span>
       </div>
     </div>
   </div>
@@ -154,9 +156,10 @@ const AuthenticatedApp = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    // If we just reloaded from an update, skip the delay so it's snappy
     const isPostUpdate = sessionStorage.getItem('kjb_sw_updated');
-    const timer = setTimeout(() => setMinSplashDone(true), isPostUpdate ? 50 : 800); 
+    // If we just reloaded from an update, show the splash screen slightly longer
+    // so the user can read "Applying updates, loading app..."
+    const timer = setTimeout(() => setMinSplashDone(true), isPostUpdate ? 1200 : 800); 
     return () => clearTimeout(timer);
   }, []);
 

@@ -302,10 +302,10 @@ export default function AppLayout() {
                   }
 
                   console.log('[UpdateCheck] Updates found. Triggering splash screen and applying...');
-                  let reloadText = 'Applying Updates...';
-                  if (hasCodeUpdates && hasBibleUpdates) reloadText = 'Applying App & Bible Updates...';
-                  else if (hasBibleUpdates) reloadText = 'Applying Bible Data Updates...';
-                  else if (hasCodeUpdates) reloadText = 'Applying App Updates...';
+                  let reloadText = 'Found updates...';
+                  if (hasCodeUpdates && hasBibleUpdates) reloadText = 'Found app & Bible updates...';
+                  else if (hasBibleUpdates) reloadText = 'Found Bible data updates...';
+                  else if (hasCodeUpdates) reloadText = 'Found app updates...';
                   
                   window.dispatchEvent(new Event('kjb-progress-clear'));
                   window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: reloadText, status: 'loading' } }));
@@ -329,6 +329,7 @@ export default function AppLayout() {
                   await minWaitPromise;
                   
                   console.log('[UpdateCheck] Reloading application...');
+                  sessionStorage.setItem('kjb_sw_updated', 'true');
                   setTimeout(() => {
                     window.location.href = window.location.pathname + '?refresh=' + Date.now();
                   }, 800);

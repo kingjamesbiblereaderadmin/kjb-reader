@@ -47,10 +47,14 @@ export default function UpdateBanner() {
               setTimeout(() => sessionStorage.removeItem('kjb_sw_updated'), 10000);
               
               setWaitingWorker(null);
-              setProgressMsg('Applying App Updates...');
+              setProgressMsg('Found app updates...');
               setProgressStatus('loading');
               
               waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+              
+              setTimeout(() => {
+                window.location.href = window.location.pathname + '?refresh=' + Date.now();
+              }, 800);
             }}
             className="px-3 py-1 bg-background text-foreground hover:bg-secondary rounded-md transition-colors text-xs font-semibold"
           >
