@@ -34,6 +34,7 @@ import { getOccurrenceLabel, scrollToOccurrence, emphasizeOccurrence } from '@/l
 import { useReaderUrlSync } from '@/lib/useReaderUrlSync';
 import { resolveBook, formatVerseRange } from '@/lib/readerHelpers';
 import { useClosePopovers } from '@/lib/useClosePopovers';
+import { printChapterContents } from '@/lib/printHelpers';
 
 const isMobile = () => window.innerWidth < 640;
 
@@ -1495,21 +1496,7 @@ export default function BibleReader() {
                     <Printer className="w-4 h-4 mr-2" />
                     Print Full Page
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer" onClick={() => {
-                    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>&#8203;</title><style>
-                      body { font-family: 'Merriweather', 'Cormorant Garamond', Georgia, serif; padding: 40px 20px; max-width: 800px; margin: 0 auto; color: #000; line-height: 1.8; font-size: 12pt; }
-                      h1 { font-size: 24pt; text-align: center; margin-bottom: 30px; font-weight: bold; }
-                      p { margin-bottom: 12px; text-align: justify; }
-                      sup { font-size: 0.7em; margin-right: 4px; font-weight: bold; }
-                      i { font-style: italic; color: #333; }
-                    </style></head><body onload="window.print(); setTimeout(() => window.close(), 500);">
-                      <h1 style="font-family:Georgia,serif;font-size:20pt;">${book.name} ${pos.chapter}</h1>
-                      ${verses.map(v => `<p><sup>${v.verse}</sup>${v.text.replace(/\[/g, '<i>').replace(/\]/g, '</i>')}</p>`).join('')}
-                    </body></html>`;
-                    const printWindow = window.open('', '_blank');
-                    if (printWindow) { printWindow.document.write(html); printWindow.document.close(); }
-                    else { alert("Please allow popups to print."); }
-                  }}>
+                  <DropdownMenuItem onClick={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon)} className="cursor-pointer">
                     <BookMarked className="w-4 h-4 mr-2" />
                     Print Chapter Contents
                   </DropdownMenuItem>
@@ -1943,9 +1930,16 @@ export default function BibleReader() {
         </div>
       )}
 
+      {/* Print Footer */}
+      {!loading && !error && (
+        <div className="hidden print:block mt-8 pt-4 border-t border-border text-sm text-muted-foreground text-center">
+          Printed on {new Date().toLocaleDateString()} at {new Date().toLocaleTimeString()}
+        </div>
+      )}
+
       {/* Bottom nav */}
       {!loading && !error && (
-        <div className="flex justify-between gap-2 mt-6 pt-6 border-t border-border pb-2 sm:mt-4 sm:pt-4">
+        <div className="print:hidden flex justify-between gap-2 mt-6 pt-6 border-t border-border pb-2 sm:mt-4 sm:pt-4">
           <button
             onClick={goPrev}
             disabled={isFirstChapterFirstBook}
