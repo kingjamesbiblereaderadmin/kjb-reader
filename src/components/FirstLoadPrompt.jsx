@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, X, Share, MonitorSmartphone, Download, Accessibility, Palette } from 'lucide-react';
+import { Bell, X, Share, MonitorSmartphone, Download, Accessibility, Palette, Type } from 'lucide-react';
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
 import ThemeColorPicker from '@/components/bible/ThemeColorPicker';
+
+const VERSE_FONTS = [
+  { value: 'serif', label: 'Serif' },
+  { value: 'sans-serif', label: 'Sans' },
+  { value: 'monospace', label: 'Mono' },
+  { value: 'cursive', label: 'Cursive' },
+];
 
 const A11Y_FONTS = [
   { value: 'default', label: 'Off' },
@@ -30,6 +37,28 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     'Notification' in window && Notification.permission === 'granted'
   );
   const [a11yFont, setA11yFont] = useState(getAccessibilityFont);
+  const [readerFontFamily, setReaderFontFamily] = useState(() => {
+    try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
+  });
+  const [verseFontFamily, setVerseFontFamily] = useState(() => {
+    try { return localStorage.getItem('kjb-verse-font-family') || 'serif'; } catch { return 'serif'; }
+  });
+
+  const pickReaderFont = (value) => {
+    try { localStorage.setItem('kjb-reader-font-family', value); } catch {}
+    setReaderFontFamily(value);
+    if (a11yFont !== 'default') { setA11yFont('default'); setAccessibilityFont('default'); }
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new Event('kjb-fonts-changed'));
+  };
+
+  const pickVerseFont = (value) => {
+    try { localStorage.setItem('kjb-verse-font-family', value); } catch {}
+    setVerseFontFamily(value);
+    if (a11yFont !== 'default') { setA11yFont('default'); setAccessibilityFont('default'); }
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new Event('kjb-fonts-changed'));
+  };
 
   // Keep notifDone in sync when permission changes externally
   useEffect(() => {
@@ -158,6 +187,66 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
               )}
             </div>
           )}
+
+          {/* Read Font */}
+          <div className="rounded-xl bg-secondary/40 border border-border p-2.5">
+            <div className="flex items-center gap-1.5 mb-2 px-0.5">
+              <Type className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <span className="font-sans text-xs font-medium text-foreground">Read Font</span>
+            </div>
+            <div className="grid grid-cols-4 gap-1.5">
+              {VERSE_FONTS.map(font => {
+                const isActive = a11yFont !== 'default' ? false : readerFontFamily === font.value;
+                const isDisabled = a11yFont !== 'default';
+                return (
+                <button
+                  key={font.value}
+                  disabled={isDisabled}
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); pickReaderFont(font.value); }}
+                  onPointerDown={e => e.stopPropagation()}
+                  className={`px-1 py-1.5 rounded-lg font-sans text-[10px] font-medium transition-all touch-manipulation ${
+                    isActive
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-card text-foreground border border-border hover:border-accent'
+                  } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
+                  style={{ fontFamily: font.value }}
+                >
+                  {font.label}
+                </button>
+              )})}
+            </div>
+          </div>
+
+          {/* Daily Verse Font */}
+          <div className="rounded-xl bg-secondary/40 border border-border p-2.5">
+            <div className="flex items-center gap-1.5 mb-2 px-0.5">
+              <Type className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <span className="font-sans text-xs font-medium text-foreground">Daily Verse Font</span>
+            </div>
+            <div className="grid grid-cols-4 gap-1.5">
+              {VERSE_FONTS.map(font => {
+                const isActive = a11yFont !== 'default' ? false : verseFontFamily === font.value;
+                const isDisabled = a11yFont !== 'default';
+                return (
+                <button
+                  key={font.value}
+                  disabled={isDisabled}
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); pickVerseFont(font.value); }}
+                  onPointerDown={e => e.stopPropagation()}
+                  className={`px-1 py-1.5 rounded-lg font-sans text-[10px] font-medium transition-all touch-manipulation ${
+                    isActive
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-card text-foreground border border-border hover:border-accent'
+                  } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
+                  style={{ fontFamily: font.value }}
+                >
+                  {font.label}
+                </button>
+              )})}
+            </div>
+          </div>
 
           {/* Accessibility font — dyslexic & high-legibility options */}
           <div className="rounded-xl bg-secondary/40 border border-border p-2.5">
