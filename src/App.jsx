@@ -155,21 +155,21 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
     <div className={`fixed inset-0 z-[9999] bg-background overflow-hidden ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
       <div className={`flex flex-col items-center w-full h-[100dvh] px-4 max-w-xl mx-auto pt-8 ${isFirstVisit ? 'pb-8' : 'pb-32'} space-y-6 overflow-y-auto`}>
         
+        {/* Logo */}
+        <div className={`flex flex-col items-center justify-center ${isFirstVisit ? 'pt-8' : 'pt-40'}`}>
+          <div className="relative mb-6">
+            <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
+            <img 
+              src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
+              alt="KJB Reader" 
+              className="relative w-32 h-32 object-contain drop-shadow-2xl"
+            />
+          </div>
+        </div>
+
         {/* First Visit Flow */}
         {isFirstVisit ? (
           <>
-            {/* Logo */}
-            <div className="flex flex-col items-center justify-center pt-8">
-              <div className="relative mb-6">
-                <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
-                <img 
-                  src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
-                  alt="KJB Reader" 
-                  className="relative w-32 h-32 object-contain drop-shadow-2xl"
-                />
-              </div>
-            </div>
-
             {loadingText ? (
               <div className="flex flex-col items-center mt-4 w-full">
                 <div className="flex items-center gap-3 text-foreground bg-card px-6 py-4 rounded-2xl shadow-lg border border-border/80 justify-center w-full">
@@ -227,16 +227,6 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
         ) : (
           /* Returning Visit Flow */
           <>
-            <div className="w-full relative px-2 shrink-0 mb-4 pt-16">
-              <DailyVerseImage 
-                verse={dailyVerse} 
-                splashMode={true} 
-                onClick={() => {}} 
-                onToggleNotif={promptProps.handleEnableNotif}
-                notifEnabled={'Notification' in window && Notification.permission === 'granted'}
-              />
-            </div>
-            
             <div className="w-full flex flex-col items-center justify-center shrink-0 pb-6 pt-2 px-4 bg-background absolute bottom-0 left-0 right-0 z-50">
               {loadingText ? (
                 <div className="flex items-center gap-3 text-foreground bg-card px-6 py-3.5 rounded-2xl shadow-lg border border-border/80 w-full justify-center max-w-xl mx-auto">
