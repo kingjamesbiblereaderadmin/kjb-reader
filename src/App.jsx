@@ -12,8 +12,6 @@ import { SoftReloadProvider, useSoftReload } from '@/lib/SoftReloadContext';
 import AppLayout from '@/components/layout/AppLayout';
 import { getDailyVerse } from '@/lib/dailyVerse';
 import React, { lazy, Suspense, useEffect, useState } from 'react';
-import FirstLoadPrompt from '@/components/FirstLoadPrompt';
-import { useAppLayoutPrompt } from '@/components/layout/AppLayout';
 
 // Lazy-load pages. Each import() factory is kept as a reference so we can
 // also trigger it manually in the background to preload all routes.
@@ -118,10 +116,7 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
   });
 
   const [gospelDismissed, setGospelDismissed] = useState(!isFirstVisit);
-  const [promptDismissed, setPromptDismissed] = useState(!isFirstVisit);
   const [showWelcome, setShowWelcome] = useState(true);
-  
-  const promptProps = useAppLayoutPrompt();
 
   useEffect(() => {
     const handleProgress = (e) => {
@@ -200,21 +195,6 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
-      </div>
-    );
-  }
-
-  if (!promptDismissed) {
-    return (
-      <div className={`fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300 px-4`}>
-        <FirstLoadPrompt 
-          splashMode={true}
-          isInstallable={promptProps.isInstallable}
-          notifPermission={promptProps.notifPermission}
-          onInstall={promptProps.handleInstall}
-          onEnableNotif={promptProps.handleEnableNotif}
-          onDismiss={() => setPromptDismissed(true)}
-        />
       </div>
     );
   }

@@ -413,7 +413,15 @@ export default function AppLayout() {
       {/* Scroll to top button - appears on all pages when scrolling */}
       <ScrollToTop />
 
-      {/* FirstLoadPrompt is now handled in the PageLoader splash screen */}
+      {showPrompt && (
+        <FirstLoadPrompt 
+          isInstallable={isInstallable}
+          notifPermission={notifPermission}
+          onInstall={handleInstall}
+          onEnableNotif={handleEnableNotif}
+          onDismiss={handleDismissPrompt}
+        />
+      )}
 
       <DesktopFooter navigate={navigate} setMenuOpen={setMenuOpen} />
     </div>
