@@ -868,10 +868,7 @@ export default function SearchPage() {
     <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-6 print:p-0 print:pt-4">
       <h1 className="font-serif text-2xl font-bold text-foreground mb-4 print:hidden">Search Bible</h1>
 
-      {/* Print-only title */}
-      <h1 className="hidden print:block font-serif text-2xl font-bold text-black mb-4">
-        Search Results for "{stripQuotes(getQueryFromUrl() || query)}"
-      </h1>
+
 
       <form onSubmit={handleSubmit} action="#" className="flex gap-2 mb-3 print:hidden">
         <div className="relative flex-1">
