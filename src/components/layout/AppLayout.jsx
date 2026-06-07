@@ -305,8 +305,8 @@ export default function AppLayout() {
 
                   if (hasBibleUpdates) {
                     console.log('[UpdateCheck] Downloading new Bible data...');
-                    const { autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
-                    await autoDownloadBibleOnFirstLoad();
+                    const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+                    await downloadBibleForOffline();
                   }
 
                   if (hasCodeUpdates && swReg) {

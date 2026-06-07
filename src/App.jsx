@@ -94,28 +94,18 @@ function preloadAllRoutes() {
 // Provide a beautiful splash screen for initial app loading
 import { Loader2 } from 'lucide-react';
 const PageLoader = ({ isFadingOut }) => {
-  const [stage, setStage] = useState(0);
-
-  useEffect(() => {
-    const updateType = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null;
-    if (updateType) {
-      const timer = setTimeout(() => setStage(1), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, []);
+  // Capture the updateType once on mount so it doesn't change when checkUpdatesSilently removes it
+  const [updateType] = useState(() => 
+    typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null
+  );
 
   if (isFadingOut) return null;
-  const updateType = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null;
   
   let text = "Loading KJB Reader...";
   if (updateType) {
-    if (stage === 0) {
-      if (updateType === 'both') text = "Applying app & Bible updates...";
-      else if (updateType === 'bible') text = "Applying Bible data updates...";
-      else text = "Applying app updates...";
-    } else {
-      text = "Loading KJB Reader...";
-    }
+    if (updateType === 'both') text = "Applying app & Bible updates...";
+    else if (updateType === 'bible') text = "Applying Bible data updates...";
+    else text = "Applying app updates...";
   }
 
   return (
