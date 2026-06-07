@@ -779,7 +779,7 @@ export default function SearchPage() {
         ? `${bookName} ${r.chapter} colophon`
         : `${bookName} ${r.chapter}:${r.verse}`;
       const url = buildVerseUrl({ abbr: r.abbr, chapter: r.chapter, verse: (isColophon || isSubscript) ? null : r.verse, from: 'search' }) + (q ? `&q=${encodeURIComponent(q)}` : '');
-      return { text: r.text, ref, testament: bookEntry ? bookEntry.testament : 'old', url };
+      return { text: r.text, ref, testament: bookEntry ? bookEntry.testament : 'old', url, bookName: bookName || r.book };
     });
     // Describe the active filters so the export filename reflects them.
     const testament = testamentFilter.has('all')

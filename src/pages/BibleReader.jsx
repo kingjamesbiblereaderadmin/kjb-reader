@@ -1815,6 +1815,9 @@ export default function BibleReader() {
       {/* Book title — hidden when showing title page or in two-column (uses running head), EXCEPT chapter 1 which always shows centered title */}
       {!isViewingTitlePage && (!columnMode || pos.chapter === 1) && (
         <div className="text-center mb-6 pt-8" style={{ fontSize: `${zoomLevel / 100}rem` }}>
+          <div className="hidden print:block font-sans text-sm font-bold uppercase tracking-widest text-muted-foreground mb-4">
+            {book.testament === 'old' ? 'Old Testament' : 'New Testament'}
+          </div>
           <h1 className={`${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} text-3xl md:text-4xl font-bold text-foreground mb-2 leading-tight`} style={{ fontStyle: 'normal', fontWeight: '900' }}>{book.name}</h1>
           <p className={`font-sans text-muted-foreground tracking-widest uppercase mt-5 ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100 * 0.875}rem`, fontWeight: fontFamily === 'cursive' ? '400' : undefined }}>
             Chapter {pos.chapter}
