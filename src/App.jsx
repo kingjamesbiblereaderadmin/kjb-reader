@@ -136,9 +136,9 @@ const PageLoader = ({ isFadingOut }) => {
     text = dynamicText;
   } else if (updateType && updatePhase !== 'done') {
     if (updatePhase === 'applying') {
-      text = "Applying updates...";
+      text = updateType === 'bible_first_load' ? "Finalizing setup..." : "Applying updates...";
     } else {
-      text = "Updates applied successfully...";
+      text = updateType === 'bible_first_load' ? "Ready to read..." : "Updates applied successfully...";
     }
   }
 
@@ -169,7 +169,7 @@ const PageLoader = ({ isFadingOut }) => {
 
 const RouteLoader = () => (
   <div className="flex justify-center py-24">
-    <Loader2 className="w-8 h-8 animate-spin text-accent" />
+    <Loader2 className="w-6 h-6 animate-spin text-primary/70" style={{ animationDuration: '2s' }} />
   </div>
 );
 
@@ -273,39 +273,36 @@ const AuthenticatedApp = () => {
         }
 
         // 2. Check Bible Data Updates and initial cache load
-        const { checkForUpdates, downloadBibleForOffline, autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
+        const { checkForUpdates, downloadBibleForOffline, isBibleCached } = await import('@/lib/bibleCache');
         const bibleNeedsUpdate = await checkForUpdates().catch(() => false);
+        const bibleIsCached = await isBibleCached().catch(() => true);
         
-        if (bibleNeedsUpdate) {
+        if (bibleNeedsUpdate || !bibleIsCached) {
           localStorage.removeItem('bible_cache_version');
           localStorage.removeItem('bible_last_refresh');
           try {
-            if (!hasAppUpdates) {
+            if (!hasAppUpdates && bibleNeedsUpdate) {
               window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
               await new Promise(r => setTimeout(r, 800));
             }
-            window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Downloading updates...' } }));
+            const dlMessage = !bibleIsCached ? 'Downloading offline Bible...' : 'Downloading updates...';
+            window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: dlMessage } }));
             await downloadBibleForOffline();
             hasBibleUpdates = true;
           } catch(e) {
             console.error('Failed to download bible updates', e);
           }
-        } else {
-          // ensure initial load happens if no updates but cache is missing
-          // Silently trigger background download without blocking the splash screen
-          import('@/lib/bibleCache').then(({ preloadBibleData }) => {
-            preloadBibleData();
-          }).catch(() => {});
         }
 
         if (hasAppUpdates || hasBibleUpdates) {
           let updateType = 'app';
           if (hasAppUpdates && hasBibleUpdates) { updateType = 'both'; }
+          else if (hasBibleUpdates && !bibleIsCached) { updateType = 'bible_first_load'; }
           else if (hasBibleUpdates) { updateType = 'bible'; }
           else if (hasAppUpdates) { updateType = 'app'; }
           
           sessionStorage.setItem('kjb_sw_updated', updateType);
-          window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Finalizing updates...' } }));
+          window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: !bibleIsCached ? 'Finalizing setup...' : 'Finalizing updates...' } }));
           willReload = true;
           setTimeout(() => {
             window.location.reload();

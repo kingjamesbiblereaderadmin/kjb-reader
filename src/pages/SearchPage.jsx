@@ -1138,10 +1138,12 @@ export default function SearchPage() {
       )}
 
       {loading && (
-        <div className="flex justify-center py-16">
-          <div className="text-center">
-            <Loader2 className="w-8 h-8 animate-spin text-accent mx-auto mb-3" />
-            <p className="font-sans text-sm text-muted-foreground">Searching the KJB…</p>
+        <div className="flex justify-center py-24">
+          <div className="flex flex-col items-center gap-3 text-center">
+            <Loader2 className="w-6 h-6 animate-spin text-primary/70" style={{ animationDuration: '2s' }} />
+            <span className="font-sans text-xs text-foreground/70 font-medium tracking-[0.2em] uppercase">
+              Searching the KJB...
+            </span>
           </div>
         </div>
       )}
