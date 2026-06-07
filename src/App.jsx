@@ -237,10 +237,10 @@ const AuthenticatedApp = () => {
           }
         } else {
           // ensure initial load happens if no updates but cache is missing
-          // Use Promise.race to timeout after 30 seconds so it never hangs forever
-          const downloadPromise = autoDownloadBibleOnFirstLoad().catch(() => {});
-          const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 30000));
-          await Promise.race([downloadPromise, timeoutPromise]).catch(() => {});
+          // Silently trigger background download without blocking the splash screen
+          import('@/lib/bibleCache').then(({ preloadBibleData }) => {
+            preloadBibleData();
+          }).catch(() => {});
         }
 
         if (hasAppUpdates || hasBibleUpdates) {

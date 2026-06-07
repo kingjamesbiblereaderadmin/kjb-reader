@@ -144,11 +144,11 @@ export default function AppLayout() {
     // so they get offline access. If already cached, do nothing.
     const handleOnline = async () => {
       try {
-        const { isBibleCached, autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
+        const { isBibleCached, preloadBibleData } = await import('@/lib/bibleCache');
         const cached = await isBibleCached();
         if (cached) return; // already have it — don't re-download
         console.log('[AppLayout] Back online, no cache — downloading Bible');
-        const result = await autoDownloadBibleOnFirstLoad();
+        preloadBibleData();
         // Silent — no toast needed
       } catch (err) {
         console.error('[AppLayout] Online handler failed:', err.message);
