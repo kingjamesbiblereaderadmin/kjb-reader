@@ -21,7 +21,7 @@ import {
 } from '@/lib/notifications';
 
 import { getDailyVerse } from '@/lib/dailyVerse';
-import { downloadBibleForOffline, downloadBibleForOfflineWithRetry, clearBibleCache, isBibleCached } from '@/lib/bibleCache';
+import { downloadBibleForOffline, downloadBibleForOfflineWithRetry, clearBibleCache, isBibleCached, CACHE_VERSION } from '@/lib/bibleCache';
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
 
 const A11Y_FONTS = [
@@ -929,8 +929,11 @@ export default function SettingsPage() {
         </button>
         {expandedSections.offline && (
           <div className="p-5 pt-0">
-            <p className="font-sans text-sm text-muted-foreground mb-4">
+            <p className="font-sans text-sm text-muted-foreground mb-2">
               Download all 66 books to your device for offline reading. Once downloaded, the Bible is available without an internet connection.
+            </p>
+            <p className="font-sans text-xs text-muted-foreground mb-4 font-mono bg-secondary/50 inline-block px-2 py-1 rounded">
+              Cache Version: {CACHE_VERSION}
             </p>
 
             {cached ? (
