@@ -395,7 +395,8 @@ const AuthenticatedApp = () => {
   useEffect(() => {
     if (!showSplash) {
       setFadeSplash(true);
-      setRenderSplash(false);
+      const timer = setTimeout(() => setRenderSplash(false), 500);
+      return () => clearTimeout(timer);
     } else {
       setRenderSplash(true);
       setFadeSplash(false);
