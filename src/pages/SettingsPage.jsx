@@ -30,7 +30,7 @@ const A11Y_FONTS = [
 ];
 
 const LAST_REVISED = 'June 7th, 2026';
-const WORKER_VERSION = 'v20260607_70';
+const WORKER_VERSION = 'v20260607_72';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -975,12 +975,12 @@ export default function SettingsPage() {
                             await swReg.update().catch(() => {});
                             if (swReg.waiting) hasCodeUpdates = true;
                             else if (swReg.installing) {
-                              if (swReg.installing.state === 'installed') hasCodeUpdates = true;
+                              if (swReg.installing.state === 'installed' || swReg.installing.state === 'activating' || swReg.installing.state === 'activated') hasCodeUpdates = true;
                               else {
                                 hasCodeUpdates = await new Promise(resolve => {
                                   const worker = swReg.installing;
                                   worker.addEventListener('statechange', () => {
-                                    if (worker.state === 'installed') resolve(true);
+                                    if (worker.state === 'installed' || worker.state === 'activating' || worker.state === 'activated') resolve(true);
                                     else if (worker.state === 'redundant') resolve(false);
                                   });
                                   setTimeout(() => resolve(false), 3000);

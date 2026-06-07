@@ -22,9 +22,24 @@ export default function RefreshCache() {
           if (reg.waiting) {
             hasCodeUpdates = true;
             reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-          } else if (reg.installing && reg.installing.state === 'installed') {
-            hasCodeUpdates = true;
-            reg.installing.postMessage({ type: 'SKIP_WAITING' });
+          } else if (reg.installing) {
+            if (reg.installing.state === 'installed' || reg.installing.state === 'activating' || reg.installing.state === 'activated') {
+              hasCodeUpdates = true;
+              reg.installing.postMessage({ type: 'SKIP_WAITING' });
+            } else {
+              hasCodeUpdates = await new Promise(resolve => {
+                const worker = reg.installing;
+                worker.addEventListener('statechange', () => {
+                  if (worker.state === 'installed' || worker.state === 'activating' || worker.state === 'activated') {
+                    worker.postMessage({ type: 'SKIP_WAITING' });
+                    resolve(true);
+                  } else if (worker.state === 'redundant') {
+                    resolve(false);
+                  }
+                });
+                setTimeout(() => resolve(false), 3000);
+              });
+            }
           }
         }
       }

@@ -293,7 +293,7 @@ const AuthenticatedApp = () => {
                 hasAppUpdates = true;
                 reg.waiting.postMessage({ type: 'SKIP_WAITING' });
               } else if (reg.installing) {
-                if (reg.installing.state === 'installed') {
+                if (reg.installing.state === 'installed' || reg.installing.state === 'activating' || reg.installing.state === 'activated') {
                   hasAppUpdates = true;
                   reg.installing.postMessage({ type: 'SKIP_WAITING' });
                 } else {
@@ -303,7 +303,7 @@ const AuthenticatedApp = () => {
                   hasAppUpdates = await new Promise(resolve => {
                     const worker = reg.installing;
                     worker.addEventListener('statechange', () => {
-                      if (worker.state === 'installed') {
+                      if (worker.state === 'installed' || worker.state === 'activating' || worker.state === 'activated') {
                         worker.postMessage({ type: 'SKIP_WAITING' });
                         resolve(true);
                       } else if (worker.state === 'redundant') {

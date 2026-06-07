@@ -68,8 +68,8 @@ window.addEventListener('load', async () => {
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (hasExistingController && !refreshing) {
           refreshing = true;
-          console.log('[SW] Controller changed. Service worker updated silently.');
-          // Intentionally NOT calling window.location.reload() to provide a completely silent update
+          console.log('[SW] Controller changed. Reloading to apply updates.');
+          window.location.href = window.location.pathname + '?updated=true';
         }
         hasExistingController = true;
       });
