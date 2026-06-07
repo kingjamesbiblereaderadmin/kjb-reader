@@ -10,6 +10,12 @@ import SearchResultsList from '@/components/bible/SearchResultsList';
 import GhostInput from '@/components/bible/GhostInput';
 import { setSearchNav, clearSearchNav } from '@/lib/searchNav';
 import ExportMenu from '@/components/bible/ExportMenu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import { exportVerses } from '@/lib/exportVerses';
 import { buildVerseUrl } from '@/lib/formatDailyVerse';
@@ -1289,12 +1295,23 @@ export default function SearchPage() {
                     <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy All'}
                   </button>
                   <ExportMenu onExport={handleExport} label="Export" warning />
-                  <button
-                    onClick={() => handleExport('print')}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
-                  >
-                    <Printer className="w-3.5 h-3.5" /> Print
-                  </button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors">
+                        <Printer className="w-3.5 h-3.5" /> Print
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem onClick={() => window.print()} className="cursor-pointer">
+                        <Printer className="w-4 h-4 mr-2" />
+                        Print Full Page
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleExport('print')} className="cursor-pointer">
+                        <BookMarked className="w-4 h-4 mr-2" />
+                        Print Search Results
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <button
                     onClick={handleShare}
                     className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
@@ -1319,12 +1336,23 @@ export default function SearchPage() {
                         <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : `Copy (${selected.size})`}
                       </button>
                       <ExportMenu onExport={handleExport} count={selected.size} label="Export" warning />
-                      <button
-                        onClick={() => handleExport('print')}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
-                      >
-                        <Printer className="w-3.5 h-3.5" /> Print
-                      </button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors">
+                            <Printer className="w-3.5 h-3.5" /> Print
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuItem onClick={() => window.print()} className="cursor-pointer">
+                            <Printer className="w-4 h-4 mr-2" />
+                            Print Full Page
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleExport('print')} className="cursor-pointer">
+                            <BookMarked className="w-4 h-4 mr-2" />
+                            Print Search Results
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                       <button
                         onClick={handleShare}
                         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
