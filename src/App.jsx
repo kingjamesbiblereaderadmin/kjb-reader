@@ -128,10 +128,9 @@ const PageLoader = ({ isFadingOut, forcedText }) => {
   let text = (isFirstVisit || updateType === 'bible_first_load') ? "Welcome to KJB Reader..." : 
              "Welcome back to KJB Reader...";
              
-  if (dynamicText) {
-    text = dynamicText;
-  } else if (updateType) {
-    if (updateType === 'bible_first_load') text = "Ready to read...";
+  if (updateType) {
+    if (updateType === 'bible_first_load') text = "Welcome to KJB Reader...";
+    else if (dynamicText) text = dynamicText;
     else if (updateType === 'forced_update' || updateType === 'app' || updateType === 'both' || updateType === 'bible') text = "Updates applied successfully...";
     else if (updateType === 'up_to_date') text = "App is up to date...";
     else text = "Welcome back to KJB Reader...";
@@ -359,7 +358,7 @@ const AuthenticatedApp = () => {
           }
 
           sessionStorage.setItem('kjb_sw_updated', updateType);
-          const applyMsg = !bibleIsCached ? 'Loading...' : 'Applying updates...';
+          const applyMsg = !bibleIsCached ? 'Welcome to KJB Reader...' : 'Applying updates...';
           setApplyMessage(applyMsg);
           window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: applyMsg } }));
           window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: applyMsg, status: 'loading' } }));
