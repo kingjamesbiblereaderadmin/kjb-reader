@@ -128,11 +128,7 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
     return () => window.removeEventListener('kjb-splash-update', handleProgress);
   }, []);
 
-  const [minTimePassed, setMinTimePassed] = useState(false);
-  useEffect(() => {
-    const timer = setTimeout(() => setMinTimePassed(true), 1500);
-    return () => clearTimeout(timer);
-  }, []);
+  const [minTimePassed, setMinTimePassed] = useState(true);
 
   if (isFadingOut) return null;
 
@@ -145,11 +141,11 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
     if (updateType === 'both') loadingText = "Applying app & Bible updates...";
     else if (updateType === 'bible') loadingText = "Applying Bible data updates...";
     else loadingText = "Applying app updates...";
-  } else if (!isReady || !minTimePassed) {
+  } else if (!isReady) {
     loadingText = isFirstVisit ? "Loading KJB Reader..." : "Welcome back...";
   }
 
-  const isAppReady = isReady && minTimePassed;
+  const isAppReady = isReady;
 
   return (
     <div className={`fixed inset-0 z-[9999] bg-background overflow-hidden ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
@@ -344,7 +340,7 @@ const AuthenticatedApp = () => {
     const isPostUpdate = sessionStorage.getItem('kjb_sw_updated');
     // If we just reloaded from an update, stagger the splash screen longer
     // to give time for the "Applying updates..." and "Loading KJB Reader..." phases
-    const timer = setTimeout(() => setMinSplashDone(true), isPostUpdate ? 5000 : 800); 
+    const timer = setTimeout(() => setMinSplashDone(true), isPostUpdate ? 5000 : 0); 
     return () => clearTimeout(timer);
   }, []);
 
