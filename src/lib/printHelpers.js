@@ -22,6 +22,7 @@ export function printChapterContents(verses, book, pos, filterMode, selectedVers
   versesToPrint.forEach(r => {
     itemsToPrint.push({
       text: r.text,
+      verse: r.verse,
       ref: `${book.shortName} ${pos.chapter}:${r.verse}`,
       testament: book.testament,
       bookName: book.name

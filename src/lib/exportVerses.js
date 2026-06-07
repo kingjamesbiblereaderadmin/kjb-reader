@@ -259,12 +259,13 @@ export function exportPrint(items, query, filters, options = {}) {
   
   let rows = '';
   if (isReading) {
-    rows = items.map(it =>
-      `<p style="margin:0 0 14pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;">` +
-      `&ldquo;${bracketsToItalicHtml(it.text)}&rdquo;<br/>` +
-      `<span style="font-size:10pt;color:#555;">&mdash; ${escapeHtml(it.ref)} (KJB)</span>` +
-      `</p>`
-    ).join('');
+    const content = items.map(it => {
+      if (it.isColophon || it.isSubscript) {
+        return `<p style="margin:14pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;font-style:italic;color:#555;text-align:center;">${escapeHtml(it.text)}</p>`;
+      }
+      return `<span style="font-family:Georgia,serif;font-size:12pt;line-height:1.6;"><sup style="font-size:8pt;margin-right:2pt;color:#555;">${it.verse}</sup>${bracketsToItalicHtml(it.text)} </span>`;
+    }).join('');
+    rows = `<div style="text-align:justify;margin-top:20px;">${content}</div>`;
   } else {
     rows = splitBySections(items).map(sec => {
       if (sec.isTestament) return `<h2 style="font-family:Georgia,serif;font-size:16pt;margin:30pt 0 16pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;">${escapeHtml(sec.title.toUpperCase())}</h2>`;
