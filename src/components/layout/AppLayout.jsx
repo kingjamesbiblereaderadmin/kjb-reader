@@ -433,7 +433,7 @@ function BottomNav({ pathname, navigate }) {
   if (showMode === 'bar') {
     return (
       <nav className="sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/80 backdrop-blur-md border-t border-border/50" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="w-full px-1.5">
+        <div className="w-full max-w-[90rem] mx-auto px-5 sm:px-12 lg:px-16">
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); cycleShowMode(); }}
@@ -449,7 +449,7 @@ function BottomNav({ pathname, navigate }) {
 
   return (
     <nav className="sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/95 backdrop-blur-md border-t border-border overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      <div className="w-full px-1.5">
+      <div className="w-full max-w-[90rem] mx-auto px-5 sm:px-12 lg:px-16">
         {/* Primary row: 5 nav items + chevron toggle button */}
         <div className="flex items-stretch">
           {BOTTOM_NAV_PRIMARY.map(item => {
