@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bookmark, Trash2, BookOpen, Share2, Copy, FolderPlus, Folder, MoreVertical, Edit2 } from 'lucide-react';
+import { Bookmark, Trash2, BookOpen, Share2, Copy, FolderPlus, Folder, MoreVertical, Edit2, Search } from 'lucide-react';
 import { getSavedVerses, removeSavedVerse, getSavedFolders, createFolder, deleteFolder, updateVerseFolder } from '@/lib/savedVerses';
 import { formatVerseShare, buildVerseUrl } from '@/lib/formatDailyVerse';
 import { toast } from 'sonner';
@@ -20,6 +20,7 @@ export default function SavedVersesPage() {
   const [saved, setSaved] = useState([]);
   const [folders, setFolders] = useState([]);
   const [activeFolder, setActiveFolder] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
   
   const navigate = useNavigate();
 
@@ -108,6 +109,19 @@ export default function SavedVersesPage() {
         <p className="font-sans text-sm text-muted-foreground">{saved.length} verse{saved.length !== 1 ? 's' : ''} saved</p>
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
       </div>
+
+      {saved.length > 0 && (
+        <div className="relative mb-6">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search saved verses..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-card border border-border rounded-xl py-3 pl-11 pr-4 font-sans text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
+          />
+        </div>
+      )}
       
       {/* Folder Navigation */}
       <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
@@ -171,6 +185,7 @@ export default function SavedVersesPage() {
         <div className="space-y-3">
           {saved
             .filter(entry => activeFolder === 'All' || (entry.folder || 'Favorites') === activeFolder)
+            .filter(entry => !searchQuery || entry.text.toLowerCase().includes(searchQuery.toLowerCase()) || entry.ref.toLowerCase().includes(searchQuery.toLowerCase()))
             .map((entry, i) => (
             <div
               key={i}
@@ -242,9 +257,11 @@ export default function SavedVersesPage() {
               </div>
             </div>
           ))}
-          {saved.filter(entry => activeFolder === 'All' || (entry.folder || 'Favorites') === activeFolder).length === 0 && (
+          {saved.filter(entry => activeFolder === 'All' || (entry.folder || 'Favorites') === activeFolder).filter(entry => !searchQuery || entry.text.toLowerCase().includes(searchQuery.toLowerCase()) || entry.ref.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
             <div className="text-center py-12">
-              <p className="font-sans text-sm text-muted-foreground">No verses in this folder.</p>
+              <p className="font-sans text-sm text-muted-foreground">
+                {searchQuery ? "No verses match your search." : "No verses in this folder."}
+              </p>
             </div>
           )}
         </div>
