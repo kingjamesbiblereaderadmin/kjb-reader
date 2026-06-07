@@ -70,19 +70,47 @@ export function applyDailyAccent(isDark = document.documentElement.classList.con
     root.style.setProperty('--primary', primary);
     root.style.setProperty('--sidebar-primary', primary);
 
-    // Box surfaces — derived from the same hue.
-    const surface = tintFromHex(bg.hex[1], isDark);
-    root.style.setProperty('--card', surface);
-    root.style.setProperty('--secondary', surface);
-    root.style.setProperty('--muted', surface);
+    // Foreground for vivid mid-tones
+    root.style.setProperty('--accent-foreground', '0 0% 100%');
+    root.style.setProperty('--primary-foreground', '0 0% 100%');
+    root.style.setProperty('--sidebar-primary-foreground', '0 0% 100%');
 
-    // Borders + page background take the same hue at very low saturation.
-    // In light mode the border is a touch darker than the box surface so the
-    // boxes have a visible outline.
-    root.style.setProperty('--border', isDark ? `${hue} 20% 22%` : `${hue} 32% 73%`);
-    root.style.setProperty('--input', isDark ? `${hue} 20% 22%` : `${hue} 32% 73%`);
-    root.style.setProperty('--background', isDark ? `${hue} 28% 8%` : `${hue} 35% 99%`);
-    root.style.setProperty('--sidebar-background', isDark ? `${hue} 28% 9%` : `${hue} 30% 98%`);
-    root.style.setProperty('--sidebar-accent', surface);
+    if (isDark) {
+      root.style.setProperty('--background', `${hue} 30% 8%`);
+      root.style.setProperty('--foreground', `${hue} 25% 92%`);
+      root.style.setProperty('--card', `${hue} 28% 12%`);
+      root.style.setProperty('--card-foreground', `${hue} 25% 92%`);
+      root.style.setProperty('--popover', `${hue} 28% 12%`);
+      root.style.setProperty('--popover-foreground', `${hue} 25% 92%`);
+      root.style.setProperty('--secondary', `${hue} 22% 18%`);
+      root.style.setProperty('--secondary-foreground', `${hue} 25% 88%`);
+      root.style.setProperty('--muted', `${hue} 22% 18%`);
+      root.style.setProperty('--muted-foreground', `${hue} 15% 60%`);
+      root.style.setProperty('--border', `${hue} 20% 22%`);
+      root.style.setProperty('--input', `${hue} 20% 22%`);
+      root.style.setProperty('--sidebar-background', `${hue} 30% 9%`);
+      root.style.setProperty('--sidebar-foreground', `${hue} 25% 88%`);
+      root.style.setProperty('--sidebar-accent', `${hue} 22% 18%`);
+      root.style.setProperty('--sidebar-accent-foreground', `${hue} 25% 88%`);
+      root.style.setProperty('--sidebar-border', `${hue} 20% 22%`);
+    } else {
+      root.style.setProperty('--background', `${hue} 30% 99%`);
+      root.style.setProperty('--foreground', `${hue} 55% 8%`);
+      root.style.setProperty('--card', `${hue} 12% 95%`);
+      root.style.setProperty('--card-foreground', `${hue} 55% 8%`);
+      root.style.setProperty('--popover', `0 0% 100%`);
+      root.style.setProperty('--popover-foreground', `${hue} 55% 8%`);
+      root.style.setProperty('--secondary', `${hue} 14% 89%`);
+      root.style.setProperty('--secondary-foreground', `${hue} 30% 24%`);
+      root.style.setProperty('--muted', `${hue} 14% 91%`);
+      root.style.setProperty('--muted-foreground', `${hue} 12% 40%`);
+      root.style.setProperty('--border', `${hue} 30% 89%`);
+      root.style.setProperty('--input', `${hue} 30% 89%`);
+      root.style.setProperty('--sidebar-background', `${hue} 40% 98%`);
+      root.style.setProperty('--sidebar-foreground', `${hue} 35% 15%`);
+      root.style.setProperty('--sidebar-accent', `${hue} 40% 95%`);
+      root.style.setProperty('--sidebar-accent-foreground', `${hue} 45% 25%`);
+      root.style.setProperty('--sidebar-border', `${hue} 30% 89%`);
+    }
   } catch {}
 }
