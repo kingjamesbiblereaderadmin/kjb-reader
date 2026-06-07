@@ -1,50 +1,48 @@
 Deno.serve(async (req) => {
   try {
-    const content = Deno.readTextFileSync("/src/pages/BibleReader.jsx");
-    const findStr = `      if (isFromDaily) {
-        lastReadingClearedRef.current = false;
-        try {
-          const saved = localStorage.getItem('kjb-last-reading');
-          if (saved) {
-            setLastReadingPos(JSON.parse(saved));
-          } else {
-            const dailyPos = { abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum || null, fromDailyVerse: true };
-            localStorage.setItem('kjb-last-reading', JSON.stringify(dailyPos));
-            setLastReadingPos(dailyPos);
-          }
-        } catch {}
-      }`;
+    const path = "src/pages/BibleReader.jsx";
+    let content = await Deno.readTextFile(path);
     
-    const replaceStr = `      if (isFromDaily) {
-        lastReadingClearedRef.current = false;
-        try {
-          const saved = localStorage.getItem('kjb-last-reading');
-          if (saved) {
-            const parsed = JSON.parse(saved);
-            // If the saved data matches what's in the URL, use it
-            if (parsed.abbr === urlBookObj.abbr && parsed.chapter === chapterNum) {
-              setLastReadingPos(parsed);
-            } else {
-              const dailyPos = { abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum || null, fromDailyVerse: true };
-              localStorage.setItem('kjb-last-reading', JSON.stringify(dailyPos));
-              setLastReadingPos(dailyPos);
-            }
-          } else {
-            const dailyPos = { abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum || null, fromDailyVerse: true };
-            localStorage.setItem('kjb-last-reading', JSON.stringify(dailyPos));
-            setLastReadingPos(dailyPos);
-          }
-        } catch {}
-      }`;
+    // Add Printer to import
+    content = content.replace(
+      "Type, Share2 } from 'lucide-react';",
+      "Type, Share2, Printer } from 'lucide-react';"
+    );
     
-    if (content.includes(findStr)) {
-      const newContent = content.replace(findStr, replaceStr);
-      Deno.writeTextFileSync("/src/pages/BibleReader.jsx", newContent);
-      return Response.json({ success: true, message: "Replaced successfully" });
-    } else {
-      return Response.json({ success: false, message: "String not found" });
+    // Add Print button
+    const findStr = `              {/* Share chapter / selected verses */}
+              <button
+                onClick={handleShareChapter}
+                onTouchEnd={(e) => { e.preventDefault(); handleShareChapter(); }}
+                title={shareFeedback ? 'Link copied!' : 'Share this chapter'}
+                className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"
+              >
+                <Share2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
+                <span className="hidden lg:inline">{shareFeedback ? 'Copied!' : 'Share'}</span>
+              </button>`;
+              
+    const replaceStr = findStr + `
+              {/* Print chapter */}
+              <button
+                onClick={() => window.print()}
+                onTouchEnd={(e) => { e.preventDefault(); window.print(); }}
+                title="Print this chapter"
+                className="hidden sm:flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"
+              >
+                <Printer className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
+                <span className="hidden lg:inline">Print</span>
+              </button>`;
+              
+    if (!content.includes(findStr)) {
+      return Response.json({ error: "Find string not found" });
     }
+    
+    content = content.replace(findStr, replaceStr);
+    
+    await Deno.writeTextFile(path, content);
+    
+    return Response.json({ success: true });
   } catch (e) {
-    return Response.json({ success: false, message: e.message });
+    return Response.json({ error: e.message });
   }
 });

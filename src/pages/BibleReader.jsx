@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronLeft, ChevronRight, Loader2, AlignJustify, AlignLeft, List, Columns2, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, AlignJustify, AlignLeft, List, Columns2, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2, Printer } from 'lucide-react';
 import { buildVerseUrl, formatVerseShare, cleanVerseText } from '@/lib/formatDailyVerse';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText, renderSubscriptText } from '@/lib/bibleApi';
@@ -1518,16 +1518,9 @@ export default function BibleReader() {
                 <CheckSquare className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
                 <span className="hidden lg:inline">Select</span>
               </button>
-              {/* Share chapter / selected verses */}
-              <button
-                onClick={handleShareChapter}
-                onTouchEnd={(e) => { e.preventDefault(); handleShareChapter(); }}
-                title={shareFeedback ? 'Link copied!' : 'Share this chapter'}
-                className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"
-              >
-                <Share2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
-                <span className="hidden lg:inline">{shareFeedback ? 'Copied!' : 'Share'}</span>
-              </button>
+              {/* Share / Print */}
+              <button onClick={handleShareChapter} onTouchEnd={(e) => { e.preventDefault(); handleShareChapter(); }} title={shareFeedback ? 'Link copied!' : 'Share this chapter'} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"><Share2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /><span className="hidden lg:inline">{shareFeedback ? 'Copied!' : 'Share'}</span></button>
+              <button onClick={() => window.print()} onTouchEnd={(e) => { e.preventDefault(); window.print(); }} title="Print" className="hidden sm:flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"><Printer className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /><span className="hidden lg:inline">Print</span></button>
 
               {/* Prev */}
               <button
