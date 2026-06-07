@@ -65,7 +65,7 @@ export default function RefreshCache() {
 
       if (!hasCodeUpdates && !hasBibleUpdates) {
         setStatus('no_update');
-        setTimeout(() => { window.location.href = '/'; }, 2000);
+        setTimeout(() => { window.location.href = '/'; }, 1200);
         return;
       }
 
@@ -93,7 +93,7 @@ export default function RefreshCache() {
       // Reload after success
       setTimeout(() => {
         window.location.href = '/';
-      }, 2500);
+      }, 1200);
     } catch (err) {
       console.error('Cache refresh failed:', err);
       // Fallback: just reload

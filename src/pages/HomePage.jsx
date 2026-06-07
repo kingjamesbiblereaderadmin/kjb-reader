@@ -144,12 +144,18 @@ export default function HomePage() {
               window.dispatchEvent(new Event('kjb-progress-clear'));
               window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: reloadText, status: 'loading' } }));
 
+              await new Promise(r => setTimeout(r, 1200));
+
               if (bibleNeedsUpdate) {
+                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Downloading updates...', status: 'loading' } }));
                 console.log('[UpdateCheck] Downloading new Bible data...');
                 localStorage.removeItem('bible_cache_version');
                 localStorage.removeItem('bible_last_refresh');
                 await downloadBibleForOffline();
               }
+
+              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Applying updates...', status: 'loading' } }));
+              await new Promise(r => setTimeout(r, 1000));
 
               if (swUpdated && 'serviceWorker' in navigator) {
                 const reg = await navigator.serviceWorker.getRegistration();
@@ -163,7 +169,7 @@ export default function HomePage() {
 
               console.log('[UpdateCheck] Reloading application...');
               sessionStorage.setItem('kjb_sw_updated', updateType);
-              setTimeout(() => { window.location.href = window.location.pathname + '?refresh=' + Date.now(); }, 2000);
+              setTimeout(() => { window.location.href = window.location.pathname + '?refresh=' + Date.now(); }, 500);
               return;
             }
 

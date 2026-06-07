@@ -235,9 +235,9 @@ const AuthenticatedApp = () => {
     // Extend minimum splash times so text is readable
     let delay = 2500; // Fresh load: 2.5s
     if (isPostUpdate || isForcedUpdate) {
-      delay = 3500; // Update applied: 3.5s (gives time to read "Updates applied successfully")
+      delay = 2500; // Update applied: 2.5s (gives time to read "Updates applied successfully")
     } else if (!isFresh) {
-      delay = 1500; // Returning session: 1.5s
+      delay = 1200; // Returning session: 1.2s
     }
 
     const timer = setTimeout(() => setMinSplashDone(true), delay); 
@@ -283,7 +283,7 @@ const AuthenticatedApp = () => {
                   reg.installing.postMessage({ type: 'SKIP_WAITING' });
                 } else {
                   window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
-                  await new Promise(r => setTimeout(r, 800));
+                  await new Promise(r => setTimeout(r, 1000));
                   window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Downloading updates...' } }));
                   hasAppUpdates = await new Promise(resolve => {
                     let resolved = false;
@@ -328,7 +328,7 @@ const AuthenticatedApp = () => {
           try {
             if (!hasAppUpdates && bibleNeedsUpdate) {
               window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
-              await new Promise(r => setTimeout(r, 800));
+              await new Promise(r => setTimeout(r, 1000));
             }
             const dlMessage = !bibleIsCached ? 'Downloading offline Bible...' : 'Downloading updates...';
             window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: dlMessage } }));
@@ -355,12 +355,14 @@ const AuthenticatedApp = () => {
           }
 
           sessionStorage.setItem('kjb_sw_updated', updateType);
-          setApplyMessage(!bibleIsCached ? 'Loading...' : 'Applying updates...');
+          const applyMsg = !bibleIsCached ? 'Loading...' : 'Applying updates...';
+          setApplyMessage(applyMsg);
+          window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: applyMsg } }));
           setIsApplyingUpdates(true);
           willReload = true;
           setTimeout(() => {
             window.location.reload();
-          }, 2500);
+          }, 1200);
           return; 
         }
 
