@@ -36,7 +36,10 @@ export default function CurrentlyReadingIndicator({
 }) {
   const isFilterMode = filterMode && selectedVerses.size > 0;
   const isRandom = lastReadingPos && lastReadingPos.fromRandom;
-  const isDaily = lastReadingPos && lastReadingPos.fromDailyVerse;
+  // Use lastReadingPos if available, but also check the URL for 'from=daily' 
+  // to handle cases where the user clicked a notification or opened a shared link.
+  const isDaily = (lastReadingPos && lastReadingPos.fromDailyVerse) || 
+                  (typeof window !== 'undefined' && window.location.search.includes('from=daily'));
   const verseNum = pos.verse;
   // Suffix for non-verse sections (Psalm superscription / book colophon)
   const sectionSuffix = highlightSection === 'colophon'
@@ -66,7 +69,7 @@ export default function CurrentlyReadingIndicator({
     reference = `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`;
     clearLabel = 'Show Full Chapter';
   } else if (isDaily) {
-    const v = lastReadingPos.verse || verseNum || '1';
+    const v = (lastReadingPos && lastReadingPos.verse) || verseNum || '1';
     typeLabel = 'Daily Verse';
     reference = `${book.shortName} ${pos.chapter}:${v}`;
     clearLabel = 'Clear';
