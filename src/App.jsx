@@ -12,6 +12,8 @@ import { SoftReloadProvider, useSoftReload } from '@/lib/SoftReloadContext';
 import AppLayout from '@/components/layout/AppLayout';
 import { getDailyVerse } from '@/lib/dailyVerse';
 import React, { lazy, Suspense, useEffect, useState } from 'react';
+import FirstLoadPrompt from '@/components/FirstLoadPrompt';
+import { useAppLayoutPrompt } from '@/components/layout/AppLayout';
 
 // Lazy-load pages. Each import() factory is kept as a reference so we can
 // also trigger it manually in the background to preload all routes.
@@ -115,7 +117,10 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
   });
 
   const [gospelDismissed, setGospelDismissed] = useState(!isFirstVisit);
+  const [promptDismissed, setPromptDismissed] = useState(!isFirstVisit);
   const [showWelcome, setShowWelcome] = useState(true);
+  
+  const promptProps = useAppLayoutPrompt();
 
   useEffect(() => {
     const handleProgress = (e) => {
@@ -160,10 +165,16 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
                 className="relative w-32 h-32 object-contain drop-shadow-2xl"
               />
             </div>
-            <div className="flex items-center gap-3 text-foreground bg-card/90 px-6 py-3 rounded-2xl shadow-xl backdrop-blur-sm border border-border/50">
-              <Loader2 className="w-5 h-5 animate-spin text-foreground shrink-0" />
-              <span className="font-sans text-sm font-semibold tracking-wide">{welcomeText}</span>
+            
+            <div className="flex flex-col gap-3 mt-4 items-center">
+              {(!isReady || dynamicText || updateType) && (
+                <div className="flex items-center gap-3 text-foreground bg-card/90 px-6 py-3 rounded-2xl shadow-xl backdrop-blur-sm border border-border/50">
+                  <Loader2 className="w-5 h-5 animate-spin text-foreground shrink-0" />
+                  <span className="font-sans text-sm font-semibold tracking-wide">{bannerText}</span>
+                </div>
+              )}
             </div>
+
           </div>
         </div>
       </div>
@@ -182,15 +193,37 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
             />
           </div>
           <div className="absolute bottom-12 left-0 right-0 flex justify-center z-50 pb-env-safe px-4 pointer-events-auto">
-            <button 
-              onClick={() => setGospelDismissed(true)}
-              className="flex items-center gap-2 px-8 py-3.5 bg-white text-slate-900 rounded-full font-sans text-lg font-bold transition-all duration-200 hover:scale-105 active:scale-95 shadow-2xl border border-white/20"
-            >
-              Continue
-              <ChevronRight className="w-5 h-5" />
-            </button>
+            {(!isReady || dynamicText || updateType) ? (
+              <div className="flex items-center gap-3 text-foreground bg-white/90 backdrop-blur-sm px-6 py-3 rounded-2xl shadow-xl border border-white/20">
+                <Loader2 className="w-5 h-5 animate-spin text-slate-800 shrink-0" />
+                <span className="font-sans text-sm font-semibold tracking-wide text-slate-800">{bannerText}</span>
+              </div>
+            ) : (
+              <button 
+                onClick={() => setGospelDismissed(true)}
+                className="flex items-center gap-2 px-8 py-3.5 bg-white text-slate-900 rounded-full font-sans text-lg font-bold transition-all duration-200 hover:scale-105 active:scale-95 shadow-2xl border border-white/20"
+              >
+                Continue
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            )}
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (!promptDismissed) {
+    return (
+      <div className={`fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300 px-4`}>
+        <FirstLoadPrompt 
+          splashMode={true}
+          isInstallable={promptProps.isInstallable}
+          notifPermission={promptProps.notifPermission}
+          onInstall={promptProps.handleInstall}
+          onEnableNotif={promptProps.handleEnableNotif}
+          onDismiss={() => setPromptDismissed(true)}
+        />
       </div>
     );
   }
@@ -203,7 +236,7 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
           <DailyVerseImage verse={dailyVerse} onClick={() => {}} splashMode={true} />
         </div>
         <div className="absolute bottom-12 left-0 right-0 flex justify-center z-50 pb-env-safe px-4 pointer-events-auto">
-          {!isReady || dynamicText ? (
+          {(!isReady || dynamicText || updateType) ? (
             <div className="flex items-center gap-3 text-foreground bg-white/90 backdrop-blur-sm px-6 py-3 rounded-2xl shadow-xl border border-white/20">
               <Loader2 className="w-5 h-5 animate-spin text-slate-800 shrink-0" />
               <span className="font-sans text-sm font-semibold tracking-wide text-slate-800">{bannerText}</span>
@@ -492,6 +525,28 @@ const AuthenticatedApp = () => {
       {renderSplash && <PageLoader isFadingOut={fadeSplash} isReady={isAppReady} onDismiss={() => setSplashDismissed(true)} />}
       {!isInitializing && !authError && (
         <>
+          {/* TEST BUTTONS */}
+          <div className="fixed bottom-24 right-4 z-50 flex flex-col gap-2 pointer-events-auto">
+            <button 
+              onClick={() => { 
+                localStorage.removeItem('kjb_has_visited_v2'); 
+                window.location.reload(); 
+              }}
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-bold shadow-lg"
+            >
+              TEST FIRST TIME
+            </button>
+            <button 
+              onClick={() => { 
+                localStorage.setItem('kjb_has_visited_v2', 'true');
+                setSplashDismissed(false); 
+                setRenderSplash(true); 
+              }}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-bold shadow-lg"
+            >
+              TEST SUBSEQUENT
+            </button>
+          </div>
           <Routes location={location}>
             <Route element={<AppLayout />}>
         <Route path="/" element={<Suspense fallback={<RouteLoader />}><FadeIn><HomePage /></FadeIn></Suspense>} />
