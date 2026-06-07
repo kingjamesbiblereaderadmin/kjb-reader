@@ -255,7 +255,7 @@ function GospelActions() {
         </button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex self-stretch h-full items-center justify-center px-3 hover:bg-accent/20 text-foreground transition-colors outline-none border-l border-border/50">
+            <button className="flex self-stretch h-full items-center justify-center px-3 hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] outline-none border-l border-border/50">
               <ChevronDown className="w-4 h-4 opacity-70" />
             </button>
           </DropdownMenuTrigger>
