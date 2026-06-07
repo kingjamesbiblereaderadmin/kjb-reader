@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { RefreshCw, RotateCw, CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
+import { RefreshCw, RotateCw, CheckCircle2, AlertCircle, Info, X, Loader2 } from 'lucide-react';
 
 export default function UpdateBanner() {
   const [progressMsg, setProgressMsg] = useState(null);
@@ -63,7 +63,7 @@ export default function UpdateBanner() {
             />
           </div>
           <div className="flex items-center gap-3 text-foreground bg-card/80 px-6 py-3 rounded-2xl backdrop-blur-md shadow-lg border border-border/50">
-            <RotateCw className="w-5 h-5 animate-spin text-primary" />
+            <Loader2 className="w-5 h-5 animate-spin text-primary" />
             <span className="font-sans text-sm font-semibold tracking-wide">{progressMsg}</span>
           </div>
         </div>
