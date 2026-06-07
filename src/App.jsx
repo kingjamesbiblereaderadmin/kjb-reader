@@ -99,6 +99,15 @@ const PageLoader = ({ isFadingOut }) => {
     typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null
   );
   const [showLoading, setShowLoading] = useState(!updateType);
+  const [dynamicText, setDynamicText] = useState(null);
+
+  useEffect(() => {
+    const handleProgress = (e) => {
+      if (e.detail?.message) setDynamicText(e.detail.message);
+    };
+    window.addEventListener('kjb-splash-update', handleProgress);
+    return () => window.removeEventListener('kjb-splash-update', handleProgress);
+  }, []);
 
   useEffect(() => {
     if (updateType) {
@@ -112,7 +121,9 @@ const PageLoader = ({ isFadingOut }) => {
   if (isFadingOut) return null;
   
   let text = "Loading KJB Reader...";
-  if (updateType && !showLoading) {
+  if (dynamicText) {
+    text = dynamicText;
+  } else if (updateType && !showLoading) {
     if (updateType === 'both') text = "Applying app & Bible updates...";
     else if (updateType === 'bible') text = "Applying Bible data updates...";
     else text = "Applying app updates...";
@@ -191,6 +202,7 @@ const AuthenticatedApp = () => {
     const checkUpdatesSilently = async () => {
       if (updateCheckInProgress) return;
       updateCheckInProgress = true;
+      let willReload = false;
       try {
         if (typeof navigator !== 'undefined' && navigator.onLine === false) {
           updateCheckInProgress = false;
@@ -221,6 +233,7 @@ const AuthenticatedApp = () => {
                   hasAppUpdates = true;
                   reg.installing.postMessage({ type: 'SKIP_WAITING' });
                 } else {
+                  window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Downloading app updates...' } }));
                   hasAppUpdates = await new Promise(resolve => {
                     const worker = reg.installing;
                     worker.addEventListener('statechange', () => {
@@ -247,6 +260,7 @@ const AuthenticatedApp = () => {
           localStorage.removeItem('bible_cache_version');
           localStorage.removeItem('bible_last_refresh');
           try {
+            window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Downloading Bible data...' } }));
             await downloadBibleForOffline();
             hasBibleUpdates = true;
           } catch(e) {
@@ -262,23 +276,24 @@ const AuthenticatedApp = () => {
 
         if (hasAppUpdates || hasBibleUpdates) {
           let updateType = 'app';
-          let reloadText = 'Found updates...';
-          if (hasAppUpdates && hasBibleUpdates) { updateType = 'both'; reloadText = 'Found app & Bible updates...'; }
-          else if (hasBibleUpdates) { updateType = 'bible'; reloadText = 'Found Bible data updates...'; }
-          else if (hasAppUpdates) { updateType = 'app'; reloadText = 'Found app updates...'; }
+          let reloadText = 'Applying updates...';
+          if (hasAppUpdates && hasBibleUpdates) { updateType = 'both'; reloadText = 'Applying app & Bible updates...'; }
+          else if (hasBibleUpdates) { updateType = 'bible'; reloadText = 'Applying Bible data updates...'; }
+          else if (hasAppUpdates) { updateType = 'app'; reloadText = 'Applying app updates...'; }
           
           sessionStorage.setItem('kjb_sw_updated', updateType);
-          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: reloadText, status: 'loading' } }));
+          window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: reloadText } }));
+          willReload = true;
           setTimeout(() => {
             window.location.reload();
-          }, 3500);
+          }, 1500);
           return; 
         }
 
       } catch (err) {
         console.error('Silent update check failed:', err);
       } finally {
-        if (isMounted) {
+        if (isMounted && !willReload) {
           setUpdateCheckDone(true);
         }
         updateCheckInProgress = false;
