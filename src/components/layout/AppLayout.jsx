@@ -7,7 +7,6 @@ import BibleSearchBar from '@/components/bible/BibleSearchBar';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import ScrollToTop from '@/components/ScrollToTop';
 import AutoUpdateHandler from '@/components/AutoUpdateHandler';
-import UpdateBanner from '@/components/UpdateBanner';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, initNotifications } from '@/lib/notifications';
 import { getBibleData, isBibleCached, initPeriodicCacheRefresh, downloadBibleForOffline, refreshCacheIfDue, CACHE_VERSION } from '@/lib/bibleCache';
@@ -243,8 +242,6 @@ export default function AppLayout() {
             </button>
           </div>
         </div>
-
-        <UpdateBanner />
         
         {menuOpen && (
           <>

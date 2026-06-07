@@ -301,6 +301,10 @@ const AuthenticatedApp = () => {
           else if (hasBibleUpdates) { updateType = 'bible'; }
           else if (hasAppUpdates) { updateType = 'app'; }
           
+          if (window.location.pathname !== '/' && updateType !== 'bible_first_load') {
+            return;
+          }
+
           sessionStorage.setItem('kjb_sw_updated', updateType);
           window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: !bibleIsCached ? 'Finalizing setup...' : 'Finalizing updates...' } }));
           willReload = true;
@@ -341,6 +345,7 @@ const AuthenticatedApp = () => {
   // Check for updates on route change (e.g. navigating around)
   useEffect(() => {
     if (!updateCheckDone) return;
+    if (location.pathname !== '/') return;
     
     let isMounted = true;
     const checkNavUpdates = async () => {
