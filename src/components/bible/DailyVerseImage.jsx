@@ -322,8 +322,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               <title>Print Verse</title>
               <style>
                 @page { margin: 0; size: auto; }
-                body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: white; }
-                img { max-width: 100%; max-height: 100vh; object-fit: contain; }
+                body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; width: 100vw; background: white; overflow: hidden; }
+                img { width: 100%; height: 100%; object-fit: contain; }
               </style>
             </head>
             <body>
