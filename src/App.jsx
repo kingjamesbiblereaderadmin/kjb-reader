@@ -98,7 +98,6 @@ const PageLoader = ({ isFadingOut }) => {
   const [updateType] = useState(() => 
     typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null
   );
-  const [updatePhase, setUpdatePhase] = useState(updateType ? 'applying' : 'done');
   const [dynamicText, setDynamicText] = useState(null);
 
   const [isFirstVisit] = useState(() => {
@@ -121,25 +120,13 @@ const PageLoader = ({ isFadingOut }) => {
     return () => window.removeEventListener('kjb-splash-update', handleProgress);
   }, []);
 
-  useEffect(() => {
-    if (updateType) {
-      const t1 = setTimeout(() => setUpdatePhase('success'), 2500);
-      const t2 = setTimeout(() => setUpdatePhase('done'), 4000);
-      return () => { clearTimeout(t1); clearTimeout(t2); };
-    }
-  }, [updateType]);
-
   if (isFadingOut) return null;
   
   let text = (isFirstVisit || updateType === 'bible_first_load') ? "Welcome to KJB Reader..." : "Welcome back to KJB Reader...";
   if (dynamicText) {
     text = dynamicText;
-  } else if (updateType && updatePhase !== 'done') {
-    if (updatePhase === 'applying') {
-      text = updateType === 'bible_first_load' ? "Finalizing setup..." : "Applying updates...";
-    } else {
-      text = updateType === 'bible_first_load' ? "Ready to read..." : "Updates applied successfully...";
-    }
+  } else if (updateType) {
+    text = updateType === 'bible_first_load' ? "Ready to read..." : "Loading KJB Reader...";
   }
 
   return (
@@ -207,9 +194,8 @@ const AuthenticatedApp = () => {
 
   useEffect(() => {
     const isPostUpdate = sessionStorage.getItem('kjb_sw_updated');
-    // If we just reloaded from an update, stagger the splash screen longer
-    // to give time for the "Applying updates..." and "Loading KJB Reader..." phases
-    const timer = setTimeout(() => setMinSplashDone(true), isPostUpdate ? 5500 : 2000); 
+    // If we just reloaded from an update, skip the artificial delay so we land right into the app
+    const timer = setTimeout(() => setMinSplashDone(true), isPostUpdate ? 0 : 2000); 
     return () => clearTimeout(timer);
   }, []);
 
@@ -306,11 +292,11 @@ const AuthenticatedApp = () => {
           }
 
           sessionStorage.setItem('kjb_sw_updated', updateType);
-          window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: !bibleIsCached ? 'Finalizing setup...' : 'Finalizing updates...' } }));
+          window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: !bibleIsCached ? 'Finalizing setup...' : 'Updates applied successfully...' } }));
           willReload = true;
           setTimeout(() => {
             window.location.reload();
-          }, 2500);
+          }, 1500);
           return; 
         }
 
@@ -371,8 +357,8 @@ const AuthenticatedApp = () => {
         
         if (hasAppUpdates && isMounted) {
           sessionStorage.setItem('kjb_sw_updated', 'app');
-          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Applying update...', status: 'loading' } }));
-          setTimeout(() => window.location.reload(), 2000);
+          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Updates applied successfully...', status: 'loading' } }));
+          setTimeout(() => window.location.reload(), 1500);
         }
       } catch (err) {
         // ignore
