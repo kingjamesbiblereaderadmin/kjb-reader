@@ -895,6 +895,15 @@ export default function SettingsPage() {
           </div>
         ) : (
           <div className="space-y-3">
+            <button
+              onClick={() => {
+                alert('To install the app, please follow the manual instructions below using your browser menu.');
+              }}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              <Smartphone className="w-4 h-4" />
+              {/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? 'Add to Home Screen' : 'Install App'}
+            </button>
             <div className="space-y-2 bg-secondary/50 rounded-xl p-4">
               <p className="font-sans text-xs text-muted-foreground mb-2">
                 <strong>Install instructions:</strong>
