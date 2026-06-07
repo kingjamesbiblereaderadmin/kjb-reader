@@ -47,7 +47,7 @@ export default function UpdateBanner() {
               setTimeout(() => sessionStorage.removeItem('kjb_sw_updated'), 10000);
               
               setWaitingWorker(null);
-              setProgressMsg('Found app updates...');
+              setProgressMsg('Found new app updates...');
               setProgressStatus('loading');
               
               waitingWorker.postMessage({ type: 'SKIP_WAITING' });

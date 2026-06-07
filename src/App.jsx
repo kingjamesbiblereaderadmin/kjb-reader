@@ -255,10 +255,13 @@ const AuthenticatedApp = () => {
 
         if (hasAppUpdates || hasBibleUpdates) {
           let updateType = 'app';
-          if (hasAppUpdates && hasBibleUpdates) updateType = 'both';
-          else if (hasBibleUpdates) updateType = 'bible';
+          let reloadText = 'Found new updates...';
+          if (hasAppUpdates && hasBibleUpdates) { updateType = 'both'; reloadText = 'Found new app & Bible updates...'; }
+          else if (hasBibleUpdates) { updateType = 'bible'; reloadText = 'Found new Bible data updates...'; }
+          else if (hasAppUpdates) { updateType = 'app'; reloadText = 'Found new app updates...'; }
+          
           sessionStorage.setItem('kjb_sw_updated', updateType);
-          window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: 'Applying Updates...' } }));
+          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: reloadText, status: 'loading' } }));
           setTimeout(() => {
             window.location.reload();
           }, 3500);
