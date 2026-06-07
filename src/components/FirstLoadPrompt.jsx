@@ -125,31 +125,33 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
 
           {showInstall && (
             <div>
-              <button
-                type="button"
-                onClick={isInstallable ? handleInstallClick : undefined}
-                disabled={!isInstallable}
-                onPointerDown={e => e.stopPropagation()}
-                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl font-sans text-sm font-medium transition-opacity touch-manipulation ${
-                  isInstallable ? 'bg-primary text-primary-foreground hover:opacity-90 active:opacity-80' : 'bg-secondary text-secondary-foreground opacity-50 cursor-not-allowed'
-                }`}
-              >
-                {isIOS() ? <Share className="w-4 h-4 shrink-0" /> : isMobile() ? <Download className="w-4 h-4 shrink-0" /> : <MonitorSmartphone className="w-4 h-4 shrink-0" />}
-                <span className="text-left">
-                  <span className="block font-semibold">{isMobile() ? 'Add to Home Screen' : 'Install App'}</span>
-                  <span className="block text-xs opacity-80">Offline access, faster loading</span>
-                </span>
-              </button>
-              {!isInstallable && (
-                <p className="mt-2 font-sans text-xs text-amber-600 dark:text-amber-400 leading-relaxed px-1">
-                  Your browser doesn't support automatic installation. {isIOS() ? (
-                    <>Tap <strong>Share</strong>, then <strong>"Add to Home Screen"</strong>.</>
-                  ) : isMobile() ? (
-                    <>Use browser menu → <strong>"Install app"</strong>.</>
-                  ) : (
-                    <>Use the browser menu to install.</>
-                  )}
-                </p>
+              {isInstallable ? (
+                <button
+                  type="button"
+                  onClick={handleInstallClick}
+                  onPointerDown={e => e.stopPropagation()}
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl font-sans text-sm font-medium transition-opacity touch-manipulation bg-primary text-primary-foreground hover:opacity-90 active:opacity-80 border-2 border-primary"
+                >
+                  {isIOS() ? <Share className="w-4 h-4 shrink-0" /> : isMobile() ? <Download className="w-4 h-4 shrink-0" /> : <MonitorSmartphone className="w-4 h-4 shrink-0" />}
+                  <span className="text-left">
+                    <span className="block font-semibold">{isMobile() ? 'Add to Home Screen' : 'Install App'}</span>
+                    <span className="block text-xs opacity-80">Offline access, faster loading</span>
+                  </span>
+                </button>
+              ) : (
+                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl p-3">
+                  <p className="font-sans text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
+                    <strong>Your browser doesn't support automatic installation.</strong>
+                    <br />
+                    {isIOS() ? (
+                      <>Tap <strong>Share</strong>, then <strong>"Add to Home Screen"</strong>.</>
+                    ) : isMobile() ? (
+                      <>Use your browser menu → <strong>"Install app"</strong>.</>
+                    ) : (
+                      <>Use the browser menu to install.</>
+                    )}
+                  </p>
+                </div>
               )}
             </div>
           )}
