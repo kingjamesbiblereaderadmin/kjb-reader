@@ -1073,22 +1073,37 @@ export default function BibleReader() {
           <div className="flex flex-wrap items-stretch justify-stretch gap-1.5 w-full max-w-7xl mx-auto [&>button:not(.kjb-fixed-btn)]:flex-grow [&>button:not(.kjb-fixed-btn)]:basis-auto [&>div.relative]:flex-grow [&>div.relative>button]:w-full">
 
             {/* Book selector */}
-            <button
-              onClick={() => { setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
-              onTouchEnd={(e) => { e.preventDefault(); setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
-              className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11"
-            >
-              <span className="truncate text-center">{isViewingTitlePage ? 'Title Page' : book.shortName}</span>
-              <ChevronRight className={`w-3 h-3 opacity-70 transition-transform duration-200 flex-shrink-0 ${showBookPicker ? 'rotate-90' : ''}`} />
-            </button>
+            <div className="relative flex">
+              <button
+                onClick={() => { setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
+                onTouchEnd={(e) => { e.preventDefault(); setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
+                className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 w-full"
+              >
+                <span className="truncate text-center">{isViewingTitlePage ? 'Title Page' : book.shortName}</span>
+                <ChevronRight className={`w-3 h-3 opacity-70 transition-transform duration-200 flex-shrink-0 ${showBookPicker ? 'rotate-90' : ''}`} />
+              </button>
 
-
-
-
-
-            {/* Desktop popover */}
-            {showBookPicker && !isMobile() && (
-              <div className="absolute top-full left-0 mt-1 z-[100]">
+              {/* Desktop popover */}
+              {showBookPicker && !isMobile() && (
+                <div className="absolute top-full left-0 mt-1 z-[100]">
+                  <BookSelector
+                    currentAbbr={pos.abbr}
+                    onSelect={(b, isTitlePage, showChapter) => {
+                      if (isTitlePage) {
+                        navigate(b.abbr, 0);
+                        setShowBookPicker(false);
+                      } else if (showChapter) {
+                        navigate(b.abbr, 1);
+                        setShowBookPicker(false);
+                        setShowChapterPicker(true);
+                      }
+                    }}
+                    onClose={() => setShowBookPicker(false)}
+                  />
+                </div>
+              )}
+              {/* Mobile bottom sheet */}
+              <SelectorSheet open={showBookPicker && isMobile()} onClose={() => setShowBookPicker(false)} title="Select Book">
                 <BookSelector
                   currentAbbr={pos.abbr}
                   onSelect={(b, isTitlePage, showChapter) => {
@@ -1103,39 +1118,36 @@ export default function BibleReader() {
                   }}
                   onClose={() => setShowBookPicker(false)}
                 />
-              </div>
-            )}
-            {/* Mobile bottom sheet */}
-            <SelectorSheet open={showBookPicker && isMobile()} onClose={() => setShowBookPicker(false)} title="Select Book">
-              <BookSelector
-                currentAbbr={pos.abbr}
-                onSelect={(b, isTitlePage, showChapter) => {
-                  if (isTitlePage) {
-                    navigate(b.abbr, 0);
-                    setShowBookPicker(false);
-                  } else if (showChapter) {
-                    navigate(b.abbr, 1);
-                    setShowBookPicker(false);
-                    setShowChapterPicker(true);
-                  }
-                }}
-                onClose={() => setShowBookPicker(false)}
-              />
-            </SelectorSheet>
+              </SelectorSheet>
+            </div>
 
             {!isViewingTitlePage && (
               <>
               {/* Chapter selector */}
-              <button
-                onClick={() => { setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
-                onTouchEnd={(e) => { e.preventDefault(); setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
-                className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11"
-              >
-                <span>Ch.{pos.chapter}</span>
-                <ChevronRight className={`w-3 h-3 opacity-70 transition-transform duration-200 flex-shrink-0 ${showChapterPicker ? 'rotate-90' : ''}`} />
-              </button>
-              {showChapterPicker && !isMobile() && (
-                <div className="absolute top-full left-0 mt-1 z-[100]">
+              <div className="relative flex">
+                <button
+                  onClick={() => { setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
+                  onTouchEnd={(e) => { e.preventDefault(); setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
+                  className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 w-full"
+                >
+                  <span>Ch.{pos.chapter}</span>
+                  <ChevronRight className={`w-3 h-3 opacity-70 transition-transform duration-200 flex-shrink-0 ${showChapterPicker ? 'rotate-90' : ''}`} />
+                </button>
+                {showChapterPicker && !isMobile() && (
+                  <div className="absolute top-full left-0 mt-1 z-[100]">
+                    <ChapterSelector
+                      totalChapters={book.chapters}
+                      currentChapter={pos.chapter}
+                      onSelect={(ch, showVerse) => {
+                        navigate(pos.abbr, ch);
+                        setShowChapterPicker(false);
+                        if (showVerse) setShowVersePicker(true);
+                      }}
+                      onClose={() => setShowChapterPicker(false)}
+                    />
+                  </div>
+                )}
+                <SelectorSheet open={showChapterPicker && isMobile()} onClose={() => setShowChapterPicker(false)} title={`${book.shortName} — Select Chapter`}>
                   <ChapterSelector
                     totalChapters={book.chapters}
                     currentChapter={pos.chapter}
@@ -1146,61 +1158,73 @@ export default function BibleReader() {
                     }}
                     onClose={() => setShowChapterPicker(false)}
                   />
-                </div>
-              )}
-              <SelectorSheet open={showChapterPicker && isMobile()} onClose={() => setShowChapterPicker(false)} title={`${book.shortName} — Select Chapter`}>
-                <ChapterSelector
-                  totalChapters={book.chapters}
-                  currentChapter={pos.chapter}
-                  onSelect={(ch, showVerse) => {
-                    navigate(pos.abbr, ch);
-                    setShowChapterPicker(false);
-                    if (showVerse) setShowVersePicker(true);
-                  }}
-                  onClose={() => setShowChapterPicker(false)}
-                />
-              </SelectorSheet>
+                </SelectorSheet>
+              </div>
 
               {/* Verse selector */}
-              <button
-                onClick={() => { setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
-                onTouchEnd={(e) => { e.preventDefault(); setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
-                className={`flex items-center justify-center gap-1.5 px-3 rounded-lg border border-border font-sans text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 ${
-                  selectMode
-                    ? 'bg-primary text-primary-foreground'
-                    : filterMode && selectedVerses.size > 0
-                    ? 'bg-accent/20 text-accent'
-                    : highlightVerse
-                    ? 'bg-accent/20 text-accent'
-                    : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-                }`}
-                disabled={verseCount === 0}
-              >
-                <span className="truncate min-w-[3.5rem] text-center">
-                  {selectMode
-                    ? `${selectedVerses.size > 0 ? selectedVerses.size : '0'} selected`
-                    : filterMode && selectedVerses.size > 0
-                    ? `vv.${formatVerseRange([...selectedVerses])}`
-                    : highlightSection === 'colophon'
-                    ? 'Colophon'
-                    : highlightSection === 'subscript'
-                    ? 'Subscript'
-                    : highlightVerse
-                    ? `v.${highlightVerse}`
-                    : 'Verse'}
-                </span>
-                {selectMode ? (
-                  <CheckSquare className="w-3.5 h-3.5 opacity-70 flex-shrink-0 transition-transform duration-200" />
-                ) : (
-                  <ChevronRight className={`w-3 h-3 opacity-70 transition-transform duration-200 flex-shrink-0 ${showVersePicker ? 'rotate-90' : ''}`} />
+              <div className="relative flex">
+                <button
+                  onClick={() => { setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
+                  onTouchEnd={(e) => { e.preventDefault(); setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
+                  className={`flex items-center justify-center gap-1.5 px-3 rounded-lg border border-border font-sans text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 w-full ${
+                    selectMode
+                      ? 'bg-primary text-primary-foreground'
+                      : filterMode && selectedVerses.size > 0
+                      ? 'bg-accent/20 text-accent'
+                      : highlightVerse
+                      ? 'bg-accent/20 text-accent'
+                      : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                  }`}
+                  disabled={verseCount === 0}
+                >
+                  <span className="truncate min-w-[3.5rem] text-center">
+                    {selectMode
+                      ? `${selectedVerses.size > 0 ? selectedVerses.size : '0'} selected`
+                      : filterMode && selectedVerses.size > 0
+                      ? `vv.${formatVerseRange([...selectedVerses])}`
+                      : highlightSection === 'colophon'
+                      ? 'Colophon'
+                      : highlightSection === 'subscript'
+                      ? 'Subscript'
+                      : highlightVerse
+                      ? `v.${highlightVerse}`
+                      : 'Verse'}
+                  </span>
+                  {selectMode ? (
+                    <CheckSquare className="w-3.5 h-3.5 opacity-70 flex-shrink-0 transition-transform duration-200" />
+                  ) : (
+                    <ChevronRight className={`w-3 h-3 opacity-70 transition-transform duration-200 flex-shrink-0 ${showVersePicker ? 'rotate-90' : ''}`} />
+                  )}
+                </button>
+                {showVersePicker && verseCount > 0 && !isMobile() && (
+                  <div className="absolute top-full left-0 mt-1 z-[100]">
+                    <VerseSelector
+                      totalVerses={verseCount}
+                      currentVerse={highlightVerse}
+                      multiSelect={true}
+                      hasSubscript={!!SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]}
+                      hasColophon={!!colophon}
+                      onSelect={(v) => {
+                        const first = Array.isArray(v) ? v[0] : v;
+                        if (Array.isArray(v) && v.length > 1) {
+                          const range = new Set(v);
+                          setSelectedVerses(range);
+                          setHighlightedVerses(range);
+                          setSelectMode(false);
+                          setFilterMode(true);
+                        }
+                        navigate(pos.abbr, pos.chapter, first);
+                        setShowVersePicker(false);
+                      }}
+                      onClose={() => setShowVersePicker(false)}
+                    />
+                  </div>
                 )}
-              </button>
-              {showVersePicker && verseCount > 0 && !isMobile() && (
-                <div className="absolute top-full left-0 mt-1 z-[100]">
+                <SelectorSheet open={showVersePicker && verseCount > 0 && isMobile()} onClose={() => setShowVersePicker(false)} title={`${book.shortName} ${pos.chapter} — Select Verse`}>
                   <VerseSelector
                     totalVerses={verseCount}
                     currentVerse={highlightVerse}
-                    multiSelect={true}
+                    multiSelect={false}
                     hasSubscript={!!SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]}
                     hasColophon={!!colophon}
                     onSelect={(v) => {
@@ -1217,30 +1241,8 @@ export default function BibleReader() {
                     }}
                     onClose={() => setShowVersePicker(false)}
                   />
-                </div>
-              )}
-              <SelectorSheet open={showVersePicker && verseCount > 0 && isMobile()} onClose={() => setShowVersePicker(false)} title={`${book.shortName} ${pos.chapter} — Select Verse`}>
-                <VerseSelector
-                  totalVerses={verseCount}
-                  currentVerse={highlightVerse}
-                  multiSelect={false}
-                  hasSubscript={!!SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]}
-                  hasColophon={!!colophon}
-                  onSelect={(v) => {
-                    const first = Array.isArray(v) ? v[0] : v;
-                    if (Array.isArray(v) && v.length > 1) {
-                      const range = new Set(v);
-                      setSelectedVerses(range);
-                      setHighlightedVerses(range);
-                      setSelectMode(false);
-                      setFilterMode(true);
-                    }
-                    navigate(pos.abbr, pos.chapter, first);
-                    setShowVersePicker(false);
-                  }}
-                  onClose={() => setShowVersePicker(false)}
-                />
-              </SelectorSheet>
+                </SelectorSheet>
+              </div>
 
               {/* Zoom control */}
               <div className="relative flex">
@@ -1489,9 +1491,10 @@ export default function BibleReader() {
                   <button title="Print" className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap">
                     <Printer className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
                     <span className="hidden lg:inline">Print</span>
+                    <ChevronDown className="w-3 h-3 opacity-70 flex-shrink-0" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="start" className="w-48">
                   <DropdownMenuItem onClick={() => window.print()} className="cursor-pointer">
                     <Printer className="w-4 h-4 mr-2" />
                     Print Full Page

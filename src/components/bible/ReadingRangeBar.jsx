@@ -1,5 +1,5 @@
 import React from 'react';
-import { Copy, Share2, AlignLeft, Filter, Printer, BookMarked } from 'lucide-react';
+import { Copy, Share2, AlignLeft, Filter, Printer, BookMarked, ChevronDown } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 // Slim action bar shown when reading a verse range / search result.
@@ -27,9 +27,10 @@ export default function ReadingRangeBar({ label, filterMode, copyFeedback, share
         <DropdownMenuTrigger asChild>
           <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap">
             <Printer className="w-3.5 h-3.5" /> Print
+            <ChevronDown className="w-3 h-3 opacity-70" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuContent align="start" className="w-48">
           <DropdownMenuItem onClick={onPrintPage} className="cursor-pointer">
             <Printer className="w-4 h-4 mr-2" />
             Print Full Page

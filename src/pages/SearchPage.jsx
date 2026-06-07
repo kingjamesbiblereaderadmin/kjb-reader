@@ -1302,7 +1302,7 @@ export default function SearchPage() {
                         <ChevronDown className="w-3 h-3 opacity-70" />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuContent align="start" className="w-48">
                       <DropdownMenuItem onClick={() => window.print()} className="cursor-pointer">
                         <Printer className="w-4 h-4 mr-2" />
                         Print Full Page
@@ -1344,7 +1344,7 @@ export default function SearchPage() {
                             <ChevronDown className="w-3 h-3 opacity-70" />
                           </button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuContent align="start" className="w-48">
                           <DropdownMenuItem onClick={() => window.print()} className="cursor-pointer">
                             <Printer className="w-4 h-4 mr-2" />
                             Print Full Page

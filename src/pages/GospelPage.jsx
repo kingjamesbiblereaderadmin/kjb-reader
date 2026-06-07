@@ -259,7 +259,7 @@ function GospelActions() {
               <ChevronDown className="w-4 h-4 opacity-70" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="center" className="font-sans">
+          <DropdownMenuContent align="end" className="font-sans">
             <DropdownMenuItem onClick={handleDownloadTxt} className="gap-2 cursor-pointer">
               <Download className="w-4 h-4" /> Download as Text
             </DropdownMenuItem>
