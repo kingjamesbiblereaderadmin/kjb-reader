@@ -881,7 +881,7 @@ export default function SettingsPage() {
               onClick={() => {
                 promptInstall();
               }}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity border-2 border-primary"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] border-2 border-primary"
             >
               <Smartphone className="w-4 h-4" />
               {/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? 'Add to Home Screen' : 'Install App'}

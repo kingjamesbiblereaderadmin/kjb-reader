@@ -73,6 +73,13 @@ export function useInstallPrompt() {
         if (outcome === 'accepted') {
           globalIsInstallable = false;
           setIsInstallable(false);
+        } else {
+          // If dismissed, the browser doesn't give us a new event immediately,
+          // but we shouldn't keep the button clickable if it's broken.
+          // Wait, Chrome doesn't allow prompt() to be called twice on the same event.
+          // We have to wait for a new beforeinstallprompt event.
+          globalIsInstallable = false;
+          setIsInstallable(false);
         }
         return outcome === 'accepted';
       });
