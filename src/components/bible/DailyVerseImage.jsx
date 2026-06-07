@@ -865,7 +865,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
           </blockquote>
           <p 
-            className="font-sans text-base md:text-lg font-semibold mt-8 text-center"
+            className="text-base md:text-lg font-semibold mt-8 text-center"
             style={{ 
               opacity: Math.min(1, textOpacity + 0.05), 
               color: textColor, 
@@ -1166,11 +1166,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
             </blockquote>
             <p 
-              className="font-sans text-xl md:text-2xl font-semibold"
+              className="text-xl md:text-2xl font-semibold"
               style={{ 
                 opacity: Math.min(1, textOpacity + 0.05), 
                 color: textColor, 
-                fontFamily,
+                fontFamily: resolvedFont,
                 textShadow: '0 1px 4px rgba(0,0,0,0.3)'
               }}
             >
