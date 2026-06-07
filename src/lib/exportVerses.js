@@ -20,8 +20,12 @@ function escapeHtml(s) {
 }
 
 // Convert [bracketed] words into <em>…</em> (italics), escaping the rest.
-function bracketsToItalicHtml(text) {
-  const clean = mergeAdjacentBrackets((text || '').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, ''));
+function bracketsToItalicHtml(text, keepPilcrow = false) {
+  let clean = text || '';
+  if (!keepPilcrow) {
+    clean = clean.replace(/¶\s*/g, '');
+  }
+  clean = mergeAdjacentBrackets(clean.replace(/^<<[^>]*>>\s*/, ''));
   // Split on [bracketed] segments, italicise those, escape everything.
   return clean.replace(/\[([^\]]+)\]|([^[]+)/g, (m, inside, plain) => {
     if (inside !== undefined) return `<em>${escapeHtml(inside)}</em>`;
@@ -290,12 +294,44 @@ export function exportPrint(items, query, filters, options = {}) {
   
   let rows = '';
   if (isReading) {
-    const content = items.map(it => {
+    const currentParagraphs = [];
+    let currentBlock = [];
+
+    items.forEach(it => {
       if (it.isColophon || it.isSubscript) {
-        return `<p style="margin:14pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;font-style:italic;color:#555;text-align:center;column-span:all;">${escapeHtml(it.text)}</p>`;
+        if (currentBlock.length > 0) {
+          currentParagraphs.push(`<p style="margin:0 0 10pt 0;text-indent:${options.paragraphMode ? '1.5em' : '0'};">${currentBlock.join('')}</p>`);
+          currentBlock = [];
+        }
+        currentParagraphs.push(`<div style="margin:14pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;font-style:italic;color:#555;text-align:center;column-span:all;">${escapeHtml(it.text)}</div>`);
+        return;
       }
-      return `<span style="font-family:Georgia,serif;font-size:12pt;line-height:1.6;"><sup style="font-size:8pt;margin-right:2pt;color:#555;">${it.verse}</sup>${bracketsToItalicHtml(it.text)} </span>`;
-    }).join('');
+
+      const hasPilcrow = (it.text || '').includes('¶');
+      let textHtml = bracketsToItalicHtml(it.text, options.paragraphMode);
+      
+      if (options.paragraphMode) {
+        if (hasPilcrow && currentBlock.length > 0) {
+          currentParagraphs.push(`<p style="margin:0 0 10pt 0;text-indent:1.5em;">${currentBlock.join('')}</p>`);
+          currentBlock = [];
+        }
+        textHtml = textHtml.replace(/¶/g, `<span style="opacity:0.5;">&para;</span>`);
+      }
+
+      const verseHtml = `<span style="font-family:Georgia,serif;font-size:12pt;line-height:1.6;"><sup style="font-size:8pt;margin-right:2pt;color:#555;">${it.verse}</sup>${textHtml} </span>`;
+      currentBlock.push(verseHtml);
+      
+      if (!options.paragraphMode) {
+        currentParagraphs.push(`<p style="margin:0 0 6pt 0;">${currentBlock.join('')}</p>`);
+        currentBlock = [];
+      }
+    });
+
+    if (currentBlock.length > 0) {
+      currentParagraphs.push(`<p style="margin:0 0 10pt 0;text-indent:${options.paragraphMode ? '1.5em' : '0'};">${currentBlock.join('')}</p>`);
+    }
+
+    const content = currentParagraphs.join('');
     rows = `<div style="text-align:justify;margin-top:20px;${options.columnMode ? 'column-count:2;column-gap:1.5cm;column-rule:1px solid #ccc;' : ''}">${content}</div>`;
   } else {
     rows = splitBySections(items).map(sec => {

@@ -2,7 +2,7 @@ import { exportVerses } from './exportVerses';
 import { SUBSCRIPTS } from './bibleSubscripts';
 import { formatVerseRange } from './readerHelpers';
 
-export function printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode = false) {
+export function printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode = false, paragraphMode = false) {
   const versesToPrint = filterMode && selectedVerses.size > 0 
     ? verses.filter(v => selectedVerses.has(v.verse))
     : verses;
@@ -49,6 +49,7 @@ export function printChapterContents(verses, book, pos, filterMode, selectedVers
     chapterText: filterMode && selectedVerses.size > 0 
       ? `Chapter ${pos.chapter}:${formatVerseRange([...selectedVerses])}` 
       : `Chapter ${pos.chapter}`,
-    columnMode
+    columnMode,
+    paragraphMode
   });
 }
