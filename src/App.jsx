@@ -121,18 +121,23 @@ const AuthenticatedApp = () => {
   const [updateCheckDone, setUpdateCheckDone] = useState(false);
 
   useEffect(() => {
-    // Enforce a minimum display time for the splash screen so it doesn't flash too fast
-    const timer = setTimeout(() => setMinSplashDone(true), 800); // Reduced to 0.8s for faster perceived loading
+    // If we just reloaded from an update, skip the delay so it's snappy
+    const isPostUpdate = sessionStorage.getItem('kjb_sw_updated');
+    const timer = setTimeout(() => setMinSplashDone(true), isPostUpdate ? 50 : 800); 
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     let isMounted = true;
     const checkUpdatesSilently = async () => {
-      let willReload = false;
       try {
         if (typeof navigator !== 'undefined' && navigator.onLine === false) {
           return; // Skip if offline
+        }
+
+        if (sessionStorage.getItem('kjb_sw_updated')) {
+          sessionStorage.removeItem('kjb_sw_updated');
+          return; // We just reloaded from an update, skip checking again
         }
 
         let hasUpdates = false;
@@ -185,25 +190,19 @@ const AuthenticatedApp = () => {
         }
 
         if (hasUpdates) {
-          willReload = true;
-          // Clear caches so the new SW fetches fresh assets
+          sessionStorage.setItem('kjb_sw_updated', 'true');
           if ('caches' in window) {
             const cacheNames = await caches.keys();
             await Promise.all(cacheNames.map(name => caches.delete(name)));
           }
-          // Give the SW a moment to activate, then reload. 
-          // Since willReload is true, updateCheckDone is never set, so the splash screen stays up
-          // until the browser executes the actual page reload.
-          setTimeout(() => {
-            window.location.reload();
-          }, 500);
-          return;
+          window.location.reload();
+          return; 
         }
 
       } catch (err) {
         console.error('Silent update check failed:', err);
       } finally {
-        if (isMounted && !willReload) {
+        if (isMounted) {
           setUpdateCheckDone(true);
         }
       }
