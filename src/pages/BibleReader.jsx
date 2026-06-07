@@ -1812,9 +1812,9 @@ export default function BibleReader() {
         />
       )}
 
-      {/* Book title — hidden when showing title page or in two-column (uses running head), EXCEPT chapter 1 which always shows centered title */}
-      {!isViewingTitlePage && (!columnMode || pos.chapter === 1) && (
-        <div className="text-center mb-6 pt-8" style={{ fontSize: `${zoomLevel / 100}rem` }}>
+      {/* Book title — hidden when showing title page or in two-column (uses running head), EXCEPT chapter 1 which always shows centered title. ALWAYS shown when printing. */}
+      {!isViewingTitlePage && (
+        <div className={`text-center mb-6 pt-8 ${(!columnMode || pos.chapter === 1) ? '' : 'hidden print:block'}`} style={{ fontSize: `${zoomLevel / 100}rem` }}>
           <div className="hidden print:block font-sans text-sm font-bold uppercase tracking-widest text-muted-foreground mb-4">
             {book.testament === 'old' ? 'Old Testament' : 'New Testament'}
           </div>

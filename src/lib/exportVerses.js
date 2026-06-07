@@ -249,6 +249,31 @@ export function exportPdf(items, query, filters) {
   doc.save(`kjb-${sanitizeFilename(query)}${filterSuffix(filters)}.pdf`);
 }
 
+// ── Print ──
+export function exportPrint(items, query, filters) {
+  const rows = splitBySections(items).map(sec => {
+    if (sec.isTestament) return `<h2 style="font-family:Georgia,serif;font-size:16pt;margin:30pt 0 16pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;">${escapeHtml(sec.title.toUpperCase())}</h2>`;
+    return `<h3 style="font-family:Georgia,serif;font-size:14pt;margin:20pt 0 10pt 0;">${escapeHtml(sec.title)}</h3>` +
+      sec.items.map(it =>
+        `<p style="margin:0 0 14pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;">` +
+        `&ldquo;${bracketsToItalicHtml(it.text)}&rdquo;<br/>` +
+        `<span style="font-size:10pt;color:#555;">&mdash; ${escapeHtml(it.ref)} (KJB)</span>` +
+        `</p>`
+      ).join('');
+  }).join('');
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>KJB Search Results</title></head><body onload="window.print(); setTimeout(() => window.close(), 500);" style="padding:20px;max-width:800px;margin:0 auto;color:#000;">` +
+    `<h1 style="font-family:Georgia,serif;font-size:20pt;">KJB Search Results &mdash; &ldquo;${escapeHtml(query)}&rdquo;</h1>${rows}` +
+    `<p style="font-size:10pt;color:#777;margin-top:40pt;border-top:1px solid #eee;padding-top:10pt;">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible</p></body></html>`;
+  
+  const printWindow = window.open('', '_blank');
+  if (printWindow) {
+    printWindow.document.write(html);
+    printWindow.document.close();
+  } else {
+    alert("Please allow popups to print.");
+  }
+}
+
 // Single entry point
 export function exportVerses(format, items, query, filters) {
   switch (format) {
@@ -256,6 +281,7 @@ export function exportVerses(format, items, query, filters) {
     case 'docx': return exportDocx(items, query, filters);
     case 'xls': return exportXls(items, query, filters);
     case 'pdf': return exportPdf(items, query, filters);
+    case 'print': return exportPrint(items, query, filters);
     default: return exportTxt(items, query, filters);
   }
 }
