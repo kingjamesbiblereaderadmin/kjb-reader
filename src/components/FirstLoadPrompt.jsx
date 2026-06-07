@@ -53,7 +53,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   const showNotif = !notifDone;
 
   // TEMP: promo screenshot mode — prompt disabled while capturing marketing shots.
-  const PROMO_SCREENSHOT_MODE = true;
+  const PROMO_SCREENSHOT_MODE = false;
 
   // Once dismissed (or all tasks done), never show again. Respect the user's choice.
   const shouldShow = !dismissed && (showInstall || showNotif);
