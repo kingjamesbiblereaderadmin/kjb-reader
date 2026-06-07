@@ -300,11 +300,11 @@ export default function AppLayout() {
                   }
 
                   console.log('[UpdateCheck] Updates found. Triggering splash screen and applying...');
-                  let reloadText = 'Found new updates...';
+                  let reloadText = 'Applying updates...';
                   let updateType = 'app';
-                  if (hasCodeUpdates && hasBibleUpdates) { reloadText = 'Found new app & Bible updates...'; updateType = 'both'; }
-                  else if (hasBibleUpdates) { reloadText = 'Found new Bible data updates...'; updateType = 'bible'; }
-                  else if (hasCodeUpdates) { reloadText = 'Found new app updates...'; updateType = 'app'; }
+                  if (hasCodeUpdates && hasBibleUpdates) { reloadText = 'Applying app & Bible updates...'; updateType = 'both'; }
+                  else if (hasBibleUpdates) { reloadText = 'Applying Bible data updates...'; updateType = 'bible'; }
+                  else if (hasCodeUpdates) { reloadText = 'Applying app updates...'; updateType = 'app'; }
                   
                   window.dispatchEvent(new Event('kjb-progress-clear'));
                   window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: reloadText, status: 'loading' } }));

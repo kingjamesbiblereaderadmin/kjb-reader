@@ -98,13 +98,12 @@ const PageLoader = ({ isFadingOut }) => {
   const [updateType] = useState(() => 
     typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null
   );
-
-  const [phase, setPhase] = useState('applying');
+  const [showLoading, setShowLoading] = useState(!updateType);
 
   useEffect(() => {
     if (updateType) {
       const timer = setTimeout(() => {
-        setPhase('loading');
+        setShowLoading(true);
       }, 2500);
       return () => clearTimeout(timer);
     }
@@ -113,7 +112,7 @@ const PageLoader = ({ isFadingOut }) => {
   if (isFadingOut) return null;
   
   let text = "Loading KJB Reader...";
-  if (updateType && phase === 'applying') {
+  if (updateType && !showLoading) {
     if (updateType === 'both') text = "Applying app & Bible updates...";
     else if (updateType === 'bible') text = "Applying Bible data updates...";
     else text = "Applying app updates...";
@@ -258,10 +257,10 @@ const AuthenticatedApp = () => {
 
         if (hasAppUpdates || hasBibleUpdates) {
           let updateType = 'app';
-          let reloadText = 'Found new updates...';
-          if (hasAppUpdates && hasBibleUpdates) { updateType = 'both'; reloadText = 'Found new app & Bible updates...'; }
-          else if (hasBibleUpdates) { updateType = 'bible'; reloadText = 'Found new Bible data updates...'; }
-          else if (hasAppUpdates) { updateType = 'app'; reloadText = 'Found new app updates...'; }
+          let reloadText = 'Applying updates...';
+          if (hasAppUpdates && hasBibleUpdates) { updateType = 'both'; reloadText = 'Applying app & Bible updates...'; }
+          else if (hasBibleUpdates) { updateType = 'bible'; reloadText = 'Applying Bible data updates...'; }
+          else if (hasAppUpdates) { updateType = 'app'; reloadText = 'Applying app updates...'; }
           
           sessionStorage.setItem('kjb_sw_updated', updateType);
           window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: reloadText, status: 'loading' } }));
