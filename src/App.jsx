@@ -174,22 +174,22 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
   }
 
   return (
-  <div className={`fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
+  <div className={`fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
     {!showLoadingState && dailyVerse && dailyVerse.book !== "Offline" ? (
-      <div className="w-full h-full flex flex-col relative bg-black">
-        <div className="flex-1 min-h-0 w-full relative pointer-events-none">
+      <div className="w-full h-full relative flex flex-col">
+        <div className="flex-1 w-full relative pointer-events-none">
           <DailyVerseImage verse={dailyVerse} onClick={() => {}} splashMode={true} />
         </div>
-        <div className="absolute bottom-12 left-0 right-0 flex justify-center z-[100] pb-env-safe pointer-events-auto">
+        <div className="absolute bottom-12 left-0 right-0 flex justify-center z-50 pb-env-safe px-4 pointer-events-auto">
           {!isReady ? (
-            <div className="flex items-center gap-3 text-slate-900 bg-white/90 backdrop-blur-sm px-6 py-3 rounded-2xl shadow-2xl border border-white/20">
-              <Loader2 className="w-5 h-5 animate-spin text-slate-900 shrink-0" />
-              <span className="font-sans text-sm font-semibold tracking-wide">{text}</span>
+            <div className="flex items-center gap-3 text-foreground bg-white/90 backdrop-blur-sm px-6 py-3 rounded-2xl shadow-xl border border-white/20">
+              <Loader2 className="w-5 h-5 animate-spin text-slate-800 shrink-0" />
+              <span className="font-sans text-sm font-semibold tracking-wide text-slate-800">{text}</span>
             </div>
           ) : (
             <button 
               onClick={onDismiss}
-              className="flex items-center gap-2 px-8 py-3.5 bg-white text-slate-900 rounded-full font-sans text-lg font-bold transition-all duration-200 hover:scale-105 active:scale-95 shadow-2xl border border-slate-200"
+              className="flex items-center gap-2 px-8 py-3.5 bg-white text-slate-900 rounded-full font-sans text-lg font-bold transition-all duration-200 hover:scale-105 active:scale-95 shadow-2xl border border-white/20"
             >
               Continue to App
               <ChevronRight className="w-5 h-5" />
