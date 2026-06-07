@@ -167,12 +167,12 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
             </div>
             
             <div className="flex flex-col gap-3 mt-4 items-center">
-              {(!isReady || dynamicText || updateType) && (
-                <div className="flex items-center gap-3 text-foreground bg-card/90 px-6 py-3 rounded-2xl shadow-xl backdrop-blur-sm border border-border/50">
+              <div className="flex items-center gap-3 text-foreground bg-card/90 px-6 py-3 rounded-2xl shadow-xl backdrop-blur-sm border border-border/50">
+                {(!isReady || dynamicText || updateType) && (
                   <Loader2 className="w-5 h-5 animate-spin text-foreground shrink-0" />
-                  <span className="font-sans text-sm font-semibold tracking-wide">{bannerText}</span>
-                </div>
-              )}
+                )}
+                <span className="font-sans text-sm font-semibold tracking-wide">{welcomeText}</span>
+              </div>
             </div>
 
           </div>
