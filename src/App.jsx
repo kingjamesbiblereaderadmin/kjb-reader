@@ -106,8 +106,8 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
 
   const [isFirstVisit] = useState(() => {
     try {
-      if (!localStorage.getItem('kjb_has_visited')) {
-        localStorage.setItem('kjb_has_visited', 'true');
+      if (!localStorage.getItem('kjb_has_visited_v2')) {
+        localStorage.setItem('kjb_has_visited_v2', 'true');
         return true;
       }
       return false;
@@ -115,6 +115,8 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
       return false;
     }
   });
+
+  const [gospelDismissed, setGospelDismissed] = useState(!isFirstVisit);
 
   useEffect(() => {
     const handleProgress = (e) => {
@@ -147,6 +149,46 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
   }
 
   const showLoadingState = dynamicText || updateType;
+
+  if (!gospelDismissed) {
+    return (
+      <div className={`fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300 overflow-y-auto`}>
+        <div className="w-full max-w-xl mx-auto space-y-6 p-6 py-12 pb-24">
+          <div className="text-center">
+            <h1 className="font-serif text-3xl font-bold text-foreground mb-3">How to be Saved</h1>
+            <p className="font-sans text-muted-foreground text-sm leading-relaxed">
+              The Gospel is the glad tidings of the Lord Jesus Christ: Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.
+            </p>
+          </div>
+          
+          <div className="bg-card border border-border rounded-2xl p-6 space-y-6 shadow-xl">
+            <div>
+              <h3 className="font-serif text-lg font-semibold text-foreground">1. Believe you are a sinner that deserves hell</h3>
+              <p className="font-sans text-sm text-muted-foreground mt-1">"For by the law is the knowledge of sin." — Romans 3:20</p>
+            </div>
+            <div>
+              <h3 className="font-serif text-lg font-semibold text-foreground">2. Believe Jesus is God manifested in the flesh</h3>
+              <p className="font-sans text-sm text-muted-foreground mt-1">"God was manifest in the flesh..." — 1 Timothy 3:16</p>
+            </div>
+            <div>
+              <h3 className="font-serif text-lg font-semibold text-foreground">3. Believe he died, shed his blood, was buried and rose again</h3>
+              <p className="font-sans text-sm text-muted-foreground mt-1 leading-relaxed">"...Christ died for our sins... And that he was buried, and that he rose again the third day..." — 1 Corinthians 15:3-4</p>
+            </div>
+          </div>
+          
+          <div className="flex justify-center pt-4">
+            <button 
+              onClick={() => setGospelDismissed(true)}
+              className="flex items-center gap-2 px-8 py-3.5 bg-primary text-primary-foreground rounded-full font-sans text-lg font-bold transition-all duration-200 hover:scale-105 active:scale-95 shadow-xl"
+            >
+              Continue
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
   <div className={`fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
