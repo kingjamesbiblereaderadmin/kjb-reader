@@ -123,8 +123,7 @@ const PageLoader = ({ isFadingOut, forcedText }) => {
     return () => window.removeEventListener('kjb-splash-update', handleProgress);
   }, []);
   
-  let text = (isFirstVisit || updateType === 'bible_first_load') ? "Welcome to KJB Reader..." : 
-             "Welcome back to KJB Reader...";
+  let text = (isFirstVisit || updateType === 'bible_first_load') ? "Welcome to KJB Reader..." : "Loading...";
              
   if (dynamicText) {
     text = dynamicText;
