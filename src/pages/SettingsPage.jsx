@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Instagram, Youtube, RotateCcw, Accessibility, Bug } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Instagram, Youtube, RotateCcw, Accessibility } from 'lucide-react';
 
 const TikTokIcon = () => (
   <svg className="w-4 h-4 text-green-500" viewBox="0 0 24 24" fill="currentColor">
@@ -1279,59 +1279,6 @@ export default function SettingsPage() {
               >
                 <RotateCcw className="w-4 h-4" />
                 Clear Cache & Reload
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Developer Tools */}
-      <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
-        <button
-          onClick={() => toggleSection('developer')}
-          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
-        >
-          <div>
-            <h2 className="font-serif text-lg font-semibold text-foreground">Developer Tools</h2>
-            <p className="font-sans text-xs text-muted-foreground">Test splash screens and updates</p>
-          </div>
-          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.developer ? 'rotate-180' : ''}`} />
-        </button>
-        {expandedSections.developer && (
-          <div className="p-5 pt-0 space-y-4">
-            <div className="flex flex-col gap-3 pt-2">
-              <button
-                onClick={() => {
-                  window.dispatchEvent(new Event('kjb-progress-clear'));
-                  window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: 'Loading KJB Reader...' } }));
-                  setTimeout(() => window.location.reload(), 1500);
-                }}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-              >
-                <Bug className="w-4 h-4" />
-                Test Splash Screen
-              </button>
-              <button
-                onClick={() => {
-                  window.dispatchEvent(new Event('kjb-progress-clear'));
-                  window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: 'Applying App Updates...' } }));
-                  setTimeout(() => window.location.reload(), 1500);
-                }}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-              >
-                <Bug className="w-4 h-4" />
-                Test Splash Screen (App Update)
-              </button>
-              <button
-                onClick={() => {
-                  window.dispatchEvent(new Event('kjb-progress-clear'));
-                  window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: 'Applying Bible Data Updates...' } }));
-                  setTimeout(() => window.location.reload(), 1500);
-                }}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
-              >
-                <Bug className="w-4 h-4" />
-                Test Refresh with Updates
               </button>
             </div>
           </div>
