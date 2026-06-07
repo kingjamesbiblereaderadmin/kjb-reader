@@ -98,7 +98,7 @@ const PageLoader = ({ isFadingOut }) => {
   const [updateType] = useState(() => 
     typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null
   );
-  const [showLoading, setShowLoading] = useState(!updateType);
+  const [updatePhase, setUpdatePhase] = useState(updateType ? 'applying' : 'done');
   const [dynamicText, setDynamicText] = useState(null);
 
   const [isFirstVisit] = useState(() => {
@@ -123,10 +123,9 @@ const PageLoader = ({ isFadingOut }) => {
 
   useEffect(() => {
     if (updateType) {
-      const timer = setTimeout(() => {
-        setShowLoading(true);
-      }, 2500);
-      return () => clearTimeout(timer);
+      const t1 = setTimeout(() => setUpdatePhase('success'), 2500);
+      const t2 = setTimeout(() => setUpdatePhase('done'), 4000);
+      return () => { clearTimeout(t1); clearTimeout(t2); };
     }
   }, [updateType]);
 
@@ -135,10 +134,14 @@ const PageLoader = ({ isFadingOut }) => {
   let text = isFirstVisit ? "Welcome to KJB Reader..." : "Welcome back to KJB Reader...";
   if (dynamicText) {
     text = dynamicText;
-  } else if (updateType && !showLoading) {
-    if (updateType === 'both') text = "Applying app & Bible updates...";
-    else if (updateType === 'bible') text = "Applying Bible data updates...";
-    else text = "Applying app updates...";
+  } else if (updateType && updatePhase !== 'done') {
+    if (updatePhase === 'applying') {
+      if (updateType === 'both') text = "Applying app & Bible updates...";
+      else if (updateType === 'bible') text = "Applying Bible data updates...";
+      else text = "Applying app updates...";
+    } else {
+      text = "Updates applied successfully...";
+    }
   }
 
   return (
@@ -208,7 +211,7 @@ const AuthenticatedApp = () => {
     const isPostUpdate = sessionStorage.getItem('kjb_sw_updated');
     // If we just reloaded from an update, stagger the splash screen longer
     // to give time for the "Applying updates..." and "Loading KJB Reader..." phases
-    const timer = setTimeout(() => setMinSplashDone(true), isPostUpdate ? 5000 : 800); 
+    const timer = setTimeout(() => setMinSplashDone(true), isPostUpdate ? 5500 : 1500); 
     return () => clearTimeout(timer);
   }, []);
 
@@ -293,17 +296,16 @@ const AuthenticatedApp = () => {
 
         if (hasAppUpdates || hasBibleUpdates) {
           let updateType = 'app';
-          let reloadText = 'Applying updates...';
-          if (hasAppUpdates && hasBibleUpdates) { updateType = 'both'; reloadText = 'Applying app & Bible updates...'; }
-          else if (hasBibleUpdates) { updateType = 'bible'; reloadText = 'Applying Bible data updates...'; }
-          else if (hasAppUpdates) { updateType = 'app'; reloadText = 'Applying app updates...'; }
+          if (hasAppUpdates && hasBibleUpdates) { updateType = 'both'; }
+          else if (hasBibleUpdates) { updateType = 'bible'; }
+          else if (hasAppUpdates) { updateType = 'app'; }
           
           sessionStorage.setItem('kjb_sw_updated', updateType);
-          window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: reloadText } }));
+          window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Finalizing updates...' } }));
           willReload = true;
           setTimeout(() => {
             window.location.reload();
-          }, 1500);
+          }, 2500);
           return; 
         }
 
