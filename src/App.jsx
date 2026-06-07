@@ -141,9 +141,10 @@ const PageLoader = ({ isFadingOut, forcedText, updateCheckDone }) => {
   // Right before fading out, ensure it transitions smoothly
   useEffect(() => {
     if (isFadingOut && !dynamicText && !forcedText) {
-      setDynamicText(isFirstVisit ? "Ready to read..." : "Welcome back to KJB Reader...");
+      const isFirst = isFirstVisit || updateType === 'bible_first_load';
+      setDynamicText(isFirst ? "Ready to read..." : "Welcome back to KJB Reader...");
     }
-  }, [isFadingOut, dynamicText, forcedText, isFirstVisit]);
+  }, [isFadingOut, dynamicText, forcedText, isFirstVisit, updateType]);
 
   return (
     <div className={`fixed inset-0 z-[999999] bg-background flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
