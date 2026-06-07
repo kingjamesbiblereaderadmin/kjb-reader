@@ -104,8 +104,13 @@ const PageLoader = () => (
 let _firstRender = true;
 const FadeIn = ({ children }) => {
   const { pathname } = useLocation();
-  const isFirst = _firstRender;
-  if (_firstRender) _firstRender = false;
+  const [isFirst] = React.useState(() => {
+    if (_firstRender) {
+      _firstRender = false;
+      return true;
+    }
+    return false;
+  });
   return <div key={pathname} className={isFirst ? '' : 'kjb-fade-in'}>{children}</div>;
 };
 
