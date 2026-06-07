@@ -169,21 +169,10 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
           </div>
         </div>
 
-        {/* Daily Verse */}
-        <div className="w-full relative px-2">
-          <DailyVerseImage 
-            verse={dailyVerse} 
-            splashMode={true} 
-            onClick={() => {}} 
-            onToggleNotif={promptProps.handleEnableNotif}
-            notifEnabled={'Notification' in window && Notification.permission === 'granted'}
-          />
-        </div>
-
         {isFirstVisit ? (
           <>
-            {/* Setup Prompt (passes loadingText and isAppReady down) */}
-            <div className="w-full pb-8 mt-4">
+            {/* Setup Prompt ONLY for first visit (No Daily Verse) */}
+            <div className="w-full pb-8 mt-4 flex-1 flex flex-col justify-center">
               <FirstLoadPrompt 
                 splashMode={true}
                 isInstallable={promptProps.isInstallable}
@@ -198,6 +187,17 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
           </>
         ) : (
           <>
+            {/* Daily Verse ONLY for subsequent visits */}
+            <div className="w-full relative px-2 mb-8">
+              <DailyVerseImage 
+                verse={dailyVerse} 
+                splashMode={true} 
+                onClick={() => {}} 
+                onToggleNotif={promptProps.handleEnableNotif}
+                notifEnabled={'Notification' in window && Notification.permission === 'granted'}
+              />
+            </div>
+
             {/* Loading / Updating Banner OR Continue Button */}
             <div className="w-full flex justify-center shrink-0 mt-4 pb-8">
               {loadingText ? (
