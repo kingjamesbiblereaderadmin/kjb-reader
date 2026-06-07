@@ -282,7 +282,7 @@ export default function AppLayout() {
                   await minWaitPromise;
                   
                   if (!hasBibleUpdates && !hasCodeUpdates) {
-                    console.log('[UpdateCheck] No updates found. (Code is v103)');
+                    console.log('[UpdateCheck] No updates found.');
                     window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App is up to date', status: 'success' } }));
                     
                     // Force the banner to stay visible for at least 3 seconds,
@@ -307,6 +307,8 @@ export default function AppLayout() {
 
                   if (hasBibleUpdates) {
                     console.log('[UpdateCheck] Downloading new Bible data...');
+                    localStorage.removeItem('bible_cache_version');
+                    localStorage.removeItem('bible_last_refresh');
                     const { downloadBibleForOffline } = await import('@/lib/bibleCache');
                     await downloadBibleForOffline();
                   }
