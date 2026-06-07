@@ -157,10 +157,12 @@ export default function HomePage() {
 
             if (swUpdated && bibleNeedsUpdate) {
               window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Updates applied.", status: 'success' } }));
+              window.dispatchEvent(new Event('kjb-reloading'));
               setTimeout(() => { window.location.reload(); }, 800);
               return;
             } else if (swUpdated) {
               window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Updates applied.", status: 'success' } }));
+              window.dispatchEvent(new Event('kjb-reloading'));
               setTimeout(() => { window.location.reload(); }, 800);
               return;
             }
@@ -399,35 +401,6 @@ export default function HomePage() {
     >
       <div className="w-full max-w-[90rem] mx-auto px-4 sm:px-8 lg:px-16 py-6">
       <OfflineStatusBanner />
-
-      {/* Temporary Test Button for Cache Update */}
-      <div className="mb-4">
-        <button
-          onClick={() => {
-            const states = [
-              { msg: 'Updating Bible data...', status: 'loading' },
-              { msg: 'Applying updates...', status: 'loading' },
-              { msg: 'Updates applied.', status: 'success' },
-              { msg: 'App is up to date.', status: 'info' },
-              { msg: 'Failed to update.', status: 'error' }
-            ];
-            let i = 0;
-            const step = () => {
-              if (i < states.length) {
-                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: states[i].msg, status: states[i].status } }));
-                i++;
-                setTimeout(step, 2000); // 2 seconds per state
-              } else {
-                window.dispatchEvent(new Event('kjb-progress-clear'));
-              }
-            };
-            step();
-          }}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-sans text-sm font-medium w-full shadow"
-        >
-          [TEST] Show Update Banner Animation
-        </button>
-      </div>
 
       {/* Daily verse card */}
       <div className="w-full mb-6 relative">

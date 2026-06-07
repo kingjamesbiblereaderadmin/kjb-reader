@@ -53,16 +53,20 @@ export default function AppLayout() {
   const { reloadKey, softReload, isReloading } = useSoftReload();
   const [menuOpen, setMenuOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [isFullReloading, setIsFullReloading] = useState(false);
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
+    const handleReloading = () => setIsFullReloading(true);
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+    window.addEventListener('kjb-reloading', handleReloading);
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('kjb-reloading', handleReloading);
     };
   }, []);
 
@@ -319,6 +323,7 @@ export default function AppLayout() {
                   }
                   
                   // Force a hard reload with a cache-busting query parameter to guarantee the browser bypasses its internal memory
+                  window.dispatchEvent(new Event('kjb-reloading'));
                   setTimeout(() => {
                     window.location.href = window.location.pathname + '?refresh=' + Date.now();
                   }, 800);
@@ -414,7 +419,16 @@ export default function AppLayout() {
 
       <DesktopFooter navigate={navigate} setMenuOpen={setMenuOpen} />
 
-
+      {/* Full screen splash overlay during reload */}
+      {isFullReloading && (
+        <div className="fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center animate-in fade-in duration-200">
+          <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" className="h-24 w-auto mb-8 animate-pulse" />
+          <div className="flex flex-col items-center">
+            <RotateCw className="w-8 h-8 text-primary animate-spin mb-4" />
+            <p className="font-sans text-sm text-muted-foreground">Applying Updates...</p>
+          </div>
+        </div>
+      )}
     </div>
     </AutoUpdateHandler>
   );
