@@ -334,7 +334,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     // Pilcrow verse: render as a block (new paragraph) with gap above, no indent
     if (hasPilcrow && !isFirstVerse) {
       return (
-        <span id={id} className="block relative pt-6">
+        <span id={id} className="block relative pt-6 scroll-mt-24">
           {stanzaHeading}
           <span
             onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
@@ -360,7 +360,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     }
     // Normal inline verse
     return (
-      <span id={id} className="inline relative">
+      <span id={id} className="inline relative scroll-mt-24">
         {stanzaHeading}
         <span
           onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
@@ -397,7 +397,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     // The floated drop-cap group is pulled back left so the big letter + number
     // still begin at the true left margin.
     return (
-      <span id={id} className="block relative mt-2" style={{ display: 'flow-root' }}>
+      <span id={id} className="block relative mt-2 scroll-mt-24" style={{ display: 'flow-root' }}>
         {stanzaHeading}
         <span
           onClick={() => setSelected(s => !s)}
@@ -419,7 +419,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     );
   }
   return (
-    <span id={id} className={`block relative ${hasPilcrow && !isFirstVerse ? 'pt-6' : 'mt-2'}`}>
+    <span id={id} className={`block relative scroll-mt-24 ${hasPilcrow && !isFirstVerse ? 'pt-6' : 'mt-2'}`}>
       {stanzaHeading}
       <span
         onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
