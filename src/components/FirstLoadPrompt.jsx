@@ -112,8 +112,11 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
           className="bg-card border border-border rounded-2xl shadow-2xl p-4 space-y-3 relative"
           onPointerDown={e => e.stopPropagation()}
         >
-          <div className="flex items-start justify-between gap-2">
-            <p className="font-serif text-base font-semibold text-foreground leading-tight">Get the most from KJB Reader</p>
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <div className="flex flex-col">
+              <p className="font-serif text-lg font-bold text-foreground leading-tight">Welcome to KJB Reader</p>
+              <p className="font-sans text-xs text-muted-foreground mt-1">Get the most out of your app</p>
+            </div>
             <button
               type="button"
               onPointerDown={handleClose}

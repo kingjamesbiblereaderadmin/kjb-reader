@@ -131,7 +131,7 @@ const PageLoader = ({ isFadingOut }) => {
 
   if (isFadingOut) return null;
   
-  let text = isFirstVisit ? "Welcome to KJB Reader..." : "Welcome back to KJB Reader...";
+  let text = (isFirstVisit || updateType === 'bible_first_load') ? "Welcome to KJB Reader..." : "Welcome back to KJB Reader...";
   if (dynamicText) {
     text = dynamicText;
   } else if (updateType && updatePhase !== 'done') {
