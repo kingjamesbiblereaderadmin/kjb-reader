@@ -524,11 +524,10 @@ export default function AppLayout() {
 
       {/* Full screen splash overlay during reload */}
       {isFullReloading && (
-        <div className="fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center animate-in fade-in duration-200">
-          <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" className="h-24 w-auto mb-8 animate-pulse" />
-          <div className="flex flex-col items-center">
-            <RotateCw className="w-8 h-8 text-primary animate-spin mb-4" />
-            <p className="font-sans text-sm text-muted-foreground">{isFullReloadingText}</p>
+        <div className="fixed inset-0 z-[9999] bg-background/90 backdrop-blur-sm flex flex-col items-center justify-center animate-in fade-in duration-200">
+          <div className="flex items-center gap-3 bg-card p-4 rounded-2xl shadow-xl border border-border">
+            <RotateCw className="w-5 h-5 text-primary animate-spin" />
+            <p className="font-sans text-sm font-medium text-foreground pr-2">{isFullReloadingText}</p>
           </div>
         </div>
       )}
