@@ -1034,7 +1034,7 @@ export default function SettingsPage() {
                         sessionStorage.setItem('kjb_sw_updated', updateType);
                         setTimeout(() => {
                           window.location.href = window.location.pathname + '?refresh=' + Date.now();
-                        }, 1500);
+                        }, 2500);
                       } catch (err) {
                         setDlError('Check failed: ' + err.message);
                         setDownloading(false);

@@ -59,7 +59,7 @@ export default function RefreshCache() {
       // Reload after success
       setTimeout(() => {
         window.location.href = '/';
-      }, 1500);
+      }, 2500);
     } catch (err) {
       console.error('Cache refresh failed:', err);
       // Fallback: just reload

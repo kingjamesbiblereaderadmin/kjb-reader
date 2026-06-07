@@ -219,7 +219,11 @@ const AuthenticatedApp = () => {
 
   useEffect(() => {
     if (document.fonts) {
-      document.fonts.ready.then(() => setFontsLoaded(true));
+      document.fonts.ready.then(() => {
+        // Add a small buffer after fonts report 'ready' to ensure browser painting catches up
+        // and avoids the FOUT (Flash of Unstyled Text)
+        setTimeout(() => setFontsLoaded(true), 300);
+      });
     } else {
       setFontsLoaded(true);
     }
@@ -236,16 +240,22 @@ const AuthenticatedApp = () => {
 
   useEffect(() => {
     const isPostUpdate = sessionStorage.getItem('kjb_sw_updated');
+    const isForcedUpdate = window.location.search.includes('updated=true');
     let isFresh = true;
     try {
-      // If PageLoader already set it, it will be 'true' here, but we can check if kjb_session_active_timer exists
-      // to know if we already ran this once. Actually, PageLoader sets kjb_session_active.
-      // We can use a separate key for the timer to be safe.
       isFresh = !sessionStorage.getItem('kjb_session_active_timer');
       sessionStorage.setItem('kjb_session_active_timer', 'true');
     } catch {}
-    // If we just reloaded from an update OR it's not a fresh session, skip the artificial delay
-    const timer = setTimeout(() => setMinSplashDone(true), (isPostUpdate || !isFresh) ? 0 : 2000); 
+    
+    // Extend minimum splash times so text is readable
+    let delay = 2500; // Fresh load: 2.5s
+    if (isPostUpdate || isForcedUpdate) {
+      delay = 3500; // Update applied: 3.5s (gives time to read "Updates applied successfully")
+    } else if (!isFresh) {
+      delay = 1500; // Returning session: 1.5s
+    }
+
+    const timer = setTimeout(() => setMinSplashDone(true), delay); 
     return () => clearTimeout(timer);
   }, []);
 
@@ -350,7 +360,7 @@ const AuthenticatedApp = () => {
           willReload = true;
           setTimeout(() => {
             window.location.reload();
-          }, 1500);
+          }, 2500);
           return; 
         }
 
@@ -412,7 +422,7 @@ const AuthenticatedApp = () => {
         if (hasAppUpdates && isMounted) {
           sessionStorage.setItem('kjb_sw_updated', 'app');
           window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Updates applied successfully...', status: 'loading' } }));
-          setTimeout(() => window.location.reload(), 1500);
+          setTimeout(() => window.location.reload(), 2500);
         }
       } catch (err) {
         // ignore
