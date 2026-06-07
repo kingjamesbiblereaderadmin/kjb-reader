@@ -404,7 +404,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   return (
     <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full ${splashMode ? 'h-full flex-1' : 'min-h-[300px] border border-border rounded-2xl shadow-lg'} ${gradientClass} px-6 text-center text-white relative flex flex-col ${capturing ? 'pt-20 pb-8' : splashMode ? 'pt-12 pb-24' : 'pt-6 pb-6'} ${uploadingComplete ? 'cursor-default' : 'cursor-pointer'}`} style={bgStyle}>
       {/* Action buttons */}
-      {/* Action buttons */}
       <div className="absolute top-1.5 right-1.5 flex gap-0.5 z-10" onClick={(e) => e.stopPropagation()}>
         {/* Notification bell indicator button */}
         {!splashMode && showButtons && onToggleNotif && (
@@ -533,7 +532,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                       e.stopPropagation();
                       setCropImageForNotif(false);
                       setShowMenu(false);
-                      // Trigger file input immediately
                       if (fileInputRef.current) {
                         fileInputRef.current.click();
                       }
@@ -549,7 +547,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                       onClick={(e) => {
                         e.stopPropagation();
                         setCropImageForNotif(false);
-                        // Prefer original (uncropped) image when re-cropping
                         setCropImage(originalBg || pendingBg || customBg);
                         setShowMenu(false);
                       }}
@@ -570,7 +567,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                           setOriginalBg('');
                           localStorage.removeItem('kjb-daily-verse-bg');
                           localStorage.removeItem('kjb-daily-verse-bg-original');
-                          // Reset text color and opacity to defaults
                           handleTextColorChange('#ffffff');
                           handleTextOpacityChange(0.95);
                           handleFontFamilyChange('serif');
@@ -598,7 +594,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 </div>
               )}
             </div>
-
           </>
         ) : !splashMode && !capturing ? (
           <button
