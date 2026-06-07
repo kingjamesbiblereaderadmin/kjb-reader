@@ -850,7 +850,7 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-3 sm:px-8 lg:px-12 py-6">
+    <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-6">
       <h1 className="font-serif text-2xl font-bold text-foreground mb-4">Search Bible</h1>
 
       <form onSubmit={handleSubmit} action="#" className="flex gap-2 mb-3">

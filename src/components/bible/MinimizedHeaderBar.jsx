@@ -7,7 +7,7 @@ import { Maximize2, Minimize2, ChevronDown } from 'lucide-react';
 export default function MinimizedHeaderBar({ fullscreen, toggleFullscreen, setHideHeader }) {
   return createPortal(
     <div className="fixed top-0 left-0 right-0 border-b border-border bg-background/95 backdrop-blur z-[110]" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-      <div className="w-full max-w-7xl mx-auto px-3 sm:px-8 lg:px-12 py-1.5 flex items-center justify-end gap-1">
+      <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-1.5 flex items-center justify-end gap-1">
         <div className="flex items-center gap-1">
           <button
             onClick={toggleFullscreen}
