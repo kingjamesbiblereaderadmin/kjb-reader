@@ -1300,24 +1300,12 @@ export default function SearchPage() {
                     <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy All'}
                   </button>
                   <ExportMenu onExport={handleExport} label="Export" warning />
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors">
-                        <Printer className="w-3.5 h-3.5" /> Print
-                        <ChevronDown className="w-3 h-3 opacity-70" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-48">
-                      <DropdownMenuItem onClick={() => window.print()} className="cursor-pointer">
-                        <Printer className="w-4 h-4 mr-2" />
-                        Print Full Page
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleExport('print')} className="cursor-pointer">
-                        <BookMarked className="w-4 h-4 mr-2" />
-                        Print Search Results
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <button
+                    onClick={() => handleExport('print')}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+                  >
+                    <Printer className="w-3.5 h-3.5" /> Print
+                  </button>
                   <button
                     onClick={handleShare}
                     className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
@@ -1342,24 +1330,12 @@ export default function SearchPage() {
                         <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : `Copy (${selected.size})`}
                       </button>
                       <ExportMenu onExport={handleExport} count={selected.size} label="Export" warning />
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors">
-                            <Printer className="w-3.5 h-3.5" /> Print
-                            <ChevronDown className="w-3 h-3 opacity-70" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="w-48">
-                          <DropdownMenuItem onClick={() => window.print()} className="cursor-pointer">
-                            <Printer className="w-4 h-4 mr-2" />
-                            Print Full Page
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleExport('print')} className="cursor-pointer">
-                            <BookMarked className="w-4 h-4 mr-2" />
-                            Print Search Results
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <button
+                        onClick={() => handleExport('print')}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+                      >
+                        <Printer className="w-3.5 h-3.5" /> Print
+                      </button>
                       <button
                         onClick={handleShare}
                         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
