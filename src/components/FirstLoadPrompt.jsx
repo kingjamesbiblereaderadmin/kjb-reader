@@ -53,10 +53,17 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   const showNotif = !notifDone;
 
   // TEMP: promo screenshot mode — prompt disabled while capturing marketing shots.
-  const PROMO_SCREENSHOT_MODE = true;
+  const PROMO_SCREENSHOT_MODE = false;
 
   // Once dismissed (or all tasks done), never show again. Respect the user's choice.
   const shouldShow = !dismissed && (showInstall || showNotif);
+
+  useEffect(() => {
+    if (splashMode && (!shouldShow || PROMO_SCREENSHOT_MODE)) {
+      if (onDismiss) onDismiss();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [splashMode, shouldShow]);
 
   if (PROMO_SCREENSHOT_MODE || !shouldShow) return null;
 
@@ -99,6 +106,93 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
       }
     }
   };
+
+  if (splashMode) {
+    return (
+      <div className="w-full max-w-sm mx-auto pointer-events-auto">
+        <div className="bg-card/90 backdrop-blur-sm border border-border rounded-2xl shadow-2xl p-6 space-y-5 relative">
+          <div className="flex flex-col items-center justify-center gap-2 mb-4">
+            <h2 className="font-serif text-2xl font-bold text-foreground">Welcome!</h2>
+            <p className="font-sans text-sm text-muted-foreground text-center">Let's set up your reading experience.</p>
+          </div>
+
+          {showInstall && (
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={handleInstallClick}
+                className="w-full flex items-center justify-center gap-2.5 px-4 py-3.5 rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] bg-primary text-primary-foreground border-2 border-primary"
+              >
+                {isIOS() ? <Share className="w-5 h-5" /> : isMobile() ? <Download className="w-5 h-5" /> : <MonitorSmartphone className="w-5 h-5" />}
+                <span>{isMobile() ? 'Add to Home Screen' : 'Install App'}</span>
+              </button>
+              
+              {(!isInstallable && showIOSHint) && (
+                <div className="bg-secondary/40 border border-border rounded-xl p-3 text-center">
+                  <p className="font-sans text-xs text-foreground leading-relaxed">
+                    <strong>Install from browser menu:</strong><br />
+                    {isIOS() ? <>Tap <strong>Share</strong>, then <strong>"Add to Home Screen"</strong></> : <>Use browser menu to install</>}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="space-y-3">
+            <div className="rounded-xl bg-secondary/40 border border-border p-3">
+              <div className="flex items-center gap-2 mb-3">
+                <Accessibility className="w-4 h-4 text-muted-foreground" />
+                <span className="font-sans text-sm font-medium">Font Accessibility</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {A11Y_FONTS.map(font => (
+                  <button
+                    key={font.value}
+                    type="button"
+                    onClick={() => { setA11yFont(font.value); setAccessibilityFont(font.value); }}
+                    className={`px-2 py-2.5 rounded-lg font-sans text-xs font-medium transition-all ${
+                      a11yFont === font.value ? 'bg-primary text-primary-foreground' : 'bg-card border border-border hover:border-accent'
+                    }`}
+                    style={font.preview ? { fontFamily: font.preview } : undefined}
+                  >
+                    {font.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-secondary/40 border border-border p-3">
+              <div className="flex items-center gap-2 mb-3">
+                <Palette className="w-4 h-4 text-muted-foreground" />
+                <span className="font-sans text-sm font-medium">Theme Color</span>
+              </div>
+              <ThemeColorPicker compact />
+            </div>
+
+            {showNotif && (
+              <button
+                type="button"
+                onClick={handleNotifClick}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-primary/10 border border-primary/20 text-primary font-sans text-sm font-medium hover:bg-primary/20 transition-colors"
+              >
+                <Bell className="w-4 h-4" />
+                <span>Enable Daily Reminders</span>
+              </button>
+            )}
+          </div>
+
+          <div className="pt-4 mt-2 border-t border-border">
+            <button
+              onClick={handleClose}
+              className="w-full py-3 rounded-xl font-sans text-sm font-bold bg-secondary hover:bg-secondary/80 text-foreground transition-all"
+            >
+              Continue to App
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

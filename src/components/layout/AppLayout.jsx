@@ -413,16 +413,7 @@ export default function AppLayout() {
       {/* Scroll to top button - appears on all pages when scrolling */}
       <ScrollToTop />
 
-      {/* FirstLoadPrompt - shows once per session */}
-      {showPrompt && (
-        <FirstLoadPrompt
-          isInstallable={isInstallable}
-          notifPermission={notifPermission}
-          onInstall={handleInstall}
-          onEnableNotif={handleEnableNotif}
-          onDismiss={handleDismissPrompt}
-        />
-      )}
+      {/* FirstLoadPrompt is now handled in the PageLoader splash screen */}
 
       <DesktopFooter navigate={navigate} setMenuOpen={setMenuOpen} />
     </div>
@@ -491,7 +482,7 @@ function DesktopFooter({ navigate, setMenuOpen }) {
   );
 }
 
-function useAppLayoutPrompt() {
+export function useAppLayoutPrompt() {
   const installPromptResult = useInstallPrompt();
   const { isInstallable, isInstalled, promptInstall, dismiss } = installPromptResult;
   

@@ -12,6 +12,8 @@ import { SoftReloadProvider, useSoftReload } from '@/lib/SoftReloadContext';
 import AppLayout from '@/components/layout/AppLayout';
 import { getDailyVerse } from '@/lib/dailyVerse';
 import React, { lazy, Suspense, useEffect, useState } from 'react';
+import FirstLoadPrompt from '@/components/FirstLoadPrompt';
+import { useAppLayoutPrompt } from '@/components/layout/AppLayout';
 
 // Lazy-load pages. Each import() factory is kept as a reference so we can
 // also trigger it manually in the background to preload all routes.
@@ -100,6 +102,7 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
   const [updateType] = useState(() => 
     typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null
   );
+  const [showLoading, setShowLoading] = useState(!updateType);
   const [dynamicText, setDynamicText] = useState(null);
 
   const [isFirstVisit] = useState(() => {
@@ -115,7 +118,10 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
   });
 
   const [gospelDismissed, setGospelDismissed] = useState(!isFirstVisit);
-  const [phase, setPhase] = useState('logo');
+  const [promptDismissed, setPromptDismissed] = useState(!isFirstVisit);
+  const [showWelcome, setShowWelcome] = useState(true);
+  
+  const promptProps = useAppLayoutPrompt();
 
   useEffect(() => {
     const handleProgress = (e) => {
@@ -126,11 +132,16 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setPhase(isFirstVisit && !gospelDismissed ? 'gospel' : 'verse');
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, [isFirstVisit, gospelDismissed]);
+    if (updateType) {
+      const timer = setTimeout(() => {
+        setShowLoading(true);
+      }, 2500);
+      return () => clearTimeout(timer);
+    } else {
+      const timer = setTimeout(() => setShowWelcome(false), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [updateType]);
 
   if (isFadingOut) return null;
   
@@ -139,15 +150,101 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
   let text = isFirstVisit ? "Welcome to KJB Reader..." : "Welcome back to KJB Reader...";
   if (dynamicText) {
     text = dynamicText;
-  } else if (updateType) {
+  } else if (updateType && !showLoading) {
     if (updateType === 'both') text = "Applying app & Bible updates...";
     else if (updateType === 'bible') text = "Applying Bible data updates...";
     else text = "Applying app updates...";
   }
 
-  if (phase === 'logo') {
+  const showLoadingState = dynamicText || updateType || showWelcome;
+
+  if (showLoadingState) {
     return (
       <div className={`fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
+        <div className="flex flex-col items-center justify-center w-full h-full px-6">
+          <div className="flex flex-col items-center justify-center -mt-16">
+            <div className="relative mb-6">
+              <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
+              <img 
+                src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
+                alt="KJB Reader" 
+                className="relative w-32 h-32 object-contain drop-shadow-2xl"
+              />
+            </div>
+            <div className="flex items-center gap-3 text-foreground bg-card/90 px-6 py-3 rounded-2xl shadow-xl backdrop-blur-sm border border-border/50">
+              <Loader2 className="w-5 h-5 animate-spin text-foreground shrink-0" />
+              <span className="font-sans text-sm font-semibold tracking-wide">{text}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!gospelDismissed) {
+    return (
+      <div className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300 bg-black`}>
+        <div className="flex-1 w-full flex items-center justify-center min-h-0">
+          <img 
+            src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/cc6071d88_2.jpg" 
+            alt="The Gospel of Salvation" 
+            className="w-full h-full object-contain"
+          />
+        </div>
+        <div className="shrink-0 p-6 pb-env-safe w-full flex justify-center">
+          <button 
+            onClick={() => setGospelDismissed(true)}
+            className="flex items-center gap-2 px-8 py-3.5 bg-white text-slate-900 rounded-full font-sans text-lg font-bold transition-all duration-200 hover:scale-105 active:scale-95 shadow-2xl border border-slate-200"
+          >
+            Continue
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!promptDismissed) {
+    return (
+      <div className={`fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300 px-4`}>
+        <FirstLoadPrompt 
+          splashMode={true}
+          isInstallable={promptProps.isInstallable}
+          notifPermission={promptProps.notifPermission}
+          onInstall={promptProps.handleInstall}
+          onEnableNotif={promptProps.handleEnableNotif}
+          onDismiss={() => setPromptDismissed(true)}
+        />
+      </div>
+    );
+  }
+
+  return (
+  <div className={`fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
+    {dailyVerse && dailyVerse.book !== "Offline" ? (
+      <div className="w-full h-full relative flex flex-col items-center justify-center p-6 pb-32">
+        <div className="w-full max-w-lg relative pointer-events-none drop-shadow-2xl">
+          <DailyVerseImage verse={dailyVerse} onClick={() => {}} splashMode={true} />
+        </div>
+        <div className="absolute bottom-12 left-0 right-0 flex justify-center z-50 pb-env-safe px-4 pointer-events-auto">
+          {!isReady ? (
+            <div className="flex items-center gap-3 text-foreground bg-white/90 backdrop-blur-sm px-6 py-3 rounded-2xl shadow-xl border border-white/20">
+              <Loader2 className="w-5 h-5 animate-spin text-slate-800 shrink-0" />
+              <span className="font-sans text-sm font-semibold tracking-wide text-slate-800">Loading KJB Reader...</span>
+            </div>
+          ) : (
+            <button 
+              onClick={onDismiss}
+              className="flex items-center gap-2 px-8 py-3.5 bg-white text-slate-900 rounded-full font-sans text-lg font-bold transition-all duration-200 hover:scale-105 active:scale-95 shadow-2xl border border-white/20"
+            >
+              Continue to App
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+      </div>
+    ) : (
+      <div className="flex flex-col items-center justify-center w-full h-full px-6">
         <div className="flex flex-col items-center justify-center -mt-16">
           <div className="relative mb-6">
             <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
@@ -163,65 +260,8 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
           </div>
         </div>
       </div>
-    );
-  }
-
-  if (phase === 'gospel') {
-    return (
-      <div className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300 bg-black`}>
-        <div className="flex-1 w-full flex items-center justify-center min-h-0">
-          <img 
-            src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/cc6071d88_2.jpg" 
-            alt="The Gospel of Salvation" 
-            className="w-full h-full object-contain"
-          />
-        </div>
-        <div className="shrink-0 p-6 pb-env-safe w-full flex justify-center">
-          <button 
-            onClick={() => {
-              setGospelDismissed(true);
-              setPhase('verse');
-            }}
-            className="flex items-center gap-2 px-8 py-3.5 bg-white text-slate-900 rounded-full font-sans text-lg font-bold transition-all duration-200 hover:scale-105 active:scale-95 shadow-2xl border border-slate-200"
-          >
-            Continue
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={`fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
-      <div className="w-full h-full relative flex flex-col items-center justify-center p-6 pb-32">
-        <div className="w-full max-w-lg relative pointer-events-none drop-shadow-2xl">
-          {dailyVerse ? (
-            <DailyVerseImage verse={dailyVerse} onClick={() => {}} splashMode={true} />
-          ) : (
-            <div className="w-full min-h-[300px] bg-secondary/50 animate-pulse border border-border rounded-2xl shadow-lg flex items-center justify-center">
-              <span className="font-sans text-sm text-muted-foreground">Loading verse...</span>
-            </div>
-          )}
-        </div>
-        <div className="absolute bottom-12 left-0 right-0 flex justify-center z-50 pb-env-safe px-4 pointer-events-auto">
-          {!isReady ? (
-            <div className="flex items-center gap-3 text-foreground bg-white/90 backdrop-blur-sm px-6 py-3 rounded-2xl shadow-xl border border-white/20">
-              <Loader2 className="w-5 h-5 animate-spin text-slate-800 shrink-0" />
-              <span className="font-sans text-sm font-semibold tracking-wide text-slate-800">{text}</span>
-            </div>
-          ) : (
-            <button 
-              onClick={onDismiss}
-              className="flex items-center gap-2 px-8 py-3.5 bg-white text-slate-900 rounded-full font-sans text-lg font-bold transition-all duration-200 hover:scale-105 active:scale-95 shadow-2xl border border-white/20"
-            >
-              Continue to App
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
+    )}
+  </div>
   );
 };
 
