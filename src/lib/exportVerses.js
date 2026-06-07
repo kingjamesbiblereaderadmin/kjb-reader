@@ -360,7 +360,7 @@ export function exportPrint(items, query, filters, options = {}) {
     items.forEach(it => {
       if (it.isColophon || it.isSubscript) {
         if (currentBlock.length > 0) {
-          currentParagraphs.push(`<p style="margin:0 0 10pt 0;text-indent:${isFirstParagraph || !options.paragraphMode ? '0' : '1.5em'}; page-break-inside:avoid; break-inside:avoid;">${currentBlock.join('')}</p>`);
+          currentParagraphs.push(`<p style="margin:0 0 10pt 0; page-break-inside:avoid; break-inside:avoid;">${currentBlock.join('')}</p>`);
           isFirstParagraph = false;
           currentBlock = [];
         }
@@ -371,7 +371,7 @@ export function exportPrint(items, query, filters, options = {}) {
 
       if (it.heading) {
         if (currentBlock.length > 0) {
-          currentParagraphs.push(`<p style="margin:0 0 10pt 0;text-indent:${isFirstParagraph || !options.paragraphMode ? '0' : '1.5em'}; page-break-inside:avoid; break-inside:avoid;">${currentBlock.join('')}</p>`);
+          currentParagraphs.push(`<p style="margin:0 0 10pt 0; page-break-inside:avoid; break-inside:avoid;">${currentBlock.join('')}</p>`);
           isFirstParagraph = false;
           currentBlock = [];
         }
@@ -381,15 +381,19 @@ export function exportPrint(items, query, filters, options = {}) {
       }
 
       const hasPilcrow = (it.text || '').includes('¶');
-      let textHtml = bracketsToItalicHtml(it.text, options.paragraphMode);
+      let textHtml = bracketsToItalicHtml(it.text, true);
+      textHtml = textHtml.replace(/¶\s*/g, `<span style="opacity:0.5;">&para;</span> `);
       
       if (options.paragraphMode) {
         if (hasPilcrow && currentBlock.length > 0) {
-          currentParagraphs.push(`<p style="margin:0 0 10pt 0;text-indent:${isFirstParagraph ? '0' : '1.5em'};">${currentBlock.join('')}</p>`);
+          currentParagraphs.push(`<p style="margin:0 0 10pt 0;">${currentBlock.join('')}</p>`);
           isFirstParagraph = false;
           currentBlock = [];
         }
-        textHtml = textHtml.replace(/¶/g, `<span style="opacity:0.5;">&para;</span>`);
+      } else {
+        if (hasPilcrow && currentParagraphs.length > 0 && currentBlock.length === 0 && !isFirstParagraph) {
+          currentParagraphs.push(`<div style="height: 12pt;"></div>`);
+        }
       }
 
       const verseHtml = `<span style="font-family:Georgia,serif;font-size:12pt;line-height:1.6;"><sup style="font-size:8pt;margin-right:2pt;color:#555;">${it.verse}</sup>${textHtml} </span>`;
@@ -403,7 +407,7 @@ export function exportPrint(items, query, filters, options = {}) {
     });
 
     if (currentBlock.length > 0) {
-      currentParagraphs.push(`<p style="margin:0 0 10pt 0;text-indent:${isFirstParagraph || !options.paragraphMode ? '0' : '1.5em'}; page-break-inside:avoid; break-inside:avoid;">${currentBlock.join('')}</p>`);
+      currentParagraphs.push(`<p style="margin:0 0 10pt 0; page-break-inside:avoid; break-inside:avoid;">${currentBlock.join('')}</p>`);
     }
 
     const content = currentParagraphs.join('');
@@ -435,9 +439,9 @@ export function exportPrint(items, query, filters, options = {}) {
       (options.chapterText ? `<p style="font-family:system-ui,-apple-system,sans-serif;font-size:10pt;letter-spacing:0.1em;text-transform:uppercase;color:#666;margin-top:0;margin-bottom:25pt;text-align:center;">${escapeHtml(options.chapterText)}</p>` : '')
     : `<h1 style="font-family:Georgia,serif;font-size:20pt;margin-bottom:20pt;">${escapeHtml(titlePrefix)} &mdash; &ldquo;${escapeHtml(query)}&rdquo;</h1>`;
 
-  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>&#8203;</title><style>@page { margin: 1.5cm; } body { margin: 0 !important; display: block !important; height: auto !important; position: static !important; overflow: visible !important; }</style></head><body onload="window.print(); setTimeout(() => window.close(), 500);" style="padding:20px;max-width:800px;margin:0 auto;color:#000;">` +
-    `${headerHtml}${rows}` +
-    `<p style="font-size:10pt;color:#777;margin-top:40pt;border-top:1px solid #eee;padding-top:10pt;${isReading ? 'text-align:center;' : ''}">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</p></body></html>`;
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>&#8203;</title><style>@page { margin: 1.5cm; } body { margin: 0 !important; display: flex !important; flex-direction: column !important; min-height: 100vh !important; height: auto !important; position: static !important; overflow: visible !important; box-sizing: border-box; }</style></head><body onload="window.print(); setTimeout(() => window.close(), 500);" style="padding:20px;max-width:800px;margin:0 auto;color:#000;">` +
+    `<div style="flex: 1 0 auto;">${headerHtml}${rows}</div>` +
+    `<div style="margin-top: auto; padding-top: 40pt; page-break-inside: avoid;"><p style="font-size:10pt;color:#777;border-top:1px solid #eee;padding-top:10pt;margin:0;${isReading ? 'text-align:center;' : ''}">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</p></div></body></html>`;
   
   const printWindow = window.open('', '_blank');
   if (printWindow) {
