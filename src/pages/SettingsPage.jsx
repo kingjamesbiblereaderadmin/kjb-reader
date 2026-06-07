@@ -960,22 +960,51 @@ export default function SettingsPage() {
                       setDownloading(true);
                       setDlError('');
                       setDlProgress(0);
-                      setDlStatus('Starting reload...');
+                      setDlStatus('Checking for updates...');
                       try {
-                        await downloadBibleForOffline((pct, msg) => {
-                          setDlProgress(pct);
-                          setDlStatus(msg);
-                        });
-                        setCached(true);
-                        window.dispatchEvent(new Event('storage'));
-                        setDlStatus('App & Bible updates downloaded. They will apply naturally on your next navigation.');
+                        let hasCodeUpdates = false;
+                        let swReg = null;
+                        if ('serviceWorker' in navigator) {
+                          swReg = await navigator.serviceWorker.getRegistration();
+                          if (swReg) {
+                            await swReg.update().catch(() => {});
+                            if (swReg.waiting) hasCodeUpdates = true;
+                            else if (swReg.installing) {
+                              if (swReg.installing.state === 'installed') hasCodeUpdates = true;
+                              else {
+                                hasCodeUpdates = await new Promise(resolve => {
+                                  const worker = swReg.installing;
+                                  worker.addEventListener('statechange', () => {
+                                    if (worker.state === 'installed') resolve(true);
+                                    else if (worker.state === 'redundant') resolve(false);
+                                  });
+                                  setTimeout(() => resolve(false), 3000);
+                                });
+                              }
+                            }
+                          }
+                        }
+
+                        if (!hasCodeUpdates) {
+                          setDlStatus('App & Bible are up to date.');
+                          setTimeout(() => setDlStatus(''), 3000);
+                          setDownloading(false);
+                          return;
+                        }
+
+                        setDlStatus('Found new updates. Reloading...');
+                        if (hasCodeUpdates && swReg) {
+                          if (swReg.waiting) swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                          else if (swReg.installing && swReg.installing.state === 'installed') swReg.installing.postMessage({ type: 'SKIP_WAITING' });
+                        }
+                        
                         setTimeout(() => {
-                          setDlStatus('');
-                        }, 5000);
+                          window.location.href = window.location.pathname + '?refresh=' + Date.now();
+                        }, 1500);
                       } catch (err) {
-                        setDlError('Refresh failed: ' + err.message);
+                        setDlError('Check failed: ' + err.message);
+                        setDownloading(false);
                       }
-                      setDownloading(false);
                     }}
                     disabled={downloading}
                     className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-60 transition-colors"
