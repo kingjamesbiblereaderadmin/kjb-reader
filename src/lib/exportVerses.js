@@ -255,20 +255,33 @@ export function exportPdf(items, query, filters, options = {}) {
 // ── Print ──
 export function exportPrint(items, query, filters, options = {}) {
   const titlePrefix = options.titlePrefix || 'KJB Search Results';
-  const rows = splitBySections(items).map(sec => {
-    if (sec.isTestament) return `<h2 style="font-family:Georgia,serif;font-size:16pt;margin:30pt 0 16pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;">${escapeHtml(sec.title.toUpperCase())}</h2>`;
-    return `<h3 style="font-family:Georgia,serif;font-size:14pt;margin:20pt 0 10pt 0;">${escapeHtml(sec.title)}</h3>` +
-      sec.items.map(it =>
-        `<p style="margin:0 0 14pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;">` +
-        `&ldquo;${bracketsToItalicHtml(it.text)}&rdquo;<br/>` +
-        `<span style="font-size:10pt;color:#555;">&mdash; ${escapeHtml(it.ref)} (KJB)</span>` +
-        `</p>`
-      ).join('');
-  }).join('');
+  const isReading = titlePrefix === 'KJB Reading';
+  
+  let rows = '';
+  if (isReading) {
+    rows = items.map(it =>
+      `<p style="margin:0 0 14pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;">` +
+      `&ldquo;${bracketsToItalicHtml(it.text)}&rdquo;<br/>` +
+      `<span style="font-size:10pt;color:#555;">&mdash; ${escapeHtml(it.ref)} (KJB)</span>` +
+      `</p>`
+    ).join('');
+  } else {
+    rows = splitBySections(items).map(sec => {
+      if (sec.isTestament) return `<h2 style="font-family:Georgia,serif;font-size:16pt;margin:30pt 0 16pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;">${escapeHtml(sec.title.toUpperCase())}</h2>`;
+      return `<h3 style="font-family:Georgia,serif;font-size:14pt;margin:20pt 0 10pt 0;">${escapeHtml(sec.title)}</h3>` +
+        sec.items.map(it =>
+          `<p style="margin:0 0 14pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;">` +
+          `&ldquo;${bracketsToItalicHtml(it.text)}&rdquo;<br/>` +
+          `<span style="font-size:10pt;color:#555;">&mdash; ${escapeHtml(it.ref)} (KJB)</span>` +
+          `</p>`
+        ).join('');
+    }).join('');
+  }
+
   const now = new Date();
   const dateStr = now.toLocaleDateString() + ' at ' + now.toLocaleTimeString();
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>&#8203;</title><style>@page { margin: 0; } body { margin: 1.5cm !important; }</style></head><body onload="window.print(); setTimeout(() => window.close(), 500);" style="padding:20px;max-width:800px;margin:0 auto;color:#000;">` +
-    `<h1 style="font-family:Georgia,serif;font-size:20pt;">${escapeHtml(titlePrefix)} &mdash; &ldquo;${escapeHtml(query)}&rdquo;</h1>${rows}` +
+    `<h1 style="font-family:Georgia,serif;font-size:20pt;margin-bottom:20pt;">${escapeHtml(titlePrefix)} &mdash; &ldquo;${escapeHtml(query)}&rdquo;</h1>${rows}` +
     `<p style="font-size:10pt;color:#777;margin-top:40pt;border-top:1px solid #eee;padding-top:10pt;">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</p></body></html>`;
   
   const printWindow = window.open('', '_blank');
