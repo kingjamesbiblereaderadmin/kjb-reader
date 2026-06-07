@@ -135,14 +135,16 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
   const dailyVerse = getDailyVerse();
 
   let welcomeText = isFirstVisit ? "Welcome to KJB Reader..." : "Welcome back to KJB Reader...";
-  
   let bannerText = "Loading KJB Reader...";
+  
   if (dynamicText) {
     bannerText = dynamicText;
+    welcomeText = dynamicText;
   } else if (updateType) {
     if (updateType === 'both') bannerText = "Applying app & Bible updates...";
     else if (updateType === 'bible') bannerText = "Applying Bible data updates...";
     else bannerText = "Applying app updates...";
+    welcomeText = bannerText;
   }
 
   if (showWelcome) {
