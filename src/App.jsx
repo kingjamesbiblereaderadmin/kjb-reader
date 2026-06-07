@@ -155,17 +155,19 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
     <div className={`fixed inset-0 z-[9999] bg-background overflow-hidden ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
       <div className={`flex flex-col items-center w-full h-[100dvh] px-4 max-w-xl mx-auto pt-8 ${isFirstVisit ? 'pb-8' : 'pb-32'} space-y-6 overflow-y-auto`}>
         
-        {/* Logo */}
-        <div className={`flex flex-col items-center justify-center ${isFirstVisit ? 'pt-8' : 'pt-40'}`}>
-          <div className="relative mb-6">
-            <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
-            <img 
-              src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
-              alt="KJB Reader" 
-              className="relative w-32 h-32 object-contain drop-shadow-2xl"
-            />
+        {/* Logo (Only show on first visit before continuing) */}
+        {isFirstVisit && (
+          <div className="flex flex-col items-center justify-center pt-8">
+            <div className="relative mb-6">
+              <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
+              <img 
+                src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
+                alt="KJB Reader" 
+                className="relative w-32 h-32 object-contain drop-shadow-2xl"
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         {/* First Visit Flow */}
         {isFirstVisit ? (
