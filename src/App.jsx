@@ -79,8 +79,8 @@ function preloadAllRoutes() {
 
 // Provide a beautiful splash screen for initial app loading
 import { Loader2 } from 'lucide-react';
-const PageLoader = () => (
-  <div className="fixed inset-0 z-[9999] bg-background/95 backdrop-blur-md flex flex-col items-center justify-center">
+const PageLoader = ({ isFadingOut }) => (
+  <div className={`fixed inset-0 z-[9999] bg-background/95 backdrop-blur-md flex flex-col items-center justify-center transition-all duration-700 ease-out ${isFadingOut ? 'opacity-0 pointer-events-none scale-105' : 'opacity-100 scale-100'}`}>
     <div className="flex flex-col items-center justify-center -mt-16">
       <div className="relative mb-8">
         <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full"></div>
@@ -215,6 +215,20 @@ const AuthenticatedApp = () => {
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
   const showSplash = isInitializing || !minSplashDone || !updateCheckDone;
 
+  const [renderSplash, setRenderSplash] = useState(true);
+  const [fadeSplash, setFadeSplash] = useState(false);
+
+  useEffect(() => {
+    if (!showSplash) {
+      setFadeSplash(true);
+      const timer = setTimeout(() => setRenderSplash(false), 700); // Wait for fade out animation
+      return () => clearTimeout(timer);
+    } else {
+      setRenderSplash(true);
+      setFadeSplash(false);
+    }
+  }, [showSplash]);
+
   if (authError && !isInitializing) {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
@@ -226,7 +240,7 @@ const AuthenticatedApp = () => {
 
   return (
     <>
-      {showSplash && <PageLoader />}
+      {renderSplash && <PageLoader isFadingOut={fadeSplash} />}
       {!isInitializing && !authError && (
         <Routes location={location}>
           <Route element={<AppLayout />}>
