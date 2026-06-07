@@ -29,7 +29,7 @@ const A11Y_FONTS = [
   { value: 'hyperlegible', label: 'Atkinson Hyperlegible', desc: 'High legibility for low vision', preview: "'Atkinson Hyperlegible', system-ui, sans-serif" },
 ];
 
-const LAST_REVISED = 'June 3rd, 2026';
+const LAST_REVISED = 'June 7th, 2026';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -929,11 +929,8 @@ export default function SettingsPage() {
         </button>
         {expandedSections.offline && (
           <div className="p-5 pt-0">
-            <p className="font-sans text-sm text-muted-foreground mb-2">
+            <p className="font-sans text-sm text-muted-foreground mb-4">
               Download all 66 books to your device for offline reading. Once downloaded, the Bible is available without an internet connection.
-            </p>
-            <p className="font-sans text-xs text-muted-foreground mb-4 font-mono bg-secondary/50 inline-block px-2 py-1 rounded">
-              Cache Version: {CACHE_VERSION}
             </p>
 
             {cached ? (
