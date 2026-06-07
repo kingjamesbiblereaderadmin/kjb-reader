@@ -286,8 +286,12 @@ export default function AppLayout() {
                     const reg = await navigator.serviceWorker.getRegistration();
                     if (reg) {
                       await reg.update();
-                      if (reg.waiting || (reg.installing && reg.installing.state === 'installed')) {
+                      if (reg.waiting) {
                         hasCodeUpdates = true;
+                        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                      } else if (reg.installing && reg.installing.state === 'installed') {
+                        hasCodeUpdates = true;
+                        reg.installing.postMessage({ type: 'SKIP_WAITING' });
                       }
                     }
                   }
