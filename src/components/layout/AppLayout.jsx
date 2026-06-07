@@ -129,51 +129,7 @@ export default function AppLayout() {
     // Apply app-wide accessibility font preference on load
     applyAccessibilityFont(getAccessibilityFont());
 
-    // Auto-update and offline download on app load
-    const initializeApp = async () => {
-      // Skip entirely when offline — keep using cached data
-      if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-        console.log('[AppLayout] Offline — skipping Bible update check');
-        return;
-      }
-      
-      try {
-        let swUpdated = false;
-        if ('serviceWorker' in navigator) {
-          const reg = await navigator.serviceWorker.getRegistration();
-          if (reg) {
-            await reg.update().catch(() => {});
-            // The banner handles user interaction. Just check if an update is pending.
-            if (reg.waiting || (reg.installing && reg.installing.state === 'installed')) {
-              swUpdated = true;
-            }
-          }
-        }
-
-        if (swUpdated) {
-          // localStorage.removeItem('kjb-daily-verse-cache'); // removed per user request
-        }
-
-        const { autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
-
-        // Use Promise.race to timeout after 30 seconds
-        const downloadPromise = autoDownloadBibleOnFirstLoad();
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Download timeout')), 30000)
-        );
-
-        const result = await Promise.race([downloadPromise, timeoutPromise]);
-
-        console.log('[AppLayout] App initialized', result);
-      } catch (err) {
-        console.error('[AppLayout] Initialization failed:', err.message);
-        // Don't show error to user - app can still work with cached data
-      }
-    };
-    
-    // Run initialization shortly after first paint — don't wait for idle so
-    // the download starts quickly and users get offline access ASAP.
-    setTimeout(initializeApp, 300);
+    // Initialization (like updates and caching) now happens safely inside App.jsx during the splash screen!
 
     // Initialize periodic cache refresh (checks every 24 hours when user opens app)
     initPeriodicCacheRefresh();

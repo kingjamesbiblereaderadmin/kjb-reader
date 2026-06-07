@@ -118,11 +118,93 @@ const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const location = useLocation();
   const [minSplashDone, setMinSplashDone] = useState(false);
+  const [updateCheckDone, setUpdateCheckDone] = useState(false);
 
   useEffect(() => {
     // Enforce a minimum display time for the splash screen so it doesn't flash too fast
     const timer = setTimeout(() => setMinSplashDone(true), 1200);
     return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    const checkUpdatesSilently = async () => {
+      try {
+        if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+          return; // Skip if offline
+        }
+
+        let hasUpdates = false;
+
+        // 1. Check App/Code Updates
+        if ('serviceWorker' in navigator) {
+          const reg = await navigator.serviceWorker.getRegistration();
+          if (reg) {
+            await reg.update().catch(() => {});
+            if (reg.waiting) {
+              hasUpdates = true;
+              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            } else if (reg.installing) {
+              if (reg.installing.state === 'installed') {
+                hasUpdates = true;
+                reg.installing.postMessage({ type: 'SKIP_WAITING' });
+              } else {
+                hasUpdates = await new Promise(resolve => {
+                  const worker = reg.installing;
+                  worker.addEventListener('statechange', () => {
+                    if (worker.state === 'installed') {
+                      worker.postMessage({ type: 'SKIP_WAITING' });
+                      resolve(true);
+                    } else if (worker.state === 'redundant') {
+                      resolve(false);
+                    }
+                  });
+                  setTimeout(() => resolve(false), 3000);
+                });
+              }
+            }
+          }
+        }
+
+        // 2. Check Bible Data Updates and initial cache load
+        const { checkForUpdates, downloadBibleForOffline, autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
+        const bibleNeedsUpdate = await checkForUpdates().catch(() => false);
+        
+        if (bibleNeedsUpdate) {
+          hasUpdates = true;
+          localStorage.removeItem('bible_cache_version');
+          localStorage.removeItem('bible_last_refresh');
+          await downloadBibleForOffline().catch(() => {});
+        } else {
+          // ensure initial load happens if no updates but cache is missing
+          // Use Promise.race to timeout after 30 seconds so it never hangs forever
+          const downloadPromise = autoDownloadBibleOnFirstLoad().catch(() => {});
+          const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 30000));
+          await Promise.race([downloadPromise, timeoutPromise]).catch(() => {});
+        }
+
+        if (hasUpdates) {
+          // Clear caches so the new SW fetches fresh assets
+          if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            await Promise.all(cacheNames.map(name => caches.delete(name)));
+          }
+          // Smooth silent reload - splash screen will persist since we don't set updateCheckDone
+          window.location.reload();
+          return; 
+        }
+
+      } catch (err) {
+        console.error('Silent update check failed:', err);
+      } finally {
+        if (isMounted) {
+          setUpdateCheckDone(true);
+        }
+      }
+    };
+
+    checkUpdatesSilently();
+    return () => { isMounted = false; };
   }, []);
 
   // Preload all route chunks in the background once auth resolves
@@ -131,7 +213,7 @@ const AuthenticatedApp = () => {
   }, []);
 
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
-  const showSplash = isInitializing || !minSplashDone;
+  const showSplash = isInitializing || !minSplashDone || !updateCheckDone;
 
   if (authError && !isInitializing) {
     if (authError.type === 'user_not_registered') {
