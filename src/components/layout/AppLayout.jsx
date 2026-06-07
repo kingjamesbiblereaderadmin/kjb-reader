@@ -278,7 +278,6 @@ export default function AppLayout() {
                   }
                   
                   // Clear local storage items that might hold old state
-                  localStorage.removeItem('kjb-daily-verse-cache');
                   localStorage.removeItem('bible_cache_version');
                   localStorage.removeItem('bible_last_refresh');
                   
