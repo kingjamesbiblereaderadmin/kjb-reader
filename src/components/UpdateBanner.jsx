@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { RefreshCw, RotateCw, CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 
 export default function UpdateBanner() {
@@ -50,23 +51,24 @@ export default function UpdateBanner() {
   if (!progressMsg) return null;
 
   if (isReloading) {
-    return (
-      <div className="fixed inset-0 z-[9999] bg-background/70 backdrop-blur-md flex flex-col items-center justify-center animate-in fade-in duration-300">
-        <div className="pointer-events-auto flex items-center justify-center bg-card/95 backdrop-blur-xl border border-border/50 text-center shadow-2xl flex-col gap-6 p-8 rounded-3xl max-w-[85vw] animate-in zoom-in-95 duration-300">
-          <div className="relative">
+    return createPortal(
+      <div className="fixed inset-0 z-[99999] bg-background/95 backdrop-blur-md flex flex-col items-center justify-center animate-in fade-in duration-500">
+        <div className="flex flex-col items-center justify-center -mt-16">
+          <div className="relative mb-8">
             <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full animate-pulse"></div>
             <img 
               src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
               alt="KJB Reader Logo" 
-              className="relative w-28 h-28 object-contain animate-pulse drop-shadow-2xl"
+              className="relative w-32 h-32 object-contain animate-pulse drop-shadow-2xl"
             />
           </div>
-          <div className="flex items-center gap-3 justify-center bg-secondary/60 px-5 py-2.5 rounded-2xl">
+          <div className="flex items-center gap-3 text-foreground bg-card/80 px-6 py-3 rounded-2xl backdrop-blur-md shadow-lg border border-border/50">
             <RotateCw className="w-5 h-5 animate-spin text-primary" />
-            <p className="font-sans text-sm font-semibold text-foreground tracking-wide pr-1">{progressMsg}</p>
+            <span className="font-sans text-sm font-semibold tracking-wide">{progressMsg}</span>
           </div>
         </div>
-      </div>
+      </div>,
+      document.body
     );
   }
 
