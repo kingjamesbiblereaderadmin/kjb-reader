@@ -52,7 +52,7 @@ export default function UpdateBanner() {
 
   if (isReloading) {
     return createPortal(
-      <div className="fixed inset-0 z-[99999] bg-background/95 backdrop-blur-md flex flex-col items-center justify-center animate-in fade-in duration-500">
+      <div className="fixed inset-0 z-[99999] bg-background/95 backdrop-blur-md flex flex-col items-center justify-center">
         <div className="flex flex-col items-center justify-center -mt-16">
           <div className="relative mb-8">
             <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full"></div>
