@@ -99,7 +99,6 @@ import { Loader2, ChevronRight, Heart } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 
 const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
-  const [firstVisitStep, setFirstVisitStep] = useState(1);
   const [activeCard, setActiveCard] = useState('gospel');
   const [updateType] = useState(() => 
     typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null
@@ -154,7 +153,7 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
 
   return (
     <div className={`fixed inset-0 z-[9999] bg-background overflow-hidden ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
-      <div className="flex flex-col items-center w-full h-[100dvh] px-4 max-w-xl mx-auto py-8 space-y-6 overflow-y-auto">
+      <div className="flex flex-col items-center w-full h-[100dvh] px-4 max-w-xl mx-auto pt-8 pb-32 space-y-6 overflow-y-auto">
         
         {/* Logo and Welcome Banner */}
         <div className="flex flex-col items-center justify-center pt-4">
@@ -173,31 +172,25 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
 
         {isFirstVisit ? (
           <div className="w-full flex-col flex w-full">
-            {/* Slider Toggle */}
-            <div className="flex items-center justify-center mb-3">
-               <div className="flex bg-secondary/80 rounded-full p-1 w-64 relative shadow-inner">
-                 <div 
-                   className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-card rounded-full shadow-sm transition-all duration-300 ease-out ${activeCard === 'verse' ? 'left-[calc(50%+2px)]' : 'left-1'}`}
-                 />
-                 <button 
-                   onClick={() => setActiveCard('gospel')}
-                   className={`flex-1 py-2 text-xs font-bold z-10 transition-colors ${activeCard === 'gospel' ? 'text-foreground' : 'text-muted-foreground'}`}
-                 >
-                   The Gospel
-                 </button>
-                 <button 
-                   onClick={() => setActiveCard('verse')}
-                   className={`flex-1 py-2 text-xs font-bold z-10 transition-colors ${activeCard === 'verse' ? 'text-foreground' : 'text-muted-foreground'}`}
-                 >
-                   Daily Verse
-                 </button>
-               </div>
+            {/* First time prompt */}
+            <div className="w-full shrink-0 mb-4 px-1">
+              <FirstLoadPrompt 
+                splashMode={true}
+                isInstallable={promptProps.isInstallable}
+                notifPermission={promptProps.notifPermission}
+                onInstall={promptProps.handleInstall}
+                onEnableNotif={promptProps.handleEnableNotif}
+                onDismiss={() => {}}
+                loadingText={loadingText}
+                isAppReady={isAppReady}
+                continueText="Hidden"
+              />
             </div>
 
             {/* Cards Container */}
-            <div className="w-full shrink-0 mb-4 transition-all duration-300 relative min-h-[300px]">
-              <div className={`w-full absolute inset-0 ${activeCard === 'gospel' ? 'block animate-in fade-in slide-in-from-left-4 duration-300 z-10' : 'hidden z-0'}`}>
-                 <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-6 text-center shadow-md h-full flex flex-col justify-center mx-2">
+            <div className="w-full shrink-0 mb-4 relative min-h-[300px]">
+              <div className={`w-full absolute inset-0 transition-all duration-300 ${activeCard === 'gospel' ? 'opacity-100 z-10 scale-100' : 'opacity-0 z-0 scale-95 pointer-events-none'}`}>
+                 <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-6 text-center shadow-md h-full flex flex-col justify-center mr-8 ml-2">
                    <p className="font-serif text-xl font-bold text-red-700 dark:text-red-400 mb-3">Are you saved?</p>
                    <p className="font-sans text-sm text-foreground/80 mb-6 leading-relaxed">
                      Jesus Christ died for your sins, shed his blood, was buried, and rose again on the third day. Trust the blood — believe the gospel and be saved.
@@ -215,8 +208,8 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
                  </div>
               </div>
               
-              <div className={`w-full absolute inset-0 ${activeCard === 'verse' ? 'block animate-in fade-in slide-in-from-right-4 duration-300 z-10' : 'hidden z-0'}`}>
-                 <div className="transform origin-top w-full px-2">
+              <div className={`w-full absolute inset-0 transition-all duration-300 ${activeCard === 'verse' ? 'opacity-100 z-10 scale-100' : 'opacity-0 z-0 scale-95 pointer-events-none'}`}>
+                 <div className="transform origin-top w-full h-full flex flex-col justify-center mr-8 ml-2">
                    <DailyVerseImage 
                      verse={dailyVerse} 
                      splashMode={true} 
@@ -226,23 +219,23 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
                    />
                  </div>
               </div>
-            </div>
-            
-            {/* Continue to App Button */}
-            <div className="w-full flex justify-center shrink-0 mt-8 pb-8 px-4">
-              <button 
-                onClick={onDismiss}
-                className="flex items-center justify-center w-full gap-2 py-4 bg-primary text-primary-foreground rounded-2xl font-sans text-lg font-bold transition-all duration-200 hover:scale-105 active:scale-95 shadow-xl hover:shadow-2xl border border-primary/20"
-              >
-                Continue to App
-                <ChevronRight className="w-5 h-5" />
-              </button>
+
+              {/* Toggle Button on the right side */}
+              <div className="absolute right-0 top-0 bottom-0 w-8 flex items-center justify-center z-20">
+                <button 
+                  onClick={() => setActiveCard(activeCard === 'gospel' ? 'verse' : 'gospel')}
+                  className="w-8 h-16 bg-card/80 backdrop-blur-sm border border-border shadow-md rounded-l-xl flex items-center justify-center text-foreground hover:bg-secondary transition-colors"
+                  title="Switch Card"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </div>
         ) : (
           <>
             {/* Daily Verse ONLY for subsequent visits */}
-            <div className="w-full relative px-2 shrink-0">
+            <div className="w-full relative px-2 shrink-0 mb-4">
               <DailyVerseImage 
                 verse={dailyVerse} 
                 splashMode={true} 
@@ -251,20 +244,27 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
                 notifEnabled={'Notification' in window && Notification.permission === 'granted'}
               />
             </div>
-
-            {/* Continue Button */}
-            <div className="w-full flex justify-center shrink-0 mt-4 pb-8">
-              <button 
-                onClick={onDismiss}
-                className="flex items-center gap-2 px-10 py-4 bg-primary text-primary-foreground rounded-full font-sans text-lg font-bold transition-all duration-200 hover:scale-105 active:scale-95 shadow-xl hover:shadow-2xl border border-primary/20"
-              >
-                Continue
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
           </>
         )}
 
+      </div>
+      
+      {/* Global Loading / Updating Banner OR Continue Button at the very bottom */}
+      <div className="w-full flex justify-center shrink-0 pb-6 pt-2 px-4 bg-background absolute bottom-0 left-0 right-0 z-50">
+        {loadingText ? (
+          <div className="flex items-center gap-3 text-foreground bg-card px-6 py-3.5 rounded-2xl shadow-lg border border-border/80 w-full justify-center max-w-xl mx-auto">
+            <Loader2 className="w-5 h-5 animate-spin text-accent shrink-0" />
+            <span className="font-sans text-sm font-semibold tracking-wide truncate">{loadingText}</span>
+          </div>
+        ) : (
+          <button 
+            onClick={onDismiss}
+            className={`flex items-center justify-center gap-2 py-4 bg-primary text-primary-foreground font-sans font-bold transition-all duration-200 hover:scale-105 active:scale-95 shadow-xl hover:shadow-2xl border border-primary/20 max-w-xl mx-auto ${isFirstVisit ? 'w-full rounded-2xl text-lg' : 'px-10 rounded-full text-lg'}`}
+          >
+            {isFirstVisit ? 'Continue to App' : 'Continue'}
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        )}
       </div>
     </div>
   );
