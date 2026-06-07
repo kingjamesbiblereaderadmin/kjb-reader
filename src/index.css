@@ -353,7 +353,7 @@
     break-inside: auto;
   }
   /* Prevent verses from being cut in half across pages */
-  div[id^="v"], .kjb-verse-container, blockquote, p {
+  *[id^="v"], .kjb-verse-container, blockquote, p {
     page-break-inside: avoid;
     break-inside: avoid;
   }

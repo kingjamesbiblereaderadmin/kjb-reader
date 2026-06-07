@@ -1,5 +1,6 @@
 import React from 'react';
-import { CheckSquare, X, Copy, Share2, BookMarked, AlignLeft } from 'lucide-react';
+import { CheckSquare, X, Copy, Share2, BookMarked, AlignLeft, Printer } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 // Action bar shown while in verse-select mode in the reader.
 export default function SelectActionBar({

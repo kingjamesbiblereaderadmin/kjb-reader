@@ -1299,6 +1299,7 @@ export default function SearchPage() {
                     <DropdownMenuTrigger asChild>
                       <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors">
                         <Printer className="w-3.5 h-3.5" /> Print
+                        <ChevronDown className="w-3 h-3 opacity-70" />
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
@@ -1340,6 +1341,7 @@ export default function SearchPage() {
                         <DropdownMenuTrigger asChild>
                           <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors">
                             <Printer className="w-3.5 h-3.5" /> Print
+                            <ChevronDown className="w-3 h-3 opacity-70" />
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48">
