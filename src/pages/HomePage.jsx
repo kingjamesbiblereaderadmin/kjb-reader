@@ -9,7 +9,7 @@ import { registerSW, scheduleDailyNotification, getNotificationsEnabled, request
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { toast } from 'sonner';
 
-const READ_LINK = { path: '/read', icon: BookOpen, label: 'Read the King James Bible', desc: 'KJB Pure Cambridge Edition', color: 'bg-primary text-primary-foreground' };
+const READ_LINK = { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', color: 'bg-primary text-primary-foreground' };
 
 const QUICK_LINKS = [
   { path: '/contents', icon: List, label: 'Table of Contents', desc: 'Browse all 66 books', color: 'bg-secondary text-secondary-foreground' },
@@ -418,10 +418,10 @@ export default function HomePage() {
       <Link
         to={READ_LINK.path}
         onClick={() => window.scrollTo({ top: 0 })}
-        className={`flex items-center gap-4 p-5 rounded-2xl shadow-sm hover:opacity-90 transition-opacity mb-4 sm:hidden ${READ_LINK.color}`}
+        className={`flex items-center gap-5 p-6 rounded-3xl shadow-lg border-2 border-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all mb-4 sm:hidden ${READ_LINK.color}`}
       >
-        <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-white/20">
-          <BookOpen className="w-5 h-5" />
+        <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-2xl bg-white/30">
+          <BookOpen className="w-6 h-6" />
         </div>
         <div>
           <p className="font-serif font-bold text-lg leading-tight">{READ_LINK.label}</p>
@@ -433,10 +433,10 @@ export default function HomePage() {
         <Link
           to={READ_LINK.path}
           onClick={() => window.scrollTo({ top: 0 })}
-          className={`hidden sm:flex items-center gap-4 p-5 rounded-2xl shadow-sm hover:opacity-90 transition-opacity ${READ_LINK.color}`}
+          className={`hidden sm:flex items-center gap-5 p-6 rounded-3xl shadow-lg border-2 border-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all ${READ_LINK.color}`}
         >
-          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-white/20">
-            <BookOpen className="w-5 h-5" />
+          <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-2xl bg-white/30">
+            <BookOpen className="w-6 h-6" />
           </div>
           <div>
             <p className="font-serif font-bold text-lg leading-tight">{READ_LINK.label}</p>
