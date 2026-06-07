@@ -285,10 +285,19 @@ export default function AppLayout() {
                     }
                   }
 
+                  // Safely check if there's a new Bible version available.
+                  // If there is an update, download it. If not, the offline file is untouched.
+                  try {
+                    const { checkForUpdates, autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
+                    if (await checkForUpdates()) {
+                      window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Updating Bible text...', status: 'info' } }));
+                      await autoDownloadBibleOnFirstLoad();
+                    }
+                  } catch (e) {}
+
                   window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Refreshed successfully. Reloading...', status: 'success' } }));
                   
                   // Force a hard reload with a cache-busting query parameter to guarantee the browser bypasses its internal memory
-                  // Note: We intentionally skip clearing the offline Bible data so it stays safely stored on the device!
                   setTimeout(() => {
                     window.location.href = window.location.pathname + '?refresh=' + Date.now();
                   }, 500);
