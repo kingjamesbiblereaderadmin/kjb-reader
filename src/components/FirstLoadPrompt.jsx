@@ -27,7 +27,7 @@ const isInStandaloneMode = () => {
 
 const DISMISSED_KEY = 'kjb-prompt-dismissed';
 
-export default function FirstLoadPrompt({ isInstallable, notifPermission, onInstall, onDismiss, onEnableNotif, splashMode = false, isAppReady = true, loadingText = null }) {
+export default function FirstLoadPrompt({ isInstallable, notifPermission, onInstall, onDismiss, onEnableNotif, splashMode = false, isAppReady = true, loadingText = null, continueText = "Continue to App" }) {
   const [dismissed, setDismissed] = useState(() => {
     try { return localStorage.getItem(DISMISSED_KEY) === 'true'; } catch { return false; }
   });
@@ -234,21 +234,23 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
               </button>
             )}
 
-            <div className="pt-2 mt-2">
-              {!isAppReady ? (
-                 <div className="w-full py-3.5 rounded-xl bg-secondary/50 flex justify-center items-center gap-2.5 border border-border/30">
-                   <div className="w-4 h-4 rounded-full border-2 border-muted-foreground border-t-transparent animate-spin"></div>
-                   <span className="font-sans text-sm font-bold text-muted-foreground">{loadingText || "Loading..."}</span>
-                 </div>
-              ) : (
-                <button
-                  onClick={handleClose}
-                  className="w-full py-3.5 rounded-xl font-sans text-sm font-bold bg-primary hover:bg-primary/90 text-primary-foreground transition-all shadow-md active:scale-[0.98]"
-                >
-                  Continue to App
-                </button>
-              )}
-            </div>
+            {continueText !== "Hidden" && (
+              <div className="pt-2 mt-2">
+                {!isAppReady ? (
+                   <div className="w-full py-3.5 rounded-xl bg-secondary/50 flex justify-center items-center gap-2.5 border border-border/30">
+                     <div className="w-4 h-4 rounded-full border-2 border-muted-foreground border-t-transparent animate-spin"></div>
+                     <span className="font-sans text-sm font-bold text-muted-foreground">{loadingText || "Loading..."}</span>
+                   </div>
+                ) : (
+                  <button
+                    onClick={handleClose}
+                    className="w-full py-3.5 rounded-xl font-sans text-sm font-bold bg-primary hover:bg-primary/90 text-primary-foreground transition-all shadow-md active:scale-[0.98]"
+                  >
+                    {continueText}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -358,14 +360,16 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
               )}
             </div>
             
-            <div className="pt-6 mt-4">
-              <button
-                onClick={handleClose}
-                className="w-full py-4 rounded-xl font-sans text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground transition-all shadow-lg active:scale-[0.98]"
-              >
-                Continue to App
-              </button>
-            </div>
+            {continueText !== "Hidden" && (
+              <div className="pt-6 mt-4">
+                <button
+                  onClick={handleClose}
+                  className="w-full py-4 rounded-xl font-sans text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground transition-all shadow-lg active:scale-[0.98]"
+                >
+                  {continueText}
+                </button>
+              </div>
+            )}
         </div>
       </div>
     </>

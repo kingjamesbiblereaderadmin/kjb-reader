@@ -99,6 +99,7 @@ import { Loader2, ChevronRight, Heart } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 
 const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
+  const [firstVisitStep, setFirstVisitStep] = useState(1);
   const [updateType] = useState(() => 
     typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null
   );
@@ -169,74 +170,92 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
           </div>
         </div>
 
-        {/* Daily Verse */}
-        <div className="w-full relative px-2 shrink-0">
-          <DailyVerseImage 
-            verse={dailyVerse} 
-            splashMode={true} 
-            onClick={() => {}} 
-            onToggleNotif={promptProps.handleEnableNotif}
-            notifEnabled={'Notification' in window && Notification.permission === 'granted'}
-          />
-        </div>
-
         {isFirstVisit ? (
-          <>
-            {/* Gospel Call */}
-            <div className="w-full shrink-0 px-2 mt-4">
-              <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-6 text-center shadow-md">
-                <p className="font-serif text-xl font-bold text-red-700 dark:text-red-400 mb-2">Are you saved?</p>
-                <p className="font-sans text-sm text-foreground/80 mb-4">
-                  Jesus Christ died for your sins, shed his blood, was buried, and rose again on the third day. Trust the blood — believe the gospel and be saved.
-                </p>
-                <button
-                  onClick={() => {
-                    onDismiss();
-                    setTimeout(() => { window.location.href = '/gospel'; }, 100);
-                  }}
-                  className="inline-flex items-center justify-center gap-2 w-full px-5 py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-sans text-sm font-bold transition-all duration-200 shadow-md active:scale-[0.98]"
-                >
-                  <Heart className="w-4 h-4" />
-                  Learn How to be Saved
-                </button>
-              </div>
-            </div>
-
-            {/* Setup Prompt Container */}
-            <div className="w-full pb-8 mt-4 shrink-0 flex flex-col justify-center">
+          <div className="w-full flex-1 flex flex-col justify-start pb-4 mt-2 px-2 overflow-y-auto min-h-0">
+            {/* Super Compact Quick Setup */}
+            <div className="w-full shrink-0 mb-3">
               <FirstLoadPrompt 
                 splashMode={true}
                 isInstallable={promptProps.isInstallable}
                 notifPermission={promptProps.notifPermission}
                 onInstall={promptProps.handleInstall}
                 onEnableNotif={promptProps.handleEnableNotif}
-                onDismiss={onDismiss}
+                onDismiss={() => {}} // Disabled here because we use the global continue button below
                 loadingText={loadingText}
                 isAppReady={isAppReady}
+                continueText="Hidden" // Will hide via CSS or we can just ignore it
+              />
+            </div>
+
+            {/* Gospel Call - Compact */}
+            <div className="w-full shrink-0 mb-3">
+              <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-xl p-3 text-center shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div className="text-left">
+                    <p className="font-serif text-sm font-bold text-red-700 dark:text-red-400">Are you saved?</p>
+                    <p className="font-sans text-[10px] text-foreground/80 mt-0.5 leading-tight">
+                      Trust the blood — believe the gospel and be saved.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      onDismiss();
+                      setTimeout(() => { window.location.href = '/gospel'; }, 100);
+                    }}
+                    className="shrink-0 flex items-center justify-center gap-1.5 ml-3 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-sans text-xs font-bold transition-all duration-200 shadow-sm active:scale-[0.98]"
+                  >
+                    <Heart className="w-3 h-3" />
+                    Learn How
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Daily Verse - Compact */}
+            <div className="w-full shrink-0">
+              <div className="transform origin-top scale-90 -mt-2">
+                <DailyVerseImage 
+                  verse={dailyVerse} 
+                  splashMode={true} 
+                  onClick={() => {}} 
+                  onToggleNotif={promptProps.handleEnableNotif}
+                  notifEnabled={'Notification' in window && Notification.permission === 'granted'}
+                />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Daily Verse ONLY for subsequent visits */}
+            <div className="w-full relative px-2 shrink-0">
+              <DailyVerseImage 
+                verse={dailyVerse} 
+                splashMode={true} 
+                onClick={() => {}} 
+                onToggleNotif={promptProps.handleEnableNotif}
+                notifEnabled={'Notification' in window && Notification.permission === 'granted'}
               />
             </div>
           </>
-        ) : (
-          <>
-            {/* Loading / Updating Banner OR Continue Button */}
-            <div className="w-full flex justify-center shrink-0 mt-8 pb-8">
-              {loadingText ? (
-                <div className="flex items-center gap-3 text-foreground bg-card px-6 py-3.5 rounded-2xl shadow-lg border border-border/80">
-                  <Loader2 className="w-5 h-5 animate-spin text-accent shrink-0" />
-                  <span className="font-sans text-sm font-semibold tracking-wide">{loadingText}</span>
-                </div>
-              ) : (
-                <button 
-                  onClick={onDismiss}
-                  className="flex items-center gap-2 px-10 py-4 bg-primary text-primary-foreground rounded-full font-sans text-lg font-bold transition-all duration-200 hover:scale-105 active:scale-95 shadow-xl hover:shadow-2xl border border-primary/20"
-                >
-                  Continue
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              )}
-            </div>
-          </>
         )}
+
+        {/* Global Loading / Updating Banner OR Continue Button at the bottom */}
+        <div className="w-full flex justify-center shrink-0 pb-6 pt-2 px-4 bg-background">
+          {loadingText ? (
+            <div className="flex items-center gap-3 text-foreground bg-card px-6 py-3.5 rounded-2xl shadow-lg border border-border/80 w-full justify-center">
+              <Loader2 className="w-5 h-5 animate-spin text-accent shrink-0" />
+              <span className="font-sans text-sm font-semibold tracking-wide truncate">{loadingText}</span>
+            </div>
+          ) : (
+            <button 
+              onClick={onDismiss}
+              className="flex items-center justify-center gap-2 w-full py-4 bg-primary text-primary-foreground rounded-2xl font-sans text-lg font-bold transition-all duration-200 hover:scale-105 active:scale-95 shadow-xl hover:shadow-2xl border border-primary/20"
+            >
+              Continue to App
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          )}
+        </div>
 
       </div>
     </div>
