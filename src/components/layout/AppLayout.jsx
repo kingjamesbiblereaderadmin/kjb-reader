@@ -289,17 +289,15 @@ export default function AppLayout() {
                     }
                   }
 
-                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Refreshed successfully.', status: 'success' } }));
+                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Refreshed successfully. Reloading...', status: 'success' } }));
                   
                   // Try to fetch fresh bible data immediately
                   const { forceReloadBibleData } = await import('@/lib/bibleCache');
                   await forceReloadBibleData().catch(() => {});
                   
-                  // Silently soft-reload without flashing the screen
+                  // Force a hard reload to fetch new JS/CSS assets and clear old scripts
                   setTimeout(() => {
-                    softReload();
-                    setRefreshing(false);
-                    setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 1500);
+                    window.location.reload();
                   }, 500);
                 } catch (err) {
                   console.error('Refresh failed:', err);
