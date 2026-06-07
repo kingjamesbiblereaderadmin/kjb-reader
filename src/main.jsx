@@ -68,17 +68,8 @@ window.addEventListener('load', async () => {
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (hasExistingController && !refreshing) {
           refreshing = true;
-          console.log('[SW] Controller changed. Reloading automatically for app update.');
-          
-          // Prevent infinite reload loops
-          if (sessionStorage.getItem('kjb_sw_reloading')) {
-             console.warn('[SW] Reload loop detected, aborting reload.');
-             return;
-          }
-          sessionStorage.setItem('kjb_sw_reloading', 'true');
-          setTimeout(() => sessionStorage.removeItem('kjb_sw_reloading'), 5000);
-          
-          window.location.reload();
+          console.log('[SW] Controller changed. Service worker updated silently.');
+          // Intentionally NOT calling window.location.reload() to provide a completely silent update
         }
         hasExistingController = true;
       });

@@ -289,16 +289,18 @@ export default function AppLayout() {
                     }
                   }
 
-                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Refreshed successfully. Reloading...', status: 'success' } }));
+                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Refreshed successfully.', status: 'success' } }));
                   
                   // Try to fetch fresh bible data immediately
                   const { forceReloadBibleData } = await import('@/lib/bibleCache');
                   await forceReloadBibleData().catch(() => {});
                   
-                  // Reload the page
+                  // Silently soft-reload without flashing the screen
                   setTimeout(() => {
-                    window.location.reload();
-                  }, 1000);
+                    softReload();
+                    setRefreshing(false);
+                    setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 1500);
+                  }, 500);
                 } catch (err) {
                   console.error('Refresh failed:', err);
                   window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Failed to force update', status: 'error' } }));
