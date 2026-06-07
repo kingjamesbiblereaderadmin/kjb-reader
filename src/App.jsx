@@ -128,9 +128,12 @@ const PageLoader = ({ isFadingOut, forcedText }) => {
   let text = (isFirstVisit || updateType === 'bible_first_load') ? "Welcome to KJB Reader..." : 
              "Welcome back to KJB Reader...";
              
-  if (updateType) {
+  if (dynamicText) {
+    text = dynamicText;
+  } else if (forcedText) {
+    text = forcedText;
+  } else if (updateType) {
     if (updateType === 'bible_first_load') text = "Welcome to KJB Reader...";
-    else if (dynamicText) text = dynamicText;
     else if (updateType === 'forced_update' || updateType === 'app' || updateType === 'both' || updateType === 'bible') text = "Updates applied successfully...";
     else if (updateType === 'up_to_date') text = "App is up to date...";
     else text = "Welcome back to KJB Reader...";
@@ -281,11 +284,12 @@ const AuthenticatedApp = () => {
                   hasAppUpdates = true;
                   reg.installing.postMessage({ type: 'SKIP_WAITING' });
                 } else {
+                  setIsApplyingUpdates(true);
+                  setApplyMessage('Found updates...');
                   window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
-                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Found updates...', status: 'loading' } }));
                   await new Promise(r => setTimeout(r, 1000));
+                  setApplyMessage('Downloading updates...');
                   window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Downloading updates...' } }));
-                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Downloading updates...', status: 'loading' } }));
                   hasAppUpdates = await new Promise(resolve => {
                     let resolved = false;
                     const worker = reg.installing;
@@ -328,13 +332,15 @@ const AuthenticatedApp = () => {
           localStorage.removeItem('bible_last_refresh');
           try {
             if (!hasAppUpdates && bibleNeedsUpdate) {
+              setIsApplyingUpdates(true);
+              setApplyMessage('Found updates...');
               window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
-              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Found updates...', status: 'loading' } }));
               await new Promise(r => setTimeout(r, 1000));
             }
             const dlMessage = !bibleIsCached ? 'Downloading offline Bible...' : 'Downloading updates...';
+            setIsApplyingUpdates(true);
+            setApplyMessage(dlMessage);
             window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: dlMessage } }));
-            window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: dlMessage, status: 'loading' } }));
             await downloadBibleForOffline();
             hasBibleUpdates = true;
           } catch(e) {
@@ -361,7 +367,6 @@ const AuthenticatedApp = () => {
           const applyMsg = !bibleIsCached ? 'Welcome to KJB Reader...' : 'Applying updates...';
           setApplyMessage(applyMsg);
           window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: applyMsg } }));
-          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: applyMsg, status: 'loading' } }));
           setIsApplyingUpdates(true);
           willReload = true;
           setTimeout(() => {
@@ -428,7 +433,6 @@ const AuthenticatedApp = () => {
         if (hasAppUpdates && isMounted) {
           sessionStorage.setItem('kjb_sw_updated', 'app');
           setApplyMessage('Applying updates...');
-          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Applying updates...', status: 'loading' } }));
           setIsApplyingUpdates(true);
           setTimeout(() => window.location.reload(), 1200);
         }
