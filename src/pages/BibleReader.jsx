@@ -776,7 +776,7 @@ export default function BibleReader() {
     
     const scroller = document.getElementById('kjb-scroll');
     const toolbarH = topRef.current ? topRef.current.getBoundingClientRect().height : 0;
-    const stickyOffset = toolbarH + 16; // Give comfortable breathing room above the verse
+    const stickyOffset = toolbarH + 48; // Give comfortable breathing room above the verse
     
     // Find the verse number element to reliably get the top position,
     // avoiding CSS column fragmentation issues on the parent block.
@@ -832,7 +832,7 @@ export default function BibleReader() {
       if (!el) return;
       const scroller = document.getElementById('kjb-scroll');
       const toolbarH = topRef.current ? topRef.current.getBoundingClientRect().height : 0;
-      const stickyOffset = toolbarH + 12;
+      const stickyOffset = toolbarH + 48;
       if (scroller) {
         const top = el.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - stickyOffset;
         scroller.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
@@ -1105,7 +1105,7 @@ export default function BibleReader() {
 
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
-        <div ref={topRef} className="sticky top-0 z-[100] border-b border-border pb-2 pt-2 mb-2 relative shadow-sm -mx-5 sm:-mx-12 lg:-mx-16 px-5 sm:px-8 lg:px-12 bg-background before:content-[''] before:absolute before:bottom-full before:left-0 before:right-0 before:h-12 before:bg-background">
+        <div ref={topRef} className="sticky top-0 z-[100] border-b border-border pb-2 pt-2 mb-2 relative shadow-sm -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 bg-background before:content-[''] before:absolute before:bottom-full before:left-0 before:right-0 before:h-12 before:bg-background">
           <div className="flex flex-wrap items-stretch justify-stretch gap-1.5 w-full max-w-7xl mx-auto [&>button:not(.kjb-fixed-btn)]:flex-grow [&>button:not(.kjb-fixed-btn)]:basis-auto [&>div.relative]:flex-grow [&>div.relative>button]:w-full">
 
             {/* Book selector */}
