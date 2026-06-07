@@ -246,11 +246,11 @@ export default function AppLayout() {
         {menuOpen && (
           <>
             <div
-              className="fixed inset-0 top-14 z-40 bg-background/95"
+              className="fixed inset-0 top-14 z-40 bg-black/50 backdrop-blur-sm"
               onClick={() => setMenuOpen(false)}
             />
             <div data-kjb-menu className="absolute top-full right-0 left-0 z-50 bg-card backdrop-blur-md border-b border-border shadow-lg">
-              <div className="w-full px-5 sm:px-12 lg:px-16 py-3 grid grid-cols-2 sm:grid-cols-4 gap-1">
+              <div className="w-full px-5 sm:px-12 lg:px-16 py-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {NAV_ITEMS.map(item => {
                   const Icon = item.icon;
                   const active = item.path === '/' ? pathname === '/' : pathname === item.path;
@@ -263,10 +263,10 @@ export default function AppLayout() {
                         scrollMainToTop();
                         navigate(item.path);
                       }}
-                      className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg font-sans text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 ${
+                      className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg border font-sans text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 ${
                         active
-                          ? 'bg-primary text-primary-foreground'
-                          : 'text-foreground hover:bg-secondary'
+                          ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                          : 'bg-card text-foreground border-border hover:bg-secondary hover:border-muted-foreground/30'
                       }`}
                     >
                       <Icon className="w-4 h-4 flex-shrink-0 transition-transform duration-200" />

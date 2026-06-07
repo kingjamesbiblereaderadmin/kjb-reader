@@ -133,7 +133,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-[99998] bg-background/60 backdrop-blur-sm"
+        className="fixed inset-0 z-[99998] bg-black/50 backdrop-blur-md"
         onPointerDown={handleClose}
       />
       <div className="fixed bottom-20 sm:bottom-6 right-4 z-[99999] w-80 pointer-events-auto">
@@ -205,10 +205,10 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                   type="button"
                   onClick={(e) => { e.stopPropagation(); pickReaderFont(font.value); }}
                   onPointerDown={e => e.stopPropagation()}
-                  className={`px-1 py-1.5 rounded-lg font-sans text-[10px] font-medium transition-all touch-manipulation ${
+                  className={`px-1 py-1.5 rounded-lg border font-sans text-[10px] font-medium transition-all touch-manipulation ${
                     isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-card text-foreground border border-border hover:border-accent'
+                      ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                      : 'bg-card text-foreground border-border hover:border-accent'
                   } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
                   style={{ fontFamily: font.value }}
                 >
@@ -235,10 +235,10 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                   type="button"
                   onClick={(e) => { e.stopPropagation(); pickVerseFont(font.value); }}
                   onPointerDown={e => e.stopPropagation()}
-                  className={`px-1 py-1.5 rounded-lg font-sans text-[10px] font-medium transition-all touch-manipulation ${
+                  className={`px-1 py-1.5 rounded-lg border font-sans text-[10px] font-medium transition-all touch-manipulation ${
                     isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-card text-foreground border border-border hover:border-accent'
+                      ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                      : 'bg-card text-foreground border-border hover:border-accent'
                   } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
                   style={{ fontFamily: font.value }}
                 >
@@ -261,10 +261,10 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                   type="button"
                   onClick={(e) => { e.stopPropagation(); setA11yFont(font.value); setAccessibilityFont(font.value); }}
                   onPointerDown={e => e.stopPropagation()}
-                  className={`px-2 py-2 rounded-lg font-sans text-xs font-medium transition-all touch-manipulation ${
+                  className={`px-2 py-2 rounded-lg border font-sans text-xs font-medium transition-all touch-manipulation ${
                     a11yFont === font.value
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-card text-foreground border border-border hover:border-accent'
+                      ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                      : 'bg-card text-foreground border-border hover:border-accent'
                   }`}
                   style={font.preview ? { fontFamily: font.preview } : undefined}
                 >
