@@ -598,7 +598,7 @@ export default function ResourcesPage() {
   };
   
   return (
-    <div className="w-full max-w-5xl mx-auto px-5 sm:px-12 lg:px-16 py-10">
+    <div className="w-full max-w-7xl mx-auto px-5 sm:px-12 lg:px-16 py-10">
       <div className="text-center mb-10">
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-secondary mb-4">
           <FileText className="w-7 h-7 text-accent" />
