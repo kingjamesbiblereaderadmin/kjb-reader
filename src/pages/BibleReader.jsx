@@ -1489,7 +1489,6 @@ export default function BibleReader() {
                   <button title="Print" className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap">
                     <Printer className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
                     <span className="hidden lg:inline">Print</span>
-                    <ChevronDown className="w-3 h-3 opacity-70 flex-shrink-0" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
@@ -1719,6 +1718,8 @@ export default function BibleReader() {
               onShare={handleShareChapter}
               onReadSelected={handleReadSelected}
               onShowFull={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
+              onPrintPage={() => window.print()}
+              onPrintContents={() => printChapterContents(verses, book, pos, true, selectedVerses, colophon)}
             />
           )}
 
@@ -1732,6 +1733,8 @@ export default function BibleReader() {
               shareFeedback={shareFeedback}
               onCopy={handleCopySelected}
               onShare={handleShareChapter}
+              onPrintPage={() => window.print()}
+              onPrintContents={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon)}
               onToggleView={() => {
                 // Toggle between filtered (verses only) and full-chapter view,
                 // keeping the same verse selection/highlight either way.
