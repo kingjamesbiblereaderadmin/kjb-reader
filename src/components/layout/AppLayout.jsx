@@ -596,9 +596,8 @@ function useAppLayoutPrompt() {
   });
   const [notifEnabled, setNotifEnabled] = useState(() => getNotificationsEnabled());
 
-  const handleInstall = async () => {
-    const accepted = await promptInstall();
-    return accepted;
+  const handleInstall = () => {
+    return promptInstall();
   };
 
   const handleEnableNotif = async () => {

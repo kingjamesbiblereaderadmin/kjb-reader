@@ -57,9 +57,9 @@ export function useInstallPrompt() {
     };
   }, []);
 
-  const promptInstall = async () => {
+  const promptInstall = () => {
     if (!globalDeferredPrompt) {
-      return false;
+      return Promise.resolve(false);
     }
     // Prevent "prompt() may only be called once" if user clicks multiple times rapidly
     const promptEvent = globalDeferredPrompt;
@@ -68,15 +68,17 @@ export function useInstallPrompt() {
     
     try {
       promptEvent.prompt();
-      const { outcome } = await promptEvent.userChoice;
-      if (outcome === 'accepted') {
-        globalIsInstallable = false;
-        setIsInstallable(false);
-      }
-      return outcome === 'accepted';
+      return promptEvent.userChoice.then((choice) => {
+        const outcome = choice.outcome;
+        if (outcome === 'accepted') {
+          globalIsInstallable = false;
+          setIsInstallable(false);
+        }
+        return outcome === 'accepted';
+      });
     } catch (err) {
       console.error('Failed to prompt install', err);
-      return false;
+      return Promise.resolve(false);
     }
   };
 
@@ -89,12 +91,13 @@ export function useInstallPrompt() {
     setShowPrompt(false);
   };
 
-  const handleInstall = async () => {
-    const accepted = await promptInstall();
-    if (accepted) {
-      setShowPrompt(false);
-    }
-    return accepted;
+  const handleInstall = () => {
+    return promptInstall().then(accepted => {
+      if (accepted) {
+        setShowPrompt(false);
+      }
+      return accepted;
+    });
   };
 
   const handleDismiss = () => {

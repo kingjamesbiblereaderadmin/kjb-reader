@@ -64,7 +64,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     if (onDismiss) onDismiss();
   };
 
-  const handleInstallClick = async (e) => {
+  const handleInstallClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (isIOS() && !isInstallable) {
@@ -72,8 +72,13 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
       return;
     }
     if (isInstallable && onInstall) {
-      const accepted = await onInstall();
-      if (accepted) setInstallDone(true);
+      const result = onInstall();
+      if (result && result.then) {
+        result.then(accepted => {
+          if (accepted) setInstallDone(true);
+          else setShowIOSHint(h => !h);
+        });
+      }
     } else {
       // Desktop/Android without deferred prompt — show browser hint
       setShowIOSHint(h => !h);

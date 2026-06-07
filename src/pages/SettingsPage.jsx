@@ -876,10 +876,14 @@ export default function SettingsPage() {
         ) : (
           <div className="space-y-3">
             <button
-              onClick={async () => {
-                const accepted = await promptInstall();
-                if (!accepted) {
-                  alert('To install the app, please follow the manual instructions below using your browser menu.');
+              onClick={() => {
+                const result = promptInstall();
+                if (result && result.then) {
+                  result.then(accepted => {
+                    if (!accepted) {
+                      alert('To install the app, please follow the manual instructions below using your browser menu.');
+                    }
+                  });
                 }
               }}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
