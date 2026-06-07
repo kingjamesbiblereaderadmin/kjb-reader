@@ -494,7 +494,10 @@ export function exportPrint(items, query, filters, options = {}) {
   const now = new Date();
   const dateStr = now.toLocaleDateString() + ' at ' + now.toLocaleTimeString();
   
-  const headerHtml = '';
+  const headerHtml = isReading 
+    ? `<h1 style="font-family:Georgia,serif;font-size:24pt;font-weight:900;margin-bottom:5pt;text-align:center;">${escapeHtml(options.bookName || query)}</h1>` +
+      (options.chapterText ? `<p style="font-family:system-ui,-apple-system,sans-serif;font-size:10pt;letter-spacing:0.1em;text-transform:uppercase;color:#666;margin-top:0;margin-bottom:25pt;text-align:center;">${escapeHtml(options.chapterText)}</p>` : '')
+    : `<h1 style="font-family:Georgia,serif;font-size:20pt;margin-bottom:20pt;">${escapeHtml(titlePrefix)} &mdash; &ldquo;${escapeHtml(query)}&rdquo;</h1>`;
 
   // Use a clean, generic title for the browser's print header so we avoid
   // showing hyphenated file names or "about:blank".
