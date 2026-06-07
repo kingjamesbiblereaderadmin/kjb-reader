@@ -168,12 +168,12 @@ export default function HomePage() {
             }
 
             console.log('[UpdateCheck] No updates found (pull). Loading verse...');
-            // If no SW updates, load the verse
+            // If no updates, load the verse
             const v = await getDailyVerseFromBible();
             setVerse(v);
             setIsOffline(false);
             
-            window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "App is up to date.", status: 'success' } }));
+            window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "App & Bible are up to date.", status: 'success' } }));
             setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
             scheduleDailyNotification();
           } catch (e) {
