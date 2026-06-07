@@ -19,6 +19,12 @@ import ReadingRangeBar from '@/components/bible/ReadingRangeBar';
 import SelectActionBar from '@/components/bible/SelectActionBar';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Accessibility } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { getAccessibilityFont, setAccessibilityFont, applyReaderFont } from '@/lib/accessibilityFont';
@@ -35,22 +41,9 @@ const STORAGE_KEY = 'kjb-position';
 
 function loadPosition() {
   try {
-    const s = localStorage.getItem(STORAGE_KEY);
-    if (s) {
-      const p = JSON.parse(s);
-      console.log('Loaded from localStorage:', p);
-      // Validate abbr exists in BIBLE_BOOKS
-      const bookExists = BIBLE_BOOKS.find(b => b.abbr === p.abbr);
-      console.log('Book exists:', bookExists);
-      if (p && p.abbr && bookExists) {
-        return p;
-      } else {
-        console.warn('Invalid position data, using default');
-      }
-    }
-  } catch (err) {
-    console.error('Failed to load position:', err);
-  }
+    const p = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (p?.abbr && BIBLE_BOOKS.find(b => b.abbr === p.abbr)) return p;
+  } catch {}
   return { abbr: 'GEN', chapter: 1, verse: null };
 }
 
@@ -208,21 +201,15 @@ export default function BibleReader() {
   });
 
   const toggleFullscreen = async () => {
-    if (!document.fullscreenElement) {
-      try {
+    try {
+      if (!document.fullscreenElement) {
         await document.documentElement.requestFullscreen?.();
         setFullscreen(true);
-      } catch (err) {
-        console.error('Fullscreen error:', err);
-      }
-    } else {
-      try {
+      } else {
         await document.exitFullscreen?.();
         setFullscreen(false);
-      } catch (err) {
-        console.error('Exit fullscreen error:', err);
       }
-    }
+    } catch {}
   };
 
   useEffect(() => {
@@ -336,30 +323,20 @@ export default function BibleReader() {
     
     console.log('[BibleReader] Copying to clipboard:', lines.substring(0, 100) + '...');
     
-    // Use deprecated execCommand to avoid Chrome toast notification
     try {
       const textarea = document.createElement('textarea');
       textarea.value = lines;
       textarea.style.position = 'fixed';
       textarea.style.opacity = '0';
-      textarea.style.left = '-9999px';
       document.body.appendChild(textarea);
       textarea.select();
       document.execCommand('copy');
       document.body.removeChild(textarea);
-      console.log('[BibleReader] ✅ Copy via execCommand (no toast)');
-    } catch (err) {
-      // Fallback to modern API
+    } catch {
       await navigator.clipboard.writeText(lines);
-      console.log('[BibleReader] ✅ Clipboard write successful (fallback)');
     }
-    
     setCopyFeedback(true);
-    console.log('[BibleReader] Copy feedback state after:', true);
-    setTimeout(() => {
-      console.log('[BibleReader] Copy feedback timeout cleared');
-      setCopyFeedback(false);
-    }, 1800);
+    setTimeout(() => setCopyFeedback(false), 1800);
   };
 
   const handleReadSelected = () => {
@@ -386,24 +363,12 @@ export default function BibleReader() {
   // Share the current chapter (or selected verses) with a deep-link URL.
   const [shareFeedback, setShareFeedback] = useState(false);
   const handleShareChapter = async () => {
-    const hasSelection = selectedVerses.size > 0;
-    const firstVerse = hasSelection ? Math.min(...selectedVerses) : null;
-    const lastVerse = hasSelection ? Math.max(...selectedVerses) : null;
-    const ref = hasSelection
-      ? `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`
-      : `${book.shortName} ${pos.chapter}`;
-    const url = buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: firstVerse, verseEnd: lastVerse });
-    const shareText = `${ref} (KJB)\n\n${url}`;
-
+    const hasSel = selectedVerses.size > 0;
+    const ref = hasSel ? `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}` : `${book.shortName} ${pos.chapter}`;
+    const shareText = `${ref} (KJB)\n\n${buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: hasSel ? Math.min(...selectedVerses) : null, verseEnd: hasSel ? Math.max(...selectedVerses) : null })}`;
     try {
-      if (navigator.share) {
-        await navigator.share({ title: `${ref} — KJB Reader`, text: shareText });
-        return;
-      }
-    } catch (err) {
-      if (err?.name === 'AbortError') return; // user cancelled
-    }
-    // Fallback: copy link + reference to clipboard
+      if (navigator.share) return await navigator.share({ title: `${ref} — KJB Reader`, text: shareText });
+    } catch (err) { if (err?.name === 'AbortError') return; }
     try {
       await navigator.clipboard.writeText(shareText);
       setShareFeedback(true);
@@ -1518,7 +1483,38 @@ export default function BibleReader() {
               </button>
               {/* Share / Print */}
               <button onClick={handleShareChapter} onTouchEnd={(e) => { e.preventDefault(); handleShareChapter(); }} title={shareFeedback ? 'Link copied!' : 'Share this chapter'} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"><Share2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /><span className="hidden lg:inline">{shareFeedback ? 'Copied!' : 'Share'}</span></button>
-              <button onClick={() => window.print()} onTouchEnd={(e) => { e.preventDefault(); window.print(); }} title="Print" className="hidden sm:flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"><Printer className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /><span className="hidden lg:inline">Print</span></button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button title="Print" className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap">
+                    <Printer className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
+                    <span className="hidden lg:inline">Print</span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => window.print()} className="cursor-pointer">
+                    <Printer className="w-4 h-4 mr-2" />
+                    Print Full Page
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => {
+                    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${book.name} ${pos.chapter} - KJB</title><style>
+                      body { font-family: 'Merriweather', 'Cormorant Garamond', Georgia, serif; padding: 40px 20px; max-width: 800px; margin: 0 auto; color: #000; line-height: 1.8; font-size: 12pt; }
+                      h1 { font-size: 24pt; text-align: center; margin-bottom: 30px; font-weight: bold; }
+                      p { margin-bottom: 12px; text-align: justify; }
+                      sup { font-size: 0.7em; margin-right: 4px; font-weight: bold; }
+                      i { font-style: italic; color: #333; }
+                    </style></head><body onload="window.print(); setTimeout(() => window.close(), 500);">
+                      <h1 style="font-family:Georgia,serif;font-size:20pt;">${book.name} ${pos.chapter}</h1>
+                      ${verses.map(v => `<p><sup>${v.verse}</sup>${v.text.replace(/\[/g, '<i>').replace(/\]/g, '</i>')}</p>`).join('')}
+                    </body></html>`;
+                    const printWindow = window.open('', '_blank');
+                    if (printWindow) { printWindow.document.write(html); printWindow.document.close(); }
+                    else { alert("Please allow popups to print."); }
+                  }}>
+                    <BookMarked className="w-4 h-4 mr-2" />
+                    Print Chapter Contents
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               {/* Prev */}
               <button
