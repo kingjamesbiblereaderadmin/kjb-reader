@@ -202,6 +202,14 @@ export default function AppLayout() {
 
           {/* Actions - responsive button sizes with visible square touch targets */}
           <div className="flex items-center gap-0.5 sm:gap-2 shrink-0">
+            {/* TEMPORARY TEST BUTTON */}
+            <button 
+              className="w-auto px-3 h-9 sm:h-10 shrink-0 rounded-lg border border-primary bg-primary text-primary-foreground font-bold text-xs hover:bg-primary/90 flex items-center justify-center cursor-pointer touch-manipulation"
+              onClick={(e) => { e.stopPropagation(); alert('UI TEST BUTTON CLICKED'); }}
+              type="button"
+            >
+              TEST UI
+            </button>
             <button 
               className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation ${isOnline ? 'border-border bg-secondary/30 text-green-600 dark:text-green-400 hover:bg-secondary/50' : 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/40'}`}
               onClick={(e) => { 
