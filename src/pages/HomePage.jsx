@@ -138,7 +138,7 @@ export default function HomePage() {
             console.log(`[UpdateCheck] Bible updates found (pull): ${bibleNeedsUpdate}`);
 
             // Ensure the checking message is visible for at least a brief moment so it doesn't flash
-            await new Promise(r => setTimeout(r, 1000));
+            await new Promise(r => setTimeout(r, 2000));
 
             if (swUpdated || bibleNeedsUpdate) {
               console.log('[UpdateCheck] Updates found (pull). Triggering splash screen and applying...');
@@ -151,7 +151,7 @@ export default function HomePage() {
               window.dispatchEvent(new Event('kjb-progress-clear'));
               window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: reloadText, status: 'loading' } }));
 
-              await new Promise(r => setTimeout(r, 1000));
+              await new Promise(r => setTimeout(r, 2000));
 
               if (bibleNeedsUpdate) {
                 window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Installing updates...', status: 'loading' } }));
@@ -161,11 +161,11 @@ export default function HomePage() {
                 await downloadBibleForOffline();
               } else if (swUpdated) {
                 window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Installing updates...', status: 'loading' } }));
-                await new Promise(r => setTimeout(r, 1000));
+                await new Promise(r => setTimeout(r, 2000));
               }
 
               window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Applying updates...', status: 'loading' } }));
-              await new Promise(r => setTimeout(r, 1000));
+              await new Promise(r => setTimeout(r, 2000));
 
               sessionStorage.setItem('kjb_sw_updated', updateType);
 
