@@ -54,12 +54,16 @@ export default function AppLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [isFullReloading, setIsFullReloading] = useState(false);
+  const [isFullReloadingText, setIsFullReloadingText] = useState('Applying Updates...');
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
-    const handleReloading = () => setIsFullReloading(true);
+    const handleReloading = (e) => {
+      setIsFullReloading(true);
+      if (e && e.detail && e.detail.text) setIsFullReloadingText(e.detail.text);
+    };
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
     window.addEventListener('kjb-reloading', handleReloading);
@@ -267,51 +271,74 @@ export default function AppLayout() {
 
                 // Offline: don't try to fetch — just confirm cached data is in use
                 if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Offline — using cached Bible', status: 'info' } }));
-                setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
-                return;
+                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Offline — using cached Bible', status: 'info' } }));
+                  setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
+                  return;
                 }
 
                 setRefreshing(true);
+                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Checking for updates...', status: 'loading' } }));
                 try {
                   let hasBibleUpdates = false;
+                  let hasCodeUpdates = false;
+                  
+                  // Check Bible Updates
                   try {
-                    const { checkForUpdates, autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
+                    const { checkForUpdates } = await import('@/lib/bibleCache');
                     hasBibleUpdates = await checkForUpdates();
-                    if (hasBibleUpdates) {
-                      window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Updating Bible data...', status: 'loading' } }));
-                      await autoDownloadBibleOnFirstLoad();
-                    }
                   } catch (e) {}
 
+                  // Check Code Updates
+                  let swReg = null;
                   if ('serviceWorker' in navigator) {
-                    const reg = await navigator.serviceWorker.getRegistration();
-                    if (reg) {
-                      await reg.update().catch(() => {});
-                      if (reg.waiting) {
-                        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                      } else if (reg.installing) {
-                        if (reg.installing.state === 'installed') {
-                          reg.installing.postMessage({ type: 'SKIP_WAITING' });
+                    swReg = await navigator.serviceWorker.getRegistration();
+                    if (swReg) {
+                      await swReg.update().catch(() => {});
+                      if (swReg.waiting) {
+                        hasCodeUpdates = true;
+                      } else if (swReg.installing) {
+                        if (swReg.installing.state === 'installed') {
+                          hasCodeUpdates = true;
                         } else {
-                          await new Promise(resolve => {
-                            const worker = reg.installing;
+                          hasCodeUpdates = await new Promise(resolve => {
+                            const worker = swReg.installing;
                             worker.addEventListener('statechange', () => {
-                              if (worker.state === 'installed') {
-                                worker.postMessage({ type: 'SKIP_WAITING' });
-                                resolve();
-                              } else if (worker.state === 'redundant') {
-                                resolve();
-                              }
+                              if (worker.state === 'installed') resolve(true);
+                              else if (worker.state === 'redundant') resolve(false);
                             });
-                            setTimeout(resolve, 3000);
+                            setTimeout(() => resolve(false), 3000);
                           });
                         }
                       }
                     }
                   }
 
-                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Applying updates...', status: 'loading' } }));
+                  if (!hasBibleUpdates && !hasCodeUpdates) {
+                    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App is up to date', status: 'success' } }));
+                    setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
+                    setRefreshing(false);
+                    return;
+                  }
+
+                  let reloadText = 'Applying Updates...';
+                  if (hasCodeUpdates && hasBibleUpdates) reloadText = 'Applying App & Bible Updates...';
+                  else if (hasBibleUpdates) reloadText = 'Applying Bible Data Updates...';
+                  else if (hasCodeUpdates) reloadText = 'Applying App Updates...';
+                  
+                  window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: reloadText } }));
+
+                  if (hasBibleUpdates) {
+                    const { autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
+                    await autoDownloadBibleOnFirstLoad();
+                  }
+
+                  if (hasCodeUpdates && swReg) {
+                    if (swReg.waiting) {
+                      swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    } else if (swReg.installing && swReg.installing.state === 'installed') {
+                      swReg.installing.postMessage({ type: 'SKIP_WAITING' });
+                    }
+                  }
 
                   // Clear service worker cache to ensure latest code is fetched
                   if ('caches' in window) {
@@ -327,8 +354,6 @@ export default function AppLayout() {
                     }
                   }
                   
-                  // Force a hard reload with a cache-busting query parameter to guarantee the browser bypasses its internal memory
-                  window.dispatchEvent(new Event('kjb-reloading'));
                   setTimeout(() => {
                     window.location.href = window.location.pathname + '?refresh=' + Date.now();
                   }, 800);
@@ -430,7 +455,7 @@ export default function AppLayout() {
           <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" className="h-24 w-auto mb-8 animate-pulse" />
           <div className="flex flex-col items-center">
             <RotateCw className="w-8 h-8 text-primary animate-spin mb-4" />
-            <p className="font-sans text-sm text-muted-foreground">Applying Updates...</p>
+            <p className="font-sans text-sm text-muted-foreground">{isFullReloadingText}</p>
           </div>
         </div>
       )}

@@ -156,8 +156,13 @@ export default function HomePage() {
             await new Promise(r => setTimeout(r, 600));
 
             if (swUpdated || bibleNeedsUpdate) {
+              let reloadText = 'Applying Updates...';
+              if (swUpdated && bibleNeedsUpdate) reloadText = 'Applying App & Bible Updates...';
+              else if (bibleNeedsUpdate) reloadText = 'Applying Bible Data Updates...';
+              else if (swUpdated) reloadText = 'Applying App Updates...';
+              
               window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Updates applied.", status: 'success' } }));
-              window.dispatchEvent(new Event('kjb-reloading'));
+              window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: reloadText } }));
               setTimeout(() => { window.location.reload(); }, 800);
               return;
             }
