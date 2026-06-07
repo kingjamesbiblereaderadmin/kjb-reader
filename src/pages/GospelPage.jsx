@@ -248,14 +248,16 @@ function GospelActions() {
       <div className="inline-flex items-stretch bg-secondary border border-border rounded-lg overflow-hidden">
         <button
           onClick={handleShare}
-          className="inline-flex items-center gap-2 px-4 py-2 hover:bg-accent/20 text-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+          className="flex items-center gap-2 px-4 py-2 hover:bg-accent/20 text-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
           {shared ? <Check className="w-4 h-4 text-green-600" /> : <Share2 className="w-4 h-4" />}
           {shared ? 'Copied!' : 'Share'}
         </button>
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center justify-center px-3 hover:bg-accent/20 text-foreground transition-colors outline-none border-l border-border/50 h-full w-full">
-            <ChevronDown className="w-4 h-4 opacity-70" />
+          <DropdownMenuTrigger asChild>
+            <button className="flex self-stretch h-full items-center justify-center px-3 hover:bg-accent/20 text-foreground transition-colors outline-none border-l border-border/50">
+              <ChevronDown className="w-4 h-4 opacity-70" />
+            </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="center" className="font-sans">
             <DropdownMenuItem onClick={handleDownloadTxt} className="gap-2 cursor-pointer">
