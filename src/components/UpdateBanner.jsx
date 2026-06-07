@@ -2,13 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { RefreshCw, RotateCw, CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 
 export default function UpdateBanner() {
-  const [waitingWorker, setWaitingWorker] = useState(null);
   const [progressMsg, setProgressMsg] = useState(null);
   const [progressStatus, setProgressStatus] = useState('loading');
 
   useEffect(() => {
     const handleUpdate = (e) => {
-      setWaitingWorker(e.detail.waitingWorker);
+      const worker = e.detail.waitingWorker;
+      if (worker) {
+        // Automatically install update (triggers controllerchange and clean reload)
+        worker.postMessage({ type: 'SKIP_WAITING' });
+      }
     };
     const handleProgress = (e) => {
       setProgressMsg(e.detail.message);
@@ -28,27 +31,7 @@ export default function UpdateBanner() {
     };
   }, []);
 
-  if (!waitingWorker && !progressMsg) return null;
-
-  if (waitingWorker) {
-    return (
-      <div className={`w-full py-2 px-5 sm:px-12 lg:px-16 flex items-center justify-between text-sm font-medium shadow-inner border-b z-40 animate-in slide-in-from-top-2 relative bg-primary/10 text-primary border-primary/20`}>
-        <div className="flex-1 flex items-center gap-2">
-          <RotateCw className="w-4 h-4" />
-          <span>A new version is available!</span>
-        </div>
-        <button 
-          onClick={() => {
-            waitingWorker.postMessage({ type: 'SKIP_WAITING' });
-            setWaitingWorker(null);
-          }}
-          className="px-3 py-1 bg-primary text-primary-foreground rounded-md text-xs hover:bg-primary/90 transition-colors"
-        >
-          Update Now
-        </button>
-      </div>
-    );
-  }
+  if (!progressMsg) return null;
 
   let Icon = RotateCw;
   let iconClass = "w-4 h-4 text-muted-foreground";

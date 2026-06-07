@@ -293,7 +293,7 @@ export default function AppLayout() {
                   
                   // Reload the page
                   setTimeout(() => {
-                    window.location.href = window.location.pathname + '?reset=' + Date.now();
+                    window.location.reload();
                   }, 1000);
                 } catch (err) {
                   console.error('Refresh failed:', err);
