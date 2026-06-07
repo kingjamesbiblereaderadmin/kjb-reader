@@ -83,7 +83,7 @@ const PageLoader = ({ isFadingOut }) => (
   <div className={`fixed inset-0 z-[9999] bg-background/95 backdrop-blur-md flex flex-col items-center justify-center transition-all duration-700 ease-out ${isFadingOut ? 'opacity-0 pointer-events-none scale-105' : 'opacity-100 scale-100'}`}>
     <div className="flex flex-col items-center justify-center -mt-16">
       <div className="relative mb-8">
-        <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full"></div>
+        <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
         <img 
           src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
           alt="KJB Reader" 
@@ -91,7 +91,7 @@ const PageLoader = ({ isFadingOut }) => (
         />
       </div>
       <div className="flex items-center gap-3 text-foreground bg-card/80 px-6 py-3 rounded-2xl backdrop-blur-md shadow-lg border border-border/50">
-        <Loader2 className="w-5 h-5 animate-spin text-primary" />
+        <Loader2 className="w-5 h-5 animate-spin text-foreground" />
         <span className="font-sans text-sm font-semibold tracking-wide">Loading KJB Reader...</span>
       </div>
     </div>
