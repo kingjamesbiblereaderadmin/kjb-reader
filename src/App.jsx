@@ -256,17 +256,19 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
         ) : (
           /* Returning Visit Flow */
           <>
-            <div className="w-full relative px-2 shrink-0 mb-4 pt-16">
-              <DailyVerseImage 
-                verse={dailyVerse} 
-                splashMode={true} 
-                onClick={() => {}} 
-                onToggleNotif={promptProps.handleEnableNotif}
-                notifEnabled={'Notification' in window && Notification.permission === 'granted'}
-              />
+            <div className="flex flex-col items-center justify-center flex-1 w-full pt-16">
+              <div className="relative mb-6">
+                <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
+                <img 
+                  src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
+                  alt="KJB Reader" 
+                  className="relative w-32 h-32 object-contain drop-shadow-2xl"
+                />
+              </div>
+              <h1 className="text-3xl font-serif font-bold text-foreground text-center">Welcome back</h1>
             </div>
             
-            <div className="w-full flex flex-col items-center justify-center shrink-0 pb-6 pt-2 px-4 bg-background absolute bottom-0 left-0 right-0 z-50">
+            <div className="w-full flex flex-col items-center justify-center shrink-0 pb-12 pt-6 px-4 bg-background z-50">
               {loadingText ? (
                 <div className="flex items-center gap-3 text-foreground bg-card px-6 py-3.5 rounded-2xl shadow-lg border border-border/80 w-full justify-center max-w-xl mx-auto">
                   <Loader2 className="w-5 h-5 animate-spin text-accent shrink-0" />
@@ -275,7 +277,7 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
               ) : (
                 <button 
                   onClick={onDismiss}
-                  className="flex items-center justify-center gap-2 py-4 bg-primary text-primary-foreground font-sans font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-xl hover:shadow-2xl border border-primary/20 max-w-xl mx-auto px-10 rounded-full text-lg"
+                  className="flex items-center justify-center gap-2 py-4 bg-primary text-primary-foreground font-sans font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-xl hover:shadow-2xl border border-primary/20 max-w-xl mx-auto px-10 rounded-full text-lg w-full"
                 >
                   Continue
                   <ChevronRight className="w-5 h-5" />
