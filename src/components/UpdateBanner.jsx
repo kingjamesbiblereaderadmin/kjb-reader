@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CheckCircle2, AlertCircle, Info, X, Loader2, Download } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Info, X, Loader2 } from 'lucide-react';
 
 export default function UpdateBanner() {
   const [progressMsg, setProgressMsg] = useState(null);
@@ -46,7 +46,6 @@ export default function UpdateBanner() {
     return (
       <div className="w-full py-2 px-5 sm:px-12 lg:px-16 flex items-center justify-between text-sm font-medium shadow-inner border-b z-40 relative bg-secondary text-secondary-foreground border-border">
         <div className="flex items-center gap-2">
-          <Download className="w-4 h-4 text-primary" />
           <span>Found new update...</span>
         </div>
         <div className="flex items-center gap-2">
