@@ -240,7 +240,7 @@ function GospelActions() {
     <div className="flex flex-wrap items-center justify-center gap-2">
       <button
         onClick={handleCopy}
-        className="inline-flex items-center gap-2 px-4 py-2 bg-secondary border border-border hover:bg-accent/20 text-foreground rounded-lg font-sans text-sm font-medium transition-colors"
+        className="inline-flex items-center gap-2 px-4 py-2 bg-secondary border border-border hover:bg-accent/20 text-foreground rounded-lg font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
       >
         {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
         {copied ? 'Copied!' : 'Copy the Gospel'}
@@ -248,7 +248,7 @@ function GospelActions() {
       <div className="inline-flex items-center bg-secondary border border-border rounded-lg overflow-hidden">
         <button
           onClick={handleShare}
-          className="inline-flex items-center gap-2 px-4 py-2 hover:bg-accent/20 text-foreground font-sans text-sm font-medium transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 hover:bg-accent/20 text-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
           {shared ? <Check className="w-4 h-4 text-green-600" /> : <Share2 className="w-4 h-4" />}
           {shared ? 'Copied!' : 'Share'}
@@ -439,7 +439,7 @@ export default function GospelPage() {
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-sans text-sm font-medium transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
             <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />

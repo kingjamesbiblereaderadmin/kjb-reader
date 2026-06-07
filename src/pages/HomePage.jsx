@@ -488,7 +488,7 @@ export default function HomePage() {
         </p>
         <Link
           to="/gospel"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-sans text-sm font-medium transition-colors"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
           <Heart className="w-4 h-4" />
           Learn How to be Saved

@@ -117,7 +117,7 @@ export default function ContentsPage() {
       <div className="mb-8">
         <button
           onClick={() => setShowBookSelector(true)}
-          className="w-full py-3 px-4 rounded-xl bg-primary text-primary-foreground font-sans font-semibold text-sm hover:opacity-90 transition-colors flex items-center justify-between"
+          className="w-full py-3 px-4 rounded-xl bg-primary text-primary-foreground font-sans font-semibold text-sm hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-between"
         >
           <span>
             {selectedBook && selectedChapter 

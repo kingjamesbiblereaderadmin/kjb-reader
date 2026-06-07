@@ -441,7 +441,7 @@ function WhyKJBSection({ expanded, toggle }) {
     <div className="mb-10">
       <button
         onClick={toggle}
-        className="w-full bg-gradient-to-r from-amber-50 to-amber-50 dark:from-amber-900/20 dark:to-amber-900/20 border border-amber-200 dark:border-amber-900/30 rounded-xl p-4 hover:border-amber-300 transition-all text-left">
+        className="w-full bg-gradient-to-r from-amber-50 to-amber-50 dark:from-amber-900/20 dark:to-amber-900/20 border border-amber-200 dark:border-amber-900/30 rounded-xl p-4 hover:border-amber-300 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] text-left">
         
         <div className="flex items-center justify-between">
           <div>
@@ -497,7 +497,7 @@ function PreachersSection({ openPreachers, togglePreacher }) {
             <div key={preacher.name} className="bg-card border border-border rounded-xl overflow-hidden transition-all">
               <button
                 onClick={() => togglePreacher(preacher.name)}
-                className="w-full flex items-center gap-3 p-4 hover:bg-accent/5 transition-colors text-left">
+                className="w-full flex items-center gap-3 p-4 hover:bg-accent/5 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] text-left">
                 
                 <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
@@ -608,7 +608,7 @@ export default function ResourcesPage() {
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         <button
           onClick={toggleAll}
-          className="mt-4 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors"
+          className="mt-4 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
           {allExpanded ? 'Collapse All' : 'Expand All'}
         </button>
@@ -627,7 +627,7 @@ export default function ResourcesPage() {
               href="https://kjbi.org"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               Visit KJBI.org <ExternalLink className="w-3.5 h-3.5" />
             </a>
@@ -647,7 +647,7 @@ export default function ResourcesPage() {
       <div className="bg-card border border-border rounded-2xl mb-6 overflow-hidden">
         <button
           onClick={() => toggleSection('ministry')}
-          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between p-5 bg-card hover:bg-accent/5 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] text-left"
         >
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-900/20 mb-2">
@@ -664,7 +664,7 @@ export default function ResourcesPage() {
             href="https://godisgracious1031ministriescom.odoo.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
+            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
           >
             <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
             <div className="flex-1 min-w-0">
@@ -675,7 +675,7 @@ export default function ResourcesPage() {
           </a>
           <a
             href="mailto:Kingjamesbiblereader.com@outlook.com"
-            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
+            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
           >
             <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
             <div className="flex-1 min-w-0">
@@ -691,7 +691,7 @@ export default function ResourcesPage() {
       <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-xl p-4 mb-6 overflow-hidden">
         <button
           onClick={() => toggleSection('disclaimer')}
-          className="w-full flex items-center justify-between text-left"
+          className="w-full flex items-center justify-between text-left transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
         >
           <p className="font-sans text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
             <strong>Note:</strong> The resources below are for educational purposes only. I may not affirm all doctrinal statements of every resource or ministry linked here. Please use discernment and compare all things to the King James Bible.
@@ -707,7 +707,7 @@ export default function ResourcesPage() {
               <div key={section.category} className="bg-card border border-border rounded-2xl overflow-hidden">
                 <button
                   onClick={() => toggleSection('resources', idx)}
-                  className={`w-full ${section.bg} border-b rounded-t-xl p-4 hover:border-opacity-75 transition-all text-left`}>
+                  className={`w-full ${section.bg} border-b rounded-t-xl p-4 hover:border-opacity-75 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] text-left`}>
                   
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
@@ -727,7 +727,7 @@ export default function ResourcesPage() {
                     href={item.url}
                     target={item.url.startsWith('mailto') ? '_self' : '_blank'}
                     rel="noopener noreferrer"
-                    className="block bg-card border border-border rounded-xl p-5 hover:border-accent/50 transition-colors group">
+                    className="block bg-card border border-border rounded-xl p-5 hover:border-accent/50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group">
                     
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">
