@@ -199,8 +199,8 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
       </div>
     ) : (
       <div className="flex flex-col items-center justify-center w-full h-full px-6">
-        <div className="flex-1 flex flex-col items-center justify-center -mt-16">
-          <div className="relative mb-8">
+        <div className="flex flex-col items-center justify-center -mt-16">
+          <div className="relative mb-6">
             <div className="absolute inset-0 bg-foreground/10 blur-3xl rounded-full"></div>
             <img 
               src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
@@ -208,9 +208,7 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
               className="relative w-32 h-32 object-contain drop-shadow-2xl"
             />
           </div>
-        </div>
-        <div className="absolute bottom-12 left-0 right-0 flex justify-center z-[100] pb-env-safe">
-          <div className="flex items-center gap-3 text-foreground bg-card/90 px-6 py-3 rounded-2xl shadow-2xl backdrop-blur-sm border border-border/50">
+          <div className="flex items-center gap-3 text-foreground bg-card/90 px-6 py-3 rounded-2xl shadow-xl backdrop-blur-sm border border-border/50">
             <Loader2 className="w-5 h-5 animate-spin text-foreground shrink-0" />
             <span className="font-sans text-sm font-semibold tracking-wide">{text}</span>
           </div>

@@ -404,9 +404,10 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   return (
     <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full ${splashMode ? 'h-full flex-1' : 'min-h-[300px] border border-border rounded-2xl shadow-lg'} ${gradientClass} px-6 text-center text-white relative flex flex-col ${capturing ? 'pt-20 pb-8' : splashMode ? 'pt-12 pb-24' : 'pt-6 pb-6'} ${uploadingComplete ? 'cursor-default' : 'cursor-pointer'}`} style={bgStyle}>
       {/* Action buttons */}
+      {!splashMode && (
       <div className="absolute top-1.5 right-1.5 flex gap-0.5 z-10" onClick={(e) => e.stopPropagation()}>
         {/* Notification bell indicator button */}
-        {!splashMode && showButtons && onToggleNotif && (
+        {showButtons && onToggleNotif && (
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -419,7 +420,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             {notifEnabled ? <Bell className="w-3.5 h-3.5 text-slate-800 pointer-events-none" /> : <BellOff className="w-3.5 h-3.5 text-slate-800 pointer-events-none" />}
           </button>
         )}
-        {!splashMode && !capturing && showButtons ? (
+        {!capturing && showButtons ? (
           <>
             <button
               onClick={(e) => {
@@ -599,7 +600,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             </div>
 
           </>
-        ) : !splashMode && !capturing ? (
+        ) : !capturing ? (
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -613,6 +614,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           </button>
         ) : null}
       </div>
+      )}
 
       {/* Style Editor Panel */}
       {showStyleEditor && (
