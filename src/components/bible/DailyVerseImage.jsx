@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { base44 } from '@/api/base44Client';
 import { renderVerseText } from '@/lib/bibleApi';
-import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2, ChevronsDown, MoreVertical, Trash2, Image, Copy, Crop, RotateCcw, X } from 'lucide-react';
+import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2, ChevronsDown, MoreVertical, Trash2, Image, Copy, Crop, RotateCcw, X, Printer } from 'lucide-react';
 import { getNotificationsEnabled, requestNotificationPermission, disableNotifications, scheduleDailyNotification } from '@/lib/notifications';
 
 const ImageCropper = React.lazy(() => import('./ImageCropper'));
@@ -465,6 +465,18 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               ) : (
                 <Download className="w-3.5 h-3.5 pointer-events-none" style={{ color: textColor }} />
               )}
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                window.print();
+              }}
+              disabled={capturing}
+              className="p-1.5 flex items-center justify-center rounded-lg bg-white/20 hover:bg-white/30 transition-colors disabled:opacity-50 touch-manipulation"
+              title="Print verse image"
+              type="button"
+            >
+              <Printer className="w-3.5 h-3.5 pointer-events-none" style={{ color: textColor }} />
             </button>
             {/* Unified menu button */}
             <div ref={menuRef} className="relative">

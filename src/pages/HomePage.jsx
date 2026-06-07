@@ -417,7 +417,7 @@ export default function HomePage() {
       <Link
         to={READ_LINK.path}
         onClick={() => window.scrollTo({ top: 0 })}
-        className={`flex items-center gap-5 p-6 rounded-3xl shadow-lg border-2 border-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all mb-4 sm:hidden ${READ_LINK.color}`}
+        className={`print:hidden flex items-center gap-5 p-6 rounded-3xl shadow-lg border-2 border-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all mb-4 sm:hidden ${READ_LINK.color}`}
       >
         <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-2xl bg-white/30">
           <BookOpen className="w-6 h-6" />
@@ -427,7 +427,7 @@ export default function HomePage() {
           <p className="font-sans text-xs opacity-75 mt-0.5">{READ_LINK.desc}</p>
         </div>
       </Link>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+      <div className="print:hidden grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         {/* Read the Bible inside the grid on desktop only, so rows stay even */}
         <Link
           to={READ_LINK.path}
@@ -481,7 +481,7 @@ export default function HomePage() {
       </div>
 
       {/* Gospel call */}
-      <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-6 text-center mb-6">
+      <div className="print:hidden bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-6 text-center mb-6">
         <p className="font-serif text-xl font-bold text-red-700 dark:text-red-400 mb-2">Are you saved?</p>
         <p className="font-sans text-sm text-foreground/80 mb-4">
           Jesus Christ died for your sins, shed his blood, was buried, and rose again on the third day. Trust the blood — believe the gospel and be saved.
