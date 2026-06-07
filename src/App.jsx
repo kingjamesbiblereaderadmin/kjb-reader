@@ -176,8 +176,8 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
   return (
   <div className={`fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
     {!showLoadingState && dailyVerse && dailyVerse.book !== "Offline" ? (
-      <div className="w-full h-full relative flex flex-col">
-        <div className="absolute inset-0 pointer-events-none flex flex-col">
+      <div className="w-full h-full relative flex flex-col items-center justify-center p-6 pb-32">
+        <div className="w-full max-w-lg relative pointer-events-none drop-shadow-2xl">
           <DailyVerseImage verse={dailyVerse} onClick={() => {}} splashMode={true} />
         </div>
         <div className="absolute bottom-12 left-0 right-0 flex justify-center z-50 pb-env-safe px-4 pointer-events-auto">
