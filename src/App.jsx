@@ -119,16 +119,6 @@ const PageLoader = ({ isFadingOut }) => {
     }
   });
 
-  const [isFreshSession] = useState(() => {
-    try {
-      const active = sessionStorage.getItem('kjb_session_active');
-      sessionStorage.setItem('kjb_session_active', 'true');
-      return !active;
-    } catch {
-      return true;
-    }
-  });
-
   useEffect(() => {
     const handleProgress = (e) => {
       if (e.detail?.message) setDynamicText(e.detail.message);
@@ -140,7 +130,7 @@ const PageLoader = ({ isFadingOut }) => {
   if (isFadingOut) return null;
   
   let text = (isFirstVisit || updateType === 'bible_first_load') ? "Welcome to KJB Reader..." : 
-             (isFreshSession ? "Welcome back to KJB Reader..." : "Loading...");
+             "Welcome back to KJB Reader...";
              
   if (dynamicText) {
     text = dynamicText;
