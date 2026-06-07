@@ -60,11 +60,13 @@ export function useInstallPrompt() {
   const promptInstall = () => {
     if (!globalDeferredPrompt) {
       if (globalIsInstallable) {
-        alert("The installation prompt was already used. Please install via your browser's menu, or reload the page to try again.");
+        // The prompt was used. The browser requires a fresh event to show the native popup again.
+        // We'll quickly reload the page to get a fresh event so they can try again.
+        window.location.reload();
       }
       return Promise.resolve(false);
     }
-    // Prevent "prompt() may only be called once" if user clicks multiple times rapidly
+    
     const promptEvent = globalDeferredPrompt;
     globalDeferredPrompt = null;
     setDeferredPrompt(null);
@@ -80,10 +82,13 @@ export function useInstallPrompt() {
           window.dispatchEvent(new Event('pwa-installed')); 
         }
         // If not accepted, keep isInstallable true so the button remains visible.
+        // The next click will fall into the !globalDeferredPrompt block and reload the page.
         return outcome === 'accepted';
       });
     } catch (err) {
       console.error('Failed to prompt install', err);
+      // In case it fails for any reason, reload to reset the state
+      window.location.reload();
       return Promise.resolve(false);
     }
   };
