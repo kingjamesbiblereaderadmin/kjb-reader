@@ -140,7 +140,7 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
   const dailyVerse = getDailyVerse();
 
   let welcomeText = isFirstVisit ? "Welcome to KJB Reader..." : "Welcome back to KJB Reader...";
-  let bannerText = "Loading KJB Reader...";
+  let bannerText = isFirstVisit ? "Welcome to KJB Reader..." : "Welcome back to KJB Reader...";
   
   if (dynamicText) {
     bannerText = dynamicText;
@@ -529,7 +529,9 @@ const AuthenticatedApp = () => {
           <div className="fixed bottom-24 right-4 z-50 flex flex-col gap-2 pointer-events-auto">
             <button 
               onClick={() => { 
-                localStorage.removeItem('kjb_has_visited_v2'); 
+                localStorage.removeItem('kjb_has_visited_v2');
+                localStorage.removeItem('kjb-prompt-dismissed');
+                localStorage.removeItem('kjb-install-dismissed');
                 window.location.reload(); 
               }}
               className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-bold shadow-lg"
@@ -539,8 +541,7 @@ const AuthenticatedApp = () => {
             <button 
               onClick={() => { 
                 localStorage.setItem('kjb_has_visited_v2', 'true');
-                setSplashDismissed(false); 
-                setRenderSplash(true); 
+                window.location.reload(); 
               }}
               className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-bold shadow-lg"
             >
