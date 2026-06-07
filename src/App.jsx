@@ -153,7 +153,7 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
 
   return (
     <div className={`fixed inset-0 z-[9999] bg-background overflow-hidden ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
-      <div className="flex flex-col items-center w-full h-[100dvh] px-4 max-w-xl mx-auto pt-8 pb-32 space-y-6 overflow-y-auto">
+      <div className={`flex flex-col items-center w-full h-[100dvh] px-4 max-w-xl mx-auto pt-8 ${isFirstVisit ? 'pb-8' : 'pb-32'} space-y-6 overflow-y-auto`}>
         
         {/* Logo and Welcome Banner (First Visit Only) */}
         {isFirstVisit && (
@@ -187,6 +187,24 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
                 isAppReady={isAppReady}
                 continueText="Hidden"
               />
+            </div>
+
+            {/* INLINE Loading / Continue Button for First Visit */}
+            <div className="w-full flex flex-col items-center justify-center shrink-0 mb-6 px-1">
+              {loadingText ? (
+                <div className="flex items-center gap-3 text-foreground bg-card px-6 py-3.5 rounded-2xl shadow-lg border border-border/80 w-full justify-center">
+                  <Loader2 className="w-5 h-5 animate-spin text-accent shrink-0" />
+                  <span className="font-sans text-sm font-semibold tracking-wide truncate">{loadingText}</span>
+                </div>
+              ) : (
+                <button 
+                  onClick={onDismiss}
+                  className="flex items-center justify-center gap-2 py-4 bg-primary text-primary-foreground font-sans font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-xl hover:shadow-2xl border border-primary/20 w-full rounded-2xl text-lg"
+                >
+                  Continue to App
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              )}
             </div>
 
             {/* Cards Container */}
@@ -251,28 +269,25 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
 
       </div>
       
-      {/* Global Loading / Updating Banner OR Continue Button at the very bottom */}
-      <div className="w-full flex flex-col items-center justify-center shrink-0 pb-6 pt-2 px-4 bg-background absolute bottom-0 left-0 right-0 z-50">
-        {!isFirstVisit && !loadingText && (
-          <div className="mb-4 px-6 py-2 rounded-full bg-secondary/80 border border-border/50 backdrop-blur-md shadow-sm">
-            <span className="font-sans text-sm font-bold tracking-wide text-foreground">Welcome back</span>
-          </div>
-        )}
-        {loadingText ? (
-          <div className="flex items-center gap-3 text-foreground bg-card px-6 py-3.5 rounded-2xl shadow-lg border border-border/80 w-full justify-center max-w-xl mx-auto">
-            <Loader2 className="w-5 h-5 animate-spin text-accent shrink-0" />
-            <span className="font-sans text-sm font-semibold tracking-wide truncate">{loadingText}</span>
-          </div>
-        ) : (
-          <button 
-            onClick={onDismiss}
-            className={`flex items-center justify-center gap-2 py-4 bg-primary text-primary-foreground font-sans font-bold transition-all duration-200 hover:scale-105 active:scale-95 shadow-xl hover:shadow-2xl border border-primary/20 max-w-xl mx-auto ${isFirstVisit ? 'w-full rounded-2xl text-lg' : 'px-10 rounded-full text-lg'}`}
-          >
-            {isFirstVisit ? 'Continue to App' : 'Continue'}
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        )}
-      </div>
+      {/* Global Loading / Updating Banner OR Continue Button at the very bottom (ONLY FOR RETURNING USERS) */}
+      {!isFirstVisit && (
+        <div className="w-full flex flex-col items-center justify-center shrink-0 pb-6 pt-2 px-4 bg-background absolute bottom-0 left-0 right-0 z-50">
+          {loadingText ? (
+            <div className="flex items-center gap-3 text-foreground bg-card px-6 py-3.5 rounded-2xl shadow-lg border border-border/80 w-full justify-center max-w-xl mx-auto">
+              <Loader2 className="w-5 h-5 animate-spin text-accent shrink-0" />
+              <span className="font-sans text-sm font-semibold tracking-wide truncate">{loadingText}</span>
+            </div>
+          ) : (
+            <button 
+              onClick={onDismiss}
+              className="flex items-center justify-center gap-2 py-4 bg-primary text-primary-foreground font-sans font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-xl hover:shadow-2xl border border-primary/20 max-w-xl mx-auto px-10 rounded-full text-lg"
+            >
+              Continue
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 };
