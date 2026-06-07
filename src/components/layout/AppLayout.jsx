@@ -79,6 +79,9 @@ export default function AppLayout() {
     const handleVisibilityChange = async () => {
       if (document.visibilityState === 'visible' && isOnline && !isFullReloading) {
         try {
+          console.log('[UpdateCheck] App returned to foreground. Checking for updates...');
+          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Checking for updates...', status: 'loading' } }));
+          
           let hasBibleUpdates = false;
           let hasCodeUpdates = false;
           
@@ -86,7 +89,10 @@ export default function AppLayout() {
           try {
             const { checkForUpdates } = await import('@/lib/bibleCache');
             hasBibleUpdates = await checkForUpdates();
-          } catch (e) {}
+            console.log(`[UpdateCheck] Bible updates found: ${hasBibleUpdates}`);
+          } catch (e) {
+            console.error(`[UpdateCheck] Bible check failed:`, e);
+          }
 
           // Check Code Updates
           let swReg = null;
@@ -98,22 +104,28 @@ export default function AppLayout() {
                 hasCodeUpdates = true;
               }
             }
+            console.log(`[UpdateCheck] App code updates found: ${hasCodeUpdates}`);
           }
 
           if (hasBibleUpdates || hasCodeUpdates) {
+            console.log('[UpdateCheck] Updates found. Triggering splash screen and applying...');
             let reloadText = 'Applying Updates...';
             if (hasCodeUpdates && hasBibleUpdates) reloadText = 'Applying App & Bible Updates...';
             else if (hasBibleUpdates) reloadText = 'Applying Bible Data Updates...';
             else if (hasCodeUpdates) reloadText = 'Applying App Updates...';
             
+            // Clear sticky banner, switch to full screen splash
+            window.dispatchEvent(new Event('kjb-progress-clear'));
             window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: reloadText } }));
 
             if (hasBibleUpdates) {
+              console.log('[UpdateCheck] Downloading new Bible data...');
               const { autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
               await autoDownloadBibleOnFirstLoad();
             }
 
             if (hasCodeUpdates && swReg && swReg.waiting) {
+              console.log('[UpdateCheck] Activating new service worker...');
               swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
             }
 
@@ -121,6 +133,7 @@ export default function AppLayout() {
             if ('caches' in window) {
               const cacheNames = await caches.keys();
               await Promise.all(cacheNames.map(name => caches.delete(name)));
+              console.log('[UpdateCheck] Cleared HTTP caches.');
             }
             
             // Unregister service worker (this forces new UI files to load)
@@ -129,14 +142,21 @@ export default function AppLayout() {
               for (const reg of regs) {
                 await reg.unregister();
               }
+              console.log('[UpdateCheck] Unregistered service workers.');
             }
             
+            console.log('[UpdateCheck] Reloading application...');
             setTimeout(() => {
               window.location.href = window.location.pathname + '?refresh=' + Date.now();
             }, 800);
+          } else {
+            console.log('[UpdateCheck] No updates found.');
+            window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App is up to date', status: 'success' } }));
+            setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 2000);
           }
         } catch (err) {
-          console.error('Foreground update check failed:', err);
+          console.error('[UpdateCheck] Foreground update check failed:', err);
+          window.dispatchEvent(new Event('kjb-progress-clear'));
         }
       }
     };
@@ -350,6 +370,7 @@ export default function AppLayout() {
                 }
 
                 setRefreshing(true);
+                console.log('[UpdateCheck] Manual refresh clicked. Checking for updates...');
                 window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Checking for updates...', status: 'loading' } }));
                 try {
                   let hasBibleUpdates = false;
@@ -359,7 +380,10 @@ export default function AppLayout() {
                   try {
                     const { checkForUpdates } = await import('@/lib/bibleCache');
                     hasBibleUpdates = await checkForUpdates();
-                  } catch (e) {}
+                    console.log(`[UpdateCheck] Bible updates found: ${hasBibleUpdates}`);
+                  } catch (e) {
+                    console.error(`[UpdateCheck] Bible check failed:`, e);
+                  }
 
                   // Check Code Updates
                   let swReg = null;
@@ -384,23 +408,28 @@ export default function AppLayout() {
                         }
                       }
                     }
+                    console.log(`[UpdateCheck] App code updates found: ${hasCodeUpdates}`);
                   }
 
                   if (!hasBibleUpdates && !hasCodeUpdates) {
+                    console.log('[UpdateCheck] No updates found.');
                     window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'App is up to date', status: 'success' } }));
                     setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
                     setRefreshing(false);
                     return;
                   }
 
+                  console.log('[UpdateCheck] Updates found. Triggering splash screen and applying...');
                   let reloadText = 'Applying Updates...';
                   if (hasCodeUpdates && hasBibleUpdates) reloadText = 'Applying App & Bible Updates...';
                   else if (hasBibleUpdates) reloadText = 'Applying Bible Data Updates...';
                   else if (hasCodeUpdates) reloadText = 'Applying App Updates...';
                   
+                  window.dispatchEvent(new Event('kjb-progress-clear'));
                   window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: reloadText } }));
 
                   if (hasBibleUpdates) {
+                    console.log('[UpdateCheck] Downloading new Bible data...');
                     const { autoDownloadBibleOnFirstLoad } = await import('@/lib/bibleCache');
                     await autoDownloadBibleOnFirstLoad();
                   }
@@ -411,12 +440,14 @@ export default function AppLayout() {
                     } else if (swReg.installing && swReg.installing.state === 'installed') {
                       swReg.installing.postMessage({ type: 'SKIP_WAITING' });
                     }
+                    console.log('[UpdateCheck] Activating new service worker...');
                   }
 
                   // Clear service worker cache to ensure latest code is fetched
                   if ('caches' in window) {
                     const cacheNames = await caches.keys();
                     await Promise.all(cacheNames.map(name => caches.delete(name)));
+                    console.log('[UpdateCheck] Cleared HTTP caches.');
                   }
                   
                   // Unregister service worker (this forces new UI files to load)
@@ -425,13 +456,15 @@ export default function AppLayout() {
                     for (const reg of regs) {
                       await reg.unregister();
                     }
+                    console.log('[UpdateCheck] Unregistered service workers.');
                   }
                   
+                  console.log('[UpdateCheck] Reloading application...');
                   setTimeout(() => {
                     window.location.href = window.location.pathname + '?refresh=' + Date.now();
                   }, 800);
                 } catch (err) {
-                  console.error('Refresh failed:', err);
+                  console.error('[UpdateCheck] Refresh failed:', err);
                   window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Failed to force update', status: 'error' } }));
                   setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
                   setRefreshing(false);

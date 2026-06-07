@@ -95,6 +95,7 @@ export default function HomePage() {
     
     // Pull down to refresh if at the top of the page
     if (pullDistance > 100 && window.scrollY <= 0) {
+      console.log('[UpdateCheck] Pull-to-refresh triggered. Checking for updates...');
       window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Checking for updates...", status: 'loading' } }));
       if (typeof navigator !== 'undefined' && navigator.onLine) {
         (async () => {
@@ -106,18 +107,15 @@ export default function HomePage() {
                 await reg.update().catch(() => {});
                 if (reg.waiting) {
                   swUpdated = true;
-                  reg.waiting.postMessage({ type: 'SKIP_WAITING' });
                 } else if (reg.installing) {
                   if (reg.installing.state === 'installed') {
                     swUpdated = true;
-                    reg.installing.postMessage({ type: 'SKIP_WAITING' });
                   } else {
                     await new Promise(resolve => {
                       const worker = reg.installing;
                       worker.addEventListener('statechange', () => {
                         if (worker.state === 'installed') {
                           swUpdated = true;
-                          worker.postMessage({ type: 'SKIP_WAITING' });
                           resolve();
                         } else if (worker.state === 'redundant') {
                           resolve();
@@ -129,57 +127,73 @@ export default function HomePage() {
                 }
               }
             }
+            console.log(`[UpdateCheck] App code updates found (pull): ${swUpdated}`);
+            
             const { checkForUpdates, downloadBibleForOffline } = await import('@/lib/bibleCache');
             const bibleNeedsUpdate = await checkForUpdates();
-            
-            if (bibleNeedsUpdate && swUpdated) {
-              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Updating app & Bible data...", status: 'loading' } }));
-            } else if (bibleNeedsUpdate) {
-              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Updating Bible data...", status: 'loading' } }));
-            } else if (swUpdated) {
-              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Updating app...", status: 'loading' } }));
-            } else {
-              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Loading today's verse...", status: 'loading' } }));
-            }
-
-            if (bibleNeedsUpdate) {
-              localStorage.removeItem('bible_cache_version');
-              localStorage.removeItem('bible_last_refresh');
-              await downloadBibleForOffline();
-            }
-
-            if (swUpdated) {
-              // Daily verse cache is preserved on updates
-            }
+            console.log(`[UpdateCheck] Bible updates found (pull): ${bibleNeedsUpdate}`);
 
             // Ensure the checking message is visible for at least a brief moment so it doesn't flash
             await new Promise(r => setTimeout(r, 600));
 
             if (swUpdated || bibleNeedsUpdate) {
+              console.log('[UpdateCheck] Updates found (pull). Triggering splash screen and applying...');
               let reloadText = 'Applying Updates...';
               if (swUpdated && bibleNeedsUpdate) reloadText = 'Applying App & Bible Updates...';
               else if (bibleNeedsUpdate) reloadText = 'Applying Bible Data Updates...';
               else if (swUpdated) reloadText = 'Applying App Updates...';
               
-              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Updates applied.", status: 'success' } }));
+              // Switch to splash screen
+              window.dispatchEvent(new Event('kjb-progress-clear'));
               window.dispatchEvent(new CustomEvent('kjb-reloading', { detail: { text: reloadText } }));
-              setTimeout(() => { window.location.reload(); }, 800);
+
+              if (bibleNeedsUpdate) {
+                console.log('[UpdateCheck] Downloading new Bible data...');
+                localStorage.removeItem('bible_cache_version');
+                localStorage.removeItem('bible_last_refresh');
+                await downloadBibleForOffline();
+              }
+
+              if (swUpdated && 'serviceWorker' in navigator) {
+                const reg = await navigator.serviceWorker.getRegistration();
+                if (reg && reg.waiting) {
+                  reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                } else if (reg && reg.installing && reg.installing.state === 'installed') {
+                  reg.installing.postMessage({ type: 'SKIP_WAITING' });
+                }
+                console.log('[UpdateCheck] Activating new service worker...');
+              }
+
+              if ('caches' in window) {
+                const cacheNames = await caches.keys();
+                await Promise.all(cacheNames.map(name => caches.delete(name)));
+                console.log('[UpdateCheck] Cleared HTTP caches.');
+              }
+              if ('serviceWorker' in navigator) {
+                const regs = await navigator.serviceWorker.getRegistrations();
+                for (const reg of regs) {
+                  await reg.unregister();
+                }
+                console.log('[UpdateCheck] Unregistered service workers.');
+              }
+
+              console.log('[UpdateCheck] Reloading application...');
+              setTimeout(() => { window.location.href = window.location.pathname + '?refresh=' + Date.now(); }, 800);
               return;
             }
 
+            console.log('[UpdateCheck] No updates found (pull). Loading verse...');
+            window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Loading today's verse...", status: 'loading' } }));
             // If no SW updates (or just Bible update), load the verse
             const v = await getDailyVerseFromBible();
             setVerse(v);
             setIsOffline(false);
             
-            if (bibleNeedsUpdate) {
-              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Bible updated successfully.", status: 'success' } }));
-            } else {
-              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "App & Bible are up to date.", status: 'info' } }));
-            }
-            setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
+            window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "App & Bible are up to date.", status: 'info' } }));
+            setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
             scheduleDailyNotification();
           } catch (e) {
+            console.error('[UpdateCheck] Pull-to-refresh check failed:', e);
             setVerse(getDailyVerse());
             setIsOffline(true);
             window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'You are offline.', status: 'info' } }));
