@@ -4,6 +4,7 @@ import { CheckCircle2, AlertCircle, Info, X, Loader2, Download } from 'lucide-re
 export default function UpdateBanner() {
   const [progressMsg, setProgressMsg] = useState(null);
   const [progressStatus, setProgressStatus] = useState('loading');
+  const [autoUpdating, setAutoUpdating] = useState(false);
 
   useEffect(() => {
     const handleUpdate = (e) => {
@@ -13,14 +14,13 @@ export default function UpdateBanner() {
         sessionStorage.setItem('kjb_sw_updated', 'app');
         setTimeout(() => sessionStorage.removeItem('kjb_sw_updated'), 10000);
         
-        setProgressMsg('Found app updates...');
-        setProgressStatus('loading');
+        setAutoUpdating(true);
         
         worker.postMessage({ type: 'SKIP_WAITING' });
         
         setTimeout(() => {
           window.location.href = window.location.pathname + '?refresh=' + Date.now();
-        }, 2000);
+        }, 2500);
       }
     };
     const handleProgress = (e) => {
@@ -41,6 +41,20 @@ export default function UpdateBanner() {
       window.removeEventListener('kjb-progress-clear', handleClear);
     };
   }, []);
+
+  if (autoUpdating) {
+    return (
+      <div className="w-full py-2 px-5 sm:px-12 lg:px-16 flex items-center justify-between text-sm font-medium shadow-inner border-b z-40 relative bg-secondary text-secondary-foreground border-border">
+        <div className="flex items-center gap-2">
+          <Download className="w-4 h-4 text-primary" />
+          <span>Found new update...</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
+        </div>
+      </div>
+    );
+  }
 
   if (!progressMsg) return null;
 
