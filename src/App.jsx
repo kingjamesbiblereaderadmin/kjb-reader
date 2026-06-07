@@ -145,14 +145,14 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
     else if (updateType === 'bible') loadingText = "Applying Bible data updates...";
     else loadingText = "Applying app updates...";
   } else if (!isReady || !minTimePassed) {
-    loadingText = isFirstVisit ? "Loading KJB Reader..." : "Welcome back";
+    loadingText = isFirstVisit ? "Loading KJB Reader..." : "Welcome back...";
   }
 
   const isAppReady = isReady && minTimePassed;
 
   return (
-    <div className={`fixed inset-0 z-[9999] bg-background overflow-y-auto overflow-x-hidden ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
-      <div className="flex flex-col items-center w-full min-h-full px-4 py-12 md:py-16 max-w-xl mx-auto space-y-8">
+    <div className={`fixed inset-0 z-[9999] bg-background overflow-hidden ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
+      <div className={`flex flex-col items-center w-full h-[100dvh] px-4 max-w-xl mx-auto ${isFirstVisit ? 'py-8 space-y-6 overflow-y-auto' : 'justify-center overflow-y-auto'}`}>
         
         {isFirstVisit ? (
           <>
@@ -199,7 +199,7 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
         ) : (
           <>
             {/* Daily Verse ONLY for subsequent visits */}
-            <div className="w-full relative px-2 pt-8">
+            <div className="w-full relative px-2 mb-8">
               <DailyVerseImage 
                 verse={dailyVerse} 
                 splashMode={true} 
@@ -210,7 +210,7 @@ const PageLoader = ({ isFadingOut, isReady, onDismiss }) => {
             </div>
 
             {/* Loading / Updating Banner OR Continue Button */}
-            <div className="w-full flex justify-center pb-12 pt-4">
+            <div className="w-full flex justify-center shrink-0">
               {loadingText ? (
                 <div className="flex items-center gap-3 text-foreground bg-card px-6 py-3.5 rounded-2xl shadow-lg border border-border/80">
                   <Loader2 className="w-5 h-5 animate-spin text-accent shrink-0" />
