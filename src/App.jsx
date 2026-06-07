@@ -140,7 +140,9 @@ const PageLoader = ({ isFadingOut }) => {
       else if (updateType === 'bible') text = "Applying Bible data updates...";
       else text = "Applying app updates...";
     } else {
-      text = "Updates applied successfully...";
+      if (updateType === 'both') text = "App & Bible updates applied successfully...";
+      else if (updateType === 'bible') text = "Bible data updates applied successfully...";
+      else text = "App updates applied successfully...";
     }
   }
 
