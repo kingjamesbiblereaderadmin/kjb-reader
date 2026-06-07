@@ -1068,7 +1068,7 @@ export default function BibleReader() {
 
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
-        <div ref={topRef} className="sticky top-0 z-[100] border-b border-border pb-2 pt-2 mb-2 relative shadow-sm -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 bg-background before:content-[''] before:absolute before:bottom-full before:left-0 before:right-0 before:h-12 before:bg-background">
+        <div ref={topRef} className="print:hidden sticky top-0 z-[100] border-b border-border pb-2 pt-2 mb-2 relative shadow-sm -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 bg-background before:content-[''] before:absolute before:bottom-full before:left-0 before:right-0 before:h-12 before:bg-background">
           <div className="flex flex-wrap items-stretch justify-stretch gap-1.5 w-full max-w-7xl mx-auto [&>button:not(.kjb-fixed-btn)]:flex-grow [&>button:not(.kjb-fixed-btn)]:basis-auto [&>div.relative]:flex-grow [&>div.relative>button]:w-full">
 
             {/* Book selector */}
@@ -1496,7 +1496,7 @@ export default function BibleReader() {
                     Print Full Page
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={() => {
-                    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${book.name} ${pos.chapter} - KJB</title><style>
+                    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>&#8203;</title><style>
                       body { font-family: 'Merriweather', 'Cormorant Garamond', Georgia, serif; padding: 40px 20px; max-width: 800px; margin: 0 auto; color: #000; line-height: 1.8; font-size: 12pt; }
                       h1 { font-size: 24pt; text-align: center; margin-bottom: 30px; font-weight: bold; }
                       p { margin-bottom: 12px; text-align: justify; }

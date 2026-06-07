@@ -197,6 +197,18 @@ const AuthenticatedApp = () => {
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
   useEffect(() => {
+    const originalTitle = document.title;
+    const beforePrint = () => { document.title = '\u200B'; }; // Zero-width space removes title from print header
+    const afterPrint = () => { document.title = originalTitle; };
+    window.addEventListener('beforeprint', beforePrint);
+    window.addEventListener('afterprint', afterPrint);
+    return () => {
+      window.removeEventListener('beforeprint', beforePrint);
+      window.removeEventListener('afterprint', afterPrint);
+    };
+  }, []);
+
+  useEffect(() => {
     if (document.fonts) {
       document.fonts.ready.then(() => setFontsLoaded(true));
     } else {

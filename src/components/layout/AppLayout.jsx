@@ -191,7 +191,7 @@ export default function AppLayout() {
   return (
     <AutoUpdateHandler>
     <div className="h-screen bg-background flex flex-col overflow-hidden">
-      <header className={`border-b border-border bg-card/95 backdrop-blur-md z-50 flex-shrink-0 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
+      <header className={`print:hidden border-b border-border bg-card/95 backdrop-blur-md z-50 flex-shrink-0 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
         <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 h-14 flex items-center gap-2 sm:gap-3">
           {/* Logo */}
           <Link
@@ -320,7 +320,7 @@ function DesktopFooter({ navigate, setMenuOpen }) {
     });
   };
   return (
-      <footer className={`hidden sm:block border-t border-border bg-card/80 flex-shrink-0 ${open ? 'py-3' : 'py-0.5'}`}>
+      <footer className={`print:hidden hidden sm:block border-t border-border bg-card/80 flex-shrink-0 ${open ? 'py-3' : 'py-0.5'}`}>
         <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
           <div className={`flex justify-center ${open ? 'mb-2' : 'mb-0'}`}>
             <button
@@ -432,7 +432,7 @@ function BottomNav({ pathname, navigate }) {
   // Bar mode - ultra-thin footer strip with only the chevron toggle (no icons)
   if (showMode === 'bar') {
     return (
-      <nav className="sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/80 backdrop-blur-md border-t border-border/50" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <nav className="print:hidden sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/80 backdrop-blur-md border-t border-border/50" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
           <button
             type="button"
@@ -448,7 +448,7 @@ function BottomNav({ pathname, navigate }) {
   }
 
   return (
-    <nav className="sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/95 backdrop-blur-md border-t border-border overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+    <nav className="print:hidden sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/95 backdrop-blur-md border-t border-border overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
         {/* Primary row: 5 nav items + chevron toggle button */}
         <div className="flex items-stretch">
