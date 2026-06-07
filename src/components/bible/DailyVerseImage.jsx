@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect, Suspense } from 'react';
+import { createPortal } from 'react-dom';
 import { base44 } from '@/api/base44Client';
 import { renderVerseText } from '@/lib/bibleApi';
 import { Download, Share2, Upload, Palette, Type, Eye, Smartphone, Bell, BellOff, Maximize2, ChevronsDown, MoreVertical, Trash2, Image, Copy, Crop, RotateCcw, X } from 'lucide-react';
@@ -402,7 +403,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   };
 
   return (
-    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full min-h-[300px] ${gradientClass} border border-border rounded-2xl shadow-lg px-6 text-center text-white relative flex flex-col ${capturing ? 'pt-20 pb-8' : 'pt-6 pb-6'} ${uploadingComplete ? 'cursor-default' : 'cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 hover:shadow-xl'}`} style={bgStyle}>
+    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full min-h-[300px] ${gradientClass} border border-border rounded-2xl shadow-lg px-6 text-center text-white relative flex flex-col ${capturing ? 'pt-20 pb-8' : 'pt-6 pb-6'} ${uploadingComplete ? 'cursor-default' : 'cursor-pointer hover:scale-[1.02] transition-all duration-300 hover:shadow-xl'}`} style={bgStyle}>
       {/* Notification bell indicator button */}
       {showButtons && onToggleNotif && (
         <button
@@ -1083,7 +1084,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {/* Lightbox Modal */}
-      {showLightbox && (
+      {showLightbox && createPortal(
         <div
           className="fixed inset-0 z-[200] flex items-start sm:items-center justify-center bg-black/90 backdrop-blur-sm overflow-y-auto py-6"
           style={{ width: '100vw', height: '100vh', top: 0, left: 0 }}
@@ -1181,7 +1182,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               style={{ opacity: 0.75 * textOpacity, backgroundColor: textColor }}
             />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Off-screen fixed-size card used for the shared/downloaded image */}
