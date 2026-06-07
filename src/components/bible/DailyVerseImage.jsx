@@ -824,15 +824,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         className="hidden"
       />
       
-      {/* Logo (top-left) */}
-      {(splashMode || capturing) && (
-        <img
-          src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png"
-          alt="KJB Reader"
-          crossOrigin="anonymous"
-          className={`absolute top-4 left-4 ${capturing ? 'w-14 h-14' : 'w-10 h-10'} rounded-lg shadow-md z-10 pointer-events-none`}
-        />
-      )}
+
 
       {showVersePanel ? (
         <div className="px-2 pt-2 pb-2 text-center flex-1 flex flex-col w-full max-w-full overflow-hidden">
