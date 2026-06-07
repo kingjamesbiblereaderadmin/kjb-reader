@@ -161,15 +161,26 @@ export default function AppLayout() {
     const notifGranted = 'Notification' in window && Notification.permission === 'granted';
     const dismissed = localStorage.getItem('kjb-prompt-dismissed') === 'true' || localStorage.getItem('kjb-install-dismissed') === 'true';
 
-    // If installed but notifications not enabled, always prompt (ignore dismissal)
-    if (alreadyInstalled && !notifGranted) {
-      const timer = setTimeout(() => setShowPrompt(true), 2000);
-      return () => clearTimeout(timer);
-    }
-    // Otherwise, respect dismissal and skip when already installed
-    if (!alreadyInstalled && !dismissed) {
-      const timer = setTimeout(() => setShowPrompt(true), 2000);
-      return () => clearTimeout(timer);
+    const triggerPrompt = () => {
+      // If installed but notifications not enabled, always prompt (ignore dismissal)
+      if (alreadyInstalled && !notifGranted) {
+        setTimeout(() => setShowPrompt(true), 1500);
+      }
+      // Otherwise, respect dismissal and skip when already installed
+      else if (!alreadyInstalled && !dismissed) {
+        setTimeout(() => setShowPrompt(true), 1500);
+      }
+    };
+
+    if (window.kjbSplashDone) {
+      triggerPrompt();
+    } else {
+      const onSplashDone = () => {
+        window.removeEventListener('kjb-splash-done', onSplashDone);
+        triggerPrompt();
+      };
+      window.addEventListener('kjb-splash-done', onSplashDone);
+      return () => window.removeEventListener('kjb-splash-done', onSplashDone);
     }
   }, []);
 

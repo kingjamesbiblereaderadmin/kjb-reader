@@ -396,11 +396,16 @@ const AuthenticatedApp = () => {
   useEffect(() => {
     if (!showSplash) {
       setFadeSplash(true);
-      const timer = setTimeout(() => setRenderSplash(false), 500);
+      const timer = setTimeout(() => {
+        setRenderSplash(false);
+        window.kjbSplashDone = true;
+        window.dispatchEvent(new Event('kjb-splash-done'));
+      }, 500);
       return () => clearTimeout(timer);
     } else {
       setRenderSplash(true);
       setFadeSplash(false);
+      window.kjbSplashDone = false;
     }
   }, [showSplash]);
 
