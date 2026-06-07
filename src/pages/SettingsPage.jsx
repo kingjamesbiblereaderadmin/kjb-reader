@@ -49,7 +49,7 @@ export default function SettingsPage() {
     notifications: true,
     info: true,
     credits: true,
-    advanced: true,
+    advanced: false,
     contact: true,
     developer: false,
   });
@@ -1214,14 +1214,6 @@ export default function SettingsPage() {
                 <span className="text-foreground font-medium text-right">{LAST_REVISED}</span>
               </div>
               <div className="flex justify-between items-center font-sans text-sm gap-4">
-                <span className="text-muted-foreground shrink-0">Worker Version</span>
-                <span className="text-foreground font-medium text-right">{WORKER_VERSION}</span>
-              </div>
-              <div className="flex justify-between items-center font-sans text-sm gap-4">
-                <span className="text-muted-foreground shrink-0">Data Cache</span>
-                <span className="text-foreground font-medium text-right">{CACHE_VERSION}</span>
-              </div>
-              <div className="flex justify-between items-center font-sans text-sm gap-4">
                 <span className="text-muted-foreground shrink-0">Offline Support</span>
                 <span className="text-foreground font-medium text-right flex items-center gap-1">
                   {cached ? (
@@ -1329,6 +1321,16 @@ export default function SettingsPage() {
         </button>
         {expandedSections.advanced && (
           <div className="px-5 pb-6 pt-3 space-y-4">
+            <div className="space-y-2 mb-4 pt-1 border-b border-border pb-4">
+              <div className="flex justify-between items-center font-sans text-sm gap-4">
+                <span className="text-muted-foreground shrink-0">Worker Version</span>
+                <span className="text-foreground font-medium text-right">{WORKER_VERSION}</span>
+              </div>
+              <div className="flex justify-between items-center font-sans text-sm gap-4">
+                <span className="text-muted-foreground shrink-0">Data Cache</span>
+                <span className="text-foreground font-medium text-right">{CACHE_VERSION}</span>
+              </div>
+            </div>
             <div className="flex gap-3 pt-2">
               <button
                 onClick={async () => {
