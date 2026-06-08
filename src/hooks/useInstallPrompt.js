@@ -16,7 +16,7 @@ class PWAInstallManager {
       }
       
       // If the experimental Web Install API is supported, the app is installable
-      if ('install' in navigator) {
+      if ('install' in navigator && typeof navigator.install === 'function') {
         this.isInstallable = true;
       }
 
@@ -55,8 +55,34 @@ class PWAInstallManager {
   }
 
   async promptInstall() {
-    // Try the new experimental Web Install API first if available
-    if ('install' in navigator) {
+    const promptEvent = this.deferredPrompt || window.kjbDeferredPrompt;
+
+    // Use standard beforeinstallprompt if available, as it's the most reliable
+    if (promptEvent) {
+      try {
+        promptEvent.prompt();
+        const { outcome } = await promptEvent.userChoice;
+        
+        this.deferredPrompt = null;
+        window.kjbDeferredPrompt = null;
+        this.isInstallable = false;
+        
+        if (outcome === 'accepted') {
+          this.isInstalled = true;
+          try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
+          window.dispatchEvent(new Event('pwa-installed')); 
+          return true;
+        }
+        return false;
+      } catch (err) {
+        console.error('Failed to prompt install via beforeinstallprompt:', err);
+        return Promise.reject(err);
+      }
+    }
+
+    // Try the new experimental Web Install API ONLY if beforeinstallprompt didn't fire
+    // Do NOT fall back asynchronously, as that loses the user gesture required for prompt()
+    if ('install' in navigator && typeof navigator.install === 'function') {
       try {
         await navigator.install();
         this.isInstalled = true;
@@ -65,35 +91,12 @@ class PWAInstallManager {
         window.dispatchEvent(new Event('pwa-installed')); 
         return true;
       } catch (err) {
-        console.error('navigator.install() failed, falling back:', err);
-        // Fall through to beforeinstallprompt logic if Web Install API fails or user cancels
+        console.error('navigator.install() failed:', err);
+        return Promise.reject(err);
       }
-    }
-
-    const promptEvent = this.deferredPrompt || window.kjbDeferredPrompt;
-    if (!promptEvent) {
-      return Promise.reject(new Error('No prompt available and Web Install API not supported'));
     }
     
-    try {
-      promptEvent.prompt();
-      const { outcome } = await promptEvent.userChoice;
-      
-      this.deferredPrompt = null;
-      window.kjbDeferredPrompt = null;
-      this.isInstallable = false;
-      
-      if (outcome === 'accepted') {
-        this.isInstalled = true;
-        try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
-        window.dispatchEvent(new Event('pwa-installed')); 
-        return true;
-      }
-      return false;
-    } catch (err) {
-      console.error('Failed to prompt install', err);
-      return Promise.reject(err);
-    }
+    return Promise.reject(new Error('No prompt available and Web Install API not supported'));
   }
 }
 
