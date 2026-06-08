@@ -900,7 +900,7 @@ export default function SettingsPage() {
                 <div className="font-sans text-xs text-muted-foreground space-y-1.5">
                   <p>• <strong>iPhone/iPad:</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Share</span> button, then <span className="text-foreground font-medium">"Add to Home Screen"</span></p>
                   <p>• <strong>Android:</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">⋮ Menu</span>, then <span className="text-foreground font-medium">"Install app"</span></p>
-                  <p>• <strong>Desktop:</strong> Click the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Install</span> icon in the address bar, or use the browser menu</p>
+                  <p>• <strong>Desktop:</strong> Click the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Install</span> icon in the address bar, or use the browser menu. <em>(Note: The native popup is blocked inside preview windows. Open the app in a new tab to test!)</em></p>
                 </div>
               </div>
             )}

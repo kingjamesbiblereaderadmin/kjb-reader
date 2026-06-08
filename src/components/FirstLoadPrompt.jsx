@@ -195,7 +195,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                     ) : isMobile() ? (
                       <>Tap <strong>⋮ Menu</strong>, then <strong>"Install app"</strong>.</>
                     ) : (
-                      <>Click the <strong>Install</strong> icon in the address bar, or use the browser menu.</>
+                      <>Click the <strong>Install</strong> icon in the address bar, or use the browser menu. <em>(Note: The native popup is blocked inside preview windows. Open the app in a new tab to test!)</em></>
                     )}
                   </p>
                 </div>
