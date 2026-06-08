@@ -149,12 +149,11 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
         className="fixed inset-0 z-[99998] bg-black/50 backdrop-blur-md"
         onClick={handleClose}
       />
-      <div className="fixed bottom-20 sm:bottom-6 right-4 z-[99999] w-72 sm:w-80 flex flex-col min-h-0 pointer-events-none max-h-[calc(100dvh-7rem)] sm:max-h-[calc(100dvh-4rem)]">
-        <div
-          className="w-full bg-card border border-border rounded-2xl shadow-2xl p-3 sm:p-4 flex flex-col min-h-0 pointer-events-auto max-h-full overflow-hidden"
-          onClick={e => e.stopPropagation()}
-        >
-          <div className="flex items-start justify-between gap-2 mb-2 shrink-0">
+      <div
+        className="fixed bottom-20 sm:bottom-6 right-4 z-[99999] w-72 sm:w-80 bg-card border border-border rounded-2xl shadow-2xl p-3 sm:p-4 flex flex-col min-h-0 pointer-events-auto max-h-[calc(100dvh-7rem)] sm:max-h-[calc(100dvh-4rem)] overflow-hidden"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-2 mb-2 shrink-0">
             <div className="flex flex-col">
               <p className="font-serif text-base sm:text-lg font-bold text-foreground leading-tight">Welcome to KJB Reader</p>
               <p className="font-sans text-[10px] sm:text-xs text-muted-foreground mt-0.5">Get the most out of your app</p>
@@ -331,7 +330,6 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             </span>
           </button>
           </div>
-        </div>
       </div>
     </>
   );
