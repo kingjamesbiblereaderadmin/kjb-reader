@@ -14,6 +14,8 @@ if (typeof window !== 'undefined') {
     event.preventDefault();      // Prevent auto-prompt so the custom button can trigger it
     deferredPrompt = event;      // Save the event for later
     window.kjbDeferredPrompt = event;
+    // A fresh install prompt means the app is NOT installed — clear any stale flag.
+    try { localStorage.removeItem(INSTALLED_KEY); } catch {}
     window.dispatchEvent(new Event('pwa-installable'));
   });
 
@@ -28,7 +30,20 @@ if (typeof window !== 'undefined') {
 
 const checkIsInstalled = () => {
   if (typeof window === 'undefined') return false;
-  if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) return true;
+  // The only reliable signal is the actual display mode (running standalone).
+  // The stored flag can go stale if the user later uninstalls the app from the
+  // browser, so we self-heal it here.
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if (standalone) {
+    try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
+    return true;
+  }
+  // Not standalone. If a future install prompt is available, the app clearly
+  // isn't installed — clear the stale flag.
+  if (window.kjbDeferredPrompt) {
+    try { localStorage.removeItem(INSTALLED_KEY); } catch {}
+    return false;
+  }
   try { return localStorage.getItem(INSTALLED_KEY) === 'true'; } catch { return false; }
 };
 
