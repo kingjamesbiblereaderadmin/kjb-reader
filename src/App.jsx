@@ -414,7 +414,8 @@ const AuthenticatedApp = () => {
           // Otherwise, manual update checks will think there's no update because the worker is already active,
           // but the old JS remains in memory.
           // We only skip reload for minor bible updates if not on root, but app code updates MUST reload.
-          if (window.location.pathname !== '/' && updateType === 'bible') {
+          if (window.location.pathname !== '/') {
+            // We delay the reload if they aren't on the homepage so we don't interrupt reading
             return;
           }
 
