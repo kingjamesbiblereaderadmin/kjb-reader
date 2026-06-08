@@ -1035,6 +1035,7 @@ export default function SettingsPage() {
                         }
 
                         if (hasCodeUpdates && swReg) {
+                          sessionStorage.setItem('kjb_last_app_update', Date.now().toString());
                           if (swReg.waiting) swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
                           else if (swReg.installing && swReg.installing.state === 'installed') swReg.installing.postMessage({ type: 'SKIP_WAITING' });
                         }

@@ -171,6 +171,7 @@ export default function HomePage() {
 
               if (swUpdated && 'serviceWorker' in navigator) {
                 const reg = await navigator.serviceWorker.getRegistration();
+                sessionStorage.setItem('kjb_last_app_update', Date.now().toString());
                 if (reg && reg.waiting) {
                   reg.waiting.postMessage({ type: 'SKIP_WAITING' });
                 } else if (reg && reg.installing && (reg.installing.state === 'installed' || reg.installing.state === 'activating' || reg.installing.state === 'activated')) {

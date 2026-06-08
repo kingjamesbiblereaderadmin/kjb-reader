@@ -265,16 +265,26 @@ const AuthenticatedApp = () => {
           return; // Skip if offline
         }
 
-        const justUpdated = sessionStorage.getItem('kjb_sw_updated');
+        let justUpdated = sessionStorage.getItem('kjb_sw_updated');
+        const isForcedUpdate = typeof window !== 'undefined' && window.location.search.includes('updated=true');
+        
+        if (isForcedUpdate && !justUpdated) {
+          justUpdated = 'app';
+        }
+        
         if (justUpdated) {
           sessionStorage.removeItem('kjb_sw_updated');
+          sessionStorage.setItem('kjb_last_app_update', Date.now().toString());
         }
-
+        
         let hasAppUpdates = false;
         let hasBibleUpdates = false;
 
+        const lastAppUpdate = parseInt(sessionStorage.getItem('kjb_last_app_update') || '0');
+        const skipAppUpdates = Date.now() - lastAppUpdate < 5 * 60 * 1000; // 5 minute cooldown
+
         // 1. Check App/Code Updates (Skip if we just performed an update reload, to avoid loops)
-        if (!justUpdated || justUpdated === 'bible') {
+        if (!skipAppUpdates && (!justUpdated || justUpdated === 'bible')) {
           if ('serviceWorker' in navigator) {
             const reg = await navigator.serviceWorker.getRegistration();
             // ONLY trigger automatic update reload if there is ALREADY an active SW.
@@ -296,6 +306,7 @@ const AuthenticatedApp = () => {
                 window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Applying updates...' } }));
                 await new Promise(r => setTimeout(r, 500));
                 
+                sessionStorage.setItem('kjb_last_app_update', Date.now().toString());
                 if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
                 else if (reg.installing) reg.installing.postMessage({ type: 'SKIP_WAITING' });
                 return; // Let main.jsx handle reload
@@ -337,6 +348,7 @@ const AuthenticatedApp = () => {
                   setApplyMessage('Applying updates...');
                   window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Applying updates...' } }));
                   await new Promise(r => setTimeout(r, 500));
+                  sessionStorage.setItem('kjb_last_app_update', Date.now().toString());
                   workerToSkip.postMessage({ type: 'SKIP_WAITING' });
                   return; // Let main.jsx handle reload
                 }
@@ -441,6 +453,9 @@ const AuthenticatedApp = () => {
       try {
         if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
         
+        const lastAppUpdate = parseInt(sessionStorage.getItem('kjb_last_app_update') || '0');
+        if (Date.now() - lastAppUpdate < 5 * 60 * 1000) return; // 5 minute cooldown
+        
         let hasAppUpdates = false;
         let workerToSkip = null;
         if ('serviceWorker' in navigator) {
@@ -471,6 +486,7 @@ const AuthenticatedApp = () => {
           window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Applying updates...' } }));
           await new Promise(r => setTimeout(r, 500));
           
+          sessionStorage.setItem('kjb_last_app_update', Date.now().toString());
           workerToSkip.postMessage({ type: 'SKIP_WAITING' });
         }
       } catch (err) {
