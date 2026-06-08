@@ -90,16 +90,11 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   }, []);
 
   const alreadyInstalled = isInStandaloneMode() || installDone;
-  const showInstall = !alreadyInstalled && (isInstallable || isIOS() || isAndroid() || !isMobile());
-  const showNotif = !notifDone;
+  const showInstall = !isInStandaloneMode() && (isInstallable || isIOS() || isAndroid() || !isMobile());
 
-  // TEMP: promo screenshot mode — prompt disabled while capturing marketing shots.
-  const PROMO_SCREENSHOT_MODE = false;
+  const shouldShow = !dismissed;
 
-  // Once dismissed (or all tasks done), never show again. Respect the user's choice.
-  const shouldShow = !dismissed && (showInstall || showNotif);
-
-  if (PROMO_SCREENSHOT_MODE || !shouldShow) return null;
+  if (!shouldShow) return null;
 
   const handleClose = (e) => {
     if (e) { e.preventDefault(); e.stopPropagation(); }
@@ -131,12 +126,6 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
         await onEnableNotif();
         if ('Notification' in window && Notification.permission === 'granted') {
           setNotifDone(true);
-          // If there's nothing else to show, dismiss the whole prompt
-          if (!showInstall) {
-            setDismissed(true);
-            try { localStorage.setItem(DISMISSED_KEY, 'true'); } catch {}
-            if (onDismiss) onDismiss();
-          }
         } else {
           setNotifFailed(true);
         }
@@ -177,27 +166,32 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             <div className="space-y-3">
               <button
                 type="button"
-                onClick={handleInstallClick}
-                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100 disabled:active:scale-100 touch-manipulation bg-primary text-primary-foreground border-2 border-primary"
+                disabled={installDone}
+                onClick={installDone ? undefined : handleInstallClick}
+                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl font-sans text-sm font-medium transition-all duration-200 touch-manipulation ${
+                  installDone 
+                    ? 'bg-secondary/40 border border-border text-foreground cursor-not-allowed opacity-80'
+                    : 'hover:scale-[1.02] active:scale-[0.98] bg-primary text-primary-foreground border-2 border-primary'
+                }`}
               >
                 {isIOS() ? <Share className="w-4 h-4 shrink-0" /> : isMobile() ? <Download className="w-4 h-4 shrink-0" /> : <MonitorSmartphone className="w-4 h-4 shrink-0" />}
                 <span className="text-left">
-                  <span className="block font-semibold">{isMobile() ? 'Add to Home Screen' : 'Install App'}</span>
-                  <span className="block text-xs opacity-80">Offline access, faster loading</span>
+                  <span className="block font-semibold">{installDone ? 'App Installed' : isMobile() ? 'Add to Home Screen' : 'Install App'}</span>
+                  <span className="block text-xs opacity-80">{installDone ? 'Available on your device' : 'Offline access, faster loading'}</span>
                 </span>
               </button>
               
-              {showIOSHint && (
+              {showIOSHint && !installDone && (
                 <div className="bg-secondary/40 border border-border rounded-xl p-3">
                   <p className="font-sans text-xs text-foreground leading-relaxed">
-                    <strong>Install KJB Reader from your browser menu:</strong>
+                    <strong>Install KJB Reader:</strong>
                     <br />
                     {isIOS() ? (
                       <>Tap <strong>Share</strong>, then <strong>"Add to Home Screen"</strong>.</>
                     ) : isMobile() ? (
                       <>Tap <strong>⋮ Menu</strong>, then <strong>"Install app"</strong>.</>
                     ) : (
-                      <>If the automatic prompt didn't appear, your browser might not support it, or it was dismissed. Look for the <strong>Install</strong> icon in the address bar (near the bookmark star), or use your browser's menu.</>
+                      <>Look for the <strong>Install</strong> icon in the address bar, or use your browser's menu.<br/><br/><span className="text-primary font-medium">Note: App installation is disabled while previewing in the editor. Please open the live app link in a new tab to install.</span></>
                     )}
                   </p>
                 </div>
@@ -293,26 +287,26 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             </div>
           </div>
 
-          {showNotif && (
-            <button
-              type="button"
-              disabled={notifFailed}
-              onClick={notifFailed ? undefined : handleNotifClick}
-              className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-left touch-manipulation transition-colors ${
-                notifFailed 
-                  ? 'bg-secondary/40 border-border text-muted-foreground cursor-not-allowed' 
-                  : 'bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 active:bg-primary/25 font-medium'
-              }`}
-            >
-              <Bell className="w-4 h-4 shrink-0" />
-              <span className="flex-1">
-                <span className={`block ${notifFailed ? 'font-medium' : 'font-semibold'}`}>Enable Daily Notifications</span>
-                <span className="block text-xs opacity-80">
-                  {notifFailed ? 'Blocked or not supported by browser' : 'Get the daily verse every morning'}
-                </span>
+          <button
+            type="button"
+            disabled={notifFailed || notifDone}
+            onClick={notifFailed || notifDone ? undefined : handleNotifClick}
+            className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-left touch-manipulation transition-colors ${
+              notifFailed || notifDone
+                ? 'bg-secondary/40 border-border text-foreground cursor-not-allowed opacity-80' 
+                : 'bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 active:bg-primary/25 font-medium'
+            }`}
+          >
+            <Bell className="w-4 h-4 shrink-0" />
+            <span className="flex-1">
+              <span className={`block ${notifFailed || notifDone ? 'font-medium' : 'font-semibold'}`}>
+                {notifDone ? 'Notifications Enabled' : 'Enable Daily Notifications'}
               </span>
-            </button>
-          )}
+              <span className="block text-xs opacity-80">
+                {notifDone ? 'You will receive the daily verse every morning' : notifFailed ? 'Blocked or not supported by browser' : 'Get the daily verse every morning'}
+              </span>
+            </span>
+          </button>
         </div>
       </div>
     </>

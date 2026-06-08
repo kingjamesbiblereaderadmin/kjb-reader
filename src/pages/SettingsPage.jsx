@@ -900,7 +900,7 @@ export default function SettingsPage() {
                 <div className="font-sans text-xs text-muted-foreground space-y-1.5">
                   <p>• <strong>iPhone/iPad:</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Share</span> button, then <span className="text-foreground font-medium">"Add to Home Screen"</span></p>
                   <p>• <strong>Android:</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">⋮ Menu</span>, then <span className="text-foreground font-medium">"Install app"</span></p>
-                  <p>• <strong>Desktop:</strong> If the automatic prompt didn't appear (or was missed), look for the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Install</span> icon in the address bar (near the bookmark star), or use your browser's menu.</p>
+                  <p>• <strong>Desktop:</strong> Look for the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Install</span> icon in the address bar (near the bookmark star), or use your browser's menu.<br/><br/><span className="text-primary font-medium">Note: App installation is disabled while previewing in the editor. Please open the live app link in a new tab to install.</span></p>
                 </div>
               </div>
             )}
