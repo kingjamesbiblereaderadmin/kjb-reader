@@ -1,68 +1,61 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import * as fs from 'node:fs';
+
 Deno.serve(async (req) => {
   try {
-    const path = "src/pages/BibleReader.jsx";
-    let content = await Deno.readTextFile(path);
-    
-    const findStr = `    if (!section && r.verse && r.verseEnd && r.verseEnd > r.verse) {
-      const end = r.verseEnd;
-      const range = new Set();
-      for (let v = r.verse; v <= end; v++) range.add(v);
-      rangeHighlightRef.current = true;
-      setHighlightedVerses(range);
-      setSelectedVerses(range);
-      setFilterMode(useFilter);
-      try {
-        const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: r.verse, verseEnd: end }));
-      } catch {}
-    } else if (!section && targetVerse) {
-      // Single-verse search result \u2192 filter the reader to show ONLY that verse.
-      const single = new Set([targetVerse]);
-      rangeHighlightRef.current = true;
-      setHighlightedVerses(single);
-      setSelectedVerses(single);
-      setFilterMode(useFilter);
-      try {
-        const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: targetVerse, verseEnd: null }));
-      } catch {}
-    } else {`;
-              
-    const replaceStr = `    if (!section && r.verse && r.verseEnd && parseInt(r.verseEnd, 10) > parseInt(r.verse, 10)) {
-      const start = parseInt(r.verse, 10);
-      const end = parseInt(r.verseEnd, 10);
-      const range = new Set();
-      for (let v = start; v <= end; v++) range.add(v);
-      rangeHighlightRef.current = true;
-      setHighlightedVerses(range);
-      setSelectedVerses(range);
-      setFilterMode(useFilter);
-      try {
-        const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: start, verseEnd: end }));
-      } catch {}
-    } else if (!section && targetVerse) {
-      // Single-verse search result \u2192 filter the reader to show ONLY that verse.
-      const parsedTarget = parseInt(targetVerse, 10);
-      const single = new Set([parsedTarget]);
-      rangeHighlightRef.current = true;
-      setHighlightedVerses(single);
-      setSelectedVerses(single);
-      setFilterMode(useFilter);
-      try {
-        const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: parsedTarget, verseEnd: null }));
-      } catch {}
-    } else {`;
+    const filePath = '/src/pages/BibleReader.jsx';
+    let content = fs.readFileSync(filePath, 'utf8');
 
-    if (content.includes(findStr)) {
-      content = content.replace(findStr, replaceStr);
-      await Deno.writeTextFile(path, content);
-      return Response.json({ success: true, message: "Replaced successfully" });
-    } else {
-      return Response.json({ error: "findStr not found" });
+    const findStr = `    // Clear gospel stepper on manual navigation
+    setGospelMode(false);
+    clearGospelNav();
+    // Save last reading position before navigating FROM daily verse or random chapter
+    if ((fromDailyVerse || fromRandom) && pos.abbr && pos.chapter) {`;
+
+    const replaceStr = `    // Clear gospel stepper on manual navigation
+    setGospelMode(false);
+    clearGospelNav();
+
+    // Fix for race condition: save position synchronously before routerNavigate triggers route effects
+    savePosition(newAbbr, newChapter, jumpVerse);
+
+    // Save last reading position before navigating FROM daily verse or random chapter
+    if ((fromDailyVerse || fromRandom) && pos.abbr && pos.chapter) {`;
+
+    if (!content.includes(findStr)) {
+      return Response.json({ success: false, error: 'Find string not found in BibleReader.jsx' });
     }
-  } catch (e) {
-    return Response.json({ error: e.message });
+
+    content = content.replace(findStr, replaceStr);
+
+    // Increment worker version to cache bust
+    const swPath = '/src/public/sw.js';
+    if (fs.existsSync(swPath)) {
+      let swContent = fs.readFileSync(swPath, 'utf8');
+      const vMatch = swContent.match(/CACHE_VERSION = 'v(\d+)'/);
+      if (vMatch) {
+        const nextV = parseInt(vMatch[1], 10) + 1;
+        swContent = swContent.replace(`CACHE_VERSION = 'v${vMatch[1]}'`, `CACHE_VERSION = 'v${nextV}'`);
+        fs.writeFileSync(swPath, swContent, 'utf8');
+      }
+    }
+
+    const settingsPath = '/src/pages/SettingsPage.jsx';
+    if (fs.existsSync(settingsPath)) {
+      let setContent = fs.readFileSync(settingsPath, 'utf8');
+      const vMatch = setContent.match(/WORKER_VERSION = 'v([0-9_]+)'/);
+      if (vMatch) {
+        const parts = vMatch[1].split('_');
+        const nextV = parts[0] + '_' + (parseInt(parts[1], 10) + 1);
+        setContent = setContent.replace(`WORKER_VERSION = 'v${vMatch[1]}'`, `WORKER_VERSION = 'v${nextV}'`);
+        fs.writeFileSync(settingsPath, setContent, 'utf8');
+      }
+    }
+
+    fs.writeFileSync(filePath, content, 'utf8');
+
+    return Response.json({ success: true });
+  } catch (error) {
+    return Response.json({ success: false, error: error.message });
   }
 });
