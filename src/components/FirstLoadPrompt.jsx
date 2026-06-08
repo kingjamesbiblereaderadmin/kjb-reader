@@ -109,30 +109,23 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   };
 
   const handleInstallClick = (e) => {
-    if (e) {
-      e.stopPropagation();
-    }
-    
-    if (isIOS() && !isInstallable) {
-      setShowIOSHint(h => !h);
-      return;
-    }
     if (isInstallable && onInstall) {
       const result = onInstall();
       if (result && result.then) {
         result.then(accepted => {
-          if (accepted) setInstallDone(true);
-          else if (!isAndroid()) setShowIOSHint(h => !h); // Allow browser to handle dismissal on Android silently
+          if (accepted) {
+            setInstallDone(true);
+          } else {
+            setShowIOSHint(true); // Show hint if prompt failed or user rejected
+          }
         });
       }
     } else {
-      // Desktop/Android without deferred prompt — show browser hint
-      setShowIOSHint(h => !h);
+      setShowIOSHint(true);
     }
   };
 
   const handleNotifClick = async (e) => {
-    e.stopPropagation();
     if (onEnableNotif) {
       try {
         await onEnableNotif();
@@ -194,7 +187,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                 </span>
               </button>
               
-              {(!isInstallable && showIOSHint) && (
+              {showIOSHint && (
                 <div className="bg-secondary/40 border border-border rounded-xl p-3">
                   <p className="font-sans text-xs text-foreground leading-relaxed">
                     <strong>Install KJB Reader from your browser menu:</strong>

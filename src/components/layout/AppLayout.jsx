@@ -395,6 +395,22 @@ function useAppLayoutPrompt() {
   });
   const [notifEnabled, setNotifEnabled] = useState(() => getNotificationsEnabled());
 
+  useEffect(() => {
+    const checkNotif = () => {
+      if (!('Notification' in window)) return;
+      setNotifPermission(Notification.permission);
+      setNotifEnabled(getNotificationsEnabled());
+    };
+    window.addEventListener('storage', checkNotif);
+    window.addEventListener('focus', checkNotif);
+    document.addEventListener('visibilitychange', checkNotif);
+    return () => {
+      window.removeEventListener('storage', checkNotif);
+      window.removeEventListener('focus', checkNotif);
+      document.removeEventListener('visibilitychange', checkNotif);
+    };
+  }, []);
+
   const handleInstall = () => {
     return promptInstall();
   };
