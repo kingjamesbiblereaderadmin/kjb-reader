@@ -448,7 +448,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   };
 
   return (
-    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full min-h-[300px] ${gradientClass} border border-border rounded-2xl shadow-lg px-6 text-center text-white relative flex flex-col ${capturing ? 'pt-20 pb-8' : 'pt-6 pb-6'} ${uploadingComplete ? 'cursor-default' : 'cursor-pointer hover:scale-[1.02] transition-all duration-300 hover:shadow-xl'}`} style={bgStyle}>
+    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full min-h-[300px] ${gradientClass} border border-border rounded-2xl shadow-lg px-2 sm:px-6 text-center text-white relative flex flex-col ${capturing ? 'pt-20 pb-8' : 'pt-6 pb-6'} ${uploadingComplete ? 'cursor-default' : 'cursor-pointer hover:scale-[1.02] transition-all duration-300 hover:shadow-xl'}`} style={bgStyle}>
       {/* Notification bell indicator button */}
       {showButtons && onToggleNotif && (
         <button
@@ -904,7 +904,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
           </div>
           <div className="flex-1 flex flex-col justify-center">
-          <div className={hasCustomBg ? 'mx-auto max-w-[100rem] rounded-2xl bg-black/20 backdrop-blur-[2px] px-6 py-6' : 'mx-auto max-w-[100rem] px-2 sm:px-6'}>
+          <div className={hasCustomBg ? 'mx-auto w-full max-w-[100rem] rounded-2xl bg-black/20 backdrop-blur-[2px] px-3 sm:px-6 py-6' : 'mx-auto w-full max-w-[100rem] px-1 sm:px-2'}>
           <blockquote 
             className={`text-center leading-relaxed [&_em]:italic break-words ${fontFamily === 'cursive' ? 'kjb-verse-card cursive-em-style' : ''} ${panelTextClass}`}
             style={{ 
