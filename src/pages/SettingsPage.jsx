@@ -515,20 +515,17 @@ export default function SettingsPage() {
                   setA11yFont(font.value);
                   setAccessibilityFont(font.value);
                 }}
-                className={`w-full py-1.5 px-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-left border ${
+                className={`w-full py-1.5 px-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center border ${
                   a11yFont === font.value
-                    ? 'bg-primary/10 border-primary'
-                    : 'bg-transparent border-border hover:border-accent'
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-transparent text-foreground border-border hover:border-accent'
                 }`}
               >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="font-sans text-sm font-medium text-foreground" style={font.preview ? { fontFamily: font.preview } : undefined}>
-                      {font.label}
-                    </p>
-                    <p className="font-sans text-xs text-muted-foreground mt-0.5">{font.desc}</p>
-                  </div>
-                  {a11yFont === font.value && <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />}
+                <div className="flex flex-col items-center justify-center gap-0.5">
+                  <p className="font-sans text-sm font-medium" style={font.preview ? { fontFamily: font.preview } : undefined}>
+                    {font.label}
+                  </p>
+                  <p className="font-sans text-[10px] opacity-70">{font.desc}</p>
                 </div>
               </button>
             ))}
@@ -536,7 +533,7 @@ export default function SettingsPage() {
           {a11yFont !== 'default' && (
             <button
               onClick={() => { setA11yFont('default'); setAccessibilityFont('default'); }}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-transparent border border-destructive text-destructive font-sans text-sm font-medium hover:bg-destructive/10 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full flex items-center justify-center gap-2 py-1.5 rounded-xl bg-transparent border border-destructive text-destructive font-sans text-sm font-medium hover:bg-destructive/10 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Disable
