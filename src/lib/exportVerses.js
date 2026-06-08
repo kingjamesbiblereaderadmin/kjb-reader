@@ -132,10 +132,12 @@ export function exportTxt(items, query, filters, options = {}) {
         prefix = '\n';
       }
 
+      let formattedText = (!isReading && query) ? highlightTermText(text, query, filters) : text;
+
       if (isSpecial) {
-        return `${prefix}${heading}${text}\n  — ${it.ref} (KJB)${it.url ? `\n  Read: ${it.url}` : ''}`;
+        return `${prefix}${heading}${formattedText}\n  — ${it.ref} (KJB)${it.url ? `\n  Read: ${it.url}` : ''}`;
       }
-      return `${prefix}${heading}• "${text}"\n  — ${it.ref} (KJB)${it.url ? `\n  Read: ${it.url}` : ''}`;
+      return `${prefix}${heading}• "${formattedText}"\n  — ${it.ref} (KJB)${it.url ? `\n  Read: ${it.url}` : ''}`;
     }).join('\n\n');
     return heading + verses;
   }).join('\n\n\n');
@@ -289,6 +291,7 @@ function csvCell(s) {
   return `"${v}"`;
 }
 export function exportXls(items, query, filters, options = {}) {
+  const isReading = options.titlePrefix === 'KJB Reading';
   const header = `${csvCell('Testament')},${csvCell('Book')},${csvCell('Reference')},${csvCell('Text ([brackets] = italics)')}`;
   const rows = [];
   
@@ -297,11 +300,15 @@ export function exportXls(items, query, filters, options = {}) {
   
   old.forEach(it => {
     const isSpecial = it.isColophon || it.isSubscript;
-    rows.push(`${csvCell('Old Testament')},${csvCell(it.bookName || it.book || '')},${csvCell(it.ref)},${csvCell(plainWithBrackets(it.text, isSpecial, true))}`);
+    const text = plainWithBrackets(it.text, isSpecial, true);
+    const formattedText = (!isReading && query) ? highlightTermText(text, query, filters) : text;
+    rows.push(`${csvCell('Old Testament')},${csvCell(it.bookName || it.book || '')},${csvCell(it.ref)},${csvCell(formattedText)}`);
   });
   neu.forEach(it => {
     const isSpecial = it.isColophon || it.isSubscript;
-    rows.push(`${csvCell('New Testament')},${csvCell(it.bookName || it.book || '')},${csvCell(it.ref)},${csvCell(plainWithBrackets(it.text, isSpecial, true))}`);
+    const text = plainWithBrackets(it.text, isSpecial, true);
+    const formattedText = (!isReading && query) ? highlightTermText(text, query, filters) : text;
+    rows.push(`${csvCell('New Testament')},${csvCell(it.bookName || it.book || '')},${csvCell(it.ref)},${csvCell(formattedText)}`);
   });
   
   const csv = [header, ...rows].join('\r\n');
@@ -379,18 +386,27 @@ export function exportPdf(items, query, filters, options = {}) {
     
     runs.forEach(run => {
       doc.setFont('times', run.italic ? 'italic' : 'normal');
-      // Split into words to allow wrapping
-      const words = run.str.split(/(\s+)/);
-      words.forEach(word => {
-        if (!word) return;
-        const w = doc.getTextWidth(word);
-        if (x + w > marginX + maxW && word.trim()) {
-          x = marginX + 15;
-          y += lineH;
-          ensureSpace(lineH);
-        }
-        doc.text(word, x, y);
-        x += w;
+      
+      const subRuns = (!isReading && query) ? splitForHighlight(run.str, query, filters) : [{ text: run.str, highlight: false }];
+      
+      subRuns.forEach(sub => {
+        // Split into words to allow wrapping
+        const words = sub.text.split(/(\s+)/);
+        words.forEach(word => {
+          if (!word) return;
+          const w = doc.getTextWidth(word);
+          if (x + w > marginX + maxW && word.trim()) {
+            x = marginX + 15;
+            y += lineH;
+            ensureSpace(lineH);
+          }
+          if (sub.highlight && word.trim()) {
+            doc.setFillColor(254, 240, 138); // yellow-200
+            doc.rect(x, y - 10, w, 13, 'F');
+          }
+          doc.text(word, x, y);
+          x += w;
+        });
       });
     });
     // Reference line
