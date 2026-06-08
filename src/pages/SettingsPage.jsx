@@ -30,7 +30,7 @@ const A11Y_FONTS = [
 ];
 
 const LAST_REVISED = 'June 8th, 2026';
-const WORKER_VERSION = 'v20260608_162';
+const WORKER_VERSION = 'v20260608_163';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -878,9 +878,12 @@ export default function SettingsPage() {
           <div className="space-y-3">
             <button
               onClick={() => {
-                setShowInstallHint(true);
                 if (isInstallable) {
-                  promptInstall().catch(() => {});
+                  promptInstall().then((accepted) => {
+                    if (!accepted) setShowInstallHint(h => !h);
+                  });
+                } else {
+                  setShowInstallHint(h => !h);
                 }
               }}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"

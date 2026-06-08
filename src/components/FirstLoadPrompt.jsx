@@ -104,16 +104,19 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   };
 
   const handleInstallClick = (e) => {
-    setShowIOSHint(true);
     if (isInstallable && onInstall) {
       const result = onInstall();
       if (result && result.then) {
         result.then(accepted => {
           if (accepted) {
             setInstallDone(true);
+          } else {
+            setShowIOSHint(true); // Show hint if prompt failed or user rejected
           }
         });
       }
+    } else {
+      setShowIOSHint(true);
     }
   };
 

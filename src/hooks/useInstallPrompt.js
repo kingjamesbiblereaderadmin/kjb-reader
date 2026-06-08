@@ -74,47 +74,45 @@ export function useInstallPrompt() {
     };
   }, []);
 
-  const promptInstall = async () => {
+  const promptInstall = () => {
     if (!globalDeferredPrompt) {
       if (globalIsInstallable) {
         // The prompt was used. The browser requires a fresh event to show the native popup again.
         // We'll quickly reload the page to get a fresh event so they can try again.
         window.location.reload();
       }
-      return false;
+      return Promise.resolve(false);
     }
     
     const promptEvent = globalDeferredPrompt;
     
+    // We've used the prompt, and can't use it again, throw it away immediately
+    // so we don't accidentally call it twice.
+    globalDeferredPrompt = null;
+    setDeferredPrompt(null);
+    
     try {
-      // Show the install prompt
-      const promptPromise = promptEvent.prompt();
-      if (promptPromise !== undefined) {
-        await promptPromise;
-      }
+      // Show the install prompt synchronously within the click event execution context
+      promptEvent.prompt();
       
       // Wait for the user to respond to the prompt
-      const { outcome } = await promptEvent.userChoice;
-      
-      if (outcome === 'accepted') {
-        globalIsInstallable = false;
-        setIsInstallable(false);
-        globalIsInstalled = true;
-        setIsInstalled(true);
-        try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
-        window.dispatchEvent(new Event('pwa-installed')); 
-      }
-      
-      // We've used the prompt, and can't use it again, throw it away
-      globalDeferredPrompt = null;
-      setDeferredPrompt(null);
-      
-      return outcome === 'accepted';
+      return promptEvent.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          globalIsInstallable = false;
+          setIsInstallable(false);
+          globalIsInstalled = true;
+          setIsInstalled(true);
+          try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
+          window.dispatchEvent(new Event('pwa-installed')); 
+        }
+        return choiceResult.outcome === 'accepted';
+      }).catch((err) => {
+        console.error('userChoice error', err);
+        return false;
+      });
     } catch (err) {
       console.error('Failed to prompt install', err);
-      globalDeferredPrompt = null;
-      setDeferredPrompt(null);
-      return false;
+      return Promise.resolve(false);
     }
   };
 
