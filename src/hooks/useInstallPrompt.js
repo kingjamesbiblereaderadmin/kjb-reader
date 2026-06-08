@@ -88,7 +88,10 @@ export function useInstallPrompt() {
     
     try {
       // Show the install prompt
-      promptEvent.prompt();
+      const promptPromise = promptEvent.prompt();
+      if (promptPromise !== undefined) {
+        await promptPromise;
+      }
       
       // Wait for the user to respond to the prompt
       const { outcome } = await promptEvent.userChoice;
