@@ -1,5 +1,34 @@
 import React, { useState } from 'react';
 import { Heart, AlertCircle, CheckCircle, XCircle, Copy, Check, Share2, Download, FileText, FileType, ChevronDown } from 'lucide-react';
+
+function CopyButton({ text, className }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try { navigator.clipboard.writeText(text); } catch {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button
+      onClick={handleCopy}
+      className={className || "p-1.5 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"}
+      title="Copy link"
+    >
+      {copied ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+    </button>
+  );
+}
 import { jsPDF } from 'jspdf';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useNavigate } from 'react-router-dom';
@@ -422,32 +451,38 @@ export default function GospelPage() {
             <p className="font-sans font-medium text-sm text-foreground">THE GOSPEL THAT SAVES</p>
             <p className="font-sans text-xs text-muted-foreground">Robert Breaker</p>
           </div>
-          <a
-            href="https://www.youtube.com/watch?v=znP9Dr6tOzU"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-sans text-xs text-accent hover:underline whitespace-nowrap"
-          >
-            Watch on YouTube ↗
-          </a>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <CopyButton text="https://www.youtube.com/watch?v=znP9Dr6tOzU" className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors" />
+            <a
+              href="https://www.youtube.com/watch?v=znP9Dr6tOzU"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-sans text-xs text-accent hover:underline whitespace-nowrap"
+            >
+              Watch on YouTube ↗
+            </a>
+          </div>
         </div>
       </div>
 
       {/* Full playlist */}
       <div className="bg-card border border-border rounded-xl p-5 mb-6">
         <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Playlist on Gospel Videos</h3>
-        <a
-          href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq"
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-        >
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-          </svg>
-          Watch Full Playlist on YouTube
-        </a>
+        <div className="flex flex-wrap items-center gap-3">
+          <a
+            href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+            </svg>
+            Watch Full Playlist on YouTube
+          </a>
+          <CopyButton text="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq" className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors" />
+        </div>
       </div>
 
     </div>
