@@ -3,6 +3,7 @@ import { Bell, X, Share, MonitorSmartphone, Download, Accessibility, Palette, Ty
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
 import ThemeColorPicker from '@/components/bible/ThemeColorPicker';
 import { useTheme } from '@/lib/themeContext';
+import { detectIncognito } from '@/lib/incognito';
 
 const VERSE_FONTS = [
   { value: 'serif', label: 'Serif' },
@@ -50,6 +51,11 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     try { return localStorage.getItem('kjb-verse-font-family') || 'serif'; } catch { return 'serif'; }
   });
   const [notifFailed, setNotifFailed] = useState(false);
+  const [isIncognito, setIsIncognito] = useState(false);
+
+  useEffect(() => {
+    detectIncognito().then(setIsIncognito);
+  }, []);
 
   const pickReaderFont = (value) => {
     try { localStorage.setItem('kjb-reader-font-family', value); } catch {}
@@ -94,7 +100,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   }, []);
 
   const alreadyInstalled = isInStandaloneMode() || installDone;
-  const showInstall = !isInStandaloneMode() && (isInstallable || isIOS() || isAndroid() || !isMobile());
+  const showInstall = !isIncognito && !isInStandaloneMode() && (isInstallable || isIOS() || isAndroid() || !isMobile());
 
   const shouldShow = !dismissed;
 
@@ -311,6 +317,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             </div>
           </div>
 
+          {!isIncognito && (
           <button
             type="button"
             disabled={notifFailed || notifDone}
@@ -331,6 +338,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
               </span>
             </span>
           </button>
+          )}
           </div>
       </div>
     </>
