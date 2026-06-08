@@ -34,7 +34,7 @@ const inIframe = () => {
 };
 
 const LAST_REVISED = 'June 8th, 2026';
-const WORKER_VERSION = 'v20260608_196';
+const WORKER_VERSION = 'v20260608_197';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -239,6 +239,9 @@ export default function SettingsPage() {
       if (permission === 'granted') {
         // Register the service worker (needed on Android PWA to show notifications).
         await requestNotificationPermission();
+        // Explicitly turn daily verse reminders ON so they're active right after
+        // the browser permission is granted.
+        localStorage.setItem('kjb-notifications-enabled', 'true');
         setNotifEnabled(true);
         scheduleDailyNotification(getDailyVerse());
         window.dispatchEvent(new Event('storage'));
