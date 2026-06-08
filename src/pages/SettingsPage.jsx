@@ -228,25 +228,24 @@ export default function SettingsPage() {
       alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
       return;
     }
-    
-    try {
-      const result = await requestNotificationPermission();
-      setNotifPermission(result);
 
-      // If the OS popup never appeared and permission is still 'default', the
-      // request was suppressed (common on iOS Safari before Add-to-Home-Screen).
-      if (result === 'denied' && Notification.permission === 'default') {
-        alert('Your browser did not show the notification prompt. On iPhone/iPad, add the app to your Home Screen first (Share → Add to Home Screen), then enable notifications from there.');
-        return;
-      }
-      
-      if (result === 'granted' || result === 'unsupported') {
+    try {
+      // Call the browser's native permission request DIRECTLY inside the click
+      // handler so the standard OS popup reliably appears (some browsers
+      // suppress it when wrapped in extra async/service-worker logic first).
+      const permission = await Notification.requestPermission();
+      setNotifPermission(permission);
+
+      if (permission === 'granted') {
+        // Register the service worker (needed on Android PWA to show notifications).
+        await requestNotificationPermission();
         setNotifEnabled(true);
         scheduleDailyNotification(getDailyVerse());
         window.dispatchEvent(new Event('storage'));
-      } else if (result === 'denied') {
-        alert('Notifications are blocked. Please allow notifications in your browser settings for this site.');
+      } else if (permission === 'denied') {
+        alert('Notifications are blocked. Please allow notifications in your browser/app settings for this site.');
       }
+      // 'default' = user dismissed the popup without choosing; do nothing.
     } catch (err) {
       console.error('Notification permission error:', err);
       alert('Failed to request notification permission. Please try again.');
