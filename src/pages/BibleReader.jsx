@@ -1242,7 +1242,7 @@ export default function BibleReader() {
             <span className="hidden sm:inline">{isFirstChapterFirstBook ? 'Beginning' : isGenesisChapterOne ? 'Title Page' : isViewingTitlePage ? `${getPrevBook(pos.abbr)?.shortName} ${getPrevBook(pos.abbr)?.chapters}` : pos.chapter > 1 ? `Chapter ${pos.chapter - 1}` : (pos.abbr === 'GEN' || pos.abbr === 'MAT') ? `${book.shortName} Title Page` : `${getPrevBook(pos.abbr)?.shortName} ${getPrevBook(pos.abbr)?.chapters}`}</span>
           </button>
           <button onClick={() => goNext()} disabled={isLastChapterLastBook} className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-30 transition-colors min-h-[48px] touch-manipulation">
-            <span className="hidden sm:inline">{isViewingTitlePage ? `Chapter 1` : pos.chapter < book.chapters ? `Chapter ${pos.chapter + 1}` : `${getNextBook(pos.abbr)?.shortName} 1`}</span>
+            <span className="hidden sm:inline">{isLastChapterLastBook ? 'The End' : isViewingTitlePage ? `Chapter 1` : pos.chapter < book.chapters ? `Chapter ${pos.chapter + 1}` : getNextBook(pos.abbr) ? `${getNextBook(pos.abbr).shortName} 1` : 'The End'}</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
