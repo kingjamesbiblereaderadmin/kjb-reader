@@ -40,6 +40,7 @@ export default function ReadingRangeBar({ label, filterMode, copyFeedback, share
           : <><Filter className="w-3.5 h-3.5" /> Verses Only</>}
       </button>
       <button
+        id="kjb-reading-range-clear-btn"
         onClick={onClear}
         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
       >
