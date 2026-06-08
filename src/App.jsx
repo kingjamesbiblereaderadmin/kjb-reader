@@ -240,11 +240,11 @@ const AuthenticatedApp = () => {
     } catch {}
     
     // Extend minimum splash times just enough to not flash abruptly
-    let delay = 2500; // Fresh load
+    let delay = 1000; // Fresh load
     if (isPostUpdate || isForcedUpdate) {
-      delay = 3500; // Update applied
+      delay = 1500; // Update applied
     } else if (!isFresh) {
-      delay = 1000; // Returning session
+      delay = 500; // Returning session
     }
 
     const timer = setTimeout(() => setMinSplashDone(true), delay); 
@@ -287,14 +287,14 @@ const AuthenticatedApp = () => {
                 setIsApplyingUpdates(true);
                 setApplyMessage('Found updates...');
                 window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
-                await new Promise(r => setTimeout(r, 2000));
+                await new Promise(r => setTimeout(r, 500));
                 setApplyMessage('Installing updates...');
                 window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Installing updates...' } }));
-                await new Promise(r => setTimeout(r, 2000));
+                await new Promise(r => setTimeout(r, 500));
                 
                 setApplyMessage('Applying updates...');
                 window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Applying updates...' } }));
-                await new Promise(r => setTimeout(r, 2000));
+                await new Promise(r => setTimeout(r, 500));
                 
                 if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
                 else if (reg.installing) reg.installing.postMessage({ type: 'SKIP_WAITING' });
@@ -303,7 +303,7 @@ const AuthenticatedApp = () => {
                 setIsApplyingUpdates(true);
                 setApplyMessage('Found updates...');
                 window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
-                await new Promise(r => setTimeout(r, 2000));
+                await new Promise(r => setTimeout(r, 500));
                 setApplyMessage('Installing updates...');
                 window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Installing updates...' } }));
                 
@@ -336,7 +336,7 @@ const AuthenticatedApp = () => {
                 if (installed) {
                   setApplyMessage('Applying updates...');
                   window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Applying updates...' } }));
-                  await new Promise(r => setTimeout(r, 2000));
+                  await new Promise(r => setTimeout(r, 500));
                   workerToSkip.postMessage({ type: 'SKIP_WAITING' });
                   return; // Let main.jsx handle reload
                 }
@@ -358,7 +358,7 @@ const AuthenticatedApp = () => {
               setIsApplyingUpdates(true);
               setApplyMessage('Found updates...');
               window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
-              await new Promise(r => setTimeout(r, 2000));
+              await new Promise(r => setTimeout(r, 500));
             }
             const dlMessage = !bibleIsCached ? 'Downloading offline Bible...' : 'Installing updates...';
             setIsApplyingUpdates(true);
@@ -461,15 +461,15 @@ const AuthenticatedApp = () => {
           setIsApplyingUpdates(true);
           setApplyMessage('Found updates...');
           window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
-          await new Promise(r => setTimeout(r, 2000));
+          await new Promise(r => setTimeout(r, 500));
           setApplyMessage('Installing updates...');
           window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Installing updates...' } }));
-          await new Promise(r => setTimeout(r, 2000));
+          await new Promise(r => setTimeout(r, 500));
           
           sessionStorage.setItem('kjb_sw_updated', 'app');
           setApplyMessage('Applying updates...');
           window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Applying updates...' } }));
-          await new Promise(r => setTimeout(r, 2000));
+          await new Promise(r => setTimeout(r, 500));
           
           workerToSkip.postMessage({ type: 'SKIP_WAITING' });
         }
