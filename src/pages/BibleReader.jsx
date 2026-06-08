@@ -1228,7 +1228,7 @@ export default function BibleReader() {
       </div>
 
       {!loading && !error && ((pos.abbr === 'MAL' && pos.chapter === 4) || (pos.abbr === 'REV' && pos.chapter === 22)) && (
-        <div className="text-center mt-20 mb-16 py-8"><p className={`text-sm text-muted-foreground tracking-widest uppercase ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`} style={{ fontSize: `${zoomLevel / 100}rem`, fontStyle: 'normal' }}>{pos.abbr === 'MAL' ? 'The End of the Prophets' : 'The End'}</p></div>
+        <div className="text-center mt-10 mb-6"><p className={`text-sm text-muted-foreground tracking-widest uppercase ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`} style={{ fontSize: `${zoomLevel / 100}rem`, fontStyle: 'normal' }}>{pos.abbr === 'MAL' ? 'The End of the Prophets' : 'The End'}</p></div>
       )}
 
       {!loading && !error && (
