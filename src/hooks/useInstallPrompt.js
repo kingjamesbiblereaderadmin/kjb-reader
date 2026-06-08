@@ -3,64 +3,92 @@ import { useState, useEffect } from 'react';
 const DISMISSED_KEY = 'kjb-install-dismissed';
 const INSTALLED_KEY = 'kjb-is-installed';
 
-let globalDeferredPrompt = null;
-let globalIsInstallable = false;
-let globalIsInstalled = false;
+class PWAInstallManager {
+  constructor() {
+    this.deferredPrompt = null;
+    this.isInstallable = false;
+    this.isInstalled = false;
 
-if (typeof window !== 'undefined') {
-  if (window.kjbDeferredPrompt) {
-    globalDeferredPrompt = window.kjbDeferredPrompt;
-    globalIsInstallable = true;
-  }
+    if (typeof window !== 'undefined') {
+      if (window.kjbDeferredPrompt) {
+        this.deferredPrompt = window.kjbDeferredPrompt;
+        this.isInstallable = true;
+      }
 
-  try {
-    if (localStorage.getItem(INSTALLED_KEY) === 'true') {
-      globalIsInstalled = true;
+      try {
+        if (localStorage.getItem(INSTALLED_KEY) === 'true') {
+          this.isInstalled = true;
+        }
+      } catch {}
+
+      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+        this.isInstalled = true;
+        try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
+      }
+      
+      window.addEventListener('beforeinstallprompt', (e) => {
+        console.log('[PWA] global beforeinstallprompt fired', e);
+        e.preventDefault();
+        this.deferredPrompt = e;
+        window.kjbDeferredPrompt = e;
+        this.isInstallable = true;
+        this.isInstalled = false;
+        try { localStorage.removeItem(INSTALLED_KEY); } catch {}
+        window.dispatchEvent(new Event('pwa-installable'));
+      });
+
+      window.addEventListener('appinstalled', () => {
+        console.log('[PWA] global app installed');
+        this.isInstalled = true;
+        this.isInstallable = false;
+        this.deferredPrompt = null;
+        window.kjbDeferredPrompt = null;
+        try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
+        window.dispatchEvent(new Event('pwa-installed'));
+      });
     }
-  } catch {}
-
-  if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-    globalIsInstalled = true;
-    try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
   }
-  
-  window.addEventListener('beforeinstallprompt', (e) => {
-    console.log('[PWA] global beforeinstallprompt fired', e);
-    e.preventDefault();
-    globalDeferredPrompt = e;
-    window.kjbDeferredPrompt = e;
-    globalIsInstallable = true;
-    globalIsInstalled = false;
-    try { localStorage.removeItem(INSTALLED_KEY); } catch {}
-    window.dispatchEvent(new Event('pwa-installable'));
-    window.dispatchEvent(new Event('pwa-installed'));
-  });
 
-  window.addEventListener('appinstalled', () => {
-    console.log('[PWA] global app installed');
-    globalIsInstalled = true;
-    globalIsInstallable = false;
-    globalDeferredPrompt = null;
-    try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
-    window.dispatchEvent(new Event('pwa-installed'));
-  });
+  async promptInstall() {
+    const promptEvent = this.deferredPrompt || window.kjbDeferredPrompt;
+    if (!promptEvent) {
+      return Promise.reject(new Error('No prompt available'));
+    }
+    
+    try {
+      promptEvent.prompt();
+      const { outcome } = await promptEvent.userChoice;
+      
+      this.deferredPrompt = null;
+      window.kjbDeferredPrompt = null;
+      this.isInstallable = false;
+      
+      if (outcome === 'accepted') {
+        this.isInstalled = true;
+        try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
+        window.dispatchEvent(new Event('pwa-installed')); 
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Failed to prompt install', err);
+      return Promise.reject(err);
+    }
+  }
 }
 
+const installManager = new PWAInstallManager();
+
 export function useInstallPrompt() {
-  const [deferredPrompt, setDeferredPrompt] = useState(globalDeferredPrompt);
-  const [isInstallable, setIsInstallable] = useState(globalIsInstallable);
-  const [isInstalled, setIsInstalled] = useState(globalIsInstalled);
+  const [isInstallable, setIsInstallable] = useState(installManager.isInstallable);
+  const [isInstalled, setIsInstalled] = useState(installManager.isInstalled);
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
-    const handleInstallable = () => {
-      setDeferredPrompt(globalDeferredPrompt);
-      setIsInstallable(globalIsInstallable);
-    };
+    const handleInstallable = () => setIsInstallable(installManager.isInstallable);
     const handleInstalled = () => {
-      setIsInstalled(globalIsInstalled);
-      setIsInstallable(globalIsInstallable);
-      setDeferredPrompt(globalDeferredPrompt);
+      setIsInstalled(installManager.isInstalled);
+      setIsInstallable(installManager.isInstallable);
     };
 
     window.addEventListener('pwa-installable', handleInstallable);
@@ -75,33 +103,7 @@ export function useInstallPrompt() {
     };
   }, []);
 
-  const promptInstall = async () => {
-    const promptEvent = globalDeferredPrompt || window.kjbDeferredPrompt;
-    if (!promptEvent) {
-      return Promise.reject(new Error('No prompt available'));
-    }
-    
-    try {
-      await promptEvent.prompt();
-      const { outcome } = await promptEvent.userChoice;
-      globalDeferredPrompt = null;
-      window.kjbDeferredPrompt = null;
-      setDeferredPrompt(null);
-      if (outcome === 'accepted') {
-        globalIsInstallable = false;
-        setIsInstallable(false);
-        globalIsInstalled = true;
-        setIsInstalled(true);
-        try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
-        window.dispatchEvent(new Event('pwa-installed')); 
-        return true;
-      }
-      return false;
-    } catch (err) {
-      console.error('Failed to prompt install', err);
-      return Promise.reject(err);
-    }
-  };
+  const promptInstall = () => installManager.promptInstall();
 
   const wasDismissed = () => {
     try { return !!localStorage.getItem(DISMISSED_KEY); } catch { return false; }
