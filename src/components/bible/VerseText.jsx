@@ -105,7 +105,15 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   const headingLabel = verse.heading ? verse.heading.toUpperCase() : null;
   
   const renderHeadingLabel = () => {
-    return headingLabel;
+    if (!headingLabel) return null;
+    if (!searchTerm || !searchTerm.trim()) return headingLabel;
+    const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escaped})`, 'gi');
+    if (!regex.test(headingLabel)) return headingLabel;
+    const parts = headingLabel.split(regex);
+    return parts.map((part, i) => 
+      regex.test(part) ? <mark key={i} style={{ backgroundColor: 'rgba(250, 204, 21, 0.55)', borderRadius: '3px', padding: '0 2px' }}>{part}</mark> : part
+    );
   };
 
   // In line mode, the heading sits in the same flex row as a verse: a transparent
