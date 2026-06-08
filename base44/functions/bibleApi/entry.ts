@@ -1,3 +1,5 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+
 // In-memory cache
 let bibleData = null;
 let chapterCache = {};
@@ -244,6 +246,12 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'extractProperNouns') {
+      // Resource-intensive admin-only tool: require an authenticated admin.
+      const base44 = createClientFromRequest(req);
+      const user = await base44.auth.me().catch(() => null);
+      if (user?.role !== 'admin') {
+        return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
+      }
       // Scan every verse and collect capitalized words that appear MID-SENTENCE
       // (i.e. not the first word after a sentence break), which are almost
       // always proper nouns in the KJV. Exclude words already covered by the
