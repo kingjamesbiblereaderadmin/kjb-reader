@@ -189,7 +189,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                     {isIOS() ? (
                       <>Tap <strong>Share</strong>, then <strong>"Add to Home Screen"</strong>.</>
                     ) : isMobile() ? (
-                      <>Use your browser menu → <strong>"Install app"</strong>.</>
+                      <>Tap <strong>⋮ Menu</strong>, then <strong>"Install app"</strong>.</>
                     ) : (
                       <>Click the <strong>Install</strong> icon in the address bar, or use the browser menu.</>
                     )}
