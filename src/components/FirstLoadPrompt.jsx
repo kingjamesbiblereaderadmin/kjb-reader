@@ -151,9 +151,9 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
         className="fixed inset-0 z-[99998] bg-black/50 backdrop-blur-md"
         onClick={handleClose}
       />
-      <div className="fixed bottom-20 sm:bottom-6 right-4 z-[99999] w-80 pointer-events-auto">
+      <div className="fixed top-12 bottom-20 sm:top-6 sm:bottom-6 right-4 z-[99999] w-80 pointer-events-none">
         <div
-          className="bg-card border border-border rounded-2xl shadow-2xl p-4 space-y-3 relative max-h-[calc(100dvh-7rem)] sm:max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain scrollbar-hide"
+          className="absolute bottom-0 right-0 w-full bg-card border border-border rounded-2xl shadow-2xl p-4 space-y-3 max-h-full overflow-y-auto overscroll-contain pointer-events-auto"
           onClick={e => e.stopPropagation()}
         >
           <div className="flex items-start justify-between gap-2 mb-1">

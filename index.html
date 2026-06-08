@@ -34,6 +34,7 @@
       window.addEventListener('beforeinstallprompt', function(e) {
         e.preventDefault();
         window.kjbDeferredPrompt = e;
+        window.dispatchEvent(new Event('pwa-installable'));
       });
       (function() {
         try {

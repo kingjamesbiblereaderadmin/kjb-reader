@@ -71,6 +71,7 @@ class PWAInstallManager {
         this.deferredPrompt = null;
         window.kjbDeferredPrompt = null;
         this.isInstallable = false;
+        window.dispatchEvent(new Event('pwa-installable'));
         
         if (outcome === 'accepted') {
           this.isInstalled = true;
