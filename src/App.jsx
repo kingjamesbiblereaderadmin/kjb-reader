@@ -129,12 +129,18 @@ const PageLoader = ({ isFadingOut, forcedText, updateCheckDone }) => {
   }, []);
   
   const isEffectivelyFirstVisit = isFirstVisit || updateType === 'bible_first_load';
-  let text = isEffectivelyFirstVisit ? "Welcome to KJB Reader..." : (!updateCheckDone ? "Starting KJB Reader..." : "Welcome back to KJB Reader...");
-             
+  
+  let text = "";
   if (dynamicText) {
     text = dynamicText;
   } else if (forcedText) {
     text = forcedText;
+  } else if (isEffectivelyFirstVisit) {
+    text = "Welcome to KJB Reader...";
+  } else if (!updateCheckDone) {
+    text = "Checking for updates...";
+  } else {
+    text = "Welcome back to KJB Reader...";
   }
 
   // Right before fading out, ensure it transitions smoothly
@@ -280,11 +286,8 @@ const AuthenticatedApp = () => {
         let hasAppUpdates = false;
         let hasBibleUpdates = false;
 
-        const lastAppUpdate = parseInt(sessionStorage.getItem('kjb_last_app_update') || '0');
-        const skipAppUpdates = Date.now() - lastAppUpdate < 5 * 60 * 1000; // 5 minute cooldown
-
         // 1. Check App/Code Updates (Skip if we just performed an update reload, to avoid loops)
-        if (!skipAppUpdates && (!justUpdated || justUpdated === 'bible')) {
+        if (!justUpdated || justUpdated === 'bible') {
           if ('serviceWorker' in navigator) {
             const reg = await navigator.serviceWorker.getRegistration();
             // ONLY trigger automatic update reload if there is ALREADY an active SW.
@@ -452,9 +455,6 @@ const AuthenticatedApp = () => {
     const checkNavUpdates = async () => {
       try {
         if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
-        
-        const lastAppUpdate = parseInt(sessionStorage.getItem('kjb_last_app_update') || '0');
-        if (Date.now() - lastAppUpdate < 5 * 60 * 1000) return; // 5 minute cooldown
         
         let hasAppUpdates = false;
         let workerToSkip = null;
