@@ -1,16 +1,11 @@
-import { exportVerses, cleanPrintUrl } from './exportVerses';
+import { exportVerses } from './exportVerses';
 import { SUBSCRIPTS } from './bibleSubscripts';
 import { formatVerseRange } from './readerHelpers';
 
 // Print arbitrary inner HTML via a hidden iframe (no new tab / about:blank),
 // with a cleaned page-URL footer on the last page — matching the reader print.
 export function printHtml(innerHtml) {
-  const pageUrl = cleanPrintUrl();
-  const urlFooterHtml = pageUrl
-    ? `<div style="margin-top:18pt;font-size:8pt;color:#999;text-align:left;word-break:break-all;page-break-inside:avoid;break-inside:avoid;">${pageUrl.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`
-    : '';
-
-  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>\u200B</title><style>@page { margin: 1.5cm; } body { margin: 0 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }</style></head><body style="padding:20px;max-width:800px;margin:0 auto;color:#000;font-family:Georgia,serif;">${innerHtml}${urlFooterHtml}</body></html>`;
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>\u200B</title><style>@page { margin: 1.5cm; } body { margin: 0 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }</style></head><body style="padding:20px;max-width:800px;margin:0 auto;color:#000;font-family:Georgia,serif;">${innerHtml}</body></html>`;
 
   const iframe = document.createElement('iframe');
   iframe.style.position = 'fixed';
