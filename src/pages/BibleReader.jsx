@@ -1885,7 +1885,7 @@ export default function BibleReader() {
               .filter(v => !filterMode || selectedVerses.has(v.verse))
               .map((v, idx) => (
               <VerseText
-                key={v.verse}
+                key={`${pos.abbr}-${pos.chapter}-${v.verse}`}
                 verse={v}
                 highlight={parseInt(highlightVerse, 10) === parseInt(v.verse, 10) || highlightedVerses.has(parseInt(v.verse, 10))}
                 id={`v${v.verse}`}
