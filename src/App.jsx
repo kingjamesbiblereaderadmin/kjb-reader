@@ -135,14 +135,20 @@ const PageLoader = ({ isFadingOut, forcedText, updateCheckDone }) => {
     text = dynamicText;
   } else if (forcedText) {
     text = forcedText;
+  } else if (updateType && updateType !== 'bible_first_load') {
+    text = "Update complete!";
   }
 
   // Right before fading out, ensure it transitions smoothly
   useEffect(() => {
     if (isFadingOut && !dynamicText && !forcedText) {
-      setDynamicText(isEffectivelyFirstVisit ? "Ready to read..." : "Welcome back to KJB Reader...");
+      if (updateType && updateType !== 'bible_first_load') {
+        setDynamicText("Ready to read...");
+      } else {
+        setDynamicText(isEffectivelyFirstVisit ? "Ready to read..." : "Welcome back to KJB Reader...");
+      }
     }
-  }, [isFadingOut, dynamicText, forcedText, isEffectivelyFirstVisit]);
+  }, [isFadingOut, dynamicText, forcedText, isEffectivelyFirstVisit, updateType]);
 
   return (
     <div className={`fixed inset-0 z-[999999] bg-background flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
