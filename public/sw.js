@@ -1,6 +1,6 @@
 // KJB Reader Service Worker — offline-first app shell cache
-// updated worker 113
-const CACHE_NAME = 'kjb-shell-v20260608_195';
+// updated worker 114
+const CACHE_NAME = 'kjb-shell-v20260608_196';
 const OFFLINE_URL = '/offline.html';
 
 // App shell files to cache on install
