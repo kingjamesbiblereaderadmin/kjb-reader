@@ -191,7 +191,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                     ) : isMobile() ? (
                       <>Use your browser menu → <strong>"Install app"</strong>.</>
                     ) : (
-                      <>Use the browser menu to install.</>
+                      <>Click the <strong>Install</strong> icon in the address bar, or use the browser menu.</>
                     )}
                   </p>
                 </div>
