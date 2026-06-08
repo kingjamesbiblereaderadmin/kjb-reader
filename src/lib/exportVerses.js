@@ -684,6 +684,15 @@ export function exportPrint(items, query, filters, options = {}) {
   doc.open();
   doc.write(html);
   doc.close();
+  // Rewrite the iframe URL to the clean public path so the browser's native
+  // print footer shows a tidy URL instead of internal tracking params.
+  try {
+    const clean = cleanPrintUrl();
+    if (clean && iframe.contentWindow?.history?.replaceState) {
+      const u = new URL(clean);
+      iframe.contentWindow.history.replaceState(null, '', u.pathname + u.search + u.hash);
+    }
+  } catch (e) {}
 
   const triggerPrint = () => {
     try {

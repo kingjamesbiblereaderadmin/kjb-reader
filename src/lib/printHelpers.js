@@ -1,6 +1,19 @@
-import { exportVerses } from './exportVerses';
+import { exportVerses, cleanPrintUrl } from './exportVerses';
 import { SUBSCRIPTS } from './bibleSubscripts';
 import { formatVerseRange } from './readerHelpers';
+
+// Rewrite a print iframe's URL to the clean public URL so the browser's native
+// print footer shows the real public link instead of the preview/sandbox one.
+export function setPrintFrameUrl(iframe) {
+  try {
+    const clean = cleanPrintUrl();
+    if (clean && iframe.contentWindow?.history?.replaceState) {
+      // Only same-origin paths can be set; strip to path+query+hash.
+      const u = new URL(clean);
+      iframe.contentWindow.history.replaceState(null, '', u.pathname + u.search + u.hash);
+    }
+  } catch (e) {}
+}
 
 // Print arbitrary inner HTML via a hidden iframe (no new tab / about:blank),
 // with a cleaned page-URL footer on the last page — matching the reader print.
@@ -24,6 +37,7 @@ export function printHtml(innerHtml) {
   doc.open();
   doc.write(html);
   doc.close();
+  setPrintFrameUrl(iframe);
 
   if (iframe.contentWindow) {
     iframe.contentWindow.onafterprint = cleanup;
