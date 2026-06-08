@@ -461,10 +461,10 @@ export default function SettingsPage() {
             key={font.value}
             disabled={isDisabled}
             onClick={() => pickReaderFont(font.value)}
-            className={`w-full py-1.5 rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center border ${
+            className={`w-full py-3 rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center border ${
               isActive
                 ? 'bg-primary text-primary-foreground border-primary'
-                : 'bg-transparent text-foreground border-border hover:border-accent'
+                : 'bg-secondary/50 backdrop-blur-sm text-foreground border-border hover:border-accent'
             } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
             style={isA11yChoice ? undefined : { fontFamily: font.value }}
           >
@@ -475,7 +475,7 @@ export default function SettingsPage() {
         {a11yFont === 'default' && (
           <button
             onClick={() => pickReaderFont('serif')}
-            className="w-full py-1.5 rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center bg-transparent border border-border text-foreground hover:border-accent"
+            className="w-full py-3 rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center bg-secondary/50 backdrop-blur-sm border border-border text-foreground hover:border-accent"
           >
             Reset to Default
           </button>
@@ -515,13 +515,13 @@ export default function SettingsPage() {
                   setA11yFont(font.value);
                   setAccessibilityFont(font.value);
                 }}
-                className={`w-full py-1.5 px-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center border ${
+                className={`w-full py-3 px-4 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-left border ${
                   a11yFont === font.value
                     ? 'bg-primary text-primary-foreground border-primary'
-                    : 'bg-transparent text-foreground border-border hover:border-accent'
+                    : 'bg-secondary/50 backdrop-blur-sm text-foreground border-border hover:border-accent'
                 }`}
               >
-                <div className="flex flex-col items-center justify-center gap-0.5">
+                <div className="flex flex-col items-start justify-center gap-0.5">
                   <p className="font-sans text-sm font-medium" style={font.preview ? { fontFamily: font.preview } : undefined}>
                     {font.label}
                   </p>
@@ -533,7 +533,7 @@ export default function SettingsPage() {
           {a11yFont !== 'default' && (
             <button
               onClick={() => { setA11yFont('default'); setAccessibilityFont('default'); }}
-              className="w-full flex items-center justify-center gap-2 py-1.5 rounded-xl bg-transparent border border-destructive text-destructive font-sans text-sm font-medium hover:bg-destructive/10 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-secondary/50 backdrop-blur-sm border border-destructive text-destructive font-sans text-sm font-medium hover:bg-destructive/10 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Disable
@@ -828,10 +828,10 @@ export default function SettingsPage() {
                   key={font.value}
                   disabled={isDisabled}
                   onClick={() => pickVerseFont(font.value)}
-                  className={`px-4 py-1.5 rounded-xl font-sans text-sm font-medium border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
+                  className={`px-4 py-3 rounded-xl font-sans text-sm font-medium border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
                     isActive
                       ? 'bg-primary text-primary-foreground border-primary'
-                      : 'bg-transparent text-foreground border-border hover:border-accent'
+                      : 'bg-secondary/50 backdrop-blur-sm text-foreground border-border hover:border-accent'
                   } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
                   style={isA11yChoice ? undefined : { fontFamily: font.value }}
                 >
