@@ -100,9 +100,9 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     );
   }
 
-  // Psalm 119 acrostic stanza heading (ALEPH, BETH, …) — italic, no pilcrow,
+  // Psalm 119 acrostic stanza heading (ALEPH, BETH, …)
   // shown above the verse it precedes.
-  const headingLabel = verse.heading ? verse.heading.charAt(0) + verse.heading.slice(1).toLowerCase() : null;
+  const headingLabel = verse.heading ? verse.heading.toUpperCase() : null;
   
   const renderHeadingLabel = () => {
     if (!headingLabel) return null;
