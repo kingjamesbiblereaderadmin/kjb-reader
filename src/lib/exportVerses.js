@@ -88,7 +88,7 @@ function splitBySections(items) {
   const sections = [];
   
   if (old.length) {
-    sections.push({ title: 'Old Testament', isTestament: true, items: [] });
+    sections.push({ title: 'Old Testament', isTestament: true, items: old });
     const books = Array.from(new Set(old.map(it => it.bookName || it.book || '')));
     books.forEach(b => {
       const bookItems = old.filter(it => (it.bookName || it.book || '') === b);
@@ -97,7 +97,7 @@ function splitBySections(items) {
   }
   
   if (neu.length) {
-    sections.push({ title: 'New Testament', isTestament: true, items: [] });
+    sections.push({ title: 'New Testament', isTestament: true, items: neu });
     const books = Array.from(new Set(neu.map(it => it.bookName || it.book || '')));
     books.forEach(b => {
       const bookItems = neu.filter(it => (it.bookName || it.book || '') === b);
@@ -116,10 +116,13 @@ export function exportTxt(items, query, filters, options = {}) {
     : `${titlePrefix} — "${query}"\n${'='.repeat(50)}\n\n`;
   const sections = splitBySections(items);
   const body = sections.map(sec => {
-    if (sec.isTestament) return `${sec.title.toUpperCase()}\n${'='.repeat(sec.title.length)}`;
+    if (sec.isTestament) {
+      const t = `${sec.title.toUpperCase()} (${sec.items.length} verse${sec.items.length !== 1 ? 's' : ''})`;
+      return `${t}\n${'='.repeat(t.length)}`;
+    }
     const bookNameObj = sec.items[0]?.bookNameObj;
     const fullBookName = bookNameObj ? bookNameObj.name : sec.title;
-    const headingText = `${fullBookName}:`;
+    const headingText = `${fullBookName} (${sec.items.length} verse${sec.items.length !== 1 ? 's' : ''}):`;
     const heading = `${headingText}\n${'-'.repeat(headingText.length)}\n\n`;
     const verses = sec.items.map((it, idx) => {
       const isSpecial = it.isColophon || it.isSubscript;
@@ -149,10 +152,10 @@ export function exportDocx(items, query, filters, options = {}) {
   const titlePrefix = options.titlePrefix || 'KJB Search Results';
   const isReading = titlePrefix === 'KJB Reading';
   const rows = splitBySections(items).map(sec => {
-    if (sec.isTestament) return `<h2 style="font-family:Georgia,serif;font-size:15pt;margin:24pt 0 12pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;">${escapeHtml(sec.title.toUpperCase())}</h2>`;
+    if (sec.isTestament) return `<h2 style="font-family:Georgia,serif;font-size:15pt;margin:24pt 0 12pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;page-break-after:avoid;break-after:avoid;">${escapeHtml(sec.title.toUpperCase())} <span style="font-size:11pt;color:#666;font-weight:normal;">(${sec.items.length} verse${sec.items.length !== 1 ? 's' : ''})</span></h2>`;
     const bookNameObj = sec.items[0]?.bookNameObj;
     const fullBookName = bookNameObj ? bookNameObj.name : sec.title;
-    return `<h3 style="font-family:Georgia,serif;font-size:13pt;margin:18pt 0 8pt 0;">${escapeHtml(fullBookName)}:</h3>` +
+    return `<h3 style="font-family:Georgia,serif;font-size:13pt;margin:18pt 0 8pt 0;page-break-after:avoid;break-after:avoid;">${escapeHtml(fullBookName)} <span style="font-size:11pt;color:#666;font-weight:normal;">(${sec.items.length} verse${sec.items.length !== 1 ? 's' : ''})</span>:</h3>` +
       `<ul style="margin:0 0 12pt 0; padding-left: 20px;">` +
       sec.items.map((it, idx) => {
         const isSpecial = it.isColophon || it.isSubscript;
@@ -318,7 +321,7 @@ export function exportPdf(items, query, filters, options = {}) {
 
   const renderTestamentHeading = (title) => {
     y += 12;
-    ensureSpace(lineH + 10);
+    ensureSpace(lineH * 4); // Give it extra space so it doesn't get orphaned
     doc.setFont('times', 'bold');
     doc.setFontSize(15);
     doc.setTextColor(0);
@@ -328,7 +331,7 @@ export function exportPdf(items, query, filters, options = {}) {
 
   const renderStanzaHeading = (title) => {
     y += 12;
-    ensureSpace(lineH + 10);
+    ensureSpace(lineH * 3);
     doc.setFont('times', 'bold');
     doc.setFontSize(14);
     doc.setTextColor(0);
@@ -339,7 +342,7 @@ export function exportPdf(items, query, filters, options = {}) {
 
   const renderBookHeading = (title) => {
     y += 8;
-    ensureSpace(lineH + 6);
+    ensureSpace(lineH * 4); // Enough for book heading + some verses
     doc.setFont('times', 'bold');
     doc.setFontSize(13);
     doc.setTextColor(0);
@@ -349,11 +352,11 @@ export function exportPdf(items, query, filters, options = {}) {
 
   splitBySections(items).forEach(sec => {
     if (sec.isTestament) {
-      renderTestamentHeading(sec.title.toUpperCase());
+      renderTestamentHeading(`${sec.title.toUpperCase()} (${sec.items.length} VERSE${sec.items.length !== 1 ? 'S' : ''})`);
     } else {
       const bookNameObj = sec.items[0]?.bookNameObj;
       const fullBookName = bookNameObj ? bookNameObj.name : sec.title;
-      renderBookHeading(`${fullBookName}:`);
+      renderBookHeading(`${fullBookName} (${sec.items.length} verse${sec.items.length !== 1 ? 's' : ''}):`);
       sec.items.forEach((it, idx) => {
         const hasPilcrow = (it.text || '').includes('¶');
         if (hasPilcrow && idx > 0) {
@@ -467,12 +470,12 @@ export function exportPrint(items, query, filters, options = {}) {
     rows = `<div style="text-align:justify;margin-top:20px;${options.columnMode ? 'column-count:2;column-gap:1.5cm;column-rule:1px solid #ccc;' : 'display:block;'}">${content}</div>`;
   } else {
     rows = splitBySections(items).map(sec => {
-      if (sec.isTestament) return `<h2 style="font-family:Georgia,serif;font-size:16pt;margin:30pt 0 16pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;">${escapeHtml(sec.title.toUpperCase())}</h2>`;
+      if (sec.isTestament) return `<h2 style="font-family:Georgia,serif;font-size:16pt;margin:30pt 0 16pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;page-break-after:avoid;break-after:avoid;">${escapeHtml(sec.title.toUpperCase())} <span style="font-size:13pt;color:#666;font-weight:normal;">(${sec.items.length} verse${sec.items.length !== 1 ? 's' : ''})</span></h2>`;
       
       const bookNameObj = sec.items[0]?.bookNameObj;
       const fullBookName = bookNameObj ? bookNameObj.name : sec.title;
       
-      return `<h3 style="font-family:Georgia,serif;font-size:14pt;margin:20pt 0 10pt 0;">${escapeHtml(fullBookName)}:</h3>` +
+      return `<h3 style="font-family:Georgia,serif;font-size:14pt;margin:20pt 0 10pt 0;page-break-after:avoid;break-after:avoid;">${escapeHtml(fullBookName)} <span style="font-size:12pt;color:#666;font-weight:normal;">(${sec.items.length} verse${sec.items.length !== 1 ? 's' : ''})</span>:</h3>` +
         `<ul style="margin:0 0 14pt 0; padding-left: 20px;">` +
         sec.items.map((it, idx) => {
           const hasPilcrow = (it.text || '').includes('¶');
@@ -481,9 +484,9 @@ export function exportPrint(items, query, filters, options = {}) {
             heading += `</ul><div style="height:12pt;"></div><ul style="margin:0 0 14pt 0; padding-left: 20px;">`;
           }
           if (it.heading) {
-            heading += `</ul><div style="margin:18pt 0 8pt 0;font-family:Georgia,serif;font-size:14pt;font-weight:bold;text-align:center;page-break-after:avoid;">${escapeHtml(it.heading.charAt(0) + it.heading.slice(1).toLowerCase())}</div><ul style="margin:0 0 14pt 0; padding-left: 20px;">`;
+            heading += `</ul><div style="margin:18pt 0 8pt 0;font-family:Georgia,serif;font-size:14pt;font-weight:bold;text-align:center;page-break-after:avoid;break-after:avoid;">${escapeHtml(it.heading.charAt(0) + it.heading.slice(1).toLowerCase())}</div><ul style="margin:0 0 14pt 0; padding-left: 20px;">`;
           }
-          return `${heading}<li style="margin:0 0 10pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;padding-left:4px;">` +
+          return `${heading}<li style="margin:0 0 10pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;padding-left:4px;page-break-inside:avoid;break-inside:avoid;">` +
           `&ldquo;${bracketsToItalicHtml(it.text, true)}&rdquo; ` +
           `<span style="font-size:10pt;color:#555;">&mdash; ${escapeHtml(it.ref)} (KJB)</span>` +
           `</li>`;
