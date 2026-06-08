@@ -546,6 +546,65 @@ const AuthenticatedApp = () => {
     preloadAllRoutes();
   }, []);
 
+  // Continuously watch for a newly-installed service worker and auto-apply it
+  // on the home page. This catches the common case where a new worker finishes
+  // installing AFTER the one-shot silent check already ran (so it would
+  // otherwise sit in "waiting" until a manual reload). Without this, bumping
+  // the worker version doesn't reload users on the home page.
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+    let isMounted = true;
+
+    const applyWaitingWorker = async (worker) => {
+      if (!isMounted || !worker) return;
+      // Only auto-apply on the home page; elsewhere it stays waiting until home.
+      if (window.location.pathname !== '/') return;
+      // Don't loop right after we just applied an update.
+      if (sessionStorage.getItem('kjb_sw_updated')) return;
+
+      setIsApplyingUpdates(true);
+      setApplyMessage('Found updates...');
+      window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
+      await new Promise(r => setTimeout(r, 500));
+      setApplyMessage('Applying updates...');
+      window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Applying updates...' } }));
+      await new Promise(r => setTimeout(r, 500));
+
+      sessionStorage.setItem('kjb_sw_updated', 'app');
+      sessionStorage.setItem('kjb_last_app_update', Date.now().toString());
+      worker.postMessage({ type: 'SKIP_WAITING' });
+      setTimeout(() => window.location.reload(), 1500); // Fallback if controllerchange fails
+    };
+
+    let cleanupFns = [];
+    navigator.serviceWorker.getRegistration().then((reg) => {
+      if (!reg || !isMounted) return;
+
+      // A worker already finished installing and is waiting.
+      if (reg.waiting && reg.active) applyWaitingWorker(reg.waiting);
+
+      // A new worker starts installing — wait for it to finish, then apply.
+      const onUpdateFound = () => {
+        const installing = reg.installing;
+        if (!installing) return;
+        const onState = () => {
+          if (installing.state === 'installed' && reg.active) {
+            applyWaitingWorker(installing);
+          }
+        };
+        installing.addEventListener('statechange', onState);
+        cleanupFns.push(() => installing.removeEventListener('statechange', onState));
+      };
+      reg.addEventListener('updatefound', onUpdateFound);
+      cleanupFns.push(() => reg.removeEventListener('updatefound', onUpdateFound));
+    });
+
+    return () => {
+      isMounted = false;
+      cleanupFns.forEach(fn => fn());
+    };
+  }, []);
+
   const [isApplyingUpdates, setIsApplyingUpdates] = useState(false);
   const [applyMessage, setApplyMessage] = useState('');
 
