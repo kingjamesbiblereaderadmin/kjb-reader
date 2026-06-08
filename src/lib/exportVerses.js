@@ -144,6 +144,41 @@ export function exportTxt(items, query, filters, options = {}) {
   downloadBlob(blob, `kjb-${sanitizeFilename(query)}${filterSuffix(filters)}.txt`);
 }
 
+// Highlight a search term in HTML text (safely skipping HTML tags)
+function highlightTermHtml(html, query, filters) {
+  if (!query) return html;
+  let term = query.trim();
+  const isQuoted = (term.startsWith('"') && term.endsWith('"')) || (term.startsWith('\u201C') && term.endsWith('\u201D'));
+  if (isQuoted && term.length >= 3) {
+    term = term.slice(1, -1).trim();
+  }
+  if (!term) return html;
+
+  const caseSensitive = isQuoted || (filters && filters.caseSensitive);
+  const wholeWord = isQuoted || (filters && filters.wholeWord);
+
+  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = wholeWord 
+    ? new RegExp(`(^|[^a-zA-Z'])(${escaped})(?=[^a-zA-Z']|$)`, caseSensitive ? 'g' : 'gi')
+    : new RegExp(`(${escaped})`, caseSensitive ? 'g' : 'gi');
+
+  const parts = html.split(/(<[^>]+>)/g);
+  for (let i = 0; i < parts.length; i += 2) {
+    if (parts[i]) {
+      if (wholeWord) {
+        parts[i] = parts[i].replace(re, (match, prefix, termMatch) => {
+          return `${prefix}<span style="background-color:#fef08a;color:inherit;">${termMatch}</span>`;
+        });
+      } else {
+        parts[i] = parts[i].replace(re, (match, termMatch) => {
+          return `<span style="background-color:#fef08a;color:inherit;">${termMatch}</span>`;
+        });
+      }
+    }
+  }
+  return parts.join('');
+}
+
 // ── DOCX (Word-compatible HTML) — italics preserved ──
 export function exportDocx(items, query, filters, options = {}) {
   const titlePrefix = options.titlePrefix || 'KJB Search Results';
@@ -166,7 +201,10 @@ export function exportDocx(items, query, filters, options = {}) {
           heading += `</ul><div style="margin:18pt 0 8pt 0;font-family:Georgia,serif;font-size:14pt;font-weight:bold;text-align:center;page-break-after:avoid;">${escapeHtml(it.heading.charAt(0) + it.heading.slice(1).toLowerCase())}</div><ul style="margin:0 0 12pt 0; padding-left: 20px;">`;
         }
         const textHtml = bracketsToItalicHtml(it.text, true, isSpecial);
-        const formattedText = isSpecial ? textHtml : `&ldquo;${textHtml}&rdquo;`;
+        let formattedText = isSpecial ? textHtml : `&ldquo;${textHtml}&rdquo;`;
+        if (!isReading && query) {
+          formattedText = highlightTermHtml(formattedText, query, filters);
+        }
         return `${heading}<li style="margin:0 0 8pt 0;font-family:Georgia,serif;font-size:12pt;${isSpecial ? 'list-style-type:none;text-align:center;color:#555;' : ''}">` +
         `${formattedText}<br/>` +
         `<span style="font-size:10pt;color:#555;">&mdash; ${escapeHtml(it.ref)} (KJB)</span>` +
@@ -488,8 +526,12 @@ export function exportPrint(items, query, filters, options = {}) {
           if (it.heading) {
             heading += `</ul><div style="margin:18pt 0 8pt 0;font-family:Georgia,serif;font-size:14pt;font-weight:bold;text-align:center;page-break-after:avoid;">${escapeHtml(it.heading.charAt(0) + it.heading.slice(1).toLowerCase())}</div><ul style="margin:0 0 14pt 0; padding-left: 20px;">`;
           }
+          let formattedText = `&ldquo;${bracketsToItalicHtml(it.text, true)}&rdquo;`;
+          if (!isReading && query) {
+            formattedText = highlightTermHtml(formattedText, query, filters);
+          }
           return `${heading}<li style="margin:0 0 10pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;padding-left:4px;page-break-inside:avoid;">` +
-          `&ldquo;${bracketsToItalicHtml(it.text, true)}&rdquo; ` +
+          `${formattedText} ` +
           `<span style="font-size:10pt;color:#555;">&mdash; ${escapeHtml(it.ref)} (KJB)</span>` +
           `</li>`;
         }).join('') + `</ul></div>`;
