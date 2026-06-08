@@ -240,11 +240,11 @@ const AuthenticatedApp = () => {
     } catch {}
     
     // Extend minimum splash times just enough to not flash abruptly
-    let delay = 1000; // Fresh load
+    let delay = 2500; // Fresh load
     if (isPostUpdate || isForcedUpdate) {
-      delay = 1500; // Update applied
+      delay = 3500; // Update applied
     } else if (!isFresh) {
-      delay = 400; // Returning session
+      delay = 1000; // Returning session
     }
 
     const timer = setTimeout(() => setMinSplashDone(true), delay); 
