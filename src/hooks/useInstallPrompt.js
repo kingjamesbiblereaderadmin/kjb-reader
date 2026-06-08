@@ -74,43 +74,44 @@ export function useInstallPrompt() {
     };
   }, []);
 
-  const promptInstall = () => {
+  const promptInstall = async () => {
     if (!globalDeferredPrompt) {
       if (globalIsInstallable) {
         // The prompt was used. The browser requires a fresh event to show the native popup again.
         // We'll quickly reload the page to get a fresh event so they can try again.
         window.location.reload();
       }
-      return Promise.resolve(false);
+      return false;
     }
     
     const promptEvent = globalDeferredPrompt;
-    globalDeferredPrompt = null;
-    setDeferredPrompt(null);
     
     try {
-      const promptPromise = promptEvent.prompt();
-      if (promptPromise) {
-        promptPromise.catch(err => console.error('prompt() failed:', err));
+      // Show the install prompt
+      promptEvent.prompt();
+      
+      // Wait for the user to respond to the prompt
+      const { outcome } = await promptEvent.userChoice;
+      
+      if (outcome === 'accepted') {
+        globalIsInstallable = false;
+        setIsInstallable(false);
+        globalIsInstalled = true;
+        setIsInstalled(true);
+        try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
+        window.dispatchEvent(new Event('pwa-installed')); 
       }
-      return promptEvent.userChoice.then((choice) => {
-        const outcome = choice.outcome;
-        if (outcome === 'accepted') {
-          globalIsInstallable = false;
-          setIsInstallable(false);
-          globalIsInstalled = true;
-          setIsInstalled(true);
-          try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
-          window.dispatchEvent(new Event('pwa-installed')); 
-        }
-        return outcome === 'accepted';
-      }).catch(err => {
-        console.error('Failed to get userChoice', err);
-        return false;
-      });
+      
+      // We've used the prompt, and can't use it again, throw it away
+      globalDeferredPrompt = null;
+      setDeferredPrompt(null);
+      
+      return outcome === 'accepted';
     } catch (err) {
       console.error('Failed to prompt install', err);
-      return Promise.resolve(false);
+      globalDeferredPrompt = null;
+      setDeferredPrompt(null);
+      return false;
     }
   };
 
