@@ -137,11 +137,11 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
                 fontFamily: verseFont,
                 fontWeight: 700,
                 fontSize: dynamicFontSize,
-                lineHeight: 1.45,
+                lineHeight: 2,
                 color: verseColor,
                 opacity: verseOpacity,
                 textShadow: '0 3px 10px rgba(0,0,0,0.4)',
-                maxWidth: '880px',
+                maxWidth: '960px',
               }}
             >
               {/* Force KJB italic words (<em>) to render italic in every font */}
@@ -150,10 +150,10 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             </blockquote>
             <p
               style={{
-                marginTop: '20px',
+                marginTop: '44px',
                 fontFamily: verseFont,
                 fontWeight: 700,
-                fontSize: '32px',
+                fontSize: '26px',
                 color: verseColor,
                 opacity: Math.min(1, verseOpacity + 0.05),
                 textShadow: '0 2px 6px rgba(0,0,0,0.35)',

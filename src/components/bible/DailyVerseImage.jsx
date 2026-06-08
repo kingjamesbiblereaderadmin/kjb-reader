@@ -921,7 +921,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
           </blockquote>
           <p 
-            className="text-lg md:text-xl font-semibold mt-8 text-center"
+            className="text-base md:text-lg font-semibold mt-12 text-center"
             style={{ 
               opacity: Math.min(1, textOpacity + 0.05), 
               color: textColor, 
@@ -1162,7 +1162,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           }}
         >
           <div
-            className={`relative max-w-4xl w-full mx-4 p-8 md:p-12 rounded-2xl shadow-2xl text-center ${gradientClass}`}
+            className={`relative max-w-6xl w-full mx-4 p-8 md:p-12 rounded-2xl shadow-2xl text-center ${gradientClass}`}
             style={bgStyle}
             onClick={(e) => {
               e.preventDefault();
@@ -1210,19 +1210,20 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               {isOffline ? 'Offline Verse of the Day' : 'Verse of the Day'}
             </p>
             <blockquote 
-              className={`leading-relaxed mb-8 [&_em]:italic ${fontFamily === 'cursive' ? 'kjb-verse-card cursive-em-style' : ''} ${lightboxTextClass}`}
+              className={`mb-12 [&_em]:italic ${fontFamily === 'cursive' ? 'kjb-verse-card cursive-em-style' : ''} ${lightboxTextClass}`}
               style={{ 
                 color: textColor, 
                 opacity: textOpacity, 
                 fontFamily: resolvedFont,
                 fontWeight: '700',
+                lineHeight: '2',
                 textShadow: '0 2px 8px rgba(0,0,0,0.3)'
               }}
             >
               "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
             </blockquote>
             <p 
-              className="text-lg md:text-xl font-semibold mt-8"
+              className="text-base md:text-lg font-semibold mt-12"
               style={{ 
                 opacity: Math.min(1, textOpacity + 0.05), 
                 color: textColor, 
