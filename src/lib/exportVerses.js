@@ -84,9 +84,8 @@ function cleanPrintUrl() {
     }
     // preview-sandbox--<id>.base44.app → <id>.base44.app
     u.hostname = u.hostname.replace(/^preview-sandbox--/, '');
-    // Strip internal navigation/tracking params
+    // Strip internal navigation/tracking params (keep `q` — it's the search term)
     u.searchParams.delete('from');
-    u.searchParams.delete('q');
     u.searchParams.delete('refresh');
     u.searchParams.delete('updated');
     return u.href;
