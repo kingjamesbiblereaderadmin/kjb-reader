@@ -181,7 +181,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             <div className="rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 p-2.5 sm:p-3">
               <p className="font-sans text-[10px] sm:text-xs text-amber-700 dark:text-amber-400 font-medium leading-snug flex items-start gap-1.5">
                 <span className="shrink-0 leading-none mt-0.5">⚠️</span>
-                <span>You're in an incognito / guest window. App install and notifications won't work, and your settings will be erased when you close this window.</span>
+                <span>You're in a private window (Incognito, InPrivate, or Guest). App install and notifications won't work, and your settings will be erased when you close this window.</span>
               </p>
             </div>
           )}

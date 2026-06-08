@@ -35,7 +35,7 @@ const inIframe = () => {
 };
 
 const LAST_REVISED = 'June 8th, 2026';
-const WORKER_VERSION = 'v20260608_229';
+const WORKER_VERSION = 'v20260608_230';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -884,7 +884,7 @@ export default function SettingsPage() {
           <div className="rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 p-3">
             <p className="font-sans text-xs text-amber-700 dark:text-amber-400 font-medium leading-snug flex items-start gap-1.5">
               <span className="shrink-0 leading-none mt-0.5">⚠️</span>
-              <span>You're in an incognito / guest window — installing the app won't work here. Open the app in a normal window to install it.</span>
+              <span>You're in a private window (Incognito, InPrivate, or Guest) — installing the app won't work here. Open the app in a normal window to install it.</span>
             </p>
           </div>
         )}
@@ -1179,7 +1179,7 @@ export default function SettingsPage() {
           <div className="rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 p-3">
             <p className="font-sans text-xs text-amber-700 dark:text-amber-400 font-medium leading-snug flex items-start gap-1.5">
               <span className="shrink-0 leading-none mt-0.5">⚠️</span>
-              <span>You're in an incognito / guest window — notifications are unreliable here and won't persist after you close the window.</span>
+              <span>You're in a private window (Incognito, InPrivate, or Guest) — notifications are unreliable here and won't persist after you close the window.</span>
             </p>
           </div>
         )}
