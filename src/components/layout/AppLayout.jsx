@@ -208,18 +208,32 @@ export default function AppLayout() {
               </div>
             </Link>
           ) : (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setMenuOpen(false);
-                navigate(-1);
-              }}
-              className="flex items-center gap-1 pl-2 pr-4 h-12 -ml-3 rounded-xl hover:bg-secondary/50 active:bg-secondary transition-colors text-foreground flex-shrink-0 pointer-events-auto touch-manipulation cursor-pointer"
-            >
-              <ChevronLeft className="w-6 h-6 pointer-events-none" />
-              <span className="font-sans text-sm font-medium hidden sm:inline pointer-events-none">Back</span>
-            </button>
+            <div className="flex items-center -ml-3 flex-shrink-0 pointer-events-auto">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMenuOpen(false);
+                  navigate(-1);
+                }}
+                className="flex items-center gap-1 pl-2 pr-2 sm:pr-3 h-12 rounded-xl hover:bg-secondary/50 active:bg-secondary transition-colors text-foreground touch-manipulation cursor-pointer"
+                title="Back"
+              >
+                <ChevronLeft className="w-6 h-6 pointer-events-none" />
+                <span className="font-sans text-sm font-medium hidden sm:inline pointer-events-none">Back</span>
+              </button>
+              <Link
+                to="/"
+                onClick={() => {
+                  setMenuOpen(false);
+                  scrollMainToTop();
+                }}
+                className="flex items-center justify-center w-10 h-12 rounded-xl hover:bg-secondary/50 active:bg-secondary transition-colors text-foreground touch-manipulation cursor-pointer"
+                title="Home"
+              >
+                <Home className="w-5 h-5 pointer-events-none text-muted-foreground hover:text-foreground transition-colors" />
+              </Link>
+            </div>
           )}
 
           {/* Search - expands to fill all available space so icons sit flush right */}
