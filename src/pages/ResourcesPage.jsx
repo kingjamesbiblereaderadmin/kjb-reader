@@ -521,13 +521,21 @@ function WhyKJBSection({ expanded, toggle }) {
 function PreachersSection({ openPreachers, togglePreacher }) {
   return (
     <div className="mb-10">
-      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700/60 mb-4">
-        <Users className="w-4 h-4 text-amber-600" />
-        <h2 className="font-sans font-semibold text-sm text-amber-600">Verified KJB Preachers</h2>
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700/60 mb-2">
+            <Users className="w-4 h-4 text-amber-600" />
+            <h2 className="font-sans font-semibold text-sm text-amber-600">Verified KJB Preachers</h2>
+          </div>
+          <p className="font-sans text-xs text-muted-foreground">
+            KJB-believing, soul-winning preachers — tap to see all their links
+          </p>
+        </div>
+        <CopyButton 
+          text={`Verified KJB Preachers\n\n${PREACHERS.map(p => `${p.name}\n${p.desc}\n${p.links.join('\n')}`).join('\n\n')}`} 
+          className="p-2 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/40 text-amber-700 dark:text-amber-400 transition-colors flex-shrink-0 cursor-pointer" 
+        />
       </div>
-      <p className="font-sans text-xs text-muted-foreground mb-3">
-        KJB-believing, soul-winning preachers — tap to see all their links
-      </p>
       <div className="space-y-2">
         {PREACHERS.map((preacher, idx) => {
           const isOpen = !!openPreachers[preacher.name];
