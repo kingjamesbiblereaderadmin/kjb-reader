@@ -11,7 +11,9 @@ if (typeof window !== 'undefined') {
   }
   
   window.addEventListener('beforeinstallprompt', (event) => {
-    event.preventDefault();      // Prevent auto-prompt
+    // We intentionally do NOT call event.preventDefault() here.
+    // This allows the browser to use its default API to automatically 
+    // show the native install prompt (e.g. the mini-infobar on Android).
     deferredPrompt = event;      // Save the event for later
     window.kjbDeferredPrompt = event;
     window.dispatchEvent(new Event('pwa-installable'));
