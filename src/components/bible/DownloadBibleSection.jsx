@@ -8,12 +8,12 @@ function Toggle({ active, onClick, icon: Icon, label }) {
   return (
     <button
       onClick={onClick}
-      className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
+      className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
         active ? 'bg-primary text-primary-foreground border-primary' : 'bg-transparent text-foreground border-border hover:border-accent'
       }`}
     >
-      <Icon className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
-      <span className="font-sans text-xs sm:text-sm font-medium">{label}</span>
+      <Icon className="w-3.5 h-3.5" />
+      <span className="font-sans text-xs font-medium">{label}</span>
     </button>
   );
 }
