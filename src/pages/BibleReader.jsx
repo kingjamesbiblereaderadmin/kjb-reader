@@ -784,10 +784,10 @@ export default function BibleReader() {
   const isGenesisChapterOne = pos.abbr === 'GEN' && pos.chapter === 1;
 
   return (
-    <div onClick={(e) => { if (!e.target.closest('.kjb-verse-container, h1, h2, h3, .kjb-subscript, .kjb-colophon, #kjb-colophon-anchor, #kjb-subscript-anchor, button, a')) { setHighlightVerse(null); setHighlightSection(null); if (!selectMode) setHighlightedVerses(new Set()); } }} className={`w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-3 ${hideHeader ? 'pt-16' : ''}`}>
+    <div onClick={(e) => { if (!e.target.closest('.kjb-verse-container, h1, h2, h3, .kjb-subscript, .kjb-colophon, #kjb-colophon-anchor, #kjb-subscript-anchor, button, a')) { setHighlightVerse(null); setHighlightSection(null); if (!selectMode) setHighlightedVerses(new Set()); } }} className={`w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-3 ${hideHeader ? 'pt-16' : ''}`}>
       {!hideHeader && (
         <div ref={topRef} className="print:hidden sticky top-0 z-[100] border-b border-border pb-2 pt-2 mb-2 relative shadow-sm -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 bg-background before:content-[''] before:absolute before:bottom-full before:left-0 before:right-0 before:h-12 before:bg-background">
-          <div className="flex flex-wrap items-stretch justify-stretch gap-1.5 w-full max-w-7xl mx-auto [&>button:not(.kjb-fixed-btn)]:flex-grow [&>button:not(.kjb-fixed-btn)]:basis-auto [&>div.relative]:flex-grow [&>div.relative>button]:w-full">
+          <div className="flex flex-wrap items-stretch justify-stretch gap-1.5 w-full max-w-[120rem] mx-auto [&>button:not(.kjb-fixed-btn)]:flex-grow [&>button:not(.kjb-fixed-btn)]:basis-auto [&>div.relative]:flex-grow [&>div.relative>button]:w-full">
             <div className="relative flex">
               <button
                 onClick={() => { setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}

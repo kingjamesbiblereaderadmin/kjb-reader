@@ -316,7 +316,7 @@ const VERSE_TEXTS = {
 
 export default function GospelPage() {
   return (
-    <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-10">
+    <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-10">
       {/* Header */}
       <div className="text-center mb-10">
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/30 mb-4">
