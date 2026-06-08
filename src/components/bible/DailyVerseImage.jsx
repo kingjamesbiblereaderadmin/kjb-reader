@@ -921,11 +921,12 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
           </blockquote>
           <p 
-            className="text-base md:text-lg font-semibold mt-6 text-center"
+            className="text-base md:text-lg font-semibold mt-4 text-center"
             style={{ 
               opacity: Math.min(1, textOpacity + 0.05), 
               color: textColor, 
               fontFamily: resolvedFont,
+              lineHeight: '1.3',
               textShadow: '0 1px 4px rgba(0,0,0,0.3)'
             }}
           >
@@ -950,7 +951,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {/* Date display — naturally stacked at the bottom of the content flow */}
-      <div className="mt-auto pt-2 flex flex-col items-center justify-center w-full relative z-10">
+      <div className="mt-auto pt-6 flex flex-col items-center justify-center w-full relative z-10">
         <span
           className="whitespace-nowrap"
           style={{
