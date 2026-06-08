@@ -128,19 +128,26 @@ export default function CurrentlyReadingIndicator({
       )}
       {onClear && (
         <button
+          id="kjb-currently-reading-clear-btn"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             onClear();
+            if (window.isKjbClearing) return;
+            window.isKjbClearing = true;
             const clearBtn = document.getElementById('kjb-reading-range-clear-btn');
             if (clearBtn) clearBtn.click();
+            window.isKjbClearing = false;
           }}
           onTouchEnd={(e) => {
             e.preventDefault();
             e.stopPropagation();
             onClear();
+            if (window.isKjbClearing) return;
+            window.isKjbClearing = true;
             const clearBtn = document.getElementById('kjb-reading-range-clear-btn');
             if (clearBtn) clearBtn.click();
+            window.isKjbClearing = false;
           }}
           title={clearLabel}
           className="ml-0.5 p-0.5 rounded hover:bg-black/20 transition-all duration-200 hover:scale-110 active:scale-95 flex-shrink-0"
