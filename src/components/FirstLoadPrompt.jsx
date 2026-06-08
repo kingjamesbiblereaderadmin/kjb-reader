@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, X, Share, MonitorSmartphone, Download, Accessibility, Palette, Type } from 'lucide-react';
+import { Bell, X, Share, MonitorSmartphone, Download, Accessibility, Palette, Type, Moon, Sun, Monitor } from 'lucide-react';
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
 import ThemeColorPicker from '@/components/bible/ThemeColorPicker';
+import { useTheme } from '@/lib/themeContext';
 
 const VERSE_FONTS = [
   { value: 'serif', label: 'Serif' },
@@ -37,6 +38,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     'Notification' in window && Notification.permission === 'granted'
   );
   const [a11yFont, setA11yFont] = useState(getAccessibilityFont);
+  const { mode, setMode } = useTheme();
   const [readerFontFamily, setReaderFontFamily] = useState(() => {
     try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
   });
@@ -196,6 +198,39 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
               )}
             </div>
           )}
+
+          {/* Theme Mode */}
+          <div className="rounded-xl bg-secondary/40 border border-border p-2.5">
+            <div className="flex items-center gap-1.5 mb-2 px-0.5">
+              <Monitor className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <span className="font-sans text-xs font-medium text-foreground">Theme Mode</span>
+            </div>
+            <div className="grid grid-cols-3 gap-1.5">
+              {[
+                { id: 'light', label: 'Light', icon: <Sun className="w-3.5 h-3.5" /> },
+                { id: 'dark', label: 'Dark', icon: <Moon className="w-3.5 h-3.5" /> },
+                { id: 'auto', label: 'Auto', icon: <Monitor className="w-3.5 h-3.5" /> },
+              ].map(opt => {
+                const isActive = mode === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); setMode(opt.id); }}
+                    onPointerDown={e => e.stopPropagation()}
+                    className={`flex flex-col items-center gap-1 px-1 py-1.5 rounded-lg border font-sans text-[10px] font-medium transition-all touch-manipulation ${
+                      isActive
+                        ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                        : 'bg-card text-foreground border-border hover:border-accent'
+                    }`}
+                  >
+                    {opt.icon}
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           {/* Read Font */}
           <div className="rounded-xl bg-secondary/40 border border-border p-2.5">
