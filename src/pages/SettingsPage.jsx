@@ -228,17 +228,17 @@ export default function SettingsPage() {
       alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
       return;
     }
-
-    // Browsers block the permission popup inside cross-origin iframes (e.g. the
-    // app preview window). Tell the user to open the app in its own tab.
-    if (inIframe()) {
-      alert('To enable notifications, please open the app in its own browser tab (not the preview window). The permission request is blocked inside embedded previews.');
-      return;
-    }
     
     try {
       const result = await requestNotificationPermission();
       setNotifPermission(result);
+
+      // If the OS popup never appeared and permission is still 'default', the
+      // request was suppressed (common on iOS Safari before Add-to-Home-Screen).
+      if (result === 'denied' && Notification.permission === 'default') {
+        alert('Your browser did not show the notification prompt. On iPhone/iPad, add the app to your Home Screen first (Share → Add to Home Screen), then enable notifications from there.');
+        return;
+      }
       
       if (result === 'granted' || result === 'unsupported') {
         setNotifEnabled(true);
