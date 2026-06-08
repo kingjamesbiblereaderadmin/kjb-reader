@@ -20,13 +20,14 @@ function CopyButton({ text, className }) {
     setTimeout(() => setCopied(false), 2000);
   };
   return (
-    <button
+    <div
+      role="button"
       onClick={handleCopy}
-      className={className || "p-1.5 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"}
-      title="Copy link"
+      className={className || "p-1.5 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors cursor-pointer"}
+      title="Copy text"
     >
       {copied ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-    </button>
+    </div>
   );
 }
 
@@ -472,12 +473,18 @@ function WhyKJBSection({ expanded, toggle }) {
         onClick={toggle}
         className="w-full bg-gradient-to-r from-amber-50 to-amber-50 dark:from-amber-900/20 dark:to-amber-900/20 border border-amber-200 dark:border-amber-900/30 rounded-xl p-4 hover:border-amber-300 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] text-left">
         
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="font-serif font-bold text-lg text-foreground mb-1">{WHY_KJB.title}</h2>
             <p className="font-sans text-sm text-muted-foreground">{WHY_KJB.desc}</p>
           </div>
-          <ChevronDown className={`w-5 h-5 text-muted-foreground flex-shrink-0 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <CopyButton 
+              text={`${WHY_KJB.title}\n${WHY_KJB.desc}\n\n${WHY_KJB.content.map(item => `${item.title}\n${item.text}\n${item.links ? item.links.map(l => l.url).join('\n') : ''}`).join('\n\n')}`} 
+              className="p-2 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/40 text-amber-700 dark:text-amber-400 transition-colors cursor-pointer" 
+            />
+            <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expanded ? 'rotate-180' : ''}`} />
+          </div>
         </div>
       </button>
       {expanded &&
@@ -537,7 +544,13 @@ function PreachersSection({ openPreachers, togglePreacher }) {
                   <p className="font-sans text-xs text-muted-foreground truncate">{preacher.desc}</p>
                   }
                 </div>
-                <ChevronDown className={`w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <CopyButton 
+                    text={`${preacher.name}\n${preacher.desc}\n\n${preacher.links.join('\n')}`} 
+                    className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors cursor-pointer" 
+                  />
+                  <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                </div>
               </button>
               {isOpen &&
               <div className="border-t border-border px-4 pb-4 pt-3 bg-background/40 space-y-2">
@@ -691,7 +704,13 @@ export default function ResourcesPage() {
             </div>
             <p className="font-sans text-xs text-muted-foreground">Contact and ministry websites</p>
           </div>
-          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.ministry ? 'rotate-180' : ''}`} />
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <CopyButton 
+              text={`God is Gracious 1031 Ministries\nhttps://godisgracious1031ministriescom.odoo.com/\n\nContact the Ministry\nKingjamesbiblereader.com@outlook.com`} 
+              className="p-2 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/40 text-purple-600 dark:text-purple-400 transition-colors cursor-pointer" 
+            />
+            <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.ministry ? 'rotate-180' : ''}`} />
+          </div>
         </button>
         {expandedSections.ministry && (
         <div className="p-5 pt-0 space-y-2">
@@ -753,9 +772,15 @@ export default function ResourcesPage() {
                     <Icon className={`w-5 h-5 ${section.color}`} />
                     <h2 className={`font-sans font-semibold ${section.color}`}>{section.category}</h2>
                   </div>
-                  {section.expandable &&
-                    <ChevronDown className={`w-4 h-4 ${section.color} flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <CopyButton 
+                      text={`${section.category}\n\n${section.items.map(item => `${item.title}\n${item.desc}\n${item.url}`).join('\n\n')}`} 
+                      className={`p-1.5 rounded-md hover:bg-black/5 dark:hover:bg-white/10 ${section.color} transition-colors cursor-pointer`} 
+                    />
+                    {section.expandable &&
+                      <ChevronDown className={`w-4 h-4 ${section.color} transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                     }
+                  </div>
                 </div>
               </button>
               {isOpen &&

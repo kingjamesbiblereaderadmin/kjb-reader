@@ -20,13 +20,14 @@ function CopyButton({ text, className }) {
     setTimeout(() => setCopied(false), 2000);
   };
   return (
-    <button
+    <div
+      role="button"
       onClick={handleCopy}
-      className={className || "p-1.5 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"}
-      title="Copy link"
+      className={className || "p-1.5 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors cursor-pointer"}
+      title="Copy text"
     >
       {copied ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-    </button>
+    </div>
   );
 }
 import { jsPDF } from 'jspdf';
@@ -342,7 +343,10 @@ export default function GospelPage() {
             <AlertCircle className="w-5 h-5 text-red-500" />
           </div>
           <div className="flex-1">
-            <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Believe you are a sinner that deserves hell</h3>
+            <div className="flex items-start justify-between gap-4 mb-2">
+              <h3 className="font-serif text-xl font-semibold text-foreground">Believe you are a sinner that deserves hell</h3>
+              <CopyButton text={`1. Believe you are a sinner that deserves hell\n\n${VERSE_TEXTS['Rom3:20']}\n\n${VERSE_TEXTS['Psa9:17']}`} className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors flex-shrink-0 cursor-pointer" />
+            </div>
             <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
               {VERSE_TEXTS['Rom3:20']}
             </blockquote>
@@ -362,7 +366,10 @@ export default function GospelPage() {
             <CheckCircle className="w-5 h-5 text-blue-500" />
           </div>
           <div className="flex-1">
-            <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Believe that Jesus is God manifested in the flesh</h3>
+            <div className="flex items-start justify-between gap-4 mb-2">
+              <h3 className="font-serif text-xl font-semibold text-foreground">Believe that Jesus is God manifested in the flesh</h3>
+              <CopyButton text={`2. Believe that Jesus is God manifested in the flesh\n\n${VERSE_TEXTS['1Tim3:16']}`} className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors flex-shrink-0 cursor-pointer" />
+            </div>
             <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
               {VERSE_TEXTS['1Tim3:16']}
             </blockquote>
@@ -378,7 +385,10 @@ export default function GospelPage() {
             <CheckCircle className="w-5 h-5 text-yellow-500" />
           </div>
           <div className="flex-1">
-            <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Believe he died, shed his blood, was buried and rose again</h3>
+            <div className="flex items-start justify-between gap-4 mb-2">
+              <h3 className="font-serif text-xl font-semibold text-foreground">Believe he died, shed his blood, was buried and rose again</h3>
+              <CopyButton text={`3. Believe he died, shed his blood, was buried and rose again\n\n"Moreover, brethren, I declare unto you the gospel which I preached unto you... how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." — 1 Corinthians 15:1–4\n\n${VERSE_TEXTS['Rom3:25']}`} className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors flex-shrink-0 cursor-pointer" />
+            </div>
             <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
               "Moreover, brethren, I declare unto you the gospel which I preached unto you, which also ye have received, and wherein ye stand; By which also ye are saved, if ye keep in memory what I preached unto you, unless ye have believed in vain. For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." — 1 Corinthians 15:1–4
             </blockquote>
@@ -397,8 +407,11 @@ export default function GospelPage() {
           <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center">
             <XCircle className="w-5 h-5 text-red-500" />
           </div>
-          <div>
-            <h3 className="font-serif text-xl font-semibold text-red-700 dark:text-red-400 mb-2">These do NOT make you a Christian:</h3>
+          <div className="flex-1">
+            <div className="flex items-start justify-between gap-4 mb-2">
+              <h3 className="font-serif text-xl font-semibold text-red-700 dark:text-red-400">These do NOT make you a Christian:</h3>
+              <CopyButton text={`These do NOT make you a Christian:\n• Repenting of sins\n• Making Jesus Lord\n• Being a member of a church\n• Tithing\n• Being baptised (water)\n• Saying a sinner's prayer\n• Confessing with your mouth\n• Lordship Salvation`} className="p-1.5 rounded-md hover:bg-red-500/10 text-red-500 hover:text-red-600 transition-colors flex-shrink-0 cursor-pointer" />
+            </div>
             <ul className="space-y-1 font-sans text-sm text-foreground/80">
               {[
                 'Repenting of sins',
@@ -422,7 +435,10 @@ export default function GospelPage() {
 
       {/* OSAS */}
       <div className="bg-card border border-border rounded-xl p-6 mb-10">
-        <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Once Saved, Always Saved</h3>
+        <div className="flex items-start justify-between gap-4 mb-2">
+          <h3 className="font-serif text-xl font-semibold text-foreground">Once Saved, Always Saved</h3>
+          <CopyButton text={`Once Saved, Always Saved\n\nA believer who has trusted the gospel cannot lose salvation, no matter what happens in their life. God's gift of eternal life is just that — eternal.\n\n"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." — Ephesians 1:13`} className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors flex-shrink-0 cursor-pointer" />
+        </div>
         <p className="font-sans text-sm text-foreground/80 mb-3">
           A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life. God's gift of eternal life is just that — eternal.
         </p>
