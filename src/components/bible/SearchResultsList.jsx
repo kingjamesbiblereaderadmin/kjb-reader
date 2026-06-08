@@ -61,12 +61,19 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
 
   // Group results by testament → book, preserving canonical order and each
   // result's original flat index (used for keyboard focus, selection, navigation).
-  const { groups, otCount, ntCount } = useMemo(() => {
+  const { groups, otCount, ntCount, otVerses, ntVerses } = useMemo(() => {
     const byBook = new Map(); // apiName -> { book, items: [{ r, i }], count }
     let ot = 0, nt = 0;
+    let otV = 0, ntV = 0;
     results.forEach((r, i) => {
       const occ = countOccurrences(r.text, highlightTerm, highlightCaseSensitive);
-      if (NT_BOOKS.has(r.book)) nt += occ; else ot += occ;
+      if (NT_BOOKS.has(r.book)) {
+        nt += occ;
+        ntV++;
+      } else {
+        ot += occ;
+        otV++;
+      }
       if (!byBook.has(r.book)) {
         byBook.set(r.book, { book: r.book, items: [], count: 0 });
       }
@@ -84,6 +91,8 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
       groups: ordered.map(g => ({ ...g, isNT: NT_BOOKS.has(g.book) })),
       otCount: ot,
       ntCount: nt,
+      otVerses: otV,
+      ntVerses: ntV,
     };
   }, [results, highlightTerm, highlightCaseSensitive]);
 
@@ -212,11 +221,11 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                     className="flex items-center gap-1 font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors print:text-black"
                   >
                     {otExpanded ? <ChevronDown className="w-3 h-3 print:hidden" /> : <ChevronRight className="w-3 h-3 print:hidden" />}
-                    Old Testament <span className="font-normal normal-case text-muted-foreground/60 print:text-black/60">[{otCount}]</span>
+                    Old Testament <span className="font-normal normal-case text-muted-foreground/60 print:text-black/60">[{otVerses} verse{otVerses !== 1 ? 's' : ''}, {otCount} occurrence{otCount !== 1 ? 's' : ''}]</span>
                   </button>
                 ) : (
                   <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground print:text-black">
-                    Old Testament <span className="font-normal normal-case text-muted-foreground/60 print:text-black/60">[{otCount}]</span>
+                    Old Testament <span className="font-normal normal-case text-muted-foreground/60 print:text-black/60">[{otVerses} verse{otVerses !== 1 ? 's' : ''}, {otCount} occurrence{otCount !== 1 ? 's' : ''}]</span>
                   </p>
                 )}
                 {ntCount > 0 && (
@@ -237,11 +246,11 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                     className="flex items-center gap-1 font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors print:text-black"
                   >
                     {ntExpanded ? <ChevronDown className="w-3 h-3 print:hidden" /> : <ChevronRight className="w-3 h-3 print:hidden" />}
-                    New Testament <span className="font-normal normal-case text-muted-foreground/60 print:text-black/60">[{ntCount}]</span>
+                    New Testament <span className="font-normal normal-case text-muted-foreground/60 print:text-black/60">[{ntVerses} verse{ntVerses !== 1 ? 's' : ''}, {ntCount} occurrence{ntCount !== 1 ? 's' : ''}]</span>
                   </button>
                 ) : (
                   <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground print:text-black">
-                    New Testament <span className="font-normal normal-case text-muted-foreground/60 print:text-black/60">[{ntCount}]</span>
+                    New Testament <span className="font-normal normal-case text-muted-foreground/60 print:text-black/60">[{ntVerses} verse{ntVerses !== 1 ? 's' : ''}, {ntCount} occurrence{ntCount !== 1 ? 's' : ''}]</span>
                   </p>
                 )}
                 {otCount > 0 && (
