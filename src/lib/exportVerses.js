@@ -575,7 +575,7 @@ export function exportPrint(items, query, filters, options = {}) {
     const now = new Date();
     const dateStr = now.toLocaleDateString() + ' at ' + now.toLocaleTimeString();
     const appUrl = (typeof window !== 'undefined' ? window.location.href : '');
-    currentParagraphs.push(`<div style="margin-top: 30pt; padding-top: 10pt; border-top: 1px solid #eee; font-size: 10pt; color: #777; text-align: center; page-break-inside: avoid; break-inside: avoid;">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}${appUrl ? `<br/>${escapeHtml(appUrl)}` : ''}</div>`);
+    currentParagraphs.push(`<div style="margin-top: 30pt; padding-top: 10pt; border-top: 1px solid #eee; font-size: 10pt; color: #777; page-break-inside: avoid; break-inside: avoid; column-span: all; display: flex; justify-content: space-between; align-items: flex-end; gap: 12pt;"><span style="text-align: left; word-break: break-all; flex: 1;">${appUrl ? escapeHtml(appUrl) : ''}</span><span style="text-align: right; white-space: nowrap;">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</span></div>`);
 
     const content = currentParagraphs.join('');
     rows = `<div style="text-align:justify;margin-top:20px;${options.columnMode ? 'column-count:2;column-gap:1.5cm;column-rule:1px solid #ccc;' : 'display:block;'}">${content}</div>`;
