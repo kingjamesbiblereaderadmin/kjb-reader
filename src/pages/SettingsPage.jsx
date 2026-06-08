@@ -233,7 +233,7 @@ export default function SettingsPage() {
       const result = await requestNotificationPermission();
       setNotifPermission(result);
       
-      if (result === 'granted') {
+      if (result === 'granted' || result === 'unsupported') {
         setNotifEnabled(true);
         scheduleDailyNotification(getDailyVerse());
         window.dispatchEvent(new Event('storage'));
