@@ -33,12 +33,21 @@ const checkIsInstalled = () => {
 };
 
 export function useInstallPrompt() {
+  if (!deferredPrompt && typeof window !== 'undefined' && window.kjbDeferredPrompt) {
+    deferredPrompt = window.kjbDeferredPrompt;
+  }
   const [isInstallable, setIsInstallable] = useState(!!deferredPrompt);
   const [isInstalled, setIsInstalled] = useState(checkIsInstalled());
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
-    const handleInstallable = () => setIsInstallable(!!deferredPrompt);
+    const handleInstallable = () => {
+      // Re-sync from the global capture before reporting installability.
+      if (!deferredPrompt && typeof window !== 'undefined' && window.kjbDeferredPrompt) {
+        deferredPrompt = window.kjbDeferredPrompt;
+      }
+      setIsInstallable(!!deferredPrompt);
+    };
     const handleInstalled = () => {
       setIsInstalled(checkIsInstalled());
       setIsInstallable(!!deferredPrompt);
@@ -57,6 +66,11 @@ export function useInstallPrompt() {
   }, []);
 
   const promptInstall = async () => {
+    // Always re-sync from the global capture in index.html — the event may have
+    // fired before this hook module loaded its own listener.
+    if (!deferredPrompt && typeof window !== 'undefined' && window.kjbDeferredPrompt) {
+      deferredPrompt = window.kjbDeferredPrompt;
+    }
     if (!deferredPrompt) return false;
 
     try {
