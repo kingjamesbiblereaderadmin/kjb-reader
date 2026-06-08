@@ -189,7 +189,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                     {isIOS() ? (
                       <>Please tap the <strong>Share</strong> icon in your browser menu, then select <strong>"Add to Home Screen"</strong>.</>
                     ) : isMobile() ? (
-                      <>Please open your browser's <strong>Menu (⋮)</strong> and select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</>
+                      <>Please open your browser's <strong>Menu (⋮ or ⋯)</strong> and select <strong>"Add to phone"</strong>, <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</>
                     ) : (
                       <>Your browser may have blocked the automatic prompt. To install manually, please click the <strong>Install</strong> icon located in your address bar, or use your browser's main menu.</>
                     )}
