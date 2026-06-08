@@ -894,18 +894,13 @@ export default function SettingsPage() {
             
             {(!isInstallable || showInstallHint) && (
               <div className="space-y-2 bg-secondary/50 rounded-xl p-4 mt-3">
-                {import.meta.env.DEV && (
-                  <p className="font-sans text-xs text-amber-600 dark:text-amber-400 mb-2 font-medium">
-                    Note: The native install prompt is disabled in the preview editor. To test the native popup, please publish your app and open the live link.
-                  </p>
-                )}
                 <p className="font-sans text-xs text-foreground mb-2">
                   <strong>Install KJB Reader from your browser menu:</strong>
                 </p>
                 <div className="font-sans text-xs text-muted-foreground space-y-1.5">
                   <p>• <strong>iPhone/iPad:</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Share</span> button, then <span className="text-foreground font-medium">"Add to Home Screen"</span></p>
                   <p>• <strong>Android:</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">⋮ Menu</span>, then <span className="text-foreground font-medium">"Install app"</span></p>
-                  <p>• <strong>Desktop:</strong> Click the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Install</span> icon in the address bar, or use the browser menu</p>
+                  <p>• <strong>Desktop:</strong> If the automatic prompt didn't appear (or was missed), look for the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Install</span> icon in the address bar (near the bookmark star), or use your browser's menu.</p>
                 </div>
               </div>
             )}

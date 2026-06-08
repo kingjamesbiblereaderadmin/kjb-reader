@@ -84,7 +84,10 @@ export function useInstallPrompt() {
     setDeferredPrompt(null);
     
     try {
-      promptEvent.prompt();
+      const promptPromise = promptEvent.prompt();
+      if (promptPromise) {
+        promptPromise.catch(err => console.error('prompt() failed:', err));
+      }
       return promptEvent.userChoice.then((choice) => {
         const outcome = choice.outcome;
         if (outcome === 'accepted') {
@@ -96,10 +99,12 @@ export function useInstallPrompt() {
           window.dispatchEvent(new Event('pwa-installed')); 
         }
         return outcome === 'accepted';
+      }).catch(err => {
+        console.error('Failed to get userChoice', err);
+        return false;
       });
     } catch (err) {
       console.error('Failed to prompt install', err);
-      window.location.reload();
       return Promise.resolve(false);
     }
   };
