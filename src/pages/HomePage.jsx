@@ -504,9 +504,10 @@ export default function HomePage() {
       {/* Gospel call */}
       <div className="print:hidden bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-6 text-center mb-6">
         <p className="font-serif text-xl font-bold text-red-700 dark:text-red-400 mb-2">Are you saved?</p>
-        <p className="font-sans text-sm text-foreground/80 mb-4">
-          Jesus Christ died for your sins, shed his blood, was buried, and rose again on the third day. Trust Christ's blood, death, burial and resurrection, and be eternally saved.
-        </p>
+        <div className="font-sans text-sm text-foreground/80 mb-4 space-y-1.5">
+          <p>Jesus Christ died for your sins, shed his blood, was buried, and rose again on the third day.</p>
+          <p className="font-medium">Trust Christ's blood, death, burial and resurrection, and be eternally saved.</p>
+        </div>
         <Link
           to="/gospel"
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
