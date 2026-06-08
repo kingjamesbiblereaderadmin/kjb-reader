@@ -65,9 +65,18 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
 
   // Keep notifDone in sync when permission changes externally
   useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      setNotifDone(true);
-    }
+    const checkNotif = () => {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        setNotifDone(true);
+      }
+    };
+    checkNotif();
+    window.addEventListener('focus', checkNotif);
+    window.addEventListener('storage', checkNotif);
+    return () => {
+      window.removeEventListener('focus', checkNotif);
+      window.removeEventListener('storage', checkNotif);
+    };
   }, [notifPermission]);
 
   // When installed, mark installDone
@@ -113,7 +122,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
       if (result && result.then) {
         result.then(accepted => {
           if (accepted) setInstallDone(true);
-          else setShowIOSHint(h => !h);
+          else if (!isAndroid()) setShowIOSHint(h => !h); // Allow browser to handle dismissal on Android silently
         });
       }
     } else {

@@ -8,6 +8,11 @@ let globalIsInstallable = false;
 let globalIsInstalled = false;
 
 if (typeof window !== 'undefined') {
+  if (window.kjbDeferredPrompt) {
+    globalDeferredPrompt = window.kjbDeferredPrompt;
+    globalIsInstallable = true;
+  }
+
   try {
     if (localStorage.getItem(INSTALLED_KEY) === 'true') {
       globalIsInstalled = true;

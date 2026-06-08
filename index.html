@@ -30,6 +30,11 @@
     <link rel="manifest" href="/manifest.json" />
     <!-- Prevent flash of wrong theme: apply saved theme BEFORE React mounts -->
     <script>
+      window.kjbDeferredPrompt = null;
+      window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        window.kjbDeferredPrompt = e;
+      });
       (function() {
         try {
           var mode = localStorage.getItem('kjb-theme-mode') || 'system';
