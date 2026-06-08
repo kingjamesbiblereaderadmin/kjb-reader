@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw, ChevronRight } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import OfflineStatusBanner from '@/components/OfflineStatusBanner';
+import IncognitoWarning from '@/components/IncognitoWarning';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { getDailyVerse, getDailyVerseFromBible, getLastCachedDailyVerse } from '@/lib/dailyVerse';
 import { getTodayVerseBackground } from '@/lib/dailyVerseTheme';
@@ -432,6 +433,7 @@ export default function HomePage() {
     >
       <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-6">
       <OfflineStatusBanner />
+      <IncognitoWarning />
 
       {/* Daily verse card */}
       <div className="w-full mx-auto mb-8 relative">
