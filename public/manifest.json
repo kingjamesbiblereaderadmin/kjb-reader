@@ -37,10 +37,11 @@
       "label": "The Gospel of Salvation"
     },
     {
-      "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/d928d7694_BCOf0297029-2e38-446b-bd58-076244d9d764.png",
-      "sizes": "1024x683",
-      "type": "image/png",
-      "label": "The Gospel of Salvation"
+      "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/f9eb98458_1.jpg",
+      "sizes": "1024x636",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Install KJB Reader on any browser"
     }
   ]
 }
