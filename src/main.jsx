@@ -15,28 +15,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 // Service worker registration for offline support and notifications
 window.addEventListener('load', async () => {
   
-  // DEV: Aggressive cleanup - unregister all service workers and clear ALL caches
-  if (import.meta.env.DEV) {
-    try {
-      // Silently clean up any stale SW registrations and caches in dev.
-      // Do NOT reload — Vite HMR handles freshness and a reload mid-render
-      // tears React's hook state (null useState errors).
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      for (const reg of registrations) {
-        await reg.unregister();
-      }
-      const cacheNames = await caches.keys();
-      for (const cacheName of cacheNames) {
-        await caches.delete(cacheName);
-      }
-    } catch (err) {
-      console.error('[SW] Dev cleanup failed:', err);
-    }
-    return; // Don't register SW in dev mode
-  }
-  
-  // Register fresh service worker (production only)
-  if ('serviceWorker' in navigator && !import.meta.env.DEV) {
+  // Register fresh service worker
+  if ('serviceWorker' in navigator) {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }, { scope: '/' });
       console.log('[SW] Registered:', registration.scope);
