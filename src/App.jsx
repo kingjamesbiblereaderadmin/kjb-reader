@@ -129,7 +129,7 @@ const PageLoader = ({ isFadingOut, forcedText, updateCheckDone }) => {
   }, []);
   
   const isEffectivelyFirstVisit = isFirstVisit || updateType === 'bible_first_load';
-  let text = isEffectivelyFirstVisit ? "Welcome to KJB Reader..." : "Welcome back to KJB Reader...";
+  let text = isEffectivelyFirstVisit ? "Welcome to KJB Reader..." : (!updateCheckDone ? "Starting KJB Reader..." : "Welcome back to KJB Reader...");
              
   if (dynamicText) {
     text = dynamicText;
