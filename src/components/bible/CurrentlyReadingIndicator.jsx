@@ -62,9 +62,12 @@ export default function CurrentlyReadingIndicator({
     clearLabel = 'Clear';
   } else if (searchTerm) {
     typeLabel = `Search: "${searchTerm}"`;
-    const searchVerses = selectedVerses && selectedVerses.size > 1
-      ? `:${formatVerseRange([...selectedVerses])}`
-      : verseNum ? `:${verseNum}${occurrenceLabel || ''}` : '';
+    const isStanza = book.abbr === 'PSA' && pos.chapter === 119 && selectedVerses && selectedVerses.size > 1;
+    const searchVerses = isStanza
+      ? ` (${searchTerm.toUpperCase()})`
+      : (selectedVerses && selectedVerses.size > 1
+        ? `:${formatVerseRange([...selectedVerses])}`
+        : verseNum ? `:${verseNum}${occurrenceLabel || ''}` : '');
     reference = `${book.shortName} ${pos.chapter}${searchVerses}${sectionSuffix}`;
     clearLabel = 'Clear search';
   } else if (isFilterMode) {
