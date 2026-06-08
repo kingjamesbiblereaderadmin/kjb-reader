@@ -76,47 +76,31 @@ export function useInstallPrompt() {
 
   const promptInstall = () => {
     if (!globalDeferredPrompt) {
-      if (globalIsInstallable) {
-        window.location.reload();
-      }
       return Promise.reject(new Error('No prompt available'));
     }
     
     const promptEvent = globalDeferredPrompt;
-    globalDeferredPrompt = null;
-    setDeferredPrompt(null);
-    
-    const startTime = Date.now();
     
     try {
       promptEvent.prompt();
+      return promptEvent.userChoice.then((choiceResult) => {
+        globalDeferredPrompt = null;
+        setDeferredPrompt(null);
+        if (choiceResult.outcome === 'accepted') {
+          globalIsInstallable = false;
+          setIsInstallable(false);
+          globalIsInstalled = true;
+          setIsInstalled(true);
+          try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
+          window.dispatchEvent(new Event('pwa-installed')); 
+          return true;
+        }
+        return false;
+      });
     } catch (err) {
       console.error('Failed to prompt install', err);
       return Promise.reject(err);
     }
-    
-    return promptEvent.userChoice.then((choiceResult) => {
-      const duration = Date.now() - startTime;
-      if (choiceResult.outcome === 'accepted') {
-        globalIsInstallable = false;
-        setIsInstallable(false);
-        globalIsInstalled = true;
-        setIsInstalled(true);
-        try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
-        window.dispatchEvent(new Event('pwa-installed')); 
-        return true;
-      }
-      
-      if (duration < 400) {
-        console.warn('Prompt auto-dismissed by browser');
-        return Promise.reject(new Error('Prompt auto-dismissed by browser'));
-      }
-      
-      return false;
-    }).catch((err) => {
-      console.error('userChoice error', err);
-      return Promise.reject(err);
-    });
   };
 
   const wasDismissed = () => {

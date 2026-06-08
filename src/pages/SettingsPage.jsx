@@ -34,7 +34,7 @@ const inIframe = () => {
 };
 
 const LAST_REVISED = 'June 8th, 2026';
-const WORKER_VERSION = 'v20260608_167';
+const WORKER_VERSION = 'v20260608_168';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -858,14 +858,14 @@ export default function SettingsPage() {
         >
           <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Install App</h2>
-            <p className="font-sans text-xs text-muted-foreground">Add to home screen for notifications</p>
+            <p className="font-sans text-xs text-muted-foreground">Add to home screen for offline access</p>
           </div>
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.install ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.install && (
         <div className="px-5 pb-6 pt-3 space-y-3">
         <p className="font-sans text-sm text-muted-foreground leading-relaxed">
-          Add the KJB Reader to your home screen for quick access and to receive daily verse notifications even when the app is closed.
+          Add the KJB Reader to your home screen for quick access and offline reading.
         </p>
         {isInstalled ? (
           <div className="space-y-3">
@@ -919,13 +919,6 @@ export default function SettingsPage() {
                 </div>
               </div>
             )}
-            
-            <div className="mt-3 pt-3 border-t border-border">
-              <p className="font-sans text-xs text-primary font-medium flex items-center gap-1.5">
-                <Bell className="w-3.5 h-3.5" />
-                After installing, enable notifications below to receive daily verses
-              </p>
-            </div>
           </div>
         )}
         </div>
