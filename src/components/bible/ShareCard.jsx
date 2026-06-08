@@ -41,13 +41,18 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
   const verseOpacity = textOpacity != null ? textOpacity : 1;
 
   const textLen = verse?.text?.length || 0;
+  // Scale both font size and line height down as the verse grows longer, so
+  // even very long verses fit inside the fixed 1024px card without overflowing.
   let dynamicFontSize = '56px';
-  if (textLen > 500) dynamicFontSize = '28px';
-  else if (textLen > 400) dynamicFontSize = '32px';
-  else if (textLen > 300) dynamicFontSize = '36px';
-  else if (textLen > 250) dynamicFontSize = '40px';
-  else if (textLen > 200) dynamicFontSize = '44px';
-  else if (textLen > 120) dynamicFontSize = '50px';
+  let dynamicLineHeight = 2;
+  if (textLen > 650) { dynamicFontSize = '22px'; dynamicLineHeight = 1.5; }
+  else if (textLen > 550) { dynamicFontSize = '25px'; dynamicLineHeight = 1.6; }
+  else if (textLen > 450) { dynamicFontSize = '28px'; dynamicLineHeight = 1.7; }
+  else if (textLen > 380) { dynamicFontSize = '32px'; dynamicLineHeight = 1.8; }
+  else if (textLen > 300) { dynamicFontSize = '36px'; dynamicLineHeight = 1.9; }
+  else if (textLen > 250) { dynamicFontSize = '40px'; }
+  else if (textLen > 200) { dynamicFontSize = '44px'; }
+  else if (textLen > 120) { dynamicFontSize = '50px'; }
 
   // Thin full-width gradient line (blue → purple) with soft glow
   const SeparatorLine = () => (
@@ -137,7 +142,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
                 fontFamily: verseFont,
                 fontWeight: 700,
                 fontSize: dynamicFontSize,
-                lineHeight: 2,
+                lineHeight: dynamicLineHeight,
                 color: verseColor,
                 opacity: verseOpacity,
                 textShadow: '0 3px 10px rgba(0,0,0,0.4)',
