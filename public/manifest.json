@@ -11,32 +11,32 @@
   "theme_color": "#fef9f3",
   "icons": [
     {
-      "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8f6accb5e_generated_image.png",
-      "sizes": "1024x1024",
+      "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/23977bd8e_generated_image.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8f6accb5e_generated_image.png",
-      "sizes": "1024x1024",
+      "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/23977bd8e_generated_image.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     }
   ],
   "screenshots": [
     {
-      "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/135c9cc52_generated_image.png",
-      "sizes": "1024x1024",
+      "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/23977bd8e_generated_image.png",
+      "sizes": "512x512",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "KJB Reader on desktop"
+      "label": "KJB Reader"
     },
     {
-      "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/516aa06f8_generated_image.png",
-      "sizes": "1024x1024",
+      "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/23977bd8e_generated_image.png",
+      "sizes": "512x512",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "KJB Reader on mobile"
+      "label": "KJB Reader"
     }
   ]
 }
