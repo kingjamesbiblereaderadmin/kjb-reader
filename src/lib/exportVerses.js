@@ -68,6 +68,33 @@ function plainWithBrackets(text, isColophonOrSubscript = false, keepPilcrow = fa
 
 const sanitizeFilename = (q) => (q || 'verses').replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '').slice(0, 30) || 'verses';
 
+// Build a clean, shareable URL for the print footer:
+// - normalise the preview/sandbox host to the public *.base44.app host
+// - drop internal tracking params (from, q) but keep book/chapter/verse
+function cleanPrintUrl() {
+  if (typeof window === 'undefined') return '';
+  try {
+    const u = new URL(window.location.href);
+    // app.base44.com/apps/<id>/editor/preview → public app domain
+    const appIdMatch = u.pathname.match(/\/apps\/([a-f0-9]+)\//i);
+    if (u.hostname.includes('app.base44.com') && appIdMatch) {
+      u.protocol = 'https:';
+      u.hostname = `${appIdMatch[1]}.base44.app`;
+      u.pathname = '/';
+    }
+    // preview-sandbox--<id>.base44.app → <id>.base44.app
+    u.hostname = u.hostname.replace(/^preview-sandbox--/, '');
+    // Strip internal navigation/tracking params
+    u.searchParams.delete('from');
+    u.searchParams.delete('q');
+    u.searchParams.delete('refresh');
+    u.searchParams.delete('updated');
+    return u.href;
+  } catch {
+    return window.location.href;
+  }
+}
+
 // Build a short filename suffix describing the active search filters, e.g.
 // "-wholeword-matchcase-NT" or "-3books". Returns '' when no filters are set.
 function filterSuffix(filters) {
@@ -632,7 +659,7 @@ export function exportPrint(items, query, filters, options = {}) {
 
   // URL footer at the end of the content flow — lands on the last page only,
   // bottom-left aligned.
-  const pageUrl = (typeof window !== 'undefined' ? window.location.href : '');
+  const pageUrl = cleanPrintUrl();
   const urlFooterHtml = pageUrl
     ? `<div style="margin-top:18pt;font-size:8pt;color:#999;text-align:left;word-break:break-all;column-span:all;page-break-inside:avoid;break-inside:avoid;">${escapeHtml(pageUrl)}</div>`
     : '';
