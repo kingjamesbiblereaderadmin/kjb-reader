@@ -5,7 +5,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 // Slim action bar shown when reading a verse range / search result.
 // `filterMode` controls whether the reader is filtered to only the selected
 // verses (true) or showing the full chapter with them highlighted (false).
-export default function ReadingRangeBar({ label, filterMode, copyFeedback, shareFeedback, onCopy, onShare, onToggleView, onClear, onPrintPage, onPrintContents }) {
+export default function ReadingRangeBar({ label, filterMode, copyFeedback, shareFeedback, shareLinkFeedback, onCopy, onShareText, onShareLink, onToggleView, onClear, onPrintPage, onPrintContents }) {
   const prevLabelRef = useRef(label);
 
   useEffect(() => {
@@ -36,12 +36,23 @@ export default function ReadingRangeBar({ label, filterMode, copyFeedback, share
       >
         <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy'}
       </button>
-      <button
-        onClick={onShare}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
-      >
-        <Share2 className="w-3.5 h-3.5" /> {shareFeedback ? 'Copied!' : 'Share'}
-      </button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap">
+            <Share2 className="w-3.5 h-3.5" /> {shareFeedback || shareLinkFeedback ? 'Copied!' : 'Share'}
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuItem onClick={onShareText} className="cursor-pointer">
+            <AlignLeft className="w-4 h-4 mr-2" />
+            Share Text
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={onShareLink} className="cursor-pointer">
+            <Share2 className="w-4 h-4 mr-2" />
+            Share Link Only
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <button
         onClick={onPrintContents}

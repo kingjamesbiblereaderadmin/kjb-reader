@@ -328,6 +328,22 @@ export default function BibleReader() {
     } catch {}
   };
 
+  const [shareLinkFeedback, setShareLinkFeedback] = useState(false);
+  const handleShareLink = async () => {
+    const hasSel = selectedVerses.size > 0;
+    const ref = hasSel ? `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}` : `${book.shortName} ${pos.chapter}`;
+    const url = buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: hasSel ? Math.min(...selectedVerses) : null, verseEnd: hasSel ? Math.max(...selectedVerses) : null });
+    const shareText = `${ref} (KJB)\n\n${url}`;
+    try {
+      if (navigator.share) return await navigator.share({ title: `${ref} — KJB Reader`, text: shareText, url });
+    } catch (err) { if (err?.name === 'AbortError') return; }
+    try {
+      await navigator.clipboard.writeText(shareText);
+      setShareLinkFeedback(true);
+      setTimeout(() => setShareLinkFeedback(false), 1800);
+    } catch {}
+  };
+
   const topRef = useRef(null);
   const rangeHighlightRef = useRef(false);
   const resultViewRef = useRef('filter');
@@ -999,7 +1015,26 @@ export default function BibleReader() {
               <button onClick={toggleFlow} onTouchEnd={(e) => { e.preventDefault(); toggleFlow(); }} title={flowMode === 'line' ? 'Switch to paragraph' : 'Switch to line-by-line'} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap">{flowMode === 'line' ? <List className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <AlignJustify className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}<span className="hidden lg:inline">{flowMode === 'line' ? 'Lines' : 'Para'}</span></button>
               <button onClick={toggleColumn} onTouchEnd={(e) => { e.preventDefault(); toggleColumn(); }} title={columnOn ? 'Switch to single column' : 'Switch to two-column'} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap">{columnOn ? <Columns2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <AlignLeft className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}<span className="hidden lg:inline">{columnOn ? '2-Col' : '1-Col'}</span></button>
               <button onClick={toggleSelectMode} onTouchEnd={(e) => { e.preventDefault(); toggleSelectMode(); }} title="Select verses" className={`flex items-center justify-center gap-1.5 px-3 rounded-lg border border-border font-sans text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap ${selectMode ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'}`}><CheckSquare className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /><span className="hidden lg:inline">Select</span></button>
-              <button onClick={handleShareChapter} onTouchEnd={(e) => { e.preventDefault(); handleShareChapter(); }} title={shareFeedback ? 'Link copied!' : 'Share this chapter'} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"><Share2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /><span className="hidden lg:inline">{shareFeedback ? 'Copied!' : 'Share'}</span></button>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button title={shareFeedback || shareLinkFeedback ? 'Copied!' : 'Share'} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap">
+                    <Share2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
+                    <span className="hidden lg:inline">{shareFeedback || shareLinkFeedback ? 'Copied!' : 'Share'}</span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" className="w-48">
+                  <DropdownMenuItem onClick={handleShareChapter} className="cursor-pointer">
+                    <AlignLeft className="w-4 h-4 mr-2" />
+                    Share Text
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleShareLink} className="cursor-pointer">
+                    <Share2 className="w-4 h-4 mr-2" />
+                    Share Link Only
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <button onClick={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode, paragraphMode)} title="Print Chapter" className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"><Printer className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /><span className="hidden lg:inline">Print</span></button>
 
               <button onClick={goPrev} onTouchEnd={(e) => { e.preventDefault(); goPrev(); }} disabled={isFirstChapterFirstBook} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 text-foreground disabled:opacity-30 transition-all duration-200 hover:scale-105 active:scale-95 disabled:hover:scale-100 disabled:active:scale-100 touch-manipulation h-11 whitespace-nowrap"><ChevronLeft className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /><span className="hidden lg:inline">Prev</span></button>
@@ -1095,8 +1130,8 @@ export default function BibleReader() {
 
           {selectMode && (
             <SelectActionBar
-              selectedCount={selectedVerses.size} totalVerses={verses.length} copyFeedback={copyFeedback} shareFeedback={shareFeedback}
-              onSelectAll={selectAllVerses} onCancel={toggleSelectMode} onCopy={handleCopySelected} onShare={handleShareChapter}
+              selectedCount={selectedVerses.size} totalVerses={verses.length} copyFeedback={copyFeedback} shareFeedback={shareFeedback} shareLinkFeedback={shareLinkFeedback}
+              onSelectAll={selectAllVerses} onCancel={toggleSelectMode} onCopy={handleCopySelected} onShareText={handleShareChapter} onShareLink={handleShareLink}
               onReadSelected={handleReadSelected} onShowFull={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
               onPrintPage={() => window.print()} onPrintContents={() => printChapterContents(verses, book, pos, true, selectedVerses, colophon, columnMode, paragraphMode)}
             />
@@ -1105,8 +1140,8 @@ export default function BibleReader() {
           {!selectMode && selectedVerses.size > 0 && (
             <ReadingRangeBar
               label={`Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`}
-              filterMode={filterMode} copyFeedback={copyFeedback} shareFeedback={shareFeedback}
-              onCopy={handleCopySelected} onShare={handleShareChapter} onPrintPage={() => window.print()}
+              filterMode={filterMode} copyFeedback={copyFeedback} shareFeedback={shareFeedback} shareLinkFeedback={shareLinkFeedback}
+              onCopy={handleCopySelected} onShareText={handleShareChapter} onShareLink={handleShareLink} onPrintPage={() => window.print()}
               onPrintContents={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode, paragraphMode)}
               onToggleView={() => {
                 setFilterMode(prev => {
