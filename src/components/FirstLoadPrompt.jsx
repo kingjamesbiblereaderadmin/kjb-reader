@@ -101,7 +101,6 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
 
   const handleInstallClick = (e) => {
     if (e) {
-      e.preventDefault();
       e.stopPropagation();
     }
     
@@ -268,26 +267,28 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
           </div>
 
           {/* Accessibility font — dyslexic & high-legibility options */}
-          <div className="rounded-xl bg-secondary/40 border border-border p-2.5">
-            <div className="flex items-center gap-1.5 mb-2 px-0.5">
-              <Accessibility className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-              <span className="font-sans text-xs font-medium text-foreground">Accessibility Font</span>
+          <div className="rounded-xl bg-primary/5 border-2 border-primary/20 p-3 mt-1">
+            <div className="flex items-center gap-2 mb-2 px-0.5">
+              <Accessibility className="w-4 h-4 text-primary shrink-0" />
+              <span className="font-sans text-sm font-semibold text-primary">Accessibility Font</span>
             </div>
-            <div className="grid grid-cols-3 gap-1.5">
+            <div className="grid grid-cols-3 gap-2">
               {A11Y_FONTS.map(font => (
                 <button
                   key={font.value}
                   type="button"
                   onClick={(e) => { e.stopPropagation(); setA11yFont(font.value); setAccessibilityFont(font.value); }}
                   onPointerDown={e => e.stopPropagation()}
-                  className={`px-1 py-1.5 rounded-lg border font-sans text-[10px] font-medium transition-all touch-manipulation ${
+                  className={`px-1 py-2.5 rounded-xl border-2 font-sans text-xs font-bold transition-all touch-manipulation flex flex-col items-center justify-center text-center ${
                     a11yFont === font.value
-                      ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                      ? 'bg-primary text-primary-foreground border-primary shadow-md scale-[1.02]'
                       : 'bg-card text-foreground border-border hover:border-accent'
                   }`}
                   style={font.preview ? { fontFamily: font.preview } : undefined}
                 >
-                  {font.label}
+                  <span className="mb-0.5">{font.label}</span>
+                  {font.value === 'dyslexic' && <span className="text-[9px] opacity-75 font-sans font-normal leading-none mt-0.5">Dyslexia</span>}
+                  {font.value === 'hyperlegible' && <span className="text-[9px] opacity-75 font-sans font-normal leading-none mt-0.5">Low Vision</span>}
                 </button>
               ))}
             </div>
