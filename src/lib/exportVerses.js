@@ -88,7 +88,7 @@ function splitBySections(items) {
   const sections = [];
   
   if (old.length) {
-    sections.push({ title: 'Old Testament', isTestament: true, items: [] });
+    sections.push({ title: 'Old Testament', isTestament: true, items: old });
     const books = Array.from(new Set(old.map(it => it.bookName || it.book || '')));
     books.forEach(b => {
       const bookItems = old.filter(it => (it.bookName || it.book || '') === b);
@@ -97,7 +97,7 @@ function splitBySections(items) {
   }
   
   if (neu.length) {
-    sections.push({ title: 'New Testament', isTestament: true, items: [] });
+    sections.push({ title: 'New Testament', isTestament: true, items: neu });
     const books = Array.from(new Set(neu.map(it => it.bookName || it.book || '')));
     books.forEach(b => {
       const bookItems = neu.filter(it => (it.bookName || it.book || '') === b);
