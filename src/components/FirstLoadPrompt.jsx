@@ -107,22 +107,20 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     if (onDismiss) onDismiss();
   };
 
-  const handleInstallClick = (e) => {
+  const handleInstallClick = async (e) => {
     if (!isInstallable) {
       setShowIOSHint(true);
       return;
     }
     if (onInstall) {
-      const result = onInstall();
-      if (result && result.then) {
-        result.then(accepted => {
-          if (accepted) {
-            setInstallDone(true);
-          }
-        }).catch((err) => {
-          console.error('Install prompt failed:', err);
-          setShowIOSHint(true);
-        });
+      try {
+        const accepted = await onInstall();
+        if (accepted) {
+          setInstallDone(true);
+        }
+      } catch (err) {
+        console.error('Install prompt failed:', err);
+        setShowIOSHint(true);
       }
     } else {
       setShowIOSHint(true);
@@ -198,12 +196,12 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                       {inIframe() ? (
                         <p className="font-sans text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 font-medium flex items-start gap-1 leading-snug">
                           <span className="shrink-0 leading-none mt-0.5">ℹ️</span>
-                          You are viewing this inside a preview window, where browsers block PWA installation. Please open the app in a new tab to install it!
+                          You are viewing this inside the Base44 preview window, where Chrome/Edge block the PWA install prompt. Please click "Open in New Tab" (top right) to install it!
                         </p>
                       ) : (
                         <p className="font-sans text-[10px] sm:text-xs text-amber-600 dark:text-amber-400 font-medium flex items-start gap-1 leading-snug">
                           <span className="shrink-0 leading-none mt-0.5">⚠️</span>
-                          Your browser may not fully support automatic app installation. Try the manual steps below.
+                          The automatic prompt was blocked by your browser. Try the manual steps below!
                         </p>
                       )}
                     </div>
