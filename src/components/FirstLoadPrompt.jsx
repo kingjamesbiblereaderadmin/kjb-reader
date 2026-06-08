@@ -100,6 +100,11 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   };
 
   const handleInstallClick = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     if (isIOS() && !isInstallable) {
       setShowIOSHint(h => !h);
       return;
