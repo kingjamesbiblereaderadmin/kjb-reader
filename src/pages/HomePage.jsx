@@ -32,16 +32,28 @@ export default function HomePage() {
     const lastCached = getLastCachedDailyVerse();
     return (lastCached && lastCached.isToday) ? lastCached : null;
   });
-  const [isOffline, setIsOffline] = useState(false);
+  const [isOffline, setIsOffline] = useState(() => typeof navigator !== 'undefined' && navigator.onLine === false);
   const touchStartY = useRef(0);
   const touchEndY = useRef(0);
+
+  // Track real network connectivity so the daily card's "Offline" label reflects
+  // actual internet status — not merely whether the cached verse fetch succeeded.
+  useEffect(() => {
+    const updateOnline = () => setIsOffline(navigator.onLine === false);
+    window.addEventListener('online', updateOnline);
+    window.addEventListener('offline', updateOnline);
+    return () => {
+      window.removeEventListener('online', updateOnline);
+      window.removeEventListener('offline', updateOnline);
+    };
+  }, []);
 
   useEffect(() => {
     // 2. Fetch today's verse in the background quietly
     getDailyVerseFromBible().then(v => {
       console.log("[DEBUG] Verse generated for today:", v?.ref);
       setVerse(v);
-      setIsOffline(false);
+      setIsOffline(navigator.onLine === false);
       window.dispatchEvent(new Event('kjb-daily-verse-updated'));
       // Trigger notification if enabled
       scheduleDailyNotification();
@@ -63,7 +75,7 @@ export default function HomePage() {
       if (!lastCached || !lastCached.isToday) {
         getDailyVerseFromBible().then(v => {
           setVerse(v);
-          setIsOffline(false);
+          setIsOffline(navigator.onLine === false);
           window.dispatchEvent(new Event('kjb-daily-verse-updated'));
         }).catch(() => {
           setVerse(getDailyVerse());
@@ -270,7 +282,7 @@ export default function HomePage() {
       if (!lastCached || !lastCached.isToday) {
         getDailyVerseFromBible().then(v => {
           setVerse(v);
-          setIsOffline(false);
+          setIsOffline(navigator.onLine === false);
           window.dispatchEvent(new Event('kjb-daily-verse-updated'));
           scheduleDailyNotification();
         }).catch(() => {

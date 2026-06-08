@@ -1,6 +1,6 @@
 // KJB Reader Service Worker — offline-first app shell cache
-// updated worker 123
-const CACHE_NAME = 'kjb-shell-v20260608_205';
+// updated worker 124
+const CACHE_NAME = 'kjb-shell-v20260608_206';
 const OFFLINE_URL = '/offline.html';
 
 // App shell files to cache on install
@@ -64,8 +64,10 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Images and fonts from our CDN — cache-first
-  if (url.hostname.includes('media.base44.com') || url.hostname.includes('fonts.gstatic.com')) {
+  // Images and fonts from our CDN — cache-first.
+  // Includes fonts.googleapis.com (the @font-face CSS) AND fonts.gstatic.com
+  // (the actual font files) so custom fonts render correctly while offline.
+  if (url.hostname.includes('media.base44.com') || url.hostname.includes('fonts.gstatic.com') || url.hostname.includes('fonts.googleapis.com')) {
     event.respondWith(
       caches.match(request).then((cached) => {
         if (cached) return cached;
