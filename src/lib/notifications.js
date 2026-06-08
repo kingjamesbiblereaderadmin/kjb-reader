@@ -150,7 +150,10 @@ export async function showLocalNotification(title, body, imageUrl = null, target
         console.log('[Notif] SW active:', reg.active ? 'yes' : 'no');
         console.log('[Notif] showNotification method exists:', typeof reg.showNotification);
         
-        // Show notification using service worker with app logo
+        // Show notification using service worker with app logo.
+        // requireInteraction keeps the notification on screen so the user can
+        // expand it and read the full verse text (some OSes collapse the body
+        // to one line until the notification is expanded/tapped).
         await reg.showNotification(title, {
           body: body,
           icon: APP_LOGO_URL,
@@ -159,7 +162,7 @@ export async function showLocalNotification(title, body, imageUrl = null, target
           renotify: true,
           vibrate: [200, 100, 200],
           silent: false,
-          requireInteraction: false,
+          requireInteraction: true,
           data: {
             url: targetUrl ? (window.location.origin ? (window.location.origin + targetUrl) : targetUrl) : (window.location.origin ? (window.location.origin + '/') : '/')
           }
@@ -189,6 +192,7 @@ export async function showLocalNotification(title, body, imageUrl = null, target
         renotify: true,
         vibrate: [200, 100, 200],
         silent: false,
+        requireInteraction: true,
         data: {
           url: targetUrl ? (window.location.origin ? (window.location.origin + targetUrl) : targetUrl) : (window.location.origin ? (window.location.origin + '/') : '/')
         }
