@@ -193,19 +193,32 @@ export default function AppLayout() {
     <div className="h-screen bg-background flex flex-col overflow-hidden">
       <header className={`print:hidden border-b border-border bg-card/95 backdrop-blur-md z-50 flex-shrink-0 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
         <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 h-14 flex items-center gap-2 sm:gap-3">
-          {/* Logo */}
-          <Link
-            to="/"
-            onClick={() => {
-              setMenuOpen(false);
-              scrollMainToTop();
-            }}
-            className="flex items-center gap-2 flex-shrink-0 pointer-events-auto"
-          >
-            <div className="flex items-center gap-1.5">
-              <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" className="h-8 w-auto" />
-            </div>
-          </Link>
+          {/* Logo / Back Button */}
+          {pathname === '/' ? (
+            <Link
+              to="/"
+              onClick={() => {
+                setMenuOpen(false);
+                scrollMainToTop();
+              }}
+              className="flex items-center gap-2 flex-shrink-0 pointer-events-auto"
+            >
+              <div className="flex items-center gap-1.5">
+                <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" className="h-8 w-auto" />
+              </div>
+            </Link>
+          ) : (
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                navigate(-1);
+              }}
+              className="flex items-center gap-1 px-2 py-1.5 -ml-2 rounded-lg hover:bg-secondary/50 active:bg-secondary transition-colors text-foreground flex-shrink-0 pointer-events-auto"
+            >
+              <ChevronLeft className="w-6 h-6" />
+              <span className="font-sans text-sm font-medium hidden sm:inline">Back</span>
+            </button>
+          )}
 
           {/* Search - expands to fill all available space so icons sit flush right */}
           <div className="flex-1 min-w-0 pointer-events-auto">
@@ -460,8 +473,19 @@ function BottomNav({ pathname, navigate }) {
                 key={item.path}
                 onClick={(e) => {
                   e.preventDefault();
-                  scrollMainToTop();
-                  setTimeout(() => navigate(item.path), 150);
+                  const el = document.getElementById('kjb-scroll');
+                  const isScrolled = el ? el.scrollTop > 0 : window.scrollY > 0;
+                  
+                  if (active) {
+                    if (isScrolled) {
+                      scrollMainToTop();
+                    } else {
+                      navigate('/');
+                    }
+                  } else {
+                    scrollMainToTop();
+                    setTimeout(() => navigate(item.path), 150);
+                  }
                 }}
                 className="flex flex-col items-center justify-center flex-1 h-11 active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95"
               >
@@ -492,8 +516,19 @@ function BottomNav({ pathname, navigate }) {
                   key={item.path}
                   onClick={(e) => {
                     e.preventDefault();
-                    scrollMainToTop();
-                    navigate(item.path);
+                    const el = document.getElementById('kjb-scroll');
+                    const isScrolled = el ? el.scrollTop > 0 : window.scrollY > 0;
+                    
+                    if (active) {
+                      if (isScrolled) {
+                        scrollMainToTop();
+                      } else {
+                        navigate('/');
+                      }
+                    } else {
+                      scrollMainToTop();
+                      setTimeout(() => navigate(item.path), 150);
+                    }
                   }}
                   className="flex flex-col items-center justify-center w-full h-11 active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95"
                 >

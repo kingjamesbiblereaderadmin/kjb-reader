@@ -213,22 +213,22 @@ export default function SavedVersesPage() {
                       <Folder className="w-4 h-4" />
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Move to...</div>
+                  <DropdownMenuContent align="end" className="w-[90vw] sm:w-48">
+                    <div className="px-2 py-2 sm:py-1.5 text-xs font-semibold text-muted-foreground">Move to...</div>
                     {folders.map(f => (
                       <DropdownMenuItem 
                         key={f}
                         onClick={() => handleMoveVerse(entry, f)}
-                        className={(entry.folder || 'Favorites') === f ? 'bg-secondary' : ''}
+                        className={`py-3 sm:py-1.5 ${(entry.folder || 'Favorites') === f ? 'bg-secondary' : ''}`}
                       >
                         <Folder className="w-4 h-4 mr-2" />
-                        {f}
+                        <span className="font-sans text-sm sm:text-xs">{f}</span>
                       </DropdownMenuItem>
                     ))}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleCreateFolder}>
+                    <DropdownMenuItem onClick={handleCreateFolder} className="py-3 sm:py-1.5">
                       <FolderPlus className="w-4 h-4 mr-2" />
-                      New Folder...
+                      <span className="font-sans text-sm sm:text-xs">New Folder...</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
