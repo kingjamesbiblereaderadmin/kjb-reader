@@ -110,9 +110,9 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
         result.then(accepted => {
           if (accepted) {
             setInstallDone(true);
-          } else {
-            setShowIOSHint(true); // Show hint if prompt failed or user rejected
           }
+        }).catch(() => {
+          setShowIOSHint(true);
         });
       }
     } else {

@@ -77,43 +77,46 @@ export function useInstallPrompt() {
   const promptInstall = () => {
     if (!globalDeferredPrompt) {
       if (globalIsInstallable) {
-        // The prompt was used. The browser requires a fresh event to show the native popup again.
-        // We'll quickly reload the page to get a fresh event so they can try again.
         window.location.reload();
       }
-      return Promise.resolve(false);
+      return Promise.reject(new Error('No prompt available'));
     }
     
     const promptEvent = globalDeferredPrompt;
-    
-    // We've used the prompt, and can't use it again, throw it away immediately
-    // so we don't accidentally call it twice.
     globalDeferredPrompt = null;
     setDeferredPrompt(null);
     
+    const startTime = Date.now();
+    
     try {
-      // Show the install prompt synchronously within the click event execution context
       promptEvent.prompt();
-      
-      // Wait for the user to respond to the prompt
-      return promptEvent.userChoice.then((choiceResult) => {
-        if (choiceResult.outcome === 'accepted') {
-          globalIsInstallable = false;
-          setIsInstallable(false);
-          globalIsInstalled = true;
-          setIsInstalled(true);
-          try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
-          window.dispatchEvent(new Event('pwa-installed')); 
-        }
-        return choiceResult.outcome === 'accepted';
-      }).catch((err) => {
-        console.error('userChoice error', err);
-        return false;
-      });
     } catch (err) {
       console.error('Failed to prompt install', err);
-      return Promise.resolve(false);
+      return Promise.reject(err);
     }
+    
+    return promptEvent.userChoice.then((choiceResult) => {
+      const duration = Date.now() - startTime;
+      if (choiceResult.outcome === 'accepted') {
+        globalIsInstallable = false;
+        setIsInstallable(false);
+        globalIsInstalled = true;
+        setIsInstalled(true);
+        try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
+        window.dispatchEvent(new Event('pwa-installed')); 
+        return true;
+      }
+      
+      if (duration < 400) {
+        console.warn('Prompt auto-dismissed by browser');
+        return Promise.reject(new Error('Prompt auto-dismissed by browser'));
+      }
+      
+      return false;
+    }).catch((err) => {
+      console.error('userChoice error', err);
+      return Promise.reject(err);
+    });
   };
 
   const wasDismissed = () => {
