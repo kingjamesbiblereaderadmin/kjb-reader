@@ -155,7 +155,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             </blockquote>
             <p
               style={{
-                marginTop: '44px',
+                marginTop: '24px',
                 fontFamily: verseFont,
                 fontWeight: 700,
                 fontSize: '26px',
@@ -176,7 +176,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
               background: dateBadgeBg,
               borderRadius: '999px',
               padding: '10px 28px 16px',
-              marginTop: '32px',
+              marginTop: '24px',
               marginBottom: '40px',
               flexShrink: 0,
             }}
