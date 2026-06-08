@@ -932,6 +932,37 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           >
             — {verse.ref}
           </p>
+
+          {/* Date — merged into the same block as verse + ref so long verses
+              flow naturally without overlapping or overflowing. */}
+          <div className="flex flex-col items-center justify-center w-full mt-6 relative z-10">
+            <span
+              className="whitespace-nowrap"
+              style={{
+                backgroundColor: hasCustomBg ? 'rgba(0, 0, 0, 0.55)' : `rgba(${defaultBg.pill}, 0.65)`,
+                border: '1px solid rgba(255,255,255,0.18)',
+                borderRadius: '11px',
+                color: 'rgba(255,255,255,0.98)',
+                fontFamily: "'Inter', system-ui, sans-serif",
+                fontSize: '13px',
+                fontWeight: 700,
+                letterSpacing: '0.03em',
+                lineHeight: '13px',
+                padding: '8px 18px',
+                boxShadow: '0 3px 9px rgba(0,0,0,0.3)',
+              }}
+            >
+              {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+            </span>
+            {capturing && (
+              <span
+                className="mt-3 whitespace-nowrap font-sans font-bold"
+                style={{ color: textColor, opacity: Math.min(1, textOpacity + 0.05), fontSize: '16px', textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}
+              >
+                KingJamesBibleReader.com
+              </span>
+            )}
+          </div>
           </div>
           </div>
         </div>
@@ -950,37 +981,30 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         </div>
       )}
 
-      {/* Date display — naturally stacked at the bottom of the content flow */}
-      <div className="mt-auto pt-6 flex flex-col items-center justify-center w-full relative z-10">
-        <span
-          className="whitespace-nowrap"
-          style={{
-            backgroundColor: hasCustomBg ? 'rgba(0, 0, 0, 0.55)' : `rgba(${defaultBg.pill}, 0.65)`,
-            border: '1px solid rgba(255,255,255,0.18)',
-            borderRadius: '11px',
-            color: 'rgba(255,255,255,0.98)',
-            fontFamily: "'Inter', system-ui, sans-serif",
-            fontSize: '13px',
-            fontWeight: 700,
-            letterSpacing: '0.03em',
-            lineHeight: '13px',
-            padding: '8px 18px',
-            boxShadow: '0 3px 9px rgba(0,0,0,0.3)',
-          }}
-        >
-          {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-        </span>
-
-        {/* Capture-only website URL — shown only in the downloaded/copied/shared image */}
-        {capturing && (
+      {/* Date display — only when the verse panel is hidden (custom bg mode).
+          When the panel is shown, the date is merged into the verse block above. */}
+      {!showVersePanel && (
+        <div className="mt-auto pt-6 flex flex-col items-center justify-center w-full relative z-10">
           <span
-            className="mt-3 whitespace-nowrap font-sans font-bold"
-            style={{ color: textColor, opacity: Math.min(1, textOpacity + 0.05), fontSize: '16px', textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}
+            className="whitespace-nowrap"
+            style={{
+              backgroundColor: hasCustomBg ? 'rgba(0, 0, 0, 0.55)' : `rgba(${defaultBg.pill}, 0.65)`,
+              border: '1px solid rgba(255,255,255,0.18)',
+              borderRadius: '11px',
+              color: 'rgba(255,255,255,0.98)',
+              fontFamily: "'Inter', system-ui, sans-serif",
+              fontSize: '13px',
+              fontWeight: 700,
+              letterSpacing: '0.03em',
+              lineHeight: '13px',
+              padding: '8px 18px',
+              boxShadow: '0 3px 9px rgba(0,0,0,0.3)',
+            }}
           >
-            KingJamesBibleReader.com
+            {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
           </span>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Crop Modal - positioned near verse card */}
       {cropImage && (
