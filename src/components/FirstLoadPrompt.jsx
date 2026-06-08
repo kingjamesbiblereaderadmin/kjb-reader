@@ -153,7 +153,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
       />
       <div className="fixed bottom-20 sm:bottom-6 right-4 z-[99999] w-80 pointer-events-auto">
         <div
-          className="bg-card border border-border rounded-2xl shadow-2xl p-4 space-y-3 relative"
+          className="bg-card border border-border rounded-2xl shadow-2xl p-4 space-y-3 relative max-h-[calc(100dvh-7rem)] sm:max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain scrollbar-hide"
           onClick={e => e.stopPropagation()}
         >
           <div className="flex items-start justify-between gap-2 mb-1">
@@ -172,7 +172,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
           </div>
 
           {showInstall && (
-            <div className="space-y-3">
+            <div className="space-y-3 shrink-0">
               <button
                 type="button"
                 disabled={installDone}
