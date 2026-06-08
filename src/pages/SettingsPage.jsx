@@ -866,7 +866,8 @@ export default function SettingsPage() {
         )}
       </div>
 
-      {/* Install App */}
+      {/* Install App — hidden in private/incognito windows where install won't work */}
+      {!isIncognito && (
       <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
         <button
           onClick={() => toggleSection('install')}
@@ -956,6 +957,7 @@ export default function SettingsPage() {
         </div>
         )}
       </div>
+      )}
 
       {/* Offline Library */}
       <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
@@ -1161,7 +1163,8 @@ export default function SettingsPage() {
         {expandedSections.downloadPdf && <DownloadBibleSection />}
       </div>
 
-      {/* Notifications */}
+      {/* Notifications — hidden in private/incognito windows where they won't persist */}
+      {!isIncognito && (
       <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
         <button
           onClick={() => toggleSection('notifications')}
@@ -1232,6 +1235,7 @@ export default function SettingsPage() {
         </div>
         )}
       </div>
+      )}
 
       {/* App Info */}
       <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
