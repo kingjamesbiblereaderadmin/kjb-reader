@@ -115,7 +115,8 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
           if (accepted) {
             setInstallDone(true);
           }
-        }).catch(() => {
+        }).catch((err) => {
+          console.error('Install prompt failed:', err);
           setShowIOSHint(true);
         });
       }

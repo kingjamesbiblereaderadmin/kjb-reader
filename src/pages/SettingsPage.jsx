@@ -34,7 +34,7 @@ const inIframe = () => {
 };
 
 const LAST_REVISED = 'June 8th, 2026';
-const WORKER_VERSION = 'v20260608_169';
+const WORKER_VERSION = 'v20260608_170';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -882,7 +882,11 @@ export default function SettingsPage() {
           <div className="space-y-3">
             <button
               onClick={() => {
-                promptInstall().catch(() => {
+                promptInstall().catch((err) => {
+                  console.error('Install prompt failed:', err);
+                  toast.error("Browser blocked automatic install", { 
+                    description: "Please check your address bar for the install icon or use the manual guide below." 
+                  });
                   setShowInstallHint(true);
                 });
               }}

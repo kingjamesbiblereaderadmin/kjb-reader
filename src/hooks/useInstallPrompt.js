@@ -28,6 +28,7 @@ if (typeof window !== 'undefined') {
     console.log('[PWA] global beforeinstallprompt fired', e);
     e.preventDefault();
     globalDeferredPrompt = e;
+    window.kjbDeferredPrompt = e;
     globalIsInstallable = true;
     globalIsInstalled = false;
     try { localStorage.removeItem(INSTALLED_KEY); } catch {}
@@ -75,16 +76,16 @@ export function useInstallPrompt() {
   }, []);
 
   const promptInstall = () => {
-    if (!globalDeferredPrompt) {
+    const promptEvent = globalDeferredPrompt || window.kjbDeferredPrompt;
+    if (!promptEvent) {
       return Promise.reject(new Error('No prompt available'));
     }
-    
-    const promptEvent = globalDeferredPrompt;
     
     try {
       promptEvent.prompt();
       return promptEvent.userChoice.then((choiceResult) => {
         globalDeferredPrompt = null;
+        window.kjbDeferredPrompt = null;
         setDeferredPrompt(null);
         if (choiceResult.outcome === 'accepted') {
           globalIsInstallable = false;
