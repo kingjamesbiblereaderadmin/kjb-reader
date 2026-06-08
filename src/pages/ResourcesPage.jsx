@@ -1,5 +1,34 @@
 import React, { useState } from 'react';
-import { ExternalLink, FileText, BookOpen, ShieldAlert, Globe, CheckCircle, Users, ChevronDown, Youtube, Facebook, Instagram, Link as LinkIcon } from 'lucide-react';
+import { ExternalLink, FileText, BookOpen, ShieldAlert, Globe, CheckCircle, Users, ChevronDown, Youtube, Facebook, Instagram, Link as LinkIcon, Copy } from 'lucide-react';
+
+function CopyButton({ text, className }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try { navigator.clipboard.writeText(text); } catch {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button
+      onClick={handleCopy}
+      className={className || "p-1.5 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"}
+      title="Copy link"
+    >
+      {copied ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+    </button>
+  );
+}
 
 // TikTok icon
 function TikTokIcon({ className }) {
@@ -458,17 +487,19 @@ function WhyKJBSection({ expanded, toggle }) {
               <h3 className="font-serif font-semibold text-foreground mb-2">{item.title}</h3>
               <p className="font-sans text-sm text-muted-foreground leading-relaxed mb-2">{item.text}</p>
               {item.links &&
-          <div className="flex gap-2 mt-3">
+          <div className="flex flex-wrap gap-4 mt-3">
                   {item.links.map((link) =>
-            <a
-              key={link.url}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:text-accent/80 transition-colors underline underline-offset-2">
-              
-                      {link.label} <ExternalLink className="w-3 h-3" />
-                    </a>
+            <div key={link.url} className="flex items-center gap-1.5">
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:text-accent/80 transition-colors underline underline-offset-2">
+                
+                        {link.label} <ExternalLink className="w-3 h-3" />
+                      </a>
+                      <CopyButton text={link.url} className="p-1 rounded hover:bg-accent/10 text-accent/70 hover:text-accent transition-colors" />
+                    </div>
             )}
                 </div>
           }
@@ -522,9 +553,10 @@ function PreachersSection({ openPreachers, togglePreacher }) {
                       <span className="text-muted-foreground group-hover:text-accent transition-colors">
                         {getLinkIcon(url)}
                       </span>
-                      <span className="font-sans text-sm font-medium text-foreground group-hover:text-accent transition-colors flex-1">
+                      <span className="font-sans text-sm font-medium text-foreground group-hover:text-accent transition-colors flex-1 truncate">
                         {getLinkLabel(url)}
                       </span>
+                      <CopyButton text={url} className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors flex-shrink-0" />
                       <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />
                     </a>
                 )}
@@ -623,14 +655,17 @@ export default function ResourcesPage() {
             <p className="font-sans text-sm text-muted-foreground leading-relaxed mb-3">
               King James Bible Institute — a free online Bible college for those who want to go deeper in God's Word.
             </p>
-            <a
-              href="https://kjbi.org"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              Visit KJBI.org <ExternalLink className="w-3.5 h-3.5" />
-            </a>
+            <div className="flex items-center gap-3 flex-wrap">
+              <a
+                href="https://kjbi.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Visit KJBI.org <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+              <CopyButton text="https://kjbi.org" className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors" />
+            </div>
           </div>
         </div>
       </div>
@@ -671,7 +706,10 @@ export default function ResourcesPage() {
               <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">God is Gracious 1031 Ministries</p>
               <p className="font-sans text-xs text-muted-foreground">Ministry Website</p>
             </div>
-            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <CopyButton text="https://godisgracious1031ministriescom.odoo.com/" className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors" />
+              <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-accent transition-colors" />
+            </div>
           </a>
           <a
             href="mailto:Kingjamesbiblereader.com@outlook.com"
@@ -682,6 +720,7 @@ export default function ResourcesPage() {
               <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Contact the Ministry</p>
               <p className="font-sans text-xs text-muted-foreground">Kingjamesbiblereader.com@outlook.com</p>
             </div>
+            <CopyButton text="Kingjamesbiblereader.com@outlook.com" className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors flex-shrink-0" />
           </a>
         </div>
         )}
@@ -743,7 +782,10 @@ export default function ResourcesPage() {
                             {item.desc}
                           </p>
                         </div>
-                        <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0 mt-1" />
+                        <div className="flex items-center gap-2 flex-shrink-0 mt-1">
+                          <CopyButton text={item.url} className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors" />
+                          <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors" />
+                        </div>
                       </div>
                       <span className="inline-block mt-3 text-xs font-sans font-medium text-accent underline underline-offset-2">
                         {item.label} →
