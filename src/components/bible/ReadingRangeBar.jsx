@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Copy, Share2, AlignLeft, Filter, Printer, BookMarked, ChevronDown } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
@@ -6,6 +6,26 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 // `filterMode` controls whether the reader is filtered to only the selected
 // verses (true) or showing the full chapter with them highlighted (false).
 export default function ReadingRangeBar({ label, filterMode, copyFeedback, shareFeedback, onCopy, onShare, onToggleView, onClear, onPrintPage, onPrintContents }) {
+  const prevLabelRef = useRef(label);
+
+  useEffect(() => {
+    const prevLabel = prevLabelRef.current;
+    if (prevLabel && label) {
+      const prevPrefix = prevLabel.split(':')[0];
+      const currentPrefix = label.split(':')[0];
+      if (prevPrefix !== currentPrefix) {
+        // If chapter changed during a manual navigation, clear the stale verse selection.
+        // Stepper navigations preserve their selection (they have a 'from' query param).
+        const params = new URLSearchParams(window.location.search);
+        const fromParam = params.get('from');
+        if (fromParam !== 'search' && fromParam !== 'gospel') {
+          onClear();
+        }
+      }
+    }
+    prevLabelRef.current = label;
+  }, [label, onClear]);
+
   return (
     <div className="mt-2 pt-2 border-t border-border flex items-center gap-2 overflow-x-auto scrollbar-hide">
       <span className="font-sans text-xs text-muted-foreground font-medium whitespace-nowrap">{label}</span>
