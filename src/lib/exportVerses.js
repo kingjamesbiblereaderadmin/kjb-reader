@@ -68,24 +68,23 @@ function plainWithBrackets(text, isColophonOrSubscript = false, keepPilcrow = fa
 
 const sanitizeFilename = (q) => (q || 'verses').replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '').slice(0, 30) || 'verses';
 
-// Build a clean, shareable URL for the print footer:
-// - normalise the preview/sandbox host to the public *.base44.app host
-// - drop internal tracking params (from, q) but keep book/chapter/verse
+// Build the URL for the print footer. On the real public domain this is simply
+// the current reader URL as-is (e.g. /read?book=2PE&chapter=1&verse=19&from=daily).
+// We only normalise the preview/sandbox host so previews print a tidy link;
+// the path and query are always preserved exactly.
 export function cleanPrintUrl() {
   if (typeof window === 'undefined') return '';
   try {
     const u = new URL(window.location.href);
-    // app.base44.com/apps/<id>/editor/preview → public app domain
+    // app.base44.com/apps/<id>/editor/preview → public app domain (host only).
     const appIdMatch = u.pathname.match(/\/apps\/([a-f0-9]+)\//i);
     if (u.hostname.includes('app.base44.com') && appIdMatch) {
       u.protocol = 'https:';
       u.hostname = `${appIdMatch[1]}.base44.app`;
-      u.pathname = '/';
     }
     // preview-sandbox--<id>.base44.app → <id>.base44.app
     u.hostname = u.hostname.replace(/^preview-sandbox--/, '');
-    // Strip internal navigation/tracking params (keep `q` — it's the search term)
-    u.searchParams.delete('from');
+    // Drop only refresh/updated internal flags; keep book/chapter/verse/from/q.
     u.searchParams.delete('refresh');
     u.searchParams.delete('updated');
     return u.href;
