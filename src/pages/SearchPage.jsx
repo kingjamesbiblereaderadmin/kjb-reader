@@ -84,6 +84,7 @@ export default function SearchPage() {
   // The book-filter panel uses this so you can always clear back to every matching book,
   // even after a search was narrowed to a selected subset.
   const [allBooksWithResults, setAllBooksWithResults] = useState(null);
+  const [searchStats, setSearchStats] = useState({ ot: null, nt: null });
   // Tracks the last query text we searched, so we only reset the book selection
   // on a genuinely new query (not when re-running to apply the book filter).
   const lastQueryRef = useRef(getQueryFromUrl());
@@ -304,9 +305,30 @@ export default function SearchPage() {
         setResults(matches);
         const booksWithHits = new Set(matches.map(m => m.abbr));
         setBooksWithResults(booksWithHits);
+        
         // Only capture the full matching-book list when the search wasn't narrowed
         // by a book selection — so the panel can always offer every matching book.
-        if (selectedBooks.size === 0) setAllBooksWithResults(booksWithHits);
+        if (selectedBooks.size === 0) {
+          setAllBooksWithResults(booksWithHits);
+          
+          let otVerses = 0, ntVerses = 0;
+          let otOcc = 0, ntOcc = 0;
+          for (const m of matches) {
+            if (OT_BOOKS.has(m.book)) {
+              otVerses++;
+              otOcc++;
+            } else if (NT_BOOKS.has(m.book)) {
+              ntVerses++;
+              ntOcc++;
+            }
+          }
+          const otBooks = [...booksWithHits].filter(abbr => OLD_TESTAMENT.some(b => b.abbr === abbr)).length;
+          const ntBooks = [...booksWithHits].filter(abbr => NEW_TESTAMENT.some(b => b.abbr === abbr)).length;
+          setSearchStats({
+            ot: { books: otBooks, verses: otVerses, occ: otOcc },
+            nt: { books: ntBooks, verses: ntVerses, occ: ntOcc }
+          });
+        }
         setTotalOccurrences(matches.length);
         setLoading(false);
         return;
@@ -518,10 +540,7 @@ export default function SearchPage() {
         return bookEntry ? bookEntry.abbr : null;
       }).filter(Boolean));
       setBooksWithResults(booksWithHits);
-      // Only capture the full matching-book list when the search wasn't narrowed
-      // by a book selection — so the panel can always offer every matching book.
-      if (selectedBooks.size === 0) setAllBooksWithResults(booksWithHits);
-
+      
       // Compute total occurrences (multiple hits per verse counted) so the
       // results header matches standard concordance figures.
       const occEscaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -532,11 +551,35 @@ export default function SearchPage() {
         occRe = new RegExp(occEscaped, effectiveCaseSensitive ? 'g' : 'gi');
       }
       let totalOcc = 0;
+      let otVerses = 0, ntVerses = 0;
+      let otOcc = 0, ntOcc = 0;
+      
       for (const m of matches) {
         const clean = (m.text || '').replace(/[[\]]/g, '');
-        totalOcc += (clean.match(occRe) || []).length;
+        const occInVerse = (clean.match(occRe) || []).length;
+        totalOcc += occInVerse;
+        
+        if (OT_BOOKS.has(m.book)) {
+          otVerses++;
+          otOcc += occInVerse;
+        } else if (NT_BOOKS.has(m.book)) {
+          ntVerses++;
+          ntOcc += occInVerse;
+        }
       }
       setTotalOccurrences(totalOcc);
+
+      // Only capture the full matching-book list when the search wasn't narrowed
+      // by a book selection — so the panel can always offer every matching book.
+      if (selectedBooks.size === 0) {
+        setAllBooksWithResults(booksWithHits);
+        const otBooks = [...booksWithHits].filter(abbr => OLD_TESTAMENT.some(b => b.abbr === abbr)).length;
+        const ntBooks = [...booksWithHits].filter(abbr => NEW_TESTAMENT.some(b => b.abbr === abbr)).length;
+        setSearchStats({
+          ot: { books: otBooks, verses: otVerses, occ: otOcc },
+          nt: { books: ntBooks, verses: ntVerses, occ: ntOcc }
+        });
+      }
     } catch (err) {
       console.error('Search error:', err);
       setResults([]);
@@ -1059,7 +1102,7 @@ export default function SearchPage() {
                 {/* Old Testament section */}
                 <div>
                   <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 sticky top-0 bg-card py-1">
-                    Old Testament {searched && allBooksWithResults && allBooksWithResults.size > 0 && <span className="font-normal normal-case text-muted-foreground/60">({[...allBooksWithResults].filter(abbr => OLD_TESTAMENT.some(b => b.abbr === abbr)).length})</span>}
+                    Old Testament {searched && searchStats.ot?.books > 0 && <span className="font-normal normal-case text-muted-foreground/60">({searchStats.ot.books} book{searchStats.ot.books !== 1 ? 's' : ''}, {searchStats.ot.verses} verse{searchStats.ot.verses !== 1 ? 's' : ''}, {searchStats.ot.occ} occ)</span>}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {OLD_TESTAMENT
@@ -1100,7 +1143,7 @@ export default function SearchPage() {
                 {/* New Testament section */}
                 <div>
                   <p className="font-sans text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 sticky top-0 bg-card py-1">
-                    New Testament {searched && allBooksWithResults && allBooksWithResults.size > 0 && <span className="font-normal normal-case text-muted-foreground/60">({[...allBooksWithResults].filter(abbr => NEW_TESTAMENT.some(b => b.abbr === abbr)).length})</span>}
+                    New Testament {searched && searchStats.nt?.books > 0 && <span className="font-normal normal-case text-muted-foreground/60">({searchStats.nt.books} book{searchStats.nt.books !== 1 ? 's' : ''}, {searchStats.nt.verses} verse{searchStats.nt.verses !== 1 ? 's' : ''}, {searchStats.nt.occ} occ)</span>}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {NEW_TESTAMENT
