@@ -308,7 +308,12 @@ const AuthenticatedApp = () => {
               const isReadyToActivate = reg.waiting || (reg.installing && (reg.installing.state === 'installed' || reg.installing.state === 'activating' || reg.installing.state === 'activated'));
               
               if (isReadyToActivate) {
-                if (window.location.pathname !== '/') return; // Let it wait until homepage
+                if (window.location.pathname !== '/') {
+                  // Quietly keep the update waiting; reload happens when user reaches home.
+                  if (isMounted) setUpdateCheckDone(true);
+                  updateCheckInProgress = false;
+                  return;
+                }
                 setIsApplyingUpdates(true);
                 setApplyMessage('Found updates...');
                 window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
@@ -327,7 +332,13 @@ const AuthenticatedApp = () => {
                 setTimeout(() => window.location.reload(), 1500); // Fallback if controllerchange fails
                 return; // Let main.jsx handle reload
               } else if (reg.installing) {
-                if (window.location.pathname !== '/') return; // Let it wait until homepage
+                if (window.location.pathname !== '/') {
+                  // Quietly let the new worker finish installing in the background;
+                  // reload happens when user reaches home.
+                  if (isMounted) setUpdateCheckDone(true);
+                  updateCheckInProgress = false;
+                  return;
+                }
                 setIsApplyingUpdates(true);
                 setApplyMessage('Found updates...');
                 window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
@@ -391,9 +402,11 @@ const AuthenticatedApp = () => {
           localStorage.removeItem('bible_last_refresh');
           try {
             if (window.location.pathname !== '/') {
-              // Silently download in background
+              // Silently download in background, release splash, defer reload to home
               await downloadBibleForOffline();
               sessionStorage.setItem('kjb_pending_bible_update', 'true');
+              if (isMounted) setUpdateCheckDone(true);
+              updateCheckInProgress = false;
               return;
             }
 
