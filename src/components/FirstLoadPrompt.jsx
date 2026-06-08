@@ -191,7 +191,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                     ) : isMobile() ? (
                       <>Tap <strong>⋮ Menu</strong>, then <strong>"Install app"</strong>.</>
                     ) : (
-                      <>Look for the <strong>Install</strong> icon in the address bar, or use your browser's menu.<br/><br/><span className="text-primary font-medium">Note: App installation is disabled while previewing in the editor. Please open the live app link in a new tab to install.</span></>
+                      <>If the automatic prompt didn't appear, your browser might not support it, or it was dismissed. Look for the <strong>Install</strong> icon in the address bar (near the bookmark star), or use your browser's menu.</>
                     )}
                   </p>
                 </div>
