@@ -14,11 +14,6 @@ class PWAInstallManager {
         this.deferredPrompt = window.kjbDeferredPrompt;
         this.isInstallable = true;
       }
-      
-      // If the experimental Web Install API is supported, the app is installable
-      if ('install' in navigator && typeof navigator.install === 'function') {
-        this.isInstallable = true;
-      }
 
       try {
         if (localStorage.getItem(INSTALLED_KEY) === 'true') {
@@ -79,21 +74,6 @@ class PWAInstallManager {
         return false;
       } catch (err) {
         console.error('Failed to prompt install via beforeinstallprompt:', err);
-        return false;
-      }
-    }
-
-    // Try the new experimental Web Install API ONLY if beforeinstallprompt didn't fire
-    if ('install' in navigator && typeof navigator.install === 'function') {
-      try {
-        await navigator.install();
-        this.isInstalled = true;
-        this.isInstallable = false;
-        try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
-        window.dispatchEvent(new Event('pwa-installed')); 
-        return true;
-      } catch (err) {
-        console.error('navigator.install() failed:', err);
         return false;
       }
     }
