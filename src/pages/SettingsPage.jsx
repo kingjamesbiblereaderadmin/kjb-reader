@@ -895,12 +895,12 @@ export default function SettingsPage() {
             {(!isInstallable || showInstallHint) && (
               <div className="space-y-2 bg-secondary/50 rounded-xl p-4 mt-3">
                 <p className="font-sans text-xs text-foreground mb-2">
-                  <strong>Install KJB Reader from your browser menu:</strong>
+                  <strong>Manual Installation Guide:</strong>
                 </p>
                 <div className="font-sans text-xs text-muted-foreground space-y-1.5">
-                  <p>• <strong>iPhone/iPad:</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Share</span> button, then <span className="text-foreground font-medium">"Add to Home Screen"</span></p>
-                  <p>• <strong>Android:</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">⋮ Menu</span>, then <span className="text-foreground font-medium">"Install app"</span></p>
-                  <p>• <strong>Desktop:</strong> If the automatic prompt didn't appear (or was missed), look for the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Install</span> icon in the address bar (near the bookmark star), or use your browser's menu.</p>
+                  <p>• <strong>Apple iOS:</strong> Tap the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Share</span> button in Safari, then select <span className="text-foreground font-medium">"Add to Home Screen"</span>.</p>
+                  <p>• <strong>Android:</strong> Open the browser menu <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">(⋮)</span>, then select <span className="text-foreground font-medium">"Install app"</span>.</p>
+                  <p>• <strong>Desktop:</strong> Click the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Install</span> icon located in your browser's address bar, or access the option via the main browser menu.</p>
                 </div>
               </div>
             )}
@@ -1138,11 +1138,11 @@ export default function SettingsPage() {
         {notifPermission === 'unsupported' ? (
           <div className="space-y-3">
             <p className="font-sans text-sm text-muted-foreground">
-              Notifications are not supported in this browser. To enable them, install this app to your home screen:
+              Browser notifications are not supported in your current environment. To enable this feature, please install the application:
             </p>
             <div className="font-sans text-xs text-muted-foreground space-y-1.5 bg-secondary/50 rounded-xl p-4">
-              <p>• <strong>iPhone (Safari):</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Share</span> then <span className="text-foreground font-medium">"Add to Home Screen"</span></p>
-              <p>• <strong>Android (Chrome):</strong> Tap <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">⋮ Menu</span> then <span className="text-foreground font-medium">"Install app"</span></p>
+              <p>• <strong>Apple iOS:</strong> Tap the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Share</span> button in Safari, then select <span className="text-foreground font-medium">"Add to Home Screen"</span>.</p>
+              <p>• <strong>Android:</strong> Open the browser menu <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">(⋮)</span>, then select <span className="text-foreground font-medium">"Install app"</span>.</p>
             </div>
           </div>
         ) : (

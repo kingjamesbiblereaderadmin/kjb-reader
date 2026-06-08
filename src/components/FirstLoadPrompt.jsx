@@ -184,14 +184,14 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
               {showIOSHint && !installDone && (
                 <div className="bg-secondary/40 border border-border rounded-xl p-3">
                   <p className="font-sans text-xs text-foreground leading-relaxed">
-                    <strong>Install KJB Reader:</strong>
+                    <strong>Manual Installation Guide:</strong>
                     <br />
                     {isIOS() ? (
-                      <>Tap <strong>Share</strong>, then <strong>"Add to Home Screen"</strong>.</>
+                      <>Please tap the <strong>Share</strong> icon in your browser menu, then select <strong>"Add to Home Screen"</strong>.</>
                     ) : isMobile() ? (
-                      <>Tap <strong>⋮ Menu</strong>, then <strong>"Install app"</strong>.</>
+                      <>Please open your browser's <strong>Menu (⋮)</strong> and select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</>
                     ) : (
-                      <>If the automatic prompt didn't appear, your browser might not support it, or it was dismissed. Look for the <strong>Install</strong> icon in the address bar (near the bookmark star), or use your browser's menu.</>
+                      <>Your browser may have blocked the automatic prompt. To install manually, please click the <strong>Install</strong> icon located in your address bar, or use your browser's main menu.</>
                     )}
                   </p>
                 </div>
