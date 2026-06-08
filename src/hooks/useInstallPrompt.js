@@ -75,29 +75,28 @@ export function useInstallPrompt() {
     };
   }, []);
 
-  const promptInstall = () => {
+  const promptInstall = async () => {
     const promptEvent = globalDeferredPrompt || window.kjbDeferredPrompt;
     if (!promptEvent) {
       return Promise.reject(new Error('No prompt available'));
     }
     
     try {
-      promptEvent.prompt();
-      return promptEvent.userChoice.then((choiceResult) => {
-        globalDeferredPrompt = null;
-        window.kjbDeferredPrompt = null;
-        setDeferredPrompt(null);
-        if (choiceResult.outcome === 'accepted') {
-          globalIsInstallable = false;
-          setIsInstallable(false);
-          globalIsInstalled = true;
-          setIsInstalled(true);
-          try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
-          window.dispatchEvent(new Event('pwa-installed')); 
-          return true;
-        }
-        return false;
-      });
+      await promptEvent.prompt();
+      const { outcome } = await promptEvent.userChoice;
+      globalDeferredPrompt = null;
+      window.kjbDeferredPrompt = null;
+      setDeferredPrompt(null);
+      if (outcome === 'accepted') {
+        globalIsInstallable = false;
+        setIsInstallable(false);
+        globalIsInstalled = true;
+        setIsInstalled(true);
+        try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
+        window.dispatchEvent(new Event('pwa-installed')); 
+        return true;
+      }
+      return false;
     } catch (err) {
       console.error('Failed to prompt install', err);
       return Promise.reject(err);

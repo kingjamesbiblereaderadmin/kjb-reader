@@ -34,7 +34,7 @@ const inIframe = () => {
 };
 
 const LAST_REVISED = 'June 8th, 2026';
-const WORKER_VERSION = 'v20260608_170';
+const WORKER_VERSION = 'v20260608_171';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -882,6 +882,10 @@ export default function SettingsPage() {
           <div className="space-y-3">
             <button
               onClick={() => {
+                if (!isInstallable) {
+                  setShowInstallHint(true);
+                  return;
+                }
                 promptInstall().catch((err) => {
                   console.error('Install prompt failed:', err);
                   toast.error("Browser blocked automatic install", { 
