@@ -56,9 +56,19 @@ window.addEventListener('load', async () => {
 
       // Prewarm: tell SW to cache every <script> and <link rel=stylesheet> on the page
       // so all lazy-loaded routes work offline, even if the user never visited them online.
+      // Critical fonts that load lazily (accessibility fonts + Google Fonts CSS).
+      // Explicitly prewarm them so the FULL app — including dyslexic/legible
+      // fonts and all scripture fonts — works offline even if never triggered online.
+      const CRITICAL_FONT_ASSETS = [
+        'https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Regular.woff',
+        'https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Bold.woff',
+        'https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Italic.woff',
+        'https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=block',
+      ];
+
       const prewarmAssets = () => {
         try {
-          const urls = new Set();
+          const urls = new Set(CRITICAL_FONT_ASSETS);
           document.querySelectorAll('script[src]').forEach(s => {
             try { urls.add(new URL(s.src, location.href).href); } catch {}
           });
