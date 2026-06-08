@@ -505,7 +505,7 @@ export default function HomePage() {
       <div className="print:hidden bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-6 text-center mb-6">
         <p className="font-serif text-xl font-bold text-red-700 dark:text-red-400 mb-2">Are you saved?</p>
         <p className="font-sans text-sm text-foreground/80 mb-4">
-          Jesus Christ died for your sins, shed his blood, was buried, and rose again on the third day. Trust the blood — believe the gospel and be saved.
+          Jesus Christ died for your sins, shed his blood, was buried, and rose again on the third day. Trust Christ's blood, death, burial and resurrection, and be eternally saved.
         </p>
         <Link
           to="/gospel"
