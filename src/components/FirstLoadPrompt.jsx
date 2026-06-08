@@ -151,9 +151,9 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
         className="fixed inset-0 z-[99998] bg-black/50 backdrop-blur-md"
         onClick={handleClose}
       />
-      <div className="fixed bottom-20 sm:bottom-6 right-4 z-[99999] w-72 sm:w-80 flex flex-col pointer-events-none max-h-[calc(100dvh-7rem)] sm:max-h-[calc(100dvh-4rem)]">
+      <div className="fixed bottom-20 sm:bottom-6 right-4 z-[99999] w-72 sm:w-80 flex flex-col min-h-0 pointer-events-none max-h-[calc(100dvh-7rem)] sm:max-h-[calc(100dvh-4rem)]">
         <div
-          className="w-full bg-card border border-border rounded-2xl shadow-2xl p-3 sm:p-4 flex flex-col pointer-events-auto max-h-full"
+          className="w-full bg-card border border-border rounded-2xl shadow-2xl p-3 sm:p-4 flex flex-col min-h-0 pointer-events-auto max-h-full overflow-hidden"
           onClick={e => e.stopPropagation()}
         >
           <div className="flex items-start justify-between gap-2 mb-2 shrink-0">
@@ -171,7 +171,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             </button>
           </div>
 
-          <div className="overflow-y-auto overscroll-contain flex-1 space-y-2.5 sm:space-y-3 pr-1 scrollbar-hide">
+          <div className="overflow-y-auto overscroll-contain flex-1 min-h-0 space-y-2.5 sm:space-y-3 pr-1 scrollbar-hide">
           {showInstall && (
             <div className="space-y-2 shrink-0">
               <button
@@ -186,8 +186,8 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
               >
                 {isIOS() ? <Share className="w-4 h-4 shrink-0" /> : isMobile() ? <Download className="w-4 h-4 shrink-0" /> : <MonitorSmartphone className="w-4 h-4 shrink-0" />}
                 <span className="text-left leading-tight">
-                  <span className="block font-semibold">{installDone ? 'App Installed' : isMobile() ? 'Add to Home Screen' : 'Install App'}</span>
-                  <span className="block text-[10px] sm:text-xs opacity-80">{installDone ? 'Available on your device' : 'Offline access, faster loading'}</span>
+                  <span className="block font-semibold">{installDone ? 'App Installed' : isInstallable ? (isMobile() ? 'Add to Home Screen' : 'Install App') : 'How to Install App'}</span>
+                  <span className="block text-[10px] sm:text-xs opacity-80">{installDone ? 'Available on your device' : isInstallable ? 'Offline access, faster loading' : 'View manual instructions'}</span>
                 </span>
               </button>
               
