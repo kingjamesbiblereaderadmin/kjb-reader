@@ -1,5 +1,3 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
-
 // In-memory cache
 let bibleData = null;
 let chapterCache = {};
@@ -243,60 +241,6 @@ Deno.serve(async (req) => {
           modResult: seed % bookNames.length
         }
       });
-    }
-
-    if (action === 'extractProperNouns') {
-      // Resource-intensive admin-only tool: require an authenticated admin.
-      const base44 = createClientFromRequest(req);
-      const user = await base44.auth.me().catch(() => null);
-      if (user?.role !== 'admin') {
-        return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
-      }
-      // Scan every verse and collect capitalized words that appear MID-SENTENCE
-      // (i.e. not the first word after a sentence break), which are almost
-      // always proper nouns in the KJV. Exclude words already covered by the
-      // caller-supplied dictionary (lowercased keys), then return the missing
-      // ones sorted by frequency (most common first).
-      const known = new Set((body.knownKeys || []).map(k => String(k).toLowerCase()));
-      // Two passes: (1) tally how often each lowercased word appears capitalized
-      // vs lowercase anywhere in the text. A true proper noun is essentially
-      // ALWAYS capitalized; ordinary words (and, the, thou) appear lowercase too.
-      const capCount = {};
-      const lowerCount = {};
-
-      const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
-      for (const bn of bookNames) {
-        const chapters = bible[bn];
-        for (const ch of Object.keys(chapters)) {
-          for (const v of chapters[ch]) {
-            const clean = v.text
-              .replace(/\[|\]/g, '')
-              .replace(/¶\s*/g, '')
-              .replace(/<<[^>]*>>/g, '');
-            const tokens = clean.match(/[A-Za-z]+(?:'[A-Za-z]+)?/g) || [];
-            for (const tok of tokens) {
-              const lower = tok.toLowerCase();
-              if (/^[A-Z]/.test(tok)) capCount[lower] = (capCount[lower] || 0) + 1;
-              else lowerCount[lower] = (lowerCount[lower] || 0) + 1;
-            }
-          }
-        }
-      }
-
-      // A word is treated as a proper noun when it is capitalized at least 3x
-      // AND appears lowercase rarely (<10% of its capitalized count). This
-      // filters out sentence-initial common words while keeping every name.
-      const missing = Object.entries(capCount)
-        .filter(([word, cap]) => {
-          if (known.has(word)) return false;
-          if (word.length < 2) return false;
-          const low = lowerCount[word] || 0;
-          return cap >= 3 && low < cap * 0.1;
-        })
-        .sort((a, b) => b[1] - a[1])
-        .map(([word, count]) => ({ word, count }));
-
-      return Response.json({ totalMissing: missing.length, missing });
     }
 
     return Response.json({ error: 'Unknown action' }, { status: 400 });
