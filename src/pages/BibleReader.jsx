@@ -501,6 +501,10 @@ export default function BibleReader() {
         setSearchResultIndex(0); setSearchTotalResults(0);
       }
       
+      if (posRef.current.abbr === urlBookObj.abbr && posRef.current.chapter === chapterNum && posRef.current.verse === verseNum && !isFromGospel) {
+        return;
+      }
+      
       if (isFromDaily) {
         lastReadingClearedRef.current = false;
         try {
@@ -712,13 +716,13 @@ export default function BibleReader() {
     rangeHighlightRef.current = false; freshNavRef.current = true;
     const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
     setPos(newPos);
+    loadChapter(newAbbr, newChapter, jumpVerse);
     try {
       let url;
       if (newChapter === 0) url = `/read?titlePage=${newAbbr === 'MAT' ? 'new' : 'old'}`;
       else { url = `/read?book=${newAbbr}&chapter=${newChapter}`; if (jumpVerse) url += `&verse=${jumpVerse}`; if (section) url += `&highlight=${section}`; }
-      window.history.replaceState({}, '', url);
+      routerNavigate(url, { replace: isAutoAdvance || false });
     } catch {}
-    loadChapter(newAbbr, newChapter, jumpVerse);
   };
 
   const stepToResult = (r) => {
