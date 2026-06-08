@@ -130,8 +130,10 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   const handleNotifClick = async (e) => {
     if (onEnableNotif) {
       try {
-        await onEnableNotif();
-        if ('Notification' in window && Notification.permission === 'granted') {
+        const ok = await onEnableNotif();
+        // Trust the result from onEnableNotif (covers granted + unsupported
+        // platforms where Notification.permission may not read 'granted').
+        if (ok || ('Notification' in window && Notification.permission === 'granted')) {
           setNotifDone(true);
         } else {
           setNotifFailed(true);

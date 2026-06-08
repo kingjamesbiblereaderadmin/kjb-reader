@@ -437,12 +437,14 @@ function useAppLayoutPrompt() {
         scheduleDailyNotification();
         setNotifEnabled(true);
         window.dispatchEvent(new Event('storage'));
+        return true;
       } else if (result === 'denied') {
         alert('Notifications are blocked. Please allow notifications in your browser/app settings for this site.');
       }
     } catch (err) {
       console.error('Notification permission error:', err);
     }
+    return false;
   };
 
   const handleDismiss = () => {
