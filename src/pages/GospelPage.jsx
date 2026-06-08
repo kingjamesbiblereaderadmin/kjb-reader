@@ -259,15 +259,15 @@ function GospelActions() {
               <ChevronDown className="w-4 h-4 opacity-70" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="font-sans">
-            <DropdownMenuItem onClick={handleDownloadTxt} className="gap-2 cursor-pointer">
-              <Download className="w-4 h-4" /> Download as Text
+          <DropdownMenuContent align="end" className="font-sans w-52">
+            <DropdownMenuItem onClick={handleDownloadTxt} className="gap-2 cursor-pointer py-2.5">
+              <Download className="w-4 h-4 text-muted-foreground flex-shrink-0" /> Download as Text
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleDownloadPdf} className="gap-2 cursor-pointer">
-              <FileText className="w-4 h-4" /> Download as PDF
+            <DropdownMenuItem onClick={handleDownloadPdf} className="gap-2 cursor-pointer py-2.5">
+              <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" /> Download as PDF
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleDownloadWord} className="gap-2 cursor-pointer">
-              <FileType className="w-4 h-4" /> Download as Word
+            <DropdownMenuItem onClick={handleDownloadWord} className="gap-2 cursor-pointer py-2.5">
+              <FileType className="w-4 h-4 text-muted-foreground flex-shrink-0" /> Download as Word
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
