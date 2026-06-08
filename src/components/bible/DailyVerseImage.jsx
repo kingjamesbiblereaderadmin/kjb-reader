@@ -904,14 +904,15 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
           </div>
           <div className="flex-1 flex flex-col justify-center">
-          <div className={hasCustomBg ? 'mx-auto w-full max-w-[100rem] rounded-2xl bg-black/20 backdrop-blur-[2px] px-3 sm:px-6 py-6' : 'mx-auto w-full max-w-[100rem] px-1 sm:px-2'}>
+          <div className={hasCustomBg ? 'mx-auto w-full max-w-none rounded-2xl bg-black/20 backdrop-blur-[2px] px-2 sm:px-4 py-6' : 'mx-auto w-full max-w-none px-1 sm:px-2'}>
           <blockquote 
-            className={`text-center leading-relaxed [&_em]:italic break-words ${fontFamily === 'cursive' ? 'kjb-verse-card cursive-em-style' : ''} ${panelTextClass}`}
+            className={`text-center [&_em]:italic break-words ${fontFamily === 'cursive' ? 'kjb-verse-card cursive-em-style' : ''} ${panelTextClass}`}
             style={{ 
               color: textColor, 
               opacity: textOpacity, 
               fontFamily: resolvedFont,
               fontWeight: '700',
+              lineHeight: '2',
               textShadow: '0 2px 8px rgba(0,0,0,0.35)',
               overflowWrap: 'break-word',
               wordBreak: 'break-word'
