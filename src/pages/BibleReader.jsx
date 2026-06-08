@@ -283,13 +283,14 @@ export default function BibleReader() {
   const toggleVerseSelect = (verseNum) => {
     setSelectedVerses(prev => {
       const next = new Set(prev);
-      next.has(verseNum) ? next.delete(verseNum) : next.add(verseNum);
+      const parsed = parseInt(verseNum, 10);
+      next.has(parsed) ? next.delete(parsed) : next.add(parsed);
       return next;
     });
   };
 
   const selectAllVerses = () => {
-    setSelectedVerses(new Set(verses.map(v => v.verse)));
+    setSelectedVerses(new Set(verses.map(v => parseInt(v.verse, 10))));
   };
 
   const handleCopySelected = async () => {
@@ -984,28 +985,29 @@ export default function BibleReader() {
     // full chapter.
     // Honour the user's chosen view: 'filter' (verses only) or 'full' (full chapter).
     const useFilter = resultViewRef.current !== 'full';
-    if (!section && r.verse && r.verseEnd && r.verseEnd > r.verse) {
-      const end = r.verseEnd;
+    if (!section && r.verse && r.verseEnd && parseInt(r.verseEnd, 10) > parseInt(r.verse, 10)) {
+      const start = parseInt(r.verse, 10);
+      const end = parseInt(r.verseEnd, 10);
       const range = new Set();
-      for (let v = r.verse; v <= end; v++) range.add(v);
+      for (let v = start; v <= end; v++) range.add(v);
       rangeHighlightRef.current = true;
       setHighlightedVerses(range);
       setSelectedVerses(range);
       setFilterMode(useFilter);
       try {
         const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: r.verse, verseEnd: end }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: start, verseEnd: end }));
       } catch {}
     } else if (!section && targetVerse) {
-      // Single-verse search result → filter the reader to show ONLY that verse.
-      const single = new Set([targetVerse]);
+      const parsedTarget = parseInt(targetVerse, 10);
+      const single = new Set([parsedTarget]);
       rangeHighlightRef.current = true;
       setHighlightedVerses(single);
       setSelectedVerses(single);
       setFilterMode(useFilter);
       try {
         const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: targetVerse, verseEnd: null }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: parsedTarget, verseEnd: null }));
       } catch {}
     } else {
       rangeHighlightRef.current = false;
@@ -1885,7 +1887,7 @@ export default function BibleReader() {
               <VerseText
                 key={v.verse}
                 verse={v}
-                highlight={highlightVerse === v.verse || highlightedVerses.has(v.verse)}
+                highlight={parseInt(highlightVerse, 10) === parseInt(v.verse, 10) || highlightedVerses.has(parseInt(v.verse, 10))}
                 id={`v${v.verse}`}
                 bookName={book.name}
                 abbr={pos.abbr}
@@ -1893,17 +1895,17 @@ export default function BibleReader() {
                 isFirstVerse={idx === 0}
                 paragraphMode={paragraphMode}
                 selectMode={selectMode}
-                isSelected={selectedVerses.has(v.verse)}
+                isSelected={selectedVerses.has(parseInt(v.verse, 10)) || selectedVerses.has(String(v.verse))}
                 onSelect={toggleVerseSelect}
                 totalVerses={verseCount}
-                colophon={verses.length > 0 && v.verse === verses[verses.length - 1].verse ? colophon : null}
-                subscript={v.verse === 1 ? (SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] || null) : null}
+                colophon={verses.length > 0 && String(v.verse) === String(verses[verses.length - 1].verse) ? colophon : null}
+                subscript={parseInt(v.verse, 10) === 1 ? (SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] || null) : null}
                 isCursive={fontFamily === 'cursive'}
                 fontFamilyValue={getFontFamilyValue(fontFamily)}
                 zoomLevel={zoomLevel}
                 columnMode={useColumns}
-                dropCap={idx === 0 && v.verse === 1}
-                searchTerm={searchTerm && highlightVerse === v.verse ? searchTerm : null}
+                dropCap={idx === 0 && parseInt(v.verse, 10) === 1}
+                searchTerm={searchTerm && parseInt(highlightVerse, 10) === parseInt(v.verse, 10) ? searchTerm : null}
                 />
                 ))}
           </div>

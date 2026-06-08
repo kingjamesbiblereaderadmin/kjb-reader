@@ -397,8 +397,8 @@ export default function SearchPage() {
               const bookEntry = BOOK_BY_API_NAME[bookName];
               matches.push({
                 book: bookName,
-                chapter: parseInt(chapterNum),
-                verse: verseObj.verse,
+                chapter: parseInt(chapterNum, 10),
+                verse: parseInt(verseObj.verse, 10),
                 text: verseObj.text,
                 abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
               });
@@ -435,9 +435,9 @@ export default function SearchPage() {
                 const bookEntry = BOOK_BY_API_NAME[bookName];
                 matches.push({
                   book: bookName,
-                  chapter: parseInt(chapterNum),
-                  verse: verseObj.verse,
-                  verseEnd: (bookName === 'Psalms' && chapterNum == 119) ? verseObj.verse + 7 : undefined,
+                  chapter: parseInt(chapterNum, 10),
+                  verse: parseInt(verseObj.verse, 10),
+                  verseEnd: (bookName === 'Psalms' && parseInt(chapterNum, 10) === 119) ? parseInt(verseObj.verse, 10) + 7 : undefined,
                   text: headingClean.toUpperCase(),
                   isHeading: true,
                   abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
@@ -710,8 +710,9 @@ export default function SearchPage() {
     // Include the search term (&q=) so the URL is shareable/bookmarkable.
     const qParam = q ? `&q=${encodeURIComponent(q)}` : '';
     const hlParam = section ? `&highlight=${section}` : '';
+    const vEndParam = verseEnd ? `&verseEnd=${verseEnd}` : '';
     const url = verse
-      ? `/read?book=${abbr}&chapter=${chapter}&verse=${verse}&from=search${qParam}`
+      ? `/read?book=${abbr}&chapter=${chapter}&verse=${verse}${vEndParam}&from=search${qParam}`
       : `/read?book=${abbr}&chapter=${chapter}&from=search${hlParam}${qParam}`;
     navigate(url);
     // If already on /read, notify the mounted reader to load this passage.
