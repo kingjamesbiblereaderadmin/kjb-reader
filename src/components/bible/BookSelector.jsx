@@ -12,7 +12,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
       <button
         key={book.abbr}
         onClick={() => { onSelect(book, false, true); onClose(); }}
-        className={`w-full text-left px-4 py-2.5 text-sm font-sans transition-colors border-b border-border/40 last:border-b-0 ${
+        className={`w-full text-left px-4 py-2.5 text-sm font-sans transition-colors border-b border-border last:border-b-0 ${
           active
             ? 'bg-accent text-accent-foreground font-semibold'
             : 'hover:bg-secondary text-foreground'
@@ -39,28 +39,28 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
         {/* Title Page - Above Old Testament */}
         <button
           onClick={() => { onSelect({ abbr: 'GEN', name: 'Genesis', chapters: 50, shortName: 'Gen' }, true, false); onClose(); }}
-          className="w-full text-left px-4 py-3 text-sm font-sans transition-colors hover:bg-secondary text-foreground font-medium text-primary border-b border-border/60"
+          className="w-full text-left px-4 py-3 text-sm font-sans transition-colors hover:bg-secondary text-foreground font-medium text-primary border-b border-border"
         >
           <span>Title Page</span>
         </button>
 
         {/* Old Testament */}
         <button
-          className="w-full flex items-center justify-between px-4 py-3 font-sans font-semibold text-sm text-primary hover:bg-secondary transition-colors border-b border-border/60"
+          className="w-full flex items-center justify-between px-4 py-3 font-sans font-semibold text-sm text-primary hover:bg-secondary transition-colors border-b border-border"
           onClick={() => setOldOpen(o => !o)}
         >
           <span>Old Testament <span className="text-muted-foreground font-normal">(39 books)</span></span>
           {oldOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </button>
         {oldOpen && (
-          <div className="flex flex-col border-b border-border/60">
+          <div className="flex flex-col border-b border-border">
             {OLD_TESTAMENT.map((book) => renderBook(book))}
           </div>
         )}
 
         {/* New Testament */}
         <button
-          className="w-full flex items-center justify-between px-4 py-3 font-sans font-semibold text-sm text-primary hover:bg-secondary transition-colors border-b border-border/60"
+          className="w-full flex items-center justify-between px-4 py-3 font-sans font-semibold text-sm text-primary hover:bg-secondary transition-colors border-b border-border"
           onClick={() => setNewOpen(o => !o)}
         >
           <span>New Testament <span className="text-muted-foreground font-normal">(27 books)</span></span>
@@ -70,7 +70,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
           <div className="flex flex-col">
             <button
               onClick={() => { onSelect({ abbr: 'MAT', name: 'Matthew', chapters: 28, shortName: 'Mat' }, true); onClose(); }}
-              className="w-full text-left px-4 py-2.5 text-sm font-sans transition-colors hover:bg-secondary text-foreground border-b border-border/40"
+              className="w-full text-left px-4 py-2.5 text-sm font-sans transition-colors hover:bg-secondary text-foreground border-b border-border"
             >
               <span>Title Page</span>
             </button>
