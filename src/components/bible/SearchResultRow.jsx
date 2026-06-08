@@ -75,7 +75,7 @@ function SearchResultRow({ r, i, thisIndex, isFocused, isSelected, selectMode, h
         } else if (isColophon) {
           onGoToVerse(r.abbr, r.chapter, null, null, i, 'colophon');
         } else {
-          onGoToVerse(r.abbr, r.chapter, r.verse, null, i);
+          onGoToVerse(r.abbr, r.chapter, r.verse, r.verseEnd || null, i);
         }
       }}
       className={`w-full text-left p-4 rounded-xl border transition-colors cursor-pointer flex items-start gap-3 print:p-0 print:border-none print:rounded-none print:bg-transparent print:mb-3 print:break-inside-avoid ${

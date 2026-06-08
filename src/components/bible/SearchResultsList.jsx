@@ -186,7 +186,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
           if (!r) return;
           const section = r.isColophon ? 'colophon' : r.isSubscript ? 'subscript' : null;
           if (r.isColophon || r.isSubscript || r.verse === 0) onGoToVerse(r.abbr, r.chapter, null, null, stop.index, section);
-          else onGoToVerse(r.abbr, r.chapter, r.verse, null, stop.index);
+          else onGoToVerse(r.abbr, r.chapter, r.verse, r.verseEnd || null, stop.index);
         }
       } else if (e.key === 'Escape') {
         setNavPos(-1);

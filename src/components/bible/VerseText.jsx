@@ -103,6 +103,19 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   // Psalm 119 acrostic stanza heading (ALEPH, BETH, …) — italic, no pilcrow,
   // shown above the verse it precedes.
   const headingLabel = verse.heading ? verse.heading.charAt(0) + verse.heading.slice(1).toLowerCase() : null;
+  
+  const renderHeadingLabel = () => {
+    if (!headingLabel) return null;
+    if (!searchTerm || !searchTerm.trim()) return headingLabel;
+    const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escaped})`, 'gi');
+    if (!regex.test(headingLabel)) return headingLabel;
+    const parts = headingLabel.split(regex);
+    return parts.map((part, i) => 
+      regex.test(part) ? <mark key={i} style={{ backgroundColor: 'rgba(250, 204, 21, 0.55)', borderRadius: '3px', padding: '0 2px' }}>{part}</mark> : part
+    );
+  };
+
   // In line mode, the heading sits in the same flex row as a verse: a transparent
   // spacer matching the verse-number column, then the heading centered over the
   // verse-text column (so it's centered on the text, not the full page width).
@@ -115,7 +128,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           className={`flex-1 text-center font-bold text-foreground select-none not-italic tracking-wide ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
           style={{ fontSize: `${zoomLevel / 100 * 1.2}rem` }}
         >
-          {headingLabel}
+          {renderHeadingLabel()}
         </span>
       </span>
     ) : (
@@ -123,7 +136,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         className={`block text-center font-bold text-foreground select-none mt-6 mb-4 not-italic tracking-wide ${isCursive ? 'cursive-em-style' : 'font-serif'}`}
         style={{ fontSize: `${zoomLevel / 100 * 1.2}rem` }}
       >
-        {headingLabel}
+        {renderHeadingLabel()}
       </span>
     )
   ) : null;

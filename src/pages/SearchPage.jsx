@@ -437,6 +437,7 @@ export default function SearchPage() {
                   book: bookName,
                   chapter: parseInt(chapterNum),
                   verse: verseObj.verse,
+                  verseEnd: (bookName === 'Psalms' && chapterNum == 119) ? verseObj.verse + 7 : undefined,
                   text: headingClean.toUpperCase(),
                   isHeading: true,
                   abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
@@ -893,7 +894,7 @@ export default function SearchPage() {
       const r = results[prevIndex];
       const section = r.isColophon ? 'colophon' : r.isSubscript ? 'subscript' : null;
       if (section) goToVerse(r.abbr, r.chapter, null, null, prevIndex, section);
-      else goToVerse(r.abbr, r.chapter, r.verse, null, prevIndex);
+      else goToVerse(r.abbr, r.chapter, r.verse, r.verseEnd || null, prevIndex);
     }
   };
   
@@ -903,7 +904,7 @@ export default function SearchPage() {
       const r = results[nextIndex];
       const section = r.isColophon ? 'colophon' : r.isSubscript ? 'subscript' : null;
       if (section) goToVerse(r.abbr, r.chapter, null, null, nextIndex, section);
-      else goToVerse(r.abbr, r.chapter, r.verse, null, nextIndex);
+      else goToVerse(r.abbr, r.chapter, r.verse, r.verseEnd || null, nextIndex);
     }
   };
 
