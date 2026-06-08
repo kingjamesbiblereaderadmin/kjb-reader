@@ -144,7 +144,7 @@ export default function DownloadBibleSection() {
       <button
         onClick={handleGenerate}
         disabled={busy}
-        className="flex w-full justify-center items-center gap-2 py-3 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100 disabled:active:scale-100 disabled:opacity-60"
+        className="flex w-full justify-center items-center gap-2 py-1.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100 disabled:active:scale-100 disabled:opacity-60"
       >
         {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
         {busy ? 'Downloading…' : `Download Bible (${format === 'docx' ? 'Word' : format.toUpperCase()})`}{/* RTF/PDF/TXT show as-is */}

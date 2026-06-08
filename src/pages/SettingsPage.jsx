@@ -461,7 +461,7 @@ export default function SettingsPage() {
             key={font.value}
             disabled={isDisabled}
             onClick={() => pickReaderFont(font.value)}
-            className={`w-full py-3 rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center border ${
+            className={`w-full py-1.5 rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center border ${
               isActive
                 ? 'bg-primary text-primary-foreground border-primary'
                 : 'bg-transparent text-foreground border-border hover:border-accent'
@@ -475,7 +475,7 @@ export default function SettingsPage() {
         {a11yFont === 'default' && (
           <button
             onClick={() => pickReaderFont('serif')}
-            className="w-full py-3 rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center bg-transparent border border-border text-foreground hover:border-accent"
+            className="w-full py-1.5 rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center bg-transparent border border-border text-foreground hover:border-accent"
           >
             Reset to Default
           </button>
@@ -515,7 +515,7 @@ export default function SettingsPage() {
                   setA11yFont(font.value);
                   setAccessibilityFont(font.value);
                 }}
-                className={`w-full p-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-left border ${
+                className={`w-full py-1.5 px-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-left border ${
                   a11yFont === font.value
                     ? 'bg-primary/10 border-primary'
                     : 'bg-transparent border-border hover:border-accent'
@@ -831,7 +831,7 @@ export default function SettingsPage() {
                   key={font.value}
                   disabled={isDisabled}
                   onClick={() => pickVerseFont(font.value)}
-                  className={`px-4 py-3 rounded-xl font-sans text-sm font-medium border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
+                  className={`px-4 py-1.5 rounded-xl font-sans text-sm font-medium border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
                     isActive
                       ? 'bg-primary text-primary-foreground border-primary'
                       : 'bg-transparent text-foreground border-border hover:border-accent'
