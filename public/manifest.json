@@ -1,23 +1,22 @@
 {
-  "id": "/",
-  "name": "KJB Reader",
+  "name": "KJB Reader — Pure Cambridge Edition",
   "short_name": "KJB Reader",
   "description": "Read the King James Bible (Pure Cambridge Edition) with offline support, daily verses, and beautiful typography.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#ffffff",
-  "theme_color": "#fef9f3",
+  "background_color": "#0f1718",
+  "theme_color": "#0f1718",
   "icons": [
     {
-      "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/ad6cbeaed_generated_image.png",
+      "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/ad6cbeaed_generated_image.png",
+      "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -25,18 +24,17 @@
   ],
   "screenshots": [
     {
-      "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/3553645e3_BCObc7bb469-f8ce-4d13-b0bd-1d6f9d4206f1.png",
+      "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/d928d7694_BCOf0297029-2e38-446b-bd58-076244d9d764.png",
       "sizes": "1024x683",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "KJB Reader — Read the King James Version of the Bible with ease"
+      "label": "The Gospel of Salvation"
     },
     {
-      "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/3553645e3_BCObc7bb469-f8ce-4d13-b0bd-1d6f9d4206f1.png",
+      "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/d928d7694_BCOf0297029-2e38-446b-bd58-076244d9d764.png",
       "sizes": "1024x683",
       "type": "image/png",
-      "form_factor": "narrow",
-      "label": "KJB Reader — Read the King James Version of the Bible with ease"
+      "label": "The Gospel of Salvation"
     }
   ]
 }
