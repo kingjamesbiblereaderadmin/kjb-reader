@@ -64,7 +64,7 @@ export default function CurrentlyReadingIndicator({
     typeLabel = `Search: "${searchTerm}"`;
     const isStanza = book.abbr === 'PSA' && pos.chapter === 119 && selectedVerses && selectedVerses.size > 1;
     const searchVerses = isStanza
-      ? ` (Stanza ${searchTerm.toUpperCase()})`
+      ? ` (Stanza)`
       : (selectedVerses && selectedVerses.size > 1
         ? `:${formatVerseRange([...selectedVerses])}`
         : verseNum ? `:${verseNum}${occurrenceLabel || ''}` : '');
