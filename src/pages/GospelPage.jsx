@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Heart, AlertCircle, CheckCircle, XCircle, Copy, Check, Share2, Download, FileText, FileType, ChevronDown } from 'lucide-react';
+import { Heart, AlertCircle, CheckCircle, XCircle, Copy, Check, Share2, Download, FileText, FileType, ChevronDown, Printer } from 'lucide-react';
+import { printHtml } from '@/lib/printHelpers';
 
 function CopyButton({ text, className }) {
   const [copied, setCopied] = useState(false);

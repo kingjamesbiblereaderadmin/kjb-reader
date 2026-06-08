@@ -71,7 +71,7 @@ const sanitizeFilename = (q) => (q || 'verses').replace(/\s+/g, '-').replace(/[^
 // Build a clean, shareable URL for the print footer:
 // - normalise the preview/sandbox host to the public *.base44.app host
 // - drop internal tracking params (from, q) but keep book/chapter/verse
-function cleanPrintUrl() {
+export function cleanPrintUrl() {
   if (typeof window === 'undefined') return '';
   try {
     const u = new URL(window.location.href);
