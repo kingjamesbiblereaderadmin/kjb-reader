@@ -866,8 +866,7 @@ export default function SettingsPage() {
         )}
       </div>
 
-      {/* Install App — hidden in incognito (install/storage is unreliable there) */}
-      {!isIncognito && (
+      {/* Install App */}
       <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
         <button
           onClick={() => toggleSection('install')}
@@ -881,6 +880,14 @@ export default function SettingsPage() {
         </button>
         {expandedSections.install && (
         <div className="px-5 pb-6 pt-3 space-y-3">
+        {isIncognito && (
+          <div className="rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 p-3">
+            <p className="font-sans text-xs text-amber-700 dark:text-amber-400 font-medium leading-snug flex items-start gap-1.5">
+              <span className="shrink-0 leading-none mt-0.5">⚠️</span>
+              <span>You're in an incognito / guest window — installing the app won't work here. Open the app in a normal window to install it.</span>
+            </p>
+          </div>
+        )}
         <p className="font-sans text-sm text-muted-foreground leading-relaxed">
           Add the KJB Reader to your home screen for quick access and offline reading.
         </p>
@@ -949,7 +956,6 @@ export default function SettingsPage() {
         </div>
         )}
       </div>
-      )}
 
       {/* Offline Library */}
       <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
@@ -1155,8 +1161,7 @@ export default function SettingsPage() {
         {expandedSections.downloadPdf && <DownloadBibleSection />}
       </div>
 
-      {/* Notifications — hidden in incognito (push/SW is unreliable there) */}
-      {!isIncognito && (
+      {/* Notifications */}
       <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
         <button
           onClick={() => toggleSection('notifications')}
@@ -1170,6 +1175,14 @@ export default function SettingsPage() {
         </button>
         {expandedSections.notifications && (
         <div className="px-5 pb-6 pt-3 space-y-4">
+        {isIncognito && (
+          <div className="rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 p-3">
+            <p className="font-sans text-xs text-amber-700 dark:text-amber-400 font-medium leading-snug flex items-start gap-1.5">
+              <span className="shrink-0 leading-none mt-0.5">⚠️</span>
+              <span>You're in an incognito / guest window — notifications are unreliable here and won't persist after you close the window.</span>
+            </p>
+          </div>
+        )}
         {notifPermission === 'unsupported' ? (
           <div className="space-y-3">
             <p className="font-sans text-sm text-muted-foreground">
@@ -1219,7 +1232,6 @@ export default function SettingsPage() {
         </div>
         )}
       </div>
-      )}
 
       {/* App Info */}
       <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
