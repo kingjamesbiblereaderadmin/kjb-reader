@@ -187,6 +187,11 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
               
               {(!isInstallable && showIOSHint) && (
                 <div className="bg-secondary/40 border border-border rounded-xl p-3">
+                  {import.meta.env.DEV && (
+                    <p className="font-sans text-xs text-amber-600 dark:text-amber-400 mb-2 font-medium">
+                      Note: The native install prompt is disabled in the preview editor. To test the native popup, please publish your app and open the live link.
+                    </p>
+                  )}
                   <p className="font-sans text-xs text-foreground leading-relaxed">
                     <strong>Install KJB Reader from your browser menu:</strong>
                     <br />
@@ -195,7 +200,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                     ) : isMobile() ? (
                       <>Tap <strong>⋮ Menu</strong>, then <strong>"Install app"</strong>.</>
                     ) : (
-                      <>Click the <strong>Install</strong> icon in the address bar, or use the browser menu. <em>(Note: The native popup is blocked inside preview windows. Open the app in a new tab to test!)</em></>
+                      <>Click the <strong>Install</strong> icon in the address bar, or use the browser menu.</>
                     )}
                   </p>
                 </div>
