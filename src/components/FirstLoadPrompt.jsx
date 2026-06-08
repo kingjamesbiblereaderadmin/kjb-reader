@@ -149,12 +149,12 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
       {/* Backdrop */}
       <div
         className="fixed inset-0 z-[99998] bg-black/50 backdrop-blur-md"
-        onPointerDown={handleClose}
+        onClick={handleClose}
       />
       <div className="fixed bottom-20 sm:bottom-6 right-4 z-[99999] w-80 pointer-events-auto">
         <div
           className="bg-card border border-border rounded-2xl shadow-2xl p-4 space-y-3 relative"
-          onPointerDown={e => e.stopPropagation()}
+          onClick={e => e.stopPropagation()}
         >
           <div className="flex items-start justify-between gap-2 mb-1">
             <div className="flex flex-col">
@@ -163,7 +163,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             </div>
             <button
               type="button"
-              onPointerDown={handleClose}
+              onClick={handleClose}
               className="shrink-0 w-10 h-10 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary active:bg-secondary transition-colors cursor-pointer touch-manipulation"
               aria-label="Dismiss"
             >
@@ -221,7 +221,6 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                     key={opt.id}
                     type="button"
                     onClick={(e) => { e.stopPropagation(); setMode(opt.id); }}
-                    onPointerDown={e => e.stopPropagation()}
                     className={`flex flex-col items-center gap-1 px-1 py-1.5 rounded-lg border font-sans text-[10px] font-medium transition-all touch-manipulation ${
                       isActive
                         ? 'bg-primary text-primary-foreground border-primary shadow-sm'
@@ -252,7 +251,6 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                   disabled={isDisabled}
                   type="button"
                   onClick={(e) => { e.stopPropagation(); pickReaderFont(font.value); }}
-                  onPointerDown={e => e.stopPropagation()}
                   className={`px-1 py-1.5 rounded-lg border font-sans text-[10px] font-medium transition-all touch-manipulation ${
                     isActive
                       ? 'bg-primary text-primary-foreground border-primary shadow-sm'
@@ -278,7 +276,6 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                   key={font.value}
                   type="button"
                   onClick={(e) => { e.stopPropagation(); setA11yFont(font.value); setAccessibilityFont(font.value); }}
-                  onPointerDown={e => e.stopPropagation()}
                   className={`px-1 py-2.5 rounded-xl border-2 font-sans text-xs font-bold transition-all touch-manipulation flex flex-col items-center justify-center text-center ${
                     a11yFont === font.value
                       ? 'bg-primary text-primary-foreground border-primary shadow-md scale-[1.02]'
@@ -298,7 +295,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             <button
               type="button"
               disabled={notifFailed}
-              onPointerUp={notifFailed ? undefined : handleNotifClick}
+              onClick={notifFailed ? undefined : handleNotifClick}
               className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-left touch-manipulation transition-colors ${
                 notifFailed 
                   ? 'bg-secondary/40 border-border text-muted-foreground cursor-not-allowed' 
