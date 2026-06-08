@@ -151,63 +151,64 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
         className="fixed inset-0 z-[99998] bg-black/50 backdrop-blur-md"
         onClick={handleClose}
       />
-      <div className="fixed top-12 bottom-20 sm:top-6 sm:bottom-6 right-4 z-[99999] w-80 pointer-events-none">
+      <div className="fixed bottom-20 sm:bottom-6 right-4 z-[99999] w-72 sm:w-80 flex flex-col pointer-events-none max-h-[calc(100dvh-7rem)] sm:max-h-[calc(100dvh-4rem)]">
         <div
-          className="absolute bottom-0 right-0 w-full bg-card border border-border rounded-2xl shadow-2xl p-4 space-y-3 max-h-full overflow-y-auto overscroll-contain pointer-events-auto"
+          className="w-full bg-card border border-border rounded-2xl shadow-2xl p-3 sm:p-4 flex flex-col pointer-events-auto max-h-full"
           onClick={e => e.stopPropagation()}
         >
-          <div className="flex items-start justify-between gap-2 mb-1">
+          <div className="flex items-start justify-between gap-2 mb-2 shrink-0">
             <div className="flex flex-col">
-              <p className="font-serif text-lg font-bold text-foreground leading-tight">Welcome to KJB Reader</p>
-              <p className="font-sans text-xs text-muted-foreground mt-1">Get the most out of your app</p>
+              <p className="font-serif text-base sm:text-lg font-bold text-foreground leading-tight">Welcome to KJB Reader</p>
+              <p className="font-sans text-[10px] sm:text-xs text-muted-foreground mt-0.5">Get the most out of your app</p>
             </div>
             <button
               type="button"
               onClick={handleClose}
-              className="shrink-0 w-10 h-10 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary active:bg-secondary transition-colors cursor-pointer touch-manipulation"
+              className="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary active:bg-secondary transition-colors cursor-pointer touch-manipulation -mt-1 -mr-1"
               aria-label="Dismiss"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
+          <div className="overflow-y-auto overscroll-contain flex-1 space-y-2.5 sm:space-y-3 pr-1 scrollbar-hide">
           {showInstall && (
-            <div className="space-y-3 shrink-0">
+            <div className="space-y-2 shrink-0">
               <button
                 type="button"
                 disabled={installDone}
                 onClick={installDone ? undefined : handleInstallClick}
-                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl font-sans text-sm font-medium transition-all duration-200 touch-manipulation ${
+                className={`w-full flex items-center gap-2 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl font-sans text-[13px] sm:text-sm font-medium transition-all duration-200 touch-manipulation ${
                   installDone 
                     ? 'bg-secondary/40 border border-border text-foreground cursor-not-allowed opacity-80'
                     : 'hover:scale-[1.02] active:scale-[0.98] bg-primary text-primary-foreground border-2 border-primary'
                 }`}
               >
                 {isIOS() ? <Share className="w-4 h-4 shrink-0" /> : isMobile() ? <Download className="w-4 h-4 shrink-0" /> : <MonitorSmartphone className="w-4 h-4 shrink-0" />}
-                <span className="text-left">
+                <span className="text-left leading-tight">
                   <span className="block font-semibold">{installDone ? 'App Installed' : isMobile() ? 'Add to Home Screen' : 'Install App'}</span>
-                  <span className="block text-xs opacity-80">{installDone ? 'Available on your device' : 'Offline access, faster loading'}</span>
+                  <span className="block text-[10px] sm:text-xs opacity-80">{installDone ? 'Available on your device' : 'Offline access, faster loading'}</span>
                 </span>
               </button>
               
               {showIOSHint && !installDone && (
-                <div className="bg-secondary/40 border border-border rounded-xl p-3">
+                <div className="bg-secondary/40 border border-border rounded-xl p-2.5 sm:p-3">
                   {!isInstallable && (
                     <div className="mb-2 pb-2 border-b border-border/50">
                       {inIframe() ? (
-                        <p className="font-sans text-xs text-blue-600 dark:text-blue-400 font-medium flex items-start gap-1.5 leading-snug">
-                          <span className="shrink-0 text-sm leading-none mt-0.5">ℹ️</span>
+                        <p className="font-sans text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 font-medium flex items-start gap-1 leading-snug">
+                          <span className="shrink-0 leading-none mt-0.5">ℹ️</span>
                           You are viewing this inside a preview window, where browsers block PWA installation. Please open the app in a new tab to install it!
                         </p>
                       ) : (
-                        <p className="font-sans text-xs text-amber-600 dark:text-amber-400 font-medium flex items-start gap-1.5 leading-snug">
-                          <span className="shrink-0 text-sm leading-none mt-0.5">⚠️</span>
+                        <p className="font-sans text-[10px] sm:text-xs text-amber-600 dark:text-amber-400 font-medium flex items-start gap-1 leading-snug">
+                          <span className="shrink-0 leading-none mt-0.5">⚠️</span>
                           Your browser may not fully support automatic app installation. Try the manual steps below.
                         </p>
                       )}
                     </div>
                   )}
-                  <p className="font-sans text-xs text-foreground leading-relaxed">
+                  <p className="font-sans text-[10px] sm:text-xs text-foreground leading-relaxed">
                     <strong>Manual Installation Guide:</strong>
                     <br />
                     {isIOS() ? (
@@ -224,10 +225,10 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
           )}
 
           {/* Theme Mode */}
-          <div className="rounded-xl bg-secondary/40 border border-border p-2.5">
-            <div className="flex items-center gap-1.5 mb-2 px-0.5">
+          <div className="rounded-xl bg-secondary/40 border border-border p-2 sm:p-2.5">
+            <div className="flex items-center gap-1.5 mb-1.5 px-0.5">
               <Monitor className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-              <span className="font-sans text-xs font-medium text-foreground">Theme Mode</span>
+              <span className="font-sans text-[11px] sm:text-xs font-medium text-foreground">Theme Mode</span>
             </div>
             <div className="grid grid-cols-3 gap-1.5">
               {[
@@ -256,10 +257,10 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
           </div>
 
           {/* Read Font */}
-          <div className="rounded-xl bg-secondary/40 border border-border p-2.5">
-            <div className="flex items-center gap-1.5 mb-2 px-0.5">
+          <div className="rounded-xl bg-secondary/40 border border-border p-2 sm:p-2.5">
+            <div className="flex items-center gap-1.5 mb-1.5 px-0.5">
               <Type className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-              <span className="font-sans text-xs font-medium text-foreground">Read Font</span>
+              <span className="font-sans text-[11px] sm:text-xs font-medium text-foreground">Read Font</span>
             </div>
             <div className="grid grid-cols-4 gap-1.5">
               {VERSE_FONTS.map(font => {
@@ -271,7 +272,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                   disabled={isDisabled}
                   type="button"
                   onClick={(e) => { e.stopPropagation(); pickReaderFont(font.value); }}
-                  className={`px-1 py-1.5 rounded-lg border font-sans text-[10px] font-medium transition-all touch-manipulation ${
+                  className={`px-1 py-1.5 rounded-lg border font-sans text-[9px] sm:text-[10px] font-medium transition-all touch-manipulation ${
                     isActive
                       ? 'bg-primary text-primary-foreground border-primary shadow-sm'
                       : 'bg-card text-foreground border-border hover:border-accent'
@@ -285,18 +286,18 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
           </div>
 
           {/* Accessibility font — dyslexic & high-legibility options */}
-          <div className="rounded-xl bg-primary/5 border-2 border-primary/20 p-3 mt-1">
-            <div className="flex items-center gap-2 mb-2 px-0.5">
-              <Accessibility className="w-4 h-4 text-primary shrink-0" />
-              <span className="font-sans text-sm font-semibold text-primary">Accessibility Font</span>
+          <div className="rounded-xl bg-primary/5 border-2 border-primary/20 p-2 sm:p-2.5 mt-1">
+            <div className="flex items-center gap-1.5 mb-1.5 px-0.5">
+              <Accessibility className="w-3.5 h-3.5 text-primary shrink-0" />
+              <span className="font-sans text-[11px] sm:text-xs font-semibold text-primary">Accessibility Font</span>
             </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-1.5">
               {A11Y_FONTS.map(font => (
                 <button
                   key={font.value}
                   type="button"
                   onClick={(e) => { e.stopPropagation(); setA11yFont(font.value); setAccessibilityFont(font.value); }}
-                  className={`px-1 py-2.5 rounded-xl border-2 font-sans text-xs font-bold transition-all touch-manipulation flex flex-col items-center justify-center text-center ${
+                  className={`px-1 py-2 rounded-xl border-2 font-sans text-[10px] sm:text-xs font-bold transition-all touch-manipulation flex flex-col items-center justify-center text-center ${
                     a11yFont === font.value
                       ? 'bg-primary text-primary-foreground border-primary shadow-md scale-[1.02]'
                       : 'bg-card text-foreground border-border hover:border-accent'
@@ -304,8 +305,8 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                   style={font.preview ? { fontFamily: font.preview } : undefined}
                 >
                   <span className="mb-0.5">{font.label}</span>
-                  {font.value === 'dyslexic' && <span className="text-[9px] opacity-75 font-sans font-normal leading-none mt-0.5">Dyslexia</span>}
-                  {font.value === 'hyperlegible' && <span className="text-[9px] opacity-75 font-sans font-normal leading-none mt-0.5">Low Vision</span>}
+                  {font.value === 'dyslexic' && <span className="text-[8px] sm:text-[9px] opacity-75 font-sans font-normal leading-none mt-0.5">Dyslexia</span>}
+                  {font.value === 'hyperlegible' && <span className="text-[8px] sm:text-[9px] opacity-75 font-sans font-normal leading-none mt-0.5">Low Vision</span>}
                 </button>
               ))}
             </div>
@@ -322,15 +323,16 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             }`}
           >
             <Bell className="w-4 h-4 shrink-0" />
-            <span className="flex-1">
+            <span className="flex-1 text-left leading-tight">
               <span className={`block ${notifFailed || notifDone ? 'font-medium' : 'font-semibold'}`}>
                 {notifDone ? 'Notifications Enabled' : 'Enable Daily Notifications'}
               </span>
-              <span className="block text-xs opacity-80">
+              <span className="block text-[10px] sm:text-xs opacity-80 mt-0.5">
                 {notifDone ? 'You will receive the daily verse every morning' : notifFailed ? 'Blocked or not supported by browser' : 'Get the daily verse every morning'}
               </span>
             </span>
           </button>
+          </div>
         </div>
       </div>
     </>
