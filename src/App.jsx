@@ -365,6 +365,12 @@ const AuthenticatedApp = () => {
                   workerToSkip.postMessage({ type: 'SKIP_WAITING' });
                   setTimeout(() => window.location.reload(), 1500); // Fallback if controllerchange fails
                   return; // Let main.jsx handle reload
+                } else {
+                  // Fallback: if the new service worker gets stuck in the installing phase,
+                  // reload the page anyway so the app isn't trapped in the splash screen.
+                  // The new worker will take over on the next manual reload.
+                  setTimeout(() => window.location.reload(), 1500);
+                  return;
                 }
               }
             }
