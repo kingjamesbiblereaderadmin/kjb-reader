@@ -183,6 +183,14 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
               
               {showIOSHint && !installDone && (
                 <div className="bg-secondary/40 border border-border rounded-xl p-3">
+                  {!isInstallable && (
+                    <div className="mb-2 pb-2 border-b border-border/50">
+                      <p className="font-sans text-xs text-amber-600 dark:text-amber-400 font-medium flex items-start gap-1.5 leading-snug">
+                        <span className="shrink-0 text-sm leading-none mt-0.5">⚠️</span>
+                        Your browser may not fully support automatic app installation. Try the manual steps below.
+                      </p>
+                    </div>
+                  )}
                   <p className="font-sans text-xs text-foreground leading-relaxed">
                     <strong>Manual Installation Guide:</strong>
                     <br />
@@ -191,7 +199,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                     ) : isMobile() ? (
                       <>Please open your browser's <strong>Menu (⋮ or ⋯)</strong> and select <strong>"Add to phone"</strong>, <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</>
                     ) : (
-                      <>Your browser may have blocked the automatic prompt. To install manually, please click the <strong>Install</strong> icon located in your address bar, or use your browser's main menu.</>
+                      <>If an <strong>Install</strong> icon appears in your address bar, click it. Otherwise, check your browser's main menu. <span className="italic opacity-80">(Note: Firefox and Safari for Mac do not support desktop installation)</span>.</>
                     )}
                   </p>
                 </div>
