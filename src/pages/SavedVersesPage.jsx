@@ -136,15 +136,25 @@ export default function SavedVersesPage() {
       </div>
 
       {saved.length > 0 && (
-        <div className="relative mb-6">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search saved verses..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-card border border-border rounded-xl py-3 pl-11 pr-4 font-sans text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
-          />
+        <div className="flex items-center gap-2 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search saved verses..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-card border border-border rounded-xl py-3 pl-11 pr-4 font-sans text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
+            />
+          </div>
+          <button
+            onClick={handlePrint}
+            className="flex items-center gap-2 px-4 py-3 rounded-xl bg-secondary border border-border text-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors whitespace-nowrap"
+            title="Print saved verses"
+          >
+            <Printer className="w-4 h-4" />
+            <span className="hidden sm:inline">Print</span>
+          </button>
         </div>
       )}
       
