@@ -262,70 +262,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             </div>
           </div>
 
-          {/* Daily Verse Font */}
-          <div className="rounded-xl bg-secondary/40 border border-border p-2.5">
-            <div className="flex items-center gap-1.5 mb-2 px-0.5">
-              <Type className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-              <span className="font-sans text-xs font-medium text-foreground">Daily Verse Font</span>
-            </div>
-            <div className="grid grid-cols-4 gap-1.5">
-              {VERSE_FONTS.map(font => {
-                const isActive = a11yFont !== 'default' ? false : verseFontFamily === font.value;
-                const isDisabled = a11yFont !== 'default';
-                return (
-                <button
-                  key={font.value}
-                  disabled={isDisabled}
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); pickVerseFont(font.value); }}
-                  onPointerDown={e => e.stopPropagation()}
-                  className={`px-1 py-1.5 rounded-lg border font-sans text-[10px] font-medium transition-all touch-manipulation ${
-                    isActive
-                      ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                      : 'bg-card text-foreground border-border hover:border-accent'
-                  } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
-                  style={{ fontFamily: font.value }}
-                >
-                  {font.label}
-                </button>
-              )})}
-            </div>
-          </div>
 
-          {/* Accessibility font — dyslexic & high-legibility options */}
-          <div className="rounded-xl bg-secondary/40 border border-border p-2.5">
-            <div className="flex items-center gap-1.5 mb-2 px-0.5">
-              <Accessibility className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-              <span className="font-sans text-xs font-medium text-foreground">Accessibility Font</span>
-            </div>
-            <div className="grid grid-cols-2 gap-1.5">
-              {A11Y_FONTS.map(font => (
-                <button
-                  key={font.value}
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); setA11yFont(font.value); setAccessibilityFont(font.value); }}
-                  onPointerDown={e => e.stopPropagation()}
-                  className={`px-2 py-2 rounded-lg border font-sans text-xs font-medium transition-all touch-manipulation ${
-                    a11yFont === font.value
-                      ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                      : 'bg-card text-foreground border-border hover:border-accent'
-                  }`}
-                  style={font.preview ? { fontFamily: font.preview } : undefined}
-                >
-                  {font.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Theme color — match daily verse or pick a fixed colour */}
-          <div className="rounded-xl bg-secondary/40 border border-border p-2.5">
-            <div className="flex items-center gap-1.5 mb-2 px-0.5">
-              <Palette className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-              <span className="font-sans text-xs font-medium text-foreground">Theme Color</span>
-            </div>
-            <ThemeColorPicker compact />
-          </div>
 
           {showNotif && (
             <button
