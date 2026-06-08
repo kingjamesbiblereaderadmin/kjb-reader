@@ -23,6 +23,7 @@ import {
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { downloadBibleForOffline, downloadBibleForOfflineWithRetry, clearBibleCache, isBibleCached, CACHE_VERSION } from '@/lib/bibleCache';
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
+import { detectIncognito } from '@/lib/incognito';
 
 const A11Y_FONTS = [
   { value: 'dyslexic', label: 'OpenDyslexic', desc: 'Designed for readers with dyslexia', preview: "'OpenDyslexic', 'Comic Sans MS', sans-serif" },
@@ -43,6 +44,7 @@ export default function SettingsPage() {
   const [deleting, setDeleting] = useState(false);
   const [a11yFont, setA11yFont] = useState(getAccessibilityFont);
   const [showInstallHint, setShowInstallHint] = useState(false);
+  const [isIncognito, setIsIncognito] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     text: true,
     accessibility: true,
@@ -200,6 +202,11 @@ export default function SettingsPage() {
   }, []);
 
 
+
+  // Detect incognito/private mode once on mount
+  useEffect(() => {
+    detectIncognito().then(setIsIncognito);
+  }, []);
 
   // Refresh notification state on focus
   useEffect(() => {
@@ -859,7 +866,8 @@ export default function SettingsPage() {
         )}
       </div>
 
-      {/* Install App */}
+      {/* Install App — hidden in incognito (install/storage is unreliable there) */}
+      {!isIncognito && (
       <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
         <button
           onClick={() => toggleSection('install')}
@@ -941,6 +949,7 @@ export default function SettingsPage() {
         </div>
         )}
       </div>
+      )}
 
       {/* Offline Library */}
       <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
@@ -1146,7 +1155,8 @@ export default function SettingsPage() {
         {expandedSections.downloadPdf && <DownloadBibleSection />}
       </div>
 
-      {/* Notifications */}
+      {/* Notifications — hidden in incognito (push/SW is unreliable there) */}
+      {!isIncognito && (
       <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
         <button
           onClick={() => toggleSection('notifications')}
@@ -1209,6 +1219,7 @@ export default function SettingsPage() {
         </div>
         )}
       </div>
+      )}
 
       {/* App Info */}
       <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
