@@ -241,7 +241,7 @@ export default function BibleReader() {
     setSelectedVerses(new Set(verses.map(v => parseInt(v.verse, 10))));
   };
 
-  const handleCopySelected = async () => {
+  const generateShareText = () => {
     const toUse = selectedVerses.size > 0 ? selectedVerses : new Set(verses.map(v => v.verse));
     const selectedVersesList = verses.filter(v => toUse.has(v.verse)).sort((a, b) => a.verse - b.verse);
 
@@ -272,7 +272,11 @@ export default function BibleReader() {
         url: buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: g[0].verse, verseEnd: g[g.length - 1].verse > g[0].verse ? g[g.length - 1].verse : undefined, from: searchTerm ? 'search' : undefined }),
       });
     });
-    const lines = blocks.join('\n\n———\n\n');
+    return blocks.join('\n\n———\n\n');
+  };
+
+  const handleCopySelected = async () => {
+    const lines = generateShareText();
     
     try {
       const textarea = document.createElement('textarea');
@@ -311,9 +315,9 @@ export default function BibleReader() {
 
   const [shareFeedback, setShareFeedback] = useState(false);
   const handleShareChapter = async () => {
+    const shareText = generateShareText();
     const hasSel = selectedVerses.size > 0;
     const ref = hasSel ? `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}` : `${book.shortName} ${pos.chapter}`;
-    const shareText = `${ref} (KJB)\n\n${buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: hasSel ? Math.min(...selectedVerses) : null, verseEnd: hasSel ? Math.max(...selectedVerses) : null })}`;
     try {
       if (navigator.share) return await navigator.share({ title: `${ref} — KJB Reader`, text: shareText });
     } catch (err) { if (err?.name === 'AbortError') return; }
