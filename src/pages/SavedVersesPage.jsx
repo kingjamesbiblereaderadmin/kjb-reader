@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bookmark, Trash2, BookOpen, Share2, Copy, FolderPlus, Folder, MoreVertical, Edit2, Search } from 'lucide-react';
+import { Bookmark, Trash2, BookOpen, Share2, Copy, FolderPlus, Folder, MoreVertical, Edit2, Search, Printer } from 'lucide-react';
 import { getSavedVerses, removeSavedVerse, getSavedFolders, createFolder, deleteFolder, updateVerseFolder } from '@/lib/savedVerses';
 import { formatVerseShare, buildVerseUrl } from '@/lib/formatDailyVerse';
+import { printHtml } from '@/lib/printHelpers';
 import { toast } from 'sonner';
 
 import {
@@ -89,6 +90,30 @@ export default function SavedVersesPage() {
       await navigator.clipboard.writeText(buildShareText(entry));
       toast.success('Copied to clipboard');
     } catch {}
+  };
+
+  const visibleVerses = saved
+    .filter(entry => activeFolder === 'All' || (entry.folder || 'Favorites') === activeFolder)
+    .filter(entry => !searchQuery || entry.text.toLowerCase().includes(searchQuery.toLowerCase()) || entry.ref.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  const handlePrint = () => {
+    if (visibleVerses.length === 0) {
+      toast.error('No verses to print');
+      return;
+    }
+    const esc = (s) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const now = new Date();
+    const dateStr = now.toLocaleDateString() + ' at ' + now.toLocaleTimeString();
+    const title = activeFolder === 'All' ? 'Saved Verses' : `Saved Verses — ${activeFolder}`;
+    const header = `<h1 style="font-family:Georgia,serif;font-size:22pt;text-align:center;margin-bottom:24pt;">${esc(title)}</h1>`;
+    const body = visibleVerses.map((entry) =>
+      `<div style="margin:0 0 16pt 0;page-break-inside:avoid;break-inside:avoid;">` +
+      `<p style="font-family:system-ui,sans-serif;font-size:9pt;letter-spacing:0.08em;text-transform:uppercase;color:#666;margin:0 0 4pt 0;">${esc(entry.ref)} (KJB)</p>` +
+      `<blockquote style="margin:0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;">&ldquo;${esc(entry.text)}&rdquo;</blockquote>` +
+      `</div>`
+    ).join('');
+    const footer = `<div style="margin-top:30pt;padding-top:10pt;border-top:1px solid #eee;font-size:10pt;color:#777;page-break-inside:avoid;">${visibleVerses.length} verse${visibleVerses.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</div>`;
+    printHtml(header + body + footer);
   };
 
   const handleNavigate = (entry) => {

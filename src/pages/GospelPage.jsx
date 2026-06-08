@@ -253,6 +253,19 @@ function GospelActions() {
     doc.save('the-gospel.pdf');
   };
 
+  const handlePrint = () => {
+    const text = buildGospelTextPlain();
+    const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const body = text.split('\n').map((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) return '<p style="margin:0 0 8pt 0;">&nbsp;</p>';
+      if (/^-{6,}$/.test(trimmed)) return '<hr style="border:none;border-top:1px solid #ccc;margin:14pt 0;" />';
+      return `<p style="margin:0 0 8pt 0;line-height:1.5;font-size:12pt;">${esc(line)}</p>`;
+    }).join('');
+    const header = `<h1 style="font-family:Georgia,serif;font-size:22pt;text-align:center;margin-bottom:6pt;">How to be Saved</h1><p style="text-align:center;font-size:11pt;color:#555;margin-bottom:24pt;">The Gospel of Jesus Christ</p>`;
+    printHtml(header + body);
+  };
+
   const handleDownloadWord = () => {
     const text = buildGospelTextPlain();
     const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -299,6 +312,9 @@ function GospelActions() {
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleDownloadWord} className="gap-2 cursor-pointer py-2.5">
               <FileType className="w-4 h-4 text-muted-foreground flex-shrink-0" /> Download as Word
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handlePrint} className="gap-2 cursor-pointer py-2.5">
+              <Printer className="w-4 h-4 text-muted-foreground flex-shrink-0" /> Print
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ExternalLink, FileText, BookOpen, ShieldAlert, Globe, CheckCircle, Users, ChevronDown, Youtube, Facebook, Instagram, Link as LinkIcon, Copy } from 'lucide-react';
+import { ExternalLink, FileText, BookOpen, ShieldAlert, Globe, CheckCircle, Users, ChevronDown, Youtube, Facebook, Instagram, Link as LinkIcon, Copy, Printer } from 'lucide-react';
+import { printHtml } from '@/lib/printHelpers';
 
 function CopyButton({ text, className }) {
   const [copied, setCopied] = useState(false);
@@ -650,6 +651,35 @@ export default function ResourcesPage() {
     }
   };
   
+  const handlePrint = () => {
+    const esc = (s) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    let html = `<h1 style="font-family:Georgia,serif;font-size:22pt;text-align:center;margin-bottom:6pt;">Resources</h1><p style="text-align:center;font-size:11pt;color:#555;margin-bottom:24pt;">KJB defence materials, studies on modern version corruption, and free Bible study resources.</p>`;
+
+    // Why the KJB is God's Word
+    html += `<h2 style="font-size:15pt;margin:24pt 0 4pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;">${esc(WHY_KJB.title)}</h2><p style="font-size:11pt;color:#555;margin:0 0 10pt 0;">${esc(WHY_KJB.desc)}</p>`;
+    WHY_KJB.content.forEach((item) => {
+      html += `<h3 style="font-size:13pt;margin:12pt 0 4pt 0;">${esc(item.title)}</h3><p style="font-size:11pt;line-height:1.5;margin:0 0 4pt 0;">${esc(item.text)}</p>`;
+      (item.links || []).forEach((l) => { html += `<p style="font-size:10pt;color:#2a5ac8;margin:0 0 2pt 0;">${esc(l.label)}: ${esc(l.url)}</p>`; });
+    });
+
+    // Verified Preachers
+    html += `<h2 style="font-size:15pt;margin:24pt 0 8pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;">Verified KJB Preachers</h2>`;
+    PREACHERS.forEach((p) => {
+      html += `<h3 style="font-size:13pt;margin:12pt 0 2pt 0;">${esc(p.name)}</h3><p style="font-size:11pt;margin:0 0 4pt 0;">${esc(p.desc)}</p>`;
+      p.links.forEach((url) => { html += `<p style="font-size:10pt;color:#2a5ac8;margin:0 0 2pt 0;">${esc(url)}</p>`; });
+    });
+
+    // Resource categories
+    RESOURCES.forEach((section) => {
+      html += `<h2 style="font-size:15pt;margin:24pt 0 8pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;">${esc(section.category)}</h2>`;
+      section.items.forEach((item) => {
+        html += `<h3 style="font-size:13pt;margin:12pt 0 2pt 0;">${esc(item.title)}</h3><p style="font-size:11pt;line-height:1.5;margin:0 0 4pt 0;">${esc(item.desc)}</p><p style="font-size:10pt;color:#2a5ac8;margin:0 0 4pt 0;">${esc(item.url)}</p>`;
+      });
+    });
+
+    printHtml(html);
+  };
+
   return (
     <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-10">
       <div className="text-center mb-10">
@@ -659,12 +689,20 @@ export default function ResourcesPage() {
         <h1 className="font-serif text-4xl font-bold text-foreground mb-3">Resources</h1>
         <p className="font-sans text-muted-foreground max-w-lg mx-auto">KJB defence materials, studies on modern version corruption, and links to free Bible study resources.</p>
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
-        <button
-          onClick={toggleAll}
-          className="mt-4 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-        >
-          {allExpanded ? 'Collapse All' : 'Expand All'}
-        </button>
+        <div className="mt-4 flex items-center justify-center gap-2">
+          <button
+            onClick={toggleAll}
+            className="px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            {allExpanded ? 'Collapse All' : 'Expand All'}
+          </button>
+          <button
+            onClick={handlePrint}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <Printer className="w-4 h-4" /> Print
+          </button>
+        </div>
       </div>
 
       {/* KJBI — Free Online Bible College */}
