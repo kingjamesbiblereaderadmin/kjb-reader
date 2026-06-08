@@ -574,7 +574,8 @@ export function exportPrint(items, query, filters, options = {}) {
 
     const now = new Date();
     const dateStr = now.toLocaleDateString() + ' at ' + now.toLocaleTimeString();
-    currentParagraphs.push(`<div style="margin-top: 30pt; padding-top: 10pt; border-top: 1px solid #eee; font-size: 10pt; color: #777; text-align: center; page-break-inside: avoid; break-inside: avoid;">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</div>`);
+    const appUrl = (typeof window !== 'undefined' ? window.location.origin : '');
+    currentParagraphs.push(`<div style="margin-top: 30pt; padding-top: 10pt; border-top: 1px solid #eee; font-size: 10pt; color: #777; text-align: center; page-break-inside: avoid; break-inside: avoid;">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}${appUrl ? `<br/>${escapeHtml(appUrl)}` : ''}</div>`);
 
     const content = currentParagraphs.join('');
     rows = `<div style="text-align:justify;margin-top:20px;${options.columnMode ? 'column-count:2;column-gap:1.5cm;column-rule:1px solid #ccc;' : 'display:block;'}">${content}</div>`;
@@ -628,7 +629,7 @@ export function exportPrint(items, query, filters, options = {}) {
 
   const footerHtml = isReading 
     ? '' 
-    : `<div style="margin-top: 40pt; page-break-inside: avoid;"><p style="font-size:10pt;color:#777;border-top:1px solid #eee;padding-top:10pt;margin:0;">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</p></div>`;
+    : `<div style="margin-top: 40pt; page-break-inside: avoid;"><p style="font-size:10pt;color:#777;border-top:1px solid #eee;padding-top:10pt;margin:0;">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}${(typeof window !== 'undefined' && window.location.origin) ? `<br/>${escapeHtml(window.location.origin)}` : ''}</p></div>`;
 
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${escapeHtml(printTitle)}</title><style>@page { margin: 1.5cm; } body { margin: 0 !important; display: block !important; height: auto !important; position: static !important; overflow: visible !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }</style></head><body style="padding:20px;max-width:800px;margin:0 auto;color:#000;">` +
     `${headerHtml}${rows}${footerHtml}</body></html>`;
