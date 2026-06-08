@@ -71,6 +71,11 @@ export function useInstallPrompt() {
 
   const promptInstall = () => {
     if (!globalDeferredPrompt) {
+      if (globalIsInstallable) {
+        // The prompt was used. The browser requires a fresh event to show the native popup again.
+        // We'll quickly reload the page to get a fresh event so they can try again.
+        window.location.reload();
+      }
       return Promise.resolve(false);
     }
     
@@ -94,6 +99,7 @@ export function useInstallPrompt() {
       });
     } catch (err) {
       console.error('Failed to prompt install', err);
+      window.location.reload();
       return Promise.resolve(false);
     }
   };
