@@ -630,14 +630,15 @@ export function exportPrint(items, query, filters, options = {}) {
     ? '' 
     : `<div style="margin-top: 40pt; page-break-inside: avoid;"><p style="font-size:10pt;color:#777;border-top:1px solid #eee;padding-top:10pt;margin:0;">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</p></div>`;
 
-  // Fixed bottom-left URL footer — repeats on every printed page.
+  // URL footer at the end of the content flow — lands on the last page only,
+  // bottom-left aligned.
   const pageUrl = (typeof window !== 'undefined' ? window.location.href : '');
-  const fixedFooterHtml = pageUrl
-    ? `<div style="position:fixed;bottom:0;left:0;font-size:8pt;color:#999;word-break:break-all;max-width:60%;">${escapeHtml(pageUrl)}</div>`
+  const urlFooterHtml = pageUrl
+    ? `<div style="margin-top:18pt;font-size:8pt;color:#999;text-align:left;word-break:break-all;column-span:all;page-break-inside:avoid;break-inside:avoid;">${escapeHtml(pageUrl)}</div>`
     : '';
 
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${escapeHtml(printTitle)}</title><style>@page { margin: 1.5cm; } body { margin: 0 !important; display: block !important; height: auto !important; position: static !important; overflow: visible !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }</style></head><body style="padding:20px;max-width:800px;margin:0 auto;color:#000;">` +
-    `${fixedFooterHtml}${headerHtml}${rows}${footerHtml}</body></html>`;
+    `${headerHtml}${rows}${footerHtml}${urlFooterHtml}</body></html>`;
 
   // Print via a hidden iframe so no new tab / about:blank page opens.
   const iframe = document.createElement('iframe');
