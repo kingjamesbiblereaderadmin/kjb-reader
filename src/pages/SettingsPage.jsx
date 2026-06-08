@@ -30,7 +30,7 @@ const A11Y_FONTS = [
 ];
 
 const LAST_REVISED = 'June 8th, 2026';
-const WORKER_VERSION = 'v20260608_122';
+const WORKER_VERSION = 'v20260608_123';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
