@@ -1396,7 +1396,9 @@ export default function SettingsPage() {
               href="mailto:kingjamesbiblereader@outlook.sg"
               className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
             >
-              <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-background/50 backdrop-blur-md border border-border shadow-sm">
+                <CheckCircle className="w-4 h-4 text-green-500" />
+              </div>
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Email for Support</p>
                 <p className="font-sans text-xs text-muted-foreground">kingjamesbiblereader@outlook.sg</p>
@@ -1409,7 +1411,9 @@ export default function SettingsPage() {
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
             >
-              <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-background/50 backdrop-blur-md border border-border shadow-sm">
+                <CheckCircle className="w-4 h-4 text-green-500" />
+              </div>
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Ministry Website</p>
                 <p className="font-sans text-xs text-muted-foreground">godisgracious1031ministries.com</p>
@@ -1422,7 +1426,9 @@ export default function SettingsPage() {
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
             >
-              <MessageCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-background/50 backdrop-blur-md border border-border shadow-sm">
+                <MessageCircle className="w-4 h-4 text-green-500" />
+              </div>
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Discord</p>
                 <p className="font-sans text-xs text-muted-foreground">shawn_faithinhisbloodr325av</p>
@@ -1435,7 +1441,9 @@ export default function SettingsPage() {
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
             >
-              <TikTokIcon />
+              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-background/50 backdrop-blur-md border border-border shadow-sm">
+                <TikTokIcon />
+              </div>
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">TikTok</p>
                 <p className="font-sans text-xs text-muted-foreground">@svdbyfaithinr325av</p>
@@ -1448,7 +1456,9 @@ export default function SettingsPage() {
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
             >
-              <Instagram className="w-4 h-4 text-pink-500 flex-shrink-0" />
+              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-background/50 backdrop-blur-md border border-border shadow-sm">
+                <Instagram className="w-4 h-4 text-pink-500" />
+              </div>
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Instagram</p>
                 <p className="font-sans text-xs text-muted-foreground">@svdbyfaithinhisbloodr325av</p>
@@ -1461,7 +1471,9 @@ export default function SettingsPage() {
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
             >
-              <Youtube className="w-4 h-4 text-red-500 flex-shrink-0" />
+              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-background/50 backdrop-blur-md border border-border shadow-sm">
+                <Youtube className="w-4 h-4 text-red-500" />
+              </div>
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">YouTube</p>
                 <p className="font-sans text-xs text-muted-foreground">@shawnr325av</p>
