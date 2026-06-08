@@ -135,6 +135,9 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             together and stay vertically centered, so long verses never overlap
             the footer divider below. */}
         <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', overflow: 'hidden', paddingBottom: '0' }}>
+          {/* Verse, reference and date are all one inline-flowing block so a long
+              verse pushes the ref + date down together and never overlaps the
+              footer divider — the whole group stays vertically centered. */}
           <blockquote
             className="kjb-sharecard-verse"
             style={{
@@ -153,37 +156,41 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             {/* Force KJB italic words (<em>) to render italic in every font */}
             <style>{`.kjb-sharecard-verse em { font-style: italic !important; font-weight: inherit;${isCursive ? ' color: rgba(255,255,255,0.6) !important;' : ''} }`}</style>
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
-          </blockquote>
-          <p
-            style={{
-              marginTop: '20px',
-              marginBottom: '0',
-              fontFamily: verseFont,
-              fontWeight: 700,
-              fontSize: '26px',
-              lineHeight: 1.2,
-              color: verseColor,
-              opacity: Math.min(1, verseOpacity + 0.05),
-              textShadow: '0 2px 6px rgba(0,0,0,0.35)',
-            }}
-          >
-            — {verse.ref}
-          </p>
-
-          {/* Date badge — clean dark-purple pill, snug fit. */}
-          <div
-            style={{
-              background: dateBadgeBg,
-              borderRadius: '999px',
-              padding: '10px 28px 16px',
-              marginTop: '28px',
-              flexShrink: 0,
-            }}
-          >
-            <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '26px', fontWeight: 700, lineHeight: 1, letterSpacing: '0.04em', color: '#ffffff' }}>
+            {/* Reference, inline-block so it sits within the same flow */}
+            <span
+              style={{
+                display: 'block',
+                marginTop: '20px',
+                fontFamily: verseFont,
+                fontWeight: 700,
+                fontSize: '26px',
+                lineHeight: 1.2,
+                opacity: Math.min(1, verseOpacity + 0.05),
+                textShadow: '0 2px 6px rgba(0,0,0,0.35)',
+              }}
+            >
+              — {verse.ref}
+            </span>
+            {/* Date badge — part of the same block */}
+            <span
+              style={{
+                display: 'inline-block',
+                marginTop: '28px',
+                background: dateBadgeBg,
+                borderRadius: '999px',
+                padding: '10px 28px 16px',
+                fontFamily: "'Inter', system-ui, sans-serif",
+                fontSize: '26px',
+                fontWeight: 700,
+                lineHeight: 1,
+                letterSpacing: '0.04em',
+                color: '#ffffff',
+                textShadow: 'none',
+              }}
+            >
               {dateStr}
             </span>
-          </div>
+          </blockquote>
         </div>
 
         {/* Footer URL with curved gradient divider above */}
