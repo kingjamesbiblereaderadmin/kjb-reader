@@ -959,7 +959,8 @@ export default function SettingsPage() {
       </div>
       )}
 
-      {/* Offline Library */}
+      {/* Offline Library — hidden in private/incognito windows where caching won't persist */}
+      {!isIncognito && (
       <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
         <button
           onClick={() => toggleSection('offline')}
@@ -1147,6 +1148,7 @@ export default function SettingsPage() {
           </div>
         )}
       </div>
+      )}
 
       {/* Download Bible as PDF */}
       <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
