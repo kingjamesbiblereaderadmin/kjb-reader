@@ -25,7 +25,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
   };
 
   return (
-    <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden w-[95vw] max-w-md max-h-[70vh] flex flex-col relative">
+    <div className="bg-card border-2 border-foreground/30 [&_.border-border]:border-foreground/25 rounded-2xl shadow-2xl overflow-hidden w-[95vw] max-w-md max-h-[70vh] flex flex-col relative">
       <div className="flex items-center justify-between p-3 border-b border-border bg-muted/30">
         <span className="font-sans text-sm font-semibold">Select Book</span>
         <button 
