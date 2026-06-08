@@ -635,6 +635,7 @@ export function exportPrint(items, query, filters, options = {}) {
   
   const printWindow = window.open('', '_blank');
   if (printWindow) {
+    try { printWindow.history.replaceState(null, '', window.location.href); } catch (e) {}
     printWindow.document.write(html);
     printWindow.document.close();
   } else {
