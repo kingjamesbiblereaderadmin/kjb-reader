@@ -176,7 +176,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             </button>
           </div>
 
-          <div className="overflow-y-auto overscroll-contain flex-1 min-h-0 space-y-2.5 sm:space-y-3 pr-1 scrollbar-hide">
+          <div className="overflow-y-auto overscroll-contain flex-1 min-h-0 space-y-2 pr-1 scrollbar-hide">
           {isIncognito && (
             <div className="rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 p-2.5 sm:p-3">
               <p className="font-sans text-[10px] sm:text-xs text-amber-700 dark:text-amber-400 font-medium leading-snug flex items-start gap-1.5">
@@ -238,7 +238,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
           )}
 
           {/* Theme Mode */}
-          <div className="rounded-xl bg-secondary/40 border border-border p-2 sm:p-2.5">
+          <div className="rounded-xl bg-secondary/40 border border-border p-2">
             <div className="flex items-center gap-1.5 mb-1.5 px-0.5">
               <Monitor className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
               <span className="font-sans text-[11px] sm:text-xs font-medium text-foreground">Theme Mode</span>
@@ -270,7 +270,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
           </div>
 
           {/* Read Font */}
-          <div className="rounded-xl bg-secondary/40 border border-border p-2 sm:p-2.5">
+          <div className="rounded-xl bg-secondary/40 border border-border p-2">
             <div className="flex items-center gap-1.5 mb-1.5 px-0.5">
               <Type className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
               <span className="font-sans text-[11px] sm:text-xs font-medium text-foreground">Read Font</span>
@@ -299,7 +299,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
           </div>
 
           {/* Accessibility font — dyslexic & high-legibility options */}
-          <div className="rounded-xl bg-primary/5 border-2 border-primary/20 p-2 sm:p-2.5 mt-1">
+          <div className="rounded-xl bg-primary/5 border-2 border-primary/20 p-2">
             <div className="flex items-center gap-1.5 mb-1.5 px-0.5">
               <Accessibility className="w-3.5 h-3.5 text-primary shrink-0" />
               <span className="font-sans text-[11px] sm:text-xs font-semibold text-primary">Accessibility Font</span>

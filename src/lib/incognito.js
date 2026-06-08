@@ -38,14 +38,19 @@ export async function detectIncognito() {
       return true;
     }
 
-    // Chromium incognito: the temporary-storage quota is capped at roughly
-    // 10% of total disk in normal mode, but is hard-limited to ~1.07GB in
-    // incognito. Treat a quota at/under ~1.2GB as incognito — normal desktop
-    // sessions report far larger quotas (tens of GB).
+    // Chromium incognito: the temporary-storage quota is hard-limited
+    // (historically ~1.07GB, newer versions ~2GB or tied to deviceMemory),
+    // whereas normal sessions report ~10% of free disk (tens of GB). We treat
+    // the session as incognito when the quota is suspiciously small relative
+    // to the device's memory, or under a fixed ~2GB ceiling.
     if (navigator.storage && navigator.storage.estimate) {
       const { quota } = await navigator.storage.estimate();
-      if (typeof quota === 'number' && quota < 1300 * 1024 * 1024) {
-        return true;
+      if (typeof quota === 'number') {
+        // deviceMemory (GB) × bytes — incognito quota ≈ memory-based, normal is far larger.
+        const mem = (navigator.deviceMemory || 8) * 1024 * 1024 * 1024;
+        if (quota < 2 * 1024 * 1024 * 1024 || quota < mem) {
+          return true;
+        }
       }
     }
   } catch {
