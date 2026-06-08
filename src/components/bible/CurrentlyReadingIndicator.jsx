@@ -62,7 +62,10 @@ export default function CurrentlyReadingIndicator({
     clearLabel = 'Clear';
   } else if (searchTerm) {
     typeLabel = `Search: "${searchTerm}"`;
-    reference = `${book.shortName} ${pos.chapter}${verseNum ? `:${verseNum}${occurrenceLabel || ''}` : ''}${sectionSuffix}`;
+    const searchVerses = selectedVerses && selectedVerses.size > 1
+      ? `:${formatVerseRange([...selectedVerses])}`
+      : verseNum ? `:${verseNum}${occurrenceLabel || ''}` : '';
+    reference = `${book.shortName} ${pos.chapter}${searchVerses}${sectionSuffix}`;
     clearLabel = 'Clear search';
   } else if (isFilterMode) {
     typeLabel = 'Reading';
