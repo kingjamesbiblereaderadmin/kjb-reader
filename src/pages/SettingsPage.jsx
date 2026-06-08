@@ -29,8 +29,12 @@ const A11Y_FONTS = [
   { value: 'hyperlegible', label: 'Atkinson Hyperlegible', desc: 'High legibility for low vision', preview: "'Atkinson Hyperlegible', system-ui, sans-serif" },
 ];
 
+const inIframe = () => {
+  try { return window.self !== window.top; } catch (e) { return true; }
+};
+
 const LAST_REVISED = 'June 8th, 2026';
-const WORKER_VERSION = 'v20260608_166';
+const WORKER_VERSION = 'v20260608_167';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -892,10 +896,17 @@ export default function SettingsPage() {
               <div className="space-y-2 bg-secondary/50 rounded-xl p-4 mt-3">
                 {!isInstallable && (
                   <div className="mb-3 pb-3 border-b border-border/50">
-                    <p className="font-sans text-xs text-amber-600 dark:text-amber-400 font-medium flex items-start gap-1.5 leading-snug">
-                      <AlertCircle className="w-4 h-4 shrink-0 -mt-0.5" />
-                      <span>Your browser may not fully support automatic app installation. Try the manual steps below, or use Chrome/Edge for the best experience.</span>
-                    </p>
+                    {inIframe() ? (
+                      <p className="font-sans text-xs text-blue-600 dark:text-blue-400 font-medium flex items-start gap-1.5 leading-snug">
+                        <AlertCircle className="w-4 h-4 shrink-0 -mt-0.5" />
+                        <span>You are viewing this inside a preview window, where browsers block PWA installation. Please open the app in a new tab to install it!</span>
+                      </p>
+                    ) : (
+                      <p className="font-sans text-xs text-amber-600 dark:text-amber-400 font-medium flex items-start gap-1.5 leading-snug">
+                        <AlertCircle className="w-4 h-4 shrink-0 -mt-0.5" />
+                        <span>Your browser may not fully support automatic app installation. Try the manual steps below, or use Chrome/Edge for the best experience.</span>
+                      </p>
+                    )}
                   </div>
                 )}
                 <p className="font-sans text-xs text-foreground mb-2">

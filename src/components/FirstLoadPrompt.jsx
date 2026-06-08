@@ -28,6 +28,10 @@ const isInStandaloneMode = () => {
 
 const DISMISSED_KEY = 'kjb-prompt-dismissed';
 
+const inIframe = () => {
+  try { return window.self !== window.top; } catch (e) { return true; }
+};
+
 export default function FirstLoadPrompt({ isInstallable, notifPermission, onInstall, onDismiss, onEnableNotif }) {
   const [dismissed, setDismissed] = useState(() => {
     try { return localStorage.getItem(DISMISSED_KEY) === 'true'; } catch { return false; }
@@ -185,10 +189,17 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                 <div className="bg-secondary/40 border border-border rounded-xl p-3">
                   {!isInstallable && (
                     <div className="mb-2 pb-2 border-b border-border/50">
-                      <p className="font-sans text-xs text-amber-600 dark:text-amber-400 font-medium flex items-start gap-1.5 leading-snug">
-                        <span className="shrink-0 text-sm leading-none mt-0.5">⚠️</span>
-                        Your browser may not fully support automatic app installation. Try the manual steps below.
-                      </p>
+                      {inIframe() ? (
+                        <p className="font-sans text-xs text-blue-600 dark:text-blue-400 font-medium flex items-start gap-1.5 leading-snug">
+                          <span className="shrink-0 text-sm leading-none mt-0.5">ℹ️</span>
+                          You are viewing this inside a preview window, where browsers block PWA installation. Please open the app in a new tab to install it!
+                        </p>
+                      ) : (
+                        <p className="font-sans text-xs text-amber-600 dark:text-amber-400 font-medium flex items-start gap-1.5 leading-snug">
+                          <span className="shrink-0 text-sm leading-none mt-0.5">⚠️</span>
+                          Your browser may not fully support automatic app installation. Try the manual steps below.
+                        </p>
+                      )}
                     </div>
                   )}
                   <p className="font-sans text-xs text-foreground leading-relaxed">
