@@ -306,6 +306,7 @@ const AuthenticatedApp = () => {
               const isReadyToActivate = reg.waiting || (reg.installing && (reg.installing.state === 'installed' || reg.installing.state === 'activating' || reg.installing.state === 'activated'));
               
               if (isReadyToActivate) {
+                if (window.location.pathname !== '/') return; // Let it wait until homepage
                 setIsApplyingUpdates(true);
                 setApplyMessage('Found updates...');
                 window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
@@ -324,6 +325,7 @@ const AuthenticatedApp = () => {
                 setTimeout(() => window.location.reload(), 1500); // Fallback if controllerchange fails
                 return; // Let main.jsx handle reload
               } else if (reg.installing) {
+                if (window.location.pathname !== '/') return; // Let it wait until homepage
                 setIsApplyingUpdates(true);
                 setApplyMessage('Found updates...');
                 window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
@@ -386,6 +388,13 @@ const AuthenticatedApp = () => {
           localStorage.removeItem('bible_cache_version');
           localStorage.removeItem('bible_last_refresh');
           try {
+            if (window.location.pathname !== '/') {
+              // Silently download in background
+              await downloadBibleForOffline();
+              sessionStorage.setItem('kjb_pending_bible_update', 'true');
+              return;
+            }
+
             if (!hasAppUpdates && bibleNeedsUpdate) {
               setIsApplyingUpdates(true);
               setApplyMessage('Found updates...');
@@ -410,15 +419,6 @@ const AuthenticatedApp = () => {
           else if (hasBibleUpdates) { updateType = 'bible'; }
           else if (hasAppUpdates) { updateType = 'app'; }
           
-          // If we activated a new service worker, we MUST reload the page to load the new JS bundle.
-          // Otherwise, manual update checks will think there's no update because the worker is already active,
-          // but the old JS remains in memory.
-          // We only skip reload for minor bible updates if not on root, but app code updates MUST reload.
-          if (window.location.pathname !== '/') {
-            // We delay the reload if they aren't on the homepage so we don't interrupt reading
-            return;
-          }
-
           sessionStorage.setItem('kjb_sw_updated', updateType);
           let isVeryFirstAppLoad = true;
           try { 
@@ -508,6 +508,10 @@ const AuthenticatedApp = () => {
           sessionStorage.setItem('kjb_last_app_update', Date.now().toString());
           workerToSkip.postMessage({ type: 'SKIP_WAITING' });
           setTimeout(() => window.location.reload(), 1500); // Fallback if controllerchange fails
+        } else if (sessionStorage.getItem('kjb_pending_bible_update') && isMounted) {
+          sessionStorage.removeItem('kjb_pending_bible_update');
+          sessionStorage.setItem('kjb_sw_updated', 'bible');
+          window.location.reload();
         }
       } catch (err) {
         // ignore
