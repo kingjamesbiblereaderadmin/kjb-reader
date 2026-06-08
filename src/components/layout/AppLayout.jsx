@@ -215,16 +215,10 @@ export default function AppLayout() {
                 setMenuOpen(false);
                 navigate(-1);
               }}
-              onTouchEnd={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setMenuOpen(false);
-                navigate(-1);
-              }}
-              className="flex items-center gap-1 px-2 py-1.5 -ml-2 rounded-lg hover:bg-secondary/50 active:bg-secondary transition-colors text-foreground flex-shrink-0 pointer-events-auto touch-manipulation cursor-pointer"
+              className="flex items-center gap-1 pl-1 pr-3 h-12 -ml-2 rounded-xl hover:bg-secondary/50 active:bg-secondary transition-colors text-foreground flex-shrink-0 pointer-events-auto touch-manipulation cursor-pointer"
             >
-              <ChevronLeft className="w-6 h-6 pointer-events-none" />
-              <span className="font-sans text-sm font-medium hidden sm:inline pointer-events-none">Back</span>
+              <ChevronLeft className="w-6 h-6" />
+              <span className="font-sans text-sm font-medium hidden sm:inline">Back</span>
             </button>
           )}
 

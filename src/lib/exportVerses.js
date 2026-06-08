@@ -144,6 +144,64 @@ export function exportTxt(items, query, filters, options = {}) {
   downloadBlob(blob, `kjb-${sanitizeFilename(query)}${filterSuffix(filters)}.txt`);
 }
 
+// Highlight a search term in plain text
+function highlightTermText(text, query, filters) {
+  if (!query) return text;
+  let term = query.trim();
+  const isQuoted = (term.startsWith('"') && term.endsWith('"')) || (term.startsWith('\u201C') && term.endsWith('\u201D'));
+  if (isQuoted && term.length >= 3) term = term.slice(1, -1).trim();
+  if (!term) return text;
+
+  const cs = isQuoted || (filters && filters.caseSensitive);
+  const ww = isQuoted || (filters && filters.wholeWord);
+  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = ww 
+    ? new RegExp(`(^|[^a-zA-Z'])(${escaped})(?=[^a-zA-Z']|$)`, cs ? 'g' : 'gi')
+    : new RegExp(`(${escaped})`, cs ? 'g' : 'gi');
+
+  if (ww) {
+    return text.replace(re, (match, prefix, termMatch) => `${prefix}***${termMatch}***`);
+  }
+  return text.replace(re, (match) => `***${match}***`);
+}
+
+// Split string into highlighted and non-highlighted parts for PDF
+function splitForHighlight(str, query, filters) {
+  if (!query) return [{ text: str, highlight: false }];
+  let term = query.trim();
+  const isQuoted = (term.startsWith('"') && term.endsWith('"')) || (term.startsWith('\u201C') && term.endsWith('\u201D'));
+  if (isQuoted && term.length >= 3) term = term.slice(1, -1).trim();
+  if (!term) return [{ text: str, highlight: false }];
+
+  const cs = isQuoted || (filters && filters.caseSensitive);
+  const ww = isQuoted || (filters && filters.wholeWord);
+  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = ww 
+    ? new RegExp(`(^|[^a-zA-Z'])(${escaped})(?=[^a-zA-Z']|$)`, cs ? 'g' : 'gi')
+    : new RegExp(`(${escaped})`, cs ? 'g' : 'gi');
+
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+  while ((match = re.exec(str)) !== null) {
+    const prefix = ww ? match[1] : '';
+    const termMatch = ww ? match[2] : match[0];
+    const matchStart = match.index + prefix.length;
+    
+    if (matchStart > lastIndex) {
+      parts.push({ text: str.substring(lastIndex, matchStart), highlight: false });
+    }
+    parts.push({ text: termMatch, highlight: true });
+    lastIndex = matchStart + termMatch.length;
+    
+    if (re.lastIndex === match.index) re.lastIndex++;
+  }
+  if (lastIndex < str.length) {
+    parts.push({ text: str.substring(lastIndex), highlight: false });
+  }
+  return parts;
+}
+
 // Highlight a search term in HTML text (safely skipping HTML tags)
 function highlightTermHtml(html, query, filters) {
   if (!query) return html;
