@@ -104,7 +104,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   };
 
   const handleInstallClick = (e) => {
-    if (isInstallable && onInstall) {
+    if (onInstall) {
       const result = onInstall();
       if (result && result.then) {
         result.then(accepted => {
