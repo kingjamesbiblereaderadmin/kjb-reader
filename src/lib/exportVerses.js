@@ -631,15 +631,48 @@ export function exportPrint(items, query, filters, options = {}) {
     : `<div style="margin-top: 40pt; page-break-inside: avoid;"><p style="font-size:10pt;color:#777;border-top:1px solid #eee;padding-top:10pt;margin:0;">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</p></div>`;
 
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${escapeHtml(printTitle)}</title><style>@page { margin: 1.5cm; } body { margin: 0 !important; display: block !important; height: auto !important; position: static !important; overflow: visible !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }</style></head><body style="padding:20px;max-width:800px;margin:0 auto;color:#000;">` +
-    `${headerHtml}${rows}${footerHtml}<script>window.print();</script></body></html>`;
-  
-  const printWindow = window.open('', '_blank');
-  if (printWindow) {
-    try { printWindow.history.replaceState(null, '', window.location.href); } catch (e) {}
-    printWindow.document.write(html);
-    printWindow.document.close();
+    `${headerHtml}${rows}${footerHtml}</body></html>`;
+
+  // Print via a hidden iframe so no new tab / about:blank page opens.
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.right = '0';
+  iframe.style.bottom = '0';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = '0';
+  iframe.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(iframe);
+
+  const cleanup = () => {
+    setTimeout(() => {
+      if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+    }, 1000);
+  };
+
+  const doc = iframe.contentWindow?.document;
+  if (!doc) {
+    if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+    return;
+  }
+  doc.open();
+  doc.write(html);
+  doc.close();
+
+  const triggerPrint = () => {
+    try {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    } catch (e) {}
+    cleanup();
+  };
+
+  // Wait for the iframe content (and fonts) to be ready before printing.
+  if (iframe.contentWindow) {
+    iframe.contentWindow.onafterprint = cleanup;
+    setTimeout(triggerPrint, 300);
   } else {
-    alert("Please allow popups to print.");
+    cleanup();
   }
 }
 
