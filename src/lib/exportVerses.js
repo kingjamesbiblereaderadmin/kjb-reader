@@ -592,6 +592,7 @@ export function exportPrint(items, query, filters, options = {}) {
       return `<div style="page-break-inside:avoid;"><h3 style="font-family:Georgia,serif;font-size:14pt;margin:20pt 0 10pt 0;">${escapeHtml(fullBookName)} <span style="font-size:11pt;font-weight:normal;color:#666;">(${bookVerseCount} verse${bookVerseCount !== 1 ? 's' : ''})</span>:</h3>` +
         `<ul style="margin:0 0 14pt 0; padding-left: 20px;">` +
         sec.items.map((it, idx) => {
+          const isSpecial = it.isColophon || it.isSubscript;
           const hasPilcrow = (it.text || '').includes('¶');
           let heading = '';
           if (hasPilcrow && idx > 0) {
@@ -600,11 +601,12 @@ export function exportPrint(items, query, filters, options = {}) {
           if (it.heading) {
             heading += `</ul><div style="margin:18pt 0 8pt 0;font-family:Georgia,serif;font-size:14pt;font-weight:bold;text-align:center;page-break-after:avoid;">${escapeHtml(it.heading.charAt(0) + it.heading.slice(1).toLowerCase())}</div><ul style="margin:0 0 14pt 0; padding-left: 20px;">`;
           }
-          let formattedText = `&ldquo;${bracketsToItalicHtml(it.text, true)}&rdquo;`;
+          const textHtml = bracketsToItalicHtml(it.text, true, isSpecial);
+          let formattedText = isSpecial ? textHtml : `&ldquo;${textHtml}&rdquo;`;
           if (!isReading && query) {
             formattedText = highlightTermHtml(formattedText, query, filters);
           }
-          return `${heading}<li style="margin:0 0 10pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;padding-left:4px;page-break-inside:avoid;">` +
+          return `${heading}<li style="margin:0 0 10pt 0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;padding-left:4px;page-break-inside:avoid;${isSpecial ? 'list-style-type:none;text-align:center;color:#555;' : ''}">` +
           `${formattedText} ` +
           `<span style="font-size:10pt;color:#555;">&mdash; ${escapeHtml(it.ref)} (KJB)</span>` +
           `</li>`;
@@ -628,7 +630,7 @@ export function exportPrint(items, query, filters, options = {}) {
     ? '' 
     : `<div style="margin-top: 40pt; page-break-inside: avoid;"><p style="font-size:10pt;color:#777;border-top:1px solid #eee;padding-top:10pt;margin:0;">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</p></div>`;
 
-  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${escapeHtml(printTitle)}</title><style>@page { margin: 1.5cm; } body { margin: 0 !important; display: block !important; height: auto !important; position: static !important; overflow: visible !important; }</style></head><body style="padding:20px;max-width:800px;margin:0 auto;color:#000;">` +
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${escapeHtml(printTitle)}</title><style>@page { margin: 1.5cm; } body { margin: 0 !important; display: block !important; height: auto !important; position: static !important; overflow: visible !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }</style></head><body style="padding:20px;max-width:800px;margin:0 auto;color:#000;">` +
     `${headerHtml}${rows}${footerHtml}<script>window.print();</script></body></html>`;
   
   const printWindow = window.open('', '_blank');
