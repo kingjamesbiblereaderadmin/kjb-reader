@@ -216,15 +216,19 @@ const AuthenticatedApp = () => {
   }, []);
 
   useEffect(() => {
+    let timeout;
     if (document.fonts) {
       document.fonts.ready.then(() => {
         // Add a small buffer after fonts report 'ready' to ensure browser painting catches up
         // and avoids the FOUT (Flash of Unstyled Text)
-        setTimeout(() => setFontsLoaded(true), 300);
+        timeout = setTimeout(() => setFontsLoaded(true), 300);
       });
+      // Fallback in case fonts.ready hangs indefinitely
+      setTimeout(() => setFontsLoaded(true), 3000);
     } else {
       setFontsLoaded(true);
     }
+    return () => clearTimeout(timeout);
   }, []);
 
   useEffect(() => {
@@ -260,6 +264,11 @@ const AuthenticatedApp = () => {
   useEffect(() => {
     let isMounted = true;
     let updateCheckInProgress = false;
+    
+    // Safety fallback: if update check hangs (e.g. IndexedDB or SW API gets stuck), release the splash screen
+    const safetyTimer = setTimeout(() => {
+      if (isMounted) setUpdateCheckDone(true);
+    }, 8000);
 
     const checkUpdatesSilently = async () => {
       if (updateCheckInProgress) return;
@@ -312,6 +321,7 @@ const AuthenticatedApp = () => {
                 sessionStorage.setItem('kjb_last_app_update', Date.now().toString());
                 if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
                 else if (reg.installing) reg.installing.postMessage({ type: 'SKIP_WAITING' });
+                setTimeout(() => window.location.reload(), 1500); // Fallback if controllerchange fails
                 return; // Let main.jsx handle reload
               } else if (reg.installing) {
                 setIsApplyingUpdates(true);
@@ -353,6 +363,7 @@ const AuthenticatedApp = () => {
                   await new Promise(r => setTimeout(r, 500));
                   sessionStorage.setItem('kjb_last_app_update', Date.now().toString());
                   workerToSkip.postMessage({ type: 'SKIP_WAITING' });
+                  setTimeout(() => window.location.reload(), 1500); // Fallback if controllerchange fails
                   return; // Let main.jsx handle reload
                 }
               }
@@ -441,6 +452,7 @@ const AuthenticatedApp = () => {
 
     return () => { 
       isMounted = false; 
+      clearTimeout(safetyTimer);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', checkUpdatesSilently);
     };
@@ -488,6 +500,7 @@ const AuthenticatedApp = () => {
           
           sessionStorage.setItem('kjb_last_app_update', Date.now().toString());
           workerToSkip.postMessage({ type: 'SKIP_WAITING' });
+          setTimeout(() => window.location.reload(), 1500); // Fallback if controllerchange fails
         }
       } catch (err) {
         // ignore
