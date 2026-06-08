@@ -8,7 +8,7 @@ function Toggle({ active, onClick, icon: Icon, label }) {
   return (
     <button
       onClick={onClick}
-      className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 rounded-xl border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
+      className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-3 rounded-xl border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
         active ? 'bg-primary text-primary-foreground border-primary' : 'bg-transparent text-foreground border-border hover:border-accent'
       }`}
     >
@@ -144,7 +144,7 @@ export default function DownloadBibleSection() {
       <button
         onClick={handleGenerate}
         disabled={busy}
-        className="flex w-full justify-center items-center gap-2 py-3 rounded-xl bg-primary border-2 border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100 disabled:active:scale-100 disabled:opacity-60"
+        className="flex w-full justify-center items-center gap-2 py-3 rounded-xl bg-primary border border-transparent text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100 disabled:active:scale-100 disabled:opacity-60"
       >
         {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
         {busy ? 'Downloading…' : `Download Bible (${format === 'docx' ? 'Word' : format.toUpperCase()})`}{/* RTF/PDF/TXT show as-is */}

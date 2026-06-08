@@ -461,7 +461,7 @@ export default function SettingsPage() {
             key={font.value}
             disabled={isDisabled}
             onClick={() => pickReaderFont(font.value)}
-            className={`w-full py-3 rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center border-2 ${
+            className={`w-full py-3 rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center border ${
               isActive
                 ? 'bg-primary text-primary-foreground border-primary'
                 : 'bg-transparent text-foreground border-border hover:border-accent'
@@ -475,7 +475,7 @@ export default function SettingsPage() {
         {a11yFont === 'default' && (
           <button
             onClick={() => pickReaderFont('serif')}
-            className="w-full py-3 rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center bg-secondary text-secondary-foreground border-2 border-border hover:border-accent"
+            className="w-full py-3 rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center bg-secondary border border-border text-secondary-foreground hover:border-accent"
           >
             Reset to Default
           </button>
@@ -515,7 +515,7 @@ export default function SettingsPage() {
                   setA11yFont(font.value);
                   setAccessibilityFont(font.value);
                 }}
-                className={`w-full p-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-left border-2 ${
+                className={`w-full p-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-left border ${
                   a11yFont === font.value
                     ? 'bg-primary/10 border-primary'
                     : 'bg-transparent border-border hover:border-accent'
@@ -536,7 +536,7 @@ export default function SettingsPage() {
           {a11yFont !== 'default' && (
             <button
               onClick={() => { setA11yFont('default'); setAccessibilityFont('default'); }}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-destructive/10 text-destructive font-sans text-sm font-medium hover:bg-destructive/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive font-sans text-sm font-medium hover:bg-destructive/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Disable
@@ -610,7 +610,7 @@ export default function SettingsPage() {
                     onClick={() => {
                       setPendingBg(null);
                     }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <Upload className="w-3.5 h-3.5 rotate-180" />
                     Cancel
@@ -627,7 +627,7 @@ export default function SettingsPage() {
                         console.error('localStorage quota exceeded:', err);
                       }
                     }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary border border-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <CheckCircle className="w-3.5 h-3.5" />
                     Save Image
@@ -642,7 +642,7 @@ export default function SettingsPage() {
                       localStorage.removeItem('kjb-daily-verse-bg');
                       window.dispatchEvent(new Event('storage'));
                     }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive font-sans text-xs font-medium hover:bg-destructive/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive font-sans text-xs font-medium hover:bg-destructive/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     Remove Image
@@ -652,7 +652,7 @@ export default function SettingsPage() {
                       const current = localStorage.getItem('kjb-daily-verse-bg');
                       if (current) setCropImage(current);
                     }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <Crop className="w-3.5 h-3.5" />
                     Re-crop
@@ -889,7 +889,7 @@ export default function SettingsPage() {
                   setShowInstallHint(h => !h);
                 }
               }}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] border-2 border-primary"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary border border-transparent text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               <Smartphone className="w-4 h-4" />
               {/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? 'Add to Home Screen' : 'Install App'}
@@ -1077,7 +1077,7 @@ export default function SettingsPage() {
                   onClick={handleDownload}
                   onTouchEnd={(e) => { e.preventDefault(); handleDownload(e); }}
                   disabled={downloading}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100 disabled:active:scale-100 disabled:opacity-60"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary border border-transparent text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100 disabled:active:scale-100 disabled:opacity-60"
                 >
                   {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                   {downloading ? 'Downloading…' : 'Download All 66 Books'}
@@ -1361,7 +1361,7 @@ export default function SettingsPage() {
                     await clearBibleCache(); // clears cache + reloads the page
                   }
                 }}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-destructive/10 text-destructive font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:bg-destructive/20"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:bg-destructive/20"
               >
                 <Trash2 className="w-4 h-4" />
                 Reset All Settings
