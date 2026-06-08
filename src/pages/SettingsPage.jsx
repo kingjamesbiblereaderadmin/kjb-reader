@@ -34,7 +34,7 @@ const inIframe = () => {
 };
 
 const LAST_REVISED = 'June 8th, 2026';
-const WORKER_VERSION = 'v20260608_217';
+const WORKER_VERSION = 'v20260608_218';
 
 export default function SettingsPage() {
   const navigate = useNavigate();

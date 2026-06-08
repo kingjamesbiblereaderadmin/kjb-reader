@@ -44,15 +44,15 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
   // Scale both font size and line height down as the verse grows longer, so
   // even very long verses fit inside the fixed 1024px card without overflowing.
   let dynamicFontSize = '56px';
-  let dynamicLineHeight = 2;
-  if (textLen > 650) { dynamicFontSize = '22px'; dynamicLineHeight = 1.5; }
-  else if (textLen > 550) { dynamicFontSize = '25px'; dynamicLineHeight = 1.6; }
-  else if (textLen > 450) { dynamicFontSize = '28px'; dynamicLineHeight = 1.7; }
-  else if (textLen > 380) { dynamicFontSize = '32px'; dynamicLineHeight = 1.8; }
-  else if (textLen > 300) { dynamicFontSize = '36px'; dynamicLineHeight = 1.9; }
-  else if (textLen > 250) { dynamicFontSize = '40px'; }
-  else if (textLen > 200) { dynamicFontSize = '44px'; }
-  else if (textLen > 120) { dynamicFontSize = '50px'; }
+  let dynamicLineHeight = 1.7;
+  if (textLen > 650) { dynamicFontSize = '22px'; dynamicLineHeight = 1.4; }
+  else if (textLen > 550) { dynamicFontSize = '25px'; dynamicLineHeight = 1.45; }
+  else if (textLen > 450) { dynamicFontSize = '28px'; dynamicLineHeight = 1.5; }
+  else if (textLen > 380) { dynamicFontSize = '32px'; dynamicLineHeight = 1.55; }
+  else if (textLen > 300) { dynamicFontSize = '36px'; dynamicLineHeight = 1.6; }
+  else if (textLen > 250) { dynamicFontSize = '40px'; dynamicLineHeight = 1.6; }
+  else if (textLen > 200) { dynamicFontSize = '44px'; dynamicLineHeight = 1.65; }
+  else if (textLen > 120) { dynamicFontSize = '50px'; dynamicLineHeight = 1.65; }
 
   // Thin full-width gradient line (blue → purple) with soft glow
   const SeparatorLine = () => (
@@ -131,53 +131,52 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
           <HeaderRule flip />
         </div>
 
-        {/* Verse text — safely centered without overflowing the top header */}
-        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', width: '100%', paddingBottom: '0' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: 'auto 0', paddingBottom: '0' }}>
-            <blockquote
-              className="kjb-sharecard-verse"
-              style={{
-                margin: 0,
-                textAlign: 'center',
-                fontFamily: verseFont,
-                fontWeight: 700,
-                fontSize: dynamicFontSize,
-                lineHeight: dynamicLineHeight,
-                color: verseColor,
-                opacity: verseOpacity,
-                textShadow: '0 3px 10px rgba(0,0,0,0.4)',
-                maxWidth: '960px',
-              }}
-            >
-              {/* Force KJB italic words (<em>) to render italic in every font */}
-              <style>{`.kjb-sharecard-verse em { font-style: italic !important; font-weight: inherit;${isCursive ? ' color: rgba(255,255,255,0.6) !important;' : ''} }`}</style>
-              "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
-            </blockquote>
-            <p
-              style={{
-                marginTop: '24px',
-                fontFamily: verseFont,
-                fontWeight: 700,
-                fontSize: '26px',
-                color: verseColor,
-                opacity: Math.min(1, verseOpacity + 0.05),
-                textShadow: '0 2px 6px rgba(0,0,0,0.35)',
-              }}
-            >
-              — {verse.ref}
-            </p>
-          </div>
+        {/* Verse text — centered flex column; verse, ref and date all flow
+            together and stay vertically centered, so long verses never overlap
+            the footer divider below. */}
+        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', overflow: 'hidden', paddingBottom: '0' }}>
+          <blockquote
+            className="kjb-sharecard-verse"
+            style={{
+              margin: 0,
+              textAlign: 'center',
+              fontFamily: verseFont,
+              fontWeight: 700,
+              fontSize: dynamicFontSize,
+              lineHeight: dynamicLineHeight,
+              color: verseColor,
+              opacity: verseOpacity,
+              textShadow: '0 3px 10px rgba(0,0,0,0.4)',
+              maxWidth: '960px',
+            }}
+          >
+            {/* Force KJB italic words (<em>) to render italic in every font */}
+            <style>{`.kjb-sharecard-verse em { font-style: italic !important; font-weight: inherit;${isCursive ? ' color: rgba(255,255,255,0.6) !important;' : ''} }`}</style>
+            "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
+          </blockquote>
+          <p
+            style={{
+              marginTop: '20px',
+              marginBottom: '0',
+              fontFamily: verseFont,
+              fontWeight: 700,
+              fontSize: '26px',
+              lineHeight: 1.2,
+              color: verseColor,
+              opacity: Math.min(1, verseOpacity + 0.05),
+              textShadow: '0 2px 6px rgba(0,0,0,0.35)',
+            }}
+          >
+            — {verse.ref}
+          </p>
 
-          {/* Date badge — clean dark-purple pill, snug fit.
-              Pulled out of the text container so it drops closer to the footer,
-              and allows the verse text to center slightly higher. */}
+          {/* Date badge — clean dark-purple pill, snug fit. */}
           <div
             style={{
               background: dateBadgeBg,
               borderRadius: '999px',
               padding: '10px 28px 16px',
-              marginTop: '24px',
-              marginBottom: '40px',
+              marginTop: '28px',
               flexShrink: 0,
             }}
           >
