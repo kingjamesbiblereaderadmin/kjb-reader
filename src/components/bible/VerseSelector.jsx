@@ -52,7 +52,7 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
           <div className="flex flex-wrap gap-2 mb-3">
             {hasSubscript && (
               <button
-                onClick={() => { onSelect(1); onClose(); }}
+                onClick={() => { onSelect({ section: 'subscript' }); onClose(); }}
                 className="px-3 h-9 rounded text-xs font-sans font-medium bg-secondary border border-border hover:bg-accent/20 text-foreground transition-colors"
                 title="Go to the superscription (before verse 1)"
               >
@@ -61,7 +61,7 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
             )}
             {hasColophon && (
               <button
-                onClick={() => { onSelect(totalVerses); onClose(); }}
+                onClick={() => { onSelect({ section: 'colophon' }); onClose(); }}
                 className="px-3 h-9 rounded text-xs font-sans font-medium bg-secondary border border-border hover:bg-accent/20 text-foreground transition-colors"
                 title="Go to the colophon (after the last verse)"
               >

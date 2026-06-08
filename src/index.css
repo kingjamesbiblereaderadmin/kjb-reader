@@ -232,6 +232,12 @@
     color: rgba(255, 255, 255, 0.6) !important;
   }
 
+  .kjb-colophon .pilcrow,
+  .kjb-subscript .pilcrow {
+    user-select: auto;
+    -webkit-user-select: auto;
+  }
+
   /* Colophon and subscript italics: only [bracketed] words (rendered as <em>)
      are italic. The surrounding subscript/colophon text stays roman.
      In cursive mode the .cursive-em-style em rule takes over (Dancing Script

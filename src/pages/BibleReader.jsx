@@ -911,7 +911,7 @@ export default function BibleReader() {
     }
   }, [filterMode, selectedVerses]);
 
-  const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isAutoAdvance = false) => {
+  const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isAutoAdvance = false, section = null) => {
     // Prevent chapter 0 for non-GEN/MAT books
     if (newChapter === 0 && newAbbr !== 'GEN' && newAbbr !== 'MAT') {
       return;
@@ -951,7 +951,7 @@ export default function BibleReader() {
     if (!jumpVerse) {
       setHighlightVerse(null);
     }
-    setHighlightSection(null);
+    setHighlightSection(section);
     // Mark fresh navigation (start at top); clear any active range highlight.
     rangeHighlightRef.current = false;
     freshNavRef.current = true;
@@ -965,6 +965,7 @@ export default function BibleReader() {
       } else {
         url = `/read?book=${newAbbr}&chapter=${newChapter}`;
         if (jumpVerse) url += `&verse=${jumpVerse}`;
+        if (section) url += `&highlight=${section}`;
       }
       window.history.replaceState({}, '', url);
     } catch {}
@@ -1216,6 +1217,11 @@ export default function BibleReader() {
                       hasSubscript={!!SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]}
                       hasColophon={!!colophon}
                       onSelect={(v) => {
+                        if (v && v.section) {
+                          navigate(pos.abbr, pos.chapter, null, false, false, false, v.section);
+                          setShowVersePicker(false);
+                          return;
+                        }
                         const first = Array.isArray(v) ? v[0] : v;
                         if (Array.isArray(v) && v.length > 1) {
                           const range = new Set(v);
@@ -1907,7 +1913,7 @@ export default function BibleReader() {
         {!loading && !error && colophon && (
           <div id="kjb-colophon-anchor" className={`${columnMode ? 'mt-6 mb-4' : 'mt-12 mb-4 border-t border-border pt-6'} text-center transition-colors duration-500 rounded-lg ${highlightSection === 'colophon' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`}>
             <p
-              className={`text-sm text-muted-foreground leading-relaxed ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
+              className={`kjb-colophon text-sm text-muted-foreground leading-relaxed ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
               style={{ 
                 fontStyle: 'normal',
                 fontSize: `${zoomLevel / 100}rem`,
