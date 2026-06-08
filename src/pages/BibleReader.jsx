@@ -1077,7 +1077,7 @@ export default function BibleReader() {
   const isGenesisChapterOne = pos.abbr === 'GEN' && pos.chapter === 1;
 
   return (
-    <div className={`w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-3 ${hideHeader ? 'pt-16' : ''}`}>
+    <div onClick={(e) => { if (!e.target.closest('.kjb-verse-container, h1, h2, h3, .kjb-subscript, .kjb-colophon, #kjb-colophon-anchor, #kjb-subscript-anchor, button, a')) { setHighlightVerse(null); setHighlightSection(null); if (!selectMode) setHighlightedVerses(new Set()); } }} className={`w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-3 ${hideHeader ? 'pt-16' : ''}`}>
 
       {/* Sticky nav bar — hidden when hideHeader is on */}
       {!hideHeader && (
@@ -1813,8 +1813,8 @@ export default function BibleReader() {
           {/* Subscript — centred below chapter name, fully italic, [bracketed] words roman within italic */}
           {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
             <p
-              id="kjb-subscript-anchor"
-              className={`kjb-subscript text-sm text-muted-foreground mt-2 mb-4 max-w-lg mx-auto leading-relaxed text-center transition-colors duration-500 rounded-lg ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} ${highlightSection === 'subscript' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`}
+              onClick={() => setHighlightSection(s => s === 'subscript' ? null : 'subscript')} id="kjb-subscript-anchor"
+              className={`kjb-subscript text-sm text-muted-foreground mt-2 mb-4 max-w-lg mx-auto leading-relaxed text-center transition-colors duration-500 rounded-lg cursor-pointer ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} ${highlightSection === 'subscript' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`}
               style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem` }}
               dangerouslySetInnerHTML={{ __html: renderSubscriptText(SUBSCRIPTS[`${book.apiName}:${pos.chapter}`], highlightSection === 'subscript' ? searchTerm : null) }}
             />
@@ -1873,8 +1873,8 @@ export default function BibleReader() {
             {/* Subscript (Psalm superscription) — centred, fully italic, [bracketed] words roman */}
             {columnMode && !isViewingTitlePage && SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
               <p
-                id="kjb-subscript-anchor"
-                className={`kjb-subscript text-center text-muted-foreground mb-4 leading-relaxed transition-colors duration-500 rounded-lg ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} ${highlightSection === 'subscript' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`}
+                onClick={() => setHighlightSection(s => s === 'subscript' ? null : 'subscript')} id="kjb-subscript-anchor"
+                className={`kjb-subscript text-center text-muted-foreground mb-4 leading-relaxed transition-colors duration-500 rounded-lg cursor-pointer ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} ${highlightSection === 'subscript' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`}
                 style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, breakInside: 'avoid' }}
                 dangerouslySetInnerHTML={{ __html: renderSubscriptText(SUBSCRIPTS[`${book.apiName}:${pos.chapter}`], highlightSection === 'subscript' ? searchTerm : null) }}
               />
@@ -1911,7 +1911,14 @@ export default function BibleReader() {
         })()}
         {/* Colophon - column mode: centered across both columns; non-column: footer with line on top */}
         {!loading && !error && colophon && (
-          <div id="kjb-colophon-anchor" className={`${columnMode ? 'mt-6 mb-4' : 'mt-12 mb-4 border-t border-border pt-6'} text-center transition-colors duration-500 rounded-lg ${highlightSection === 'colophon' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`}>
+          <div onClick={(e) => {
+            if (highlightSection === 'colophon') {
+              setHighlightSection(null);
+              // prevent default so it doesn't propagate to container click which ignores it anyway
+            } else {
+              setHighlightSection('colophon');
+            }
+          }} id="kjb-colophon-anchor" className={`${columnMode ? 'mt-6 mb-4' : 'mt-12 mb-4 border-t border-border pt-6'} text-center transition-colors duration-500 rounded-lg cursor-pointer ${highlightSection === 'colophon' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`}>
             <p
               className={`kjb-colophon text-sm text-muted-foreground leading-relaxed ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`}
               style={{ 
