@@ -25,7 +25,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
   };
 
   return (
-    <div className="bg-card border-2 border-foreground/30 [&_.border-border]:border-foreground/25 rounded-2xl shadow-2xl overflow-hidden w-[95vw] max-w-md max-h-[70vh] flex flex-col relative">
+    <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden w-[95vw] max-w-md max-h-[70vh] flex flex-col relative">
       <div className="flex items-center justify-between p-3 border-b border-border bg-muted/30">
         <span className="font-sans text-sm font-semibold">Select Book</span>
         <button 
@@ -39,14 +39,14 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
         {/* Title Page - Above Old Testament */}
         <button
           onClick={() => { onSelect({ abbr: 'GEN', name: 'Genesis', chapters: 50, shortName: 'Gen' }, true, false); onClose(); }}
-          className="w-full text-left px-4 py-3 text-sm font-sans transition-colors hover:bg-secondary text-foreground font-medium text-primary border-b border-border"
+          className="w-full text-left px-4 py-3 text-sm font-sans transition-colors hover:bg-secondary text-foreground font-medium text-primary border-b border-foreground/25"
         >
           <span>Title Page</span>
         </button>
 
         {/* Old Testament */}
         <button
-          className="w-full flex items-center justify-between px-4 py-3 font-sans font-semibold text-sm text-primary hover:bg-secondary transition-colors border-b border-border"
+          className="w-full flex items-center justify-between px-4 py-3 font-sans font-semibold text-sm text-primary hover:bg-secondary transition-colors border-b border-foreground/25"
           onClick={() => setOldOpen(o => !o)}
         >
           <span>Old Testament <span className="text-muted-foreground font-normal">(39 books)</span></span>
@@ -60,7 +60,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
 
         {/* New Testament */}
         <button
-          className="w-full flex items-center justify-between px-4 py-3 font-sans font-semibold text-sm text-primary hover:bg-secondary transition-colors border-b border-border"
+          className="w-full flex items-center justify-between px-4 py-3 font-sans font-semibold text-sm text-primary hover:bg-secondary transition-colors border-b border-foreground/25"
           onClick={() => setNewOpen(o => !o)}
         >
           <span>New Testament <span className="text-muted-foreground font-normal">(27 books)</span></span>
