@@ -1,129 +1,165 @@
-// KJB Reader Service Worker — offline-first app shell cache
-// updated worker 166
-const CACHE_NAME = 'kjb-shell-v20260609_270';
-const OFFLINE_URL = '/offline.html';
+// KJB Reader Service Worker - Offline-First Strategy
+const CACHE_VERSION = 'v20260609_270';
+const APP_SHELL_CACHE = `kjb-app-shell-${CACHE_VERSION}`;
+const BIBLE_DATA_CACHE = `kjb-bible-data-${CACHE_VERSION}`;
 
-// App shell files to cache on install
-const SHELL_ASSETS = [
+// Core app shell resources to cache immediately
+const APP_SHELL_FILES = [
   '/',
+  '/index.html',
   '/offline.html',
   '/manifest.json',
 ];
 
-// ── Install: pre-cache shell assets ─────────────────────────────────────────
+// Install event - cache app shell
 self.addEventListener('install', (event) => {
+  console.log('[SW] Installing version:', CACHE_VERSION);
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(SHELL_ASSETS).catch(() => {
-        // If offline.html isn't ready yet, pre-cache only the root
-        return cache.add('/').catch(() => {});
-      });
-    })
+    caches.open(APP_SHELL_CACHE)
+      .then((cache) => {
+        console.log('[SW] Caching app shell');
+        return cache.addAll(APP_SHELL_FILES).catch(err => {
+          console.warn('[SW] Some files failed to cache:', err);
+          return Promise.resolve(); // Continue even if some files fail
+        });
+      })
+      .then(() => self.skipWaiting())
   );
 });
 
-// ── Activate: remove old caches ──────────────────────────────────────────────
+// Activate event - clean old caches
 self.addEventListener('activate', (event) => {
+  console.log('[SW] Activating version:', CACHE_VERSION);
   event.waitUntil(
-    caches.keys().then(async (names) => {
-      const hadOldCaches = names.some(n => n.startsWith('kjb-shell-') && n !== CACHE_NAME);
-      await Promise.all(
-        names
-          .filter((n) => n !== CACHE_NAME)
-          .map((n) => caches.delete(n))
-      );
-      await self.clients.claim();
-      
-      // The browser side (main.jsx) listens to 'controllerchange' to trigger a reload.
-    })
+    caches.keys()
+      .then((cacheNames) => {
+        return Promise.all(
+          cacheNames
+            .filter((name) => name.startsWith('kjb-') && name !== APP_SHELL_CACHE && name !== BIBLE_DATA_CACHE)
+            .map((name) => {
+              console.log('[SW] Deleting old cache:', name);
+              return caches.delete(name);
+            })
+        );
+      })
+      .then(() => self.clients.claim())
   );
 });
 
-// ── Fetch: network-first for API/Bible data, cache-first for app shell ───────
+// Fetch event - network-first for API, cache-first for assets
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET and cross-origin requests that aren't our media CDN
+  // Skip non-GET requests
   if (request.method !== 'GET') return;
 
-  // Skip Base44 API calls — always need fresh data
-  if (url.hostname.includes('base44.com') && url.pathname.startsWith('/api')) return;
+  // Skip chrome-extension and other non-http(s) requests
+  if (!url.protocol.startsWith('http')) return;
 
-  // Bible text file — network-first with cache fallback (large file, don't block)
-  if (url.hostname.includes('media.base44.com') && url.pathname.endsWith('.txt')) {
+  // Handle navigation requests (HTML pages)
+  if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).then((res) => {
-        if (res.ok) {
-          const clone = res.clone();
-          caches.open(CACHE_NAME).then((c) => c.put(request, clone));
-        }
-        return res;
-      }).catch(() => caches.match(request))
-    );
-    return;
-  }
-
-  // Images and fonts from our CDN — cache-first.
-  // Includes fonts.googleapis.com (the @font-face CSS), fonts.gstatic.com
-  // (Google font files), and cdn.jsdelivr.net (OpenDyslexic accessibility font)
-  // so all custom fonts render correctly while offline.
-  if (url.hostname.includes('media.base44.com') || url.hostname.includes('fonts.gstatic.com') || url.hostname.includes('fonts.googleapis.com') || url.hostname.includes('cdn.jsdelivr.net')) {
-    event.respondWith(
-      caches.match(request).then((cached) => {
-        if (cached) return cached;
-        return fetch(request).then((res) => {
-          if (res.ok) {
-            const clone = res.clone();
-            caches.open(CACHE_NAME).then((c) => c.put(request, clone));
+      fetch(request)
+        .then((response) => {
+          // Cache successful responses
+          if (response.ok) {
+            const responseClone = response.clone();
+            caches.open(APP_SHELL_CACHE).then((cache) => {
+              cache.put(request, responseClone);
+            });
           }
-          return res;
-        });
-      })
+          return response;
+        })
+        .catch(async () => {
+          // Offline - try cache first, then offline page
+          const cachedResponse = await caches.match(request);
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          // Return offline page for navigation requests
+          return caches.match('/offline.html');
+        })
     );
     return;
   }
 
-  // App shell (HTML, JS chunks, CSS) — network-first, cache fallback
-  if (url.origin === self.location.origin) {
-    // For HTML, force network fetch bypassing HTTP cache to ensure latest version is fetched
-    const fetchOpts = request.mode === 'navigate' ? { cache: 'no-cache' } : {};
+  // Cache-first strategy for static assets (CSS, JS, images, fonts)
+  if (request.destination === 'style' || 
+      request.destination === 'script' || 
+      request.destination === 'image' || 
+      request.destination === 'font') {
     event.respondWith(
-      fetch(request, fetchOpts).then((res) => {
-        if (res.ok && res.status < 400) {
-          const clone = res.clone();
-          caches.open(CACHE_NAME).then((c) => c.put(request, clone));
-        }
-        return res;
-      }).catch(async () => {
-        const cached = await caches.match(request);
-        if (cached) return cached;
-        // For navigation requests, serve the app shell so React Router handles it
-        if (request.mode === 'navigate') {
-          const shell = await caches.match('/');
-          if (shell) return shell;
-          return caches.match(OFFLINE_URL);
-        }
-        return new Response('', { status: 408 });
-      })
+      caches.match(request)
+        .then((cached) => {
+          if (cached) {
+            // Also fetch in background to update cache
+            fetch(request).then((response) => {
+              if (response.ok) {
+                caches.open(APP_SHELL_CACHE).then((cache) => {
+                  cache.put(request, response.clone());
+                });
+              }
+            }).catch(() => {});
+            return cached;
+          }
+          return fetch(request).then((response) => {
+            if (response.ok) {
+              const responseClone = response.clone();
+              caches.open(APP_SHELL_CACHE).then((cache) => {
+                cache.put(request, responseClone);
+              });
+            }
+            return response;
+          });
+        })
     );
     return;
   }
+
+  // Network-first for API calls and other requests
+  event.respondWith(
+    fetch(request)
+      .then((response) => {
+        if (response.ok) {
+          const responseClone = response.clone();
+          caches.open(APP_SHELL_CACHE).then((cache) => {
+            cache.put(request, responseClone);
+          });
+        }
+        return response;
+      })
+      .catch(() => caches.match(request))
+  );
 });
 
-// ── Message: handle PREWARM_ASSETS and SKIP_WAITING ─────────────────────────
+// Handle messages from the main app
 self.addEventListener('message', (event) => {
-  if (event.data?.type === 'SKIP_WAITING') {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    console.log('[SW] Skipping waiting, activating now');
     self.skipWaiting();
   }
-  if (event.data?.type === 'PREWARM_ASSETS') {
+  
+  if (event.data && event.data.type === 'PREWARM_ASSETS') {
     const urls = event.data.urls || [];
-    caches.open(CACHE_NAME).then((cache) => {
-      urls.forEach((url) => {
-        fetch(url, { cache: 'no-cache' }).then((res) => {
-          if (res.ok) cache.put(url, res);
-        }).catch(() => {});
-      });
-    });
+    console.log('[SW] Prewarming', urls.length, 'assets');
+    event.waitUntil(
+      caches.open(APP_SHELL_CACHE)
+        .then((cache) => {
+          return Promise.all(
+            urls.map((url) => {
+              return fetch(url)
+                .then((response) => {
+                  if (response.ok) {
+                    return cache.put(url, response);
+                  }
+                })
+                .catch((err) => {
+                  console.warn('[SW] Failed to prewarm:', url, err);
+                });
+            })
+          );
+        })
+    );
   }
 });
