@@ -5,9 +5,11 @@ const BIBLE_DATA_CACHE = `kjb-bible-data-${CACHE_VERSION}`;
 
 // Core app shell resources to cache immediately
 const APP_SHELL_FILES = [
+  '/legacy.html',
   '/',
   '/index.html',
   '/offline.html',
+  '/manifest.json',
 ];
 
 // Install event - cache app shell
@@ -98,7 +100,7 @@ self.addEventListener('fetch', (event) => {
             fetch(request).then((response) => {
               if (response.ok) {
                 caches.open(APP_SHELL_CACHE).then((cache) => {
-                  cache.put(request, response.clone());
+                  cache.put(request, response);
                 });
               }
             }).catch(() => {});
