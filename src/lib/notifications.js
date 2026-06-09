@@ -163,10 +163,6 @@ export async function showLocalNotification(title, body, imageUrl = null, target
           vibrate: [200, 100, 200],
           silent: false,
           requireInteraction: true,
-          // BigTextStyle hint for Android: a longer body is expandable so the
-          // full verse text is shown when the user pulls the notification down.
-          // Some Androids only render the full body when an image is present.
-          image: APP_LOGO_URL,
           data: {
             body,
             url: targetUrl ? (window.location.origin ? (window.location.origin + targetUrl) : targetUrl) : (window.location.origin ? (window.location.origin + '/') : '/')
@@ -198,7 +194,6 @@ export async function showLocalNotification(title, body, imageUrl = null, target
         vibrate: [200, 100, 200],
         silent: false,
         requireInteraction: true,
-        image: APP_LOGO_URL,
         data: {
           body,
           url: targetUrl ? (window.location.origin ? (window.location.origin + targetUrl) : targetUrl) : (window.location.origin ? (window.location.origin + '/') : '/')
