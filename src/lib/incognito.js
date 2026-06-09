@@ -46,9 +46,12 @@ export async function detectIncognito() {
     if (navigator.storage && navigator.storage.estimate) {
       const { quota } = await navigator.storage.estimate();
       if (typeof quota === 'number') {
-        // deviceMemory (GB) × bytes — incognito quota ≈ memory-based, normal is far larger.
-        const mem = (navigator.deviceMemory || 8) * 1024 * 1024 * 1024;
-        if (quota < 2 * 1024 * 1024 * 1024 || quota < mem) {
+        // Chromium incognito hard-caps the temporary-storage quota at ~120MB.
+        // Normal sessions report far more (tens of MB up to many GB depending
+        // on free disk). Only flag as incognito when the quota is below this
+        // small ceiling, to avoid false positives on normal machines with
+        // limited free disk space.
+        if (quota < 300 * 1024 * 1024) {
           return true;
         }
       }
