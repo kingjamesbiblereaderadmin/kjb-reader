@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, MonitorSmartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Instagram, Youtube, RotateCcw, Accessibility, Keyboard } from 'lucide-react';
 import ShortcutsList from '@/components/ShortcutsList';
@@ -71,6 +71,7 @@ export default function SettingsPage() {
   const [cropImage, setCropImage] = useState(null);
   const [cropImageForNotif, setCropImageForNotif] = useState(false);
   const [pendingBg, setPendingBg] = useState(null);
+  const bgFileInputRef = useRef(null);
 
   // Clear pending image when storage changes (sync across tabs)
   useEffect(() => {
@@ -712,15 +713,17 @@ export default function SettingsPage() {
               )}
             </div>
           ) : (
-            <label className="block">
+            <>
               <input
+                ref={bgFileInputRef}
                 type="file"
                 accept="image/*"
                 onChange={(e) => {
-                  const file = e.target.files[0];
+                  const file = e.target.files?.[0];
                   if (!file) return;
                   if (file.size > 2 * 1024 * 1024) {
                     alert('Image must be less than 2MB for storage');
+                    e.target.value = '';
                     return;
                   }
                   const reader = new FileReader();
@@ -734,11 +737,18 @@ export default function SettingsPage() {
                     alert('Failed to read image');
                   };
                   reader.readAsDataURL(file);
+                  // Reset so picking the same file again still fires onChange
+                  e.target.value = '';
                 }}
                 disabled={uploading}
                 className="hidden"
               />
-              <div className="flex items-center justify-center w-full px-4 py-8 border-2 border-dashed border-border rounded-xl bg-secondary/50 hover:bg-secondary/70 transition-colors cursor-pointer">
+              <button
+                type="button"
+                onClick={() => bgFileInputRef.current?.click()}
+                disabled={uploading}
+                className="flex items-center justify-center w-full px-4 py-8 border-2 border-dashed border-border rounded-xl bg-secondary/50 hover:bg-secondary/70 transition-colors cursor-pointer"
+              >
                 {uploading ? (
                   <div className="text-center">
                     <Loader2 className="w-6 h-6 animate-spin text-accent mx-auto mb-2" />
@@ -751,8 +761,8 @@ export default function SettingsPage() {
                     <p className="font-sans text-xs text-muted-foreground mt-1">PNG, JPG up to 2MB</p>
                   </div>
                 )}
-              </div>
-            </label>
+              </button>
+            </>
           )}
         </div>
         
