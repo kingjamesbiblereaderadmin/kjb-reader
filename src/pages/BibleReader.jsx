@@ -932,7 +932,7 @@ export default function BibleReader() {
                 <span className="truncate">{zoomLevel}%</span>
               </button>
               {showZoomPopover && !isMobile() && (
-                <div className="absolute top-full left-0 mt-1 z-[100]">
+                <div className="absolute top-full left-0 mt-1 z-[100]" onClick={(e) => e.stopPropagation()}>
                   <div className="bg-card border border-border rounded-xl shadow-xl p-4 w-64 relative overflow-hidden">
                     <div className="flex items-center justify-between mb-3 pr-6">
                       <span className="font-sans text-xs font-medium text-foreground">Text Size</span>
@@ -979,7 +979,7 @@ export default function BibleReader() {
                 <span className="hidden sm:inline">{(() => { const active = a11yActive ? a11yFont : fontFamily; return active === 'serif' ? 'Serif' : active === 'sans-serif' ? 'Sans' : active === 'monospace' ? 'Mono' : active === 'dyslexic' ? 'Dyslexic' : active === 'hyperlegible' ? 'Legible' : 'Cursive'; })()}</span>
               </button>
               {showFontPopover && !isMobile() && (
-                <div className="absolute top-full left-0 mt-1 z-[100]">
+                <div className="absolute top-full left-0 mt-1 z-[100]" onClick={(e) => e.stopPropagation()}>
                   <div className="bg-card border border-border rounded-xl shadow-xl p-4 w-64 relative overflow-hidden">
                     <div className="flex items-center justify-between mb-3 pr-6"><span className="font-sans text-xs font-medium text-foreground">Font Family</span></div>
                     <button onClick={() => setShowFontPopover(false)} className="absolute top-3 right-3 p-1 rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"><X className="w-4 h-4" /></button>
