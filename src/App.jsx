@@ -408,12 +408,18 @@ const AuthenticatedApp = () => {
           }
         }
 
-        // 2. Check Bible Data Updates and initial cache load
+        // 2. Check Bible Data Updates and initial cache load.
+        // In incognito/private/guest windows, persistent caching won't survive,
+        // so skip the offline-download splash entirely — the Bible just loads
+        // on-demand from the network without showing a download screen.
+        const { detectIncognito } = await import('@/lib/incognito');
+        const isPrivate = await detectIncognito().catch(() => false);
+
         const { checkForUpdates, downloadBibleForOffline, isBibleCached } = await import('@/lib/bibleCache');
         const bibleNeedsUpdate = await checkForUpdates().catch(() => false);
         const bibleIsCached = await isBibleCached().catch(() => true);
         
-        if (bibleNeedsUpdate || !bibleIsCached) {
+        if (!isPrivate && (bibleNeedsUpdate || !bibleIsCached)) {
           localStorage.removeItem('bible_cache_version');
           localStorage.removeItem('bible_last_refresh');
           try {
