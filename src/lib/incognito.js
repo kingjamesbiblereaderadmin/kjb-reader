@@ -53,24 +53,27 @@ async function _runDetection() {
     }
 
     // Chromium (Chrome/Edge/Brave) Incognito / InPrivate / Guest:
-    // the legacy quota-request API is DISABLED in private mode and throws,
-    // but works in normal windows. This is the most reliable Chromium signal
-    // and doesn't suffer from the false positives that quota-size heuristics do.
-    const fs = window.RequestFileSystem || window.webkitRequestFileSystem;
-    if (fs) {
-      const privateViaFS = await new Promise((resolve) => {
-        try {
-          fs(
-            (window.TEMPORARY ?? 0),
-            100,
-            () => resolve(false), // success → normal window
-            () => resolve(true)   // error → private mode
-          );
-        } catch {
-          resolve(true);
+    // In private mode the temporary-storage quota is hard-capped at a small,
+    // fixed value tied to device memory, whereas a NORMAL session reports a
+    // quota proportional to free disk (always far larger). The proven, low
+    // false-positive signal used by the `detectIncognito` library is:
+    //   private quota ≈ (deviceMemory or 8) * 1024^3 * 2 * 0.0001  ... very small,
+    // i.e. private quota is roughly ≤ 0.12 × the total disk-based quota a normal
+    // window reports. In practice, private mode reports quota under ~700MB on
+    // typical machines while normal windows report many GB. We use the
+    // device-memory-relative cap which scales correctly across machines.
+    if (navigator.storage && navigator.storage.estimate) {
+      const { quota } = await navigator.storage.estimate();
+      if (typeof quota === 'number' && quota > 0) {
+        const deviceMemoryGB = navigator.deviceMemory || 8; // Chromium only; GB
+        // Normal Chromium quota ≈ 60% of free disk (tens of GB). Private mode is
+        // capped near deviceMemory-scaled bytes. This ceiling sits well below a
+        // normal session's quota but above the private cap.
+        const privateCeiling = deviceMemoryGB * 0.5 * 1024 * 1024 * 1024;
+        if (quota < privateCeiling) {
+          return true;
         }
-      });
-      if (privateViaFS) return true;
+      }
     }
   } catch {
     // ignore — fall through to "not incognito"
