@@ -1237,14 +1237,18 @@ export default function BibleReader() {
 
       {!loading && !error && (
         <div className="print:hidden flex justify-between gap-2 mt-6 pt-6 border-t border-border pb-2 sm:mt-4 sm:pt-4">
-          <button onClick={goPrev} disabled={isFirstChapterFirstBook} className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-30 transition-colors min-h-[48px] touch-manipulation">
+          {!isFirstChapterFirstBook && (
+          <button onClick={goPrev} className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors min-h-[48px] touch-manipulation">
             <ChevronLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">{isFirstChapterFirstBook ? 'Beginning' : isGenesisChapterOne ? 'Title Page' : isViewingTitlePage ? `${getPrevBook(pos.abbr)?.shortName} ${getPrevBook(pos.abbr)?.chapters}` : pos.chapter > 1 ? `Chapter ${pos.chapter - 1}` : (pos.abbr === 'GEN' || pos.abbr === 'MAT') ? `${book.shortName} Title Page` : `${getPrevBook(pos.abbr)?.shortName} ${getPrevBook(pos.abbr)?.chapters}`}</span>
+            <span className="hidden sm:inline">{isGenesisChapterOne ? 'Title Page' : isViewingTitlePage ? `${getPrevBook(pos.abbr)?.shortName} ${getPrevBook(pos.abbr)?.chapters}` : pos.chapter > 1 ? `Chapter ${pos.chapter - 1}` : (pos.abbr === 'GEN' || pos.abbr === 'MAT') ? `${book.shortName} Title Page` : `${getPrevBook(pos.abbr)?.shortName} ${getPrevBook(pos.abbr)?.chapters}`}</span>
           </button>
-          <button onClick={() => goNext()} disabled={isLastChapterLastBook} className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 disabled:opacity-30 transition-colors min-h-[48px] touch-manipulation">
-            <span className="hidden sm:inline">{isLastChapterLastBook ? '' : isViewingTitlePage ? `Chapter 1` : pos.chapter < book.chapters ? `Chapter ${pos.chapter + 1}` : getNextBook(pos.abbr) ? `${getNextBook(pos.abbr).shortName} 1` : ''}</span>
+          )}
+          {!isLastChapterLastBook && (
+          <button onClick={() => goNext()} className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors min-h-[48px] touch-manipulation">
+            <span className="hidden sm:inline">{isViewingTitlePage ? `Chapter 1` : pos.chapter < book.chapters ? `Chapter ${pos.chapter + 1}` : getNextBook(pos.abbr) ? `${getNextBook(pos.abbr).shortName} 1` : ''}</span>
             <ChevronRight className="w-4 h-4" />
           </button>
+          )}
         </div>
       )}
 
