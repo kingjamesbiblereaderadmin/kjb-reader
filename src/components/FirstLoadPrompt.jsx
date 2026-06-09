@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, X, Share, MonitorSmartphone, Download, Accessibility, Palette, Type, Moon, Sun, Monitor } from 'lucide-react';
+import { Bell, X, Share, MonitorSmartphone, Download, Accessibility, Palette, Type, Moon, Sun, Monitor, Star } from 'lucide-react';
+import { toast } from 'sonner';
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
 import ThemeColorPicker from '@/components/bible/ThemeColorPicker';
 import { useTheme } from '@/lib/themeContext';
@@ -21,6 +22,16 @@ const A11Y_FONTS = [
 const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
 const isMobile = () => /iphone|ipad|ipod|android/i.test(navigator.userAgent);
 const isAndroid = () => /android/i.test(navigator.userAgent);
+// Firefox (any OS) and Safari on Mac don't support PWA install, so we offer
+// "Add to Favourites/Bookmarks" instead via the browser's bookmark shortcut.
+const isBookmarkBrowser = () => {
+  const ua = navigator.userAgent;
+  const isFirefox = /firefox/i.test(ua);
+  const isMac = /Macintosh|Mac OS X/i.test(ua);
+  const isSafari = /^((?!chrome|android|crios|fxios|edg).)*safari/i.test(ua);
+  const mobile = /iphone|ipad|ipod|android/i.test(ua);
+  return !mobile && (isFirefox || (isMac && isSafari));
+};
 const isInStandaloneMode = () => {
   if (typeof window === 'undefined') return false;
   if (window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone) return true;
@@ -185,7 +196,30 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
               </p>
             </div>
           )}
-          {showInstall && (
+          {showInstall && isBookmarkBrowser() && (
+            <div className="space-y-2 shrink-0">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const isMac = /Macintosh|Mac OS X/i.test(navigator.userAgent);
+                  toast.info('Add to Favourites / Bookmarks', {
+                    description: isMac
+                      ? 'Press ⌘ D to bookmark this app for quick access.'
+                      : 'Press Ctrl + D to bookmark this app for quick access.',
+                  });
+                }}
+                className="w-full flex items-center gap-2 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl font-sans text-[13px] sm:text-sm font-medium transition-all duration-200 touch-manipulation hover:scale-[1.02] active:scale-[0.98] bg-primary text-primary-foreground border-2 border-primary"
+              >
+                <Star className="w-4 h-4 shrink-0" />
+                <span className="text-left leading-tight">
+                  <span className="block font-semibold">Add to Favourites</span>
+                  <span className="block text-[10px] sm:text-xs opacity-80">Bookmark for quick access</span>
+                </span>
+              </button>
+            </div>
+          )}
+          {showInstall && !isBookmarkBrowser() && (
             <div className="space-y-2 shrink-0">
               <button
                 type="button"
