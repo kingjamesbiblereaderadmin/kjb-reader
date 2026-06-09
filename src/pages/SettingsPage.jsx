@@ -1514,7 +1514,7 @@ export default function SettingsPage() {
         {expandedSections.contact && (
           <div className="px-5 pb-6 pt-3 space-y-2">
             <a
-              href={appParams.appId ? `/api/apps/${appParams.appId}/functions/legacy` : '/functions/legacy'}
+              href="/legacy"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-3 rounded-xl bg-transparent border border-border hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
