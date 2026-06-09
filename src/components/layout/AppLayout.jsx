@@ -334,7 +334,7 @@ export default function AppLayout() {
                         scrollMainToTop();
                         navigate(item.path);
                       }}
-                      className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg border font-sans text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 ${
+                      className={`relative flex items-center gap-2.5 px-3 py-2.5 rounded-lg border font-sans text-sm font-medium transition-all duration-200 hover:z-10 hover:shadow-md active:scale-95 ${
                         active
                           ? 'bg-primary text-primary-foreground border-primary shadow-sm'
                           : 'bg-card text-foreground border-border hover:bg-secondary hover:border-muted-foreground/30'
