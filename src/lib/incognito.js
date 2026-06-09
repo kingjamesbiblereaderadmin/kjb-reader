@@ -53,27 +53,27 @@ async function _runDetection() {
     }
 
     // Chromium (Chrome/Edge/Brave) Incognito / InPrivate / Guest:
-    // In private mode the temporary-storage quota is hard-capped at a small,
-    // fixed value tied to device memory, whereas a NORMAL session reports a
-    // quota proportional to free disk (always far larger). The proven, low
-    // false-positive signal used by the `detectIncognito` library is:
-    //   private quota ≈ (deviceMemory or 8) * 1024^3 * 2 * 0.0001  ... very small,
-    // i.e. private quota is roughly ≤ 0.12 × the total disk-based quota a normal
-    // window reports. In practice, private mode reports quota under ~700MB on
-    // typical machines while normal windows report many GB. We use the
-    // device-memory-relative cap which scales correctly across machines.
-    if (navigator.storage && navigator.storage.estimate) {
-      const { quota } = await navigator.storage.estimate();
-      if (typeof quota === 'number' && quota > 0) {
-        const deviceMemoryGB = navigator.deviceMemory || 8; // Chromium only; GB
-        // Normal Chromium quota ≈ 60% of free disk (tens of GB). Private mode is
-        // capped near deviceMemory-scaled bytes. This ceiling sits well below a
-        // normal session's quota but above the private cap.
-        const privateCeiling = deviceMemoryGB * 0.5 * 1024 * 1024 * 1024;
-        if (quota < privateCeiling) {
-          return true;
+    // The legacy temporary-filesystem API is DISABLED in private mode and
+    // invokes its error callback, but succeeds in normal windows. This is the
+    // proven, low-false-positive signal used by the `detectIncognito` library.
+    // NOTE: the first arg must be the TEMPORARY constant (numeric 0). Earlier
+    // we passed `window.TEMPORARY ?? 0` which, when window.TEMPORARY was
+    // undefined on some builds, still worked — but to be safe we hard-code 0.
+    const fs = window.requestFileSystem || window.webkitRequestFileSystem;
+    if (fs) {
+      const privateViaFS = await new Promise((resolve) => {
+        try {
+          fs(
+            0,    // 0 = TEMPORARY
+            100,  // 100 bytes requested
+            () => resolve(false), // success → normal window
+            () => resolve(true)   // error → private mode
+          );
+        } catch {
+          resolve(true);
         }
-      }
+      });
+      return privateViaFS;
     }
   } catch {
     // ignore — fall through to "not incognito"
