@@ -185,15 +185,15 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'daily_verse') {
-      // Use Singapore timezone (UTC+8) for all users to ensure synchronization
+      // Always use the client's local date for synchronization
       let seed;
       if (body.clientDate) {
         const [y, m, d] = body.clientDate.split('-').map(Number);
         seed = y * 10000 + m * 100 + d;
       } else {
-        const now = new Date();
-        const sgDate = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
-        seed = sgDate.getFullYear() * 10000 + (sgDate.getMonth() + 1) * 100 + sgDate.getDate();
+        // Fallback: use UTC date (shouldn't happen if client sends clientDate)
+        const today = new Date();
+        seed = today.getUTCFullYear() * 10000 + (today.getUTCMonth() + 1) * 100 + today.getUTCDate();
       }
 
       const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
