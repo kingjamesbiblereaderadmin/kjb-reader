@@ -52,13 +52,29 @@ async function _runDetection() {
       return true;
     }
 
-    // Chromium (Chrome/Edge/Brave) Incognito / InPrivate / Guest:
-    // The legacy temporary-filesystem API is DISABLED in private mode and
-    // invokes its error callback, but succeeds in normal windows. This is the
-    // proven, low-false-positive signal used by the `detectIncognito` library.
-    // NOTE: the first arg must be the TEMPORARY constant (numeric 0). Earlier
-    // we passed `window.TEMPORARY ?? 0` which, when window.TEMPORARY was
-    // undefined on some builds, still worked — but to be safe we hard-code 0.
+    // Chromium (Chrome/Edge/Brave) Incognito / InPrivate / Guest — two signals,
+    // either one positive means private (OR), to cover all Chromium versions:
+    //
+    // Signal A — Storage quota cap (the proven `detectIncognito` library trick):
+    // In private mode Chromium hard-caps the temporary-storage quota at ~1.07 GB
+    // regardless of disk size, whereas a NORMAL window reports a quota that is a
+    // large fraction of free disk (always many GB on modern devices, and always
+    // far above the jsHeapSizeLimit). We flag private when the quota sits at or
+    // below the documented private ceiling.
+    if (navigator.storage && navigator.storage.estimate) {
+      try {
+        const { quota } = await navigator.storage.estimate();
+        // 1.1 GB ceiling — Chromium private quota is ~1.07 GB; normal windows
+        // report far more. Devices with <2GB total quota are essentially
+        // nonexistent for desktop Chrome/Edge where InPrivate exists.
+        if (typeof quota === 'number' && quota > 0 && quota < 1_181_116_006) {
+          return true;
+        }
+      } catch {}
+    }
+
+    // Signal B — legacy temporary-filesystem API (older Chromium builds):
+    // DISABLED in private mode (error callback), succeeds in normal windows.
     const fs = window.requestFileSystem || window.webkitRequestFileSystem;
     if (fs) {
       const privateViaFS = await new Promise((resolve) => {
