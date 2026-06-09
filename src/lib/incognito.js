@@ -62,14 +62,10 @@ async function _runDetection() {
         const { quota } = await navigator.storage.estimate();
         const deviceMemoryGB = navigator.deviceMemory || 8; // Chromium only
         const ceiling = (deviceMemoryGB * 1024 * 1024 * 1024) / 2;
-        // TEMP DEBUG — tells us the real numbers in each browsing mode.
-        console.log('[incognito] quota:', quota, 'deviceMemoryGB:', deviceMemoryGB, 'ceiling:', ceiling, '=> private?', typeof quota === 'number' && quota < ceiling);
         if (typeof quota === 'number' && quota > 0 && quota < ceiling) {
           return true;
         }
-      } catch (e) {
-        console.log('[incognito] estimate failed:', e);
-      }
+      } catch {}
     }
 
     // Legacy temporary-filesystem API (older Chromium builds): DISABLED in
@@ -88,7 +84,6 @@ async function _runDetection() {
           resolve(true);
         }
       });
-      console.log('[incognito] filesystem private?', privateViaFS);
       return privateViaFS;
     }
   } catch {
