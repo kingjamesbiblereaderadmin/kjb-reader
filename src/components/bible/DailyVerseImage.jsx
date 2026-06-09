@@ -456,7 +456,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             e.stopPropagation();
             onToggleNotif();
           }}
-          className="absolute top-2 left-2 p-1.5 flex items-center justify-center rounded-lg bg-black hover:bg-black/80 transition-colors z-10 touch-manipulation"
+          className="absolute top-2 left-2 p-1.5 flex items-center justify-center rounded-lg bg-black/60 hover:bg-black/75 backdrop-blur-md border border-white/40 shadow-md transition-colors z-10 touch-manipulation"
           title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
           type="button"
         >
@@ -473,7 +473,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 e.stopPropagation();
                 setShowLightbox(true);
               }}
-              className="p-1.5 flex items-center justify-center rounded-lg bg-black hover:bg-black/80 transition-colors touch-manipulation"
+              className="p-1.5 flex items-center justify-center rounded-lg bg-black/60 hover:bg-black/75 backdrop-blur-md border border-white/40 shadow-md transition-colors touch-manipulation"
               title="View in full screen"
               type="button"
             >
@@ -485,7 +485,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 handleShare(e);
               }}
               disabled={capturing}
-              className="p-1.5 flex items-center justify-center rounded-lg bg-black hover:bg-black/80 transition-colors disabled:opacity-50 touch-manipulation"
+              className="p-1.5 flex items-center justify-center rounded-lg bg-black/60 hover:bg-black/75 backdrop-blur-md border border-white/40 shadow-md transition-colors disabled:opacity-50 touch-manipulation"
               title="Share verse image"
               type="button"
             >
@@ -501,7 +501,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 handleDownload(e);
               }}
               disabled={capturing}
-              className="p-1.5 flex items-center justify-center rounded-lg bg-black hover:bg-black/80 transition-colors disabled:opacity-50 touch-manipulation"
+              className="p-1.5 flex items-center justify-center rounded-lg bg-black/60 hover:bg-black/75 backdrop-blur-md border border-white/40 shadow-md transition-colors disabled:opacity-50 touch-manipulation"
               title="Download verse image"
               type="button"
             >
@@ -514,7 +514,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             <button
               onClick={handlePrint}
               disabled={capturing}
-              className="p-1.5 flex items-center justify-center rounded-lg bg-black hover:bg-black/80 transition-colors disabled:opacity-50 touch-manipulation"
+              className="p-1.5 flex items-center justify-center rounded-lg bg-black/60 hover:bg-black/75 backdrop-blur-md border border-white/40 shadow-md transition-colors disabled:opacity-50 touch-manipulation"
               title="Print verse image"
               type="button"
             >
@@ -529,7 +529,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                     setShowMenu(!showMenu);
                   }
                 }}
-                className="p-1.5 flex items-center justify-center rounded-lg bg-black hover:bg-black/80 transition-colors touch-manipulation"
+                className="p-1.5 flex items-center justify-center rounded-lg bg-black/60 hover:bg-black/75 backdrop-blur-md border border-white/40 shadow-md transition-colors touch-manipulation"
                 title="More options"
                 type="button"
               >
@@ -661,7 +661,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               e.stopPropagation();
               setShowButtons(true);
             }}
-            className="p-1.5 flex items-center justify-center rounded-lg bg-black hover:bg-black/80 transition-colors touch-manipulation"
+            className="p-1.5 flex items-center justify-center rounded-lg bg-black/60 hover:bg-black/75 backdrop-blur-md border border-white/40 shadow-md transition-colors touch-manipulation"
             title="Show buttons"
             type="button"
           >
