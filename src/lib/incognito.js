@@ -52,33 +52,25 @@ async function _runDetection() {
       return true;
     }
 
-    // Chromium incognito: the temporary-storage quota is hard-limited
-    // (historically ~1.07GB, newer versions ~2GB or tied to deviceMemory),
-    // whereas normal sessions report ~10% of free disk (tens of GB). We treat
-    // the session as incognito when the quota is suspiciously small relative
-    // to the device's memory, or under a fixed ~2GB ceiling.
-    // Chromium private modes (Incognito / Edge InPrivate / Guest) cap the
-    // storage quota at a low fixed amount (~1GB or 2× free temporary storage),
-    // while a NORMAL session reports a quota based on free disk space — almost
-    // always much larger AND scaling with total quota. The most reliable signal
-    // that works across modern Chrome/Edge is: in private mode, quota is capped
-    // at ~1.07GB (or close to it), regardless of disk size.
-    if (navigator.storage && navigator.storage.estimate) {
-      const { quota } = await navigator.storage.estimate();
-      if (typeof quota === 'number' && quota > 0) {
-        // Chromium private modes (Incognito / Edge InPrivate / Guest) cap the
-        // quota relative to device memory — roughly 2× deviceMemory (in GB),
-        // and never more than ~2GB. A NORMAL session reports a quota based on
-        // free disk (typically tens of GB). So flag private mode when:
-        //   • the quota is at/under a ~2GB ceiling, OR
-        //   • the quota is small relative to the device's RAM.
-        const GB = 1024 * 1024 * 1024;
-        const deviceMemoryGB = navigator.deviceMemory || 8; // GB (Chromium only)
-        const privateCeiling = Math.max(2 * GB, deviceMemoryGB * 2 * GB * 0.6);
-        if (quota <= privateCeiling) {
-          return true;
+    // Chromium (Chrome/Edge/Brave) Incognito / InPrivate / Guest:
+    // the legacy quota-request API is DISABLED in private mode and throws,
+    // but works in normal windows. This is the most reliable Chromium signal
+    // and doesn't suffer from the false positives that quota-size heuristics do.
+    const fs = window.RequestFileSystem || window.webkitRequestFileSystem;
+    if (fs) {
+      const privateViaFS = await new Promise((resolve) => {
+        try {
+          fs(
+            (window.TEMPORARY ?? 0),
+            100,
+            () => resolve(false), // success → normal window
+            () => resolve(true)   // error → private mode
+          );
+        } catch {
+          resolve(true);
         }
-      }
+      });
+      if (privateViaFS) return true;
     }
   } catch {
     // ignore — fall through to "not incognito"
