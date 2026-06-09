@@ -21,6 +21,10 @@ Deno.serve(async (req) => {
   .btn.alt { background:#777777; }
   .status { font-family:Arial,sans-serif; font-size:13px; color:#555555; padding:8px 0; }
   .err { color:#b00000; }
+  .daily { background:#eef0fb; border:1px solid #c9cdee; padding:12px; margin:12px 0; }
+  .daily .dlabel { font-family:Arial,sans-serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#5b59a0; margin:0 0 6px 0; }
+  .daily .dtext { font-size:18px; color:#2d2a6e; margin:0 0 6px 0; font-style:italic; }
+  .daily .dref { font-family:Arial,sans-serif; font-size:13px; color:#555555; margin:0; }
   h2.ref { font-size:20px; color:#2d2a6e; margin:16px 0 8px 0; }
   .verse { margin:0 0 6px 0; }
   .vnum { font-family:Arial,sans-serif; font-size:12px; color:#2d2a6e; font-weight:bold; vertical-align:super; margin-right:3px; }
@@ -43,6 +47,11 @@ Deno.serve(async (req) => {
     <button type="button" class="btn" id="goBtn">Read</button>
   </div>
   <div class="status" id="status">Loading Bible text&hellip; please wait.</div>
+  <div class="daily" id="daily" style="display:none;">
+    <p class="dlabel">Verse of the Day</p>
+    <p class="dtext" id="dtext"></p>
+    <p class="dref" id="dref"></p>
+  </div>
   <h2 class="ref" id="refTitle" style="display:none;"></h2>
   <div id="content"></div>
   <div class="nav" id="nav" style="display:none;">
@@ -76,8 +85,10 @@ Deno.serve(async (req) => {
     "3Jo":"3 John","Jude":"Jude","Re":"Revelation"
   };
   var BOOK_ORDER = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
+  var CACHE_KEY = "kjb_legacy_bible_text_v1";
   var data = {}; var availableBooks = [];
   var statusEl=document.getElementById("status"), bookSel=document.getElementById("bookSel"), chapSel=document.getElementById("chapSel"), goBtn=document.getElementById("goBtn"), refTitle=document.getElementById("refTitle"), contentEl=document.getElementById("content"), navEl=document.getElementById("nav"), prevBtn=document.getElementById("prevBtn"), nextBtn=document.getElementById("nextBtn");
+  var dailyEl=document.getElementById("daily"), dtextEl=document.getElementById("dtext"), drefEl=document.getElementById("dref");
   function setStatus(m,e){ statusEl.innerHTML=m; statusEl.className=e?"status err":"status"; }
   function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
   function renderVerseText(t){ t=t.replace(/\\u00B6\\s*/g,""); t=t.replace(/^<<[^>]*>>\\s*/,""); t=esc(t); t=t.replace(/\\[([^\\]]*)\\]/g,'<span class="ital">$1</span>'); return t; }
@@ -136,19 +147,53 @@ Deno.serve(async (req) => {
     else { var bIdx=-1; for(var j=0;j<availableBooks.length;j++){ if(availableBooks[j]===book){ bIdx=j; break; } }
       if(bIdx>-1&&bIdx<availableBooks.length-1){ var nextBook=availableBooks[bIdx+1]; bookSel.value=nextBook; fillChapters(nextBook); var nNums=chaptersFor(nextBook); chapSel.value=nNums[0]; showChapter(nextBook,nNums[0]); } }
   }
+  function readCache(){ try{ return window.localStorage ? window.localStorage.getItem(CACHE_KEY) : null; }catch(e){ return null; } }
+  function writeCache(text){ try{ if(window.localStorage) window.localStorage.setItem(CACHE_KEY,text); }catch(e){} }
+
+  // Date-seeded daily verse — same verse all day, changes each day. Works everywhere.
+  function showDailyVerse(){
+    if(!availableBooks.length) return;
+    var d=new Date();
+    var seed=d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
+    var book=availableBooks[seed%availableBooks.length];
+    var chNums=chaptersFor(book);
+    var chapter=chNums[seed%chNums.length];
+    var verses=data[book][chapter];
+    var v=verses[seed%verses.length];
+    dtextEl.innerHTML=renderVerseText(v.text);
+    drefEl.innerHTML=esc(book)+" "+chapter+":"+v.verse;
+    dailyEl.style.display="block";
+  }
+
+  function onLoaded(text,fromCache){
+    parseBible(text);
+    if(!availableBooks.length){ setStatus("Bible text could not be read on this device.",true); return; }
+    if(!fromCache) writeCache(text);
+    fillBooks(); bookSel.value=availableBooks[0]; fillChapters(availableBooks[0]); setStatus("");
+    showDailyVerse();
+    showChapter(availableBooks[0],chaptersFor(availableBooks[0])[0]);
+  }
+
   function on(el,ev,fn){ if(el.addEventListener) el.addEventListener(ev,fn,false); else if(el.attachEvent) el.attachEvent("on"+ev,fn); }
   on(bookSel,"change",function(){ fillChapters(currentBook()); });
   on(goBtn,"click",function(){ showChapter(currentBook(),currentChapter()); });
   on(prevBtn,"click",goPrev);
   on(nextBtn,"click",goNext);
-  setStatus("Loading Bible text&hellip; please wait.");
-  loadText(TEXT_URL,function(text){
-    if(!text||text.length<1000){ setStatus("Could not load the Bible text. Please check your connection and refresh.",true); return; }
-    parseBible(text);
-    if(!availableBooks.length){ setStatus("Bible text could not be read on this device.",true); return; }
-    fillBooks(); bookSel.value=availableBooks[0]; fillChapters(availableBooks[0]); setStatus("");
-    showChapter(availableBooks[0],chaptersFor(availableBooks[0])[0]);
-  },function(errMsg){ setStatus("Could not load the Bible text ("+esc(errMsg)+"). Please refresh.",true); });
+  // Offline-first: use the localStorage copy instantly if we have it, otherwise
+  // fetch from the network and save it for next time (works offline thereafter).
+  var cached=readCache();
+  if(cached&&cached.length>1000){
+    setStatus("Loaded from device (offline ready).");
+    onLoaded(cached,true);
+    // Refresh in the background so the cache stays current when online.
+    loadText(TEXT_URL,function(text){ if(text&&text.length>1000) writeCache(text); },function(){});
+  } else {
+    setStatus("Loading Bible text&hellip; please wait.");
+    loadText(TEXT_URL,function(text){
+      if(!text||text.length<1000){ setStatus("Could not load the Bible text. Please check your connection and refresh.",true); return; }
+      onLoaded(text,false);
+    },function(errMsg){ setStatus("Could not load the Bible text ("+esc(errMsg)+"). Please refresh.",true); });
+  }
 })();
 </script>
 </body>
