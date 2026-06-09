@@ -66,9 +66,16 @@ async function _runDetection() {
     if (navigator.storage && navigator.storage.estimate) {
       const { quota } = await navigator.storage.estimate();
       if (typeof quota === 'number' && quota > 0) {
-        // Private/incognito on Chromium reports a quota at or below ~1.1GB.
-        // Normal sessions on any modern machine report well above this.
-        if (quota < 1.2 * 1024 * 1024 * 1024) {
+        // Chromium private modes (Incognito / Edge InPrivate / Guest) cap the
+        // quota relative to device memory — roughly 2× deviceMemory (in GB),
+        // and never more than ~2GB. A NORMAL session reports a quota based on
+        // free disk (typically tens of GB). So flag private mode when:
+        //   • the quota is at/under a ~2GB ceiling, OR
+        //   • the quota is small relative to the device's RAM.
+        const GB = 1024 * 1024 * 1024;
+        const deviceMemoryGB = navigator.deviceMemory || 8; // GB (Chromium only)
+        const privateCeiling = Math.max(2 * GB, deviceMemoryGB * 2 * GB * 0.6);
+        if (quota <= privateCeiling) {
           return true;
         }
       }
