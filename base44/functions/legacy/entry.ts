@@ -207,6 +207,11 @@ Deno.serve(async (req) => {
     if(!availableBooks.length){ setStatus("Bible text could not be read on this device.",true); return; }
     if(!fromCache) writeCache(text);
     if(readCache()) showCacheBadge();
+    // Confirm a complete download with a clear, temporary status message.
+    if(!fromCache){
+      setStatus("&#10003; All 66 books downloaded &mdash; ready to read offline.");
+      setTimeout(function(){ setStatus(""); },4000);
+    }
     fillBooks(); bookSel.value=availableBooks[0]; fillChapters(availableBooks[0]); setStatus("");
     showDailyVerse();
     showChapter(availableBooks[0],chaptersFor(availableBooks[0])[0]);
