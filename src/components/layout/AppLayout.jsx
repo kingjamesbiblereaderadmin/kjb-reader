@@ -5,6 +5,7 @@ import { useTheme } from '@/lib/themeContext';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
+import ShortcutsModal from '@/components/ShortcutsModal';
 import ScrollToTop from '@/components/ScrollToTop';
 import AutoUpdateHandler from '@/components/AutoUpdateHandler';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
@@ -51,6 +52,7 @@ export default function AppLayout() {
   const { hideHeader } = useHeaderHide();
   const { reloadKey, softReload, isReloading } = useSoftReload();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
   const isCheckingUpdatesRef = useRef(false);
@@ -91,6 +93,27 @@ export default function AppLayout() {
     window.addEventListener('keydown', handleNavKeys);
     return () => window.removeEventListener('keydown', handleNavKeys);
   }, [navigate]);
+
+  // "?" opens the keyboard shortcuts overlay (ignored while typing).
+  // Also opened from Settings via the "kjb-open-shortcuts" event.
+  useEffect(() => {
+    const handleHelpKey = (e) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      if (e.key === '?') {
+        e.preventDefault();
+        setShowShortcuts(true);
+      }
+    };
+    const openEvent = () => setShowShortcuts(true);
+    window.addEventListener('keydown', handleHelpKey);
+    window.addEventListener('kjb-open-shortcuts', openEvent);
+    return () => {
+      window.removeEventListener('keydown', handleHelpKey);
+      window.removeEventListener('kjb-open-shortcuts', openEvent);
+    };
+  }, []);
 
   // Reset the main scroll container to the top on every route change.
   // The reader (/read) manages its own scroll restoration, so skip it there.
@@ -351,6 +374,8 @@ export default function AppLayout() {
       )}
 
       <DesktopFooter navigate={navigate} setMenuOpen={setMenuOpen} />
+
+      {showShortcuts && <ShortcutsModal onClose={() => setShowShortcuts(false)} />}
     </div>
     </AutoUpdateHandler>
   );

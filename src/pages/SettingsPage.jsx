@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, MonitorSmartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Instagram, Youtube, RotateCcw, Accessibility } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, MonitorSmartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Instagram, Youtube, RotateCcw, Accessibility, Keyboard } from 'lucide-react';
+import ShortcutsList from '@/components/ShortcutsList';
 
 const TikTokIcon = () => (
   <svg className="w-4 h-4 text-green-500" viewBox="0 0 24 24" fill="currentColor">
@@ -48,6 +49,7 @@ export default function SettingsPage() {
   const [expandedSections, setExpandedSections] = useState({
     text: true,
     accessibility: true,
+    shortcuts: true,
     appearance: true,
     install: true,
     offline: true,
@@ -365,6 +367,7 @@ export default function SettingsPage() {
     setExpandedSections({
       text: newState,
       accessibility: newState,
+      shortcuts: newState,
       appearance: newState,
       install: newState,
       offline: newState,
@@ -560,6 +563,32 @@ export default function SettingsPage() {
             </button>
           )}
         </div>
+        )}
+      </div>
+
+      {/* Keyboard Shortcuts */}
+      <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
+        <button
+          onClick={() => toggleSection('shortcuts')}
+          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
+        >
+          <div className="flex flex-col gap-1">
+            <h2 className="font-serif text-lg font-semibold text-foreground">Keyboard Shortcuts</h2>
+            <p className="font-sans text-xs text-muted-foreground">Quick keys for navigation and search</p>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.shortcuts ? 'rotate-180' : ''}`} />
+        </button>
+        {expandedSections.shortcuts && (
+          <div className="px-5 pb-6 pt-3 space-y-4">
+            <ShortcutsList />
+            <button
+              onClick={() => window.dispatchEvent(new Event('kjb-open-shortcuts'))}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <Keyboard className="w-4 h-4" />
+              Open Shortcuts Overlay
+            </button>
+          </div>
         )}
       </div>
 
