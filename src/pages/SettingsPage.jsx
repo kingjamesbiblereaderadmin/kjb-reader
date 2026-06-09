@@ -36,7 +36,7 @@ const inIframe = () => {
 };
 
 const LAST_REVISED = 'June 8th, 2026';
-const WORKER_VERSION = 'v20260609_238';
+const WORKER_VERSION = 'v20260609_239';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -160,9 +160,13 @@ export default function SettingsPage() {
     window.dispatchEvent(new Event('kjb-fonts-changed'));
   };
 
-  const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
-  const [notifTime, setNotifTimeState] = useState(getNotificationTime);
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
+  // The toggle is only truly "on" when BOTH the app flag is set AND the OS
+  // permission is actually granted. Otherwise notifications silently fail
+  // (the old behaviour that showed "Enabled" but never fired anything).
+  const isNotifReallyOn = () => getNotificationsEnabled() && ('Notification' in window) && Notification.permission === 'granted';
+  const [notifEnabled, setNotifEnabled] = useState(isNotifReallyOn);
+  const [notifTime, setNotifTimeState] = useState(getNotificationTime);
 
   const { isInstallable, isInstalled, promptInstall } = useInstallPrompt();
   const [cached, setCached] = useState(false);
@@ -213,8 +217,8 @@ export default function SettingsPage() {
   // Refresh notification state on focus
   useEffect(() => {
     const handleFocus = () => {
-      setNotifEnabled(getNotificationsEnabled());
       setNotifPermission('Notification' in window ? Notification.permission : 'unsupported');
+      setNotifEnabled(isNotifReallyOn());
     };
     window.addEventListener('focus', handleFocus);
     document.addEventListener('visibilitychange', handleFocus);
