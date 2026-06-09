@@ -86,7 +86,12 @@ Deno.serve(async (req) => {
   };
   var BOOK_ORDER = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
   var CACHE_KEY = "kjb_legacy_bible_text_v1";
-  var data = {}; var availableBooks = [];
+  // Same endpoint the main app uses, so the daily verse matches exactly.
+  var DAILY_API = "${Deno.env.get("BASE44_APP_ID") ? "/api/apps/" + Deno.env.get("BASE44_APP_ID") + "/functions/bibleApi" : "/functions/bibleApi"}";
+  // Same exclusions the API applies, so the offline fallback picks the same verse.
+  var EXCLUDED_REFS = {};
+  (function(){ var arr=["Genesis 26:11","Genesis 33:14","Exodus 15:6","Exodus 18:23","Exodus 19:12","Exodus 21:12","Exodus 21:15","Exodus 21:16","Exodus 21:17","Exodus 21:29","Exodus 22:19","Exodus 31:14","Exodus 31:15","Exodus 35:2","Leviticus 5:5","Leviticus 16:21","Leviticus 19:20","Leviticus 20:2","Leviticus 20:9","Leviticus 20:10","Leviticus 20:11","Leviticus 20:12","Leviticus 20:13","Leviticus 20:15","Leviticus 20:16","Leviticus 20:27","Leviticus 24:16","Leviticus 24:17","Leviticus 24:21","Leviticus 27:29","Numbers 1:51","Numbers 3:10","Numbers 3:38","Numbers 5:7","Numbers 15:35","Numbers 18:7","Numbers 35:16","Numbers 35:17","Numbers 35:18","Numbers 35:21","Numbers 35:30","Numbers 35:31","Deuteronomy 13:5","Deuteronomy 17:6","Deuteronomy 21:22","Deuteronomy 24:16","Joshua 1:18","Judges 6:31","Judges 21:5","1 Samuel 11:13","2 Samuel 8:2","2 Samuel 19:21","2 Samuel 19:22","2 Samuel 21:9","1 Kings 1:12","1 Kings 2:24","1 Kings 8:33","1 Kings 8:35","1 Kings 20:31","2 Kings 14:6","1 Chronicles 16:34","1 Chronicles 16:41","2 Chronicles 5:13","2 Chronicles 6:24","2 Chronicles 6:26","2 Chronicles 7:3","2 Chronicles 7:6","2 Chronicles 15:13","2 Chronicles 20:21","2 Chronicles 23:7","Ezra 3:11","Nehemiah 1:6","Nehemiah 9:2","Esther 8:6","Job 8:15","Job 31:23","Psalms 2:9","Psalms 9:7","Psalms 30:5","Psalms 32:5","Psalms 52:1","Psalms 72:5","Psalms 72:7","Psalms 72:17","Psalms 81:15","Psalms 89:29","Psalms 89:36","Psalms 100:5","Psalms 102:12","Psalms 102:26","Psalms 104:31","Psalms 106:1","Psalms 107:1","Psalms 111:3","Psalms 111:10","Psalms 112:3","Psalms 112:9","Psalms 117:2","Psalms 118:1","Psalms 118:2","Psalms 118:3","Psalms 118:4","Psalms 118:29","Psalms 119:160","Psalms 135:13","Psalms 136:1","Psalms 136:2","Psalms 136:3","Psalms 136:4","Psalms 136:5","Psalms 136:6","Psalms 136:7","Psalms 136:8","Psalms 136:9","Psalms 136:10","Psalms 136:11","Psalms 136:12","Psalms 136:13","Psalms 136:14","Psalms 136:15","Psalms 136:16","Psalms 136:17","Psalms 136:18","Psalms 136:19","Psalms 136:20","Psalms 136:21","Psalms 136:22","Psalms 136:23","Psalms 136:24","Psalms 136:25","Psalms 136:26","Psalms 138:8","Psalms 145:13","Proverbs 27:24","Proverbs 28:13","Isaiah 13:16","Isaiah 13:18","Isaiah 45:20","Jeremiah 18:21","Jeremiah 33:11","Jeremiah 38:4","Ezekiel 22:14","Daniel 9:20","Hosea 10:14","Hosea 13:16","Nahum 2:1","Nahum 3:10","Matthew 3:6","Matthew 10:21","Matthew 10:22","Matthew 24:13","Mark 1:5","Mark 4:17","Mark 13:12","Mark 13:13","Luke 21:16","Luke 23:32","John 6:27","Acts 12:19","Acts 26:10","Romans 9:22","Romans 10:1","Romans 15:9","1 Corinthians 13:7","2 Thessalonians 1:4","2 Timothy 2:3","2 Timothy 2:10","2 Timothy 3:11","2 Timothy 4:3","2 Timothy 4:5","Hebrews 5:7","Hebrews 6:15","Hebrews 10:32","Hebrews 11:27","Hebrews 12:2","Hebrews 12:3","Hebrews 12:7","Hebrews 12:20","James 1:12","James 2:20","James 2:26","James 5:11","James 5:15","1 Peter 1:25","1 Peter 2:19","1 Peter 3:18","1 John 1:9"]; for(var i=0;i<arr.length;i++){ EXCLUDED_REFS[arr[i]]=true; } })();
+  var data = {}; var availableBooks = []; var parsedOrder = [];
   var statusEl=document.getElementById("status"), bookSel=document.getElementById("bookSel"), chapSel=document.getElementById("chapSel"), goBtn=document.getElementById("goBtn"), refTitle=document.getElementById("refTitle"), contentEl=document.getElementById("content"), navEl=document.getElementById("nav"), prevBtn=document.getElementById("prevBtn"), nextBtn=document.getElementById("nextBtn");
   var dailyEl=document.getElementById("daily"), dtextEl=document.getElementById("dtext"), drefEl=document.getElementById("dref");
   function setStatus(m,e){ statusEl.innerHTML=m; statusEl.className=e?"status err":"status"; }
@@ -114,7 +119,7 @@ Deno.serve(async (req) => {
       var bookName=ABBR_TO_NAME[abbr]; if(!bookName) continue;
       verseText=verseText.replace(/\\s*\\u00B6\\s*\\[[^\\]]*\\]\\s*$/,"");
       if(!verseText.replace(/^\\s+|\\s+$/g,"")) continue;
-      if(!data[bookName]) data[bookName]={};
+      if(!data[bookName]){ data[bookName]={}; parsedOrder.push(bookName); }
       if(!data[bookName][chapter]) data[bookName][chapter]=[];
       data[bookName][chapter].push({verse:verse,text:verseText});
     }
@@ -150,19 +155,48 @@ Deno.serve(async (req) => {
   function readCache(){ try{ return window.localStorage ? window.localStorage.getItem(CACHE_KEY) : null; }catch(e){ return null; } }
   function writeCache(text){ try{ if(window.localStorage) window.localStorage.setItem(CACHE_KEY,text); }catch(e){} }
 
-  // Date-seeded daily verse — same verse all day, changes each day. Works everywhere.
-  function showDailyVerse(){
-    if(!availableBooks.length) return;
+  function renderDaily(text,ref){ dtextEl.innerHTML=renderVerseText(text); drefEl.innerHTML=esc(ref); dailyEl.style.display="block"; }
+
+  // Offline daily verse — mirrors the bibleApi 'daily_verse' algorithm EXACTLY:
+  // iterate books in parse/insertion order, chapter keys via for..in, with the
+  // same seed and EXCLUDED_REFS / Romans 10 skip loop, so it matches the app.
+  function computeDailyOffline(){
+    if(!parsedOrder.length) return null;
     var d=new Date();
     var seed=d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
-    var book=availableBooks[seed%availableBooks.length];
-    var chNums=chaptersFor(book);
-    var chapter=chNums[seed%chNums.length];
-    var verses=data[book][chapter];
-    var v=verses[seed%verses.length];
-    dtextEl.innerHTML=renderVerseText(v.text);
-    drefEl.innerHTML=esc(book)+" "+chapter+":"+v.verse;
-    dailyEl.style.display="block";
+    var cur=seed, bookName, chapterNum, verseObj;
+    while(true){
+      bookName=parsedOrder[cur%parsedOrder.length];
+      var chapKeys=[]; for(var k in data[bookName]){ if(data[bookName].hasOwnProperty(k)) chapKeys.push(k); }
+      chapterNum=chapKeys[cur%chapKeys.length];
+      var verses=data[bookName][chapterNum];
+      verseObj=verses[cur%verses.length];
+      var ref=bookName+" "+chapterNum+":"+verseObj.verse;
+      var isExcludedChapter=(bookName==="Romans"&&parseInt(chapterNum,10)===10);
+      if(!EXCLUDED_REFS[ref]&&!isExcludedChapter) break;
+      cur++;
+    }
+    return { text:verseObj.text, ref:bookName+" "+chapterNum+":"+verseObj.verse };
+  }
+
+  // Date-seeded daily verse — synced with the main app. Try the shared API first
+  // (so it's identical), then fall back to the matching offline computation.
+  function showDailyVerse(){
+    var local=computeDailyOffline();
+    if(local) renderDaily(local.text,local.ref); // instant fallback render
+    var d=new Date();
+    var clientDate=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+    var xhr; try{ xhr=new XMLHttpRequest(); }catch(e){ return; }
+    try{
+      xhr.open("POST",DAILY_API,true);
+      xhr.setRequestHeader("Content-Type","application/json");
+      xhr.onreadystatechange=function(){
+        if(xhr.readyState===4&&(xhr.status===200||xhr.status===0)){
+          try{ var r=JSON.parse(xhr.responseText); if(r&&r.verse){ renderDaily(r.verse.text,r.verse.ref); } }catch(e2){}
+        }
+      };
+      xhr.send('{"action":"daily_verse","clientDate":"'+clientDate+'"}');
+    }catch(e3){}
   }
 
   function onLoaded(text,fromCache){
