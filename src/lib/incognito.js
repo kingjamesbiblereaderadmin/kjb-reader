@@ -9,7 +9,21 @@
 //  2. Failure to open IndexedDB (Firefox private mode blocks it).
 //  3. localStorage being unavailable.
 // Resolves to a boolean (defaults to false on any error).
-export async function detectIncognito() {
+//
+// The result is memoized: the first call runs the actual detection and every
+// subsequent call (from any component) reuses the same promise. This ensures
+// the HomePage banner, Settings, and the FirstLoadPrompt all agree — previously
+// each component ran its own async check and could disagree due to per-call
+// IndexedDB/quota variance.
+let _incognitoPromise = null;
+export function detectIncognito() {
+  if (!_incognitoPromise) {
+    _incognitoPromise = _runDetection();
+  }
+  return _incognitoPromise;
+}
+
+async function _runDetection() {
   if (typeof navigator === 'undefined') return false;
 
   try {
