@@ -307,6 +307,10 @@ export default function HomePage() {
   }, []);
 
   const handleVerseClick = () => {
+    // Offline placeholder verse (no real reference) — don't navigate anywhere.
+    if (verse.ref === 'Offline Mode' || verse.book === 'Offline') {
+      return;
+    }
     // If verse.abbr is missing (e.g. from API), try to find it using verse.book
     const bookData = BIBLE_BOOKS.find(b => b.shortName === verse.book || b.apiName === verse.book);
     const abbr = verse.abbr || bookData?.abbr || verse.book?.slice(0, 3).toUpperCase();
