@@ -198,7 +198,9 @@ export async function showLocalNotification(title, body, imageUrl = null, target
         vibrate: [200, 100, 200],
         silent: false,
         requireInteraction: true,
+        image: APP_LOGO_URL,
         data: {
+          body,
           url: targetUrl ? (window.location.origin ? (window.location.origin + targetUrl) : targetUrl) : (window.location.origin ? (window.location.origin + '/') : '/')
         }
       });
