@@ -1,5 +1,5 @@
 // KJB Reader Service Worker - Offline-First Strategy
-const CACHE_VERSION = 'v20260609_270';
+const CACHE_VERSION = 'v20260609_272';
 const APP_SHELL_CACHE = `kjb-app-shell-${CACHE_VERSION}`;
 const BIBLE_DATA_CACHE = `kjb-bible-data-${CACHE_VERSION}`;
 
@@ -8,7 +8,6 @@ const APP_SHELL_FILES = [
   '/',
   '/index.html',
   '/offline.html',
-  '/manifest.json',
 ];
 
 // Install event - cache app shell
@@ -46,7 +45,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - network-first for API, cache-first for assets
+// Fetch event - cache-first for app shell, network-first for API
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -57,28 +56,30 @@ self.addEventListener('fetch', (event) => {
   // Skip chrome-extension and other non-http(s) requests
   if (!url.protocol.startsWith('http')) return;
 
-  // Handle navigation requests (HTML pages)
+  // Handle navigation requests (HTML pages) - cache-first for offline support
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          // Cache successful responses
-          if (response.ok) {
-            const responseClone = response.clone();
-            caches.open(APP_SHELL_CACHE).then((cache) => {
-              cache.put(request, responseClone);
+      caches.match(request)
+        .then((cached) => {
+          if (cached) {
+            // Return cached version immediately for offline support
+            return cached;
+          }
+          // Not in cache - try network
+          return fetch(request)
+            .then((response) => {
+              if (response.ok) {
+                const responseClone = response.clone();
+                caches.open(APP_SHELL_CACHE).then((cache) => {
+                  cache.put(request, responseClone);
+                });
+              }
+              return response;
+            })
+            .catch(() => {
+              // Completely offline - return offline page
+              return caches.match('/offline.html');
             });
-          }
-          return response;
-        })
-        .catch(async () => {
-          // Offline - try cache first, then offline page
-          const cachedResponse = await caches.match(request);
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          // Return offline page for navigation requests
-          return caches.match('/offline.html');
         })
     );
     return;
