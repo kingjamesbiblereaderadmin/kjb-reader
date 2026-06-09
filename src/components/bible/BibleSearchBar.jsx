@@ -92,6 +92,20 @@ export default function BibleSearchBar({ onClose }) {
   const containerRef = useRef(null);
   const navigate = useNavigate();
 
+  // Ctrl-F / Cmd-F focuses this search bar instead of the browser's find dialog.
+  useEffect(() => {
+    const handleFindKey = (e) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
+        e.preventDefault();
+        inputRef.current?.focus();
+        inputRef.current?.select();
+        setOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleFindKey);
+    return () => window.removeEventListener('keydown', handleFindKey);
+  }, []);
+
   // Close the dropdown when clicking/tapping outside the search box
   useEffect(() => {
     if (!open) return;
