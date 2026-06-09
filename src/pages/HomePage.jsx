@@ -462,7 +462,7 @@ export default function HomePage() {
       <Link
         to={READ_LINK.path}
         onClick={() => window.scrollTo({ top: 0 })}
-        className={`print:hidden flex items-center gap-5 p-6 rounded-3xl shadow-lg border-2 border-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all mb-4 sm:hidden ${colorMode === 'daily' ? `bg-gradient-to-br ${dailyBg.gradient} text-white` : READ_LINK.color}`}
+        className={`print:hidden relative flex items-center gap-5 p-6 rounded-3xl shadow-lg border-2 border-white/20 hover:z-10 hover:shadow-xl active:scale-[0.98] transition-all mb-4 sm:hidden ${colorMode === 'daily' ? `bg-gradient-to-br ${dailyBg.gradient} text-white` : READ_LINK.color}`}
       >
         <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 shadow-sm text-white">
           <BookOpen className="w-6 h-6" />
@@ -477,7 +477,7 @@ export default function HomePage() {
         <Link
           to={READ_LINK.path}
           onClick={() => window.scrollTo({ top: 0 })}
-          className={`hidden sm:flex items-center gap-5 p-6 rounded-3xl shadow-lg border-2 border-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all ${colorMode === 'daily' ? `bg-gradient-to-br ${dailyBg.gradient} text-white` : READ_LINK.color}`}
+          className={`hidden sm:flex relative items-center gap-5 p-6 rounded-3xl shadow-lg border-2 border-white/20 hover:z-10 hover:shadow-xl active:scale-[0.98] transition-all ${colorMode === 'daily' ? `bg-gradient-to-br ${dailyBg.gradient} text-white` : READ_LINK.color}`}
         >
           <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 shadow-sm text-white">
             <BookOpen className="w-6 h-6" />
@@ -493,7 +493,7 @@ export default function HomePage() {
               <button
                 key="random"
                 onClick={handleRandomChapter}
-                className="flex items-center gap-4 p-5 rounded-2xl border border-border shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all bg-secondary text-secondary-foreground text-left"
+                className="relative flex items-center gap-4 p-5 rounded-2xl border border-border shadow-sm hover:z-10 hover:shadow-md active:scale-[0.98] transition-all bg-secondary text-secondary-foreground text-left"
               >
                 <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-background/50 backdrop-blur-md border border-border shadow-sm text-foreground">
                   <Shuffle className="w-5 h-5" />
@@ -511,7 +511,7 @@ export default function HomePage() {
               key={link.path}
               to={link.path}
               onClick={() => window.scrollTo({ top: 0 })}
-              className={`flex items-center gap-4 p-5 rounded-2xl border border-border shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all ${link.color}`}
+              className={`relative flex items-center gap-4 p-5 rounded-2xl border border-border shadow-sm hover:z-10 hover:shadow-md active:scale-[0.98] transition-all ${link.color}`}
             >
               <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-background/50 backdrop-blur-md border border-border shadow-sm text-foreground">
                 <Icon className="w-5 h-5" />
