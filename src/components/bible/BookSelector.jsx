@@ -39,14 +39,14 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
         {/* Title Page - Above Old Testament */}
         <button
           onClick={() => { onSelect({ abbr: 'GEN', name: 'Genesis', chapters: 50, shortName: 'Gen' }, true, false); onClose(); }}
-          className="w-full text-left px-4 py-3 text-sm font-sans transition-colors hover:bg-secondary text-foreground font-medium text-primary border-b-2 border-foreground/50"
+          className="w-full text-left px-4 py-3 text-sm font-sans transition-colors hover:bg-secondary text-foreground font-medium text-primary border-b border-border"
         >
           <span>Title Page</span>
         </button>
 
         {/* Old Testament */}
         <button
-          className="w-full flex items-center justify-between px-4 py-3 font-sans font-semibold text-sm text-primary hover:bg-secondary transition-colors border-b-2 border-foreground/50"
+          className="w-full flex items-center justify-between px-4 py-3 font-sans font-semibold text-sm text-primary hover:bg-secondary transition-colors border-b border-border"
           onClick={() => setOldOpen(o => !o)}
         >
           <span>Old Testament <span className="text-muted-foreground font-normal">(39 books)</span></span>
@@ -60,7 +60,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
 
         {/* New Testament */}
         <button
-          className="w-full flex items-center justify-between px-4 py-3 font-sans font-semibold text-sm text-primary hover:bg-secondary transition-colors border-b-2 border-foreground/50"
+          className="w-full flex items-center justify-between px-4 py-3 font-sans font-semibold text-sm text-primary hover:bg-secondary transition-colors border-b border-border"
           onClick={() => setNewOpen(o => !o)}
         >
           <span>New Testament <span className="text-muted-foreground font-normal">(27 books)</span></span>
