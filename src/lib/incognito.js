@@ -52,29 +52,28 @@ async function _runDetection() {
       return true;
     }
 
-    // Chromium (Chrome/Edge/Brave) Incognito / InPrivate / Guest — two signals,
-    // either one positive means private (OR), to cover all Chromium versions:
-    //
-    // Signal A — Storage quota cap (the proven `detectIncognito` library trick):
-    // In private mode Chromium hard-caps the temporary-storage quota at ~1.07 GB
-    // regardless of disk size, whereas a NORMAL window reports a quota that is a
-    // large fraction of free disk (always many GB on modern devices, and always
-    // far above the jsHeapSizeLimit). We flag private when the quota sits at or
-    // below the documented private ceiling.
+    // Chromium (Chrome/Edge/Brave) Incognito / InPrivate / Guest.
+    // Modern, reliable method (used by the detectIncognito library): in private
+    // mode the temporary-storage quota is capped near the device-memory-derived
+    // ceiling, whereas a normal window's quota is a large fraction of free disk.
+    // The library's rule: private when quota < (deviceMemory_or_8 GB) * 1024^3 / 2.
     if (navigator.storage && navigator.storage.estimate) {
       try {
         const { quota } = await navigator.storage.estimate();
-        // 1.1 GB ceiling — Chromium private quota is ~1.07 GB; normal windows
-        // report far more. Devices with <2GB total quota are essentially
-        // nonexistent for desktop Chrome/Edge where InPrivate exists.
-        if (typeof quota === 'number' && quota > 0 && quota < 1_181_116_006) {
+        const deviceMemoryGB = navigator.deviceMemory || 8; // Chromium only
+        const ceiling = (deviceMemoryGB * 1024 * 1024 * 1024) / 2;
+        // TEMP DEBUG — tells us the real numbers in each browsing mode.
+        console.log('[incognito] quota:', quota, 'deviceMemoryGB:', deviceMemoryGB, 'ceiling:', ceiling, '=> private?', typeof quota === 'number' && quota < ceiling);
+        if (typeof quota === 'number' && quota > 0 && quota < ceiling) {
           return true;
         }
-      } catch {}
+      } catch (e) {
+        console.log('[incognito] estimate failed:', e);
+      }
     }
 
-    // Signal B — legacy temporary-filesystem API (older Chromium builds):
-    // DISABLED in private mode (error callback), succeeds in normal windows.
+    // Legacy temporary-filesystem API (older Chromium builds): DISABLED in
+    // private mode (error callback), succeeds in normal windows.
     const fs = window.requestFileSystem || window.webkitRequestFileSystem;
     if (fs) {
       const privateViaFS = await new Promise((resolve) => {
@@ -89,6 +88,7 @@ async function _runDetection() {
           resolve(true);
         }
       });
+      console.log('[incognito] filesystem private?', privateViaFS);
       return privateViaFS;
     }
   } catch {
