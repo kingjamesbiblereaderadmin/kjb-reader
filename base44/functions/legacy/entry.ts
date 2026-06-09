@@ -47,6 +47,7 @@ Deno.serve(async (req) => {
     <button type="button" class="btn" id="goBtn">Read</button>
   </div>
   <div class="status" id="status">Loading Bible text&hellip; please wait.</div>
+  <div id="cacheBadge" style="display:none;font-family:Arial,sans-serif;font-size:12px;color:#1a7a3a;background:#e7f6ec;border:1px solid #b6e0c4;padding:6px 10px;margin:0 0 12px 0;">&#10003; Bible saved on this device &mdash; available offline.</div>
   <div class="daily" id="daily" style="display:none;">
     <p class="dlabel">Verse of the Day</p>
     <p class="dtext" id="dtext"></p>
@@ -94,6 +95,8 @@ Deno.serve(async (req) => {
   var data = {}; var availableBooks = []; var parsedOrder = [];
   var statusEl=document.getElementById("status"), bookSel=document.getElementById("bookSel"), chapSel=document.getElementById("chapSel"), goBtn=document.getElementById("goBtn"), refTitle=document.getElementById("refTitle"), contentEl=document.getElementById("content"), navEl=document.getElementById("nav"), prevBtn=document.getElementById("prevBtn"), nextBtn=document.getElementById("nextBtn");
   var dailyEl=document.getElementById("daily"), dtextEl=document.getElementById("dtext"), drefEl=document.getElementById("dref");
+  var cacheBadge=document.getElementById("cacheBadge");
+  function showCacheBadge(){ if(cacheBadge) cacheBadge.style.display="block"; }
   function setStatus(m,e){ statusEl.innerHTML=m; statusEl.className=e?"status err":"status"; }
   function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
   function renderVerseText(t){ t=t.replace(/\\u00B6\\s*/g,""); t=t.replace(/^<<[^>]*>>\\s*/,""); t=esc(t); t=t.replace(/\\[([^\\]]*)\\]/g,'<span class="ital">$1</span>'); return t; }
@@ -203,6 +206,7 @@ Deno.serve(async (req) => {
     parseBible(text);
     if(!availableBooks.length){ setStatus("Bible text could not be read on this device.",true); return; }
     if(!fromCache) writeCache(text);
+    if(readCache()) showCacheBadge();
     fillBooks(); bookSel.value=availableBooks[0]; fillChapters(availableBooks[0]); setStatus("");
     showDailyVerse();
     showChapter(availableBooks[0],chaptersFor(availableBooks[0])[0]);
