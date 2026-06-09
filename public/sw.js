@@ -1,7 +1,8 @@
-// KJB Reader Service Worker - Offline-First Strategy
-const CACHE_VERSION = 'v20260609_272';
-const APP_SHELL_CACHE = `kjb-app-shell-${CACHE_VERSION}`;
-const BIBLE_DATA_CACHE = `kjb-bible-data-${CACHE_VERSION}`;
+// KJB Reader Service Worker v20260609_273
+// Cache-first loading for offline support
+
+const CACHE_NAME = 'kjb-reader-v20260609_273';
+const LEGACY_CACHE_NAME = 'kjb-legacy-v1';
 
 // Core app shell resources to cache immediately
 const APP_SHELL_FILES = [
@@ -13,40 +14,36 @@ const APP_SHELL_FILES = [
 
 // Install event - cache app shell
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing version:', CACHE_VERSION);
   event.waitUntil(
-    caches.open(APP_SHELL_CACHE)
-      .then((cache) => {
-        console.log('[SW] Caching app shell');
-        return cache.addAll(APP_SHELL_FILES).catch(err => {
-          console.warn('[SW] Some files failed to cache:', err);
-          return Promise.resolve(); // Continue even if some files fail
-        });
-      })
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('[SW] Caching app shell');
+      return cache.addAll(APP_SHELL_FILES).catch(err => {
+        console.warn('[SW] Some resources failed to cache:', err);
+        return Promise.resolve(); // Don't fail install if some resources fail
+      });
+    })
   );
+  self.skipWaiting();
 });
 
 // Activate event - clean old caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating version:', CACHE_VERSION);
   event.waitUntil(
-    caches.keys()
-      .then((cacheNames) => {
-        return Promise.all(
-          cacheNames
-            .filter((name) => name.startsWith('kjb-') && name !== APP_SHELL_CACHE && name !== BIBLE_DATA_CACHE)
-            .map((name) => {
-              console.log('[SW] Deleting old cache:', name);
-              return caches.delete(name);
-            })
-        );
-      })
-      .then(() => self.clients.claim())
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter((name) => name !== CACHE_NAME && name !== LEGACY_CACHE_NAME)
+          .map((name) => {
+            console.log('[SW] Deleting old cache:', name);
+            return caches.delete(name);
+          })
+      );
+    })
   );
+  self.clients.claim();
 });
 
-// Fetch event - cache-first for app shell, network-first for API
+// Fetch event - cache-first strategy
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -54,88 +51,76 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (request.method !== 'GET') return;
 
-  // Skip chrome-extension and other non-http(s) requests
+  // Skip chrome-extension and other non-http requests
   if (!url.protocol.startsWith('http')) return;
 
-  // Handle navigation requests (HTML pages) - cache-first for offline support
-  if (request.mode === 'navigate') {
+  // Handle legacy reader function
+  if (url.pathname.includes('/api/function/legacy') || url.pathname.endsWith('/legacy')) {
     event.respondWith(
-      caches.match(request)
-        .then((cached) => {
-          if (cached) {
-            // Return cached version immediately for offline support
-            return cached;
-          }
-          // Not in cache - try network
-          return fetch(request)
-            .then((response) => {
-              if (response.ok) {
-                const responseClone = response.clone();
-                caches.open(APP_SHELL_CACHE).then((cache) => {
-                  cache.put(request, responseClone);
-                });
-              }
-              return response;
-            })
-            .catch(() => {
-              // Completely offline - return offline page
-              return caches.match('/offline.html');
-            });
-        })
-    );
-    return;
-  }
-
-  // Cache-first strategy for static assets (CSS, JS, images, fonts)
-  if (request.destination === 'style' || 
-      request.destination === 'script' || 
-      request.destination === 'image' || 
-      request.destination === 'font') {
-    event.respondWith(
-      caches.match(request)
-        .then((cached) => {
-          if (cached) {
-            // Also fetch in background to update cache
-            fetch(request).then((response) => {
-              if (response.ok) {
-                caches.open(APP_SHELL_CACHE).then((cache) => {
-                  cache.put(request, response);
-                });
-              }
-            }).catch(() => {});
-            return cached;
+      caches.open(LEGACY_CACHE_NAME).then((cache) => {
+        return cache.match(request).then((cachedResponse) => {
+          if (cachedResponse) {
+            console.log('[SW] Serving legacy from cache');
+            return cachedResponse;
           }
           return fetch(request).then((response) => {
             if (response.ok) {
-              const responseClone = response.clone();
-              caches.open(APP_SHELL_CACHE).then((cache) => {
-                cache.put(request, responseClone);
-              });
+              cache.put(request, response.clone());
             }
             return response;
+          }).catch(() => {
+            // If offline and no cache, return a basic HTML page
+            return new Response(
+              '<html><head><title>KJB Legacy</title></head><body><h1>Legacy Reader</h1><p>Please connect to the internet to load the legacy reader.</p></body></html>',
+              { headers: { 'Content-Type': 'text/html' } }
+            );
           });
-        })
+        });
+      })
     );
     return;
   }
 
-  // Network-first for API calls and other requests
+  // Cache-first strategy for app resources
   event.respondWith(
-    fetch(request)
-      .then((response) => {
-        if (response.ok) {
-          const responseClone = response.clone();
-          caches.open(APP_SHELL_CACHE).then((cache) => {
-            cache.put(request, responseClone);
-          });
+    caches.match(request).then((cachedResponse) => {
+      if (cachedResponse) {
+        console.log('[SW] Serving from cache:', request.url);
+        return cachedResponse;
+      }
+      
+      // Not in cache - fetch from network
+      return fetch(request).then((response) => {
+        // Don't cache non-successful responses
+        if (!response.ok) {
+          console.log('[SW] Network response not ok:', response.status);
+          return response;
         }
+
+        // Clone the response for caching
+        const responseToCache = response.clone();
+        
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(request, responseToCache);
+        });
+
         return response;
-      })
-      .catch(() => caches.match(request))
+      }).catch((error) => {
+        console.log('[SW] Fetch failed, showing offline page:', error);
+        
+        // For navigation requests, show offline page
+        if (request.mode === 'navigate') {
+          return caches.match('/offline.html');
+        }
+        
+        // For other requests, return error
+        return new Response('Offline', { status: 503 });
+      });
+    })
   );
 });
 
-// Handle messages from the main app
+// Handle messages from main thread (e.g., SKIP_WAITING, PREWARM_ASSETS)
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     console.log('[SW] Skipping waiting, activating now');
@@ -144,24 +129,23 @@ self.addEventListener('message', (event) => {
   
   if (event.data && event.data.type === 'PREWARM_ASSETS') {
     const urls = event.data.urls || [];
-    console.log('[SW] Prewarming', urls.length, 'assets');
-    event.waitUntil(
-      caches.open(APP_SHELL_CACHE)
-        .then((cache) => {
+    if (urls.length > 0) {
+      console.log('[SW] Prewarming', urls.length, 'assets');
+      event.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => {
           return Promise.all(
-            urls.map((url) => {
-              return fetch(url)
-                .then((response) => {
+            urls.map(url => 
+              fetch(url)
+                .then(response => {
                   if (response.ok) {
-                    return cache.put(url, response);
+                    return cache.put(url, response.clone());
                   }
                 })
-                .catch((err) => {
-                  console.warn('[SW] Failed to prewarm:', url, err);
-                });
-            })
+                .catch(err => console.warn('[SW] Prewarm failed for', url, err))
+            )
           );
         })
-    );
+      );
+    }
   }
 });
