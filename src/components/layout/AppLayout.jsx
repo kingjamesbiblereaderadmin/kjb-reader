@@ -565,7 +565,7 @@ function BottomNav({ pathname, navigate }) {
                     setTimeout(() => navigate(item.path), 150);
                   }
                 }}
-                className="flex flex-col items-center justify-center flex-1 h-11 active:bg-secondary/50 transition-all duration-200"
+                className="flex flex-col items-center justify-center flex-1 min-h-[48px] active:bg-secondary/50 transition-all duration-200"
               >
                 <Icon className={`w-4 h-4 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'} transition-transform duration-200`} />
                 <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
@@ -608,7 +608,7 @@ function BottomNav({ pathname, navigate }) {
                       setTimeout(() => navigate(item.path), 150);
                     }
                   }}
-                  className="flex flex-col items-center justify-center w-full h-11 active:bg-secondary/50 transition-all duration-200"
+                  className="flex flex-col items-center justify-center w-full min-h-[48px] active:bg-secondary/50 transition-all duration-200"
                 >
                   <Icon className={`w-4 h-4 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'} transition-transform duration-200`} />
                   <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>

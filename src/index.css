@@ -115,23 +115,40 @@
     user-select: none;
   }
   
-  /* Page transitions: smooth fade + slight upward slide on every route change */
-  .kjb-fade-in {
-    animation: kjb-page-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  /* Page transitions: native-like horizontal slide on every route change.
+     Forward navigation enters from the right; back navigation enters from
+     the left — mimicking a native mobile app's tab/stack transitions. */
+  .kjb-slide-forward {
+    animation: kjb-slide-in-right 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
     will-change: opacity, transform;
   }
-  @keyframes kjb-page-in {
+  .kjb-slide-back {
+    animation: kjb-slide-in-left 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: opacity, transform;
+  }
+  @keyframes kjb-slide-in-right {
     from {
       opacity: 0;
-      transform: translateY(6px);
+      transform: translateX(24px);
     }
     to {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateX(0);
+    }
+  }
+  @keyframes kjb-slide-in-left {
+    from {
+      opacity: 0;
+      transform: translateX(-24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    .kjb-fade-in {
+    .kjb-slide-forward,
+    .kjb-slide-back {
       animation: none;
     }
   }

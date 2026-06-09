@@ -183,18 +183,32 @@ const RouteLoader = () => (
   </div>
 );
 
-// Wraps each route in a fast CSS fade so transitions feel smooth, not blank.
-// Keyed by pathname so the animation replays on every navigation —
-// but skipped on the very first render to avoid a flash on refresh.
+// Wraps each route in a native-like horizontal slide so transitions feel like
+// a mobile app: forward navigation slides in from the right, back navigation
+// slides in from the left. Direction is detected from the browser history
+// index (popstate / back = negative). Keyed by pathname so the animation
+// replays on every navigation — but skipped on the very first render to
+// avoid a flash on refresh.
 let _firstRenderDone = false;
+let _lastHistoryIdx = typeof window !== 'undefined' ? (window.history.state?.idx ?? 0) : 0;
 const FadeIn = ({ children }) => {
   const { pathname } = useLocation();
-  
+  const [direction, setDirection] = useState('forward');
+
   useEffect(() => {
+    const idx = window.history.state?.idx ?? 0;
+    setDirection(idx < _lastHistoryIdx ? 'back' : 'forward');
+    _lastHistoryIdx = idx;
     _firstRenderDone = true;
   }, [pathname]);
 
-  return <div key={pathname} className={_firstRenderDone ? 'kjb-fade-in' : ''}>{children}</div>;
+  const animClass = !_firstRenderDone
+    ? ''
+    : direction === 'back'
+      ? 'kjb-slide-back'
+      : 'kjb-slide-forward';
+
+  return <div key={pathname} className={animClass}>{children}</div>;
 };
 
 const AuthenticatedApp = () => {
