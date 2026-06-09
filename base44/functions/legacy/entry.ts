@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
     <button type="button" class="btn" id="goBtn">Read</button>
   </div>
   <div class="status" id="status">Loading Bible text&hellip; please wait.</div>
-  <div id="cacheBadge" style="display:none;font-family:Arial,sans-serif;font-size:12px;color:#1a7a3a;background:#e7f6ec;border:1px solid #b6e0c4;padding:6px 10px;margin:0 0 12px 0;">&#10003; Bible saved on this device &mdash; available offline.</div>
+  <div id="cacheBadge" style="display:none;font-family:Arial,sans-serif;font-size:12px;color:#1a7a3a;background:#e7f6ec;border:1px solid #b6e0c4;padding:6px 10px;margin:0 0 12px 0;">&#10003; Bible text saved on this device &mdash; loads instantly while you have a connection.</div>
   <div class="daily" id="daily" style="display:none;">
     <p class="dlabel">Verse of the Day</p>
     <p class="dtext" id="dtext"></p>
