@@ -7,5 +7,13 @@ export const SHORTCUTS = [
   { keys: ['?'], macKeys: ['?'], label: 'Show keyboard shortcuts' },
 ];
 
+// Shortcuts available only on the search results page (handled by the
+// results list, which knows the grouped order of verses + book headers).
+export const SEARCH_SHORTCUTS = [
+  { keys: ['↑', '↓'], macKeys: ['↑', '↓'], label: 'Navigate verses & book headers' },
+  { keys: ['J', 'K'], macKeys: ['J', 'K'], label: 'Navigate verses & book headers' },
+  { keys: ['Enter'], macKeys: ['Enter'], label: 'Open a verse · collapse / expand a book' },
+];
+
 export const isMac = () =>
   typeof navigator !== 'undefined' && /mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent);
