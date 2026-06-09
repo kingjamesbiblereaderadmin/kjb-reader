@@ -48,6 +48,7 @@ const BOTTOM_NAV_SECONDARY = [
 
 export default function AppLayout() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const { isDark, mode, toggleTheme } = useTheme();
   const { hideHeader } = useHeaderHide();
   const { reloadKey, softReload, isReloading } = useSoftReload();
@@ -159,7 +160,6 @@ export default function AppLayout() {
     };
   }, []);
   // Footer is always visible on desktop, controlled by bottom nav on mobile
-  const navigate = useNavigate();
   const isRoot = pathname === '/';
 
   // FirstLoadPrompt state (centralized in AppLayout)
