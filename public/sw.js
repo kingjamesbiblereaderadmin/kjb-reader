@@ -5,7 +5,6 @@ const BIBLE_DATA_CACHE = `kjb-bible-data-${CACHE_VERSION}`;
 
 // Core app shell resources to cache immediately
 const APP_SHELL_FILES = [
-  '/legacy.html',
   '/',
   '/index.html',
   '/offline.html',
