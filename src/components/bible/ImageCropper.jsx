@@ -49,9 +49,9 @@ export default function ImageCropper({ image, onCrop, onCancel, positionMode = '
     >
       <div 
         className="bg-card rounded-2xl p-4 w-full max-w-lg my-auto"
-        onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
-        onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
-        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
+        onClick={(e) => { e.stopPropagation(); }}
+        onTouchEnd={(e) => { e.stopPropagation(); }}
+        onMouseDown={(e) => { e.stopPropagation(); }}
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-serif text-lg font-semibold text-foreground flex items-center gap-2">
