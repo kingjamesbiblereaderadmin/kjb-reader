@@ -43,24 +43,18 @@ export async function detectIncognito() {
     // whereas normal sessions report ~10% of free disk (tens of GB). We treat
     // the session as incognito when the quota is suspiciously small relative
     // to the device's memory, or under a fixed ~2GB ceiling.
+    // Chromium private modes (Incognito / Edge InPrivate / Guest) cap the
+    // storage quota at a low fixed amount (~1GB or 2× free temporary storage),
+    // while a NORMAL session reports a quota based on free disk space — almost
+    // always much larger AND scaling with total quota. The most reliable signal
+    // that works across modern Chrome/Edge is: in private mode, quota is capped
+    // at ~1.07GB (or close to it), regardless of disk size.
     if (navigator.storage && navigator.storage.estimate) {
       const { quota } = await navigator.storage.estimate();
-      if (typeof quota === 'number') {
-        // Modern Chromium private modes (Incognito / Edge InPrivate / Guest)
-        // no longer hard-cap quota at ~120MB — they report a quota tied to
-        // deviceMemory (e.g. ~1-2GB). A normal session instead reports a quota
-        // based on free disk space, which is far larger. So we flag incognito
-        // when the quota is capped relative to the device's RAM.
-        const mem = navigator.deviceMemory; // in GB, Chromium only
-        if (mem) {
-          // Incognito caps quota at roughly (deviceMemory * 2GB) but never above
-          // a low ceiling. A normal session almost always exceeds this.
-          const incognitoCeiling = Math.min(mem * 1024 * 1024 * 1024, 2 * 1024 * 1024 * 1024);
-          if (quota <= incognitoCeiling) {
-            return true;
-          }
-        } else if (quota < 300 * 1024 * 1024) {
-          // Fallback for browsers without deviceMemory.
+      if (typeof quota === 'number' && quota > 0) {
+        // Private/incognito on Chromium reports a quota at or below ~1.1GB.
+        // Normal sessions on any modern machine report well above this.
+        if (quota < 1.2 * 1024 * 1024 * 1024) {
           return true;
         }
       }
