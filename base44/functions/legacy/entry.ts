@@ -63,6 +63,12 @@ Deno.serve(async (req) => {
     King James Bible &mdash; Pure Cambridge Edition.<br>
     This is a simplified version for old devices.<br>
     For the full app, please use a modern browser (Edge or Chrome).
+    <br><br>
+    <strong>Quick Links:</strong><br>
+    <a href="/gospel" style="color:#2d2a6e;text-decoration:underline;">Gospel</a> &bull;
+    <a href="/resources" style="color:#2d2a6e;text-decoration:underline;">Resources</a> &bull;
+    <a href="/about" style="color:#2d2a6e;text-decoration:underline;">About</a> &bull;
+    <a href="/settings" style="color:#2d2a6e;text-decoration:underline;">Settings</a>
   </div>
 </div>
 <script type="text/javascript">
