@@ -287,8 +287,9 @@ const AuthenticatedApp = () => {
     
     // Safety fallback: if update check hangs (e.g. IndexedDB or SW API gets stuck), release the splash screen
     const safetyTimer = setTimeout(() => {
+      console.log('[App] Safety timer released splash screen');
       if (isMounted) setUpdateCheckDone(true);
-    }, 8000);
+    }, 5000);
 
     const checkUpdatesSilently = async () => {
       if (updateCheckInProgress) return;
@@ -296,7 +297,9 @@ const AuthenticatedApp = () => {
       let willReload = false;
       try {
         if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+          console.log('[App] Offline - skipping update check');
           updateCheckInProgress = false;
+          if (isMounted) setUpdateCheckDone(true);
           return; // Skip if offline
         }
 
@@ -414,20 +417,36 @@ const AuthenticatedApp = () => {
         // In incognito/private/guest windows, persistent caching won't survive,
         // so skip the offline-download splash entirely — the Bible just loads
         // on-demand from the network without showing a download screen.
-        const { detectIncognito } = await import('@/lib/incognito');
-        const isPrivate = await detectIncognito().catch(() => false);
+        let isPrivate = false;
+        let bibleNeedsUpdate = false;
+        let bibleIsCached = true;
+        
+        try {
+          const { detectIncognito } = await import('@/lib/incognito');
+          isPrivate = await detectIncognito().catch(() => false);
+        } catch(e) {
+          console.warn('[App] Incognito detection failed:', e);
+        }
 
-        const { checkForUpdates, downloadBibleForOffline, isBibleCached } = await import('@/lib/bibleCache');
-        const bibleNeedsUpdate = await checkForUpdates().catch(() => false);
-        const bibleIsCached = await isBibleCached().catch(() => true);
+        try {
+          const { checkForUpdates, downloadBibleForOffline, isBibleCached } = await import('@/lib/bibleCache');
+          bibleNeedsUpdate = await checkForUpdates().catch(() => false);
+          bibleIsCached = await isBibleCached().catch(() => true);
+        } catch(e) {
+          console.warn('[App] Bible cache check failed:', e);
+          bibleNeedsUpdate = false;
+          bibleIsCached = true;
+        }
         
         if (!isPrivate && (bibleNeedsUpdate || !bibleIsCached)) {
           localStorage.removeItem('bible_cache_version');
           localStorage.removeItem('bible_last_refresh');
           try {
+            const { checkForUpdates: _, downloadBibleForOffline, isBibleCached: __ } = await import('@/lib/bibleCache');
+            
             if (window.location.pathname !== '/') {
               // Silently download in background, release splash, defer reload to home
-              await downloadBibleForOffline();
+              await downloadBibleForOffline().catch(() => {});
               sessionStorage.setItem('kjb_pending_bible_update', 'true');
               if (isMounted) setUpdateCheckDone(true);
               updateCheckInProgress = false;
@@ -444,7 +463,7 @@ const AuthenticatedApp = () => {
             setIsApplyingUpdates(true);
             setApplyMessage(dlMessage);
             window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: dlMessage } }));
-            await downloadBibleForOffline();
+            await downloadBibleForOffline().catch(() => {});
             hasBibleUpdates = true;
           } catch(e) {
             console.error('Failed to download bible updates', e);
@@ -479,6 +498,7 @@ const AuthenticatedApp = () => {
         console.error('Silent update check failed:', err);
       } finally {
         if (isMounted && !willReload) {
+          console.log('[App] Update check completed, releasing splash');
           setUpdateCheckDone(true);
         }
         updateCheckInProgress = false;
