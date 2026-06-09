@@ -93,6 +93,15 @@ export default function PrivacyPolicyPage() {
         </p>
       </Section>
 
+      <Section title="AI Disclaimer">
+        <p>
+          This app was built with the assistance of artificial intelligence (AI). While great
+          care has been taken to ensure accuracy, AI-generated code and content may contain
+          errors. The King James Bible text itself is sourced from the Pure Cambridge Edition
+          and is not AI-generated. If you notice any issue, please contact us so we can correct it.
+        </p>
+      </Section>
+
       <Section title="Contact Us">
         <p>
           If you have any questions about this Privacy Policy, please contact us at{' '}
