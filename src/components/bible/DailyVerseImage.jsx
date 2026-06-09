@@ -460,7 +460,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           title={notifEnabled ? 'Daily verse reminders on (updates when app opens)' : 'Reminders off'}
           type="button"
         >
-          {notifEnabled ? <Bell className="w-3.5 h-3.5 pointer-events-none" style={{ color: textColor }} /> : <BellOff className="w-3.5 h-3.5 opacity-70 pointer-events-none" style={{ color: textColor }} />}
+          {notifEnabled ? <Bell className="w-3.5 h-3.5 pointer-events-none text-white drop-shadow" /> : <BellOff className="w-3.5 h-3.5 opacity-70 pointer-events-none text-white drop-shadow" />}
         </button>
       )}
 
@@ -477,7 +477,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               title="View in full screen"
               type="button"
             >
-              <Maximize2 className="w-3.5 h-3.5 pointer-events-none" style={{ color: textColor }} />
+              <Maximize2 className="w-3.5 h-3.5 pointer-events-none text-white drop-shadow" />
             </button>
             <button
               onClick={(e) => {
@@ -490,9 +490,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               type="button"
             >
               {capturing ? (
-                <span className="w-3.5 h-3.5 border-2 border-t-transparent rounded-full animate-spin block pointer-events-none" style={{ borderColor: textColor, borderTopColor: 'transparent' }} />
+                <span className="w-3.5 h-3.5 border-2 border-t-transparent rounded-full animate-spin block pointer-events-none border-white" style={{ borderTopColor: 'transparent' }} />
               ) : (
-                <Share2 className="w-3.5 h-3.5 pointer-events-none" style={{ color: textColor }} />
+                <Share2 className="w-3.5 h-3.5 pointer-events-none text-white drop-shadow" />
               )}
             </button>
             <button
@@ -506,9 +506,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               type="button"
             >
               {capturing ? (
-                <span className="w-3.5 h-3.5 border-2 border-t-transparent rounded-full animate-spin block pointer-events-none" style={{ borderColor: textColor, borderTopColor: 'transparent' }} />
+                <span className="w-3.5 h-3.5 border-2 border-t-transparent rounded-full animate-spin block pointer-events-none border-white" style={{ borderTopColor: 'transparent' }} />
               ) : (
-                <Download className="w-3.5 h-3.5 pointer-events-none" style={{ color: textColor }} />
+                <Download className="w-3.5 h-3.5 pointer-events-none text-white drop-shadow" />
               )}
             </button>
             <button
@@ -518,7 +518,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               title="Print verse image"
               type="button"
             >
-              <Printer className="w-3.5 h-3.5 pointer-events-none" style={{ color: textColor }} />
+              <Printer className="w-3.5 h-3.5 pointer-events-none text-white drop-shadow" />
             </button>
             {/* Unified menu button */}
             <div ref={menuRef} className="relative">
@@ -533,7 +533,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 title="More options"
                 type="button"
               >
-                <MoreVertical className="w-3.5 h-3.5 pointer-events-none" style={{ color: textColor }} />
+                <MoreVertical className="w-3.5 h-3.5 pointer-events-none text-white drop-shadow" />
               </button>
               {/* Dropdown menu */}
               {showMenu && (
@@ -665,7 +665,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             title="Show buttons"
             type="button"
           >
-            <ChevronsDown className="w-3.5 h-3.5 rotate-90 pointer-events-none" style={{ color: textColor }} />
+            <ChevronsDown className="w-3.5 h-3.5 rotate-90 pointer-events-none text-white drop-shadow" />
           </button>
         ) : null}
       </div>
