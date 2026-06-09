@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from 'react';
+import { appParams } from '@/lib/app-params';
 
 export default function LegacyReader() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Fetch the legacy reader HTML from the backend function
-    fetch('/api/function/legacy')
+    const legacyUrl = appParams.appId 
+      ? `/api/apps/${appParams.appId}/functions/legacy`
+      : '/api/function/legacy';
+    
+    fetch(legacyUrl)
       .then(res => res.text())
       .then(html => {
         // Replace the entire document with the legacy reader
