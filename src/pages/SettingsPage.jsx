@@ -50,7 +50,7 @@ const isBookmarkBrowser = () => {
 };
 
 const LAST_REVISED = 'June 8th, 2026';
-const WORKER_VERSION = 'v20260609_275';
+const WORKER_VERSION = 'v20260609_276';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -365,19 +365,10 @@ export default function SettingsPage() {
   };
 
   const handleClearCache = async () => {
-    await clearBibleCache();
-    // Also clear service worker cache
-    if ('caches' in window) {
-      const cacheNames = await caches.keys();
-      await Promise.all(cacheNames.map(name => caches.delete(name)));
-    }
-    setCached(false);
-    setDlProgress(0);
-    setDlStatus('');
-    setDlError('');
-    // Force reload to re-fetch with fresh parsing
-    console.log('[Settings] Clearing cache and reloading to fetch fresh Bible data with pilcrows...');
-    window.location.reload();
+    // Navigate to refresh-cache page which handles everything properly
+    // including service worker updates and Bible re-download
+    console.log('[Settings] Navigating to refresh-cache for complete cache clear...');
+    navigate('/refresh-cache');
   };
 
   const allExpanded = Object.values(expandedSections).every(v => v);
