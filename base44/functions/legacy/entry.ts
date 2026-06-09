@@ -45,9 +45,10 @@ Deno.serve(async (req) => {
     <label for="chapSel">Chapter:</label>
     <select id="chapSel"></select>
     <button type="button" class="btn" id="goBtn">Read</button>
+    <button type="button" class="btn alt" id="saveBtn" style="display:none;">Save for Offline</button>
   </div>
   <div class="status" id="status">Loading Bible text&hellip; please wait.</div>
-  <div id="cacheBadge" style="display:none;font-family:Arial,sans-serif;font-size:12px;color:#1a7a3a;background:#e7f6ec;border:1px solid #b6e0c4;padding:6px 10px;margin:0 0 12px 0;">&#10003; Bible text saved on this device &mdash; loads instantly while you have a connection.</div>
+  <div id="cacheBadge" style="display:none;font-family:Arial,sans-serif;font-size:12px;color:#1a7a3a;background:#e7f6ec;border:1px solid #b6e0c4;padding:6px 10px;margin:0 0 12px 0;">&#10003; Bible text saved on this device. To read with <b>no connection at all</b>, tap <b>Save for Offline</b> &mdash; then open the downloaded file anytime.</div>
   <div class="daily" id="daily" style="display:none;">
     <p class="dlabel">Verse of the Day</p>
     <p class="dtext" id="dtext"></p>
@@ -96,7 +97,9 @@ Deno.serve(async (req) => {
   var statusEl=document.getElementById("status"), bookSel=document.getElementById("bookSel"), chapSel=document.getElementById("chapSel"), goBtn=document.getElementById("goBtn"), refTitle=document.getElementById("refTitle"), contentEl=document.getElementById("content"), navEl=document.getElementById("nav"), prevBtn=document.getElementById("prevBtn"), nextBtn=document.getElementById("nextBtn");
   var dailyEl=document.getElementById("daily"), dtextEl=document.getElementById("dtext"), drefEl=document.getElementById("dref");
   var cacheBadge=document.getElementById("cacheBadge");
+  var saveBtn=document.getElementById("saveBtn");
   function showCacheBadge(){ if(cacheBadge) cacheBadge.style.display="block"; }
+  var loadedBibleText="";
   function setStatus(m,e){ statusEl.innerHTML=m; statusEl.className=e?"status err":"status"; }
   function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
   function renderVerseText(t){ t=t.replace(/\\u00B6\\s*/g,""); t=t.replace(/^<<[^>]*>>\\s*/,""); t=esc(t); t=t.replace(/\\[([^\\]]*)\\]/g,'<span class="ital">$1</span>'); return t; }
@@ -202,11 +205,33 @@ Deno.serve(async (req) => {
     }catch(e3){}
   }
 
+  // Builds a fully self-contained HTML file (this exact page + the Bible text
+  // embedded inline) so it opens offline from the device with no server/network.
+  function downloadOfflineCopy(){
+    var pageHtml=document.documentElement.outerHTML;
+    // Inject the Bible text as a global so the script reads it instead of XHR.
+    var inlineData="<script type=\\"text/javascript\\">window.__KJB_OFFLINE_TEXT__="+JSON.stringify(loadedBibleText)+";<\\/script>";
+    var full="<!DOCTYPE html>\\n"+pageHtml.replace(/<\\/head>/i, inlineData+"</head>");
+    try{
+      var blob=new Blob([full],{type:"text/html;charset=windows-1252"});
+      var url=(window.URL||window.webkitURL).createObjectURL(blob);
+      var a=document.createElement("a");
+      a.href=url; a.download="KJB-Reader-Offline.html";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function(){ try{(window.URL||window.webkitURL).revokeObjectURL(url);}catch(e){} },1000);
+    }catch(e){
+      // Old IE fallback — open in a new window so the user can File > Save As.
+      var w=window.open("","_blank"); if(w){ w.document.write(full); w.document.close(); }
+    }
+  }
+
   function onLoaded(text,fromCache){
+    loadedBibleText=text;
     parseBible(text);
     if(!availableBooks.length){ setStatus("Bible text could not be read on this device.",true); return; }
     if(!fromCache) writeCache(text);
     if(readCache()) showCacheBadge();
+    if(saveBtn){ saveBtn.style.display="inline-block"; }
     fillBooks(); bookSel.value=availableBooks[0]; fillChapters(availableBooks[0]); setStatus("");
     showDailyVerse();
     showChapter(availableBooks[0],chaptersFor(availableBooks[0])[0]);
@@ -217,6 +242,14 @@ Deno.serve(async (req) => {
   on(goBtn,"click",function(){ showChapter(currentBook(),currentChapter()); });
   on(prevBtn,"click",goPrev);
   on(nextBtn,"click",goNext);
+  if(saveBtn){ on(saveBtn,"click",downloadOfflineCopy); }
+  // If this is the downloaded self-contained file, the Bible text is embedded
+  // inline — use it directly so the page works with no network at all.
+  if(typeof window.__KJB_OFFLINE_TEXT__==="string"&&window.__KJB_OFFLINE_TEXT__.length>1000){
+    setStatus("Offline copy &mdash; works without a connection.");
+    onLoaded(window.__KJB_OFFLINE_TEXT__,true);
+    return;
+  }
   // Offline-first: use the localStorage copy instantly if we have it, otherwise
   // fetch from the network and save it for next time (works offline thereafter).
   var cached=readCache();
