@@ -74,8 +74,10 @@ export async function getDailyVerseFromBible() {
     const bible = await getBibleData();
     if (bible && bible['Genesis']) {
       console.log("[DEBUG] Generating on-device daily verse...");
+      // Use Singapore timezone (UTC+8) to match across all users
       const d = new Date();
-      const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+      const sgDate = new Date(d.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
+      const seed = sgDate.getFullYear() * 10000 + (sgDate.getMonth() + 1) * 100 + sgDate.getDate();
 
       const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
       
