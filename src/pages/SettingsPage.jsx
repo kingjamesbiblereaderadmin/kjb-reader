@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, MonitorSmartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Instagram, Youtube, RotateCcw, Accessibility, Keyboard } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, MonitorSmartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Instagram, Youtube, RotateCcw, Accessibility, Keyboard, Star } from 'lucide-react';
 import ShortcutsList from '@/components/ShortcutsList';
 
 const TikTokIcon = () => (
@@ -36,6 +36,18 @@ const inIframe = () => {
   try { return window.self !== window.top; } catch (e) { return true; }
 };
 
+// Firefox (any OS) and Safari on Mac don't support PWA install, so we offer
+// "Add to Favourites/Bookmarks" instead via the browser's bookmark shortcut.
+const isBookmarkBrowser = () => {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent;
+  const isFirefox = /firefox/i.test(ua);
+  const isMac = /Macintosh|Mac OS X/i.test(ua);
+  const isSafari = /^((?!chrome|android|crios|fxios|edg).)*safari/i.test(ua);
+  const isMobile = /iphone|ipad|ipod|android/i.test(ua);
+  return !isMobile && (isFirefox || (isMac && isSafari));
+};
+
 const LAST_REVISED = 'June 8th, 2026';
 const WORKER_VERSION = 'v20260609_259';
 
@@ -46,6 +58,7 @@ export default function SettingsPage() {
   const [deleting, setDeleting] = useState(false);
   const [a11yFont, setA11yFont] = useState(getAccessibilityFont);
   const [showInstallHint, setShowInstallHint] = useState(false);
+  const [bookmarkBrowser] = useState(isBookmarkBrowser);
   const [isIncognito, setIsIncognito] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     text: true,
@@ -951,6 +964,22 @@ export default function SettingsPage() {
           </div>
         ) : (
           <div className="space-y-3">
+            {bookmarkBrowser ? (
+              <button
+                onClick={() => {
+                  const isMac = /Macintosh|Mac OS X/i.test(navigator.userAgent);
+                  toast.info('Add to Favourites / Bookmarks', {
+                    description: isMac
+                      ? 'Press ⌘ D to bookmark this app for quick access.'
+                      : 'Press Ctrl + D to bookmark this app for quick access.',
+                  });
+                }}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <Star className="w-4 h-4" />
+                Add to Favourites
+              </button>
+            ) : (
             <button
               onClick={() => {
                 if (!isInstallable) {
@@ -970,6 +999,7 @@ export default function SettingsPage() {
               {/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? <Smartphone className="w-4 h-4" /> : <MonitorSmartphone className="w-4 h-4" />}
               {/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? 'Add to Home Screen' : 'Install App'}
             </button>
+            )}
             
             {showInstallHint && (
               <div className="space-y-2 bg-secondary/50 rounded-xl p-4 mt-3">
