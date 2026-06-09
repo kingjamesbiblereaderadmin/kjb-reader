@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, MonitorSmartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Instagram, Youtube, RotateCcw, Accessibility, Keyboard } from 'lucide-react';
 import ShortcutsList from '@/components/ShortcutsList';
 
@@ -755,8 +756,9 @@ export default function SettingsPage() {
           )}
         </div>
         
-        {/* Crop Modal */}
-        {cropImage && (
+        {/* Crop Modal — portaled to document.body so the full-screen overlay
+            isn't trapped inside the settings card's transform/stacking context. */}
+        {cropImage && createPortal(
           <ImageCropper
             image={cropImage}
             onCrop={(croppedDataUrl) => {
@@ -768,7 +770,8 @@ export default function SettingsPage() {
               setCropImageForNotif(false);
               setPendingBg(null);
             }}
-          />
+          />,
+          document.body
         )}
 
         {/* Daily Verse Text Style */}
