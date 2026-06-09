@@ -73,6 +73,25 @@ export default function AppLayout() {
     setMenuOpen(false);
   }, [pathname]);
 
+  // Keyboard shortcuts: Alt+← (Back) and Alt+H (Home).
+  // Ignored while typing in an input/textarea so they don't hijack text editing.
+  useEffect(() => {
+    const handleNavKeys = (e) => {
+      if (!e.altKey || e.ctrlKey || e.metaKey) return;
+      const t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        navigate(-1);
+      } else if (e.key === 'h' || e.key === 'H') {
+        e.preventDefault();
+        navigate('/');
+      }
+    };
+    window.addEventListener('keydown', handleNavKeys);
+    return () => window.removeEventListener('keydown', handleNavKeys);
+  }, [navigate]);
+
   // Reset the main scroll container to the top on every route change.
   // The reader (/read) manages its own scroll restoration, so skip it there.
   useEffect(() => {
