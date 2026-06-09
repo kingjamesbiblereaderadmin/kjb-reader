@@ -994,7 +994,8 @@ export default function SettingsPage() {
                 <div className="font-sans text-xs text-muted-foreground space-y-1.5">
                   <p>• <strong>Apple iOS:</strong> Tap the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Share</span> button in Safari, then select <span className="text-foreground font-medium">"Add to Home Screen"</span>.</p>
                   <p>• <strong>Android / Chrome:</strong> Open the browser menu <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">(⋮ or ⋯)</span>, then select <span className="text-foreground font-medium">"Add to phone"</span>, <span className="text-foreground font-medium">"Install app"</span> or <span className="text-foreground font-medium">"Add to Home screen"</span>.</p>
-                  <p>• <strong>Desktop:</strong> Click the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Install</span> icon located in your browser's address bar, or check the main menu. <span className="italic opacity-80">(Note: Firefox and Safari for Mac do not support desktop installation)</span>.</p>
+                  <p>• <strong>Desktop:</strong> Click the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Install</span> icon located in your browser's address bar, or check the main menu.</p>
+                  <p>• <strong>Firefox & Safari (Mac):</strong> These browsers don't support installing apps — instead, press <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">⌘ D</span> (or use the menu) to <span className="text-foreground font-medium">Add to Favourites / Bookmarks</span> for quick access.</p>
                 </div>
               </div>
             )}
