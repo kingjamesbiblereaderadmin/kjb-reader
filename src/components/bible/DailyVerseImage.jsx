@@ -1006,8 +1006,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         </div>
       )}
 
-      {/* Crop Modal - positioned near verse card */}
-      {cropImage && (
+      {/* Crop Modal — rendered via a portal to document.body so the full-screen
+          overlay isn't trapped inside the verse card's transform/stacking
+          context (which caused it to overlap the home page quick-links and made
+          the Save button unreachable). */}
+      {cropImage && createPortal(
         <div 
           onClick={(e) => e.stopPropagation()} 
           onTouchStart={(e) => e.stopPropagation()}
@@ -1018,7 +1021,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         <Suspense fallback={null}>
           <ImageCropper
           image={cropImage}
-          positionMode="overlay"
           onCrop={(cropped) => {
             setCropImage(null);
             if (cropImageForNotif) {
@@ -1046,7 +1048,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           }}
         />
         </Suspense>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Save/Cancel buttons for pending background (only for crop-to-background flow) */}
