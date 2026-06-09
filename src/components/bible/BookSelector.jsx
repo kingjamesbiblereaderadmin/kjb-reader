@@ -12,7 +12,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
       <button
         key={book.abbr}
         onClick={() => { onSelect(book, false, true); onClose(); }}
-        className={`w-full text-left px-4 py-2.5 text-sm font-sans transition-colors border-b border-border last:border-b-0 ${
+        className={`w-full text-left px-4 py-2.5 text-sm font-sans transition-colors border-b border-foreground/25 last:border-b-0 ${
           active
             ? 'bg-accent text-accent-foreground font-semibold'
             : 'hover:bg-secondary text-foreground'
@@ -53,7 +53,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
           {oldOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </button>
         {oldOpen && (
-          <div className="flex flex-col border-b border-border">
+          <div className="flex flex-col border-b border-foreground/25">
             {OLD_TESTAMENT.map((book) => renderBook(book))}
           </div>
         )}
@@ -70,7 +70,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
           <div className="flex flex-col">
             <button
               onClick={() => { onSelect({ abbr: 'MAT', name: 'Matthew', chapters: 28, shortName: 'Mat' }, true); onClose(); }}
-              className="w-full text-left px-4 py-2.5 text-sm font-sans transition-colors hover:bg-secondary text-foreground border-b border-border"
+              className="w-full text-left px-4 py-2.5 text-sm font-sans transition-colors hover:bg-secondary text-foreground border-b border-foreground/25"
             >
               <span>Title Page</span>
             </button>
