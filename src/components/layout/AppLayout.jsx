@@ -297,14 +297,14 @@ export default function AppLayout() {
             >
               {isOnline ? <Wifi className="w-4 h-4 pointer-events-none" /> : <WifiOff className="w-4 h-4 pointer-events-none" />}
             </button>
-            <button className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer touch-manipulation"
+            <button className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
               onClick={(e) => { e.stopPropagation(); try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {} toggleTheme(); }}
               type="button"
               aria-label="Toggle theme"
             >
               {mode === 'auto' ? <SunMoon className="w-4 h-4 pointer-events-none transition-transform duration-200" /> : isDark ? <Moon className="w-4 h-4 pointer-events-none transition-transform duration-200" /> : <Sun className="w-4 h-4 pointer-events-none transition-transform duration-200" />}
             </button>
-            <button data-kjb-menu-toggle className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer touch-manipulation"
+            <button data-kjb-menu-toggle className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
               onClick={(e) => { e.stopPropagation(); setMenuOpen(o => !o); }}
               type="button"
               aria-label="Open menu"
@@ -417,7 +417,7 @@ function DesktopFooter({ navigate, setMenuOpen }) {
                     scrollMainToTop();
                     navigate(item.path);
                   }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-sans text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 hover:scale-105 active:scale-95"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-sans text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200"
                 >
                   <Icon className="w-3.5 h-3.5 transition-transform duration-200" />
                   {item.label}
@@ -565,7 +565,7 @@ function BottomNav({ pathname, navigate }) {
                     setTimeout(() => navigate(item.path), 150);
                   }
                 }}
-                className="flex flex-col items-center justify-center flex-1 h-11 active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95"
+                className="flex flex-col items-center justify-center flex-1 h-11 active:bg-secondary/50 transition-all duration-200"
               >
                 <Icon className={`w-4 h-4 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'} transition-transform duration-200`} />
                 <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
@@ -576,7 +576,7 @@ function BottomNav({ pathname, navigate }) {
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); cycleShowMode(); }}
-            className="w-8 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95 shrink-0 border-l border-border"
+            className="w-8 flex items-center justify-center text-muted-foreground hover:text-foreground active:bg-secondary/50 transition-all duration-200 shrink-0 border-l border-border"
             title="Toggle navigation rows"
           >
             <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200" />
@@ -608,7 +608,7 @@ function BottomNav({ pathname, navigate }) {
                       setTimeout(() => navigate(item.path), 150);
                     }
                   }}
-                  className="flex flex-col items-center justify-center w-full h-11 active:bg-secondary/50 transition-all duration-200 hover:scale-105 active:scale-95"
+                  className="flex flex-col items-center justify-center w-full h-11 active:bg-secondary/50 transition-all duration-200"
                 >
                   <Icon className={`w-4 h-4 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'} transition-transform duration-200`} />
                   <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
