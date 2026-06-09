@@ -15,6 +15,18 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 // Service worker registration for offline support and notifications
 window.addEventListener('load', async () => {
   
+  // Skip service worker registration in development mode to prevent React hook errors
+  if (import.meta.env.DEV) {
+    console.log('[SW] Skipping registration in development mode');
+    // Unregister any existing service workers in dev mode
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        registrations.forEach(reg => reg.unregister());
+      });
+    }
+    return;
+  }
+  
   // Register fresh service worker
   if ('serviceWorker' in navigator) {
     try {

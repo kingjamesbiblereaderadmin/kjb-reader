@@ -1,4 +1,4 @@
-// KJB Reader Service Worker v20260609_273
+// KJB Reader Service Worker v20260609_277
 // Cache-first loading for offline support
 
 const CACHE_NAME = 'kjb-reader-v20260609_277';
@@ -43,7 +43,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch event - cache-first strategy
+// Fetch event - cache-first strategy with dev mode bypass
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -53,6 +53,18 @@ self.addEventListener('fetch', (event) => {
 
   // Skip chrome-extension and other non-http requests
   if (!url.protocol.startsWith('http')) return;
+
+  // DEV MODE: Skip service worker caching for development
+  // This prevents stale React/Vite chunks from breaking the dev server
+  if (url.pathname.includes('/@vite') || 
+      url.pathname.includes('/@react-refresh') ||
+      url.pathname.includes('/node_modules/.vite') ||
+      url.pathname.startsWith('/src/') ||
+      url.pathname.endsWith('.jsx') ||
+      url.pathname.endsWith('.js') && url.pathname.includes('chunk-')) {
+    // Let dev server handle these directly
+    return;
+  }
 
   // Handle legacy reader function
   if (url.pathname.includes('/api/function/legacy') || url.pathname.endsWith('/legacy')) {
