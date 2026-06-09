@@ -5,7 +5,7 @@ import { X, Check, Square, Crop } from 'lucide-react';
 export default function ImageCropper({ image, onCrop, onCancel, positionMode = 'center' }) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [aspect, setAspect] = useState(1); // 1:1 default
+  const [aspect, setAspect] = useState(1); // 1:1 default; undefined = freeform
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
@@ -93,7 +93,7 @@ export default function ImageCropper({ image, onCrop, onCancel, positionMode = '
             { label: '1:1', value: 1, icon: Square },
             { label: '4:3', value: 4/3 },
             { label: '16:9', value: 16/9 },
-            { label: 'Free', value: null },
+            { label: 'Free', value: undefined },
           ].map(opt => (
             <button
               key={opt.label}
