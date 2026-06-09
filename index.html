@@ -2,6 +2,31 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- Detect Internet Explorer / very old browsers and redirect to the legacy
+         reader BEFORE any modern JS runs (the React app can't run on IE). -->
+    <script>
+      (function () {
+        try {
+          var ua = navigator.userAgent || '';
+          // IE10/11 ("Trident") and older IE ("MSIE"). Not Edge.
+          var isIE = /Trident|MSIE/i.test(ua);
+          // Browsers with no Promise / no fetch can't run the app either.
+          var tooOld = (typeof window.Promise === 'undefined') || (typeof window.fetch === 'undefined');
+          var url = new URLSearchParams(window.location.search);
+          var optedOut = url.get('nolegacy') === '1';
+          if ((isIE || tooOld) && !optedOut) {
+            var appId = url.get('app_id');
+            if (!appId) {
+              try { appId = localStorage.getItem('base44_app_id'); } catch (e) {}
+            }
+            var legacyUrl = appId
+              ? '/api/apps/' + appId + '/functions/legacy'
+              : '/functions/legacy';
+            window.location.replace(legacyUrl);
+          }
+        } catch (e) {}
+      })();
+    </script>
     <link rel="icon" type="image/png" href="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <!-- Allow caching for offline support -->
