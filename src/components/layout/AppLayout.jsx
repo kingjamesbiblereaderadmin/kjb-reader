@@ -104,7 +104,7 @@ export default function AppLayout() {
       if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
       if (e.key === '?') {
         e.preventDefault();
-        setShowShortcuts(true);
+        setShowShortcuts(prev => !prev);
       }
     };
     const openEvent = () => setShowShortcuts(true);
