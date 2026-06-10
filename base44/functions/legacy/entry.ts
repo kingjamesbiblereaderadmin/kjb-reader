@@ -437,7 +437,11 @@ function showTab(name, btn) {
     var d = BIBLE_DATA[book];
     if (!d) return [];
     var r = [];
-    for (var c in d) { if (d.hasOwnProperty(c)) r.push(c); }
+    for (var c in d) { 
+      if (d.hasOwnProperty(c) && Array.isArray(d[c]) && d[c].length > 0) {
+        r.push(c);
+      }
+    }
     r.sort(function(a,b){ return parseInt(a)-parseInt(b); });
     return r;
   };
@@ -453,7 +457,7 @@ function showTab(name, btn) {
     info += "Current Book: " + (bookSel ? bookSel.value : "N/A") + "\\n";
     info += "Current Chapter: " + (chapSel ? chapSel.value : "N/A") + "\\n";
     info += "\\n== Daily Verse ==\\n";
-    if (dtext && dref && dailyDiv && dailyDiv.style.display !== "none") {
+    if (dtext && dref && dtext.textContent && dtext.textContent.length > 0) {
       info += "Text: " + dtext.textContent + "\\n";
       info += "Ref: " + dref.textContent + "\\n";
     } else {
