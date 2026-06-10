@@ -40,30 +40,22 @@
             return;
           }
           if ((isIE || tooOld) && !optedOut) {
-            // On custom domain (kingjamesbiblereader.com) use the /legacy route
-            // which React serves via the LegacyReader page (proxies the function).
-            // On base44 hosting, use the direct function path.
-            var host = window.location.hostname || '';
-            var isCustomDomain = host.indexOf('base44.app') === -1 && host.indexOf('localhost') === -1;
-            var legacyUrl;
-            if (isCustomDomain) {
-              legacyUrl = window.location.origin + '/legacy';
-            } else {
-              // Parse app_id from query string manually
-              var appId = null;
-              var appIdx = qs.indexOf('app_id=');
-              if (appIdx !== -1) {
-                var appPart = qs.substring(appIdx + 7);
-                var ampIdx = appPart.indexOf('&');
-                appId = ampIdx !== -1 ? appPart.substring(0, ampIdx) : appPart;
-              }
-              if (!appId) {
-                try { appId = localStorage.getItem('base44_app_id'); } catch (e) {}
-              }
-              legacyUrl = appId
-                ? '/api/apps/' + appId + '/functions/legacy'
-                : '/functions/legacy';
+            // Redirect IE / very old browsers STRAIGHT to the server-rendered
+            // Full Bible function (no React involved — IE can't run the SPA,
+            // and the /legacy route is a React page). Works on every host.
+            var appId = null;
+            var appIdx = qs.indexOf('app_id=');
+            if (appIdx !== -1) {
+              var appPart = qs.substring(appIdx + 7);
+              var ampIdx = appPart.indexOf('&');
+              appId = ampIdx !== -1 ? appPart.substring(0, ampIdx) : appPart;
             }
+            if (!appId) {
+              try { appId = localStorage.getItem('base44_app_id'); } catch (e) {}
+            }
+            var legacyUrl = appId
+              ? '/api/apps/' + appId + '/functions/legacy'
+              : '/functions/legacy';
             // Force immediate redirect before any rendering
             window.location.replace(legacyUrl);
           }
