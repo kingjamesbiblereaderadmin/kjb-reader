@@ -147,7 +147,7 @@ Deno.serve(async (req) => {
 
   var parseBible = function(text) {
     bibleData = {};
-    var lines = text.split("\\n");
+    var lines = text.split("\n");
     var currentBook = null;
     var currentChap = null;
     var verseNum = 0;
@@ -157,12 +157,18 @@ Deno.serve(async (req) => {
     var titleBuffer = [];
     var inTitle = false;
 
+    var reCR = new RegExp("\\r$");
+    var reChap = new RegExp("^CHAPTER (\\d+)$");
+    var reAllCaps = new RegExp("^[A-Z][A-Z ,\\.\\-0-9']+$");
+    var reVerse = new RegExp("^(\\d+)\\s+(.+)$");
+    var reItal = new RegExp("\\[([^\\]]+)\\]", "g");
+
     for (var i = 0; i < lines.length; i++) {
-      var line = lines[i].replace(/\r$/, "").trim();
+      var line = lines[i].replace(reCR, "").trim();
       if (!line) { titleBuffer = []; inTitle = false; continue; }
 
       // Detect CHAPTER N line
-      var chapMatch = line.match(/^CHAPTER (\d+)$/);
+      var chapMatch = reChap.exec(line);
       if (chapMatch) {
         currentChap = chapMatch[1];
         verseNum = 0;
@@ -172,20 +178,15 @@ Deno.serve(async (req) => {
       }
 
       // Detect book title lines: all-caps, may end with period or comma
-      // Collect consecutive all-caps lines and try to extract book name
-      if (/^[A-Z][A-Z ,.\-0-9']+$/.test(line)) {
-        titleBuffer.push(line.replace(/[.,]$/g, "").trim());
-        // Try each fragment and combinations as a book name
+      if (reAllCaps.test(line)) {
+        titleBuffer.push(line.replace(/[.,]$/, "").trim());
         var found = null;
-        // Try last fragment alone (e.g. "GENESIS")
         var last = titleBuffer[titleBuffer.length - 1];
         if (TITLE_TO_BOOK[last]) { found = TITLE_TO_BOOK[last]; }
-        // Try "1 SAMUEL" style (digit + space + word)
         if (!found) {
           for (var t = 0; t < titleBuffer.length; t++) {
             var frag = titleBuffer[t];
             if (TITLE_TO_BOOK[frag]) { found = TITLE_TO_BOOK[frag]; break; }
-            // Try combining with next
             if (t + 1 < titleBuffer.length) {
               var combo = frag + " " + titleBuffer[t+1];
               if (TITLE_TO_BOOK[combo]) { found = TITLE_TO_BOOK[combo]; break; }
@@ -202,29 +203,30 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      // Verse line: starts with digit, or plain text (verse 1 has no number in this format)
+      // Verse line
       if (currentBook && currentChap) {
         titleBuffer = [];
-        var vMatch = line.match(/^(\d+)\s+(.+)$/);
+        reItal.lastIndex = 0;
+        var vMatch = reVerse.exec(line);
         if (vMatch) {
-          // Numbered verse (2, 3, 4...)
           verseNum = parseInt(vMatch[1]);
-          var verseText = vMatch[2].replace(/\[([^\]]+)\]/g, '<em class="ital">$1</em>');
+          var verseText = vMatch[2].replace(reItal, '<em class="ital">$1</em>');
+          reItal.lastIndex = 0;
           if (!bibleData[currentBook][currentChap]) bibleData[currentBook][currentChap] = [];
           bibleData[currentBook][currentChap].push({ verse: String(verseNum), text: verseText });
           matched++;
         } else if (verseNum === 0) {
-          // First line of a chapter with no leading number = verse 1
           verseNum = 1;
-          var vt = line.replace(/\[([^\]]+)\]/g, '<em class="ital">$1</em>');
+          var vt = line.replace(reItal, '<em class="ital">$1</em>');
+          reItal.lastIndex = 0;
           if (!bibleData[currentBook][currentChap]) bibleData[currentBook][currentChap] = [];
           bibleData[currentBook][currentChap].push({ verse: "1", text: vt });
           matched++;
         } else {
-          // Continuation of previous verse
           var chData = bibleData[currentBook][currentChap];
           if (chData && chData.length > 0) {
-            chData[chData.length - 1].text += " " + line.replace(/\[([^\]]+)\]/g, '<em class="ital">$1</em>');
+            chData[chData.length - 1].text += " " + line.replace(reItal, '<em class="ital">$1</em>');
+            reItal.lastIndex = 0;
           }
         }
       } else {
@@ -308,8 +310,8 @@ Deno.serve(async (req) => {
       var ref = book + " " + chapter + ":" + verse.verse;
       if (EXCLUDED_REFS[ref]) { verseIdx = (verseIdx + 1) % verses.length; verse = verses[verseIdx]; ref = book + " " + chapter + ":" + verse.verse; }
       var plainText = verse.text.replace(/<[^>]+>/g, "");
-      dtext.textContent = '\\u201c' + plainText + '\\u201d';
-      dref.textContent = "\\u2014 " + ref + " (KJB)";
+      dtext.textContent = String.fromCharCode(8220) + plainText + String.fromCharCode(8221);
+      dref.textContent = String.fromCharCode(8212) + " " + ref + " (KJB)";
       dailyDiv.style.display = "block";
     } catch(e) {}
   };
@@ -354,7 +356,7 @@ Deno.serve(async (req) => {
     if (!availableBooks.length) {
       // Show debug: first 5 non-empty lines
       var debugDiv = document.getElementById("debug");
-      var lines = BIBLE_TEXT.split("\\n");
+      var lines = BIBLE_TEXT.split("\n");
       var info = "Parse failed. First 5 non-empty lines:";
       var shown = 0;
       for (var li = 0; li < lines.length && shown < 5; li++) {
