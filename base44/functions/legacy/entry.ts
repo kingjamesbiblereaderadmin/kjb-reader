@@ -424,18 +424,30 @@ Deno.serve(async (req) => {
         '</div>';
     }
 
+    // Home link goes to the Bible tab at Genesis 1; theme toggle flips dark/light
+    // while preserving the current tab/book/chapter.
+    const baseParams = 'tab=' + tab + (tab === 'bible' ? '&book=' + encodeURIComponent(book) + '&chapter=' + chapter : '') +
+                       (appIdParam ? '&app_id=' + encodeURIComponent(appIdParam) : '');
+    const homeHref = esc(basePath) + '?tab=bible&book=Genesis&chapter=1' + idSuffix;
+    const themeHref = esc(basePath) + '?' + baseParams + (isDark ? '' : '&theme=dark');
+    const topbar = '<div class="topbar">' +
+      '<a href="' + homeHref + '">&#8962; Home</a>' +
+      '<a href="' + themeHref + '">' + (isDark ? '&#9728; Light Mode' : '&#9790; Dark Mode') + '</a>' +
+      '</div>';
+
     const html =
 '<!DOCTYPE html>' +
 '<html><head>' +
 '<meta charset="UTF-8">' +
 '<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
 '<title>KJB Reader (Legacy)</title>' +
-'<style>' + STYLE + '</style>' +
+'<style>' + STYLE + (isDark ? DARK_STYLE : '') + '</style>' +
 '</head><body>' +
 '<div class="hdr"><h1>KJB Reader (Legacy)</h1><p>King James Bible &mdash; Pure Cambridge Edition</p></div>' +
 '<div class="tabs">' +
 tabLink('bible', 'Bible') + tabLink('gospel', 'Gospel') + tabLink('resources', 'Resources') + tabLink('about', 'About') + tabLink('debug', 'Debug') +
 '</div>' +
+topbar +
 '<div class="wrap">' + bodyInner + '</div>' +
 '</body></html>';
 
