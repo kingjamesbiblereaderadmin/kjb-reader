@@ -270,10 +270,29 @@ function chapterOptions(book, selected) {
   return h;
 }
 
+// Fetch daily verse from bibleApi function
+async function fetchDailyVerse() {
+  try {
+    const d = new Date();
+    const clientDate = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    const res = await fetch('https://kingjamesbiblereader.com/api/function/bibleApi', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'daily_verse', clientDate })
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.verse || null;
+  } catch {
+    return null;
+  }
+}
+
 Deno.serve(async (req) => {
   try {
     const url = new URL(req.url);
     const tab = url.searchParams.get('tab') || 'bible';
+    const showDailyVerse = url.searchParams.get('daily') === 'true';
 
     // Selected book/chapter (default to Genesis 1)
     let book = url.searchParams.get('book') || 'Genesis';
@@ -345,6 +364,7 @@ Deno.serve(async (req) => {
     const DARK_STYLE =
 'body { background:#15131f; color:#e5e3ee; }' +
 '.box { background:#211e30; border-color:#39354f; }' +
+'.box[style*="linear-gradient"] { background:linear-gradient(135deg, #4c1d95 0%, #581c87 100%) !important; }' +
 '.cbook { color:#a99fff; }' +
 '.cnum, .subscript, .colophon { color:#a09bb5; }' +
 '.colophon { border-top-color:#39354f; }' +
@@ -430,7 +450,19 @@ Deno.serve(async (req) => {
 
       bodyInner = form + content + navLinks;
     } else if (tab === 'gospel') {
-      let g = '<div class="sec-title">How to be Saved</div>' +
+      // Daily verse card
+      let dv = '';
+      if (showDailyVerse) {
+        const dailyVerse = await fetchDailyVerse();
+        if (dailyVerse) {
+          dv = '<div class="box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; margin-bottom:20px;">' +
+            '<h3 style="color:#fff; margin-bottom:8px; font-size:14px; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:1px;">Verse of the Day</h3>' +
+            '<p style="font-size:16px; line-height:1.6; margin-bottom:12px; font-style:italic;">"' + esc(dailyVerse.text) + '"</p>' +
+            '<p style="font-size:13px; color:#e0e0ff;">' + esc(dailyVerse.ref) + '</p>' +
+            '</div>';
+        }
+      }
+      let g = dv + '<div class="sec-title">How to be Saved</div>' +
         '<div class="sec-sub">The Gospel is the glad tidings of the Lord Jesus Christ: Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.</div>';
       for (let i = 0; i < GOSPEL_STEPS.length; i++) {
         const s = GOSPEL_STEPS[i];
@@ -449,7 +481,19 @@ Deno.serve(async (req) => {
         '<p style="margin-top:8px;"><a href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq">&#9654; Full Gospel Videos Playlist</a></p></div>';
       bodyInner = g;
     } else if (tab === 'resources') {
-      let r = '<div class="sec-title">Resources</div>' +
+      // Daily verse card
+      let dv = '';
+      if (showDailyVerse) {
+        const dailyVerse = await fetchDailyVerse();
+        if (dailyVerse) {
+          dv = '<div class="box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; margin-bottom:20px;">' +
+            '<h3 style="color:#fff; margin-bottom:8px; font-size:14px; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:1px;">Verse of the Day</h3>' +
+            '<p style="font-size:16px; line-height:1.6; margin-bottom:12px; font-style:italic;">"' + esc(dailyVerse.text) + '"</p>' +
+            '<p style="font-size:13px; color:#e0e0ff;">' + esc(dailyVerse.ref) + '</p>' +
+            '</div>';
+        }
+      }
+      let r = dv + '<div class="sec-title">Resources</div>' +
         '<div class="sec-sub">KJB defence materials, studies on modern version corruption, and free Bible study resources.</div>' +
         '<div class="res-cat">Why KJB is God\'s Word</div>' +
         '<div class="step"><h4>The Word of God Will Keep Its Infallibility</h4>' +
@@ -479,12 +523,24 @@ Deno.serve(async (req) => {
       r += '<div class="warn" style="background:#fdf8ee;border-color:#e9dcb8;"><p style="font-size:13px;color:#7a5a00;"><b>Note:</b> These resources are for educational purposes only. I may not affirm all doctrinal statements of every resource or ministry linked here. Please use discernment and compare all things to the King James Bible.</p></div>';
       bodyInner = r;
     } else if (tab === 'about') {
+      // Daily verse card
+      let dv = '';
+      if (showDailyVerse) {
+        const dailyVerse = await fetchDailyVerse();
+        if (dailyVerse) {
+          dv = '<div class="box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; margin-bottom:20px;">' +
+            '<h3 style="color:#fff; margin-bottom:8px; font-size:14px; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:1px;">Verse of the Day</h3>' +
+            '<p style="font-size:16px; line-height:1.6; margin-bottom:12px; font-style:italic;">"' + esc(dailyVerse.text) + '"</p>' +
+            '<p style="font-size:13px; color:#e0e0ff;">' + esc(dailyVerse.ref) + '</p>' +
+            '</div>';
+        }
+      }
       const ulOf = function (arr) {
         let s = '';
         for (let i = 0; i < arr.length; i++) s += '<li>' + esc(arr[i]) + '</li>';
         return '<ul class="about-list">' + s + '</ul>';
       };
-      let a = '<div class="sec-title">About</div>';
+      let a = dv + '<div class="sec-title">About</div>';
       a += '<div class="box"><h3>About the Ministry</h3>' +
         '<p style="font-size:14px;">I\'m Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. I am a dispensational salvationist, rightly dividing the word of truth.</p>' +
         ulOf(ABOUT_FAITH) + '</div>';
@@ -518,8 +574,10 @@ Deno.serve(async (req) => {
                        (appIdParam ? '&app_id=' + encodeURIComponent(appIdParam) : '');
     const homeHref = esc(basePath) + '?tab=bible&book=Genesis&chapter=1' + idSuffix;
     const themeHref = esc(basePath) + '?' + baseParams + (isDark ? '' : '&theme=dark');
+    const dailyVerseHref = esc(basePath) + '?' + baseParams + (isDark ? '&theme=dark&' : '') + (showDailyVerse ? '' : 'daily=true');
     const topbar = '<div class="topbar">' +
       '<a href="' + homeHref + '">&#8962; Home</a>' +
+      '<a href="' + dailyVerseHref + '">' + (showDailyVerse ? '&#10005; Hide Daily Verse' : '&#10003; Daily Verse') + '</a>' +
       '<a href="' + themeHref + '">' + (isDark ? '&#9728; Light Mode' : '&#9790; Dark Mode') + '</a>' +
       '</div>';
 
