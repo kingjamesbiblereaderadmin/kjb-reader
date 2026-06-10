@@ -361,21 +361,25 @@ Deno.serve(async (req) => {
       const verses = (bible[book] && bible[book][chapter]) || [];
       const fullName = FULL_BOOK_NAMES[book] || book;
 
-      // Controls form (GET submit reloads the page server-side).
-      // The Book select auto-submits on change (onchange works on IE4+) so the
-      // Chapter list resyncs to the selected book's real chapter count. We reset
-      // chapter to 1 on book change so it's never out of range.
+      // Controls — 100% no-JS. Two separate <form>s each with a real submit button.
+      // 1) "Select Book" submits the chosen book (resetting chapter to 1) so the
+      //    page reloads and the Chapter dropdown below resyncs to that book's
+      //    real chapter count. The auto-submit onchange is kept as a progressive
+      //    enhancement, but the button guarantees it works without JavaScript.
+      // 2) "Read Chapter" submits the chosen chapter for the current book.
       const hidden = '<input type="hidden" name="tab" value="bible">' +
         (appIdParam ? '<input type="hidden" name="app_id" value="' + esc(appIdParam) + '">' : '') +
         (isDark ? '<input type="hidden" name="theme" value="dark">' : '');
+      const maxChForBook = CHAPTER_COUNTS[book] || 1;
       let form = '<div class="box">' +
         '<form method="get" action="' + esc(basePath) + '">' + hidden +
         '<input type="hidden" name="chapter" value="1">' +
         '<div class="ctl"><label>Book:</label><select name="book" onchange="this.form.submit()">' + bookOptions(book) + '</select></div>' +
+        '<input type="submit" class="read-btn" value="Select Book">' +
         '</form>' +
-        '<form method="get" action="' + esc(basePath) + '">' + hidden +
+        '<form method="get" action="' + esc(basePath) + '" style="margin-top:12px;">' + hidden +
         '<input type="hidden" name="book" value="' + esc(book) + '">' +
-        '<div class="ctl"><label>Chapter:</label><select name="chapter" onchange="this.form.submit()">' + chapterOptions(book, chapter) + '</select></div>' +
+        '<div class="ctl"><label>Chapter (' + esc(book) + ' has ' + maxChForBook + '):</label><select name="chapter" onchange="this.form.submit()">' + chapterOptions(book, chapter) + '</select></div>' +
         '<input type="submit" class="read-btn" value="Read Chapter"></form></div>';
 
       // Chapter content
