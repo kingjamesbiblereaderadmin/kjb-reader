@@ -490,18 +490,18 @@ Deno.serve(async (req) => {
   .tab-btn { display:table-cell; text-align:center; padding:10px 4px; font-family:Arial,sans-serif; font-size:13px; color:#cfceec; cursor:pointer; border:none; background:none; }
   .tab-btn.active { background:#5b59a0; color:#fff; font-weight:bold; }
   .wrap { max-width:720px; margin:0 auto; padding:12px; }
-  .controls { background:#f1f1f7; border:1px solid #ccc; padding:10px; margin:12px 0; font-family:Arial,sans-serif; text-align:left; }
+  .controls { background:#f1f1f7; border:none; padding:12px; margin:0 0 12px -12px; width:calc(100% + 24px); font-family:Arial,sans-serif; text-align:left; box-sizing:border-box; }
   .controls label { display:block; font-size:13px; color:#333; margin:0 0 3px 0; font-weight:bold; text-align:left; }
   .controls select { display:block; font-size:15px; padding:4px; margin:0 0 10px 0; width:100%; box-sizing:border-box; text-align:left; }
-  .daily { background:#eef0fb; border:1px solid #c9cdee; padding:12px; margin:12px 0; border-radius:4px; text-align:left; }
+  .daily { background:#eef0fb; border:none; padding:12px; margin:12px -12px; width:calc(100% + 24px); border-radius:0; text-align:left; box-sizing:border-box; }
   .btn { font-family:Arial,sans-serif; font-size:14px; padding:6px 12px; background:#2d2a6e; color:#fff; border:0; cursor:pointer; margin-right:6px; }
   .btn.alt { background:#777; }
   .status { font-family:Arial,sans-serif; font-size:12px; color:#555; padding:6px 0; text-align:center; }
   .err { color:#b00000; font-weight:bold; }
   .daily { background:#eef0fb; border:1px solid #c9cdee; padding:12px; margin:12px 0; border-radius:4px; }
-  .daily .dlabel { font-family:Arial,sans-serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#5b59a0; margin:0 0 6px 0; text-align:left; }
-  .daily .dtext { font-size:17px; color:#2d2a6e; margin:0 0 6px 0; font-style:italic; text-align:left; }
-  .daily .dref { font-family:Arial,sans-serif; font-size:13px; color:#555; margin:0; text-align:left; }
+  .daily .dlabel { font-family:Arial,sans-serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#5b59a0; margin:0 0 6px 0; text-align:left; padding:0 12px; }
+  .daily .dtext { font-size:17px; color:#2d2a6e; margin:0 0 6px 0; font-style:italic; text-align:left; padding:0 12px; }
+  .daily .dref { font-family:Arial,sans-serif; font-size:13px; color:#555; margin:0; text-align:left; padding:0 12px; }
   h2.ref { font-size:19px; color:#2d2a6e; margin:14px 0 8px 0; text-align:center; }
   .verse { margin:0 0 5px 0; text-align:left; }
   .verse-pilcrow { margin-top:12px; }
