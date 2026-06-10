@@ -704,33 +704,25 @@ Deno.serve(async (req) => {
     // Mirror the native React splash (PageLoader): centred logo with a soft
     // pulsing glow, a spinning ring, and the small uppercase caption — plus the
     // chunked progress bar underneath. Colours follow the app's indigo theme.
-    const loaderBg = isDark ? '#0f1718' : '#ffffff';
+    const loaderBg = isDark ? '#1a1a1e' : '#f5f5f7';
     const loaderFg = isDark ? '#e5e5e5' : '#1a1a1a';
-    const glow = isDark ? 'rgba(124,124,235,0.25)' : 'rgba(45,42,110,0.18)';
     const spinnerCol = isDark ? '#7c7ceb' : '#2d2a6e';
     const loaderStyle =
       '#kjb-loader{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;overflow:auto;background:' + loaderBg + ';color:' + loaderFg + ';font-family:Arial,sans-serif;text-align:center;display:block;padding:0 24px;}' +
-      '#kjb-loader .kjb-center{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 0;}' +
-      '#kjb-loader .kjb-logo-wrap{position:relative;margin-bottom:48px;}' +
-      '#kjb-loader .kjb-glow{position:absolute;top:50%;left:50%;width:200px;height:200px;margin:-100px 0 0 -100px;background:' + glow + ';border-radius:50%;filter:blur(40px);animation:kjbpulse 2s ease-in-out infinite;}' +
-      '#kjb-loader .kjb-logo{position:relative;width:128px;height:128px;display:block;}' +
-      '#kjb-loader .kjb-spinner{width:26px;height:26px;border:3px solid ' + spinnerCol + ';border-top-color:transparent;border-radius:50%;margin:0 auto 14px;animation:kjbspin 1s linear infinite;}' +
-      '#kjb-loader .kjb-cap{font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:' + (isDark ? 'rgba(229,229,229,0.7)' : 'rgba(26,26,26,0.7)') + ';}' +
-      '#kjb-progress{max-width:280px;margin:22px auto 4px;height:8px;background:' + (isDark ? '#2a2a33' : '#e0e0ec') + ';border-radius:9999px;overflow:hidden;}' +
+      '#kjb-loader .kjb-center{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 0;}' +
+      '#kjb-loader h2{font-size:20px;color:' + spinnerCol + ';margin-bottom:8px;}' +
+      '#kjb-loader p{font-size:14px;color:' + (isDark ? '#aaa' : '#666') + ';margin-bottom:24px;}' +
+      '#kjb-progress{max-width:280px;width:100%;margin:0 auto 8px;height:10px;background:' + (isDark ? '#2a2a33' : '#e0e0ec') + ';border-radius:9999px;overflow:hidden;}' +
       '#kjb-bar{height:100%;width:0;background:' + spinnerCol + ';transition:width 0.2s ease;}' +
-      '#kjb-pct{font-size:12px;color:' + (isDark ? '#aaa' : '#888') + ';}' +
+      '#kjb-pct{font-size:14px;font-weight:bold;color:' + spinnerCol + ';}' +
       '#kjb-warn{display:none;max-width:380px;margin:16px auto 0;padding:9px 13px;border:1px solid ' + (isDark ? '#5a3a3a' : '#e9c4c4') + ';border-radius:8px;background:' + (isDark ? '#2a1a1a' : '#fdf0f0') + ';font-size:12px;line-height:1.5;color:' + (isDark ? '#f0b8b8' : '#b02525') + ';}' +
       '#kjb-loader .kjb-loader-banner{max-width:480px;margin:28px auto 0;text-align:left;}' +
-      '@keyframes kjbspin{to{transform:rotate(360deg);}}' +
-      '@keyframes kjbpulse{0%,100%{opacity:1;}50%{opacity:0.5;}}' +
       'body.kjb-ready #kjb-loader{display:none;}body:not(.kjb-ready) #wrap,body:not(.kjb-ready) .banner,body:not(.kjb-ready) .hdr{visibility:hidden;}';
     const upgradeWarn = '<div style="max-width:420px;margin:18px auto 0;padding:10px 14px;border:1px solid ' + (isDark ? '#3a3d4a' : '#c9c7e0') + ';border-radius:8px;background:' + (isDark ? '#1a1a22' : '#f3f2fb') + ';font-size:12px;line-height:1.5;color:' + (isDark ? '#c0c0c8' : '#555') + ';text-align:center;">&#9888; Using an old or unsupported device or browser? Some features may not work &mdash; please upgrade to the latest browser or device for the best experience.</div>';
     const loaderHtml =
       '<div id="kjb-loader"><div class="kjb-center">' +
-        '<div class="kjb-logo-wrap"><span class="kjb-glow"></span>' +
-        '<img class="kjb-logo" src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader"></div>' +
-        '<div class="kjb-spinner"></div>' +
-        '<div class="kjb-cap">Downloading the Bible&hellip;</div>' +
+        '<h2>KJB Reader (Legacy)</h2>' +
+        '<p>Downloading the Bible&hellip;</p>' +
         '<div id="kjb-progress"><div id="kjb-bar"></div></div>' +
         '<div id="kjb-pct">0%</div>' +
         '<div id="kjb-warn"></div>' +
