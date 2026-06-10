@@ -583,21 +583,9 @@ function showTab(name, btn) {
     return r;
   };
 
-  var bookSel, chapSel, contentDiv, refTitle, navDiv, prevBtn, nextBtn, statusDiv, dailyDiv, dtext, dref, debugInfo;
+  var bookSel, chapSel, contentDiv, refTitle, navDiv, prevBtn, nextBtn, statusDiv, dailyDiv, dtext, dref, debugInfoDiv;
 
-    var updateDebugInfo = function(extra) {
-    var html = "Legacy Debug Info:<br>";
-    html += "Current Book: " + bookSel.value + "<br>";
-    html += "Current Chapter: " + chapSel.value + "<br>";
-    if (extra) {
-      for (var key in extra) {
-        html += key + ": " + extra[key] + "<br>";
-      }
-    }
-    debugInfo.innerHTML = html;
-  };
-
-    var updateDebugInfo = function() {
+  var updateDebugInfo = function() {
     if (!debugInfoDiv) return;
     var info = "";
     info += "Bible Data Source: " + (Object.keys(_injected).length > 0 ? "Injected from Server" : "localStorage Cache") + "\n";
@@ -645,7 +633,6 @@ function showTab(name, btn) {
     nextBtn.disabled = !hasNext; nextBtn.style.opacity = hasNext ? "1" : "0.4";
     navDiv.style.display = "block";
     window.scrollTo(0, 0);
-    updateDebugInfo();
     updateDebugInfo();
   };
 
@@ -760,7 +747,6 @@ function showTab(name, btn) {
     dtext = document.getElementById("dtext");
     dref = document.getElementById("dref");
     debugInfoDiv = document.getElementById("debug-info");
-    debugInfo = document.getElementById("debugInfo");
 
     bookSel.addEventListener("change", function() { fillChapters(bookSel.value); });
     document.getElementById("goBtn").addEventListener("click", function() { showChapter(bookSel.value, chapSel.value); });
@@ -786,7 +772,6 @@ function showTab(name, btn) {
     statusDiv.textContent = "";
     showDailyVerse();
     showChapter(availableBooks[0], chaptersFor(availableBooks[0])[0]);
-    updateDebugInfo();
     updateDebugInfo();
   };
 
