@@ -1,10 +1,9 @@
 // Serves a standalone ES5-only KJB reader page (for IE11 / Windows Phone)
-// v8 - Added hardcoded subscripts, colophons, and Psalm verse 1 corrections
+// v10 - Clean rebuild with proper string handling
 const TEXT_URL = "https://media.base44.com/files/public/6a05d76723afe58d80c589e8/e74bc3070_KingJamesBible-PureCambridgeEditionTextfile2.txt";
 
 const BOOK_ORDER = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
 
-// Hardcoded Psalm superscriptions (PCE)
 const SUBSCRIPTS = {
   'Psalms:3':'A Psalm of David, when he fled from Absalom his son.',
   'Psalms:4':'To the chief Musician on Neginoth, A Psalm of David.',
@@ -124,7 +123,6 @@ const SUBSCRIPTS = {
   'Psalms:145':'David\'s [Psalm] of praise.',
 };
 
-// Hardcoded correct Psalm verse 1 text (for chapters with superscriptions)
 const PSALM_VERSE_1 = {
   2:'Why do the heathen rage, and the people imagine a vain thing?',
   3:'LORD, how are they increased that trouble me! many [are] they that rise up against me.',
@@ -245,7 +243,6 @@ const PSALM_VERSE_1 = {
   145:'I will extol thee, my God, O king; and I will bless thy name for ever and ever.',
 };
 
-// Hardcoded colophons (epistolary closings)
 const COLOPHONS = {
   'Romans:16':'Written to the Romans from Corinthus, [and sent] by Phebe servant of the church at Cenchrea.',
   '1 Corinthians:16':'The first [epistle] to the Corinthians was written from Philippi by Stephanas, and Fortunatus, and Achaicus, and Timotheus.',
@@ -301,15 +298,15 @@ const TITLE_TO_BOOK = {
 function parseBibleServerSide(text) {
   const lines = text.split(/\r?\n/);
   const bibleData = {};
-  let currentBook = null, currentChap = null, verseNum = 0;
+  let currentBook = null;
+  let currentChap = null;
+  let verseNum = 0;
   let titleBuffer = [];
   let blanksSinceCaps = 0;
 
-  const ital = (s) => s.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
+  const ital = function(s) { return s.replace(/\[([^\]]+)\]/g, '<em>$1</em>'); };
 
-  console.log("[legacy] Starting parse, text length:", text.length);
-
-  const tryMatchTitle = () => {
+  const tryMatchTitle = function() {
     const allWords = [];
     for (let t = 0; t < titleBuffer.length; t++) {
       const words = titleBuffer[t].split(/\s+/);
@@ -324,7 +321,6 @@ function parseBibleServerSide(text) {
     return null;
   };
 
-  let debugCount = 0;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
     if (!line) {
@@ -336,24 +332,18 @@ function parseBibleServerSide(text) {
     }
     blanksSinceCaps = 0;
 
-    // Debug: log first 20 non-empty lines to see actual format
-    if (debugCount < 20) {
-      console.log("[legacy] Line", i, ":", line);
-      debugCount++;
-    }
-
     const chapMatch = line.match(/^(CHAPTER|PSALM) (\d+)$/i);
     if (chapMatch) {
       currentChap = chapMatch[2];
       verseNum = 0;
       titleBuffer = [];
-      console.log("[legacy] ✓ Found chapter:", currentChap, "in", currentBook);
+      console.log("[legacy] Found chapter:", currentChap, "in", currentBook);
       continue;
     }
 
-
-
-    if (/^[A-Z0-9][A-Z ,.\-0-9']+$/.test(line) && !/^\d+$/.test(line)) {
+    const titleRegex = new RegExp('^[A-Z0-9][A-Z ,.\\-0-9]+$');
+    const digitRegex = /^\d+$/;
+    if (titleRegex.test(line) && !digitRegex.test(line)) {
       const frag = line.replace(/[.,]$/, "").trim();
       titleBuffer.push(frag);
       const found = tryMatchTitle();
@@ -374,7 +364,7 @@ function parseBibleServerSide(text) {
         verseNum = 0;
         titleBuffer = [];
         if (!bibleData[currentBook]) bibleData[currentBook] = {};
-        console.log("[legacy] ✓✓ Book detected:", currentBook, "- title buffer was:", titleBuffer.join(" | "));
+        console.log("[legacy] Found book:", currentBook);
       }
       continue;
     }
@@ -387,16 +377,10 @@ function parseBibleServerSide(text) {
         verseNum = parseInt(vMatch[1]);
         if (!bibleData[currentBook][currentChap]) bibleData[currentBook][currentChap] = [];
         bibleData[currentBook][currentChap].push({ v: String(verseNum), t: ital(vMatch[2]) });
-        if (verseNum <= 2 && debugCount < 30) {
-          console.log("[legacy] ✓ Verse", verseNum, "in", currentBook, currentChap, ":", vMatch[2].substring(0, 40));
-        }
       } else if (verseNum === 0) {
         verseNum = 1;
         if (!bibleData[currentBook][currentChap]) bibleData[currentBook][currentChap] = [];
         bibleData[currentBook][currentChap].push({ v: "1", t: ital(line) });
-        if (debugCount < 30) {
-          console.log("[legacy] ✓ Verse 1 (unnumbered) in", currentBook, currentChap, ":", line.substring(0, 40));
-        }
       } else {
         const chData = bibleData[currentBook][currentChap];
         if (chData && chData.length > 0) chData[chData.length - 1].t += " " + ital(line);
@@ -404,36 +388,20 @@ function parseBibleServerSide(text) {
     }
   }
 
-  const found = BOOK_ORDER.filter(b => bibleData[b]);
-  const missing = BOOK_ORDER.filter(b => !bibleData[b]);
+  const found = BOOK_ORDER.filter(function(b) { return bibleData[b]; });
+  const missing = BOOK_ORDER.filter(function(b) { return !bibleData[b]; });
   console.log("[legacy] Parsed", found.length, "books. Missing:", missing.join(", "));
-  
-  // Log chapter counts for first 3 books
-  for (var bi = 0; bi < Math.min(3, found.length); bi++) {
-    var bname = found[bi];
-    var chapCount = Object.keys(bibleData[bname]).length;
-    console.log("[legacy] Book", bname, "has", chapCount, "chapters:", Object.keys(bibleData[bname]).slice(0, 5).join(", "));
-  }
-  
   return bibleData;
 }
 
 async function getBibleJson() {
   console.log("[legacy] Fetching from:", TEXT_URL);
-  let res;
-  try {
-    res = await fetch(TEXT_URL);
-  } catch(e) {
-    throw new Error("Fetch failed: " + e.message);
-  }
+  const res = await fetch(TEXT_URL);
   if (!res.ok) throw new Error("HTTP " + res.status);
   const buf = await res.arrayBuffer();
-  console.log("[legacy] Got", buf.byteLength, "bytes");
   const text = new TextDecoder("windows-1252").decode(buf);
-  console.log("[legacy] Decoded to", text.length, "chars, parsing...");
-  const result = parseBibleServerSide(text);
-  console.log("[legacy] Parse complete, books:", Object.keys(result).length);
-  return result;
+  console.log("[legacy] Fetched", text.length, "chars, parsing...");
+  return parseBibleServerSide(text);
 }
 
 Deno.serve(async (req) => {
@@ -446,17 +414,14 @@ Deno.serve(async (req) => {
     parseError = e.message;
   }
 
-  const bookCount = BOOK_ORDER.filter(b => bibleData[b]).length;
+  const bookCount = BOOK_ORDER.filter(function(b) { return bibleData[b]; }).length;
   console.log("[legacy] Injecting", bookCount, "books into HTML");
-  console.log("[legacy] Sample books:", Object.keys(bibleData).slice(0, 5).join(", "));
 
-  // Post-process Psalms: fix verse 1 for chapters with superscriptions
   if (bibleData['Psalms']) {
     for (var chap in PSALM_VERSE_1) {
       if (PSALM_VERSE_1.hasOwnProperty(chap)) {
         var chNum = parseInt(chap, 10);
         if (bibleData['Psalms'][chNum] && bibleData['Psalms'][chNum].length > 0) {
-          // Replace verse 1 text with hardcoded correct version
           var v1Idx = -1;
           for (var vi = 0; vi < bibleData['Psalms'][chNum].length; vi++) {
             if (bibleData['Psalms'][chNum][vi].v === "1") {
@@ -473,6 +438,8 @@ Deno.serve(async (req) => {
   }
 
   const bibleJson = JSON.stringify(bibleData);
+  const hasError = parseError ? "true" : "false";
+  const errorMsg = parseError ? parseError.replace(/'/g, "\\'") : "";
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -491,18 +458,19 @@ Deno.serve(async (req) => {
   .tab-btn { display:table-cell; text-align:center; padding:10px 4px; font-family:Arial,sans-serif; font-size:13px; color:#cfceec; cursor:pointer; border:none; background:none; }
   .tab-btn.active { background:#5b59a0; color:#fff; font-weight:bold; }
   .wrap { max-width:720px; margin:0 auto; padding:12px; }
-  .controls { background:#f1f1f7; border:none; padding:12px; margin:0 0 12px -12px; width:calc(100% + 24px); font-family:Arial,sans-serif; text-align:left; box-sizing:border-box; }
+  .controls { background:#f1f1f7; border:1px solid #ccc; padding:10px; margin:12px 0; font-family:Arial,sans-serif; text-align:left; }
   .controls label { display:block; font-size:13px; color:#333; margin:0 0 3px 0; font-weight:bold; text-align:left; }
   .controls select { display:block; font-size:15px; padding:4px; margin:0 0 10px 0; width:100%; box-sizing:border-box; text-align:left; }
-  .daily { background:#eef0fb; border:none; padding:12px; margin:12px -12px; width:calc(100% + 24px); border-radius:0; text-align:left; box-sizing:border-box; }
+  .btn { font-family:Arial,sans-serif; font-size:14px; padding:6px 12px; background:#2d2a6e; color:#fff; border:0; cursor:pointer; margin-right:6px; }
+  .btn.alt { background:#777; }
+  .status { font-family:Arial,sans-serif; font-size:12px; color:#555; padding:6px 0; text-align:center; }
+  .err { color:#b00000; font-weight:bold; }
+  .daily { background:#eef0fb; border:1px solid #c9cdee; padding:12px; margin:12px 0; border-radius:4px; text-align:left; }
   .daily .dlabel { font-family:Arial,sans-serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#5b59a0; margin:0 0 6px 0; text-align:left; }
   .daily .dtext { font-size:17px; color:#2d2a6e; margin:0 0 6px 0; font-style:italic; text-align:left; }
   .daily .dref { font-family:Arial,sans-serif; font-size:13px; color:#555; margin:0; text-align:left; }
-  .btn { font-family:Arial,sans-serif; font-size:14px; padding:6px 12px; background:#2d2a6e; color:#fff; border:0; cursor:pointer; margin-right:6px; }
   h2.ref { font-size:19px; color:#2d2a6e; margin:14px 0 8px 0; text-align:center; }
   .verse { margin:0 0 5px 0; text-align:left; }
-  .verse-pilcrow { margin-top:12px; }
-  .pilcrow { font-style:italic; color:#666; }
   .subscript { font-size:15px; color:#555; margin:8px 0 12px 0; text-align:left; font-family:Georgia,"Times New Roman",serif; }
   .subscript em { font-style:italic; }
   .colophon { font-size:13px; color:#666; margin:16px 0 8px 0; text-align:left; font-family:Georgia,"Times New Roman",serif; border-top:1px solid #ddd; padding-top:8px; }
@@ -569,8 +537,8 @@ Deno.serve(async (req) => {
   <h2 class="ref" id="refTitle" style="display:none;"></h2>
   <div id="content"></div>
   <div class="nav" id="nav" style="display:none;">
-    <button type="button" class="btn alt" id="prevBtn">« Previous</button>
-    <button type="button" class="btn alt" id="nextBtn">Next »</button>
+    <button type="button" class="btn alt" id="prevBtn">&laquo; Previous</button>
+    <button type="button" class="btn alt" id="nextBtn">Next &raquo;</button>
   </div>
   <div class="footer">King James Bible — Pure Cambridge Edition.<br>Legacy version for old devices.</div>
 </div>
@@ -723,7 +691,7 @@ Deno.serve(async (req) => {
 </div>
 
 <script>
-var BIBLE_DATA_INJECTED = ${bibleJson};
+var BIBLE_DATA_INJECTED = \${bibleJson};
 
 function showTab(name, btn) {
   var tabs = ["reader","gospel","resources","about","debug"];
@@ -793,34 +761,23 @@ function showTab(name, btn) {
   };
 
   var showChapter = function(book, chapter) {
-    console.log("[legacy] showChapter called:", book, chapter);
-    console.log("[legacy] BIBLE_DATA keys:", Object.keys(BIBLE_DATA).length);
-    console.log("[legacy] Book data:", BIBLE_DATA[book] ? "exists" : "missing");
-    if (BIBLE_DATA[book]) {
-      console.log("[legacy] Chapters in book:", Object.keys(BIBLE_DATA[book]));
-    }
+    console.log("[legacy] showChapter:", book, chapter);
     var verses = BIBLE_DATA[book] ? (BIBLE_DATA[book][chapter] || []) : [];
-    console.log("[legacy] Verses found:", verses.length);
-    if (verses.length > 0) {
-      console.log("[legacy] First verse:", verses[0]);
-    }
-    if (!verses.length) { contentDiv.innerHTML = "<p class='err'>Chapter not found. Check debug.</p>"; return; }
+    console.log("[legacy] Verses:", verses.length);
+    if (!verses.length) { contentDiv.innerHTML = "<p class='err'>Chapter not found.</p>"; return; }
     refTitle.innerHTML = book + "<br><span style='font-size:0.65em;font-weight:normal;color:#5b59a0;font-family:Arial,sans-serif;letter-spacing:0.05em;text-transform:uppercase;'>Chapter " + chapter + "</span>";
     refTitle.style.display = "block";
     var h = "";
-    // Render Psalm subscript (italic superscription below chapter title)
     var subscriptKey = book + ":" + chapter;
     var subscript = SUBSCRIPTS[subscriptKey];
     if (subscript) {
       h += '<div class="subscript">¶ <em>' + subscript + '</em></div>';
     }
-    // Render verses
     for (var v = 0; v < verses.length; v++) {
       var verseNum = verses[v].v;
       var verseText = verses[v].t;
       h += '<p class="verse"><span class="vnum">' + verseNum + '</span> ' + verseText + '</p>';
     }
-    // Render colophon (italic epistolary closing after last verse)
     var colophon = COLOPHONS[subscriptKey];
     if (colophon) {
       h += '<div class="colophon">¶ <em>' + colophon + '</em></div>';
@@ -964,8 +921,8 @@ function showTab(name, btn) {
     dref = document.getElementById("dref");
     debugInfoDiv = document.getElementById("debug-info");
 
-    if (${parseError ? "true" : "false"}) {
-      statusDiv.innerHTML = "<span class='err'>Error loading Bible: ${parseError.replace(/'/g, "\\'")}</span>";
+    if (\${hasError}) {
+      statusDiv.innerHTML = "<span class='err'>Error loading Bible: \${errorMsg}</span>";
     } else if (availableBooks.length === 0) {
       statusDiv.innerHTML = "<span class='err'>No books parsed. Check debug tab.</span>";
     } else if (availableBooks.length < 66) {
