@@ -298,8 +298,8 @@ Deno.serve(async (req) => {
   try {
     const url = new URL(req.url);
     const tab = url.searchParams.get('tab') || 'bible';
-    // Show daily verse by default on Gospel, Resources, About tabs
-    const showDailyVerse = url.searchParams.get('daily') === 'false' ? false : (tab === 'gospel' || tab === 'resources' || tab === 'about');
+    // Show daily verse by default on all tabs
+    const showDailyVerse = url.searchParams.get('daily') === 'false' ? false : true;
 
     // Selected book/chapter (default to Genesis 1)
     let book = url.searchParams.get('book') || 'Genesis';
@@ -399,6 +399,19 @@ Deno.serve(async (req) => {
     let bodyInner = '';
 
     if (tab === 'bible') {
+      // Daily verse card
+      let dv = '';
+      if (showDailyVerse) {
+        const dailyVerse = await fetchDailyVerse();
+        if (dailyVerse) {
+          dv = '<div class="box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; margin-bottom:20px; border:none; box-shadow:0 4px 12px rgba(102,126,234,0.3);">' +
+            '<h3 style="color:#fff; margin-bottom:8px; font-size:13px; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Verse of the Day</h3>' +
+            '<p style="font-size:15px; line-height:1.7; margin-bottom:12px; font-style:italic; font-weight:400;">"' + esc(dailyVerse.text) + '"</p>' +
+            '<p style="font-size:12px; color:#e0e0ff; font-weight:500; letter-spacing:0.3px;">' + esc(dailyVerse.ref) + '</p>' +
+            '</div>';
+        }
+      }
+
       const bible = await loadBible();
       const verses = (bible[book] && bible[book][chapter]) || [];
       const fullName = FULL_BOOK_NAMES[book] || book;
@@ -457,7 +470,7 @@ Deno.serve(async (req) => {
       if (chapter < maxCh) navLinks += '<a href="' + esc(basePath) + '?tab=bible&book=' + encodeURIComponent(book) + '&chapter=' + (chapter + 1) + idSuffix + '">Chapter ' + (chapter + 1) + ' &raquo;</a>';
       navLinks += '</div>';
 
-      bodyInner = form + content + navLinks;
+      bodyInner = dv + form + content + navLinks;
     } else if (tab === 'gospel') {
       // Daily verse card
       let dv = '';
