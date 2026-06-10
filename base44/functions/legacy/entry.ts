@@ -48,7 +48,19 @@ const COLOPHONS = {
   'Romans:16':'Written to the Romans from Corinthus, [and sent] by Phebe servant of the church at Cenchrea.','1 Corinthians:16':'The first [epistle] to the Corinthians was written from Philippi by Stephanas, and Fortunatus, and Achaicus, and Timotheus.','2 Corinthians:13':'The second [epistle] to the Corinthians was written from Philippi, [a city] of Macedonia, by Titus and Lucas.','Galatians:6':'Unto the Galatians written from Rome.','Ephesians:6':'Written from Rome unto the Ephesians by Tychicus.','Philippians:4':'It was written to the Philippians from Rome by Epaphroditus.','Colossians:4':'Written from Rome to the Colossians by Tychicus and Onesimus.','1 Thessalonians:5':'The first [epistle] unto the Thessalonians was written from Athens.','2 Thessalonians:3':'The second [epistle] to the Thessalonians was written from Athens.','1 Timothy:6':'The first to Timothy was written from Laodicea, which is the chiefest city of Phrygia Pacatiana.','2 Timothy:4':'The second [epistle] unto Timotheus, ordained the first bishop of the church of the Ephesians, was written from Rome, when Paul was brought before Nero the second time.','Titus:3':'It was written to Titus, ordained the first bishop of the church of the Cretians, from Nicopolis of Macedonia.','Philemon:1':'Written from Rome to Philemon, by Onesimus a servant.','Hebrews:13':'Written to the Hebrews from Italy by Timothy.'
 };
 
-// ── Content for Gospel / Resources / About tabs (mirrors the non-legacy pages) ──
+// Helper to get link label from URL
+function getLinkLabel(url) {
+  if (url.includes('youtube.com') || url.includes('youtu.be')) return 'YouTube';
+  if (url.includes('tiktok.com')) return 'TikTok';
+  if (url.includes('facebook.com')) return 'Facebook';
+  if (url.includes('instagram.com')) return 'Instagram';
+  if (url.includes('linktr.ee')) return 'Linktree';
+  if (url.includes('univer.se')) return 'Joyfully Church';
+  if (url.includes('mission1611.com')) return 'Mission 1611';
+  try { return new URL(url).hostname.replace('www.', ''); } catch { return 'Website'; }
+}
+
+// Gospel content
 const GOSPEL_STEPS = [
   { n: '1', title: 'Believe you are a sinner that deserves hell', quotes: [
     '"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin." &mdash; Romans 3:20',
@@ -62,76 +74,6 @@ const GOSPEL_STEPS = [
 
 const GOSPEL_NOT = ['Repenting of sins','Making Jesus Lord','Being a member of a church','Tithing','Being baptised (water)','Saying a sinner\'s prayer','Confessing with your mouth','Lordship Salvation'];
 
-// Helper to get link label from URL
-function getLinkLabel(url) {
-  if (url.includes('youtube.com') || url.includes('youtu.be')) return 'YouTube';
-  if (url.includes('tiktok.com')) return 'TikTok';
-  if (url.includes('facebook.com')) return 'Facebook';
-  if (url.includes('instagram.com')) return 'Instagram';
-  if (url.includes('linktr.ee')) return 'Linktree';
-  if (url.includes('univer.se')) return 'Joyfully Church';
-  if (url.includes('mission1611.com')) return 'Mission 1611';
-  try { return new URL(url).hostname.replace('www.', ''); } catch { return 'Website'; }
-}
-
-const RES_GROUPS = [
-  { cat: 'Why the KJB is God\'s Word', items: [
-    { t: 'The Word of God Will Keep Its Infallibility', d: 'A historical book demonstrating that the King James Bible is the infallible, preserved Word of God in the English language. Full text available on Archive.org.', u: 'https://archive.org/details/wordgodwillkeepi0000faus/page/18/mode/1up' },
-    { t: 'Warning on the NKJV', d: 'The NKJV is NOT the same as the King James Bible. Please check out this resource to learn more.', u: 'https://www.scionofzion.com/nkjv.htm' },
-    { t: 'Textus Receptus Bibles', d: 'Research on the Textus Receptus — the Greek text underlying the King James Bible.', u: 'https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs' } ] },
-  { cat: 'Free Online Bible College', items: [
-    { t: 'KJBI.org', d: 'King James Bible Institute — a free online Bible college for those who want to go deeper in God\'s Word.', u: 'https://kjbi.org' } ] },
-  { cat: 'How to Read the Bible', items: [
-    { t: 'AV Publications', d: 'Books and resources for King James Bible believers.', u: 'https://avpublications.com/' } ] },
-  { cat: 'KJB Defence', items: [
-    { t: 'King James Bible: Pure Cambridge Edition & Free Download', d: 'The definitive electronic text of the Pure Cambridge Edition — bibleprotector.com. Free downloads in PDF, ePub, and TXT.', u: 'https://www.bibleprotector.com' },
-    { t: 'The Word of God Will Keep Its Infallibility (Archive.org)', d: 'Historical book demonstrating that the King James Bible is infallible — full text on Archive.org.', u: 'https://archive.org/details/wordgodwillkeepi0000faus/page/18/mode/1up' },
-    { t: 'KJV Compare', d: 'Go through hundreds of changes made in modern versions of the Bible — verse-by-verse.', u: 'https://kjvcompare.com/' },
-    { t: 'Scion of Zion — KJB Comparisons', d: 'Detailed comparisons of the KJB with modern versions, exposing corruptions and omissions.', u: 'https://www.scionofzion.com/kjcomparisons.html' },
-    { t: '1 John 5:7 Defence', d: 'Resources defending the Johannine Comma (1 John 5:7) — the Trinitarian verse attacked by modern versions.', u: 'https://www.scionofzion.com/1_john_5_7.htm' } ] },
-  { cat: 'Why Modern Versions Are Corrupt', items: [
-    { t: 'The Critical Text & Westcott-Hort', d: 'Westcott and Hort created the Critical Text based on Vatican and Egyptian manuscripts with hundreds of errors, attacking doctrines such as the Trinity and deity of Christ.', u: 'https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf' },
-    { t: 'NKJV Exposed', d: 'The NKJV is NOT the same as the King James Bible. Resources exposing the New King James Version.', u: 'https://www.scionofzion.com/nkjv.htm' },
-    { t: 'A Lamp in the Dark — Full Documentary', d: 'The untold history of the Bible — a documentary exposing the corruption of modern Bible translations.', u: 'https://www.youtube.com/watch?v=RmXBj2N9fhY&list=PLiMliTxa3H172BW4ANpBAavcIGVz-KXFW' },
-    { t: 'KJB Defence Playlist', d: 'Comprehensive playlist defending the King James Bible as the infallible, perfect words of God in English.', u: 'https://youtube.com/playlist?list=PLNGhZnJavRf01ILv3TJu_ke4IPYcKcpJm' },
-    { t: 'Gail Riplinger — The Sword Slays the Dragon', d: 'Gail Riplinger\'s powerful defence of the King James Bible against modern version corruption.', u: 'https://www.youtube.com/watch?v=fyN680Y0Vwc' },
-    { t: 'Irrefutable Proof: The KJB Superseded Hebrew and Greek', d: 'Truth is Christ channel — demonstrating the superiority and authority of the King James Bible.', u: 'https://www.youtube.com/watch?v=t6ck6KrVPIk' },
-    { t: 'AV1611 Articles', d: 'Articles defending the Authorised Version — King James Bible defence resources.', u: 'https://www.av1611.org/articles' },
-    { t: 'Preserved Words', d: 'Another King James Bible Believer — resources and articles defending the preserved Word of God.', u: 'https://www.preservedwords.com/bp/index.html' },
-    { t: 'Brandplucked — KJB Articles', d: 'Extensive collection of articles defending the King James Bible.', u: 'https://brandplucked.com/kjbarticles.htm' } ] },
-  { cat: '1 John 5:7 Defence', items: [
-    { t: '1 John 5:7 — The 1st Century Latin/Spain Connection', d: 'Historical evidence connecting 1 John 5:7 to early Christian manuscripts and tradition.', u: 'https://kjvdebate.com/blog/f/i-john-57-the-1st-century-latinspain-connection' },
-    { t: 'The Authenticity of 1 John 5:7', d: 'Historical evidence and church tradition supporting the Johannine Comma.', u: 'https://catalog.obitel-minsk.com/blog/2021/08/the-authenticity-of-1-john-57-historical-evidence-and-the-church-tradition' },
-    { t: 'Textus Receptus — 1 John 5:7', d: 'Wiki entry on 1 John 5:7 in the Textus Receptus (Received Text).', u: 'https://textus-receptus.com/wiki/1_John_5:7' },
-    { t: 'KJV Debate — 1 John 5:7 PDF', d: 'Comprehensive PDF resource defending 1 John 5:7.', u: 'https://kjvdebate.com/pdf' } ] },
-  { cat: 'Westcott & Hort Heresies', items: [
-    { t: 'Theological Heresies of Westcott and Hort', d: 'Detailed examination of the heretical beliefs held by Westcott and Hort, whose critical text corrupted Bible translations.', u: 'https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf' },
-    { t: 'Scattered Christians — Westcott & Hort', d: 'Analysis of Westcott and Hort\'s influence on modern Bible versions.', u: 'https://scatteredchristians.org/WescottHort.html' },
-    { t: 'Textus Receptus Bibles — Editorial Issues', d: 'Information on editorial changes and textual issues in modern versions.', u: 'https://textusreceptusbibles.com/Editorial/Umlauts' },
-    { t: 'Differences Between Textus Receptus and NA/UBS', d: 'Detailed comparison of the Greek texts used in different Bible versions.', u: 'https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs' } ] },
-  { cat: 'NKJV Exposed', items: [
-    { t: 'AV1611 — NKJV Exposed', d: 'Comprehensive analysis showing the NKJV is not the King James Bible.', u: 'https://www.av1611.org/nkjv.html' },
-    { t: 'TBS — What Today\'s Christian Needs to Know About NKJV', d: 'Official resource from The Bible For Today highlighting NKJV issues.', u: 'https://www.tbsbibles.org/page/WhatTodaysChristianNeedsToKnowAboutTheNewKingJamesVersion' },
-    { t: 'TBS — Does the NKJV Live Up to Its Claims?', d: 'Critical examination of NKJV translation claims and accuracy.', u: 'https://www.tbsbibles.org/page/DoesTheNKJVLiveUpToItsClaims' },
-    { t: 'TBS — The New King James Version Overview', d: 'Detailed overview of NKJV problems and textual issues.', u: 'https://www.tbsbibles.org/page/TheNewKingJamesVersion' },
-    { t: 'TBS — An Examination of the NKJV (Parts 1 & 2)', d: 'Comprehensive two-part examination of NKJV translation errors.', u: 'https://cdn.ymaws.com/www.tbsbibles.org/resource/collection/D4DCAF37-AEB6-4CEC-880F-FD229A90560F/An-Examination-of-NKJV-Part-1.pdf' } ] },
-  { cat: 'Living Bible Exposed', items: [
-    { t: 'TBS — The Living Bible Exposed', d: 'Official resource exposing errors and problems in the Living Bible paraphrase.', u: 'https://cdn.ymaws.com/www.tbsbibles.org/resource/collection/D4DCAF37-AEB6-4CEC-880F-FD229A90560F/The-Living-Bible.pdf' },
-    { t: 'Jesus is Savior — Living Bible Exposed', d: 'Comprehensive resource exposing the Living Bible\'s doctrinal problems.', u: 'https://www.jesus-is-savior.com/Bible/Living%20Bible/lb_exposed.htm' },
-    { t: 'Jesus is Savior — NLT Bible Exposed', d: 'Detailed analysis of the New Living Translation\'s translation errors.', u: 'https://jesus-is-savior.com/Bible/NLT/nlt_exposed.htm' } ] },
-  { cat: 'ESV & NIV Exposed', items: [
-    { t: 'Brandplucked — Is the ESV Inerrant?', d: 'Critical analysis of ESV translation choices and inerrancy claims.', u: 'https://brandplucked.com/is-the-esv-inerrant.html' },
-    { t: 'Brandplucked — The ESV Examined', d: 'Comprehensive examination of ESV translation problems.', u: 'https://brandplucked.com/theesv.htm' },
-    { t: 'TBS — English Standard Version', d: 'Official analysis of ESV translation issues.', u: 'https://www.tbsbibles.org/page/EnglishStandardVersion' },
-    { t: 'AV1611 — NIV Exposed', d: 'Detailed comparison of NIV problems and doctrinal deletions.', u: 'https://www.av1611.org/kjv/nivteen.html' },
-    { t: 'Jesus is Precious — NIV Missing Verses', d: 'Documentation of verses omitted from the NIV translation.', u: 'https://www.jesusisprecious.org/bible/niv/acts_8-37_missing.htm' },
-    { t: 'Scion of Zion — NIV 1984 vs 2011', d: 'Comparison of changes made between NIV versions.', u: 'https://www.scionofzion.com/niv%201984%20and%202011.html' },
-    { t: 'Jesus is Savior — NIV Exposed', d: 'Comprehensive resource exposing the NIV\'s doctrinal corruptions.', u: 'https://www.jesus-is-savior.com/Bible/NIV/new_international_version_exposed.htm' } ] },
-  { cat: 'Ministry Links', items: [
-    { t: 'God is Gracious 1031 Ministries', d: 'Ministry website.', u: 'https://godisgracious1031ministriescom.odoo.com/' },
-    { t: 'Email the Ministry', d: 'Kingjamesbiblereader.com@outlook.com', u: 'mailto:Kingjamesbiblereader.com@outlook.com' } ] },
-];
-
 const PREACHERS_L = [
   { name: 'Robert Breaker', desc: 'KJB missionary evangelist, rightly dividing the word of truth.', links: ['https://www.youtube.com/@Robertbreaker3','https://www.tiktok.com/@robertbreaker','https://thecloudchurch.org/'] },
   { name: 'Robert Potthoff', desc: 'Big Red Preacher — KJB soul winner.', links: ['https://www.instagram.com/robert.potthoff/','https://www.facebook.com/potthoff87','https://www.instagram.com/big_red_preacher','https://mission1611.com/'] },
@@ -142,44 +84,6 @@ const PREACHERS_L = [
   { name: 'Paul Johnson', desc: 'Biblical Salvation — KJB preaching and Bible teaching.', links: ['https://www.tiktok.com/@pauljohnson9632','https://youtube.com/@biblicalsalvation'] },
   { name: 'CPR Missions', desc: 'Church Planting and Revival Missions — soul winning and church planting.', links: ['https://www.youtube.com/channel/UCWBR5DmAi2XPMFRtb-wqHwg','https://www.tiktok.com/@cprmissions','https://www.facebook.com/CPRmission/','https://www.instagram.com/cprmissions/'] },
   { name: 'James Bray', desc: 'KJB preacher and Bible teacher on YouTube.', links: ['https://youtube.com/@jamesbrayall3'] },
-];
-
-const ABOUT_FAITH = [
-  'I reject Catholicism, Calvinism, Pentecostalism, Church of God, Mormonism, Jehovah\'s Witnesses, etc.',
-  'I believe in the blood-stained gospel as the only way to be saved, and I reject "repent of sins to be saved" (ROYS), "confess with your mouth to be saved," Lordship Salvation, infant baptism, baptism regeneration, etc.',
-  'To be saved, you must believe that Jesus is God, that He shed His blood on Calvary, died, was buried, and rose again for your justification.',
-  'I believe in OSAS (Once Saved, Always Saved): a believer who has trusted the gospel cannot lose salvation, no matter what happens in their life.',
-];
-const ABOUT_KJB = [
-  'Westcott and Hort created the Critical Text, based on manuscripts from the Vatican and Egypt. These manuscripts have hundreds of errors, deletions and additions to the Bible, attacking doctrines such as the Godhead/Trinity and deity of Christ. Their text was used in the Revised Version of 1881.',
-  'The King James Bible is the infallible, perfect Word of God in the English language.',
-  'Translated with the Textus Receptus (Received Text) that the historical church has always used.',
-  'Translated by godly men well versed in the Biblical languages who studied commentaries and foreign translations from an early age.',
-  'The Bible God has used for countless revivals and bringing the gospel to the world. It is mathematically proven to be a miracle.',
-];
-const ABOUT_SATAN = [
-  'Satan is also known as the Devil, Lucifer and the king of Pride. His goal is to steal, kill and deceive the world — through things such as abortion, sodomy, and going after worldly things instead of what truly matters.',
-  'He deceives people that they are without a Saviour, that there is no God, no hell, and no afterlife.',
-  'All people come short of the glory of God and have committed sin.',
-  'The wages of sin is death and the wicked shall be turned into hell.',
-  'Hell is a place of torment day and night. Hell was created for Satan and his angels. Hell will be thrown into the lake of fire at the second death.',
-];
-const ABOUT_SALVATION = [
-  'Jesus Christ is God manifested in the flesh, born of the virgin Mary.',
-  'Jesus Christ lived a perfect life, died on Calvary\'s cross, shed his blood, was buried and rose again on the third day.',
-  'Jesus went to heaven to put his precious blood in the mercy seat so we can have eternal life.',
-  'To be saved: Believe Jesus is God and that he died for your sins, shed his blood, was buried and rose again for your justification.',
-  'Repenting of sins, water baptism, making him Lord or letting him into your heart is not salvation.',
-  'I believe in the Pre-Tribulation Rapture where the church will meet in the clouds with our Saviour before the Antichrist reigns on earth.',
-  'Those in the 7-year tribulation will have to endure to the end, not take the mark, and be martyrs for Christ.',
-  'I believe Jesus will reign in the new heaven and earth after the white throne judgment.',
-];
-const ABOUT_LINKS = [
-  { t: 'God is Gracious 1031 Ministries', s: 'Ministry Website', u: 'https://godisgracious1031ministriescom.odoo.com/' },
-  { t: 'YouTube', s: '@shawnr325av', u: 'https://youtube.com/@shawnr325av?si=zC_gQm4I2S_xj-NS' },
-  { t: 'Instagram', s: '@svdbyfaithinhisbloodr325av', u: 'https://www.instagram.com/svdbyfaithinhisbloodr325av' },
-  { t: 'Email', s: 'kingjamesbiblereader@outlook.sg', u: 'mailto:kingjamesbiblereader@outlook.sg' },
-  { t: 'Discord', s: 'shawn_svdbyfaithinhisbloodr325av', u: 'https://discord.com/' },
 ];
 
 let bibleData = null;
