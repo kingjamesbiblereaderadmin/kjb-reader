@@ -457,10 +457,11 @@ function showTab(name, btn) {
     info += "Current Chapter: " + (chapSel ? chapSel.value : "N/A") + "\\n";
     info += "\\n== Daily Verse ==\\n";
     if (dtext && dref && dtext.textContent && dtext.textContent.length > 0) {
+      info += "✓ Loaded\\n";
       info += "Text: " + dtext.textContent + "\\n";
       info += "Ref: " + dref.textContent + "\\n";
     } else {
-      info += "Status: Not loaded yet\\n";
+      info += "Status: Loading...\\n";
     }
     var cacheKey = "kjb-legacy-bible-v1";
     var cachedData;
