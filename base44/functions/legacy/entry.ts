@@ -635,7 +635,10 @@ Deno.serve(async (req) => {
       'var parts=[];var done=0;' +
       'function reveal(){' +
         'try{target.innerHTML=parts.join("");}catch(e){}' +
-        'if(document.body){document.body.className=document.body.className?document.body.className+" kjb-ready":"kjb-ready";}' +
+        'try{if(document.body){document.body.className=document.body.className?document.body.className+" kjb-ready":"kjb-ready";}}catch(e){}' +
+        // Belt-and-braces: also hide the loader directly in case the body class
+        // didn\'t apply (some old browsers mis-handle dynamic class changes).
+        'try{var L=document.getElementById("kjb-loader");if(L){L.style.display="none";}}catch(e){}' +
         'if(window.location.hash){try{window.location.href=window.location.hash;}catch(e){}}' +
       '}' +
       'function makeXHR(){if(window.XMLHttpRequest){return new XMLHttpRequest();}try{return new ActiveXObject("Msxml2.XMLHTTP");}catch(e){}try{return new ActiveXObject("Microsoft.XMLHTTP");}catch(e){}return null;}' +
@@ -662,16 +665,16 @@ Deno.serve(async (req) => {
       'function retry(i,tries){' +
         'var wait=Math.min(700+tries*500,3000);' +
         'if(pct){pct.innerHTML=Math.round(i*100/TOTAL)+"% (retrying book "+(i+1)+"\\u2026)";}' +
-        // After a few failed attempts on the same book, surface a visible
-        // warning (likely a slow/lost connection) but keep retrying.
-        'if(tries>=2){showWarn("&#9888; This is taking a while &mdash; book "+(i+1)+" of "+TOTAL+" is slow to load. Check your internet connection. Still trying&hellip;");}' +
+        // Only after SEVERAL consecutive failures on the same book do we show a
+        // visible warning — a brief blip shouldn\'t flash "not connected".
+        'if(tries>=4){showWarn("&#9888; This is taking a while &mdash; book "+(i+1)+" of "+TOTAL+" is slow to load. Check your internet connection. Still trying&hellip;");}' +
         'setTimeout(function(){load(i,tries+1);},wait);' +
       '}' +
       'function load(i,tries){' +
         'var xhr=makeXHR();' +
         'if(!xhr){return;}' +
         'var settled=false;' +
-        'function fail(){if(settled)return;settled=true;try{xhr.abort();}catch(e){}showWarn("&#9888; Request timed out on book "+(i+1)+" of "+TOTAL+". Your connection may be slow or offline. Retrying&hellip;");retry(i,tries);}' +
+        'function fail(){if(settled)return;settled=true;try{xhr.abort();}catch(e){}retry(i,tries);}' +
         'var killer=setTimeout(fail,15000);' +
         'xhr.open("GET",BASE+i,true);' +
         'xhr.onreadystatechange=function(){' +
