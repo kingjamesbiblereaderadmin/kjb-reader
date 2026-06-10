@@ -307,6 +307,8 @@ function parseBibleServerSide(text) {
 
   const ital = (s) => s.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
 
+  console.log("[legacy] Starting parse, text length:", text.length);
+
   const tryMatchTitle = () => {
     const allWords = [];
     for (let t = 0; t < titleBuffer.length; t++) {
@@ -340,6 +342,11 @@ function parseBibleServerSide(text) {
       titleBuffer = [];
       console.log("[legacy] Found chapter:", currentChap, "in", currentBook);
       continue;
+    }
+
+    // Debug: log first few lines to see format
+    if (i < 5) {
+      console.log("[legacy] Line", i, ":", line.substring(0, 50));
     }
 
     if (/^[A-Z0-9][A-Z ,.\-0-9']+$/.test(line) && !/^\d+$/.test(line)) {
@@ -466,7 +473,7 @@ Deno.serve(async (req) => {
   .daily .dlabel { font-family:Arial,sans-serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#5b59a0; margin:0 0 6px 0; text-align:left; }
   .daily .dtext { font-size:17px; color:#2d2a6e; margin:0 0 6px 0; font-style:italic; text-align:left; }
   .daily .dref { font-family:Arial,sans-serif; font-size:13px; color:#555; margin:0; text-align:left; }
-  h2.ref { font-size:19px; color:#2d2a6e; margin:14px 0 8px 0; text-align:center; }
+  h2.ref { font-size:19px; color:#2d2a6e; margin:14px 0 8px 0; text-align:left; }
   .verse { margin:0 0 5px 0; text-align:left; }
   .verse-pilcrow { margin-top:12px; }
   .pilcrow { font-style:italic; color:#666; }
@@ -760,7 +767,11 @@ function showTab(name, btn) {
   };
 
   var showChapter = function(book, chapter) {
+    console.log("[legacy] showChapter called:", book, chapter);
+    console.log("[legacy] BIBLE_DATA keys:", Object.keys(BIBLE_DATA).length);
+    console.log("[legacy] Book data:", BIBLE_DATA[book] ? "exists" : "missing");
     var verses = BIBLE_DATA[book] ? (BIBLE_DATA[book][chapter] || []) : [];
+    console.log("[legacy] Verses found:", verses.length);
     if (!verses.length) { contentDiv.innerHTML = "<p class='err'>Chapter not found.</p>"; return; }
     refTitle.innerHTML = book + "<br><span style='font-size:0.65em;font-weight:normal;color:#5b59a0;font-family:Arial,sans-serif;letter-spacing:0.05em;text-transform:uppercase;'>Chapter " + chapter + "</span>";
     refTitle.style.display = "block";
