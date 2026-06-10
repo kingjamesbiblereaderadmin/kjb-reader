@@ -298,7 +298,7 @@ Deno.serve(async (req) => {
 '.chead { text-align:center; margin:20px 0 16px; }' +
 '.cbook { font-size:22px; font-weight:bold; color:#2d2a6e; display:block; }' +
 '.cnum { font-size:13px; color:#666; display:block; margin-top:4px; }' +
-'.verse { display:block; margin-bottom:10px; line-height:1.5; }' +
+'.verse { display:block; margin:12px 0 10px 0; line-height:1.5; }' +
 '.vn { font-weight:bold; color:#2d2a6e; font-size:11px; margin-right:4px; }' +
 '.subscript { text-align:center; color:#555; font-size:14px; margin:0 0 16px; }' +
 '.colophon { text-align:center; color:#555; font-size:14px; margin:18px 0 0; padding-top:12px; border-top:1px solid #e0e0ec; }' +
@@ -373,12 +373,12 @@ Deno.serve(async (req) => {
         '<form method="get" action="' + esc(basePath) + '">' + hidden +
         '<input type="hidden" name="chapter" value="1">' +
         '<div class="ctl"><label>Book:</label><select name="book" id="bookSelect" onchange="updateChapterDropdown(this.value);this.form.chapter.value=1;">' + bookOptions(book) + '</select></div>' +
-        '<div style="margin-top:8px;"><input type="submit" class="read-btn" value="Select Book" onclick="this.form.chapter.value=1;"></div>' +
+        '<input type="submit" class="read-btn" value="Select Book" onclick="this.form.chapter.value=1;" style="margin-top:8px;">' +
         '</form>' +
         '<form method="get" action="' + esc(basePath) + '" style="margin-top:12px;">' + hidden +
         '<input type="hidden" name="book" value="' + esc(book) + '">' +
         '<div class="ctl"><label>Chapter:</label><select name="chapter" id="chapterSelect" onchange="this.form.submit()" onblur="this.form.submit()">' + chapterOptions(book, chapter) + '</select></div>' +
-        '<div style="margin-top:8px;"><input type="submit" class="read-btn" value="Read Chapter"></div>' +
+        '<input type="submit" class="read-btn" value="Read Chapter" style="margin-top:8px;">' +
         '</form></div>';
 
       // Chapter content
