@@ -739,7 +739,7 @@ Deno.serve(async (req) => {
       '<div id="kjb-loader"><div class="kjb-center">' +
         '<img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" style="width:96px;height:96px;object-fit:contain;margin-bottom:20px;" />' +
         '<h2>KJB Reader (Legacy)</h2>' +
-        '<p>Downloading the Bible&hellip;</p>' +
+        '<p id="kjb-loadtext">Downloading the Bible&hellip;</p>' +
         '<div id="kjb-progress"><div id="kjb-bar"></div></div>' +
         '<div id="kjb-pct">0%</div>' +
         '<div id="kjb-warn"></div>' +
