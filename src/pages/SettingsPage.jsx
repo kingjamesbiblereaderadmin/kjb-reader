@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, MonitorSmartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Instagram, Youtube, RotateCcw, Accessibility, Keyboard, Star } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, MonitorSmartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Instagram, Youtube, RotateCcw, Accessibility, Keyboard, Star, Server } from 'lucide-react';
 import ShortcutsList from '@/components/ShortcutsList';
 
 const TikTokIcon = () => (
@@ -1494,6 +1494,13 @@ export default function SettingsPage() {
                 <RotateCcw className="w-4 h-4" />
                 Clear Cache & Reload
               </button>
+              <Link
+                to="/debug"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:border-accent"
+              >
+                <Server className="w-4 h-4" />
+                Live Status Page
+              </Link>
             </div>
           </div>
         )}
