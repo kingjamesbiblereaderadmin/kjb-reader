@@ -56,12 +56,16 @@ const GOSPEL_STEPS = [
   { n: '2', title: 'Believe that Jesus is God manifested in the flesh', quotes: [
     '"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory." &mdash; 1 Timothy 3:16' ] },
   { n: '3', title: 'Believe he died, shed his blood, was buried and rose again', quotes: [
-    '"Moreover, brethren, I declare unto you the gospel which I preached unto you... how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." &mdash; 1 Corinthians 15:1-4',
+    '"Moreover, brethren, I declare unto you the gospel which I preached unto you, which also ye have received, and wherein ye stand; By which also ye are saved, if ye keep in memory what I preached unto you, unless ye have believed in vain. For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." &mdash; 1 Corinthians 15:1-4',
     '"Whom God hath set forth to be a propitiation through faith in his blood, to declare his righteousness for the remission of sins that are past, through the forbearance of God;" &mdash; Romans 3:25' ] },
 ];
 const GOSPEL_NOT = ['Repenting of sins','Making Jesus Lord','Being a member of a church','Tithing','Being baptised (water)','Saying a sinner\'s prayer','Confessing with your mouth','Lordship Salvation'];
 
 const RES_GROUPS = [
+  { cat: 'Why the KJB is God\'s Word', items: [
+    { t: 'The Word of God Will Keep Its Infallibility', d: 'A historical book demonstrating that the King James Bible is the infallible, preserved Word of God in the English language. Full text available on Archive.org.', u: 'https://archive.org/details/wordgodwillkeepi0000faus/page/18/mode/1up' },
+    { t: 'Warning on the NKJV', d: 'The NKJV is NOT the same as the King James Bible. Please check out this resource to learn more.', u: 'https://www.scionofzion.com/nkjv.htm' },
+    { t: 'Textus Receptus Bibles', d: 'Research on the Textus Receptus — the Greek text underlying the King James Bible.', u: 'https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs' } ] },
   { cat: 'Free Online Bible College', items: [
     { t: 'KJBI.org', d: 'King James Bible Institute — a free online Bible college for those who want to go deeper in God\'s Word.', u: 'https://kjbi.org' } ] },
   { cat: 'How to Read the Bible', items: [
@@ -90,12 +94,14 @@ const RES_GROUPS = [
   { cat: 'Westcott & Hort Heresies', items: [
     { t: 'Theological Heresies of Westcott and Hort', d: 'Detailed examination of the heretical beliefs held by Westcott and Hort, whose critical text corrupted Bible translations.', u: 'https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf' },
     { t: 'Scattered Christians — Westcott & Hort', d: 'Analysis of Westcott and Hort\'s influence on modern Bible versions.', u: 'https://scatteredchristians.org/WescottHort.html' },
+    { t: 'Textus Receptus Bibles — Editorial Issues', d: 'Information on editorial changes and textual issues in modern versions.', u: 'https://textusreceptusbibles.com/Editorial/Umlauts' },
     { t: 'Differences Between Textus Receptus and NA/UBS', d: 'Detailed comparison of the Greek texts used in different Bible versions.', u: 'https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs' } ] },
   { cat: 'NKJV Exposed', items: [
     { t: 'AV1611 — NKJV Exposed', d: 'Comprehensive analysis showing the NKJV is not the King James Bible.', u: 'https://www.av1611.org/nkjv.html' },
     { t: 'TBS — What Today\'s Christian Needs to Know About NKJV', d: 'Official resource from The Bible For Today highlighting NKJV issues.', u: 'https://www.tbsbibles.org/page/WhatTodaysChristianNeedsToKnowAboutTheNewKingJamesVersion' },
     { t: 'TBS — Does the NKJV Live Up to Its Claims?', d: 'Critical examination of NKJV translation claims and accuracy.', u: 'https://www.tbsbibles.org/page/DoesTheNKJVLiveUpToItsClaims' },
-    { t: 'TBS — The New King James Version Overview', d: 'Detailed overview of NKJV problems and textual issues.', u: 'https://www.tbsbibles.org/page/TheNewKingJamesVersion' } ] },
+    { t: 'TBS — The New King James Version Overview', d: 'Detailed overview of NKJV problems and textual issues.', u: 'https://www.tbsbibles.org/page/TheNewKingJamesVersion' },
+    { t: 'TBS — An Examination of the NKJV (Parts 1 & 2)', d: 'Comprehensive two-part examination of NKJV translation errors.', u: 'https://cdn.ymaws.com/www.tbsbibles.org/resource/collection/D4DCAF37-AEB6-4CEC-880F-FD229A90560F/An-Examination-of-NKJV-Part-1.pdf' } ] },
   { cat: 'Living Bible Exposed', items: [
     { t: 'TBS — The Living Bible Exposed', d: 'Official resource exposing errors and problems in the Living Bible paraphrase.', u: 'https://cdn.ymaws.com/www.tbsbibles.org/resource/collection/D4DCAF37-AEB6-4CEC-880F-FD229A90560F/The-Living-Bible.pdf' },
     { t: 'Jesus is Savior — Living Bible Exposed', d: 'Comprehensive resource exposing the Living Bible\'s doctrinal problems.', u: 'https://www.jesus-is-savior.com/Bible/Living%20Bible/lb_exposed.htm' },
@@ -106,6 +112,7 @@ const RES_GROUPS = [
     { t: 'TBS — English Standard Version', d: 'Official analysis of ESV translation issues.', u: 'https://www.tbsbibles.org/page/EnglishStandardVersion' },
     { t: 'AV1611 — NIV Exposed', d: 'Detailed comparison of NIV problems and doctrinal deletions.', u: 'https://www.av1611.org/kjv/nivteen.html' },
     { t: 'Jesus is Precious — NIV Missing Verses', d: 'Documentation of verses omitted from the NIV translation.', u: 'https://www.jesusisprecious.org/bible/niv/acts_8-37_missing.htm' },
+    { t: 'Scion of Zion — NIV 1984 vs 2011', d: 'Comparison of changes made between NIV versions.', u: 'https://www.scionofzion.com/niv%201984%20and%202011.html' },
     { t: 'Jesus is Savior — NIV Exposed', d: 'Comprehensive resource exposing the NIV\'s doctrinal corruptions.', u: 'https://www.jesus-is-savior.com/Bible/NIV/new_international_version_exposed.htm' } ] },
   { cat: 'Ministry Links', items: [
     { t: 'God is Gracious 1031 Ministries', d: 'Ministry website.', u: 'https://godisgracious1031ministriescom.odoo.com/' },
@@ -435,6 +442,7 @@ Deno.serve(async (req) => {
       for (let i = 0; i < GOSPEL_NOT.length; i++) notList += '<li>' + esc(GOSPEL_NOT[i]) + '</li>';
       g += '<div class="warn"><h4>These do NOT make you a Christian:</h4><ul>' + notList + '</ul></div>';
       g += '<div class="step"><h4>Once Saved, Always Saved</h4>' +
+        '<p style="font-size:14px;color:#444;margin-bottom:8px;">A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life. God\'s gift of eternal life is just that &mdash; eternal.</p>' +
         '<blockquote>"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." &mdash; Ephesians 1:13</blockquote></div>';
       g += '<div class="box"><h3>Watch the Gospel</h3>' +
         '<p><a href="https://www.youtube.com/watch?v=znP9Dr6tOzU">&#9654; THE GOSPEL THAT SAVES &mdash; Robert Breaker</a></p>' +
@@ -442,7 +450,17 @@ Deno.serve(async (req) => {
       bodyInner = g;
     } else if (tab === 'resources') {
       let r = '<div class="sec-title">Resources</div>' +
-        '<div class="sec-sub">KJB defence materials, studies on modern version corruption, and free Bible study resources.</div>';
+        '<div class="sec-sub">KJB defence materials, studies on modern version corruption, and free Bible study resources.</div>' +
+        '<div class="res-cat">Why KJB is God\'s Word</div>' +
+        '<div class="step"><h4>The Word of God Will Keep Its Infallibility</h4>' +
+        '<p style="font-size:14px;color:#444;margin-bottom:8px;">A historical book demonstrating that the King James Bible is the infallible, preserved Word of God in the English language. Full text available on Archive.org.</p>' +
+        '<span class="ref"><a href="https://archive.org/details/wordgodwillkeepi0000faus">Read on Archive.org</a></span></div>' +
+        '<div class="step"><h4>Warning on the NKJV</h4>' +
+        '<p style="font-size:14px;color:#444;margin-bottom:8px;">You are more than welcome to purchase a King James Bible from the Dollar Store or any Bible retailer without worrying about errors. However, please note: the NKJV is not the same as the King James Bible. Please check out this resource to learn more and do your own research.</p>' +
+        '<span class="ref"><a href="https://www.scionofzion.com/nkjv.htm">NKJV Comparison</a></span></div>' +
+        '<div class="step"><h4>Textus Receptus Bibles</h4>' +
+        '<p style="font-size:14px;color:#444;margin-bottom:8px;">Research on the Textus Receptus — the Greek text underlying the King James Bible.</p>' +
+        '<span class="ref"><a href="https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs">Read comparison</a></span></div>';
       for (let i = 0; i < RES_GROUPS.length; i++) {
         const grp = RES_GROUPS[i];
         r += '<div class="res-cat">' + esc(grp.cat) + '</div>';
