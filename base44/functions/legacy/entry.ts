@@ -632,7 +632,7 @@ Deno.serve(async (req) => {
       'var target=document.getElementById("fb-books-target");' +
       'var bar=document.getElementById("kjb-bar");' +
       'var pct=document.getElementById("kjb-pct");' +
-      'var parts=[];var done=0;' +
+      'var parts=[];var done=0;var loaderShown=false;' +
       'function reveal(){' +
         'try{target.innerHTML=parts.join("");}catch(e){}' +
         'try{if(document.body){document.body.className=document.body.className?document.body.className+" kjb-ready":"kjb-ready";}}catch(e){}' +
@@ -653,11 +653,13 @@ Deno.serve(async (req) => {
       // final book (i===TOTAL) completes.
       'function next(i){' +
         'setPct(Math.round(i*100/TOTAL));' +
-        'if(i>=TOTAL){setPct(100);setTimeout(reveal,250);return;}' +
-        // Defer each step so the browser repaints the progress bar between
-        // books (otherwise instant cache hits recurse without ever painting,
-        // making 0% and intermediate steps invisible).
-        'setTimeout(function(){load(i,0);},0);' +
+        'if(i>=TOTAL){setPct(100);reveal();return;}' +
+        // Only yield to the browser (so the progress bar repaints) when the
+        // loader is actually VISIBLE — i.e. real downloading. When chunks are
+        // cached (offline / repeat visits), the loader stays hidden and we
+        // recurse straight through all 66 books with no delay, so the page
+        // appears INSTANTLY with no download screen.
+        'if(loaderShown){setTimeout(function(){load(i,0);},0);}else{load(i,0);}' +
       '}' +
       'var warn=document.getElementById("kjb-warn");' +
       'function showWarn(msg){if(warn){warn.innerHTML=msg;warn.style.display="block";}}' +
@@ -691,7 +693,12 @@ Deno.serve(async (req) => {
         '};' +
         'try{xhr.send(null);}catch(e){clearTimeout(killer);fail();}' +
       '}' +
-      'function start(){setPct(0);next(0);}' +
+      // Keep the loader HIDDEN at first. Only reveal it if loading is still
+      // going after 600ms (i.e. genuinely downloading over the network). When
+      // chunks are cached, everything finishes well under 600ms and the loader
+      // never shows — the page just appears instantly.
+      'function showLoader(){if(loaderShown)return;loaderShown=true;var L=document.getElementById("kjb-loader");if(L){L.style.display="block";}}' +
+      'function start(){setTimeout(showLoader,600);setPct(0);next(0);}' +
       'if(window.addEventListener){window.addEventListener("load",start,false);}else if(window.attachEvent){window.attachEvent("onload",start);}else{window.onload=start;}' +
     '})();</script>';
 
@@ -714,7 +721,9 @@ Deno.serve(async (req) => {
     const loaderFg = isDark ? '#e5e5e5' : '#1a1a1a';
     const spinnerCol = isDark ? '#7c7ceb' : '#2d2a6e';
     const loaderStyle =
-      '#kjb-loader{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;overflow:auto;background:' + loaderBg + ';color:' + loaderFg + ';font-family:Arial,sans-serif;text-align:center;display:block;padding:0 24px;}' +
+      // Loader starts HIDDEN — the script only reveals it if loading runs past
+      // 600ms (real download). Cached/offline loads finish faster and skip it.
+      '#kjb-loader{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;overflow:auto;background:' + loaderBg + ';color:' + loaderFg + ';font-family:Arial,sans-serif;text-align:center;display:none;padding:0 24px;}' +
       '#kjb-loader .kjb-center{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 0;}' +
       '#kjb-loader h2{font-size:20px;color:' + spinnerCol + ';margin-bottom:8px;}' +
       '#kjb-loader p{font-size:14px;color:' + (isDark ? '#aaa' : '#666') + ';margin-bottom:24px;}' +
