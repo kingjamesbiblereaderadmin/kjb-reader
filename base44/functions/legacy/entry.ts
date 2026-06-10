@@ -279,12 +279,17 @@ async function fetchDailyVerse() {
     const res = await fetch('https://kingjamesbiblereader.com/api/function/bibleApi', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'daily_verse', clientDate })
+      body: JSON.stringify({ action: 'daily_verse', clientDate: clientDate })
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.error('Daily verse fetch failed:', res.status);
+      return null;
+    }
     const data = await res.json();
+    console.log('Daily verse response:', data);
     return data.verse || null;
-  } catch {
+  } catch (e) {
+    console.error('Daily verse fetch error:', e);
     return null;
   }
 }
@@ -293,7 +298,8 @@ Deno.serve(async (req) => {
   try {
     const url = new URL(req.url);
     const tab = url.searchParams.get('tab') || 'bible';
-    const showDailyVerse = url.searchParams.get('daily') === 'true';
+    // Show daily verse by default on Gospel, Resources, About tabs
+    const showDailyVerse = url.searchParams.get('daily') === 'false' ? false : (tab === 'gospel' || tab === 'resources' || tab === 'about');
 
     // Selected book/chapter (default to Genesis 1)
     let book = url.searchParams.get('book') || 'Genesis';
@@ -575,10 +581,10 @@ Deno.serve(async (req) => {
                        (appIdParam ? '&app_id=' + encodeURIComponent(appIdParam) : '');
     const homeHref = esc(basePath) + '?tab=bible&book=Genesis&chapter=1' + idSuffix;
     const themeHref = esc(basePath) + '?' + baseParams + (isDark ? '' : '&theme=dark');
-    const dailyVerseHref = esc(basePath) + '?' + baseParams + (isDark ? '&theme=dark&' : '') + (showDailyVerse ? '' : 'daily=true');
+    const dailyVerseHref = esc(basePath) + '?' + baseParams + (isDark ? '&theme=dark&' : '') + (showDailyVerse ? 'daily=false' : '');
     const topbar = '<div class="topbar">' +
       '<a href="' + homeHref + '">&#8962; Home</a>' +
-      '<a href="' + dailyVerseHref + '">' + (showDailyVerse ? '&#10005; Hide Daily Verse' : '&#10003; Daily Verse') + '</a>' +
+      '<a href="' + dailyVerseHref + '">' + (showDailyVerse ? '&#10005; Hide Daily Verse' : '&#10003; Show Daily Verse') + '</a>' +
       '<a href="' + themeHref + '">' + (isDark ? '&#9728; Light Mode' : '&#9790; Dark Mode') + '</a>' +
       '</div>';
 
