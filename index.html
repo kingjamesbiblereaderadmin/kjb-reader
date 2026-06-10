@@ -30,8 +30,9 @@
           if (window.location.pathname === '/legacy' && !optedOut) {
             var lHost = window.location.hostname || '';
             var lIsCustom = lHost.indexOf('base44.app') === -1 && lHost.indexOf('localhost') === -1;
+            var lOrigin = window.location.origin || (window.location.protocol + '//' + window.location.host);
             if (lIsCustom) {
-              window.location.replace(window.location.origin + '/functions/legacy');
+              window.location.replace(lOrigin + '/functions/legacy');
             } else {
               var lAppId = null;
               var lIdx = qs.indexOf('app_id=');
