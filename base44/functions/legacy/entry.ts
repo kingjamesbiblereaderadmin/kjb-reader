@@ -607,16 +607,9 @@ Deno.serve(async (req) => {
     // For the heavy Full Bible page, hide the page behind a loading overlay
     // until the whole document has finished parsing (window.onload), so the
     // user never sees a half-rendered page mid-load.
-    const isFullBible = tab === 'fullbible';
-    const loaderStyle = isFullBible
-      ? '#kjb-loader{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:' + (isDark ? '#1a1a1e' : '#f5f5f7') + ';color:' + (isDark ? '#e5e5e5' : '#2d2a6e') + ';font-family:Arial,sans-serif;font-size:16px;text-align:center;padding-top:40vh;}body.kjb-ready{}body.kjb-ready #kjb-loader{display:none;}body:not(.kjb-ready) #wrap,body:not(.kjb-ready) .tabs,body:not(.kjb-ready) .banner,body:not(.kjb-ready) .hdr{visibility:hidden;}'
-      : '';
-    const loaderHtml = isFullBible
-      ? '<div id="kjb-loader">Loading the full Bible&hellip;<br><span style="font-size:13px;color:' + (isDark ? '#aaa' : '#666') + ';">Please wait, this may take a moment.</span></div>'
-      : '';
-    const loaderScript = isFullBible
-      ? '<script>(function(){function r(){if(document.body){if(document.body.className){document.body.className+=" kjb-ready";}else{document.body.className="kjb-ready";}}}if(window.addEventListener){window.addEventListener("load",r,false);}else if(window.attachEvent){window.attachEvent("onload",r);}else{window.onload=r;}})();</script>'
-      : '';
+    const loaderStyle = '#kjb-loader{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:' + (isDark ? '#1a1a1e' : '#f5f5f7') + ';color:' + (isDark ? '#e5e5e5' : '#2d2a6e') + ';font-family:Arial,sans-serif;font-size:16px;text-align:center;padding-top:40vh;}body.kjb-ready #kjb-loader{display:none;}body:not(.kjb-ready) #wrap,body:not(.kjb-ready) .banner,body:not(.kjb-ready) .hdr{visibility:hidden;}';
+    const loaderHtml = '<div id="kjb-loader">Loading the full Bible&hellip;<br><span style="font-size:13px;color:' + (isDark ? '#aaa' : '#666') + ';">Please wait, this may take a moment.</span></div>';
+    const loaderScript = '<script>(function(){function r(){if(document.body){if(document.body.className){document.body.className+=" kjb-ready";}else{document.body.className="kjb-ready";}}}if(window.addEventListener){window.addEventListener("load",r,false);}else if(window.attachEvent){window.attachEvent("onload",r);}else{window.onload=r;}})();</script>';
 
     const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>KJB Reader (Legacy)</title><style>' + STYLE + (isDark ? DARK_STYLE : '') + loaderStyle + '</style></head><body>' + loaderHtml + '<div class="hdr"><h1>KJB Reader (Legacy)</h1><p>King James Bible &mdash; Pure Cambridge Edition</p></div>' + banner + '<div class="wrap" id="wrap">' + bodyInner + '</div>' + ENHANCE_SCRIPT + loaderScript + '</body></html>';
 
