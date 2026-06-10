@@ -515,6 +515,7 @@ function parseBibleText(text) {
       currentChap = String(chapMatch[2]);
       if (!data[currentBook]) data[currentBook] = {};
       data[currentBook][currentChap] = [];
+      console.log('[parse] Chapter', currentChap, 'in', currentBook);
       titleBuffer = [];
       pendingFirstVerse = true;
       continue;
@@ -575,7 +576,11 @@ function fetchAndParseBible() {
     .then(function(buf) {
       var decoder = new TextDecoder('windows-1252');
       var text = decoder.decode(buf);
-      return parseBibleText(text);
+      var data = parseBibleText(text);
+      var bookCount = Object.keys(data).length;
+      console.log('[parse] Total books parsed:', bookCount);
+      console.log('[parse] Books:', Object.keys(data).join(', '));
+      return data;
     });
 }
 
@@ -714,9 +719,10 @@ function showDailyVerse() {
 
 function loadFromCache() {
   try {
-    var cached = localStorage.getItem('kjb-legacy-bible-v1');
+    var cached = localStorage.getItem('kjb-legacy-bible-v2');
     if (cached) {
       BIBLE_DATA = JSON.parse(cached);
+      console.log('[cache] Loaded from v2 cache');
       return true;
     }
   } catch(e) {}
@@ -725,10 +731,10 @@ function loadFromCache() {
 
 function saveToCache() {
   try {
-    localStorage.setItem('kjb-legacy-bible-v1', JSON.stringify(BIBLE_DATA));
-    console.log('[legacy] Cache saved:', (JSON.stringify(BIBLE_DATA).length / 1024).toFixed(2), 'KB');
+    localStorage.setItem('kjb-legacy-bible-v2', JSON.stringify(BIBLE_DATA));
+    console.log('[cache] Saved to v2 cache:', (JSON.stringify(BIBLE_DATA).length / 1024).toFixed(2), 'KB');
   } catch(e) {
-    console.error('[legacy] Cache failed:', e.message);
+    console.error('[cache] Save failed:', e.message);
   }
 }
 
@@ -737,6 +743,7 @@ window.addEventListener('load', function() {
   
   loadFromCache();
   var bookCount = Object.keys(BIBLE_DATA).length;
+  console.log('[load] Cache books:', bookCount, 'Books:', Object.keys(BIBLE_DATA).join(', '));
 
   if (bookCount === 0) {
     statusDiv.innerHTML = '<div class="status">Downloading Bible data... please wait</div>';
@@ -744,6 +751,7 @@ window.addEventListener('load', function() {
       .then(function(data) {
         BIBLE_DATA = data;
         bookCount = Object.keys(BIBLE_DATA).length;
+        console.log('[load] Fresh parse books:', bookCount, 'Books:', Object.keys(BIBLE_DATA).join(', '));
         statusDiv.innerHTML = '<div class="status success">✓ Ready (' + bookCount + ' books)</div>';
         populateBooks();
         showDailyVerse();
