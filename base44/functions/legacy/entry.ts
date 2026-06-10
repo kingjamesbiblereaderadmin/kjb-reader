@@ -691,10 +691,10 @@ function switchTab(name) {
 }
 
 function updateDebugInfo() {
-  var info = 'Bible Data Source: Embedded in page\\n';
-  info += 'Bible Data Loaded: ' + (BIBLE_DATA && Object.keys(BIBLE_DATA).length > 0 ? 'Yes' : 'No') + '\\n';
-  info += 'Total Books Loaded: ' + (Object.keys(BIBLE_DATA).length) + '/66\\n';
-  info += 'Colophons Loaded: ' + (Object.keys(COLOPHON_DATA).length) + '\\n';
+  var info = 'Bible Data Source: On-demand via bibleApi\\n';
+  info += 'Metadata Books: ' + METADATA.books.length + '/66\\n';
+  info += 'Metadata Colophons: ' + Object.keys(METADATA.colophons).length + '\\n';
+  info += 'Cached Chapters: ' + Object.keys(BIBLE_DATA).length + ' books\\n';
   document.getElementById('debug-info').textContent = info;
 }
 
@@ -795,7 +795,7 @@ function readChapter() {
   }
   html += '</div>';
 
-  var colophon = COLOPHON_DATA[subscriptKey] || COLOPHONS[subscriptKey];
+  var colophon = METADATA.colophons[subscriptKey] || COLOPHONS[subscriptKey];
   if (colophon) {
     var colophonHtml = colophon.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
     html += '<div class="colophon"><div class="colophon-content"><span class="pilcrow">¶</span>' + colophonHtml + '</div></div>';
