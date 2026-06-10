@@ -1333,6 +1333,19 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
+            <Link
+              to="/legacy"
+              className="flex items-center gap-3 p-3 rounded-xl bg-transparent border border-border hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
+            >
+              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-background/50 backdrop-blur-md border border-border shadow-sm">
+                <MonitorSmartphone className="w-4 h-4 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Legacy Reader</p>
+                <p className="font-sans text-xs text-muted-foreground">For Internet Explorer and older devices</p>
+              </div>
+              <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+            </Link>
             <div className="space-y-2">
               <div className="flex justify-between items-center font-sans text-sm gap-4">
                 <span className="text-muted-foreground shrink-0">Bible Text</span>
@@ -1520,19 +1533,6 @@ export default function SettingsPage() {
         </button>
         {expandedSections.contact && (
           <div className="px-5 pb-6 pt-3 space-y-2">
-            <Link
-              to="/legacy"
-              className="flex items-center gap-3 p-3 rounded-xl bg-transparent border border-border hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
-            >
-              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-background/50 backdrop-blur-md border border-border shadow-sm">
-                <MonitorSmartphone className="w-4 h-4 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Legacy Reader</p>
-                <p className="font-sans text-xs text-muted-foreground">For Internet Explorer and older devices</p>
-              </div>
-              <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
-            </Link>
             <button
               onClick={() => navigate('/privacy')}
               className="w-full flex items-center gap-3 p-3 rounded-xl bg-transparent border border-border hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group text-left"
