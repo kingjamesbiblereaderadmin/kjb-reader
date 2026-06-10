@@ -370,7 +370,6 @@ Deno.serve(async (req) => {
       const hidden = '<input type="hidden" name="tab" value="bible">' +
         (appIdParam ? '<input type="hidden" name="app_id" value="' + esc(appIdParam) + '">' : '') +
         (isDark ? '<input type="hidden" name="theme" value="dark">' : '');
-      const maxChForBook = CHAPTER_COUNTS[book] || 1;
       let form = '<div class="box">' +
         '<form method="get" action="' + esc(basePath) + '">' + hidden +
         '<input type="hidden" name="chapter" value="1">' +
@@ -379,7 +378,7 @@ Deno.serve(async (req) => {
         '</form>' +
         '<form method="get" action="' + esc(basePath) + '" style="margin-top:12px;">' + hidden +
         '<input type="hidden" name="book" value="' + esc(book) + '">' +
-        '<div class="ctl"><label>Chapter (' + esc(book) + ' has ' + maxChForBook + '):</label><select name="chapter" onchange="this.form.submit()">' + chapterOptions(book, chapter) + '</select></div>' +
+        '<div class="ctl"><label>Chapter:</label><select name="chapter" onchange="this.form.submit()">' + chapterOptions(book, chapter) + '</select></div>' +
         '<input type="submit" class="read-btn" value="Read Chapter"></form></div>';
 
       // Chapter content
