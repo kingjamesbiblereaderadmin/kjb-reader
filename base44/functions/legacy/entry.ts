@@ -437,9 +437,9 @@ Deno.serve(async (req) => {
     }
   }
 
-  const bibleJson = JSON.stringify(bibleData);
+  const bibleJson = JSON.stringify(bibleData).replace(/</g, '\\u003c');
   const hasError = parseError ? "true" : "false";
-  const errorMsg = parseError ? parseError.replace(/'/g, "\\'") : "";
+  const errorMsg = parseError ? parseError.replace(/'/g, "\\'").replace(/"/g, '\\"') : "";
 
   const html = `<!DOCTYPE html>
 <html lang="en">
