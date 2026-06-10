@@ -421,11 +421,62 @@ Deno.serve(async (req) => {
         '<div class="step"><h4 style="color:#27ae60;">Once Saved, Always Saved</h4>' +
         '<p style="margin:12px 0;line-height:1.6;">A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life. God\'s gift of eternal life is just that &mdash; eternal.</p>' +
         '<blockquote style="margin:16px 0 16px 0;line-height:1.8;">"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise."</blockquote>' +
-        '<div style="text-align:center;color:#666;font-size:13px;margin-bottom:16px;">&mdash; Ephesians 1:13</div></div>';
+        '<div style="text-align:center;color:#666;font-size:13px;margin-bottom:16px;">&mdash; Ephesians 1:13</div></div>' +
+        '<div class="box" style="margin-top:20px;"><h3 style="margin-bottom:12px;">Watch the Gospel</h3>' +
+        '<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;margin-bottom:16px;"><iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube-nocookie.com/embed/znP9Dr6tOzU?rel=0&modestbranding=1" title="THE GOSPEL THAT SAVES" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>' +
+        '<p style="font-size:13px;color:#666;margin-bottom:8px;">THE GOSPEL THAT SAVES &mdash; Robert Breaker</p>' +
+        '<a href="https://www.youtube.com/watch?v=znP9Dr6tOzU" target="_blank" style="display:inline-block;padding:10px 18px;background:#2d2a6e;color:#fff;text-decoration:none;font-size:14px;font-family:Arial,sans-serif;margin-right:8px;">Watch on YouTube</a>' +
+        '<a href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq" target="_blank" style="display:inline-block;padding:10px 18px;background:#c00;color:#fff;text-decoration:none;font-size:14px;font-family:Arial,sans-serif;">Full Gospel Playlist</a></div>';
     } else if (tab === 'resources') {
-      bodyInner = '<div class="sec-title">Resources</div><div class="sec-sub">KJB defence materials, studies on modern version corruption, and links to free Bible study resources.</div><div class="box" style="margin-top:20px;"><h3>Coming Soon</h3><p>Resources are being updated. Please check back later.</p></div>';
+      bodyInner = '<div class="sec-title">Resources</div>' +
+        '<div class="sec-sub">KJB defence materials, studies on modern version corruption, and links to free Bible study resources.</div>' +
+        '<div class="box" style="margin-top:20px;"><h3 style="margin-bottom:12px;">Free Online Bible College</h3>' +
+        '<p style="line-height:1.8;margin-bottom:12px;">King James Bible Institute &mdash; a free online Bible college for those who want to go deeper in God\'s Word.</p>' +
+        '<a href="https://kjbi.org" target="_blank" style="display:inline-block;padding:10px 18px;background:#2d2a6e;color:#fff;text-decoration:none;font-size:14px;font-family:Arial,sans-serif;">Visit KJBI.org</a></div>' +
+        '<div class="res-cat">KJB Defence</div>' +
+        '<a href="https://www.bibleprotector.com" target="_blank" class="lnk"><b>Pure Cambridge Edition & Free Download</b><span>The definitive electronic text of the KJB</span></a>' +
+        '<a href="https://archive.org/details/wordgodwillkeepi0000faus" target="_blank" class="lnk"><b>The Word of God Will Keep Its Infallibility</b><span>Historical book on Archive.org</span></a>' +
+        '<a href="https://kjvcompare.com/" target="_blank" class="lnk"><b>KJV Compare</b><span>Hundreds of changes in modern versions</span></a>' +
+        '<div class="res-cat" style="margin-top:20px;">Why Modern Versions Are Corrupt</div>' +
+        '<a href="https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf" target="_blank" class="lnk"><b>The Critical Text & Westcott-Hort</b><span>Theological heresies PDF</span></a>' +
+        '<a href="https://www.scionofzion.com/nkjv.htm" target="_blank" class="lnk"><b>NKJV Exposed</b><span>The NKJV is NOT the KJB</span></a>' +
+        '<a href="https://www.youtube.com/watch?v=RmXBj2N9fhY" target="_blank" class="lnk"><b>A Lamp in the Dark</b><span>Full documentary on YouTube</span></a>' +
+        '<div class="res-cat" style="margin-top:20px;">1 John 5:7 Defence</div>' +
+        '<a href="https://kjvdebate.com/blog/f/i-john-57-the-1st-century-latinspain-connection" target="_blank" class="lnk"><b>The 1st Century Latin/Spain Connection</b><span>Historical evidence</span></a>' +
+        '<a href="https://textus-receptus.com/wiki/1_John_5:7" target="_blank" class="lnk"><b>Textus Receptus - 1 John 5:7</b><span>Wiki entry</span></a>' +
+        '<div style="background:#fdf0f0;border:1px solid #e9c4c4;padding:14px 16px;margin-top:20px;"><p style="font-size:13px;color:#b02525;line-height:1.6;"><strong>Note:</strong> The resources below are for educational purposes only. I may not affirm all doctrinal statements of every resource or ministry linked here. Please use discernment and compare all things to the King James Bible.</p></div>';
     } else if (tab === 'about') {
-      bodyInner = '<div class="sec-title">About</div><div class="sec-sub">About the Ministry</div><div class="box" style="margin-top:20px;"><p style="line-height:1.8;margin-bottom:12px;">I\'m Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language.</p><p style="line-height:1.8;">Contact: kingjamesbiblereader@outlook.sg</p></div>';
+      bodyInner = '<div class="sec-title">About</div>' +
+        '<div class="sec-sub">About the Ministry</div>' +
+        '<div class="box" style="margin-top:20px;">' +
+        '<p style="line-height:1.8;margin-bottom:12px;">I\'m Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. I am a dispensational salvationist, rightly dividing the word of truth.</p>' +
+        '<h4 style="color:#2d2a6e;font-size:15px;margin:16px 0 8px;font-family:Arial,sans-serif;">Statement of Faith</h4>' +
+        '<ul class="about-list">' +
+        '<li>The King James Bible is the infallible, perfect Word of God in the English language, translated from the Textus Receptus.</li>' +
+        '<li>Westcott and Hort created the Critical Text based on Vatican and Egyptian manuscripts with hundreds of errors, used in the Revised Version of 1881.</li>' +
+        '<li>Satan is the Devil, Lucifer, the king of Pride &mdash; his goal is to steal, kill and deceive.</li>' +
+        '<li>All people have sinned and the wages of sin is death.</li>' +
+        '<li>Jesus Christ is God manifested in the flesh, born of the virgin Mary, lived a perfect life, died, shed His blood, was buried and rose again.</li>' +
+        '<li>To be saved: Believe Jesus is God and that He died for your sins, shed His blood, was buried and rose again for your justification.</li>' +
+        '<li>Repenting of sins, water baptism, making Him Lord, or letting Him into your heart is NOT salvation.</li>' +
+        '<li>I believe in the Pre-Tribulation Rapture and Once Saved Always Saved (OSAS).</li>' +
+        '<li>I reject Catholicism, Calvinism, Pentecostalism, Mormonism, Jehovah\'s Witnesses, Lordship Salvation, and ROYS (repent of sins to be saved).</li>' +
+        '</ul>' +
+        '<h4 style="color:#2d2a6e;font-size:15px;margin:16px 0 8px;font-family:Arial,sans-serif;">Links & Contact</h4>' +
+        '<a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank" class="lnk"><b>God is Gracious 1031 Ministries</b><span>Ministry Website</span></a>' +
+        '<a href="mailto:kingjamesbiblereader@outlook.sg" class="lnk"><b>Email</b><span>kingjamesbiblereader@outlook.sg</span></a>' +
+        '<a href="https://youtube.com/@shawnr325av" target="_blank" class="lnk"><b>YouTube</b><span>@shawnr325av</span></a>' +
+        '<a href="https://www.instagram.com/svdbyfaithinhisbloodr325av" target="_blank" class="lnk"><b>Instagram</b><span>@svdbyfaithinhisbloodr325av</span></a>' +
+        '</div>';
+    } else if (tab === 'debug') {
+      bodyInner = '<div class="sec-title">Debug</div>' +
+        '<div class="sec-sub">System diagnostics and cache information</div>' +
+        '<div class="box" style="margin-top:20px;"><h3>Debug Information</h3>' +
+        '<p style="line-height:1.8;margin-bottom:12px;">This page provides system diagnostics for the legacy reader.</p>' +
+        '<p style="line-height:1.8;">Legacy Version: 1.0.0</p>' +
+        '<p style="line-height:1.8;">Date: ' + new Date().toISOString().split('T')[0] + '</p>' +
+        '<p style="line-height:1.8;">User Agent: ' + esc(req.headers.get('user-agent') || 'Unknown') + '</p>' +
+        '</div>';
     }
 
     const ENHANCE_SCRIPT = '<script>(function(){var hasPushState=!!window.history.pushState;function getHash(){var h=location.hash;if(h&&h.charAt(0)==="#"&&h.length>1){h=h.slice(1);} return h;}function load(url){var x=new XMLHttpRequest();x.open("GET",url,true);x.setRequestHeader("X-Requested-With","XMLHttpRequest");x.onreadystatechange=function(){if(x.readyState===4&&x.status===200){var d=document.createElement("div");d.innerHTML=x.responseText;var nw=d.getElementById("wrap");var ow=document.getElementById("wrap");if(nw&&ow){ow.innerHTML=nw.innerHTML;window.scrollTo(0,0);}}};x.send();}function updateChapterDropdown(bookName){var chapterCount={"Genesis":50,"Exodus":40,"Leviticus":27,"Numbers":36,"Deuteronomy":34,"Joshua":24,"Judges":21,"Ruth":4,"1 Samuel":31,"2 Samuel":24,"1 Kings":22,"2 Kings":25,"1 Chronicles":29,"2 Chronicles":36,"Ezra":10,"Nehemiah":13,"Esther":10,"Job":42,"Psalms":150,"Proverbs":31,"Ecclesiastes":12,"Song of Solomon":8,"Isaiah":66,"Jeremiah":52,"Lamentations":5,"Ezekiel":48,"Daniel":12,"Hosea":14,"Joel":3,"Amos":9,"Obadiah":1,"Jonah":4,"Micah":7,"Nahum":3,"Habakkuk":3,"Zephaniah":3,"Haggai":2,"Zechariah":14,"Malachi":4,"Matthew":28,"Mark":16,"Luke":24,"John":21,"Acts":28,"Romans":16,"1 Corinthians":16,"2 Corinthians":13,"Galatians":6,"Ephesians":6,"Philippians":4,"Colossians":4,"1 Thessalonians":5,"2 Thessalonians":3,"1 Timothy":6,"2 Timothy":4,"Titus":3,"Philemon":1,"Hebrews":13,"James":5,"1 Peter":5,"2 Peter":3,"1 John":5,"2 John":1,"3 John":1,"Jude":1,"Revelation":22};var count=chapterCount[bookName]||1;var chapSel=document.getElementById("chapterSelect");if(!chapSel)return;var curVal=chapSel.value||1;if(curVal>count)curVal=1;var opts="";for(var i=1;i<=count;i++){opts+="<option value=\""+i+"\""+(i==curVal?" selected":"")+">"+i+"</option>";}chapSel.innerHTML=opts;}function rebindForms(){var forms=document.getElementsByTagName("form");for(var fi=0;fi<forms.length;fi++){(function(f){if(f.__kjbForm)return;f.__kjbForm=1;var bookSel=f.elements["book"];var chapSel=f.elements["chapter"];if(bookSel){if(bookSel.attachEvent){bookSel.attachEvent("onchange",function(){updateChapterDropdown(bookSel.value);f.chapter.value=1;});}else if(bookSel.addEventListener){bookSel.addEventListener("change",function(){updateChapterDropdown(bookSel.value);f.chapter.value=1;},false);}else{bookSel.onchange=function(){updateChapterDropdown(bookSel.value);f.chapter.value=1;};}}})(forms[fi]);}}function bind(){var links=document.getElementsByTagName("a");for(var i=0;i<links.length;i++){(function(a){if(a.__kjb)return;a.__kjb=1;if(a.attachEvent){a.attachEvent("onclick",onClick);}else if(a.addEventListener){a.addEventListener("click",onClick,false);}else{a.onclick=onClick;}function onClick(e){e=e||window.event;var h=a.getAttribute("href");if(!h||h.indexOf("http")===0&&h.indexOf(location.host)===-1)return;if(h.indexOf("javascript")===0)return;if(e.preventDefault)e.preventDefault();else e.returnValue=false;load(h);if(hasPushState){window.history.pushState({u:h},"",h);}else{location.hash=h;}return false;}})(links[i]);}rebindForms();}if(hasPushState){window.onpopstate=function(){load(location.href);};}else{if(window.attachEvent){window.attachEvent("onhashchange",function(){var h=getHash();if(h){load(location.pathname+"?"+h);}});}else if(window.addEventListener){window.addEventListener("hashchange",function(){var h=getHash();if(h){load(location.pathname+"?"+h);}},false);}else{window.onhashchange=function(){var h=getHash();if(h){load(location.pathname+"?"+h);};}}}bind();})();</script>';
