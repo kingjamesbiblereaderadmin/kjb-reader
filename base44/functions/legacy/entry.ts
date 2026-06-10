@@ -1,6 +1,4 @@
 const BOOK_ORDER = ['Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy', 'Joshua', 'Judges', 'Ruth', '1 Samuel', '2 Samuel', '1 Kings', '2 Kings', '1 Chronicles', '2 Chronicles', 'Ezra', 'Nehemiah', 'Esther', 'Job', 'Psalms', 'Proverbs', 'Ecclesiastes', 'Song of Solomon', 'Isaiah', 'Jeremiah', 'Lamentations', 'Ezekiel', 'Daniel', 'Hosea', 'Joel', 'Amos', 'Obadiah', 'Jonah', 'Micah', 'Nahum', 'Habakkuk', 'Zephaniah', 'Haggai', 'Zechariah', 'Malachi', 'Matthew', 'Mark', 'Luke', 'John', 'Acts', 'Romans', '1 Corinthians', '2 Corinthians', 'Galatians', 'Ephesians', 'Philippians', 'Colossians', '1 Thessalonians', '2 Thessalonians', '1 Timothy', '2 Timothy', 'Titus', 'Philemon', 'Hebrews', 'James', '1 Peter', '2 Peter', '1 John', '2 John', '3 John', 'Jude', 'Revelation'];
-const OT_BOOKS = BOOK_ORDER.slice(0, 39);
-const NT_BOOKS = BOOK_ORDER.slice(39);
 
 const FULL_BOOK_NAMES = {
   'Genesis': 'The First Book of Moses, called Genesis',
@@ -280,6 +278,18 @@ const COLOPHONS = {
   'Revelation:1': 'The Revelation of Saint John the Divine.'
 };
 
+const CHAPTER_COUNTS = {
+  Genesis:50,Exodus:40,Leviticus:27,Numbers:36,Deuteronomy:34,Joshua:24,Judges:21,Ruth:4,
+  '1 Samuel':31,'2 Samuel':24,'1 Kings':22,'2 Kings':25,'1 Chronicles':29,'2 Chronicles':36,
+  Ezra:10,Nehemiah:13,Esther:10,Job:42,Psalms:150,Proverbs:31,Ecclesiastes:12,'Song of Solomon':8,
+  Isaiah:66,Jeremiah:52,Lamentations:5,Ezekiel:48,Daniel:12,Hosea:14,Joel:3,Amos:9,Obadiah:1,
+  Jonah:4,Micah:7,Nahum:3,Habakkuk:3,Zephaniah:3,Haggai:2,Zechariah:14,Malachi:4,
+  Matthew:28,Mark:16,Luke:24,John:21,Acts:28,Romans:16,'1 Corinthians':16,'2 Corinthians':13,
+  Galatians:6,Ephesians:6,Philippians:4,Colossians:4,'1 Thessalonians':5,'2 Thessalonians':3,
+  '1 Timothy':6,'2 Timothy':4,Titus:3,Philemon:1,Hebrews:13,James:5,'1 Peter':5,'2 Peter':3,
+  '1 John':5,'2 John':1,'3 John':1,Jude:1,Revelation:22
+};
+
 const ABBR_TO_NAME = {
   'Ge':'Genesis','Ex':'Exodus','Le':'Leviticus','Nu':'Numbers','De':'Deuteronomy',
   'Jos':'Joshua','Jg':'Judges','Ru':'Ruth','1Sa':'1 Samuel','2Sa':'2 Samuel',
@@ -299,156 +309,389 @@ const ABBR_TO_NAME = {
 
 Deno.serve(async (req) => {
   try {
-    // Legacy reader loads Bible data on-demand via bibleApi - no server-side parsing
-    // Metadata contains only structure info (book/chapter lists), verses fetched per-request
     const metadata = {
       books: BOOK_ORDER,
-      chapters: {}, // Will be populated client-side from bibleApi responses
       colophons: COLOPHONS,
       psalmSubscripts: PSALM_SUBSCRIPTS,
-      fullBookNames: FULL_BOOK_NAMES
+      fullBookNames: FULL_BOOK_NAMES,
+      chapterCounts: CHAPTER_COUNTS
     };
-    const metadataStr = JSON.stringify(metadata);
-    console.log('[LEGACY] Serving legacy reader with', metadata.books.length, 'books');
     
-    const html = '<!DOCTYPE html>' +
-'<html lang="en">' +
-'<head>' +
-'<meta charset="UTF-8">' +
-'<meta name="viewport" content="width=device-width, initial-scale=1">' +
-'<title>KJB Reader (Legacy)</title>' +
-'<style>' +
-'* { margin: 0; padding: 0; box-sizing: border-box; }' +
-'body { background: #f5f5f7; color: #1a1a1a; font-family: Georgia, serif; font-size: 16px; line-height: 1.6; }' +
-'.header { background: #2d2a6e; color: #fff; padding: 16px; text-align: center; }' +
-'.header h1 { font-size: 24px; margin-bottom: 4px; }' +
-'.header p { font-size: 12px; color: #ccc; }' +
-'.tabs { display: flex; background: #3d3a80; border-bottom: 1px solid #2d2a6e; }' +
-'.tab-btn { flex: 1; padding: 12px; text-align: center; color: #ccc; border: none; background: none; cursor: pointer; font-size: 13px; font-family: Arial, sans-serif; }' +
-'.tab-btn.active { background: #5b59a0; color: #fff; font-weight: bold; }' +
-'.tab-btn:hover { background: #4a4790; }' +
-'.container { max-width: 900px; margin: 0 auto; padding: 20px; }' +
-'.tab-content { display: none; }' +
-'.tab-content.active { display: block; }' +
-'.controls-box { background: #f0f0f7; padding: 20px; margin-bottom: 16px; border-radius: 4px; text-align: left; }' +
-'.control-group { margin-bottom: 14px; }' +
-'.control-group label { display: block; font-size: 14px; font-weight: bold; color: #333; margin-bottom: 6px; font-family: Arial, sans-serif; }' +
-'.control-group select { width: 100%; padding: 8px; font-size: 15px; border: 1px solid #ccc; border-radius: 3px; font-family: Arial, sans-serif; }' +
-'.read-btn { background: #2d2a6e; color: #fff; padding: 8px 16px; border: none; border-radius: 3px; cursor: pointer; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif; }' +
-'.read-btn:hover { background: #3d3a80; }' +
-'.status { font-size: 13px; font-family: Arial, sans-serif; margin-bottom: 16px; padding: 8px; }' +
-'.status.success { color: green; }' +
-'.chapter-display { text-align: center; }' +
-'.chapter-header { text-align: center; margin: 32px 0 24px 0; }' +
-'.chapter-book { font-size: 28px; font-weight: bold; color: #2d2a6e; display: block; }' +
-'.chapter-num { font-size: 14px; color: #5b59a0; letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; display: block; }' +
-'.subscript { text-align: center; font-size: 15px; color: #555; margin: 8px 0 12px 0; font-style: italic; }' +
-'.subscript em { font-style: italic; }' +
-'.verses { margin: 20px 0; text-align: left; }' +
-'.verse { margin-bottom: 12px; line-height: 1.7; }' +
-'.verse-num { font-size: 11px; color: #5b59a0; font-weight: bold; vertical-align: super; margin-right: 3px; }' +
-'.verse-pilcrow { display: block; text-align: center; color: #888; margin: 8px 0; font-style: italic; font-size: 14px; }' +
-'.colophon { text-align: center; font-size: 13px; color: #666; margin: 24px 0 8px 0; border-top: 1px solid #ddd; padding-top: 12px; font-style: italic; }' +
-'.colophon em { font-style: italic; }' +
-'.footer { text-align: center; font-size: 11px; color: #888; padding: 20px; border-top: 1px solid #ddd; margin-top: 40px; }' +
-'.content-section { background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 14px; margin: 12px 0; }' +
-'.content-section h3 { font-size: 16px; color: #2d2a6e; margin: 0 0 8px 0; }' +
-'.content-section p, .content-section li { font-family: Arial, sans-serif; font-size: 13px; color: #333; line-height: 1.6; }' +
-'.content-section li { margin: 5px 0; }' +
-'.gospel-no { background: #fff5f5; border: 1px solid #fcc; }' +
-'.gospel-no h3 { color: #b00000; }' +
-'.gospel-osas { background: #f0fff0; border: 1px solid #ada; }' +
-'.gospel-osas h3 { color: #2a6a2a; }' +
-'.gospel-step blockquote { border-left: 3px solid #5b59a0; margin: 8px 0 8px 14px; padding: 0 0 0 10px; font-style: italic; }' +
-'.links-list a { display: block; font-family: Arial, sans-serif; font-size: 13px; color: #2d2a6e; padding: 6px 0; border-bottom: 1px solid #eee; text-decoration: none; }' +
-'.links-list a:last-child { border-bottom: none; }' +
-'.res-section { margin: 14px 0; }' +
-'.res-section h3 { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; color: #2d2a6e; margin: 12px 0 6px 0; border-bottom: 1px solid #ddd; padding-bottom: 4px; }' +
-'.res-item { margin: 8px 0 8px 14px; }' +
-'.res-item strong { display: block; font-family: Arial, sans-serif; font-size: 13px; color: #1a1a1a; margin-bottom: 2px; }' +
-'.res-item p { font-family: Arial, sans-serif; font-size: 12px; color: #666; margin: 0 0 3px 0; }' +
-'.res-item a { font-family: Arial, sans-serif; font-size: 12px; color: #2d2a6e; }' +
-'#debug-info { font-family: monospace; font-size: 12px; white-space: pre-wrap; background: #fff; border: 1px solid #ddd; padding: 10px; border-radius: 4px; }' +
-'</style>' +
-'</head>' +
-'<body>' +
-'<div class="header"><h1>KJB Reader</h1><p>Legacy Edition</p></div>' +
-'<div class="tabs">' +
-'<button class="tab-btn active" onclick="switchTab(\'bible\');return false;">Bible</button>' +
-'<button class="tab-btn" onclick="switchTab(\'gospel\');return false;">Gospel</button>' +
-'<button class="tab-btn" onclick="switchTab(\'resources\');return false;">Resources</button>' +
-'<button class="tab-btn" onclick="switchTab(\'about\');return false;">About</button>' +
-'<button class="tab-btn" onclick="switchTab(\'debug\');return false;">Debug</button>' +
-'</div>' +
-'<div class="container">' +
-'<div id="tab-bible" class="tab-content active">' +
-'<div id="bible-loading" style="text-align:center;padding:40px;"><p style="font-family:Arial,sans-serif;font-size:14px;color:#555;">Loading Bible data...</p></div>' +
-'<div id="bible-error" style="display:none;text-align:center;padding:40px;"><p style="font-family:Arial,sans-serif;font-size:14px;color:#c00;">Failed to load Bible data. Please refresh.</p></div>' +
-'<div id="bible-content" style="display:none;">' +
-'<div class="controls-box">' +
-'<div class="control-group"><label for="bookSel">Book:</label><select id="bookSel" onchange="updateChapters()"></select></div>' +
-'<div class="control-group"><label for="chapSel">Chapter:</label><select id="chapSel"></select></div>' +
-'<button class="read-btn" onclick="readChapter()">Read</button>' +
-'</div>' +
-'<div id="status" class="status"></div>' +
-'<div id="chapter-display"></div>' +
-'</div>' +
-'<div class="footer">King James Bible — Pure Cambridge Edition<br>Legacy version for old devices</div>' +
-'</div>' +
-'<div id="tab-gospel" class="tab-content">' +
-'<h2 style="color:#2d2a6e;margin:16px 0 4px 0;">How to be Saved</h2>' +
-'<p style="font-family:Arial,sans-serif;font-size:14px;color:#555;margin:0 0 12px 0;">The Gospel is the glad tidings of the Lord Jesus Christ: Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.</p>' +
-'<div class="content-section gospel-step"><h3>1. Believe you are a sinner that deserves hell</h3><blockquote>"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin." — Romans 3:20</blockquote><blockquote>"The wicked shall be turned into hell, and all the nations that forget God." — Psalm 9:17</blockquote></div>' +
-'<div class="content-section gospel-step"><h3>2. Believe that Jesus is God manifested in the flesh</h3><blockquote>"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory." — 1 Timothy 3:16</blockquote></div>' +
-'<div class="content-section gospel-step"><h3>3. Believe he died, shed his blood, was buried and rose again</h3><blockquote>"Moreover, brethren, I declare unto you the gospel which I preached unto you... how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." — 1 Corinthians 15:1–4</blockquote><blockquote>"Whom God hath set forth to be a propitiation through faith in his blood, to declare his righteousness for the remission of sins that are past, through the forbearance of God;" — Romans 3:25</blockquote></div>' +
-'<div class="content-section gospel-no"><h3>These do NOT make you a Christian:</h3><ul><li>Repenting of sins</li><li>Making Jesus Lord</li><li>Being a member of a church</li><li>Tithing</li><li>Being baptised (water)</li><li>Saying a sinner\'s prayer</li><li>Confessing with your mouth</li><li>Lordship Salvation</li></ul></div>' +
-'<div class="content-section gospel-osas"><h3>Once Saved, Always Saved</h3><p style="font-family:Arial,sans-serif;font-size:13px;color:#333;margin:0 0 6px 0;">A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life.</p><blockquote>"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." — Ephesians 1:13</blockquote></div>' +
-'<div style="margin:16px 0;padding:12px;background:#fff;border:1px solid #ddd;border-radius:4px;"><p style="font-family:Arial,sans-serif;font-size:13px;margin:0 0 8px 0;"><strong>Watch the Gospel:</strong></p><a href="https://www.youtube.com/watch?v=znP9Dr6tOzU" target="_blank" style="font-family:Arial,sans-serif;font-size:13px;color:#c00;">► THE GOSPEL THAT SAVES — Robert Breaker (YouTube)</a></div>' +
-'<div class="footer">King James Bible — Pure Cambridge Edition</div>' +
-'</div>' +
-'<div id="tab-resources" class="tab-content">' +
-'<h2 style="color:#2d2a6e;margin:16px 0 4px 0;">Resources</h2>' +
-'<p style="font-family:Arial,sans-serif;font-size:13px;color:#555;margin:0 0 12px 0;">KJB defence materials and free Bible study resources.</p>' +
-'<div style="background:#f0fff0;border:1px solid #ada;border-radius:4px;padding:12px;margin:0 0 14px 0;"><strong style="font-family:Arial,sans-serif;font-size:14px;">KJBI.org — Free Online Bible College</strong><p style="font-family:Arial,sans-serif;font-size:13px;color:#555;margin:4px 0 6px 0;">King James Bible Institute — a free online Bible college.</p><a href="https://kjbi.org" target="_blank" style="font-family:Arial,sans-serif;font-size:13px;color:#2d2a6e;">Visit KJBI.org →</a></div>' +
-'<div class="res-section"><h3>KJB Defence</h3><div class="res-item"><strong>Pure Cambridge Edition</strong><p>The definitive electronic text of the PCE.</p><a href="https://www.bibleprotector.com" target="_blank">bibleprotector.com</a></div><div class="res-item"><strong>KJV Compare</strong><p>Go through hundreds of changes made in modern versions.</p><a href="https://kjvcompare.com/" target="_blank">kjvcompare.com</a></div></div>' +
-'<div class="footer">King James Bible — Pure Cambridge Edition</div>' +
-'</div>' +
-'<div id="tab-about" class="tab-content">' +
-'<h2 style="color:#2d2a6e;margin:16px 0 8px 0;">About the Ministry</h2>' +
-'<div class="content-section"><p>I\'m Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. I am a dispensational salvationist, rightly dividing the word of truth.</p><ul><li>I reject Catholicism, Calvinism, Pentecostalism, Mormonism, Jehovah\'s Witnesses, etc.</li><li>I believe in the blood-stained gospel as the only way to be saved.</li><li>To be saved: Believe Jesus is God and that He died for your sins, shed his blood, was buried and rose again for your justification.</li><li>I believe in OSAS (Once Saved, Always Saved).</li></ul></div>' +
-'<div class="content-section"><h3>Links & Contact</h3><div class="links-list"><a href="https://youtube.com/@shawnr325av" target="_blank">► YouTube: @shawnr325av</a><a href="mailto:kingjamesbiblereader@outlook.sg">✉ kingjamesbiblereader@outlook.sg</a></div></div>' +
-'<div class="footer">King James Bible — Pure Cambridge Edition</div>' +
-'</div>' +
-'<div id="tab-debug" class="tab-content">' +
-'<h2 style="color:#2d2a6e;margin:16px 0 4px 0;">Debug Information</h2>' +
-'<button class="read-btn" onclick="updateDebugInfo()" style="margin-bottom:10px;">Refresh Status</button>' +
-'<div id="debug-info"></div>' +
-'<div class="footer">King James Bible — Pure Cambridge Edition</div>' +
-'</div>' +
-'</div>' +
-'<script>' +
-'var BOOK_ORDER=' + JSON.stringify(BOOK_ORDER) + ';' +
-'var OT_BOOKS=' + JSON.stringify(OT_BOOKS) + ';' +
-'var NT_BOOKS=' + JSON.stringify(NT_BOOKS) + ';' +
-'var METADATA=' + metadataStr + ';' +
-'var PSALM_SUBSCRIPTS=METADATA.psalmSubscripts;' +
-'var COLOPHONS=METADATA.colophons;' +
-'var FULL_BOOK_NAMES=METADATA.fullBookNames;' +
-'var BIBLE_DATA={};' +
-'var CHAPTERS_CACHE={};' +
-'console.log(\'[LEGACY] Metadata loaded:\',METADATA.books.length,\'books\');' +
-'function getApiBookName(n){var m={\'1 Samuel\':\'1Sa\',\'2 Samuel\':\'2Sa\',\'1 Kings\':\'1Ki\',\'2 Kings\':\'2Ki\',\'1 Chronicles\':\'1Ch\',\'2 Chronicles\':\'2Ch\',\'1 Corinthians\':\'1Co\',\'2 Corinthians\':\'2Co\',\'1 Thessalonians\':\'1Th\',\'2 Thessalonians\':\'2Th\',\'1 Timothy\':\'1Ti\',\'2 Timothy\':\'2Ti\',\'1 Peter\':\'1Pe\',\'2 Peter\':\'2Pe\',\'1 John\':\'1Jo\',\'2 John\':\'2Jo\',\'3 John\':\'3Jo\',\'Song of Solomon\':\'Song\'};return m[n]||n;}' +
-'function fetchChapterData(book,chapter,callback){var cacheKey=book+\':\'+chapter;if(BIBLE_DATA[book]&&BIBLE_DATA[book][chapter]){callback(null,BIBLE_DATA[book][chapter]);return;}var bookApiName=getApiBookName(book);var url=\'/bibleApi\';console.log(\'[LEGACY] Fetching:\',url,bookApiName,chapter);fetch(url,{method:\'POST\',headers:{\'Content-Type\':\'application/json\'},body:JSON.stringify({action:\'getChapter\',book:bookApiName,chapter:parseInt(chapter)})}).then(function(res){console.log(\'[LEGACY] Status:\',res.status);if(!res.ok){throw new Error(\'HTTP \'+res.status);}return res.json();}).then(function(result){console.log(\'[LEGACY] Got:\',result.verses?result.verses.length:0,\'verses\');if(result.error){callback(new Error(result.error));return;}if(!BIBLE_DATA[book])BIBLE_DATA[book]={};if(!CHAPTERS_CACHE[book])CHAPTERS_CACHE[book]=[];BIBLE_DATA[book][chapter]=result.verses;if(result.colophon)COLOPHONS[book+\':\'+chapter]=result.colophon;if(CHAPTERS_CACHE[book].indexOf(parseInt(chapter))===-1){CHAPTERS_CACHE[book].push(parseInt(chapter));CHAPTERS_CACHE[book].sort(function(a,b){return a-b;});}callback(null,result.verses);}).catch(function(err){console.error(\'[LEGACY] Fetch error:\',err);callback(err);});}' +
-'function switchTab(name){console.log(\'[LEGACY] switchTab:\',name);try{var tabContents=document.querySelectorAll(\'.tab-content\');for(var i=0;i<tabContents.length;i++){tabContents[i].classList.remove(\'active\');}var tabElement=document.getElementById(\'tab-\'+name);console.log(\'[LEGACY] Found tab:\',tabElement);if(tabElement){tabElement.classList.add(\'active\');}var tabButtons=document.querySelectorAll(\'.tab-btn\');for(var j=0;j<tabButtons.length;j++){var btn=tabButtons[j];if(btn.textContent.toLowerCase().indexOf(name)===0){btn.classList.add(\'active\');}else{btn.classList.remove(\'active\');}}if(name===\'debug\'){updateDebugInfo();}}catch(e){console.error(\'[LEGACY] switchTab error:\',e);}}' +
-'function updateDebugInfo(){var info=\'Bible Data Source: On-demand via bibleApi\\n\';info+=\'Metadata Books: \'+METADATA.books.length+\'/66\\n\';info+=\'Metadata Colophons: \'+Object.keys(METADATA.colophons).length+\'\\n\';info+=\'Cached Chapters: \'+Object.keys(BIBLE_DATA).length+\' books\\n\';document.getElementById(\'debug-info\').textContent=info;}' +
-'function populateBooks(){var sel=document.getElementById(\'bookSel\');sel.innerHTML=\'\';var otGroup=document.createElement(\'optgroup\');otGroup.label=\'Old Testament\';for(var i=0;i<OT_BOOKS.length;i++){var opt=document.createElement(\'option\');opt.value=OT_BOOKS[i];opt.textContent=OT_BOOKS[i];otGroup.appendChild(opt);}sel.appendChild(otGroup);var ntGroup=document.createElement(\'optgroup\');ntGroup.label=\'New Testament\';for(var j=0;j<NT_BOOKS.length;j++){var opt2=document.createElement(\'option\');opt2.value=NT_BOOKS[j];opt2.textContent=NT_BOOKS[j];ntGroup.appendChild(opt2);}sel.appendChild(ntGroup);}' +
-'var CHAPTER_COUNTS={Genesis:50,Exodus:40,Leviticus:27,Numbers:36,Deuteronomy:34,Joshua:24,Judges:21,Ruth:4,\'1 Samuel\':31,\'2 Samuel\':24,\'1 Kings\':22,\'2 Kings\':25,\'1 Chronicles\':29,\'2 Chronicles\':36,Ezra:10,Nehemiah:13,Esther:10,Job:42,Psalms:150,Proverbs:31,Ecclesiastes:12,\'Song of Solomon\':8,Isaiah:66,Jeremiah:52,Lamentations:5,Ezekiel:48,Daniel:12,Hosea:14,Joel:3,Amos:9,Obadiah:1,Jonah:4,Micah:7,Nahum:3,Habakkuk:3,Zephaniah:3,Haggai:2,Zechariah:14,Malachi:4,Matthew:28,Mark:16,Luke:24,John:21,Acts:28,Romans:16,\'1 Corinthians\':16,\'2 Corinthians\':13,Galatians:6,Ephesians:6,Philippians:4,Colossians:4,\'1 Thessalonians\':5,\'2 Thessalonians\':3,\'1 Timothy\':6,\'2 Timothy\':4,Titus:3,Philemon:1,Hebrews:13,James:5,\'1 Peter\':5,\'2 Peter\':3,\'1 John\':5,\'2 John\':1,\'3 John\':1,Jude:1,Revelation:22};' +
-'function updateChapters(){var book=document.getElementById(\'bookSel\').value;var sel=document.getElementById(\'chapSel\');sel.innerHTML=\'\';if(!book)return;if(CHAPTERS_CACHE[book]&&CHAPTERS_CACHE[book].length>0){for(var i=0;i<CHAPTERS_CACHE[book].length;i++){var opt=document.createElement(\'option\');opt.value=CHAPTERS_CACHE[book][i];opt.textContent=CHAPTERS_CACHE[book][i];sel.appendChild(opt);}}else{var totalChapters=CHAPTER_COUNTS[book]||39;if(!CHAPTERS_CACHE[book])CHAPTERS_CACHE[book]=[];for(var c=1;c<=totalChapters;c++){if(CHAPTERS_CACHE[book].indexOf(c)===-1)CHAPTERS_CACHE[book].push(c);}var opt=document.createElement(\'option\');opt.value=1;opt.textContent=\'1\';sel.appendChild(opt);setTimeout(function(){readChapter();},100);}}' +
-'function readChapter(){var book=document.getElementById(\'bookSel\').value;var chap=document.getElementById(\'chapSel\').value;console.log(\'[LEGACY] readChapter:\',book,chap);if(!book||!chap){document.getElementById(\'chapter-display\').innerHTML=\'<p>Please select a book and chapter.</p>\';return;}document.getElementById(\'chapter-display\').innerHTML=\'<p>Loading chapter...</p>\';fetchChapterData(book,chap,function(err,verses){if(err){document.getElementById(\'chapter-display\').innerHTML=\'<p>Error: \'+err.message+\'</p>\';return;}var fullBookName=FULL_BOOK_NAMES[book]||book;var html=\'<div class="chapter-display"><div class="chapter-header"><span class="chapter-book">\'+fullBookName+\'</span><span class="chapter-num">Chapter \'+chap+\'</span></div>\';var subscriptKey=book+\':\'+chap;var subscript=PSALM_SUBSCRIPTS[chap];if(book===\'Psalms\'&&subscript){var subHtml=subscript.replace(/\\[([^\\]]+)\\]/g,\'<em>$1</em>\');html+=\'<div class="subscript">\'+subHtml+\'</div>\';}html+=\'<div class="verses">\';for(var v=0;v<verses.length;v++){var verseText=verses[v].text;var hasPilcrow=verseText.indexOf(\'¶\')!==-1;verseText=verseText.replace(/¶\\s*/g,\'\');verseText=verseText.replace(/\\[([^\\]]+)\\]/g,\'<em>$1</em>\');if(hasPilcrow){html+=\'<div class="verse-pilcrow">¶</div>\';}html+=\'<div class="verse"><span class="verse-num">\'+verses[v].verse+\'</span> \'+verseText+\'</div>\';}html+=\'</div>\';var colophon=COLOPHONS[subscriptKey];if(colophon){var colophonHtml=colophon.replace(/\\[([^\\]]+)\\]/g,\'<em>$1</em>\');html+=\'<div class="colophon">\'+colophonHtml+\'</div>\';}html+=\'</div>\';document.getElementById(\'chapter-display\').innerHTML=html;window.scrollTo(0,0);});}' +
-'(function initLegacy(){console.log(\'[LEGACY] Init running, books:\',METADATA.books.length);try{var loadingDiv=document.getElementById(\'bible-loading\');var errorDiv=document.getElementById(\'bible-error\');var contentDiv=document.getElementById(\'bible-content\');if(METADATA.books&&METADATA.books.length>0){setTimeout(function(){loadingDiv.style.display=\'none\';contentDiv.style.display=\'block\';var statusDiv=document.getElementById(\'status\');statusDiv.innerHTML=\'<div class="status success">✓ Ready (\'+METADATA.books.length+\' books)</div>\';populateBooks();console.log(\'[LEGACY] Content shown\');},100);}else{console.error(\'[LEGACY] No books loaded\');loadingDiv.style.display=\'none\';errorDiv.style.display=\'block\';}}catch(e){console.error(\'[LEGACY] Init error:\',e);var loadingDiv2=document.getElementById(\'bible-loading\');var errorDiv2=document.getElementById(\'bible-error\');if(loadingDiv2)loadingDiv2.style.display=\'none\';if(errorDiv2)errorDiv2.style.display=\'block\';}})();' +
-'</script>' +
-'</body>' +
-'</html>';
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KJB Reader (Legacy)</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #f5f5f7; color: #1a1a1a; font-family: Georgia, serif; font-size: 16px; line-height: 1.6; }
+.header { background: #2d2a6e; color: #fff; padding: 16px; text-align: center; }
+.header h1 { font-size: 24px; margin-bottom: 4px; }
+.header p { font-size: 12px; color: #ccc; }
+.tabs { display: flex; background: #3d3a80; border-bottom: 1px solid #2d2a6e; }
+.tab-btn { flex: 1; padding: 12px; text-align: center; color: #ccc; border: none; background: none; cursor: pointer; font-size: 13px; font-family: Arial, sans-serif; }
+.tab-btn.active { background: #5b59a0; color: #fff; font-weight: bold; }
+.tab-btn:hover { background: #4a4790; }
+.container { max-width: 900px; margin: 0 auto; padding: 20px; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.controls-box { background: #f0f0f7; padding: 20px; margin-bottom: 16px; border-radius: 4px; }
+.control-group { margin-bottom: 14px; }
+.control-group label { display: block; font-size: 14px; font-weight: bold; color: #333; margin-bottom: 6px; font-family: Arial, sans-serif; }
+.control-group select { width: 100%; padding: 8px; font-size: 15px; border: 1px solid #ccc; border-radius: 3px; font-family: Arial, sans-serif; }
+.read-btn { background: #2d2a6e; color: #fff; padding: 8px 16px; border: none; border-radius: 3px; cursor: pointer; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif; }
+.read-btn:hover { background: #3d3a80; }
+.status { font-size: 13px; font-family: Arial, sans-serif; margin-bottom: 16px; padding: 8px; }
+.status.success { color: green; }
+.chapter-display { text-align: center; }
+.chapter-header { text-align: center; margin: 32px 0 24px 0; }
+.chapter-book { font-size: 28px; font-weight: bold; color: #2d2a6e; display: block; }
+.chapter-num { font-size: 14px; color: #666; display: block; margin-top: 4px; }
+.verses { text-align: left; max-width: 700px; margin: 0 auto; }
+.verse { margin-bottom: 8px; }
+.verse-num { font-weight: bold; color: #2d2a6e; font-size: 12px; margin-right: 4px; }
+.verse-pilcrow { text-align: center; font-size: 18px; color: #000; margin: 12px 0; opacity: 0.6; }
+.subscript { text-align: center; font-style: italic; color: #555; margin: 16px 0 24px 0; font-size: 14px; }
+.colophon { text-align: center; font-style: italic; color: #666; margin: 32px 0 16px 0; padding-top: 16px; border-top: 1px solid #ddd; }
+.footer { text-align: center; font-size: 11px; color: #999; margin-top: 32px; padding-top: 16px; border-top: 1px solid #eee; }
+.content-section { background: #fff; padding: 16px; margin-bottom: 16px; border-radius: 4px; border: 1px solid #ddd; }
+.content-section h3 { color: #2d2a6e; margin-bottom: 12px; font-size: 16px; }
+.content-section blockquote { background: #f9f9f9; padding: 12px; margin: 8px 0; border-left: 3px solid #2d2a6e; font-style: italic; }
+.content-section ul { margin-left: 20px; }
+.content-section li { margin-bottom: 6px; }
+.res-section { margin-bottom: 16px; }
+.res-section h3 { color: #2d2a6e; margin-bottom: 12px; }
+.res-item { background: #fff; padding: 12px; margin-bottom: 8px; border-radius: 4px; border: 1px solid #ddd; }
+.res-item strong { display: block; color: #2d2a6e; margin-bottom: 4px; }
+.res-item p { font-size: 13px; color: #666; margin-bottom: 6px; font-family: Arial, sans-serif; }
+.res-item a { color: #2d2a6e; text-decoration: none; }
+.res-item a:hover { text-decoration: underline; }
+.links-list { display: flex; flex-direction: column; gap: 8px; }
+.links-list a { color: #2d2a6e; text-decoration: none; font-size: 14px; }
+.links-list a:hover { text-decoration: underline; }
+#debug-info { background: #f0f0f7; padding: 12px; border-radius: 4px; font-family: monospace; font-size: 12px; white-space: pre-wrap; }
+.loading { text-align: center; padding: 40px; color: #666; }
+.error { text-align: center; padding: 40px; color: #c00; }
+</style>
+</head>
+<body>
+<div class="header">
+<h1>KJB Reader (Legacy)</h1>
+<p>King James Bible — Pure Cambridge Edition</p>
+</div>
+
+<div class="tabs">
+<button class="tab-btn active" onclick="switchTab('bible');return false;">Bible</button>
+<button class="tab-btn" onclick="switchTab('gospel');return false;">Gospel</button>
+<button class="tab-btn" onclick="switchTab('resources');return false;">Resources</button>
+<button class="tab-btn" onclick="switchTab('about');return false;">About</button>
+<button class="tab-btn" onclick="switchTab('debug');return false;">Debug</button>
+</div>
+
+<div class="container">
+<div id="tab-bible" class="tab-content active">
+<div class="controls-box">
+<div class="control-group">
+<label>Book:</label>
+<select id="bookSel" onchange="updateChapters()"></select>
+</div>
+<div class="control-group">
+<label>Chapter:</label>
+<select id="chapSel"></select>
+</div>
+<button class="read-btn" onclick="readChapter()">Read</button>
+</div>
+<div id="status" class="status"></div>
+<div id="chapter-display"></div>
+</div>
+
+<div id="tab-gospel" class="tab-content">
+<h2 style="color:#2d2a6e;margin:16px 0 4px 0;">The Gospel</h2>
+<div class="content-section">
+<h3>1. Believe you are a sinner that deserves hell</h3>
+<blockquote>"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin." — Romans 3:20</blockquote>
+<blockquote>"The wicked shall be turned into hell, and all the nations that forget God." — Psalm 9:17</blockquote>
+</div>
+<div class="content-section">
+<h3>2. Believe that Jesus is God manifested in the flesh</h3>
+<blockquote>"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory." — 1 Timothy 3:16</blockquote>
+</div>
+<div class="content-section">
+<h3>3. Believe he died, shed his blood, was buried and rose again</h3>
+<blockquote>"Moreover, brethren, I declare unto you the gospel which I preached unto you... how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." — 1 Corinthians 15:1–4</blockquote>
+<blockquote>"Whom God hath set forth to be a propitiation through faith in his blood, to declare his righteousness for the remission of sins that are past, through the forbearance of God;" — Romans 3:25</blockquote>
+</div>
+<div class="content-section" style="background:#fff8f8;border-color:#fcc;">
+<h3>These do NOT make you a Christian:</h3>
+<ul>
+<li>Repenting of sins</li>
+<li>Making Jesus Lord</li>
+<li>Being a member of a church</li>
+<li>Tithing</li>
+<li>Being baptised (water)</li>
+<li>Saying a sinner's prayer</li>
+<li>Confessing with your mouth</li>
+<li>Lordship Salvation</li>
+</ul>
+</div>
+<div class="content-section" style="background:#f0fff0;border-color:#afa;">
+<h3>Once Saved, Always Saved</h3>
+<p style="font-family:Arial,sans-serif;font-size:13px;color:#333;margin:0 0 8px 0;">A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life.</p>
+<blockquote>"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." — Ephesians 1:13</blockquote>
+</div>
+<div style="margin:16px 0;padding:12px;background:#fff;border:1px solid #ddd;border-radius:4px;">
+<p style="font-family:Arial,sans-serif;font-size:13px;margin:0 0 8px 0;"><strong>Watch the Gospel:</strong></p>
+<a href="https://www.youtube.com/watch?v=znP9Dr6tOzU" target="_blank" style="font-family:Arial,sans-serif;font-size:13px;color:#c00;">▶ THE GOSPEL THAT SAVES — Robert Breaker (YouTube)</a>
+</div>
+</div>
+
+<div id="tab-resources" class="tab-content">
+<h2 style="color:#2d2a6e;margin:16px 0 4px 0;">Resources</h2>
+<p style="font-family:Arial,sans-serif;font-size:13px;color:#555;margin:0 0 12px 0;">KJB defence materials and free Bible study resources.</p>
+<div style="background:#f0fff0;border:1px solid #ada;border-radius:4px;padding:12px;margin:0 0 14px 0;">
+<strong style="font-family:Arial,sans-serif;font-size:14px;">KJBI.org — Free Online Bible College</strong>
+<p style="font-family:Arial,sans-serif;font-size:13px;color:#555;margin:4px 0 6px 0;">King James Bible Institute — a free online Bible college.</p>
+<a href="https://kjbi.org" target="_blank" style="font-family:Arial,sans-serif;font-size:13px;color:#2d2a6e;">Visit KJBI.org →</a>
+</div>
+<div class="res-section">
+<h3>KJB Defence</h3>
+<div class="res-item">
+<strong>Pure Cambridge Edition</strong>
+<p>The definitive electronic text of the PCE.</p>
+<a href="https://www.bibleprotector.com" target="_blank">bibleprotector.com</a>
+</div>
+<div class="res-item">
+<strong>KJV Compare</strong>
+<p>Go through hundreds of changes made in modern versions.</p>
+<a href="https://kjvcompare.com/" target="_blank">kjvcompare.com</a>
+</div>
+</div>
+</div>
+
+<div id="tab-about" class="tab-content">
+<h2 style="color:#2d2a6e;margin:16px 0 8px 0;">About the Ministry</h2>
+<div class="content-section">
+<p>I'm Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. I am a dispensational salvationist, rightly dividing the word of truth.</p>
+<ul style="margin-left:20px;margin-top:8px;">
+<li>I reject Catholicism, Calvinism, Pentecostalism, Mormonism, Jehovah's Witnesses, etc.</li>
+<li>I believe in the blood-stained gospel as the only way to be saved.</li>
+<li>To be saved: Believe Jesus is God and that He died for your sins, shed his blood, was buried and rose again for your justification.</li>
+<li>I believe in OSAS (Once Saved, Always Saved).</li>
+</ul>
+</div>
+<div class="content-section">
+<h3>Links & Contact</h3>
+<div class="links-list">
+<a href="https://youtube.com/@shawnr325av" target="_blank">▶ YouTube: @shawnr325av</a>
+<a href="mailto:kingjamesbiblereader@outlook.sg">✉ kingjamesbiblereader@outlook.sg</a>
+</div>
+</div>
+</div>
+
+<div id="tab-debug" class="tab-content">
+<h2 style="color:#2d2a6e;margin:16px 0 4px 0;">Debug Information</h2>
+<button class="read-btn" onclick="updateDebugInfo()" style="margin-bottom:10px;">Refresh Status</button>
+<div id="debug-info"></div>
+</div>
+</div>
+
+<script>
+var METADATA = ${JSON.stringify(metadata)};
+var BIBLE_DATA = {};
+var CHAPTERS_CACHE = {};
+
+console.log('[LEGACY] Metadata loaded:', METADATA.books.length, 'books');
+
+function getApiBookName(n) {
+  var m = {'1 Samuel':'1Sa','2 Samuel':'2Sa','1 Kings':'1Ki','2 Kings':'2Ki','1 Chronicles':'1Ch','2 Chronicles':'2Ch','1 Corinthians':'1Co','2 Corinthians':'2Co','1 Thessalonians':'1Th','2 Thessalonians':'2Th','1 Timothy':'1Ti','2 Timothy':'2Ti','1 Peter':'1Pe','2 Peter':'2Pe','1 John':'1Jo','2 John':'2Jo','3 John':'3Jo','Song of Solomon':'Song'};
+  return m[n] || n;
+}
+
+function fetchChapterData(book, chapter, callback) {
+  if (BIBLE_DATA[book] && BIBLE_DATA[book][chapter]) {
+    callback(null, BIBLE_DATA[book][chapter]);
+    return;
+  }
+  var bookApiName = getApiBookName(book);
+  console.log('[LEGACY] Fetching:', bookApiName, chapter);
+  fetch('/bibleApi', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({action: 'getChapter', book: bookApiName, chapter: parseInt(chapter)})
+  }).then(function(res) {
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }).then(function(result) {
+    console.log('[LEGACY] Got:', result.verses ? result.verses.length : 0, 'verses');
+    if (result.error) {
+      callback(new Error(result.error));
+      return;
+    }
+    if (!BIBLE_DATA[book]) BIBLE_DATA[book] = {};
+    BIBLE_DATA[book][chapter] = result.verses;
+    if (result.colophon) METADATA.colophons[book + ':' + chapter] = result.colophon;
+    if (!CHAPTERS_CACHE[book]) CHAPTERS_CACHE[book] = [];
+    if (CHAPTERS_CACHE[book].indexOf(parseInt(chapter)) === -1) {
+      CHAPTERS_CACHE[book].push(parseInt(chapter));
+      CHAPTERS_CACHE[book].sort(function(a, b) { return a - b; });
+    }
+    callback(null, result.verses);
+  }).catch(function(err) {
+    console.error('[LEGACY] Fetch error:', err);
+    callback(err);
+  });
+}
+
+function switchTab(name) {
+  console.log('[LEGACY] switchTab:', name);
+  var tabContents = document.querySelectorAll('.tab-content');
+  for (var i = 0; i < tabContents.length; i++) {
+    tabContents[i].classList.remove('active');
+  }
+  var tabElement = document.getElementById('tab-' + name);
+  if (tabElement) {
+    tabElement.classList.add('active');
+  }
+  var tabButtons = document.querySelectorAll('.tab-btn');
+  for (var j = 0; j < tabButtons.length; j++) {
+    var btn = tabButtons[j];
+    if (btn.textContent.toLowerCase().indexOf(name) === 0) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  }
+  if (name === 'debug') {
+    updateDebugInfo();
+  }
+}
+
+function updateDebugInfo() {
+  var info = 'Bible Data Source: On-demand via bibleApi\\n';
+  info += 'Metadata Books: ' + METADATA.books.length + '/66\\n';
+  info += 'Metadata Colophons: ' + Object.keys(METADATA.colophons).length + '\\n';
+  info += 'Cached Chapters: ' + Object.keys(BIBLE_DATA).length + ' books\\n';
+  document.getElementById('debug-info').textContent = info;
+}
+
+function populateBooks() {
+  var sel = document.getElementById('bookSel');
+  sel.innerHTML = '';
+  var otGroup = document.createElement('optgroup');
+  otGroup.label = 'Old Testament';
+  for (var i = 0; i < 39; i++) {
+    var opt = document.createElement('option');
+    opt.value = METADATA.books[i];
+    opt.textContent = METADATA.books[i];
+    otGroup.appendChild(opt);
+  }
+  sel.appendChild(otGroup);
+  var ntGroup = document.createElement('optgroup');
+  ntGroup.label = 'New Testament';
+  for (var j = 39; j < METADATA.books.length; j++) {
+    var opt2 = document.createElement('option');
+    opt2.value = METADATA.books[j];
+    opt2.textContent = METADATA.books[j];
+    ntGroup.appendChild(opt2);
+  }
+  sel.appendChild(ntGroup);
+}
+
+function updateChapters() {
+  var book = document.getElementById('bookSel').value;
+  var sel = document.getElementById('chapSel');
+  sel.innerHTML = '';
+  if (!book) return;
+  
+  var totalChapters = METADATA.chapterCounts[book] || 39;
+  if (!CHAPTERS_CACHE[book]) CHAPTERS_CACHE[book] = [];
+  for (var c = 1; c <= totalChapters; c++) {
+    if (CHAPTERS_CACHE[book].indexOf(c) === -1) CHAPTERS_CACHE[book].push(c);
+  }
+  
+  for (var i = 0; i < totalChapters; i++) {
+    var opt = document.createElement('option');
+    opt.value = (i + 1);
+    opt.textContent = (i + 1);
+    sel.appendChild(opt);
+  }
+  setTimeout(function() { readChapter(); }, 100);
+}
+
+function readChapter() {
+  var book = document.getElementById('bookSel').value;
+  var chap = document.getElementById('chapSel').value;
+  console.log('[LEGACY] readChapter:', book, chap);
+  
+  if (!book || !chap) {
+    document.getElementById('chapter-display').innerHTML = '<p class="error">Please select a book and chapter.</p>';
+    return;
+  }
+  
+  document.getElementById('chapter-display').innerHTML = '<div class="loading">Loading chapter...</div>';
+  
+  fetchChapterData(book, chap, function(err, verses) {
+    if (err) {
+      document.getElementById('chapter-display').innerHTML = '<p class="error">Error: ' + err.message + '</p>';
+      return;
+    }
+    
+    var fullBookName = METADATA.fullBookNames[book] || book;
+    var html = '<div class="chapter-display">';
+    html += '<div class="chapter-header">';
+    html += '<span class="chapter-book">' + fullBookName + '</span>';
+    html += '<span class="chapter-num">Chapter ' + chap + '</span>';
+    html += '</div>';
+    
+    // Psalm subscript
+    if (book === 'Psalms' && METADATA.psalmSubscripts[chap]) {
+      var subHtml = METADATA.psalmSubscripts[chap].replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
+      html += '<div class="subscript">' + subHtml + '</div>';
+    }
+    
+    html += '<div class="verses">';
+    for (var v = 0; v < verses.length; v++) {
+      var verseText = verses[v].text;
+      var hasPilcrow = verseText.indexOf('¶') !== -1;
+      verseText = verseText.replace(/¶\\s*/g, '');
+      verseText = verseText.replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
+      
+      if (hasPilcrow) {
+        html += '<div class="verse-pilcrow">¶</div>';
+      }
+      html += '<div class="verse"><span class="verse-num">' + verses[v].verse + '</span> ' + verseText + '</div>';
+    }
+    html += '</div>';
+    
+    // Colophon
+    var colophon = METADATA.colophons[book + ':' + chap];
+    if (colophon) {
+      var colophonHtml = colophon.replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
+      html += '<div class="colophon">' + colophonHtml + '</div>';
+    }
+    
+    html += '</div>';
+    document.getElementById('chapter-display').innerHTML = html;
+    window.scrollTo(0, 0);
+  });
+}
+
+// Initialize
+(function init() {
+  console.log('[LEGACY] Initializing...');
+  try {
+    var statusDiv = document.getElementById('status');
+    statusDiv.innerHTML = '<div class="status success">✓ Ready (' + METADATA.books.length + ' books)</div>';
+    populateBooks();
+    console.log('[LEGACY] Ready');
+  } catch (e) {
+    console.error('[LEGACY] Init error:', e);
+  }
+})();
+</script>
+</body>
+</html>`;
 
     return new Response(html, { headers: { 'Content-Type': 'text/html;charset=UTF-8' } });
   } catch (error) {
