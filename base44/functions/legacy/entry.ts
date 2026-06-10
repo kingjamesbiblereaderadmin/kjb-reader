@@ -588,7 +588,7 @@ function showTab(name, btn) {
   var updateDebugInfo = function() {
     if (!debugInfoDiv) return;
     var info = "";
-    info += "Bible Data Source: " + (Object.keys(_injected).length > 0 ? "Injected from Server" : "localStorage Cache") + "\n";
+    info += "Bible Data Source: " + (Object.keys(BIBLE_DATA_INJECTED).length > 0 ? "Injected from Server" : "localStorage Cache") + "\n";
     info += "Bible Data Loaded: " + (BIBLE_DATA && Object.keys(BIBLE_DATA).length > 0 ? "Yes" : "No") + "\n";
     info += "Total Books Loaded: " + availableBooks.length + "/66\n";
     info += "Current Book: " + (bookSel ? bookSel.value : "N/A") + "\n";
