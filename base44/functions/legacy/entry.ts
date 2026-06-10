@@ -1,5 +1,3 @@
-const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/e74bc3070_KingJamesBible-PureCambridgeTextfile2.txt';
-
 const BOOK_ORDER = [
   'Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy', 'Joshua', 'Judges', 'Ruth',
   '1 Samuel', '2 Samuel', '1 Kings', '2 Kings', '1 Chronicles', '2 Chronicles', 'Ezra', 'Nehemiah',
@@ -495,87 +493,7 @@ var PSALM_SUBSCRIPTS = ${JSON.stringify(PSALM_SUBSCRIPTS)};
 var COLOPHONS = ${JSON.stringify(COLOPHONS)};
 var FULL_BOOK_NAMES = ${JSON.stringify(FULL_BOOK_NAMES)};
 var BIBLE_DATA = {};
-var TEXT_URL = '${TEXT_URL}';
-
-function parseBibleText(text) {
-  var data = {};
-  var lines = text.split(/\r?\n/);
-  var currentBook = null;
-  var currentChap = null;
-  var titleBuffer = [];
-  var pendingFirstVerse = false;
-
-  for (var i = 0; i < lines.length; i++) {
-    var line = lines[i].trim();
-    if (!line) continue;
-
-    var chapMatch = line.match(/^(CHAPTER|PSALM)\\s+(\\d+)$/i);
-    if (chapMatch && currentBook) {
-      currentChap = String(chapMatch[2]);
-      if (!data[currentBook]) data[currentBook] = {};
-      data[currentBook][currentChap] = [];
-      titleBuffer = [];
-      pendingFirstVerse = true;
-      continue;
-    }
-
-    if (/^\\d+\\s+/.test(line) && currentBook && currentChap) {
-      var match = line.match(/^(\\d+)\\s+(.+)$/);
-      if (match) {
-        var verseNum = match[1];
-        var verseText = match[2].replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
-        data[currentBook][currentChap].push({ v: verseNum, t: verseText });
-      }
-      pendingFirstVerse = false;
-      titleBuffer = [];
-      continue;
-    }
-
-    if (pendingFirstVerse && currentBook && currentChap && data[currentBook][currentChap].length === 0) {
-      var verseText = line.replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
-      data[currentBook][currentChap].push({ v: '1', t: verseText });
-      pendingFirstVerse = false;
-      titleBuffer = [];
-      continue;
-    }
-
-    if (currentBook && currentChap && data[currentBook][currentChap].length > 0) {
-      var last = data[currentBook][currentChap][data[currentBook][currentChap].length - 1];
-      last.t += ' ' + line.replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
-      continue;
-    }
-
-    if (/^[A-Z]/.test(line) && !currentChap) {
-      titleBuffer.push(line);
-      var fullTitle = titleBuffer.join(' ').toUpperCase();
-      for (var bi = 0; bi < BOOK_ORDER.length; bi++) {
-        var bookName = BOOK_ORDER[bi].toUpperCase();
-        if (fullTitle.indexOf(bookName) !== -1) {
-          currentBook = BOOK_ORDER[bi];
-          data[currentBook] = {};
-          titleBuffer = [];
-          break;
-        }
-      }
-    }
-  }
-
-  return data;
-}
-
-function fetchAndParseBible() {
-  return fetch(TEXT_URL + '?t=' + Date.now())
-    .then(function(res) {
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      return res.arrayBuffer();
-    })
-    .then(function(buf) {
-      var decoder = new TextDecoder('windows-1252');
-      var text = decoder.decode(buf);
-      var data = parseBibleText(text);
-      return data;
-    });
-}
+var COLOPHON_DATA = {};
 
 function switchTab(name) {
   document.querySelectorAll('.tab-content').forEach(function(el) { el.classList.remove('active'); });
@@ -586,15 +504,10 @@ function switchTab(name) {
 }
 
 function updateDebugInfo() {
-  var info = 'Bible Data Source: ' + (Object.keys(BIBLE_DATA).length > 0 ? 'localStorage Cache' : 'Not loaded') + '\\\\n';
+  var info = 'Bible Data Source: ' + (Object.keys(BIBLE_DATA).length > 0 ? 'Loaded from API' : 'Not loaded') + '\\\\n';
   info += 'Bible Data Loaded: ' + (BIBLE_DATA && Object.keys(BIBLE_DATA).length > 0 ? 'Yes' : 'No') + '\\\\n';
   info += 'Total Books Loaded: ' + (Object.keys(BIBLE_DATA).length) + '/66\\\\n';
-  var cacheKey = 'kjb-legacy-bible-v2';
-  var cachedData;
-  try { cachedData = localStorage.getItem(cacheKey); } catch(e) { cachedData = 'Error reading localStorage'; }
-  info += '\\\\n== LocalStorage Cache ==\\\\n';
-  info += 'Cache Key: ' + cacheKey + '\\\\n';
-  info += 'Cached Data Size: ' + (cachedData ? (cachedData.length / 1024).toFixed(2) + ' KB' : 'Not found') + '\\\\n';
+  info += 'Colophons Loaded: ' + (Object.keys(COLOPHON_DATA).length) + '\\\\n';
   document.getElementById('debug-info').textContent = info;
 }
 
@@ -666,11 +579,12 @@ function readChapter() {
 
   html += '<div class="verses">';
   for (var v = 0; v < verses.length; v++) {
-    html += '<div class="verse"><span class="verse-num">' + verses[v].v + '</span> ' + verses[v].t + '</div>';
+    var verseText = verses[v].t.replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
+    html += '<div class="verse"><span class="verse-num">' + verses[v].v + '</span> ' + verseText + '</div>';
   }
   html += '</div>';
 
-  var colophon = COLOPHONS[subscriptKey];
+  var colophon = COLOPHON_DATA[subscriptKey] || COLOPHONS[subscriptKey];
   if (colophon) {
     html += '<div class="colophon"><div class="colophon-content"><span class="pilcrow">¶</span><em>' + colophon + '</em></div></div>';
   }
@@ -702,7 +616,7 @@ function showDailyVerse() {
       currentSeed++;
     }
 
-    var plainText = verse.t.replace(/<[^>]+>/g, '');
+    var plainText = verse.t.replace(/<[^>]+>/g, '').replace(/\\[([^\\]]+)\\]/g, '$1');
     document.getElementById('daily-text').textContent = plainText;
     document.getElementById('daily-ref').textContent = '— ' + ref + ' (KJB)';
     document.getElementById('daily-verse-box').style.display = 'block';
@@ -711,55 +625,58 @@ function showDailyVerse() {
   }
 }
 
-function loadFromCache() {
-  try {
-    var cached = localStorage.getItem('kjb-legacy-bible-v2');
-    if (cached) {
-      BIBLE_DATA = JSON.parse(cached);
-      return true;
+function loadBibleData() {
+  return fetch('/api/function/bibleApi', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'getAllColophons' })
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(colophonRes) {
+    if (colophonRes.colophons) {
+      COLOPHON_DATA = colophonRes.colophons;
     }
-  } catch(e) {}
-  return false;
-}
-
-function saveToCache() {
-  try {
-    localStorage.setItem('kjb-legacy-bible-v2', JSON.stringify(BIBLE_DATA));
-  } catch(e) {
-    console.error('[cache] Save failed:', e.message);
-  }
+    
+    var promises = [];
+    for (var i = 0; i < BOOK_ORDER.length; i++) {
+      var book = BOOK_ORDER[i];
+      (function(bookName) {
+        promises.push(fetch('/api/function/bibleApi', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getChapter', book: bookName, chapter: 1 })
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data.verses) {
+            if (!BIBLE_DATA[bookName]) BIBLE_DATA[bookName] = {};
+            BIBLE_DATA[bookName][1] = data.verses.map(function(v) { return { v: v.verse, t: v.text }; });
+          }
+        })
+        .catch(function(err) { console.error('Failed to load', bookName, err); }));
+      })(book);
+    }
+    
+    return Promise.all(promises);
+  });
 }
 
 window.addEventListener('load', function() {
   var statusDiv = document.getElementById('status');
+  statusDiv.innerHTML = '<div class="status">Downloading Bible data... please wait</div>';
   
-  loadFromCache();
-  var bookCount = Object.keys(BIBLE_DATA).length;
-
-  if (bookCount === 0 || bookCount < 66) {
-    statusDiv.innerHTML = '<div class="status">Downloading Bible data... please wait</div>';
-    fetchAndParseBible()
-      .then(function(data) {
-        BIBLE_DATA = data;
-        bookCount = Object.keys(BIBLE_DATA).length;
-        statusDiv.innerHTML = '<div class="status success">✓ Ready (' + bookCount + ' books)</div>';
-        populateBooks();
-        showDailyVerse();
-        readChapter();
-        saveToCache();
-      })
-      .catch(function(err) {
-        console.error('Fetch failed:', err);
-        statusDiv.innerHTML = '<div class="status error">Failed to load Bible. Refresh page.</div>';
-      });
-  } else {
-    statusDiv.innerHTML = '<div class="status success">✓ Ready (' + bookCount + ' books)</div>';
-    populateBooks();
-    showDailyVerse();
-    readChapter();
-  }
-
-  setTimeout(saveToCache, 1000);
+  loadBibleData()
+    .then(function() {
+      var bookCount = Object.keys(BIBLE_DATA).length;
+      statusDiv.innerHTML = '<div class="status success">✓ Ready (' + bookCount + ' books)</div>';
+      populateBooks();
+      showDailyVerse();
+      readChapter();
+    })
+    .catch(function(err) {
+      console.error('Fetch failed:', err);
+      statusDiv.innerHTML = '<div class="status error">Failed to load Bible. Refresh page.</div>';
+    });
 });
 </script>
 
