@@ -63,46 +63,103 @@ const GOSPEL_NOT = ['Repenting of sins','Making Jesus Lord','Being a member of a
 
 const RES_GROUPS = [
   { cat: 'Free Online Bible College', items: [
-    { t: 'KJBI.org', d: 'King James Bible Institute — a free online Bible college.', u: 'https://kjbi.org' } ] },
+    { t: 'KJBI.org', d: 'King James Bible Institute — a free online Bible college for those who want to go deeper in God\'s Word.', u: 'https://kjbi.org' } ] },
   { cat: 'How to Read the Bible', items: [
     { t: 'AV Publications', d: 'Books and resources for King James Bible believers.', u: 'https://avpublications.com/' } ] },
   { cat: 'KJB Defence', items: [
-    { t: 'Pure Cambridge Edition (Free Download)', d: 'The definitive electronic text of the PCE — PDF, ePub, TXT.', u: 'https://www.bibleprotector.com' },
-    { t: 'The Word of God Will Keep Its Infallibility', d: 'Historical book on Archive.org.', u: 'https://archive.org/details/wordgodwillkeepi0000faus' },
-    { t: 'KJV Compare', d: 'Hundreds of changes made in modern versions, verse-by-verse.', u: 'https://kjvcompare.com/' },
-    { t: 'Scion of Zion — KJB Comparisons', d: 'Detailed comparisons exposing corruptions and omissions.', u: 'https://www.scionofzion.com/kjcomparisons.html' },
-    { t: '1 John 5:7 Defence', d: 'Defending the Johannine Comma.', u: 'https://www.scionofzion.com/1_john_5_7.htm' } ] },
+    { t: 'King James Bible: Pure Cambridge Edition & Free Download', d: 'The definitive electronic text of the Pure Cambridge Edition — bibleprotector.com. Free downloads in PDF, ePub, and TXT.', u: 'https://www.bibleprotector.com' },
+    { t: 'The Word of God Will Keep Its Infallibility (Archive.org)', d: 'Historical book demonstrating that the King James Bible is infallible — full text on Archive.org.', u: 'https://archive.org/details/wordgodwillkeepi0000faus/page/18/mode/1up' },
+    { t: 'KJV Compare', d: 'Go through hundreds of changes made in modern versions of the Bible — verse-by-verse.', u: 'https://kjvcompare.com/' },
+    { t: 'Scion of Zion — KJB Comparisons', d: 'Detailed comparisons of the KJB with modern versions, exposing corruptions and omissions.', u: 'https://www.scionofzion.com/kjcomparisons.html' },
+    { t: '1 John 5:7 Defence', d: 'Resources defending the Johannine Comma (1 John 5:7) — the Trinitarian verse attacked by modern versions.', u: 'https://www.scionofzion.com/1_john_5_7.htm' } ] },
   { cat: 'Why Modern Versions Are Corrupt', items: [
-    { t: 'Theological Heresies of Westcott & Hort (PDF)', d: 'The Critical Text based on Vatican/Egyptian manuscripts.', u: 'https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf' },
-    { t: 'NKJV Exposed', d: 'The NKJV is NOT the same as the King James Bible.', u: 'https://www.scionofzion.com/nkjv.htm' },
-    { t: 'A Lamp in the Dark — Documentary', d: 'The untold history of the Bible.', u: 'https://www.youtube.com/watch?v=RmXBj2N9fhY' },
-    { t: 'AV1611 Articles', d: 'Articles defending the Authorised Version.', u: 'https://www.av1611.org/articles' },
-    { t: 'Brandplucked — KJB Articles', d: 'Extensive collection defending the KJB.', u: 'https://brandplucked.com/kjbarticles.htm' } ] },
+    { t: 'The Critical Text & Westcott-Hort', d: 'Westcott and Hort created the Critical Text based on Vatican and Egyptian manuscripts with hundreds of errors, attacking doctrines such as the Trinity and deity of Christ.', u: 'https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf' },
+    { t: 'NKJV Exposed', d: 'The NKJV is NOT the same as the King James Bible. Resources exposing the New King James Version.', u: 'https://www.scionofzion.com/nkjv.htm' },
+    { t: 'A Lamp in the Dark — Full Documentary', d: 'The untold history of the Bible — a documentary exposing the corruption of modern Bible translations.', u: 'https://www.youtube.com/watch?v=RmXBj2N9fhY&list=PLiMliTxa3H172BW4ANpBAavcIGVz-KXFW' },
+    { t: 'KJB Defence Playlist', d: 'Comprehensive playlist defending the King James Bible as the infallible, perfect words of God in English.', u: 'https://youtube.com/playlist?list=PLNGhZnJavRf01ILv3TJu_ke4IPYcKcpJm' },
+    { t: 'Gail Riplinger — The Sword Slays the Dragon', d: 'Gail Riplinger\'s powerful defence of the King James Bible against modern version corruption.', u: 'https://www.youtube.com/watch?v=fyN680Y0Vwc' },
+    { t: 'Irrefutable Proof: The KJB Superseded Hebrew and Greek', d: 'Truth is Christ channel — demonstrating the superiority and authority of the King James Bible.', u: 'https://www.youtube.com/watch?v=t6ck6KrVPIk' },
+    { t: 'AV1611 Articles', d: 'Articles defending the Authorised Version — King James Bible defence resources.', u: 'https://www.av1611.org/articles' },
+    { t: 'Preserved Words', d: 'Another King James Bible Believer — resources and articles defending the preserved Word of God.', u: 'https://www.preservedwords.com/bp/index.html' },
+    { t: 'Brandplucked — KJB Articles', d: 'Extensive collection of articles defending the King James Bible.', u: 'https://brandplucked.com/kjbarticles.htm' } ] },
+  { cat: '1 John 5:7 Defence', items: [
+    { t: '1 John 5:7 — The 1st Century Latin/Spain Connection', d: 'Historical evidence connecting 1 John 5:7 to early Christian manuscripts and tradition.', u: 'https://kjvdebate.com/blog/f/i-john-57-the-1st-century-latinspain-connection' },
+    { t: 'The Authenticity of 1 John 5:7', d: 'Historical evidence and church tradition supporting the Johannine Comma.', u: 'https://catalog.obitel-minsk.com/blog/2021/08/the-authenticity-of-1-john-57-historical-evidence-and-the-church-tradition' },
+    { t: 'Textus Receptus — 1 John 5:7', d: 'Wiki entry on 1 John 5:7 in the Textus Receptus (Received Text).', u: 'https://textus-receptus.com/wiki/1_John_5:7' },
+    { t: 'KJV Debate — 1 John 5:7 PDF', d: 'Comprehensive PDF resource defending 1 John 5:7.', u: 'https://kjvdebate.com/pdf' } ] },
+  { cat: 'Westcott & Hort Heresies', items: [
+    { t: 'Theological Heresies of Westcott and Hort', d: 'Detailed examination of the heretical beliefs held by Westcott and Hort, whose critical text corrupted Bible translations.', u: 'https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf' },
+    { t: 'Scattered Christians — Westcott & Hort', d: 'Analysis of Westcott and Hort\'s influence on modern Bible versions.', u: 'https://scatteredchristians.org/WescottHort.html' },
+    { t: 'Differences Between Textus Receptus and NA/UBS', d: 'Detailed comparison of the Greek texts used in different Bible versions.', u: 'https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs' } ] },
+  { cat: 'NKJV Exposed', items: [
+    { t: 'AV1611 — NKJV Exposed', d: 'Comprehensive analysis showing the NKJV is not the King James Bible.', u: 'https://www.av1611.org/nkjv.html' },
+    { t: 'TBS — What Today\'s Christian Needs to Know About NKJV', d: 'Official resource from The Bible For Today highlighting NKJV issues.', u: 'https://www.tbsbibles.org/page/WhatTodaysChristianNeedsToKnowAboutTheNewKingJamesVersion' },
+    { t: 'TBS — Does the NKJV Live Up to Its Claims?', d: 'Critical examination of NKJV translation claims and accuracy.', u: 'https://www.tbsbibles.org/page/DoesTheNKJVLiveUpToItsClaims' },
+    { t: 'TBS — The New King James Version Overview', d: 'Detailed overview of NKJV problems and textual issues.', u: 'https://www.tbsbibles.org/page/TheNewKingJamesVersion' } ] },
+  { cat: 'Living Bible Exposed', items: [
+    { t: 'TBS — The Living Bible Exposed', d: 'Official resource exposing errors and problems in the Living Bible paraphrase.', u: 'https://cdn.ymaws.com/www.tbsbibles.org/resource/collection/D4DCAF37-AEB6-4CEC-880F-FD229A90560F/The-Living-Bible.pdf' },
+    { t: 'Jesus is Savior — Living Bible Exposed', d: 'Comprehensive resource exposing the Living Bible\'s doctrinal problems.', u: 'https://www.jesus-is-savior.com/Bible/Living%20Bible/lb_exposed.htm' },
+    { t: 'Jesus is Savior — NLT Bible Exposed', d: 'Detailed analysis of the New Living Translation\'s translation errors.', u: 'https://jesus-is-savior.com/Bible/NLT/nlt_exposed.htm' } ] },
+  { cat: 'ESV & NIV Exposed', items: [
+    { t: 'Brandplucked — Is the ESV Inerrant?', d: 'Critical analysis of ESV translation choices and inerrancy claims.', u: 'https://brandplucked.com/is-the-esv-inerrant.html' },
+    { t: 'Brandplucked — The ESV Examined', d: 'Comprehensive examination of ESV translation problems.', u: 'https://brandplucked.com/theesv.htm' },
+    { t: 'TBS — English Standard Version', d: 'Official analysis of ESV translation issues.', u: 'https://www.tbsbibles.org/page/EnglishStandardVersion' },
+    { t: 'AV1611 — NIV Exposed', d: 'Detailed comparison of NIV problems and doctrinal deletions.', u: 'https://www.av1611.org/kjv/nivteen.html' },
+    { t: 'Jesus is Precious — NIV Missing Verses', d: 'Documentation of verses omitted from the NIV translation.', u: 'https://www.jesusisprecious.org/bible/niv/acts_8-37_missing.htm' },
+    { t: 'Jesus is Savior — NIV Exposed', d: 'Comprehensive resource exposing the NIV\'s doctrinal corruptions.', u: 'https://www.jesus-is-savior.com/Bible/NIV/new_international_version_exposed.htm' } ] },
   { cat: 'Ministry Links', items: [
     { t: 'God is Gracious 1031 Ministries', d: 'Ministry website.', u: 'https://godisgracious1031ministriescom.odoo.com/' },
     { t: 'Email the Ministry', d: 'Kingjamesbiblereader.com@outlook.com', u: 'mailto:Kingjamesbiblereader.com@outlook.com' } ] },
 ];
 
 const PREACHERS_L = [
-  { name: 'Robert Breaker', desc: 'KJB missionary evangelist.', links: ['https://www.youtube.com/@Robertbreaker3','https://thecloudchurch.org/'] },
-  { name: 'Robert Potthoff', desc: 'Big Red Preacher — KJB soul winner.', links: ['https://mission1611.com/'] },
-  { name: 'Joseph Gonzalez', desc: 'KJB Elites — faithful preacher.', links: ['https://youtube.com/@josephgonzalez3','https://joyfullychurch.univer.se/'] },
-  { name: 'Ryan Poff', desc: 'Seed of Hope Church — KJB pastor.', links: ['https://www.seedofhopechurch.org/','https://youtube.com/@ryan_poff'] },
-  { name: 'Skyler (AV1611 Ministry)', desc: 'KJB defence and preaching.', links: ['https://youtube.com/@av1611ministries'] },
-  { name: 'Paul Johnson', desc: 'Biblical Salvation — KJB preaching.', links: ['https://youtube.com/@biblicalsalvation'] },
+  { name: 'Robert Breaker', desc: 'KJB missionary evangelist, rightly dividing the word of truth.', links: ['https://www.youtube.com/@Robertbreaker3','https://www.tiktok.com/@robertbreaker','https://thecloudchurch.org/'] },
+  { name: 'Robert Potthoff', desc: 'Big Red Preacher — KJB soul winner.', links: ['https://www.instagram.com/robert.potthoff/','https://www.facebook.com/potthoff87','https://www.instagram.com/big_red_preacher','https://mission1611.com/'] },
+  { name: 'Joseph Gonzalez', desc: 'KJB Elites — faithful preacher of the word.', links: ['https://youtube.com/@josephgonzalez3','https://www.tiktok.com/@joyfullychurch','https://joyfullychurch.univer.se/'] },
+  { name: 'Ryan Poff', desc: 'Seed of Hope Church — KJB pastor and preacher.', links: ['https://www.seedofhopechurch.org/','https://youtube.com/@ryan_poff','https://www.tiktok.com/@ryan_sohc'] },
+  { name: 'Skyler (AV1611 Ministry)', desc: 'AV1611 Ministry — KJB defence and preaching.', links: ['https://www.tiktok.com/@av1611ministries','https://youtube.com/@av1611ministries'] },
+  { name: 'Crown of Thorns', desc: 'KJB preaching ministry on YouTube.', links: ['https://www.youtube.com/@CrownOfThorns'] },
+  { name: 'Paul Johnson', desc: 'Biblical Salvation — KJB preaching and Bible teaching.', links: ['https://www.tiktok.com/@pauljohnson9632','https://youtube.com/@biblicalsalvation'] },
+  { name: 'CPR Missions', desc: 'Church Planting and Revival Missions — soul winning and church planting.', links: ['https://www.youtube.com/channel/UCWBR5DmAi2XPMFRtb-wqHwg','https://www.tiktok.com/@cprmissions','https://www.facebook.com/CPRmission/','https://www.instagram.com/cprmissions/'] },
+  { name: 'James Bray', desc: 'KJB preacher and Bible teacher on YouTube.', links: ['https://youtube.com/@jamesbrayall3'] },
 ];
 
 const ABOUT_FAITH = [
   'I reject Catholicism, Calvinism, Pentecostalism, Church of God, Mormonism, Jehovah\'s Witnesses, etc.',
   'I believe in the blood-stained gospel as the only way to be saved, and I reject "repent of sins to be saved" (ROYS), "confess with your mouth to be saved," Lordship Salvation, infant baptism, baptism regeneration, etc.',
   'To be saved, you must believe that Jesus is God, that He shed His blood on Calvary, died, was buried, and rose again for your justification.',
-  'I believe in OSAS (Once Saved, Always Saved): a believer who has trusted the gospel cannot lose salvation.',
+  'I believe in OSAS (Once Saved, Always Saved): a believer who has trusted the gospel cannot lose salvation, no matter what happens in their life.',
+];
+const ABOUT_KJB = [
+  'Westcott and Hort created the Critical Text, based on manuscripts from the Vatican and Egypt. These manuscripts have hundreds of errors, deletions and additions to the Bible, attacking doctrines such as the Godhead/Trinity and deity of Christ. Their text was used in the Revised Version of 1881.',
+  'The King James Bible is the infallible, perfect Word of God in the English language.',
+  'Translated with the Textus Receptus (Received Text) that the historical church has always used.',
+  'Translated by godly men well versed in the Biblical languages who studied commentaries and foreign translations from an early age.',
+  'The Bible God has used for countless revivals and bringing the gospel to the world. It is mathematically proven to be a miracle.',
+];
+const ABOUT_SATAN = [
+  'Satan is also known as the Devil, Lucifer and the king of Pride. His goal is to steal, kill and deceive the world — through things such as abortion, sodomy, and going after worldly things instead of what truly matters.',
+  'He deceives people that they are without a Saviour, that there is no God, no hell, and no afterlife.',
+  'All people come short of the glory of God and have committed sin.',
+  'The wages of sin is death and the wicked shall be turned into hell.',
+  'Hell is a place of torment day and night. Hell was created for Satan and his angels. Hell will be thrown into the lake of fire at the second death.',
+];
+const ABOUT_SALVATION = [
+  'Jesus Christ is God manifested in the flesh, born of the virgin Mary.',
+  'Jesus Christ lived a perfect life, died on Calvary\'s cross, shed his blood, was buried and rose again on the third day.',
+  'Jesus went to heaven to put his precious blood in the mercy seat so we can have eternal life.',
+  'To be saved: Believe Jesus is God and that he died for your sins, shed his blood, was buried and rose again for your justification.',
+  'Repenting of sins, water baptism, making him Lord or letting him into your heart is not salvation.',
+  'I believe in the Pre-Tribulation Rapture where the church will meet in the clouds with our Saviour before the Antichrist reigns on earth.',
+  'Those in the 7-year tribulation will have to endure to the end, not take the mark, and be martyrs for Christ.',
+  'I believe Jesus will reign in the new heaven and earth after the white throne judgment.',
 ];
 const ABOUT_LINKS = [
   { t: 'God is Gracious 1031 Ministries', s: 'Ministry Website', u: 'https://godisgracious1031ministriescom.odoo.com/' },
-  { t: 'YouTube', s: '@shawnr325av', u: 'https://youtube.com/@shawnr325av' },
+  { t: 'YouTube', s: '@shawnr325av', u: 'https://youtube.com/@shawnr325av?si=zC_gQm4I2S_xj-NS' },
   { t: 'Instagram', s: '@svdbyfaithinhisbloodr325av', u: 'https://www.instagram.com/svdbyfaithinhisbloodr325av' },
   { t: 'Email', s: 'kingjamesbiblereader@outlook.sg', u: 'mailto:kingjamesbiblereader@outlook.sg' },
+  { t: 'Discord', s: 'shawn_svdbyfaithinhisbloodr325av', u: 'https://discord.com/' },
 ];
 
 let bibleData = null;
@@ -394,16 +451,19 @@ Deno.serve(async (req) => {
       r += '<div class="warn" style="background:#fdf8ee;border-color:#e9dcb8;"><p style="font-size:13px;color:#7a5a00;"><b>Note:</b> These resources are for educational purposes only. I may not affirm all doctrinal statements of every resource or ministry linked here. Please use discernment and compare all things to the King James Bible.</p></div>';
       bodyInner = r;
     } else if (tab === 'about') {
+      const ulOf = function (arr) {
+        let s = '';
+        for (let i = 0; i < arr.length; i++) s += '<li>' + esc(arr[i]) + '</li>';
+        return '<ul class="about-list">' + s + '</ul>';
+      };
       let a = '<div class="sec-title">About</div>';
       a += '<div class="box"><h3>About the Ministry</h3>' +
-        '<p style="font-size:14px;">I\'m Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. I am a dispensational salvationist, rightly dividing the word of truth.</p>';
-      let af = '';
-      for (let i = 0; i < ABOUT_FAITH.length; i++) af += '<li>' + esc(ABOUT_FAITH[i]) + '</li>';
-      a += '<ul class="about-list">' + af + '</ul></div>';
-      a += '<div class="box"><h3>The King James Bible</h3>' +
-        '<p style="font-size:14px;">Translated with the Textus Receptus (Received Text) that the historical church has always used, by godly men well versed in the Biblical languages. It is the infallible, perfect Word of God in the English language &mdash; the Bible God has used for countless revivals and bringing the gospel to the world.</p></div>';
-      a += '<div class="box"><h3>Salvation &amp; Pre-Tribulation Rapture</h3>' +
-        '<p style="font-size:14px;">Jesus Christ is God manifested in the flesh, born of the virgin Mary. He lived a perfect life, died on Calvary\'s cross, shed his blood, was buried and rose again on the third day. To be saved: believe Jesus is God and that he died for your sins, shed his blood, was buried and rose again for your justification. Repenting of sins, water baptism, or making him Lord is not salvation. I believe in the Pre-Tribulation Rapture.</p></div>';
+        '<p style="font-size:14px;">I\'m Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. I am a dispensational salvationist, rightly dividing the word of truth.</p>' +
+        ulOf(ABOUT_FAITH) + '</div>';
+      a += '<div class="sec-title">Statement of Faith</div>';
+      a += '<div class="box"><h3>The King James Bible</h3>' + ulOf(ABOUT_KJB) + '</div>';
+      a += '<div class="box"><h3>Satan &amp; Hell</h3>' + ulOf(ABOUT_SATAN) + '</div>';
+      a += '<div class="box"><h3>Salvation &amp; Pre-Tribulation Rapture</h3>' + ulOf(ABOUT_SALVATION) + '</div>';
       let al = '';
       for (let i = 0; i < ABOUT_LINKS.length; i++) {
         const l = ABOUT_LINKS[i];
