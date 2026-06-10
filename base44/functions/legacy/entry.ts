@@ -45,7 +45,6 @@ function parseBibleServerSide(text) {
   let currentBook = null, currentChap = null, verseNum = 0;
   let titleBuffer = [];
   let blanksSinceCaps = 0;
-  const matchCount = {};
 
   const ital = (s) => s.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
 
