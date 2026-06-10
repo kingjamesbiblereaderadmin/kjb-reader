@@ -439,7 +439,6 @@ Deno.serve(async (req) => {
         '<p style="margin-bottom:12px;">A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life. God\'s gift of eternal life is just that &mdash; eternal.</p>' +
         '<blockquote><p>"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise."</p><span class="ref">&mdash; Ephesians 1:13</span></blockquote></div>' +
         '<h2 style="margin:32px 0 16px;text-align:center;">Watch the Gospel</h2>' +
-        '<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;margin-bottom:16px;background:#000;border-radius:8px;"><iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube-nocookie.com/embed/znP9Dr6tOzU?rel=0&modestbranding=1&playsinline=1" title="THE GOSPEL THAT SAVES" frameborder="0" allowfullscreen></iframe></div>' +
         '<p style="margin-bottom:8px;"><a href="https://www.youtube.com/watch?v=znP9Dr6tOzU" target="_blank">Watch "THE GOSPEL THAT SAVES" by Robert Breaker on YouTube</a></p>' +
         '<p><a href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq" target="_blank">Watch Full Gospel Playlist on YouTube</a></p>' +
         '</div>';
