@@ -6,6 +6,9 @@ const TEXT_URL = "https://media.base44.com/files/public/6a05d76723afe58d80c589e8
 
 const BOOK_ORDER = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
 
+// Maps every ALL-CAPS token or pair that appears in the PCE title headers to a book name.
+// Covers single-line titles ("RUTH", "JOB") and the last meaningful fragment of multi-line
+// titles ("GENESIS" from "THE FIRST BOOK OF MOSES, / CALLED / GENESIS.").
 const TITLE_TO_BOOK = {
   "GENESIS":"Genesis","EXODUS":"Exodus","LEVITICUS":"Leviticus","NUMBERS":"Numbers",
   "DEUTERONOMY":"Deuteronomy","JOSHUA":"Joshua","JUDGES":"Judges","RUTH":"Ruth",
@@ -24,26 +27,43 @@ const TITLE_TO_BOOK = {
   "1 THESSALONIANS":"1 Thessalonians","2 THESSALONIANS":"2 Thessalonians",
   "1 TIMOTHY":"1 Timothy","2 TIMOTHY":"2 Timothy","TITUS":"Titus","PHILEMON":"Philemon",
   "HEBREWS":"Hebrews","JAMES":"James","1 PETER":"1 Peter","2 PETER":"2 Peter",
-  "1 JOHN":"1 John","2 JOHN":"2 John","3 JOHN":"3 John","JUDE":"Jude","REVELATION":"Revelation"
+  "1 JOHN":"1 John","2 JOHN":"2 John","3 JOHN":"3 John","JUDE":"Jude","REVELATION":"Revelation",
+  // PCE uses "THE ACTS" for Acts
+  "THE ACTS":"Acts",
+  // Song of Solomon subtitle fragments
+  "SONG OF SOLOMON":"Song of Solomon",
+  // NT epistles have long sub-titles; match their short canonical names
+  "THE GOSPEL ACCORDING TO ST. MATTHEW":"Matthew",
+  "THE GOSPEL ACCORDING TO ST. MARK":"Mark",
+  "THE GOSPEL ACCORDING TO ST. LUKE":"Luke",
+  "THE GOSPEL ACCORDING TO ST. JOHN":"John",
 };
 
 function parseBibleServerSide(text) {
   const lines = text.split(/\r?\n/);
   const bibleData = {};
   let currentBook = null, currentChap = null, verseNum = 0;
-  // titleBuffer accumulates ALL-CAPS lines within a title block (may span blank lines)
   let titleBuffer = [];
-  // How many consecutive blank lines seen since last all-caps line
   let blanksSinceCaps = 0;
+  // Log every time we see a potential title area to debug
+  let lastTitleAttempt = "";
 
   const ital = (s) => s.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
 
   const tryMatchTitle = () => {
-    // Try every single fragment and every pair of adjacent fragments
+    // Build a flat list of all words from all title fragments (each fragment may be multi-word)
+    const allWords = [];
     for (let t = 0; t < titleBuffer.length; t++) {
-      if (TITLE_TO_BOOK[titleBuffer[t]]) return TITLE_TO_BOOK[titleBuffer[t]];
-      if (t + 1 < titleBuffer.length && TITLE_TO_BOOK[titleBuffer[t] + " " + titleBuffer[t+1]])
-        return TITLE_TO_BOOK[titleBuffer[t] + " " + titleBuffer[t+1]];
+      const words = titleBuffer[t].split(/\s+/);
+      for (let w = 0; w < words.length; w++) allWords.push(words[w]);
+    }
+    // Check every single word and every pair/triple of consecutive words
+    for (let w = 0; w < allWords.length; w++) {
+      if (TITLE_TO_BOOK[allWords[w]]) return TITLE_TO_BOOK[allWords[w]];
+      if (w + 1 < allWords.length && TITLE_TO_BOOK[allWords[w] + " " + allWords[w+1]])
+        return TITLE_TO_BOOK[allWords[w] + " " + allWords[w+1]];
+      if (w + 2 < allWords.length && TITLE_TO_BOOK[allWords[w] + " " + allWords[w+1] + " " + allWords[w+2]])
+        return TITLE_TO_BOOK[allWords[w] + " " + allWords[w+1] + " " + allWords[w+2]];
     }
     return null;
   };
@@ -72,7 +92,9 @@ function parseBibleServerSide(text) {
 
     // All-caps title line (book headers, sub-titles like "CALLED", "THE EPISTLE OF PAUL TO THE", etc.)
     if (/^[A-Z][A-Z ,.\-0-9']+$/.test(line)) {
-      titleBuffer.push(line.replace(/[.,]$/, "").trim());
+      const frag = line.replace(/[.,]$/, "").trim();
+      titleBuffer.push(frag);
+      lastTitleAttempt = titleBuffer.join(" | ");
       const found = tryMatchTitle();
       if (found) {
         currentBook = found;
@@ -85,6 +107,9 @@ function parseBibleServerSide(text) {
     }
 
     // Any non-caps, non-blank line resets the title buffer
+    if (titleBuffer.length > 0) {
+      console.log("[legacy] Unmatched title buffer before reset:", JSON.stringify(titleBuffer));
+    }
     titleBuffer = [];
 
     if (currentBook && currentChap) {
