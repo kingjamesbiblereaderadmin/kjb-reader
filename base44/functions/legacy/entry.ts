@@ -655,11 +655,9 @@ Deno.serve(async (req) => {
       'function next(i){' +
         'setPct(Math.round(i*100/TOTAL));' +
         'if(i>=TOTAL){setPct(100);if(!revealed){revealed=true;reveal();}return;}' +
-        // Only yield to the browser (so the progress bar repaints) when the
-        // loader is actually VISIBLE — i.e. real downloading. When chunks are
-        // cached (offline / repeat visits), the loader stays hidden and we
-        // recurse straight through all 66 books with no delay, so the page
-        // appears INSTANTLY with no download screen.
+        // Yield to the browser (so the progress bar repaints) when the loader
+        // is visible. When chunks are cached we recurse straight through with
+        // no delay so the page appears quickly.
         'if(loaderShown){setTimeout(function(){load(i,0);},0);}else{load(i,0);}' +
       '}' +
       'var warn=document.getElementById("kjb-warn");' +
@@ -694,16 +692,14 @@ Deno.serve(async (req) => {
         '};' +
         'try{xhr.send(null);}catch(e){clearTimeout(killer);fail();}' +
       '}' +
-      // Keep the loader HIDDEN at first. Only reveal it if loading is still
-      // going after 600ms (i.e. genuinely downloading over the network). When
-      // chunks are cached, everything finishes well under 600ms and the loader
-      // never shows — the page just appears instantly.
-      // Never flash the download screen when OFFLINE — chunks are served from
-      // cache so the page assembles without any network, and a download UI
-      // would be misleading. We also bail if the browser reports offline.
+      // Show the loader whenever assembly isn\'t instant — both online
+      // (downloading) and offline (reassembling cached chunks). It reveals
+      // after a short delay so a truly instant cache hit skips it, but offline
+      // loads that take a moment now show a proper loading state instead of a
+      // blank screen.
       'function isOffline(){try{return navigator&&navigator.onLine===false;}catch(e){return false;}}' +
-      'function showLoader(){if(loaderShown)return;if(isOffline())return;loaderShown=true;var L=document.getElementById("kjb-loader");if(L){L.style.display="block";}}' +
-      'function start(){if(!isOffline()){setTimeout(showLoader,600);}setPct(0);next(0);}' +
+      'function showLoader(){if(loaderShown||revealed)return;loaderShown=true;var L=document.getElementById("kjb-loader");if(L){L.style.display="block";}var p=document.getElementById("kjb-loadtext");if(p&&isOffline()){p.innerHTML="Loading the Bible&hellip;";}}' +
+      'function start(){setTimeout(showLoader,250);setPct(0);next(0);}' +
       'if(window.addEventListener){window.addEventListener("load",start,false);}else if(window.attachEvent){window.attachEvent("onload",start);}else{window.onload=start;}' +
     '})();</script>';
 
