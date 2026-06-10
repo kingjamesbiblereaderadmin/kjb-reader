@@ -371,6 +371,10 @@ Deno.serve(async (req) => {
   <p>Legacy Edition</p>
 </div>
 
+<div style="background:#fff3cd;border:1px solid #ffc107;padding:12px;text-align:center;font-family:Arial,sans-serif;font-size:13px;color:#856404;">
+  <strong>⚠️ Warning:</strong> This legacy version is for old devices and may have issues or bugs. Please report any problems to <a href="mailto:kingjamesbiblereader@outlook.sg" style="color:#856404;text-decoration:underline;">kingjamesbiblereader@outlook.sg</a>
+</div>
+
 <div class="tabs">
   <button class="tab-btn active" onclick="switchTab('bible')">Bible</button>
   <button class="tab-btn" onclick="switchTab('gospel')">Gospel</button>
