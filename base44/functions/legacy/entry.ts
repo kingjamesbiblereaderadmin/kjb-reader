@@ -298,12 +298,12 @@ Deno.serve(async (req) => {
 '.chead { text-align:center; margin:20px 0 16px; }' +
 '.cbook { font-size:22px; font-weight:bold; color:#2d2a6e; display:block; }' +
 '.cnum { font-size:13px; color:#666; display:block; margin-top:4px; }' +
-'.verse { display:block; margin-bottom:8px; clear:both; }' +
-'.vn { font-weight:bold; color:#2d2a6e; font-size:11px; vertical-align:super; margin-right:3px; }' +
+'.verse { display:block; margin-bottom:10px; line-height:1.5; }' +
+'.vn { font-weight:bold; color:#2d2a6e; font-size:11px; margin-right:4px; }' +
 '.subscript { text-align:center; color:#555; font-size:14px; margin:0 0 16px; }' +
 '.colophon { text-align:center; color:#555; font-size:14px; margin:18px 0 0; padding-top:12px; border-top:1px solid #e0e0ec; }' +
-'.pil { color:#888; display:block; text-align:center; }' +
-'.pil-line { display:block; margin:14px 0 8px 0; text-align:center; }' +
+'.pil { color:#888; display:block; }' +
+'.pil-line { display:block; margin:12px 0 6px 0; }' +
 'em { font-style:italic; }' +
 '.nav { text-align:center; margin:20px 0; }' +
 '.nav a { display:inline-block; padding:10px 18px; margin:0 4px; background:#2d2a6e; color:#fff; text-decoration:none; font-size:14px; font-family:Arial,sans-serif; }' +
@@ -397,8 +397,10 @@ Deno.serve(async (req) => {
       } else {
         for (let i = 0; i < verses.length; i++) {
           const r = renderVerse(verses[i].text);
-          const pil = r.leadingPilcrow ? '<div class="pil-line"><span class="pil">&para;</span></div>' : '';
-          content += pil + '<div class="verse"><span class="vn">' + verses[i].verse + '</span> ' + r.html + '</div>';
+          if (r.leadingPilcrow) {
+            content += '<div class="pil-line"><span class="pil">&para;</span></div>';
+          }
+          content += '<div class="verse"><span class="vn">' + verses[i].verse + '</span>' + r.html + '</div>';
         }
       }
 
