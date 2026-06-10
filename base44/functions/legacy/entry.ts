@@ -724,6 +724,7 @@ Deno.serve(async (req) => {
     const upgradeWarn = '<div style="max-width:420px;margin:18px auto 0;padding:10px 14px;border:1px solid ' + (isDark ? '#3a3d4a' : '#c9c7e0') + ';border-radius:8px;background:' + (isDark ? '#1a1a22' : '#f3f2fb') + ';font-size:12px;line-height:1.5;color:' + (isDark ? '#c0c0c8' : '#555') + ';text-align:center;">&#9888; Using an old or unsupported device or browser? Some features may not work &mdash; please upgrade to the latest browser or device for the best experience.</div>';
     const loaderHtml =
       '<div id="kjb-loader"><div class="kjb-center">' +
+        '<img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" style="width:96px;height:96px;object-fit:contain;margin-bottom:20px;" />' +
         '<h2>KJB Reader (Legacy)</h2>' +
         '<p>Downloading the Bible&hellip;</p>' +
         '<div id="kjb-progress"><div id="kjb-bar"></div></div>' +
