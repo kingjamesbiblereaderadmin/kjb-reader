@@ -48,6 +48,63 @@ const COLOPHONS = {
   'Romans:16':'Written to the Romans from Corinthus, [and sent] by Phebe servant of the church at Cenchrea.','1 Corinthians:16':'The first [epistle] to the Corinthians was written from Philippi by Stephanas, and Fortunatus, and Achaicus, and Timotheus.','2 Corinthians:13':'The second [epistle] to the Corinthians was written from Philippi, [a city] of Macedonia, by Titus and Lucas.','Galatians:6':'Unto the Galatians written from Rome.','Ephesians:6':'Written from Rome unto the Ephesians by Tychicus.','Philippians:4':'It was written to the Philippians from Rome by Epaphroditus.','Colossians:4':'Written from Rome to the Colossians by Tychicus and Onesimus.','1 Thessalonians:5':'The first [epistle] unto the Thessalonians was written from Athens.','2 Thessalonians:3':'The second [epistle] to the Thessalonians was written from Athens.','1 Timothy:6':'The first to Timothy was written from Laodicea, which is the chiefest city of Phrygia Pacatiana.','2 Timothy:4':'The second [epistle] unto Timotheus, ordained the first bishop of the church of the Ephesians, was written from Rome, when Paul was brought before Nero the second time.','Titus:3':'It was written to Titus, ordained the first bishop of the church of the Cretians, from Nicopolis of Macedonia.','Philemon:1':'Written from Rome to Philemon, by Onesimus a servant.','Hebrews:13':'Written to the Hebrews from Italy by Timothy.'
 };
 
+// ── Content for Gospel / Resources / About tabs (mirrors the non-legacy pages) ──
+const GOSPEL_STEPS = [
+  { n: '1', title: 'Believe you are a sinner that deserves hell', quotes: [
+    '"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin." &mdash; Romans 3:20',
+    '"The wicked shall be turned into hell, and all the nations that forget God." &mdash; Psalm 9:17' ] },
+  { n: '2', title: 'Believe that Jesus is God manifested in the flesh', quotes: [
+    '"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory." &mdash; 1 Timothy 3:16' ] },
+  { n: '3', title: 'Believe he died, shed his blood, was buried and rose again', quotes: [
+    '"Moreover, brethren, I declare unto you the gospel which I preached unto you... how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." &mdash; 1 Corinthians 15:1-4',
+    '"Whom God hath set forth to be a propitiation through faith in his blood, to declare his righteousness for the remission of sins that are past, through the forbearance of God;" &mdash; Romans 3:25' ] },
+];
+const GOSPEL_NOT = ['Repenting of sins','Making Jesus Lord','Being a member of a church','Tithing','Being baptised (water)','Saying a sinner\'s prayer','Confessing with your mouth','Lordship Salvation'];
+
+const RES_GROUPS = [
+  { cat: 'Free Online Bible College', items: [
+    { t: 'KJBI.org', d: 'King James Bible Institute — a free online Bible college.', u: 'https://kjbi.org' } ] },
+  { cat: 'How to Read the Bible', items: [
+    { t: 'AV Publications', d: 'Books and resources for King James Bible believers.', u: 'https://avpublications.com/' } ] },
+  { cat: 'KJB Defence', items: [
+    { t: 'Pure Cambridge Edition (Free Download)', d: 'The definitive electronic text of the PCE — PDF, ePub, TXT.', u: 'https://www.bibleprotector.com' },
+    { t: 'The Word of God Will Keep Its Infallibility', d: 'Historical book on Archive.org.', u: 'https://archive.org/details/wordgodwillkeepi0000faus' },
+    { t: 'KJV Compare', d: 'Hundreds of changes made in modern versions, verse-by-verse.', u: 'https://kjvcompare.com/' },
+    { t: 'Scion of Zion — KJB Comparisons', d: 'Detailed comparisons exposing corruptions and omissions.', u: 'https://www.scionofzion.com/kjcomparisons.html' },
+    { t: '1 John 5:7 Defence', d: 'Defending the Johannine Comma.', u: 'https://www.scionofzion.com/1_john_5_7.htm' } ] },
+  { cat: 'Why Modern Versions Are Corrupt', items: [
+    { t: 'Theological Heresies of Westcott & Hort (PDF)', d: 'The Critical Text based on Vatican/Egyptian manuscripts.', u: 'https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf' },
+    { t: 'NKJV Exposed', d: 'The NKJV is NOT the same as the King James Bible.', u: 'https://www.scionofzion.com/nkjv.htm' },
+    { t: 'A Lamp in the Dark — Documentary', d: 'The untold history of the Bible.', u: 'https://www.youtube.com/watch?v=RmXBj2N9fhY' },
+    { t: 'AV1611 Articles', d: 'Articles defending the Authorised Version.', u: 'https://www.av1611.org/articles' },
+    { t: 'Brandplucked — KJB Articles', d: 'Extensive collection defending the KJB.', u: 'https://brandplucked.com/kjbarticles.htm' } ] },
+  { cat: 'Ministry Links', items: [
+    { t: 'God is Gracious 1031 Ministries', d: 'Ministry website.', u: 'https://godisgracious1031ministriescom.odoo.com/' },
+    { t: 'Email the Ministry', d: 'Kingjamesbiblereader.com@outlook.com', u: 'mailto:Kingjamesbiblereader.com@outlook.com' } ] },
+];
+
+const PREACHERS_L = [
+  { name: 'Robert Breaker', desc: 'KJB missionary evangelist.', links: ['https://www.youtube.com/@Robertbreaker3','https://thecloudchurch.org/'] },
+  { name: 'Robert Potthoff', desc: 'Big Red Preacher — KJB soul winner.', links: ['https://mission1611.com/'] },
+  { name: 'Joseph Gonzalez', desc: 'KJB Elites — faithful preacher.', links: ['https://youtube.com/@josephgonzalez3','https://joyfullychurch.univer.se/'] },
+  { name: 'Ryan Poff', desc: 'Seed of Hope Church — KJB pastor.', links: ['https://www.seedofhopechurch.org/','https://youtube.com/@ryan_poff'] },
+  { name: 'Skyler (AV1611 Ministry)', desc: 'KJB defence and preaching.', links: ['https://youtube.com/@av1611ministries'] },
+  { name: 'Paul Johnson', desc: 'Biblical Salvation — KJB preaching.', links: ['https://youtube.com/@biblicalsalvation'] },
+];
+
+const ABOUT_FAITH = [
+  'I reject Catholicism, Calvinism, Pentecostalism, Church of God, Mormonism, Jehovah\'s Witnesses, etc.',
+  'I believe in the blood-stained gospel as the only way to be saved, and I reject "repent of sins to be saved" (ROYS), "confess with your mouth to be saved," Lordship Salvation, infant baptism, baptism regeneration, etc.',
+  'To be saved, you must believe that Jesus is God, that He shed His blood on Calvary, died, was buried, and rose again for your justification.',
+  'I believe in OSAS (Once Saved, Always Saved): a believer who has trusted the gospel cannot lose salvation.',
+];
+const ABOUT_LINKS = [
+  { t: 'God is Gracious 1031 Ministries', s: 'Ministry Website', u: 'https://godisgracious1031ministriescom.odoo.com/' },
+  { t: 'YouTube', s: '@shawnr325av', u: 'https://youtube.com/@shawnr325av' },
+  { t: 'Instagram', s: '@svdbyfaithinhisbloodr325av', u: 'https://www.instagram.com/svdbyfaithinhisbloodr325av' },
+  { t: 'Email', s: 'kingjamesbiblereader@outlook.sg', u: 'mailto:kingjamesbiblereader@outlook.sg' },
+];
+
 let bibleData = null;
 
 async function loadBible() {
@@ -191,7 +248,22 @@ Deno.serve(async (req) => {
 '.nav a { display:inline-block; padding:10px 18px; margin:0 4px; background:#2d2a6e; color:#fff; text-decoration:none; font-size:14px; font-family:Arial,sans-serif; }' +
 '.box h3 { color:#2d2a6e; margin-bottom:10px; font-size:16px; }' +
 '.box blockquote { background:#f7f7fb; padding:12px; margin:8px 0; border-left:3px solid #2d2a6e; font-style:italic; }' +
-'.box a { color:#2d2a6e; }';
+'.box a { color:#2d2a6e; }' +
+'.sec-title { font-size:20px; color:#2d2a6e; font-weight:bold; margin:24px 0 10px; text-align:center; }' +
+'.sec-sub { font-size:14px; color:#666; text-align:center; margin-bottom:16px; }' +
+'.step { background:#fff; border:1px solid #e0e0ec; border-left:4px solid #2d2a6e; padding:14px 16px; margin-bottom:14px; }' +
+'.step h4 { color:#2d2a6e; font-size:15px; margin-bottom:8px; font-family:Arial,sans-serif; }' +
+'.step .ref { display:block; margin-top:8px; font-size:13px; color:#444; font-family:Arial,sans-serif; }' +
+'.warn { background:#fdf0f0; border:1px solid #e9c4c4; padding:14px 16px; margin-bottom:14px; }' +
+'.warn h4 { color:#b02525; font-size:15px; margin-bottom:8px; font-family:Arial,sans-serif; }' +
+'.warn ul { margin:6px 0 0 18px; }' +
+'.warn li { font-size:14px; margin-bottom:3px; }' +
+'.lnk { display:block; padding:10px 12px; margin-bottom:8px; background:#f7f7fb; border:1px solid #e0e0ec; text-decoration:none; color:#2d2a6e; font-size:14px; font-family:Arial,sans-serif; }' +
+'.lnk b { display:block; color:#1a1a1a; margin-bottom:2px; }' +
+'.lnk span { display:block; color:#666; font-size:12px; }' +
+'.res-cat { font-size:16px; color:#2d2a6e; font-weight:bold; margin:18px 0 8px; font-family:Arial,sans-serif; border-bottom:2px solid #e0e0ec; padding-bottom:5px; }' +
+'.about-list { margin:8px 0 0 18px; }' +
+'.about-list li { font-size:14px; margin-bottom:8px; line-height:1.5; }';
 
     const tabLink = function (id, label) {
       return '<a href="' + esc(basePath) + '?tab=' + id + (id === 'bible' ? '&book=' + encodeURIComponent(book) + '&chapter=' + chapter : '') + idSuffix + '"' + (tab === id ? ' class="on"' : '') + '>' + label + '</a>';
@@ -247,20 +319,61 @@ Deno.serve(async (req) => {
 
       bodyInner = form + content + navLinks;
     } else if (tab === 'gospel') {
-      bodyInner =
-        '<div class="box"><h3>1. Believe you are a sinner that deserves hell</h3><blockquote>"...for by the law is the knowledge of sin." &mdash; Romans 3:20</blockquote></div>' +
-        '<div class="box"><h3>2. Believe Jesus is God manifest in the flesh</h3><blockquote>"...God was manifest in the flesh..." &mdash; 1 Timothy 3:16</blockquote></div>' +
-        '<div class="box"><h3>3. Believe he died, was buried and rose again</h3><blockquote>"...how that Christ died for our sins... and that he rose again the third day..." &mdash; 1 Corinthians 15:1-4</blockquote></div>';
+      let g = '<div class="sec-title">How to be Saved</div>' +
+        '<div class="sec-sub">The Gospel is the glad tidings of the Lord Jesus Christ: Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.</div>';
+      for (let i = 0; i < GOSPEL_STEPS.length; i++) {
+        const s = GOSPEL_STEPS[i];
+        g += '<div class="step"><h4>' + s.n + '. ' + esc(s.title) + '</h4>';
+        for (let j = 0; j < s.quotes.length; j++) g += '<blockquote>' + s.quotes[j] + '</blockquote>';
+        g += '</div>';
+      }
+      let notList = '';
+      for (let i = 0; i < GOSPEL_NOT.length; i++) notList += '<li>' + esc(GOSPEL_NOT[i]) + '</li>';
+      g += '<div class="warn"><h4>These do NOT make you a Christian:</h4><ul>' + notList + '</ul></div>';
+      g += '<div class="step"><h4>Once Saved, Always Saved</h4>' +
+        '<blockquote>"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." &mdash; Ephesians 1:13</blockquote></div>';
+      g += '<div class="box"><h3>Watch the Gospel</h3>' +
+        '<p><a href="https://www.youtube.com/watch?v=znP9Dr6tOzU">&#9654; THE GOSPEL THAT SAVES &mdash; Robert Breaker</a></p>' +
+        '<p style="margin-top:8px;"><a href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq">&#9654; Full Gospel Videos Playlist</a></p></div>';
+      bodyInner = g;
     } else if (tab === 'resources') {
-      bodyInner =
-        '<div class="box"><h3>Resources</h3>' +
-        '<p><a href="https://www.bibleprotector.com">Pure Cambridge Edition &mdash; bibleprotector.com</a></p>' +
-        '<p style="margin-top:8px;"><a href="https://kjvcompare.com/">KJV Compare &mdash; Modern Version Critiques</a></p></div>';
+      let r = '<div class="sec-title">Resources</div>' +
+        '<div class="sec-sub">KJB defence materials, studies on modern version corruption, and free Bible study resources.</div>';
+      for (let i = 0; i < RES_GROUPS.length; i++) {
+        const grp = RES_GROUPS[i];
+        r += '<div class="res-cat">' + esc(grp.cat) + '</div>';
+        for (let j = 0; j < grp.items.length; j++) {
+          const it = grp.items[j];
+          r += '<a class="lnk" href="' + esc(it.u) + '"><b>' + esc(it.t) + '</b><span>' + esc(it.d) + '</span></a>';
+        }
+      }
+      r += '<div class="res-cat">Verified KJB Preachers</div>';
+      for (let i = 0; i < PREACHERS_L.length; i++) {
+        const p = PREACHERS_L[i];
+        let pl = '';
+        for (let j = 0; j < p.links.length; j++) pl += (j ? ' &middot; ' : '') + '<a href="' + esc(p.links[j]) + '">link</a>';
+        r += '<div class="step"><h4>' + esc(p.name) + '</h4><p style="font-size:14px;color:#444;">' + esc(p.desc) + '</p><span class="ref">' + pl + '</span></div>';
+      }
+      r += '<div class="warn" style="background:#fdf8ee;border-color:#e9dcb8;"><p style="font-size:13px;color:#7a5a00;"><b>Note:</b> These resources are for educational purposes only. I may not affirm all doctrinal statements of every resource or ministry linked here. Please use discernment and compare all things to the King James Bible.</p></div>';
+      bodyInner = r;
     } else if (tab === 'about') {
-      bodyInner =
-        '<div class="box"><p>The King James Bible is the pure, infallible, perfect Word of God in the English language.</p>' +
-        '<p style="margin-top:10px;"><a href="https://youtube.com/@shawnr325av">YouTube: @shawnr325av</a></p>' +
-        '<p style="margin-top:6px;"><a href="mailto:kingjamesbiblereader@outlook.sg">kingjamesbiblereader@outlook.sg</a></p></div>';
+      let a = '<div class="sec-title">About</div>';
+      a += '<div class="box"><h3>About the Ministry</h3>' +
+        '<p style="font-size:14px;">I\'m Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. I am a dispensational salvationist, rightly dividing the word of truth.</p>';
+      let af = '';
+      for (let i = 0; i < ABOUT_FAITH.length; i++) af += '<li>' + esc(ABOUT_FAITH[i]) + '</li>';
+      a += '<ul class="about-list">' + af + '</ul></div>';
+      a += '<div class="box"><h3>The King James Bible</h3>' +
+        '<p style="font-size:14px;">Translated with the Textus Receptus (Received Text) that the historical church has always used, by godly men well versed in the Biblical languages. It is the infallible, perfect Word of God in the English language &mdash; the Bible God has used for countless revivals and bringing the gospel to the world.</p></div>';
+      a += '<div class="box"><h3>Salvation &amp; Pre-Tribulation Rapture</h3>' +
+        '<p style="font-size:14px;">Jesus Christ is God manifested in the flesh, born of the virgin Mary. He lived a perfect life, died on Calvary\'s cross, shed his blood, was buried and rose again on the third day. To be saved: believe Jesus is God and that he died for your sins, shed his blood, was buried and rose again for your justification. Repenting of sins, water baptism, or making him Lord is not salvation. I believe in the Pre-Tribulation Rapture.</p></div>';
+      let al = '';
+      for (let i = 0; i < ABOUT_LINKS.length; i++) {
+        const l = ABOUT_LINKS[i];
+        al += '<a class="lnk" href="' + esc(l.u) + '"><b>' + esc(l.t) + '</b><span>' + esc(l.s) + '</span></a>';
+      }
+      a += '<div class="box"><h3>Links &amp; Contact</h3>' + al + '</div>';
+      bodyInner = a;
     } else if (tab === 'debug') {
       const ua = req.headers.get('user-agent') || 'unknown';
       bodyInner =
