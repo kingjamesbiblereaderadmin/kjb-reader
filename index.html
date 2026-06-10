@@ -43,19 +43,28 @@
             // Redirect IE / very old browsers STRAIGHT to the server-rendered
             // Full Bible function (no React involved — IE can't run the SPA,
             // and the /legacy route is a React page). Works on every host.
-            var appId = null;
-            var appIdx = qs.indexOf('app_id=');
-            if (appIdx !== -1) {
-              var appPart = qs.substring(appIdx + 7);
-              var ampIdx = appPart.indexOf('&');
-              appId = ampIdx !== -1 ? appPart.substring(0, ampIdx) : appPart;
+            // On a custom domain the function is reachable at the origin path
+            // /functions/legacy; on base44 hosting it needs the app_id path.
+            var host = window.location.hostname || '';
+            var isCustom = host.indexOf('base44.app') === -1 && host.indexOf('localhost') === -1;
+            var legacyUrl;
+            if (isCustom) {
+              legacyUrl = window.location.origin + '/functions/legacy';
+            } else {
+              var appId = null;
+              var appIdx = qs.indexOf('app_id=');
+              if (appIdx !== -1) {
+                var appPart = qs.substring(appIdx + 7);
+                var ampIdx = appPart.indexOf('&');
+                appId = ampIdx !== -1 ? appPart.substring(0, ampIdx) : appPart;
+              }
+              if (!appId) {
+                try { appId = localStorage.getItem('base44_app_id'); } catch (e) {}
+              }
+              legacyUrl = appId
+                ? '/api/apps/' + appId + '/functions/legacy'
+                : '/functions/legacy';
             }
-            if (!appId) {
-              try { appId = localStorage.getItem('base44_app_id'); } catch (e) {}
-            }
-            var legacyUrl = appId
-              ? '/api/apps/' + appId + '/functions/legacy'
-              : '/functions/legacy';
             // Force immediate redirect before any rendering
             window.location.replace(legacyUrl);
           }
