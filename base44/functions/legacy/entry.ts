@@ -175,23 +175,12 @@ function chapterOptions(book, selected) {
   return h;
 }
 
-// Fallback daily verse based on date (deterministic)
-function getFallbackDailyVerse() {
-  const d = new Date();
-  const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
-  const BOOK_ORDER = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
-  const CHAPTER_COUNTS = {Genesis:50,Exodus:40,Leviticus:27,Numbers:36,Deuteronomy:34,Joshua:24,Judges:21,Ruth:4,"1 Samuel":31,"2 Samuel":24,"1 Kings":22,"2 Kings":25,"1 Chronicles":29,"2 Chronicles":36,Ezra:10,Nehemiah:13,Esther:10,Job:42,Psalms:150,Proverbs:31,Ecclesiastes:12,"Song of Solomon":8,Isaiah:66,Jeremiah:52,Lamentations:5,Ezekiel:48,Daniel:12,Hosea:14,Joel:3,Amos:9,Obadiah:1,Jonah:4,Micah:7,Nahum:3,Habakkuk:3,Zephaniah:3,Haggai:2,Zechariah:14,Malachi:4,Matthew:28,Mark:16,Luke:24,John:21,Acts:28,Romans:16,"1 Corinthians":16,"2 Corinthians":13,Galatians:6,Ephesians:6,Philippians:4,Colossians:4,"1 Thessalonians":5,"2 Thessalonians":3,"1 Timothy":6,"2 Timothy":4,Titus:3,Philemon:1,Hebrews:13,James:5,"1 Peter":5,"2 Peter":3,"1 John":5,"2 John":1,"3 John":1,Jude:1,Revelation:22};
-  const bookName = BOOK_ORDER[seed % BOOK_ORDER.length];
-  const chapterNum = (seed % CHAPTER_COUNTS[bookName]) + 1;
-  const verseNum = (seed % 30) + 1;
-  return { text: "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.", ref: `${bookName} ${chapterNum}:${verseNum}` };
-}
-
 // Fetch daily verse from bibleApi function
 async function fetchDailyVerse() {
   try {
     const d = new Date();
     const clientDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    console.log('[Legacy] Fetching daily verse for:', clientDate);
     const appUrl = new URL('https://kingjamesbiblereader.com');
     const res = await fetch(appUrl.origin + '/api/function/bibleApi', {
       method: 'POST',
@@ -200,20 +189,20 @@ async function fetchDailyVerse() {
       timeout: 3000
     });
     if (!res.ok) {
-      console.error('Daily verse fetch failed:', res.status);
-      return getFallbackDailyVerse();
+      console.error('[Legacy] Daily verse fetch failed:', res.status);
+      return null;
     }
     const data = await res.json();
     console.log('[Legacy] Daily verse API response:', JSON.stringify(data));
     if (!data.verse || !data.verse.text || !data.verse.ref) {
-      console.log('[Legacy] Invalid verse data, using fallback');
-      return getFallbackDailyVerse();
+      console.log('[Legacy] Invalid verse data from API');
+      return null;
     }
     console.log('[Legacy] Using verse:', data.verse.ref);
     return data.verse;
   } catch (e) {
     console.error('[Legacy] Daily verse fetch error:', e);
-    return getFallbackDailyVerse();
+    return null;
   }
 }
 
@@ -326,7 +315,7 @@ Deno.serve(async (req) => {
       let dv = '';
       if (showDailyVerse) {
         const dailyVerse = await fetchDailyVerse();
-        if (dailyVerse) {
+        if (dailyVerse && dailyVerse.text && dailyVerse.ref) {
           dv = '<div class="box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; margin-bottom:20px; border:none; box-shadow:0 4px 12px rgba(102,126,234,0.3);">' +
             '<h3 style="color:#fff; margin-bottom:8px; font-size:13px; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Verse of the Day</h3>' +
             '<p style="font-size:15px; line-height:1.7; margin-bottom:12px; font-style:italic; font-weight:400;">"' + esc(dailyVerse.text) + '"</p>' +
@@ -399,7 +388,7 @@ Deno.serve(async (req) => {
       let dv = '';
       if (showDailyVerse) {
         const dailyVerse = await fetchDailyVerse();
-        if (dailyVerse) {
+        if (dailyVerse && dailyVerse.text && dailyVerse.ref) {
           dv = '<div class="box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; margin-bottom:20px; border:none; box-shadow:0 4px 12px rgba(102,126,234,0.3);">' +
             '<h3 style="color:#fff; margin-bottom:8px; font-size:13px; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Verse of the Day</h3>' +
             '<p style="font-size:15px; line-height:1.7; margin-bottom:12px; font-style:italic; font-weight:400;">"' + esc(dailyVerse.text) + '"</p>' +
@@ -442,7 +431,7 @@ Deno.serve(async (req) => {
       let dv = '';
       if (showDailyVerse) {
         const dailyVerse = await fetchDailyVerse();
-        if (dailyVerse) {
+        if (dailyVerse && dailyVerse.text && dailyVerse.ref) {
           dv = '<div class="box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; margin-bottom:20px; border:none; box-shadow:0 4px 12px rgba(102,126,234,0.3);">' +
             '<h3 style="color:#fff; margin-bottom:8px; font-size:13px; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Verse of the Day</h3>' +
             '<p style="font-size:15px; line-height:1.7; margin-bottom:12px; font-style:italic; font-weight:400;">"' + esc(dailyVerse.text) + '"</p>' +
@@ -570,7 +559,7 @@ Deno.serve(async (req) => {
       let dv = '';
       if (showDailyVerse) {
         const dailyVerse = await fetchDailyVerse();
-        if (dailyVerse) {
+        if (dailyVerse && dailyVerse.text && dailyVerse.ref) {
           dv = '<div class="box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; margin-bottom:20px; border:none; box-shadow:0 4px 12px rgba(102,126,234,0.3);">' +
             '<h3 style="color:#fff; margin-bottom:8px; font-size:13px; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Verse of the Day</h3>' +
             '<p style="font-size:15px; line-height:1.7; margin-bottom:12px; font-style:italic; font-weight:400;">"' + esc(dailyVerse.text) + '"</p>' +
