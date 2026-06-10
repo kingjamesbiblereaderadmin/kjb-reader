@@ -609,6 +609,7 @@ Deno.serve(async (req) => {
       '<ul>' +
       '<li>Offline features and installing as an app (PWA) do not work here.</li>' +
       '<li>Search is not supported in legacy mode.</li>' +
+      '<li>YouTube videos and some external links may not open or play on old browsers.</li>' +
       '<li>Found a bug? Email <a href="mailto:kingjamesbiblereader@outlook.sg">kingjamesbiblereader@outlook.sg</a>.</li>' +
       '</ul></div>';
 
