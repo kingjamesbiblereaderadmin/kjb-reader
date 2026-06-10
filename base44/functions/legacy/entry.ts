@@ -507,10 +507,10 @@ Deno.serve(async (req) => {
 '<style>' + STYLE + (isDark ? DARK_STYLE : '') + '</style>' +
 '</head><body>' +
 '<div class="hdr"><h1>KJB Reader (Legacy)</h1><p>King James Bible &mdash; Pure Cambridge Edition</p></div>' +
+topbar +
 '<div class="tabs">' +
 tabLink('bible', 'Bible') + tabLink('gospel', 'Gospel') + tabLink('resources', 'Resources') + tabLink('about', 'About') + tabLink('debug', 'Debug') +
 '</div>' +
-topbar +
 '<div class="wrap">' + bodyInner + '</div>' +
 '</body></html>';
 
