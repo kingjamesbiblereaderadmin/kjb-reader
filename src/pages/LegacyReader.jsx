@@ -36,9 +36,8 @@ export default function LegacyReader() {
     fetch(legacyUrl)
       .then(res => res.text())
       .then(html => {
-        document.open();
-        document.write(html);
-        document.close();
+        // Replace entire document with legacy HTML
+        document.documentElement.innerHTML = html;
       })
       .catch(err => {
         console.error('Failed to load legacy reader:', err);
