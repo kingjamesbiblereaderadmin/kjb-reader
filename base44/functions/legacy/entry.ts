@@ -384,20 +384,7 @@ Deno.serve(async (req) => {
 
       bodyInner = dv + form + content + navLinks;
     } else if (tab === 'gospel') {
-      // Daily verse card
-      let dv = '';
-      if (showDailyVerse) {
-        const dailyVerse = await fetchDailyVerse();
-        if (dailyVerse && dailyVerse.text && dailyVerse.ref) {
-          dv = '<div class="box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; margin-bottom:20px; border:none; box-shadow:0 4px 12px rgba(102,126,234,0.3);">' +
-            '<h3 style="color:#fff; margin-bottom:8px; font-size:13px; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Verse of the Day</h3>' +
-            '<p style="font-size:15px; line-height:1.7; margin-bottom:12px; font-style:italic; font-weight:400;">"' + esc(dailyVerse.text) + '"</p>' +
-            '<p style="font-size:12px; color:#e0e0ff; font-weight:500; letter-spacing:0.3px;">' + esc(dailyVerse.ref) + '</p>' +
-            '</div>';
-        }
-      }
-      
-      let g = dv + '<div class="sec-title">How to be Saved</div>' +
+      let g = '<div class="sec-title">How to be Saved</div>' +
         '<div class="sec-sub">The Gospel is the glad tidings of the Lord Jesus Christ:</div>' +
         '<div class="sec-sub" style="margin-top:8px;">Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.</div>' +
         '<div class="step"><h4>1. Believe you are a sinner that deserves hell</h4>' +
@@ -427,19 +414,6 @@ Deno.serve(async (req) => {
       
       bodyInner = g;
     } else if (tab === 'resources') {
-      // Daily verse card
-      let dv = '';
-      if (showDailyVerse) {
-        const dailyVerse = await fetchDailyVerse();
-        if (dailyVerse && dailyVerse.text && dailyVerse.ref) {
-          dv = '<div class="box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; margin-bottom:20px; border:none; box-shadow:0 4px 12px rgba(102,126,234,0.3);">' +
-            '<h3 style="color:#fff; margin-bottom:8px; font-size:13px; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Verse of the Day</h3>' +
-            '<p style="font-size:15px; line-height:1.7; margin-bottom:12px; font-style:italic; font-weight:400;">"' + esc(dailyVerse.text) + '"</p>' +
-            '<p style="font-size:12px; color:#e0e0ff; font-weight:500; letter-spacing:0.3px;">' + esc(dailyVerse.ref) + '</p>' +
-            '</div>';
-        }
-      }
-      
       // KJBI.org section
       let kjbi = '<div class="box" style="margin-bottom:20px;"><div style="display:flex;align-items:start;gap:12px;">' +
         '<div style="flex:1;"><h3 style="color:#2d2a6e;margin-bottom:8px;font-size:16px;font-family:Arial,sans-serif;">KJBI.org &mdash; Free Online Bible College</h3>' +
@@ -449,7 +423,7 @@ Deno.serve(async (req) => {
         '<a href="https://kjbi.org" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:8px;background:#f0f0f0;color:#2d2a6e;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;border-radius:6px;">&#8599;</a>' +
         '</div></div></div></div>';
       
-      let r = dv + kjbi +
+      let r = kjbi +
         '<div class="sec-title">Resources</div>' +
         '<div class="sec-sub">KJB defence materials, studies on modern version corruption, and links to free Bible study resources.</div>';
       
@@ -555,20 +529,7 @@ Deno.serve(async (req) => {
       
       bodyInner = r;
     } else if (tab === 'about') {
-      // Daily verse card
-      let dv = '';
-      if (showDailyVerse) {
-        const dailyVerse = await fetchDailyVerse();
-        if (dailyVerse && dailyVerse.text && dailyVerse.ref) {
-          dv = '<div class="box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; margin-bottom:20px; border:none; box-shadow:0 4px 12px rgba(102,126,234,0.3);">' +
-            '<h3 style="color:#fff; margin-bottom:8px; font-size:13px; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Verse of the Day</h3>' +
-            '<p style="font-size:15px; line-height:1.7; margin-bottom:12px; font-style:italic; font-weight:400;">"' + esc(dailyVerse.text) + '"</p>' +
-            '<p style="font-size:12px; color:#e0e0ff; font-weight:500; letter-spacing:0.3px;">' + esc(dailyVerse.ref) + '</p>' +
-            '</div>';
-        }
-      }
-      
-      let a = dv + '<div class="sec-title">About</div>';
+      let a = '<div class="sec-title">About</div>';
       
       // About the Ministry
       a += '<div class="box"><h3>About the Ministry</h3>' +
