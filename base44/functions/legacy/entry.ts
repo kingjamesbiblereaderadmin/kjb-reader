@@ -525,36 +525,44 @@ Deno.serve(async (req) => {
         lnk('https://www.jesus-is-savior.com/Bible/NIV/new_international_version_exposed.htm', 'Jesus is Savior - NIV Exposed', '') +
         '</div>';
     } else if (tab === 'about') {
-      const lnk = (url, title, desc) => '<a class="lnk" href="' + url + '"' + (url.indexOf('mailto:') === 0 ? '' : ' target="_blank"') + '><b>' + title + '</b>' + (desc ? '<span>' + desc + '</span>' : '') + '</a>';
       bodyInner = '<div style="max-width:800px;margin:0 auto;">' +
-        '<h1 style="text-align:center;margin-bottom:24px;">About</h1>' +
-        '<div class="step"><h4>About the Ministry</h4>' +
-        '<p style="margin-bottom:12px;">I\'m Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. I am a dispensational salvationist, rightly dividing the word of truth.</p>' +
-        '<ul style="line-height:1.7;margin-left:18px;">' +
+        '<h1 style="text-align:center;margin-bottom:16px;">About</h1>' +
+        '<hr style="margin-bottom:32px;">' +
+        '<div style="margin-bottom:32px;">' +
+        '<h2 style="margin-bottom:12px;">About the Ministry</h2>' +
+        '<p style="margin-bottom:16px;">I\'m Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. I am a dispensational salvationist, rightly dividing the word of truth.</p>' +
+        '<ul style="line-height:1.8;">' +
         '<li>I reject Catholicism, Calvinism, Pentecostalism, Church of God, Mormonism, Jehovah\'s Witnesses, etc.</li>' +
         '<li>I believe in the blood-stained gospel as the only way to be saved, and I reject "repent of sins to be saved" (ROYS), "confess with your mouth to be saved," Lordship Salvation, infant baptism, baptism regeneration, etc.</li>' +
         '<li>To be saved, you must believe that Jesus is God, that He shed His blood on Calvary, died, was buried, and rose again for your justification.</li>' +
         '<li>I believe in OSAS (Once Saved, Always Saved): a believer who has trusted the gospel cannot lose salvation, no matter what happens in their life.</li>' +
-        '</ul></div>' +
-        '<div class="res-cat">Statement of Faith</div>' +
-        '<div class="step"><h4>The King James Bible</h4>' +
-        '<ul style="line-height:1.7;margin-left:18px;">' +
+        '</ul>' +
+        '</div>' +
+        '<div style="margin-bottom:32px;">' +
+        '<h2 style="margin-bottom:16px;">Statement of Faith</h2>' +
+        '<div style="margin-bottom:24px;">' +
+        '<h3 style="margin-bottom:8px;">The King James Bible</h3>' +
+        '<ul style="line-height:1.8;">' +
         '<li>Westcott and Hort created the Critical Text, based on manuscripts from the Vatican and Egypt. These manuscripts have hundreds of errors, deletions and additions to the Bible, attacking doctrines such as the Godhead/Trinity and deity of Christ. Their text was used in the Revised Version of 1881.</li>' +
         '<li>The King James Bible is the infallible, perfect Word of God in the English language.</li>' +
         '<li>Translated with the Textus Receptus (Received Text) that the historical church has always used.</li>' +
         '<li>Translated by godly men well versed in the Biblical languages who studied commentaries and foreign translations from an early age.</li>' +
         '<li>The Bible God has used for countless revivals and bringing the gospel to the world. It is mathematically proven to be a miracle.</li>' +
-        '</ul></div>' +
-        '<div class="step"><h4>Satan & Hell</h4>' +
-        '<ul style="line-height:1.7;margin-left:18px;">' +
+        '</ul>' +
+        '</div>' +
+        '<div style="margin-bottom:24px;">' +
+        '<h3 style="margin-bottom:8px;">Satan & Hell</h3>' +
+        '<ul style="line-height:1.8;">' +
         '<li>Satan is also known as the Devil, Lucifer and the king of Pride. His goal is to steal, kill and deceive the world &mdash; through things such as abortion, sodomy, and going after worldly things instead of what truly matters.</li>' +
         '<li>He deceives people that they are without a Saviour, that there is no God, no hell, and no afterlife.</li>' +
         '<li>All people come short of the glory of God and have committed sin.</li>' +
         '<li>The wages of sin is death and the wicked shall be turned into hell.</li>' +
         '<li>Hell is a place of torment day and night. Hell was created for Satan and his angels. Hell will be thrown into the lake of fire at the second death.</li>' +
-        '</ul></div>' +
-        '<div class="step"><h4>Salvation & Pre-Tribulation Rapture</h4>' +
-        '<ul style="line-height:1.7;margin-left:18px;">' +
+        '</ul>' +
+        '</div>' +
+        '<div style="margin-bottom:24px;">' +
+        '<h3 style="margin-bottom:8px;">Salvation & Pre-Tribulation Rapture</h3>' +
+        '<ul style="line-height:1.8;">' +
         '<li>Jesus Christ is God manifested in the flesh, born of the virgin Mary.</li>' +
         '<li>Jesus Christ lived a perfect life, died on Calvary\'s cross, shed his blood, was buried and rose again on the third day.</li>' +
         '<li>Jesus went to heaven to put his precious blood in the mercy seat so we can have eternal life.</li>' +
@@ -563,13 +571,19 @@ Deno.serve(async (req) => {
         '<li>I believe in the Pre-Tribulation Rapture where the church will meet in the clouds with our Saviour before the Antichrist reigns on earth.</li>' +
         '<li>Those in the 7-year tribulation will have to endure to the end, not take the mark, and be martyrs for Christ.</li>' +
         '<li>I believe Jesus will reign in the new heaven and earth after the white throne judgment.</li>' +
-        '</ul></div>' +
-        '<div class="res-cat">Links & Contact</div>' +
-        lnk('https://godisgracious1031ministriescom.odoo.com/', 'God is Gracious 1031 Ministries', 'Ministry Website') +
-        lnk('https://youtube.com/@shawnr325av?si=zC_gQm4I2S_xj-NS', 'YouTube', '@shawnr325av') +
-        lnk('https://www.instagram.com/svdbyfaithinhisbloodr325av?igsh=NTl0NmM1NWoyb2F0', 'Instagram', '@svdbyfaithinhisbloodr325av') +
-        lnk('mailto:kingjamesbiblereader@outlook.sg', 'Email', 'kingjamesbiblereader@outlook.sg') +
-        lnk('https://discord.com/', 'Discord', 'shawn_svdbyfaithinhisbloodr325av') +
+        '</ul>' +
+        '</div>' +
+        '</div>' +
+        '<div style="margin-bottom:32px;">' +
+        '<h2 style="margin-bottom:12px;">Links & Contact</h2>' +
+        '<ul style="line-height:1.8;">' +
+        '<li><a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank">God is Gracious 1031 Ministries</a></li>' +
+        '<li><a href="https://youtube.com/@shawnr325av?si=zC_gQm4I2S_xj-NS" target="_blank">YouTube: @shawnr325av</a></li>' +
+        '<li><a href="https://www.instagram.com/svdbyfaithinhisbloodr325av?igsh=NTl0NmM1NWoyb2F0" target="_blank">Instagram: @svdbyfaithinhisbloodr325av</a></li>' +
+        '<li><a href="mailto:kingjamesbiblereader@outlook.sg">Email: kingjamesbiblereader@outlook.sg</a></li>' +
+        '<li><a href="https://discord.com/" target="_blank">Discord: shawn_svdbyfaithinhisbloodr325av</a></li>' +
+        '</ul>' +
+        '</div>' +
         '</div>';
     } else if (tab === 'debug') {
       bodyInner = '<div class="sec-title">Debug</div>' +
@@ -582,7 +596,7 @@ Deno.serve(async (req) => {
         '</div>';
     }
 
-    const ENHANCE_SCRIPT = '<script>(function(){var hasPushState=!!window.history.pushState;function getHash(){var h=location.hash;if(h&&h.charAt(0)==="#"&&h.length>1){h=h.slice(1);} return h;}function load(url){var x=new XMLHttpRequest();x.open("GET",url,true);x.setRequestHeader("X-Requested-With","XMLHttpRequest");x.onreadystatechange=function(){if(x.readyState===4&&x.status===200){var d=document.createElement("div");d.innerHTML=x.responseText;var nw=d.getElementById("wrap");var ow=document.getElementById("wrap");if(nw&&ow){ow.innerHTML=nw.innerHTML;window.scrollTo(0,0);}}};x.send();}function updateChapterDropdown(bookName){var chapterCount={"Genesis":50,"Exodus":40,"Leviticus":27,"Numbers":36,"Deuteronomy":34,"Joshua":24,"Judges":21,"Ruth":4,"1 Samuel":31,"2 Samuel":24,"1 Kings":22,"2 Kings":25,"1 Chronicles":29,"2 Chronicles":36,"Ezra":10,"Nehemiah":13,"Esther":10,"Job":42,"Psalms":150,"Proverbs":31,"Ecclesiastes":12,"Song of Solomon":8,"Isaiah":66,"Jeremiah":52,"Lamentations":5,"Ezekiel":48,"Daniel":12,"Hosea":14,"Joel":3,"Amos":9,"Obadiah":1,"Jonah":4,"Micah":7,"Nahum":3,"Habakkuk":3,"Zephaniah":3,"Haggai":2,"Zechariah":14,"Malachi":4,"Matthew":28,"Mark":16,"Luke":24,"John":21,"Acts":28,"Romans":16,"1 Corinthians":16,"2 Corinthians":13,"Galatians":6,"Ephesians":6,"Philippians":4,"Colossians":4,"1 Thessalonians":5,"2 Thessalonians":3,"1 Timothy":6,"2 Timothy":4,"Titus":3,"Philemon":1,"Hebrews":13,"James":5,"1 Peter":5,"2 Peter":3,"1 John":5,"2 John":1,"3 John":1,"Jude":1,"Revelation":22};var count=chapterCount[bookName]||1;var chapSel=document.getElementById("chapterSelect");if(!chapSel)return;var curVal=chapSel.value||1;if(curVal>count)curVal=1;var opts="";for(var i=1;i<=count;i++){opts+="<option value=\""+i+"\""+(i==curVal?" selected":"")+">"+i+"</option>";}chapSel.innerHTML=opts;}function rebindForms(){var forms=document.getElementsByTagName("form");for(var fi=0;fi<forms.length;fi++){(function(f){if(f.__kjbForm)return;f.__kjbForm=1;var bookSel=f.elements["book"];var chapSel=f.elements["chapter"];if(bookSel){if(bookSel.attachEvent){bookSel.attachEvent("onchange",function(){updateChapterDropdown(bookSel.value);f.chapter.value=1;});}else if(bookSel.addEventListener){bookSel.addEventListener("change",function(){updateChapterDropdown(bookSel.value);f.chapter.value=1;},false);}else{bookSel.onchange=function(){updateChapterDropdown(bookSel.value);f.chapter.value=1;};}}})(forms[fi]);}}function bind(){var links=document.getElementsByTagName("a");for(var i=0;i<links.length;i++){(function(a){if(a.__kjb)return;a.__kjb=1;if(a.attachEvent){a.attachEvent("onclick",onClick);}else if(a.addEventListener){a.addEventListener("click",onClick,false);}else{a.onclick=onClick;}function onClick(e){e=e||window.event;var h=a.getAttribute("href");if(!h||h.indexOf("http")===0&&h.indexOf(location.host)===-1)return;if(h.indexOf("javascript")===0)return;if(e.preventDefault)e.preventDefault();else e.returnValue=false;load(h);if(hasPushState){window.history.pushState({u:h},"",h);}else{location.hash=h;}return false;}})(links[i]);}rebindForms();}if(hasPushState){window.onpopstate=function(){load(location.href);};}else{if(window.attachEvent){window.attachEvent("onhashchange",function(){var h=getHash();if(h){load(location.pathname+"?"+h);}});}else if(window.addEventListener){window.addEventListener("hashchange",function(){var h=getHash();if(h){load(location.pathname+"?"+h);}},false);}else{window.onhashchange=function(){var h=getHash();if(h){load(location.pathname+"?"+h);};}}}bind();})();</script>';
+    const ENHANCE_SCRIPT = '<script>(function(){var hasPushState=!!window.history.pushState;function getHash(){var h=location.hash;if(h&&h.charAt(0)==="#"&&h.length>1){h=h.slice(1);} return h;}function load(url){var x=new XMLHttpRequest();x.open("GET",url,true);x.setRequestHeader("X-Requested-With","XMLHttpRequest");x.onreadystatechange=function(){if(x.readyState===4&&x.status===200){var d=document.createElement("div");d.innerHTML=x.responseText;var nw=d.getElementById("wrap");var ow=document.getElementById("wrap");if(nw&&ow){ow.innerHTML=nw.innerHTML;window.scrollTo(0,0);}}};x.send();}function updateChapterDropdown(bookName){var chapterCount={"Genesis":50,"Exodus":40,"Leviticus":27,"Numbers":36,"Deuteronomy":34,"Joshua":24,"Judges":21,"Ruth":4,"1 Samuel":31,"2 Samuel":24,"1 Kings":22,"2 Kings":25,"1 Chronicles":29,"2 Chronicles":36,"Ezra":10,"Nehemiah":13,"Esther":10,"Job":42,"Psalms":150,"Proverbs":31,"Ecclesiastes":12,"Song of Solomon":8,"Isaiah":66,"Jeremiah":52,"Lamentations":5,"Ezekiel":48,"Daniel":12,"Hosea":14,"Joel":3,"Amos":9,"Obadiah":1,"Jonah":4,"Micah":7,"Nahum":3,"Habakkuk":3,"Zephaniah":3,"Haggai":2,"Zechariah":14,"Malachi":4,"Matthew":28,"Mark":16,"Luke":24,"John":21,"Acts":28,"Romans":16,"1 Corinthians":16,"2 Corinthians":13,"Galatians":6,"Ephesians":6,"Philippians":4,"Colossians":4,"1 Thessalonians":5,"2 Thessalonians":3,"1 Timothy":6,"2 Timothy":4,"Titus":3,"Philemon":1,"Hebrews":13,"James":5,"1 Peter":5,"2 Peter":3,"1 John":5,"2 John":1,"3 John":1,"Jude":1,"Revelation":22};var count=chapterCount[bookName]||1;var chapSel=document.getElementById("chapterSelect");if(!chapSel)return;var curVal=chapSel.value||1;if(curVal>count)curVal=1;var opts="";for(var i=1;i<=count;i++){opts+="<option value=\""+i+"\""+(i==curVal?" selected":"")+">"+i+"</option>";}chapSel.innerHTML=opts;}function rebindForms(){var forms=document.getElementsByTagName("form");for(var fi=0;fi<forms.length;fi++){(function(f){if(f.__kjbForm)return;f.__kjbForm=1;var bookSel=f.elements["book"];var chapSel=f.elements["chapter"];if(bookSel){if(bookSel.attachEvent){bookSel.attachEvent("onchange",function(){updateChapterDropdown(bookSel.value);f.chapter.value=1;});}else if(bookSel.addEventListener){bookSel.addEventListener("change",function(){updateChapterDropdown(bookSel.value);f.chapter.value=1;},false);}else{bookSel.onchange=function(){updateChapterDropdown(bookSel.value);f.chapter.value=1;};}}})(forms[fi]);}}function bind(){var links=document.getElementsByTagName("a");for(var i=0;i<links.length;i++){(function(a){if(a.__kjb)return;a.__kjb=1;if(a.attachEvent){a.attachEvent("onclick",onClick);}else if(a.addEventListener){a.addEventListener("click",onClick,false);}else{a.onclick=onClick;}function onClick(e){e=e||window.event;var h=a.getAttribute("href");if(!h)return;if(a.target==="_blank")return;if(h.indexOf("mailto:")===0||h.indexOf("javascript")===0)return;if(h.indexOf("http")===0&&h.indexOf(location.host)===-1)return;if(e.preventDefault)e.preventDefault();else e.returnValue=false;load(h);if(hasPushState){window.history.pushState({u:h},"",h);}else{location.hash=h;}return false;}})(links[i]);}rebindForms();}if(hasPushState){window.onpopstate=function(){load(location.href);};}else{if(window.attachEvent){window.attachEvent("onhashchange",function(){var h=getHash();if(h){load(location.pathname+"?"+h);}});}else if(window.addEventListener){window.addEventListener("hashchange",function(){var h=getHash();if(h){load(location.pathname+"?"+h);}},false);}else{window.onhashchange=function(){var h=getHash();if(h){load(location.pathname+"?"+h);};}}}bind();})();</script>';
 
     const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>KJB Reader (Legacy)</title><style>' + STYLE + (isDark ? DARK_STYLE : '') + '</style></head><body><div class="hdr"><h1>KJB Reader (Legacy)</h1><p>King James Bible &mdash; Pure Cambridge Edition</p></div><div class="tabs">' + tabLink('bible', 'Bible') + tabLink('gospel', 'Gospel') + tabLink('resources', 'Resources') + tabLink('about', 'About') + tabLink('debug', 'Debug') + '</div><div class="wrap" id="wrap">' + bodyInner + '</div>' + ENHANCE_SCRIPT + '</body></html>';
 
