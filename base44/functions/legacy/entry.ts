@@ -678,20 +678,20 @@ Deno.serve(async (req) => {
     // until the whole document has finished parsing (window.onload), so the
     // user never sees a half-rendered page mid-load.
     const loaderStyle = '#kjb-loader{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;overflow:auto;background:' + (isDark ? '#1a1a1e' : '#f5f5f7') + ';color:' + (isDark ? '#e5e5e5' : '#2d2a6e') + ';font-family:Arial,sans-serif;font-size:16px;text-align:center;padding-top:12vh;}#kjb-loader img{width:96px;height:96px;display:block;margin:0 auto 16px;}#kjb-loader .kjb-loader-title{font-family:Georgia,serif;font-size:22px;font-weight:bold;margin-bottom:6px;}#kjb-loader .kjb-loader-banner{max-width:560px;margin:24px auto 0;text-align:left;}#kjb-progress{max-width:320px;margin:18px auto 4px;height:14px;background:' + (isDark ? '#2a2a33' : '#e0e0ec') + ';border:1px solid ' + (isDark ? '#3a3d4a' : '#c9c7e0') + ';border-radius:7px;overflow:hidden;}#kjb-bar{height:100%;width:0;background:' + (isDark ? '#7c7ceb' : '#2d2a6e') + ';}#kjb-pct{font-size:13px;color:' + (isDark ? '#aaa' : '#666') + ';}body.kjb-ready #kjb-loader{display:none;}body:not(.kjb-ready) #wrap,body:not(.kjb-ready) .banner,body:not(.kjb-ready) .hdr{visibility:hidden;}';
-    const loaderHtml = '<div id="kjb-loader"><img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader"><div class="kjb-loader-title">KJB Reader (Legacy)</div>Downloading the full Bible&hellip;<br><span style="font-size:13px;color:' + (isDark ? '#aaa' : '#666') + ';">Loading in sections so it works on slow connections. Please wait.</span><div id="kjb-progress"><div id="kjb-bar"></div></div><div id="kjb-pct">0%</div><div class="kjb-loader-banner">' + banner + '</div></div>';
+    const upgradeWarn = '<div style="max-width:420px;margin:14px auto 0;padding:10px 14px;border:1px solid ' + (isDark ? '#3a3d4a' : '#c9c7e0') + ';border-radius:8px;background:' + (isDark ? '#2a2a33' : '#eceaf8') + ';font-size:13px;line-height:1.5;color:' + (isDark ? '#d0d0d8' : '#444') + ';">&#9888; Using an old or unsupported device or browser? Some features may not work &mdash; please upgrade to the latest browser or device for the best, most secure experience.</div>';
+    const loaderHtml = '<div id="kjb-loader"><img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader"><div class="kjb-loader-title">KJB Reader (Legacy)</div>Downloading the full Bible&hellip;<br><span style="font-size:13px;color:' + (isDark ? '#aaa' : '#666') + ';">Loading in sections so it works on slow connections. Please wait.</span>' + upgradeWarn + '<div id="kjb-progress"><div id="kjb-bar"></div></div><div id="kjb-pct">0%</div><div class="kjb-loader-banner">' + banner + '</div></div>';
 
     const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>KJB Reader (Legacy)</title><style>' + STYLE + (isDark ? DARK_STYLE : '') + loaderStyle + '</style></head><body>' + loaderHtml + '<div class="hdr"><h1>KJB Reader (Legacy)</h1><p>King James Bible &mdash; Pure Cambridge Edition</p></div>' + banner + '<div class="wrap" id="wrap">' + bodyInner + '</div>' + SECTION_SCRIPT + '</body></html>';
 
     return new Response(html, { headers: {
       'Content-Type': 'text/html;charset=UTF-8',
-      // Long-lived HTTP cache so legacy browsers (IE, which has no Service
-      // Worker support) can serve this page from disk cache when offline.
-      // IE's HTTP cache honors a far-future `Expires` header most reliably —
-      // once the full page is cached, IE serves it instantly without
-      // re-downloading the 6 MB body (which is what caused the "can't
-      // connect" failures across the first few refreshes on flaky links).
-      'Cache-Control': 'public, max-age=31536000, immutable',
-      'Expires': 'Fri, 31 Dec 9999 23:59:59 GMT',
+      // The SHELL page is now SMALL (no inlined Bible — books load as separate
+      // immutable chunks). It must NOT be cached "immutable", otherwise the
+      // browser keeps serving an OLD shell/loader script forever and never
+      // picks up fixes (which is why it stalled at 86% with the old script).
+      // Use a short cache + revalidate so the latest script loads when online,
+      // while the browser can still serve the cached shell briefly when offline.
+      'Cache-Control': 'no-cache, must-revalidate',
       'Vary': 'Accept-Encoding'
     } });
   } catch (error) {
