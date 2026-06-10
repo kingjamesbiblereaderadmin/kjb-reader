@@ -143,11 +143,7 @@ const PageLoader = ({ isFadingOut, updateCheckDone }) => {
         </div>
       </div>
 
-      <div className="absolute bottom-8 left-0 right-0 px-6 flex justify-center">
-        <p className="text-center font-sans text-xs leading-relaxed text-foreground/60 max-w-sm rounded-xl border border-border/60 bg-secondary/40 px-4 py-3">
-          Using an old or unsupported device or browser? Some features may not work — please upgrade to the latest browser or device for the best, most secure experience.
-        </p>
-      </div>
+
     </div>
   );
 };
