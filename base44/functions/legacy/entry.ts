@@ -775,10 +775,7 @@ function showTab(name, btn) {
     for (var v = 0; v < verses.length; v++) {
       var verseNum = verses[v].v;
       var verseText = verses[v].t;
-      var renderedText = verseText.replace(/^[\u00B6\uFFFD]\s*/, '<span class="pilcrow">¶</span> ').replace(/([\s.,;:!?'")\]])[\u00B6\uFFFD]\s*/g, '$1 <span class="pilcrow">¶</span> ');
-      var hasPilcrow = verseText.includes('¶') || verseText.includes('\u00B6');
-      var verseClass = "verse" + (hasPilcrow && v > 0 ? " verse-pilcrow" : "");
-      h += '<p class="' + verseClass + '"><span class="vnum">' + verseNum + '</span>' + renderedText + '</p>';
+      h += '<p class="verse"><span class="vnum">' + verseNum + '</span> ' + verseText + '</p>';
     }
     // Render colophon (italic epistolary closing after last verse)
     var colophon = COLOPHONS[subscriptKey];
