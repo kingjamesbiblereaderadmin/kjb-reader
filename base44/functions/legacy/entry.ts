@@ -270,6 +270,7 @@ Deno.serve(async (req) => {
   .chapter-book { font-size: 28px; font-weight: bold; color: #2d2a6e; display: block; }
   .chapter-num { font-size: 14px; color: #5b59a0; letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; display: block; }
   .chapter-full-title { font-size: 18px; color: #666; margin-top: 4px; display: block; font-style: italic; }
+  .chapter-display { text-align: center; }
 
   .subscript { text-align: center; font-size: 15px; color: #555; margin: 8px 0 12px 0; font-style: italic; }
   .subscript .pilcrow { font-style: normal; margin-right: 4px; }
@@ -548,10 +549,13 @@ function parseBibleText(text) {
     if (/^[A-Z]/.test(line) && !currentChap) {
       titleBuffer.push(line);
       var fullTitle = titleBuffer.join(' ').toUpperCase();
+      console.log('[parse] Title buffer:', fullTitle);
       for (var bi = 0; bi < BOOK_ORDER.length; bi++) {
-        if (fullTitle.indexOf(BOOK_ORDER[bi].toUpperCase()) !== -1) {
+        var bookName = BOOK_ORDER[bi].toUpperCase();
+        if (fullTitle.indexOf(bookName) !== -1) {
           currentBook = BOOK_ORDER[bi];
           data[currentBook] = {};
+          console.log('[parse] Book detected:', currentBook);
           titleBuffer = [];
           break;
         }
@@ -655,7 +659,7 @@ function readChapter() {
 
   var verses = BIBLE_DATA[book][chap];
   var fullBookName = FULL_BOOK_NAMES[book] || book;
-  var html = '<div class="chapter-header"><span class="chapter-book">' + fullBookName + '</span><span class="chapter-num">Chapter ' + chap + '</span></div>';
+  var html = '<div id="chapter-display" class="chapter-display"><div class="chapter-header"><span class="chapter-book">' + fullBookName + '</span><span class="chapter-num">Chapter ' + chap + '</span></div>';
 
   var subscriptKey = book + ':' + chap;
   var subscript = PSALM_SUBSCRIPTS[chap];
