@@ -1,4 +1,4 @@
-const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/e74bc3070_KingJamesBible-PureCambridgeEditionTextfile2.txt';
+const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/e74bc3070_KingJamesBible-PureCambridgeTextfile2.txt';
 
 const BOOK_ORDER = [
   'Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy', 'Joshua', 'Judges', 'Ruth',
@@ -10,6 +10,16 @@ const BOOK_ORDER = [
   'Ephesians', 'Philippians', 'Colossians', '1 Thessalonians', '2 Thessalonians', '1 Timothy', '2 Timothy',
   'Titus', 'Philemon', 'Hebrews', 'James', '1 Peter', '2 Peter', '1 John', '2 John', '3 John', 'Jude', 'Revelation'
 ];
+
+const OT_BOOKS = ['Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy', 'Joshua', 'Judges', 'Ruth',
+  '1 Samuel', '2 Samuel', '1 Kings', '2 Kings', '1 Chronicles', '2 Chronicles', 'Ezra', 'Nehemiah',
+  'Esther', 'Job', 'Psalms', 'Proverbs', 'Ecclesiastes', 'Song of Solomon', 'Isaiah', 'Jeremiah',
+  'Lamentations', 'Ezekiel', 'Daniel', 'Hosea', 'Joel', 'Amos', 'Obadiah', 'Jonah', 'Micah', 'Nahum',
+  'Habakkuk', 'Zephaniah', 'Haggai', 'Zechariah', 'Malachi'];
+
+const NT_BOOKS = ['Matthew', 'Mark', 'Luke', 'John', 'Acts', 'Romans', '1 Corinthians', '2 Corinthians', 'Galatians',
+  'Ephesians', 'Philippians', 'Colossians', '1 Thessalonians', '2 Thessalonians', '1 Timothy', '2 Timothy',
+  'Titus', 'Philemon', 'Hebrews', 'James', '1 Peter', '2 Peter', '1 John', '2 John', '3 John', 'Jude', 'Revelation'];
 
 const FULL_BOOK_NAMES = {
   'Genesis': 'The First Book of Moses, called Genesis',
@@ -79,16 +89,6 @@ const FULL_BOOK_NAMES = {
   'Jude': 'The General Epistle of Jude',
   'Revelation': 'The Revelation of Saint John the Divine'
 };
-
-const OT_BOOKS = ['Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy', 'Joshua', 'Judges', 'Ruth',
-  '1 Samuel', '2 Samuel', '1 Kings', '2 Kings', '1 Chronicles', '2 Chronicles', 'Ezra', 'Nehemiah',
-  'Esther', 'Job', 'Psalms', 'Proverbs', 'Ecclesiastes', 'Song of Solomon', 'Isaiah', 'Jeremiah',
-  'Lamentations', 'Ezekiel', 'Daniel', 'Hosea', 'Joel', 'Amos', 'Obadiah', 'Jonah', 'Micah', 'Nahum',
-  'Habakkuk', 'Zephaniah', 'Haggai', 'Zechariah', 'Malachi'];
-
-const NT_BOOKS = ['Matthew', 'Mark', 'Luke', 'John', 'Acts', 'Romans', '1 Corinthians', '2 Corinthians', 'Galatians',
-  'Ephesians', 'Philippians', 'Colossians', '1 Thessalonians', '2 Thessalonians', '1 Timothy', '2 Timothy',
-  'Titus', 'Philemon', 'Hebrews', 'James', '1 Peter', '2 Peter', '1 John', '2 John', '3 John', 'Jude', 'Revelation'];
 
 const PSALM_SUBSCRIPTS = {
   '3': 'A Psalm of David, when he fled from Absalom his son.',
@@ -266,16 +266,15 @@ Deno.serve(async (req) => {
   .daily-text { font-size: 16px; color: #2d2a6e; font-style: italic; margin-bottom: 8px; line-height: 1.5; }
   .daily-ref { font-size: 13px; color: #666; font-family: Arial, sans-serif; }
 
+  .chapter-display { text-align: center; }
   .chapter-header { text-align: center; margin: 32px 0 24px 0; }
   .chapter-book { font-size: 28px; font-weight: bold; color: #2d2a6e; display: block; }
   .chapter-num { font-size: 14px; color: #5b59a0; letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; display: block; }
-  .chapter-full-title { font-size: 18px; color: #666; margin-top: 4px; display: block; font-style: italic; }
-  .chapter-display { text-align: center; }
 
   .subscript { text-align: center; font-size: 15px; color: #555; margin: 8px 0 12px 0; font-style: italic; }
   .subscript .pilcrow { font-style: normal; margin-right: 4px; }
 
-  .verses { margin: 20px 0; }
+  .verses { margin: 20px 0; text-align: left; }
   .verse { margin-bottom: 12px; line-height: 1.7; }
   .verse-num { font-size: 11px; color: #5b59a0; font-weight: bold; vertical-align: super; margin-right: 3px; }
 
@@ -503,52 +502,58 @@ function parseBibleText(text) {
   var lines = text.split(/\r?\n/);
   var currentBook = null;
   var currentChap = null;
+  var titleBuffer = [];
   var pendingFirstVerse = false;
 
   for (var i = 0; i < lines.length; i++) {
     var line = lines[i].trim();
     if (!line) continue;
 
-    var chapMatch = line.match(/^(CHAPTER|PSALM)\s+(\d+)$/i);
+    var chapMatch = line.match(/^(CHAPTER|PSALM)\\s+(\\d+)$/i);
     if (chapMatch && currentBook) {
       currentChap = String(chapMatch[2]);
       if (!data[currentBook]) data[currentBook] = {};
       data[currentBook][currentChap] = [];
+      titleBuffer = [];
       pendingFirstVerse = true;
       continue;
     }
 
-    if (/^\d+\s+/.test(line) && currentBook && currentChap !== null) {
-      var match = line.match(/^(\d+)\s+(.+)$/);
+    if (/^\\d+\\s+/.test(line) && currentBook && currentChap) {
+      var match = line.match(/^(\\d+)\\s+(.+)$/);
       if (match) {
         var verseNum = match[1];
-        var verseText = match[2].replace(/\[([^\]]+)\]/g, '<em>$1</em>');
+        var verseText = match[2].replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
         data[currentBook][currentChap].push({ v: verseNum, t: verseText });
       }
       pendingFirstVerse = false;
+      titleBuffer = [];
       continue;
     }
 
-    if (pendingFirstVerse && currentBook && currentChap !== null && data[currentBook][currentChap].length === 0) {
-      var verseText = line.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
+    if (pendingFirstVerse && currentBook && currentChap && data[currentBook][currentChap].length === 0) {
+      var verseText = line.replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
       data[currentBook][currentChap].push({ v: '1', t: verseText });
       pendingFirstVerse = false;
+      titleBuffer = [];
       continue;
     }
 
-    if (currentBook && currentChap !== null && data[currentBook][currentChap].length > 0) {
+    if (currentBook && currentChap && data[currentBook][currentChap].length > 0) {
       var last = data[currentBook][currentChap][data[currentBook][currentChap].length - 1];
-      last.t += ' ' + line.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
+      last.t += ' ' + line.replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
       continue;
     }
 
-    if (!currentChap && line.length > 3 && line.length < 200) {
+    if (/^[A-Z]/.test(line) && !currentChap) {
+      titleBuffer.push(line);
+      var fullTitle = titleBuffer.join(' ').toUpperCase();
       for (var bi = 0; bi < BOOK_ORDER.length; bi++) {
-        var bookName = BOOK_ORDER[bi];
-        if (line.toUpperCase().indexOf(bookName.toUpperCase()) !== -1) {
-          currentBook = bookName;
+        var bookName = BOOK_ORDER[bi].toUpperCase();
+        if (fullTitle.indexOf(bookName) !== -1) {
+          currentBook = BOOK_ORDER[bi];
           data[currentBook] = {};
-          currentChap = null;
+          titleBuffer = [];
           break;
         }
       }
@@ -567,12 +572,7 @@ function fetchAndParseBible() {
     .then(function(buf) {
       var decoder = new TextDecoder('windows-1252');
       var text = decoder.decode(buf);
-      console.log('[parse] Fetched', text.length, 'chars');
-      console.log('[parse] First 500 chars:', text.substring(0, 500));
       var data = parseBibleText(text);
-      var bookCount = Object.keys(data).length;
-      console.log('[parse] Total books:', bookCount);
-      console.log('[parse] Books:', Object.keys(data).join(', '));
       return data;
     });
 }
@@ -586,16 +586,15 @@ function switchTab(name) {
 }
 
 function updateDebugInfo() {
-  var info = 'Bible Data Source: ' + (Object.keys(BIBLE_DATA).length > 0 ? 'localStorage Cache' : 'Not loaded') + '\\n';
-  info += 'Bible Data Loaded: ' + (BIBLE_DATA && Object.keys(BIBLE_DATA).length > 0 ? 'Yes' : 'No') + '\\n';
-  info += 'Total Books Loaded: ' + (Object.keys(BIBLE_DATA).length) + '/66\\n';
-  var cacheKey = 'kjb-legacy-bible-v1';
+  var info = 'Bible Data Source: ' + (Object.keys(BIBLE_DATA).length > 0 ? 'localStorage Cache' : 'Not loaded') + '\\\\n';
+  info += 'Bible Data Loaded: ' + (BIBLE_DATA && Object.keys(BIBLE_DATA).length > 0 ? 'Yes' : 'No') + '\\\\n';
+  info += 'Total Books Loaded: ' + (Object.keys(BIBLE_DATA).length) + '/66\\\\n';
+  var cacheKey = 'kjb-legacy-bible-v2';
   var cachedData;
   try { cachedData = localStorage.getItem(cacheKey); } catch(e) { cachedData = 'Error reading localStorage'; }
-  info += '\\n== LocalStorage Cache ==\\n';
-  info += 'Cache Key: ' + cacheKey + '\\n';
-  info += 'Cached Data Size: ' + (cachedData ? (cachedData.length / 1024).toFixed(2) + ' KB' : 'Not found') + '\\n';
-  info += '\\n== FULL_BOOK_NAMES Available: ' + (typeof FULL_BOOK_NAMES !== 'undefined' ? 'Yes (' + Object.keys(FULL_BOOK_NAMES).length + ' books)' : 'No') + '\\n';
+  info += '\\\\n== LocalStorage Cache ==\\\\n';
+  info += 'Cache Key: ' + cacheKey + '\\\\n';
+  info += 'Cached Data Size: ' + (cachedData ? (cachedData.length / 1024).toFixed(2) + ' KB' : 'Not found') + '\\\\n';
   document.getElementById('debug-info').textContent = info;
 }
 
@@ -657,7 +656,7 @@ function readChapter() {
 
   var verses = BIBLE_DATA[book][chap];
   var fullBookName = FULL_BOOK_NAMES[book] || book;
-  var html = '<div id="chapter-display" class="chapter-display"><div class="chapter-header"><span class="chapter-book">' + fullBookName + '</span><span class="chapter-num">Chapter ' + chap + '</span></div>';
+  var html = '<div class="chapter-display"><div class="chapter-header"><span class="chapter-book">' + fullBookName + '</span><span class="chapter-num">Chapter ' + chap + '</span></div>';
 
   var subscriptKey = book + ':' + chap;
   var subscript = PSALM_SUBSCRIPTS[chap];
@@ -675,6 +674,8 @@ function readChapter() {
   if (colophon) {
     html += '<div class="colophon"><div class="colophon-content"><span class="pilcrow">¶</span><em>' + colophon + '</em></div></div>';
   }
+
+  html += '</div>';
 
   document.getElementById('chapter-display').innerHTML = html;
   window.scrollTo(0, 0);
@@ -715,7 +716,6 @@ function loadFromCache() {
     var cached = localStorage.getItem('kjb-legacy-bible-v2');
     if (cached) {
       BIBLE_DATA = JSON.parse(cached);
-      console.log('[cache] Loaded from v2 cache');
       return true;
     }
   } catch(e) {}
@@ -725,7 +725,6 @@ function loadFromCache() {
 function saveToCache() {
   try {
     localStorage.setItem('kjb-legacy-bible-v2', JSON.stringify(BIBLE_DATA));
-    console.log('[cache] Saved to v2 cache:', (JSON.stringify(BIBLE_DATA).length / 1024).toFixed(2), 'KB');
   } catch(e) {
     console.error('[cache] Save failed:', e.message);
   }
@@ -736,15 +735,13 @@ window.addEventListener('load', function() {
   
   loadFromCache();
   var bookCount = Object.keys(BIBLE_DATA).length;
-  console.log('[load] Cache books:', bookCount, 'Books:', Object.keys(BIBLE_DATA).join(', '));
 
-  if (bookCount === 0) {
+  if (bookCount === 0 || bookCount < 66) {
     statusDiv.innerHTML = '<div class="status">Downloading Bible data... please wait</div>';
     fetchAndParseBible()
       .then(function(data) {
         BIBLE_DATA = data;
         bookCount = Object.keys(BIBLE_DATA).length;
-        console.log('[load] Fresh parse books:', bookCount, 'Books:', Object.keys(BIBLE_DATA).join(', '));
         statusDiv.innerHTML = '<div class="status success">✓ Ready (' + bookCount + ' books)</div>';
         populateBooks();
         showDailyVerse();
@@ -755,9 +752,6 @@ window.addEventListener('load', function() {
         console.error('Fetch failed:', err);
         statusDiv.innerHTML = '<div class="status error">Failed to load Bible. Refresh page.</div>';
       });
-  } else if (bookCount < 66) {
-    statusDiv.innerHTML = '<div class="status">⚠ Partial cache (' + bookCount + '/66 books). Refresh for full download.</div>';
-    populateBooks();
   } else {
     statusDiv.innerHTML = '<div class="status success">✓ Ready (' + bookCount + ' books)</div>';
     populateBooks();
