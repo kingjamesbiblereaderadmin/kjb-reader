@@ -735,9 +735,7 @@ Deno.serve(async (req) => {
       '#kjb-bar{height:100%;width:0;background:' + spinnerCol + ';transition:width 0.2s ease;}' +
       '#kjb-pct{font-size:14px;font-weight:bold;color:' + spinnerCol + ';}' +
       '#kjb-warn{display:none;max-width:380px;margin:16px auto 0;padding:9px 13px;border:1px solid ' + (isDark ? '#5a3a3a' : '#e9c4c4') + ';border-radius:8px;background:' + (isDark ? '#2a1a1a' : '#fdf0f0') + ';font-size:12px;line-height:1.5;color:' + (isDark ? '#f0b8b8' : '#b02525') + ';}' +
-      '#kjb-loader .kjb-loader-banner{max-width:480px;margin:28px auto 0;text-align:left;}' +
       'body.kjb-ready #kjb-loader{display:none;}body:not(.kjb-ready) #wrap,body:not(.kjb-ready) .banner,body:not(.kjb-ready) .hdr{visibility:hidden;}';
-    const upgradeWarn = '<div style="max-width:420px;margin:18px auto 0;padding:10px 14px;border:1px solid ' + (isDark ? '#3a3d4a' : '#c9c7e0') + ';border-radius:8px;background:' + (isDark ? '#1a1a22' : '#f3f2fb') + ';font-size:12px;line-height:1.5;color:' + (isDark ? '#c0c0c8' : '#555') + ';text-align:center;">&#9888; Using an old or unsupported device or browser? Some features may not work &mdash; please upgrade to the latest browser or device for the best experience.</div>';
     const loaderHtml =
       '<div id="kjb-loader"><div class="kjb-center">' +
         '<img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" style="width:96px;height:96px;object-fit:contain;margin-bottom:20px;" />' +
@@ -746,8 +744,6 @@ Deno.serve(async (req) => {
         '<div id="kjb-progress"><div id="kjb-bar"></div></div>' +
         '<div id="kjb-pct">0%</div>' +
         '<div id="kjb-warn"></div>' +
-        upgradeWarn +
-        '<div class="kjb-loader-banner">' + banner + '</div>' +
       '</div></div>';
 
     const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>KJB Reader (Legacy)</title><style>' + STYLE + (isDark ? DARK_STYLE : '') + loaderStyle + '</style></head><body>' + loaderHtml + '<div class="hdr"><h1>KJB Reader (Legacy)</h1><p>King James Bible &mdash; Pure Cambridge Edition</p></div>' + banner + '<div class="wrap" id="wrap">' + bodyInner + '</div>' + SECTION_SCRIPT + '</body></html>';
