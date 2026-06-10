@@ -229,7 +229,8 @@ Deno.serve(async (req) => {
     const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
     const res = await fetch(TEXT_URL);
     if (!res.ok) throw new Error('Failed to fetch Bible text');
-    const text = await res.text();
+    const buffer = await res.arrayBuffer();
+    const text = new TextDecoder('windows-1252').decode(buffer);
     
     const data = {};
     const colophons = {};
@@ -286,7 +287,7 @@ Deno.serve(async (req) => {
         verseText = verseText.replace('[[but]]', '[but]');
       }
       
-      verseText = verseText.replace(/'/g, "'");
+      verseText = verseText.replace(/'/g, "'").replace(/'/g, "'").replace(/`/g, "'");
       
       if (!data[bookName]) data[bookName] = {};
       if (!data[bookName][chapter]) data[bookName][chapter] = [];
