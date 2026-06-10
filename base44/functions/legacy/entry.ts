@@ -333,10 +333,11 @@ Deno.serve(async (req) => {
     if (isNaN(chapter) || chapter < 1 || chapter > (CHAPTER_COUNTS[book] || 1)) chapter = 1;
     
     const appIdParam = url.searchParams.get('app_id');
-    // Use empty base path so links/forms resolve against the CURRENT browser URL
-    // (the visible /legacy page), not the function's internal pathname. This
-    // prevents navigation from jumping to the wrong domain/path.
-    const basePath = '';
+    // Use the function's OWN pathname as the base for all links/forms/AJAX.
+    // This is the actual endpoint that serves this server-rendered HTML, so
+    // navigation always hits the function again — never the React SPA's
+    // /legacy route (which would bounce back through the redirect page).
+    const basePath = url.pathname;
     const theme = url.searchParams.get('theme') === 'dark' ? 'dark' : 'light';
     const isDark = theme === 'dark';
     const idSuffix = (appIdParam ? '&app_id=' + encodeURIComponent(appIdParam) : '') + (isDark ? '&theme=dark' : '');
