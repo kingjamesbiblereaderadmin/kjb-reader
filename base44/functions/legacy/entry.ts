@@ -611,10 +611,21 @@ console.log('[LEGACY] Bible data loaded:', Object.keys(BIBLE_DATA).length, 'book
 console.log('[LEGACY] Colophons:', Object.keys(COLOPHON_DATA).length);
 
 function switchTab(name) {
-  document.querySelectorAll('.tab-content').forEach(function(el) { el.classList.remove('active'); });
-  document.getElementById('tab-' + name).classList.add('active');
-  document.querySelectorAll('.tab-btn').forEach(function(el) { el.classList.remove('active'); });
-  event.target.classList.add('active');
+  var tabContents = document.querySelectorAll('.tab-content');
+  for (var i = 0; i < tabContents.length; i++) {
+    tabContents[i].classList.remove('active');
+  }
+  var tabElement = document.getElementById('tab-' + name);
+  if (tabElement) {
+    tabElement.classList.add('active');
+  }
+  var tabButtons = document.querySelectorAll('.tab-btn');
+  for (var j = 0; j < tabButtons.length; j++) {
+    tabButtons[j].classList.remove('active');
+  }
+  if (event && event.target) {
+    event.target.classList.add('active');
+  }
   if (name === 'debug') { updateDebugInfo(); }
 }
 
@@ -696,6 +707,10 @@ function readChapter() {
   html += '<div class="verses">';
   for (var v = 0; v < verses.length; v++) {
     var verseText = verses[v].text;
+    // Render Psalm 119 acrostic headings (ALEPH, BETH, etc.) if present
+    if (verses[v].heading) {
+      html += '<div class="psalm119-heading">' + verses[v].heading.toUpperCase() + '</div>';
+    }
     verseText = verseText.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
     if (verseText.indexOf('¶') === 0 || verseText.indexOf('¶') > 0) {
       verseText = verseText.replace(/¶/g, '<span class="verse-pilcrow">¶</span>');
