@@ -182,9 +182,9 @@ Deno.serve(async (req) => {
   .status { font-family:Arial,sans-serif; font-size:12px; color:#555; padding:6px 0; text-align:center; }
   .err { color:#b00000; font-weight:bold; }
   .daily { background:#eef0fb; border:1px solid #c9cdee; padding:12px; margin:12px 0; border-radius:4px; }
-  .daily .dlabel { font-family:Arial,sans-serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#5b59a0; margin:0 0 6px 0; text-align:center; }
-  .daily .dtext { font-size:17px; color:#2d2a6e; margin:0 0 6px 0; font-style:italic; text-align:center; }
-  .daily .dref { font-family:Arial,sans-serif; font-size:13px; color:#555; margin:0; text-align:center; }
+  .daily .dlabel { font-family:Arial,sans-serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#5b59a0; margin:0 0 6px 0; }
+  .daily .dtext { font-size:17px; color:#2d2a6e; margin:0 0 6px 0; font-style:italic; }
+  .daily .dref { font-family:Arial,sans-serif; font-size:13px; color:#555; margin:0; }
   h2.ref { font-size:19px; color:#2d2a6e; margin:14px 0 8px 0; text-align:center; }
   .verse { margin:0 0 5px 0; text-align:left; }
   .verse-pilcrow { margin-top:12px; }
@@ -508,12 +508,32 @@ function showTab(name, btn) {
   };
 
   var fillBooks = function() {
-    for (var i = 0; i < availableBooks.length; i++) {
-      var opt = document.createElement("option");
-      opt.value = availableBooks[i];
-      opt.textContent = availableBooks[i];
-      bookSel.appendChild(opt);
+    var otBooks = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi"];
+    var ntBooks = ["Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
+    
+    var otGroup = document.createElement("optgroup");
+    otGroup.label = "Old Testament";
+    for (var i = 0; i < otBooks.length; i++) {
+      if (availableBooks.indexOf(otBooks[i]) !== -1) {
+        var opt = document.createElement("option");
+        opt.value = otBooks[i];
+        opt.textContent = otBooks[i];
+        otGroup.appendChild(opt);
+      }
     }
+    bookSel.appendChild(otGroup);
+    
+    var ntGroup = document.createElement("optgroup");
+    ntGroup.label = "New Testament";
+    for (var j = 0; j < ntBooks.length; j++) {
+      if (availableBooks.indexOf(ntBooks[j]) !== -1) {
+        var opt2 = document.createElement("option");
+        opt2.value = ntBooks[j];
+        opt2.textContent = ntBooks[j];
+        ntGroup.appendChild(opt2);
+      }
+    }
+    bookSel.appendChild(ntGroup);
   };
 
   var fillChapters = function(book) {
