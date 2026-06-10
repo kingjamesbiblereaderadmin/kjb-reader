@@ -639,39 +639,42 @@ Deno.serve(async (req) => {
         'if(window.location.hash){try{window.location.href=window.location.hash;}catch(e){}}' +
       '}' +
       'function makeXHR(){if(window.XMLHttpRequest){return new XMLHttpRequest();}try{return new ActiveXObject("Msxml2.XMLHTTP");}catch(e){}try{return new ActiveXObject("Microsoft.XMLHTTP");}catch(e){}return null;}' +
-      // Each book is fetched, validated (must contain a real book chunk), and
-      // retried up to MAXTRIES times. After MAXTRIES it gives up on that book
-      // and moves on, so the loop ALWAYS advances to the end and reveals the
-      // page — it can never hang forever (online or offline). Progress is
-      // counted per attempted book so the bar always reaches 100%.
-      'var MAXTRIES=6;' +
+      // Each book retries INDEFINITELY until it loads successfully — we NEVER
+      // skip a book and NEVER reveal a partial page. The page only appears once
+      // ALL 66 books are present, so it can't "disappear" into a half-empty
+      // page partway through. A hung request (no readyState 4) is killed after
+      // 15s and retried. Backoff caps at 3s.
       'function next(i){' +
-        'var p=Math.round((i)*100/TOTAL);' +
+        'var p=Math.round(i*100/TOTAL);' +
         'if(bar){bar.style.width=p+"%";}if(pct){pct.innerHTML=p+"%";}' +
         'if(i>=TOTAL){if(bar){bar.style.width="100%";}if(pct){pct.innerHTML="100%";}reveal();return;}' +
         'load(i,0);' +
       '}' +
+      'function retry(i,tries){' +
+        'var wait=Math.min(700+tries*500,3000);' +
+        'if(pct){pct.innerHTML=Math.round(i*100/TOTAL)+"% (retrying book "+(i+1)+"\\u2026)";}' +
+        'setTimeout(function(){load(i,tries+1);},wait);' +
+      '}' +
       'function load(i,tries){' +
         'var xhr=makeXHR();' +
-        'if(!xhr){next(i+1);return;}' +
+        'if(!xhr){return;}' +
+        'var settled=false;' +
+        'function fail(){if(settled)return;settled=true;try{xhr.abort();}catch(e){}retry(i,tries);}' +
+        'var killer=setTimeout(fail,15000);' +
         'xhr.open("GET",BASE+i,true);' +
         'xhr.onreadystatechange=function(){' +
           'if(xhr.readyState===4){' +
+            'if(settled)return;' +
             'var txt=xhr.responseText||"";' +
             'var okBody=txt.indexOf("fb-book")!==-1 && txt.indexOf("kjb-loader")===-1;' +
             'if((xhr.status===200||xhr.status===0)&&okBody){' +
-              'parts[i]=txt;next(i+1);' +
-            '}else if(tries<MAXTRIES){' +
-              'var wait=Math.min(500+tries*400,2500);' +
-              'if(pct){pct.innerHTML=Math.round(i*100/TOTAL)+"% (retrying book "+(i+1)+"\\u2026)";}' +
-              'setTimeout(function(){load(i,tries+1);},wait);' +
+              'settled=true;clearTimeout(killer);parts[i]=txt;next(i+1);' +
             '}else{' +
-              // Give up on this book, keep going so the page still loads.
-              'next(i+1);' +
+              'settled=true;clearTimeout(killer);retry(i,tries);' +
             '}' +
           '}' +
         '};' +
-        'try{xhr.send(null);}catch(e){if(tries<MAXTRIES){setTimeout(function(){load(i,tries+1);},Math.min(500+tries*400,2500));}else{next(i+1);}}' +
+        'try{xhr.send(null);}catch(e){clearTimeout(killer);fail();}' +
       '}' +
       'function start(){next(0);}' +
       'if(window.addEventListener){window.addEventListener("load",start,false);}else if(window.attachEvent){window.attachEvent("onload",start);}else{window.onload=start;}' +
