@@ -302,8 +302,8 @@ Deno.serve(async (req) => {
 '.vn { font-weight:bold; color:#2d2a6e; font-size:11px; margin-right:4px; }' +
 '.subscript { text-align:center; color:#555; font-size:14px; margin:0 0 16px; }' +
 '.colophon { text-align:center; color:#555; font-size:14px; margin:18px 0 0; padding-top:12px; border-top:1px solid #e0e0ec; }' +
-'.pil { color:#888; display:inline; }' +
-'.pil-line { display:inline; margin:0; }' +
+'.pil { color:#888; display:block; }' +
+'.pil-line { display:block; margin:12px 0 6px 0; }' +
 'em { font-style:italic; }' +
 '.nav { text-align:center; margin:20px 0; }' +
 '.nav a { display:inline-block; padding:10px 18px; margin:0 4px; background:#2d2a6e; color:#fff; text-decoration:none; font-size:14px; font-family:Arial,sans-serif; }' +
@@ -373,7 +373,7 @@ Deno.serve(async (req) => {
       let form = '<div class="box">' +
         '<form method="get" action="' + esc(basePath) + '">' + hidden +
         '<input type="hidden" name="chapter" value="1">' +
-        '<div class="ctl"><label>Book:</label><select name="book" onchange="this.form.submit()" onblur="this.form.submit()">' + bookOptions(book) + '</select></div>' +
+        '<div class="ctl"><label>Book:</label><select name="book" onchange="updateChapterDropdown(this.value);this.form.chapter.value=1;">' + bookOptions(book) + '</select></div>' +
         '<noscript><input type="submit" class="read-btn" value="Select Book"></noscript>' +
         '</form>' +
         '<form method="get" action="' + esc(basePath) + '" style="margin-top:12px;">' + hidden +
@@ -503,6 +503,7 @@ Deno.serve(async (req) => {
 
     // Progressive enhancement: works on IE8+, no full-page reload.
     // Uses XMLHttpRequest (with ActiveX fallback for IE8) + hash navigation for IE8/9.
+    // Book dropdown updates chapter dropdown instantly without full page reload.
     const ENHANCE_SCRIPT =
 '<script>(function(){' +
 'var wrap=document.getElementById("wrap");if(!wrap)return;' +
@@ -539,6 +540,32 @@ Deno.serve(async (req) => {
 '}' +
 '};xhr.send();' +
 '}' +
+'function updateChapterDropdown(bookName){' +
+'var chapterCount={' +
+'"Genesis":50,"Exodus":40,"Leviticus":27,"Numbers":36,"Deuteronomy":34,' +
+'"Joshua":24,"Judges":21,"Ruth":4,"1 Samuel":31,"2 Samuel":24,' +
+'"1 Kings":22,"2 Kings":25,"1 Chronicles":29,"2 Chronicles":36,"Ezra":10,' +
+'"Nehemiah":13,"Esther":10,"Job":42,"Psalms":150,"Proverbs":31,' +
+'"Ecclesiastes":12,"Song of Solomon":8,"Isaiah":66,"Jeremiah":52,' +
+'"Lamentations":5,"Ezekiel":48,"Daniel":12,"Hosea":14,"Joel":3,' +
+'"Amos":9,"Obadiah":1,"Jonah":4,"Micah":7,"Nahum":3,' +
+'"Habakkuk":3,"Zephaniah":3,"Haggai":2,"Zechariah":14,"Malachi":4,' +
+'"Matthew":28,"Mark":16,"Luke":24,"John":21,"Acts":28,' +
+'"Romans":16,"1 Corinthians":16,"2 Corinthians":13,"Galatians":6,"Ephesians":6,' +
+'"Philippians":4,"Colossians":4,"1 Thessalonians":5,"2 Thessalonians":3,' +
+'"1 Timothy":6,"2 Timothy":4,"Titus":3,"Philemon":1,"Hebrews":13,' +
+'"James":5,"1 Peter":5,"2 Peter":3,"1 John":5,"2 John":1,' +
+'"3 John":1,"Jude":1,"Revelation":22' +
+'};' +
+'var count=chapterCount[bookName]||1;' +
+'var chapSel=document.getElementsByName("chapter")[0];' +
+'if(!chapSel)return;' +
+'var curVal=chapSel.value||1;' +
+'if(curVal>count)curVal=1;' +
+'var opts="";' +
+'for(var i=1;i<=count;i++){opts+="<option value=\""+i+"\""+(i==curVal?" selected":"")+">"+i+"</option>";}' +
+'chapSel.innerHTML=opts;' +
+'}' +
 'function bind(){' +
 'var links=document.getElementsByTagName("a");' +
 'for(var i=0;i<links.length;i++){' +
@@ -557,9 +584,12 @@ Deno.serve(async (req) => {
 'for(var j=0;j<sels.length;j++){' +
 '(function(s){' +
 'if(s.__kjb)return;s.__kjb=1;' +
+'var isBookSelect=s.name==="book";' +
 'if(s.addEventListener){s.addEventListener("change",onSelect,false);}' +
 'else if(s.attachEvent){s.attachEvent("onchange",onSelect);}' +
-'function onSelect(){var f=s.form;if(!f)return;var act=f.getAttribute("action")||location.pathname;' +
+'function onSelect(){' +
+'if(isBookSelect){updateChapterDropdown(s.value);return;}' +
+'var f=s.form;if(!f)return;var act=f.getAttribute("action")||location.pathname;' +
 'var u=act+"?";var parts=[];' +
 'for(var k=0;k<f.elements.length;k++){var el=f.elements[k];if(el&&el.name){parts.push(encodeURIComponent(el.name)+"="+encodeURIComponent(el.value));}}' +
 'u+=parts.join("&");load(u);if(hasPushState){window.history.pushState({u:u},"",u);}else{location.hash=u;}' +
