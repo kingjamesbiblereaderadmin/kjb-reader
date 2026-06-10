@@ -546,7 +546,7 @@ export default function HomePage() {
         <p className="font-serif text-xl font-bold text-red-700 dark:text-red-400 mb-2">Are you saved?</p>
         <div className="font-sans text-sm text-foreground/80 mb-4 space-y-1.5">
           <p>Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins.</p>
-          <p className="font-medium">Trust Christ's blood, death, burial and resurrection, and be eternally saved.</p>
+          <p className="font-medium">Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.</p>
         </div>
         <Link
           to="/gospel"
