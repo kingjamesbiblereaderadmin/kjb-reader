@@ -125,8 +125,22 @@ Deno.serve(async (req) => {
     let chapter = parseInt(url.searchParams.get('chapter') || '1', 10);
     if (isNaN(chapter) || chapter < 1 || chapter > (CHAPTER_COUNTS[book] || 1)) chapter = 1;
 
-    // The base path of this function (so form actions / links stay on it)
-    const basePath = url.pathname;
+    // The base path that all internal links/forms point back to. On a custom
+    // domain (e.g. kingjamesbiblereader.com) only the public "/legacy" route is
+    // reachable — the internal function path is not — so links MUST use
+    // "/legacy". On base44 hosting we keep the actual function path. We also
+    // forward app_id so the React /legacy route can re-resolve the function.
+    const hostHeader = (req.headers.get('host') || '').toLowerCase();
+    const isCustomDomain = hostHeader.indexOf('base44.app') === -1 &&
+                           hostHeader.indexOf('base44.com') === -1 &&
+                           hostHeader.indexOf('localhost') === -1 &&
+                           hostHeader.indexOf('127.0.0.1') === -1 &&
+                           hostHeader !== '';
+    const appIdParam = url.searchParams.get('app_id');
+    const basePath = isCustomDomain ? '/legacy' : url.pathname;
+    // Suffix appended to every internal link so app_id survives navigation on
+    // base44 hosting (harmless on custom domains).
+    const idSuffix = appIdParam ? '&app_id=' + encodeURIComponent(appIdParam) : '';
 
     const STYLE =
 '* { margin:0; padding:0; box-sizing:border-box; }' +
@@ -157,7 +171,7 @@ Deno.serve(async (req) => {
 '.box a { color:#2d2a6e; }';
 
     const tabLink = function (id, label) {
-      return '<a href="' + esc(basePath) + '?tab=' + id + (id === 'bible' ? '&book=' + encodeURIComponent(book) + '&chapter=' + chapter : '') + '"' + (tab === id ? ' class="on"' : '') + '>' + label + '</a>';
+      return '<a href="' + esc(basePath) + '?tab=' + id + (id === 'bible' ? '&book=' + encodeURIComponent(book) + '&chapter=' + chapter : '') + idSuffix + '"' + (tab === id ? ' class="on"' : '') + '>' + label + '</a>';
     };
 
     let bodyInner = '';
@@ -170,6 +184,7 @@ Deno.serve(async (req) => {
       // Controls form (GET submit reloads the page server-side)
       let form = '<div class="box"><form method="get" action="' + esc(basePath) + '">' +
         '<input type="hidden" name="tab" value="bible">' +
+        (appIdParam ? '<input type="hidden" name="app_id" value="' + esc(appIdParam) + '">' : '') +
         '<div class="ctl"><label>Book:</label><select name="book">' + bookOptions(book) + '</select></div>' +
         '<div class="ctl"><label>Chapter:</label><select name="chapter">' + chapterOptions(book, chapter) + '</select></div>' +
         '<input type="submit" class="read-btn" value="Read Chapter"></form></div>';

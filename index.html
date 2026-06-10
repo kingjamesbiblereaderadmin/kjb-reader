@@ -18,8 +18,11 @@
           // A ?tab= param at the root means a legacy deep link (gospel/resources/
           // about/debug) — route it to the server-rendered legacy reader on ANY
           // browser, since those inline HTML pages live in the legacy function.
+          // Never redirect if we're already on the legacy function path.
+          var onLegacyFn = window.location.pathname.indexOf('/functions/legacy') !== -1
+            || window.location.pathname.indexOf('/legacy') !== -1;
           var wantsLegacyTab = qs.indexOf('tab=') !== -1;
-          if (wantsLegacyTab && !optedOut) {
+          if (wantsLegacyTab && !optedOut && !onLegacyFn) {
             var tHost = window.location.hostname || '';
             var tIsCustom = tHost.indexOf('base44.app') === -1 && tHost.indexOf('localhost') === -1;
             if (tIsCustom) {
