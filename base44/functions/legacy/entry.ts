@@ -273,7 +273,15 @@ function readChapter() {
   
   var bookApiName = {'1 Samuel':'1Sa','2 Samuel':'2Sa','1 Kings':'1Ki','2 Kings':'2Ki','1 Chronicles':'1Ch','2 Chronicles':'2Ch','1 Corinthians':'1Co','2 Corinthians':'2Co','1 Thessalonians':'1Th','2 Thessalonians':'2Th','1 Timothy':'1Ti','2 Timothy':'2Ti','1 Peter':'1Pe','2 Peter':'2Pe','1 John':'1Jo','2 John':'2Jo','3 John':'3Jo','Song of Solomon':'Song'}[book] || book;
   
-  var apiUrl = window.parent !== window ? parent.location.origin + '/api/function/bibleApi' : '/api/function/bibleApi';
+  var baseUrl = '';
+  try {
+    if (window.parent !== window && parent.location && parent.location.origin) {
+      baseUrl = parent.location.origin;
+    }
+  } catch(e) {}
+  var apiUrl = baseUrl + '/api/function/bibleApi';
+  
+  console.log('[LEGACY] Fetching from:', apiUrl);
   
   fetch(apiUrl, {
     method: 'POST',
