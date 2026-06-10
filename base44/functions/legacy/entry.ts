@@ -69,215 +69,6 @@ const FULL_BOOK_NAMES = {
   'Revelation': 'The Revelation of Saint John the Divine'
 };
 
-const PSALM_SUBSCRIPTS = {
-  '3': 'A Psalm of David, when he fled from Absalom his son.',
-  '4': 'To the chief Musician on Neginoth, A Psalm of David.',
-  '5': 'To the chief Musician upon Nehiloth, A Psalm of David.',
-  '6': 'To the chief Musician on Neginoth upon Sheminith, A Psalm of David.',
-  '7': 'Shiggaion of David, which he sang unto the LORD, concerning the words of Cush the Benjamite.',
-  '8': 'To the chief Musician upon Gittith, A Psalm of David.',
-  '9': 'To the chief Musician upon Muth-labben, A Psalm of David.',
-  '11': 'To the chief Musician, A Psalm of David.',
-  '12': 'To the chief Musician upon Sheminith, A Psalm of David.',
-  '13': 'To the chief Musician, A Psalm of David.',
-  '14': 'To the chief Musician, A Psalm of David.',
-  '15': 'A Psalm of David.',
-  '16': 'Michtam of David.',
-  '17': 'A Prayer of David.',
-  '18': 'To the chief Musician, A Psalm of David, the servant of the LORD, who spake unto the LORD the words of this song in the day that the LORD delivered him from the hand of all his enemies, and from the hand of Saul: And he said,',
-  '19': 'To the chief Musician, A Psalm of David.',
-  '20': 'To the chief Musician, A Psalm of David.',
-  '21': 'To the chief Musician, A Psalm of David.',
-  '22': 'To the chief Musician upon Aijeleth Shahar, A Psalm of David.',
-  '23': 'A Psalm of David.',
-  '24': 'A Psalm of David.',
-  '25': 'A Psalm of David.',
-  '26': 'A Psalm of David.',
-  '27': 'A Psalm of David.',
-  '28': 'A Psalm of David.',
-  '29': 'A Psalm of David.',
-  '30': 'A Psalm and Song at the dedication of the house of David.',
-  '31': 'To the chief Musician, A Psalm of David.',
-  '32': 'A Psalm of David, Maschil.',
-  '34': 'A Psalm of David, when he changed his behaviour before Abimelech; who drove him away, and he departed.',
-  '35': 'A Psalm of David.',
-  '36': 'To the chief Musician, A Psalm of David the servant of the LORD.',
-  '37': 'A Psalm of David.',
-  '38': 'A Psalm of David, to bring to remembrance.',
-  '39': 'To the chief Musician, even to Jeduthun, A Psalm of David.',
-  '40': 'To the chief Musician, A Psalm of David.',
-  '41': 'To the chief Musician, A Psalm of David.',
-  '42': 'To the chief Musician, Maschil, for the sons of Korah.',
-  '44': 'To the chief Musician for the sons of Korah, Maschil.',
-  '45': 'To the chief Musician upon Shoshannim, for the sons of Korah, Maschil, A Song of loves.',
-  '46': 'To the chief Musician for the sons of Korah, A Song upon Alamoth.',
-  '47': 'To the chief Musician, A Psalm for the sons of Korah.',
-  '48': 'A Song and Psalm for the sons of Korah.',
-  '49': 'To the chief Musician, A Psalm for the sons of Korah.',
-  '50': 'A Psalm of Asaph.',
-  '51': 'To the chief Musician, A Psalm of David, when Nathan the prophet came unto him, after he had gone in to Bath-sheba.',
-  '52': 'To the chief Musician, Maschil, A Psalm of David, when Doeg the Edomite came and told Saul, and said unto him, David is come to the house of Ahimelech.',
-  '53': 'To the chief Musician upon Mahalath, Maschil, A Psalm of David.',
-  '54': 'To the chief Musician on Neginoth, Maschil, A Psalm of David, when the Ziphims came and said to Saul, Doth not David hide himself with us?',
-  '55': 'To the chief Musician on Neginoth, Maschil, A Psalm of David.',
-  '56': 'To the chief Musician upon Jonath-elem-rechokim, Michtam of David, when the Philistines took him in Gath.',
-  '57': 'To the chief Musician, Al-taschith, Michtam of David, when he fled from Saul in the cave.',
-  '58': 'To the chief Musician, Al-taschith, Michtam of David.',
-  '59': 'To the chief Musician, Al-taschith, Michtam of David; when Saul sent, and they watched the house to kill him.',
-  '60': 'To the chief Musician upon Shushan-eduth, Michtam of David, to teach; when he strove with Aram-naharaim and with Aram-zobah, when Joab returned, and smote of Edom in the valley of salt twelve thousand.',
-  '61': 'To the chief Musician upon Neginah, A Psalm of David.',
-  '62': 'To the chief Musician, to Jeduthun, A Psalm of David.',
-  '63': 'A Psalm of David, when he was in the wilderness of Judah.',
-  '64': 'To the chief Musician, A Psalm of David.',
-  '65': 'A Psalm and Song of David.',
-  '66': 'To the chief Musician, A Song or Psalm.',
-  '67': 'To the chief Musician on Neginoth, A Psalm or Song.',
-  '68': 'To the chief Musician, A Psalm or Song of David.',
-  '69': 'To the chief Musician upon Shoshannim, A Psalm of David.',
-  '70': 'To the chief Musician, A Psalm of David, to bring to remembrance.',
-  '72': 'A Psalm for Solomon.',
-  '73': 'A Psalm of Asaph.',
-  '74': 'Maschil of Asaph.',
-  '75': 'To the chief Musician, Al-taschith, A Psalm or Song of Asaph.',
-  '76': 'To the chief Musician on Neginoth, A Psalm or Song of Asaph.',
-  '77': 'To the chief Musician, to Jeduthun, A Psalm of Asaph.',
-  '78': 'Maschil of Asaph.',
-  '79': 'A Psalm of Asaph.',
-  '80': 'To the chief Musician upon Shoshannim-Eduth, A Psalm of Asaph.',
-  '81': 'To the chief Musician upon Gittith, A Psalm of Asaph.',
-  '82': 'A Psalm of Asaph.',
-  '83': 'A Song or Psalm of Asaph.',
-  '84': 'To the chief Musician upon Gittith, A Psalm for the sons of Korah.',
-  '85': 'To the chief Musician, A Psalm for the sons of Korah.',
-  '86': 'A Prayer of David.',
-  '87': 'A Psalm or Song for the sons of Korah.',
-  '88': 'A Song or Psalm for the sons of Korah, to the chief Musician upon Mahalath Leannoth, Maschil of Heman the Ezrahite.',
-  '89': 'Maschil of Ethan the Ezrahite.',
-  '90': 'A Prayer of Moses the man of God.',
-  '92': 'A Psalm or Song for the sabbath day.',
-  '98': 'A Psalm.',
-  '100': 'A Psalm of praise.',
-  '101': 'A Psalm of David.',
-  '102': 'A Prayer of the afflicted, when he is overwhelmed, and poureth out his complaint before the LORD.',
-  '103': 'A Psalm of David.',
-  '104': 'A Psalm of David.',
-  '105': 'A Psalm of David.',
-  '106': 'A Psalm of David.',
-  '107': 'A Psalm of David.',
-  '108': 'A Psalm of David.',
-  '109': 'To the chief Musician, A Psalm of David.',
-  '110': 'A Psalm of David.',
-  '111': 'A Psalm of David.',
-  '112': 'A Psalm of David.',
-  '113': 'A Psalm of David.',
-  '114': 'A Psalm of David.',
-  '115': 'A Psalm of David.',
-  '116': 'A Psalm of David.',
-  '117': 'A Psalm of David.',
-  '118': 'A Psalm of David.',
-  '119': 'A Psalm of David.',
-  '120': 'A Psalm of David.',
-  '121': 'A Psalm of David.',
-  '122': 'A Psalm of David.',
-  '123': 'A Psalm of David.',
-  '124': 'A Psalm of David.',
-  '125': 'A Psalm of David.',
-  '126': 'A Psalm of David.',
-  '127': 'A Psalm of David.',
-  '128': 'A Psalm of David.',
-  '129': 'A Psalm of David.',
-  '130': 'A Psalm of David.',
-  '131': 'A Psalm of David.',
-  '132': 'A Psalm of David.',
-  '133': 'A Psalm of David.',
-  '134': 'A Psalm of David.',
-  '135': 'A Psalm of David.',
-  '136': 'A Psalm of David.',
-  '137': 'A Psalm of David.',
-  '138': 'A Psalm of David.',
-  '139': 'A Psalm of David.',
-  '140': 'To the chief Musician, A Psalm of David.',
-  '141': 'A Psalm of David.',
-  '142': 'Maschil of David; A Prayer when he was in the cave.',
-  '143': 'A Psalm of David.',
-  '144': 'A Psalm of David.',
-  '145': "David's Psalm of praise.",
-  '146': 'A Psalm of David.',
-  '147': 'A Psalm of David.',
-  '148': 'A Psalm of David.',
-  '149': 'A Psalm of David.',
-  '150': 'A Psalm of David.'
-};
-
-const COLOPHONS = {
-  'Genesis:1': 'The first book of Moses, called Genesis.',
-  'Exodus:1': 'The second book of Moses, called Exodus.',
-  'Leviticus:1': 'The third book of Moses, called Leviticus.',
-  'Numbers:1': 'The fourth book of Moses, called Numbers.',
-  'Deuteronomy:1': 'The fifth book of Moses, called Deuteronomy.',
-  'Joshua:1': 'The book of Joshua.',
-  'Judges:1': 'The book of Judges.',
-  'Ruth:1': 'The book of Ruth.',
-  '1 Samuel:1': 'The first book of Samuel.',
-  '2 Samuel:1': 'The second book of Samuel.',
-  '1 Kings:1': 'The first book of the Kings.',
-  '2 Kings:1': 'The second book of the Kings.',
-  '1 Chronicles:1': 'The first book of the Chronicles.',
-  '2 Chronicles:1': 'The second book of the Chronicles.',
-  'Ezra:1': 'The book of Ezra.',
-  'Nehemiah:1': 'The book of Nehemiah.',
-  'Esther:1': 'The book of Esther.',
-  'Job:1': 'The book of Job.',
-  'Psalms:1': 'The book of Psalms.',
-  'Proverbs:1': 'The Proverbs.',
-  'Ecclesiastes:1': 'The book of the Preacher, called Ecclesiastes.',
-  'Song of Solomon:1': 'The Song of Solomon.',
-  'Isaiah:1': 'The book of the Prophet Isaiah.',
-  'Jeremiah:1': 'The book of the Prophet Jeremiah.',
-  'Lamentations:1': 'The Lamentations of Jeremiah.',
-  'Ezekiel:1': 'The book of the Prophet Ezekiel.',
-  'Daniel:1': 'The book of the Prophet Daniel.',
-  'Hosea:1': 'The book of the Prophet Hosea.',
-  'Joel:1': 'The book of the Prophet Joel.',
-  'Amos:1': 'The book of the Prophet Amos.',
-  'Obadiah:1': 'The book of the Prophet Obadiah.',
-  'Jonah:1': 'The book of the Prophet Jonah.',
-  'Micah:1': 'The book of the Prophet Micah.',
-  'Nahum:1': 'The book of the Prophet Nahum.',
-  'Habakkuk:1': 'The book of the Prophet Habakkuk.',
-  'Zephaniah:1': 'The book of the Prophet Zephaniah.',
-  'Haggai:1': 'The book of the Prophet Haggai.',
-  'Zechariah:1': 'The book of the Prophet Zechariah.',
-  'Malachi:1': 'The book of the Prophet Malachi.',
-  'Matthew:1': 'The Gospel According to Saint Matthew.',
-  'Mark:1': 'The Gospel According to Saint Mark.',
-  'Luke:1': 'The Gospel According to Saint Luke.',
-  'John:1': 'The Gospel According to Saint John.',
-  'Acts:1': 'The Acts of the Apostles.',
-  'Romans:1': 'The Epistle of Paul the Apostle to the Romans.',
-  '1 Corinthians:1': 'The First Epistle of Paul the Apostle to the Corinthians.',
-  '2 Corinthians:1': 'The Second Epistle of Paul the Apostle to the Corinthians.',
-  'Galatians:1': 'The Epistle of Paul the Apostle to the Galatians.',
-  'Ephesians:1': 'The Epistle of Paul the Apostle to the Ephesians.',
-  'Philippians:1': 'The Epistle of Paul the Apostle to the Philippians.',
-  'Colossians:1': 'The Epistle of Paul the Apostle to the Colossians.',
-  '1 Thessalonians:1': 'The First Epistle of Paul the Apostle to the Thessalonians.',
-  '2 Thessalonians:1': 'The Second Epistle of Paul the Apostle to the Thessalonians.',
-  '1 Timothy:1': 'The First Epistle of Paul the Apostle to Timothy.',
-  '2 Timothy:1': 'The Second Epistle of Paul the Apostle to Timothy.',
-  'Titus:1': 'The Epistle of Paul the Apostle to Titus.',
-  'Philemon:1': 'The Epistle of Paul the Apostle to Philemon.',
-  'Hebrews:1': 'The Epistle of Paul the Apostle to the Hebrews.',
-  'James:1': 'The General Epistle of James.',
-  '1 Peter:1': 'The First General Epistle of Peter.',
-  '2 Peter:1': 'The Second General Epistle of Peter.',
-  '1 John:1': 'The First General Epistle of John.',
-  '2 John:1': 'The Second General Epistle of John.',
-  '3 John:1': 'The Third General Epistle of John.',
-  'Jude:1': 'The General Epistle of Jude.',
-  'Revelation:1': 'The Revelation of Saint John the Divine.'
-};
-
 const CHAPTER_COUNTS = {
   Genesis:50,Exodus:40,Leviticus:27,Numbers:36,Deuteronomy:34,Joshua:24,Judges:21,Ruth:4,
   '1 Samuel':31,'2 Samuel':24,'1 Kings':22,'2 Kings':25,'1 Chronicles':29,'2 Chronicles':36,
@@ -290,29 +81,10 @@ const CHAPTER_COUNTS = {
   '1 John':5,'2 John':1,'3 John':1,Jude:1,Revelation:22
 };
 
-const ABBR_TO_NAME = {
-  'Ge':'Genesis','Ex':'Exodus','Le':'Leviticus','Nu':'Numbers','De':'Deuteronomy',
-  'Jos':'Joshua','Jg':'Judges','Ru':'Ruth','1Sa':'1 Samuel','2Sa':'2 Samuel',
-  '1Ki':'1 Kings','2Ki':'2 Kings','1Ch':'1 Chronicles','2Ch':'2 Chronicles',
-  'Ezr':'Ezra','Ne':'Nehemiah','Es':'Esther','Job':'Job','Ps':'Psalms','Pr':'Proverbs',
-  'Ec':'Ecclesiastes','Song':'Song of Solomon','Isa':'Isaiah','Jer':'Jeremiah',
-  'La':'Lamentations','Eze':'Ezekiel','Da':'Daniel','Ho':'Hosea','Joe':'Joel',
-  'Am':'Amos','Ob':'Obadiah','Jon':'Jonah','Mic':'Micah','Na':'Nahum',
-  'Hab':'Habakkuk','Zep':'Zephaniah','Hag':'Haggai','Zec':'Zechariah','Mal':'Malachi',
-  'Mt':'Matthew','Mr':'Mark','Lu':'Luke','Joh':'John','Ac':'Acts','Ro':'Romans',
-  '1Co':'1 Corinthians','2Co':'2 Corinthians','Ga':'Galatians','Eph':'Ephesians',
-  'Php':'Philippians','Col':'Colossians','1Th':'1 Thessalonians','2Th':'2 Thessalonians',
-  '1Ti':'1 Timothy','2Ti':'2 Timothy','Tit':'Titus','Phm':'Philemon','Heb':'Hebrews',
-  'Jas':'James','1Pe':'1 Peter','2Pe':'2 Peter','1Jo':'1 John','2Jo':'2 John',
-  '3Jo':'3 John','Jude':'Jude','Re':'Revelation'
-};
-
 Deno.serve(async (req) => {
   try {
     const metadata = {
       books: BOOK_ORDER,
-      colophons: COLOPHONS,
-      psalmSubscripts: PSALM_SUBSCRIPTS,
       fullBookNames: FULL_BOOK_NAMES,
       chapterCounts: CHAPTER_COUNTS
     };
@@ -351,26 +123,15 @@ body { background: #f5f5f7; color: #1a1a1a; font-family: Georgia, serif; font-si
 .verses { text-align: left; max-width: 700px; margin: 0 auto; }
 .verse { margin-bottom: 8px; }
 .verse-num { font-weight: bold; color: #2d2a6e; font-size: 12px; margin-right: 4px; }
-.verse-pilcrow { text-align: center; font-size: 18px; color: #000; margin: 12px 0; opacity: 0.6; }
-.subscript { text-align: center; font-style: italic; color: #555; margin: 16px 0 24px 0; font-size: 14px; }
-.colophon { text-align: center; font-style: italic; color: #666; margin: 32px 0 16px 0; padding-top: 16px; border-top: 1px solid #ddd; }
-.footer { text-align: center; font-size: 11px; color: #999; margin-top: 32px; padding-top: 16px; border-top: 1px solid #eee; }
 .content-section { background: #fff; padding: 16px; margin-bottom: 16px; border-radius: 4px; border: 1px solid #ddd; }
 .content-section h3 { color: #2d2a6e; margin-bottom: 12px; font-size: 16px; }
 .content-section blockquote { background: #f9f9f9; padding: 12px; margin: 8px 0; border-left: 3px solid #2d2a6e; font-style: italic; }
 .content-section ul { margin-left: 20px; }
 .content-section li { margin-bottom: 6px; }
-.res-section { margin-bottom: 16px; }
-.res-section h3 { color: #2d2a6e; margin-bottom: 12px; }
-.res-item { background: #fff; padding: 12px; margin-bottom: 8px; border-radius: 4px; border: 1px solid #ddd; }
-.res-item strong { display: block; color: #2d2a6e; margin-bottom: 4px; }
-.res-item p { font-size: 13px; color: #666; margin-bottom: 6px; font-family: Arial, sans-serif; }
-.res-item a { color: #2d2a6e; text-decoration: none; }
-.res-item a:hover { text-decoration: underline; }
 .links-list { display: flex; flex-direction: column; gap: 8px; }
 .links-list a { color: #2d2a6e; text-decoration: none; font-size: 14px; }
 .links-list a:hover { text-decoration: underline; }
-#debug-info { background: #f0f0f7; padding: 12px; border-radius: 4px; font-family: monospace; font-size: 12px; white-space: pre-wrap; }
+#debug-info { background: #f0f0f7; padding: 12px; border-radius: 4px; font-family: monospace; font-size: 12px; }
 .loading { text-align: center; padding: 40px; color: #666; }
 .error { text-align: center; padding: 40px; color: #c00; }
 </style>
@@ -411,77 +172,32 @@ body { background: #f5f5f7; color: #1a1a1a; font-family: Georgia, serif; font-si
 <div class="content-section">
 <h3>1. Believe you are a sinner that deserves hell</h3>
 <blockquote>"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin." — Romans 3:20</blockquote>
-<blockquote>"The wicked shall be turned into hell, and all the nations that forget God." — Psalm 9:17</blockquote>
 </div>
 <div class="content-section">
 <h3>2. Believe that Jesus is God manifested in the flesh</h3>
-<blockquote>"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory." — 1 Timothy 3:16</blockquote>
+<blockquote>"And without controversy great is the mystery of godliness: God was manifest in the flesh..." — 1 Timothy 3:16</blockquote>
 </div>
 <div class="content-section">
 <h3>3. Believe he died, shed his blood, was buried and rose again</h3>
-<blockquote>"Moreover, brethren, I declare unto you the gospel which I preached unto you... how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." — 1 Corinthians 15:1–4</blockquote>
-<blockquote>"Whom God hath set forth to be a propitiation through faith in his blood, to declare his righteousness for the remission of sins that are past, through the forbearance of God;" — Romans 3:25</blockquote>
-</div>
-<div class="content-section" style="background:#fff8f8;border-color:#fcc;">
-<h3>These do NOT make you a Christian:</h3>
-<ul>
-<li>Repenting of sins</li>
-<li>Making Jesus Lord</li>
-<li>Being a member of a church</li>
-<li>Tithing</li>
-<li>Being baptised (water)</li>
-<li>Saying a sinner's prayer</li>
-<li>Confessing with your mouth</li>
-<li>Lordship Salvation</li>
-</ul>
-</div>
-<div class="content-section" style="background:#f0fff0;border-color:#afa;">
-<h3>Once Saved, Always Saved</h3>
-<p style="font-family:Arial,sans-serif;font-size:13px;color:#333;margin:0 0 8px 0;">A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life.</p>
-<blockquote>"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." — Ephesians 1:13</blockquote>
-</div>
-<div style="margin:16px 0;padding:12px;background:#fff;border:1px solid #ddd;border-radius:4px;">
-<p style="font-family:Arial,sans-serif;font-size:13px;margin:0 0 8px 0;"><strong>Watch the Gospel:</strong></p>
-<a href="https://www.youtube.com/watch?v=znP9Dr6tOzU" target="_blank" style="font-family:Arial,sans-serif;font-size:13px;color:#c00;">▶ THE GOSPEL THAT SAVES — Robert Breaker (YouTube)</a>
+<blockquote>"Moreover, brethren, I declare unto you the gospel which I preached unto you... how that Christ died for our sins according to the scriptures..." — 1 Corinthians 15:1–4</blockquote>
 </div>
 </div>
 
 <div id="tab-resources" class="tab-content">
 <h2 style="color:#2d2a6e;margin:16px 0 4px 0;">Resources</h2>
-<p style="font-family:Arial,sans-serif;font-size:13px;color:#555;margin:0 0 12px 0;">KJB defence materials and free Bible study resources.</p>
-<div style="background:#f0fff0;border:1px solid #ada;border-radius:4px;padding:12px;margin:0 0 14px 0;">
-<strong style="font-family:Arial,sans-serif;font-size:14px;">KJBI.org — Free Online Bible College</strong>
-<p style="font-family:Arial,sans-serif;font-size:13px;color:#555;margin:4px 0 6px 0;">King James Bible Institute — a free online Bible college.</p>
-<a href="https://kjbi.org" target="_blank" style="font-family:Arial,sans-serif;font-size:13px;color:#2d2a6e;">Visit KJBI.org →</a>
-</div>
-<div class="res-section">
-<h3>KJB Defence</h3>
-<div class="res-item">
-<strong>Pure Cambridge Edition</strong>
-<p>The definitive electronic text of the PCE.</p>
-<a href="https://www.bibleprotector.com" target="_blank">bibleprotector.com</a>
-</div>
-<div class="res-item">
-<strong>KJV Compare</strong>
-<p>Go through hundreds of changes made in modern versions.</p>
-<a href="https://kjvcompare.com/" target="_blank">kjvcompare.com</a>
-</div>
+<div class="content-section">
+<h3>Bible Resources</h3>
+<p style="font-family:Arial,sans-serif;font-size:13px;color:#666;margin-bottom:12px;">
+<a href="https://www.bibleprotector.com" target="_blank" style="color:#2d2a6e;">Pure Cambridge Edition — bibleprotector.com</a><br/>
+<a href="https://kjvcompare.com/" target="_blank" style="color:#2d2a6e;">KJV Compare — Modern Version Critiques</a>
+</p>
 </div>
 </div>
 
 <div id="tab-about" class="tab-content">
 <h2 style="color:#2d2a6e;margin:16px 0 8px 0;">About the Ministry</h2>
 <div class="content-section">
-<p>I'm Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. I am a dispensational salvationist, rightly dividing the word of truth.</p>
-<ul style="margin-left:20px;margin-top:8px;">
-<li>I reject Catholicism, Calvinism, Pentecostalism, Mormonism, Jehovah's Witnesses, etc.</li>
-<li>I believe in the blood-stained gospel as the only way to be saved.</li>
-<li>To be saved: Believe Jesus is God and that He died for your sins, shed his blood, was buried and rose again for your justification.</li>
-<li>I believe in OSAS (Once Saved, Always Saved).</li>
-</ul>
-</div>
-<div class="content-section">
-<h3>Links & Contact</h3>
+<p>The King James Bible is the pure, infallible, perfect Word of God in the English language.</p>
 <div class="links-list">
 <a href="https://youtube.com/@shawnr325av" target="_blank">▶ YouTube: @shawnr325av</a>
 <a href="mailto:kingjamesbiblereader@outlook.sg">✉ kingjamesbiblereader@outlook.sg</a>
@@ -490,89 +206,24 @@ body { background: #f5f5f7; color: #1a1a1a; font-family: Georgia, serif; font-si
 </div>
 
 <div id="tab-debug" class="tab-content">
-<h2 style="color:#2d2a6e;margin:16px 0 4px 0;">Debug Information</h2>
-<button class="read-btn" onclick="updateDebugInfo()" style="margin-bottom:10px;">Refresh Status</button>
-<div id="debug-info"></div>
+<h2 style="color:#2d2a6e;margin:16px 0 4px 0;">Debug</h2>
+<div id="debug-info">Metadata loaded. Ready to load chapters.</div>
 </div>
 </div>
 
 <script>
 var METADATA = ${JSON.stringify(metadata)};
 var BIBLE_DATA = {};
-var CHAPTERS_CACHE = {};
 
-console.log('[LEGACY] Metadata loaded:', METADATA.books.length, 'books');
-
-function getApiBookName(n) {
-  var m = {'1 Samuel':'1Sa','2 Samuel':'2Sa','1 Kings':'1Ki','2 Kings':'2Ki','1 Chronicles':'1Ch','2 Chronicles':'2Ch','1 Corinthians':'1Co','2 Corinthians':'2Co','1 Thessalonians':'1Th','2 Thessalonians':'2Th','1 Timothy':'1Ti','2 Timothy':'2Ti','1 Peter':'1Pe','2 Peter':'2Pe','1 John':'1Jo','2 John':'2Jo','3 John':'3Jo','Song of Solomon':'Song'};
-  return m[n] || n;
-}
-
-function fetchChapterData(book, chapter, callback) {
-  if (BIBLE_DATA[book] && BIBLE_DATA[book][chapter]) {
-    callback(null, BIBLE_DATA[book][chapter]);
-    return;
-  }
-  var bookApiName = getApiBookName(book);
-  console.log('[LEGACY] Fetching:', bookApiName, chapter);
-  fetch('/bibleApi', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({action: 'getChapter', book: bookApiName, chapter: parseInt(chapter)})
-  }).then(function(res) {
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    return res.json();
-  }).then(function(result) {
-    console.log('[LEGACY] Got:', result.verses ? result.verses.length : 0, 'verses');
-    if (result.error) {
-      callback(new Error(result.error));
-      return;
-    }
-    if (!BIBLE_DATA[book]) BIBLE_DATA[book] = {};
-    BIBLE_DATA[book][chapter] = result.verses;
-    if (result.colophon) METADATA.colophons[book + ':' + chapter] = result.colophon;
-    if (!CHAPTERS_CACHE[book]) CHAPTERS_CACHE[book] = [];
-    if (CHAPTERS_CACHE[book].indexOf(parseInt(chapter)) === -1) {
-      CHAPTERS_CACHE[book].push(parseInt(chapter));
-      CHAPTERS_CACHE[book].sort(function(a, b) { return a - b; });
-    }
-    callback(null, result.verses);
-  }).catch(function(err) {
-    console.error('[LEGACY] Fetch error:', err);
-    callback(err);
-  });
-}
+console.log('[LEGACY] Initialized with', METADATA.books.length, 'books');
 
 function switchTab(name) {
-  console.log('[LEGACY] switchTab:', name);
-  var tabContents = document.querySelectorAll('.tab-content');
-  for (var i = 0; i < tabContents.length; i++) {
-    tabContents[i].classList.remove('active');
-  }
-  var tabElement = document.getElementById('tab-' + name);
-  if (tabElement) {
-    tabElement.classList.add('active');
-  }
-  var tabButtons = document.querySelectorAll('.tab-btn');
-  for (var j = 0; j < tabButtons.length; j++) {
-    var btn = tabButtons[j];
-    if (btn.textContent.toLowerCase().indexOf(name) === 0) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
-  }
-  if (name === 'debug') {
-    updateDebugInfo();
-  }
-}
-
-function updateDebugInfo() {
-  var info = 'Bible Data Source: On-demand via bibleApi\\n';
-  info += 'Metadata Books: ' + METADATA.books.length + '/66\\n';
-  info += 'Metadata Colophons: ' + Object.keys(METADATA.colophons).length + '\\n';
-  info += 'Cached Chapters: ' + Object.keys(BIBLE_DATA).length + ' books\\n';
-  document.getElementById('debug-info').textContent = info;
+  document.querySelectorAll('.tab-content').forEach(function(el) { el.classList.remove('active'); });
+  var tab = document.getElementById('tab-' + name);
+  if (tab) tab.classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.classList.toggle('active', btn.textContent.toLowerCase().startsWith(name));
+  });
 }
 
 function populateBooks() {
@@ -603,88 +254,54 @@ function updateChapters() {
   var sel = document.getElementById('chapSel');
   sel.innerHTML = '';
   if (!book) return;
-  
-  var totalChapters = METADATA.chapterCounts[book] || 39;
-  if (!CHAPTERS_CACHE[book]) CHAPTERS_CACHE[book] = [];
-  for (var c = 1; c <= totalChapters; c++) {
-    if (CHAPTERS_CACHE[book].indexOf(c) === -1) CHAPTERS_CACHE[book].push(c);
-  }
-  
-  for (var i = 0; i < totalChapters; i++) {
+  var totalChapters = METADATA.chapterCounts[book] || 1;
+  for (var i = 1; i <= totalChapters; i++) {
     var opt = document.createElement('option');
-    opt.value = (i + 1);
-    opt.textContent = (i + 1);
+    opt.value = i;
+    opt.textContent = i;
     sel.appendChild(opt);
   }
-  setTimeout(function() { readChapter(); }, 100);
+  setTimeout(readChapter, 100);
 }
 
 function readChapter() {
   var book = document.getElementById('bookSel').value;
   var chap = document.getElementById('chapSel').value;
-  console.log('[LEGACY] readChapter:', book, chap);
+  if (!book || !chap) return;
   
-  if (!book || !chap) {
-    document.getElementById('chapter-display').innerHTML = '<p class="error">Please select a book and chapter.</p>';
-    return;
-  }
+  document.getElementById('chapter-display').innerHTML = '<div class="loading">Loading ' + book + ' ' + chap + '...</div>';
   
-  document.getElementById('chapter-display').innerHTML = '<div class="loading">Loading chapter...</div>';
+  var bookApiName = {'1 Samuel':'1Sa','2 Samuel':'2Sa','1 Kings':'1Ki','2 Kings':'2Ki','1 Chronicles':'1Ch','2 Chronicles':'2Ch','1 Corinthians':'1Co','2 Corinthians':'2Co','1 Thessalonians':'1Th','2 Thessalonians':'2Th','1 Timothy':'1Ti','2 Timothy':'2Ti','1 Peter':'1Pe','2 Peter':'2Pe','1 John':'1Jo','2 John':'2Jo','3 John':'3Jo','Song of Solomon':'Song'}[book] || book;
   
-  fetchChapterData(book, chap, function(err, verses) {
-    if (err) {
-      document.getElementById('chapter-display').innerHTML = '<p class="error">Error: ' + err.message + '</p>';
-      return;
+  var apiUrl = window.parent !== window ? parent.location.origin + '/api/function/bibleApi' : '/api/function/bibleApi';
+  
+  fetch(apiUrl, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({action: 'getChapter', book: bookApiName, chapter: parseInt(chap)})
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    if (!data.verses) throw new Error('No verses returned');
+    BIBLE_DATA[book] = BIBLE_DATA[book] || {};
+    BIBLE_DATA[book][chap] = data.verses;
+    
+    var fullName = METADATA.fullBookNames[book] || book;
+    var html = '<div class="chapter-display"><div class="chapter-header"><span class="chapter-book">' + fullName + '</span><span class="chapter-num">Chapter ' + chap + '</span></div><div class="verses">';
+    
+    for (var v = 0; v < data.verses.length; v++) {
+      var verseText = data.verses[v].text.replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
+      html += '<div class="verse"><span class="verse-num">' + data.verses[v].verse + '</span> ' + verseText + '</div>';
     }
-    
-    var fullBookName = METADATA.fullBookNames[book] || book;
-    var html = '<div class="chapter-display">';
-    html += '<div class="chapter-header">';
-    html += '<span class="chapter-book">' + fullBookName + '</span>';
-    html += '<span class="chapter-num">Chapter ' + chap + '</span>';
-    html += '</div>';
-    
-    // Psalm subscript
-    if (book === 'Psalms' && METADATA.psalmSubscripts[chap]) {
-      var subHtml = METADATA.psalmSubscripts[chap].replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
-      html += '<div class="subscript">' + subHtml + '</div>';
-    }
-    
-    html += '<div class="verses">';
-    for (var v = 0; v < verses.length; v++) {
-      var verseText = verses[v].text;
-      var hasPilcrow = verseText.indexOf('¶') !== -1;
-      verseText = verseText.replace(/¶\\s*/g, '');
-      verseText = verseText.replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
-      
-      if (hasPilcrow) {
-        html += '<div class="verse-pilcrow">¶</div>';
-      }
-      html += '<div class="verse"><span class="verse-num">' + verses[v].verse + '</span> ' + verseText + '</div>';
-    }
-    html += '</div>';
-    
-    // Colophon
-    var colophon = METADATA.colophons[book + ':' + chap];
-    if (colophon) {
-      var colophonHtml = colophon.replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
-      html += '<div class="colophon">' + colophonHtml + '</div>';
-    }
-    
-    html += '</div>';
+    html += '</div></div>';
     document.getElementById('chapter-display').innerHTML = html;
-    window.scrollTo(0, 0);
+  }).catch(function(err) {
+    document.getElementById('chapter-display').innerHTML = '<p class="error">Error loading chapter: ' + err.message + '</p>';
   });
 }
 
-// Initialize
 (function init() {
-  console.log('[LEGACY] Initializing...');
   try {
-    var statusDiv = document.getElementById('status');
-    statusDiv.innerHTML = '<div class="status success">✓ Ready (' + METADATA.books.length + ' books)</div>';
+    document.getElementById('status').innerHTML = '<div class="status success">✓ Ready (' + METADATA.books.length + ' books)</div>';
     populateBooks();
-    console.log('[LEGACY] Ready');
   } catch (e) {
     console.error('[LEGACY] Init error:', e);
   }
