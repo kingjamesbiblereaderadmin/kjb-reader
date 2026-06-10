@@ -13,15 +13,82 @@ async function fetchBibleText() {
   return cachedBibleText;
 }
 
+// Server-side parse to validate the text before embedding
+function serverParse(text) {
+  const TITLE_TO_BOOK = {
+    "GENESIS":"Genesis","EXODUS":"Exodus","LEVITICUS":"Leviticus","NUMBERS":"Numbers",
+    "DEUTERONOMY":"Deuteronomy","JOSHUA":"Joshua","JUDGES":"Judges","RUTH":"Ruth",
+    "1 SAMUEL":"1 Samuel","2 SAMUEL":"2 Samuel","1 KINGS":"1 Kings","2 KINGS":"2 Kings",
+    "1 CHRONICLES":"1 Chronicles","2 CHRONICLES":"2 Chronicles","EZRA":"Ezra",
+    "NEHEMIAH":"Nehemiah","ESTHER":"Esther","JOB":"Job","PSALMS":"Psalms",
+    "PROVERBS":"Proverbs","ECCLESIASTES":"Ecclesiastes","SONG OF SOLOMON":"Song of Solomon",
+    "ISAIAH":"Isaiah","JEREMIAH":"Jeremiah","LAMENTATIONS":"Lamentations",
+    "EZEKIEL":"Ezekiel","DANIEL":"Daniel","HOSEA":"Hosea","JOEL":"Joel","AMOS":"Amos",
+    "OBADIAH":"Obadiah","JONAH":"Jonah","MICAH":"Micah","NAHUM":"Nahum",
+    "HABAKKUK":"Habakkuk","ZEPHANIAH":"Zephaniah","HAGGAI":"Haggai",
+    "ZECHARIAH":"Zechariah","MALACHI":"Malachi","MATTHEW":"Matthew","MARK":"Mark",
+    "LUKE":"Luke","JOHN":"John","ACTS":"Acts","ROMANS":"Romans",
+    "1 CORINTHIANS":"1 Corinthians","2 CORINTHIANS":"2 Corinthians","GALATIANS":"Galatians",
+    "EPHESIANS":"Ephesians","PHILIPPIANS":"Philippians","COLOSSIANS":"Colossians",
+    "1 THESSALONIANS":"1 Thessalonians","2 THESSALONIANS":"2 Thessalonians",
+    "1 TIMOTHY":"1 Timothy","2 TIMOTHY":"2 Timothy","TITUS":"Titus","PHILEMON":"Philemon",
+    "HEBREWS":"Hebrews","JAMES":"James","1 PETER":"1 Peter","2 PETER":"2 Peter",
+    "1 JOHN":"1 John","2 JOHN":"2 John","3 JOHN":"3 John","JUDE":"Jude","REVELATION":"Revelation"
+  };
+  const lines = text.split(/\r?\n/);
+  let currentBook = null, currentChap = null, verseNum = 0, matched = 0;
+  const booksFound = [];
+  const titleBuffer = [];
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line) { titleBuffer.length = 0; continue; }
+
+    const chapMatch = line.match(/^CHAPTER (\d+)$/);
+    if (chapMatch) { currentChap = chapMatch[1]; verseNum = 0; titleBuffer.length = 0; continue; }
+
+    if (/^[A-Z][A-Z ,.\-0-9']+$/.test(line)) {
+      titleBuffer.push(line.replace(/[.,]$/, "").trim());
+      let found = null;
+      const last = titleBuffer[titleBuffer.length - 1];
+      if (TITLE_TO_BOOK[last]) found = TITLE_TO_BOOK[last];
+      if (!found) {
+        for (let t = 0; t < titleBuffer.length; t++) {
+          if (TITLE_TO_BOOK[titleBuffer[t]]) { found = TITLE_TO_BOOK[titleBuffer[t]]; break; }
+          if (t+1 < titleBuffer.length && TITLE_TO_BOOK[titleBuffer[t]+" "+titleBuffer[t+1]]) {
+            found = TITLE_TO_BOOK[titleBuffer[t]+" "+titleBuffer[t+1]]; break;
+          }
+        }
+      }
+      if (found) { currentBook = found; currentChap = null; verseNum = 0; titleBuffer.length = 0; booksFound.push(found); }
+      continue;
+    }
+
+    if (currentBook && currentChap) {
+      titleBuffer.length = 0;
+      const vMatch = line.match(/^(\d+)\s+(.+)$/);
+      if (vMatch) { verseNum = parseInt(vMatch[1]); matched++; }
+      else if (verseNum === 0) { verseNum = 1; matched++; }
+    } else { titleBuffer.length = 0; }
+  }
+  return { totalLines: lines.length, matched, booksFound: booksFound.length, firstBooks: booksFound.slice(0,5) };
+}
+
 Deno.serve(async (req) => {
+  const url = new URL(req.url);
   let bibleText = "";
   try {
     bibleText = await fetchBibleText();
     console.log("[legacy] Bible text fetched, length:", bibleText.length);
-    // Log first 500 chars to see format
     console.log("[legacy] First 500 chars:", JSON.stringify(bibleText.substring(0, 500)));
   } catch(e) {
     console.error("[legacy] Failed to fetch Bible text:", e.message);
+  }
+
+  // ?debug=1 returns a JSON parse report
+  if (url.searchParams.get("debug") === "1") {
+    const report = bibleText ? serverParse(bibleText) : { error: "no text" };
+    return Response.json(report);
   }
 
   // Escape for safe embedding inside a JS double-quoted string
@@ -348,26 +415,39 @@ Deno.serve(async (req) => {
       else { var bi = availableBooks.indexOf(book); if(bi<availableBooks.length-1){ var nb=availableBooks[bi+1]; var nc=chaptersFor(nb); bookSel.value=nb; fillChapters(nb); chapSel.value=nc[0]; showChapter(nb,nc[0]); } }
     });
 
+    var debugDiv = document.getElementById("debug");
+
     if (!BIBLE_TEXT || BIBLE_TEXT.length < 1000) {
+      debugDiv.textContent = "ERROR: BIBLE_TEXT too short (" + (BIBLE_TEXT ? BIBLE_TEXT.length : 0) + " chars)";
+      debugDiv.style.display = "block";
       setStatus("Could not load the Bible text. Please refresh.", true);
       return;
     }
+
+    // Show live trace
+    var preLines = BIBLE_TEXT.split("\n");
+    var traceLines = ["TEXT OK: " + BIBLE_TEXT.length + " chars, " + preLines.length + " lines", "First 5 non-empty:"];
+    var shown = 0;
+    for (var pi = 0; pi < preLines.length && shown < 5; pi++) {
+      var pl = preLines[pi].replace(/\r$/, "");
+      if (pl.trim()) { traceLines.push("  [" + pl.substring(0, 80) + "]"); shown++; }
+    }
+    traceLines.push("Parsing...");
+    debugDiv.textContent = traceLines.join("\n");
+    debugDiv.style.display = "block";
+
     parseBible(BIBLE_TEXT);
+
     if (!availableBooks.length) {
-      // Show debug: first 5 non-empty lines
-      var debugDiv = document.getElementById("debug");
-      var lines = BIBLE_TEXT.split("\n");
-      var info = "Parse failed. First 5 non-empty lines:";
-      var shown = 0;
-      for (var li = 0; li < lines.length && shown < 5; li++) {
-        var l = lines[li].trim();
-        if (l) { info += "\\n  [" + l.substring(0, 120) + "]"; shown++; }
-      }
-      debugDiv.textContent = info;
-      debugDiv.style.display = "block";
+      traceLines.push("PARSE FAILED: 0 books found");
+      debugDiv.textContent = traceLines.join("\n");
       setStatus("Bible text could not be parsed on this device.", true);
       return;
     }
+
+    debugDiv.textContent = "OK: " + availableBooks.length + " books parsed. First: " + availableBooks.slice(0,3).join(", ");
+    setTimeout(function() { debugDiv.style.display = "none"; }, 4000);
+
     fillBooks();
     bookSel.value = availableBooks[0];
     fillChapters(availableBooks[0]);
