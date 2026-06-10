@@ -494,6 +494,31 @@ var COLOPHONS = ${JSON.stringify(COLOPHONS)};
 var FULL_BOOK_NAMES = ${JSON.stringify(FULL_BOOK_NAMES)};
 var BIBLE_DATA = {};
 var COLOPHON_DATA = {};
+var CACHE_VERSION = 'v20260610_281';
+var CACHE_KEY = 'kjb_legacy_bible_cache';
+
+function loadFromCache() {
+  try {
+    var cached = localStorage.getItem(CACHE_KEY);
+    var version = localStorage.getItem('kjb_legacy_version');
+    if (cached && version === CACHE_VERSION) {
+      var parsed = JSON.parse(cached);
+      BIBLE_DATA = parsed.bibleData || {};
+      COLOPHON_DATA = parsed.colophons || {};
+      console.log('[LEGACY] Loaded from cache:', Object.keys(BIBLE_DATA).length, 'books');
+      return true;
+    }
+  } catch(e) { console.error('[LEGACY] Cache load failed:', e); }
+  return false;
+}
+
+function saveToCache() {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ bibleData: BIBLE_DATA, colophons: COLOPHON_DATA }));
+    localStorage.setItem('kjb_legacy_version', CACHE_VERSION);
+    console.log('[LEGACY] Saved to cache');
+  } catch(e) { console.error('[LEGACY] Cache save failed:', e); }
+}
 
 function switchTab(name) {
   document.querySelectorAll('.tab-content').forEach(function(el) { el.classList.remove('active'); });
@@ -504,10 +529,14 @@ function switchTab(name) {
 }
 
 function updateDebugInfo() {
-  var info = 'Bible Data Source: ' + (Object.keys(BIBLE_DATA).length > 0 ? 'Loaded from API' : 'Not loaded') + '\\\\n';
+  var cached = localStorage.getItem(CACHE_KEY);
+  var version = localStorage.getItem('kjb_legacy_version');
+  var info = 'Bible Data Source: ' + (cached ? 'Cache (v' + version + ')' : 'API') + '\\\\n';
   info += 'Bible Data Loaded: ' + (BIBLE_DATA && Object.keys(BIBLE_DATA).length > 0 ? 'Yes' : 'No') + '\\\\n';
   info += 'Total Books Loaded: ' + (Object.keys(BIBLE_DATA).length) + '/66\\\\n';
   info += 'Colophons Loaded: ' + (Object.keys(COLOPHON_DATA).length) + '\\\\n';
+  info += 'Cache Status: ' + (cached ? 'Active' : 'Not cached') + '\\\\n';
+  info += 'Cache Version: ' + (version || 'None') + '\\\\n';
   document.getElementById('debug-info').textContent = info;
 }
 
@@ -626,6 +655,10 @@ function showDailyVerse() {
 }
 
 function loadBibleData() {
+  if (loadFromCache() && Object.keys(BIBLE_DATA).length > 0) {
+    return Promise.resolve();
+  }
+  
   return fetch('/api/function/bibleApi', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -658,17 +691,21 @@ function loadBibleData() {
     }
     
     return Promise.all(promises);
+  })
+  .then(function() {
+    saveToCache();
   });
 }
 
 window.addEventListener('load', function() {
   var statusDiv = document.getElementById('status');
-  statusDiv.innerHTML = '<div class="status">Downloading Bible data... please wait</div>';
+  var cached = localStorage.getItem(CACHE_KEY);
+  statusDiv.innerHTML = '<div class="status">' + (cached ? 'Loading from cache...' : 'Downloading Bible data...') + '</div>';
   
   loadBibleData()
     .then(function() {
       var bookCount = Object.keys(BIBLE_DATA).length;
-      statusDiv.innerHTML = '<div class="status success">✓ Ready (' + bookCount + ' books)</div>';
+      statusDiv.innerHTML = '<div class="status success">✓ Ready (' + bookCount + ' books)' + (cached ? ' (cached)' : '') + '</div>';
       populateBooks();
       showDailyVerse();
       readChapter();
