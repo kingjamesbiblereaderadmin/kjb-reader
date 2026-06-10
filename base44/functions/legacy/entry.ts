@@ -479,15 +479,6 @@ Deno.serve(async (req) => {
     </div>
   </div>
 
-  <!-- Ministry Links -->
-  <div class="res-section">
-    <h3>Ministry Links</h3>
-    <div class="links-list">
-      <a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank">God is Gracious 1031 Ministries</a>
-      <a href="mailto:Kingjamesbiblereader.com@outlook.com">Kingjamesbiblereader.com@outlook.com</a>
-    </div>
-  </div>
-
   <div class="footer">King James Bible &mdash; Pure Cambridge Edition.</div>
 </div>
 </div>
