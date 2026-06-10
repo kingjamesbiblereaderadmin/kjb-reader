@@ -140,126 +140,6 @@ const PSALM_SUBSCRIPTS = {
   '145': "David's Psalm of praise."
 };
 
-const PSALM_VERSE_1 = {
-  2: 'Why do the heathen rage, and the people imagine a vain thing?',
-  3: 'LORD, how are they increased that trouble me! many are they that rise up against me.',
-  4: 'Hear me when I call, O God of my righteousness: thou hast enlarged me when I was in distress; have mercy upon me, and hear my prayer.',
-  5: 'Give ear to my words, O LORD, consider my meditation.',
-  6: 'O LORD, rebuke me not in thine anger, neither chasten me in thy hot displeasure.',
-  7: 'O LORD my God, in thee do I put my trust: save me from all them that persecute me, and deliver me:',
-  8: 'O LORD our Lord, how excellent is thy name in all the earth! who hast set thy glory above the heavens.',
-  9: 'I will praise thee, O LORD, with my whole heart; I will shew forth all thy marvellous works.',
-  11: 'In the LORD put I my trust: how say ye to my soul, Flee as a bird to your mountain?',
-  12: 'Help, LORD; for the godly man ceaseth; for the faithful fail from among the children of men.',
-  13: 'How long wilt thou forget me, O LORD? for ever? how long wilt thou hide thy face from me?',
-  14: 'The fool hath said in his heart, There is no God. They are corrupt, they have done abominable works, there is none that doeth good.',
-  15: 'LORD, who shall abide in thy tabernacle? who shall dwell in thy holy hill?',
-  16: 'Preserve me, O God: for in thee do I put my trust.',
-  17: 'Hear the right, O LORD, attend unto my cry, give ear unto my prayer, that goeth not out of feigned lips.',
-  18: 'I will love thee, O LORD, my strength.',
-  19: 'The heavens declare the glory of God; and the firmament sheweth his handywork.',
-  20: 'The LORD hear thee in the day of trouble; the name of the God of Jacob defend thee;',
-  21: 'The king shall joy in thy strength, O LORD; and in thy salvation how greatly shall he rejoice!',
-  22: 'My God, my God, why hast thou forsaken me? why art thou so far from helping me, and from the words of my roaring?',
-  23: 'The LORD is my shepherd; I shall not want.',
-  24: 'The earth is the LORDs, and the fulness thereof; the world, and they that dwell therein.',
-  25: 'Unto thee, O LORD, do I lift up my soul.',
-  26: 'Judge me, O LORD; for I have walked in mine integrity: I have trusted also in the LORD; therefore I shall not slide.',
-  27: 'The LORD is my light and my salvation; whom shall I fear? the LORD is the strength of my life; of whom shall I be afraid?',
-  28: 'Unto thee will I cry, O LORD my rock; be not silent to me: lest, if thou be silent to me, I become like them that go down into the pit.',
-  29: 'Give unto the LORD, O ye mighty, give unto the LORD glory and strength.',
-  30: 'I will extol thee, O LORD; for thou hast lifted me up, and hast not made my foes to rejoice over me.',
-  31: 'In thee, O LORD, do I put my trust; let me never be ashamed: deliver me in thy righteousness.',
-  32: 'Blessed is he whose transgression is forgiven, whose sin is covered.',
-  34: 'I will bless the LORD at all times: his praise shall continually be in my mouth.',
-  35: 'Plead my cause, O LORD, with them that strive with me: fight against them that fight against me.',
-  36: 'The transgression of the wicked saith within my heart, that there is no fear of God before his eyes.',
-  37: 'Fret not thyself because of evildoers, neither be thou envious against the workers of iniquity.',
-  38: 'O LORD, rebuke me not in thy wrath: neither chasten me in thy hot displeasure.',
-  39: 'I said, I will take heed to my ways, that I sin not with my tongue: I will keep my mouth with a bridle, while the wicked is before me.',
-  40: 'I waited patiently for the LORD; and he inclined unto me, and heard my cry.',
-  41: 'Blessed is he that considereth the poor: the LORD will deliver him in time of trouble.',
-  42: 'As the hart panteth after the water brooks, so panteth my soul after thee, O God.',
-  44: 'We have heard with our ears, O God, our fathers have told us, what work thou didst in their days, in the times of old.',
-  45: 'My heart is inditing a good matter: I speak of the things which I have made touching the king: my tongue is the pen of a ready writer.',
-  46: 'God is our refuge and strength, a very present help in trouble.',
-  47: 'O clap your hands, all ye people; shout unto God with the voice of triumph.',
-  48: 'Great is the LORD, and greatly to be praised in the city of our God, in the mountain of his holiness.',
-  49: 'Hear this, all ye people; give ear, all ye inhabitants of the world:',
-  50: 'The mighty God, even the LORD, hath spoken, and called the earth from the rising of the sun unto the going down thereof.',
-  51: 'Have mercy upon me, O God, according to thy lovingkindness: according unto the multitude of thy tender mercies blot out my transgressions.',
-  52: 'Why boastest thou thyself in mischief, O mighty man? the goodness of God endureth continually.',
-  53: 'The fool hath said in his heart, There is no God. Corrupt are they, and have done abominable iniquity: there is none that doeth good.',
-  54: 'Save me, O God, by thy name, and judge me by thy strength.',
-  55: 'Give ear to my prayer, O God; and hide not thyself from my supplication.',
-  56: 'Be merciful unto me, O God: for man would swallow me up; he fighting daily oppresseth me.',
-  57: 'Be merciful unto me, O God, be merciful unto me: for my soul trusteth in thee: yea, in the shadow of thy wings will I make my refuge, until these calamities be overpast.',
-  58: 'Do ye indeed speak righteousness, O congregation? do ye judge uprightly, O ye sons of men?',
-  59: 'Deliver me from mine enemies, O my God: defend me from them that rise up against me.',
-  60: 'O God, thou hast cast us off, thou hast scattered us, thou hast been displeased; O turn thyself to us again.',
-  61: 'Hear my cry, O God; attend unto my prayer.',
-  62: 'Truly my soul waiteth upon God: from him cometh my salvation.',
-  63: 'O God, thou art my God; early will I seek thee: my soul thirsteth for thee, my flesh longeth for thee in a dry and thirsty land, where no water is;',
-  64: 'Hear my voice, O God, in my prayer: preserve my life from fear of the enemy.',
-  65: 'Praise waiteth for thee, O God, in Sion: and unto thee shall the vow be performed.',
-  66: 'Make a joyful noise unto God, all ye lands:',
-  67: 'God be merciful unto us, and bless us; and cause his face to shine upon us; Selah.',
-  68: 'Let God arise, let his enemies be scattered: let them also that hate him flee before him.',
-  69: 'Save me, O God; for the waters are come in unto my soul.',
-  70: 'Make haste, O God, to deliver me; make haste to help me, O LORD.',
-  72: 'Give the king thy judgments, O God, and thy righteousness unto the kings son.',
-  73: 'Truly God is good to Israel, even to such as are of a clean heart.',
-  74: 'O God, why hast thou cast us off for ever? why doth thine anger smoke against the sheep of thy pasture?',
-  75: 'Unto thee, O God, do we give thanks, unto thee do we give thanks: for that thy name is near thy wondrous works declare.',
-  76: 'In Judah is God known: his name is great in Israel.',
-  77: 'I cried unto God with my voice, even unto God with my voice; and he gave ear unto me.',
-  78: 'Give ear, O my people, to my law: incline your ears to the words of my mouth.',
-  79: 'O God, the heathen are come into thine inheritance; thy holy temple have they defiled; they have laid Jerusalem on heaps.',
-  80: 'Give ear, O Shepherd of Israel, thou that leadest Joseph like a flock; thou that dwellest between the cherubims, shine forth.',
-  81: 'Sing aloud unto God our strength: make a joyful noise unto the God of Jacob.',
-  82: 'God standeth in the congregation of the mighty; he judgeth among the gods.',
-  83: 'Keep not thou silence, O God: hold not thy peace, and be not still, O God.',
-  84: 'How amiable are thy tabernacles, O LORD of hosts!',
-  85: 'LORD, thou hast been favourable unto thy land: thou hast brought back the captivity of Jacob.',
-  86: 'Bow down thine ear, O LORD, hear me: for I am poor and needy.',
-  87: 'His foundation is in the holy mountains.',
-  88: 'O LORD God of my salvation, I have cried day and night before thee:',
-  89: 'I will sing of the mercies of the LORD for ever: with my mouth will I make known thy faithfulness to all generations.',
-  90: 'LORD, thou hast been our dwelling place in all generations.',
-  92: 'It is a good thing to give thanks unto the LORD, and to sing praises unto thy name, O most High:',
-  98: 'O sing unto the LORD a new song; for he hath done marvellous things: his right hand, and his holy arm, hath gotten him the victory.',
-  100: 'Make a joyful noise unto the LORD, all ye lands.',
-  101: 'I will sing of mercy and judgment: unto thee, O LORD, will I sing.',
-  102: 'Hear my prayer, O LORD, and let my cry come unto thee.',
-  103: 'Bless the LORD, O my soul: and all that is within me, bless his holy name.',
-  108: 'O God, my heart is fixed; I will sing and give praise, even with my glory.',
-  109: 'Hold not thy peace, O God of my praise;',
-  110: 'The LORD said unto my Lord, Sit thou at my right hand, until I make thine enemies thy footstool.',
-  120: 'In my distress I cried unto the LORD, and he heard me.',
-  121: 'I will lift up mine eyes unto the hills, from whence cometh my help.',
-  122: 'I was glad when they said unto me, Let us go into the house of the LORD.',
-  123: 'Unto thee lift I up mine eyes, O thou that dwellest in the heavens.',
-  124: 'If it had not been the LORD who was on our side, now may Israel say;',
-  125: 'They that trust in the LORD shall be as mount Zion, which cannot be removed, but abideth for ever.',
-  126: 'When the LORD turned again the captivity of Zion, we were like them that dream.',
-  127: 'Except the LORD build the house, they labour in vain that build it: except the LORD keep the city, the watchman waketh but in vain.',
-  128: 'Blessed is every one that feareth the LORD; that walketh in his ways.',
-  129: 'Many a time have they afflicted me from my youth, may Israel now say:',
-  130: 'Out of the depths have I cried unto thee, O LORD.',
-  131: 'LORD, my heart is not haughty, nor mine eyes lofty: neither do I exercise myself in great matters, or in things too high for me.',
-  132: 'LORD, remember David, and all his afflictions:',
-  133: 'Behold, how good and how pleasant it is for brethren to dwell together in unity!',
-  134: 'Behold, bless ye the LORD, all ye servants of the LORD, which by night stand in the house of the LORD.',
-  138: 'I will praise thee with my whole heart: before the gods will I sing praise unto thee.',
-  139: 'O LORD, thou hast searched me, and known me.',
-  140: 'Deliver me, O LORD, from the evil man: preserve me from the violent man;',
-  141: 'LORD, I cry unto thee: make haste unto me; give ear unto my voice, when I cry unto thee.',
-  142: 'I cried unto the LORD with my voice; with my voice unto the LORD did I make my supplication.',
-  143: 'Hear my prayer, O LORD, give ear to my supplications: in thy faithfulness answer me, and in thy righteousness.',
-  144: 'Blessed be the LORD my strength, which teacheth my hands to war, and my fingers to fight:',
-  145: 'I will extol thee, my God, O king; and I will bless thy name for ever and ever.',
-};
-
 const COLOPHONS = {
   'Romans:16': 'Written to the Romans from Corinthus, and sent by Phebe servant of the church at Cenchrea.',
   '1 Corinthians:16': 'The first epistle to the Corinthians was written from Philippi by Stephanas, and Fortunatus, and Achaicus, and Timotheus.',
@@ -277,92 +157,7 @@ const COLOPHONS = {
   'Hebrews:13': 'Written to the Hebrews from Italy by Timothy.',
 };
 
-function parseBibleText(text) {
-  const data = {};
-  const lines = text.split(/\r?\n/);
-  let currentBook = null;
-  let currentChap = null;
-  let titleBuffer = [];
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
-    if (!line) continue;
-
-    const chapMatch = line.match(/^(CHAPTER|PSALM)\s+(\d+)$/i);
-    if (chapMatch && currentBook) {
-      currentChap = String(chapMatch[2]);
-      if (!data[currentBook]) data[currentBook] = {};
-      if (!data[currentBook][currentChap]) data[currentBook][currentChap] = [];
-      titleBuffer = [];
-      continue;
-    }
-
-    if (/^\d+\s+/.test(line) && currentBook && currentChap) {
-      const match = line.match(/^(\d+)\s+(.+)$/);
-      if (match) {
-        const verseNum = match[1];
-        let verseText = match[2].replace(/\[([^\]]+)\]/g, '<em>$1</em>');
-        data[currentBook][currentChap].push({ v: verseNum, t: verseText });
-      }
-      titleBuffer = [];
-      continue;
-    }
-
-    if (currentBook && currentChap && data[currentBook][currentChap].length === 0) {
-      let verseText = line.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
-      data[currentBook][currentChap].push({ v: '1', t: verseText });
-      titleBuffer = [];
-      continue;
-    }
-
-    if (currentBook && currentChap && data[currentBook][currentChap].length > 0) {
-      const last = data[currentBook][currentChap][data[currentBook][currentChap].length - 1];
-      last.t += ' ' + line.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
-      continue;
-    }
-
-    if (/^[A-Z]/.test(line) && !currentChap) {
-      titleBuffer.push(line);
-      const fullTitle = titleBuffer.join(' ').toUpperCase();
-      for (const book of BOOK_ORDER) {
-        if (fullTitle.includes(book.toUpperCase())) {
-          currentBook = book;
-          data[currentBook] = {};
-          titleBuffer = [];
-          break;
-        }
-      }
-    }
-  }
-
-  // Fix Psalm verse 1
-  if (data['Psalms']) {
-    for (const [chap, text] of Object.entries(PSALM_VERSE_1)) {
-      if (data['Psalms'][chap] && data['Psalms'][chap].length > 0) {
-        data['Psalms'][chap][0].t = text;
-      }
-    }
-  }
-
-  return data;
-}
-
 Deno.serve(async (req) => {
-  let bibleData = {};
-  let parseError = '';
-
-  try {
-    const res = await fetch(TEXT_URL);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const buf = await res.arrayBuffer();
-    const text = new TextDecoder('windows-1252').decode(buf);
-    bibleData = parseBibleText(text);
-  } catch (e) {
-    parseError = e.message;
-  }
-
-  const bookCount = Object.keys(bibleData).length;
-
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -380,6 +175,7 @@ Deno.serve(async (req) => {
   .tabs { display: flex; background: #3d3a80; border-bottom: 1px solid #2d2a6e; }
   .tab-btn { flex: 1; padding: 12px; text-align: center; color: #ccc; border: none; background: none; cursor: pointer; font-size: 13px; font-family: Arial, sans-serif; }
   .tab-btn.active { background: #5b59a0; color: #fff; font-weight: bold; }
+  .tab-btn:hover { background: #4a4790; }
 
   .container { max-width: 900px; margin: 0 auto; padding: 20px; }
   .tab-content { display: none; }
@@ -388,7 +184,7 @@ Deno.serve(async (req) => {
   .controls-box { background: #f0f0f7; padding: 20px; margin-bottom: 16px; border-radius: 4px; text-align: left; }
   .control-group { margin-bottom: 14px; }
   .control-group label { display: block; font-size: 14px; font-weight: bold; color: #333; margin-bottom: 6px; font-family: Arial, sans-serif; }
-  .control-group select { width: 100%; padding: 8px; font-size: 15px; border: 1px solid #ccc; border-radius: 3px; }
+  .control-group select { width: 100%; padding: 8px; font-size: 15px; border: 1px solid #ccc; border-radius: 3px; font-family: Arial, sans-serif; }
   .read-btn { background: #2d2a6e; color: #fff; padding: 8px 16px; border: none; border-radius: 3px; cursor: pointer; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif; }
   .read-btn:hover { background: #3d3a80; }
 
@@ -419,7 +215,6 @@ Deno.serve(async (req) => {
 
   .error-msg { color: red; padding: 16px; background: #fff; border: 1px solid #fcc; border-radius: 4px; }
 
-  /* Gospel/Resources/About styles */
   .content-section { background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 14px; margin: 12px 0; }
   .content-section h3 { font-size: 16px; color: #2d2a6e; margin: 0 0 8px 0; }
   .content-section p, .content-section li { font-family: Arial, sans-serif; font-size: 13px; color: #333; line-height: 1.6; }
@@ -622,12 +417,12 @@ Deno.serve(async (req) => {
 </div>
 
 <script>
-var BIBLE_DATA = {};
 var BOOK_ORDER = ${JSON.stringify(BOOK_ORDER)};
 var OT_BOOKS = ${JSON.stringify(OT_BOOKS)};
 var NT_BOOKS = ${JSON.stringify(NT_BOOKS)};
 var PSALM_SUBSCRIPTS = ${JSON.stringify(PSALM_SUBSCRIPTS)};
 var COLOPHONS = ${JSON.stringify(COLOPHONS)};
+var BIBLE_DATA = {};
 
 function switchTab(name) {
   document.querySelectorAll('.tab-content').forEach(function(el) { el.classList.remove('active'); });
@@ -638,7 +433,7 @@ function switchTab(name) {
 }
 
 function updateDebugInfo() {
-  var info = 'Bible Data Source: ' + (Object.keys(BIBLE_DATA).length > 0 ? 'Injected from Server' : 'localStorage Cache') + '\\n';
+  var info = 'Bible Data Source: ' + (Object.keys(BIBLE_DATA).length > 0 ? 'localStorage Cache' : 'Not loaded') + '\\n';
   info += 'Bible Data Loaded: ' + (BIBLE_DATA && Object.keys(BIBLE_DATA).length > 0 ? 'Yes' : 'No') + '\\n';
   info += 'Total Books Loaded: ' + (Object.keys(BIBLE_DATA).length) + '/66\\n';
   var cacheKey = 'kjb-legacy-bible-v1';
@@ -654,7 +449,6 @@ function populateBooks() {
   var sel = document.getElementById('bookSel');
   sel.innerHTML = '';
 
-  // OT Group
   var otGroup = document.createElement('optgroup');
   otGroup.label = 'Old Testament';
   for (var i = 0; i < OT_BOOKS.length; i++) {
@@ -667,7 +461,6 @@ function populateBooks() {
   }
   sel.appendChild(otGroup);
 
-  // NT Group
   var ntGroup = document.createElement('optgroup');
   ntGroup.label = 'New Testament';
   for (var j = 0; j < NT_BOOKS.length; j++) {
@@ -704,28 +497,25 @@ function readChapter() {
   var chap = document.getElementById('chapSel').value;
 
   if (!BIBLE_DATA[book] || !BIBLE_DATA[book][chap]) {
-    document.getElementById('chapter-display').innerHTML = '<p class="error-msg">Chapter not found</p>';
+    document.getElementById('chapter-display').innerHTML = '<p class="error-msg">Chapter not found. Please refresh page to download Bible data.</p>';
     return;
   }
 
   var verses = BIBLE_DATA[book][chap];
   var html = '<div class="chapter-header"><span class="chapter-book">' + book + '</span><span class="chapter-num">Chapter ' + chap + '</span></div>';
 
-  // Psalm subscript (centered, italic, with pilcrow)
   var subscriptKey = book + ':' + chap;
   var subscript = PSALM_SUBSCRIPTS[chap];
   if (book === 'Psalms' && subscript) {
     html += '<div class="subscript"><span class="pilcrow">¶</span><em>' + subscript + '</em></div>';
   }
 
-  // Verses
   html += '<div class="verses">';
   for (var v = 0; v < verses.length; v++) {
     html += '<div class="verse"><span class="verse-num">' + verses[v].v + '</span> ' + verses[v].t + '</div>';
   }
   html += '</div>';
 
-  // Colophon (centered, italic, with pilcrow) - only for NT epistles
   var colophon = COLOPHONS[subscriptKey];
   if (colophon) {
     html += '<div class="colophon"><span class="pilcrow">¶</span><em>' + colophon + '</em></div>';
@@ -787,6 +577,8 @@ function saveToCache() {
 
 window.addEventListener('load', function() {
   var statusDiv = document.getElementById('status');
+  
+  loadFromCache();
   var bookCount = Object.keys(BIBLE_DATA).length;
 
   if (bookCount === 0) {
@@ -804,7 +596,6 @@ window.addEventListener('load', function() {
     readChapter();
   }
 
-  // Save to cache after 1 second
   setTimeout(saveToCache, 1000);
 });
 </script>
