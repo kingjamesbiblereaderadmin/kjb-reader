@@ -372,6 +372,8 @@ Deno.serve(async (req) => {
 'body { background:#15131f; color:#e5e3ee; }' +
 '.box { background:#211e30; border-color:#39354f; }' +
 '.box[style*="linear-gradient"] { background:linear-gradient(135deg, #4c1d95 0%, #581c87 100%) !important; }' +
+'.box[style*="linear-gradient"] h3 { color:#fff !important; }' +
+'.box[style*="linear-gradient"] p { color:#e0e0ff !important; }' +
 '.cbook { color:#a99fff; }' +
 '.cnum, .subscript, .colophon { color:#a09bb5; }' +
 '.colophon { border-top-color:#39354f; }' +
@@ -462,10 +464,10 @@ Deno.serve(async (req) => {
       if (showDailyVerse) {
         const dailyVerse = await fetchDailyVerse();
         if (dailyVerse) {
-          dv = '<div class="box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; margin-bottom:20px;">' +
-            '<h3 style="color:#fff; margin-bottom:8px; font-size:14px; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:1px;">Verse of the Day</h3>' +
-            '<p style="font-size:16px; line-height:1.6; margin-bottom:12px; font-style:italic;">"' + esc(dailyVerse.text) + '"</p>' +
-            '<p style="font-size:13px; color:#e0e0ff;">' + esc(dailyVerse.ref) + '</p>' +
+          dv = '<div class="box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; margin-bottom:20px; border:none; box-shadow:0 4px 12px rgba(102,126,234,0.3);">' +
+            '<h3 style="color:#fff; margin-bottom:8px; font-size:13px; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Verse of the Day</h3>' +
+            '<p style="font-size:15px; line-height:1.7; margin-bottom:12px; font-style:italic; font-weight:400;">"' + esc(dailyVerse.text) + '"</p>' +
+            '<p style="font-size:12px; color:#e0e0ff; font-weight:500; letter-spacing:0.3px;">' + esc(dailyVerse.ref) + '</p>' +
             '</div>';
         }
       }
@@ -493,10 +495,10 @@ Deno.serve(async (req) => {
       if (showDailyVerse) {
         const dailyVerse = await fetchDailyVerse();
         if (dailyVerse) {
-          dv = '<div class="box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; margin-bottom:20px;">' +
-            '<h3 style="color:#fff; margin-bottom:8px; font-size:14px; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:1px;">Verse of the Day</h3>' +
-            '<p style="font-size:16px; line-height:1.6; margin-bottom:12px; font-style:italic;">"' + esc(dailyVerse.text) + '"</p>' +
-            '<p style="font-size:13px; color:#e0e0ff;">' + esc(dailyVerse.ref) + '</p>' +
+          dv = '<div class="box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; margin-bottom:20px; border:none; box-shadow:0 4px 12px rgba(102,126,234,0.3);">' +
+            '<h3 style="color:#fff; margin-bottom:8px; font-size:13px; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Verse of the Day</h3>' +
+            '<p style="font-size:15px; line-height:1.7; margin-bottom:12px; font-style:italic; font-weight:400;">"' + esc(dailyVerse.text) + '"</p>' +
+            '<p style="font-size:12px; color:#e0e0ff; font-weight:500; letter-spacing:0.3px;">' + esc(dailyVerse.ref) + '</p>' +
             '</div>';
         }
       }
@@ -535,10 +537,10 @@ Deno.serve(async (req) => {
       if (showDailyVerse) {
         const dailyVerse = await fetchDailyVerse();
         if (dailyVerse) {
-          dv = '<div class="box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; margin-bottom:20px;">' +
-            '<h3 style="color:#fff; margin-bottom:8px; font-size:14px; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:1px;">Verse of the Day</h3>' +
-            '<p style="font-size:16px; line-height:1.6; margin-bottom:12px; font-style:italic;">"' + esc(dailyVerse.text) + '"</p>' +
-            '<p style="font-size:13px; color:#e0e0ff;">' + esc(dailyVerse.ref) + '</p>' +
+          dv = '<div class="box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; margin-bottom:20px; border:none; box-shadow:0 4px 12px rgba(102,126,234,0.3);">' +
+            '<h3 style="color:#fff; margin-bottom:8px; font-size:13px; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Verse of the Day</h3>' +
+            '<p style="font-size:15px; line-height:1.7; margin-bottom:12px; font-style:italic; font-weight:400;">"' + esc(dailyVerse.text) + '"</p>' +
+            '<p style="font-size:12px; color:#e0e0ff; font-weight:500; letter-spacing:0.3px;">' + esc(dailyVerse.ref) + '</p>' +
             '</div>';
         }
       }
