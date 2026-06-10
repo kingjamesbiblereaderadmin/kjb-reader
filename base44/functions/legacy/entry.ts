@@ -264,7 +264,7 @@ function renderVerse(raw) {
   t = t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   let leadingPilcrow = false;
   if (/^[\u00B6\uFFFD]\s*/.test(t)) { leadingPilcrow = true; t = t.replace(/^[\u00B6\uFFFD]\s*/, ''); }
-  t = t.replace(/([\s.,;:!?'")\]])[\u00B6\uFFFD]\s*/g, '$1<br><span class="pil">&para;</span><br>');
+  t = t.replace(/([\s.,;:!?'")\]])[\u00B6\uFFFD]\s*/g, '$1<span class="pil">&para; </span>');
   t = t.replace(/[\u00B6\uFFFD]/g, '');
   t = t.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
   return { html: t, leadingPilcrow };
