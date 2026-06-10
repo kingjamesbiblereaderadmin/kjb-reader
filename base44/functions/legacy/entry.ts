@@ -738,13 +738,14 @@ Deno.serve(async (req) => {
 
     return new Response(html, { headers: {
       'Content-Type': 'text/html;charset=UTF-8',
-      // The SHELL page is now SMALL (no inlined Bible — books load as separate
-      // immutable chunks). It must NOT be cached "immutable", otherwise the
-      // browser keeps serving an OLD shell/loader script forever and never
-      // picks up fixes (which is why it stalled at 86% with the old script).
-      // Use a short cache + revalidate so the latest script loads when online,
-      // while the browser can still serve the cached shell briefly when offline.
-      'Cache-Control': 'no-cache, must-revalidate',
+      // The SHELL page is SMALL (no inlined Bible — books load as separate
+      // immutable chunks). Allow the BROWSER's own HTTP cache to store it for a
+      // short window so a refresh works OFFLINE even if the Service Worker
+      // isn't controlling the page yet (e.g. right after first install, or in
+      // browsers where the SW didn't claim the tab). The short max-age +
+      // stale-while-revalidate means the latest shell/loader still loads
+      // promptly when back online.
+      'Cache-Control': 'public, max-age=600, stale-while-revalidate=604800',
       'Vary': 'Accept-Encoding'
     } });
   } catch (error) {
