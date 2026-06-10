@@ -199,7 +199,7 @@ Deno.serve(async (req) => {
   /* Reader tab */
   .controls { background:#f1f1f7; border:1px solid #cccccc; padding:10px; margin:12px 0; font-family:Arial,sans-serif; }
   .controls label { display:inline-block; font-size:13px; color:#333333; margin:0 4px 4px 0; }
-  select { font-size:15px; padding:4px; margin:0 6px 6px 0; max-width:100%; }
+  select { font-size:15px; padding:4px; margin:0 6px 6px 0; max-width:100%; display:inline-block; width:auto; }
   .btn { font-family:Arial,sans-serif; font-size:14px; padding:6px 12px; background:#2d2a6e; color:#ffffff; border:0; cursor:pointer; margin-right:6px; }
   .btn.alt { background:#777777; }
   .status { font-family:Arial,sans-serif; font-size:12px; color:#555555; padding:6px 0; }
@@ -259,9 +259,9 @@ Deno.serve(async (req) => {
 <div class="wrap">
   <div class="controls">
     <label for="bookSel">Book:</label>
-    <select id="bookSel"></select>
+    <select id="bookSel" size="1"></select>
     <label for="chapSel">Chapter:</label>
-    <select id="chapSel"></select>
+    <select id="chapSel" size="1"></select>
     <button type="button" class="btn" id="goBtn">Read</button>
   </div>
   <div class="status" id="status">${parseError ? "Error loading Bible: " + parseError : bookCount < 66 ? "Warning: only " + bookCount + " books loaded." : ""}</div>
