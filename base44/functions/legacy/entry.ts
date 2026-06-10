@@ -373,12 +373,12 @@ Deno.serve(async (req) => {
         '<form method="get" action="' + esc(basePath) + '">' + hidden +
         '<input type="hidden" name="chapter" value="1">' +
         '<div class="ctl"><label>Book:</label><select name="book" id="bookSelect" onchange="updateChapterDropdown(this.value);this.form.chapter.value=1;">' + bookOptions(book) + '</select></div>' +
-        '<noscript><input type="submit" class="read-btn" value="Select Book"></noscript>' +
+        '<div style="margin-top:8px;"><input type="submit" class="read-btn" value="Select Book" onclick="this.form.chapter.value=1;"></div>' +
         '</form>' +
         '<form method="get" action="' + esc(basePath) + '" style="margin-top:12px;">' + hidden +
         '<input type="hidden" name="book" value="' + esc(book) + '">' +
         '<div class="ctl"><label>Chapter:</label><select name="chapter" id="chapterSelect" onchange="this.form.submit()" onblur="this.form.submit()">' + chapterOptions(book, chapter) + '</select></div>' +
-        '<noscript><input type="submit" class="read-btn" value="Read Chapter"></noscript>' +
+        '<div style="margin-top:8px;"><input type="submit" class="read-btn" value="Read Chapter"></div>' +
         '</form></div>';
 
       // Chapter content
