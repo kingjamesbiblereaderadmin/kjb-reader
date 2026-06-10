@@ -99,20 +99,7 @@ function preloadAllRoutes() {
 
 // Provide a beautiful splash screen for initial app loading
 import { Loader2 } from 'lucide-react';
-const PageLoader = ({ isFadingOut, forcedText, updateCheckDone }) => {
-  // Capture the updateType once on mount so it doesn't change when checkUpdatesSilently removes it
-  const [updateType] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('updated') === 'true') {
-        try { window.history.replaceState({}, '', window.location.pathname); } catch(e) {}
-        return 'forced_update';
-      }
-    }
-    return typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('kjb_sw_updated') : null;
-  });
-  const [dynamicText, setDynamicText] = useState(null);
-
+const PageLoader = ({ isFadingOut, updateCheckDone }) => {
   const [isFirstVisit] = useState(() => {
     try {
       const visited = localStorage.getItem('kjb-has-visited-app');
@@ -126,35 +113,11 @@ const PageLoader = ({ isFadingOut, forcedText, updateCheckDone }) => {
     }
   });
 
-  useEffect(() => {
-    const handleProgress = (e) => {
-      if (e.detail?.message) setDynamicText(e.detail.message);
-    };
-    window.addEventListener('kjb-splash-update', handleProgress);
-    return () => window.removeEventListener('kjb-splash-update', handleProgress);
-  }, []);
-  
-  const isEffectivelyFirstVisit = isFirstVisit || updateType === 'bible_first_load';
-  
-  let text = "";
-  if (dynamicText) {
-    text = dynamicText;
-  } else if (forcedText) {
-    text = forcedText;
-  } else if (isEffectivelyFirstVisit) {
-    text = "Welcome to KJB Reader...";
-  } else if (!updateCheckDone) {
-    text = "Checking for updates...";
-  } else {
-    text = "Welcome back to KJB Reader...";
-  }
-
-  // Right before fading out, ensure it transitions smoothly
-  useEffect(() => {
-    if (isFadingOut && !dynamicText && !forcedText) {
-      setDynamicText(isEffectivelyFirstVisit ? "Ready to read..." : "Welcome back to KJB Reader...");
-    }
-  }, [isFadingOut, dynamicText, forcedText, isEffectivelyFirstVisit]);
+  const text = isFirstVisit
+    ? "Welcome to KJB Reader..."
+    : !updateCheckDone
+      ? "Loading..."
+      : "Welcome back...";
 
   return (
     <div className={`fixed inset-0 z-[999999] bg-background flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
@@ -252,12 +215,9 @@ const AuthenticatedApp = () => {
   }, []);
 
   useEffect(() => {
-    const loader = getLoaderForPath(location.pathname);
-    if (loader) {
-      loader().then(() => setRouteLoaded(true)).catch(() => setRouteLoaded(true));
-    } else {
-      setRouteLoaded(true);
-    }
+    // Always release routeLoaded quickly - chunks load in background via Suspense
+    const timer = setTimeout(() => setRouteLoaded(true), 500);
+    return () => clearTimeout(timer);
   }, [location.pathname]);
 
   useEffect(() => {
@@ -283,377 +243,72 @@ const AuthenticatedApp = () => {
 
   useEffect(() => {
     let isMounted = true;
-    let updateCheckInProgress = false;
     
-    // Safety fallback: if update check hangs (e.g. IndexedDB or SW API gets stuck), release the splash screen
-    const safetyTimer = setTimeout(() => {
-      console.log('[App] Safety timer released splash screen');
+    // Always release splash within 3 seconds max - Bible loads on-demand
+    const maxSplashTimer = setTimeout(() => {
+      console.log('[App] Max splash timer - releasing');
       if (isMounted) setUpdateCheckDone(true);
-    }, 5000);
+    }, 3000);
 
-    const checkUpdatesSilently = async () => {
-      if (updateCheckInProgress) return;
-      updateCheckInProgress = true;
-      let willReload = false;
+    // Quick update check - non-blocking
+    const checkUpdates = async () => {
       try {
-        if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-          console.log('[App] Offline - skipping update check');
-          updateCheckInProgress = false;
+        if (typeof navigator === 'undefined' || navigator.onLine === false) {
           if (isMounted) setUpdateCheckDone(true);
-          return; // Skip if offline
+          return;
         }
 
-        let justUpdated = sessionStorage.getItem('kjb_sw_updated');
-        const isForcedUpdate = typeof window !== 'undefined' && window.location.search.includes('updated=true');
-        
-        if (isForcedUpdate && !justUpdated) {
-          justUpdated = 'app';
+        // Check for pending Bible update from background download
+        if (sessionStorage.getItem('kjb_pending_bible_update')) {
+          sessionStorage.removeItem('kjb_pending_bible_update');
+          sessionStorage.setItem('kjb_sw_updated', 'bible');
+          setTimeout(() => window.location.reload(), 500);
+          return;
         }
-        
-        if (justUpdated) {
-          sessionStorage.removeItem('kjb_sw_updated');
-          sessionStorage.setItem('kjb_last_app_update', Date.now().toString());
-        }
-        
-        let hasAppUpdates = false;
-        let hasBibleUpdates = false;
 
-        // 1. Check App/Code Updates (Skip if we just performed an update reload, to avoid loops)
-        if (!justUpdated || justUpdated === 'bible') {
-          if ('serviceWorker' in navigator) {
-            const reg = await navigator.serviceWorker.getRegistration();
-            // ONLY trigger automatic update reload if there is ALREADY an active SW.
-            // Otherwise, it's a first-time install, and we don't want to reload the user.
-            if (reg && reg.active) {
-              await reg.update().catch(() => {});
-              const isReadyToActivate = reg.waiting || (reg.installing && (reg.installing.state === 'installed' || reg.installing.state === 'activating' || reg.installing.state === 'activated'));
-              
-              if (isReadyToActivate) {
-                if (window.location.pathname !== '/') {
-                  // Quietly keep the update waiting; reload happens when user reaches home.
-                  if (isMounted) setUpdateCheckDone(true);
-                  updateCheckInProgress = false;
-                  return;
-                }
-                setIsApplyingUpdates(true);
-                setApplyMessage('Found updates...');
-                window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
-                await new Promise(r => setTimeout(r, 500));
-                setApplyMessage('Installing updates...');
-                window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Installing updates...' } }));
-                await new Promise(r => setTimeout(r, 500));
-                
-                setApplyMessage('Applying updates...');
-                window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Applying updates...' } }));
-                await new Promise(r => setTimeout(r, 500));
-                
-                sessionStorage.setItem('kjb_last_app_update', Date.now().toString());
-                if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                else if (reg.installing) reg.installing.postMessage({ type: 'SKIP_WAITING' });
-                setTimeout(() => window.location.reload(), 1500); // Fallback if controllerchange fails
-                return; // Let main.jsx handle reload
-              } else if (reg.installing) {
-                if (window.location.pathname !== '/') {
-                  // Quietly let the new worker finish installing in the background;
-                  // reload happens when user reaches home.
-                  if (isMounted) setUpdateCheckDone(true);
-                  updateCheckInProgress = false;
-                  return;
-                }
-                setIsApplyingUpdates(true);
-                setApplyMessage('Found updates...');
-                window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
-                await new Promise(r => setTimeout(r, 500));
-                setApplyMessage('Installing updates...');
-                window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Installing updates...' } }));
-                
-                const workerToSkip = reg.installing;
-                const installed = await new Promise(resolve => {
-                  let resolved = false;
-                  const handler = () => {
-                    if (workerToSkip.state === 'installed' || workerToSkip.state === 'activating' || workerToSkip.state === 'activated') {
-                      if (!resolved) {
-                        resolved = true;
-                        resolve(true);
-                      }
-                    } else if (workerToSkip.state === 'redundant') {
-                      if (!resolved) {
-                        resolved = true;
-                        resolve(false);
-                      }
-                    }
-                  };
-                  workerToSkip.addEventListener('statechange', handler);
-                  setTimeout(() => {
-                    if (!resolved) {
-                      resolved = true;
-                      workerToSkip.removeEventListener('statechange', handler);
-                      resolve(false);
-                    }
-                  }, 6000);
-                });
-                
-                if (installed) {
-                  setApplyMessage('Applying updates...');
-                  window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Applying updates...' } }));
-                  await new Promise(r => setTimeout(r, 500));
-                  sessionStorage.setItem('kjb_last_app_update', Date.now().toString());
-                  workerToSkip.postMessage({ type: 'SKIP_WAITING' });
-                  setTimeout(() => window.location.reload(), 1500); // Fallback if controllerchange fails
-                  return; // Let main.jsx handle reload
-                } else {
-                  // Fallback: if the new service worker gets stuck in the installing phase,
-                  // reload the page anyway so the app isn't trapped in the splash screen.
-                  // The new worker will take over on the next manual reload.
-                  setTimeout(() => window.location.reload(), 1500);
-                  return;
-                }
-              }
-            }
+        // Quick SW check - only reload if there's a waiting worker on home page
+        if ('serviceWorker' in navigator && window.location.pathname === '/') {
+          const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+          if (reg?.waiting && reg.active) {
+            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            setTimeout(() => window.location.reload(), 1000);
+            return;
           }
         }
 
-        // 2. Check Bible Data Updates and initial cache load.
-        // In incognito/private/guest windows, persistent caching won't survive,
-        // so skip the offline-download splash entirely — the Bible just loads
-        // on-demand from the network without showing a download screen.
-        let isPrivate = false;
-        let bibleNeedsUpdate = false;
-        let bibleIsCached = true;
-        
+        // Start Bible download in background if needed - don't await
         try {
-          const { detectIncognito } = await import('@/lib/incognito');
-          isPrivate = await detectIncognito().catch(() => false);
-        } catch(e) {
-          console.warn('[App] Incognito detection failed:', e);
-        }
-
-        try {
-          const { checkForUpdates, downloadBibleForOffline, isBibleCached } = await import('@/lib/bibleCache');
-          bibleNeedsUpdate = await checkForUpdates().catch(() => false);
-          bibleIsCached = await isBibleCached().catch(() => true);
-        } catch(e) {
-          console.warn('[App] Bible cache check failed:', e);
-          bibleNeedsUpdate = false;
-          bibleIsCached = true;
-        }
-        
-        if (!isPrivate && (bibleNeedsUpdate || !bibleIsCached)) {
-          localStorage.removeItem('bible_cache_version');
-          localStorage.removeItem('bible_last_refresh');
-          try {
-            const { checkForUpdates: _, downloadBibleForOffline, isBibleCached: __ } = await import('@/lib/bibleCache');
-            
-            if (window.location.pathname !== '/') {
-              // Silently download in background, release splash, defer reload to home
-              await downloadBibleForOffline().catch(() => {});
-              sessionStorage.setItem('kjb_pending_bible_update', 'true');
-              if (isMounted) setUpdateCheckDone(true);
-              updateCheckInProgress = false;
-              return;
+          const { isBibleCached, downloadBibleForOffline } = await import('@/lib/bibleCache').catch(() => ({}));
+          if (isBibleCached && downloadBibleForOffline) {
+            const cached = await isBibleCached().catch(() => true);
+            if (!cached) {
+              downloadBibleForOffline().catch(() => {});
             }
-
-            if (!hasAppUpdates && bibleNeedsUpdate) {
-              setIsApplyingUpdates(true);
-              setApplyMessage('Found updates...');
-              window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
-              await new Promise(r => setTimeout(r, 500));
-            }
-            const dlMessage = !bibleIsCached ? 'Downloading offline Bible...' : 'Installing updates...';
-            setIsApplyingUpdates(true);
-            setApplyMessage(dlMessage);
-            window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: dlMessage } }));
-            await downloadBibleForOffline().catch(() => {});
-            hasBibleUpdates = true;
-          } catch(e) {
-            console.error('Failed to download bible updates', e);
           }
-        }
-
-        if (hasAppUpdates || hasBibleUpdates) {
-          let updateType = 'app';
-          if (hasAppUpdates && hasBibleUpdates) { updateType = 'both'; }
-          else if (hasBibleUpdates && !bibleIsCached) { updateType = 'bible_first_load'; }
-          else if (hasBibleUpdates) { updateType = 'bible'; }
-          else if (hasAppUpdates) { updateType = 'app'; }
-          
-          sessionStorage.setItem('kjb_sw_updated', updateType);
-          let isVeryFirstAppLoad = true;
-          try { 
-            isVeryFirstAppLoad = !localStorage.getItem('kjb-has-dl-app'); 
-            localStorage.setItem('kjb-has-dl-app', 'true'); 
-          } catch {}
-          const applyMsg = (!bibleIsCached && isVeryFirstAppLoad) ? 'Welcome to KJB Reader...' : 'Applying updates...';
-          setApplyMessage(applyMsg);
-          window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: applyMsg } }));
-          setIsApplyingUpdates(true);
-          willReload = true;
-          setTimeout(() => {
-            window.location.reload();
-          }, 500);
-          return; 
-        }
+        } catch {}
 
       } catch (err) {
-        console.error('Silent update check failed:', err);
+        console.warn('[App] Update check failed:', err);
       } finally {
-        if (isMounted && !willReload) {
-          console.log('[App] Update check completed, releasing splash');
-          setUpdateCheckDone(true);
-        }
-        updateCheckInProgress = false;
+        if (isMounted) setUpdateCheckDone(true);
       }
     };
 
-    checkUpdatesSilently();
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        checkUpdatesSilently();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('focus', checkUpdatesSilently);
+    checkUpdates();
 
     return () => { 
       isMounted = false; 
-      clearTimeout(safetyTimer);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', checkUpdatesSilently);
+      clearTimeout(maxSplashTimer);
     };
   }, []);
 
-  // Check for updates on route change (e.g. navigating around)
-  useEffect(() => {
-    if (!updateCheckDone) return;
-    if (location.pathname !== '/') return;
-    
-    let isMounted = true;
-    const checkNavUpdates = async () => {
-      try {
-        if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
-        
-        let hasAppUpdates = false;
-        let workerToSkip = null;
-        if ('serviceWorker' in navigator) {
-          const reg = await navigator.serviceWorker.getRegistration();
-          if (reg && reg.active) {
-            await reg.update().catch(() => {});
-            if (reg.waiting) {
-              workerToSkip = reg.waiting;
-            } else if (reg.installing) {
-              if (reg.installing.state === 'installed' || reg.installing.state === 'activating' || reg.installing.state === 'activated') {
-                workerToSkip = reg.installing;
-              }
-            }
-          }
-        }
-        
-        if (workerToSkip && isMounted) {
-          setIsApplyingUpdates(true);
-          setApplyMessage('Found updates...');
-          window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
-          await new Promise(r => setTimeout(r, 500));
-          setApplyMessage('Installing updates...');
-          window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Installing updates...' } }));
-          await new Promise(r => setTimeout(r, 500));
-          
-          sessionStorage.setItem('kjb_sw_updated', 'app');
-          setApplyMessage('Applying updates...');
-          window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Applying updates...' } }));
-          await new Promise(r => setTimeout(r, 500));
-          
-          sessionStorage.setItem('kjb_last_app_update', Date.now().toString());
-          workerToSkip.postMessage({ type: 'SKIP_WAITING' });
-          setTimeout(() => window.location.reload(), 1500); // Fallback if controllerchange fails
-        } else if (sessionStorage.getItem('kjb_pending_bible_update') && isMounted) {
-          sessionStorage.removeItem('kjb_pending_bible_update');
-          sessionStorage.setItem('kjb_sw_updated', 'bible');
-          window.location.reload();
-        }
-      } catch (err) {
-        // ignore
-      }
-    };
-    
-    // Small delay so it doesn't block the actual page transition
-    const timer = setTimeout(checkNavUpdates, 1000);
-    return () => { 
-      isMounted = false;
-      clearTimeout(timer);
-    };
-  }, [location.pathname, updateCheckDone]);
-
-  // Preload all route chunks in the background once auth resolves
+  // Preload route chunks in background
   useEffect(() => { 
     preloadAllRoutes();
   }, []);
 
-  // Continuously watch for a newly-installed service worker and auto-apply it
-  // on the home page. This catches the common case where a new worker finishes
-  // installing AFTER the one-shot silent check already ran (so it would
-  // otherwise sit in "waiting" until a manual reload). Without this, bumping
-  // the worker version doesn't reload users on the home page.
-  useEffect(() => {
-    if (!('serviceWorker' in navigator)) return;
-    let isMounted = true;
-
-    const applyWaitingWorker = async (worker) => {
-      if (!isMounted || !worker) return;
-      // Only auto-apply on the home page; elsewhere it stays waiting until home.
-      if (window.location.pathname !== '/') return;
-      // Don't loop right after we just applied an update.
-      if (sessionStorage.getItem('kjb_sw_updated')) return;
-
-      setIsApplyingUpdates(true);
-      setApplyMessage('Found updates...');
-      window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Found updates...' } }));
-      await new Promise(r => setTimeout(r, 500));
-      setApplyMessage('Applying updates...');
-      window.dispatchEvent(new CustomEvent('kjb-splash-update', { detail: { message: 'Applying updates...' } }));
-      await new Promise(r => setTimeout(r, 500));
-
-      sessionStorage.setItem('kjb_sw_updated', 'app');
-      sessionStorage.setItem('kjb_last_app_update', Date.now().toString());
-      worker.postMessage({ type: 'SKIP_WAITING' });
-      setTimeout(() => window.location.reload(), 1500); // Fallback if controllerchange fails
-    };
-
-    let cleanupFns = [];
-    navigator.serviceWorker.getRegistration().then((reg) => {
-      if (!reg || !isMounted) return;
-
-      // A worker already finished installing and is waiting.
-      if (reg.waiting && reg.active) applyWaitingWorker(reg.waiting);
-
-      // A new worker starts installing — wait for it to finish, then apply.
-      const onUpdateFound = () => {
-        const installing = reg.installing;
-        if (!installing) return;
-        const onState = () => {
-          if (installing.state === 'installed' && reg.active) {
-            applyWaitingWorker(installing);
-          }
-        };
-        installing.addEventListener('statechange', onState);
-        cleanupFns.push(() => installing.removeEventListener('statechange', onState));
-      };
-      reg.addEventListener('updatefound', onUpdateFound);
-      cleanupFns.push(() => reg.removeEventListener('updatefound', onUpdateFound));
-    });
-
-    return () => {
-      isMounted = false;
-      cleanupFns.forEach(fn => fn());
-    };
-  }, []);
-
-  const [isApplyingUpdates, setIsApplyingUpdates] = useState(false);
-  const [applyMessage, setApplyMessage] = useState('');
-
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
-  const showSplash = isInitializing || !minSplashDone || !updateCheckDone || !routeLoaded || !fontsLoaded || isApplyingUpdates;
+  const showSplash = isInitializing || !minSplashDone || !updateCheckDone || !routeLoaded || !fontsLoaded;
 
   const [renderSplash, setRenderSplash] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
@@ -685,7 +340,7 @@ const AuthenticatedApp = () => {
 
   return (
     <>
-      {renderSplash && <PageLoader isFadingOut={fadeSplash} forcedText={applyMessage} updateCheckDone={updateCheckDone} />}
+      {renderSplash && <PageLoader isFadingOut={fadeSplash} updateCheckDone={updateCheckDone} />}
       {!isInitializing && !authError && (
         <Routes location={location}>
           <Route element={<AppLayout />}>
