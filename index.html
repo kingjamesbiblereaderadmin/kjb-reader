@@ -10,8 +10,10 @@
           var ua = navigator.userAgent || '';
           // IE10/11 ("Trident") and older IE ("MSIE"). Not Edge.
           var isIE = /Trident|MSIE/i.test(ua);
-          // Browsers with no Promise / no fetch can't run the app either.
-          var tooOld = (typeof window.Promise === 'undefined') || (typeof window.fetch === 'undefined');
+          // Only treat as "too old" if it's clearly NOT a modern browser.
+          // The bare Promise/fetch check can misfire in some embedded/in-app
+          // browsers, so we additionally require an old-IE-style userAgent.
+          var tooOld = isIE && ((typeof window.Promise === 'undefined') || (typeof window.fetch === 'undefined'));
           // Parse query string manually (IE doesn't support URLSearchParams reliably)
           var qs = window.location.search || '';
           var optedOut = qs.indexOf('nolegacy=1') !== -1;
