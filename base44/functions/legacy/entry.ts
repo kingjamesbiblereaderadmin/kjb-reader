@@ -650,16 +650,22 @@ Deno.serve(async (req) => {
         'if(i>=TOTAL){if(bar){bar.style.width="100%";}if(pct){pct.innerHTML="100%";}reveal();return;}' +
         'load(i,0);' +
       '}' +
+      'var warn=document.getElementById("kjb-warn");' +
+      'function showWarn(msg){if(warn){warn.innerHTML=msg;warn.style.display="block";}}' +
+      'function hideWarn(){if(warn){warn.style.display="none";}}' +
       'function retry(i,tries){' +
         'var wait=Math.min(700+tries*500,3000);' +
         'if(pct){pct.innerHTML=Math.round(i*100/TOTAL)+"% (retrying book "+(i+1)+"\\u2026)";}' +
+        // After a few failed attempts on the same book, surface a visible
+        // warning (likely a slow/lost connection) but keep retrying.
+        'if(tries>=2){showWarn("&#9888; This is taking a while &mdash; book "+(i+1)+" of "+TOTAL+" is slow to load. Check your internet connection. Still trying&hellip;");}' +
         'setTimeout(function(){load(i,tries+1);},wait);' +
       '}' +
       'function load(i,tries){' +
         'var xhr=makeXHR();' +
         'if(!xhr){return;}' +
         'var settled=false;' +
-        'function fail(){if(settled)return;settled=true;try{xhr.abort();}catch(e){}retry(i,tries);}' +
+        'function fail(){if(settled)return;settled=true;try{xhr.abort();}catch(e){}showWarn("&#9888; Request timed out on book "+(i+1)+" of "+TOTAL+". Your connection may be slow or offline. Retrying&hellip;");retry(i,tries);}' +
         'var killer=setTimeout(fail,15000);' +
         'xhr.open("GET",BASE+i,true);' +
         'xhr.onreadystatechange=function(){' +
@@ -668,7 +674,7 @@ Deno.serve(async (req) => {
             'var txt=xhr.responseText||"";' +
             'var okBody=txt.indexOf("fb-book")!==-1 && txt.indexOf("kjb-loader")===-1;' +
             'if((xhr.status===200||xhr.status===0)&&okBody){' +
-              'settled=true;clearTimeout(killer);parts[i]=txt;next(i+1);' +
+              'settled=true;clearTimeout(killer);hideWarn();parts[i]=txt;next(i+1);' +
             '}else{' +
               'settled=true;clearTimeout(killer);retry(i,tries);' +
             '}' +
@@ -710,6 +716,7 @@ Deno.serve(async (req) => {
       '#kjb-progress{max-width:280px;margin:22px auto 4px;height:8px;background:' + (isDark ? '#2a2a33' : '#e0e0ec') + ';border-radius:9999px;overflow:hidden;}' +
       '#kjb-bar{height:100%;width:0;background:' + spinnerCol + ';transition:width 0.2s ease;}' +
       '#kjb-pct{font-size:12px;color:' + (isDark ? '#aaa' : '#888') + ';}' +
+      '#kjb-warn{display:none;max-width:380px;margin:16px auto 0;padding:9px 13px;border:1px solid ' + (isDark ? '#5a3a3a' : '#e9c4c4') + ';border-radius:8px;background:' + (isDark ? '#2a1a1a' : '#fdf0f0') + ';font-size:12px;line-height:1.5;color:' + (isDark ? '#f0b8b8' : '#b02525') + ';}' +
       '#kjb-loader .kjb-loader-banner{max-width:480px;margin:28px auto 0;text-align:left;}' +
       '@keyframes kjbspin{to{transform:rotate(360deg);}}' +
       '@keyframes kjbpulse{0%,100%{opacity:1;}50%{opacity:0.5;}}' +
@@ -723,6 +730,7 @@ Deno.serve(async (req) => {
         '<div class="kjb-cap">Downloading the Bible&hellip;</div>' +
         '<div id="kjb-progress"><div id="kjb-bar"></div></div>' +
         '<div id="kjb-pct">0%</div>' +
+        '<div id="kjb-warn"></div>' +
         upgradeWarn +
         '<div class="kjb-loader-banner">' + banner + '</div>' +
       '</div></div>';

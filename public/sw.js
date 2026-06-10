@@ -1,10 +1,10 @@
 // KJB Reader Service Worker v20260610_280
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260610_287';
-// Keep this stable so cached chunks survive worker updates (chunk URLs are now
-// version-free and never change, so old cached copies stay valid offline).
-const LEGACY_CACHE_NAME = 'kjb-legacy-v3';
+const CACHE_NAME = 'kjb-reader-v20260610_288';
+// Bumped to purge any partially-cached legacy chunks so every client re-caches
+// the full Bible fresh to 100% on the next online visit.
+const LEGACY_CACHE_NAME = 'kjb-legacy-v4';
 
 // Core app shell resources to cache immediately
 const APP_SHELL_FILES = [
