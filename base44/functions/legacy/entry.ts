@@ -176,7 +176,12 @@ Deno.serve(async (req) => {
   const bookCount = BOOK_ORDER.filter(b => bibleData[b]).length;
   console.log("[legacy] Injecting", bookCount, "books into HTML");
 
-  const bibleJson = JSON.stringify(bibleData);
+  // Escape JSON for safe embedding in JavaScript string literal
+  const bibleJsonEscaped = JSON.stringify(bibleData)
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/</g, '\\x3c')
+    .replace(/>/g, '\\x3e');
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -560,7 +565,7 @@ function showTab(name, btn) {
 
 (function () {
   // Use freshly injected data from the server, or fall back to localStorage cache for offline use
-  var _injected = ${bibleJson};
+  var _injected = ${bibleJsonEscaped};
   var BIBLE_DATA = (Object.keys(_injected).length > 0) ? _injected : (function() {
     try { var c = localStorage.getItem("kjb-legacy-bible-v1"); return c ? JSON.parse(c) : {}; } catch(e) { return {}; }
   })();
@@ -723,7 +728,6 @@ function showTab(name, btn) {
             } catch(e) {}
           }
           // Fallback to local seed-based verse
-          updateDebugInfo({ daily_verse_fetch_error: xhr.status });
           showDailyVerseLocal();
         }
       };
