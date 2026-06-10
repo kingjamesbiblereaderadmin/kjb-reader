@@ -697,8 +697,12 @@ Deno.serve(async (req) => {
       // going after 600ms (i.e. genuinely downloading over the network). When
       // chunks are cached, everything finishes well under 600ms and the loader
       // never shows — the page just appears instantly.
-      'function showLoader(){if(loaderShown)return;loaderShown=true;var L=document.getElementById("kjb-loader");if(L){L.style.display="block";}}' +
-      'function start(){setTimeout(showLoader,600);setPct(0);next(0);}' +
+      // Never flash the download screen when OFFLINE — chunks are served from
+      // cache so the page assembles without any network, and a download UI
+      // would be misleading. We also bail if the browser reports offline.
+      'function isOffline(){try{return navigator&&navigator.onLine===false;}catch(e){return false;}}' +
+      'function showLoader(){if(loaderShown)return;if(isOffline())return;loaderShown=true;var L=document.getElementById("kjb-loader");if(L){L.style.display="block";}}' +
+      'function start(){if(!isOffline()){setTimeout(showLoader,600);}setPct(0);next(0);}' +
       'if(window.addEventListener){window.addEventListener("load",start,false);}else if(window.attachEvent){window.attachEvent("onload",start);}else{window.onload=start;}' +
     '})();</script>';
 
