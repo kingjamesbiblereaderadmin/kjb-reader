@@ -499,6 +499,46 @@ Deno.serve(async (req) => {
       '<a href="' + themeHref + '">' + (isDark ? '&#9728; Light Mode' : '&#9790; Dark Mode') + '</a>' +
       '</div>';
 
+    // Progressive enhancement: on modern browsers, intercept navigation
+    // (tab clicks, Home link, book/chapter selects) and swap only the
+    // #wrap + .tabs content via fetch — no full-page reload, no white flash.
+    // No-JS / ancient browsers ignore this entirely and use the normal
+    // form submits and links (full reload), so they still work perfectly.
+    const ENHANCE_SCRIPT =
+'<script>(function(){' +
+'if(!window.history||!window.history.pushState||!window.fetch||!document.querySelector)return;' +
+'var wrap=document.getElementById("wrap");if(!wrap)return;' +
+'function load(u,push){' +
+'fetch(u).then(function(r){return r.text();}).then(function(t){' +
+'var doc=document.createElement("html");doc.innerHTML=t;' +
+'var nw=doc.querySelector("#wrap");var nt=doc.querySelector(".tabs");' +
+'var nb=doc.querySelector("body");' +
+'if(nw){wrap.innerHTML=nw.innerHTML;}' +
+'var ct=document.querySelector(".tabs");if(nt&&ct){ct.innerHTML=nt.innerHTML;}' +
+'if(nb){document.body.className=nb.className;}' +
+'var tb=doc.querySelector(".topbar");var ctb=document.querySelector(".topbar");if(tb&&ctb){ctb.innerHTML=tb.innerHTML;}' +
+'if(push){window.history.pushState({u:u},"",u);}' +
+'window.scrollTo(0,0);bind();' +
+'}).catch(function(){window.location.href=u;});' +
+'}' +
+'function bind(){' +
+'var links=document.querySelectorAll(".tabs a, .topbar a, .nav a");' +
+'for(var i=0;i<links.length;i++){(function(a){' +
+'if(a.__b)return;a.__b=1;' +
+'a.onclick=function(e){var h=a.getAttribute("href");if(!h||h.charAt(0)==="h"&&h.indexOf(location.origin)!==0&&/^https?:/.test(h)){return;}e.preventDefault();load(h,true);return false;};' +
+'})(links[i]);}' +
+'var sels=document.querySelectorAll("#wrap form select");' +
+'for(var j=0;j<sels.length;j++){(function(s){' +
+'if(s.__b)return;s.__b=1;' +
+'s.onchange=function(){var f=s.form;if(!f)return;var u=f.getAttribute("action")+"?";var parts=[];' +
+'for(var k=0;k<f.elements.length;k++){var el=f.elements[k];if(el.name){parts.push(encodeURIComponent(el.name)+"="+encodeURIComponent(el.value));}}' +
+'u+=parts.join("&");load(u,true);};' +
+'})(sels[j]);}' +
+'}' +
+'window.onpopstate=function(e){load(location.href,false);};' +
+'bind();' +
+'})();</script>';
+
     const html =
 '<!DOCTYPE html>' +
 '<html><head>' +
@@ -512,7 +552,8 @@ topbar +
 '<div class="tabs">' +
 tabLink('bible', 'Bible') + tabLink('gospel', 'Gospel') + tabLink('resources', 'Resources') + tabLink('about', 'About') + tabLink('debug', 'Debug') +
 '</div>' +
-'<div class="wrap">' + bodyInner + '</div>' +
+'<div class="wrap" id="wrap">' + bodyInner + '</div>' +
+ENHANCE_SCRIPT +
 '</body></html>';
 
     return new Response(html, { headers: { 'Content-Type': 'text/html;charset=UTF-8' } });
