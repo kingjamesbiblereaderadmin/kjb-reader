@@ -410,27 +410,28 @@ Deno.serve(async (req) => {
 
       bodyInner = dailyVerseCard + form + content + navLinks;
     } else if (tab === 'gospel') {
-      bodyInner = dailyVerseCard + '<h1 style="text-align:center;margin-bottom:24px;">How to be Saved</h1>' +
-        '<p style="text-align:center;margin-bottom:8px;">The Gospel is the glad tidings of the Lord Jesus Christ:</p>' +
-        '<p style="text-align:center;margin-bottom:24px;">Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.</p>' +
-        '<hr style="margin-bottom:24px;">' +
-        '<h2>1. Believe you are a sinner that deserves hell</h2>' +
-        '<blockquote><p>"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin." &mdash; Romans 3:20</p></blockquote>' +
-        '<blockquote><p>"The wicked shall be turned into hell, and all the nations that forget God." &mdash; Psalm 9:17</p></blockquote>' +
-        '<h2>2. Believe that Jesus is God manifested in the flesh</h2>' +
-        '<blockquote><p>"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory." &mdash; 1 Timothy 3:16</p></blockquote>' +
-        '<h2>3. Believe he died, shed his blood, was buried and rose again</h2>' +
-        '<blockquote><p>"Moreover, brethren, I declare unto you the gospel which I preached unto you, which also ye have received, and wherein ye stand; By which also ye are saved, if ye keep in memory what I preached unto you, unless ye have believed in vain. For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." &mdash; 1 Corinthians 15:1&ndash;4</p></blockquote>' +
-        '<blockquote><p>"Whom God hath set forth to be a propitiation through faith in his blood, to declare his righteousness for the remission of sins that are past, through the forbearance of God;" &mdash; Romans 3:25</p></blockquote>' +
-        '<h2>These do NOT make you a Christian:</h2>' +
-        '<ul><li>Repenting of sins</li><li>Making Jesus Lord</li><li>Being a member of a church</li><li>Tithing</li><li>Being baptised (water)</li><li>Saying a sinner\'s prayer</li><li>Confessing with your mouth</li><li>Lordship Salvation</li></ul>' +
-        '<h2>Once Saved, Always Saved</h2>' +
-        '<p>A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life. God\'s gift of eternal life is just that &mdash; eternal.</p>' +
-        '<blockquote><p>"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." &mdash; Ephesians 1:13</p></blockquote>' +
-        '<h2>Watch the Gospel</h2>' +
-        '<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;margin-bottom:16px;"><iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube-nocookie.com/embed/znP9Dr6tOzU?rel=0&modestbranding=1&playsinline=1" title="THE GOSPEL THAT SAVES" frameborder="0" allowfullscreen></iframe></div>' +
-        '<p><a href="https://www.youtube.com/watch?v=znP9Dr6tOzU" target="_blank">Watch "THE GOSPEL THAT SAVES" by Robert Breaker on YouTube</a></p>' +
-        '<p><a href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq" target="_blank">Watch Full Gospel Playlist on YouTube</a></p>';
+      bodyInner = dailyVerseCard + '<div style="max-width:800px;margin:0 auto;">' +
+        '<h1 style="text-align:center;margin-bottom:12px;">How to be Saved</h1>' +
+        '<p style="text-align:center;margin-bottom:6px;font-size:16px;">The Gospel is the glad tidings of the Lord Jesus Christ:</p>' +
+        '<p style="text-align:center;margin-bottom:32px;font-size:16px;color:#555;">Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.</p>' +
+        '<div class="step"><h4>1. Believe you are a sinner that deserves hell</h4>' +
+        '<blockquote><p>"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin."</p><span class="ref">&mdash; Romans 3:20</span></blockquote>' +
+        '<blockquote><p>"The wicked shall be turned into hell, and all the nations that forget God."</p><span class="ref">&mdash; Psalm 9:17</span></blockquote></div>' +
+        '<div class="step"><h4>2. Believe that Jesus is God manifested in the flesh</h4>' +
+        '<blockquote><p>"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory."</p><span class="ref">&mdash; 1 Timothy 3:16</span></blockquote></div>' +
+        '<div class="step"><h4>3. Believe he died, shed his blood, was buried and rose again</h4>' +
+        '<blockquote><p>"Moreover, brethren, I declare unto you the gospel which I preached unto you, which also ye have received, and wherein ye stand; By which also ye are saved, if ye keep in memory what I preached unto you, unless ye have believed in vain. For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures."</p><span class="ref">&mdash; 1 Corinthians 15:1&ndash;4</span></blockquote>' +
+        '<blockquote><p>"Whom God hath set forth to be a propitiation through faith in his blood, to declare his righteousness for the remission of sins that are past, through the forbearance of God;"</p><span class="ref">&mdash; Romans 3:25</span></blockquote></div>' +
+        '<div class="warn"><h4>These do NOT make you a Christian:</h4>' +
+        '<ul><li>Repenting of sins</li><li>Making Jesus Lord</li><li>Being a member of a church</li><li>Tithing</li><li>Being baptised (water)</li><li>Saying a sinner\'s prayer</li><li>Confessing with your mouth</li><li>Lordship Salvation</li></ul></div>' +
+        '<div class="step"><h4>Once Saved, Always Saved</h4>' +
+        '<p style="margin-bottom:12px;">A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life. God\'s gift of eternal life is just that &mdash; eternal.</p>' +
+        '<blockquote><p>"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise."</p><span class="ref">&mdash; Ephesians 1:13</span></blockquote></div>' +
+        '<h2 style="margin:32px 0 16px;text-align:center;">Watch the Gospel</h2>' +
+        '<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;margin-bottom:16px;background:#000;border-radius:8px;"><iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube-nocookie.com/embed/znP9Dr6tOzU?rel=0&modestbranding=1&playsinline=1" title="THE GOSPEL THAT SAVES" frameborder="0" allowfullscreen></iframe></div>' +
+        '<p style="margin-bottom:8px;"><a href="https://www.youtube.com/watch?v=znP9Dr6tOzU" target="_blank">Watch "THE GOSPEL THAT SAVES" by Robert Breaker on YouTube</a></p>' +
+        '<p><a href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq" target="_blank">Watch Full Gospel Playlist on YouTube</a></p>' +
+        '</div>';
     } else if (tab === 'resources') {
       bodyInner = '<h1 style="text-align:center;margin-bottom:24px;">Resources</h1>' +
         '<p style="text-align:center;margin-bottom:24px;">KJB defence materials, studies on modern version corruption, and links to free Bible study resources.</p>' +
