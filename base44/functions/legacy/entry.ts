@@ -93,45 +93,49 @@ Deno.serve(async (req) => {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>KJB Reader (Legacy)</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #f5f5f7; color: #1a1a1a; font-family: Georgia, serif; font-size: 16px; line-height: 1.6; }
-.header { background: #2d2a6e; color: #fff; padding: 16px; text-align: center; }
+html, body { width: 100%; height: 100%; overflow-x: hidden; }
+body { background: #f5f5f7; color: #1a1a1a; font-family: Georgia, serif; font-size: 16px; line-height: 1.6; -webkit-text-size-adjust: 100%; }
+.header { background: #2d2a6e; color: #fff; padding: 16px; text-align: center; width: 100%; }
 .header h1 { font-size: 24px; margin-bottom: 4px; }
 .header p { font-size: 12px; color: #ccc; }
-.tabs { display: flex; background: #3d3a80; border-bottom: 1px solid #2d2a6e; }
-.tab-btn { flex: 1; padding: 12px; text-align: center; color: #ccc; border: none; background: none; cursor: pointer; font-size: 13px; font-family: Arial, sans-serif; }
+.tabs { display: flex; background: #3d3a80; border-bottom: 1px solid #2d2a6e; width: 100%; }
+.tab-btn { flex: 1; padding: 12px; text-align: center; color: #ccc; border: none; background: none; cursor: pointer; font-size: 13px; font-family: Arial, sans-serif; -webkit-appearance: none; }
 .tab-btn.active { background: #5b59a0; color: #fff; font-weight: bold; }
 .tab-btn:hover { background: #4a4790; }
-.container { max-width: 900px; margin: 0 auto; padding: 20px; }
-.tab-content { display: none; }
+.tab-btn:active { background: #2d2a6e; }
+.container { max-width: 100%; margin: 0 auto; padding: 16px; width: 100%; }
+.tab-content { display: none; width: 100%; }
 .tab-content.active { display: block; }
-.controls-box { background: #f0f0f7; padding: 20px; margin-bottom: 16px; border-radius: 4px; }
-.control-group { margin-bottom: 14px; }
+.controls-box { background: #f0f0f7; padding: 16px; margin-bottom: 16px; border-radius: 4px; width: 100%; }
+.control-group { margin-bottom: 14px; width: 100%; }
 .control-group label { display: block; font-size: 14px; font-weight: bold; color: #333; margin-bottom: 6px; font-family: Arial, sans-serif; }
-.control-group select { width: 100%; padding: 8px; font-size: 15px; border: 1px solid #ccc; border-radius: 3px; font-family: Arial, sans-serif; }
-.read-btn { background: #2d2a6e; color: #fff; padding: 8px 16px; border: none; border-radius: 3px; cursor: pointer; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif; }
+.control-group select { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 3px; font-family: Arial, sans-serif; -webkit-appearance: none; background: #fff; }
+.read-btn { background: #2d2a6e; color: #fff; padding: 12px 24px; border: none; border-radius: 3px; cursor: pointer; font-size: 16px; font-weight: bold; font-family: Arial, sans-serif; width: 100%; -webkit-appearance: none; }
 .read-btn:hover { background: #3d3a80; }
-.status { font-size: 13px; font-family: Arial, sans-serif; margin-bottom: 16px; padding: 8px; }
+.read-btn:active { background: #1a1850; }
+.status { font-size: 13px; font-family: Arial, sans-serif; margin-bottom: 16px; padding: 8px; width: 100%; }
 .status.success { color: green; }
-.chapter-display { text-align: center; }
-.chapter-header { text-align: center; margin: 32px 0 24px 0; }
-.chapter-book { font-size: 28px; font-weight: bold; color: #2d2a6e; display: block; }
+.chapter-display { text-align: center; width: 100%; }
+.chapter-header { text-align: center; margin: 24px 0 16px 0; width: 100%; }
+.chapter-book { font-size: 24px; font-weight: bold; color: #2d2a6e; display: block; }
 .chapter-num { font-size: 14px; color: #666; display: block; margin-top: 4px; }
-.verses { text-align: left; max-width: 700px; margin: 0 auto; }
-.verse { margin-bottom: 8px; }
+.verses { text-align: left; max-width: 100%; margin: 0 auto; padding: 0 8px; }
+.verse { margin-bottom: 8px; word-wrap: break-word; }
 .verse-num { font-weight: bold; color: #2d2a6e; font-size: 12px; margin-right: 4px; }
-.content-section { background: #fff; padding: 16px; margin-bottom: 16px; border-radius: 4px; border: 1px solid #ddd; }
+.content-section { background: #fff; padding: 16px; margin-bottom: 16px; border-radius: 4px; border: 1px solid #ddd; width: 100%; }
 .content-section h3 { color: #2d2a6e; margin-bottom: 12px; font-size: 16px; }
-.content-section blockquote { background: #f9f9f9; padding: 12px; margin: 8px 0; border-left: 3px solid #2d2a6e; font-style: italic; }
+.content-section blockquote { background: #f9f9f9; padding: 12px; margin: 8px 0; border-left: 3px solid #2d2a6e; font-style: italic; word-wrap: break-word; }
+.content-section p { word-wrap: break-word; }
 .content-section ul { margin-left: 20px; }
-.content-section li { margin-bottom: 6px; }
-.links-list { display: flex; flex-direction: column; gap: 8px; }
-.links-list a { color: #2d2a6e; text-decoration: none; font-size: 14px; }
+.content-section li { margin-bottom: 6px; word-wrap: break-word; }
+.links-list { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.links-list a { color: #2d2a6e; text-decoration: none; font-size: 14px; word-wrap: break-word; }
 .links-list a:hover { text-decoration: underline; }
-#debug-info { background: #f0f0f7; padding: 12px; border-radius: 4px; font-family: monospace; font-size: 12px; }
+#debug-info { background: #f0f0f7; padding: 12px; border-radius: 4px; font-family: monospace; font-size: 12px; width: 100%; word-wrap: break-word; }
 .loading { text-align: center; padding: 40px; color: #666; }
 .error { text-align: center; padding: 40px; color: #c00; }
 </style>
@@ -161,7 +165,7 @@ body { background: #f5f5f7; color: #1a1a1a; font-family: Georgia, serif; font-si
 <label>Chapter:</label>
 <select id="chapSel"></select>
 </div>
-<button class="read-btn" onclick="readChapter()">Read</button>
+<button class="read-btn" onclick="readChapter()">Read Chapter</button>
 </div>
 <div id="status" class="status"></div>
 <div id="chapter-display"></div>
@@ -267,28 +271,26 @@ function updateChapters() {
 function readChapter() {
   var book = document.getElementById('bookSel').value;
   var chap = document.getElementById('chapSel').value;
-  if (!book || !chap) return;
+  if (!book || !chap) {
+    document.getElementById('chapter-display').innerHTML = '<p class="error">Please select a book and chapter.</p>';
+    return;
+  }
   
   document.getElementById('chapter-display').innerHTML = '<div class="loading">Loading ' + book + ' ' + chap + '...</div>';
   
   var bookApiName = {'1 Samuel':'1Sa','2 Samuel':'2Sa','1 Kings':'1Ki','2 Kings':'2Ki','1 Chronicles':'1Ch','2 Chronicles':'2Ch','1 Corinthians':'1Co','2 Corinthians':'2Co','1 Thessalonians':'1Th','2 Thessalonians':'2Th','1 Timothy':'1Ti','2 Timothy':'2Ti','1 Peter':'1Pe','2 Peter':'2Pe','1 John':'1Jo','2 John':'2Jo','3 John':'3Jo','Song of Solomon':'Song'}[book] || book;
   
-  var baseUrl = '';
-  try {
-    if (window.parent !== window && parent.location && parent.location.origin) {
-      baseUrl = parent.location.origin;
-    }
-  } catch(e) {}
-  var apiUrl = baseUrl + '/api/function/bibleApi';
-  
-  console.log('[LEGACY] Fetching from:', apiUrl);
+  var apiUrl = '/api/function/bibleApi';
   
   fetch(apiUrl, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({action: 'getChapter', book: bookApiName, chapter: parseInt(chap)})
-  }).then(function(r) { return r.json(); }).then(function(data) {
-    if (!data.verses) throw new Error('No verses returned');
+  }).then(function(r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  }).then(function(data) {
+    if (!data.verses || data.verses.length === 0) throw new Error('No verses returned');
     BIBLE_DATA[book] = BIBLE_DATA[book] || {};
     BIBLE_DATA[book][chap] = data.verses;
     
@@ -302,7 +304,8 @@ function readChapter() {
     html += '</div></div>';
     document.getElementById('chapter-display').innerHTML = html;
   }).catch(function(err) {
-    document.getElementById('chapter-display').innerHTML = '<p class="error">Error loading chapter: ' + err.message + '</p>';
+    console.error('[LEGACY] Fetch error:', err);
+    document.getElementById('chapter-display').innerHTML = '<p class="error">Error loading chapter: ' + err.message + '</p><p style="font-size:12px;color:#666;margin-top:8px;">Make sure you are online and try again.</p>';
   });
 }
 
