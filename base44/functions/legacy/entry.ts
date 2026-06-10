@@ -341,60 +341,119 @@ Deno.serve(async (req) => {
   <h2 style="color:#2d2a6e;margin:16px 0 4px 0;">Resources</h2>
   <p style="font-family:Arial,sans-serif;font-size:13px;color:#555555;margin:0 0 12px 0;">KJB defence materials, studies on modern version corruption, and free Bible study resources.</p>
 
-  <div style="background:#f0fff0;border:1px solid #aaddaa;border-radius:4px;padding:12px;margin:0 0 12px 0;">
+  <div style="background:#f0fff0;border:1px solid #aaddaa;border-radius:4px;padding:12px;margin:0 0 14px 0;">
     <strong style="font-family:Arial,sans-serif;font-size:14px;">KJBI.org &mdash; Free Online Bible College</strong>
-    <p style="font-family:Arial,sans-serif;font-size:13px;color:#555;margin:4px 0 6px 0;">King James Bible Institute &mdash; a free online Bible college for those who want to go deeper in God's Word.</p>
+    <p style="font-family:Arial,sans-serif;font-size:13px;color:#555;margin:4px 0 6px 0;">King James Bible Institute &mdash; a free online Bible college for those who want to go deeper in God&rsquo;s Word.</p>
     <a href="https://kjbi.org" target="_blank" style="font-family:Arial,sans-serif;font-size:13px;color:#2d2a6e;">Visit KJBI.org &rarr;</a>
   </div>
 
+  <!-- Why KJB -->
   <div class="res-section">
-    <h3>Why the KJB is God's Word</h3>
-    <div class="res-item">
-      <strong>The Word of God Will Keep Its Infallibility</strong>
-      <p>A historical book demonstrating that the KJB is the infallible Word of God.</p>
-      <a href="https://archive.org/details/wordgodwillkeepi0000faus" target="_blank">Read on Archive.org</a>
-    </div>
-    <div class="res-item">
-      <strong>Textus Receptus Bibles</strong>
-      <a href="https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs" target="_blank">Compare Textus Receptus vs NA/UBS</a>
-    </div>
-    <div class="res-item">
-      <strong>BibleProtector.com &mdash; Pure Cambridge Edition</strong>
-      <a href="https://www.bibleprotector.com" target="_blank">bibleprotector.com</a>
-    </div>
+    <h3>Why the KJB is God&rsquo;s Word</h3>
+    <div class="res-item"><strong>The Word of God Will Keep Its Infallibility</strong><p>A historical book demonstrating that the King James Bible is the infallible, preserved Word of God.</p><a href="https://archive.org/details/wordgodwillkeepi0000faus/page/18/mode/1up" target="_blank">Read on Archive.org</a></div>
+    <div class="res-item"><strong>Warning on the NKJV</strong><p>The NKJV is NOT the King James Bible. Please research the differences.</p><a href="https://www.scionofzion.com/nkjv.htm" target="_blank">NKJV Comparison</a></div>
+    <div class="res-item"><strong>Textus Receptus Bibles</strong><p>Research on the Textus Receptus &mdash; the Greek text underlying the King James Bible.</p><a href="https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs" target="_blank">Compare Textus Receptus vs NA/UBS</a></div>
   </div>
 
+  <!-- Verified Preachers -->
   <div class="res-section">
     <h3>Verified KJB Preachers</h3>
-    <div class="res-item"><strong>Robert Breaker</strong><a href="https://www.youtube.com/@Robertbreaker3" target="_blank">YouTube</a> &bull; <a href="https://thecloudchurch.org/" target="_blank">thecloudchurch.org</a></div>
-    <div class="res-item"><strong>Robert Potthoff (Big Red Preacher)</strong><a href="https://mission1611.com/" target="_blank">mission1611.com</a></div>
-    <div class="res-item"><strong>Joseph Gonzalez (KJB Elites)</strong><a href="https://youtube.com/@josephgonzalez3" target="_blank">YouTube</a></div>
-    <div class="res-item"><strong>Ryan Poff</strong><a href="https://www.seedofhopechurch.org/" target="_blank">seedofhopechurch.org</a></div>
-    <div class="res-item"><strong>Skyler (AV1611 Ministry)</strong><a href="https://youtube.com/@av1611ministries" target="_blank">YouTube</a></div>
-    <div class="res-item"><strong>Paul Johnson (Biblical Salvation)</strong><a href="https://youtube.com/@biblicalsalvation" target="_blank">YouTube</a></div>
-    <div class="res-item"><strong>CPR Missions</strong><a href="https://www.youtube.com/channel/UCWBR5DmAi2XPMFRtb-wqHwg" target="_blank">YouTube</a></div>
+    <div class="res-item"><strong>Robert Breaker</strong><p>KJB missionary evangelist, rightly dividing the word of truth.</p>
+      <a href="https://www.youtube.com/@Robertbreaker3" target="_blank">YouTube</a> &bull;
+      <a href="https://www.tiktok.com/@robertbreaker" target="_blank">TikTok</a> &bull;
+      <a href="https://thecloudchurch.org/" target="_blank">thecloudchurch.org</a></div>
+    <div class="res-item"><strong>Robert Potthoff (Big Red Preacher)</strong><p>KJB soul winner.</p>
+      <a href="https://mission1611.com/" target="_blank">mission1611.com</a> &bull;
+      <a href="https://www.instagram.com/big_red_preacher" target="_blank">Instagram</a> &bull;
+      <a href="https://www.facebook.com/potthoff87" target="_blank">Facebook</a></div>
+    <div class="res-item"><strong>Joseph Gonzalez (KJB Elites)</strong><p>Faithful preacher of the word.</p>
+      <a href="https://youtube.com/@josephgonzalez3" target="_blank">YouTube</a> &bull;
+      <a href="https://www.tiktok.com/@joyfullychurch" target="_blank">TikTok</a></div>
+    <div class="res-item"><strong>Ryan Poff</strong><p>Seed of Hope Church &mdash; KJB pastor.</p>
+      <a href="https://www.seedofhopechurch.org/" target="_blank">seedofhopechurch.org</a> &bull;
+      <a href="https://youtube.com/@ryan_poff" target="_blank">YouTube</a> &bull;
+      <a href="https://www.tiktok.com/@ryan_sohc" target="_blank">TikTok</a></div>
+    <div class="res-item"><strong>Skyler (AV1611 Ministry)</strong><p>KJB defence and preaching.</p>
+      <a href="https://youtube.com/@av1611ministries" target="_blank">YouTube</a> &bull;
+      <a href="https://www.tiktok.com/@av1611ministries" target="_blank">TikTok</a></div>
+    <div class="res-item"><strong>Crown of Thorns</strong><p>KJB preaching ministry.</p>
+      <a href="https://www.youtube.com/@CrownOfThorns" target="_blank">YouTube</a></div>
+    <div class="res-item"><strong>Paul Johnson (Biblical Salvation)</strong><p>KJB preaching and Bible teaching.</p>
+      <a href="https://youtube.com/@biblicalsalvation" target="_blank">YouTube</a> &bull;
+      <a href="https://www.tiktok.com/@pauljohnson9632" target="_blank">TikTok</a></div>
+    <div class="res-item"><strong>CPR Missions</strong><p>Church Planting and Revival Missions.</p>
+      <a href="https://www.youtube.com/channel/UCWBR5DmAi2XPMFRtb-wqHwg" target="_blank">YouTube</a> &bull;
+      <a href="https://www.tiktok.com/@cprmissions" target="_blank">TikTok</a> &bull;
+      <a href="https://www.facebook.com/CPRmission/" target="_blank">Facebook</a></div>
+    <div class="res-item"><strong>James Bray</strong><p>KJB preacher and Bible teacher.</p>
+      <a href="https://youtube.com/@jamesbrayall3" target="_blank">YouTube</a></div>
   </div>
 
+  <!-- KJB Defence -->
   <div class="res-section">
     <h3>KJB Defence</h3>
+    <div class="res-item"><strong>BibleProtector.com &mdash; Pure Cambridge Edition</strong><p>The definitive PCE KJB text. Free PDF, ePub, and TXT downloads.</p><a href="https://www.bibleprotector.com" target="_blank">bibleprotector.com</a></div>
     <div class="res-item"><strong>KJV Compare</strong><p>Hundreds of verse-by-verse changes in modern versions.</p><a href="https://kjvcompare.com/" target="_blank">kjvcompare.com</a></div>
-    <div class="res-item"><strong>A Lamp in the Dark &mdash; Documentary</strong><a href="https://www.youtube.com/watch?v=RmXBj2N9fhY" target="_blank">Watch on YouTube</a></div>
+    <div class="res-item"><strong>Scion of Zion &mdash; KJB Comparisons</strong><p>Detailed comparisons exposing corruptions and omissions in modern versions.</p><a href="https://www.scionofzion.com/kjcomparisons.html" target="_blank">scionofzion.com</a></div>
+    <div class="res-item"><strong>1 John 5:7 Defence</strong><p>Resources defending the Johannine Comma, attacked by modern versions.</p><a href="https://www.scionofzion.com/1_john_5_7.htm" target="_blank">Read defence</a></div>
+    <div class="res-item"><strong>A Lamp in the Dark &mdash; Documentary</strong><p>The untold history of the Bible, exposing corruption in modern translations.</p><a href="https://www.youtube.com/watch?v=RmXBj2N9fhY" target="_blank">Watch on YouTube</a></div>
+    <div class="res-item"><strong>KJB Defence Playlist</strong><p>Comprehensive playlist defending the KJB as the infallible words of God.</p><a href="https://youtube.com/playlist?list=PLNGhZnJavRf01ILv3TJu_ke4IPYcKcpJm" target="_blank">Watch Playlist</a></div>
+    <div class="res-item"><strong>Gail Riplinger &mdash; The Sword Slays the Dragon</strong><a href="https://www.youtube.com/watch?v=fyN680Y0Vwc" target="_blank">Watch on YouTube</a></div>
     <div class="res-item"><strong>AV1611 Articles</strong><a href="https://www.av1611.org/articles" target="_blank">av1611.org/articles</a></div>
-    <div class="res-item"><strong>Scion of Zion</strong><a href="https://www.scionofzion.com/kjcomparisons.html" target="_blank">KJB Comparisons</a></div>
+    <div class="res-item"><strong>Preserved Words</strong><a href="https://www.preservedwords.com/bp/index.html" target="_blank">preservedwords.com</a></div>
+    <div class="res-item"><strong>Brandplucked &mdash; KJB Articles</strong><a href="https://brandplucked.com/kjbarticles.htm" target="_blank">brandplucked.com</a></div>
   </div>
 
+  <!-- 1 John 5:7 -->
   <div class="res-section">
-    <h3>Westcott &amp; Hort / Modern Versions</h3>
-    <div class="res-item"><strong>Theological Heresies of Westcott &amp; Hort</strong><a href="https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf" target="_blank">Download PDF</a></div>
-    <div class="res-item"><strong>NKJV Exposed</strong><a href="https://www.av1611.org/nkjv.html" target="_blank">av1611.org</a></div>
-    <div class="res-item"><strong>NIV Exposed</strong><a href="https://www.jesus-is-savior.com/Bible/NIV/new_international_version_exposed.htm" target="_blank">Read article</a></div>
+    <h3>1 John 5:7 Defence</h3>
+    <div class="res-item"><strong>1 John 5:7 &mdash; The 1st Century Latin/Spain Connection</strong><a href="https://kjvdebate.com/blog/f/i-john-57-the-1st-century-latinspain-connection" target="_blank">Read article</a></div>
+    <div class="res-item"><strong>The Authenticity of 1 John 5:7</strong><a href="https://catalog.obitel-minsk.com/blog/2021/08/the-authenticity-of-1-john-57-historical-evidence-and-the-church-tradition" target="_blank">Read article</a></div>
+    <div class="res-item"><strong>Textus Receptus &mdash; 1 John 5:7</strong><a href="https://textus-receptus.com/wiki/1_John_5:7" target="_blank">textus-receptus.com</a></div>
+    <div class="res-item"><strong>KJV Debate &mdash; 1 John 5:7 PDF</strong><a href="https://kjvdebate.com/pdf" target="_blank">Download PDF</a></div>
   </div>
 
+  <!-- Westcott & Hort -->
+  <div class="res-section">
+    <h3>Westcott &amp; Hort Heresies</h3>
+    <div class="res-item"><strong>Theological Heresies of Westcott &amp; Hort</strong><p>Detailed examination of the heresies underlying the modern Critical Text.</p><a href="https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf" target="_blank">Download PDF</a></div>
+    <div class="res-item"><strong>Scattered Christians &mdash; Westcott &amp; Hort</strong><a href="https://scatteredchristians.org/WescottHort.html" target="_blank">Read article</a></div>
+    <div class="res-item"><strong>Textus Receptus Bibles &mdash; Editorial Issues</strong><a href="https://textusreceptusbibles.com/Editorial/Umlauts" target="_blank">Read more</a></div>
+  </div>
+
+  <!-- NKJV Exposed -->
+  <div class="res-section">
+    <h3>NKJV Exposed</h3>
+    <div class="res-item"><strong>AV1611 &mdash; NKJV Exposed</strong><a href="https://www.av1611.org/nkjv.html" target="_blank">av1611.org</a></div>
+    <div class="res-item"><strong>TBS &mdash; What Today&rsquo;s Christian Needs to Know About NKJV</strong><a href="https://www.tbsbibles.org/page/WhatTodaysChristianNeedsToKnowAboutTheNewKingJamesVersion" target="_blank">Read article</a></div>
+    <div class="res-item"><strong>TBS &mdash; Does the NKJV Live Up to Its Claims?</strong><a href="https://www.tbsbibles.org/page/DoesTheNKJVLiveUpToItsClaims" target="_blank">Read article</a></div>
+    <div class="res-item"><strong>TBS &mdash; An Examination of the NKJV</strong><a href="https://cdn.ymaws.com/www.tbsbibles.org/resource/collection/D4DCAF37-AEB6-4CEC-880F-FD229A90560F/An-Examination-of-NKJV-Part-1.pdf" target="_blank">Download PDF</a></div>
+  </div>
+
+  <!-- ESV & NIV -->
+  <div class="res-section">
+    <h3>ESV &amp; NIV Exposed</h3>
+    <div class="res-item"><strong>Brandplucked &mdash; Is the ESV Inerrant?</strong><a href="https://brandplucked.com/is-the-esv-inerrant.html" target="_blank">Read article</a></div>
+    <div class="res-item"><strong>TBS &mdash; English Standard Version</strong><a href="https://www.tbsbibles.org/page/EnglishStandardVersion" target="_blank">Read article</a></div>
+    <div class="res-item"><strong>AV1611 &mdash; NIV Exposed</strong><a href="https://www.av1611.org/kjv/nivteen.html" target="_blank">Read article</a></div>
+    <div class="res-item"><strong>Jesus is Precious &mdash; NIV Missing Verses</strong><a href="https://www.jesusisprecious.org/bible/niv/acts_8-37_missing.htm" target="_blank">Read article</a></div>
+    <div class="res-item"><strong>Jesus is Savior &mdash; NIV Exposed</strong><a href="https://www.jesus-is-savior.com/Bible/NIV/new_international_version_exposed.htm" target="_blank">Read article</a></div>
+  </div>
+
+  <!-- Living Bible -->
+  <div class="res-section">
+    <h3>Living Bible &amp; NLT Exposed</h3>
+    <div class="res-item"><strong>TBS &mdash; The Living Bible Exposed</strong><a href="https://cdn.ymaws.com/www.tbsbibles.org/resource/collection/D4DCAF37-AEB6-4CEC-880F-FD229A90560F/The-Living-Bible.pdf" target="_blank">Download PDF</a></div>
+    <div class="res-item"><strong>Jesus is Savior &mdash; Living Bible Exposed</strong><a href="https://www.jesus-is-savior.com/Bible/Living%20Bible/lb_exposed.htm" target="_blank">Read article</a></div>
+    <div class="res-item"><strong>Jesus is Savior &mdash; NLT Exposed</strong><a href="https://jesus-is-savior.com/Bible/NLT/nlt_exposed.htm" target="_blank">Read article</a></div>
+  </div>
+
+  <!-- Ministry Links -->
   <div class="res-section">
     <h3>Ministry Links</h3>
     <div class="links-list">
       <a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank">God is Gracious 1031 Ministries</a>
-      <a href="mailto:kingjamesbiblereader@outlook.sg">kingjamesbiblereader@outlook.sg</a>
+      <a href="mailto:Kingjamesbiblereader.com@outlook.com">Kingjamesbiblereader.com@outlook.com</a>
     </div>
   </div>
 
@@ -466,7 +525,11 @@ function showTab(name, btn) {
 }
 
 (function () {
-  var BIBLE_DATA = ${bibleJson};
+  // Use freshly injected data from the server, or fall back to localStorage cache for offline use
+  var _injected = ${bibleJson};
+  var BIBLE_DATA = (Object.keys(_injected).length > 0) ? _injected : (function() {
+    try { var c = localStorage.getItem("kjb-legacy-bible-v1"); return c ? JSON.parse(c) : {}; } catch(e) { return {}; }
+  })();
   var BOOK_ORDER = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
 
   var EXCLUDED_REFS = {};
@@ -529,10 +592,9 @@ function showTab(name, btn) {
     }
   };
 
-  var showDailyVerse = function() {
+  var showDailyVerseLocal = function() {
     try {
       var now = new Date();
-      // Same seed as bibleApi: y*10000 + m*100 + d (month is 1-indexed)
       var seed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
       var currentSeed = seed;
       var book, chaps, chapter, verses, verse, ref;
@@ -554,6 +616,57 @@ function showTab(name, btn) {
       dref.textContent = "\u2014 " + ref + " (KJB)";
       dailyDiv.style.display = "block";
     } catch(e) {}
+  };
+
+  var showDailyVerse = function() {
+    // Try to fetch from the same bibleApi as the main app
+    try {
+      var now = new Date();
+      var clientDate = now.getFullYear() + "-" + (now.getMonth()+1) + "-" + now.getDate();
+      // Cache key per day
+      var cacheKey = "kjb-legacy-daily-" + clientDate;
+      try {
+        var cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          var cv = JSON.parse(cached);
+          dtext.textContent = "\u201C" + cv.text + "\u201D";
+          dref.textContent = "\u2014 " + cv.ref + " (KJB)";
+          dailyDiv.style.display = "block";
+          return;
+        }
+      } catch(e) {}
+
+      // Determine API URL (same host or base44 function path)
+      var apiUrl = window.location.origin + "/api/functions/bibleApi";
+      // Try XHR to the bibleApi function
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", apiUrl, true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            try {
+              var res = JSON.parse(xhr.responseText);
+              if (res.verse) {
+                var v = res.verse;
+                var text = v.text.replace(/<[^>]+>/g, "");
+                dtext.textContent = "\u201C" + text + "\u201D";
+                dref.textContent = "\u2014 " + v.ref + " (KJB)";
+                dailyDiv.style.display = "block";
+                try { localStorage.setItem(cacheKey, JSON.stringify({text: text, ref: v.ref})); } catch(e) {}
+                return;
+              }
+            } catch(e) {}
+          }
+          // Fallback to local seed-based verse
+          showDailyVerseLocal();
+        }
+      };
+      xhr.onerror = function() { showDailyVerseLocal(); };
+      xhr.send(JSON.stringify({action: "daily_verse", clientDate: clientDate}));
+    } catch(e) {
+      showDailyVerseLocal();
+    }
   };
 
   var init = function() {
@@ -594,6 +707,20 @@ function showTab(name, btn) {
     showDailyVerse();
     showChapter(availableBooks[0], chaptersFor(availableBooks[0])[0]);
   };
+
+  // --- Offline caching ---
+  // Save the injected Bible data to localStorage so subsequent visits load instantly
+  // and the reader works offline without re-fetching the backend function.
+  var CACHE_KEY = "kjb-legacy-bible-v1";
+  var saveBibleCache = function() {
+    try {
+      if (!localStorage.getItem(CACHE_KEY)) {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(BIBLE_DATA));
+      }
+    } catch(e) {}
+  };
+  // Call after init so it doesn't block
+  setTimeout(saveBibleCache, 500);
 
   if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", init); } else { init(); }
 })();
