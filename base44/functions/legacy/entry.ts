@@ -644,10 +644,13 @@ Deno.serve(async (req) => {
       // ALL 66 books are present, so it can't "disappear" into a half-empty
       // page partway through. A hung request (no readyState 4) is killed after
       // 15s and retried. Backoff caps at 3s.
+      'function setPct(p){if(p<0)p=0;if(p>100)p=100;if(bar){bar.style.width=p+"%";}if(pct){pct.innerHTML=p+"%";}}' +
+      // i = number of books fully downloaded so far. So progress = i/TOTAL.
+      // Starts at 0 (nothing loaded) and reaches exactly 100 only after the
+      // final book (i===TOTAL) completes.
       'function next(i){' +
-        'var p=Math.round(i*100/TOTAL);' +
-        'if(bar){bar.style.width=p+"%";}if(pct){pct.innerHTML=p+"%";}' +
-        'if(i>=TOTAL){if(bar){bar.style.width="100%";}if(pct){pct.innerHTML="100%";}reveal();return;}' +
+        'setPct(Math.round(i*100/TOTAL));' +
+        'if(i>=TOTAL){setPct(100);reveal();return;}' +
         'load(i,0);' +
       '}' +
       'var warn=document.getElementById("kjb-warn");' +
@@ -682,7 +685,7 @@ Deno.serve(async (req) => {
         '};' +
         'try{xhr.send(null);}catch(e){clearTimeout(killer);fail();}' +
       '}' +
-      'function start(){next(0);}' +
+      'function start(){setPct(0);next(0);}' +
       'if(window.addEventListener){window.addEventListener("load",start,false);}else if(window.attachEvent){window.attachEvent("onload",start);}else{window.onload=start;}' +
     '})();</script>';
 
