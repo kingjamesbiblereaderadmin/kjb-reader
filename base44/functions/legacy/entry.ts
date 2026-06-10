@@ -1,6 +1,6 @@
-// Standalone legacy Bible reader — serves a self-contained ES5 HTML page AND
-// chapter JSON from the SAME endpoint (via ?book=&chapter= query), so the
-// iframe never makes a cross-origin or separate-function fetch.
+// Standalone legacy Bible reader — 100% server-rendered HTML.
+// No client-side JavaScript: navigation uses plain <form method="get"> + <a> links,
+// so it works on ANY browser including IE8/IE9 and Windows Phone.
 
 const ABBR_TO_NAME = {
   'Ge':'Genesis','Ex':'Exodus','Le':'Leviticus','Nu':'Numbers','De':'Deuteronomy',
@@ -77,116 +77,157 @@ async function loadBible() {
   return data;
 }
 
-// Convert raw verse text → safe HTML: escape, then [brackets]→<em>, ¶→pilcrow.
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 function renderVerse(raw) {
   let t = raw
     .replace(/\u2019/g, "'").replace(/\u2018/g, "'")
     .replace(/\u201C/g, '"').replace(/\u201D/g, '"')
     .replace(/(\w)\uFFFD(\w)/g, "$1'$2");
-  // Escape HTML special chars
   t = t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  // Pilcrow at start or mid-verse
   t = t.replace(/^[\u00B6\uFFFD]\s*/, '<span class="pil">&para;</span> ');
   t = t.replace(/([\s.,;:!?'")\]])[\u00B6\uFFFD]\s*/g, '$1 <span class="pil">&para;</span> ');
   t = t.replace(/[\u00B6\uFFFD]/g, '');
-  // [bracketed] → italics
   t = t.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
   return t;
 }
 
-Deno.serve(async (req) => {
-  const url = new URL(req.url);
-  const reqBook = url.searchParams.get('book');
-  const reqChapter = url.searchParams.get('chapter');
-
-  // ── Chapter data endpoint (same function, ?book=&chapter=) ──
-  if (reqBook && reqChapter) {
-    try {
-      const bible = await loadBible();
-      const verses = bible[reqBook] && bible[reqBook][reqChapter];
-      if (!verses || !verses.length) {
-        return Response.json({ error: 'Not found: ' + reqBook + ' ' + reqChapter }, { status: 404 });
-      }
-      const rendered = verses.map(function (v) { return { verse: v.verse, html: renderVerse(v.text) }; });
-      return new Response(JSON.stringify({ verses: rendered }), {
-        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=86400' }
-      });
-    } catch (err) {
-      return Response.json({ error: err.message }, { status: 500 });
-    }
+// Build the <select> options HTML for books
+function bookOptions(selected) {
+  let h = '';
+  for (let i = 0; i < BOOK_ORDER.length; i++) {
+    const b = BOOK_ORDER[i];
+    h += '<option value="' + esc(b) + '"' + (b === selected ? ' selected' : '') + '>' + esc(b) + '</option>';
   }
+  return h;
+}
 
-  // ── HTML shell ──
-  const meta = { books: BOOK_ORDER, fullBookNames: FULL_BOOK_NAMES, chapterCounts: CHAPTER_COUNTS };
+// Build the <select> options HTML for chapters of a given book
+function chapterOptions(book, selected) {
+  const n = CHAPTER_COUNTS[book] || 1;
+  let h = '';
+  for (let i = 1; i <= n; i++) {
+    h += '<option value="' + i + '"' + (i === selected ? ' selected' : '') + '>' + i + '</option>';
+  }
+  return h;
+}
 
-  const html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n' +
-'<meta charset="UTF-8">\n' +
-'<meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
-'<title>KJB Reader (Legacy)</title>\n' +
-'<style>\n' +
-'* { margin:0; padding:0; box-sizing:border-box; }\n' +
-'body { background:#f5f5f7; color:#1a1a1a; font-family:Georgia,serif; font-size:16px; line-height:1.6; }\n' +
-'.hdr { background:#2d2a6e; color:#fff; padding:16px; text-align:center; }\n' +
-'.hdr h1 { font-size:22px; margin-bottom:4px; }\n' +
-'.hdr p { font-size:12px; color:#cfcfe8; }\n' +
-'.tabs { display:flex; background:#3d3a80; }\n' +
-'.tab-btn { flex:1; padding:12px 4px; text-align:center; color:#cfcfe8; border:none; background:none; cursor:pointer; font-size:13px; font-family:Arial,sans-serif; }\n' +
-'.tab-btn.active { background:#5b59a0; color:#fff; font-weight:bold; }\n' +
-'.wrap { max-width:760px; margin:0 auto; padding:16px; }\n' +
-'.tab { display:none; }\n' +
-'.tab.active { display:block; }\n' +
-'.box { background:#fff; padding:16px; margin-bottom:16px; border-radius:6px; border:1px solid #e0e0ec; }\n' +
-'.ctl { margin-bottom:14px; }\n' +
-'.ctl label { display:block; font-size:14px; font-weight:bold; color:#333; margin-bottom:6px; font-family:Arial,sans-serif; }\n' +
-'.ctl select { width:100%; padding:10px; font-size:16px; border:1px solid #ccc; border-radius:4px; font-family:Arial,sans-serif; background:#fff; }\n' +
-'.read-btn { background:#2d2a6e; color:#fff; padding:12px; border:none; border-radius:4px; cursor:pointer; font-size:16px; font-weight:bold; font-family:Arial,sans-serif; width:100%; }\n' +
-'.chead { text-align:center; margin:20px 0 16px; }\n' +
-'.cbook { font-size:22px; font-weight:bold; color:#2d2a6e; display:block; }\n' +
-'.cnum { font-size:13px; color:#666; display:block; margin-top:4px; }\n' +
-'.verse { margin-bottom:8px; }\n' +
-'.vn { font-weight:bold; color:#2d2a6e; font-size:12px; vertical-align:super; margin-right:3px; }\n' +
-'.pil { color:#888; }\n' +
-'em { font-style:italic; }\n' +
-'.box h3 { color:#2d2a6e; margin-bottom:10px; font-size:16px; }\n' +
-'.box blockquote { background:#f7f7fb; padding:12px; margin:8px 0; border-left:3px solid #2d2a6e; font-style:italic; }\n' +
-'.box a { color:#2d2a6e; }\n' +
-'.loading { text-align:center; padding:30px; color:#666; font-family:Arial,sans-serif; }\n' +
-'.err { text-align:center; padding:30px; color:#c00; font-family:Arial,sans-serif; }\n' +
-'</style>\n</head>\n<body>\n' +
-'<div class="hdr"><h1>KJB Reader (Legacy)</h1><p>King James Bible &mdash; Pure Cambridge Edition</p></div>\n' +
+Deno.serve(async (req) => {
+  try {
+    const url = new URL(req.url);
+    const tab = url.searchParams.get('tab') || 'bible';
+
+    // Selected book/chapter (default to Genesis 1)
+    let book = url.searchParams.get('book') || 'Genesis';
+    if (BOOK_ORDER.indexOf(book) === -1) book = 'Genesis';
+    let chapter = parseInt(url.searchParams.get('chapter') || '1', 10);
+    if (isNaN(chapter) || chapter < 1 || chapter > (CHAPTER_COUNTS[book] || 1)) chapter = 1;
+
+    // The base path of this function (so form actions / links stay on it)
+    const basePath = url.pathname;
+
+    const STYLE =
+'* { margin:0; padding:0; box-sizing:border-box; }' +
+'body { background:#f5f5f7; color:#1a1a1a; font-family:Georgia,serif; font-size:16px; line-height:1.6; }' +
+'.hdr { background:#2d2a6e; color:#fff; padding:16px; text-align:center; }' +
+'.hdr h1 { font-size:22px; }' +
+'.hdr p { font-size:12px; color:#cfcfe8; }' +
+'.tabs { width:100%; background:#3d3a80; font-size:0; }' +
+'.tabs a { display:inline-block; width:25%; padding:12px 2px; text-align:center; color:#cfcfe8; text-decoration:none; font-size:13px; font-family:Arial,sans-serif; }' +
+'.tabs a.on { background:#5b59a0; color:#fff; font-weight:bold; }' +
+'.wrap { max-width:760px; margin:0 auto; padding:16px; }' +
+'.box { background:#fff; padding:16px; margin-bottom:16px; border:1px solid #e0e0ec; }' +
+'.ctl { margin-bottom:12px; }' +
+'.ctl label { display:block; font-size:14px; font-weight:bold; color:#333; margin-bottom:5px; font-family:Arial,sans-serif; }' +
+'.ctl select { width:100%; padding:9px; font-size:16px; border:1px solid #ccc; font-family:Arial,sans-serif; }' +
+'.read-btn { background:#2d2a6e; color:#fff; padding:11px; border:none; cursor:pointer; font-size:16px; font-weight:bold; font-family:Arial,sans-serif; width:100%; }' +
+'.chead { text-align:center; margin:20px 0 16px; }' +
+'.cbook { font-size:22px; font-weight:bold; color:#2d2a6e; display:block; }' +
+'.cnum { font-size:13px; color:#666; display:block; margin-top:4px; }' +
+'.verse { margin-bottom:8px; }' +
+'.vn { font-weight:bold; color:#2d2a6e; font-size:11px; vertical-align:super; margin-right:3px; }' +
+'.pil { color:#888; }' +
+'em { font-style:italic; }' +
+'.nav { text-align:center; margin:20px 0; }' +
+'.nav a { display:inline-block; padding:10px 18px; margin:0 4px; background:#2d2a6e; color:#fff; text-decoration:none; font-size:14px; font-family:Arial,sans-serif; }' +
+'.box h3 { color:#2d2a6e; margin-bottom:10px; font-size:16px; }' +
+'.box blockquote { background:#f7f7fb; padding:12px; margin:8px 0; border-left:3px solid #2d2a6e; font-style:italic; }' +
+'.box a { color:#2d2a6e; }';
+
+    const tabLink = function (id, label) {
+      return '<a href="' + esc(basePath) + '?tab=' + id + (id === 'bible' ? '&book=' + encodeURIComponent(book) + '&chapter=' + chapter : '') + '"' + (tab === id ? ' class="on"' : '') + '>' + label + '</a>';
+    };
+
+    let bodyInner = '';
+
+    if (tab === 'bible') {
+      const bible = await loadBible();
+      const verses = (bible[book] && bible[book][chapter]) || [];
+      const fullName = FULL_BOOK_NAMES[book] || book;
+
+      // Controls form (GET submit reloads the page server-side)
+      let form = '<div class="box"><form method="get" action="' + esc(basePath) + '">' +
+        '<input type="hidden" name="tab" value="bible">' +
+        '<div class="ctl"><label>Book:</label><select name="book">' + bookOptions(book) + '</select></div>' +
+        '<div class="ctl"><label>Chapter:</label><select name="chapter">' + chapterOptions(book, chapter) + '</select></div>' +
+        '<input type="submit" class="read-btn" value="Read Chapter"></form></div>';
+
+      // Chapter content
+      let content = '<div class="chead"><span class="cbook">' + esc(fullName) + '</span><span class="cnum">Chapter ' + chapter + '</span></div>';
+      if (verses.length === 0) {
+        content += '<p style="text-align:center;color:#c00;">No verses found.</p>';
+      } else {
+        for (let i = 0; i < verses.length; i++) {
+          content += '<div class="verse"><span class="vn">' + verses[i].verse + '</span> ' + renderVerse(verses[i].text) + '</div>';
+        }
+      }
+
+      // Prev/Next chapter links
+      const maxCh = CHAPTER_COUNTS[book] || 1;
+      let navLinks = '<div class="nav">';
+      if (chapter > 1) navLinks += '<a href="' + esc(basePath) + '?tab=bible&book=' + encodeURIComponent(book) + '&chapter=' + (chapter - 1) + '">&laquo; Chapter ' + (chapter - 1) + '</a>';
+      if (chapter < maxCh) navLinks += '<a href="' + esc(basePath) + '?tab=bible&book=' + encodeURIComponent(book) + '&chapter=' + (chapter + 1) + '">Chapter ' + (chapter + 1) + ' &raquo;</a>';
+      navLinks += '</div>';
+
+      bodyInner = form + content + navLinks;
+    } else if (tab === 'gospel') {
+      bodyInner =
+        '<div class="box"><h3>1. Believe you are a sinner that deserves hell</h3><blockquote>"...for by the law is the knowledge of sin." &mdash; Romans 3:20</blockquote></div>' +
+        '<div class="box"><h3>2. Believe Jesus is God manifest in the flesh</h3><blockquote>"...God was manifest in the flesh..." &mdash; 1 Timothy 3:16</blockquote></div>' +
+        '<div class="box"><h3>3. Believe he died, was buried and rose again</h3><blockquote>"...how that Christ died for our sins... and that he rose again the third day..." &mdash; 1 Corinthians 15:1-4</blockquote></div>';
+    } else if (tab === 'resources') {
+      bodyInner =
+        '<div class="box"><h3>Resources</h3>' +
+        '<p><a href="https://www.bibleprotector.com">Pure Cambridge Edition &mdash; bibleprotector.com</a></p>' +
+        '<p style="margin-top:8px;"><a href="https://kjvcompare.com/">KJV Compare &mdash; Modern Version Critiques</a></p></div>';
+    } else if (tab === 'about') {
+      bodyInner =
+        '<div class="box"><p>The King James Bible is the pure, infallible, perfect Word of God in the English language.</p>' +
+        '<p style="margin-top:10px;"><a href="https://youtube.com/@shawnr325av">YouTube: @shawnr325av</a></p>' +
+        '<p style="margin-top:6px;"><a href="mailto:kingjamesbiblereader@outlook.sg">kingjamesbiblereader@outlook.sg</a></p></div>';
+    }
+
+    const html =
+'<!DOCTYPE html>' +
+'<html><head>' +
+'<meta charset="UTF-8">' +
+'<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
+'<title>KJB Reader (Legacy)</title>' +
+'<style>' + STYLE + '</style>' +
+'</head><body>' +
+'<div class="hdr"><h1>KJB Reader (Legacy)</h1><p>King James Bible &mdash; Pure Cambridge Edition</p></div>' +
 '<div class="tabs">' +
-'<button class="tab-btn active" onclick="sw(0)">Bible</button>' +
-'<button class="tab-btn" onclick="sw(1)">Gospel</button>' +
-'<button class="tab-btn" onclick="sw(2)">Resources</button>' +
-'<button class="tab-btn" onclick="sw(3)">About</button>' +
-'</div>\n' +
-'<div class="wrap">\n' +
-'<div class="tab active" id="t0">' +
-'<div class="box"><div class="ctl"><label>Book:</label><select id="bk" onchange="upd()"></select></div>' +
-'<div class="ctl"><label>Chapter:</label><select id="ch"></select></div>' +
-'<button class="read-btn" onclick="rd()">Read Chapter</button></div>' +
-'<div id="disp"></div></div>\n' +
-'<div class="tab" id="t1">' +
-'<div class="box"><h3>1. Believe you are a sinner that deserves hell</h3><blockquote>"...for by the law is the knowledge of sin." &mdash; Romans 3:20</blockquote></div>' +
-'<div class="box"><h3>2. Believe Jesus is God manifest in the flesh</h3><blockquote>"...God was manifest in the flesh..." &mdash; 1 Timothy 3:16</blockquote></div>' +
-'<div class="box"><h3>3. Believe he died, was buried and rose again</h3><blockquote>"...how that Christ died for our sins... and that he rose again the third day..." &mdash; 1 Corinthians 15:1-4</blockquote></div></div>\n' +
-'<div class="tab" id="t2">' +
-'<div class="box"><h3>Resources</h3>' +
-'<p><a href="https://www.bibleprotector.com" target="_blank">Pure Cambridge Edition &mdash; bibleprotector.com</a></p>' +
-'<p style="margin-top:8px;"><a href="https://kjvcompare.com/" target="_blank">KJV Compare &mdash; Modern Version Critiques</a></p></div></div>\n' +
-'<div class="tab" id="t3">' +
-'<div class="box"><p>The King James Bible is the pure, infallible, perfect Word of God in the English language.</p>' +
-'<p style="margin-top:10px;"><a href="https://youtube.com/@shawnr325av" target="_blank">YouTube: @shawnr325av</a></p>' +
-'<p style="margin-top:6px;"><a href="mailto:kingjamesbiblereader@outlook.sg">kingjamesbiblereader@outlook.sg</a></p></div></div>\n' +
-'</div>\n' +
-'<script>\n' +
-'var M = ' + JSON.stringify(meta) + ';\n' +
-'function sw(i){var ts=document.querySelectorAll(".tab"),bs=document.querySelectorAll(".tab-btn"),j;for(j=0;j<ts.length;j++){ts[j].className="tab";bs[j].className="tab-btn";}document.getElementById("t"+i).className="tab active";bs[i].className="tab-btn active";}\n' +
-'function fillBooks(){var s=document.getElementById("bk"),i,o;for(i=0;i<M.books.length;i++){o=document.createElement("option");o.value=M.books[i];o.text=M.books[i];s.appendChild(o);}}\n' +
-'function upd(){var b=document.getElementById("bk").value,s=document.getElementById("ch"),n=M.chapterCounts[b]||1,i,o;s.innerHTML="";for(i=1;i<=n;i++){o=document.createElement("option");o.value=i;o.text=i;s.appendChild(o);}rd();}\n' +
-'function rd(){var b=document.getElementById("bk").value,c=document.getElementById("ch").value,d=document.getElementById("disp");if(!b||!c){return;}d.innerHTML=\'<div class="loading">Loading...</div>\';var x=new XMLHttpRequest();x.open("GET",location.pathname+"?book="+encodeURIComponent(b)+"&chapter="+c,true);x.onreadystatechange=function(){if(x.readyState!=4)return;if(x.status!=200){d.innerHTML=\'<div class="err">Could not load chapter. Please check your connection.</div>\';return;}try{var r=JSON.parse(x.responseText);if(!r.verses||!r.verses.length){d.innerHTML=\'<div class="err">No verses found.</div>\';return;}var fn=M.fullBookNames[b]||b,h=\'<div class="chead"><span class="cbook">\'+fn+\'</span><span class="cnum">Chapter \'+c+\'</span></div>\',i;for(i=0;i<r.verses.length;i++){h+=\'<div class="verse"><span class="vn">\'+r.verses[i].verse+\'</span> \'+r.verses[i].html+\'</div>\';}d.innerHTML=h;}catch(e){d.innerHTML=\'<div class="err">Error: \'+e.message+\'</div>\';}};x.send();}\n' +
-'fillBooks();upd();\n' +
-'</script>\n</body>\n</html>';
+tabLink('bible', 'Bible') + tabLink('gospel', 'Gospel') + tabLink('resources', 'Resources') + tabLink('about', 'About') +
+'</div>' +
+'<div class="wrap">' + bodyInner + '</div>' +
+'</body></html>';
 
-  return new Response(html, { headers: { 'Content-Type': 'text/html;charset=UTF-8' } });
+    return new Response(html, { headers: { 'Content-Type': 'text/html;charset=UTF-8' } });
+  } catch (error) {
+    return new Response('<!DOCTYPE html><html><body style="font-family:Arial;padding:20px;color:#c00;">Error: ' + String(error.message) + '</body></html>', {
+      status: 500, headers: { 'Content-Type': 'text/html;charset=UTF-8' }
+    });
+  }
 });
