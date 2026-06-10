@@ -298,7 +298,7 @@ Deno.serve(async (req) => {
 '.chead { text-align:center; margin:20px 0 16px; }' +
 '.cbook { font-size:22px; font-weight:bold; color:#2d2a6e; display:block; }' +
 '.cnum { font-size:13px; color:#666; display:block; margin-top:4px; }' +
-'.verse { display:block; margin:12px 0 10px 0; line-height:1.5; }' +
+'.verse { display:block; margin:24px 0 10px 0; line-height:1.5; }' +
 '.vnum-line { display:block; margin-bottom:4px; }' +
 '.vn { font-weight:bold; color:#2d2a6e; font-size:11px; margin-right:4px; }' +
 '.subscript { text-align:center; color:#555; font-size:14px; margin:0 0 16px; }' +
