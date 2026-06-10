@@ -529,9 +529,9 @@ Deno.serve(async (req) => {
     <button type="button" class="btn" id="goBtn">Read</button>
   </div>
   <div class="status" id="status"></div>
-  <div class="daily" id="daily" style="display:none;">
+  <div class="daily" id="daily">
     <p class="dlabel">Verse of the Day</p>
-    <p class="dtext" id="dtext"></p>
+    <p class="dtext" id="dtext">Loading verse...</p>
     <p class="dref" id="dref"></p>
   </div>
   <h2 class="ref" id="refTitle" style="display:none;"></h2>
