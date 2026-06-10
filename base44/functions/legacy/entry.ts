@@ -189,6 +189,8 @@ Deno.serve(async (req) => {
   .verse { margin:0 0 5px 0; text-align:left; }
   .verse-pilcrow { margin-top:12px; }
   .pilcrow { font-style:italic; color:#666; }
+  .pilcrow-center { text-align:center; margin:12px 0; }
+  .pilcrow-center .pilcrow { font-style:italic; color:#666; display:block; margin-bottom:4px; }
   .vnum { font-family:Arial,sans-serif; font-size:11px; color:#2d2a6e; font-weight:bold; vertical-align:super; margin-right:3px; }
   em { font-style:italic; color:#666; }
   .nav { margin:16px 0; text-align:center; }
@@ -480,10 +482,25 @@ function showTab(name, btn) {
     refTitle.innerHTML = book + "<br><span style='font-size:0.65em;font-weight:normal;color:#5b59a0;font-family:Arial,sans-serif;letter-spacing:0.05em;text-transform:uppercase;'>Chapter " + chapter + "</span>";
     refTitle.style.display = "block";
     var h = "";
-    for (var v = 0; v < verses.length; v++) {
+    // Check if verse 1 is a pilcrow section header (standalone pilcrow or very short)
+    var hasSectionHeader = false;
+    if (verses.length > 0 && verses[0].v === "1") {
+      var v1Text = verses[0].t;
+      // Section header: starts with pilcrow and is short (< 50 chars) or pilcrow-only
+      var isStandalonePilcrow = /^[¶\u00B6]\s*$/.test(v1Text.trim()) || /^[¶\u00B6]\s+[A-Z]{1,10}$/.test(v1Text.trim());
+      var isShortPilcrow = /^[¶\u00B6]/.test(v1Text) && v1Text.length < 50;
+      hasSectionHeader = isStandalonePilcrow || isShortPilcrow;
+    }
+    // Render section header first (centered under chapter number)
+    if (hasSectionHeader) {
+      var headerText = verses[0].t.replace(/[¶\u00B6]\s*/, '').trim();
+      h += '<div class="pilcrow-center"><span class="pilcrow">¶</span><span style="font-style:italic;">' + headerText + '</span></div>';
+    }
+    // Render remaining verses (skip verse 1 if it was a section header)
+    var startIdx = hasSectionHeader ? 1 : 0;
+    for (var v = startIdx; v < verses.length; v++) {
       var verseNum = verses[v].v;
       var verseText = verses[v].t;
-      // Render pilcrow as inline span (like main app)
       var renderedText = verseText.replace(/^[\u00B6\uFFFD]\s*/, '<span class="pilcrow">¶</span> ').replace(/([\s.,;:!?'")\]])[\u00B6\uFFFD]\s*/g, '$1 <span class="pilcrow">¶</span> ');
       var hasPilcrow = verseText.includes('¶') || verseText.includes('\u00B6');
       var verseClass = "verse" + (hasPilcrow && v > 0 ? " verse-pilcrow" : "");
