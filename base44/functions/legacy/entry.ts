@@ -350,24 +350,26 @@ Deno.serve(async (req) => {
 
     const tabLink = (t, label) => '<a href="' + esc(basePath) + '?tab=' + t + idSuffix + '" class="' + (t === tab ? 'on' : '') + '">' + label + '</a>';
 
+    // Fetch daily verse once for all tabs
+    let dailyVerseCard = '';
+    if (showDailyVerse) {
+      console.log('[Legacy] Fetching daily verse...');
+      const dailyVerse = await fetchDailyVerse();
+      if (dailyVerse && dailyVerse.text && dailyVerse.ref) {
+        console.log('[Legacy] Daily verse loaded:', dailyVerse.ref);
+        dailyVerseCard = '<div class="box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; margin-bottom:20px; border:none; box-shadow:0 4px 12px rgba(102,126,234,0.3);">' +
+          '<h3 style="color:#fff; margin-bottom:8px; font-size:13px; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Verse of the Day</h3>' +
+          '<p style="font-size:15px; line-height:1.7; margin-bottom:12px; font-style:italic; font-weight:400;">"' + esc(dailyVerse.text) + '"</p>' +
+          '<p style="font-size:12px; color:#e0e0ff; font-weight:500; letter-spacing:0.3px;">' + esc(dailyVerse.ref) + '</p>' +
+          '</div>';
+      } else {
+        console.log('[Legacy] Daily verse not available (API returned empty or failed)');
+      }
+    }
+
     let bodyInner = '';
 
     if (tab === 'bible') {
-      let dv = '';
-      if (showDailyVerse) {
-        console.log('[Legacy] Fetching daily verse...');
-        const dailyVerse = await fetchDailyVerse();
-        if (dailyVerse && dailyVerse.text && dailyVerse.ref) {
-          console.log('[Legacy] Daily verse loaded:', dailyVerse.ref);
-          dv = '<div class="box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; margin-bottom:20px; border:none; box-shadow:0 4px 12px rgba(102,126,234,0.3);">' +
-            '<h3 style="color:#fff; margin-bottom:8px; font-size:13px; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Verse of the Day</h3>' +
-            '<p style="font-size:15px; line-height:1.7; margin-bottom:12px; font-style:italic; font-weight:400;">"' + esc(dailyVerse.text) + '"</p>' +
-            '<p style="font-size:12px; color:#e0e0ff; font-weight:500; letter-spacing:0.3px;">' + esc(dailyVerse.ref) + '</p>' +
-            '</div>';
-        } else {
-          console.log('[Legacy] Daily verse not available (API returned empty or failed)');
-        }
-      }
 
       const bible = await loadBible();
       const verses = (bible[book] && bible[book][chapter]) || [];
@@ -414,9 +416,9 @@ Deno.serve(async (req) => {
       if (chapter < maxCh) navLinks += '<a href="' + esc(basePath) + '?tab=bible&book=' + encodeURIComponent(book) + '&chapter=' + (chapter + 1) + idSuffix + '">Chapter ' + (chapter + 1) + ' &raquo;</a>';
       navLinks += '</div>';
 
-      bodyInner = dv + form + content + navLinks;
+      bodyInner = dailyVerseCard + form + content + navLinks;
     } else if (tab === 'gospel') {
-      bodyInner = '<h1 style="text-align:center;margin-bottom:24px;">How to be Saved</h1>' +
+      bodyInner = dailyVerseCard + '<h1 style="text-align:center;margin-bottom:24px;">How to be Saved</h1>' +
         '<p style="text-align:center;margin-bottom:8px;">The Gospel is the glad tidings of the Lord Jesus Christ:</p>' +
         '<p style="text-align:center;margin-bottom:24px;">Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.</p>' +
         '<hr style="margin-bottom:24px;">' +
@@ -533,7 +535,7 @@ Deno.serve(async (req) => {
         '<li><a href="https://www.jesus-is-savior.com/Bible/NIV/new_international_version_exposed.htm" target="_blank">Jesus is Savior - NIV Exposed</a></li>' +
         '</ul>';
     } else if (tab === 'about') {
-      bodyInner = '<div style="max-width:800px;margin:0 auto;">' +
+      bodyInner = dailyVerseCard + '<div style="max-width:800px;margin:0 auto;">' +
         '<h1 style="text-align:center;margin-bottom:16px;">About</h1>' +
         '<hr style="margin-bottom:32px;">' +
         '<div style="margin-bottom:32px;">' +
@@ -594,7 +596,7 @@ Deno.serve(async (req) => {
         '</div>' +
         '</div>';
     } else if (tab === 'debug') {
-      bodyInner = '<div class="sec-title">Debug</div>' +
+      bodyInner = dailyVerseCard + '<div class="sec-title">Debug</div>' +
         '<div class="sec-sub">System diagnostics and cache information</div>' +
         '<div class="box" style="margin-top:20px;"><h3>Debug Information</h3>' +
         '<p style="line-height:1.8;margin-bottom:12px;">This page provides system diagnostics for the legacy reader.</p>' +
