@@ -650,8 +650,11 @@ Deno.serve(async (req) => {
       // final book (i===TOTAL) completes.
       'function next(i){' +
         'setPct(Math.round(i*100/TOTAL));' +
-        'if(i>=TOTAL){setPct(100);reveal();return;}' +
-        'load(i,0);' +
+        'if(i>=TOTAL){setPct(100);setTimeout(reveal,250);return;}' +
+        // Defer each step so the browser repaints the progress bar between
+        // books (otherwise instant cache hits recurse without ever painting,
+        // making 0% and intermediate steps invisible).
+        'setTimeout(function(){load(i,0);},0);' +
       '}' +
       'var warn=document.getElementById("kjb-warn");' +
       'function showWarn(msg){if(warn){warn.innerHTML=msg;warn.style.display="block";}}' +
