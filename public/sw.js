@@ -1,8 +1,9 @@
 // KJB Reader Service Worker v20260610_280
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260610_286';
-// Bumped to purge old legacy shell/chunks cached under the buggy loader.
+const CACHE_NAME = 'kjb-reader-v20260610_287';
+// Keep this stable so cached chunks survive worker updates (chunk URLs are now
+// version-free and never change, so old cached copies stay valid offline).
 const LEGACY_CACHE_NAME = 'kjb-legacy-v3';
 
 // Core app shell resources to cache immediately

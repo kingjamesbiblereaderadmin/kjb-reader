@@ -620,11 +620,11 @@ Deno.serve(async (req) => {
     // section is tiny so it downloads reliably on weak connections; the page
     // is revealed only after ALL books have been assembled. The browser caches
     // each chunk, so a repeat visit (even offline) reassembles instantly.
-    // Version stamp on chunk URLs: bumping LOADER_VER makes the new loader
-    // request fresh chunk URLs that any stale "immutable" cache won't have,
-    // forcing the corrected behaviour to take effect after one online refresh.
-    const LOADER_VER = '4';
-    const chunkBase = basePath + '?v=' + LOADER_VER + '&chunk=';
+    // Chunk URLs are STABLE (no version stamp). A book's text never changes, so
+    // a fixed URL means the Service Worker's cached copy always matches when
+    // offline — this is essential for offline reliability. (Versioning the
+    // chunk URL was the bug that broke offline loading.)
+    const chunkBase = basePath + '?chunk=';
     const totalBooks = BOOK_ORDER.length;
     const SECTION_SCRIPT = '<script>(function(){' +
       'var BASE=' + JSON.stringify(chunkBase) + ';' +
@@ -639,40 +639,41 @@ Deno.serve(async (req) => {
         'if(window.location.hash){try{window.location.href=window.location.hash;}catch(e){}}' +
       '}' +
       'function makeXHR(){if(window.XMLHttpRequest){return new XMLHttpRequest();}try{return new ActiveXObject("Msxml2.XMLHTTP");}catch(e){}try{return new ActiveXObject("Microsoft.XMLHTTP");}catch(e){}return null;}' +
-      // A book is only counted "done" when it loads SUCCESSFULLY, so the % bar
-      // reflects real progress and never reveals a half-broken page. Each book
-      // retries persistently (long backoff, effectively unlimited) so flaky
-      // connections still complete the full download instead of stalling at 82%.
+      // Each book is fetched, validated (must contain a real book chunk), and
+      // retried up to MAXTRIES times. After MAXTRIES it gives up on that book
+      // and moves on, so the loop ALWAYS advances to the end and reveals the
+      // page — it can never hang forever (online or offline). Progress is
+      // counted per attempted book so the bar always reaches 100%.
+      'var MAXTRIES=6;' +
+      'function next(i){' +
+        'var p=Math.round((i)*100/TOTAL);' +
+        'if(bar){bar.style.width=p+"%";}if(pct){pct.innerHTML=p+"%";}' +
+        'if(i>=TOTAL){if(bar){bar.style.width="100%";}if(pct){pct.innerHTML="100%";}reveal();return;}' +
+        'load(i,0);' +
+      '}' +
       'function load(i,tries){' +
-        'if(i>=TOTAL){reveal();return;}' +
         'var xhr=makeXHR();' +
-        'if(!xhr){reveal();return;}' +
+        'if(!xhr){next(i+1);return;}' +
         'xhr.open("GET",BASE+i,true);' +
         'xhr.onreadystatechange=function(){' +
           'if(xhr.readyState===4){' +
-            // Success = HTTP 200/0 with a real book chunk. A book chunk always
-            // starts with the book wrapper "<div class=\"fb-book\"". If the
-            // response is empty OR is accidentally the full shell page (which
-            // contains "kjb-loader"), treat it as a FAILURE and retry — this is
-            // what previously let a bad response slip through and reveal early.
             'var txt=xhr.responseText||"";' +
             'var okBody=txt.indexOf("fb-book")!==-1 && txt.indexOf("kjb-loader")===-1;' +
             'if((xhr.status===200||xhr.status===0)&&okBody){' +
-              'parts[i]=txt;done++;' +
-              'var p=Math.round(done*100/TOTAL);' +
-              'if(bar){bar.style.width=p+"%";}if(pct){pct.innerHTML=p+"%";}' +
-              'load(i+1,0);' +
-            '}else{' +
-              // Keep retrying this same book — never skip it. Backoff caps at 3s.
-              'var wait=Math.min(800+tries*400,3000);' +
-              'if(pct){pct.innerHTML=Math.round(done*100/TOTAL)+"% (retrying book "+(i+1)+"\\u2026)";}' +
+              'parts[i]=txt;next(i+1);' +
+            '}else if(tries<MAXTRIES){' +
+              'var wait=Math.min(500+tries*400,2500);' +
+              'if(pct){pct.innerHTML=Math.round(i*100/TOTAL)+"% (retrying book "+(i+1)+"\\u2026)";}' +
               'setTimeout(function(){load(i,tries+1);},wait);' +
+            '}else{' +
+              // Give up on this book, keep going so the page still loads.
+              'next(i+1);' +
             '}' +
           '}' +
         '};' +
-        'try{xhr.send(null);}catch(e){setTimeout(function(){load(i,tries+1);},Math.min(800+tries*400,3000));}' +
+        'try{xhr.send(null);}catch(e){if(tries<MAXTRIES){setTimeout(function(){load(i,tries+1);},Math.min(500+tries*400,2500));}else{next(i+1);}}' +
       '}' +
-      'function start(){load(0,0);}' +
+      'function start(){next(0);}' +
       'if(window.addEventListener){window.addEventListener("load",start,false);}else if(window.attachEvent){window.attachEvent("onload",start);}else{window.onload=start;}' +
     '})();</script>';
 
