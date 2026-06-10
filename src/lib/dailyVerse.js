@@ -78,15 +78,28 @@ export async function getDailyVerseFromBible() {
       const d = new Date();
       const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
 
-      const bookNames = Object.keys(bible).filter(k => k !== '__colophons').sort();
+      // Use biblical book order to match API (BOOK_ORDER from bibleApi)
+      const BOOK_ORDER = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
       
       let currentSeed = seed;
       let bookName, chapterNum, verseObj;
       while (true) {
-        bookName = bookNames[currentSeed % bookNames.length];
+        bookName = BOOK_ORDER[currentSeed % BOOK_ORDER.length];
+        if (!bible[bookName]) {
+          currentSeed++;
+          continue;
+        }
         const chapters = Object.keys(bible[bookName]);
+        if (!chapters.length) {
+          currentSeed++;
+          continue;
+        }
         chapterNum = chapters[currentSeed % chapters.length];
         const verses = bible[bookName][chapterNum];
+        if (!verses || !verses.length) {
+          currentSeed++;
+          continue;
+        }
         verseObj = verses[currentSeed % verses.length];
         
         const ref = `${bookName} ${chapterNum}:${verseObj.verse}`;
