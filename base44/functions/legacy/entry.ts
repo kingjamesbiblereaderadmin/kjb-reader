@@ -286,6 +286,8 @@ Deno.serve(async (req) => {
         verseText = verseText.replace('[[but]]', '[but]');
       }
       
+      verseText = verseText.replace(/'/g, "'");
+      
       if (!data[bookName]) data[bookName] = {};
       if (!data[bookName][chapter]) data[bookName][chapter] = [];
       data[bookName][chapter].push({ verse, text: verseText });
@@ -330,12 +332,14 @@ Deno.serve(async (req) => {
   .chapter-header { text-align: center; margin: 32px 0 24px 0; }
   .chapter-book { font-size: 28px; font-weight: bold; color: #2d2a6e; display: block; }
   .chapter-num { font-size: 14px; color: #5b59a0; letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; display: block; }
-  .subscript { text-align: center; font-size: 15px; color: #555; margin: 8px 0 12px 0; font-style: italic; }
+  .subscript { text-align: center; font-size: 15px; color: #555; margin: 8px 0 12px 0; }
+  .subscript em { font-style: italic; }
   .subscript .pilcrow { font-style: normal; margin-right: 4px; }
   .verses { margin: 20px 0; text-align: left; }
   .verse { margin-bottom: 12px; line-height: 1.7; }
   .verse-num { font-size: 11px; color: #5b59a0; font-weight: bold; vertical-align: super; margin-right: 3px; }
-  .colophon { text-align: center; font-size: 13px; color: #666; margin: 24px 0 8px 0; font-style: italic; border-top: 1px solid #ddd; padding-top: 12px; }
+  .colophon { text-align: center; font-size: 13px; color: #666; margin: 24px 0 8px 0; border-top: 1px solid #ddd; padding-top: 12px; }
+  .colophon em { font-style: italic; }
   .colophon .pilcrow { font-style: normal; margin-right: 4px; }
   .colophon-content { display: block; margin-top: 4px; }
   .footer { text-align: center; font-size: 11px; color: #888; padding: 20px; border-top: 1px solid #ddd; margin-top: 40px; }
@@ -675,7 +679,8 @@ function readChapter() {
   var subscriptKey = book + ':' + chap;
   var subscript = PSALM_SUBSCRIPTS[chap];
   if (book === 'Psalms' && subscript) {
-    html += '<div class="subscript"><span class="pilcrow">¶</span><em>' + subscript + '</em></div>';
+    var subHtml = subscript.replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
+    html += '<div class="subscript"><span class="pilcrow">¶</span>' + subHtml + '</div>';
   }
 
   html += '<div class="verses">';
@@ -687,7 +692,8 @@ function readChapter() {
 
   var colophon = COLOPHON_DATA[subscriptKey] || COLOPHONS[subscriptKey];
   if (colophon) {
-    html += '<div class="colophon"><div class="colophon-content"><span class="pilcrow">¶</span><em>' + colophon + '</em></div></div>';
+    var colophonHtml = colophon.replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
+    html += '<div class="colophon"><div class="colophon-content"><span class="pilcrow">¶</span>' + colophonHtml + '</div></div>';
   }
 
   html += '</div>';
