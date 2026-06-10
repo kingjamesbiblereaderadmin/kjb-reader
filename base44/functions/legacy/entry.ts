@@ -409,7 +409,8 @@ Deno.serve(async (req) => {
       }
       
       let g = dv + '<div class="sec-title">How to be Saved</div>' +
-        '<div class="sec-sub">The Gospel is the glad tidings of the Lord Jesus Christ: Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.</div>' +
+        '<div class="sec-sub">The Gospel is the glad tidings of the Lord Jesus Christ:</div>' +
+        '<div class="sec-sub" style="margin-top:8px;">Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.</div>' +
         '<div class="step"><h4>1. Believe you are a sinner that deserves hell</h4>' +
         '<blockquote>"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin." &mdash; Romans 3:20</blockquote>' +
         '<blockquote>"The wicked shall be turned into hell, and all the nations that forget God." &mdash; Psalm 9:17</blockquote></div>' +
@@ -431,8 +432,8 @@ Deno.serve(async (req) => {
         '<div class="step"><h4>Once Saved, Always Saved</h4>' +
         '<p style="font-size:14px;color:#444;margin-bottom:8px;">A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life. God\'s gift of eternal life is just that &mdash; eternal.</p>' +
         '<blockquote>"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." &mdash; Ephesians 1:13</blockquote></div>' +
-        '<div class="box"><h3>Watch the Gospel</h3>' +
-        '<p style="margin-bottom:8px;"><a href="https://www.youtube.com/watch?v=znP9Dr6tOzU">&#9654; THE GOSPEL THAT SAVES &mdash; Robert Breaker</a></p>' +
+        '<div class="sec-title" style="margin-top:24px;">Watch the Gospel</div>' +
+        '<div class="box"><p style="margin-bottom:8px;"><a href="https://www.youtube.com/watch?v=znP9Dr6tOzU">&#9654; THE GOSPEL THAT SAVES &mdash; Robert Breaker</a></p>' +
         '<p><a href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq">&#9654; Full Gospel Videos Playlist</a></p></div>';
       
       bodyInner = g;
