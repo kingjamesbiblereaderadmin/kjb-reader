@@ -636,9 +636,9 @@ Deno.serve(async (req) => {
       'function reveal(){' +
         'try{target.innerHTML=parts.join("");}catch(e){}' +
         'try{if(document.body){document.body.className=document.body.className?document.body.className+" kjb-ready":"kjb-ready";}}catch(e){}' +
-        // Belt-and-braces: also hide the loader directly in case the body class
-        // didn\'t apply (some old browsers mis-handle dynamic class changes).
-        'try{var L=document.getElementById("kjb-loader");if(L){L.style.display="none";}}catch(e){}' +
+        // Belt-and-braces: hide the loader AND fully remove it, in case some
+        // old browser mishandles dynamic class/style changes.
+        'try{var L=document.getElementById("kjb-loader");if(L){L.style.display="none";if(L.parentNode){L.parentNode.removeChild(L);}}}catch(e){}' +
         'if(window.location.hash){try{window.location.href=window.location.hash;}catch(e){}}' +
       '}' +
       'function makeXHR(){if(window.XMLHttpRequest){return new XMLHttpRequest();}try{return new ActiveXObject("Msxml2.XMLHTTP");}catch(e){}try{return new ActiveXObject("Microsoft.XMLHTTP");}catch(e){}return null;}' +
@@ -651,9 +651,10 @@ Deno.serve(async (req) => {
       // i = number of books fully downloaded so far. So progress = i/TOTAL.
       // Starts at 0 (nothing loaded) and reaches exactly 100 only after the
       // final book (i===TOTAL) completes.
+      'var revealed=false;' +
       'function next(i){' +
         'setPct(Math.round(i*100/TOTAL));' +
-        'if(i>=TOTAL){setPct(100);reveal();return;}' +
+        'if(i>=TOTAL){setPct(100);if(!revealed){revealed=true;reveal();}return;}' +
         // Only yield to the browser (so the progress bar repaints) when the
         // loader is actually VISIBLE — i.e. real downloading. When chunks are
         // cached (offline / repeat visits), the loader stays hidden and we
@@ -735,7 +736,9 @@ Deno.serve(async (req) => {
       '#kjb-bar{height:100%;width:0;background:' + spinnerCol + ';transition:width 0.2s ease;}' +
       '#kjb-pct{font-size:14px;font-weight:bold;color:' + spinnerCol + ';}' +
       '#kjb-warn{display:none;max-width:380px;margin:16px auto 0;padding:9px 13px;border:1px solid ' + (isDark ? '#5a3a3a' : '#e9c4c4') + ';border-radius:8px;background:' + (isDark ? '#2a1a1a' : '#fdf0f0') + ';font-size:12px;line-height:1.5;color:' + (isDark ? '#f0b8b8' : '#b02525') + ';}' +
+      '#kjb-loader .kjb-loader-banner{max-width:480px;margin:28px auto 0;text-align:left;}' +
       'body.kjb-ready #kjb-loader{display:none;}body:not(.kjb-ready) #wrap,body:not(.kjb-ready) .banner,body:not(.kjb-ready) .hdr{visibility:hidden;}';
+    const upgradeWarn = '<div style="max-width:420px;margin:18px auto 0;padding:10px 14px;border:1px solid ' + (isDark ? '#3a3d4a' : '#c9c7e0') + ';border-radius:8px;background:' + (isDark ? '#1a1a22' : '#f3f2fb') + ';font-size:12px;line-height:1.5;color:' + (isDark ? '#c0c0c8' : '#555') + ';text-align:center;">&#9888; Using an old or unsupported device or browser? Some features may not work &mdash; please upgrade to the latest browser or device for the best experience.</div>';
     const loaderHtml =
       '<div id="kjb-loader"><div class="kjb-center">' +
         '<img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" style="width:96px;height:96px;object-fit:contain;margin-bottom:20px;" />' +
