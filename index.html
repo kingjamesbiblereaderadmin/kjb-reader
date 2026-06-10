@@ -21,6 +21,28 @@
           // "/legacy" route's own ?tab= links/form submits.
           var atRoot = window.location.pathname === '/' || window.location.pathname === '';
           var wantsLegacyTab = atRoot && qs.indexOf('tab=') !== -1;
+
+          // A direct visit to "/legacy" always means the server-rendered Full
+          // Bible reader — send EVERY browser straight to the function endpoint
+          // (the React /legacy page can't run on IE and only redirects anyway).
+          if (window.location.pathname === '/legacy' && !optedOut) {
+            var lHost = window.location.hostname || '';
+            var lIsCustom = lHost.indexOf('base44.app') === -1 && lHost.indexOf('localhost') === -1;
+            if (lIsCustom) {
+              window.location.replace(window.location.origin + '/functions/legacy');
+            } else {
+              var lAppId = null;
+              var lIdx = qs.indexOf('app_id=');
+              if (lIdx !== -1) {
+                var lPart = qs.substring(lIdx + 7);
+                var lAmp = lPart.indexOf('&');
+                lAppId = lAmp !== -1 ? lPart.substring(0, lAmp) : lPart;
+              }
+              if (!lAppId) { try { lAppId = localStorage.getItem('base44_app_id'); } catch (e) {} }
+              window.location.replace(lAppId ? '/api/apps/' + lAppId + '/functions/legacy' : '/functions/legacy');
+            }
+            return;
+          }
           if (wantsLegacyTab && !optedOut) {
             var tHost = window.location.hostname || '';
             var tIsCustom = tHost.indexOf('base44.app') === -1 && tHost.indexOf('localhost') === -1;
