@@ -298,8 +298,7 @@ Deno.serve(async (req) => {
 '.chead { text-align:center; margin:20px 0 16px; }' +
 '.cbook { font-size:22px; font-weight:bold; color:#2d2a6e; display:block; }' +
 '.cnum { font-size:13px; color:#666; display:block; margin-top:4px; }' +
-'.verse { display:block; margin:24px 0 10px 0; line-height:1.5; }' +
-'.vnum-line { display:block; margin-bottom:4px; }' +
+'.verse { display:block; margin:12px 0 10px 0; line-height:1.5; }' +
 '.vn { font-weight:bold; color:#2d2a6e; font-size:11px; margin-right:4px; }' +
 '.subscript { text-align:center; color:#555; font-size:14px; margin:0 0 16px; }' +
 '.colophon { text-align:center; color:#555; font-size:14px; margin:18px 0 0; padding-top:12px; border-top:1px solid #e0e0ec; }' +
@@ -398,7 +397,7 @@ Deno.serve(async (req) => {
         for (let i = 0; i < verses.length; i++) {
           const r = renderVerse(verses[i].text);
           const pil = r.leadingPilcrow ? '<span class="pil">&para; </span>' : '';
-          content += '<div class="verse"><span class="vnum-line">' + '<span class="vn">' + verses[i].verse + '</span>' + pil + '</span>' + r.html + '</div>';
+          content += '<div class="verse"><span class="vn">' + verses[i].verse + '</span>' + pil + r.html + '</div>';
         }
       }
 
