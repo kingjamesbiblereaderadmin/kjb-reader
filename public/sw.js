@@ -1,7 +1,7 @@
 // KJB Reader Service Worker v20260610_280
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260610_280';
+const CACHE_NAME = 'kjb-reader-v20260610_281';
 const LEGACY_CACHE_NAME = 'kjb-legacy-v1';
 
 // Core app shell resources to cache immediately
@@ -59,10 +59,25 @@ self.addEventListener('fetch', (event) => {
     url.pathname.includes('/functions/legacy') ||
     url.pathname.endsWith('/legacy');
   if (isLegacyRequest) {
+    // Book chunks (?chunk=N) are immutable — once cached they never change, so
+    // serve them CACHE-FIRST. This stops the reader re-downloading the whole
+    // Bible on every online refresh; it only fetches a chunk if not yet cached.
+    const isChunk = url.search.indexOf('chunk=') !== -1;
     event.respondWith(
       caches.open(LEGACY_CACHE_NAME).then((cache) => {
-        // Network-first when online (keeps legacy text fresh), but fall back to
-        // the cached copy on refresh while offline.
+        if (isChunk) {
+          return cache.match(request).then((cached) => {
+            if (cached) return cached;
+            return fetch(request).then((response) => {
+              if (response && (response.ok || response.status === 0)) {
+                cache.put(request, response.clone());
+              }
+              return response;
+            });
+          });
+        }
+        // Shell page: network-first so content updates propagate, with offline
+        // fallback to the cached shell.
         return fetch(request).then((response) => {
           if (response && response.ok) {
             cache.put(request, response.clone());
