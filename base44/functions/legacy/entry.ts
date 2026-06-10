@@ -437,9 +437,10 @@ Deno.serve(async (req) => {
     }
   }
 
-  const bibleJson = JSON.stringify(bibleData).replace(/</g, '\\u003c');
+  // Don't inject Bible data - too large (~5MB). Use localStorage caching instead.
   const hasError = parseError ? "true" : "false";
   const errorMsg = parseError ? parseError.replace(/'/g, "\\'").replace(/"/g, '\\"') : "";
+  const cacheInstructions = bookCount > 0 ? "Refresh page to cache Bible data" : "Check console for errors";
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -691,7 +692,9 @@ Deno.serve(async (req) => {
 </div>
 
 <script>
-var BIBLE_DATA_INJECTED = \${bibleJson};
+// Bible data is NOT injected (too large ~5MB). Must use localStorage cache.
+// First load: shows instructions. User refreshes to use cached data.
+var BIBLE_DATA_INJECTED = {};
 
 function showTab(name, btn) {
   var tabs = ["reader","gospel","resources","about","debug"];
@@ -922,13 +925,13 @@ function showTab(name, btn) {
     debugInfoDiv = document.getElementById("debug-info");
 
     if (\${hasError}) {
-      statusDiv.innerHTML = "<span class='err'>Error loading Bible: \${errorMsg}</span>";
+      statusDiv.innerHTML = "<span class='err'>Error: \${errorMsg}</span>";
     } else if (availableBooks.length === 0) {
-      statusDiv.innerHTML = "<span class='err'>No books parsed. Check debug tab.</span>";
+      statusDiv.innerHTML = "<span class='err'>First visit? Refresh page to cache Bible data locally.</span>";
     } else if (availableBooks.length < 66) {
-      statusDiv.innerHTML = "<span class='err'>Warning: only " + availableBooks.length + " books loaded.</span>";
+      statusDiv.innerHTML = "<span style='color:#f5a623;'>⚠ Partial cache (" + availableBooks.length + "/66 books). Refresh for full download.</span>";
     } else {
-      statusDiv.innerHTML = "<span style='color:green;'>✓ Fully downloaded (" + availableBooks.length + " books)</span>";
+      statusDiv.innerHTML = "<span style='color:green;'>✓ Ready (" + availableBooks.length + " books)</span>";
     }
 
     bookSel.addEventListener("change", function() { fillChapters(bookSel.value); });
