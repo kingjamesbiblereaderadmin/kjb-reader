@@ -15,14 +15,13 @@
           // Parse query string manually (IE doesn't support URLSearchParams reliably)
           var qs = window.location.search || '';
           var optedOut = qs.indexOf('nolegacy=1') !== -1;
-          // A ?tab= param at the root means a legacy deep link (gospel/resources/
-          // about/debug) — route it to the server-rendered legacy reader on ANY
-          // browser, since those inline HTML pages live in the legacy function.
-          // Never redirect if we're already on the legacy function path.
-          var onLegacyFn = window.location.pathname.indexOf('/functions/legacy') !== -1
-            || window.location.pathname.indexOf('/legacy') !== -1;
-          var wantsLegacyTab = qs.indexOf('tab=') !== -1;
-          if (wantsLegacyTab && !optedOut && !onLegacyFn) {
+          // A ?tab= param AT THE ROOT path ("/") means a legacy deep link
+          // (gospel/resources/about/debug) — route it to the server-rendered
+          // legacy reader. Only fires on "/" so it never interferes with the
+          // "/legacy" route's own ?tab= links/form submits.
+          var atRoot = window.location.pathname === '/' || window.location.pathname === '';
+          var wantsLegacyTab = atRoot && qs.indexOf('tab=') !== -1;
+          if (wantsLegacyTab && !optedOut) {
             var tHost = window.location.hostname || '';
             var tIsCustom = tHost.indexOf('base44.app') === -1 && tHost.indexOf('localhost') === -1;
             if (tIsCustom) {

@@ -202,8 +202,8 @@ Deno.serve(async (req) => {
       // Prev/Next chapter links
       const maxCh = CHAPTER_COUNTS[book] || 1;
       let navLinks = '<div class="nav">';
-      if (chapter > 1) navLinks += '<a href="' + esc(basePath) + '?tab=bible&book=' + encodeURIComponent(book) + '&chapter=' + (chapter - 1) + '">&laquo; Chapter ' + (chapter - 1) + '</a>';
-      if (chapter < maxCh) navLinks += '<a href="' + esc(basePath) + '?tab=bible&book=' + encodeURIComponent(book) + '&chapter=' + (chapter + 1) + '">Chapter ' + (chapter + 1) + ' &raquo;</a>';
+      if (chapter > 1) navLinks += '<a href="' + esc(basePath) + '?tab=bible&book=' + encodeURIComponent(book) + '&chapter=' + (chapter - 1) + idSuffix + '">&laquo; Chapter ' + (chapter - 1) + '</a>';
+      if (chapter < maxCh) navLinks += '<a href="' + esc(basePath) + '?tab=bible&book=' + encodeURIComponent(book) + '&chapter=' + (chapter + 1) + idSuffix + '">Chapter ' + (chapter + 1) + ' &raquo;</a>';
       navLinks += '</div>';
 
       bodyInner = form + content + navLinks;
