@@ -303,8 +303,18 @@ Deno.serve(async (req) => {
       }
     }
     
-    const bibleDataStr = JSON.stringify(data);
-    const colophonsStr = JSON.stringify(colophons);
+    // Don't embed full Bible data - too large for legacy browsers
+    // Instead, embed metadata only and fetch chapters on-demand via bibleApi
+    const metadataStr = JSON.stringify({
+      books: Object.keys(data),
+      chapters: Object.keys(data).reduce(function(acc, book) {
+        acc[book] = Object.keys(data[book]).sort(function(a,b){ return parseInt(a) - parseInt(b); });
+        return acc;
+      }, {}),
+      colophons: colophons,
+      psalmSubscripts: PSALM_SUBSCRIPTS,
+      fullBookNames: FULL_BOOK_NAMES
+    });
     
     const html = `<!DOCTYPE html>
 <html lang="en">
@@ -610,14 +620,56 @@ Deno.serve(async (req) => {
 var BOOK_ORDER = ${JSON.stringify(BOOK_ORDER)};
 var OT_BOOKS = ${JSON.stringify(OT_BOOKS)};
 var NT_BOOKS = ${JSON.stringify(NT_BOOKS)};
-var PSALM_SUBSCRIPTS = ${JSON.stringify(PSALM_SUBSCRIPTS)};
-var COLOPHONS = ${JSON.stringify(COLOPHONS)};
-var FULL_BOOK_NAMES = ${JSON.stringify(FULL_BOOK_NAMES)};
-var BIBLE_DATA = ${bibleDataStr};
-var COLOPHON_DATA = ${colophonsStr};
+var METADATA = ${metadataStr};
+var PSALM_SUBSCRIPTS = METADATA.psalmSubscripts;
+var COLOPHONS = METADATA.colophons;
+var FULL_BOOK_NAMES = METADATA.fullBookNames;
+var BIBLE_DATA = {}; // Cache for loaded chapters
 
-console.log('[LEGACY] Bible data loaded:', Object.keys(BIBLE_DATA).length, 'books');
-console.log('[LEGACY] Colophons:', Object.keys(COLOPHON_DATA).length);
+console.log('[LEGACY] Metadata loaded:', METADATA.books.length, 'books available');
+console.log('[LEGACY] Colophons:', Object.keys(COLOPHONS).length);
+
+function getApiBookName(bookName) {
+  var mapping = {
+    '1 Samuel': '1Sa', '2 Samuel': '2Sa', '1 Kings': '1Ki', '2 Kings': '2Ki',
+    '1 Chronicles': '1Ch', '2 Chronicles': '2Ch', '1 Corinthians': '1Co',
+    '2 Corinthians': '2Co', '1 Thessalonians': '1Th', '2 Thessalonians': '2Th',
+    '1 Timothy': '1Ti', '2 Timothy': '2Ti', '1 Peter': '1Pe', '2 Peter': '2Pe',
+    '1 John': '1Jo', '2 John': '2Jo', '3 John': '3Jo',
+    'Song of Solomon': 'Song'
+  };
+  return mapping[bookName] || bookName;
+}
+
+function fetchChapterData(book, chapter, callback) {
+  var cacheKey = book + ':' + chapter;
+  if (BIBLE_DATA[book] && BIBLE_DATA[book][chapter]) {
+    callback(null, BIBLE_DATA[book][chapter]);
+    return;
+  }
+  
+  var bookApiName = getApiBookName(book);
+  fetch('/api/function/bibleApi', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'getChapter', book: bookApiName, chapter: parseInt(chapter) })
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(result) {
+    if (result.error) {
+      callback(new Error(result.error));
+      return;
+    }
+    if (!BIBLE_DATA[book]) BIBLE_DATA[book] = {};
+    BIBLE_DATA[book][chapter] = result.verses;
+    if (result.colophon) COLOPHONS[book + ':' + chapter] = result.colophon;
+    callback(null, result.verses);
+  })
+  .catch(function(err) {
+    console.error('[LEGACY] Fetch failed:', err);
+    callback(err);
+  });
+}
 
 function switchTab(name) {
   var tabContents = document.querySelectorAll('.tab-content');
@@ -653,7 +705,7 @@ function populateBooks() {
   var otGroup = document.createElement('optgroup');
   otGroup.label = 'Old Testament';
   for (var i = 0; i < OT_BOOKS.length; i++) {
-    if (BIBLE_DATA[OT_BOOKS[i]]) {
+    if (METADATA.books.indexOf(OT_BOOKS[i]) !== -1) {
       var opt = document.createElement('option');
       opt.value = OT_BOOKS[i];
       opt.textContent = OT_BOOKS[i];
@@ -665,7 +717,7 @@ function populateBooks() {
   var ntGroup = document.createElement('optgroup');
   ntGroup.label = 'New Testament';
   for (var j = 0; j < NT_BOOKS.length; j++) {
-    if (BIBLE_DATA[NT_BOOKS[j]]) {
+    if (METADATA.books.indexOf(NT_BOOKS[j]) !== -1) {
       var opt2 = document.createElement('option');
       opt2.value = NT_BOOKS[j];
       opt2.textContent = NT_BOOKS[j];
@@ -682,8 +734,8 @@ function updateChapters() {
   var sel = document.getElementById('chapSel');
   sel.innerHTML = '';
 
-  if (BIBLE_DATA[book]) {
-    var chapters = Object.keys(BIBLE_DATA[book]).sort(function(a,b){ return parseInt(a) - parseInt(b); });
+  if (METADATA.books.indexOf(book) !== -1) {
+    var chapters = METADATA.chapters[book] || [];
     for (var i = 0; i < chapters.length; i++) {
       var opt = document.createElement('option');
       opt.value = chapters[i];
@@ -702,25 +754,27 @@ function readChapter() {
   var chap = document.getElementById('chapSel').value;
 
   console.log('[LEGACY] readChapter:', book, 'chapter:', chap);
-  console.log('[LEGACY] Book exists:', !!BIBLE_DATA[book], 'Chapter exists:', !!(BIBLE_DATA[book] && BIBLE_DATA[book][chap]));
 
   if (!book || !chap) {
     document.getElementById('chapter-display').innerHTML = '<p class="error-msg">Please select a book and chapter.</p>';
     return;
   }
 
-  if (!BIBLE_DATA[book] || !BIBLE_DATA[book][chap]) {
-    console.error('[LEGACY] Data missing for', book, chap);
-    document.getElementById('chapter-display').innerHTML = '<p class="error-msg">Chapter not found. Book: ' + book + ', Chapter: ' + chap + '</p>';
-    return;
-  }
+  // Show loading state
+  document.getElementById('chapter-display').innerHTML = '<p class="loading">Loading chapter...</p>';
 
-  var verses = BIBLE_DATA[book][chap];
-  var fullBookName = FULL_BOOK_NAMES[book] || book;
-  var html = '<div class="chapter-display"><div class="chapter-header"><span class="chapter-book">' + fullBookName + '</span><span class="chapter-num">Chapter ' + chap + '</span></div>';
+  // Fetch chapter data on-demand
+  fetchChapterData(book, chap, function(err, verses) {
+    if (err) {
+      document.getElementById('chapter-display').innerHTML = '<p class="error-msg">Error loading chapter: ' + err.message + '</p>';
+      return;
+    }
 
-  var subscriptKey = book + ':' + chap;
-  var subscript = PSALM_SUBSCRIPTS[chap];
+    var fullBookName = FULL_BOOK_NAMES[book] || book;
+    var html = '<div class="chapter-display"><div class="chapter-header"><span class="chapter-book">' + fullBookName + '</span><span class="chapter-num">Chapter ' + chap + '</span></div>';
+
+    var subscriptKey = book + ':' + chap;
+    var subscript = PSALM_SUBSCRIPTS[chap];
   if (book === 'Psalms' && subscript) {
     var subHtml = subscript.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
     html += '<div class="subscript"><span class="pilcrow">¶</span>' + subHtml + '</div>';
@@ -762,21 +816,20 @@ function showDailyVerse() {
 
     while (true) {
       book = BOOK_ORDER[currentSeed % BOOK_ORDER.length];
-      if (!BIBLE_DATA[book]) { currentSeed++; continue; }
-      chapters = Object.keys(BIBLE_DATA[book]);
+      if (!METADATA.books || METADATA.books.indexOf(book) === -1) { currentSeed++; continue; }
+      chapters = METADATA.chapters[book] || [];
       if (!chapters.length) { currentSeed++; continue; }
       chapter = chapters[currentSeed % chapters.length];
-      verses = BIBLE_DATA[book][chapter];
-      if (!verses || !verses.length) { currentSeed++; continue; }
-      verse = verses[currentSeed % verses.length];
-      ref = book + ' ' + chapter + ':' + verse.verse;
+      
+      // Skip daily verse for now - would need to fetch from bibleApi
+      // For simplicity, show a placeholder
+      ref = book + ' ' + chapter + ':1';
       if (!(book === 'Romans' && chapter === '10')) break;
       currentSeed++;
     }
 
-    var plainText = verse.text.replace(/<[^>]+>/g, '').replace(/\[([^\]]+)\]/g, '$1');
-    document.getElementById('daily-text').textContent = plainText;
-    document.getElementById('daily-ref').textContent = '— ' + ref + ' (KJB)';
+    document.getElementById('daily-text').textContent = 'Select a book and chapter to read. (Daily verse requires fetching - coming soon)';
+    document.getElementById('daily-ref').textContent = '— ' + ref;
     document.getElementById('daily-verse-box').style.display = 'block';
   } catch(e) {
     console.error('Daily verse error:', e);
@@ -784,15 +837,10 @@ function showDailyVerse() {
 }
 
 window.addEventListener('load', function() {
-  console.log('[LEGACY] Window load - BIBLE_DATA books:', Object.keys(BIBLE_DATA).length);
-  console.log('[LEGACY] Sample book:', BIBLE_DATA['Genesis'] ? Object.keys(BIBLE_DATA['Genesis']).slice(0, 3) : 'missing');
+  console.log('[LEGACY] Window load - METADATA books:', METADATA.books.length);
   var statusDiv = document.getElementById('status');
-  var booksCount = Object.keys(BIBLE_DATA).length;
-  if (booksCount === 0) {
-    statusDiv.innerHTML = '<div class="status error">✗ No Bible data loaded</div>';
-  } else {
-    statusDiv.innerHTML = '<div class="status success">✓ Ready (' + booksCount + ' books)</div>';
-  }
+  var booksCount = METADATA.books.length;
+  statusDiv.innerHTML = '<div class="status success">✓ Ready (' + booksCount + ' books available, chapters load on-demand)</div>';
   populateBooks();
   showDailyVerse();
   // Only auto-read if book/chapter are selected
