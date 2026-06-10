@@ -74,11 +74,12 @@ function parseBibleServerSide(text) {
     }
     blanksSinceCaps = 0;
 
-    const chapMatch = line.match(/^CHAPTER (\d+)$/);
+    const chapMatch = line.match(/^(CHAPTER|PSALM) (\d+)$/i);
     if (chapMatch) {
-      currentChap = chapMatch[1];
+      currentChap = chapMatch[2];
       verseNum = 0;
       titleBuffer = [];
+      console.log("[legacy] Found chapter:", currentChap, "in", currentBook);
       continue;
     }
 
