@@ -1,6 +1,8 @@
 // Legacy Bible Reader - 100% server-rendered HTML for IE8/IE9/Windows Phone
 // No client-side JavaScript required - navigation uses plain forms and links
 
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+
 const ABBR_TO_NAME = {
   'Ge':'Genesis','Ex':'Exodus','Le':'Leviticus','Nu':'Numbers','De':'Deuteronomy',
   'Jos':'Joshua','Jg':'Judges','Ru':'Ruth','1Sa':'1 Samuel','2Sa':'2 Samuel',
@@ -299,26 +301,15 @@ function chapterOptions(book, selected) {
   return h;
 }
 
-async function fetchDailyVerse() {
+async function fetchDailyVerse(base44) {
   try {
     const d = new Date();
     const clientDate = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-    const appUrl = new URL('https://kingjamesbiblereader.com');
     console.log('[Legacy] Fetching daily verse for:', clientDate);
-    const res = await fetch(appUrl.origin + '/api/function/bibleApi', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'daily_verse', clientDate: clientDate }),
-      timeout: 5000
-    });
-    console.log('[Legacy] Daily verse response status:', res.status);
-    if (!res.ok) {
-      console.log('[Legacy] Daily verse API returned non-OK status');
-      return null;
-    }
-    const data = await res.json();
-    console.log('[Legacy] Daily verse data:', data);
-    if (!data.verse || !data.verse.text || !data.verse.ref) {
+    const res = await base44.asServiceRole.functions.invoke('bibleApi', { action: 'daily_verse', clientDate: clientDate });
+    const data = res && res.data ? res.data : res;
+    console.log('[Legacy] Daily verse data:', JSON.stringify(data));
+    if (!data || !data.verse || !data.verse.text || !data.verse.ref) {
       console.log('[Legacy] Daily verse data missing required fields');
       return null;
     }
@@ -331,6 +322,7 @@ async function fetchDailyVerse() {
 
 Deno.serve(async (req) => {
   try {
+    const base44 = createClientFromRequest(req);
     const url = new URL(req.url);
     const tab = url.searchParams.get('tab') || 'bible';
     const showDailyVerse = url.searchParams.get('daily') === 'false' ? false : true;
@@ -354,7 +346,7 @@ Deno.serve(async (req) => {
     let dailyVerseCard = '';
     if (showDailyVerse) {
       console.log('[Legacy] Fetching daily verse...');
-      const dailyVerse = await fetchDailyVerse();
+      const dailyVerse = await fetchDailyVerse(base44);
       if (dailyVerse && dailyVerse.text && dailyVerse.ref) {
         console.log('[Legacy] Daily verse loaded:', dailyVerse.ref);
         dailyVerseCard = '<div class="box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; margin-bottom:20px; border:none; box-shadow:0 4px 12px rgba(102,126,234,0.3);">' +
