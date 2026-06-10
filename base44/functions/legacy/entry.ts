@@ -388,7 +388,7 @@ Deno.serve(async (req) => {
       // NOT as verse 1. Italic only on [bracketed] words.
       const subscript = SUBSCRIPTS[book + ':' + chapter];
       if (subscript) {
-        content += '<div class="subscript">' + renderMeta(subscript) + '</div>';
+        content += '<div class="subscript"><span class="pil">&para; </span>' + renderMeta(subscript) + '</div>';
       }
 
       if (verses.length === 0) {
@@ -404,7 +404,7 @@ Deno.serve(async (req) => {
       // Colophon: footer line below the last verse, on its own line.
       const colophon = COLOPHONS[book + ':' + chapter];
       if (colophon) {
-        content += '<div class="colophon">' + renderMeta(colophon) + '</div>';
+        content += '<div class="colophon"><span class="pil">&para; </span>' + renderMeta(colophon) + '</div>';
       }
 
       // Prev/Next chapter links
