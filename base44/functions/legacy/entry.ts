@@ -1,8 +1,8 @@
 // Serves a standalone ES5-only KJB reader page (for IE11 / Windows Phone)
 // Parses Bible text SERVER-SIDE and injects pre-parsed JSON — avoids 4MB string literal issues.
+// v4 - fixed multi-line title parser
 const TEXT_URL = "https://media.base44.com/files/public/6a05d76723afe58d80c589e8/e74bc3070_KingJamesBible-PureCambridgeEditionTextfile2.txt";
 
-let cachedBibleJson = null;
 
 const BOOK_ORDER = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
 
@@ -31,88 +31,94 @@ function parseBibleServerSide(text) {
   const lines = text.split(/\r?\n/);
   const bibleData = {};
   let currentBook = null, currentChap = null, verseNum = 0;
-  const titleBuffer = [];
+  // titleBuffer accumulates ALL-CAPS lines within a title block (may span blank lines)
+  let titleBuffer = [];
+  // How many consecutive blank lines seen since last all-caps line
+  let blanksSinceCaps = 0;
+
+  const ital = (s) => s.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
+
+  const tryMatchTitle = () => {
+    // Try every single fragment and every pair of adjacent fragments
+    for (let t = 0; t < titleBuffer.length; t++) {
+      if (TITLE_TO_BOOK[titleBuffer[t]]) return TITLE_TO_BOOK[titleBuffer[t]];
+      if (t + 1 < titleBuffer.length && TITLE_TO_BOOK[titleBuffer[t] + " " + titleBuffer[t+1]])
+        return TITLE_TO_BOOK[titleBuffer[t] + " " + titleBuffer[t+1]];
+    }
+    return null;
+  };
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
-    if (!line) { titleBuffer.length = 0; continue; }
+
+    if (!line) {
+      // Allow up to 2 blank lines inside a title block before giving up
+      if (titleBuffer.length > 0) {
+        blanksSinceCaps++;
+        if (blanksSinceCaps > 2) { titleBuffer = []; blanksSinceCaps = 0; }
+      }
+      continue;
+    }
+    blanksSinceCaps = 0;
 
     // CHAPTER N
     const chapMatch = line.match(/^CHAPTER (\d+)$/);
     if (chapMatch) {
       currentChap = chapMatch[1];
       verseNum = 0;
-      titleBuffer.length = 0;
+      titleBuffer = [];
       continue;
     }
 
-    // All-caps title line
+    // All-caps title line (book headers, sub-titles like "CALLED", "THE EPISTLE OF PAUL TO THE", etc.)
     if (/^[A-Z][A-Z ,.\-0-9']+$/.test(line)) {
       titleBuffer.push(line.replace(/[.,]$/, "").trim());
-      let found = null;
-      const last = titleBuffer[titleBuffer.length - 1];
-      if (TITLE_TO_BOOK[last]) found = TITLE_TO_BOOK[last];
-      if (!found) {
-        for (let t = 0; t < titleBuffer.length && !found; t++) {
-          if (TITLE_TO_BOOK[titleBuffer[t]]) { found = TITLE_TO_BOOK[titleBuffer[t]]; break; }
-          if (t + 1 < titleBuffer.length && TITLE_TO_BOOK[titleBuffer[t] + " " + titleBuffer[t+1]]) {
-            found = TITLE_TO_BOOK[titleBuffer[t] + " " + titleBuffer[t+1]]; break;
-          }
-        }
-      }
+      const found = tryMatchTitle();
       if (found) {
         currentBook = found;
         currentChap = null;
         verseNum = 0;
-        titleBuffer.length = 0;
+        titleBuffer = [];
         if (!bibleData[currentBook]) bibleData[currentBook] = {};
       }
       continue;
     }
 
+    // Any non-caps, non-blank line resets the title buffer
+    titleBuffer = [];
+
     if (currentBook && currentChap) {
-      titleBuffer.length = 0;
       const vMatch = line.match(/^(\d+)\s+(.+)$/);
       if (vMatch) {
         verseNum = parseInt(vMatch[1]);
-        const vtext = vMatch[2].replace(/\[([^\]]+)\]/g, '<em>$1</em>');
         if (!bibleData[currentBook][currentChap]) bibleData[currentBook][currentChap] = [];
-        bibleData[currentBook][currentChap].push({ v: String(verseNum), t: vtext });
+        bibleData[currentBook][currentChap].push({ v: String(verseNum), t: ital(vMatch[2]) });
       } else if (verseNum === 0) {
-        // Verse 1 with no leading number (PCE format)
+        // Verse 1 with no leading number (PCE format — first verse of chapter)
         verseNum = 1;
-        const vtext = line.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
         if (!bibleData[currentBook][currentChap]) bibleData[currentBook][currentChap] = [];
-        bibleData[currentBook][currentChap].push({ v: "1", t: vtext });
+        bibleData[currentBook][currentChap].push({ v: "1", t: ital(line) });
       } else {
         // Continuation of previous verse
         const chData = bibleData[currentBook][currentChap];
-        if (chData && chData.length > 0) {
-          const vtext = line.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
-          chData[chData.length - 1].t += " " + vtext;
-        }
+        if (chData && chData.length > 0) chData[chData.length - 1].t += " " + ital(line);
       }
-    } else {
-      titleBuffer.length = 0;
     }
   }
 
-  // Validate
-  const bookCount = BOOK_ORDER.filter(b => bibleData[b]).length;
-  console.log("[legacy] Parsed", bookCount, "books");
+  const foundBooks = BOOK_ORDER.filter(b => bibleData[b]);
+  const missing = BOOK_ORDER.filter(b => !bibleData[b]);
+  console.log("[legacy] Parsed", foundBooks.length, "books. Missing:", missing.slice(0,10).join(", "));
   return bibleData;
 }
 
 async function getBibleJson() {
-  if (cachedBibleJson) return cachedBibleJson;
   const res = await fetch(TEXT_URL);
   if (!res.ok) throw new Error("HTTP " + res.status);
   const buf = await res.arrayBuffer();
   const text = new TextDecoder("windows-1252").decode(buf);
   console.log("[legacy] Fetched", text.length, "chars, parsing server-side...");
-  const data = parseBibleServerSide(text);
-  cachedBibleJson = data;
-  return data;
+  return parseBibleServerSide(text);
 }
 
 Deno.serve(async (req) => {
