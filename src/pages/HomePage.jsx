@@ -10,6 +10,7 @@ import { getTodayVerseBackground } from '@/lib/dailyVerseTheme';
 import { useTheme } from '@/lib/themeContext';
 import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications, showLocalNotification } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
+import { isBibleCached, CACHE_VERSION } from '@/lib/bibleCache';
 import { toast } from 'sonner';
 
 const READ_LINK = { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', color: 'bg-primary text-primary-foreground' };
@@ -34,6 +35,7 @@ export default function HomePage() {
     return (lastCached && lastCached.isToday) ? lastCached : null;
   });
   const [isOffline, setIsOffline] = useState(() => typeof navigator !== 'undefined' && navigator.onLine === false);
+  const [bibleCached, setBibleCached] = useState(null);
   const touchStartY = useRef(0);
   const touchEndY = useRef(0);
 
@@ -47,6 +49,15 @@ export default function HomePage() {
       window.removeEventListener('online', updateOnline);
       window.removeEventListener('offline', updateOnline);
     };
+  }, []);
+
+  // Check if Bible data is fully cached for offline use
+  useEffect(() => {
+    const checkCache = async () => {
+      const cached = await isBibleCached();
+      setBibleCached(cached);
+    };
+    checkCache();
   }, []);
 
   useEffect(() => {
@@ -541,6 +552,24 @@ export default function HomePage() {
         </Link>
       </div>
 
+      {/* Cache status indicator */}
+      {bibleCached !== null && (
+        <div className="print:hidden text-center py-4 border-t border-border mt-8">
+          <p className="font-sans text-xs text-muted-foreground">
+            {bibleCached ? (
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                All Bible data cached for offline use
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                Bible data not fully cached — some features may require internet
+              </span>
+            )}
+          </p>
+        </div>
+      )}
 
       </div>
     </div>
