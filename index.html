@@ -12,8 +12,9 @@
           var isIE = /Trident|MSIE/i.test(ua);
           // Browsers with no Promise / no fetch can't run the app either.
           var tooOld = (typeof window.Promise === 'undefined') || (typeof window.fetch === 'undefined');
-          var url = new URLSearchParams(window.location.search);
-          var optedOut = url.get('nolegacy') === '1';
+          // Parse query string manually (IE doesn't support URLSearchParams reliably)
+          var qs = window.location.search || '';
+          var optedOut = qs.indexOf('nolegacy=1') !== -1;
           if ((isIE || tooOld) && !optedOut) {
             // On custom domain (kingjamesbiblereader.com) use the /legacy route
             // which React serves via the LegacyReader page (proxies the function).
@@ -24,7 +25,14 @@
             if (isCustomDomain) {
               legacyUrl = window.location.origin + '/legacy';
             } else {
-              var appId = url.get('app_id');
+              // Parse app_id from query string manually
+              var appId = null;
+              var appIdx = qs.indexOf('app_id=');
+              if (appIdx !== -1) {
+                var appPart = qs.substring(appIdx + 7);
+                var ampIdx = appPart.indexOf('&');
+                appId = ampIdx !== -1 ? appPart.substring(0, ampIdx) : appPart;
+              }
               if (!appId) {
                 try { appId = localStorage.getItem('base44_app_id'); } catch (e) {}
               }
@@ -32,9 +40,17 @@
                 ? '/api/apps/' + appId + '/functions/legacy'
                 : '/functions/legacy';
             }
+            // Force immediate redirect before any rendering
             window.location.replace(legacyUrl);
           }
-        } catch (e) {}
+        } catch (e) {
+          // If detection fails, still try to redirect on very old browsers
+          try {
+            if (typeof window.Promise === 'undefined') {
+              window.location.replace('/legacy');
+            }
+          } catch (e2) {}
+        }
       })();
     </script>
     <link rel="icon" type="image/png" href="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" />
