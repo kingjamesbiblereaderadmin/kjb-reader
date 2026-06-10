@@ -451,11 +451,13 @@ function showTab(name, btn) {
     info += "Total Books Loaded: " + availableBooks.length + "/66\\n";
     info += "Current Book: " + (bookSel ? bookSel.value : "N/A") + "\\n";
     info += "Current Chapter: " + (chapSel ? chapSel.value : "N/A") + "\\n";
-    var dailyText = dtext ? dtext.textContent : "N/A";
-    var dailyRef = dref ? dref.textContent : "N/A";
     info += "\\n== Daily Verse ==\\n";
-    info += "Text: " + dailyText + "\\n";
-    info += "Ref: " + dailyRef + "\\n";
+    if (dtext && dref && dailyDiv && dailyDiv.style.display !== "none") {
+      info += "Text: " + dtext.textContent + "\\n";
+      info += "Ref: " + dref.textContent + "\\n";
+    } else {
+      info += "Status: Not loaded yet\\n";
+    }
     var cacheKey = "kjb-legacy-bible-v1";
     var cachedData;
     try { cachedData = localStorage.getItem(cacheKey); } catch(e) { cachedData = "Error reading localStorage"; }
