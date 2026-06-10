@@ -337,10 +337,13 @@ Deno.serve(async (req) => {
   .subscript { text-align: center; font-size: 15px; color: #555; margin: 8px 0 12px 0; }
   .subscript em { font-style: italic; }
   .subscript .pilcrow { font-style: normal; margin-right: 4px; color: #000; opacity: 0.5; }
+  .colophon em { font-style: italic; }
+  .colophon .pilcrow { font-style: normal; margin-right: 4px; color: #000; opacity: 0.5; }
   .verses { margin: 20px 0; text-align: left; }
   .verse { margin-bottom: 12px; line-height: 1.7; }
   .verse-num { font-size: 11px; color: #5b59a0; font-weight: bold; vertical-align: super; margin-right: 3px; }
   .verse-pilcrow { display: block; margin-bottom: 8px; }
+  .psalm119-heading { text-align: center; font-weight: bold; font-size: 14px; color: #2d2a6e; margin: 16px 0 8px 0; letter-spacing: 1px; }
   .colophon { text-align: center; font-size: 13px; color: #666; margin: 24px 0 8px 0; border-top: 1px solid #ddd; padding-top: 12px; }
   .colophon em { font-style: italic; }
   .colophon .pilcrow { font-style: normal; margin-right: 4px; color: #000; opacity: 0.5; }
@@ -686,16 +689,19 @@ function readChapter() {
   var subscriptKey = book + ':' + chap;
   var subscript = PSALM_SUBSCRIPTS[chap];
   if (book === 'Psalms' && subscript) {
-    var subHtml = subscript.replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
+    var subHtml = subscript.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
     html += '<div class="subscript"><span class="pilcrow">¶</span>' + subHtml + '</div>';
   }
 
   html += '<div class="verses">';
   for (var v = 0; v < verses.length; v++) {
     var verseText = verses[v].text;
-    verseText = verseText.replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
+    verseText = verseText.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
     if (verseText.indexOf('¶') === 0 || verseText.indexOf('¶') > 0) {
       verseText = verseText.replace(/¶/g, '<span class="verse-pilcrow">¶</span>');
+    }
+    if (verses[v].heading) {
+      html += '<div class="psalm119-heading">' + verses[v].heading + '</div>';
     }
     html += '<div class="verse"><span class="verse-num">' + verses[v].verse + '</span> ' + verseText + '</div>';
   }
@@ -703,7 +709,7 @@ function readChapter() {
 
   var colophon = COLOPHON_DATA[subscriptKey] || COLOPHONS[subscriptKey];
   if (colophon) {
-    var colophonHtml = colophon.replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
+    var colophonHtml = colophon.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
     html += '<div class="colophon"><div class="colophon-content"><span class="pilcrow">¶</span>' + colophonHtml + '</div></div>';
   }
 
