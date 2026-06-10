@@ -15,13 +15,23 @@
           var url = new URLSearchParams(window.location.search);
           var optedOut = url.get('nolegacy') === '1';
           if ((isIE || tooOld) && !optedOut) {
-            var appId = url.get('app_id');
-            if (!appId) {
-              try { appId = localStorage.getItem('base44_app_id'); } catch (e) {}
+            // On custom domain (kingjamesbiblereader.com) use the /legacy route
+            // which React serves via the LegacyReader page (proxies the function).
+            // On base44 hosting, use the direct function path.
+            var host = window.location.hostname || '';
+            var isCustomDomain = host.indexOf('base44.app') === -1 && host.indexOf('localhost') === -1;
+            var legacyUrl;
+            if (isCustomDomain) {
+              legacyUrl = window.location.origin + '/legacy';
+            } else {
+              var appId = url.get('app_id');
+              if (!appId) {
+                try { appId = localStorage.getItem('base44_app_id'); } catch (e) {}
+              }
+              legacyUrl = appId
+                ? '/api/apps/' + appId + '/functions/legacy'
+                : '/functions/legacy';
             }
-            var legacyUrl = appId
-              ? '/api/apps/' + appId + '/functions/legacy'
-              : '/functions/legacy';
             window.location.replace(legacyUrl);
           }
         } catch (e) {}
