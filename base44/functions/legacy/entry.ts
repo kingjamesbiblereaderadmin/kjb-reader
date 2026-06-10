@@ -244,7 +244,8 @@ Deno.serve(async (req) => {
 </head>
 <body>
 <div class="header">
-  <h1>&#9997; King James Bible</h1>
+  <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" style="width:48px;height:48px;vertical-align:middle;margin-right:8px;">
+  <h1 style="display:inline-block;vertical-align:middle;">King James Bible</h1>
   <p>Legacy Edition &mdash; for older browsers</p>
 </div>
 <div class="tabs">
