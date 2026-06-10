@@ -506,11 +506,13 @@ Deno.serve(async (req) => {
     // form submits and links (full reload), so they still work perfectly.
     const ENHANCE_SCRIPT =
 '<script>(function(){' +
-'if(!window.history||!window.history.pushState||!window.fetch||!document.querySelector)return;' +
+'if(!window.history||!window.history.pushState||!document.querySelector)return;' +
 'var wrap=document.getElementById("wrap");if(!wrap)return;' +
 'function load(u,push){' +
-'fetch(u).then(function(r){return r.text();}).then(function(t){' +
-'var doc=document.createElement("html");doc.innerHTML=t;' +
+'var xhr=new XMLHttpRequest();xhr.open("GET",u);xhr.onreadystatechange=function(){' +
+'if(xhr.readyState===4){' +
+'if(xhr.status===200){' +
+'var t=xhr.responseText;var doc=document.createElement("html");doc.innerHTML=t;' +
 'var nw=doc.querySelector("#wrap");var nt=doc.querySelector(".tabs");' +
 'var nb=doc.querySelector("body");' +
 'if(nw){wrap.innerHTML=nw.innerHTML;}' +
@@ -519,7 +521,9 @@ Deno.serve(async (req) => {
 'var tb=doc.querySelector(".topbar");var ctb=document.querySelector(".topbar");if(tb&&ctb){ctb.innerHTML=tb.innerHTML;}' +
 'if(push){window.history.pushState({u:u},"",u);}' +
 'window.scrollTo(0,0);bind();' +
-'}).catch(function(){window.location.href=u;});' +
+'}else{window.location.href=u;}' +
+'}' +
+'};xhr.send();' +
 '}' +
 'function bind(){' +
 'var links=document.querySelectorAll(".tabs a, .topbar a, .nav a");' +
