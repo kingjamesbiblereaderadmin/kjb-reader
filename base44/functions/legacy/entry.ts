@@ -533,35 +533,44 @@ Deno.serve(async (req) => {
         '<li><a href="https://www.jesus-is-savior.com/Bible/NIV/new_international_version_exposed.htm" target="_blank">Jesus is Savior - NIV Exposed</a></li>' +
         '</ul>';
     } else if (tab === 'about') {
-      bodyInner = '<h1 style="text-align:center;margin-bottom:24px;">About</h1>' +
-        '<hr style="margin-bottom:24px;">' +
-        '<h2>About the Ministry</h2>' +
-        '<p>I\'m Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. I am a dispensational salvationist, rightly dividing the word of truth.</p>' +
-        '<ul>' +
+      bodyInner = '<div style="max-width:800px;margin:0 auto;">' +
+        '<h1 style="text-align:center;margin-bottom:16px;">About</h1>' +
+        '<hr style="margin-bottom:32px;">' +
+        '<div style="margin-bottom:32px;">' +
+        '<h2 style="margin-bottom:12px;">About the Ministry</h2>' +
+        '<p style="margin-bottom:16px;">I\'m Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. I am a dispensational salvationist, rightly dividing the word of truth.</p>' +
+        '<ul style="line-height:1.8;">' +
         '<li>I reject Catholicism, Calvinism, Pentecostalism, Church of God, Mormonism, Jehovah\'s Witnesses, etc.</li>' +
         '<li>I believe in the blood-stained gospel as the only way to be saved, and I reject "repent of sins to be saved" (ROYS), "confess with your mouth to be saved," Lordship Salvation, infant baptism, baptism regeneration, etc.</li>' +
         '<li>To be saved, you must believe that Jesus is God, that He shed His blood on Calvary, died, was buried, and rose again for your justification.</li>' +
         '<li>I believe in OSAS (Once Saved, Always Saved): a believer who has trusted the gospel cannot lose salvation, no matter what happens in their life.</li>' +
         '</ul>' +
-        '<h2>Statement of Faith</h2>' +
-        '<h3>The King James Bible</h3>' +
-        '<ul>' +
+        '</div>' +
+        '<div style="margin-bottom:32px;">' +
+        '<h2 style="margin-bottom:16px;">Statement of Faith</h2>' +
+        '<div style="margin-bottom:24px;">' +
+        '<h3 style="margin-bottom:8px;">The King James Bible</h3>' +
+        '<ul style="line-height:1.8;">' +
         '<li>Westcott and Hort created the Critical Text, based on manuscripts from the Vatican and Egypt. These manuscripts have hundreds of errors, deletions and additions to the Bible, attacking doctrines such as the Godhead/Trinity and deity of Christ. Their text was used in the Revised Version of 1881.</li>' +
         '<li>The King James Bible is the infallible, perfect Word of God in the English language.</li>' +
         '<li>Translated with the Textus Receptus (Received Text) that the historical church has always used.</li>' +
         '<li>Translated by godly men well versed in the Biblical languages who studied commentaries and foreign translations from an early age.</li>' +
         '<li>The Bible God has used for countless revivals and bringing the gospel to the world. It is mathematically proven to be a miracle.</li>' +
         '</ul>' +
-        '<h3>Satan & Hell</h3>' +
-        '<ul>' +
+        '</div>' +
+        '<div style="margin-bottom:24px;">' +
+        '<h3 style="margin-bottom:8px;">Satan & Hell</h3>' +
+        '<ul style="line-height:1.8;">' +
         '<li>Satan is also known as the Devil, Lucifer and the king of Pride. His goal is to steal, kill and deceive the world &mdash; through things such as abortion, sodomy, and going after worldly things instead of what truly matters.</li>' +
         '<li>He deceives people that they are without a Saviour, that there is no God, no hell, and no afterlife.</li>' +
         '<li>All people come short of the glory of God and have committed sin.</li>' +
         '<li>The wages of sin is death and the wicked shall be turned into hell.</li>' +
         '<li>Hell is a place of torment day and night. Hell was created for Satan and his angels. Hell will be thrown into the lake of fire at the second death.</li>' +
         '</ul>' +
-        '<h3>Salvation & Pre-Tribulation Rapture</h3>' +
-        '<ul>' +
+        '</div>' +
+        '<div style="margin-bottom:24px;">' +
+        '<h3 style="margin-bottom:8px;">Salvation & Pre-Tribulation Rapture</h3>' +
+        '<ul style="line-height:1.8;">' +
         '<li>Jesus Christ is God manifested in the flesh, born of the virgin Mary.</li>' +
         '<li>Jesus Christ lived a perfect life, died on Calvary\'s cross, shed his blood, was buried and rose again on the third day.</li>' +
         '<li>Jesus went to heaven to put his precious blood in the mercy seat so we can have eternal life.</li>' +
@@ -571,14 +580,19 @@ Deno.serve(async (req) => {
         '<li>Those in the 7-year tribulation will have to endure to the end, not take the mark, and be martyrs for Christ.</li>' +
         '<li>I believe Jesus will reign in the new heaven and earth after the white throne judgment.</li>' +
         '</ul>' +
-        '<h2>Links & Contact</h2>' +
-        '<ul>' +
+        '</div>' +
+        '</div>' +
+        '<div style="margin-bottom:32px;">' +
+        '<h2 style="margin-bottom:12px;">Links & Contact</h2>' +
+        '<ul style="line-height:1.8;">' +
         '<li><a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank">God is Gracious 1031 Ministries</a></li>' +
         '<li><a href="https://youtube.com/@shawnr325av?si=zC_gQm4I2S_xj-NS" target="_blank">YouTube: @shawnr325av</a></li>' +
         '<li><a href="https://www.instagram.com/svdbyfaithinhisbloodr325av?igsh=NTl0NmM1NWoyb2F0" target="_blank">Instagram: @svdbyfaithinhisbloodr325av</a></li>' +
         '<li><a href="mailto:kingjamesbiblereader@outlook.sg">Email: kingjamesbiblereader@outlook.sg</a></li>' +
         '<li><a href="https://discord.com/" target="_blank">Discord: shawn_svdbyfaithinhisbloodr325av</a></li>' +
-        '</ul>';
+        '</ul>' +
+        '</div>' +
+        '</div>';
     } else if (tab === 'debug') {
       bodyInner = '<div class="sec-title">Debug</div>' +
         '<div class="sec-sub">System diagnostics and cache information</div>' +
