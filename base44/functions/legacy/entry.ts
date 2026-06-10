@@ -78,10 +78,12 @@ let bibleData = null;
 
 async function loadBible() {
   if (bibleData) return bibleData;
+  console.log('[Legacy] Loading Bible data...');
   const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
-  const res = await fetch(TEXT_URL);
-  if (!res.ok) throw new Error('Failed to fetch Bible text');
+  const res = await fetch(TEXT_URL, { timeout: 10000 });
+  if (!res.ok) throw new Error('Failed to fetch Bible text: ' + res.status);
   const text = await res.text();
+  console.log('[Legacy] Bible text loaded, parsing...');
   const data = {};
   const lines = text.split('\n');
   for (let i = 0; i < lines.length; i++) {
@@ -111,6 +113,7 @@ async function loadBible() {
     data[bookName][chapter].push({ verse, text: verseText });
   }
   bibleData = data;
+  console.log('[Legacy] Bible data parsed successfully, books:', Object.keys(data).length);
   return data;
 }
 
@@ -331,7 +334,9 @@ Deno.serve(async (req) => {
         }
       }
 
+      console.log('[Legacy Bible Tab] Loading book:', book, 'chapter:', chapter);
       const bible = await loadBible();
+      console.log('[Legacy Bible Tab] Bible loaded, verses count:', bible[book]?.[chapter]?.length);
       const verses = (bible[book] && bible[book][chapter]) || [];
       const fullName = FULL_BOOK_NAMES[book] || book;
 
