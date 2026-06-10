@@ -620,7 +620,13 @@ Deno.serve(async (req) => {
       'Content-Type': 'text/html;charset=UTF-8',
       // Long-lived HTTP cache so legacy browsers (IE, which has no Service
       // Worker support) can serve this page from disk cache when offline.
-      'Cache-Control': 'public, max-age=31536000, immutable'
+      // IE's HTTP cache honors a far-future `Expires` header most reliably —
+      // once the full page is cached, IE serves it instantly without
+      // re-downloading the 6 MB body (which is what caused the "can't
+      // connect" failures across the first few refreshes on flaky links).
+      'Cache-Control': 'public, max-age=31536000, immutable',
+      'Expires': 'Thu, 31 Dec 2037 23:59:59 GMT',
+      'Vary': 'Accept-Encoding'
     } });
   } catch (error) {
     return new Response('<!DOCTYPE html><html><body style="font-family:Arial;padding:20px;color:#c00;">Error: ' + String(error.message) + '</body></html>', { status: 500, headers: { 'Content-Type': 'text/html;charset=UTF-8' } });
