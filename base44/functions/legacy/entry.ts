@@ -444,27 +444,67 @@ Deno.serve(async (req) => {
         '<h2>KJBI.org &mdash; Free Online Bible College</h2>' +
         '<p>King James Bible Institute &mdash; a free online Bible college for those who want to go deeper in God\'s Word.</p>' +
         '<p><a href="https://kjbi.org" target="_blank">Visit KJBI.org</a></p>' +
+        '<h2>Why the KJB is God\'s Word</h2>' +
+        '<p>The King James Bible is the only preserved Word of God in the English Language</p>' +
+        '<ul>' +
+        '<li><strong>The Word of God Will Keep Its Infallibility</strong> &mdash; A historical book demonstrating that the King James Bible is the infallible, preserved Word of God in the English language. <a href="https://archive.org/details/wordgodwillkeepi0000faus" target="_blank">Read on Archive.org</a></li>' +
+        '<li><strong>Warning on the NKJV</strong> &mdash; You are more than welcome to purchase a King James Bible from the Dollar Store or any Bible retailer without worrying about errors. However, please note: the NKJV is not the same as the King James Bible. <a href="https://www.scionofzion.com/nkjv.htm" target="_blank">NKJV Comparison</a></li>' +
+        '<li><strong>Textus Receptus Bibles</strong> &mdash; Research on the Textus Receptus &mdash; the Greek text underlying the King James Bible. <a href="https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs" target="_blank">Read comparison</a></li>' +
+        '</ul>' +
+        '<h2>Verified KJB Preachers</h2>' +
+        '<p>KJB-believing, soul-winning preachers:</p>' +
+        '<ul>' +
+        '<li><strong>Robert Breaker</strong> &mdash; KJB missionary evangelist, rightly dividing the word of truth. <a href="https://www.youtube.com/@Robertbreaker3" target="_blank">YouTube</a>, <a href="https://www.tiktok.com/@robertbreaker" target="_blank">TikTok</a>, <a href="https://thecloudchurch.org/" target="_blank">thecloudchurch.org</a></li>' +
+        '<li><strong>Robert Potthoff</strong> &mdash; Big Red Preacher &mdash; KJB soul winner. <a href="https://www.instagram.com/robert.potthoff/" target="_blank">Instagram</a>, <a href="https://www.facebook.com/potthoff87" target="_blank">Facebook</a>, <a href="https://mission1611.com/" target="_blank">mission1611.com</a></li>' +
+        '<li><strong>Joseph Gonzalez</strong> &mdash; KJB Elites &mdash; faithful preacher of the word. <a href="https://youtube.com/@josephgonzalez3" target="_blank">YouTube</a>, <a href="https://www.tiktok.com/@joyfullychurch" target="_blank">TikTok</a>, <a href="https://joyfullychurch.univer.se/" target="_blank">Joyfully Church</a></li>' +
+        '<li><strong>Ryan Poff</strong> &mdash; Seed of Hope Church &mdash; KJB pastor and preacher. <a href="https://www.seedofhopechurch.org/" target="_blank">seedofhopechurch.org</a>, <a href="https://youtube.com/@ryan_poff" target="_blank">YouTube</a>, <a href="https://www.tiktok.com/@ryan_sohc" target="_blank">TikTok</a></li>' +
+        '<li><strong>Skyler (AV1611 Ministry)</strong> &mdash; AV1611 Ministry &mdash; KJB defence and preaching. <a href="https://www.tiktok.com/@av1611ministries" target="_blank">TikTok</a>, <a href="https://youtube.com/@av1611ministries" target="_blank">YouTube</a></li>' +
+        '<li><strong>Crown of Thorns</strong> &mdash; KJB preaching ministry on YouTube. <a href="https://www.youtube.com/@CrownOfThorns" target="_blank">YouTube</a></li>' +
+        '<li><strong>Paul Johnson</strong> &mdash; Biblical Salvation &mdash; KJB preaching and Bible teaching. <a href="https://www.tiktok.com/@pauljohnson9632" target="_blank">TikTok</a>, <a href="https://youtube.com/@biblicalsalvation" target="_blank">YouTube</a></li>' +
+        '<li><strong>CPR Missions</strong> &mdash; Church Planting and Revival Missions &mdash; soul winning and church planting. <a href="https://www.youtube.com/channel/UCWBR5DmAi2XPMFRtb-wqHwg" target="_blank">YouTube</a>, <a href="https://www.tiktok.com/@cprmissions" target="_blank">TikTok</a>, <a href="https://www.facebook.com/CPRmission/" target="_blank">Facebook</a>, <a href="https://www.instagram.com/cprmissions/" target="_blank">Instagram</a></li>' +
+        '<li><strong>James Bray</strong> &mdash; KJB preacher and Bible teacher on YouTube. <a href="https://youtube.com/@jamesbrayall3?si=nXkuHAhyVvC_0KVg" target="_blank">YouTube</a></li>' +
+        '</ul>' +
+        '<h2>Ministry Links</h2>' +
+        '<ul>' +
+        '<li><a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank">God is Gracious 1031 Ministries</a></li>' +
+        '<li><a href="mailto:Kingjamesbiblereader.com@outlook.com">Contact the Ministry: Kingjamesbiblereader.com@outlook.com</a></li>' +
+        '</ul>' +
         '<p><em>Note: The resources below are for educational purposes only. I may not affirm all doctrinal statements of every resource or ministry linked here. Please use discernment and compare all things to the King James Bible.</em></p>' +
+        '<h2>How to Read the Bible</h2>' +
+        '<ul>' +
+        '<li><a href="https://avpublications.com/" target="_blank">AV Publications</a> &mdash; Books and resources for King James Bible believers.</li>' +
+        '</ul>' +
         '<h2>KJB Defence</h2>' +
         '<ul>' +
-        '<li><a href="https://www.bibleprotector.com" target="_blank">Pure Cambridge Edition & Free Download</a></li>' +
-        '<li><a href="https://archive.org/details/wordgodwillkeepi0000faus" target="_blank">The Word of God Will Keep Its Infallibility (Archive.org)</a></li>' +
-        '<li><a href="https://kjvcompare.com/" target="_blank">KJV Compare</a></li>' +
+        '<li><a href="https://www.bibleprotector.com" target="_blank">Pure Cambridge Edition & Free Download</a> &mdash; The definitive electronic text of the Pure Cambridge Edition of the KJB</li>' +
+        '<li><a href="https://archive.org/details/wordgodwillkeepi0000faus/page/18/mode/1up?q=%22King+James+Bible+is+infallible%22" target="_blank">The Word of God Will Keep Its Infallibility (Archive.org)</a></li>' +
+        '<li><a href="https://kjvcompare.com/" target="_blank">KJV Compare</a> &mdash; Go through hundreds of changes made in modern versions of the Bible</li>' +
+        '<li><a href="https://www.scionofzion.com/kjcomparisons.html" target="_blank">Scion of Zion &mdash; KJB Comparisons</a></li>' +
+        '<li><a href="https://www.scionofzion.com/1_john_5_7.htm" target="_blank">1 John 5:7 Defence</a></li>' +
         '</ul>' +
         '<h2>Why Modern Versions Are Corrupt</h2>' +
         '<ul>' +
         '<li><a href="https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf" target="_blank">The Critical Text & Westcott-Hort (PDF)</a></li>' +
         '<li><a href="https://www.scionofzion.com/nkjv.htm" target="_blank">NKJV Exposed</a></li>' +
-        '<li><a href="https://www.youtube.com/watch?v=RmXBj2N9fhY" target="_blank">A Lamp in the Dark &mdash; Full Documentary</a></li>' +
+        '<li><a href="https://www.youtube.com/watch?v=RmXBj2N9fhY&list=PLiMliTxa3H172BW4ANpBAavcIGVz-KXFW" target="_blank">A Lamp in the Dark &mdash; Full Documentary</a></li>' +
+        '<li><a href="https://youtube.com/playlist?list=PLNGhZnJavRf01ILv3TJu_ke4IPYcKcpJm&si=w73gmQRdA_3QbE48" target="_blank">KJB Defence Playlist</a></li>' +
+        '<li><a href="https://www.youtube.com/watch?v=fyN680Y0Vwc" target="_blank">Gail Riplinger &mdash; The Sword Slays the Dragon</a></li>' +
+        '<li><a href="https://www.youtube.com/watch?v=t6ck6KrVPIk" target="_blank">Irrefutable Proof: The KJB Superseded Hebrew and Greek</a></li>' +
+        '<li><a href="https://www.av1611.org/articles" target="_blank">AV1611 Articles</a></li>' +
+        '<li><a href="https://www.preservedwords.com/bp/index.html" target="_blank">Preserved Words</a></li>' +
+        '<li><a href="https://brandplucked.com/kjbarticles.htm" target="_blank">Brandplucked &mdash; KJB Articles</a></li>' +
         '</ul>' +
         '<h2>1 John 5:7 Defence</h2>' +
         '<ul>' +
-        '<li><a href="https://kjvdebate.com/blog/f/i-john-57-the-1st-century-latinspain-connection" target="_blank">The 1st Century Latin/Spain Connection</a></li>' +
+        '<li><a href="https://kjvdebate.com/blog/f/i-john-57-the-1st-century-latinspain-connection" target="_blank">1 John 5:7 - The 1st Century Latin/Spain Connection</a></li>' +
+        '<li><a href="https://catalog.obitel-minsk.com/blog/2021/08/the-authenticity-of-1-john-57-historical-evidence-and-the-church-tradition" target="_blank">The Authenticity of 1 John 5:7</a></li>' +
         '<li><a href="https://textus-receptus.com/wiki/1_John_5:7" target="_blank">Textus Receptus - 1 John 5:7</a></li>' +
+        '<li><a href="https://kjvdebate.com/pdf" target="_blank">KJV Debate - 1 John 5:7 PDF</a></li>' +
         '</ul>' +
         '<h2>Westcott & Hort Heresies</h2>' +
         '<ul>' +
-        '<li><a href="https://scatteredchristians.org/WescottHort.html" target="_blank">Scattered Christians - Westcott & Hort</a></li>' +
+        '<li><a href="https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf" target="_blank">Theological Heresies of Westcott and Hort (PDF)</a></li>' +
+        '<li><a href="https://scatteredchristrians.org/WescottHort.html" target="_blank">Scattered Christians - Westcott & Hort</a></li>' +
         '<li><a href="https://textusreceptusbibles.com/Editorial/Umlauts" target="_blank">Textus Receptus Bibles - Editorial Issues</a></li>' +
         '<li><a href="https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs" target="_blank">Differences Between Textus Receptus and NA/UBS</a></li>' +
         '</ul>' +
@@ -473,12 +513,23 @@ Deno.serve(async (req) => {
         '<li><a href="https://www.av1611.org/nkjv.html" target="_blank">AV1611 - NKJV Exposed</a></li>' +
         '<li><a href="https://www.tbsbibles.org/page/WhatTodaysChristianNeedsToKnowAboutTheNewKingJamesVersion" target="_blank">TBS - What Today\'s Christian Needs to Know About NKJV</a></li>' +
         '<li><a href="https://www.tbsbibles.org/page/DoesTheNKJVLiveUpToItsClaims" target="_blank">TBS - Does the NKJV Live Up to Its Claims?</a></li>' +
+        '<li><a href="https://www.tbsbibles.org/page/TheNewKingJamesVersion" target="_blank">TBS - The New King James Version Overview</a></li>' +
+        '<li><a href="https://cdn.ymaws.com/www.tbsbibles.org/resource/collection/D4DCAF37-AEB6-4CEC-880F-FD229A90560F/An-Examination-of-NKJV-Part-1.pdf" target="_blank">TBS - An Examination of the NKJV (Parts 1 & 2)</a></li>' +
+        '</ul>' +
+        '<h2>Living Bible Exposed</h2>' +
+        '<ul>' +
+        '<li><a href="https://cdn.ymaws.com/www.tbsbibles.org/resource/collection/D4DCAF37-AEB6-4CEC-880F-FD229A90560F/The-Living-Bible.pdf" target="_blank">TBS - The Living Bible Exposed (PDF)</a></li>' +
+        '<li><a href="https://www.jesus-is-savior.com/Bible/Living%20Bible/lb_exposed.htm" target="_blank">Jesus is Savior - Living Bible Exposed</a></li>' +
+        '<li><a href="https://jesus-is-savior.com/Bible/NLT/nlt_exposed.htm" target="_blank">Jesus is Savior - NLT Bible Exposed</a></li>' +
         '</ul>' +
         '<h2>ESV & NIV Exposed</h2>' +
         '<ul>' +
         '<li><a href="https://brandplucked.com/is-the-esv-inerrant.html" target="_blank">Brandplucked - Is the ESV Inerrant?</a></li>' +
         '<li><a href="https://brandplucked.com/theesv.htm" target="_blank">Brandplucked - The ESV Examined</a></li>' +
+        '<li><a href="https://www.tbsbibles.org/page/EnglishStandardVersion" target="_blank">TBS - English Standard Version</a></li>' +
         '<li><a href="https://www.av1611.org/kjv/nivteen.html" target="_blank">AV1611 - NIV Exposed</a></li>' +
+        '<li><a href="https://www.jesusisprecious.org/bible/niv/acts_8-37_missing.htm" target="_blank">Jesus is Precious - NIV Missing Verses</a></li>' +
+        '<li><a href="https://www.scionofzion.com/niv%201984%20and%202011.html" target="_blank">Scion of Zion - NIV 1984 vs 2011</a></li>' +
         '<li><a href="https://www.jesus-is-savior.com/Bible/NIV/new_international_version_exposed.htm" target="_blank">Jesus is Savior - NIV Exposed</a></li>' +
         '</ul>';
     } else if (tab === 'about') {
@@ -486,24 +537,46 @@ Deno.serve(async (req) => {
         '<hr style="margin-bottom:24px;">' +
         '<h2>About the Ministry</h2>' +
         '<p>I\'m Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. I am a dispensational salvationist, rightly dividing the word of truth.</p>' +
-        '<h2>Statement of Faith</h2>' +
         '<ul>' +
-        '<li>The King James Bible is the infallible, perfect Word of God in the English language, translated from the Textus Receptus.</li>' +
-        '<li>Westcott and Hort created the Critical Text based on Vatican and Egyptian manuscripts with hundreds of errors, used in the Revised Version of 1881.</li>' +
-        '<li>Satan is the Devil, Lucifer, the king of Pride &mdash; his goal is to steal, kill and deceive.</li>' +
-        '<li>All people have sinned and the wages of sin is death.</li>' +
-        '<li>Jesus Christ is God manifested in the flesh, born of the virgin Mary, lived a perfect life, died, shed His blood, was buried and rose again.</li>' +
-        '<li>To be saved: Believe Jesus is God and that He died for your sins, shed His blood, was buried and rose again.</li>' +
-        '<li>Repenting of sins, water baptism, making Him Lord, or letting Him into your heart is NOT salvation.</li>' +
-        '<li>I believe in the Pre-Tribulation Rapture and Once Saved Always Saved (OSAS).</li>' +
-        '<li>I reject Catholicism, Calvinism, Pentecostalism, Mormonism, Jehovah\'s Witnesses, Lordship Salvation, and ROYS (repent of sins to be saved).</li>' +
+        '<li>I reject Catholicism, Calvinism, Pentecostalism, Church of God, Mormonism, Jehovah\'s Witnesses, etc.</li>' +
+        '<li>I believe in the blood-stained gospel as the only way to be saved, and I reject "repent of sins to be saved" (ROYS), "confess with your mouth to be saved," Lordship Salvation, infant baptism, baptism regeneration, etc.</li>' +
+        '<li>To be saved, you must believe that Jesus is God, that He shed His blood on Calvary, died, was buried, and rose again for your justification.</li>' +
+        '<li>I believe in OSAS (Once Saved, Always Saved): a believer who has trusted the gospel cannot lose salvation, no matter what happens in their life.</li>' +
+        '</ul>' +
+        '<h2>Statement of Faith</h2>' +
+        '<h3>The King James Bible</h3>' +
+        '<ul>' +
+        '<li>Westcott and Hort created the Critical Text, based on manuscripts from the Vatican and Egypt. These manuscripts have hundreds of errors, deletions and additions to the Bible, attacking doctrines such as the Godhead/Trinity and deity of Christ. Their text was used in the Revised Version of 1881.</li>' +
+        '<li>The King James Bible is the infallible, perfect Word of God in the English language.</li>' +
+        '<li>Translated with the Textus Receptus (Received Text) that the historical church has always used.</li>' +
+        '<li>Translated by godly men well versed in the Biblical languages who studied commentaries and foreign translations from an early age.</li>' +
+        '<li>The Bible God has used for countless revivals and bringing the gospel to the world. It is mathematically proven to be a miracle.</li>' +
+        '</ul>' +
+        '<h3>Satan & Hell</h3>' +
+        '<ul>' +
+        '<li>Satan is also known as the Devil, Lucifer and the king of Pride. His goal is to steal, kill and deceive the world &mdash; through things such as abortion, sodomy, and going after worldly things instead of what truly matters.</li>' +
+        '<li>He deceives people that they are without a Saviour, that there is no God, no hell, and no afterlife.</li>' +
+        '<li>All people come short of the glory of God and have committed sin.</li>' +
+        '<li>The wages of sin is death and the wicked shall be turned into hell.</li>' +
+        '<li>Hell is a place of torment day and night. Hell was created for Satan and his angels. Hell will be thrown into the lake of fire at the second death.</li>' +
+        '</ul>' +
+        '<h3>Salvation & Pre-Tribulation Rapture</h3>' +
+        '<ul>' +
+        '<li>Jesus Christ is God manifested in the flesh, born of the virgin Mary.</li>' +
+        '<li>Jesus Christ lived a perfect life, died on Calvary\'s cross, shed his blood, was buried and rose again on the third day.</li>' +
+        '<li>Jesus went to heaven to put his precious blood in the mercy seat so we can have eternal life.</li>' +
+        '<li>To be saved: Believe Jesus is God and that he died for your sins, shed his blood, was buried and rose again for your justification.</li>' +
+        '<li>Repenting of sins, water baptism, making him Lord or letting him into your heart is not salvation.</li>' +
+        '<li>I believe in the Pre-Tribulation Rapture where the church will meet in the clouds with our Saviour before the Antichrist reigns on earth.</li>' +
+        '<li>Those in the 7-year tribulation will have to endure to the end, not take the mark, and be martyrs for Christ.</li>' +
+        '<li>I believe Jesus will reign in the new heaven and earth after the white throne judgment.</li>' +
         '</ul>' +
         '<h2>Links & Contact</h2>' +
         '<ul>' +
         '<li><a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank">God is Gracious 1031 Ministries</a></li>' +
+        '<li><a href="https://youtube.com/@shawnr325av?si=zC_gQm4I2S_xj-NS" target="_blank">YouTube: @shawnr325av</a></li>' +
+        '<li><a href="https://www.instagram.com/svdbyfaithinhisbloodr325av?igsh=NTl0NmM1NWoyb2F0" target="_blank">Instagram: @svdbyfaithinhisbloodr325av</a></li>' +
         '<li><a href="mailto:kingjamesbiblereader@outlook.sg">Email: kingjamesbiblereader@outlook.sg</a></li>' +
-        '<li><a href="https://youtube.com/@shawnr325av" target="_blank">YouTube: @shawnr325av</a></li>' +
-        '<li><a href="https://www.instagram.com/svdbyfaithinhisbloodr325av" target="_blank">Instagram: @svdbyfaithinhisbloodr325av</a></li>' +
         '<li><a href="https://discord.com/" target="_blank">Discord: shawn_svdbyfaithinhisbloodr325av</a></li>' +
         '</ul>';
     } else if (tab === 'debug') {
