@@ -10,7 +10,7 @@ export default function LegacyReader() {
   useEffect(() => {
     const base = appParams.appId
       ? `/api/apps/${appParams.appId}/functions/legacy`
-      : '/api/function/legacy';
+      : '/functions/legacy';
 
     // Forward existing query params (tab/book/chapter), stripping base44 internals.
     const incoming = new URLSearchParams(window.location.search);
