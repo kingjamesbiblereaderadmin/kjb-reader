@@ -281,6 +281,7 @@ Deno.serve(async (req) => {
     King James Bible &mdash; Pure Cambridge Edition.<br>
     Legacy version for old devices. For the full app, use a modern browser.
   </div>
+  <div id="debugInfo" style="font-family:monospace;font-size:10px;background:#ffffdd;padding:8px;border-top:1px solid #ccc;"></div>
 </div>
 </div>
 
@@ -572,7 +573,19 @@ function showTab(name, btn) {
     return r;
   };
 
-  var bookSel, chapSel, contentDiv, refTitle, navDiv, prevBtn, nextBtn, statusDiv, dailyDiv, dtext, dref;
+  var bookSel, chapSel, contentDiv, refTitle, navDiv, prevBtn, nextBtn, statusDiv, dailyDiv, dtext, dref, debugInfo;
+
+    var updateDebugInfo = function(extra) {
+    var html = "Legacy Debug Info:<br>";
+    html += "Current Book: " + bookSel.value + "<br>";
+    html += "Current Chapter: " + chapSel.value + "<br>";
+    if (extra) {
+      for (var key in extra) {
+        html += key + ": " + extra[key] + "<br>";
+      }
+    }
+    debugInfo.innerHTML = html;
+  };
 
   var showChapter = function(book, chapter) {
     var verses = BIBLE_DATA[book] ? (BIBLE_DATA[book][chapter] || []) : [];
@@ -593,6 +606,7 @@ function showTab(name, btn) {
     nextBtn.disabled = !hasNext; nextBtn.style.opacity = hasNext ? "1" : "0.4";
     navDiv.style.display = "block";
     window.scrollTo(0, 0);
+    updateDebugInfo();
   };
 
   var fillBooks = function() {
@@ -682,6 +696,7 @@ function showTab(name, btn) {
             } catch(e) {}
           }
           // Fallback to local seed-based verse
+          updateDebugInfo({ daily_verse_fetch_error: xhr.status });
           showDailyVerseLocal();
         }
       };
@@ -704,6 +719,7 @@ function showTab(name, btn) {
     dailyDiv = document.getElementById("daily");
     dtext = document.getElementById("dtext");
     dref = document.getElementById("dref");
+    debugInfo = document.getElementById("debugInfo");
 
     bookSel.addEventListener("change", function() { fillChapters(bookSel.value); });
     document.getElementById("goBtn").addEventListener("click", function() { showChapter(bookSel.value, chapSel.value); });
@@ -729,6 +745,7 @@ function showTab(name, btn) {
     statusDiv.textContent = "";
     showDailyVerse();
     showChapter(availableBooks[0], chaptersFor(availableBooks[0])[0]);
+    updateDebugInfo();
   };
 
   // --- Offline caching ---
