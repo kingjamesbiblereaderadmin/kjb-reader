@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Database, Server, Cloud, Wifi, WifiOff, HardDrive, Trash2, RefreshCw, CheckCircle, XCircle, Loader2, BookOpen } from 'lucide-react';
+import { Database, Server, Cloud, Wifi, WifiOff, HardDrive, Trash2, RefreshCw, CheckCircle, XCircle, Loader2, BookOpen, Copy } from 'lucide-react';
 import { isBibleCached, clearBibleCache, downloadBibleForOffline, CACHE_VERSION, getBibleData } from '@/lib/bibleCache';
 
 export default function DebugPage() {
@@ -9,6 +9,7 @@ export default function DebugPage() {
   const [isChecking, setIsChecking] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
   const [localStorageData, setLocalStorageData] = useState({});
   const [serviceWorker, setServiceWorker] = useState(null);
   const [bookData, setBookData] = useState(null);
@@ -23,6 +24,70 @@ export default function DebugPage() {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+
+  const handleCopyDebugInfo = () => {
+    let report = 'KJB Reader Debug Report\n';
+    report += `Generated: ${new Date().toISOString()}\n\n`;
+
+    // Connection
+    report += '== Connection Status ==\n';
+    report += `Online: ${isOnline ? 'Yes' : 'No'}\n\n`;
+
+    // Bible Cache
+    report += '== Bible Cache ==\n';
+    report += `Cached: ${bibleCached ? 'Yes' : 'No'}\n`;
+    if (cacheStatus) {
+        report += `Version: ${cacheStatus.version || 'N/A'}\n`;
+        report += `Last Updated: ${cacheStatus.lastUpdated ? new Date(cacheStatus.lastUpdated).toLocaleString() : 'Never'}\n`;
+    }
+    report += '\n';
+
+    // Service Worker
+    report += '== Service Worker ==\n';
+    if (serviceWorker) {
+        report += `Active: ${serviceWorker.active ? 'Yes' : 'No'}\n`;
+        report += `Waiting: ${serviceWorker.waiting ? 'Yes (Update pending)' : 'No'}\n`;
+        report += `Scope: ${serviceWorker.scope}\n`;
+    } else {
+        report += 'Not supported or not registered.\n';
+    }
+    report += '\n';
+
+    // Bible Books
+    report += '== Bible Books Status ==\n';
+    if (bookData) {
+        report += `Total Books: ${bookData.bookCount} / 66\n`;
+        if (bookData.bookCount < 66) {
+             report += `WARNING: Incomplete cache - missing ${66 - bookData.bookCount} book(s).\n`;
+        }
+        report += `Colophons: ${bookData.colophonCount}\n`;
+        report += '-------------------\n';
+        Object.entries(bookData.books).sort((a,b) => a[0].localeCompare(b[0])).forEach(([book, data]) => {
+            report += `${book}: ${data.chapters} chapters, ${data.totalVerses} verses\n`;
+        });
+    } else {
+        report += 'No Bible data loaded.\n';
+    }
+    report += '\n';
+
+
+    // LocalStorage
+    report += '== LocalStorage (KJB Keys) ==\n';
+    if (Object.keys(localStorageData).length > 0) {
+        Object.entries(localStorageData).forEach(([key, data]) => {
+            report += `${key} (${data.size} bytes)\n`;
+        });
+    } else {
+        report += 'No KJB-related localStorage data found.\n';
+    }
+
+    navigator.clipboard.writeText(report).then(() => {
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+    }).catch(err => {
+        console.error('Failed to copy debug info:', err);
+    });
+  };
 
   const checkAllStatus = async () => {
     setIsChecking(true);
@@ -335,6 +400,13 @@ export default function DebugPage() {
           >
             {isChecking ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
             {isChecking ? 'Checking...' : 'Refresh Status'}
+          </button>
+          <button
+            onClick={handleCopyDebugInfo}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-all"
+          >
+            {copySuccess ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            {copySuccess ? 'Copied!' : 'Copy Report'}
           </button>
         </div>
       </div>
