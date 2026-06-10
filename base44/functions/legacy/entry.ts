@@ -646,8 +646,15 @@ Deno.serve(async (req) => {
         'xhr.open("GET",BASE+i,true);' +
         'xhr.onreadystatechange=function(){' +
           'if(xhr.readyState===4){' +
-            'if((xhr.status===200||xhr.status===0)&&xhr.responseText){' +
-              'parts[i]=xhr.responseText;done++;' +
+            // Success = HTTP 200/0 with a real book chunk. A book chunk always
+            // starts with the book wrapper "<div class=\"fb-book\"". If the
+            // response is empty OR is accidentally the full shell page (which
+            // contains "kjb-loader"), treat it as a FAILURE and retry — this is
+            // what previously let a bad response slip through and reveal early.
+            'var txt=xhr.responseText||"";' +
+            'var okBody=txt.indexOf("fb-book")!==-1 && txt.indexOf("kjb-loader")===-1;' +
+            'if((xhr.status===200||xhr.status===0)&&okBody){' +
+              'parts[i]=txt;done++;' +
               'var p=Math.round(done*100/TOTAL);' +
               'if(bar){bar.style.width=p+"%";}if(pct){pct.innerHTML=p+"%";}' +
               'load(i+1,0);' +
