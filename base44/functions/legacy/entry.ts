@@ -625,7 +625,7 @@ Deno.serve(async (req) => {
       // re-downloading the 6 MB body (which is what caused the "can't
       // connect" failures across the first few refreshes on flaky links).
       'Cache-Control': 'public, max-age=31536000, immutable',
-      'Expires': 'Thu, 31 Dec 2037 23:59:59 GMT',
+      'Expires': 'Fri, 31 Dec 9999 23:59:59 GMT',
       'Vary': 'Accept-Encoding'
     } });
   } catch (error) {
