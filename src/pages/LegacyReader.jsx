@@ -19,6 +19,9 @@ export default function LegacyReader() {
       const v = incoming.get(k);
       if (v) forward.set(k, v);
     });
+    // Default landing page for legacy users is the Full Bible (single-page,
+    // works fully offline once loaded).
+    if (!forward.get('tab')) forward.set('tab', 'fullbible');
     // On base44 hosting the function needs app_id in its own links — forward it.
     if (appParams.appId) forward.set('app_id', appParams.appId);
 
