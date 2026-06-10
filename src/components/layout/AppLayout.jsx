@@ -52,6 +52,9 @@ export default function AppLayout() {
   const { isDark, mode, toggleTheme } = useTheme();
   const { hideHeader } = useHeaderHide();
   const { reloadKey, softReload, isReloading } = useSoftReload();
+  
+  // Hide all layout chrome for legacy reader - it renders its own complete UI
+  const isLegacy = pathname === '/legacy';
   const [menuOpen, setMenuOpen] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -229,6 +232,11 @@ export default function AppLayout() {
     setShowPrompt(false);
     handleDismiss();
   };
+
+  // Legacy reader gets no layout chrome - just render the outlet
+  if (isLegacy) {
+    return <Outlet />;
+  }
 
   return (
     <AutoUpdateHandler>
