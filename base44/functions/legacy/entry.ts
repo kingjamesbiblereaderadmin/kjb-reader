@@ -766,7 +766,11 @@ window.addEventListener('load', function() {
   statusDiv.innerHTML = '<div class="status success">✓ Ready (' + Object.keys(BIBLE_DATA).length + ' books)</div>';
   populateBooks();
   showDailyVerse();
-  readChapter();
+  // Only auto-read if book/chapter are selected
+  var bookSel = document.getElementById('bookSel');
+  if (bookSel && bookSel.value) {
+    readChapter();
+  }
 });
 </script>
 
