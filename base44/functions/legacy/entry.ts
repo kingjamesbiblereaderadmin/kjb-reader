@@ -261,8 +261,8 @@ Deno.serve(async (req) => {
 '.box h3 { color:#2d2a6e; margin-bottom:10px; font-size:16px; }' +
 '.box blockquote { background:#f7f7fb; padding:12px; margin:8px 0; border-left:3px solid #2d2a6e; font-style:italic; }' +
 '.box a { color:#2d2a6e; }' +
-'.sec-title { font-size:20px; color:#2d2a6e; font-weight:bold; margin:24px 0 10px; text-align:left; }' +
-'.sec-sub { font-size:14px; color:#666; margin-bottom:16px; }' +
+'.sec-title { font-size:20px; color:#2d2a6e; font-weight:bold; margin:24px 0 10px; text-align:center; }' +
+'.sec-sub { font-size:14px; color:#666; text-align:center; margin-bottom:16px; }' +
 '.step { background:#fff; border:1px solid #e0e0ec; border-left:4px solid #2d2a6e; padding:14px 16px; margin-bottom:14px; }' +
 '.step h4 { color:#2d2a6e; font-size:15px; margin-bottom:8px; font-family:Arial,sans-serif; }' +
 '.step .ref { display:block; margin-top:8px; font-size:13px; color:#444; font-family:Arial,sans-serif; }' +
