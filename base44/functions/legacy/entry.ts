@@ -499,47 +499,74 @@ Deno.serve(async (req) => {
       '<a href="' + themeHref + '">' + (isDark ? '&#9728; Light Mode' : '&#9790; Dark Mode') + '</a>' +
       '</div>';
 
-    // Progressive enhancement: on modern browsers, intercept navigation
-    // (tab clicks, Home link, book/chapter selects) and swap only the
-    // #wrap + .tabs content via fetch — no full-page reload, no white flash.
-    // No-JS / ancient browsers ignore this entirely and use the normal
-    // form submits and links (full reload), so they still work perfectly.
+    // Progressive enhancement: works on IE8+, no full-page reload.
+    // Uses XMLHttpRequest (with ActiveX fallback for IE8) + hash navigation for IE8/9.
     const ENHANCE_SCRIPT =
 '<script>(function(){' +
-'if(!window.history||!window.history.pushState||!document.querySelector)return;' +
 'var wrap=document.getElementById("wrap");if(!wrap)return;' +
-'function load(u,push){' +
-'var xhr=new XMLHttpRequest();xhr.open("GET",u);xhr.onreadystatechange=function(){' +
+'var hasPushState=!!(window.history&&window.history.pushState);' +
+'function createXHR(){' +
+'if(window.XMLHttpRequest)return new XMLHttpRequest();' +
+'try{return new ActiveXObject("Msxml2.XMLHTTP");}catch(e1){}' +
+'try{return new ActiveXObject("Microsoft.XMLHTTP");}catch(e2){}' +
+'return null;' +
+'}' +
+'function getHash(){return location.hash?location.hash.substring(1):"";}' +
+'function setHash(h){if(hasPushState){window.history.pushState({u:h},"",h);}else{location.hash=h;}}' +
+'function load(u){' +
+'var xhr=createXHR();if(!xhr)return;xhr.open("GET",u,true);' +
+'xhr.onreadystatechange=function(){' +
 'if(xhr.readyState===4){' +
-'if(xhr.status===200){' +
-'var t=xhr.responseText;var doc=document.createElement("html");doc.innerHTML=t;' +
-'var nw=doc.querySelector("#wrap");var nt=doc.querySelector(".tabs");' +
-'var nb=doc.querySelector("body");' +
-'if(nw){wrap.innerHTML=nw.innerHTML;}' +
-'var ct=document.querySelector(".tabs");if(nt&&ct){ct.innerHTML=nt.innerHTML;}' +
+'if(xhr.status===200||xhr.status===304){' +
+'var t=xhr.responseText;' +
+'var d=document.createElement("div");d.innerHTML=t;' +
+'var nw=d.getElementsByTagName("body")[0];' +
+'if(nw){var nwWrap=nw.querySelector?nw.querySelector("#wrap"):document.getElementById("wrap");' +
+'if(nwWrap){wrap.innerHTML=nwWrap.innerHTML;}}' +
+'var nt=d.getElementsByTagName("body")[0];' +
+'if(nt){var ntTabs=nt.querySelector?nt.querySelector(".tabs"):null;' +
+'var ct=document.getElementsByClassName("tabs")[0];' +
+'if(ntTabs&&ct){ct.innerHTML=ntTabs.innerHTML;}}' +
+'var nb=d.getElementsByTagName("body")[0];' +
 'if(nb){document.body.className=nb.className;}' +
-'var tb=doc.querySelector(".topbar");var ctb=document.querySelector(".topbar");if(tb&&ctb){ctb.innerHTML=tb.innerHTML;}' +
-'if(push){window.history.pushState({u:u},"",u);}' +
+'var tb=d.getElementsByTagName("body")[0];' +
+'if(tb){var ntTop=tb.querySelector?tb.querySelector(".topbar"):null;' +
+'var ctTop=document.getElementsByClassName("topbar")[0];' +
+'if(ntTop&&ctTop){ctTop.innerHTML=ntTop.innerHTML;}}' +
 'window.scrollTo(0,0);bind();' +
 '}else{window.location.href=u;}' +
 '}' +
 '};xhr.send();' +
 '}' +
 'function bind(){' +
-'var links=document.querySelectorAll(".tabs a, .topbar a, .nav a");' +
-'for(var i=0;i<links.length;i++){(function(a){' +
-'if(a.__b)return;a.__b=1;' +
-'a.onclick=function(e){var h=a.getAttribute("href");if(!h||h.charAt(0)==="h"&&h.indexOf(location.origin)!==0&&/^https?:/.test(h)){return;}e.preventDefault();load(h,true);return false;};' +
+'var links=document.getElementsByTagName("a");' +
+'for(var i=0;i<links.length;i++){' +
+'(function(a){' +
+'if(a.__kjb)return;a.__kjb=1;' +
+'if(a.addEventListener){a.addEventListener("click",onClick,false);}' +
+'else if(a.attachEvent){a.attachEvent("onclick",onClick);}' +
+'function onClick(e){e=e||window.event;var h=a.getAttribute("href");' +
+'if(!h||h.indexOf("http")===0&&h.indexOf(location.host)===-1)return;' +
+'if(h.indexOf("javascript")===0)return;' +
+'if(e.preventDefault)e.preventDefault();else e.returnValue=false;' +
+'load(h);if(hasPushState){window.history.pushState({u:h},"",h);}else{location.hash=h;}' +
+'return false;}' +
 '})(links[i]);}' +
-'var sels=document.querySelectorAll("#wrap form select");' +
-'for(var j=0;j<sels.length;j++){(function(s){' +
-'if(s.__b)return;s.__b=1;' +
-'s.onchange=function(){var f=s.form;if(!f)return;var u=f.getAttribute("action")+"?";var parts=[];' +
-'for(var k=0;k<f.elements.length;k++){var el=f.elements[k];if(el.name){parts.push(encodeURIComponent(el.name)+"="+encodeURIComponent(el.value));}}' +
-'u+=parts.join("&");load(u,true);};' +
+'var sels=document.getElementsByTagName("select");' +
+'for(var j=0;j<sels.length;j++){' +
+'(function(s){' +
+'if(s.__kjb)return;s.__kjb=1;' +
+'if(s.addEventListener){s.addEventListener("change",onSelect,false);}' +
+'else if(s.attachEvent){s.attachEvent("onchange",onSelect);}' +
+'function onSelect(){var f=s.form;if(!f)return;var act=f.getAttribute("action")||location.pathname;' +
+'var u=act+"?";var parts=[];' +
+'for(var k=0;k<f.elements.length;k++){var el=f.elements[k];if(el&&el.name){parts.push(encodeURIComponent(el.name)+"="+encodeURIComponent(el.value));}}' +
+'u+=parts.join("&");load(u);if(hasPushState){window.history.pushState({u:u},"",u);}else{location.hash=u;}' +
+'}' +
 '})(sels[j]);}' +
 '}' +
-'window.onpopstate=function(e){load(location.href,false);};' +
+'if(hasPushState){window.onpopstate=function(){load(location.href);};}' +
+'else{window.onhashchange=function(){var h=getHash();if(h){load(location.pathname+"?"+h);}};}' +
 'bind();' +
 '})();</script>';
 
