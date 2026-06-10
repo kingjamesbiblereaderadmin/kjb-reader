@@ -60,20 +60,6 @@ function getLinkLabel(url) {
   try { return new URL(url).hostname.replace('www.', ''); } catch { return 'Website'; }
 }
 
-// Gospel content
-const GOSPEL_STEPS = [
-  { n: '1', title: 'Believe you are a sinner that deserves hell', quotes: [
-    '"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin." &mdash; Romans 3:20',
-    '"The wicked shall be turned into hell, and all the nations that forget God." &mdash; Psalm 9:17' ] },
-  { n: '2', title: 'Believe that Jesus is God manifested in the flesh', quotes: [
-    '"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory." &mdash; 1 Timothy 3:16' ] },
-  { n: '3', title: 'Believe he died, shed his blood, was buried and rose again', quotes: [
-    '"Moreover, brethren, I declare unto you the gospel which I preached unto you, which also ye have received, and wherein ye stand; By which also ye are saved, if ye keep in memory what I preached unto you, unless ye have believed in vain. For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." &mdash; 1 Corinthians 15:1-4',
-    '"Whom God hath set forth to be a propitiation through faith in his blood, to declare his righteousness for the remission of sins that are past, through the forbearance of God;" &mdash; Romans 3:25' ] },
-];
-
-const GOSPEL_NOT = ['Repenting of sins','Making Jesus Lord','Being a member of a church','Tithing','Being baptised (water)','Saying a sinner\'s prayer','Confessing with your mouth','Lordship Salvation'];
-
 const PREACHERS_L = [
   { name: 'Robert Breaker', desc: 'KJB missionary evangelist, rightly dividing the word of truth.', links: ['https://www.youtube.com/@Robertbreaker3','https://www.tiktok.com/@robertbreaker','https://thecloudchurch.org/'] },
   { name: 'Robert Potthoff', desc: 'Big Red Preacher — KJB soul winner.', links: ['https://www.instagram.com/robert.potthoff/','https://www.facebook.com/potthoff87','https://www.instagram.com/big_red_preacher','https://mission1611.com/'] },
@@ -85,6 +71,8 @@ const PREACHERS_L = [
   { name: 'CPR Missions', desc: 'Church Planting and Revival Missions — soul winning and church planting.', links: ['https://www.youtube.com/channel/UCWBR5DmAi2XPMFRtb-wqHwg','https://www.tiktok.com/@cprmissions','https://www.facebook.com/CPRmission/','https://www.instagram.com/cprmissions/'] },
   { name: 'James Bray', desc: 'KJB preacher and Bible teacher on YouTube.', links: ['https://youtube.com/@jamesbrayall3'] },
 ];
+
+
 
 let bibleData = null;
 
@@ -203,7 +191,7 @@ function getFallbackDailyVerse() {
 async function fetchDailyVerse() {
   try {
     const d = new Date();
-    const clientDate = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    const clientDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     const appUrl = new URL('https://kingjamesbiblereader.com');
     const res = await fetch(appUrl.origin + '/api/function/bibleApi', {
       method: 'POST',
@@ -216,12 +204,15 @@ async function fetchDailyVerse() {
       return getFallbackDailyVerse();
     }
     const data = await res.json();
-    if (!data.verse) {
+    console.log('[Legacy] Daily verse API response:', JSON.stringify(data));
+    if (!data.verse || !data.verse.text || !data.verse.ref) {
+      console.log('[Legacy] Invalid verse data, using fallback');
       return getFallbackDailyVerse();
     }
+    console.log('[Legacy] Using verse:', data.verse.ref);
     return data.verse;
   } catch (e) {
-    console.error('Daily verse fetch error:', e);
+    console.error('[Legacy] Daily verse fetch error:', e);
     return getFallbackDailyVerse();
   }
 }
@@ -417,35 +408,30 @@ Deno.serve(async (req) => {
         }
       }
       
-      // Action buttons row
-      let actions = '<div class="box" style="margin-bottom:20px;"><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">' +
-        '<a href="/read/John/3" class="lnk" style="display:inline-block;padding:8px 16px;background:#2d2a6e;color:#fff;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;border-radius:6px;">John 3</a>' +
-        '<a href="/read/Romans/3" class="lnk" style="display:inline-block;padding:8px 16px;background:#2d2a6e;color:#fff;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;border-radius:6px;">Romans 3</a>' +
-        '<a href="/read/Romans/4" class="lnk" style="display:inline-block;padding:8px 16px;background:#2d2a6e;color:#fff;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;border-radius:6px;">Romans 4</a>' +
-        '<a href="/read/Romans/5" class="lnk" style="display:inline-block;padding:8px 16px;background:#2d2a6e;color:#fff;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;border-radius:6px;">Romans 5</a>' +
-        '<a href="/read/Romans/6" class="lnk" style="display:inline-block;padding:8px 16px;background:#2d2a6e;color:#fff;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;border-radius:6px;">Romans 6</a>' +
-        '<a href="/read/1Corinthians/15" class="lnk" style="display:inline-block;padding:8px 16px;background:#2d2a6e;color:#fff;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;border-radius:6px;">1 Corinthians 15</a>' +
-        '</div></div>';
-      
-      let g = dv + actions + '<div class="sec-title">How to be Saved</div>' +
-        '<div class="sec-sub">The Gospel is the glad tidings of the Lord Jesus Christ: Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.</div>';
-      
-      for (let i = 0; i < GOSPEL_STEPS.length; i++) {
-        const s = GOSPEL_STEPS[i];
-        g += '<div class="step"><h4>' + s.n + '. ' + esc(s.title) + '</h4>';
-        for (let j = 0; j < s.quotes.length; j++) g += '<blockquote>' + s.quotes[j] + '</blockquote>';
-        g += '</div>';
-      }
-      
-      let notList = '';
-      for (let i = 0; i < GOSPEL_NOT.length; i++) notList += '<li>' + esc(GOSPEL_NOT[i]) + '</li>';
-      g += '<div class="warn"><h4>These do NOT make you a Christian:</h4><ul>' + notList + '</ul></div>';
-      
-      g += '<div class="step"><h4>Once Saved, Always Saved</h4>' +
+      let g = dv + '<div class="sec-title">How to be Saved</div>' +
+        '<div class="sec-sub">The Gospel is the glad tidings of the Lord Jesus Christ: Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.</div>' +
+        '<div class="step"><h4>1. Believe you are a sinner that deserves hell</h4>' +
+        '<blockquote>"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin." &mdash; Romans 3:20</blockquote>' +
+        '<blockquote>"The wicked shall be turned into hell, and all the nations that forget God." &mdash; Psalm 9:17</blockquote></div>' +
+        '<div class="step"><h4>2. Believe that Jesus is God manifested in the flesh</h4>' +
+        '<blockquote>"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory." &mdash; 1 Timothy 3:16</blockquote></div>' +
+        '<div class="step"><h4>3. Believe he died, shed his blood, was buried and rose again</h4>' +
+        '<blockquote>"Moreover, brethren, I declare unto you the gospel which I preached unto you, which also ye have received, and wherein ye stand; By which also ye are saved, if ye keep in memory what I preached unto you, unless ye have believed in vain. For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." &mdash; 1 Corinthians 15:1-4</blockquote>' +
+        '<blockquote>"Whom God hath set forth to be a propitiation through faith in his blood, to declare his righteousness for the remission of sins that are past, through the forbearance of God;" &mdash; Romans 3:25</blockquote></div>' +
+        '<div class="warn"><h4>These do NOT make you a Christian:</h4><ul>' +
+        '<li>Repenting of sins</li>' +
+        '<li>Making Jesus Lord</li>' +
+        '<li>Being a member of a church</li>' +
+        '<li>Tithing</li>' +
+        '<li>Being baptised (water)</li>' +
+        '<li>Saying a sinner\'s prayer</li>' +
+        '<li>Confessing with your mouth</li>' +
+        '<li>Lordship Salvation</li>' +
+        '</ul></div>' +
+        '<div class="step"><h4>Once Saved, Always Saved</h4>' +
         '<p style="font-size:14px;color:#444;margin-bottom:8px;">A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life. God\'s gift of eternal life is just that &mdash; eternal.</p>' +
-        '<blockquote>"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." &mdash; Ephesians 1:13</blockquote></div>';
-      
-      g += '<div class="box"><h3>Watch the Gospel</h3>' +
+        '<blockquote>"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." &mdash; Ephesians 1:13</blockquote></div>' +
+        '<div class="box"><h3>Watch the Gospel</h3>' +
         '<p style="margin-bottom:8px;"><a href="https://www.youtube.com/watch?v=znP9Dr6tOzU">&#9654; THE GOSPEL THAT SAVES &mdash; Robert Breaker</a></p>' +
         '<p><a href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq">&#9654; Full Gospel Videos Playlist</a></p></div>';
       
