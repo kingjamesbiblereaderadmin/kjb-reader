@@ -56,8 +56,10 @@ function resolveBook(bufferLines) {
 
 export function parsePceText(text) {
   const data = {};
-  // Normalise CRLF / CR line endings so regex anchors and double-space detection work.
-  const rawLines = text.replace(/\r\n?/g, '\n').split('\n');
+  // Normalise CRLF / CR line endings and unescape brackets: the PCE source file
+  // uses \[ and \] for italics, which we convert to plain [ and ].
+  const normalizedText = text.replace(/\r\n?/g, '\n').replace(/\\[/g, '[').replace(/\\]/g, ']');
+  const rawLines = normalizedText.split('\n');
 
   let currentBook = null;
   let currentChapter = null;
@@ -75,6 +77,14 @@ export function parsePceText(text) {
   // Psalms uses "PSALM N" instead of "CHAPTER N"; every other book uses CHAPTER.
   const isChapterLine = (l) => /^(CHAPTER|PSALM)\s+\d+$/i.test(l.trim());
   const isVerseLine = (l) => /^\d+\s/.test(l);
+  
+  // Debug: log when we encounter chapter/psalm lines
+  const debugChapterLine = (line, book) => {
+    if (isChapterLine(line)) {
+      const chapterNum = parseInt(line.replace(/(CHAPTER|PSALM)\s+/i, ''), 10);
+      console.log(`[PCE-PARSE] Found chapter line: "${line.trim()}" in ${book}, chapter ${chapterNum}`);
+    }
+  };
 
   // Psalm 119 is an acrostic: each 8-verse stanza is preceded by an unnumbered
   // Hebrew letter heading ("ALEPH.", "BETH.", … "TAU."). These must NOT be parsed
@@ -90,8 +100,14 @@ export function parsePceText(text) {
 
   const pushVerse = (vs, rawAfterNumber, hadParagraph) => {
     if (!currentBook || currentChapter == null) return;
-    let t = rawAfterNumber.replace(/\s*<<[^>]*>>\s*$/, '').trim();
-    if (hadParagraph) t = '¶ ' + t;
+    // First unescape any escaped brackets and normalize pilcrow characters
+    let t = rawAfterNumber.replace(/\\[/g, '[').replace(/\\]/g, ']').replace(/\s*<<[^>]*>>\s*$/, '').trim();
+    // If the source has an actual pilcrow character (¶ or other markers), preserve it
+    if (/^[¶\u000F\u00B6]\s+/.test(t)) {
+      t = '¶ ' + t.replace(/^[¶\u000F\u00B6]\s+/, '');
+    } else if (hadParagraph) {
+      t = '¶ ' + t;
+    }
 
     // Fix 1 John 2:23 PCE syntax: replace double brackets with single brackets
     // so it renders as standard italics without literal brackets.
@@ -124,6 +140,7 @@ export function parsePceText(text) {
       // superscription) before the real verse 1 — skip it so verse 1 is correct.
       pendingSuperscript = currentBook === 'Psalms' && !!SUBSCRIPTS[`Psalms:${currentChapter}`];
       titleBuffer = [];
+      console.log(`[PCE-PARSE] Chapter ${currentChapter} in ${currentBook}, superscript=${pendingSuperscript}`);
       continue;
     }
 
@@ -144,7 +161,8 @@ export function parsePceText(text) {
       const m = line.match(/^(\d+)(\s+)(.*)$/);
       if (m) {
         const vs = parseInt(m[1], 10);
-        const hadParagraph = m[2].length >= 2; // double space = pilcrow paragraph
+        // Detect pilcrow: double space, OR actual pilcrow character at start
+        const hadParagraph = m[2].length >= 2 || /^[¶\u000F\u00B6]/.test(m[3]);
         pushVerse(vs, m[3], hadParagraph);
         pendingFirstVerse = false;
         continue;
@@ -159,8 +177,8 @@ export function parsePceText(text) {
 
     // First (unnumbered) verse of a chapter
     if (pendingFirstVerse && currentChapter != null) {
-      // A leading double space marks a paragraph (pilcrow) on verse 1
-      const hadParagraph = /^\s{2,}\S/.test(line);
+      // A leading double space OR pilcrow character marks a paragraph on verse 1
+      const hadParagraph = /^\s{2,}\S/.test(line) || /^[¶\u000F\u00B6]/.test(trimmed);
       pushVerse(1, trimmed, hadParagraph);
       pendingFirstVerse = false;
       continue;
@@ -178,6 +196,7 @@ export function parsePceText(text) {
       currentBook = resolved;
       currentChapter = null;
       if (!data[currentBook]) data[currentBook] = {};
+      console.log(`[PCE-PARSE] ✓ Book detected: ${currentBook}`);
       titleBuffer = [];
     } else if (titleBuffer.length > 4) {
       // Avoid unbounded growth on stray lines
@@ -231,5 +250,21 @@ export function parsePceText(text) {
   data.__colophons = { ...COLOPHONS };
   const bookCount = Object.keys(data).filter((k) => k !== '__colophons').length;
   console.log('[PCE-PARSE] ✓', verseCount, 'verses across', bookCount, 'books');
+  
+  // Log all detected books and their chapter counts
+  const bookSummary = Object.keys(data)
+    .filter(k => k !== '__colophons')
+    .map(book => {
+      const chapters = Object.keys(data[book]).length;
+      const firstChapter = Object.keys(data[book])[0];
+      const verseCount = data[book][firstChapter]?.length || 0;
+      return `${book}:${chapters}ch`;
+    });
+  console.log('[PCE-PARSE] Books:', bookSummary.join(', '));
+  
+  // Log colophon count
+  const colophonCount = Object.keys(COLOPHONS).length;
+  console.log('[PCE-PARSE] Colophons:', colophonCount, 'entries');
+  
   return data;
 }
