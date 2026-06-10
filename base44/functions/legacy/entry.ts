@@ -620,7 +620,11 @@ Deno.serve(async (req) => {
     // section is tiny so it downloads reliably on weak connections; the page
     // is revealed only after ALL books have been assembled. The browser caches
     // each chunk, so a repeat visit (even offline) reassembles instantly.
-    const chunkBase = basePath + '?chunk=';
+    // Version stamp on chunk URLs: bumping LOADER_VER makes the new loader
+    // request fresh chunk URLs that any stale "immutable" cache won't have,
+    // forcing the corrected behaviour to take effect after one online refresh.
+    const LOADER_VER = '3';
+    const chunkBase = basePath + '?v=' + LOADER_VER + '&chunk=';
     const totalBooks = BOOK_ORDER.length;
     const SECTION_SCRIPT = '<script>(function(){' +
       'var BASE=' + JSON.stringify(chunkBase) + ';' +
