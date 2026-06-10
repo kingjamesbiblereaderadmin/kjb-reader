@@ -1,7 +1,7 @@
 // KJB Reader Service Worker v20260610_280
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260610_298';
+const CACHE_NAME = 'kjb-reader-v20260610_299';
 // Bumped to purge any partially-cached legacy chunks so every client re-caches
 // the full Bible fresh to 100% on the next online visit.
 const LEGACY_CACHE_NAME = 'kjb-legacy-v4';
@@ -68,15 +68,25 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.open(LEGACY_CACHE_NAME).then((cache) => {
         if (isChunk) {
-          return cache.match(request).then((cached) => {
-            if (cached) return cached;
-            return fetch(request).then((response) => {
-              if (response && (response.ok || response.status === 0)) {
-                cache.put(request, response.clone());
-              }
-              return response;
+          // Online: network-first so we always pull fresh chunk content, then
+          // update the cache. Offline: fall back to the cached chunk.
+          if (navigator.onLine === false) {
+            return cache.match(request).then((cached) => {
+              if (cached) return cached;
+              return fetch(request).then((response) => {
+                if (response && (response.ok || response.status === 0)) {
+                  cache.put(request, response.clone());
+                }
+                return response;
+              });
             });
-          });
+          }
+          return fetch(request).then((response) => {
+            if (response && (response.ok || response.status === 0)) {
+              cache.put(request, response.clone());
+            }
+            return response;
+          }).catch(() => cache.match(request));
         }
         // Shell page: network-first so content updates propagate, with offline
         // fallback to the cached shell.
