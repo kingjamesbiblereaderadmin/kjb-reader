@@ -300,6 +300,7 @@ Deno.serve(async (req) => {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KJB Reader (Legacy)</title>
 <style>
@@ -334,13 +335,13 @@ Deno.serve(async (req) => {
   .chapter-num { font-size: 14px; color: #5b59a0; letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; display: block; }
   .subscript { text-align: center; font-size: 15px; color: #555; margin: 8px 0 12px 0; }
   .subscript em { font-style: italic; }
-  .subscript .pilcrow { font-style: normal; margin-right: 4px; }
+  .subscript .pilcrow { font-style: normal; margin-right: 4px; color: #000; opacity: 0.5; }
   .verses { margin: 20px 0; text-align: left; }
   .verse { margin-bottom: 12px; line-height: 1.7; }
   .verse-num { font-size: 11px; color: #5b59a0; font-weight: bold; vertical-align: super; margin-right: 3px; }
   .colophon { text-align: center; font-size: 13px; color: #666; margin: 24px 0 8px 0; border-top: 1px solid #ddd; padding-top: 12px; }
   .colophon em { font-style: italic; }
-  .colophon .pilcrow { font-style: normal; margin-right: 4px; }
+  .colophon .pilcrow { font-style: normal; margin-right: 4px; color: #000; opacity: 0.5; }
   .colophon-content { display: block; margin-top: 4px; }
   .footer { text-align: center; font-size: 11px; color: #888; padding: 20px; border-top: 1px solid #ddd; margin-top: 40px; }
   .error-msg { color: red; padding: 16px; background: #fff; border: 1px solid #fcc; border-radius: 4px; }
@@ -689,7 +690,9 @@ function readChapter() {
 
   html += '<div class="verses">';
   for (var v = 0; v < verses.length; v++) {
-    var verseText = verses[v].text.replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
+    var verseText = verses[v].text;
+    verseText = verseText.replace(/¶/g, '<span class="pilcrow">¶</span> ');
+    verseText = verseText.replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
     html += '<div class="verse"><span class="verse-num">' + verses[v].verse + '</span> ' + verseText + '</div>';
   }
   html += '</div>';
