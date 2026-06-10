@@ -325,14 +325,18 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const url = new URL(req.url);
     const tab = url.searchParams.get('tab') || 'bible';
-    const showDailyVerse = url.searchParams.get('daily') === 'false' ? false : true;
+    // Daily verse card only shows on the Bible tab
+    const showDailyVerse = tab === 'bible';
     let book = url.searchParams.get('book') || 'Genesis';
     if (BOOK_ORDER.indexOf(book) === -1) book = 'Genesis';
     let chapter = parseInt(url.searchParams.get('chapter') || '1', 10);
     if (isNaN(chapter) || chapter < 1 || chapter > (CHAPTER_COUNTS[book] || 1)) chapter = 1;
     
     const appIdParam = url.searchParams.get('app_id');
-    const basePath = url.pathname;
+    // Use empty base path so links/forms resolve against the CURRENT browser URL
+    // (the visible /legacy page), not the function's internal pathname. This
+    // prevents navigation from jumping to the wrong domain/path.
+    const basePath = '';
     const theme = url.searchParams.get('theme') === 'dark' ? 'dark' : 'light';
     const isDark = theme === 'dark';
     const idSuffix = (appIdParam ? '&app_id=' + encodeURIComponent(appIdParam) : '') + (isDark ? '&theme=dark' : '');
@@ -342,9 +346,9 @@ Deno.serve(async (req) => {
 
     const tabLink = (t, label) => '<a href="' + esc(basePath) + '?tab=' + t + idSuffix + '" class="' + (t === tab ? 'on' : '') + '">' + label + '</a>';
 
-    // Daily verse card only shows on the Bible tab
+    // Fetch daily verse once for all tabs
     let dailyVerseCard = '';
-    if (showDailyVerse && tab === 'bible') {
+    if (showDailyVerse) {
       console.log('[Legacy] Fetching daily verse...');
       const dailyVerse = await fetchDailyVerse(base44);
       if (dailyVerse && dailyVerse.text && dailyVerse.ref) {
@@ -410,7 +414,7 @@ Deno.serve(async (req) => {
 
       bodyInner = dailyVerseCard + form + content + navLinks;
     } else if (tab === 'gospel') {
-      bodyInner = dailyVerseCard + '<div style="max-width:800px;margin:0 auto;">' +
+      bodyInner = '<div style="max-width:800px;margin:0 auto;">' +
         '<h1 style="text-align:center;margin-bottom:12px;">How to be Saved</h1>' +
         '<p style="text-align:center;margin-bottom:6px;font-size:16px;">The Gospel is the glad tidings of the Lord Jesus Christ:</p>' +
         '<p style="text-align:center;margin-bottom:32px;font-size:16px;color:#555;">Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.</p>' +
@@ -433,70 +437,84 @@ Deno.serve(async (req) => {
         '<p><a href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq" target="_blank">Watch Full Gospel Playlist on YouTube</a></p>' +
         '</div>';
     } else if (tab === 'resources') {
-      const lnk = (url, title, desc) => '<a class="lnk" href="' + url + '"' + (url.indexOf('mailto:') === 0 ? '' : ' target="_blank"') + '><b>' + title + '</b>' + (desc ? '<span>' + desc + '</span>' : '') + '</a>';
+      const lnk = (url, title, desc) => '<a class="lnk" href="' + url + '" target="_blank"><b>' + title + '</b>' + (desc ? '<span>' + desc + '</span>' : '') + '</a>';
       bodyInner = '<div style="max-width:800px;margin:0 auto;">' +
         '<h1 style="text-align:center;margin-bottom:12px;">Resources</h1>' +
         '<p style="text-align:center;margin-bottom:24px;color:#555;">KJB defence materials, studies on modern version corruption, and links to free Bible study resources.</p>' +
-        '<div class="step" style="border-left-color:#2a8a2a;"><h4 style="color:#2a8a2a;">KJBI.org &mdash; Free Online Bible College</h4>' +
+
+        '<div class="step" style="border-left-color:#1a7f37;"><h4 style="color:#1a7f37;">KJBI.org &mdash; Free Online Bible College</h4>' +
         '<p style="margin-bottom:10px;">King James Bible Institute &mdash; a free online Bible college for those who want to go deeper in God\'s Word.</p>' +
-        lnk('https://kjbi.org', 'Visit KJBI.org', 'kjbi.org') + '</div>' +
+        lnk('https://kjbi.org', 'Visit KJBI.org', '') + '</div>' +
+
         '<div class="res-cat">Why the KJB is God\'s Word</div>' +
-        '<p style="margin-bottom:10px;color:#555;font-size:14px;">The King James Bible is the only preserved Word of God in the English Language.</p>' +
-        lnk('https://archive.org/details/wordgodwillkeepi0000faus', 'The Word of God Will Keep Its Infallibility', 'A historical book demonstrating the KJB is the infallible, preserved Word of God.') +
-        lnk('https://www.scionofzion.com/nkjv.htm', 'Warning on the NKJV', 'The NKJV is not the same as the King James Bible &mdash; do your own research.') +
-        lnk('https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs', 'Textus Receptus Bibles', 'Research on the Greek text underlying the King James Bible.') +
+        '<p style="margin-bottom:12px;color:#555;">The King James Bible is the only preserved Word of God in the English Language.</p>' +
+        lnk('https://archive.org/details/wordgodwillkeepi0000faus', 'The Word of God Will Keep Its Infallibility', 'A historical book demonstrating that the KJB is the infallible, preserved Word of God in English. Read on Archive.org.') +
+        lnk('https://www.scionofzion.com/nkjv.htm', 'Warning on the NKJV', 'The NKJV is not the same as the King James Bible. NKJV comparison.') +
+        lnk('https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs', 'Textus Receptus Bibles', 'Research on the Textus Receptus &mdash; the Greek text underlying the King James Bible.') +
+
         '<div class="res-cat">Verified KJB Preachers</div>' +
+        '<p style="margin-bottom:12px;color:#555;">KJB-believing, soul-winning preachers.</p>' +
         lnk('https://www.youtube.com/@Robertbreaker3', 'Robert Breaker', 'KJB missionary evangelist. YouTube, TikTok (@robertbreaker), thecloudchurch.org') +
-        lnk('https://mission1611.com/', 'Robert Potthoff', 'Big Red Preacher &mdash; KJB soul winner. Instagram, Facebook, mission1611.com') +
-        lnk('https://joyfullychurch.univer.se/', 'Joseph Gonzalez', 'KJB Elites. YouTube, TikTok (@joyfullychurch), Joyfully Church') +
-        lnk('https://www.seedofhopechurch.org/', 'Ryan Poff', 'Seed of Hope Church &mdash; KJB pastor. seedofhopechurch.org, YouTube, TikTok') +
-        lnk('https://youtube.com/@av1611ministries', 'Skyler (AV1611 Ministry)', 'AV1611 Ministry &mdash; KJB defence and preaching. TikTok, YouTube') +
+        lnk('https://www.instagram.com/robert.potthoff/', 'Robert Potthoff', 'Big Red Preacher &mdash; KJB soul winner. Instagram, Facebook, mission1611.com') +
+        lnk('https://youtube.com/@josephgonzalez3', 'Joseph Gonzalez', 'KJB Elites &mdash; faithful preacher. YouTube, TikTok (@joyfullychurch), Joyfully Church') +
+        lnk('https://www.seedofhopechurch.org/', 'Ryan Poff', 'Seed of Hope Church &mdash; KJB pastor. seedofhopechurch.org, YouTube (@ryan_poff)') +
+        lnk('https://youtube.com/@av1611ministries', 'Skyler (AV1611 Ministry)', 'AV1611 Ministry &mdash; KJB defence and preaching. YouTube, TikTok') +
         lnk('https://www.youtube.com/@CrownOfThorns', 'Crown of Thorns', 'KJB preaching ministry on YouTube.') +
-        lnk('https://youtube.com/@biblicalsalvation', 'Paul Johnson', 'Biblical Salvation &mdash; KJB preaching and Bible teaching. TikTok, YouTube') +
+        lnk('https://youtube.com/@biblicalsalvation', 'Paul Johnson', 'Biblical Salvation &mdash; KJB preaching and Bible teaching. YouTube, TikTok') +
         lnk('https://www.youtube.com/channel/UCWBR5DmAi2XPMFRtb-wqHwg', 'CPR Missions', 'Church Planting and Revival Missions. YouTube, TikTok, Facebook, Instagram') +
         lnk('https://youtube.com/@jamesbrayall3?si=nXkuHAhyVvC_0KVg', 'James Bray', 'KJB preacher and Bible teacher on YouTube.') +
+
         '<div class="res-cat">Ministry Links</div>' +
-        lnk('https://godisgracious1031ministriescom.odoo.com/', 'God is Gracious 1031 Ministries', 'Ministry Website') +
+        lnk('https://godisgracious1031ministriescom.odoo.com/', 'God is Gracious 1031 Ministries', 'Ministry website') +
         lnk('mailto:Kingjamesbiblereader.com@outlook.com', 'Contact the Ministry', 'Kingjamesbiblereader.com@outlook.com') +
-        '<div class="warn" style="background:#fdf9f0;border-color:#e9dcc4;"><p style="font-size:13px;color:#8a6d25;"><em>Note: The resources below are for educational purposes only. I may not affirm all doctrinal statements of every resource or ministry linked here. Please use discernment and compare all things to the King James Bible.</em></p></div>' +
+
+        '<div class="warn" style="margin-top:18px;"><p style="font-size:13px;"><em>Note: The resources below are for educational purposes only. I may not affirm all doctrinal statements of every resource or ministry linked here. Please use discernment and compare all things to the King James Bible.</em></p></div>' +
+
         '<div class="res-cat">How to Read the Bible</div>' +
         lnk('https://avpublications.com/', 'AV Publications', 'Books and resources for King James Bible believers.') +
+
         '<div class="res-cat">KJB Defence</div>' +
         lnk('https://www.bibleprotector.com', 'Pure Cambridge Edition & Free Download', 'The definitive electronic text of the Pure Cambridge Edition of the KJB.') +
         lnk('https://archive.org/details/wordgodwillkeepi0000faus/page/18/mode/1up?q=%22King+James+Bible+is+infallible%22', 'The Word of God Will Keep Its Infallibility', 'Archive.org') +
-        lnk('https://kjvcompare.com/', 'KJV Compare', 'Go through hundreds of changes made in modern versions of the Bible.') +
+        lnk('https://kjvcompare.com/', 'KJV Compare', 'Hundreds of changes made in modern versions of the Bible.') +
         lnk('https://www.scionofzion.com/kjcomparisons.html', 'Scion of Zion &mdash; KJB Comparisons', '') +
         lnk('https://www.scionofzion.com/1_john_5_7.htm', '1 John 5:7 Defence', '') +
+
         '<div class="res-cat">Why Modern Versions Are Corrupt</div>' +
         lnk('https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf', 'The Critical Text & Westcott-Hort', 'PDF') +
         lnk('https://www.scionofzion.com/nkjv.htm', 'NKJV Exposed', '') +
-        lnk('https://www.youtube.com/watch?v=RmXBj2N9fhY&list=PLiMliTxa3H172BW4ANpBAavcIGVz-KXFW', 'A Lamp in the Dark &mdash; Full Documentary', 'YouTube') +
-        lnk('https://youtube.com/playlist?list=PLNGhZnJavRf01ILv3TJu_ke4IPYcKcpJm&si=w73gmQRdA_3QbE48', 'KJB Defence Playlist', 'YouTube') +
-        lnk('https://www.youtube.com/watch?v=fyN680Y0Vwc', 'Gail Riplinger &mdash; The Sword Slays the Dragon', 'YouTube') +
-        lnk('https://www.youtube.com/watch?v=t6ck6KrVPIk', 'Irrefutable Proof: The KJB Superseded Hebrew and Greek', 'YouTube') +
+        lnk('https://www.youtube.com/watch?v=RmXBj2N9fhY&list=PLiMliTxa3H172BW4ANpBAavcIGVz-KXFW', 'A Lamp in the Dark', 'Full documentary') +
+        lnk('https://youtube.com/playlist?list=PLNGhZnJavRf01ILv3TJu_ke4IPYcKcpJm&si=w73gmQRdA_3QbE48', 'KJB Defence Playlist', '') +
+        lnk('https://www.youtube.com/watch?v=fyN680Y0Vwc', 'Gail Riplinger &mdash; The Sword Slays the Dragon', '') +
+        lnk('https://www.youtube.com/watch?v=t6ck6KrVPIk', 'Irrefutable Proof: The KJB Superseded Hebrew and Greek', '') +
         lnk('https://www.av1611.org/articles', 'AV1611 Articles', '') +
         lnk('https://www.preservedwords.com/bp/index.html', 'Preserved Words', '') +
         lnk('https://brandplucked.com/kjbarticles.htm', 'Brandplucked &mdash; KJB Articles', '') +
+
         '<div class="res-cat">1 John 5:7 Defence</div>' +
         lnk('https://kjvdebate.com/blog/f/i-john-57-the-1st-century-latinspain-connection', '1 John 5:7 - The 1st Century Latin/Spain Connection', '') +
         lnk('https://catalog.obitel-minsk.com/blog/2021/08/the-authenticity-of-1-john-57-historical-evidence-and-the-church-tradition', 'The Authenticity of 1 John 5:7', '') +
         lnk('https://textus-receptus.com/wiki/1_John_5:7', 'Textus Receptus - 1 John 5:7', '') +
         lnk('https://kjvdebate.com/pdf', 'KJV Debate - 1 John 5:7 PDF', '') +
+
         '<div class="res-cat">Westcott & Hort Heresies</div>' +
         lnk('https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf', 'Theological Heresies of Westcott and Hort', 'PDF') +
         lnk('https://scatteredchristrians.org/WescottHort.html', 'Scattered Christians - Westcott & Hort', '') +
         lnk('https://textusreceptusbibles.com/Editorial/Umlauts', 'Textus Receptus Bibles - Editorial Issues', '') +
         lnk('https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs', 'Differences Between Textus Receptus and NA/UBS', '') +
+
         '<div class="res-cat">NKJV Exposed</div>' +
         lnk('https://www.av1611.org/nkjv.html', 'AV1611 - NKJV Exposed', '') +
         lnk('https://www.tbsbibles.org/page/WhatTodaysChristianNeedsToKnowAboutTheNewKingJamesVersion', 'TBS - What Today\'s Christian Needs to Know About NKJV', '') +
         lnk('https://www.tbsbibles.org/page/DoesTheNKJVLiveUpToItsClaims', 'TBS - Does the NKJV Live Up to Its Claims?', '') +
         lnk('https://www.tbsbibles.org/page/TheNewKingJamesVersion', 'TBS - The New King James Version Overview', '') +
         lnk('https://cdn.ymaws.com/www.tbsbibles.org/resource/collection/D4DCAF37-AEB6-4CEC-880F-FD229A90560F/An-Examination-of-NKJV-Part-1.pdf', 'TBS - An Examination of the NKJV (Parts 1 & 2)', '') +
+
         '<div class="res-cat">Living Bible Exposed</div>' +
         lnk('https://cdn.ymaws.com/www.tbsbibles.org/resource/collection/D4DCAF37-AEB6-4CEC-880F-FD229A90560F/The-Living-Bible.pdf', 'TBS - The Living Bible Exposed', 'PDF') +
         lnk('https://www.jesus-is-savior.com/Bible/Living%20Bible/lb_exposed.htm', 'Jesus is Savior - Living Bible Exposed', '') +
         lnk('https://jesus-is-savior.com/Bible/NLT/nlt_exposed.htm', 'Jesus is Savior - NLT Bible Exposed', '') +
+
         '<div class="res-cat">ESV & NIV Exposed</div>' +
         lnk('https://brandplucked.com/is-the-esv-inerrant.html', 'Brandplucked - Is the ESV Inerrant?', '') +
         lnk('https://brandplucked.com/theesv.htm', 'Brandplucked - The ESV Examined', '') +
@@ -507,7 +525,7 @@ Deno.serve(async (req) => {
         lnk('https://www.jesus-is-savior.com/Bible/NIV/new_international_version_exposed.htm', 'Jesus is Savior - NIV Exposed', '') +
         '</div>';
     } else if (tab === 'about') {
-      bodyInner = dailyVerseCard + '<div style="max-width:800px;margin:0 auto;">' +
+      bodyInner = '<div style="max-width:800px;margin:0 auto;">' +
         '<h1 style="text-align:center;margin-bottom:16px;">About</h1>' +
         '<hr style="margin-bottom:32px;">' +
         '<div style="margin-bottom:32px;">' +
@@ -568,7 +586,7 @@ Deno.serve(async (req) => {
         '</div>' +
         '</div>';
     } else if (tab === 'debug') {
-      bodyInner = dailyVerseCard + '<div class="sec-title">Debug</div>' +
+      bodyInner = '<div class="sec-title">Debug</div>' +
         '<div class="sec-sub">System diagnostics and cache information</div>' +
         '<div class="box" style="margin-top:20px;"><h3>Debug Information</h3>' +
         '<p style="line-height:1.8;margin-bottom:12px;">This page provides system diagnostics for the legacy reader.</p>' +
