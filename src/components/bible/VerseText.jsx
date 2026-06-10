@@ -347,7 +347,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     // Pilcrow verse: render as a block (new paragraph) with gap above, no indent
     if (hasPilcrow && !isFirstVerse) {
       return (
-        <span id={id} className="block relative pt-8 scroll-mt-24">
+        <span id={id} className="block relative mt-12 scroll-mt-24">
           {stanzaHeading}
           <span
             onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
@@ -432,7 +432,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     );
   }
   return (
-    <span id={id} className={`block relative scroll-mt-24 ${hasPilcrow && !isFirstVerse ? 'pt-8' : 'mt-2'}`}>
+    <span id={id} className={`block relative scroll-mt-24 ${hasPilcrow && !isFirstVerse ? 'mt-12' : 'mt-2'}`}>
       {stanzaHeading}
       <span
         onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
