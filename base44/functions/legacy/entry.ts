@@ -1,6 +1,36 @@
 // Serves a standalone ES5-only KJB reader page (for IE11 / Windows Phone)
 // as real HTML with a public URL — works where static /public files don't.
+const TEXT_URL = "https://media.base44.com/files/public/6a05d76723afe58d80c589e8/e74bc3070_KingJamesBible-PureCambridgeEditionTextfile2.txt";
+
+let cachedBibleText = null;
+
+async function fetchBibleText() {
+  if (cachedBibleText) return cachedBibleText;
+  const res = await fetch(TEXT_URL);
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  const buf = await res.arrayBuffer();
+  cachedBibleText = new TextDecoder("windows-1252").decode(buf);
+  return cachedBibleText;
+}
+
 Deno.serve(async (req) => {
+  let bibleText = "";
+  try {
+    bibleText = await fetchBibleText();
+    console.log("[legacy] Bible text fetched, length:", bibleText.length);
+  } catch(e) {
+    console.error("[legacy] Failed to fetch Bible text:", e.message);
+  }
+
+  // Escape for safe embedding inside a JS double-quoted string
+  const escapedBible = bibleText
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/\r?\n/g, "\\n")
+    .replace(/\r/g, "");
+  
+  console.log("[legacy] Escaped bible length:", escapedBible.length);
+
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -204,7 +234,7 @@ Deno.serve(async (req) => {
 <script type="text/javascript">
 (function () {
   "use strict";
-  var TEXT_URL = "https://media.base44.com/files/public/6a05d76723afe58d80c589e8/e74bc3070_KingJamesBible-PureCambridgeEditionTextfile2.txt";
+  var BIBLE_TEXT = "${escapedBible}";
   var ABBR_TO_NAME = {
     "Ge":"Genesis","Ex":"Exodus","Le":"Leviticus","Nu":"Numbers","De":"Deuteronomy",
     "Jos":"Joshua","Jg":"Judges","Ru":"Ruth","1Sa":"1 Samuel","2Sa":"2 Samuel",
@@ -237,7 +267,6 @@ Deno.serve(async (req) => {
   var prevBtn = null;
   var nextBtn = null;
   var statusDiv = null;
-  var cacheBadge = null;
   var dailyDiv = null;
   var dtext = null;
   var dref = null;
@@ -246,12 +275,12 @@ Deno.serve(async (req) => {
   var fillBooks = function(){ for(var i=0;i<availableBooks.length;i++){ var opt = document.createElement("option"); opt.value = availableBooks[i]; opt.textContent = availableBooks[i]; bookSel.appendChild(opt); } };
   var fillChapters = function(book){ chapSel.innerHTML = ""; var chaps = chaptersFor(book); for(var i=0;i<chaps.length;i++){ var opt = document.createElement("option"); opt.value = chaps[i]; opt.textContent = chaps[i]; chapSel.appendChild(opt); } };
 
-  var loadText = function(url,callback,errback){ var xhr = new XMLHttpRequest(); xhr.open("GET", url, true); xhr.onreadystatechange = function(){ if(xhr.readyState === 4){ if(xhr.status === 200 || xhr.status === 0){ callback(xhr.responseText); } else { errback("HTTP " + xhr.status); } } }; xhr.onerror = function(){ errback("Network error"); }; xhr.send(); };
+
   var showDailyVerse = function(){ try { var now = new Date(); var day = now.getDate(); var month = now.getMonth() + 1; var year = now.getFullYear(); var start = new Date(year, 0, 1); var diff = now - start; var oneDay = 1000 * 60 * 60 * 24; var dayOfYear = Math.floor(diff / oneDay) + 1; var seed = dayOfYear + year; var bookIdx = seed % availableBooks.length; var book = availableBooks[bookIdx]; var chaps = chaptersFor(book); var chapIdx = (seed * 7) % chaps.length; var chapter = chaps[chapIdx]; var verses = []; for(var i=0;i<allBooks.length;i++){ if(allBooks[i].book===book && allBooks[i].chapter===chapter){ verses.push(allBooks[i]); } } if(verses.length===0){ return; } var verseIdx = (seed * 13) % verses.length; var verse = verses[verseIdx]; var ref = book + " " + chapter + ":" + verse.verse; if(EXCLUDED_REFS[ref]){ verseIdx = (verseIdx + 1) % verses.length; verse = verses[verseIdx]; ref = book + " " + chapter + ":" + verse.verse; } var text = verse.text.replace(/<em[^>]*>|<\/em>/g, ""); dtext.textContent = '"' + text + '"'; dref.textContent = "— " + ref + " (KJB)"; dailyDiv.style.display = "block"; } catch(e){ } };
   var setStatus = function(msg,isErr){ statusDiv.innerHTML = msg; if(isErr){ statusDiv.className = "status err"; } else { statusDiv.className = "status"; } };
   var onLoaded = function(text){ parseBible(text); if(!availableBooks.length){ setStatus("Bible text could not be read on this device.",true); return; } fillBooks(); bookSel.value=availableBooks[0]; fillChapters(availableBooks[0]); setStatus(""); showDailyVerse(); showChapter(availableBooks[0],chaptersFor(availableBooks[0])[0]); };
   var initTabs = function(){ var tabBtns = document.querySelectorAll('.tab-btn'); for(var i=0;i<tabBtns.length;i++){ (function(btn){ btn.addEventListener('click', function(){ for(var j=0;j<tabBtns.length;j++){ tabBtns[j].classList.remove('active'); } btn.classList.add('active'); var sections = document.querySelectorAll('.page-section'); for(var k=0;k<sections.length;k++){ sections[k].classList.remove('active'); } var tabId = btn.getAttribute('data-tab') + '-section'; var section = document.getElementById(tabId); if(section){ section.classList.add('active'); } }); })(tabBtns[i]); } };
-  var init = function(){ bookSel = document.getElementById("bookSel"); chapSel = document.getElementById("chapSel"); contentDiv = document.getElementById("content"); refTitle = document.getElementById("refTitle"); navDiv = document.getElementById("nav"); prevBtn = document.getElementById("prevBtn"); nextBtn = document.getElementById("nextBtn"); statusDiv = document.getElementById("status"); dailyDiv = document.getElementById("daily"); dtext = document.getElementById("dtext"); dref = document.getElementById("dref"); bookSel.addEventListener("change", function(){ fillChapters(bookSel.value); }); chapSel.addEventListener("change", function(){ }); goBtn.addEventListener("click", function(){ var book = bookSel.value; var chapter = chapSel.value; showChapter(book, chapter); }); prevBtn.addEventListener("click", function(){ var book = bookSel.value; var chaps = chaptersFor(book); var chapter = chapSel.value; var chapIdx = chaps.indexOf(chapter); if(chapIdx > 0){ showChapter(book, chaps[chapIdx - 1]); chapSel.value = chaps[chapIdx - 1]; } else { var bookIdx = availableBooks.indexOf(book); if(bookIdx > 0){ var prevBook = availableBooks[bookIdx - 1]; var prevChaps = chaptersFor(prevBook); var lastChap = prevChaps[prevChaps.length - 1]; bookSel.value = prevBook; fillChapters(prevBook); chapSel.value = lastChap; showChapter(prevBook, lastChap); } } }); nextBtn.addEventListener("click", function(){ var book = bookSel.value; var chaps = chaptersFor(book); var chapter = chapSel.value; var chapIdx = chaps.indexOf(chapter); if(chapIdx < chaps.length - 1){ showChapter(book, chaps[chapIdx + 1]); chapSel.value = chaps[chapIdx + 1]; } else { var bookIdx = availableBooks.indexOf(book); if(bookIdx < availableBooks.length - 1){ var nextBook = availableBooks[bookIdx + 1]; var nextChaps = chaptersFor(nextBook); var firstChap = nextChaps[0]; bookSel.value = nextBook; fillChapters(nextBook); chapSel.value = firstChap; showChapter(nextBook, firstChap); } } }); var goBtn = document.getElementById("goBtn"); initTabs(); setStatus("Loading Bible text&hellip; please wait."); loadText(TEXT_URL,function(text){ if(!text||text.length<1000){ setStatus("Could not load the Bible text. Please check your connection and refresh.",true); return; } onLoaded(text); },function(errMsg){ setStatus("Could not load the Bible text ("+esc(errMsg)+"). Please refresh.",true); }); };
+  var init = function(){ bookSel = document.getElementById("bookSel"); chapSel = document.getElementById("chapSel"); contentDiv = document.getElementById("content"); refTitle = document.getElementById("refTitle"); navDiv = document.getElementById("nav"); prevBtn = document.getElementById("prevBtn"); nextBtn = document.getElementById("nextBtn"); statusDiv = document.getElementById("status"); dailyDiv = document.getElementById("daily"); dtext = document.getElementById("dtext"); dref = document.getElementById("dref"); bookSel.addEventListener("change", function(){ fillChapters(bookSel.value); }); chapSel.addEventListener("change", function(){ }); goBtn.addEventListener("click", function(){ var book = bookSel.value; var chapter = chapSel.value; showChapter(book, chapter); }); prevBtn.addEventListener("click", function(){ var book = bookSel.value; var chaps = chaptersFor(book); var chapter = chapSel.value; var chapIdx = chaps.indexOf(chapter); if(chapIdx > 0){ showChapter(book, chaps[chapIdx - 1]); chapSel.value = chaps[chapIdx - 1]; } else { var bookIdx = availableBooks.indexOf(book); if(bookIdx > 0){ var prevBook = availableBooks[bookIdx - 1]; var prevChaps = chaptersFor(prevBook); var lastChap = prevChaps[prevChaps.length - 1]; bookSel.value = prevBook; fillChapters(prevBook); chapSel.value = lastChap; showChapter(prevBook, lastChap); } } }); nextBtn.addEventListener("click", function(){ var book = bookSel.value; var chaps = chaptersFor(book); var chapter = chapSel.value; var chapIdx = chaps.indexOf(chapter); if(chapIdx < chaps.length - 1){ showChapter(book, chaps[chapIdx + 1]); chapSel.value = chaps[chapIdx + 1]; } else { var bookIdx = availableBooks.indexOf(book); if(bookIdx < availableBooks.length - 1){ var nextBook = availableBooks[bookIdx + 1]; var nextChaps = chaptersFor(nextBook); var firstChap = nextChaps[0]; bookSel.value = nextBook; fillChapters(nextBook); chapSel.value = firstChap; showChapter(nextBook, firstChap); } } }); var goBtn = document.getElementById("goBtn"); initTabs(); if(!BIBLE_TEXT||BIBLE_TEXT.length<1000){ setStatus("Could not load the Bible text. Please refresh.",true); return; } onLoaded(BIBLE_TEXT); };
   if(document.readyState === "loading"){ document.addEventListener("DOMContentLoaded", init); } else { init(); }
 })();
 </script>
