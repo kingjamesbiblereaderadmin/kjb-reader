@@ -11,6 +11,75 @@ const BOOK_ORDER = [
   'Titus', 'Philemon', 'Hebrews', 'James', '1 Peter', '2 Peter', '1 John', '2 John', '3 John', 'Jude', 'Revelation'
 ];
 
+const FULL_BOOK_NAMES = {
+  'Genesis': 'The First Book of Moses, called Genesis',
+  'Exodus': 'The Second Book of Moses, called Exodus',
+  'Leviticus': 'The Third Book of Moses, called Leviticus',
+  'Numbers': 'The Fourth Book of Moses, called Numbers',
+  'Deuteronomy': 'The Fifth Book of Moses, called Deuteronomy',
+  'Joshua': 'The Book of Joshua',
+  'Judges': 'The Book of Judges',
+  'Ruth': 'The Book of Ruth',
+  '1 Samuel': 'The First Book of Samuel, otherwise called the First Book of the Kings',
+  '2 Samuel': 'The Second Book of Samuel, otherwise called the Second Book of the Kings',
+  '1 Kings': 'The First Book of the Kings',
+  '2 Kings': 'The Second Book of the Kings',
+  '1 Chronicles': 'The First Book of the Chronicles',
+  '2 Chronicles': 'The Second Book of the Chronicles',
+  'Ezra': 'The Book of Ezra',
+  'Nehemiah': 'The Book of Nehemiah',
+  'Esther': 'The Book of Esther',
+  'Job': 'The Book of Job',
+  'Psalms': 'The Book of Psalms',
+  'Proverbs': 'The Proverbs',
+  'Ecclesiastes': 'The Book of the Preacher, called Ecclesiastes',
+  'Song of Solomon': 'The Song of Solomon',
+  'Isaiah': 'The Book of the Prophet Isaiah',
+  'Jeremiah': 'The Book of the Prophet Jeremiah',
+  'Lamentations': 'The Lamentations of Jeremiah',
+  'Ezekiel': 'The Book of the Prophet Ezekiel',
+  'Daniel': 'The Book of the Prophet Daniel',
+  'Hosea': 'The Book of the Prophet Hosea',
+  'Joel': 'The Book of the Prophet Joel',
+  'Amos': 'The Book of the Prophet Amos',
+  'Obadiah': 'The Book of the Prophet Obadiah',
+  'Jonah': 'The Book of the Prophet Jonah',
+  'Micah': 'The Book of the Prophet Micah',
+  'Nahum': 'The Book of the Prophet Nahum',
+  'Habakkuk': 'The Book of the Prophet Habakkuk',
+  'Zephaniah': 'The Book of the Prophet Zephaniah',
+  'Haggai': 'The Book of the Prophet Haggai',
+  'Zechariah': 'The Book of the Prophet Zechariah',
+  'Malachi': 'The Book of the Prophet Malachi',
+  'Matthew': 'The Gospel According to Saint Matthew',
+  'Mark': 'The Gospel According to Saint Mark',
+  'Luke': 'The Gospel According to Saint Luke',
+  'John': 'The Gospel According to Saint John',
+  'Acts': 'The Acts of the Apostles',
+  'Romans': 'The Epistle of Paul the Apostle to the Romans',
+  '1 Corinthians': 'The First Epistle of Paul the Apostle to the Corinthians',
+  '2 Corinthians': 'The Second Epistle of Paul the Apostle to the Corinthians',
+  'Galatians': 'The Epistle of Paul the Apostle to the Galatians',
+  'Ephesians': 'The Epistle of Paul the Apostle to the Ephesians',
+  'Philippians': 'The Epistle of Paul the Apostle to the Philippians',
+  'Colossians': 'The Epistle of Paul the Apostle to the Colossians',
+  '1 Thessalonians': 'The First Epistle of Paul the Apostle to the Thessalonians',
+  '2 Thessalonians': 'The Second Epistle of Paul the Apostle to the Thessalonians',
+  '1 Timothy': 'The First Epistle of Paul the Apostle to Timothy',
+  '2 Timothy': 'The Second Epistle of Paul the Apostle to Timothy',
+  'Titus': 'The Epistle of Paul the Apostle to Titus',
+  'Philemon': 'The Epistle of Paul the Apostle to Philemon',
+  'Hebrews': 'The Epistle of Paul the Apostle to the Hebrews',
+  'James': 'The General Epistle of James',
+  '1 Peter': 'The First Epistle General of Peter',
+  '2 Peter': 'The Second Epistle General of Peter',
+  '1 John': 'The First Epistle General of John',
+  '2 John': 'The Second Epistle General of John',
+  '3 John': 'The Third Epistle General of John',
+  'Jude': 'The General Epistle of Jude',
+  'Revelation': 'The Revelation of Saint John the Divine'
+};
+
 const OT_BOOKS = ['Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy', 'Joshua', 'Judges', 'Ruth',
   '1 Samuel', '2 Samuel', '1 Kings', '2 Kings', '1 Chronicles', '2 Chronicles', 'Ezra', 'Nehemiah',
   'Esther', 'Job', 'Psalms', 'Proverbs', 'Ecclesiastes', 'Song of Solomon', 'Isaiah', 'Jeremiah',
@@ -200,6 +269,7 @@ Deno.serve(async (req) => {
   .chapter-header { text-align: center; margin: 32px 0 24px 0; }
   .chapter-book { font-size: 28px; font-weight: bold; color: #2d2a6e; display: block; }
   .chapter-num { font-size: 14px; color: #5b59a0; letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; display: block; }
+  .chapter-full-title { font-size: 18px; color: #666; margin-top: 4px; display: block; font-style: italic; }
 
   .subscript { text-align: center; font-size: 15px; color: #555; margin: 8px 0 12px 0; font-style: italic; }
   .subscript .pilcrow { font-style: normal; margin-right: 4px; }
@@ -423,6 +493,7 @@ var OT_BOOKS = ${JSON.stringify(OT_BOOKS)};
 var NT_BOOKS = ${JSON.stringify(NT_BOOKS)};
 var PSALM_SUBSCRIPTS = ${JSON.stringify(PSALM_SUBSCRIPTS)};
 var COLOPHONS = ${JSON.stringify(COLOPHONS)};
+var FULL_BOOK_NAMES = ${JSON.stringify(FULL_BOOK_NAMES)};
 var BIBLE_DATA = {};
 var TEXT_URL = '${TEXT_URL}';
 
@@ -432,6 +503,7 @@ function parseBibleText(text) {
   var currentBook = null;
   var currentChap = null;
   var titleBuffer = [];
+  var pendingFirstVerse = false;
 
   for (var i = 0; i < lines.length; i++) {
     var line = lines[i].trim();
@@ -443,6 +515,7 @@ function parseBibleText(text) {
       if (!data[currentBook]) data[currentBook] = {};
       data[currentBook][currentChap] = [];
       titleBuffer = [];
+      pendingFirstVerse = true;
       continue;
     }
 
@@ -453,13 +526,15 @@ function parseBibleText(text) {
         var verseText = match[2].replace(/\[([^\]]+)\]/g, '<em>$1</em>');
         data[currentBook][currentChap].push({ v: verseNum, t: verseText });
       }
+      pendingFirstVerse = false;
       titleBuffer = [];
       continue;
     }
 
-    if (currentBook && currentChap && data[currentBook][currentChap].length === 0) {
+    if (pendingFirstVerse && currentBook && currentChap && data[currentBook][currentChap].length === 0) {
       var verseText = line.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
       data[currentBook][currentChap].push({ v: '1', t: verseText });
+      pendingFirstVerse = false;
       titleBuffer = [];
       continue;
     }
@@ -518,6 +593,7 @@ function updateDebugInfo() {
   info += '\\n== LocalStorage Cache ==\\n';
   info += 'Cache Key: ' + cacheKey + '\\n';
   info += 'Cached Data Size: ' + (cachedData ? (cachedData.length / 1024).toFixed(2) + ' KB' : 'Not found') + '\\n';
+  info += '\\n== FULL_BOOK_NAMES Available: ' + (typeof FULL_BOOK_NAMES !== 'undefined' ? 'Yes (' + Object.keys(FULL_BOOK_NAMES).length + ' books)' : 'No') + '\\n';
   document.getElementById('debug-info').textContent = info;
 }
 
@@ -578,7 +654,8 @@ function readChapter() {
   }
 
   var verses = BIBLE_DATA[book][chap];
-  var html = '<div class="chapter-header"><span class="chapter-book">' + book + '</span><span class="chapter-num">Chapter ' + chap + '</span></div>';
+  var fullBookName = FULL_BOOK_NAMES[book] || book;
+  var html = '<div class="chapter-header"><span class="chapter-book">' + fullBookName + '</span><span class="chapter-num">Chapter ' + chap + '</span></div>';
 
   var subscriptKey = book + ':' + chap;
   var subscript = PSALM_SUBSCRIPTS[chap];
