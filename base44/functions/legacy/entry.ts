@@ -491,7 +491,7 @@ function showTab(name, btn) {
   var showChapter = function(book, chapter) {
     var verses = BIBLE_DATA[book] ? (BIBLE_DATA[book][chapter] || []) : [];
     if (!verses.length) { contentDiv.innerHTML = "<p class='err'>Chapter not found.</p>"; return; }
-    refTitle.textContent = book + " " + chapter;
+    refTitle.innerHTML = book + "<br><span style='font-size:0.65em;font-weight:normal;color:#5b59a0;font-family:Arial,sans-serif;letter-spacing:0.05em;text-transform:uppercase;'>Chapter " + chapter + "</span>";
     refTitle.style.display = "block";
     var h = "";
     for (var v = 0; v < verses.length; v++) {
