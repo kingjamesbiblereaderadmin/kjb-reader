@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import { Info, Mail, MessageSquare, ExternalLink, BookOpen, Globe, ChevronDown, ChevronRight, Youtube, Instagram } from 'lucide-react';
 
+function TikTokLinkIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.72a4.85 4.85 0 01-1.01-.03z" />
+    </svg>
+  );
+}
+
 function AccordionSection({ title, children }) {
   const [open, setOpen] = useState(false);
   return (
@@ -135,6 +143,19 @@ export default function AboutPage() {
             <div>
               <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">YouTube</p>
               <p className="font-sans text-xs text-muted-foreground">@shawnr325av</p>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+          </a>
+          <a
+            href="https://www.tiktok.com/@svdbyfaithinr325av?_r=1&_t=ZS-96WRhWSLUoe"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
+          >
+            <TikTokLinkIcon className="w-4 h-4 text-foreground" />
+            <div>
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">TikTok</p>
+              <p className="font-sans text-xs text-muted-foreground">@svdbyfaithinr325av</p>
             </div>
             <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
           </a>

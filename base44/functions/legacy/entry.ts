@@ -579,6 +579,7 @@ Deno.serve(async (req) => {
         '<ul style="line-height:1.8;">' +
         '<li><a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank">God is Gracious 1031 Ministries</a></li>' +
         '<li><a href="https://youtube.com/@shawnr325av?si=zC_gQm4I2S_xj-NS" target="_blank">YouTube: @shawnr325av</a></li>' +
+        '<li><a href="https://www.tiktok.com/@svdbyfaithinr325av?_r=1&_t=ZS-96WRhWSLUoe" target="_blank">TikTok: @svdbyfaithinr325av</a></li>' +
         '<li><a href="https://www.instagram.com/svdbyfaithinhisbloodr325av?igsh=NTl0NmM1NWoyb2F0" target="_blank">Instagram: @svdbyfaithinhisbloodr325av</a></li>' +
         '<li><a href="mailto:kingjamesbiblereader@outlook.sg">Email: kingjamesbiblereader@outlook.sg</a></li>' +
         '<li><a href="https://discord.com/" target="_blank">Discord: shawn_svdbyfaithinhisbloodr325av</a></li>' +
