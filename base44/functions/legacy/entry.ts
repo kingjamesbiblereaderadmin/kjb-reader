@@ -121,84 +121,121 @@ Deno.serve(async (req) => {
     return r;
   };
 
-  // Parse the PCE text file format.
-  // Format: lines starting with "Ge 1:1 " or "Mt 5:3 " (abbr chapter:verse text)
-  var ABBR_MAP = {
-    "Ge":"Genesis","Ex":"Exodus","Le":"Leviticus","Nu":"Numbers","De":"Deuteronomy",
-    "Jos":"Joshua","Jg":"Judges","Ru":"Ruth","1Sa":"1 Samuel","2Sa":"2 Samuel",
-    "1Ki":"1 Kings","2Ki":"2 Kings","1Ch":"1 Chronicles","2Ch":"2 Chronicles",
-    "Ezr":"Ezra","Ne":"Nehemiah","Es":"Esther","Job":"Job","Ps":"Psalms","Pr":"Proverbs",
-    "Ec":"Ecclesiastes","Song":"Song of Solomon","Isa":"Isaiah","Jer":"Jeremiah",
-    "La":"Lamentations","Eze":"Ezekiel","Da":"Daniel","Ho":"Hosea","Joe":"Joel",
-    "Am":"Amos","Ob":"Obadiah","Jon":"Jonah","Mic":"Micah","Na":"Nahum",
-    "Hab":"Habakkuk","Zep":"Zephaniah","Hag":"Haggai","Zec":"Zechariah","Mal":"Malachi",
-    "Mt":"Matthew","Mr":"Mark","Lu":"Luke","Joh":"John","Ac":"Acts","Ro":"Romans",
-    "1Co":"1 Corinthians","2Co":"2 Corinthians","Ga":"Galatians","Eph":"Ephesians",
-    "Php":"Philippians","Col":"Colossians","1Th":"1 Thessalonians","2Th":"2 Thessalonians",
-    "1Ti":"1 Timothy","2Ti":"2 Timothy","Tit":"Titus","Phm":"Philemon","Heb":"Hebrews",
-    "Jas":"James","1Pe":"1 Peter","2Pe":"2 Peter","1Jo":"1 John","2Jo":"2 John",
-    "3Jo":"3 John","Jude":"Jude","Re":"Revelation"
+
+
+  // Book title mapping: uppercase title from file -> proper name
+  var TITLE_TO_BOOK = {
+    "GENESIS":"Genesis","EXODUS":"Exodus","LEVITICUS":"Leviticus","NUMBERS":"Numbers",
+    "DEUTERONOMY":"Deuteronomy","JOSHUA":"Joshua","JUDGES":"Judges","RUTH":"Ruth",
+    "1 SAMUEL":"1 Samuel","2 SAMUEL":"2 Samuel","1 KINGS":"1 Kings","2 KINGS":"2 Kings",
+    "1 CHRONICLES":"1 Chronicles","2 CHRONICLES":"2 Chronicles","EZRA":"Ezra",
+    "NEHEMIAH":"Nehemiah","ESTHER":"Esther","JOB":"Job","PSALMS":"Psalms",
+    "PROVERBS":"Proverbs","ECCLESIASTES":"Ecclesiastes","SONG OF SOLOMON":"Song of Solomon",
+    "ISAIAH":"Isaiah","JEREMIAH":"Jeremiah","LAMENTATIONS":"Lamentations",
+    "EZEKIEL":"Ezekiel","DANIEL":"Daniel","HOSEA":"Hosea","JOEL":"Joel","AMOS":"Amos",
+    "OBADIAH":"Obadiah","JONAH":"Jonah","MICAH":"Micah","NAHUM":"Nahum",
+    "HABAKKUK":"Habakkuk","ZEPHANIAH":"Zephaniah","HAGGAI":"Haggai",
+    "ZECHARIAH":"Zechariah","MALACHI":"Malachi","MATTHEW":"Matthew","MARK":"Mark",
+    "LUKE":"Luke","JOHN":"John","ACTS":"Acts","ROMANS":"Romans",
+    "1 CORINTHIANS":"1 Corinthians","2 CORINTHIANS":"2 Corinthians","GALATIANS":"Galatians",
+    "EPHESIANS":"Ephesians","PHILIPPIANS":"Philippians","COLOSSIANS":"Colossians",
+    "1 THESSALONIANS":"1 Thessalonians","2 THESSALONIANS":"2 Thessalonians",
+    "1 TIMOTHY":"1 Timothy","2 TIMOTHY":"2 Timothy","TITUS":"Titus","PHILEMON":"Philemon",
+    "HEBREWS":"Hebrews","JAMES":"James","1 PETER":"1 Peter","2 PETER":"2 Peter",
+    "1 JOHN":"1 John","2 JOHN":"2 John","3 JOHN":"3 John","JUDE":"Jude","REVELATION":"Revelation"
   };
 
   var parseBible = function(text) {
     bibleData = {};
     var lines = text.split("\\n");
+    var currentBook = null;
+    var currentChap = null;
+    var verseNum = 0;
     var matched = 0;
-    // PCE Wharton format: "Ge 1:1 In the beginning..."
-    var re = /^([A-Za-z0-9]+) (\d+):(\d+) (.+)$/;
+
+    // Accumulate multi-line title fragments (e.g. "THE FIRST BOOK OF MOSES," / "CALLED" / "GENESIS.")
+    var titleBuffer = [];
+    var inTitle = false;
+
     for (var i = 0; i < lines.length; i++) {
-      var line = lines[i].replace(/\\r$/, "").trim();
-      var m = re.exec(line);
-      if (!m) continue;
-      var abbr = m[1];
-      var bookName = ABBR_MAP[abbr];
-      if (!bookName) continue;
-      var chap = m[2];
-      var verse = m[3];
-      var verseText = m[4].replace(/\\[([^\\]]+)\\]/g, '<em class="ital">$1</em>');
-      matched++;
-      if (!bibleData[bookName]) bibleData[bookName] = {};
-      if (!bibleData[bookName][chap]) bibleData[bookName][chap] = [];
-      bibleData[bookName][chap].push({ verse: verse, text: verseText });
+      var line = lines[i].replace(/\r$/, "").trim();
+      if (!line) { titleBuffer = []; inTitle = false; continue; }
+
+      // Detect CHAPTER N line
+      var chapMatch = line.match(/^CHAPTER (\d+)$/);
+      if (chapMatch) {
+        currentChap = chapMatch[1];
+        verseNum = 0;
+        titleBuffer = [];
+        inTitle = false;
+        continue;
+      }
+
+      // Detect book title lines: all-caps, may end with period or comma
+      // Collect consecutive all-caps lines and try to extract book name
+      if (/^[A-Z][A-Z ,.\-0-9']+$/.test(line)) {
+        titleBuffer.push(line.replace(/[.,]$/g, "").trim());
+        // Try each fragment and combinations as a book name
+        var found = null;
+        // Try last fragment alone (e.g. "GENESIS")
+        var last = titleBuffer[titleBuffer.length - 1];
+        if (TITLE_TO_BOOK[last]) { found = TITLE_TO_BOOK[last]; }
+        // Try "1 SAMUEL" style (digit + space + word)
+        if (!found) {
+          for (var t = 0; t < titleBuffer.length; t++) {
+            var frag = titleBuffer[t];
+            if (TITLE_TO_BOOK[frag]) { found = TITLE_TO_BOOK[frag]; break; }
+            // Try combining with next
+            if (t + 1 < titleBuffer.length) {
+              var combo = frag + " " + titleBuffer[t+1];
+              if (TITLE_TO_BOOK[combo]) { found = TITLE_TO_BOOK[combo]; break; }
+            }
+          }
+        }
+        if (found) {
+          currentBook = found;
+          currentChap = null;
+          verseNum = 0;
+          titleBuffer = [];
+          if (!bibleData[currentBook]) bibleData[currentBook] = {};
+        }
+        continue;
+      }
+
+      // Verse line: starts with digit, or plain text (verse 1 has no number in this format)
+      if (currentBook && currentChap) {
+        titleBuffer = [];
+        var vMatch = line.match(/^(\d+)\s+(.+)$/);
+        if (vMatch) {
+          // Numbered verse (2, 3, 4...)
+          verseNum = parseInt(vMatch[1]);
+          var verseText = vMatch[2].replace(/\[([^\]]+)\]/g, '<em class="ital">$1</em>');
+          if (!bibleData[currentBook][currentChap]) bibleData[currentBook][currentChap] = [];
+          bibleData[currentBook][currentChap].push({ verse: String(verseNum), text: verseText });
+          matched++;
+        } else if (verseNum === 0) {
+          // First line of a chapter with no leading number = verse 1
+          verseNum = 1;
+          var vt = line.replace(/\[([^\]]+)\]/g, '<em class="ital">$1</em>');
+          if (!bibleData[currentBook][currentChap]) bibleData[currentBook][currentChap] = [];
+          bibleData[currentBook][currentChap].push({ verse: "1", text: vt });
+          matched++;
+        } else {
+          // Continuation of previous verse
+          var chData = bibleData[currentBook][currentChap];
+          if (chData && chData.length > 0) {
+            chData[chData.length - 1].text += " " + line.replace(/\[([^\]]+)\]/g, '<em class="ital">$1</em>');
+          }
+        }
+      } else {
+        titleBuffer = [];
+      }
     }
 
     // Build ordered book list
     availableBooks = [];
-    var seen = {};
     for (var k = 0; k < BOOK_ORDER.length; k++) {
-      if (bibleData[BOOK_ORDER[k]]) {
-        availableBooks.push(BOOK_ORDER[k]);
-        seen[BOOK_ORDER[k]] = true;
-      }
-    }
-    // Also catch any extra books not in BOOK_ORDER
-    for (var b in bibleData) {
-      if (bibleData.hasOwnProperty(b) && !seen[b]) availableBooks.push(b);
-    }
-
-    // Debug: log to page
-    var debugDiv = document.getElementById("debug");
-    if (debugDiv) {
-      var info = "Total lines: " + lines.length + "\\nMatched verses: " + matched + "\\nBooks found: " + availableBooks.length;
-      if (availableBooks.length > 0) {
-        info += "\\nFirst book: " + availableBooks[0];
-        var firstChaps = chaptersFor(availableBooks[0]);
-        if (firstChaps.length > 0) {
-          var firstVerses = bibleData[availableBooks[0]][firstChaps[0]];
-          info += "\\nFirst verse: " + (firstVerses && firstVerses[0] ? firstVerses[0].text.substring(0, 80) : "none");
-        }
-      }
-      if (matched === 0) {
-        // Show first few non-empty lines
-        var shown = 0;
-        info += "\\n\\nFirst 5 non-empty lines of file:";
-        for (var li = 0; li < lines.length && shown < 5; li++) {
-          var l = lines[li].trim();
-          if (l) { info += "\\n  [" + l.substring(0, 100) + "]"; shown++; }
-        }
-        debugDiv.style.display = "block";
-      }
-      debugDiv.textContent = info;
+      if (bibleData[BOOK_ORDER[k]]) availableBooks.push(BOOK_ORDER[k]);
     }
   };
 
@@ -315,6 +352,17 @@ Deno.serve(async (req) => {
     }
     parseBible(BIBLE_TEXT);
     if (!availableBooks.length) {
+      // Show debug: first 5 non-empty lines
+      var debugDiv = document.getElementById("debug");
+      var lines = BIBLE_TEXT.split("\\n");
+      var info = "Parse failed. First 5 non-empty lines:";
+      var shown = 0;
+      for (var li = 0; li < lines.length && shown < 5; li++) {
+        var l = lines[li].trim();
+        if (l) { info += "\\n  [" + l.substring(0, 120) + "]"; shown++; }
+      }
+      debugDiv.textContent = info;
+      debugDiv.style.display = "block";
       setStatus("Bible text could not be parsed on this device.", true);
       return;
     }
