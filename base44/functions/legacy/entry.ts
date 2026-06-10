@@ -635,12 +635,13 @@ function showTab(name, btn) {
   var CACHE_KEY = "kjb-legacy-bible-v1";
   var saveBibleCache = function() {
     try {
-      if (!localStorage.getItem(CACHE_KEY)) {
-        localStorage.setItem(CACHE_KEY, JSON.stringify(BIBLE_DATA));
-      }
-    } catch(e) {}
+      localStorage.setItem(CACHE_KEY, JSON.stringify(BIBLE_DATA));
+      console.log("[legacy] Cache saved:", (JSON.stringify(BIBLE_DATA).length / 1024).toFixed(2), "KB");
+    } catch(e) {
+      console.error("[legacy] Cache failed:", e.message);
+    }
   };
-  setTimeout(saveBibleCache, 500);
+  setTimeout(saveBibleCache, 1000);
 
   if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", init); } else { setTimeout(init, 0); }
 })();
