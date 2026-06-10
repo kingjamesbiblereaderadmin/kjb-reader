@@ -3,6 +3,10 @@ import { appParams } from '@/lib/app-params';
 
 export default function LegacyReader() {
   useEffect(() => {
+    // Allow bypass via query param for testing: /legacy?force=true
+    const urlParams = new URLSearchParams(window.location.search);
+    const forceLegacy = urlParams.get('force') === 'true';
+    
     // Detect legacy browsers BEFORE any React rendering
     const isLegacyBrowser = () => {
       // IE11 and below
@@ -25,8 +29,8 @@ export default function LegacyReader() {
       return false;
     };
 
-    // If NOT a legacy browser, redirect to main app
-    if (!isLegacyBrowser()) {
+    // If NOT a legacy browser AND no force param, redirect to main app
+    if (!isLegacyBrowser() && !forceLegacy) {
       window.location.replace('/');
       return;
     }
@@ -54,7 +58,9 @@ export default function LegacyReader() {
     <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',background:'#f7f7fb'}}>
       <div style={{textAlign:'center'}}>
         <p style={{fontFamily:'Arial,sans-serif',color:'#555',marginBottom:'8px'}}>Loading Legacy Reader...</p>
-        <p style={{fontFamily:'Arial,sans-serif',fontSize:'13px',color:'#888'}}>For older browsers</p>
+        <p style={{fontFamily:'Arial,sans-serif',fontSize:'13px',color:'#888'}}>
+          {new URLSearchParams(window.location.search).get('force') === 'true' ? '(Force mode)' : 'For older browsers'}
+        </p>
       </div>
     </div>
   );
