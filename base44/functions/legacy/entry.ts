@@ -788,7 +788,7 @@ function showTab(name, btn) {
   // Call after init so it doesn't block
   setTimeout(saveBibleCache, 500);
 
-  if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", init); } else { init(); }
+  if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", init); } else { setTimeout(init, 0); }
 })();
 </script>
 </body>
