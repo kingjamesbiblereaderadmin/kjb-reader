@@ -361,13 +361,14 @@ Deno.serve(async (req) => {
     }
     
     const metadata = {
-      books: books,
-      chapters: chapters,
-      colophons: colophons,
+      books: books || [],
+      chapters: chapters || {},
+      colophons: colophons || {},
       psalmSubscripts: PSALM_SUBSCRIPTS,
       fullBookNames: FULL_BOOK_NAMES
     };
     const metadataStr = JSON.stringify(metadata);
+    console.log('[LEGACY] Metadata prepared:', metadata.books.length, 'books');
     
     const html = '<!DOCTYPE html>' +
 '<html lang="en">' +
@@ -440,6 +441,9 @@ Deno.serve(async (req) => {
 '</div>' +
 '<div class="container">' +
 '<div id="tab-bible" class="tab-content active">' +
+'<div id="bible-loading" style="text-align:center;padding:40px;"><p style="font-family:Arial,sans-serif;font-size:14px;color:#555;">Loading Bible data...</p></div>' +
+'<div id="bible-error" style="display:none;text-align:center;padding:40px;"><p style="font-family:Arial,sans-serif;font-size:14px;color:#c00;">Failed to load Bible data. Please refresh.</p></div>' +
+'<div id="bible-content" style="display:none;">' +
 '<div class="controls-box">' +
 '<div class="control-group"><label for="bookSel">Book:</label><select id="bookSel" onchange="updateChapters()"></select></div>' +
 '<div class="control-group"><label for="chapSel">Chapter:</label><select id="chapSel"></select></div>' +
@@ -447,6 +451,7 @@ Deno.serve(async (req) => {
 '</div>' +
 '<div id="status" class="status"></div>' +
 '<div id="chapter-display"></div>' +
+'</div>' +
 '<div class="footer">King James Bible — Pure Cambridge Edition<br>Legacy version for old devices</div>' +
 '</div>' +
 '<div id="tab-gospel" class="tab-content">' +
@@ -497,7 +502,7 @@ Deno.serve(async (req) => {
 'function populateBooks(){var sel=document.getElementById(\'bookSel\');sel.innerHTML=\'\';var otGroup=document.createElement(\'optgroup\');otGroup.label=\'Old Testament\';for(var i=0;i<OT_BOOKS.length;i++){if(METADATA.books.indexOf(OT_BOOKS[i])!==-1){var opt=document.createElement(\'option\');opt.value=OT_BOOKS[i];opt.textContent=OT_BOOKS[i];otGroup.appendChild(opt);}}sel.appendChild(otGroup);var ntGroup=document.createElement(\'optgroup\');ntGroup.label=\'New Testament\';for(var j=0;j<NT_BOOKS.length;j++){if(METADATA.books.indexOf(NT_BOOKS[j])!==-1){var opt2=document.createElement(\'option\');opt2.value=NT_BOOKS[j];opt2.textContent=NT_BOOKS[j];ntGroup.appendChild(opt2);}}sel.appendChild(ntGroup);updateChapters();}' +
 'function updateChapters(){var book=document.getElementById(\'bookSel\').value;var sel=document.getElementById(\'chapSel\');sel.innerHTML=\'\';if(METADATA.books.indexOf(book)!==-1){var chapters=METADATA.chapters[book]||[];for(var i=0;i<chapters.length;i++){var opt=document.createElement(\'option\');opt.value=chapters[i];opt.textContent=chapters[i];sel.appendChild(opt);}}if(chapters.length>0){setTimeout(function(){readChapter();},100);}}' +
 'function readChapter(){var book=document.getElementById(\'bookSel\').value;var chap=document.getElementById(\'chapSel\').value;console.log(\'[LEGACY] readChapter:\',book,chap);if(!book||!chap){document.getElementById(\'chapter-display\').innerHTML=\'<p>Please select a book and chapter.</p>\';return;}document.getElementById(\'chapter-display\').innerHTML=\'<p>Loading chapter...</p>\';fetchChapterData(book,chap,function(err,verses){if(err){document.getElementById(\'chapter-display\').innerHTML=\'<p>Error: \'+err.message+\'</p>\';return;}var fullBookName=FULL_BOOK_NAMES[book]||book;var html=\'<div class="chapter-display"><div class="chapter-header"><span class="chapter-book">\'+fullBookName+\'</span><span class="chapter-num">Chapter \'+chap+\'</span></div>\';var subscriptKey=book+\':\'+chap;var subscript=PSALM_SUBSCRIPTS[chap];if(book===\'Psalms\'&&subscript){var subHtml=subscript.replace(/\\[([^\\]]+)\\]/g,\'<em>$1</em>\');html+=\'<div class="subscript">\'+subHtml+\'</div>\';}html+=\'<div class="verses">\';for(var v=0;v<verses.length;v++){var verseText=verses[v].text;var hasPilcrow=verseText.indexOf(\'¶\')!==-1;verseText=verseText.replace(/¶\\s*/g,\'\');verseText=verseText.replace(/\\[([^\\]]+)\\]/g,\'<em>$1</em>\');if(hasPilcrow){html+=\'<div class="verse-pilcrow">¶</div>\';}html+=\'<div class="verse"><span class="verse-num">\'+verses[v].verse+\'</span> \'+verseText+\'</div>\';}html+=\'</div>\';var colophon=COLOPHONS[subscriptKey];if(colophon){var colophonHtml=colophon.replace(/\\[([^\\]]+)\\]/g,\'<em>$1</em>\');html+=\'<div class="colophon">\'+colophonHtml+\'</div>\';}html+=\'</div>\';document.getElementById(\'chapter-display\').innerHTML=html;window.scrollTo(0,0);});}' +
-'window.addEventListener(\'load\',function(){console.log(\'[LEGACY] Window loaded\');var statusDiv=document.getElementById(\'status\');statusDiv.innerHTML=\'<div class="status success">✓ Ready (\'+METADATA.books.length+\' books)</div>\';populateBooks();var bookSel=document.getElementById(\'bookSel\');if(bookSel&&bookSel.value){readChapter();}});' +
+'window.addEventListener(\'load\',function(){console.log(\'[LEGACY] Window loaded, books:\',METADATA.books.length);var loadingDiv=document.getElementById(\'bible-loading\');var errorDiv=document.getElementById(\'bible-error\');var contentDiv=document.getElementById(\'bible-content\');if(METADATA.books&&METADATA.books.length>0){loadingDiv.style.display=\'none\';contentDiv.style.display=\'block\';var statusDiv=document.getElementById(\'status\');statusDiv.innerHTML=\'<div class="status success">✓ Ready (\'+METADATA.books.length+\' books)</div>\';populateBooks();var bookSel=document.getElementById(\'bookSel\');if(bookSel&&bookSel.value){readChapter();}}else{console.error(\'[LEGACY] No books loaded\');loadingDiv.style.display=\'none\';errorDiv.style.display=\'block\';}});' +
 '</script>' +
 '</body>' +
 '</html>';
