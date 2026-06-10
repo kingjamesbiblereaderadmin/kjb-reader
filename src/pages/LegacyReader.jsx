@@ -26,6 +26,9 @@ export default function LegacyReader() {
       src={legacyUrl} 
       style={{width:'100%',height:'100vh',border:'none'}}
       title="Legacy Reader"
+      sandbox="allow-scripts allow-same-origin"
+      onLoad={() => console.log('[LegacyReader] iframe loaded')}
+      onError={() => console.error('[LegacyReader] iframe error')}
     />
   );
 }
