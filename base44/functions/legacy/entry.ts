@@ -635,6 +635,10 @@ Deno.serve(async (req) => {
         'if(window.location.hash){try{window.location.href=window.location.hash;}catch(e){}}' +
       '}' +
       'function makeXHR(){if(window.XMLHttpRequest){return new XMLHttpRequest();}try{return new ActiveXObject("Msxml2.XMLHTTP");}catch(e){}try{return new ActiveXObject("Microsoft.XMLHTTP");}catch(e){}return null;}' +
+      // A book is only counted "done" when it loads SUCCESSFULLY, so the % bar
+      // reflects real progress and never reveals a half-broken page. Each book
+      // retries persistently (long backoff, effectively unlimited) so flaky
+      // connections still complete the full download instead of stalling at 82%.
       'function load(i,tries){' +
         'if(i>=TOTAL){reveal();return;}' +
         'var xhr=makeXHR();' +
@@ -642,19 +646,20 @@ Deno.serve(async (req) => {
         'xhr.open("GET",BASE+i,true);' +
         'xhr.onreadystatechange=function(){' +
           'if(xhr.readyState===4){' +
-            'if(xhr.status===200||xhr.status===0){' +
+            'if((xhr.status===200||xhr.status===0)&&xhr.responseText){' +
               'parts[i]=xhr.responseText;done++;' +
               'var p=Math.round(done*100/TOTAL);' +
               'if(bar){bar.style.width=p+"%";}if(pct){pct.innerHTML=p+"%";}' +
               'load(i+1,0);' +
-            '}else if(tries<5){' +
-              'setTimeout(function(){load(i,tries+1);},800);' +
             '}else{' +
-              'parts[i]="<div class=\\"fb-book\\"><p style=\\"color:#b02525\\">Could not load book "+(i+1)+". Refresh to retry.</p></div>";done++;load(i+1,0);' +
+              // Keep retrying this same book — never skip it. Backoff caps at 3s.
+              'var wait=Math.min(800+tries*400,3000);' +
+              'if(pct){pct.innerHTML=Math.round(done*100/TOTAL)+"% (retrying book "+(i+1)+"\\u2026)";}' +
+              'setTimeout(function(){load(i,tries+1);},wait);' +
             '}' +
           '}' +
         '};' +
-        'try{xhr.send(null);}catch(e){if(tries<5){setTimeout(function(){load(i,tries+1);},800);}else{reveal();}}' +
+        'try{xhr.send(null);}catch(e){setTimeout(function(){load(i,tries+1);},Math.min(800+tries*400,3000));}' +
       '}' +
       'function start(){load(0,0);}' +
       'if(window.addEventListener){window.addEventListener("load",start,false);}else if(window.attachEvent){window.attachEvent("onload",start);}else{window.onload=start;}' +
@@ -673,7 +678,7 @@ Deno.serve(async (req) => {
     // until the whole document has finished parsing (window.onload), so the
     // user never sees a half-rendered page mid-load.
     const loaderStyle = '#kjb-loader{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;overflow:auto;background:' + (isDark ? '#1a1a1e' : '#f5f5f7') + ';color:' + (isDark ? '#e5e5e5' : '#2d2a6e') + ';font-family:Arial,sans-serif;font-size:16px;text-align:center;padding-top:12vh;}#kjb-loader img{width:96px;height:96px;display:block;margin:0 auto 16px;}#kjb-loader .kjb-loader-title{font-family:Georgia,serif;font-size:22px;font-weight:bold;margin-bottom:6px;}#kjb-loader .kjb-loader-banner{max-width:560px;margin:24px auto 0;text-align:left;}#kjb-progress{max-width:320px;margin:18px auto 4px;height:14px;background:' + (isDark ? '#2a2a33' : '#e0e0ec') + ';border:1px solid ' + (isDark ? '#3a3d4a' : '#c9c7e0') + ';border-radius:7px;overflow:hidden;}#kjb-bar{height:100%;width:0;background:' + (isDark ? '#7c7ceb' : '#2d2a6e') + ';}#kjb-pct{font-size:13px;color:' + (isDark ? '#aaa' : '#666') + ';}body.kjb-ready #kjb-loader{display:none;}body:not(.kjb-ready) #wrap,body:not(.kjb-ready) .banner,body:not(.kjb-ready) .hdr{visibility:hidden;}';
-    const loaderHtml = '<div id="kjb-loader"><img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader"><div class="kjb-loader-title">KJB Reader (Legacy)</div>Downloading the full Bible&hellip;<br><span style="font-size:13px;color:' + (isDark ? '#aaa' : '#666') + ';">Loading in sections so it works on slow connections. Please wait.</span><div style="max-width:420px;margin:14px auto 0;padding:10px 14px;border:1px solid ' + (isDark ? '#3a3d4a' : '#c9c7e0') + ';border-radius:8px;background:' + (isDark ? '#2a2a33' : '#eceaf8') + ';font-size:13px;line-height:1.5;color:' + (isDark ? '#d0d0d8' : '#444') + ';">&#9888; Using an old or unsupported device or browser? Some features may not work &mdash; please upgrade to the latest browser or device for the best, most secure experience.</div><div id="kjb-progress"><div id="kjb-bar"></div></div><div id="kjb-pct">0%</div><div class="kjb-loader-banner">' + banner + '</div></div>';
+    const loaderHtml = '<div id="kjb-loader"><img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader"><div class="kjb-loader-title">KJB Reader (Legacy)</div>Downloading the full Bible&hellip;<br><span style="font-size:13px;color:' + (isDark ? '#aaa' : '#666') + ';">Loading in sections so it works on slow connections. Please wait.</span><div id="kjb-progress"><div id="kjb-bar"></div></div><div id="kjb-pct">0%</div><div class="kjb-loader-banner">' + banner + '</div></div>';
 
     const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>KJB Reader (Legacy)</title><style>' + STYLE + (isDark ? DARK_STYLE : '') + loaderStyle + '</style></head><body>' + loaderHtml + '<div class="hdr"><h1>KJB Reader (Legacy)</h1><p>King James Bible &mdash; Pure Cambridge Edition</p></div>' + banner + '<div class="wrap" id="wrap">' + bodyInner + '</div>' + SECTION_SCRIPT + '</body></html>';
 
