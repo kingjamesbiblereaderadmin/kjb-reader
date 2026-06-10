@@ -253,6 +253,7 @@ Deno.serve(async (req) => {
   <button type="button" class="tab-btn" onclick="showTab('gospel',this)">Gospel</button>
   <button type="button" class="tab-btn" onclick="showTab('resources',this)">Resources</button>
   <button type="button" class="tab-btn" onclick="showTab('about',this)">About</button>
+  <button type="button" class="tab-btn" onclick="showTab('debug',this)">Debug</button>
 </div>
 
 <!-- BIBLE READER TAB -->
@@ -534,10 +535,18 @@ Deno.serve(async (req) => {
 </div>
 </div>
 
+<!-- DEBUG TAB -->
+<div class="tab-content" id="tab-debug">
+<div class="wrap">
+  <h2 style="color:#2d2a6e;margin:16px 0 4px 0;">Debug Information</h2>
+  <div id="debug-info" style="font-family:monospace; font-size:12px; white-space:pre-wrap; background:#ffffff; border:1px solid #dddddd; padding:10px; border-radius:4px; line-height:1.5;"></div>
+</div>
+</div>
+
 <script type="text/javascript">
 // Tab switching
 function showTab(name, btn) {
-  var tabs = ["reader","gospel","resources","about"];
+  var tabs = ["reader","gospel","resources","about", "debug"];
   for (var i = 0; i < tabs.length; i++) {
     var el = document.getElementById("tab-" + tabs[i]);
     if (el) el.className = "tab-content" + (tabs[i] === name ? " active" : "");
@@ -587,6 +596,35 @@ function showTab(name, btn) {
     debugInfo.innerHTML = html;
   };
 
+    var updateDebugInfo = function() {
+    if (!debugInfoDiv) return;
+    var info = "";
+    info += "Bible Data Source: " + (Object.keys(_injected).length > 0 ? "Injected from Server" : "localStorage Cache") + "\n";
+    info += "Bible Data Loaded: " + (BIBLE_DATA && Object.keys(BIBLE_DATA).length > 0 ? "Yes" : "No") + "\n";
+    info += "Total Books Loaded: " + availableBooks.length + "/66\n";
+    info += "Current Book: " + (bookSel ? bookSel.value : "N/A") + "\n";
+    info += "Current Chapter: " + (chapSel ? chapSel.value : "N/A") + "\n";
+    
+    var dailyText = dtext ? dtext.textContent : "N/A";
+    var dailyRef = dref ? dref.textContent : "N/A";
+    info += "\n== Daily Verse ==\n";
+    info += "Text: " + dailyText + "\n";
+    info += "Ref: " + dailyRef + "\n";
+
+    var cacheKey = "kjb-legacy-bible-v1";
+    var cachedData;
+    try {
+        cachedData = localStorage.getItem(cacheKey);
+    } catch(e) {
+        cachedData = "Error reading localStorage";
+    }
+    info += "\n== LocalStorage Cache ==\n";
+    info += "Cache Key: " + cacheKey + "\n";
+    info += "Cached Data Size: " + (cachedData ? (cachedData.length / 1024).toFixed(2) + " KB" : "Not found") + "\n";
+
+    debugInfoDiv.textContent = info;
+  };
+
   var showChapter = function(book, chapter) {
     var verses = BIBLE_DATA[book] ? (BIBLE_DATA[book][chapter] || []) : [];
     if (!verses.length) { contentDiv.innerHTML = "<p class='err'>Chapter not found.</p>"; return; }
@@ -606,6 +644,7 @@ function showTab(name, btn) {
     nextBtn.disabled = !hasNext; nextBtn.style.opacity = hasNext ? "1" : "0.4";
     navDiv.style.display = "block";
     window.scrollTo(0, 0);
+    updateDebugInfo();
     updateDebugInfo();
   };
 
@@ -719,6 +758,7 @@ function showTab(name, btn) {
     dailyDiv = document.getElementById("daily");
     dtext = document.getElementById("dtext");
     dref = document.getElementById("dref");
+    debugInfoDiv = document.getElementById("debug-info");
     debugInfo = document.getElementById("debugInfo");
 
     bookSel.addEventListener("change", function() { fillChapters(bookSel.value); });
@@ -745,6 +785,7 @@ function showTab(name, btn) {
     statusDiv.textContent = "";
     showDailyVerse();
     showChapter(availableBooks[0], chaptersFor(availableBooks[0])[0]);
+    updateDebugInfo();
     updateDebugInfo();
   };
 
