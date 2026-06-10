@@ -672,21 +672,34 @@ function fetchChapterData(book, chapter, callback) {
 }
 
 function switchTab(name) {
+  console.log('[LEGACY] switchTab:', name);
+  
+  // Hide all tabs
   var tabContents = document.querySelectorAll('.tab-content');
   for (var i = 0; i < tabContents.length; i++) {
     tabContents[i].classList.remove('active');
   }
+  
+  // Show requested tab
   var tabElement = document.getElementById('tab-' + name);
   if (tabElement) {
     tabElement.classList.add('active');
+    console.log('[LEGACY] Showed tab:', name);
+  } else {
+    console.error('[LEGACY] Tab not found:', name);
   }
+  
+  // Update button states
   var tabButtons = document.querySelectorAll('.tab-btn');
   for (var j = 0; j < tabButtons.length; j++) {
-    tabButtons[j].classList.remove('active');
+    var btn = tabButtons[j];
+    if (btn.textContent.toLowerCase().indexOf(name) === 0) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
   }
-  if (event && event.target) {
-    event.target.classList.add('active');
-  }
+  
   if (name === 'debug') { updateDebugInfo(); }
 }
 
