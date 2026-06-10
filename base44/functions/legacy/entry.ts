@@ -416,116 +416,78 @@ Deno.serve(async (req) => {
 
       bodyInner = dv + form + content + navLinks;
     } else if (tab === 'gospel') {
-      bodyInner = '<div style="text-align:center;margin-bottom:40px;">' +
-        '<h1 style="font-size:32px;font-weight:bold;color:#2d2a6e;margin-bottom:12px;">How to be Saved</h1>' +
-        '<p style="font-size:14px;color:#666;margin-bottom:8px;">The Gospel is the glad tidings of the Lord Jesus Christ:</p>' +
-        '<p style="font-size:14px;color:#666;">Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.</p>' +
-        '<div style="width:64px;height:1px;background:#2d2a6e;margin:16px auto;"></div>' +
-        '</div>' +
-        '<div style="background:#fff;border:1px solid #e0e0ec;border-left:4px solid #ef4444;padding:16px;margin-bottom:16px;">' +
-        '<div style="display:flex;gap:16px;">' +
-        '<div style="flex-shrink:0;width:40px;height:40px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>' +
-        '<div style="flex:1;">' +
-        '<h3 style="font-size:18px;font-weight:600;margin-bottom:8px;">Believe you are a sinner that deserves hell</h3>' +
-        '<blockquote style="border-left:2px solid #2d2a6e;padding-left:12px;margin:12px 0;font-style:italic;color:#555;">"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin." &mdash; Romans 3:20</blockquote>' +
-        '<blockquote style="border-left:2px solid #2d2a6e;padding-left:12px;margin:12px 0;font-style:italic;color:#555;">"The wicked shall be turned into hell, and all the nations that forget God." &mdash; Psalm 9:17</blockquote>' +
-        '</div></div></div>' +
-        '<div style="background:#fff;border:1px solid #e0e0ec;border-left:4px solid #3b82f6;padding:16px;margin-bottom:16px;">' +
-        '<div style="display:flex;gap:16px;">' +
-        '<div style="flex-shrink:0;width:40px;height:40px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>' +
-        '<div style="flex:1;">' +
-        '<h3 style="font-size:18px;font-weight:600;margin-bottom:8px;">Believe that Jesus is God manifested in the flesh</h3>' +
-        '<blockquote style="border-left:2px solid #2d2a6e;padding-left:12px;margin:12px 0;font-style:italic;color:#555;">"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory." &mdash; 1 Timothy 3:16</blockquote>' +
-        '</div></div></div>' +
-        '<div style="background:#fff;border:1px solid #e0e0ec;border-left:4px solid #eab308;padding:16px;margin-bottom:16px;">' +
-        '<div style="display:flex;gap:16px;">' +
-        '<div style="flex-shrink:0;width:40px;height:40px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>' +
-        '<div style="flex:1;">' +
-        '<h3 style="font-size:18px;font-weight:600;margin-bottom:8px;">Believe he died, shed his blood, was buried and rose again</h3>' +
-        '<blockquote style="border-left:2px solid #2d2a6e;padding-left:12px;margin:12px 0;font-style:italic;color:#555;">"Moreover, brethren, I declare unto you the gospel which I preached unto you, which also ye have received, and wherein ye stand; By which also ye are saved, if ye keep in memory what I preached unto you, unless ye have believed in vain. For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." &mdash; 1 Corinthians 15:1&ndash;4</blockquote>' +
-        '<blockquote style="border-left:2px solid #2d2a6e;padding-left:12px;margin:12px 0;font-style:italic;color:#555;">"Whom God hath set forth to be a propitiation through faith in his blood, to declare his righteousness for the remission of sins that are past, through the forbearance of God;" &mdash; Romans 3:25</blockquote>' +
-        '</div></div></div>' +
-        '<div style="background:#fef2f2;border:1px solid #fecaca;border-left:4px solid #ef4444;padding:16px;margin-bottom:16px;">' +
-        '<div style="display:flex;gap:16px;">' +
-        '<div style="flex-shrink:0;width:40px;height:40px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>' +
-        '<div style="flex:1;">' +
-        '<h3 style="font-size:18px;font-weight:600;margin-bottom:8px;color:#b91c1c;">These do NOT make you a Christian:</h3>' +
-        '<ul style="margin:0;padding-left:20px;font-size:14px;color:#555;">' +
-        '<li>Repenting of sins</li>' +
-        '<li>Making Jesus Lord</li>' +
-        '<li>Being a member of a church</li>' +
-        '<li>Tithing</li>' +
-        '<li>Being baptised (water)</li>' +
-        '<li>Saying a sinner\'s prayer</li>' +
-        '<li>Confessing with your mouth</li>' +
-        '<li>Lordship Salvation</li>' +
-        '</ul></div></div></div>' +
-        '<div style="background:#fff;border:1px solid #e0e0ec;padding:16px;margin-bottom:16px;">' +
-        '<h3 style="font-size:18px;font-weight:600;margin-bottom:8px;">Once Saved, Always Saved</h3>' +
-        '<p style="font-size:14px;color:#555;margin-bottom:12px;">A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life. God\'s gift of eternal life is just that &mdash; eternal.</p>' +
-        '<blockquote style="border-left:2px solid #2d2a6e;padding-left:12px;margin:12px 0;font-style:italic;color:#555;">"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." &mdash; Ephesians 1:13</blockquote>' +
-        '</div>' +
-        '<h2 style="font-size:24px;font-weight:bold;margin:24px 0 16px;">Watch the Gospel</h2>' +
-        '<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;margin-bottom:16px;background:#000;"><iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube-nocookie.com/embed/znP9Dr6tOzU?rel=0&modestbranding=1&playsinline=1" title="THE GOSPEL THAT SAVES" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>' +
-        '<div style="background:#fff;border:1px solid #e0e0ec;padding:12px;margin-bottom:16px;">' +
-        '<p style="font-size:14px;font-weight:600;margin-bottom:4px;">THE GOSPEL THAT SAVES</p>' +
-        '<p style="font-size:12px;color:#666;margin-bottom:12px;">Robert Breaker</p>' +
-        '<a href="https://www.youtube.com/watch?v=znP9Dr6tOzU" target="_blank" style="display:inline-block;padding:8px 16px;background:#ef4444;color:#fff;text-decoration:none;font-size:14px;font-family:Arial,sans-serif;margin-right:8px;">Watch on YouTube</a>' +
-        '</div>' +
-        '<div style="background:#fff;border:1px solid #e0e0ec;padding:16px;">' +
-        '<h3 style="font-size:18px;font-weight:600;margin-bottom:12px;">Playlist on Gospel Videos</h3>' +
-        '<a href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq" target="_blank" style="display:inline-block;padding:10px 18px;background:#ef4444;color:#fff;text-decoration:none;font-size:14px;font-family:Arial,sans-serif;">Watch Full Playlist on YouTube</a>' +
-        '</div>';
+      bodyInner = '<h1 style="text-align:center;margin-bottom:24px;">How to be Saved</h1>' +
+        '<p style="text-align:center;margin-bottom:8px;">The Gospel is the glad tidings of the Lord Jesus Christ:</p>' +
+        '<p style="text-align:center;margin-bottom:24px;">Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.</p>' +
+        '<hr style="margin-bottom:24px;">' +
+        '<h2>1. Believe you are a sinner that deserves hell</h2>' +
+        '<blockquote><p>"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin." &mdash; Romans 3:20</p></blockquote>' +
+        '<blockquote><p>"The wicked shall be turned into hell, and all the nations that forget God." &mdash; Psalm 9:17</p></blockquote>' +
+        '<h2>2. Believe that Jesus is God manifested in the flesh</h2>' +
+        '<blockquote><p>"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory." &mdash; 1 Timothy 3:16</p></blockquote>' +
+        '<h2>3. Believe he died, shed his blood, was buried and rose again</h2>' +
+        '<blockquote><p>"Moreover, brethren, I declare unto you the gospel which I preached unto you, which also ye have received, and wherein ye stand; By which also ye are saved, if ye keep in memory what I preached unto you, unless ye have believed in vain. For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." &mdash; 1 Corinthians 15:1&ndash;4</p></blockquote>' +
+        '<blockquote><p>"Whom God hath set forth to be a propitiation through faith in his blood, to declare his righteousness for the remission of sins that are past, through the forbearance of God;" &mdash; Romans 3:25</p></blockquote>' +
+        '<h2>These do NOT make you a Christian:</h2>' +
+        '<ul><li>Repenting of sins</li><li>Making Jesus Lord</li><li>Being a member of a church</li><li>Tithing</li><li>Being baptised (water)</li><li>Saying a sinner\'s prayer</li><li>Confessing with your mouth</li><li>Lordship Salvation</li></ul>' +
+        '<h2>Once Saved, Always Saved</h2>' +
+        '<p>A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life. God\'s gift of eternal life is just that &mdash; eternal.</p>' +
+        '<blockquote><p>"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." &mdash; Ephesians 1:13</p></blockquote>' +
+        '<h2>Watch the Gospel</h2>' +
+        '<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;margin-bottom:16px;"><iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube-nocookie.com/embed/znP9Dr6tOzU?rel=0&modestbranding=1&playsinline=1" title="THE GOSPEL THAT SAVES" frameborder="0" allowfullscreen></iframe></div>' +
+        '<p><a href="https://www.youtube.com/watch?v=znP9Dr6tOzU" target="_blank">Watch "THE GOSPEL THAT SAVES" by Robert Breaker on YouTube</a></p>' +
+        '<p><a href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq" target="_blank">Watch Full Gospel Playlist on YouTube</a></p>';
     } else if (tab === 'resources') {
-      bodyInner = '<div style="text-align:center;margin-bottom:40px;">' +
-        '<h1 style="font-size:32px;font-weight:bold;color:#2d2a6e;margin-bottom:12px;">Resources</h1>' +
-        '<p style="font-size:14px;color:#666;">KJB defence materials, studies on modern version corruption, and links to free Bible study resources.</p>' +
-        '<div style="width:64px;height:1px;background:#2d2a6e;margin:16px auto;"></div>' +
-        '</div>' +
-        '<div style="background:#fff;border:1px solid #e0e0ec;padding:16px;margin-bottom:20px;">' +
-        '<div style="display:flex;gap:12px;align-items:start;">' +
-        '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' +
-        '<div>' +
-        '<h3 style="font-size:16px;font-weight:600;margin-bottom:8px;">KJBI.org &mdash; Free Online Bible College</h3>' +
-        '<p style="font-size:14px;color:#555;margin-bottom:12px;">King James Bible Institute &mdash; a free online Bible college for those who want to go deeper in God\'s Word.</p>' +
-        '<a href="https://kjbi.org" target="_blank" style="display:inline-block;padding:8px 16px;background:#2d2a6e;color:#fff;text-decoration:none;font-size:14px;font-family:Arial,sans-serif;">Visit KJBI.org</a>' +
-        '</div></div></div>' +
-        '<div style="background:#fff0f0;border:1px solid #fca5a5;padding:12px;margin-bottom:16px;">' +
-        '<p style="font-size:13px;color:#b91c1c;line-height:1.6;"><strong>Note:</strong> The resources below are for educational purposes only. I may not affirm all doctrinal statements of every resource or ministry linked here. Please use discernment and compare all things to the King James Bible.</p>' +
-        '</div>' +
-        '<h3 style="font-size:18px;font-weight:600;margin:24px 0 12px;border-bottom:2px solid #e0e0ec;padding-bottom:8px;">KJB Defence</h3>' +
-        '<a href="https://www.bibleprotector.com" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">Pure Cambridge Edition & Free Download</b><span style="display:block;color:#666;font-size:13px;">The definitive electronic text of the KJB</span></a>' +
-        '<a href="https://archive.org/details/wordgodwillkeepi0000faus" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">The Word of God Will Keep Its Infallibility</b><span style="display:block;color:#666;font-size:13px;">Historical book on Archive.org</span></a>' +
-        '<a href="https://kjvcompare.com/" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">KJV Compare</b><span style="display:block;color:#666;font-size:13px;">Hundreds of changes in modern versions</span></a>' +
-        '<h3 style="font-size:18px;font-weight:600;margin:24px 0 12px;border-bottom:2px solid #e0e0ec;padding-bottom:8px;">Why Modern Versions Are Corrupt</h3>' +
-        '<a href="https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">The Critical Text & Westcott-Hort</b><span style="display:block;color:#666;font-size:13px;">Theological heresies PDF</span></a>' +
-        '<a href="https://www.scionofzion.com/nkjv.htm" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">NKJV Exposed</b><span style="display:block;color:#666;font-size:13px;">The NKJV is NOT the KJB</span></a>' +
-        '<a href="https://www.youtube.com/watch?v=RmXBj2N9fhY" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">A Lamp in the Dark</b><span style="display:block;color:#666;font-size:13px;">Full documentary on YouTube</span></a>' +
-        '<h3 style="font-size:18px;font-weight:600;margin:24px 0 12px;border-bottom:2px solid #e0e0ec;padding-bottom:8px;">1 John 5:7 Defence</h3>' +
-        '<a href="https://kjvdebate.com/blog/f/i-john-57-the-1st-century-latinspain-connection" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">The 1st Century Latin/Spain Connection</b><span style="display:block;color:#666;font-size:13px;">Historical evidence</span></a>' +
-        '<a href="https://textus-receptus.com/wiki/1_John_5:7" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">Textus Receptus - 1 John 5:7</b><span style="display:block;color:#666;font-size:13px;">Wiki entry</span></a>' +
-        '<h3 style="font-size:18px;font-weight:600;margin:24px 0 12px;border-bottom:2px solid #e0e0ec;padding-bottom:8px;">Westcott & Hort Heresies</h3>' +
-        '<a href="https://scatteredchristians.org/WescottHort.html" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">Scattered Christians - Westcott & Hort</b><span style="display:block;color:#666;font-size:13px;">Analysis article</span></a>' +
-        '<a href="https://textusreceptusbibles.com/Editorial/Umlauts" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">Textus Receptus Bibles - Editorial Issues</b><span style="display:block;color:#666;font-size:13px;">Read more</span></a>' +
-        '<a href="https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">Differences Between Textus Receptus and NA/UBS</b><span style="display:block;color:#666;font-size:13px;">Compare texts</span></a>' +
-        '<h3 style="font-size:18px;font-weight:600;margin:24px 0 12px;border-bottom:2px solid #e0e0ec;padding-bottom:8px;">NKJV Exposed</h3>' +
-        '<a href="https://www.av1611.org/nkjv.html" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">AV1611 - NKJV Exposed</b><span style="display:block;color:#666;font-size:13px;">Comprehensive analysis</span></a>' +
-        '<a href="https://www.tbsbibles.org/page/WhatTodaysChristianNeedsToKnowAboutTheNewKingJamesVersion" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">TBS - What Today\'s Christian Needs to Know About NKJV</b><span style="display:block;color:#666;font-size:13px;">Read article</span></a>' +
-        '<a href="https://www.tbsbibles.org/page/DoesTheNKJVLiveUpToItsClaims" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">TBS - Does the NKJV Live Up to Its Claims?</b><span style="display:block;color:#666;font-size:13px;">Read article</span></a>' +
-        '<h3 style="font-size:18px;font-weight:600;margin:24px 0 12px;border-bottom:2px solid #e0e0ec;padding-bottom:8px;">ESV & NIV Exposed</h3>' +
-        '<a href="https://brandplucked.com/is-the-esv-inerrant.html" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">Brandplucked - Is the ESV Inerrant?</b><span style="display:block;color:#666;font-size:13px;">Read article</span></a>' +
-        '<a href="https://brandplucked.com/theesv.htm" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">Brandplucked - The ESV Examined</b><span style="display:block;color:#666;font-size:13px;">Read article</span></a>' +
-        '<a href="https://www.av1611.org/kjv/nivteen.html" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">AV1611 - NIV Exposed</b><span style="display:block;color:#666;font-size:13px;">Read article</span></a>' +
-        '<a href="https://www.jesus-is-savior.com/Bible/NIV/new_international_version_exposed.htm" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">Jesus is Savior - NIV Exposed</b><span style="display:block;color:#666;font-size:13px;">Comprehensive resource</span></a>';
+      bodyInner = '<h1 style="text-align:center;margin-bottom:24px;">Resources</h1>' +
+        '<p style="text-align:center;margin-bottom:24px;">KJB defence materials, studies on modern version corruption, and links to free Bible study resources.</p>' +
+        '<hr style="margin-bottom:24px;">' +
+        '<h2>KJBI.org &mdash; Free Online Bible College</h2>' +
+        '<p>King James Bible Institute &mdash; a free online Bible college for those who want to go deeper in God\'s Word.</p>' +
+        '<p><a href="https://kjbi.org" target="_blank">Visit KJBI.org</a></p>' +
+        '<p><em>Note: The resources below are for educational purposes only. I may not affirm all doctrinal statements of every resource or ministry linked here. Please use discernment and compare all things to the King James Bible.</em></p>' +
+        '<h2>KJB Defence</h2>' +
+        '<ul>' +
+        '<li><a href="https://www.bibleprotector.com" target="_blank">Pure Cambridge Edition & Free Download</a></li>' +
+        '<li><a href="https://archive.org/details/wordgodwillkeepi0000faus" target="_blank">The Word of God Will Keep Its Infallibility (Archive.org)</a></li>' +
+        '<li><a href="https://kjvcompare.com/" target="_blank">KJV Compare</a></li>' +
+        '</ul>' +
+        '<h2>Why Modern Versions Are Corrupt</h2>' +
+        '<ul>' +
+        '<li><a href="https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf" target="_blank">The Critical Text & Westcott-Hort (PDF)</a></li>' +
+        '<li><a href="https://www.scionofzion.com/nkjv.htm" target="_blank">NKJV Exposed</a></li>' +
+        '<li><a href="https://www.youtube.com/watch?v=RmXBj2N9fhY" target="_blank">A Lamp in the Dark &mdash; Full Documentary</a></li>' +
+        '</ul>' +
+        '<h2>1 John 5:7 Defence</h2>' +
+        '<ul>' +
+        '<li><a href="https://kjvdebate.com/blog/f/i-john-57-the-1st-century-latinspain-connection" target="_blank">The 1st Century Latin/Spain Connection</a></li>' +
+        '<li><a href="https://textus-receptus.com/wiki/1_John_5:7" target="_blank">Textus Receptus - 1 John 5:7</a></li>' +
+        '</ul>' +
+        '<h2>Westcott & Hort Heresies</h2>' +
+        '<ul>' +
+        '<li><a href="https://scatteredchristians.org/WescottHort.html" target="_blank">Scattered Christians - Westcott & Hort</a></li>' +
+        '<li><a href="https://textusreceptusbibles.com/Editorial/Umlauts" target="_blank">Textus Receptus Bibles - Editorial Issues</a></li>' +
+        '<li><a href="https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs" target="_blank">Differences Between Textus Receptus and NA/UBS</a></li>' +
+        '</ul>' +
+        '<h2>NKJV Exposed</h2>' +
+        '<ul>' +
+        '<li><a href="https://www.av1611.org/nkjv.html" target="_blank">AV1611 - NKJV Exposed</a></li>' +
+        '<li><a href="https://www.tbsbibles.org/page/WhatTodaysChristianNeedsToKnowAboutTheNewKingJamesVersion" target="_blank">TBS - What Today\'s Christian Needs to Know About NKJV</a></li>' +
+        '<li><a href="https://www.tbsbibles.org/page/DoesTheNKJVLiveUpToItsClaims" target="_blank">TBS - Does the NKJV Live Up to Its Claims?</a></li>' +
+        '</ul>' +
+        '<h2>ESV & NIV Exposed</h2>' +
+        '<ul>' +
+        '<li><a href="https://brandplucked.com/is-the-esv-inerrant.html" target="_blank">Brandplucked - Is the ESV Inerrant?</a></li>' +
+        '<li><a href="https://brandplucked.com/theesv.htm" target="_blank">Brandplucked - The ESV Examined</a></li>' +
+        '<li><a href="https://www.av1611.org/kjv/nivteen.html" target="_blank">AV1611 - NIV Exposed</a></li>' +
+        '<li><a href="https://www.jesus-is-savior.com/Bible/NIV/new_international_version_exposed.htm" target="_blank">Jesus is Savior - NIV Exposed</a></li>' +
+        '</ul>';
     } else if (tab === 'about') {
-      bodyInner = '<div style="text-align:center;margin-bottom:40px;">' +
-        '<h1 style="font-size:32px;font-weight:bold;color:#2d2a6e;margin-bottom:12px;">About</h1>' +
-        '<div style="width:64px;height:1px;background:#2d2a6e;margin:16px auto;"></div>' +
-        '</div>' +
-        '<div style="background:#fff;border:1px solid #e0e0ec;padding:16px;margin-bottom:16px;">' +
-        '<p style="line-height:1.8;margin-bottom:12px;">I\'m Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. I am a dispensational salvationist, rightly dividing the word of truth.</p>' +
-        '<h3 style="font-size:18px;font-weight:600;margin:20px 0 12px;border-bottom:2px solid #e0e0ec;padding-bottom:8px;">Statement of Faith</h3>' +
-        '<ul style="margin:0;padding-left:20px;font-size:14px;line-height:1.8;">' +
+      bodyInner = '<h1 style="text-align:center;margin-bottom:24px;">About</h1>' +
+        '<hr style="margin-bottom:24px;">' +
+        '<h2>About the Ministry</h2>' +
+        '<p>I\'m Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. I am a dispensational salvationist, rightly dividing the word of truth.</p>' +
+        '<h2>Statement of Faith</h2>' +
+        '<ul>' +
         '<li>The King James Bible is the infallible, perfect Word of God in the English language, translated from the Textus Receptus.</li>' +
         '<li>Westcott and Hort created the Critical Text based on Vatican and Egyptian manuscripts with hundreds of errors, used in the Revised Version of 1881.</li>' +
         '<li>Satan is the Devil, Lucifer, the king of Pride &mdash; his goal is to steal, kill and deceive.</li>' +
@@ -535,13 +497,15 @@ Deno.serve(async (req) => {
         '<li>Repenting of sins, water baptism, making Him Lord, or letting Him into your heart is NOT salvation.</li>' +
         '<li>I believe in the Pre-Tribulation Rapture and Once Saved Always Saved (OSAS).</li>' +
         '<li>I reject Catholicism, Calvinism, Pentecostalism, Mormonism, Jehovah\'s Witnesses, Lordship Salvation, and ROYS (repent of sins to be saved).</li>' +
-        '</ul></div>' +
-        '<h3 style="font-size:18px;font-weight:600;margin:24px 0 12px;border-bottom:2px solid #e0e0ec;padding-bottom:8px;">Links & Contact</h3>' +
-        '<a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">God is Gracious 1031 Ministries</b><span style="display:block;color:#666;font-size:13px;">Ministry Website</span></a>' +
-        '<a href="mailto:kingjamesbiblereader@outlook.sg" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">Email</b><span style="display:block;color:#666;font-size:13px;">kingjamesbiblereader@outlook.sg</span></a>' +
-        '<a href="https://youtube.com/@shawnr325av" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">YouTube</b><span style="display:block;color:#666;font-size:13px;">@shawnr325av</span></a>' +
-        '<a href="https://www.instagram.com/svdbyfaithinhisbloodr325av" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">Instagram</b><span style="display:block;color:#666;font-size:13px;">@svdbyfaithinhisbloodr325av</span></a>' +
-        '<a href="https://discord.com/" target="_blank" style="display:block;padding:12px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;margin-bottom:8px;"><b style="display:block;margin-bottom:4px;">Discord</b><span style="display:block;color:#666;font-size:13px;">shawn_svdbyfaithinhisbloodr325av</span></a>';
+        '</ul>' +
+        '<h2>Links & Contact</h2>' +
+        '<ul>' +
+        '<li><a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank">God is Gracious 1031 Ministries</a></li>' +
+        '<li><a href="mailto:kingjamesbiblereader@outlook.sg">Email: kingjamesbiblereader@outlook.sg</a></li>' +
+        '<li><a href="https://youtube.com/@shawnr325av" target="_blank">YouTube: @shawnr325av</a></li>' +
+        '<li><a href="https://www.instagram.com/svdbyfaithinhisbloodr325av" target="_blank">Instagram: @svdbyfaithinhisbloodr325av</a></li>' +
+        '<li><a href="https://discord.com/" target="_blank">Discord: shawn_svdbyfaithinhisbloodr325av</a></li>' +
+        '</ul>';
     } else if (tab === 'debug') {
       bodyInner = '<div class="sec-title">Debug</div>' +
         '<div class="sec-sub">System diagnostics and cache information</div>' +
