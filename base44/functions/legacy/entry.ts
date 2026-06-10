@@ -223,11 +223,14 @@ console.log('[LEGACY] Initialized with', METADATA.books.length, 'books');
 
 function switchTab(name) {
   document.querySelectorAll('.tab-content').forEach(function(el) { el.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(btn) { btn.classList.remove('active'); });
   var tab = document.getElementById('tab-' + name);
   if (tab) tab.classList.add('active');
-  document.querySelectorAll('.tab-btn').forEach(function(btn) {
-    btn.classList.toggle('active', btn.textContent.toLowerCase().startsWith(name));
-  });
+  var idx = ['bible','gospel','resources','about','debug'].indexOf(name);
+  if (idx >= 0) {
+    var btns = document.querySelectorAll('.tab-btn');
+    if (btns[idx]) btns[idx].classList.add('active');
+  }
 }
 
 function populateBooks() {
@@ -278,7 +281,7 @@ function readChapter() {
   
   document.getElementById('chapter-display').innerHTML = '<div class="loading">Loading ' + book + ' ' + chap + '...</div>';
   
-  var bookApiName = {'1 Samuel':'1Sa','2 Samuel':'2Sa','1 Kings':'1Ki','2 Kings':'2Ki','1 Chronicles':'1Ch','2 Chronicles':'2Ch','1 Corinthians':'1Co','2 Corinthians':'2Co','1 Thessalonians':'1Th','2 Thessalonians':'2Th','1 Timothy':'1Ti','2 Timothy':'2Ti','1 Peter':'1Pe','2 Peter':'2Pe','1 John':'1Jo','2 John':'2Jo','3 John':'3Jo','Song of Solomon':'Song'}[book] || book;
+  var bookApiName = {'Genesis':'Gen','Exodus':'Exo','Leviticus':'Lev','Numbers':'Num','Deuteronomy':'Deu','Joshua':'Jos','Judges':'Jdg','Ruth':'Rut','1 Samuel':'1Sa','2 Samuel':'2Sa','1 Kings':'1Ki','2 Kings':'2Ki','1 Chronicles':'1Ch','2 Chronicles':'2Ch','Ezra':'Ezr','Nehemiah':'Neh','Esther':'Est','Job':'Job','Psalms':'Psa','Proverbs':'Pro','Ecclesiastes':'Ecc','Song of Solomon':'Sol','Isaiah':'Isa','Jeremiah':'Jer','Lamentations':'Lam','Ezekiel':'Eze','Daniel':'Dan','Hosea':'Hos','Joel':'Joe','Amos':'Amo','Obadiah':'Oba','Jonah':'Jon','Micah':'Mic','Nahum':'Nah','Habakkuk':'Hab','Zephaniah':'Zep','Haggai':'Hag','Zechariah':'Zec','Malachi':'Mal','Matthew':'Mat','Mark':'Mar','Luke':'Luk','John':'Joh','Acts':'Act','Romans':'Rom','1 Corinthians':'1Co','2 Corinthians':'2Co','Galatians':'Gal','Ephesians':'Eph','Philippians':'Phi','Colossians':'Col','1 Thessalonians':'1Th','2 Thessalonians':'2Th','1 Timothy':'1Ti','2 Timothy':'2Ti','Titus':'Tit','Philemon':'Phm','Hebrews':'Heb','James':'Jas','1 Peter':'1Pe','2 Peter':'2Pe','1 John':'1Jo','2 John':'2Jo','3 John':'3Jo','Jude':'Jud','Revelation':'Rev'}[book] || book;
   
   var apiUrl = '/api/function/bibleApi';
   
