@@ -135,7 +135,7 @@ Deno.serve(async (req) => {
 '.hdr h1 { font-size:22px; }' +
 '.hdr p { font-size:12px; color:#cfcfe8; }' +
 '.tabs { width:100%; background:#3d3a80; font-size:0; }' +
-'.tabs a { display:inline-block; width:25%; padding:12px 2px; text-align:center; color:#cfcfe8; text-decoration:none; font-size:13px; font-family:Arial,sans-serif; }' +
+'.tabs a { display:inline-block; width:20%; padding:12px 2px; text-align:center; color:#cfcfe8; text-decoration:none; font-size:12px; font-family:Arial,sans-serif; }' +
 '.tabs a.on { background:#5b59a0; color:#fff; font-weight:bold; }' +
 '.wrap { max-width:760px; margin:0 auto; padding:16px; }' +
 '.box { background:#fff; padding:16px; margin-bottom:16px; border:1px solid #e0e0ec; }' +
@@ -207,6 +207,17 @@ Deno.serve(async (req) => {
         '<div class="box"><p>The King James Bible is the pure, infallible, perfect Word of God in the English language.</p>' +
         '<p style="margin-top:10px;"><a href="https://youtube.com/@shawnr325av">YouTube: @shawnr325av</a></p>' +
         '<p style="margin-top:6px;"><a href="mailto:kingjamesbiblereader@outlook.sg">kingjamesbiblereader@outlook.sg</a></p></div>';
+    } else if (tab === 'debug') {
+      const ua = req.headers.get('user-agent') || 'unknown';
+      bodyInner =
+        '<div class="box"><h3>Legacy Reader Debug</h3>' +
+        '<p><strong>Mode:</strong> Server-rendered HTML (no JavaScript)</p>' +
+        '<p style="margin-top:6px;"><strong>Server time:</strong> ' + esc(new Date().toUTCString()) + '</p>' +
+        '<p style="margin-top:6px;"><strong>Your browser:</strong></p>' +
+        '<blockquote>' + esc(ua) + '</blockquote>' +
+        '<p style="margin-top:6px;"><strong>Path:</strong> ' + esc(basePath) + '</p>' +
+        '<p style="margin-top:6px;"><strong>Books loaded:</strong> ' + BOOK_ORDER.length + '</p>' +
+        '</div>';
     }
 
     const html =
@@ -219,7 +230,7 @@ Deno.serve(async (req) => {
 '</head><body>' +
 '<div class="hdr"><h1>KJB Reader (Legacy)</h1><p>King James Bible &mdash; Pure Cambridge Edition</p></div>' +
 '<div class="tabs">' +
-tabLink('bible', 'Bible') + tabLink('gospel', 'Gospel') + tabLink('resources', 'Resources') + tabLink('about', 'About') +
+tabLink('bible', 'Bible') + tabLink('gospel', 'Gospel') + tabLink('resources', 'Resources') + tabLink('about', 'About') + tabLink('debug', 'Debug') +
 '</div>' +
 '<div class="wrap">' + bodyInner + '</div>' +
 '</body></html>';
