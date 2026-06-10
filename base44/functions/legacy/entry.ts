@@ -294,8 +294,8 @@ Deno.serve(async (req) => {
       data[bookName][chapter].push({ verse, text: verseText });
     }
     
-    const bibleDataStr = JSON.stringify(data).replace(/</g, '\\u003c');
-    const colophonsStr = JSON.stringify(colophons).replace(/</g, '\\u003c');
+    const bibleDataStr = JSON.stringify(data);
+    const colophonsStr = JSON.stringify(colophons);
     
     const html = `<!DOCTYPE html>
 <html lang="en">
@@ -700,9 +700,6 @@ function readChapter() {
     if (verseText.indexOf('¶') === 0 || verseText.indexOf('¶') > 0) {
       verseText = verseText.replace(/¶/g, '<span class="verse-pilcrow">¶</span>');
     }
-    if (verses[v].heading) {
-      html += '<div class="psalm119-heading">' + verses[v].heading + '</div>';
-    }
     html += '<div class="verse"><span class="verse-num">' + verses[v].verse + '</span> ' + verseText + '</div>';
   }
   html += '</div>';
@@ -740,7 +737,7 @@ function showDailyVerse() {
       currentSeed++;
     }
 
-    var plainText = verse.text.replace(/<[^>]+>/g, '').replace(/\\[([^\\]]+)\\]/g, '$1');
+    var plainText = verse.text.replace(/<[^>]+>/g, '').replace(/\[([^\]]+)\]/g, '$1');
     document.getElementById('daily-text').textContent = plainText;
     document.getElementById('daily-ref').textContent = '— ' + ref + ' (KJB)';
     document.getElementById('daily-verse-box').style.display = 'block';
