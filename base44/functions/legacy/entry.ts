@@ -344,10 +344,7 @@ function parseBibleServerSide(text) {
       continue;
     }
 
-    // Debug: log first few lines to see format
-    if (i < 5) {
-      console.log("[legacy] Line", i, ":", line.substring(0, 50));
-    }
+
 
     if (/^[A-Z0-9][A-Z ,.\-0-9']+$/.test(line) && !/^\d+$/.test(line)) {
       const frag = line.replace(/[.,]$/, "").trim();
@@ -400,12 +397,21 @@ function parseBibleServerSide(text) {
 }
 
 async function getBibleJson() {
-  const res = await fetch(TEXT_URL);
+  console.log("[legacy] Fetching from:", TEXT_URL);
+  let res;
+  try {
+    res = await fetch(TEXT_URL);
+  } catch(e) {
+    throw new Error("Fetch failed: " + e.message);
+  }
   if (!res.ok) throw new Error("HTTP " + res.status);
   const buf = await res.arrayBuffer();
+  console.log("[legacy] Got", buf.byteLength, "bytes");
   const text = new TextDecoder("windows-1252").decode(buf);
-  console.log("[legacy] Fetched", text.length, "chars, parsing server-side...");
-  return parseBibleServerSide(text);
+  console.log("[legacy] Decoded to", text.length, "chars, parsing...");
+  const result = parseBibleServerSide(text);
+  console.log("[legacy] Parse complete, books:", Object.keys(result).length);
+  return result;
 }
 
 Deno.serve(async (req) => {
@@ -420,6 +426,7 @@ Deno.serve(async (req) => {
 
   const bookCount = BOOK_ORDER.filter(b => bibleData[b]).length;
   console.log("[legacy] Injecting", bookCount, "books into HTML");
+  console.log("[legacy] Sample books:", Object.keys(bibleData).slice(0, 5).join(", "));
 
   // Post-process Psalms: fix verse 1 for chapters with superscriptions
   if (bibleData['Psalms']) {
@@ -934,8 +941,12 @@ function showTab(name, btn) {
 
     if (${parseError ? "true" : "false"}) {
       statusDiv.innerHTML = "<span class='err'>Error loading Bible: ${parseError.replace(/'/g, "\\'")}</span>";
+    } else if (availableBooks.length === 0) {
+      statusDiv.innerHTML = "<span class='err'>No books parsed. Check debug tab.</span>";
     } else if (availableBooks.length < 66) {
       statusDiv.innerHTML = "<span class='err'>Warning: only " + availableBooks.length + " books loaded.</span>";
+    } else {
+      statusDiv.innerHTML = "<span style='color:green;'>✓ Fully downloaded (" + availableBooks.length + " books)</span>";
     }
 
     bookSel.addEventListener("change", function() { fillChapters(bookSel.value); });
