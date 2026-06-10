@@ -557,25 +557,6 @@ export default function HomePage() {
         </Link>
       </div>
 
-      {/* Cache status indicator */}
-      {bibleCached !== null && (
-        <div className="print:hidden text-center py-4 border-t border-border mt-8">
-          <p className="font-sans text-xs text-muted-foreground">
-            {bibleCached ? (
-              <span className="inline-flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                All Bible data cached for offline use
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                Bible data not fully cached — some features may require internet
-              </span>
-            )}
-          </p>
-        </div>
-      )}
-
       </div>
     </div>
   );
