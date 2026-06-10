@@ -15,6 +15,28 @@
           // Parse query string manually (IE doesn't support URLSearchParams reliably)
           var qs = window.location.search || '';
           var optedOut = qs.indexOf('nolegacy=1') !== -1;
+          // A ?tab= param at the root means a legacy deep link (gospel/resources/
+          // about/debug) — route it to the server-rendered legacy reader on ANY
+          // browser, since those inline HTML pages live in the legacy function.
+          var wantsLegacyTab = qs.indexOf('tab=') !== -1;
+          if (wantsLegacyTab && !optedOut) {
+            var tHost = window.location.hostname || '';
+            var tIsCustom = tHost.indexOf('base44.app') === -1 && tHost.indexOf('localhost') === -1;
+            if (tIsCustom) {
+              window.location.replace(window.location.origin + '/legacy' + qs);
+            } else {
+              var tAppId = null;
+              var tIdx = qs.indexOf('app_id=');
+              if (tIdx !== -1) {
+                var tPart = qs.substring(tIdx + 7);
+                var tAmp = tPart.indexOf('&');
+                tAppId = tAmp !== -1 ? tPart.substring(0, tAmp) : tPart;
+              }
+              if (!tAppId) { try { tAppId = localStorage.getItem('base44_app_id'); } catch (e) {} }
+              window.location.replace((tAppId ? '/api/apps/' + tAppId + '/functions/legacy' : '/functions/legacy') + qs);
+            }
+            return;
+          }
           if ((isIE || tooOld) && !optedOut) {
             // On custom domain (kingjamesbiblereader.com) use the /legacy route
             // which React serves via the LegacyReader page (proxies the function).
