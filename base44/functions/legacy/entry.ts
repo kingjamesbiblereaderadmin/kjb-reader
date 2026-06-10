@@ -373,14 +373,14 @@ Deno.serve(async (req) => {
       let form = '<div class="box">' +
         '<form method="get" action="' + esc(basePath) + '">' + hidden +
         '<input type="hidden" name="chapter" value="1">' +
-        '<div class="ctl"><label>Book:</label><select name="book" onchange="this.form.submit()">' + bookOptions(book) + '</select></div>' +
-        '<input type="submit" class="read-btn" value="Select Book">' +
-        '<p style="font-size:12px;color:#888;margin-top:6px;font-family:Arial,sans-serif;">After choosing a book, press &ldquo;Select Book&rdquo; to load its chapters.</p>' +
+        '<div class="ctl"><label>Book:</label><select name="book" onchange="this.form.submit()" onblur="this.form.submit()">' + bookOptions(book) + '</select></div>' +
+        '<noscript><input type="submit" class="read-btn" value="Select Book"></noscript>' +
         '</form>' +
         '<form method="get" action="' + esc(basePath) + '" style="margin-top:12px;">' + hidden +
         '<input type="hidden" name="book" value="' + esc(book) + '">' +
-        '<div class="ctl"><label>Chapter:</label><select name="chapter" onchange="this.form.submit()">' + chapterOptions(book, chapter) + '</select></div>' +
-        '<input type="submit" class="read-btn" value="Read Chapter"></form></div>';
+        '<div class="ctl"><label>Chapter:</label><select name="chapter" onchange="this.form.submit()" onblur="this.form.submit()">' + chapterOptions(book, chapter) + '</select></div>' +
+        '<noscript><input type="submit" class="read-btn" value="Read Chapter"></noscript>' +
+        '</form></div>';
 
       // Chapter content
       let content = '<div class="chead"><span class="cbook">' + esc(fullName) + '</span><span class="cnum">Chapter ' + chapter + '</span></div>';
