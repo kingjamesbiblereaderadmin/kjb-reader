@@ -47,7 +47,7 @@
             var isCustomDomain = host.indexOf('base44.app') === -1 && host.indexOf('localhost') === -1;
             var legacyUrl;
             if (isCustomDomain) {
-              legacyUrl = window.location.origin + '/legacy?tab=fullbible';
+              legacyUrl = window.location.origin + '/legacy';
             } else {
               // Parse app_id from query string manually
               var appId = null;
@@ -61,8 +61,8 @@
                 try { appId = localStorage.getItem('base44_app_id'); } catch (e) {}
               }
               legacyUrl = appId
-                ? '/api/apps/' + appId + '/functions/legacy?tab=fullbible'
-                : '/functions/legacy?tab=fullbible';
+                ? '/api/apps/' + appId + '/functions/legacy'
+                : '/functions/legacy';
             }
             // Force immediate redirect before any rendering
             window.location.replace(legacyUrl);

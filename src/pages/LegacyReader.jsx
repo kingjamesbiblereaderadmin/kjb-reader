@@ -14,14 +14,9 @@ export default function LegacyReader() {
 
     // Forward existing query params (tab/book/chapter), stripping base44 internals.
     const incoming = new URLSearchParams(window.location.search);
+    // The legacy reader is now a single page (the Full Bible) — no tab/book/
+    // chapter params needed. We only forward app_id for base44 hosting.
     const forward = new URLSearchParams();
-    ['tab', 'book', 'chapter'].forEach((k) => {
-      const v = incoming.get(k);
-      if (v) forward.set(k, v);
-    });
-    // Default landing page for legacy users is the Full Bible (single-page,
-    // works fully offline once loaded).
-    if (!forward.get('tab')) forward.set('tab', 'fullbible');
     // On base44 hosting the function needs app_id in its own links — forward it.
     if (appParams.appId) forward.set('app_id', appParams.appId);
 

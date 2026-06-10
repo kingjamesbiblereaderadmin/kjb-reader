@@ -324,9 +324,8 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const url = new URL(req.url);
-    const tab = url.searchParams.get('tab') || 'bible';
-    // Daily verse card only shows on the Bible tab
-    const showDailyVerse = tab === 'bible';
+    // The legacy reader is now a single page: the Full Bible (which also
+    // embeds Gospel, Resources and About). All other tabs are removed.
     let book = url.searchParams.get('book') || 'Genesis';
     if (BOOK_ORDER.indexOf(book) === -1) book = 'Genesis';
     let chapter = parseInt(url.searchParams.get('chapter') || '1', 10);
@@ -351,77 +350,8 @@ Deno.serve(async (req) => {
     const STYLE = '*{margin:0;padding:0;box-sizing:border-box;}body{background:#f5f5f7;color:#1a1a1a;font-family:Georgia,serif;font-size:16px;line-height:1.6;}.hdr{background:#2d2a6e;color:#fff;padding:16px;text-align:center;}.hdr h1{font-size:22px;}.hdr p{font-size:12px;color:#cfcfe8;}.tabs{width:100%;background:#3d3a80;font-size:0;}.tabs a{display:inline-block;width:20%;padding:12px 2px;text-align:center;color:#cfcfe8;text-decoration:none;font-size:12px;font-family:Arial,sans-serif;}.tabs a.on{background:#5b59a0;color:#fff;font-weight:bold;}.wrap{max-width:760px;margin:0 auto;padding:16px;}.box{background:#fff;padding:16px;margin-bottom:16px;border:1px solid #e0e0ec;}.ctl{margin-bottom:12px;}.ctl label{display:block;font-size:14px;font-weight:bold;color:#333;margin-bottom:5px;font-family:Arial,sans-serif;}.ctl select{width:100%;padding:9px;font-size:16px;border:1px solid #ccc;font-family:Arial,sans-serif;}.read-btn{background:#2d2a6e;color:#fff;padding:11px;border:none;cursor:pointer;font-size:16px;font-weight:bold;font-family:Arial,sans-serif;width:100%;}.chead{text-align:center;margin:20px 0 16px;}.cbook{font-size:22px;font-weight:bold;color:#2d2a6e;display:block;}.cnum{font-size:13px;color:#666;display:block;margin-top:4px;}.verse{display:block;margin:20px 0 10px 0;line-height:1.5;}.vn{font-weight:bold;color:#2d2a6e;font-size:11px;margin-right:4px;}.subscript{text-align:center;color:#555;font-size:14px;margin:0 0 16px;}.colophon{text-align:center;color:#555;font-size:14px;margin:18px 0 0;padding-top:12px;border-top:1px solid #e0e0ec;}.pil{color:#888;display:inline;white-space:nowrap;}em{font-style:italic;}.nav{text-align:center;margin:20px 0;}.nav a{display:inline-block;padding:10px 18px;margin:0 4px;background:#2d2a6e;color:#fff;text-decoration:none;font-size:14px;font-family:Arial,sans-serif;}.box h3{color:#2d2a6e;margin-bottom:10px;font-size:16px;}.box blockquote{background:#f7f7fb;padding:12px;margin:8px 0;border-left:3px solid #2d2a6e;font-style:italic;}.box a{color:#2d2a6e;}.sec-title{font-size:20px;color:#2d2a6e;font-weight:bold;margin:24px 0 10px;text-align:center;}.sec-sub{font-size:14px;color:#666;text-align:center;margin-bottom:16px;}.step{background:#fff;border:1px solid #e0e0ec;border-left:4px solid #2d2a6e;padding:14px 16px;margin-bottom:14px;}.step h4{color:#2d2a6e;font-size:15px;margin-bottom:8px;font-family:Arial,sans-serif;}.step .ref{display:block;margin-top:8px;font-size:13px;color:#444;font-family:Arial,sans-serif;}.warn{background:#fdf0f0;border:1px solid #e9c4c4;padding:14px 16px;margin-bottom:14px;}.warn h4{color:#b02525;font-size:15px;margin-bottom:8px;font-family:Arial,sans-serif;}.warn ul{margin:6px 0 0 18px;}.warn li{font-size:14px;margin-bottom:3px;}.lnk{display:block;padding:10px 12px;margin-bottom:8px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;font-size:14px;font-family:Arial,sans-serif;}.lnk b{display:block;color:#1a1a1a;margin-bottom:2px;}.lnk span{display:block;color:#666;font-size:12px;}.res-cat{font-size:16px;color:#2d2a6e;font-weight:bold;margin:18px 0 8px;font-family:Arial,sans-serif;border-bottom:2px solid #e0e0ec;padding-bottom:5px;}.about-list{margin:8px 0 0 18px;}.about-list li{font-size:14px;margin-bottom:8px;line-height:1.5;}.doc{max-width:760px;margin:0 auto;}.doc h1{font-size:26px;color:#2d2a6e;margin:12px 0 24px;text-align:center;}.doc h2{font-size:19px;color:#2d2a6e;margin:44px 0 18px;padding-bottom:8px;border-bottom:1px solid #e0e0ec;}.doc h3{font-size:16px;color:#444;margin:30px 0 14px;}.doc p{margin:0 0 22px;line-height:1.85;}.doc p.lead{color:#555;font-size:17px;margin-bottom:36px;}.doc p.note{color:#777;font-size:13px;margin:32px 0;}.doc ul{margin:0 0 28px 28px;list-style-type:disc;}.doc li{margin-bottom:16px;line-height:1.75;padding-left:6px;}.doc blockquote{margin:0 0 22px;padding-left:18px;border-left:3px solid #c9c7e0;color:#444;font-style:italic;line-height:1.85;}.doc a{color:#2d2a6e;}.doc p.rlnk{margin:0 0 16px;}.doc p.rlnk span{color:#666;font-style:normal;}.banner{background:#fdf0f0;border-bottom:2px solid #e9c4c4;color:#7a1f1f;padding:12px 16px;font-family:Arial,sans-serif;font-size:13px;line-height:1.5;}.banner b{display:block;font-size:14px;margin-bottom:4px;}.banner ul{margin:6px 0 0 18px;}.banner li{margin-bottom:3px;}.banner a{color:#7a1f1f;font-weight:bold;}.fb-intro{font-size:15px;color:#555;margin-bottom:16px;line-height:1.6;}.fb-index{background:#fff;border:1px solid #e0e0ec;padding:14px 16px;margin-bottom:24px;}.fb-index-title{font-size:13px;font-weight:bold;color:#333;font-family:Arial,sans-serif;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;}.fb-testament{font-size:15px;font-weight:bold;color:#2d2a6e;margin:12px 0 6px;}.fb-books{line-height:2.2;}.fb-books a{display:inline-block;padding:3px 9px;margin:2px;background:#f7f7fb;border:1px solid #e0e0ec;color:#2d2a6e;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;}.fb-book{margin-bottom:32px;border-top:2px solid #e0e0ec;padding-top:8px;}.fb-bookname{font-size:21px;color:#2d2a6e;text-align:center;margin:16px 0 4px;}.fb-top{text-align:center;margin-bottom:12px;}.fb-top a{font-size:12px;color:#888;text-decoration:none;font-family:Arial,sans-serif;}.fb-chap{font-size:15px;color:#666;font-weight:bold;margin:20px 0 8px;font-family:Arial,sans-serif;border-bottom:1px solid #eee;padding-bottom:4px;}.fb-chaplinks{margin:0 0 16px;line-height:2.2;}.fb-chaplinks-label{font-size:13px;font-weight:bold;color:#333;font-family:Arial,sans-serif;margin-right:6px;}.fb-chaplinks a{display:inline-block;min-width:24px;text-align:center;padding:3px 7px;margin:2px;background:#f7f7fb;border:1px solid #e0e0ec;color:#2d2a6e;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;}.fb-chaptop{font-size:11px;font-weight:normal;color:#888;text-decoration:none;font-family:Arial,sans-serif;margin-left:8px;}';
     const DARK_STYLE = 'body{background:#1a1a1e;color:#e5e5e5;}.hdr{background:#1e1b4d;}.tabs{background:#2d2a6e;}.tabs a{color:#a5a5d0;}.tabs a.on{background:#3d3a80;color:#fff;}.box{background:#252830;border-color:#3a3d4a;color:#e5e5e5;}.ctl label{color:#e5e5e5;}.ctl select{background:#1a1a1e;border-color:#4a4d5a;color:#e5e5e5;}.read-btn{background:#3d3a80;}.cbook{color:#7c7ceb;}.vn{color:#7c7ceb;}.subscript,.colophon{color:#aaa;}.pil{color:#666;}.nav a{background:#3d3a80;}.box blockquote{background:#1e1b4d;border-left-color:#7c7ceb;}.box a{color:#7c7ceb;}.sec-title{color:#7c7ceb;}.sec-sub{color:#aaa;}.step{background:#252830;border-color:#3a3d4a;border-left-color:#7c7ceb;}.step h4{color:#7c7ceb;}.step .ref{color:#aaa;}.warn{background:#2a1a1a;border-color:#4a2a2a;}.warn h4{color:#f56565;}.lnk{background:#1e1b4d;border-color:#3a3d4a;color:#7c7ceb;}.lnk b{color:#e5e5e5;}.lnk span{color:#aaa;}.res-cat{color:#7c7ceb;border-bottom-color:#3a3d4a;}.about-list li{color:#e5e5e5;}.banner{background:#2a1a1a;border-bottom-color:#4a2a2a;color:#f0b8b8;}.banner a{color:#f0b8b8;}.fb-intro{color:#aaa;}.fb-index{background:#252830;border-color:#3a3d4a;}.fb-index-title{color:#e5e5e5;}.fb-testament{color:#7c7ceb;}.fb-books a{background:#1e1b4d;border-color:#3a3d4a;color:#7c7ceb;}.fb-book{border-top-color:#3a3d4a;}.fb-bookname{color:#7c7ceb;}.fb-chap{color:#aaa;border-bottom-color:#3a3d4a;}.fb-chaplinks-label{color:#e5e5e5;}.fb-chaplinks a{background:#1e1b4d;border-color:#3a3d4a;color:#7c7ceb;}.fb-chaptop{color:#888;}';
 
-    const tabLink = (t, label) => '<a href="' + esc(basePath) + '?tab=' + t + idSuffix + '" class="' + (t === tab ? 'on' : '') + '">' + label + '</a>';
-    const tabsHtml = tabLink('bible', 'Bible') + tabLink('fullbible', 'Full Bible') + tabLink('gospel', 'Gospel') + tabLink('resources', 'Resources') + tabLink('about', 'About');
-
-    // Fetch daily verse once for all tabs
-    let dailyVerseCard = '';
-    if (showDailyVerse) {
-      console.log('[Legacy] Fetching daily verse...');
-      const dailyVerse = await fetchDailyVerse(base44);
-      if (dailyVerse && dailyVerse.text && dailyVerse.ref) {
-        console.log('[Legacy] Daily verse loaded:', dailyVerse.ref);
-        dailyVerseCard = '<div class="box" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; margin-bottom:20px; border:none; box-shadow:0 4px 12px rgba(102,126,234,0.3);">' +
-          '<h3 style="color:#fff; margin-bottom:8px; font-size:13px; font-family:Arial,sans-serif; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">Verse of the Day</h3>' +
-          '<p style="font-size:15px; line-height:1.7; margin-bottom:12px; font-style:italic; font-weight:400;">"' + esc(dailyVerse.text) + '"</p>' +
-          '<p style="font-size:12px; color:#e0e0ff; font-weight:500; letter-spacing:0.3px;">' + esc(dailyVerse.ref) + '</p>' +
-          '</div>';
-      } else {
-        console.log('[Legacy] Daily verse not available (API returned empty or failed)');
-      }
-    }
-
     let bodyInner = '';
 
-    if (tab === 'bible') {
-
-      const bible = await loadBible();
-      const verses = (bible[book] && bible[book][chapter]) || [];
-      const fullName = FULL_BOOK_NAMES[book] || book;
-
-      const hidden = '<input type="hidden" name="tab" value="bible">' + (appId ? '<input type="hidden" name="app_id" value="' + esc(appId) + '">' : '') + (isDark ? '<input type="hidden" name="theme" value="dark">' : '');
-      let form = '<div class="box">' +
-        '<form method="get" action="' + esc(basePath) + '">' + hidden +
-        '<input type="hidden" name="chapter" value="1">' +
-        '<div class="ctl"><label>Book:</label><select name="book" id="bookSelect" onchange="updateChapterDropdown(this.value);this.form.chapter.value=1;">' + bookOptions(book) + '</select></div>' +
-        '<input type="submit" class="read-btn" value="Select Book" onclick="this.form.chapter.value=1;" style="margin-top:8px;">' +
-        '</form>' +
-        '<form method="get" action="' + esc(basePath) + '" style="margin-top:12px;">' + hidden +
-        '<input type="hidden" name="book" value="' + esc(book) + '">' +
-        '<div class="ctl"><label>Chapter:</label><select name="chapter" id="chapterSelect" onchange="this.form.submit()" onblur="this.form.submit()">' + chapterOptions(book, chapter) + '</select></div>' +
-        '<input type="submit" class="read-btn" value="Read Chapter" style="margin-top:8px;">' +
-        '</form></div>';
-
-      let content = '<div class="chead"><span class="cbook">' + esc(fullName) + '</span><span class="cnum">Chapter ' + chapter + '</span></div>';
-
-      const subscript = SUBSCRIPTS[book + ':' + chapter];
-      if (subscript) {
-        content += '<div class="subscript"><span class="pil">&para; </span>' + renderMeta(subscript) + '</div>';
-      }
-
-      if (verses.length === 0) {
-        content += '<p style="text-align:center;color:#c00;">No verses found.</p>';
-      } else {
-        for (let i = 0; i < verses.length; i++) {
-          const r = renderVerse(verses[i].text);
-          const pil = r.leadingPilcrow ? '<span class="pil">&para; </span>' : '';
-          content += '<div class="verse"><span class="vn">' + verses[i].verse + '</span>' + pil + r.html + '</div>';
-        }
-      }
-
-      const colophon = COLOPHONS[book + ':' + chapter];
-      if (colophon) {
-        content += '<div class="colophon"><span class="pil">&para; </span>' + renderMeta(colophon) + '</div>';
-      }
-
-      const maxCh = CHAPTER_COUNTS[book] || 1;
-      let navLinks = '<div class="nav">';
-      if (chapter > 1) navLinks += '<a href="' + esc(basePath) + '?tab=bible&book=' + encodeURIComponent(book) + '&chapter=' + (chapter - 1) + idSuffix + '">&laquo; Chapter ' + (chapter - 1) + '</a>';
-      if (chapter < maxCh) navLinks += '<a href="' + esc(basePath) + '?tab=bible&book=' + encodeURIComponent(book) + '&chapter=' + (chapter + 1) + idSuffix + '">Chapter ' + (chapter + 1) + ' &raquo;</a>';
-      navLinks += '</div>';
-
-      bodyInner = dailyVerseCard + form + content + navLinks;
-    }
     const lnk = (url, title, desc) => '<p class="rlnk"><a href="' + url + '" target="_blank">' + title + '</a>' + (desc ? '<span> &mdash; ' + desc + '</span>' : '') + '</p>';
     const gospelHtml = '<div class="doc">' +
         '<h1>How to be Saved</h1>' +
@@ -591,16 +521,10 @@ Deno.serve(async (req) => {
         '</div>' +
         '</div>';
 
-    if (tab === 'gospel') {
-      bodyInner = gospelHtml;
-    } else if (tab === 'resources') {
-      bodyInner = resourcesHtml;
-    } else if (tab === 'about') {
-      bodyInner = aboutHtml;
-    } else if (tab === 'fullbible') {
-      // Option A: the ENTIRE Bible rendered inline on one page, with anchor
-      // quick-links at the top. Navigation between books/chapters is instant
-      // (in-page #anchors, no server calls) and works on any browser.
+    {
+      // The ENTIRE Bible rendered inline on one page, with anchor quick-links
+      // at the top, plus Gospel/Resources/About embedded. Navigation between
+      // books/chapters is instant (in-page #anchors, no server calls).
       const bible = await loadBible();
 
       // Absolute base URL for the fullbible page, so #anchor links jump
@@ -694,7 +618,7 @@ Deno.serve(async (req) => {
       ? '<script>(function(){function r(){if(document.body){if(document.body.className){document.body.className+=" kjb-ready";}else{document.body.className="kjb-ready";}}}if(window.addEventListener){window.addEventListener("load",r,false);}else if(window.attachEvent){window.attachEvent("onload",r);}else{window.onload=r;}})();</script>'
       : '';
 
-    const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>KJB Reader (Legacy)</title><style>' + STYLE + (isDark ? DARK_STYLE : '') + loaderStyle + '</style></head><body>' + loaderHtml + '<div class="hdr"><h1>KJB Reader (Legacy)</h1><p>King James Bible &mdash; Pure Cambridge Edition</p></div>' + banner + '<div class="tabs">' + tabsHtml + '</div><div class="wrap" id="wrap">' + bodyInner + '</div>' + ENHANCE_SCRIPT + loaderScript + '</body></html>';
+    const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>KJB Reader (Legacy)</title><style>' + STYLE + (isDark ? DARK_STYLE : '') + loaderStyle + '</style></head><body>' + loaderHtml + '<div class="hdr"><h1>KJB Reader (Legacy)</h1><p>King James Bible &mdash; Pure Cambridge Edition</p></div>' + banner + '<div class="wrap" id="wrap">' + bodyInner + '</div>' + ENHANCE_SCRIPT + loaderScript + '</body></html>';
 
     return new Response(html, { headers: { 'Content-Type': 'text/html;charset=UTF-8' } });
   } catch (error) {
