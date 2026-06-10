@@ -324,6 +324,7 @@ function parseBibleServerSide(text) {
     return null;
   };
 
+  let debugCount = 0;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
     if (!line) {
@@ -335,12 +336,18 @@ function parseBibleServerSide(text) {
     }
     blanksSinceCaps = 0;
 
+    // Debug: log first 20 non-empty lines to see actual format
+    if (debugCount < 20) {
+      console.log("[legacy] Line", i, ":", line);
+      debugCount++;
+    }
+
     const chapMatch = line.match(/^(CHAPTER|PSALM) (\d+)$/i);
     if (chapMatch) {
       currentChap = chapMatch[2];
       verseNum = 0;
       titleBuffer = [];
-      console.log("[legacy] Found chapter:", currentChap, "in", currentBook);
+      console.log("[legacy] ✓ Found chapter:", currentChap, "in", currentBook);
       continue;
     }
 
@@ -379,10 +386,16 @@ function parseBibleServerSide(text) {
         verseNum = parseInt(vMatch[1]);
         if (!bibleData[currentBook][currentChap]) bibleData[currentBook][currentChap] = [];
         bibleData[currentBook][currentChap].push({ v: String(verseNum), t: ital(vMatch[2]) });
+        if (verseNum <= 2 && debugCount < 30) {
+          console.log("[legacy] ✓ Verse", verseNum, "in", currentBook, currentChap, ":", vMatch[2].substring(0, 40));
+        }
       } else if (verseNum === 0) {
         verseNum = 1;
         if (!bibleData[currentBook][currentChap]) bibleData[currentBook][currentChap] = [];
         bibleData[currentBook][currentChap].push({ v: "1", t: ital(line) });
+        if (debugCount < 30) {
+          console.log("[legacy] ✓ Verse 1 (unnumbered) in", currentBook, currentChap, ":", line.substring(0, 40));
+        }
       } else {
         const chData = bibleData[currentBook][currentChap];
         if (chData && chData.length > 0) chData[chData.length - 1].t += " " + ital(line);
@@ -393,6 +406,14 @@ function parseBibleServerSide(text) {
   const found = BOOK_ORDER.filter(b => bibleData[b]);
   const missing = BOOK_ORDER.filter(b => !bibleData[b]);
   console.log("[legacy] Parsed", found.length, "books. Missing:", missing.join(", "));
+  
+  // Log chapter counts for first 3 books
+  for (var bi = 0; bi < Math.min(3, found.length); bi++) {
+    var bname = found[bi];
+    var chapCount = Object.keys(bibleData[bname]).length;
+    console.log("[legacy] Book", bname, "has", chapCount, "chapters:", Object.keys(bibleData[bname]).slice(0, 5).join(", "));
+  }
+  
   return bibleData;
 }
 
