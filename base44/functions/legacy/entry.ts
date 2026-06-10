@@ -375,6 +375,7 @@ Deno.serve(async (req) => {
         '<input type="hidden" name="chapter" value="1">' +
         '<div class="ctl"><label>Book:</label><select name="book" onchange="this.form.submit()">' + bookOptions(book) + '</select></div>' +
         '<input type="submit" class="read-btn" value="Select Book">' +
+        '<p style="font-size:12px;color:#888;margin-top:6px;font-family:Arial,sans-serif;">After choosing a book, press &ldquo;Select Book&rdquo; to load its chapters.</p>' +
         '</form>' +
         '<form method="get" action="' + esc(basePath) + '" style="margin-top:12px;">' + hidden +
         '<input type="hidden" name="book" value="' + esc(book) + '">' +
