@@ -340,6 +340,7 @@ Deno.serve(async (req) => {
   .verses { margin: 20px 0; text-align: left; }
   .verse { margin-bottom: 12px; line-height: 1.7; }
   .verse-num { font-size: 11px; color: #5b59a0; font-weight: bold; vertical-align: super; margin-right: 3px; }
+  .verse-pilcrow { display: block; margin-bottom: 8px; }
   .colophon { text-align: center; font-size: 13px; color: #666; margin: 24px 0 8px 0; border-top: 1px solid #ddd; padding-top: 12px; }
   .colophon em { font-style: italic; }
   .colophon .pilcrow { font-style: normal; margin-right: 4px; color: #000; opacity: 0.5; }
@@ -692,8 +693,10 @@ function readChapter() {
   html += '<div class="verses">';
   for (var v = 0; v < verses.length; v++) {
     var verseText = verses[v].text;
-    verseText = verseText.replace(/¶/g, '<span class="pilcrow">¶</span> ');
     verseText = verseText.replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
+    if (verseText.indexOf('¶') === 0 || verseText.indexOf('¶') > 0) {
+      verseText = verseText.replace(/¶/g, '<span class="verse-pilcrow">¶</span>');
+    }
     html += '<div class="verse"><span class="verse-num">' + verses[v].verse + '</span> ' + verseText + '</div>';
   }
   html += '</div>';
