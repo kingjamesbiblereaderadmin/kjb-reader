@@ -225,7 +225,76 @@ const COLOPHONS = {
 };
 
 Deno.serve(async (req) => {
-  const html = `<!DOCTYPE html>
+  try {
+    const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
+    const res = await fetch(TEXT_URL);
+    if (!res.ok) throw new Error('Failed to fetch Bible text');
+    const text = await res.text();
+    
+    const data = {};
+    const colophons = {};
+    const lines = text.split('\n');
+    const ABBR_TO_NAME = {
+      'Ge':'Genesis','Ex':'Exodus','Le':'Leviticus','Nu':'Numbers','De':'Deuteronomy',
+      'Jos':'Joshua','Jg':'Judges','Ru':'Ruth','1Sa':'1 Samuel','2Sa':'2 Samuel',
+      '1Ki':'1 Kings','2Ki':'2 Kings','1Ch':'1 Chronicles','2Ch':'2 Chronicles',
+      'Ezr':'Ezra','Ne':'Nehemiah','Es':'Esther','Job':'Job','Ps':'Psalms','Pr':'Proverbs',
+      'Ec':'Ecclesiastes','Song':'Song of Solomon','Isa':'Isaiah','Jer':'Jeremiah',
+      'La':'Lamentations','Eze':'Ezekiel','Da':'Daniel','Ho':'Hosea','Joe':'Joel',
+      'Am':'Amos','Ob':'Obadiah','Jon':'Jonah','Mic':'Micah','Na':'Nahum',
+      'Hab':'Habakkuk','Zep':'Zephaniah','Hag':'Haggai','Zec':'Zechariah','Mal':'Malachi',
+      'Mt':'Matthew','Mr':'Mark','Lu':'Luke','Joh':'John','Ac':'Acts','Ro':'Romans',
+      '1Co':'1 Corinthians','2Co':'2 Corinthians','Ga':'Galatians','Eph':'Ephesians',
+      'Php':'Philippians','Col':'Colossians','1Th':'1 Thessalonians','2Th':'2 Thessalonians',
+      '1Ti':'1 Timothy','2Ti':'2 Timothy','Tit':'Titus','Phm':'Philemon','Heb':'Hebrews',
+      'Jas':'James','1Pe':'1 Peter','2Pe':'2 Peter','1Jo':'1 John','2Jo':'2 John',
+      '3Jo':'3 John','Jude':'Jude','Re':'Revelation'
+    };
+    
+    for (let i = 0; i < lines.length; i++) {
+      const trimmed = lines[i].trim();
+      if (!trimmed) continue;
+      const spaceIdx = trimmed.indexOf(' ');
+      if (spaceIdx === -1) continue;
+      const abbr = trimmed.slice(0, spaceIdx);
+      const rest = trimmed.slice(spaceIdx + 1);
+      const colonIdx = rest.indexOf(':');
+      if (colonIdx === -1) continue;
+      const chapter = parseInt(rest.slice(0, colonIdx), 10);
+      if (isNaN(chapter)) continue;
+      const spaceIdx2 = rest.indexOf(' ', colonIdx);
+      if (spaceIdx2 === -1) continue;
+      const verse = parseInt(rest.slice(colonIdx + 1, spaceIdx2), 10);
+      let verseText = rest.slice(spaceIdx2 + 1);
+      if (isNaN(verse) || !verseText) continue;
+      
+      const bookName = ABBR_TO_NAME[abbr];
+      if (!bookName) continue;
+      
+      const colophonMatch = verseText.match(/¶\s*\[(.*?)\]\s*$/);
+      if (colophonMatch) {
+        const colophonKey = `${bookName}:${chapter}`;
+        if (!colophons[colophonKey]) {
+          colophons[colophonKey] = colophonMatch[1];
+        }
+        verseText = verseText.replace(/\s*¶\s*\[.*?\]\s*$/, '').trim();
+      }
+      
+      if (!verseText.trim()) continue;
+      if (bookName === '1 John' && chapter === 2 && verse === 23) {
+        verseText = verseText.replace('[(but)', '[but');
+        verseText = verseText.replace('[[but]]', '[but]');
+      }
+      
+      if (!data[bookName]) data[bookName] = {};
+      if (!data[bookName][chapter]) data[bookName][chapter] = [];
+      data[bookName][chapter].push({ verse, text: verseText });
+    }
+    
+    const bibleDataStr = JSON.stringify(data).replace(/</g, '\\u003c');
+    const colophonsStr = JSON.stringify(colophons).replace(/</g, '\\u003c');
+    
+    const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -234,56 +303,43 @@ Deno.serve(async (req) => {
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: #f5f5f7; color: #1a1a1a; font-family: Georgia, serif; font-size: 16px; line-height: 1.6; }
-
   .header { background: #2d2a6e; color: #fff; padding: 16px; text-align: center; }
   .header h1 { font-size: 24px; margin-bottom: 4px; }
   .header p { font-size: 12px; color: #ccc; }
-
   .tabs { display: flex; background: #3d3a80; border-bottom: 1px solid #2d2a6e; }
   .tab-btn { flex: 1; padding: 12px; text-align: center; color: #ccc; border: none; background: none; cursor: pointer; font-size: 13px; font-family: Arial, sans-serif; }
   .tab-btn.active { background: #5b59a0; color: #fff; font-weight: bold; }
   .tab-btn:hover { background: #4a4790; }
-
   .container { max-width: 900px; margin: 0 auto; padding: 20px; }
   .tab-content { display: none; }
   .tab-content.active { display: block; }
-
   .controls-box { background: #f0f0f7; padding: 20px; margin-bottom: 16px; border-radius: 4px; text-align: left; }
   .control-group { margin-bottom: 14px; }
   .control-group label { display: block; font-size: 14px; font-weight: bold; color: #333; margin-bottom: 6px; font-family: Arial, sans-serif; }
   .control-group select { width: 100%; padding: 8px; font-size: 15px; border: 1px solid #ccc; border-radius: 3px; font-family: Arial, sans-serif; }
   .read-btn { background: #2d2a6e; color: #fff; padding: 8px 16px; border: none; border-radius: 3px; cursor: pointer; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif; }
   .read-btn:hover { background: #3d3a80; }
-
   .status { font-size: 13px; font-family: Arial, sans-serif; margin-bottom: 16px; padding: 8px; }
   .status.success { color: green; }
   .status.error { color: red; }
-
   .daily-verse { background: #eef0fb; padding: 20px; margin-bottom: 20px; border-radius: 4px; border-left: 4px solid #5b59a0; }
   .daily-label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #5b59a0; font-weight: bold; font-family: Arial, sans-serif; margin-bottom: 8px; }
   .daily-text { font-size: 16px; color: #2d2a6e; font-style: italic; margin-bottom: 8px; line-height: 1.5; }
   .daily-ref { font-size: 13px; color: #666; font-family: Arial, sans-serif; }
-
   .chapter-display { text-align: center; }
   .chapter-header { text-align: center; margin: 32px 0 24px 0; }
   .chapter-book { font-size: 28px; font-weight: bold; color: #2d2a6e; display: block; }
   .chapter-num { font-size: 14px; color: #5b59a0; letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; display: block; }
-
   .subscript { text-align: center; font-size: 15px; color: #555; margin: 8px 0 12px 0; font-style: italic; }
   .subscript .pilcrow { font-style: normal; margin-right: 4px; }
-
   .verses { margin: 20px 0; text-align: left; }
   .verse { margin-bottom: 12px; line-height: 1.7; }
   .verse-num { font-size: 11px; color: #5b59a0; font-weight: bold; vertical-align: super; margin-right: 3px; }
-
   .colophon { text-align: center; font-size: 13px; color: #666; margin: 24px 0 8px 0; font-style: italic; border-top: 1px solid #ddd; padding-top: 12px; }
   .colophon .pilcrow { font-style: normal; margin-right: 4px; }
   .colophon-content { display: block; margin-top: 4px; }
-
   .footer { text-align: center; font-size: 11px; color: #888; padding: 20px; border-top: 1px solid #ddd; margin-top: 40px; }
-
   .error-msg { color: red; padding: 16px; background: #fff; border: 1px solid #fcc; border-radius: 4px; }
-
   .content-section { background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 14px; margin: 12px 0; }
   .content-section h3 { font-size: 16px; color: #2d2a6e; margin: 0 0 8px 0; }
   .content-section p, .content-section li { font-family: Arial, sans-serif; font-size: 13px; color: #333; line-height: 1.6; }
@@ -474,36 +530,6 @@ Deno.serve(async (req) => {
         <a href="mailto:Kingjamesbiblereader.com@outlook.com">Kingjamesbiblereader.com@outlook.com</a>
       </div>
     </div>
-    <div class="res-section">
-      <h3>Verified KJB Preachers</h3>
-      <div class="res-item"><strong>Robert Breaker</strong><p>KJB missionary evangelist, rightly dividing the word of truth.</p><a href="https://www.youtube.com/@Robertbreaker3" target="_blank">YouTube</a> • <a href="https://www.tiktok.com/@robertbreaker" target="_blank">TikTok</a> • <a href="https://thecloudchurch.org/" target="_blank">thecloudchurch.org</a></div>
-      <div class="res-item"><strong>Robert Potthoff (Big Red Preacher)</strong><p>KJB soul winner.</p><a href="https://mission1611.com/" target="_blank">mission1611.com</a> • <a href="https://www.instagram.com/big_red_preacher" target="_blank">Instagram</a> • <a href="https://www.facebook.com/potthoff87" target="_blank">Facebook</a></div>
-      <div class="res-item"><strong>Joseph Gonzalez (KJB Elites)</strong><p>Faithful preacher of the word.</p><a href="https://youtube.com/@josephgonzalez3" target="_blank">YouTube</a> • <a href="https://www.tiktok.com/@joyfullychurch" target="_blank">TikTok</a></div>
-      <div class="res-item"><strong>Ryan Poff</strong><p>Seed of Hope Church — KJB pastor.</p><a href="https://www.seedofhopechurch.org/" target="_blank">seedofhopechurch.org</a> • <a href="https://youtube.com/@ryan_poff" target="_blank">YouTube</a> • <a href="https://www.tiktok.com/@ryan_sohc" target="_blank">TikTok</a></div>
-      <div class="res-item"><strong>Skyler (AV1611 Ministry)</strong><p>KJB defence and preaching.</p><a href="https://youtube.com/@av1611ministries" target="_blank">YouTube</a> • <a href="https://www.tiktok.com/@av1611ministries" target="_blank">TikTok</a></div>
-      <div class="res-item"><strong>Crown of Thorns</strong><p>KJB preaching ministry.</p><a href="https://www.youtube.com/@CrownOfThorns" target="_blank">YouTube</a></div>
-      <div class="res-item"><strong>Paul Johnson (Biblical Salvation)</strong><p>KJB preaching and Bible teaching.</p><a href="https://youtube.com/@biblicalsalvation" target="_blank">YouTube</a> • <a href="https://www.tiktok.com/@pauljohnson9632" target="_blank">TikTok</a></div>
-      <div class="res-item"><strong>CPR Missions</strong><p>Church Planting and Revival Missions.</p><a href="https://www.youtube.com/channel/UCWBR5DmAi2XPMFRtb-wqHwg" target="_blank">YouTube</a> • <a href="https://www.tiktok.com/@cprmissions" target="_blank">TikTok</a> • <a href="https://www.facebook.com/CPRmission/" target="_blank">Facebook</a></div>
-      <div class="res-item"><strong>James Bray</strong><p>KJB preacher and Bible teacher.</p><a href="https://youtube.com/@jamesbrayall3" target="_blank">YouTube</a></div>
-    </div>
-    <div class="res-section">
-      <h3>KJB Defence</h3>
-      <div class="res-item"><strong>BibleProtector.com — Pure Cambridge Edition</strong><p>The definitive PCE KJB text. Free PDF, ePub, and TXT downloads.</p><a href="https://www.bibleprotector.com" target="_blank">bibleprotector.com</a></div>
-      <div class="res-item"><strong>KJV Compare</strong><p>Hundreds of verse-by-verse changes in modern versions.</p><a href="https://kjvcompare.com/" target="_blank">kjvcompare.com</a></div>
-      <div class="res-item"><strong>Scion of Zion — KJB Comparisons</strong><p>Detailed comparisons exposing corruptions and omissions in modern versions.</p><a href="https://www.scionofzion.com/kjcomparisons.html" target="_blank">scionofzion.com</a></div>
-      <div class="res-item"><strong>1 John 5:7 Defence</strong><p>Resources defending the Johannine Comma, attacked by modern versions.</p><a href="https://www.scionofzion.com/1_john_5_7.htm" target="_blank">Read defence</a></div>
-      <div class="res-item"><strong>A Lamp in the Dark — Documentary</strong><p>The untold history of the Bible, exposing corruption in modern translations.</p><a href="https://www.youtube.com/watch?v=RmXBj2N9fhY" target="_blank">Watch on YouTube</a></div>
-      <div class="res-item"><strong>AV1611 Articles</strong><a href="https://www.av1611.org/articles" target="_blank">av1611.org/articles</a></div>
-      <div class="res-item"><strong>Preserved Words</strong><a href="https://www.preservedwords.com/bp/index.html" target="_blank">preservedwords.com</a></div>
-      <div class="res-item"><strong>Brandplucked — KJB Articles</strong><a href="https://brandplucked.com/kjbarticles.htm" target="_blank">brandplucked.com</a></div>
-    </div>
-    <div class="res-section">
-      <h3>Ministry Links</h3>
-      <div class="links-list">
-        <a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank">God is Gracious 1031 Ministries</a>
-        <a href="mailto:Kingjamesbiblereader.com@outlook.com">Kingjamesbiblereader.com@outlook.com</a>
-      </div>
-    </div>
     <div class="footer">King James Bible — Pure Cambridge Edition</div>
   </div>
 
@@ -514,7 +540,7 @@ Deno.serve(async (req) => {
       <ul>
         <li>I reject Catholicism, Calvinism, Pentecostalism, Mormonism, Jehovah's Witnesses, etc.</li>
         <li>I believe in the blood-stained gospel as the only way to be saved. I reject "repent of sins to be saved", Lordship Salvation, infant baptism, baptism regeneration, etc.</li>
-        <li>To be saved: Believe Jesus is God, that He shed His blood on Calvary, died, was buried, and rose again for your justification.</li>
+        <li>To be saved: Believe Jesus is God and that He died for your sins, shed his blood, was buried and rose again for your justification.</li>
         <li>I believe in OSAS (Once Saved, Always Saved): a believer cannot lose salvation, no matter what.</li>
       </ul>
     </div>
@@ -564,33 +590,11 @@ var NT_BOOKS = ${JSON.stringify(NT_BOOKS)};
 var PSALM_SUBSCRIPTS = ${JSON.stringify(PSALM_SUBSCRIPTS)};
 var COLOPHONS = ${JSON.stringify(COLOPHONS)};
 var FULL_BOOK_NAMES = ${JSON.stringify(FULL_BOOK_NAMES)};
-var BIBLE_DATA = {};
-var COLOPHON_DATA = {};
-var CACHE_VERSION = 'v20260610_281';
-var CACHE_KEY = 'kjb_legacy_bible_cache';
+var BIBLE_DATA = ${bibleDataStr};
+var COLOPHON_DATA = ${colophonsStr};
 
-function loadFromCache() {
-  try {
-    var cached = localStorage.getItem(CACHE_KEY);
-    var version = localStorage.getItem('kjb_legacy_version');
-    if (cached && version === CACHE_VERSION) {
-      var parsed = JSON.parse(cached);
-      BIBLE_DATA = parsed.bibleData || {};
-      COLOPHON_DATA = parsed.colophons || {};
-      console.log('[LEGACY] Loaded from cache:', Object.keys(BIBLE_DATA).length, 'books');
-      return true;
-    }
-  } catch(e) { console.error('[LEGACY] Cache load failed:', e); }
-  return false;
-}
-
-function saveToCache() {
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ bibleData: BIBLE_DATA, colophons: COLOPHON_DATA }));
-    localStorage.setItem('kjb_legacy_version', CACHE_VERSION);
-    console.log('[LEGACY] Saved to cache');
-  } catch(e) { console.error('[LEGACY] Cache save failed:', e); }
-}
+console.log('[LEGACY] Bible data loaded:', Object.keys(BIBLE_DATA).length, 'books');
+console.log('[LEGACY] Colophons:', Object.keys(COLOPHON_DATA).length);
 
 function switchTab(name) {
   document.querySelectorAll('.tab-content').forEach(function(el) { el.classList.remove('active'); });
@@ -601,14 +605,10 @@ function switchTab(name) {
 }
 
 function updateDebugInfo() {
-  var cached = localStorage.getItem(CACHE_KEY);
-  var version = localStorage.getItem('kjb_legacy_version');
-  var info = 'Bible Data Source: ' + (cached ? 'Cache (v' + version + ')' : 'API') + '\\\\n';
-  info += 'Bible Data Loaded: ' + (BIBLE_DATA && Object.keys(BIBLE_DATA).length > 0 ? 'Yes' : 'No') + '\\\\n';
-  info += 'Total Books Loaded: ' + (Object.keys(BIBLE_DATA).length) + '/66\\\\n';
-  info += 'Colophons Loaded: ' + (Object.keys(COLOPHON_DATA).length) + '\\\\n';
-  info += 'Cache Status: ' + (cached ? 'Active' : 'Not cached') + '\\\\n';
-  info += 'Cache Version: ' + (version || 'None') + '\\\\n';
+  var info = 'Bible Data Source: Embedded in page\\n';
+  info += 'Bible Data Loaded: ' + (BIBLE_DATA && Object.keys(BIBLE_DATA).length > 0 ? 'Yes' : 'No') + '\\n';
+  info += 'Total Books Loaded: ' + (Object.keys(BIBLE_DATA).length) + '/66\\n';
+  info += 'Colophons Loaded: ' + (Object.keys(COLOPHON_DATA).length) + '\\n';
   document.getElementById('debug-info').textContent = info;
 }
 
@@ -664,7 +664,7 @@ function readChapter() {
   var chap = document.getElementById('chapSel').value;
 
   if (!BIBLE_DATA[book] || !BIBLE_DATA[book][chap]) {
-    document.getElementById('chapter-display').innerHTML = '<p class="error-msg">Chapter not found. Please refresh page to download Bible data.</p>';
+    document.getElementById('chapter-display').innerHTML = '<p class="error-msg">Chapter not found.</p>';
     return;
   }
 
@@ -680,8 +680,8 @@ function readChapter() {
 
   html += '<div class="verses">';
   for (var v = 0; v < verses.length; v++) {
-    var verseText = verses[v].t.replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
-    html += '<div class="verse"><span class="verse-num">' + verses[v].v + '</span> ' + verseText + '</div>';
+    var verseText = verses[v].text.replace(/\\[([^\\]]+)\\]/g, '<em>$1</em>');
+    html += '<div class="verse"><span class="verse-num">' + verses[v].verse + '</span> ' + verseText + '</div>';
   }
   html += '</div>';
 
@@ -712,12 +712,12 @@ function showDailyVerse() {
       verses = BIBLE_DATA[book][chapter];
       if (!verses || !verses.length) { currentSeed++; continue; }
       verse = verses[currentSeed % verses.length];
-      ref = book + ' ' + chapter + ':' + verse.v;
+      ref = book + ' ' + chapter + ':' + verse.verse;
       if (!(book === 'Romans' && chapter === '10')) break;
       currentSeed++;
     }
 
-    var plainText = verse.t.replace(/<[^>]+>/g, '').replace(/\\[([^\\]]+)\\]/g, '$1');
+    var plainText = verse.text.replace(/<[^>]+>/g, '').replace(/\\[([^\\]]+)\\]/g, '$1');
     document.getElementById('daily-text').textContent = plainText;
     document.getElementById('daily-ref').textContent = '— ' + ref + ' (KJB)';
     document.getElementById('daily-verse-box').style.display = 'block';
@@ -726,95 +726,26 @@ function showDailyVerse() {
   }
 }
 
-function loadAllChapters(bookName) {
-  return fetch('/api/function/bibleApi', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'getChapter', book: bookName, chapter: 1 })
-  })
-  .then(function(res) { return res.json(); })
-  .then(function(data) {
-    if (data.verses && data.verses.length > 0) {
-      if (!BIBLE_DATA[bookName]) BIBLE_DATA[bookName] = {};
-      BIBLE_DATA[bookName][1] = data.verses.map(function(v) { return { v: v.verse, t: v.text }; });
-      return true;
-    }
-    return false;
-  });
-}
-
-function loadBibleData() {
-  if (loadFromCache() && Object.keys(BIBLE_DATA).length > 0) {
-    console.log('[LEGACY] Using cached data');
-    return Promise.resolve();
-  }
-  
-  console.log('[LEGACY] Fetching fresh data...');
-  
-  return fetch('/api/function/bibleApi', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'getAllColophons' })
-  })
-  .then(function(res) { 
-    console.log('[LEGACY] Colophons response:', res.status);
-    return res.json(); 
-  })
-  .then(function(colophonRes) {
-    console.log('[LEGACY] Colophons:', colophonRes.colophons ? Object.keys(colophonRes.colophons).length : 0);
-    if (colophonRes.colophons) {
-      COLOPHON_DATA = colophonRes.colophons;
-    }
-    
-    var promises = [];
-    for (var i = 0; i < BOOK_ORDER.length; i++) {
-      var book = BOOK_ORDER[i];
-      promises.push(loadAllChapters(book).then(function(loaded) {
-        if (loaded) {
-          console.log('[LEGACY] Loaded', book);
-        } else {
-          console.warn('[LEGACY] Failed to load', book);
-        }
-      }));
-    }
-    
-    return Promise.all(promises);
-  })
-  .then(function() {
-    console.log('[LEGACY] Saving to cache...');
-    saveToCache();
-  })
-  .catch(function(err) {
-    console.error('[LEGACY] Load failed:', err);
-    throw err;
-  });
-}
-
 window.addEventListener('load', function() {
   var statusDiv = document.getElementById('status');
-  var cached = localStorage.getItem(CACHE_KEY);
-  statusDiv.innerHTML = '<div class="status">' + (cached ? 'Loading from cache...' : 'Downloading Bible data...') + '</div>';
-  
-  loadBibleData()
-    .then(function() {
-      var bookCount = Object.keys(BIBLE_DATA).length;
-      statusDiv.innerHTML = '<div class="status success">✓ Ready (' + bookCount + ' books)' + (cached ? ' (cached)' : '') + '</div>';
-      populateBooks();
-      showDailyVerse();
-      readChapter();
-    })
-    .catch(function(err) {
-      console.error('Fetch failed:', err);
-      statusDiv.innerHTML = '<div class="status error">Failed to load Bible. Refresh page.</div>';
-    });
+  statusDiv.innerHTML = '<div class="status success">✓ Ready (' + Object.keys(BIBLE_DATA).length + ' books)</div>';
+  populateBooks();
+  showDailyVerse();
+  readChapter();
 });
 </script>
 
 </body>
 </html>`;
 
-  return new Response(html, {
-    status: 200,
-    headers: { 'Content-Type': 'text/html; charset=UTF-8' }
-  });
+    return new Response(html, {
+      status: 200,
+      headers: { 'Content-Type': 'text/html; charset=UTF-8' }
+    });
+  } catch (error) {
+    return new Response('<h1>Error</h1><p>Failed to load legacy reader: ' + error.message + '</p>', {
+      status: 500,
+      headers: { 'Content-Type': 'text/html; charset=UTF-8' }
+    });
+  }
 });
