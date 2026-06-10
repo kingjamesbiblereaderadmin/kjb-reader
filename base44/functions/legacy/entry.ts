@@ -188,8 +188,7 @@ Deno.serve(async (req) => {
   h2.ref { font-size:19px; color:#2d2a6e; margin:14px 0 8px 0; text-align:center; }
   .verse { margin:0 0 5px 0; text-align:left; }
   .verse-pilcrow { margin-top:12px; }
-  .pilcrow-center { text-align:center; margin:12px 0; }
-  .pilcrow-center .pilcrow { font-style:italic; color:#666; display:block; margin-bottom:4px; }
+  .pilcrow { font-style:italic; color:#666; }
   .vnum { font-family:Arial,sans-serif; font-size:11px; color:#2d2a6e; font-weight:bold; vertical-align:super; margin-right:3px; }
   em { font-style:italic; color:#666; }
   .nav { margin:16px 0; text-align:center; }
@@ -484,15 +483,11 @@ function showTab(name, btn) {
     for (var v = 0; v < verses.length; v++) {
       var verseNum = verses[v].v;
       var verseText = verses[v].t;
+      // Render pilcrow as inline span (like main app)
+      var renderedText = verseText.replace(/^[\u00B6\uFFFD]\s*/, '<span class="pilcrow">¶</span> ').replace(/([\s.,;:!?'")\]])[\u00B6\uFFFD]\s*/g, '$1 <span class="pilcrow">¶</span> ');
       var hasPilcrow = verseText.includes('¶') || verseText.includes('\u00B6');
-      // Pilcrow on verse 1: render as centered italic section header (no verse number)
-      if (hasPilcrow && verseNum === "1") {
-        var cleanText = verseText.replace(/[¶\u00B6]\s*/, '').trim();
-        h += '<div class="pilcrow-center"><span class="pilcrow">¶</span><span style="font-style:italic;">' + cleanText + '</span></div>';
-      } else {
-        var verseClass = "verse" + (hasPilcrow && v > 0 ? " verse-pilcrow" : "");
-        h += '<p class="' + verseClass + '"><span class="vnum">' + verseNum + '</span>' + verseText + '</p>';
-      }
+      var verseClass = "verse" + (hasPilcrow && v > 0 ? " verse-pilcrow" : "");
+      h += '<p class="' + verseClass + '"><span class="vnum">' + verseNum + '</span>' + renderedText + '</p>';
     }
     contentDiv.innerHTML = h;
     var bookIdx = availableBooks.indexOf(book);
