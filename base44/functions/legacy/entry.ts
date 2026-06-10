@@ -276,13 +276,22 @@ Deno.serve(async (req) => {
       const verses = (bible[book] && bible[book][chapter]) || [];
       const fullName = FULL_BOOK_NAMES[book] || book;
 
-      // Controls form (GET submit reloads the page server-side)
-      let form = '<div class="box"><form method="get" action="' + esc(basePath) + '">' +
-        '<input type="hidden" name="tab" value="bible">' +
-        (appIdParam ? '<input type="hidden" name="app_id" value="' + esc(appIdParam) + '">' : '') +
-        '<div class="ctl"><label>Book:</label><select name="book">' + bookOptions(book) + '</select></div>' +
-        '<div class="ctl"><label>Chapter:</label><select name="chapter">' + chapterOptions(book, chapter) + '</select></div>' +
-        '<input type="submit" class="read-btn" value="Read Chapter"></form></div>';
+      // Controls — TWO separate forms so the chapter list always matches the
+      // selected book WITHOUT any JavaScript:
+      //  • Book form: pick a book + "Go" → reloads chapter 1 of that book, so the
+      //    chapter dropdown below is rebuilt with that book's exact chapter count.
+      //  • Chapter form: pick a chapter of the now-loaded book + "Read Chapter".
+      const hidden = '<input type="hidden" name="tab" value="bible">' +
+        (appIdParam ? '<input type="hidden" name="app_id" value="' + esc(appIdParam) + '">' : '');
+      let form = '<div class="box">' +
+        '<form method="get" action="' + esc(basePath) + '">' + hidden +
+          '<div class="ctl"><label>Book:</label><select name="book">' + bookOptions(book) + '</select></div>' +
+          '<input type="submit" class="read-btn" value="Select Book"></form>' +
+        '<form method="get" action="' + esc(basePath) + '" style="margin-top:12px;">' + hidden +
+          '<input type="hidden" name="book" value="' + esc(book) + '">' +
+          '<div class="ctl"><label>Chapter (' + esc(book) + ' has ' + (CHAPTER_COUNTS[book] || 1) + '):</label><select name="chapter">' + chapterOptions(book, chapter) + '</select></div>' +
+          '<input type="submit" class="read-btn" value="Read Chapter"></form>' +
+        '</div>';
 
       // Chapter content
       let content = '<div class="chead"><span class="cbook">' + esc(fullName) + '</span><span class="cnum">Chapter ' + chapter + '</span></div>';
@@ -291,7 +300,7 @@ Deno.serve(async (req) => {
       // NOT as verse 1. Italic only on [bracketed] words.
       const subscript = SUBSCRIPTS[book + ':' + chapter];
       if (subscript) {
-        content += '<div class="subscript">' + renderMeta(subscript) + '</div>';
+        content += '<div class="subscript"><span class="pil">&para;</span> ' + renderMeta(subscript) + '</div>';
       }
 
       if (verses.length === 0) {
