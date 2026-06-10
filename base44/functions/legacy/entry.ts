@@ -458,7 +458,7 @@ Deno.serve(async (req) => {
   .tab-btn { display:table-cell; text-align:center; padding:10px 4px; font-family:Arial,sans-serif; font-size:13px; color:#cfceec; cursor:pointer; border:none; background:none; }
   .tab-btn.active { background:#5b59a0; color:#fff; font-weight:bold; }
   .wrap { max-width:720px; margin:0 auto; padding:12px; }
-  .controls { background:#f1f1f7; border:1px solid #ccc; padding:10px; margin:12px 0; font-family:Arial,sans-serif; text-align:left; }
+  .controls { background:#f1f1f7; border:1px solid #ccc; padding:15px; margin:0 0 12px 0; font-family:Arial,sans-serif; text-align:left; }
   .controls label { display:block; font-size:13px; color:#333; margin:0 0 3px 0; font-weight:bold; text-align:left; }
   .controls select { display:block; font-size:15px; padding:4px; margin:0 0 10px 0; width:100%; box-sizing:border-box; text-align:left; }
   .btn { font-family:Arial,sans-serif; font-size:14px; padding:6px 12px; background:#2d2a6e; color:#fff; border:0; cursor:pointer; margin-right:6px; }
