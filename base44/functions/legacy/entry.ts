@@ -37,6 +37,17 @@ const CHAPTER_COUNTS = {
   '1 John':5,'2 John':1,'3 John':1,Jude:1,Revelation:22
 };
 
+// Psalm superscriptions — rendered under the chapter number (NOT as verse 1).
+// Italic only applies to [bracketed] words; the rest stays roman.
+const SUBSCRIPTS = {
+  'Psalms:3':'A Psalm of David, when he fled from Absalom his son.','Psalms:4':'To the chief Musician on Neginoth, A Psalm of David.','Psalms:5':'To the chief Musician upon Nehiloth, A Psalm of David.','Psalms:6':'To the chief Musician on Neginoth upon Sheminith, A Psalm of David.','Psalms:7':'Shiggaion of David, which he sang unto the LORD, concerning the words of Cush the Benjamite.','Psalms:8':'To the chief Musician upon Gittith, A Psalm of David.','Psalms:9':'To the chief Musician upon Muth-labben, A Psalm of David.','Psalms:11':'To the chief Musician, [A] [Psalm] of David.','Psalms:12':'To the chief Musician upon Sheminith, A Psalm of David.','Psalms:13':'To the chief Musician, A Psalm of David.','Psalms:14':'To the chief Musician, [A] [Psalm] of David.','Psalms:15':'A Psalm of David.','Psalms:16':'Michtam of David.','Psalms:17':'A Prayer of David.','Psalms:18':'To the chief Musician, [A] [Psalm] of David, the servant of the LORD, who spake unto the LORD the words of this song in the day [that] the LORD delivered him from the hand of all his enemies, and from the hand of Saul: And he said,','Psalms:19':'To the chief Musician, A Psalm of David.','Psalms:20':'To the chief Musician, A Psalm of David.','Psalms:21':'To the chief Musician, A Psalm of David.','Psalms:22':'To the chief Musician upon Aijeleth Shahar, A Psalm of David.','Psalms:23':'A Psalm of David.','Psalms:24':'A Psalm of David.','Psalms:25':'[A] [Psalm] of David.','Psalms:26':'[A] [Psalm] of David.','Psalms:27':'[A] [Psalm] of David.','Psalms:28':'[A] [Psalm] of David.','Psalms:29':'A Psalm of David.','Psalms:30':'A Psalm [and] Song [at] the dedication of the house of David.','Psalms:31':'To the chief Musician, A Psalm of David.','Psalms:32':'[A] [Psalm] of David, Maschil.','Psalms:34':'[A] [Psalm] of David, when he changed his behaviour before Abimelech; who drove him away, and he departed.','Psalms:35':'[A] [Psalm] of David.','Psalms:36':'To the chief Musician, [A] [Psalm] of David the servant of the LORD.','Psalms:37':'[A] [Psalm] of David.','Psalms:38':'A Psalm of David, to bring to remembrance.','Psalms:39':'To the chief Musician, [even] to Jeduthun, A Psalm of David.','Psalms:40':'To the chief Musician, A Psalm of David.','Psalms:41':'To the chief Musician, A Psalm of David.','Psalms:42':'To the chief Musician, Maschil, for the sons of Korah.','Psalms:44':'To the chief Musician for the sons of Korah, Maschil.','Psalms:45':'To the chief Musician upon Shoshannim, for the sons of Korah, Maschil, A Song of loves.','Psalms:46':'To the chief Musician for the sons of Korah, A Song upon Alamoth.','Psalms:47':'To the chief Musician, A Psalm for the sons of Korah.','Psalms:48':'A Song [and] Psalm for the sons of Korah.','Psalms:49':'To the chief Musician, A Psalm for the sons of Korah.','Psalms:50':'A Psalm of Asaph.','Psalms:51':'To the chief Musician, A Psalm of David, when Nathan the prophet came unto him, after he had gone in to Bath-sheba.','Psalms:52':'To the chief Musician, Maschil, [A] [Psalm] of David, when Doeg the Edomite came and told Saul, and said unto him, David is come to the house of Ahimelech.','Psalms:53':'To the chief Musician upon Mahalath, Maschil, [A] [Psalm] of David.','Psalms:54':'To the chief Musician on Neginoth, Maschil, [A] [Psalm] of David, when the Ziphims came and said to Saul, Doth not David hide himself with us?','Psalms:55':'To the chief Musician on Neginoth, Maschil, [A] [Psalm] of David.','Psalms:56':'To the chief Musician upon Jonath-elem-rechokim, Michtam of David, when the Philistines took him in Gath.','Psalms:57':'To the chief Musician, Al-taschith, Michtam of David, when he fled from Saul in the cave.','Psalms:58':'To the chief Musician, Al-taschith, Michtam of David.','Psalms:59':'To the chief Musician, Al-taschith, Michtam of David; when Saul sent, and they watched the house to kill him.','Psalms:60':'To the chief Musician upon Shushan-eduth, Michtam of David, to teach; when he strove with Aram-naharaim and with Aram-zobah, when Joab returned, and smote of Edom in the valley of salt twelve thousand.','Psalms:61':'To the chief Musician upon Neginah, [A] [Psalm] of David.','Psalms:62':'To the chief Musician, to Jeduthun, A Psalm of David.','Psalms:63':'A Psalm of David, when he was in the wilderness of Judah.','Psalms:64':'To the chief Musician, A Psalm of David.','Psalms:65':'To the chief Musician, A Psalm [and] Song of David.','Psalms:66':'To the chief Musician, A Song [or] Psalm.','Psalms:67':'To the chief Musician on Neginoth, A Psalm [or] Song.','Psalms:68':'To the chief Musician, A Psalm [or] Song of David.','Psalms:69':'To the chief Musician upon Shoshannim, [A] [Psalm] of David.','Psalms:70':'To the chief Musician, [A] [Psalm] of David, to bring to remembrance.','Psalms:72':'[A] [Psalm] for Solomon.','Psalms:73':'A Psalm of Asaph.','Psalms:74':'Maschil of Asaph.','Psalms:75':'To the chief Musician, Al-taschith, A Psalm [or] Song of Asaph.','Psalms:76':'To the chief Musician on Neginoth, A Psalm [or] Song of Asaph.','Psalms:77':'To the chief Musician, to Jeduthun, A Psalm of Asaph.','Psalms:78':'Maschil of Asaph.','Psalms:79':'A Psalm of Asaph.','Psalms:80':'To the chief Musician upon Shoshannim-Eduth, A Psalm of Asaph.','Psalms:81':'To the chief Musician upon Gittith, [A] [Psalm] of Asaph.','Psalms:82':'A Psalm of Asaph.','Psalms:83':'A Song [or] Psalm of Asaph.','Psalms:84':'To the chief Musician upon Gittith, A Psalm for the sons of Korah.','Psalms:85':'To the chief Musician, A Psalm for the sons of Korah.','Psalms:86':'A Prayer of David.','Psalms:87':'A Psalm [or] Song for the sons of Korah.','Psalms:88':'A Song [or] Psalm for the sons of Korah, to the chief Musician upon Mahalath Leannoth, Maschil of Heman the Ezrahite.','Psalms:89':'Maschil of Ethan the Ezrahite.','Psalms:90':'A Prayer of Moses the man of God.','Psalms:92':'A Psalm [or] Song for the sabbath day.','Psalms:98':'A Psalm.','Psalms:100':'A Psalm of praise.','Psalms:101':'A Psalm of David.','Psalms:102':'A Prayer of the afflicted, when he is overwhelmed, and poureth out his complaint before the LORD.','Psalms:103':'[A] [Psalm] of David.','Psalms:108':'A Song [or] Psalm of David.','Psalms:109':'To the chief Musician, A Psalm of David.','Psalms:110':'A Psalm of David.','Psalms:120':'A Song of degrees.','Psalms:121':'A Song of degrees.','Psalms:122':'A Song of degrees of David.','Psalms:123':'A Song of degrees.','Psalms:124':'A Song of degrees of David.','Psalms:125':'A Song of degrees.','Psalms:126':'A Song of degrees.','Psalms:127':'A Song of degrees for Solomon.','Psalms:128':'A Song of degrees.','Psalms:129':'A Song of degrees.','Psalms:130':'A Song of degrees.','Psalms:131':'A Song of degrees of David.','Psalms:132':'A Song of degrees.','Psalms:133':'A Song of degrees of David.','Psalms:134':'A Song of degrees.','Psalms:138':'[A] [Psalm] of David.','Psalms:139':'To the chief Musician, A Psalm of David.','Psalms:140':'To the chief Musician, A Psalm of David.','Psalms:141':'A Psalm of David.','Psalms:142':'Maschil of David; A Prayer when he was in the cave.','Psalms:143':'A Psalm of David.','Psalms:144':'[A] [Psalm] of David.','Psalms:145':"David's [Psalm] of praise."
+};
+
+// Colophons — rendered as a footer below the last verse, on its own line, italic on [brackets].
+const COLOPHONS = {
+  'Romans:16':'Written to the Romans from Corinthus, [and sent] by Phebe servant of the church at Cenchrea.','1 Corinthians:16':'The first [epistle] to the Corinthians was written from Philippi by Stephanas, and Fortunatus, and Achaicus, and Timotheus.','2 Corinthians:13':'The second [epistle] to the Corinthians was written from Philippi, [a city] of Macedonia, by Titus and Lucas.','Galatians:6':'Unto the Galatians written from Rome.','Ephesians:6':'Written from Rome unto the Ephesians by Tychicus.','Philippians:4':'It was written to the Philippians from Rome by Epaphroditus.','Colossians:4':'Written from Rome to the Colossians by Tychicus and Onesimus.','1 Thessalonians:5':'The first [epistle] unto the Thessalonians was written from Athens.','2 Thessalonians:3':'The second [epistle] to the Thessalonians was written from Athens.','1 Timothy:6':'The first to Timothy was written from Laodicea, which is the chiefest city of Phrygia Pacatiana.','2 Timothy:4':'The second [epistle] unto Timotheus, ordained the first bishop of the church of the Ephesians, was written from Rome, when Paul was brought before Nero the second time.','Titus:3':'It was written to Titus, ordained the first bishop of the church of the Cretians, from Nicopolis of Macedonia.','Philemon:1':'Written from Rome to Philemon, by Onesimus a servant.','Hebrews:13':'Written to the Hebrews from Italy by Timothy.'
+};
+
 let bibleData = null;
 
 async function loadBible() {
@@ -87,9 +98,20 @@ function renderVerse(raw) {
     .replace(/\u201C/g, '"').replace(/\u201D/g, '"')
     .replace(/(\w)\uFFFD(\w)/g, "$1'$2");
   t = t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  t = t.replace(/^[\u00B6\uFFFD]\s*/, '<span class="pil">&para;</span> ');
-  t = t.replace(/([\s.,;:!?'")\]])[\u00B6\uFFFD]\s*/g, '$1 <span class="pil">&para;</span> ');
+  // Pilcrow marks render on their own line ABOVE the following text (shift down).
+  t = t.replace(/^[\u00B6\uFFFD]\s*/, '<span class="pil">&para;</span><br>');
+  t = t.replace(/([\s.,;:!?'")\]])[\u00B6\uFFFD]\s*/g, '$1<br><span class="pil">&para;</span><br>');
   t = t.replace(/[\u00B6\uFFFD]/g, '');
+  t = t.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
+  return t;
+}
+
+// Subscripts & colophons: roman by default, italic ONLY on [bracketed] words.
+function renderMeta(raw) {
+  let t = raw
+    .replace(/\u2019/g, "'").replace(/\u2018/g, "'")
+    .replace(/\u201C/g, '"').replace(/\u201D/g, '"');
+  t = t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   t = t.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
   return t;
 }
@@ -162,6 +184,8 @@ Deno.serve(async (req) => {
 '.cnum { font-size:13px; color:#666; display:block; margin-top:4px; }' +
 '.verse { margin-bottom:8px; }' +
 '.vn { font-weight:bold; color:#2d2a6e; font-size:11px; vertical-align:super; margin-right:3px; }' +
+'.subscript { text-align:center; color:#555; font-size:14px; margin:0 0 16px; }' +
+'.colophon { text-align:center; color:#555; font-size:14px; margin:18px 0 0; padding-top:12px; border-top:1px solid #e0e0ec; }' +
 '.pil { color:#888; }' +
 'em { font-style:italic; }' +
 '.nav { text-align:center; margin:20px 0; }' +
@@ -191,12 +215,26 @@ Deno.serve(async (req) => {
 
       // Chapter content
       let content = '<div class="chead"><span class="cbook">' + esc(fullName) + '</span><span class="cnum">Chapter ' + chapter + '</span></div>';
+
+      // Psalm superscription: rendered directly under the chapter number,
+      // NOT as verse 1. Italic only on [bracketed] words.
+      const subscript = SUBSCRIPTS[book + ':' + chapter];
+      if (subscript) {
+        content += '<div class="subscript">' + renderMeta(subscript) + '</div>';
+      }
+
       if (verses.length === 0) {
         content += '<p style="text-align:center;color:#c00;">No verses found.</p>';
       } else {
         for (let i = 0; i < verses.length; i++) {
           content += '<div class="verse"><span class="vn">' + verses[i].verse + '</span> ' + renderVerse(verses[i].text) + '</div>';
         }
+      }
+
+      // Colophon: footer line below the last verse, on its own line.
+      const colophon = COLOPHONS[book + ':' + chapter];
+      if (colophon) {
+        content += '<div class="colophon">' + renderMeta(colophon) + '</div>';
       }
 
       // Prev/Next chapter links
