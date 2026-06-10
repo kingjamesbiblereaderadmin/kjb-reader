@@ -176,12 +176,7 @@ Deno.serve(async (req) => {
   const bookCount = BOOK_ORDER.filter(b => bibleData[b]).length;
   console.log("[legacy] Injecting", bookCount, "books into HTML");
 
-  // Escape JSON for safe embedding in JavaScript string literal
-  const bibleJsonEscaped = JSON.stringify(bibleData)
-    .replace(/\\/g, '\\\\')
-    .replace(/'/g, "\\'")
-    .replace(/</g, '\\x3c')
-    .replace(/>/g, '\\x3e');
+  const bibleJson = JSON.stringify(bibleData);
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -550,6 +545,7 @@ Deno.serve(async (req) => {
 </div>
 
 <script type="text/javascript">
+var BIBLE_DATA_INJECTED = ${bibleJson};
 // Tab switching
 function showTab(name, btn) {
   var tabs = ["reader","gospel","resources","about", "debug"];
@@ -565,8 +561,7 @@ function showTab(name, btn) {
 
 (function () {
   // Use freshly injected data from the server, or fall back to localStorage cache for offline use
-  var _injected = ${bibleJsonEscaped};
-  var BIBLE_DATA = (Object.keys(_injected).length > 0) ? _injected : (function() {
+  var BIBLE_DATA = (BIBLE_DATA_INJECTED && Object.keys(BIBLE_DATA_INJECTED).length > 0) ? BIBLE_DATA_INJECTED : (function() {
     try { var c = localStorage.getItem("kjb-legacy-bible-v1"); return c ? JSON.parse(c) : {}; } catch(e) { return {}; }
   })();
   var BOOK_ORDER = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
