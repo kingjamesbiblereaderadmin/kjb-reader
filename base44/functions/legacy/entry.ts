@@ -338,6 +338,60 @@ Deno.serve(async (req) => {
     // Resolve the app_id from the query param or the env var and build the
     // absolute function path, which works on both the custom domain and base44.
     const appId = appIdParam || Deno.env.get('BASE44_APP_ID') || '';
+
+    // ── Renders one book's full HTML (used by both chunk mode and full page) ──
+    function buildBookHtml(bible, bi) {
+      const bName = BOOK_ORDER[bi];
+      const bData = bible[bName];
+      if (!bData) return '';
+      const fullName = FULL_BOOK_NAMES[bName] || bName;
+      const maxCh = CHAPTER_COUNTS[bName] || 1;
+      let out = '<div class="fb-book"><a name="b' + bi + '" id="b' + bi + '"></a>' +
+        '<h2 class="fb-bookname">' + esc(fullName) + '</h2>' +
+        '<p class="fb-top"><a href="#top">&uarr; Back to top</a></p>';
+      if (maxCh > 1) {
+        let chapLinks = '<p class="fb-chaplinks"><span class="fb-chaplinks-label">Chapters:</span> ';
+        for (let ch = 1; ch <= maxCh; ch++) {
+          chapLinks += '<a href="#b' + bi + 'c' + ch + '">' + ch + '</a> ';
+        }
+        chapLinks += '</p>';
+        out += chapLinks;
+      }
+      for (let ch = 1; ch <= maxCh; ch++) {
+        const verses = bData[ch] || [];
+        out += '<h3 class="fb-chap"><a name="b' + bi + 'c' + ch + '" id="b' + bi + 'c' + ch + '"></a>Chapter ' + ch + ' <a href="#b' + bi + '" class="fb-chaptop">&uarr; book top</a></h3>';
+        const sub = SUBSCRIPTS[bName + ':' + ch];
+        if (sub) out += '<div class="subscript"><span class="pil">&para; </span>' + renderMeta(sub) + '</div>';
+        for (let vi = 0; vi < verses.length; vi++) {
+          const r = renderVerse(verses[vi].text);
+          const pil = r.leadingPilcrow ? '<span class="pil">&para; </span>' : '';
+          out += '<div class="verse"><span class="vn">' + verses[vi].verse + '</span>' + pil + r.html + '</div>';
+        }
+        const col = COLOPHONS[bName + ':' + ch];
+        if (col) out += '<div class="colophon"><span class="pil">&para; </span>' + renderMeta(col) + '</div>';
+      }
+      out += '</div>';
+      return out;
+    }
+
+    // ── CHUNK MODE: ?chunk=N returns just book N's HTML (small, cacheable) ──
+    // The shell page below fetches these one-by-one so each download is small
+    // and reliable even on a weak connection.
+    const chunkParam = url.searchParams.get('chunk');
+    if (chunkParam !== null) {
+      const bi = parseInt(chunkParam, 10);
+      if (isNaN(bi) || bi < 0 || bi >= BOOK_ORDER.length) {
+        return new Response('Bad chunk', { status: 400 });
+      }
+      const bible = await loadBible();
+      const chunkHtml = buildBookHtml(bible, bi);
+      return new Response(chunkHtml, { headers: {
+        'Content-Type': 'text/html;charset=UTF-8',
+        'Cache-Control': 'public, max-age=31536000, immutable',
+        'Expires': 'Fri, 31 Dec 9999 23:59:59 GMT',
+        'Access-Control-Allow-Origin': '*'
+      } });
+    }
     const basePath = appId
       ? '/api/apps/' + encodeURIComponent(appId) + '/functions/legacy'
       : '/functions/legacy';
@@ -547,41 +601,10 @@ Deno.serve(async (req) => {
         '<a href="' + fbBase + '#gospel">Gospel</a> <a href="' + fbBase + '#resources">Resources</a> <a href="' + fbBase + '#about">About</a>' +
         '</p></div>';
 
-      // Full text of every book/chapter/verse
-      let body = '';
-      for (let bi = 0; bi < BOOK_ORDER.length; bi++) {
-        const bName = BOOK_ORDER[bi];
-        const bData = bible[bName];
-        if (!bData) continue;
-        const fullName = FULL_BOOK_NAMES[bName] || bName;
-        const maxCh = CHAPTER_COUNTS[bName] || 1;
-        body += '<div class="fb-book"><a name="b' + bi + '" id="b' + bi + '"></a>' +
-          '<h2 class="fb-bookname">' + esc(fullName) + '</h2>' +
-          '<p class="fb-top"><a href="' + fbBase + '#top">&uarr; Back to top</a></p>';
-        // Per-chapter quick links for this book
-        if (maxCh > 1) {
-          let chapLinks = '<p class="fb-chaplinks"><span class="fb-chaplinks-label">Chapters:</span> ';
-          for (let ch = 1; ch <= maxCh; ch++) {
-            chapLinks += '<a href="' + fbBase + '#b' + bi + 'c' + ch + '">' + ch + '</a> ';
-          }
-          chapLinks += '</p>';
-          body += chapLinks;
-        }
-        for (let ch = 1; ch <= maxCh; ch++) {
-          const verses = bData[ch] || [];
-          body += '<h3 class="fb-chap"><a name="b' + bi + 'c' + ch + '" id="b' + bi + 'c' + ch + '"></a>Chapter ' + ch + ' <a href="' + fbBase + '#b' + bi + '" class="fb-chaptop">&uarr; book top</a></h3>';
-          const sub = SUBSCRIPTS[bName + ':' + ch];
-          if (sub) body += '<div class="subscript"><span class="pil">&para; </span>' + renderMeta(sub) + '</div>';
-          for (let vi = 0; vi < verses.length; vi++) {
-            const r = renderVerse(verses[vi].text);
-            const pil = r.leadingPilcrow ? '<span class="pil">&para; </span>' : '';
-            body += '<div class="verse"><span class="vn">' + verses[vi].verse + '</span>' + pil + r.html + '</div>';
-          }
-          const col = COLOPHONS[bName + ':' + ch];
-          if (col) body += '<div class="colophon"><span class="pil">&para; </span>' + renderMeta(col) + '</div>';
-        }
-        body += '</div>';
-      }
+      // The 6 MB of book text is NOT inlined here — it's loaded in small,
+      // per-book sections by the loader script (see SECTION_SCRIPT below).
+      // We render an empty container the script fills as each book arrives.
+      const body = '<div id="fb-books-target"></div>';
 
       const extras =
         '<div class="fb-book"><a name="gospel" id="gospel"></a><p class="fb-top"><a href="' + fbBase + '#top">&uarr; Back to top</a></p>' + gospelHtml + '</div>' +
@@ -593,10 +616,49 @@ Deno.serve(async (req) => {
         index + body + extras;
     }
 
-    // The Full Bible is one self-contained page. All internal links are plain
-    // "#anchor" fragments, which the browser jumps to natively — fully offline,
-    // no JavaScript and no network requests needed. No enhance script required.
-    const ENHANCE_SCRIPT = '';
+    // The books are downloaded in small per-book sections via XHR. Each
+    // section is tiny so it downloads reliably on weak connections; the page
+    // is revealed only after ALL books have been assembled. The browser caches
+    // each chunk, so a repeat visit (even offline) reassembles instantly.
+    const chunkBase = basePath + '?chunk=';
+    const totalBooks = BOOK_ORDER.length;
+    const SECTION_SCRIPT = '<script>(function(){' +
+      'var BASE=' + JSON.stringify(chunkBase) + ';' +
+      'var TOTAL=' + totalBooks + ';' +
+      'var target=document.getElementById("fb-books-target");' +
+      'var bar=document.getElementById("kjb-bar");' +
+      'var pct=document.getElementById("kjb-pct");' +
+      'var parts=[];var done=0;' +
+      'function reveal(){' +
+        'try{target.innerHTML=parts.join("");}catch(e){}' +
+        'if(document.body){document.body.className=document.body.className?document.body.className+" kjb-ready":"kjb-ready";}' +
+        'if(window.location.hash){try{window.location.href=window.location.hash;}catch(e){}}' +
+      '}' +
+      'function makeXHR(){if(window.XMLHttpRequest){return new XMLHttpRequest();}try{return new ActiveXObject("Msxml2.XMLHTTP");}catch(e){}try{return new ActiveXObject("Microsoft.XMLHTTP");}catch(e){}return null;}' +
+      'function load(i,tries){' +
+        'if(i>=TOTAL){reveal();return;}' +
+        'var xhr=makeXHR();' +
+        'if(!xhr){reveal();return;}' +
+        'xhr.open("GET",BASE+i,true);' +
+        'xhr.onreadystatechange=function(){' +
+          'if(xhr.readyState===4){' +
+            'if(xhr.status===200||xhr.status===0){' +
+              'parts[i]=xhr.responseText;done++;' +
+              'var p=Math.round(done*100/TOTAL);' +
+              'if(bar){bar.style.width=p+"%";}if(pct){pct.innerHTML=p+"%";}' +
+              'load(i+1,0);' +
+            '}else if(tries<5){' +
+              'setTimeout(function(){load(i,tries+1);},800);' +
+            '}else{' +
+              'parts[i]="<div class=\\"fb-book\\"><p style=\\"color:#b02525\\">Could not load book "+(i+1)+". Refresh to retry.</p></div>";done++;load(i+1,0);' +
+            '}' +
+          '}' +
+        '};' +
+        'try{xhr.send(null);}catch(e){if(tries<5){setTimeout(function(){load(i,tries+1);},800);}else{reveal();}}' +
+      '}' +
+      'function start(){load(0,0);}' +
+      'if(window.addEventListener){window.addEventListener("load",start,false);}else if(window.attachEvent){window.attachEvent("onload",start);}else{window.onload=start;}' +
+    '})();</script>';
 
     const banner = '<div class="banner"><b>&#9888; Legacy mode &mdash; for old browsers like Internet Explorer</b>' +
       'This version is unsupported, may contain bugs, and could have security issues. Please upgrade to a modern browser (Chrome, Firefox, Edge or Safari) &mdash; or upgrade your device &mdash; for the best, most secure experience.' +
@@ -610,11 +672,10 @@ Deno.serve(async (req) => {
     // For the heavy Full Bible page, hide the page behind a loading overlay
     // until the whole document has finished parsing (window.onload), so the
     // user never sees a half-rendered page mid-load.
-    const loaderStyle = '#kjb-loader{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;overflow:auto;background:' + (isDark ? '#1a1a1e' : '#f5f5f7') + ';color:' + (isDark ? '#e5e5e5' : '#2d2a6e') + ';font-family:Arial,sans-serif;font-size:16px;text-align:center;padding-top:12vh;}#kjb-loader img{width:96px;height:96px;display:block;margin:0 auto 16px;}#kjb-loader .kjb-loader-title{font-family:Georgia,serif;font-size:22px;font-weight:bold;margin-bottom:6px;}#kjb-loader .kjb-loader-banner{max-width:560px;margin:24px auto 0;text-align:left;}body.kjb-ready #kjb-loader{display:none;}body:not(.kjb-ready) #wrap,body:not(.kjb-ready) .banner,body:not(.kjb-ready) .hdr{visibility:hidden;}';
-    const loaderHtml = '<div id="kjb-loader"><img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader"><div class="kjb-loader-title">KJB Reader (Legacy)</div>Loading the full Bible&hellip;<br><span style="font-size:13px;color:' + (isDark ? '#aaa' : '#666') + ';">Please wait, this may take a moment.</span><div class="kjb-loader-banner">' + banner + '</div></div>';
-    const loaderScript = '<script>(function(){function r(){if(document.body){if(document.body.className){document.body.className+=" kjb-ready";}else{document.body.className="kjb-ready";}}}if(window.addEventListener){window.addEventListener("load",r,false);}else if(window.attachEvent){window.attachEvent("onload",r);}else{window.onload=r;}})();</script>';
+    const loaderStyle = '#kjb-loader{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;overflow:auto;background:' + (isDark ? '#1a1a1e' : '#f5f5f7') + ';color:' + (isDark ? '#e5e5e5' : '#2d2a6e') + ';font-family:Arial,sans-serif;font-size:16px;text-align:center;padding-top:12vh;}#kjb-loader img{width:96px;height:96px;display:block;margin:0 auto 16px;}#kjb-loader .kjb-loader-title{font-family:Georgia,serif;font-size:22px;font-weight:bold;margin-bottom:6px;}#kjb-loader .kjb-loader-banner{max-width:560px;margin:24px auto 0;text-align:left;}#kjb-progress{max-width:320px;margin:18px auto 4px;height:14px;background:' + (isDark ? '#2a2a33' : '#e0e0ec') + ';border:1px solid ' + (isDark ? '#3a3d4a' : '#c9c7e0') + ';border-radius:7px;overflow:hidden;}#kjb-bar{height:100%;width:0;background:' + (isDark ? '#7c7ceb' : '#2d2a6e') + ';}#kjb-pct{font-size:13px;color:' + (isDark ? '#aaa' : '#666') + ';}body.kjb-ready #kjb-loader{display:none;}body:not(.kjb-ready) #wrap,body:not(.kjb-ready) .banner,body:not(.kjb-ready) .hdr{visibility:hidden;}';
+    const loaderHtml = '<div id="kjb-loader"><img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader"><div class="kjb-loader-title">KJB Reader (Legacy)</div>Downloading the full Bible&hellip;<br><span style="font-size:13px;color:' + (isDark ? '#aaa' : '#666') + ';">Loading in sections so it works on slow connections. Please wait.</span><div id="kjb-progress"><div id="kjb-bar"></div></div><div id="kjb-pct">0%</div><div class="kjb-loader-banner">' + banner + '</div></div>';
 
-    const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>KJB Reader (Legacy)</title><style>' + STYLE + (isDark ? DARK_STYLE : '') + loaderStyle + '</style></head><body>' + loaderHtml + '<div class="hdr"><h1>KJB Reader (Legacy)</h1><p>King James Bible &mdash; Pure Cambridge Edition</p></div>' + banner + '<div class="wrap" id="wrap">' + bodyInner + '</div>' + ENHANCE_SCRIPT + loaderScript + '</body></html>';
+    const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>KJB Reader (Legacy)</title><style>' + STYLE + (isDark ? DARK_STYLE : '') + loaderStyle + '</style></head><body>' + loaderHtml + '<div class="hdr"><h1>KJB Reader (Legacy)</h1><p>King James Bible &mdash; Pure Cambridge Edition</p></div>' + banner + '<div class="wrap" id="wrap">' + bodyInner + '</div>' + SECTION_SCRIPT + '</body></html>';
 
     return new Response(html, { headers: {
       'Content-Type': 'text/html;charset=UTF-8',
