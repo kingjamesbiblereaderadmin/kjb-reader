@@ -198,8 +198,8 @@ Deno.serve(async (req) => {
   .wrap { max-width:720px; margin:0 auto; padding:12px; }
   /* Reader tab */
   .controls { background:#f1f1f7; border:1px solid #cccccc; padding:10px; margin:12px 0; font-family:Arial,sans-serif; }
-  .controls label { display:inline-block; font-size:13px; color:#333333; margin:0 4px 4px 0; }
-  select { font-size:15px; padding:4px; margin:0 6px 6px 0; max-width:100%; display:inline-block; width:auto; }
+  .controls label { display:block; font-size:13px; color:#333333; margin:0 0 3px 0; font-weight:bold; }
+  .controls select { display:block; font-size:15px; padding:4px; margin:0 0 10px 0; width:100%; box-sizing:border-box; }
   .btn { font-family:Arial,sans-serif; font-size:14px; padding:6px 12px; background:#2d2a6e; color:#ffffff; border:0; cursor:pointer; margin-right:6px; }
   .btn.alt { background:#777777; }
   .status { font-family:Arial,sans-serif; font-size:12px; color:#555555; padding:6px 0; }
