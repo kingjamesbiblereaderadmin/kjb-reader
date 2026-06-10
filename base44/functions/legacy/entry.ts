@@ -699,9 +699,10 @@ Deno.serve(async (req) => {
       // blank screen.
       'function isOffline(){try{return navigator&&navigator.onLine===false;}catch(e){return false;}}' +
       'function showLoader(){if(loaderShown||revealed)return;loaderShown=true;var L=document.getElementById("kjb-loader");if(L){L.style.display="block";}var p=document.getElementById("kjb-loadtext");if(p&&isOffline()){p.innerHTML="Loading the Bible&hellip;";}}' +
-      // Online: always show the loader immediately (we re-download fresh chunks
-      // from the network). Offline: only show it if assembly takes >250ms.
-      'function start(){if(isOffline()){setTimeout(showLoader,250);}else{showLoader();}setPct(0);next(0);}' +
+      // Only show the loader if assembly takes longer than 250ms (i.e. chunks
+      // are actually being downloaded). Cached visits assemble instantly and
+      // skip the loader entirely instead of flashing it.
+      'function start(){setTimeout(showLoader,250);setPct(0);next(0);}' +
       'if(window.addEventListener){window.addEventListener("load",start,false);}else if(window.attachEvent){window.attachEvent("onload",start);}else{window.onload=start;}' +
     '})();</script>';
 
