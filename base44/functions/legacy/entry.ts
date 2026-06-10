@@ -352,6 +352,7 @@ Deno.serve(async (req) => {
     const DARK_STYLE = 'body{background:#1a1a1e;color:#e5e5e5;}.hdr{background:#1e1b4d;}.tabs{background:#2d2a6e;}.tabs a{color:#a5a5d0;}.tabs a.on{background:#3d3a80;color:#fff;}.box{background:#252830;border-color:#3a3d4a;color:#e5e5e5;}.ctl label{color:#e5e5e5;}.ctl select{background:#1a1a1e;border-color:#4a4d5a;color:#e5e5e5;}.read-btn{background:#3d3a80;}.cbook{color:#7c7ceb;}.vn{color:#7c7ceb;}.subscript,.colophon{color:#aaa;}.pil{color:#666;}.nav a{background:#3d3a80;}.box blockquote{background:#1e1b4d;border-left-color:#7c7ceb;}.box a{color:#7c7ceb;}.sec-title{color:#7c7ceb;}.sec-sub{color:#aaa;}.step{background:#252830;border-color:#3a3d4a;border-left-color:#7c7ceb;}.step h4{color:#7c7ceb;}.step .ref{color:#aaa;}.warn{background:#2a1a1a;border-color:#4a2a2a;}.warn h4{color:#f56565;}.lnk{background:#1e1b4d;border-color:#3a3d4a;color:#7c7ceb;}.lnk b{color:#e5e5e5;}.lnk span{color:#aaa;}.res-cat{color:#7c7ceb;border-bottom-color:#3a3d4a;}.about-list li{color:#e5e5e5;}.banner{background:#2a1a1a;border-bottom-color:#4a2a2a;color:#f0b8b8;}.banner a{color:#f0b8b8;}';
 
     const tabLink = (t, label) => '<a href="' + esc(basePath) + '?tab=' + t + idSuffix + '" class="' + (t === tab ? 'on' : '') + '">' + label + '</a>';
+    const tabsHtml = tabLink('bible', 'Bible') + tabLink('fullbible', 'Full Bible') + tabLink('gospel', 'Gospel') + tabLink('resources', 'Resources') + tabLink('about', 'About');
 
     // Fetch daily verse once for all tabs
     let dailyVerseCard = '';
@@ -613,7 +614,7 @@ Deno.serve(async (req) => {
       '<li>Found a bug? Email <a href="mailto:kingjamesbiblereader@outlook.sg">kingjamesbiblereader@outlook.sg</a>.</li>' +
       '</ul></div>';
 
-    const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>KJB Reader (Legacy)</title><style>' + STYLE + (isDark ? DARK_STYLE : '') + '</style></head><body><div class="hdr"><h1>KJB Reader (Legacy)</h1><p>King James Bible &mdash; Pure Cambridge Edition</p></div>' + banner + '<div class="tabs">' + tabLink('bible', 'Bible') + tabLink('gospel', 'Gospel') + tabLink('resources', 'Resources') + tabLink('about', 'About') + tabLink('debug', 'Debug') + '</div><div class="wrap" id="wrap">' + bodyInner + '</div>' + ENHANCE_SCRIPT + '</body></html>';
+    const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>KJB Reader (Legacy)</title><style>' + STYLE + (isDark ? DARK_STYLE : '') + '</style></head><body><div class="hdr"><h1>KJB Reader (Legacy)</h1><p>King James Bible &mdash; Pure Cambridge Edition</p></div>' + banner + '<div class="tabs">' + tabLink('bible', 'Bible') + tabLink('gospel', 'Gospel') + tabLink('resources', 'Resources') + tabLink('about', 'About') + '</div><div class="wrap" id="wrap">' + bodyInner + '</div>' + ENHANCE_SCRIPT + '</body></html>';
 
     return new Response(html, { headers: { 'Content-Type': 'text/html;charset=UTF-8' } });
   } catch (error) {
