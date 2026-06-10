@@ -245,7 +245,7 @@ Deno.serve(async (req) => {
 <body>
 <div class="header">
   <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" style="width:48px;height:48px;vertical-align:middle;margin-right:8px;">
-  <h1 style="display:inline-block;vertical-align:middle;">King James Bible</h1>
+  <h1 style="display:inline-block;vertical-align:middle;">KJB Reader</h1>
   <p>Legacy Edition &mdash; for older browsers</p>
 </div>
 <div class="tabs">
@@ -651,7 +651,7 @@ function showTab(name, btn) {
   };
 
   var showDailyVerse = function() {
-    // Try to fetch from the same bibleApi as the main app
+    // Fetch from the same bibleApi as the main app to ensure matching daily verse
     try {
       var now = new Date();
       var clientDate = now.getFullYear() + "-" + (now.getMonth()+1) + "-" + now.getDate();
@@ -668,8 +668,8 @@ function showTab(name, btn) {
         }
       } catch(e) {}
 
-      // Determine API URL (same host or base44 function path)
-      var apiUrl = window.location.origin + "/api/functions/bibleApi";
+      // Determine API URL - try direct function path first (works on custom domains too)
+      var apiUrl = "/api/functions/bibleApi";
       // Try XHR to the bibleApi function
       var xhr = new XMLHttpRequest();
       xhr.open("POST", apiUrl, true);
