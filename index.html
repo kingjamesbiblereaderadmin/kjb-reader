@@ -71,9 +71,11 @@
             // /functions/legacy; on base44 hosting it needs the app_id path.
             var host = window.location.hostname || '';
             var isCustom = host.indexOf('base44.app') === -1 && host.indexOf('localhost') === -1;
+            // IE8 lacks window.location.origin — build it manually as a fallback.
+            var origin = window.location.origin || (window.location.protocol + '//' + window.location.host);
             var legacyUrl;
             if (isCustom) {
-              legacyUrl = window.location.origin + '/functions/legacy';
+              legacyUrl = origin + '/functions/legacy';
             } else {
               var appId = null;
               var appIdx = qs.indexOf('app_id=');
@@ -93,12 +95,14 @@
             window.location.replace(legacyUrl);
           }
         } catch (e) {
-          // If detection fails, still try to redirect on very old browsers
+          // If detection fails on an old browser, redirect STRAIGHT to the
+          // server-rendered function (never the React /legacy page, which IE
+          // can't run). Use the origin path which works on the custom domain.
           try {
-            if (typeof window.Promise === 'undefined') {
-              window.location.replace('/legacy');
-            }
-          } catch (e2) {}
+            window.location.replace(window.location.origin + '/functions/legacy');
+          } catch (e2) {
+            try { window.location.replace('/functions/legacy'); } catch (e3) {}
+          }
         }
       })();
     </script>
