@@ -86,14 +86,26 @@ self.addEventListener('fetch', (event) => {
           }
           return response;
         }).catch(() => {
+          // Offline: try an exact match first, then fall back to ANY cached
+          // legacy shell (ignoring query params like ?app_id=) so a refresh
+          // with a slightly different URL still serves the cached page.
           return cache.match(request).then((cached) => {
             if (cached) return cached;
-            return new Response(
-              '<!DOCTYPE html><html><body style="font-family:Arial;padding:20px;">' +
-              '<h1>Legacy Reader</h1><p>This page needs to be opened online once before it can be read offline.</p>' +
-              '</body></html>',
-              { headers: { 'Content-Type': 'text/html' } }
-            );
+            return cache.matchAll().then((all) => {
+              const shell = all.find((r) => {
+                try {
+                  const u = new URL(r.url);
+                  return (u.pathname.indexOf('/functions/legacy') !== -1 || u.pathname.endsWith('/legacy')) && u.search.indexOf('chunk=') === -1;
+                } catch { return false; }
+              });
+              if (shell) return shell;
+              return new Response(
+                '<!DOCTYPE html><html><body style="font-family:Arial;padding:20px;">' +
+                '<h1>Legacy Reader</h1><p>This page needs to be opened online once before it can be read offline.</p>' +
+                '</body></html>',
+                { headers: { 'Content-Type': 'text/html' } }
+              );
+            });
           });
         });
       })
