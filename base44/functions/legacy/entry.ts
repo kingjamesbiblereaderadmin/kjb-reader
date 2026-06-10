@@ -339,14 +339,19 @@ Deno.serve(async (req) => {
 <!-- RESOURCES TAB -->
 <div class="tab-content" id="tab-resources">
 <div class="wrap">
-  <h2 style="color:#2d2a6e;margin:16px 0 4px 0;">Resources</h2>
-  <p style="font-family:Arial,sans-serif;font-size:13px;color:#555555;margin:0 0 12px 0;">KJB defence materials, studies on modern version corruption, and free Bible study resources.</p>
+<h2 style="color:#2d2a6e;margin:16px 0 4px 0;">Resources</h2>
+<p style="font-family:Arial,sans-serif;font-size:13px;color:#555555;margin:0 0 12px 0;">KJB defence materials, studies on modern version corruption, and free Bible study resources.</p>
 
-  <div style="background:#f0fff0;border:1px solid #aaddaa;border-radius:4px;padding:12px;margin:0 0 14px 0;">
-    <strong style="font-family:Arial,sans-serif;font-size:14px;">KJBI.org &mdash; Free Online Bible College</strong>
-    <p style="font-family:Arial,sans-serif;font-size:13px;color:#555;margin:4px 0 6px 0;">King James Bible Institute &mdash; a free online Bible college for those who want to go deeper in God&rsquo;s Word.</p>
-    <a href="https://kjbi.org" target="_blank" style="font-family:Arial,sans-serif;font-size:13px;color:#2d2a6e;">Visit KJBI.org &rarr;</a>
-  </div>
+<div style="background:#f0fff0;border:1px solid #aaddaa;border-radius:4px;padding:12px;margin:0 0 14px 0;">
+  <strong style="font-family:Arial,sans-serif;font-size:14px;">KJBI.org &mdash; Free Online Bible College</strong>
+  <p style="font-family:Arial,sans-serif;font-size:13px;color:#555;margin:4px 0 6px 0;">King James Bible Institute &mdash; a free online Bible college for those who want to go deeper in God&rsquo;s Word.</p>
+  <a href="https://kjbi.org" target="_blank" style="font-family:Arial,sans-serif;font-size:13px;color:#2d2a6e;">Visit KJBI.org &rarr;</a>
+</div>
+
+<div class="res-section">
+  <h3>How to Read the Bible</h3>
+  <div class="res-item"><strong>AV Publications</strong><p>Books and resources for King James Bible believers.</p><a href="https://avpublications.com/" target="_blank">avpublications.com</a></div>
+</div>
 
   <!-- Why KJB -->
   <div class="res-section">
@@ -390,6 +395,19 @@ Deno.serve(async (req) => {
       <a href="https://youtube.com/@jamesbrayall3" target="_blank">YouTube</a></div>
   </div>
 
+  <!-- Why Modern Versions Are Corrupt -->
+  <div class="res-section">
+    <h3>Why Modern Versions Are Corrupt</h3>
+    <div class="res-item"><strong>The Critical Text &amp; Westcott-Hort</strong><p>Westcott and Hort created the Critical Text based on Vatican and Egyptian manuscripts with hundreds of errors. Their text was used in the Revised Version of 1881.</p><a href="https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf" target="_blank">Theological Heresies of Westcott &amp; Hort (PDF)</a></div>
+    <div class="res-item"><strong>A Lamp in the Dark &mdash; Full Documentary</strong><p>The untold history of the Bible &mdash; exposing the corruption of modern Bible translations.</p><a href="https://www.youtube.com/watch?v=RmXBj2N9fhY&list=PLiMliTxa3H172BW4ANpBAavcIGVz-KXFW" target="_blank">Watch on YouTube</a></div>
+    <div class="res-item"><strong>KJB Defence Playlist</strong><p>Comprehensive playlist defending the King James Bible.</p><a href="https://youtube.com/playlist?list=PLNGhZnJavRf01ILv3TJu_ke4IPYcKcpJm&si=w73gmQRdA_3QbE48" target="_blank">Watch Playlist</a></div>
+    <div class="res-item"><strong>Gail Riplinger &mdash; The Sword Slays the Dragon</strong><a href="https://www.youtube.com/watch?v=fyN680Y0Vwc" target="_blank">Watch on YouTube</a></div>
+    <div class="res-item"><strong>Irrefutable Proof: The KJB Superseded Hebrew and Greek</strong><a href="https://www.youtube.com/watch?v=t6ck6KrVPIk" target="_blank">Watch on YouTube</a></div>
+    <div class="res-item"><strong>AV1611 Articles</strong><a href="https://www.av1611.org/articles" target="_blank">av1611.org/articles</a></div>
+    <div class="res-item"><strong>Preserved Words</strong><a href="https://www.preservedwords.com/bp/index.html" target="_blank">preservedwords.com</a></div>
+    <div class="res-item"><strong>Brandplucked &mdash; KJB Articles</strong><a href="https://brandplucked.com/kjbarticles.htm" target="_blank">brandplucked.com</a></div>
+  </div>
+
   <!-- KJB Defence -->
   <div class="res-section">
     <h3>KJB Defence</h3>
@@ -428,6 +446,7 @@ Deno.serve(async (req) => {
     <div class="res-item"><strong>AV1611 &mdash; NKJV Exposed</strong><a href="https://www.av1611.org/nkjv.html" target="_blank">av1611.org</a></div>
     <div class="res-item"><strong>TBS &mdash; What Today&rsquo;s Christian Needs to Know About NKJV</strong><a href="https://www.tbsbibles.org/page/WhatTodaysChristianNeedsToKnowAboutTheNewKingJamesVersion" target="_blank">Read article</a></div>
     <div class="res-item"><strong>TBS &mdash; Does the NKJV Live Up to Its Claims?</strong><a href="https://www.tbsbibles.org/page/DoesTheNKJVLiveUpToItsClaims" target="_blank">Read article</a></div>
+    <div class="res-item"><strong>TBS &mdash; The New King James Version Overview</strong><a href="https://www.tbsbibles.org/page/TheNewKingJamesVersion" target="_blank">Read article</a></div>
     <div class="res-item"><strong>TBS &mdash; An Examination of the NKJV</strong><a href="https://cdn.ymaws.com/www.tbsbibles.org/resource/collection/D4DCAF37-AEB6-4CEC-880F-FD229A90560F/An-Examination-of-NKJV-Part-1.pdf" target="_blank">Download PDF</a></div>
   </div>
 
@@ -435,18 +454,29 @@ Deno.serve(async (req) => {
   <div class="res-section">
     <h3>ESV &amp; NIV Exposed</h3>
     <div class="res-item"><strong>Brandplucked &mdash; Is the ESV Inerrant?</strong><a href="https://brandplucked.com/is-the-esv-inerrant.html" target="_blank">Read article</a></div>
+    <div class="res-item"><strong>Brandplucked &mdash; The ESV Examined</strong><a href="https://brandplucked.com/theesv.htm" target="_blank">Read article</a></div>
     <div class="res-item"><strong>TBS &mdash; English Standard Version</strong><a href="https://www.tbsbibles.org/page/EnglishStandardVersion" target="_blank">Read article</a></div>
     <div class="res-item"><strong>AV1611 &mdash; NIV Exposed</strong><a href="https://www.av1611.org/kjv/nivteen.html" target="_blank">Read article</a></div>
     <div class="res-item"><strong>Jesus is Precious &mdash; NIV Missing Verses</strong><a href="https://www.jesusisprecious.org/bible/niv/acts_8-37_missing.htm" target="_blank">Read article</a></div>
+    <div class="res-item"><strong>Scion of Zion &mdash; NIV 1984 vs 2011</strong><a href="https://www.scionofzion.com/niv%201984%20and%202011.html" target="_blank">Compare versions</a></div>
     <div class="res-item"><strong>Jesus is Savior &mdash; NIV Exposed</strong><a href="https://www.jesus-is-savior.com/Bible/NIV/new_international_version_exposed.htm" target="_blank">Read article</a></div>
   </div>
 
-  <!-- Living Bible -->
+  <!-- Living Bible & NLT -->
   <div class="res-section">
     <h3>Living Bible &amp; NLT Exposed</h3>
     <div class="res-item"><strong>TBS &mdash; The Living Bible Exposed</strong><a href="https://cdn.ymaws.com/www.tbsbibles.org/resource/collection/D4DCAF37-AEB6-4CEC-880F-FD229A90560F/The-Living-Bible.pdf" target="_blank">Download PDF</a></div>
     <div class="res-item"><strong>Jesus is Savior &mdash; Living Bible Exposed</strong><a href="https://www.jesus-is-savior.com/Bible/Living%20Bible/lb_exposed.htm" target="_blank">Read article</a></div>
     <div class="res-item"><strong>Jesus is Savior &mdash; NLT Exposed</strong><a href="https://jesus-is-savior.com/Bible/NLT/nlt_exposed.htm" target="_blank">Read article</a></div>
+  </div>
+
+  <!-- Ministry Links -->
+  <div class="res-section">
+    <h3>Ministry Links</h3>
+    <div class="links-list">
+      <a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank">God is Gracious 1031 Ministries</a>
+      <a href="mailto:Kingjamesbiblereader.com@outlook.com">Kingjamesbiblereader.com@outlook.com</a>
+    </div>
   </div>
 
   <!-- Ministry Links -->
