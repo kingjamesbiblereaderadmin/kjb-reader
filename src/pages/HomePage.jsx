@@ -32,7 +32,9 @@ export default function HomePage() {
   
   const [verse, setVerse] = useState(() => {
     const lastCached = getLastCachedDailyVerse();
-    return (lastCached && lastCached.isToday) ? lastCached : null;
+    const initial = (lastCached && lastCached.isToday) ? lastCached : null;
+    console.log("[HomePage] Initial verse state:", initial);
+    return initial;
   });
   const [isOffline, setIsOffline] = useState(() => typeof navigator !== 'undefined' && navigator.onLine === false);
   const [bibleCached, setBibleCached] = useState(null);
@@ -62,16 +64,19 @@ export default function HomePage() {
 
   useEffect(() => {
     // 2. Fetch today's verse in the background quietly
+    console.log("[HomePage] Starting verse fetch...");
     getDailyVerseFromBible().then(v => {
-      console.log("[DEBUG] Verse generated for today:", v?.ref);
+      console.log("[HomePage] Verse loaded successfully:", v?.ref, v?.text?.substring(0, 50));
       setVerse(v);
       setIsOffline(navigator.onLine === false);
       window.dispatchEvent(new Event('kjb-daily-verse-updated'));
       // Trigger notification if enabled
       scheduleDailyNotification();
     }).catch((err) => {
-      console.error("[DEBUG] getDailyVerseFromBible failed:", err);
-      setVerse(getDailyVerse());
+      console.error("[HomePage] getDailyVerseFromBible failed:", err);
+      const fallback = getDailyVerse();
+      console.log("[HomePage] Using fallback verse:", fallback?.ref);
+      setVerse(fallback);
       setIsOffline(true);
     });
     
