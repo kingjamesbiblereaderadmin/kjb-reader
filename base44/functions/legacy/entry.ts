@@ -1,4 +1,4 @@
-const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/e74bc3070_KingJamesBible-PureCambridgeTextfile2.txt';
+const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/e74bc3070_KingJamesBible-PureCambridgeEditionTextfile2.txt';
 
 const BOOK_ORDER = [
   'Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy', 'Joshua', 'Judges', 'Ruth',
@@ -503,7 +503,6 @@ function parseBibleText(text) {
   var lines = text.split(/\r?\n/);
   var currentBook = null;
   var currentChap = null;
-  var titleBuffer = [];
   var pendingFirstVerse = false;
 
   for (var i = 0; i < lines.length; i++) {
@@ -515,13 +514,11 @@ function parseBibleText(text) {
       currentChap = String(chapMatch[2]);
       if (!data[currentBook]) data[currentBook] = {};
       data[currentBook][currentChap] = [];
-      console.log('[parse] Chapter', currentChap, 'in', currentBook);
-      titleBuffer = [];
       pendingFirstVerse = true;
       continue;
     }
 
-    if (/^\d+\s+/.test(line) && currentBook && currentChap) {
+    if (/^\d+\s+/.test(line) && currentBook && currentChap !== null) {
       var match = line.match(/^(\d+)\s+(.+)$/);
       if (match) {
         var verseNum = match[1];
@@ -529,35 +526,29 @@ function parseBibleText(text) {
         data[currentBook][currentChap].push({ v: verseNum, t: verseText });
       }
       pendingFirstVerse = false;
-      titleBuffer = [];
       continue;
     }
 
-    if (pendingFirstVerse && currentBook && currentChap && data[currentBook][currentChap].length === 0) {
+    if (pendingFirstVerse && currentBook && currentChap !== null && data[currentBook][currentChap].length === 0) {
       var verseText = line.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
       data[currentBook][currentChap].push({ v: '1', t: verseText });
       pendingFirstVerse = false;
-      titleBuffer = [];
       continue;
     }
 
-    if (currentBook && currentChap && data[currentBook][currentChap].length > 0) {
+    if (currentBook && currentChap !== null && data[currentBook][currentChap].length > 0) {
       var last = data[currentBook][currentChap][data[currentBook][currentChap].length - 1];
       last.t += ' ' + line.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
       continue;
     }
 
-    if (/^[A-Z]/.test(line) && !currentChap) {
-      titleBuffer.push(line);
-      var fullTitle = titleBuffer.join(' ').toUpperCase();
-      console.log('[parse] Title buffer:', fullTitle);
+    if (!currentChap && line.length > 3 && line.length < 200) {
       for (var bi = 0; bi < BOOK_ORDER.length; bi++) {
-        var bookName = BOOK_ORDER[bi].toUpperCase();
-        if (fullTitle.indexOf(bookName) !== -1) {
-          currentBook = BOOK_ORDER[bi];
+        var bookName = BOOK_ORDER[bi];
+        if (line.toUpperCase().indexOf(bookName.toUpperCase()) !== -1) {
+          currentBook = bookName;
           data[currentBook] = {};
-          console.log('[parse] Book detected:', currentBook);
-          titleBuffer = [];
+          currentChap = null;
           break;
         }
       }
@@ -576,9 +567,11 @@ function fetchAndParseBible() {
     .then(function(buf) {
       var decoder = new TextDecoder('windows-1252');
       var text = decoder.decode(buf);
+      console.log('[parse] Fetched', text.length, 'chars');
+      console.log('[parse] First 500 chars:', text.substring(0, 500));
       var data = parseBibleText(text);
       var bookCount = Object.keys(data).length;
-      console.log('[parse] Total books parsed:', bookCount);
+      console.log('[parse] Total books:', bookCount);
       console.log('[parse] Books:', Object.keys(data).join(', '));
       return data;
     });
