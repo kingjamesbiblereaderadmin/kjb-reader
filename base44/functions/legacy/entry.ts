@@ -299,76 +299,17 @@ const ABBR_TO_NAME = {
 
 Deno.serve(async (req) => {
   try {
-    const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
-    let text = '';
-    try {
-      const res = await fetch(TEXT_URL);
-      if (res.ok) {
-        const buffer = await res.arrayBuffer();
-        text = new TextDecoder('windows-1252').decode(buffer);
-      }
-    } catch (fetchErr) {
-      console.error('Bible fetch failed:', fetchErr.message);
-    }
-    
-    const data = {};
-    const colophons = {};
-    if (text) {
-      const lines = text.split('\n');
-      for (let i = 0; i < lines.length; i++) {
-        const trimmed = lines[i].trim();
-        if (!trimmed) continue;
-        const spaceIdx = trimmed.indexOf(' ');
-        if (spaceIdx === -1) continue;
-        const abbr = trimmed.slice(0, spaceIdx);
-        const rest = trimmed.slice(spaceIdx + 1);
-        const colonIdx = rest.indexOf(':');
-        if (colonIdx === -1) continue;
-        const chapter = parseInt(rest.slice(0, colonIdx), 10);
-        if (isNaN(chapter)) continue;
-        const spaceIdx2 = rest.indexOf(' ', colonIdx);
-        if (spaceIdx2 === -1) continue;
-        const verse = parseInt(rest.slice(colonIdx + 1, spaceIdx2), 10);
-        let verseText = rest.slice(spaceIdx2 + 1);
-        if (isNaN(verse) || !verseText) continue;
-        const bookName = ABBR_TO_NAME[abbr];
-        if (!bookName) continue;
-        const colophonMatch = verseText.match(/¶\s*\[(.*?)\]\s*$/);
-        if (colophonMatch) {
-          const colophonKey = bookName + ':' + chapter;
-          if (!colophons[colophonKey]) {
-            colophons[colophonKey] = colophonMatch[1];
-          }
-          verseText = verseText.replace(/\s*¶\s*\[.*?\]\s*$/, '').trim();
-        }
-        if (!verseText.trim()) continue;
-        if (bookName === '1 John' && chapter === 2 && verse === 23) {
-          verseText = verseText.replace('[(but)', '[but');
-          verseText = verseText.replace('[[but]]', '[but]');
-        }
-        verseText = verseText.replace(/'/g, "'").replace(/'/g, "'").replace(/`/g, "'");
-        if (!data[bookName]) data[bookName] = {};
-        if (!data[bookName][chapter]) data[bookName][chapter] = [];
-        data[bookName][chapter].push({ verse: verse, text: verseText });
-      }
-    }
-    
-    const books = BOOK_ORDER.filter(function(b) { return data[b]; });
-    const chapters = {};
-    for (var bi = 0; bi < books.length; bi++) {
-      var book = books[bi];
-      chapters[book] = Object.keys(data[book]).map(function(c) { return parseInt(c); }).sort(function(a, b) { return a - b; });
-    }
-    
+    // Legacy reader loads Bible data on-demand via bibleApi - no server-side parsing
+    // Metadata contains only structure info (book/chapter lists), verses fetched per-request
     const metadata = {
-      books: books || [],
-      chapters: chapters || {},
-      colophons: colophons || {},
+      books: BOOK_ORDER,
+      chapters: {}, // Will be populated client-side from bibleApi responses
+      colophons: COLOPHONS,
       psalmSubscripts: PSALM_SUBSCRIPTS,
       fullBookNames: FULL_BOOK_NAMES
     };
     const metadataStr = JSON.stringify(metadata);
-    console.log('[LEGACY] Metadata prepared:', metadata.books.length, 'books');
+    console.log('[LEGACY] Serving legacy reader with', metadata.books.length, 'books');
     
     const html = '<!DOCTYPE html>' +
 '<html lang="en">' +
@@ -494,15 +435,17 @@ Deno.serve(async (req) => {
 'var COLOPHONS=METADATA.colophons;' +
 'var FULL_BOOK_NAMES=METADATA.fullBookNames;' +
 'var BIBLE_DATA={};' +
+'var CHAPTERS_CACHE={};' +
 'console.log(\'[LEGACY] Metadata loaded:\',METADATA.books.length,\'books\');' +
 'function getApiBookName(n){var m={\'1 Samuel\':\'1Sa\',\'2 Samuel\':\'2Sa\',\'1 Kings\':\'1Ki\',\'2 Kings\':\'2Ki\',\'1 Chronicles\':\'1Ch\',\'2 Chronicles\':\'2Ch\',\'1 Corinthians\':\'1Co\',\'2 Corinthians\':\'2Co\',\'1 Thessalonians\':\'1Th\',\'2 Thessalonians\':\'2Th\',\'1 Timothy\':\'1Ti\',\'2 Timothy\':\'2Ti\',\'1 Peter\':\'1Pe\',\'2 Peter\':\'2Pe\',\'1 John\':\'1Jo\',\'2 John\':\'2Jo\',\'3 John\':\'3Jo\',\'Song of Solomon\':\'Song\'};return m[n]||n;}' +
-'function fetchChapterData(book,chapter,callback){var cacheKey=book+\':\'+chapter;if(BIBLE_DATA[book]&&BIBLE_DATA[book][chapter]){callback(null,BIBLE_DATA[book][chapter]);return;}var bookApiName=getApiBookName(book);var url=\'/bibleApi\';console.log(\'[LEGACY] Fetching:\',url,bookApiName,chapter);fetch(url,{method:\'POST\',headers:{\'Content-Type\':\'application/json\'},body:JSON.stringify({action:\'getChapter\',book:bookApiName,chapter:parseInt(chapter)})}).then(function(res){console.log(\'[LEGACY] Status:\',res.status);return res.json();}).then(function(result){console.log(\'[LEGACY] Got:\',result.verses?result.verses.length:0,\'verses\');if(result.error){callback(new Error(result.error));return;}if(!BIBLE_DATA[book])BIBLE_DATA[book]={};BIBLE_DATA[book][chapter]=result.verses;if(result.colophon)COLOPHONS[book+\':\'+chapter]=result.colophon;callback(null,result.verses);}).catch(function(err){console.error(\'[LEGACY] Fetch error:\',err);callback(err);});}' +
+'function fetchChapterData(book,chapter,callback){var cacheKey=book+\':\'+chapter;if(BIBLE_DATA[book]&&BIBLE_DATA[book][chapter]){callback(null,BIBLE_DATA[book][chapter]);return;}var bookApiName=getApiBookName(book);var url=\'/bibleApi\';console.log(\'[LEGACY] Fetching:\',url,bookApiName,chapter);fetch(url,{method:\'POST\',headers:{\'Content-Type\':\'application/json\'},body:JSON.stringify({action:\'getChapter\',book:bookApiName,chapter:parseInt(chapter)})}).then(function(res){console.log(\'[LEGACY] Status:\',res.status);if(!res.ok){throw new Error(\'HTTP \'+res.status);}return res.json();}).then(function(result){console.log(\'[LEGACY] Got:\',result.verses?result.verses.length:0,\'verses\');if(result.error){callback(new Error(result.error));return;}if(!BIBLE_DATA[book])BIBLE_DATA[book]={};if(!CHAPTERS_CACHE[book])CHAPTERS_CACHE[book]=[];BIBLE_DATA[book][chapter]=result.verses;if(result.colophon)COLOPHONS[book+\':\'+chapter]=result.colophon;if(CHAPTERS_CACHE[book].indexOf(parseInt(chapter))===-1){CHAPTERS_CACHE[book].push(parseInt(chapter));CHAPTERS_CACHE[book].sort(function(a,b){return a-b;});}callback(null,result.verses);}).catch(function(err){console.error(\'[LEGACY] Fetch error:\',err);callback(err);});}' +
 'function switchTab(name){console.log(\'[LEGACY] switchTab:\',name);var tabContents=document.querySelectorAll(\'.tab-content\');for(var i=0;i<tabContents.length;i++){tabContents[i].classList.remove(\'active\');}var tabElement=document.getElementById(\'tab-\'+name);if(tabElement){tabElement.classList.add(\'active\');}var tabButtons=document.querySelectorAll(\'.tab-btn\');for(var j=0;j<tabButtons.length;j++){var btn=tabButtons[j];if(btn.textContent.toLowerCase().indexOf(name)===0){btn.classList.add(\'active\');}else{btn.classList.remove(\'active\');}}if(name===\'debug\'){updateDebugInfo();}}' +
 'function updateDebugInfo(){var info=\'Bible Data Source: On-demand via bibleApi\\n\';info+=\'Metadata Books: \'+METADATA.books.length+\'/66\\n\';info+=\'Metadata Colophons: \'+Object.keys(METADATA.colophons).length+\'\\n\';info+=\'Cached Chapters: \'+Object.keys(BIBLE_DATA).length+\' books\\n\';document.getElementById(\'debug-info\').textContent=info;}' +
-'function populateBooks(){var sel=document.getElementById(\'bookSel\');sel.innerHTML=\'\';var otGroup=document.createElement(\'optgroup\');otGroup.label=\'Old Testament\';for(var i=0;i<OT_BOOKS.length;i++){if(METADATA.books.indexOf(OT_BOOKS[i])!==-1){var opt=document.createElement(\'option\');opt.value=OT_BOOKS[i];opt.textContent=OT_BOOKS[i];otGroup.appendChild(opt);}}sel.appendChild(otGroup);var ntGroup=document.createElement(\'optgroup\');ntGroup.label=\'New Testament\';for(var j=0;j<NT_BOOKS.length;j++){if(METADATA.books.indexOf(NT_BOOKS[j])!==-1){var opt2=document.createElement(\'option\');opt2.value=NT_BOOKS[j];opt2.textContent=NT_BOOKS[j];ntGroup.appendChild(opt2);}}sel.appendChild(ntGroup);updateChapters();}' +
-'function updateChapters(){var book=document.getElementById(\'bookSel\').value;var sel=document.getElementById(\'chapSel\');sel.innerHTML=\'\';if(METADATA.books.indexOf(book)!==-1){var chapters=METADATA.chapters[book]||[];for(var i=0;i<chapters.length;i++){var opt=document.createElement(\'option\');opt.value=chapters[i];opt.textContent=chapters[i];sel.appendChild(opt);}}if(chapters.length>0){setTimeout(function(){readChapter();},100);}}' +
+'function populateBooks(){var sel=document.getElementById(\'bookSel\');sel.innerHTML=\'\';var otGroup=document.createElement(\'optgroup\');otGroup.label=\'Old Testament\';for(var i=0;i<OT_BOOKS.length;i++){var opt=document.createElement(\'option\');opt.value=OT_BOOKS[i];opt.textContent=OT_BOOKS[i];otGroup.appendChild(opt);}sel.appendChild(otGroup);var ntGroup=document.createElement(\'optgroup\');ntGroup.label=\'New Testament\';for(var j=0;j<NT_BOOKS.length;j++){var opt2=document.createElement(\'option\');opt2.value=NT_BOOKS[j];opt2.textContent=NT_BOOKS[j];ntGroup.appendChild(opt2);}sel.appendChild(ntGroup);}' +
+'var CHAPTER_COUNTS={Genesis:50,Exodus:40,Leviticus:27,Numbers:36,Deuteronomy:34,Joshua:24,Judges:21,Ruth:4,\'1 Samuel\':31,\'2 Samuel\':24,\'1 Kings\':22,\'2 Kings\':25,\'1 Chronicles\':29,\'2 Chronicles\':36,Ezra:10,Nehemiah:13,Esther:10,Job:42,Psalms:150,Proverbs:31,Ecclesiastes:12,\'Song of Solomon\':8,Isaiah:66,Jeremiah:52,Lamentations:5,Ezekiel:48,Daniel:12,Hosea:14,Joel:3,Amos:9,Obadiah:1,Jonah:4,Micah:7,Nahum:3,Habakkuk:3,Zephaniah:3,Haggai:2,Zechariah:14,Malachi:4,Matthew:28,Mark:16,Luke:24,John:21,Acts:28,Romans:16,\'1 Corinthians\':16,\'2 Corinthians\':13,Galatians:6,Ephesians:6,Philippians:4,Colossians:4,\'1 Thessalonians\':5,\'2 Thessalonians\':3,\'1 Timothy\':6,\'2 Timothy\':4,Titus:3,Philemon:1,Hebrews:13,James:5,\'1 Peter\':5,\'2 Peter\':3,\'1 John\':5,\'2 John\':1,\'3 John\':1,Jude:1,Revelation:22};' +
+'function updateChapters(){var book=document.getElementById(\'bookSel\').value;var sel=document.getElementById(\'chapSel\');sel.innerHTML=\'\';if(!book)return;if(CHAPTERS_CACHE[book]&&CHAPTERS_CACHE[book].length>0){for(var i=0;i<CHAPTERS_CACHE[book].length;i++){var opt=document.createElement(\'option\');opt.value=CHAPTERS_CACHE[book][i];opt.textContent=CHAPTERS_CACHE[book][i];sel.appendChild(opt);}}else{var totalChapters=CHAPTER_COUNTS[book]||39;if(!CHAPTERS_CACHE[book])CHAPTERS_CACHE[book]=[];for(var c=1;c<=totalChapters;c++){if(CHAPTERS_CACHE[book].indexOf(c)===-1)CHAPTERS_CACHE[book].push(c);}var opt=document.createElement(\'option\');opt.value=1;opt.textContent=\'1\';sel.appendChild(opt);setTimeout(function(){readChapter();},100);}}' +
 'function readChapter(){var book=document.getElementById(\'bookSel\').value;var chap=document.getElementById(\'chapSel\').value;console.log(\'[LEGACY] readChapter:\',book,chap);if(!book||!chap){document.getElementById(\'chapter-display\').innerHTML=\'<p>Please select a book and chapter.</p>\';return;}document.getElementById(\'chapter-display\').innerHTML=\'<p>Loading chapter...</p>\';fetchChapterData(book,chap,function(err,verses){if(err){document.getElementById(\'chapter-display\').innerHTML=\'<p>Error: \'+err.message+\'</p>\';return;}var fullBookName=FULL_BOOK_NAMES[book]||book;var html=\'<div class="chapter-display"><div class="chapter-header"><span class="chapter-book">\'+fullBookName+\'</span><span class="chapter-num">Chapter \'+chap+\'</span></div>\';var subscriptKey=book+\':\'+chap;var subscript=PSALM_SUBSCRIPTS[chap];if(book===\'Psalms\'&&subscript){var subHtml=subscript.replace(/\\[([^\\]]+)\\]/g,\'<em>$1</em>\');html+=\'<div class="subscript">\'+subHtml+\'</div>\';}html+=\'<div class="verses">\';for(var v=0;v<verses.length;v++){var verseText=verses[v].text;var hasPilcrow=verseText.indexOf(\'¶\')!==-1;verseText=verseText.replace(/¶\\s*/g,\'\');verseText=verseText.replace(/\\[([^\\]]+)\\]/g,\'<em>$1</em>\');if(hasPilcrow){html+=\'<div class="verse-pilcrow">¶</div>\';}html+=\'<div class="verse"><span class="verse-num">\'+verses[v].verse+\'</span> \'+verseText+\'</div>\';}html+=\'</div>\';var colophon=COLOPHONS[subscriptKey];if(colophon){var colophonHtml=colophon.replace(/\\[([^\\]]+)\\]/g,\'<em>$1</em>\');html+=\'<div class="colophon">\'+colophonHtml+\'</div>\';}html+=\'</div>\';document.getElementById(\'chapter-display\').innerHTML=html;window.scrollTo(0,0);});}' +
-'window.addEventListener(\'load\',function(){console.log(\'[LEGACY] Window loaded, books:\',METADATA.books.length);var loadingDiv=document.getElementById(\'bible-loading\');var errorDiv=document.getElementById(\'bible-error\');var contentDiv=document.getElementById(\'bible-content\');if(METADATA.books&&METADATA.books.length>0){loadingDiv.style.display=\'none\';contentDiv.style.display=\'block\';var statusDiv=document.getElementById(\'status\');statusDiv.innerHTML=\'<div class="status success">✓ Ready (\'+METADATA.books.length+\' books)</div>\';populateBooks();var bookSel=document.getElementById(\'bookSel\');if(bookSel&&bookSel.value){readChapter();}}else{console.error(\'[LEGACY] No books loaded\');loadingDiv.style.display=\'none\';errorDiv.style.display=\'block\';}});' +
+'window.addEventListener(\'load\',function(){console.log(\'[LEGACY] Window loaded, books:\',METADATA.books.length);var loadingDiv=document.getElementById(\'bible-loading\');var errorDiv=document.getElementById(\'bible-error\');var contentDiv=document.getElementById(\'bible-content\');if(METADATA.books&&METADATA.books.length>0){loadingDiv.style.display=\'none\';contentDiv.style.display=\'block\';var statusDiv=document.getElementById(\'status\');statusDiv.innerHTML=\'<div class="status success">✓ Ready (\'+METADATA.books.length+\' books)</div>\';populateBooks();}else{console.error(\'[LEGACY] No books loaded\');loadingDiv.style.display=\'none\';errorDiv.style.display=\'block\';}});' +
 '</script>' +
 '</body>' +
 '</html>';
