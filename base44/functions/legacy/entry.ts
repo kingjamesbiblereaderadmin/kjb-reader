@@ -616,7 +616,12 @@ Deno.serve(async (req) => {
 
     const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>KJB Reader (Legacy)</title><style>' + STYLE + (isDark ? DARK_STYLE : '') + loaderStyle + '</style></head><body>' + loaderHtml + '<div class="hdr"><h1>KJB Reader (Legacy)</h1><p>King James Bible &mdash; Pure Cambridge Edition</p></div>' + banner + '<div class="wrap" id="wrap">' + bodyInner + '</div>' + ENHANCE_SCRIPT + loaderScript + '</body></html>';
 
-    return new Response(html, { headers: { 'Content-Type': 'text/html;charset=UTF-8' } });
+    return new Response(html, { headers: {
+      'Content-Type': 'text/html;charset=UTF-8',
+      // Long-lived HTTP cache so legacy browsers (IE, which has no Service
+      // Worker support) can serve this page from disk cache when offline.
+      'Cache-Control': 'public, max-age=31536000, immutable'
+    } });
   } catch (error) {
     return new Response('<!DOCTYPE html><html><body style="font-family:Arial;padding:20px;color:#c00;">Error: ' + String(error.message) + '</body></html>', { status: 500, headers: { 'Content-Type': 'text/html;charset=UTF-8' } });
   }
