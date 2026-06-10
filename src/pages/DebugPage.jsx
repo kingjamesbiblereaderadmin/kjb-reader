@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Database, Server, Cloud, Wifi, WifiOff, HardDrive, Trash2, RefreshCw, CheckCircle, XCircle, Loader2 } from 'lucide-react';
-import { isBibleCached, clearBibleCache, downloadBibleForOffline, CACHE_VERSION } from '@/lib/bibleCache';
+import { Database, Server, Cloud, Wifi, WifiOff, HardDrive, Trash2, RefreshCw, CheckCircle, XCircle, Loader2, BookOpen } from 'lucide-react';
+import { isBibleCached, clearBibleCache, downloadBibleForOffline, CACHE_VERSION, getBibleData } from '@/lib/bibleCache';
 
 export default function DebugPage() {
   const [cacheStatus, setCacheStatus] = useState(null);
@@ -11,6 +11,7 @@ export default function DebugPage() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [localStorageData, setLocalStorageData] = useState({});
   const [serviceWorker, setServiceWorker] = useState(null);
+  const [bookData, setBookData] = useState(null);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -50,6 +51,30 @@ export default function DebugPage() {
         }
       }
       setLocalStorageData(lsData);
+
+      // Bible books data
+      try {
+        const bible = await getBibleData();
+        if (bible && Object.keys(bible).length > 1) {
+          const books = {};
+          Object.keys(bible).filter(k => k !== '__colophons').forEach(book => {
+            const chapters = Object.keys(bible[book] || {});
+            const totalVerses = chapters.reduce((sum, ch) => sum + (bible[book][ch]?.length || 0), 0);
+            books[book] = {
+              chapters: chapters.length,
+              totalVerses,
+              chapterList: chapters.sort((a, b) => parseInt(a) - parseInt(b))
+            };
+          });
+          setBookData({
+            bookCount: Object.keys(books).length,
+            books,
+            colophonCount: Object.keys(bible.__colophons || {}).length
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load Bible data for debug:', err);
+      }
 
       // Service Worker
       if ('serviceWorker' in navigator) {
@@ -256,6 +281,43 @@ export default function DebugPage() {
           </div>
         ) : (
           <p className="font-sans text-sm text-muted-foreground">No KJB-related localStorage data found</p>
+        )}
+      </div>
+
+      {/* Bible Books Status */}
+      <div className="bg-card border border-border rounded-2xl mb-6 p-5">
+        <div className="flex items-center gap-3 mb-4">
+          <BookOpen className="w-5 h-5 text-muted-foreground" />
+          <h2 className="font-serif text-lg font-bold text-foreground">Bible Books Status</h2>
+        </div>
+        {bookData ? (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-secondary">
+              <span className="font-sans text-sm text-muted-foreground">Total Books</span>
+              <span className="font-sans text-sm font-medium text-foreground">{bookData.bookCount} / 66</span>
+            </div>
+            <div className="flex items-center justify-between p-3 rounded-lg bg-secondary">
+              <span className="font-sans text-sm text-muted-foreground">Colophons</span>
+              <span className="font-sans text-sm font-medium text-foreground">{bookData.colophonCount}</span>
+            </div>
+            {bookData.bookCount < 66 && (
+              <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                <p className="font-sans text-sm text-amber-800 dark:text-amber-300">
+                  ⚠️ Incomplete cache - missing {66 - bookData.bookCount} book(s). Try clearing cache and re-downloading.
+                </p>
+              </div>
+            )}
+            <div className="max-h-96 overflow-y-auto space-y-1">
+              {Object.entries(bookData.books).map(([book, data]) => (
+                <div key={book} className="flex items-center justify-between p-2 rounded bg-background border border-border">
+                  <span className="font-sans text-xs font-medium text-foreground">{book}</span>
+                  <span className="font-sans text-xs text-muted-foreground">{data.chapters} ch • {data.totalVerses} v</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <p className="font-sans text-sm text-muted-foreground">No Bible data loaded</p>
         )}
       </div>
 
