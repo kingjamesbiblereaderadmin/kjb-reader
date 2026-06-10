@@ -539,6 +539,7 @@ Deno.serve(async (req) => {
 <div class="tab-content" id="tab-debug">
 <div class="wrap">
   <h2 style="color:#2d2a6e;margin:16px 0 4px 0;">Debug Information</h2>
+  <button type="button" class="btn" onclick="updateDebugInfo()" style="margin-bottom:10px;">Refresh Status</button>
   <div id="debug-info" style="font-family:monospace; font-size:12px; white-space:pre-wrap; background:#ffffff; border:1px solid #dddddd; padding:10px; border-radius:4px; line-height:1.5;"></div>
 </div>
 </div>
