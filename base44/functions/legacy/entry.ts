@@ -187,6 +187,7 @@ Deno.serve(async (req) => {
   .daily .dref { font-family:Arial,sans-serif; font-size:13px; color:#555; margin:0; }
   h2.ref { font-size:19px; color:#2d2a6e; margin:14px 0 8px 0; }
   .verse { margin:0 0 5px 0; }
+  .verse-pilcrow { margin-top:12px; }
   .vnum { font-family:Arial,sans-serif; font-size:11px; color:#2d2a6e; font-weight:bold; vertical-align:super; margin-right:3px; }
   em { font-style:italic; color:#666; }
   .nav { margin:16px 0; text-align:center; }
@@ -474,7 +475,10 @@ function showTab(name, btn) {
     refTitle.style.display = "block";
     var h = "";
     for (var v = 0; v < verses.length; v++) {
-      h += '<p class="verse"><span class="vnum">' + verses[v].v + '</span>' + verses[v].t + '</p>';
+      var verseText = verses[v].t;
+      var hasPilcrow = verseText.includes('¶') || verseText.includes('\u00B6');
+      var verseClass = "verse" + (hasPilcrow && v > 0 ? " verse-pilcrow" : "");
+      h += '<p class="' + verseClass + '"><span class="vnum">' + verses[v].v + '</span>' + verseText + '</p>';
     }
     contentDiv.innerHTML = h;
     var bookIdx = availableBooks.indexOf(book);
