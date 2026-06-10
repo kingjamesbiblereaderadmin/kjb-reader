@@ -153,21 +153,13 @@ Deno.serve(async (req) => {
     let chapter = parseInt(url.searchParams.get('chapter') || '1', 10);
     if (isNaN(chapter) || chapter < 1 || chapter > (CHAPTER_COUNTS[book] || 1)) chapter = 1;
 
-    // The base path that all internal links/forms point back to. On a custom
-    // domain (e.g. kingjamesbiblereader.com) only the public "/legacy" route is
-    // reachable — the internal function path is not — so links MUST use
-    // "/legacy". On base44 hosting we keep the actual function path. We also
-    // forward app_id so the React /legacy route can re-resolve the function.
-    const hostHeader = (req.headers.get('host') || '').toLowerCase();
-    const isCustomDomain = hostHeader.indexOf('base44.app') === -1 &&
-                           hostHeader.indexOf('base44.com') === -1 &&
-                           hostHeader.indexOf('localhost') === -1 &&
-                           hostHeader.indexOf('127.0.0.1') === -1 &&
-                           hostHeader !== '';
+    // All internal links/forms point DIRECTLY back to this function's own URL
+    // (url.pathname) on every host. The function path is served directly even on
+    // a custom domain, so navigation stays 100% server-side — no React /legacy
+    // route, no redirect, no splash screen on book/chapter switch.
     const appIdParam = url.searchParams.get('app_id');
-    const basePath = isCustomDomain ? '/legacy' : url.pathname;
-    // Suffix appended to every internal link so app_id survives navigation on
-    // base44 hosting (harmless on custom domains).
+    const basePath = url.pathname;
+    // Suffix appended to every internal link so app_id survives navigation.
     const idSuffix = appIdParam ? '&app_id=' + encodeURIComponent(appIdParam) : '';
 
     const STYLE =
