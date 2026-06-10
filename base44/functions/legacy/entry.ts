@@ -216,8 +216,12 @@ Deno.serve(async (req) => {
     // route, no redirect, no splash screen on book/chapter switch.
     const appIdParam = url.searchParams.get('app_id');
     const basePath = url.pathname;
-    // Suffix appended to every internal link so app_id survives navigation.
-    const idSuffix = appIdParam ? '&app_id=' + encodeURIComponent(appIdParam) : '';
+    // Dark/light theme via query param (server-rendered, no JS needed).
+    const theme = url.searchParams.get('theme') === 'dark' ? 'dark' : 'light';
+    const isDark = theme === 'dark';
+    // Suffix appended to every internal link so app_id + theme survive navigation.
+    const idSuffix = (appIdParam ? '&app_id=' + encodeURIComponent(appIdParam) : '') +
+                     (isDark ? '&theme=dark' : '');
 
     const STYLE =
 '* { margin:0; padding:0; box-sizing:border-box; }' +
@@ -263,7 +267,31 @@ Deno.serve(async (req) => {
 '.lnk span { display:block; color:#666; font-size:12px; }' +
 '.res-cat { font-size:16px; color:#2d2a6e; font-weight:bold; margin:18px 0 8px; font-family:Arial,sans-serif; border-bottom:2px solid #e0e0ec; padding-bottom:5px; }' +
 '.about-list { margin:8px 0 0 18px; }' +
-'.about-list li { font-size:14px; margin-bottom:8px; line-height:1.5; }';
+'.about-list li { font-size:14px; margin-bottom:8px; line-height:1.5; }' +
+'.topbar { background:#3d3a80; padding:8px 16px; text-align:center; font-size:0; border-top:1px solid #4a4790; }' +
+'.topbar a { display:inline-block; padding:8px 14px; margin:0 4px; color:#fff; background:#2d2a6e; text-decoration:none; font-size:13px; font-family:Arial,sans-serif; }';
+
+    // Dark theme overrides — appended only when dark mode is active.
+    const DARK_STYLE =
+'body { background:#15131f; color:#e5e3ee; }' +
+'.box { background:#211e30; border-color:#39354f; }' +
+'.cbook { color:#a99fff; }' +
+'.cnum, .subscript, .colophon { color:#a09bb5; }' +
+'.colophon { border-top-color:#39354f; }' +
+'.vn { color:#a99fff; }' +
+'.box h3, .sec-title, .res-cat, .step h4 { color:#a99fff; }' +
+'.sec-sub { color:#a09bb5; }' +
+'.step { background:#211e30; border-color:#39354f; border-left-color:#7a73d6; }' +
+'.box blockquote { background:#1a1827; color:#cfcce0; border-left-color:#7a73d6; }' +
+'.lnk { background:#1a1827; border-color:#39354f; color:#a99fff; }' +
+'.lnk b { color:#e5e3ee; }' +
+'.lnk span { color:#a09bb5; }' +
+'.res-cat { border-bottom-color:#39354f; }' +
+'.warn { background:#2a1d1d; border-color:#5a3a3a; }' +
+'.warn h4 { color:#ff8a8a; }' +
+'.ctl label { color:#cfcce0; }' +
+'.ctl select { background:#1a1827; color:#e5e3ee; border-color:#39354f; }' +
+'.box a { color:#a99fff; }';
 
     const tabLink = function (id, label) {
       return '<a href="' + esc(basePath) + '?tab=' + id + (id === 'bible' ? '&book=' + encodeURIComponent(book) + '&chapter=' + chapter : '') + idSuffix + '"' + (tab === id ? ' class="on"' : '') + '>' + label + '</a>';
@@ -276,22 +304,22 @@ Deno.serve(async (req) => {
       const verses = (bible[book] && bible[book][chapter]) || [];
       const fullName = FULL_BOOK_NAMES[book] || book;
 
-      // Controls — TWO separate forms so the chapter list always matches the
-      // selected book WITHOUT any JavaScript:
-      //  • Book form: pick a book + "Go" → reloads chapter 1 of that book, so the
-      //    chapter dropdown below is rebuilt with that book's exact chapter count.
-      //  • Chapter form: pick a chapter of the now-loaded book + "Read Chapter".
+      // Controls form (GET submit reloads the page server-side).
+      // The Book select auto-submits on change (onchange works on IE4+) so the
+      // Chapter list resyncs to the selected book's real chapter count. We reset
+      // chapter to 1 on book change so it's never out of range.
       const hidden = '<input type="hidden" name="tab" value="bible">' +
-        (appIdParam ? '<input type="hidden" name="app_id" value="' + esc(appIdParam) + '">' : '');
+        (appIdParam ? '<input type="hidden" name="app_id" value="' + esc(appIdParam) + '">' : '') +
+        (isDark ? '<input type="hidden" name="theme" value="dark">' : '');
       let form = '<div class="box">' +
         '<form method="get" action="' + esc(basePath) + '">' + hidden +
-          '<div class="ctl"><label>Book:</label><select name="book">' + bookOptions(book) + '</select></div>' +
-          '<input type="submit" class="read-btn" value="Select Book"></form>' +
-        '<form method="get" action="' + esc(basePath) + '" style="margin-top:12px;">' + hidden +
-          '<input type="hidden" name="book" value="' + esc(book) + '">' +
-          '<div class="ctl"><label>Chapter (' + esc(book) + ' has ' + (CHAPTER_COUNTS[book] || 1) + '):</label><select name="chapter">' + chapterOptions(book, chapter) + '</select></div>' +
-          '<input type="submit" class="read-btn" value="Read Chapter"></form>' +
-        '</div>';
+        '<input type="hidden" name="chapter" value="1">' +
+        '<div class="ctl"><label>Book:</label><select name="book" onchange="this.form.submit()">' + bookOptions(book) + '</select></div>' +
+        '</form>' +
+        '<form method="get" action="' + esc(basePath) + '">' + hidden +
+        '<input type="hidden" name="book" value="' + esc(book) + '">' +
+        '<div class="ctl"><label>Chapter:</label><select name="chapter" onchange="this.form.submit()">' + chapterOptions(book, chapter) + '</select></div>' +
+        '<input type="submit" class="read-btn" value="Read Chapter"></form></div>';
 
       // Chapter content
       let content = '<div class="chead"><span class="cbook">' + esc(fullName) + '</span><span class="cnum">Chapter ' + chapter + '</span></div>';
@@ -300,7 +328,7 @@ Deno.serve(async (req) => {
       // NOT as verse 1. Italic only on [bracketed] words.
       const subscript = SUBSCRIPTS[book + ':' + chapter];
       if (subscript) {
-        content += '<div class="subscript"><span class="pil">&para;</span> ' + renderMeta(subscript) + '</div>';
+        content += '<div class="subscript">' + renderMeta(subscript) + '</div>';
       }
 
       if (verses.length === 0) {
