@@ -421,8 +421,9 @@ Deno.serve(async (req) => {
       navLinks += '</div>';
 
       bodyInner = dailyVerseCard + form + content + navLinks;
-    } else if (tab === 'gospel') {
-      bodyInner = '<div class="doc">' +
+    }
+    const lnk = (url, title, desc) => '<p class="rlnk"><a href="' + url + '" target="_blank">' + title + '</a>' + (desc ? '<span> &mdash; ' + desc + '</span>' : '') + '</p>';
+    const gospelHtml = '<div class="doc">' +
         '<h1>How to be Saved</h1>' +
         '<p class="lead">The Gospel is the glad tidings of the Lord Jesus Christ: trust he is God, died, shed his blood, was buried and rose again on the 3rd day for our sins.</p>' +
         '<h2>1. Believe you are a sinner that deserves hell</h2>' +
@@ -442,9 +443,7 @@ Deno.serve(async (req) => {
         '<p><a href="https://www.youtube.com/watch?v=znP9Dr6tOzU" target="_blank">"THE GOSPEL THAT SAVES" by Robert Breaker</a></p>' +
         '<p><a href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq" target="_blank">Full Gospel Playlist on YouTube</a></p>' +
         '</div>';
-    } else if (tab === 'resources') {
-      const lnk = (url, title, desc) => '<p class="rlnk"><a href="' + url + '" target="_blank">' + title + '</a>' + (desc ? '<span> &mdash; ' + desc + '</span>' : '') + '</p>';
-      bodyInner = '<div class="doc">' +
+    const resourcesHtml = '<div class="doc">' +
         '<h1>Resources</h1>' +
         '<p class="lead">KJB defence materials, studies on modern version corruption, and links to free Bible study resources.</p>' +
 
@@ -530,8 +529,7 @@ Deno.serve(async (req) => {
         lnk('https://www.scionofzion.com/niv%201984%20and%202011.html', 'Scion of Zion - NIV 1984 vs 2011', '') +
         lnk('https://www.jesus-is-savior.com/Bible/NIV/new_international_version_exposed.htm', 'Jesus is Savior - NIV Exposed', '') +
         '</div>';
-    } else if (tab === 'about') {
-      bodyInner = '<div style="max-width:800px;margin:0 auto;">' +
+    const aboutHtml = '<div style="max-width:800px;margin:0 auto;">' +
         '<h1 style="text-align:center;margin-bottom:16px;">About</h1>' +
         '<hr style="margin-bottom:32px;">' +
         '<div style="margin-bottom:32px;">' +
@@ -592,6 +590,13 @@ Deno.serve(async (req) => {
         '</ul>' +
         '</div>' +
         '</div>';
+
+    if (tab === 'gospel') {
+      bodyInner = gospelHtml;
+    } else if (tab === 'resources') {
+      bodyInner = resourcesHtml;
+    } else if (tab === 'about') {
+      bodyInner = aboutHtml;
     } else if (tab === 'fullbible') {
       // Option A: the ENTIRE Bible rendered inline on one page, with anchor
       // quick-links at the top. Navigation between books/chapters is instant
@@ -609,7 +614,9 @@ Deno.serve(async (req) => {
       for (let i = otEnd + 1; i < BOOK_ORDER.length; i++) {
         index += '<a href="#b' + i + '">' + esc(BOOK_ORDER[i]) + '</a> ';
       }
-      index += '</p></div>';
+      index += '</p><p class="fb-testament">More</p><p class="fb-books">' +
+        '<a href="#gospel">Gospel</a> <a href="#resources">Resources</a> <a href="#about">About</a>' +
+        '</p></div>';
 
       // Full text of every book/chapter/verse
       let body = '';
@@ -638,9 +645,14 @@ Deno.serve(async (req) => {
         body += '</div>';
       }
 
+      const extras =
+        '<div class="fb-book"><a name="gospel" id="gospel"></a><p class="fb-top"><a href="#top">&uarr; Back to top</a></p>' + gospelHtml + '</div>' +
+        '<div class="fb-book"><a name="resources" id="resources"></a><p class="fb-top"><a href="#top">&uarr; Back to top</a></p>' + resourcesHtml + '</div>' +
+        '<div class="fb-book"><a name="about" id="about"></a><p class="fb-top"><a href="#top">&uarr; Back to top</a></p>' + aboutHtml + '</div>';
+
       bodyInner = '<a name="top" id="top"></a>' +
-        '<p class="fb-intro">The complete King James Bible on a single page. Use the quick links to jump to any book instantly &mdash; once loaded, navigation works without an internet connection.</p>' +
-        index + body;
+        '<p class="fb-intro">The complete King James Bible on a single page, plus the Gospel, Resources and About sections. Use the quick links to jump to any book instantly &mdash; once loaded, navigation works without an internet connection.</p>' +
+        index + body + extras;
     }
 
     const ENHANCE_SCRIPT = '<script>(function(){var hasPushState=!!window.history.pushState;function getHash(){var h=location.hash;if(h&&h.charAt(0)==="#"&&h.length>1){h=h.slice(1);} return h;}function load(url){var x=new XMLHttpRequest();x.open("GET",url,true);x.setRequestHeader("X-Requested-With","XMLHttpRequest");x.onreadystatechange=function(){if(x.readyState===4&&x.status===200){var d=document.createElement("div");d.innerHTML=x.responseText;var nw=d.getElementById("wrap");var ow=document.getElementById("wrap");if(nw&&ow){ow.innerHTML=nw.innerHTML;window.scrollTo(0,0);}}};x.send();}function updateChapterDropdown(bookName){var chapterCount={"Genesis":50,"Exodus":40,"Leviticus":27,"Numbers":36,"Deuteronomy":34,"Joshua":24,"Judges":21,"Ruth":4,"1 Samuel":31,"2 Samuel":24,"1 Kings":22,"2 Kings":25,"1 Chronicles":29,"2 Chronicles":36,"Ezra":10,"Nehemiah":13,"Esther":10,"Job":42,"Psalms":150,"Proverbs":31,"Ecclesiastes":12,"Song of Solomon":8,"Isaiah":66,"Jeremiah":52,"Lamentations":5,"Ezekiel":48,"Daniel":12,"Hosea":14,"Joel":3,"Amos":9,"Obadiah":1,"Jonah":4,"Micah":7,"Nahum":3,"Habakkuk":3,"Zephaniah":3,"Haggai":2,"Zechariah":14,"Malachi":4,"Matthew":28,"Mark":16,"Luke":24,"John":21,"Acts":28,"Romans":16,"1 Corinthians":16,"2 Corinthians":13,"Galatians":6,"Ephesians":6,"Philippians":4,"Colossians":4,"1 Thessalonians":5,"2 Thessalonians":3,"1 Timothy":6,"2 Timothy":4,"Titus":3,"Philemon":1,"Hebrews":13,"James":5,"1 Peter":5,"2 Peter":3,"1 John":5,"2 John":1,"3 John":1,"Jude":1,"Revelation":22};var count=chapterCount[bookName]||1;var chapSel=document.getElementById("chapterSelect");if(!chapSel)return;var curVal=chapSel.value||1;if(curVal>count)curVal=1;var opts="";for(var i=1;i<=count;i++){opts+="<option value=\""+i+"\""+(i==curVal?" selected":"")+">"+i+"</option>";}chapSel.innerHTML=opts;}function rebindForms(){var forms=document.getElementsByTagName("form");for(var fi=0;fi<forms.length;fi++){(function(f){if(f.__kjbForm)return;f.__kjbForm=1;var bookSel=f.elements["book"];var chapSel=f.elements["chapter"];if(bookSel){if(bookSel.attachEvent){bookSel.attachEvent("onchange",function(){updateChapterDropdown(bookSel.value);f.chapter.value=1;});}else if(bookSel.addEventListener){bookSel.addEventListener("change",function(){updateChapterDropdown(bookSel.value);f.chapter.value=1;},false);}else{bookSel.onchange=function(){updateChapterDropdown(bookSel.value);f.chapter.value=1;};}}})(forms[fi]);}}function bind(){var links=document.getElementsByTagName("a");for(var i=0;i<links.length;i++){(function(a){if(a.__kjb)return;a.__kjb=1;if(a.attachEvent){a.attachEvent("onclick",onClick);}else if(a.addEventListener){a.addEventListener("click",onClick,false);}else{a.onclick=onClick;}function onClick(e){e=e||window.event;var h=a.getAttribute("href");if(!h)return;if(a.target==="_blank")return;if(h.charAt(0)==="#")return;if(h.indexOf("mailto:")===0||h.indexOf("javascript")===0)return;if(h.indexOf("http")===0&&h.indexOf(location.host)===-1)return;if(e.preventDefault)e.preventDefault();else e.returnValue=false;load(h);if(hasPushState){window.history.pushState({u:h},"",h);}else{location.hash=h;}return false;}})(links[i]);}rebindForms();}if(hasPushState){window.onpopstate=function(){load(location.href);};}else{if(window.attachEvent){window.attachEvent("onhashchange",function(){var h=getHash();if(h){load(location.pathname+"?"+h);}});}else if(window.addEventListener){window.addEventListener("hashchange",function(){var h=getHash();if(h){load(location.pathname+"?"+h);}},false);}else{window.onhashchange=function(){var h=getHash();if(h){load(location.pathname+"?"+h);};}}}bind();})();</script>';
