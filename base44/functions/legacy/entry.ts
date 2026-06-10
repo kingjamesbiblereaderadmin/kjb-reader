@@ -1,16 +1,10 @@
 // Serves a standalone ES5-only KJB reader page (for IE11 / Windows Phone)
-// Parses Bible text SERVER-SIDE and injects pre-parsed JSON — avoids 4MB string literal issues.
-// v6 - 5-word window matching, all 66 books
+// v7 - Complete rewrite with clean JSON injection
 const TEXT_URL = "https://media.base44.com/files/public/6a05d76723afe58d80c589e8/e74bc3070_KingJamesBible-PureCambridgeEditionTextfile2.txt";
 
 const BOOK_ORDER = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
 
-// PCE multi-line title examples:
-//   "THE FIRST BOOK OF SAMUEL" -> words: THE FIRST BOOK OF SAMUEL -> pair "FIRST BOOK" no, triple "FIRST BOOK OF" no,
-//   but "BOOK OF SAMUEL" no. Only "SAMUEL" alone would match.
-// Solution: map both "FIRST SAMUEL"/"SECOND SAMUEL" pairs AND ordinal words to book names.
 const TITLE_TO_BOOK = {
-  // OT single-word or clear matches
   "GENESIS":"Genesis","EXODUS":"Exodus","LEVITICUS":"Leviticus","NUMBERS":"Numbers",
   "DEUTERONOMY":"Deuteronomy","JOSHUA":"Joshua","JUDGES":"Judges","RUTH":"Ruth",
   "EZRA":"Ezra","NEHEMIAH":"Nehemiah","ESTHER":"Esther","JOB":"Job","PSALMS":"Psalms",
@@ -20,27 +14,20 @@ const TITLE_TO_BOOK = {
   "OBADIAH":"Obadiah","JONAH":"Jonah","MICAH":"Micah","NAHUM":"Nahum",
   "HABAKKUK":"Habakkuk","ZEPHANIAH":"Zephaniah","HAGGAI":"Haggai",
   "ZECHARIAH":"Zechariah","MALACHI":"Malachi",
-  // NT single-word
-  "MATTHEW":"Matthew","MARK":"Mark","LUKE":"Luke",
+  "MATTHEW":"Matthew","MARK":"Mark","LUKE":"Luke","JOHN":"John",
   "ACTS":"Acts","THE ACTS":"Acts","ROMANS":"Romans",
   "GALATIANS":"Galatians","EPHESIANS":"Ephesians","PHILIPPIANS":"Philippians","COLOSSIANS":"Colossians",
   "TITUS":"Titus","PHILEMON":"Philemon","HEBREWS":"Hebrews","JAMES":"James","JUDE":"Jude",
   "REVELATION":"Revelation",
-  // Numbered books — PCE title lines like "THE FIRST BOOK OF SAMUEL"
-  // We match every possible n-gram window (1–5 words) so use explicit keys for all patterns
   "1 SAMUEL":"1 Samuel","FIRST SAMUEL":"1 Samuel","FIRST BOOK OF SAMUEL":"1 Samuel","SAMUEL":"1 Samuel",
   "2 SAMUEL":"2 Samuel","SECOND SAMUEL":"2 Samuel","SECOND BOOK OF SAMUEL":"2 Samuel",
   "1 KINGS":"1 Kings","FIRST KINGS":"1 Kings","FIRST BOOK OF KINGS":"1 Kings","KINGS":"1 Kings",
   "2 KINGS":"2 Kings","SECOND KINGS":"2 Kings","SECOND BOOK OF KINGS":"2 Kings",
   "1 CHRONICLES":"1 Chronicles","FIRST CHRONICLES":"1 Chronicles","FIRST BOOK OF CHRONICLES":"1 Chronicles","CHRONICLES":"1 Chronicles",
   "2 CHRONICLES":"2 Chronicles","SECOND CHRONICLES":"2 Chronicles","SECOND BOOK OF CHRONICLES":"2 Chronicles",
-  // John — JOHN alone = Gospel of John; numbered variants for epistles
-  // PCE titles: "THE FIRST EPISTLE GENERAL OF JOHN", "THE SECOND EPISTLE OF JOHN" etc.
-  "JOHN":"John",
   "1 JOHN":"1 John","FIRST JOHN":"1 John","FIRST EPISTLE OF JOHN":"1 John","EPISTLE GENERAL OF JOHN":"1 John",
   "2 JOHN":"2 John","SECOND JOHN":"2 John","SECOND EPISTLE OF JOHN":"2 John",
   "3 JOHN":"3 John","THIRD JOHN":"3 John","THIRD EPISTLE OF JOHN":"3 John",
-  // Corinthians, Thessalonians, Timothy, Peter — use CORINTHIANS/THESSALONIANS alone = 1st book
   "CORINTHIANS":"1 Corinthians","1 CORINTHIANS":"1 Corinthians","FIRST CORINTHIANS":"1 Corinthians","FIRST EPISTLE TO THE CORINTHIANS":"1 Corinthians",
   "2 CORINTHIANS":"2 Corinthians","SECOND CORINTHIANS":"2 Corinthians","SECOND EPISTLE TO THE CORINTHIANS":"2 Corinthians",
   "THESSALONIANS":"1 Thessalonians","1 THESSALONIANS":"1 Thessalonians","FIRST THESSALONIANS":"1 Thessalonians",
@@ -49,7 +36,6 @@ const TITLE_TO_BOOK = {
   "2 TIMOTHY":"2 Timothy","SECOND TIMOTHY":"2 Timothy",
   "PETER":"1 Peter","1 PETER":"1 Peter","FIRST PETER":"1 Peter","FIRST EPISTLE OF PETER":"1 Peter",
   "2 PETER":"2 Peter","SECOND PETER":"2 Peter","SECOND EPISTLE OF PETER":"2 Peter",
-  // Ecclesiastes — PCE may use "QOHELETH" or "THE PREACHER" or "ECCLESIASTES"
   "ECCLESIASTES":"Ecclesiastes","THE PREACHER":"Ecclesiastes","QOHELETH":"Ecclesiastes",
 };
 
@@ -59,7 +45,6 @@ function parseBibleServerSide(text) {
   let currentBook = null, currentChap = null, verseNum = 0;
   let titleBuffer = [];
   let blanksSinceCaps = 0;
-  // Track how many times we've matched each base-name (for "1st vs 2nd" disambiguation)
   const matchCount = {};
 
   const ital = (s) => s.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
@@ -70,8 +55,6 @@ function parseBibleServerSide(text) {
       const words = titleBuffer[t].split(/\s+/);
       for (let w = 0; w < words.length; w++) allWords.push(words[w]);
     }
-    // Check longest windows first (most specific) to avoid ambiguous single-word matches
-    // e.g. "SECOND BOOK OF SAMUEL" should win over "SAMUEL" → "1 Samuel"
     for (let len = 5; len >= 1; len--) {
       for (let w = 0; w + len <= allWords.length; w++) {
         const key = allWords.slice(w, w + len).join(" ");
@@ -83,7 +66,6 @@ function parseBibleServerSide(text) {
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
-
     if (!line) {
       if (titleBuffer.length > 0) {
         blanksSinceCaps++;
@@ -101,14 +83,11 @@ function parseBibleServerSide(text) {
       continue;
     }
 
-    // All-caps title line — allow leading digit for "1 SAMUEL", "2 KINGS" etc.
     if (/^[A-Z0-9][A-Z ,.\-0-9']+$/.test(line) && !/^\d+$/.test(line)) {
       const frag = line.replace(/[.,]$/, "").trim();
       titleBuffer.push(frag);
       const found = tryMatchTitle();
       if (found) {
-        // If the match is a "1st" numbered book but bibleData already has it,
-        // and the "2nd" version exists in BOOK_ORDER, advance to the 2nd.
         let resolvedBook = found;
         if (bibleData[resolvedBook]) {
           const idx = BOOK_ORDER.indexOf(resolvedBook);
@@ -185,68 +164,64 @@ Deno.serve(async (req) => {
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KJB Reader (Legacy)</title>
-<style type="text/css">
-  body { margin:0; padding:0; background:#f7f7fb; color:#1a1a1a; font-family:Georgia,"Times New Roman",serif; font-size:17px; line-height:1.7; -webkit-text-size-adjust:100%; }
-  .header { background:#2d2a6e; color:#ffffff; padding:14px 12px; text-align:center; }
-  .header h1 { margin:0; font-size:22px; font-weight:bold; }
+<style>
+  body { margin:0; padding:0; background:#f7f7fb; color:#1a1a1a; font-family:Georgia,"Times New Roman",serif; font-size:17px; line-height:1.7; }
+  .header { background:#2d2a6e; color:#fff; padding:14px 12px; text-align:center; }
+  .header h1 { margin:0; font-size:22px; font-weight:bold; display:inline-block; vertical-align:middle; }
+  .header img { width:48px; height:48px; vertical-align:middle; margin-right:8px; }
   .header p { margin:4px 0 0 0; font-size:13px; color:#cfceec; font-family:Arial,sans-serif; }
-  /* Tab bar */
   .tabs { display:table; width:100%; border-collapse:collapse; background:#3d3a80; }
   .tab-btn { display:table-cell; text-align:center; padding:10px 4px; font-family:Arial,sans-serif; font-size:13px; color:#cfceec; cursor:pointer; border:none; background:none; }
-  .tab-btn.active { background:#5b59a0; color:#ffffff; font-weight:bold; }
-  /* Wrap */
+  .tab-btn.active { background:#5b59a0; color:#fff; font-weight:bold; }
   .wrap { max-width:720px; margin:0 auto; padding:12px; }
-  /* Reader tab */
-  .controls { background:#f1f1f7; border:1px solid #cccccc; padding:10px; margin:12px 0; font-family:Arial,sans-serif; }
-  .controls label { display:block; font-size:13px; color:#333333; margin:0 0 3px 0; font-weight:bold; }
+  .controls { background:#f1f1f7; border:1px solid #ccc; padding:10px; margin:12px 0; font-family:Arial,sans-serif; }
+  .controls label { display:block; font-size:13px; color:#333; margin:0 0 3px 0; font-weight:bold; }
   .controls select { display:block; font-size:15px; padding:4px; margin:0 0 10px 0; width:100%; box-sizing:border-box; }
-  .btn { font-family:Arial,sans-serif; font-size:14px; padding:6px 12px; background:#2d2a6e; color:#ffffff; border:0; cursor:pointer; margin-right:6px; }
-  .btn.alt { background:#777777; }
-  .status { font-family:Arial,sans-serif; font-size:12px; color:#555555; padding:6px 0; }
+  .btn { font-family:Arial,sans-serif; font-size:14px; padding:6px 12px; background:#2d2a6e; color:#fff; border:0; cursor:pointer; margin-right:6px; }
+  .btn.alt { background:#777; }
+  .status { font-family:Arial,sans-serif; font-size:12px; color:#555; padding:6px 0; }
   .err { color:#b00000; font-weight:bold; }
   .daily { background:#eef0fb; border:1px solid #c9cdee; padding:12px; margin:12px 0; border-radius:4px; }
   .daily .dlabel { font-family:Arial,sans-serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#5b59a0; margin:0 0 6px 0; }
   .daily .dtext { font-size:17px; color:#2d2a6e; margin:0 0 6px 0; font-style:italic; }
-  .daily .dref { font-family:Arial,sans-serif; font-size:13px; color:#555555; margin:0; }
+  .daily .dref { font-family:Arial,sans-serif; font-size:13px; color:#555; margin:0; }
   h2.ref { font-size:19px; color:#2d2a6e; margin:14px 0 8px 0; }
   .verse { margin:0 0 5px 0; }
   .vnum { font-family:Arial,sans-serif; font-size:11px; color:#2d2a6e; font-weight:bold; vertical-align:super; margin-right:3px; }
-  em { font-style:italic; color:#666666; }
+  em { font-style:italic; color:#666; }
   .nav { margin:16px 0; text-align:center; }
-  /* Gospel tab */
-  .gospel-step { background:#ffffff; border:1px solid #dddddd; border-radius:4px; padding:14px; margin:12px 0; }
+  .gospel-step { background:#fff; border:1px solid #ddd; border-radius:4px; padding:14px; margin:12px 0; }
   .gospel-step h3 { font-size:16px; color:#2d2a6e; margin:0 0 8px 0; }
-  .gospel-step blockquote { border-left:3px solid #5b59a0; margin:0 0 8px 14px; padding:0 0 0 10px; font-style:italic; font-size:15px; color:#333333; }
-  .gospel-no { background:#fff5f5; border:1px solid #ffcccc; border-radius:4px; padding:12px 14px; margin:12px 0; }
+  .gospel-step blockquote { border-left:3px solid #5b59a0; margin:0 0 8px 14px; padding:0 0 0 10px; font-style:italic; font-size:15px; color:#333; }
+  .gospel-no { background:#fff5f5; border:1px solid #fcc; border-radius:4px; padding:12px 14px; margin:12px 0; }
   .gospel-no h3 { font-size:16px; color:#b00000; margin:0 0 8px 0; }
-  .gospel-no li { font-family:Arial,sans-serif; font-size:14px; color:#555555; margin:3px 0; }
-  .gospel-osas { background:#f0fff0; border:1px solid #aaddaa; border-radius:4px; padding:12px 14px; margin:12px 0; }
-  .gospel-osas blockquote { border-left:3px solid #4a8a4a; margin:8px 0 0 14px; padding:0 0 0 10px; font-style:italic; font-size:15px; color:#333333; }
-  /* Resources tab */
+  .gospel-no li { font-family:Arial,sans-serif; font-size:14px; color:#555; margin:3px 0; }
+  .gospel-osas { background:#f0fff0; border:1px solid #ada; border-radius:4px; padding:12px 14px; margin:12px 0; }
+  .gospel-osas h3 { font-size:16px; color:#2a6a2a; margin:0 0 6px 0; }
+  .gospel-osas blockquote { border-left:3px solid #4a8a4a; margin:8px 0 0 14px; padding:0 0 0 10px; font-style:italic; font-size:15px; color:#333; }
   .res-section { margin:14px 0; }
-  .res-section h3 { font-family:Arial,sans-serif; font-size:14px; font-weight:bold; color:#2d2a6e; margin:12px 0 6px 0; border-bottom:1px solid #dddddd; padding-bottom:4px; }
+  .res-section h3 { font-family:Arial,sans-serif; font-size:14px; font-weight:bold; color:#2d2a6e; margin:12px 0 6px 0; border-bottom:1px solid #ddd; padding-bottom:4px; }
   .res-item { margin:8px 0 8px 14px; }
   .res-item strong { display:block; font-family:Arial,sans-serif; font-size:13px; color:#1a1a1a; margin-bottom:2px; }
-  .res-item p { font-family:Arial,sans-serif; font-size:12px; color:#666666; margin:0 0 3px 0; }
+  .res-item p { font-family:Arial,sans-serif; font-size:12px; color:#666; margin:0 0 3px 0; }
   .res-item a { font-family:Arial,sans-serif; font-size:12px; color:#2d2a6e; }
-  /* About tab */
-  .about-section { background:#ffffff; border:1px solid #dddddd; border-radius:4px; padding:14px; margin:12px 0; }
+  .about-section { background:#fff; border:1px solid #ddd; border-radius:4px; padding:14px; margin:12px 0; }
   .about-section h3 { font-size:16px; color:#2d2a6e; margin:0 0 8px 0; }
-  .about-section p, .about-section li { font-family:Arial,sans-serif; font-size:13px; color:#333333; line-height:1.6; }
+  .about-section p, .about-section li { font-family:Arial,sans-serif; font-size:13px; color:#333; line-height:1.6; }
   .about-section li { margin:5px 0; }
-  .links-list a { display:block; font-family:Arial,sans-serif; font-size:13px; color:#2d2a6e; padding:6px 0; border-bottom:1px solid #eeeeee; text-decoration:none; }
+  .links-list a { display:block; font-family:Arial,sans-serif; font-size:13px; color:#2d2a6e; padding:6px 0; border-bottom:1px solid #eee; text-decoration:none; }
   .links-list a:last-child { border-bottom:none; }
-  /* Footer */
-  .footer { font-family:Arial,sans-serif; font-size:11px; color:#888888; text-align:center; margin:24px 0 16px 0; padding-top:12px; border-top:1px solid #dddddd; }
+  .footer { font-family:Arial,sans-serif; font-size:11px; color:#888; text-align:center; margin:24px 0 16px 0; padding-top:12px; border-top:1px solid #ddd; }
   .tab-content { display:none; }
   .tab-content.active { display:block; }
+  #debug-info { font-family:monospace; font-size:12px; white-space:pre-wrap; background:#fff; border:1px solid #ddd; padding:10px; border-radius:4px; line-height:1.5; }
 </style>
 </head>
 <body>
 <div class="header">
-  <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" style="width:48px;height:48px;vertical-align:middle;margin-right:8px;">
-  <h1 style="display:inline-block;vertical-align:middle;">KJB Reader</h1>
-  <p>Legacy Edition &mdash; for older browsers</p>
+  <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader">
+  <h1>KJB Reader</h1>
+  <p>Legacy Edition — for older browsers</p>
 </div>
 <div class="tabs">
   <button type="button" class="tab-btn active" onclick="showTab('reader',this)">Bible</button>
@@ -256,17 +231,16 @@ Deno.serve(async (req) => {
   <button type="button" class="tab-btn" onclick="showTab('debug',this)">Debug</button>
 </div>
 
-<!-- BIBLE READER TAB -->
 <div class="tab-content active" id="tab-reader">
 <div class="wrap">
   <div class="controls">
     <label for="bookSel">Book:</label>
-    <select id="bookSel" size="1"></select>
+    <select id="bookSel"></select>
     <label for="chapSel">Chapter:</label>
-    <select id="chapSel" size="1"></select>
+    <select id="chapSel"></select>
     <button type="button" class="btn" id="goBtn">Read</button>
   </div>
-  <div class="status" id="status">${parseError ? "Error loading Bible: " + parseError : bookCount < 66 ? "Warning: only " + bookCount + " books loaded." : ""}</div>
+  <div class="status" id="status"></div>
   <div class="daily" id="daily" style="display:none;">
     <p class="dlabel">Verse of the Day</p>
     <p class="dtext" id="dtext"></p>
@@ -275,40 +249,31 @@ Deno.serve(async (req) => {
   <h2 class="ref" id="refTitle" style="display:none;"></h2>
   <div id="content"></div>
   <div class="nav" id="nav" style="display:none;">
-    <button type="button" class="btn alt" id="prevBtn">&laquo; Previous</button>
-    <button type="button" class="btn alt" id="nextBtn">Next &raquo;</button>
+    <button type="button" class="btn alt" id="prevBtn">« Previous</button>
+    <button type="button" class="btn alt" id="nextBtn">Next »</button>
   </div>
-  <div class="footer">
-    King James Bible &mdash; Pure Cambridge Edition.<br>
-    Legacy version for old devices. For the full app, use a modern browser.
-  </div>
-  <div id="debugInfo" style="font-family:monospace;font-size:10px;background:#ffffdd;padding:8px;border-top:1px solid #ccc;"></div>
+  <div class="footer">King James Bible — Pure Cambridge Edition.<br>Legacy version for old devices.</div>
 </div>
 </div>
 
-<!-- GOSPEL TAB -->
 <div class="tab-content" id="tab-gospel">
 <div class="wrap">
   <h2 style="color:#2d2a6e;margin:16px 0 4px 0;">How to be Saved</h2>
-  <p style="font-family:Arial,sans-serif;font-size:14px;color:#555555;margin:0 0 12px 0;">The Gospel is the glad tidings of the Lord Jesus Christ: Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.</p>
-
+  <p style="font-family:Arial,sans-serif;font-size:14px;color:#555;margin:0 0 12px 0;">The Gospel is the glad tidings of the Lord Jesus Christ: Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.</p>
   <div class="gospel-step">
     <h3>1. Believe you are a sinner that deserves hell</h3>
-    <blockquote>"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin." &mdash; Romans 3:20</blockquote>
-    <blockquote>"The wicked shall be turned into hell, and all the nations that forget God." &mdash; Psalm 9:17</blockquote>
+    <blockquote>"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin." — Romans 3:20</blockquote>
+    <blockquote>"The wicked shall be turned into hell, and all the nations that forget God." — Psalm 9:17</blockquote>
   </div>
-
   <div class="gospel-step">
     <h3>2. Believe that Jesus is God manifested in the flesh</h3>
-    <blockquote>"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory." &mdash; 1 Timothy 3:16</blockquote>
+    <blockquote>"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory." — 1 Timothy 3:16</blockquote>
   </div>
-
   <div class="gospel-step">
     <h3>3. Believe he died, shed his blood, was buried and rose again</h3>
-    <blockquote>"Moreover, brethren, I declare unto you the gospel which I preached unto you... how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." &mdash; 1 Corinthians 15:1&ndash;4</blockquote>
-    <blockquote>"Whom God hath set forth to be a propitiation through faith in his blood, to declare his righteousness for the remission of sins that are past, through the forbearance of God;" &mdash; Romans 3:25</blockquote>
+    <blockquote>"Moreover, brethren, I declare unto you the gospel which I preached unto you... how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." — 1 Corinthians 15:1–4</blockquote>
+    <blockquote>"Whom God hath set forth to be a propitiation through faith in his blood, to declare his righteousness for the remission of sins that are past, through the forbearance of God;" — Romans 3:25</blockquote>
   </div>
-
   <div class="gospel-no">
     <h3>These do NOT make you a Christian:</h3>
     <ul>
@@ -322,174 +287,72 @@ Deno.serve(async (req) => {
       <li>Lordship Salvation</li>
     </ul>
   </div>
-
   <div class="gospel-osas">
-    <h3 style="font-size:16px;color:#2a6a2a;margin:0 0 6px 0;">Once Saved, Always Saved</h3>
-    <p style="font-family:Arial,sans-serif;font-size:13px;color:#333333;margin:0 0 6px 0;">A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life.</p>
-    <blockquote>"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." &mdash; Ephesians 1:13</blockquote>
+    <h3>Once Saved, Always Saved</h3>
+    <p style="font-family:Arial,sans-serif;font-size:13px;color:#333;margin:0 0 6px 0;">A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life.</p>
+    <blockquote>"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." — Ephesians 1:13</blockquote>
   </div>
-
-  <div style="margin:16px 0;padding:12px;background:#ffffff;border:1px solid #dddddd;border-radius:4px;">
+  <div style="margin:16px 0;padding:12px;background:#fff;border:1px solid #ddd;border-radius:4px;">
     <p style="font-family:Arial,sans-serif;font-size:13px;margin:0 0 8px 0;"><strong>Watch the Gospel:</strong></p>
-    <a href="https://www.youtube.com/watch?v=znP9Dr6tOzU" target="_blank" style="font-family:Arial,sans-serif;font-size:13px;color:#cc0000;">&#9654; THE GOSPEL THAT SAVES &mdash; Robert Breaker (YouTube)</a><br>
-    <a href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq" target="_blank" style="font-family:Arial,sans-serif;font-size:13px;color:#cc0000;display:block;margin-top:6px;">&#9654; Full Gospel Video Playlist (YouTube)</a>
+    <a href="https://www.youtube.com/watch?v=znP9Dr6tOzU" target="_blank" style="font-family:Arial,sans-serif;font-size:13px;color:#c00;">► THE GOSPEL THAT SAVES — Robert Breaker (YouTube)</a><br>
+    <a href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq" target="_blank" style="font-family:Arial,sans-serif;font-size:13px;color:#c00;display:block;margin-top:6px;">► Full Gospel Video Playlist (YouTube)</a>
   </div>
-  <div class="footer">King James Bible &mdash; Pure Cambridge Edition.</div>
+  <div class="footer">King James Bible — Pure Cambridge Edition.</div>
 </div>
 </div>
 
-<!-- RESOURCES TAB -->
 <div class="tab-content" id="tab-resources">
 <div class="wrap">
 <h2 style="color:#2d2a6e;margin:16px 0 4px 0;">Resources</h2>
-<p style="font-family:Arial,sans-serif;font-size:13px;color:#555555;margin:0 0 12px 0;">KJB defence materials, studies on modern version corruption, and free Bible study resources.</p>
-
-<div style="background:#f0fff0;border:1px solid #aaddaa;border-radius:4px;padding:12px;margin:0 0 14px 0;">
-  <strong style="font-family:Arial,sans-serif;font-size:14px;">KJBI.org &mdash; Free Online Bible College</strong>
-  <p style="font-family:Arial,sans-serif;font-size:13px;color:#555;margin:4px 0 6px 0;">King James Bible Institute &mdash; a free online Bible college for those who want to go deeper in God&rsquo;s Word.</p>
-  <a href="https://kjbi.org" target="_blank" style="font-family:Arial,sans-serif;font-size:13px;color:#2d2a6e;">Visit KJBI.org &rarr;</a>
+<p style="font-family:Arial,sans-serif;font-size:13px;color:#555;margin:0 0 12px 0;">KJB defence materials, studies on modern version corruption, and free Bible study resources.</p>
+<div style="background:#f0fff0;border:1px solid #ada;border-radius:4px;padding:12px;margin:0 0 14px 0;">
+  <strong style="font-family:Arial,sans-serif;font-size:14px;">KJBI.org — Free Online Bible College</strong>
+  <p style="font-family:Arial,sans-serif;font-size:13px;color:#555;margin:4px 0 6px 0;">King James Bible Institute — a free online Bible college for those who want to go deeper in God's Word.</p>
+  <a href="https://kjbi.org" target="_blank" style="font-family:Arial,sans-serif;font-size:13px;color:#2d2a6e;">Visit KJBI.org →</a>
 </div>
-
 <div class="res-section">
-  <h3>How to Read the Bible</h3>
-  <div class="res-item"><strong>AV Publications</strong><p>Books and resources for King James Bible believers.</p><a href="https://avpublications.com/" target="_blank">avpublications.com</a></div>
+  <h3>Why the KJB is God's Word</h3>
+  <div class="res-item"><strong>The Word of God Will Keep Its Infallibility</strong><p>A historical book demonstrating that the King James Bible is the infallible, preserved Word of God.</p><a href="https://archive.org/details/wordgodwillkeepi0000faus/page/18/mode/1up" target="_blank">Read on Archive.org</a></div>
+  <div class="res-item"><strong>Warning on the NKJV</strong><p>The NKJV is NOT the King James Bible. Please research the differences.</p><a href="https://www.scionofzion.com/nkjv.htm" target="_blank">NKJV Comparison</a></div>
+  <div class="res-item"><strong>Textus Receptus Bibles</strong><p>Research on the Textus Receptus — the Greek text underlying the King James Bible.</p><a href="https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs" target="_blank">Compare Textus Receptus vs NA/UBS</a></div>
 </div>
-
-  <!-- Why KJB -->
-  <div class="res-section">
-    <h3>Why the KJB is God&rsquo;s Word</h3>
-    <div class="res-item"><strong>The Word of God Will Keep Its Infallibility</strong><p>A historical book demonstrating that the King James Bible is the infallible, preserved Word of God.</p><a href="https://archive.org/details/wordgodwillkeepi0000faus/page/18/mode/1up" target="_blank">Read on Archive.org</a></div>
-    <div class="res-item"><strong>Warning on the NKJV</strong><p>The NKJV is NOT the King James Bible. Please research the differences.</p><a href="https://www.scionofzion.com/nkjv.htm" target="_blank">NKJV Comparison</a></div>
-    <div class="res-item"><strong>Textus Receptus Bibles</strong><p>Research on the Textus Receptus &mdash; the Greek text underlying the King James Bible.</p><a href="https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs" target="_blank">Compare Textus Receptus vs NA/UBS</a></div>
+<div class="res-section">
+  <h3>Verified KJB Preachers</h3>
+  <div class="res-item"><strong>Robert Breaker</strong><p>KJB missionary evangelist, rightly dividing the word of truth.</p><a href="https://www.youtube.com/@Robertbreaker3" target="_blank">YouTube</a> • <a href="https://www.tiktok.com/@robertbreaker" target="_blank">TikTok</a> • <a href="https://thecloudchurch.org/" target="_blank">thecloudchurch.org</a></div>
+  <div class="res-item"><strong>Robert Potthoff (Big Red Preacher)</strong><p>KJB soul winner.</p><a href="https://mission1611.com/" target="_blank">mission1611.com</a> • <a href="https://www.instagram.com/big_red_preacher" target="_blank">Instagram</a> • <a href="https://www.facebook.com/potthoff87" target="_blank">Facebook</a></div>
+  <div class="res-item"><strong>Joseph Gonzalez (KJB Elites)</strong><p>Faithful preacher of the word.</p><a href="https://youtube.com/@josephgonzalez3" target="_blank">YouTube</a> • <a href="https://www.tiktok.com/@joyfullychurch" target="_blank">TikTok</a></div>
+  <div class="res-item"><strong>Ryan Poff</strong><p>Seed of Hope Church — KJB pastor.</p><a href="https://www.seedofhopechurch.org/" target="_blank">seedofhopechurch.org</a> • <a href="https://youtube.com/@ryan_poff" target="_blank">YouTube</a> • <a href="https://www.tiktok.com/@ryan_sohc" target="_blank">TikTok</a></div>
+  <div class="res-item"><strong>Skyler (AV1611 Ministry)</strong><p>KJB defence and preaching.</p><a href="https://youtube.com/@av1611ministries" target="_blank">YouTube</a> • <a href="https://www.tiktok.com/@av1611ministries" target="_blank">TikTok</a></div>
+  <div class="res-item"><strong>Crown of Thorns</strong><p>KJB preaching ministry.</p><a href="https://www.youtube.com/@CrownOfThorns" target="_blank">YouTube</a></div>
+  <div class="res-item"><strong>Paul Johnson (Biblical Salvation)</strong><p>KJB preaching and Bible teaching.</p><a href="https://youtube.com/@biblicalsalvation" target="_blank">YouTube</a> • <a href="https://www.tiktok.com/@pauljohnson9632" target="_blank">TikTok</a></div>
+  <div class="res-item"><strong>CPR Missions</strong><p>Church Planting and Revival Missions.</p><a href="https://www.youtube.com/channel/UCWBR5DmAi2XPMFRtb-wqHwg" target="_blank">YouTube</a> • <a href="https://www.tiktok.com/@cprmissions" target="_blank">TikTok</a> • <a href="https://www.facebook.com/CPRmission/" target="_blank">Facebook</a></div>
+  <div class="res-item"><strong>James Bray</strong><p>KJB preacher and Bible teacher.</p><a href="https://youtube.com/@jamesbrayall3" target="_blank">YouTube</a></div>
+</div>
+<div class="res-section">
+  <h3>KJB Defence</h3>
+  <div class="res-item"><strong>BibleProtector.com — Pure Cambridge Edition</strong><p>The definitive PCE KJB text. Free PDF, ePub, and TXT downloads.</p><a href="https://www.bibleprotector.com" target="_blank">bibleprotector.com</a></div>
+  <div class="res-item"><strong>KJV Compare</strong><p>Hundreds of verse-by-verse changes in modern versions.</p><a href="https://kjvcompare.com/" target="_blank">kjvcompare.com</a></div>
+  <div class="res-item"><strong>Scion of Zion — KJB Comparisons</strong><p>Detailed comparisons exposing corruptions and omissions in modern versions.</p><a href="https://www.scionofzion.com/kjcomparisons.html" target="_blank">scionofzion.com</a></div>
+  <div class="res-item"><strong>1 John 5:7 Defence</strong><p>Resources defending the Johannine Comma, attacked by modern versions.</p><a href="https://www.scionofzion.com/1_john_5_7.htm" target="_blank">Read defence</a></div>
+  <div class="res-item"><strong>A Lamp in the Dark — Documentary</strong><p>The untold history of the Bible, exposing corruption in modern translations.</p><a href="https://www.youtube.com/watch?v=RmXBj2N9fhY" target="_blank">Watch on YouTube</a></div>
+  <div class="res-item"><strong>AV1611 Articles</strong><a href="https://www.av1611.org/articles" target="_blank">av1611.org/articles</a></div>
+  <div class="res-item"><strong>Preserved Words</strong><a href="https://www.preservedwords.com/bp/index.html" target="_blank">preservedwords.com</a></div>
+  <div class="res-item"><strong>Brandplucked — KJB Articles</strong><a href="https://brandplucked.com/kjbarticles.htm" target="_blank">brandplucked.com</a></div>
+</div>
+<div class="res-section">
+  <h3>Ministry Links</h3>
+  <div class="links-list">
+    <a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank">God is Gracious 1031 Ministries</a>
+    <a href="mailto:Kingjamesbiblereader.com@outlook.com">Kingjamesbiblereader.com@outlook.com</a>
   </div>
-
-  <!-- Verified Preachers -->
-  <div class="res-section">
-    <h3>Verified KJB Preachers</h3>
-    <div class="res-item"><strong>Robert Breaker</strong><p>KJB missionary evangelist, rightly dividing the word of truth.</p>
-      <a href="https://www.youtube.com/@Robertbreaker3" target="_blank">YouTube</a> &bull;
-      <a href="https://www.tiktok.com/@robertbreaker" target="_blank">TikTok</a> &bull;
-      <a href="https://thecloudchurch.org/" target="_blank">thecloudchurch.org</a></div>
-    <div class="res-item"><strong>Robert Potthoff (Big Red Preacher)</strong><p>KJB soul winner.</p>
-      <a href="https://mission1611.com/" target="_blank">mission1611.com</a> &bull;
-      <a href="https://www.instagram.com/big_red_preacher" target="_blank">Instagram</a> &bull;
-      <a href="https://www.facebook.com/potthoff87" target="_blank">Facebook</a></div>
-    <div class="res-item"><strong>Joseph Gonzalez (KJB Elites)</strong><p>Faithful preacher of the word.</p>
-      <a href="https://youtube.com/@josephgonzalez3" target="_blank">YouTube</a> &bull;
-      <a href="https://www.tiktok.com/@joyfullychurch" target="_blank">TikTok</a></div>
-    <div class="res-item"><strong>Ryan Poff</strong><p>Seed of Hope Church &mdash; KJB pastor.</p>
-      <a href="https://www.seedofhopechurch.org/" target="_blank">seedofhopechurch.org</a> &bull;
-      <a href="https://youtube.com/@ryan_poff" target="_blank">YouTube</a> &bull;
-      <a href="https://www.tiktok.com/@ryan_sohc" target="_blank">TikTok</a></div>
-    <div class="res-item"><strong>Skyler (AV1611 Ministry)</strong><p>KJB defence and preaching.</p>
-      <a href="https://youtube.com/@av1611ministries" target="_blank">YouTube</a> &bull;
-      <a href="https://www.tiktok.com/@av1611ministries" target="_blank">TikTok</a></div>
-    <div class="res-item"><strong>Crown of Thorns</strong><p>KJB preaching ministry.</p>
-      <a href="https://www.youtube.com/@CrownOfThorns" target="_blank">YouTube</a></div>
-    <div class="res-item"><strong>Paul Johnson (Biblical Salvation)</strong><p>KJB preaching and Bible teaching.</p>
-      <a href="https://youtube.com/@biblicalsalvation" target="_blank">YouTube</a> &bull;
-      <a href="https://www.tiktok.com/@pauljohnson9632" target="_blank">TikTok</a></div>
-    <div class="res-item"><strong>CPR Missions</strong><p>Church Planting and Revival Missions.</p>
-      <a href="https://www.youtube.com/channel/UCWBR5DmAi2XPMFRtb-wqHwg" target="_blank">YouTube</a> &bull;
-      <a href="https://www.tiktok.com/@cprmissions" target="_blank">TikTok</a> &bull;
-      <a href="https://www.facebook.com/CPRmission/" target="_blank">Facebook</a></div>
-    <div class="res-item"><strong>James Bray</strong><p>KJB preacher and Bible teacher.</p>
-      <a href="https://youtube.com/@jamesbrayall3" target="_blank">YouTube</a></div>
-  </div>
-
-  <!-- Why Modern Versions Are Corrupt -->
-  <div class="res-section">
-    <h3>Why Modern Versions Are Corrupt</h3>
-    <div class="res-item"><strong>The Critical Text &amp; Westcott-Hort</strong><p>Westcott and Hort created the Critical Text based on Vatican and Egyptian manuscripts with hundreds of errors. Their text was used in the Revised Version of 1881.</p><a href="https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf" target="_blank">Theological Heresies of Westcott &amp; Hort (PDF)</a></div>
-    <div class="res-item"><strong>A Lamp in the Dark &mdash; Full Documentary</strong><p>The untold history of the Bible &mdash; exposing the corruption of modern Bible translations.</p><a href="https://www.youtube.com/watch?v=RmXBj2N9fhY&list=PLiMliTxa3H172BW4ANpBAavcIGVz-KXFW" target="_blank">Watch on YouTube</a></div>
-    <div class="res-item"><strong>KJB Defence Playlist</strong><p>Comprehensive playlist defending the King James Bible.</p><a href="https://youtube.com/playlist?list=PLNGhZnJavRf01ILv3TJu_ke4IPYcKcpJm&si=w73gmQRdA_3QbE48" target="_blank">Watch Playlist</a></div>
-    <div class="res-item"><strong>Gail Riplinger &mdash; The Sword Slays the Dragon</strong><a href="https://www.youtube.com/watch?v=fyN680Y0Vwc" target="_blank">Watch on YouTube</a></div>
-    <div class="res-item"><strong>Irrefutable Proof: The KJB Superseded Hebrew and Greek</strong><a href="https://www.youtube.com/watch?v=t6ck6KrVPIk" target="_blank">Watch on YouTube</a></div>
-    <div class="res-item"><strong>AV1611 Articles</strong><a href="https://www.av1611.org/articles" target="_blank">av1611.org/articles</a></div>
-    <div class="res-item"><strong>Preserved Words</strong><a href="https://www.preservedwords.com/bp/index.html" target="_blank">preservedwords.com</a></div>
-    <div class="res-item"><strong>Brandplucked &mdash; KJB Articles</strong><a href="https://brandplucked.com/kjbarticles.htm" target="_blank">brandplucked.com</a></div>
-  </div>
-
-  <!-- KJB Defence -->
-  <div class="res-section">
-    <h3>KJB Defence</h3>
-    <div class="res-item"><strong>BibleProtector.com &mdash; Pure Cambridge Edition</strong><p>The definitive PCE KJB text. Free PDF, ePub, and TXT downloads.</p><a href="https://www.bibleprotector.com" target="_blank">bibleprotector.com</a></div>
-    <div class="res-item"><strong>KJV Compare</strong><p>Hundreds of verse-by-verse changes in modern versions.</p><a href="https://kjvcompare.com/" target="_blank">kjvcompare.com</a></div>
-    <div class="res-item"><strong>Scion of Zion &mdash; KJB Comparisons</strong><p>Detailed comparisons exposing corruptions and omissions in modern versions.</p><a href="https://www.scionofzion.com/kjcomparisons.html" target="_blank">scionofzion.com</a></div>
-    <div class="res-item"><strong>1 John 5:7 Defence</strong><p>Resources defending the Johannine Comma, attacked by modern versions.</p><a href="https://www.scionofzion.com/1_john_5_7.htm" target="_blank">Read defence</a></div>
-    <div class="res-item"><strong>A Lamp in the Dark &mdash; Documentary</strong><p>The untold history of the Bible, exposing corruption in modern translations.</p><a href="https://www.youtube.com/watch?v=RmXBj2N9fhY" target="_blank">Watch on YouTube</a></div>
-    <div class="res-item"><strong>KJB Defence Playlist</strong><p>Comprehensive playlist defending the KJB as the infallible words of God.</p><a href="https://youtube.com/playlist?list=PLNGhZnJavRf01ILv3TJu_ke4IPYcKcpJm" target="_blank">Watch Playlist</a></div>
-    <div class="res-item"><strong>Gail Riplinger &mdash; The Sword Slays the Dragon</strong><a href="https://www.youtube.com/watch?v=fyN680Y0Vwc" target="_blank">Watch on YouTube</a></div>
-    <div class="res-item"><strong>AV1611 Articles</strong><a href="https://www.av1611.org/articles" target="_blank">av1611.org/articles</a></div>
-    <div class="res-item"><strong>Preserved Words</strong><a href="https://www.preservedwords.com/bp/index.html" target="_blank">preservedwords.com</a></div>
-    <div class="res-item"><strong>Brandplucked &mdash; KJB Articles</strong><a href="https://brandplucked.com/kjbarticles.htm" target="_blank">brandplucked.com</a></div>
-  </div>
-
-  <!-- 1 John 5:7 -->
-  <div class="res-section">
-    <h3>1 John 5:7 Defence</h3>
-    <div class="res-item"><strong>1 John 5:7 &mdash; The 1st Century Latin/Spain Connection</strong><a href="https://kjvdebate.com/blog/f/i-john-57-the-1st-century-latinspain-connection" target="_blank">Read article</a></div>
-    <div class="res-item"><strong>The Authenticity of 1 John 5:7</strong><a href="https://catalog.obitel-minsk.com/blog/2021/08/the-authenticity-of-1-john-57-historical-evidence-and-the-church-tradition" target="_blank">Read article</a></div>
-    <div class="res-item"><strong>Textus Receptus &mdash; 1 John 5:7</strong><a href="https://textus-receptus.com/wiki/1_John_5:7" target="_blank">textus-receptus.com</a></div>
-    <div class="res-item"><strong>KJV Debate &mdash; 1 John 5:7 PDF</strong><a href="https://kjvdebate.com/pdf" target="_blank">Download PDF</a></div>
-  </div>
-
-  <!-- Westcott & Hort -->
-  <div class="res-section">
-    <h3>Westcott &amp; Hort Heresies</h3>
-    <div class="res-item"><strong>Theological Heresies of Westcott &amp; Hort</strong><p>Detailed examination of the heresies underlying the modern Critical Text.</p><a href="https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf" target="_blank">Download PDF</a></div>
-    <div class="res-item"><strong>Scattered Christians &mdash; Westcott &amp; Hort</strong><a href="https://scatteredchristians.org/WescottHort.html" target="_blank">Read article</a></div>
-    <div class="res-item"><strong>Textus Receptus Bibles &mdash; Editorial Issues</strong><a href="https://textusreceptusbibles.com/Editorial/Umlauts" target="_blank">Read more</a></div>
-  </div>
-
-  <!-- NKJV Exposed -->
-  <div class="res-section">
-    <h3>NKJV Exposed</h3>
-    <div class="res-item"><strong>AV1611 &mdash; NKJV Exposed</strong><a href="https://www.av1611.org/nkjv.html" target="_blank">av1611.org</a></div>
-    <div class="res-item"><strong>TBS &mdash; What Today&rsquo;s Christian Needs to Know About NKJV</strong><a href="https://www.tbsbibles.org/page/WhatTodaysChristianNeedsToKnowAboutTheNewKingJamesVersion" target="_blank">Read article</a></div>
-    <div class="res-item"><strong>TBS &mdash; Does the NKJV Live Up to Its Claims?</strong><a href="https://www.tbsbibles.org/page/DoesTheNKJVLiveUpToItsClaims" target="_blank">Read article</a></div>
-    <div class="res-item"><strong>TBS &mdash; The New King James Version Overview</strong><a href="https://www.tbsbibles.org/page/TheNewKingJamesVersion" target="_blank">Read article</a></div>
-    <div class="res-item"><strong>TBS &mdash; An Examination of the NKJV</strong><a href="https://cdn.ymaws.com/www.tbsbibles.org/resource/collection/D4DCAF37-AEB6-4CEC-880F-FD229A90560F/An-Examination-of-NKJV-Part-1.pdf" target="_blank">Download PDF</a></div>
-  </div>
-
-  <!-- ESV & NIV -->
-  <div class="res-section">
-    <h3>ESV &amp; NIV Exposed</h3>
-    <div class="res-item"><strong>Brandplucked &mdash; Is the ESV Inerrant?</strong><a href="https://brandplucked.com/is-the-esv-inerrant.html" target="_blank">Read article</a></div>
-    <div class="res-item"><strong>Brandplucked &mdash; The ESV Examined</strong><a href="https://brandplucked.com/theesv.htm" target="_blank">Read article</a></div>
-    <div class="res-item"><strong>TBS &mdash; English Standard Version</strong><a href="https://www.tbsbibles.org/page/EnglishStandardVersion" target="_blank">Read article</a></div>
-    <div class="res-item"><strong>AV1611 &mdash; NIV Exposed</strong><a href="https://www.av1611.org/kjv/nivteen.html" target="_blank">Read article</a></div>
-    <div class="res-item"><strong>Jesus is Precious &mdash; NIV Missing Verses</strong><a href="https://www.jesusisprecious.org/bible/niv/acts_8-37_missing.htm" target="_blank">Read article</a></div>
-    <div class="res-item"><strong>Scion of Zion &mdash; NIV 1984 vs 2011</strong><a href="https://www.scionofzion.com/niv%201984%20and%202011.html" target="_blank">Compare versions</a></div>
-    <div class="res-item"><strong>Jesus is Savior &mdash; NIV Exposed</strong><a href="https://www.jesus-is-savior.com/Bible/NIV/new_international_version_exposed.htm" target="_blank">Read article</a></div>
-  </div>
-
-  <!-- Living Bible & NLT -->
-  <div class="res-section">
-    <h3>Living Bible &amp; NLT Exposed</h3>
-    <div class="res-item"><strong>TBS &mdash; The Living Bible Exposed</strong><a href="https://cdn.ymaws.com/www.tbsbibles.org/resource/collection/D4DCAF37-AEB6-4CEC-880F-FD229A90560F/The-Living-Bible.pdf" target="_blank">Download PDF</a></div>
-    <div class="res-item"><strong>Jesus is Savior &mdash; Living Bible Exposed</strong><a href="https://www.jesus-is-savior.com/Bible/Living%20Bible/lb_exposed.htm" target="_blank">Read article</a></div>
-    <div class="res-item"><strong>Jesus is Savior &mdash; NLT Exposed</strong><a href="https://jesus-is-savior.com/Bible/NLT/nlt_exposed.htm" target="_blank">Read article</a></div>
-  </div>
-
-  <!-- Ministry Links -->
-  <div class="res-section">
-    <h3>Ministry Links</h3>
-    <div class="links-list">
-      <a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank">God is Gracious 1031 Ministries</a>
-      <a href="mailto:Kingjamesbiblereader.com@outlook.com">Kingjamesbiblereader.com@outlook.com</a>
-    </div>
-  </div>
-
-  <div class="footer">King James Bible &mdash; Pure Cambridge Edition.</div>
+</div>
+<div class="footer">King James Bible — Pure Cambridge Edition.</div>
 </div>
 </div>
 
-<!-- ABOUT TAB -->
 <div class="tab-content" id="tab-about">
 <div class="wrap">
   <h2 style="color:#2d2a6e;margin:16px 0 8px 0;">About the Ministry</h2>
-
   <div class="about-section">
     <p>I'm Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. I am a dispensational salvationist, rightly dividing the word of truth.</p>
     <ul>
@@ -499,7 +362,6 @@ Deno.serve(async (req) => {
       <li>I believe in OSAS (Once Saved, Always Saved): a believer cannot lose salvation, no matter what.</li>
     </ul>
   </div>
-
   <div class="about-section">
     <h3>The King James Bible</h3>
     <ul>
@@ -509,9 +371,8 @@ Deno.serve(async (req) => {
       <li>Mathematically proven to be a miracle.</li>
     </ul>
   </div>
-
   <div class="about-section">
-    <h3>Salvation &amp; Pre-Tribulation Rapture</h3>
+    <h3>Salvation & Pre-Tribulation Rapture</h3>
     <ul>
       <li>Jesus Christ is God manifested in the flesh, born of the virgin Mary.</li>
       <li>To be saved: Believe Jesus is God and that He died for your sins, shed his blood, was buried and rose again for your justification.</li>
@@ -519,36 +380,33 @@ Deno.serve(async (req) => {
       <li>I believe in the Pre-Tribulation Rapture. Those in the 7-year tribulation must endure to the end.</li>
     </ul>
   </div>
-
   <div class="about-section">
-    <h3>Links &amp; Contact</h3>
+    <h3>Links & Contact</h3>
     <div class="links-list">
-      <a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank">&#127760; God is Gracious 1031 Ministries</a>
-      <a href="https://youtube.com/@shawnr325av" target="_blank">&#9654; YouTube: @shawnr325av</a>
-      <a href="https://www.instagram.com/svdbyfaithinhisbloodr325av" target="_blank">&#128247; Instagram: @svdbyfaithinhisbloodr325av</a>
-      <a href="mailto:kingjamesbiblereader@outlook.sg">&#9993; kingjamesbiblereader@outlook.sg</a>
-      <a href="https://discord.com/" target="_blank">&#128172; Discord: shawn_svdbyfaithinhisbloodr325av</a>
+      <a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank">🌐 God is Gracious 1031 Ministries</a>
+      <a href="https://youtube.com/@shawnr325av" target="_blank">► YouTube: @shawnr325av</a>
+      <a href="https://www.instagram.com/svdbyfaithinhisbloodr325av" target="_blank">📷 Instagram: @svdbyfaithinhisbloodr325av</a>
+      <a href="mailto:kingjamesbiblereader@outlook.sg">✉ kingjamesbiblereader@outlook.sg</a>
+      <a href="https://discord.com/" target="_blank">💬 Discord: shawn_svdbyfaithinhisbloodr325av</a>
     </div>
   </div>
-
-  <div class="footer">King James Bible &mdash; Pure Cambridge Edition.</div>
+  <div class="footer">King James Bible — Pure Cambridge Edition.</div>
 </div>
 </div>
 
-<!-- DEBUG TAB -->
 <div class="tab-content" id="tab-debug">
 <div class="wrap">
   <h2 style="color:#2d2a6e;margin:16px 0 4px 0;">Debug Information</h2>
   <button type="button" class="btn" onclick="updateDebugInfo()" style="margin-bottom:10px;">Refresh Status</button>
-  <div id="debug-info" style="font-family:monospace; font-size:12px; white-space:pre-wrap; background:#ffffff; border:1px solid #dddddd; padding:10px; border-radius:4px; line-height:1.5;"></div>
+  <div id="debug-info"></div>
 </div>
 </div>
 
-<script type="text/javascript">
+<script>
 var BIBLE_DATA_INJECTED = ${bibleJson};
-// Tab switching
+
 function showTab(name, btn) {
-  var tabs = ["reader","gospel","resources","about", "debug"];
+  var tabs = ["reader","gospel","resources","about","debug"];
   for (var i = 0; i < tabs.length; i++) {
     var el = document.getElementById("tab-" + tabs[i]);
     if (el) el.className = "tab-content" + (tabs[i] === name ? " active" : "");
@@ -559,11 +417,11 @@ function showTab(name, btn) {
   }
 }
 
-(function () {
-  // Use freshly injected data from the server, or fall back to localStorage cache for offline use
+(function() {
   var BIBLE_DATA = (BIBLE_DATA_INJECTED && Object.keys(BIBLE_DATA_INJECTED).length > 0) ? BIBLE_DATA_INJECTED : (function() {
     try { var c = localStorage.getItem("kjb-legacy-bible-v1"); return c ? JSON.parse(c) : {}; } catch(e) { return {}; }
   })();
+  
   var BOOK_ORDER = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
 
   var EXCLUDED_REFS = {};
@@ -588,29 +446,22 @@ function showTab(name, btn) {
   var updateDebugInfo = function() {
     if (!debugInfoDiv) return;
     var info = "";
-    info += "Bible Data Source: " + (Object.keys(BIBLE_DATA_INJECTED).length > 0 ? "Injected from Server" : "localStorage Cache") + "\n";
-    info += "Bible Data Loaded: " + (BIBLE_DATA && Object.keys(BIBLE_DATA).length > 0 ? "Yes" : "No") + "\n";
-    info += "Total Books Loaded: " + availableBooks.length + "/66\n";
-    info += "Current Book: " + (bookSel ? bookSel.value : "N/A") + "\n";
-    info += "Current Chapter: " + (chapSel ? chapSel.value : "N/A") + "\n";
-    
+    info += "Bible Data Source: " + (Object.keys(BIBLE_DATA_INJECTED).length > 0 ? "Injected from Server" : "localStorage Cache") + "\\n";
+    info += "Bible Data Loaded: " + (BIBLE_DATA && Object.keys(BIBLE_DATA).length > 0 ? "Yes" : "No") + "\\n";
+    info += "Total Books Loaded: " + availableBooks.length + "/66\\n";
+    info += "Current Book: " + (bookSel ? bookSel.value : "N/A") + "\\n";
+    info += "Current Chapter: " + (chapSel ? chapSel.value : "N/A") + "\\n";
     var dailyText = dtext ? dtext.textContent : "N/A";
     var dailyRef = dref ? dref.textContent : "N/A";
-    info += "\n== Daily Verse ==\n";
-    info += "Text: " + dailyText + "\n";
-    info += "Ref: " + dailyRef + "\n";
-
+    info += "\\n== Daily Verse ==\\n";
+    info += "Text: " + dailyText + "\\n";
+    info += "Ref: " + dailyRef + "\\n";
     var cacheKey = "kjb-legacy-bible-v1";
     var cachedData;
-    try {
-        cachedData = localStorage.getItem(cacheKey);
-    } catch(e) {
-        cachedData = "Error reading localStorage";
-    }
-    info += "\n== LocalStorage Cache ==\n";
-    info += "Cache Key: " + cacheKey + "\n";
-    info += "Cached Data Size: " + (cachedData ? (cachedData.length / 1024).toFixed(2) + " KB" : "Not found") + "\n";
-
+    try { cachedData = localStorage.getItem(cacheKey); } catch(e) { cachedData = "Error reading localStorage"; }
+    info += "\\n== LocalStorage Cache ==\\n";
+    info += "Cache Key: " + cacheKey + "\\n";
+    info += "Cached Data Size: " + (cachedData ? (cachedData.length / 1024).toFixed(2) + " KB" : "Not found") + "\\n";
     debugInfoDiv.textContent = info;
   };
 
@@ -676,33 +527,29 @@ function showTab(name, btn) {
         currentSeed++;
       }
       var plainText = verse.t.replace(/<[^>]+>/g, "");
-      dtext.textContent = "\u201C" + plainText + "\u201D";
-      dref.textContent = "\u2014 " + ref + " (KJB)";
+      dtext.textContent = "" + plainText + "";
+      dref.textContent = "— " + ref + " (KJB)";
       dailyDiv.style.display = "block";
     } catch(e) {}
   };
 
   var showDailyVerse = function() {
-    // Fetch from the same bibleApi as the main app to ensure matching daily verse
     try {
       var now = new Date();
       var clientDate = now.getFullYear() + "-" + (now.getMonth()+1) + "-" + now.getDate();
-      // Cache key per day
       var cacheKey = "kjb-legacy-daily-" + clientDate;
       try {
         var cached = localStorage.getItem(cacheKey);
         if (cached) {
           var cv = JSON.parse(cached);
-          dtext.textContent = "\u201C" + cv.text + "\u201D";
-          dref.textContent = "\u2014 " + cv.ref + " (KJB)";
+          dtext.textContent = "" + cv.text + "";
+          dref.textContent = "— " + cv.ref + " (KJB)";
           dailyDiv.style.display = "block";
           return;
         }
       } catch(e) {}
 
-      // Determine API URL - try direct function path first (works on custom domains too)
       var apiUrl = "/api/functions/bibleApi";
-      // Try XHR to the bibleApi function
       var xhr = new XMLHttpRequest();
       xhr.open("POST", apiUrl, true);
       xhr.setRequestHeader("Content-Type", "application/json");
@@ -714,15 +561,14 @@ function showTab(name, btn) {
               if (res.verse) {
                 var v = res.verse;
                 var text = v.text.replace(/<[^>]+>/g, "");
-                dtext.textContent = "\u201C" + text + "\u201D";
-                dref.textContent = "\u2014 " + v.ref + " (KJB)";
+                dtext.textContent = "" + text + "";
+                dref.textContent = "— " + v.ref + " (KJB)";
                 dailyDiv.style.display = "block";
                 try { localStorage.setItem(cacheKey, JSON.stringify({text: text, ref: v.ref})); } catch(e) {}
                 return;
               }
             } catch(e) {}
           }
-          // Fallback to local seed-based verse
           showDailyVerseLocal();
         }
       };
@@ -747,6 +593,12 @@ function showTab(name, btn) {
     dref = document.getElementById("dref");
     debugInfoDiv = document.getElementById("debug-info");
 
+    if (${parseError ? "true" : "false"}) {
+      statusDiv.innerHTML = "<span class='err'>Error loading Bible: ${parseError.replace(/'/g, "\\'")}</span>";
+    } else if (availableBooks.length < 66) {
+      statusDiv.innerHTML = "<span class='err'>Warning: only " + availableBooks.length + " books loaded.</span>";
+    }
+
     bookSel.addEventListener("change", function() { fillChapters(bookSel.value); });
     document.getElementById("goBtn").addEventListener("click", function() { showChapter(bookSel.value, chapSel.value); });
     prevBtn.addEventListener("click", function() {
@@ -768,15 +620,12 @@ function showTab(name, btn) {
     fillBooks();
     bookSel.value = availableBooks[0];
     fillChapters(availableBooks[0]);
-    statusDiv.textContent = "";
+    if (!statusDiv.innerHTML) statusDiv.textContent = "";
     showDailyVerse();
     showChapter(availableBooks[0], chaptersFor(availableBooks[0])[0]);
     updateDebugInfo();
   };
 
-  // --- Offline caching ---
-  // Save the injected Bible data to localStorage so subsequent visits load instantly
-  // and the reader works offline without re-fetching the backend function.
   var CACHE_KEY = "kjb-legacy-bible-v1";
   var saveBibleCache = function() {
     try {
@@ -785,7 +634,6 @@ function showTab(name, btn) {
       }
     } catch(e) {}
   };
-  // Call after init so it doesn't block
   setTimeout(saveBibleCache, 500);
 
   if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", init); } else { setTimeout(init, 0); }
