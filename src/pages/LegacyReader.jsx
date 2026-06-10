@@ -7,8 +7,8 @@ export default function LegacyReader() {
       ? `/api/apps/${appParams.appId}/functions/legacy`
       : '/api/function/legacy';
     
-    // Redirect to the legacy function which serves a complete standalone HTML page
-    window.location.href = legacyUrl;
+    // Open the legacy function in a new window/tab where the standalone HTML will render properly
+    window.open(legacyUrl, '_blank');
   }, []);
 
   return (
