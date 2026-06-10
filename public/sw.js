@@ -1,7 +1,7 @@
-// KJB Reader Service Worker v20260610_279
+// KJB Reader Service Worker v20260610_280
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260610_279';
+const CACHE_NAME = 'kjb-reader-v20260610_280';
 const LEGACY_CACHE_NAME = 'kjb-legacy-v1';
 
 // Core app shell resources to cache immediately
@@ -51,6 +51,39 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (request.method !== 'GET') return;
 
+  // Handle legacy reader function FIRST (before the /api/ skip below), so a
+  // refresh works offline. The legacy function lives at
+  // /api/apps/{appId}/functions/legacy (or /functions/legacy), which would
+  // otherwise be skipped by the /api/ rule and fail when offline.
+  const isLegacyRequest =
+    url.pathname.includes('/functions/legacy') ||
+    url.pathname.endsWith('/legacy');
+  if (isLegacyRequest) {
+    event.respondWith(
+      caches.open(LEGACY_CACHE_NAME).then((cache) => {
+        // Network-first when online (keeps legacy text fresh), but fall back to
+        // the cached copy on refresh while offline.
+        return fetch(request).then((response) => {
+          if (response && response.ok) {
+            cache.put(request, response.clone());
+          }
+          return response;
+        }).catch(() => {
+          return cache.match(request).then((cached) => {
+            if (cached) return cached;
+            return new Response(
+              '<!DOCTYPE html><html><body style="font-family:Arial;padding:20px;">' +
+              '<h1>Legacy Reader</h1><p>This page needs to be opened online once before it can be read offline.</p>' +
+              '</body></html>',
+              { headers: { 'Content-Type': 'text/html' } }
+            );
+          });
+        });
+      })
+    );
+    return;
+  }
+
   // Skip all API requests - let them hit the network directly
   if (url.pathname.startsWith('/api/')) return;
 
@@ -69,13 +102,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Handle legacy reader function
-  if (url.pathname.includes('/api/function/legacy') || url.pathname.endsWith('/legacy')) {
+  // (Legacy reader handling moved above the /api/ skip.)
+  if (false) {
     event.respondWith(
       caches.open(LEGACY_CACHE_NAME).then((cache) => {
         return cache.match(request).then((cachedResponse) => {
           if (cachedResponse) {
-            console.log('[SW] Serving legacy from cache');
             return cachedResponse;
           }
           return fetch(request).then((response) => {
