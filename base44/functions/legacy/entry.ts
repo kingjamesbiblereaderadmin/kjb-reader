@@ -238,11 +238,18 @@ function renderMeta(raw) {
 
 // Build the <select> options HTML for books
 function bookOptions(selected) {
-  let h = '';
-  for (let i = 0; i < BOOK_ORDER.length; i++) {
+  let h = '<optgroup label="Old Testament">';
+  const otEnd = BOOK_ORDER.indexOf('Malachi');
+  for (let i = 0; i <= otEnd; i++) {
     const b = BOOK_ORDER[i];
     h += '<option value="' + esc(b) + '"' + (b === selected ? ' selected' : '') + '>' + esc(b) + '</option>';
   }
+  h += '</optgroup><optgroup label="New Testament">';
+  for (let i = otEnd + 1; i < BOOK_ORDER.length; i++) {
+    const b = BOOK_ORDER[i];
+    h += '<option value="' + esc(b) + '"' + (b === selected ? ' selected' : '') + '>' + esc(b) + '</option>';
+  }
+  h += '</optgroup>';
   return h;
 }
 
