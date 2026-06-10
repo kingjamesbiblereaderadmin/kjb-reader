@@ -310,7 +310,9 @@ const AuthenticatedApp = () => {
   }, []);
 
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
-  const showSplash = isInitializing || !minSplashDone || !updateCheckDone || !routeLoaded || !fontsLoaded;
+  // Skip splash for /legacy route — it redirects to server-rendered HTML
+  const isLegacyRoute = location.pathname === '/legacy';
+  const showSplash = !isLegacyRoute && (isInitializing || !minSplashDone || !updateCheckDone || !routeLoaded || !fontsLoaded);
 
   const [renderSplash, setRenderSplash] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
