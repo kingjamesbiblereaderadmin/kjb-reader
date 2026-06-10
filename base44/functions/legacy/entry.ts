@@ -1,42 +1,56 @@
 // Serves a standalone ES5-only KJB reader page (for IE11 / Windows Phone)
 // Parses Bible text SERVER-SIDE and injects pre-parsed JSON — avoids 4MB string literal issues.
-// v4 - fixed multi-line title parser
+// v6 - 5-word window matching, all 66 books
 const TEXT_URL = "https://media.base44.com/files/public/6a05d76723afe58d80c589e8/e74bc3070_KingJamesBible-PureCambridgeEditionTextfile2.txt";
-
 
 const BOOK_ORDER = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
 
-// Maps every ALL-CAPS token or pair that appears in the PCE title headers to a book name.
-// Covers single-line titles ("RUTH", "JOB") and the last meaningful fragment of multi-line
-// titles ("GENESIS" from "THE FIRST BOOK OF MOSES, / CALLED / GENESIS.").
+// PCE multi-line title examples:
+//   "THE FIRST BOOK OF SAMUEL" -> words: THE FIRST BOOK OF SAMUEL -> pair "FIRST BOOK" no, triple "FIRST BOOK OF" no,
+//   but "BOOK OF SAMUEL" no. Only "SAMUEL" alone would match.
+// Solution: map both "FIRST SAMUEL"/"SECOND SAMUEL" pairs AND ordinal words to book names.
 const TITLE_TO_BOOK = {
+  // OT single-word or clear matches
   "GENESIS":"Genesis","EXODUS":"Exodus","LEVITICUS":"Leviticus","NUMBERS":"Numbers",
   "DEUTERONOMY":"Deuteronomy","JOSHUA":"Joshua","JUDGES":"Judges","RUTH":"Ruth",
-  "1 SAMUEL":"1 Samuel","2 SAMUEL":"2 Samuel","1 KINGS":"1 Kings","2 KINGS":"2 Kings",
-  "1 CHRONICLES":"1 Chronicles","2 CHRONICLES":"2 Chronicles","EZRA":"Ezra",
-  "NEHEMIAH":"Nehemiah","ESTHER":"Esther","JOB":"Job","PSALMS":"Psalms",
+  "EZRA":"Ezra","NEHEMIAH":"Nehemiah","ESTHER":"Esther","JOB":"Job","PSALMS":"Psalms",
   "PROVERBS":"Proverbs","ECCLESIASTES":"Ecclesiastes","SONG OF SOLOMON":"Song of Solomon",
   "ISAIAH":"Isaiah","JEREMIAH":"Jeremiah","LAMENTATIONS":"Lamentations",
   "EZEKIEL":"Ezekiel","DANIEL":"Daniel","HOSEA":"Hosea","JOEL":"Joel","AMOS":"Amos",
   "OBADIAH":"Obadiah","JONAH":"Jonah","MICAH":"Micah","NAHUM":"Nahum",
   "HABAKKUK":"Habakkuk","ZEPHANIAH":"Zephaniah","HAGGAI":"Haggai",
-  "ZECHARIAH":"Zechariah","MALACHI":"Malachi","MATTHEW":"Matthew","MARK":"Mark",
-  "LUKE":"Luke","JOHN":"John","ACTS":"Acts","ROMANS":"Romans",
-  "1 CORINTHIANS":"1 Corinthians","2 CORINTHIANS":"2 Corinthians","GALATIANS":"Galatians",
-  "EPHESIANS":"Ephesians","PHILIPPIANS":"Philippians","COLOSSIANS":"Colossians",
-  "1 THESSALONIANS":"1 Thessalonians","2 THESSALONIANS":"2 Thessalonians",
-  "1 TIMOTHY":"1 Timothy","2 TIMOTHY":"2 Timothy","TITUS":"Titus","PHILEMON":"Philemon",
-  "HEBREWS":"Hebrews","JAMES":"James","1 PETER":"1 Peter","2 PETER":"2 Peter",
-  "1 JOHN":"1 John","2 JOHN":"2 John","3 JOHN":"3 John","JUDE":"Jude","REVELATION":"Revelation",
-  // PCE uses "THE ACTS" for Acts
-  "THE ACTS":"Acts",
-  // Song of Solomon subtitle fragments
-  "SONG OF SOLOMON":"Song of Solomon",
-  // NT epistles have long sub-titles; match their short canonical names
-  "THE GOSPEL ACCORDING TO ST. MATTHEW":"Matthew",
-  "THE GOSPEL ACCORDING TO ST. MARK":"Mark",
-  "THE GOSPEL ACCORDING TO ST. LUKE":"Luke",
-  "THE GOSPEL ACCORDING TO ST. JOHN":"John",
+  "ZECHARIAH":"Zechariah","MALACHI":"Malachi",
+  // NT single-word
+  "MATTHEW":"Matthew","MARK":"Mark","LUKE":"Luke",
+  "ACTS":"Acts","THE ACTS":"Acts","ROMANS":"Romans",
+  "GALATIANS":"Galatians","EPHESIANS":"Ephesians","PHILIPPIANS":"Philippians","COLOSSIANS":"Colossians",
+  "TITUS":"Titus","PHILEMON":"Philemon","HEBREWS":"Hebrews","JAMES":"James","JUDE":"Jude",
+  "REVELATION":"Revelation",
+  // Numbered books — PCE title lines like "THE FIRST BOOK OF SAMUEL"
+  // We match every possible n-gram window (1–5 words) so use explicit keys for all patterns
+  "1 SAMUEL":"1 Samuel","FIRST SAMUEL":"1 Samuel","FIRST BOOK OF SAMUEL":"1 Samuel","SAMUEL":"1 Samuel",
+  "2 SAMUEL":"2 Samuel","SECOND SAMUEL":"2 Samuel","SECOND BOOK OF SAMUEL":"2 Samuel",
+  "1 KINGS":"1 Kings","FIRST KINGS":"1 Kings","FIRST BOOK OF KINGS":"1 Kings","KINGS":"1 Kings",
+  "2 KINGS":"2 Kings","SECOND KINGS":"2 Kings","SECOND BOOK OF KINGS":"2 Kings",
+  "1 CHRONICLES":"1 Chronicles","FIRST CHRONICLES":"1 Chronicles","FIRST BOOK OF CHRONICLES":"1 Chronicles","CHRONICLES":"1 Chronicles",
+  "2 CHRONICLES":"2 Chronicles","SECOND CHRONICLES":"2 Chronicles","SECOND BOOK OF CHRONICLES":"2 Chronicles",
+  // John — JOHN alone = Gospel of John; numbered variants for epistles
+  // PCE titles: "THE FIRST EPISTLE GENERAL OF JOHN", "THE SECOND EPISTLE OF JOHN" etc.
+  "JOHN":"John",
+  "1 JOHN":"1 John","FIRST JOHN":"1 John","FIRST EPISTLE OF JOHN":"1 John","EPISTLE GENERAL OF JOHN":"1 John",
+  "2 JOHN":"2 John","SECOND JOHN":"2 John","SECOND EPISTLE OF JOHN":"2 John",
+  "3 JOHN":"3 John","THIRD JOHN":"3 John","THIRD EPISTLE OF JOHN":"3 John",
+  // Corinthians, Thessalonians, Timothy, Peter — use CORINTHIANS/THESSALONIANS alone = 1st book
+  "CORINTHIANS":"1 Corinthians","1 CORINTHIANS":"1 Corinthians","FIRST CORINTHIANS":"1 Corinthians","FIRST EPISTLE TO THE CORINTHIANS":"1 Corinthians",
+  "2 CORINTHIANS":"2 Corinthians","SECOND CORINTHIANS":"2 Corinthians","SECOND EPISTLE TO THE CORINTHIANS":"2 Corinthians",
+  "THESSALONIANS":"1 Thessalonians","1 THESSALONIANS":"1 Thessalonians","FIRST THESSALONIANS":"1 Thessalonians",
+  "2 THESSALONIANS":"2 Thessalonians","SECOND THESSALONIANS":"2 Thessalonians",
+  "TIMOTHY":"1 Timothy","1 TIMOTHY":"1 Timothy","FIRST TIMOTHY":"1 Timothy",
+  "2 TIMOTHY":"2 Timothy","SECOND TIMOTHY":"2 Timothy",
+  "PETER":"1 Peter","1 PETER":"1 Peter","FIRST PETER":"1 Peter","FIRST EPISTLE OF PETER":"1 Peter",
+  "2 PETER":"2 Peter","SECOND PETER":"2 Peter","SECOND EPISTLE OF PETER":"2 Peter",
+  // Ecclesiastes — PCE may use "QOHELETH" or "THE PREACHER" or "ECCLESIASTES"
+  "ECCLESIASTES":"Ecclesiastes","THE PREACHER":"Ecclesiastes","QOHELETH":"Ecclesiastes",
 };
 
 function parseBibleServerSide(text) {
@@ -45,25 +59,24 @@ function parseBibleServerSide(text) {
   let currentBook = null, currentChap = null, verseNum = 0;
   let titleBuffer = [];
   let blanksSinceCaps = 0;
-  // Log every time we see a potential title area to debug
-  let lastTitleAttempt = "";
+  // Track how many times we've matched each base-name (for "1st vs 2nd" disambiguation)
+  const matchCount = {};
 
   const ital = (s) => s.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
 
   const tryMatchTitle = () => {
-    // Build a flat list of all words from all title fragments (each fragment may be multi-word)
     const allWords = [];
     for (let t = 0; t < titleBuffer.length; t++) {
       const words = titleBuffer[t].split(/\s+/);
       for (let w = 0; w < words.length; w++) allWords.push(words[w]);
     }
-    // Check every single word and every pair/triple of consecutive words
-    for (let w = 0; w < allWords.length; w++) {
-      if (TITLE_TO_BOOK[allWords[w]]) return TITLE_TO_BOOK[allWords[w]];
-      if (w + 1 < allWords.length && TITLE_TO_BOOK[allWords[w] + " " + allWords[w+1]])
-        return TITLE_TO_BOOK[allWords[w] + " " + allWords[w+1]];
-      if (w + 2 < allWords.length && TITLE_TO_BOOK[allWords[w] + " " + allWords[w+1] + " " + allWords[w+2]])
-        return TITLE_TO_BOOK[allWords[w] + " " + allWords[w+1] + " " + allWords[w+2]];
+    // Check longest windows first (most specific) to avoid ambiguous single-word matches
+    // e.g. "SECOND BOOK OF SAMUEL" should win over "SAMUEL" → "1 Samuel"
+    for (let len = 5; len >= 1; len--) {
+      for (let w = 0; w + len <= allWords.length; w++) {
+        const key = allWords.slice(w, w + len).join(" ");
+        if (TITLE_TO_BOOK[key]) return TITLE_TO_BOOK[key];
+      }
     }
     return null;
   };
@@ -72,7 +85,6 @@ function parseBibleServerSide(text) {
     const line = lines[i].trim();
 
     if (!line) {
-      // Allow up to 2 blank lines inside a title block before giving up
       if (titleBuffer.length > 0) {
         blanksSinceCaps++;
         if (blanksSinceCaps > 2) { titleBuffer = []; blanksSinceCaps = 0; }
@@ -81,7 +93,6 @@ function parseBibleServerSide(text) {
     }
     blanksSinceCaps = 0;
 
-    // CHAPTER N
     const chapMatch = line.match(/^CHAPTER (\d+)$/);
     if (chapMatch) {
       currentChap = chapMatch[1];
@@ -90,14 +101,26 @@ function parseBibleServerSide(text) {
       continue;
     }
 
-    // All-caps title line (book headers, sub-titles like "CALLED", "THE EPISTLE OF PAUL TO THE", etc.)
-    if (/^[A-Z][A-Z ,.\-0-9']+$/.test(line)) {
+    // All-caps title line — allow leading digit for "1 SAMUEL", "2 KINGS" etc.
+    if (/^[A-Z0-9][A-Z ,.\-0-9']+$/.test(line) && !/^\d+$/.test(line)) {
       const frag = line.replace(/[.,]$/, "").trim();
       titleBuffer.push(frag);
-      lastTitleAttempt = titleBuffer.join(" | ");
       const found = tryMatchTitle();
       if (found) {
-        currentBook = found;
+        // If the match is a "1st" numbered book but bibleData already has it,
+        // and the "2nd" version exists in BOOK_ORDER, advance to the 2nd.
+        let resolvedBook = found;
+        if (bibleData[resolvedBook]) {
+          const idx = BOOK_ORDER.indexOf(resolvedBook);
+          for (let bi = idx + 1; bi < BOOK_ORDER.length; bi++) {
+            const base = BOOK_ORDER[bi].replace(/^[123]\s*/, "");
+            if (resolvedBook.replace(/^[123]\s*/, "") === base && !bibleData[BOOK_ORDER[bi]]) {
+              resolvedBook = BOOK_ORDER[bi];
+              break;
+            }
+          }
+        }
+        currentBook = resolvedBook;
         currentChap = null;
         verseNum = 0;
         titleBuffer = [];
@@ -106,10 +129,6 @@ function parseBibleServerSide(text) {
       continue;
     }
 
-    // Any non-caps, non-blank line resets the title buffer
-    if (titleBuffer.length > 0) {
-      console.log("[legacy] Unmatched title buffer before reset:", JSON.stringify(titleBuffer));
-    }
     titleBuffer = [];
 
     if (currentBook && currentChap) {
@@ -119,21 +138,19 @@ function parseBibleServerSide(text) {
         if (!bibleData[currentBook][currentChap]) bibleData[currentBook][currentChap] = [];
         bibleData[currentBook][currentChap].push({ v: String(verseNum), t: ital(vMatch[2]) });
       } else if (verseNum === 0) {
-        // Verse 1 with no leading number (PCE format — first verse of chapter)
         verseNum = 1;
         if (!bibleData[currentBook][currentChap]) bibleData[currentBook][currentChap] = [];
         bibleData[currentBook][currentChap].push({ v: "1", t: ital(line) });
       } else {
-        // Continuation of previous verse
         const chData = bibleData[currentBook][currentChap];
         if (chData && chData.length > 0) chData[chData.length - 1].t += " " + ital(line);
       }
     }
   }
 
-  const foundBooks = BOOK_ORDER.filter(b => bibleData[b]);
+  const found = BOOK_ORDER.filter(b => bibleData[b]);
   const missing = BOOK_ORDER.filter(b => !bibleData[b]);
-  console.log("[legacy] Parsed", foundBooks.length, "books. Missing:", missing.slice(0,10).join(", "));
+  console.log("[legacy] Parsed", found.length, "books. Missing:", missing.join(", "));
   return bibleData;
 }
 
@@ -159,7 +176,6 @@ Deno.serve(async (req) => {
   const bookCount = BOOK_ORDER.filter(b => bibleData[b]).length;
   console.log("[legacy] Injecting", bookCount, "books into HTML");
 
-  // Inject pre-parsed JSON — much smaller and no parsing needed client-side
   const bibleJson = JSON.stringify(bibleData);
 
   const html = `<!DOCTYPE html>
@@ -170,35 +186,76 @@ Deno.serve(async (req) => {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KJB Reader (Legacy)</title>
 <style type="text/css">
-  body { margin:0; padding:0; background:#ffffff; color:#1a1a1a; font-family:Georgia,"Times New Roman",serif; font-size:18px; line-height:1.6; -webkit-text-size-adjust:100%; }
-  .wrap { max-width:720px; margin:0 auto; padding:12px; }
+  body { margin:0; padding:0; background:#f7f7fb; color:#1a1a1a; font-family:Georgia,"Times New Roman",serif; font-size:17px; line-height:1.7; -webkit-text-size-adjust:100%; }
   .header { background:#2d2a6e; color:#ffffff; padding:14px 12px; text-align:center; }
   .header h1 { margin:0; font-size:22px; font-weight:bold; }
   .header p { margin:4px 0 0 0; font-size:13px; color:#cfceec; font-family:Arial,sans-serif; }
+  /* Tab bar */
+  .tabs { display:table; width:100%; border-collapse:collapse; background:#3d3a80; }
+  .tab-btn { display:table-cell; text-align:center; padding:10px 4px; font-family:Arial,sans-serif; font-size:13px; color:#cfceec; cursor:pointer; border:none; background:none; }
+  .tab-btn.active { background:#5b59a0; color:#ffffff; font-weight:bold; }
+  /* Wrap */
+  .wrap { max-width:720px; margin:0 auto; padding:12px; }
+  /* Reader tab */
   .controls { background:#f1f1f7; border:1px solid #cccccc; padding:10px; margin:12px 0; font-family:Arial,sans-serif; }
   .controls label { display:inline-block; font-size:13px; color:#333333; margin:0 4px 4px 0; }
-  select { font-size:16px; padding:4px; margin:0 8px 6px 0; max-width:100%; }
-  .btn { font-family:Arial,sans-serif; font-size:15px; padding:6px 14px; background:#2d2a6e; color:#ffffff; border:0; cursor:pointer; margin-right:6px; }
+  select { font-size:15px; padding:4px; margin:0 6px 6px 0; max-width:100%; }
+  .btn { font-family:Arial,sans-serif; font-size:14px; padding:6px 12px; background:#2d2a6e; color:#ffffff; border:0; cursor:pointer; margin-right:6px; }
   .btn.alt { background:#777777; }
-  .status { font-family:Arial,sans-serif; font-size:13px; color:#555555; padding:8px 0; }
+  .status { font-family:Arial,sans-serif; font-size:12px; color:#555555; padding:6px 0; }
   .err { color:#b00000; font-weight:bold; }
-  .daily { background:#eef0fb; border:1px solid #c9cdee; padding:12px; margin:12px 0; }
+  .daily { background:#eef0fb; border:1px solid #c9cdee; padding:12px; margin:12px 0; border-radius:4px; }
   .daily .dlabel { font-family:Arial,sans-serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#5b59a0; margin:0 0 6px 0; }
-  .daily .dtext { font-size:18px; color:#2d2a6e; margin:0 0 6px 0; font-style:italic; }
+  .daily .dtext { font-size:17px; color:#2d2a6e; margin:0 0 6px 0; font-style:italic; }
   .daily .dref { font-family:Arial,sans-serif; font-size:13px; color:#555555; margin:0; }
-  h2.ref { font-size:20px; color:#2d2a6e; margin:16px 0 8px 0; }
-  .verse { margin:0 0 6px 0; }
-  .vnum { font-family:Arial,sans-serif; font-size:12px; color:#2d2a6e; font-weight:bold; vertical-align:super; margin-right:3px; }
-  em { font-style:italic; color:#555555; }
-  .nav { margin:18px 0; text-align:center; }
-  .footer { font-family:Arial,sans-serif; font-size:12px; color:#888888; text-align:center; margin:24px 0 16px 0; padding-top:12px; border-top:1px solid #dddddd; }
+  h2.ref { font-size:19px; color:#2d2a6e; margin:14px 0 8px 0; }
+  .verse { margin:0 0 5px 0; }
+  .vnum { font-family:Arial,sans-serif; font-size:11px; color:#2d2a6e; font-weight:bold; vertical-align:super; margin-right:3px; }
+  em { font-style:italic; color:#666666; }
+  .nav { margin:16px 0; text-align:center; }
+  /* Gospel tab */
+  .gospel-step { background:#ffffff; border:1px solid #dddddd; border-radius:4px; padding:14px; margin:12px 0; }
+  .gospel-step h3 { font-size:16px; color:#2d2a6e; margin:0 0 8px 0; }
+  .gospel-step blockquote { border-left:3px solid #5b59a0; margin:0 0 8px 14px; padding:0 0 0 10px; font-style:italic; font-size:15px; color:#333333; }
+  .gospel-no { background:#fff5f5; border:1px solid #ffcccc; border-radius:4px; padding:12px 14px; margin:12px 0; }
+  .gospel-no h3 { font-size:16px; color:#b00000; margin:0 0 8px 0; }
+  .gospel-no li { font-family:Arial,sans-serif; font-size:14px; color:#555555; margin:3px 0; }
+  .gospel-osas { background:#f0fff0; border:1px solid #aaddaa; border-radius:4px; padding:12px 14px; margin:12px 0; }
+  .gospel-osas blockquote { border-left:3px solid #4a8a4a; margin:8px 0 0 14px; padding:0 0 0 10px; font-style:italic; font-size:15px; color:#333333; }
+  /* Resources tab */
+  .res-section { margin:14px 0; }
+  .res-section h3 { font-family:Arial,sans-serif; font-size:14px; font-weight:bold; color:#2d2a6e; margin:12px 0 6px 0; border-bottom:1px solid #dddddd; padding-bottom:4px; }
+  .res-item { margin:8px 0 8px 14px; }
+  .res-item strong { display:block; font-family:Arial,sans-serif; font-size:13px; color:#1a1a1a; margin-bottom:2px; }
+  .res-item p { font-family:Arial,sans-serif; font-size:12px; color:#666666; margin:0 0 3px 0; }
+  .res-item a { font-family:Arial,sans-serif; font-size:12px; color:#2d2a6e; }
+  /* About tab */
+  .about-section { background:#ffffff; border:1px solid #dddddd; border-radius:4px; padding:14px; margin:12px 0; }
+  .about-section h3 { font-size:16px; color:#2d2a6e; margin:0 0 8px 0; }
+  .about-section p, .about-section li { font-family:Arial,sans-serif; font-size:13px; color:#333333; line-height:1.6; }
+  .about-section li { margin:5px 0; }
+  .links-list a { display:block; font-family:Arial,sans-serif; font-size:13px; color:#2d2a6e; padding:6px 0; border-bottom:1px solid #eeeeee; text-decoration:none; }
+  .links-list a:last-child { border-bottom:none; }
+  /* Footer */
+  .footer { font-family:Arial,sans-serif; font-size:11px; color:#888888; text-align:center; margin:24px 0 16px 0; padding-top:12px; border-top:1px solid #dddddd; }
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
 </style>
 </head>
 <body>
 <div class="header">
-  <h1>King James Bible</h1>
+  <h1>&#9997; King James Bible</h1>
   <p>Legacy Edition &mdash; for older browsers</p>
 </div>
+<div class="tabs">
+  <button type="button" class="tab-btn active" onclick="showTab('reader',this)">Bible</button>
+  <button type="button" class="tab-btn" onclick="showTab('gospel',this)">Gospel</button>
+  <button type="button" class="tab-btn" onclick="showTab('resources',this)">Resources</button>
+  <button type="button" class="tab-btn" onclick="showTab('about',this)">About</button>
+</div>
+
+<!-- BIBLE READER TAB -->
+<div class="tab-content active" id="tab-reader">
 <div class="wrap">
   <div class="controls">
     <label for="bookSel">Book:</label>
@@ -221,11 +278,193 @@ Deno.serve(async (req) => {
   </div>
   <div class="footer">
     King James Bible &mdash; Pure Cambridge Edition.<br>
-    This is a simplified version for old devices.<br>
-    For the full app, please use a modern browser (Edge or Chrome).
+    Legacy version for old devices. For the full app, use a modern browser.
   </div>
 </div>
+</div>
+
+<!-- GOSPEL TAB -->
+<div class="tab-content" id="tab-gospel">
+<div class="wrap">
+  <h2 style="color:#2d2a6e;margin:16px 0 4px 0;">How to be Saved</h2>
+  <p style="font-family:Arial,sans-serif;font-size:14px;color:#555555;margin:0 0 12px 0;">The Gospel is the glad tidings of the Lord Jesus Christ: Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.</p>
+
+  <div class="gospel-step">
+    <h3>1. Believe you are a sinner that deserves hell</h3>
+    <blockquote>"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin." &mdash; Romans 3:20</blockquote>
+    <blockquote>"The wicked shall be turned into hell, and all the nations that forget God." &mdash; Psalm 9:17</blockquote>
+  </div>
+
+  <div class="gospel-step">
+    <h3>2. Believe that Jesus is God manifested in the flesh</h3>
+    <blockquote>"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory." &mdash; 1 Timothy 3:16</blockquote>
+  </div>
+
+  <div class="gospel-step">
+    <h3>3. Believe he died, shed his blood, was buried and rose again</h3>
+    <blockquote>"Moreover, brethren, I declare unto you the gospel which I preached unto you... how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." &mdash; 1 Corinthians 15:1&ndash;4</blockquote>
+    <blockquote>"Whom God hath set forth to be a propitiation through faith in his blood, to declare his righteousness for the remission of sins that are past, through the forbearance of God;" &mdash; Romans 3:25</blockquote>
+  </div>
+
+  <div class="gospel-no">
+    <h3>These do NOT make you a Christian:</h3>
+    <ul>
+      <li>Repenting of sins</li>
+      <li>Making Jesus Lord</li>
+      <li>Being a member of a church</li>
+      <li>Tithing</li>
+      <li>Being baptised (water)</li>
+      <li>Saying a sinner's prayer</li>
+      <li>Confessing with your mouth</li>
+      <li>Lordship Salvation</li>
+    </ul>
+  </div>
+
+  <div class="gospel-osas">
+    <h3 style="font-size:16px;color:#2a6a2a;margin:0 0 6px 0;">Once Saved, Always Saved</h3>
+    <p style="font-family:Arial,sans-serif;font-size:13px;color:#333333;margin:0 0 6px 0;">A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life.</p>
+    <blockquote>"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." &mdash; Ephesians 1:13</blockquote>
+  </div>
+
+  <div style="margin:16px 0;padding:12px;background:#ffffff;border:1px solid #dddddd;border-radius:4px;">
+    <p style="font-family:Arial,sans-serif;font-size:13px;margin:0 0 8px 0;"><strong>Watch the Gospel:</strong></p>
+    <a href="https://www.youtube.com/watch?v=znP9Dr6tOzU" target="_blank" style="font-family:Arial,sans-serif;font-size:13px;color:#cc0000;">&#9654; THE GOSPEL THAT SAVES &mdash; Robert Breaker (YouTube)</a><br>
+    <a href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq" target="_blank" style="font-family:Arial,sans-serif;font-size:13px;color:#cc0000;display:block;margin-top:6px;">&#9654; Full Gospel Video Playlist (YouTube)</a>
+  </div>
+  <div class="footer">King James Bible &mdash; Pure Cambridge Edition.</div>
+</div>
+</div>
+
+<!-- RESOURCES TAB -->
+<div class="tab-content" id="tab-resources">
+<div class="wrap">
+  <h2 style="color:#2d2a6e;margin:16px 0 4px 0;">Resources</h2>
+  <p style="font-family:Arial,sans-serif;font-size:13px;color:#555555;margin:0 0 12px 0;">KJB defence materials, studies on modern version corruption, and free Bible study resources.</p>
+
+  <div style="background:#f0fff0;border:1px solid #aaddaa;border-radius:4px;padding:12px;margin:0 0 12px 0;">
+    <strong style="font-family:Arial,sans-serif;font-size:14px;">KJBI.org &mdash; Free Online Bible College</strong>
+    <p style="font-family:Arial,sans-serif;font-size:13px;color:#555;margin:4px 0 6px 0;">King James Bible Institute &mdash; a free online Bible college for those who want to go deeper in God's Word.</p>
+    <a href="https://kjbi.org" target="_blank" style="font-family:Arial,sans-serif;font-size:13px;color:#2d2a6e;">Visit KJBI.org &rarr;</a>
+  </div>
+
+  <div class="res-section">
+    <h3>Why the KJB is God's Word</h3>
+    <div class="res-item">
+      <strong>The Word of God Will Keep Its Infallibility</strong>
+      <p>A historical book demonstrating that the KJB is the infallible Word of God.</p>
+      <a href="https://archive.org/details/wordgodwillkeepi0000faus" target="_blank">Read on Archive.org</a>
+    </div>
+    <div class="res-item">
+      <strong>Textus Receptus Bibles</strong>
+      <a href="https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs" target="_blank">Compare Textus Receptus vs NA/UBS</a>
+    </div>
+    <div class="res-item">
+      <strong>BibleProtector.com &mdash; Pure Cambridge Edition</strong>
+      <a href="https://www.bibleprotector.com" target="_blank">bibleprotector.com</a>
+    </div>
+  </div>
+
+  <div class="res-section">
+    <h3>Verified KJB Preachers</h3>
+    <div class="res-item"><strong>Robert Breaker</strong><a href="https://www.youtube.com/@Robertbreaker3" target="_blank">YouTube</a> &bull; <a href="https://thecloudchurch.org/" target="_blank">thecloudchurch.org</a></div>
+    <div class="res-item"><strong>Robert Potthoff (Big Red Preacher)</strong><a href="https://mission1611.com/" target="_blank">mission1611.com</a></div>
+    <div class="res-item"><strong>Joseph Gonzalez (KJB Elites)</strong><a href="https://youtube.com/@josephgonzalez3" target="_blank">YouTube</a></div>
+    <div class="res-item"><strong>Ryan Poff</strong><a href="https://www.seedofhopechurch.org/" target="_blank">seedofhopechurch.org</a></div>
+    <div class="res-item"><strong>Skyler (AV1611 Ministry)</strong><a href="https://youtube.com/@av1611ministries" target="_blank">YouTube</a></div>
+    <div class="res-item"><strong>Paul Johnson (Biblical Salvation)</strong><a href="https://youtube.com/@biblicalsalvation" target="_blank">YouTube</a></div>
+    <div class="res-item"><strong>CPR Missions</strong><a href="https://www.youtube.com/channel/UCWBR5DmAi2XPMFRtb-wqHwg" target="_blank">YouTube</a></div>
+  </div>
+
+  <div class="res-section">
+    <h3>KJB Defence</h3>
+    <div class="res-item"><strong>KJV Compare</strong><p>Hundreds of verse-by-verse changes in modern versions.</p><a href="https://kjvcompare.com/" target="_blank">kjvcompare.com</a></div>
+    <div class="res-item"><strong>A Lamp in the Dark &mdash; Documentary</strong><a href="https://www.youtube.com/watch?v=RmXBj2N9fhY" target="_blank">Watch on YouTube</a></div>
+    <div class="res-item"><strong>AV1611 Articles</strong><a href="https://www.av1611.org/articles" target="_blank">av1611.org/articles</a></div>
+    <div class="res-item"><strong>Scion of Zion</strong><a href="https://www.scionofzion.com/kjcomparisons.html" target="_blank">KJB Comparisons</a></div>
+  </div>
+
+  <div class="res-section">
+    <h3>Westcott &amp; Hort / Modern Versions</h3>
+    <div class="res-item"><strong>Theological Heresies of Westcott &amp; Hort</strong><a href="https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf" target="_blank">Download PDF</a></div>
+    <div class="res-item"><strong>NKJV Exposed</strong><a href="https://www.av1611.org/nkjv.html" target="_blank">av1611.org</a></div>
+    <div class="res-item"><strong>NIV Exposed</strong><a href="https://www.jesus-is-savior.com/Bible/NIV/new_international_version_exposed.htm" target="_blank">Read article</a></div>
+  </div>
+
+  <div class="res-section">
+    <h3>Ministry Links</h3>
+    <div class="links-list">
+      <a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank">God is Gracious 1031 Ministries</a>
+      <a href="mailto:kingjamesbiblereader@outlook.sg">kingjamesbiblereader@outlook.sg</a>
+    </div>
+  </div>
+
+  <div class="footer">King James Bible &mdash; Pure Cambridge Edition.</div>
+</div>
+</div>
+
+<!-- ABOUT TAB -->
+<div class="tab-content" id="tab-about">
+<div class="wrap">
+  <h2 style="color:#2d2a6e;margin:16px 0 8px 0;">About the Ministry</h2>
+
+  <div class="about-section">
+    <p>I'm Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. I am a dispensational salvationist, rightly dividing the word of truth.</p>
+    <ul>
+      <li>I reject Catholicism, Calvinism, Pentecostalism, Mormonism, Jehovah's Witnesses, etc.</li>
+      <li>I believe in the blood-stained gospel as the only way to be saved. I reject "repent of sins to be saved", Lordship Salvation, infant baptism, baptism regeneration, etc.</li>
+      <li>To be saved: Believe Jesus is God, that He shed His blood on Calvary, died, was buried, and rose again for your justification.</li>
+      <li>I believe in OSAS (Once Saved, Always Saved): a believer cannot lose salvation, no matter what.</li>
+    </ul>
+  </div>
+
+  <div class="about-section">
+    <h3>The King James Bible</h3>
+    <ul>
+      <li>Westcott and Hort created the Critical Text, based on corrupt Vatican/Egyptian manuscripts. Used in the Revised Version of 1881.</li>
+      <li>The KJB is the infallible, perfect Word of God in the English language.</li>
+      <li>Translated from the Textus Receptus (Received Text) the historical church has always used.</li>
+      <li>Mathematically proven to be a miracle.</li>
+    </ul>
+  </div>
+
+  <div class="about-section">
+    <h3>Salvation &amp; Pre-Tribulation Rapture</h3>
+    <ul>
+      <li>Jesus Christ is God manifested in the flesh, born of the virgin Mary.</li>
+      <li>To be saved: Believe Jesus is God and that He died for your sins, shed his blood, was buried and rose again for your justification.</li>
+      <li>Repenting of sins, water baptism, making him Lord, or letting him into your heart is NOT salvation.</li>
+      <li>I believe in the Pre-Tribulation Rapture. Those in the 7-year tribulation must endure to the end.</li>
+    </ul>
+  </div>
+
+  <div class="about-section">
+    <h3>Links &amp; Contact</h3>
+    <div class="links-list">
+      <a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank">&#127760; God is Gracious 1031 Ministries</a>
+      <a href="https://youtube.com/@shawnr325av" target="_blank">&#9654; YouTube: @shawnr325av</a>
+      <a href="https://www.instagram.com/svdbyfaithinhisbloodr325av" target="_blank">&#128247; Instagram: @svdbyfaithinhisbloodr325av</a>
+      <a href="mailto:kingjamesbiblereader@outlook.sg">&#9993; kingjamesbiblereader@outlook.sg</a>
+    </div>
+  </div>
+
+  <div class="footer">King James Bible &mdash; Pure Cambridge Edition.</div>
+</div>
+</div>
+
 <script type="text/javascript">
+// Tab switching
+function showTab(name, btn) {
+  var tabs = ["reader","gospel","resources","about"];
+  for (var i = 0; i < tabs.length; i++) {
+    var el = document.getElementById("tab-" + tabs[i]);
+    if (el) el.className = "tab-content" + (tabs[i] === name ? " active" : "");
+  }
+  var btns = document.getElementsByClassName("tab-btn");
+  for (var j = 0; j < btns.length; j++) {
+    btns[j].className = "tab-btn" + (btns[j] === btn ? " active" : "");
+  }
+}
+
 (function () {
   var BIBLE_DATA = ${bibleJson};
   var BOOK_ORDER = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
@@ -254,11 +493,11 @@ Deno.serve(async (req) => {
     if (!verses.length) { contentDiv.innerHTML = "<p class='err'>Chapter not found.</p>"; return; }
     refTitle.textContent = book + " " + chapter;
     refTitle.style.display = "block";
-    var html = "";
+    var h = "";
     for (var v = 0; v < verses.length; v++) {
-      html += '<p class="verse"><span class="vnum">' + verses[v].v + '</span>' + verses[v].t + '</p>';
+      h += '<p class="verse"><span class="vnum">' + verses[v].v + '</span>' + verses[v].t + '</p>';
     }
-    contentDiv.innerHTML = html;
+    contentDiv.innerHTML = h;
     var bookIdx = availableBooks.indexOf(book);
     var chaps = chaptersFor(book);
     var chapIdx = chaps.indexOf(chapter);
@@ -293,18 +532,23 @@ Deno.serve(async (req) => {
   var showDailyVerse = function() {
     try {
       var now = new Date();
-      var start = new Date(now.getFullYear(), 0, 1);
-      var dayOfYear = Math.floor((now - start) / 86400000) + 1;
-      var seed = dayOfYear + now.getFullYear();
-      var book = availableBooks[seed % availableBooks.length];
-      var chaps = chaptersFor(book);
-      var chapter = chaps[(seed * 7) % chaps.length];
-      var verses = BIBLE_DATA[book][chapter];
-      if (!verses || !verses.length) return;
-      var verseIdx = (seed * 13) % verses.length;
-      var verse = verses[verseIdx];
-      var ref = book + " " + chapter + ":" + verse.v;
-      if (EXCLUDED_REFS[ref]) { verseIdx = (verseIdx + 1) % verses.length; verse = verses[verseIdx]; ref = book + " " + chapter + ":" + verse.v; }
+      // Same seed as bibleApi: y*10000 + m*100 + d (month is 1-indexed)
+      var seed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+      var currentSeed = seed;
+      var book, chaps, chapter, verses, verse, ref;
+      while (true) {
+        book = BOOK_ORDER[currentSeed % BOOK_ORDER.length];
+        if (!BIBLE_DATA[book]) { currentSeed++; continue; }
+        chaps = chaptersFor(book);
+        if (!chaps.length) { currentSeed++; continue; }
+        chapter = chaps[currentSeed % chaps.length];
+        verses = BIBLE_DATA[book][chapter];
+        if (!verses || !verses.length) { currentSeed++; continue; }
+        verse = verses[currentSeed % verses.length];
+        ref = book + " " + chapter + ":" + verse.v;
+        if (!EXCLUDED_REFS[ref] && !(book === "Romans" && chapter === "10")) break;
+        currentSeed++;
+      }
       var plainText = verse.t.replace(/<[^>]+>/g, "");
       dtext.textContent = "\u201C" + plainText + "\u201D";
       dref.textContent = "\u2014 " + ref + " (KJB)";
@@ -339,7 +583,7 @@ Deno.serve(async (req) => {
     });
 
     if (!availableBooks.length) {
-      statusDiv.innerHTML = "<span class='err'>Could not load Bible data. Please refresh the page.</span>";
+      statusDiv.innerHTML = "<span class='err'>Could not load Bible data. Please refresh.</span>";
       return;
     }
 
