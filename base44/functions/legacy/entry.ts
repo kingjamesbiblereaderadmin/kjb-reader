@@ -398,7 +398,7 @@ Deno.serve(async (req) => {
         '<blockquote style="margin:16px 0 16px 0;line-height:1.8;">"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory."</blockquote>' +
         '<div style="text-align:center;color:#666;font-size:13px;margin-bottom:16px;">&mdash; 1 Timothy 3:16</div></div>' +
         
-        '<div class="step"><h4>3. Believe he died, shed his blood, was buried and rose again</h4>' +
+        '<div class="step"><h4>3. Believe he died, shed his blood, was buried and rose again for our sins</h4>' +
         '<blockquote style="margin:16px 0 16px 0;line-height:1.8;">"Moreover, brethren, I declare unto you the gospel which I preached unto you, which also ye have received, and wherein ye stand; By which also ye are saved, if ye keep in memory what I preached unto you, unless ye have believed in vain. For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures."</blockquote>' +
         '<div style="text-align:center;color:#666;font-size:13px;margin-bottom:16px;">&mdash; 1 Corinthians 15:1-4</div>' +
         '<blockquote style="margin:16px 0 16px 0;line-height:1.8;">"Whom God hath set forth to be a propitiation through faith in his blood, to declare his righteousness for the remission of sins that are past, through the forbearance of God;"</blockquote>' +
