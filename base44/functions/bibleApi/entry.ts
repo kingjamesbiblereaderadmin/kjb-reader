@@ -141,7 +141,7 @@ Deno.serve(async (req) => {
 
 
     if (action === 'random_verse') {
-      const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
+      const bookNames = Object.keys(bible).filter(k => k !== '__colophons').sort();
       if (!bookNames.length) {
         return Response.json({ error: 'No bible data' }, { status: 500 });
       }
@@ -196,7 +196,8 @@ Deno.serve(async (req) => {
         seed = today.getUTCFullYear() * 10000 + (today.getUTCMonth() + 1) * 100 + today.getUTCDate();
       }
 
-      const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
+      // Sort book names for deterministic ordering across cold starts
+      const bookNames = Object.keys(bible).filter(k => k !== '__colophons').sort();
       if (!bookNames.length) {
         return Response.json({ error: 'No bible data' }, { status: 500 });
       }

@@ -78,7 +78,7 @@ export async function getDailyVerseFromBible() {
       const d = new Date();
       const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
 
-      const bookNames = Object.keys(bible).filter(k => k !== '__colophons');
+      const bookNames = Object.keys(bible).filter(k => k !== '__colophons').sort();
       
       let currentSeed = seed;
       let bookName, chapterNum, verseObj;
