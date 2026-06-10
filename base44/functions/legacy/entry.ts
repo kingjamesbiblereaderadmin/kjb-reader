@@ -62,6 +62,18 @@ const GOSPEL_STEPS = [
 
 const GOSPEL_NOT = ['Repenting of sins','Making Jesus Lord','Being a member of a church','Tithing','Being baptised (water)','Saying a sinner\'s prayer','Confessing with your mouth','Lordship Salvation'];
 
+// Helper to get link label from URL
+function getLinkLabel(url) {
+  if (url.includes('youtube.com') || url.includes('youtu.be')) return 'YouTube';
+  if (url.includes('tiktok.com')) return 'TikTok';
+  if (url.includes('facebook.com')) return 'Facebook';
+  if (url.includes('instagram.com')) return 'Instagram';
+  if (url.includes('linktr.ee')) return 'Linktree';
+  if (url.includes('univer.se')) return 'Joyfully Church';
+  if (url.includes('mission1611.com')) return 'Mission 1611';
+  try { return new URL(url).hostname.replace('www.', ''); } catch { return 'Website'; }
+}
+
 const RES_GROUPS = [
   { cat: 'Why the KJB is God\'s Word', items: [
     { t: 'The Word of God Will Keep Its Infallibility', d: 'A historical book demonstrating that the King James Bible is the infallible, preserved Word of God in the English language. Full text available on Archive.org.', u: 'https://archive.org/details/wordgodwillkeepi0000faus/page/18/mode/1up' },
@@ -484,23 +496,39 @@ Deno.serve(async (req) => {
             '</div>';
         }
       }
-      let g = dv + '<div class="sec-title">How to be Saved</div>' +
+      
+      // Action buttons row
+      let actions = '<div class="box" style="margin-bottom:20px;"><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">' +
+        '<a href="/read/John/3" class="lnk" style="display:inline-block;padding:8px 16px;background:#2d2a6e;color:#fff;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;border-radius:6px;">John 3</a>' +
+        '<a href="/read/Romans/3" class="lnk" style="display:inline-block;padding:8px 16px;background:#2d2a6e;color:#fff;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;border-radius:6px;">Romans 3</a>' +
+        '<a href="/read/Romans/4" class="lnk" style="display:inline-block;padding:8px 16px;background:#2d2a6e;color:#fff;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;border-radius:6px;">Romans 4</a>' +
+        '<a href="/read/Romans/5" class="lnk" style="display:inline-block;padding:8px 16px;background:#2d2a6e;color:#fff;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;border-radius:6px;">Romans 5</a>' +
+        '<a href="/read/Romans/6" class="lnk" style="display:inline-block;padding:8px 16px;background:#2d2a6e;color:#fff;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;border-radius:6px;">Romans 6</a>' +
+        '<a href="/read/1Corinthians/15" class="lnk" style="display:inline-block;padding:8px 16px;background:#2d2a6e;color:#fff;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;border-radius:6px;">1 Corinthians 15</a>' +
+        '</div></div>';
+      
+      let g = dv + actions + '<div class="sec-title">How to be Saved</div>' +
         '<div class="sec-sub">The Gospel is the glad tidings of the Lord Jesus Christ: Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.</div>';
+      
       for (let i = 0; i < GOSPEL_STEPS.length; i++) {
         const s = GOSPEL_STEPS[i];
         g += '<div class="step"><h4>' + s.n + '. ' + esc(s.title) + '</h4>';
         for (let j = 0; j < s.quotes.length; j++) g += '<blockquote>' + s.quotes[j] + '</blockquote>';
         g += '</div>';
       }
+      
       let notList = '';
       for (let i = 0; i < GOSPEL_NOT.length; i++) notList += '<li>' + esc(GOSPEL_NOT[i]) + '</li>';
       g += '<div class="warn"><h4>These do NOT make you a Christian:</h4><ul>' + notList + '</ul></div>';
+      
       g += '<div class="step"><h4>Once Saved, Always Saved</h4>' +
         '<p style="font-size:14px;color:#444;margin-bottom:8px;">A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life. God\'s gift of eternal life is just that &mdash; eternal.</p>' +
         '<blockquote>"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." &mdash; Ephesians 1:13</blockquote></div>';
+      
       g += '<div class="box"><h3>Watch the Gospel</h3>' +
-        '<p><a href="https://www.youtube.com/watch?v=znP9Dr6tOzU">&#9654; THE GOSPEL THAT SAVES &mdash; Robert Breaker</a></p>' +
-        '<p style="margin-top:8px;"><a href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq">&#9654; Full Gospel Videos Playlist</a></p></div>';
+        '<p style="margin-bottom:8px;"><a href="https://www.youtube.com/watch?v=znP9Dr6tOzU">&#9654; THE GOSPEL THAT SAVES &mdash; Robert Breaker</a></p>' +
+        '<p><a href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq">&#9654; Full Gospel Videos Playlist</a></p></div>';
+      
       bodyInner = g;
     } else if (tab === 'resources') {
       // Daily verse card
@@ -515,34 +543,120 @@ Deno.serve(async (req) => {
             '</div>';
         }
       }
-      let r = dv + '<div class="sec-title">Resources</div>' +
-        '<div class="sec-sub">KJB defence materials, studies on modern version corruption, and free Bible study resources.</div>' +
-        '<div class="res-cat">Why KJB is God\'s Word</div>' +
-        '<div class="step"><h4>The Word of God Will Keep Its Infallibility</h4>' +
+      
+      // KJBI.org section
+      let kjbi = '<div class="box" style="margin-bottom:20px;"><div style="display:flex;align-items:start;gap:12px;">' +
+        '<div style="flex:1;"><h3 style="color:#2d2a6e;margin-bottom:8px;font-size:16px;font-family:Arial,sans-serif;">KJBI.org &mdash; Free Online Bible College</h3>' +
+        '<p style="font-size:14px;color:#444;margin-bottom:12px;">King James Bible Institute &mdash; a free online Bible college for those who want to go deeper in God\'s Word.</p>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+        '<a href="https://kjbi.org" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#2d2a6e;color:#fff;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;border-radius:6px;">Visit KJBI.org</a>' +
+        '<a href="https://kjbi.org" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:8px;background:#f0f0f0;color:#2d2a6e;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;border-radius:6px;">&#8599;</a>' +
+        '</div></div></div></div>';
+      
+      let r = dv + kjbi +
+        '<div class="sec-title">Resources</div>' +
+        '<div class="sec-sub">KJB defence materials, studies on modern version corruption, and links to free Bible study resources.</div>';
+      
+      // Why KJB is God's Word section
+      r += '<div class="res-cat">Why the KJB is God\'s Word</div>';
+      r += '<div class="step"><h4>The Word of God Will Keep Its Infallibility</h4>' +
         '<p style="font-size:14px;color:#444;margin-bottom:8px;">A historical book demonstrating that the King James Bible is the infallible, preserved Word of God in the English language. Full text available on Archive.org.</p>' +
-        '<span class="ref"><a href="https://archive.org/details/wordgodwillkeepi0000faus">Read on Archive.org</a></span></div>' +
+        '<span class="ref"><a href="https://archive.org/details/wordgodwillkeepi0000faus/page/18/mode/1up?q=%22King+James+Bible+is+infallible%22">Read on Archive.org</a></span></div>' +
         '<div class="step"><h4>Warning on the NKJV</h4>' +
         '<p style="font-size:14px;color:#444;margin-bottom:8px;">You are more than welcome to purchase a King James Bible from the Dollar Store or any Bible retailer without worrying about errors. However, please note: the NKJV is not the same as the King James Bible. Please check out this resource to learn more and do your own research.</p>' +
         '<span class="ref"><a href="https://www.scionofzion.com/nkjv.htm">NKJV Comparison</a></span></div>' +
         '<div class="step"><h4>Textus Receptus Bibles</h4>' +
-        '<p style="font-size:14px;color:#444;margin-bottom:8px;">Research on the Textus Receptus — the Greek text underlying the King James Bible.</p>' +
+        '<p style="font-size:14px;color:#444;margin-bottom:8px;">Research on the Textus Receptus &mdash; the Greek text underlying the King James Bible.</p>' +
         '<span class="ref"><a href="https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs">Read comparison</a></span></div>';
-      for (let i = 0; i < RES_GROUPS.length; i++) {
-        const grp = RES_GROUPS[i];
-        r += '<div class="res-cat">' + esc(grp.cat) + '</div>';
-        for (let j = 0; j < grp.items.length; j++) {
-          const it = grp.items[j];
-          r += '<a class="lnk" href="' + esc(it.u) + '"><b>' + esc(it.t) + '</b><span>' + esc(it.d) + '</span></a>';
-        }
-      }
+      
+      // How to Read the Bible
+      r += '<div class="res-cat">How to Read the Bible</div>' +
+        '<a class="lnk" href="https://avpublications.com/"><b>AV Publications</b><span>Books and resources for King James Bible believers.</span></a>';
+      
+      // KJB Defence
+      r += '<div class="res-cat">KJB Defence</div>' +
+        '<a class="lnk" href="https://www.bibleprotector.com"><b>King James Bible: Pure Cambridge Edition & Free Download</b><span>The definitive electronic text of the Pure Cambridge Edition &mdash; bibleprotector.com. Free downloads available in PDF, ePub, and TXT formats.</span></a>' +
+        '<a class="lnk" href="https://archive.org/details/wordgodwillkeepi0000faus/page/18/mode/1up?q=%22King+James+Bible+is+infallible%22"><b>The Word of God Will Keep Its Infallibility (Archive.org)</b><span>Historical book demonstrating that the King James Bible is infallible &mdash; full text available on Archive.org.</span></a>' +
+        '<a class="lnk" href="https://kjvcompare.com/"><b>KJV Compare</b><span>Go through hundreds of changes made in modern versions of the Bible &mdash; verse-by-verse.</span></a>' +
+        '<a class="lnk" href="https://www.scionofzion.com/kjcomparisons.html"><b>Scion of Zion &mdash; KJB Comparisons</b><span>Detailed comparisons of the KJB with modern versions, exposing corruptions and omissions.</span></a>' +
+        '<a class="lnk" href="https://www.scionofzion.com/1_john_5_7.htm"><b>1 John 5:7 Defence</b><span>Resources defending the Johannine Comma (1 John 5:7) &mdash; the Trinitarian verse attacked by modern versions.</span></a>';
+      
+      // Why Modern Versions Are Corrupt
+      r += '<div class="res-cat">Why Modern Versions Are Corrupt</div>' +
+        '<a class="lnk" href="https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf"><b>The Critical Text & Westcott-Hort</b><span>Westcott and Hort created the Critical Text based on Vatican and Egyptian manuscripts with hundreds of errors, deletions and additions to the Bible, attacking doctrines such as the Trinity and deity of Christ. Their text was used in the Revised Version of 1881.</span></a>' +
+        '<a class="lnk" href="https://www.scionofzion.com/nkjv.htm"><b>NKJV Exposed</b><span>The NKJV is NOT the same as the King James Bible. Resources exposing the New King James Version.</span></a>' +
+        '<a class="lnk" href="https://www.youtube.com/watch?v=RmXBj2N9fhY&list=PLiMliTxa3H172BW4ANpBAavcIGVz-KXFW"><b>A Lamp in the Dark &mdash; Full Documentary</b><span>The untold history of the Bible &mdash; a documentary exposing the corruption of modern Bible translations.</span></a>' +
+        '<a class="lnk" href="https://youtube.com/playlist?list=PLNGhZnJavRf01ILv3TJu_ke4IPYcKcpJm&si=w73gmQRdA_3QbE48"><b>KJB Defence Playlist</b><span>Comprehensive playlist defending the King James Bible as the infallible, perfect words of God in the English Language.</span></a>' +
+        '<a class="lnk" href="https://www.youtube.com/watch?v=fyN680Y0Vwc"><b>Gail Riplinger &mdash; The Sword Slays the Dragon</b><span>Gail Riplinger\'s powerful defence of the King James Bible against modern version corruption.</span></a>' +
+        '<a class="lnk" href="https://www.youtube.com/watch?v=t6ck6KrVPIk"><b>Irrefutable Proof: The KJB Superseded Hebrew and Greek</b><span>Truth is Christ channel &mdash; demonstrating the superiority and authority of the King James Bible.</span></a>' +
+        '<a class="lnk" href="https://www.av1611.org/articles"><b>AV1611 Articles</b><span>Articles defending the Authorised Version &mdash; King James Bible defence resources.</span></a>' +
+        '<a class="lnk" href="https://www.preservedwords.com/bp/index.html"><b>Preserved Words</b><span>Another King James Bible Believer &mdash; resources and articles defending the preserved Word of God.</span></a>' +
+        '<a class="lnk" href="https://brandplucked.com/kjbarticles.htm"><b>Brandplucked &mdash; KJB Articles</b><span>Extensive collection of articles defending the King James Bible.</span></a>';
+      
+      // 1 John 5:7 Defence
+      r += '<div class="res-cat">1 John 5:7 Defence</div>' +
+        '<a class="lnk" href="https://kjvdebate.com/blog/f/i-john-57-the-1st-century-latinspain-connection"><b>1 John 5:7 - The 1st Century Latin/Spain Connection</b><span>Historical evidence connecting 1 John 5:7 to early Christian manuscripts and tradition.</span></a>' +
+        '<a class="lnk" href="https://catalog.obitel-minsk.com/blog/2021/08/the-authenticity-of-1-john-57-historical-evidence-and-the-church-tradition"><b>The Authenticity of 1 John 5:7</b><span>Historical evidence and church tradition supporting the Johannine Comma.</span></a>' +
+        '<a class="lnk" href="https://textus-receptus.com/wiki/1_John_5:7"><b>Textus Receptus - 1 John 5:7</b><span>Wiki entry on 1 John 5:7 in the Textus Receptus (Received Text).</span></a>' +
+        '<a class="lnk" href="https://kjvdebate.com/pdf"><b>KJV Debate - 1 John 5:7 PDF</b><span>Comprehensive PDF resource defending 1 John 5:7.</span></a>';
+      
+      // Westcott & Hort Heresies
+      r += '<div class="res-cat">Westcott & Hort Heresies</div>' +
+        '<a class="lnk" href="https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf"><b>Theological Heresies of Westcott and Hort</b><span>Detailed examination of the heretical beliefs held by Westcott and Hort, whose critical text corrupted Bible translations.</span></a>' +
+        '<a class="lnk" href="https://scatteredchristians.org/WescottHort.html"><b>Scattered Christians - Westcott & Hort</b><span>Analysis of Westcott and Hort\'s influence on modern Bible versions.</span></a>' +
+        '<span class="ref"><a href="https://scatteredchristians.org/WescottHort.html">Read article</a></span></div>' +
+        '<div class="step"><h4>Textus Receptus Bibles - Editorial Issues</h4>' +
+        '<p style="font-size:14px;color:#444;">Information on editorial changes and textual issues in modern versions.</p>' +
+        '<span class="ref"><a href="https://textusreceptusbibles.com/Editorial/Umlauts">Read more</a></span></div>' +
+        '<div class="step"><h4>Differences Between Textus Receptus and NA/UBS</h4>' +
+        '<p style="font-size:14px;color:#444;">Detailed comparison of the Greek texts used in different Bible versions.</p>' +
+        '<span class="ref"><a href="https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs">Compare texts</a></span></div>';
+      
+      // NKJV Exposed
+      r += '<div class="res-cat">NKJV Exposed</div>' +
+        '<a class="lnk" href="https://www.av1611.org/nkjv.html"><b>AV1611 - NKJV Exposed</b><span>Comprehensive analysis showing the NKJV is not the King James Bible.</span></a>' +
+        '<a class="lnk" href="https://www.tbsbibles.org/page/WhatTodaysChristianNeedsToKnowAboutTheNewKingJamesVersion"><b>TBS - What Today\'s Christian Needs to Know About NKJV</b><span>Official resource from The Bible For Today highlighting NKJV issues.</span></a>' +
+        '<a class="lnk" href="https://www.tbsbibles.org/page/DoesTheNKJVLiveUpToItsClaims"><b>TBS - Does the NKJV Live Up to Its Claims?</b><span>Critical examination of NKJV translation claims and accuracy.</span></a>' +
+        '<a class="lnk" href="https://www.tbsbibles.org/page/TheNewKingJamesVersion"><b>TBS - The New King James Version Overview</b><span>Detailed overview of NKJV problems and textual issues.</span></a>' +
+        '<a class="lnk" href="https://cdn.ymaws.com/www.tbsbibles.org/resource/collection/D4DCAF37-AEB6-4CEC-880F-FD229A90560F/An-Examination-of-NKJV-Part-1.pdf"><b>TBS - An Examination of the NKJV (Parts 1 & 2)</b><span>Comprehensive two-part examination of NKJV translation errors.</span></a>';
+      
+      // Living Bible Exposed
+      r += '<div class="res-cat">Living Bible Exposed</div>' +
+        '<a class="lnk" href="https://cdn.ymaws.com/www.tbsbibles.org/resource/collection/D4DCAF37-AEB6-4CEC-880F-FD229A90560F/The-Living-Bible.pdf"><b>TBS - The Living Bible Exposed</b><span>Official resource exposing errors and problems in the Living Bible paraphrase.</span></a>' +
+        '<a class="lnk" href="https://www.jesus-is-savior.com/Bible/Living%20Bible/lb_exposed.htm"><b>Jesus is Savior - Living Bible Exposed</b><span>Comprehensive resource exposing the Living Bible\'s doctrinal problems.</span></a>' +
+        '<a class="lnk" href="https://jesus-is-savior.com/Bible/NLT/nlt_exposed.htm"><b>Jesus is Savior - NLT Bible Exposed</b><span>Detailed analysis of the New Living Translation\'s translation errors.</span></a>';
+      
+      // ESV & NIV Exposed
+      r += '<div class="res-cat">ESV & NIV Exposed</div>' +
+        '<a class="lnk" href="https://brandplucked.com/is-the-esv-inerrant.html"><b>Brandplucked - Is the ESV Inerrant?</b><span>Critical analysis of ESV translation choices and inerrancy claims.</span></a>' +
+        '<a class="lnk" href="https://brandplucked.com/theesv.htm"><b>Brandplucked - The ESV Examined</b><span>Comprehensive examination of ESV translation problems.</span></a>' +
+        '<a class="lnk" href="https://www.tbsbibles.org/page/EnglishStandardVersion"><b>TBS - English Standard Version</b><span>Official analysis of ESV translation issues.</span></a>' +
+        '<a class="lnk" href="https://www.av1611.org/kjv/nivteen.html"><b>AV1611 - NIV Exposed</b><span>Detailed comparison of NIV problems and doctrinal deletions.</span></a>' +
+        '<a class="lnk" href="https://www.jesusisprecious.org/bible/niv/acts_8-37_missing.htm"><b>Jesus is Precious - NIV Missing Verses</b><span>Documentation of verses omitted from the NIV translation.</span></a>' +
+        '<a class="lnk" href="https://www.scionofzion.com/niv%201984%20and%202011.html"><b>Scion of Zion - NIV 1984 vs 2011</b><span>Comparison of changes made between NIV versions.</span></a>' +
+        '<a class="lnk" href="https://www.jesus-is-savior.com/Bible/NIV/new_international_version_exposed.htm"><b>Jesus is Savior - NIV Exposed</b><span>Comprehensive resource exposing the NIV\'s doctrinal corruptions.</span></a>';
+      
+      // Verified Preachers
       r += '<div class="res-cat">Verified KJB Preachers</div>';
       for (let i = 0; i < PREACHERS_L.length; i++) {
         const p = PREACHERS_L[i];
-        let pl = '';
-        for (let j = 0; j < p.links.length; j++) pl += (j ? ' &middot; ' : '') + '<a href="' + esc(p.links[j]) + '">link</a>';
-        r += '<div class="step"><h4>' + esc(p.name) + '</h4><p style="font-size:14px;color:#444;">' + esc(p.desc) + '</p><span class="ref">' + pl + '</span></div>';
+        r += '<div class="step"><h4>' + esc(p.name) + '</h4><p style="font-size:14px;color:#444;margin-bottom:8px;">' + esc(p.desc) + '</p><div style="display:flex;flex-wrap:wrap;gap:8px;">';
+        for (let j = 0; j < p.links.length; j++) {
+          const url = p.links[j];
+          const label = getLinkLabel(url);
+          r += '<a href="' + esc(url) + '" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:#f7f7fb;border:1px solid #e0e0ec;border-radius:6px;text-decoration:none;color:#2d2a6e;font-size:12px;font-family:Arial,sans-serif;"><span style="color:#666;">' + esc(label) + '</span> &rarr;</a>';
+        }
+        r += '</div></div>';
       }
-      r += '<div class="warn" style="background:#fdf8ee;border-color:#e9dcb8;"><p style="font-size:13px;color:#7a5a00;"><b>Note:</b> These resources are for educational purposes only. I may not affirm all doctrinal statements of every resource or ministry linked here. Please use discernment and compare all things to the King James Bible.</p></div>';
+      
+      // Ministry Links
+      r += '<div class="res-cat">Ministry Links</div>' +
+        '<a class="lnk" href="https://godisgracious1031ministriescom.odoo.com/"><b>God is Gracious 1031 Ministries</b><span>Ministry Website</span></a>' +
+        '<a class="lnk" href="mailto:Kingjamesbiblereader.com@outlook.com"><b>Contact the Ministry</b><span>Kingjamesbiblereader.com@outlook.com</span></a>';
+      
+      // Disclaimer
+      r += '<div class="warn" style="background:#fdf8ee;border-color:#e9dcb8;margin-top:20px;"><p style="font-size:13px;color:#7a5a00;"><b>Note:</b> The resources below are for educational purposes only. I may not affirm all doctrinal statements of every resource or ministry linked here. Please use discernment and compare all things to the King James Bible.</p></div>';
+      
       bodyInner = r;
     } else if (tab === 'about') {
       // Daily verse card
@@ -557,25 +671,61 @@ Deno.serve(async (req) => {
             '</div>';
         }
       }
-      const ulOf = function (arr) {
-        let s = '';
-        for (let i = 0; i < arr.length; i++) s += '<li>' + esc(arr[i]) + '</li>';
-        return '<ul class="about-list">' + s + '</ul>';
-      };
+      
       let a = dv + '<div class="sec-title">About</div>';
+      
+      // About the Ministry
       a += '<div class="box"><h3>About the Ministry</h3>' +
-        '<p style="font-size:14px;">I\'m Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. I am a dispensational salvationist, rightly dividing the word of truth.</p>' +
-        ulOf(ABOUT_FAITH) + '</div>';
+        '<p style="font-size:14px;color:#444;margin-bottom:12px;">I\'m Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. I am a dispensational salvationist, rightly dividing the word of truth.</p>' +
+        '<ul style="margin:8px 0 0 18px;">' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">I reject Catholicism, Calvinism, Pentecostalism, Church of God, Mormonism, Jehovah\'s Witnesses, etc.</li>' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">I believe in the blood-stained gospel as the only way to be saved, and I reject "repent of sins to be saved" (ROYS), "confess with your mouth to be saved," Lordship Salvation, infant baptism, baptism regeneration, etc.</li>' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">To be saved, you must believe that Jesus is God, that He shed His blood on Calvary, died, was buried, and rose again for your justification.</li>' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">I believe in OSAS (Once Saved, Always Saved): a believer who has trusted the gospel cannot lose salvation, no matter what happens in their life.</li>' +
+        '</ul></div>';
+      
+      // Statement of Faith
       a += '<div class="sec-title">Statement of Faith</div>';
-      a += '<div class="box"><h3>The King James Bible</h3>' + ulOf(ABOUT_KJB) + '</div>';
-      a += '<div class="box"><h3>Satan &amp; Hell</h3>' + ulOf(ABOUT_SATAN) + '</div>';
-      a += '<div class="box"><h3>Salvation &amp; Pre-Tribulation Rapture</h3>' + ulOf(ABOUT_SALVATION) + '</div>';
-      let al = '';
-      for (let i = 0; i < ABOUT_LINKS.length; i++) {
-        const l = ABOUT_LINKS[i];
-        al += '<a class="lnk" href="' + esc(l.u) + '"><b>' + esc(l.t) + '</b><span>' + esc(l.s) + '</span></a>';
-      }
-      a += '<div class="box"><h3>Links &amp; Contact</h3>' + al + '</div>';
+      
+      a += '<div class="box"><h3>The King James Bible</h3>' +
+        '<ul style="margin:8px 0 0 18px;">' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">Westcott and Hort created the Critical Text, based on manuscripts from the Vatican and Egypt. These manuscripts have hundreds of errors, deletions and additions to the Bible, attacking doctrines such as the Godhead/Trinity and deity of Christ. Their text was used in the Revised Version of 1881.</li>' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">The King James Bible is the infallible, perfect Word of God in the English language.</li>' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">Translated with the Textus Receptus (Received Text) that the historical church has always used.</li>' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">Translated by godly men well versed in the Biblical languages who studied commentaries and foreign translations from an early age.</li>' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">The Bible God has used for countless revivals and bringing the gospel to the world. It is mathematically proven to be a miracle.</li>' +
+        '</ul></div>';
+      
+      a += '<div class="box"><h3>Satan &amp; Hell</h3>' +
+        '<ul style="margin:8px 0 0 18px;">' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">Satan is also known as the Devil, Lucifer and the king of Pride. His goal is to steal, kill and deceive the world &mdash; through things such as abortion, sodomy, and going after worldly things instead of what truly matters.</li>' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">He deceives people that they are without a Saviour, that there is no God, no hell, and no afterlife.</li>' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">All people come short of the glory of God and have committed sin.</li>' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">The wages of sin is death and the wicked shall be turned into hell.</li>' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">Hell is a place of torment day and night. Hell was created for Satan and his angels. Hell will be thrown into the lake of fire at the second death.</li>' +
+        '</ul></div>';
+      
+      a += '<div class="box"><h3>Salvation &amp; Pre-Tribulation Rapture</h3>' +
+        '<ul style="margin:8px 0 0 18px;">' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">Jesus Christ is God manifested in the flesh, born of the virgin Mary.</li>' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">Jesus Christ lived a perfect life, died on Calvary\'s cross, shed his blood, was buried and rose again on the third day.</li>' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">Jesus went to heaven to put his precious blood in the mercy seat so we can have eternal life.</li>' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">To be saved: Believe Jesus is God and that he died for your sins, shed his blood, was buried and rose again for your justification.</li>' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">Repenting of sins, water baptism, making him Lord or letting him into your heart is not salvation.</li>' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">I believe in the Pre-Tribulation Rapture where the church will meet in the clouds with our Saviour before the Antichrist reigns on earth.</li>' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">Those in the 7-year tribulation will have to endure to the end, not take the mark, and be martyrs for Christ.</li>' +
+        '<li style="font-size:14px;margin-bottom:8px;line-height:1.5;">I believe Jesus will reign in the new heaven and earth after the white throne judgment.</li>' +
+        '</ul></div>';
+      
+      // Links & Contact
+      a += '<div class="box"><h3>Links &amp; Contact</h3>' +
+        '<a class="lnk" href="https://godisgracious1031ministriescom.odoo.com/" target="_blank"><b>God is Gracious 1031 Ministries</b><span>Ministry Website</span></a>' +
+        '<a class="lnk" href="https://youtube.com/@shawnr325av?si=zC_gQm4I2S_xj-NS" target="_blank"><b>YouTube</b><span>@shawnr325av</span></a>' +
+        '<a class="lnk" href="https://www.instagram.com/svdbyfaithinhisbloodr325av?igsh=NTl0NmM1NWoyb2Z0" target="_blank"><b>Instagram</b><span>@svdbyfaithinhisbloodr325av</span></a>' +
+        '<a class="lnk" href="mailto:kingjamesbiblereader@outlook.sg"><b>Email</b><span>kingjamesbiblereader@outlook.sg</span></a>' +
+        '<a class="lnk" href="https://discord.com/" target="_blank"><b>Discord</b><span>shawn_svdbyfaithinhisbloodr325av</span></a>' +
+        '</div>';
+      
       bodyInner = a;
     } else if (tab === 'debug') {
       const ua = req.headers.get('user-agent') || 'unknown';
