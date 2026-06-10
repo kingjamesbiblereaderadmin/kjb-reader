@@ -504,6 +504,7 @@ Deno.serve(async (req) => {
       <a href="https://youtube.com/@shawnr325av" target="_blank">&#9654; YouTube: @shawnr325av</a>
       <a href="https://www.instagram.com/svdbyfaithinhisbloodr325av" target="_blank">&#128247; Instagram: @svdbyfaithinhisbloodr325av</a>
       <a href="mailto:kingjamesbiblereader@outlook.sg">&#9993; kingjamesbiblereader@outlook.sg</a>
+      <a href="https://discord.com/" target="_blank">&#128172; Discord: shawn_svdbyfaithinhisbloodr325av</a>
     </div>
   </div>
 
