@@ -98,12 +98,18 @@ function renderVerse(raw) {
     .replace(/\u201C/g, '"').replace(/\u201D/g, '"')
     .replace(/(\w)\uFFFD(\w)/g, "$1'$2");
   t = t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  // Pilcrow marks render on their own line ABOVE the following text (shift down).
-  t = t.replace(/^[\u00B6\uFFFD]\s*/, '<span class="pil">&para;</span><br>');
+  // A leading pilcrow means this whole verse (number + text) starts on a fresh
+  // line, with the pilcrow on its own line above it.
+  let leadingPilcrow = false;
+  if (/^[\u00B6\uFFFD]\s*/.test(t)) {
+    leadingPilcrow = true;
+    t = t.replace(/^[\u00B6\uFFFD]\s*/, '');
+  }
+  // Mid-verse pilcrows still break to their own line within the verse.
   t = t.replace(/([\s.,;:!?'")\]])[\u00B6\uFFFD]\s*/g, '$1<br><span class="pil">&para;</span><br>');
   t = t.replace(/[\u00B6\uFFFD]/g, '');
   t = t.replace(/\[([^\]]+)\]/g, '<em>$1</em>');
-  return t;
+  return { html: t, leadingPilcrow };
 }
 
 // Subscripts & colophons: roman by default, italic ONLY on [bracketed] words.
@@ -187,6 +193,7 @@ Deno.serve(async (req) => {
 '.subscript { text-align:center; color:#555; font-size:14px; margin:0 0 16px; }' +
 '.colophon { text-align:center; color:#555; font-size:14px; margin:18px 0 0; padding-top:12px; border-top:1px solid #e0e0ec; }' +
 '.pil { color:#888; }' +
+'.pil-line { margin-top:14px; }' +
 'em { font-style:italic; }' +
 '.nav { text-align:center; margin:20px 0; }' +
 '.nav a { display:inline-block; padding:10px 18px; margin:0 4px; background:#2d2a6e; color:#fff; text-decoration:none; font-size:14px; font-family:Arial,sans-serif; }' +
@@ -227,7 +234,9 @@ Deno.serve(async (req) => {
         content += '<p style="text-align:center;color:#c00;">No verses found.</p>';
       } else {
         for (let i = 0; i < verses.length; i++) {
-          content += '<div class="verse"><span class="vn">' + verses[i].verse + '</span> ' + renderVerse(verses[i].text) + '</div>';
+          const r = renderVerse(verses[i].text);
+          const pil = r.leadingPilcrow ? '<div class="pil-line"><span class="pil">&para;</span></div>' : '';
+          content += pil + '<div class="verse"><span class="vn">' + verses[i].verse + '</span> ' + r.html + '</div>';
         }
       }
 
