@@ -421,45 +421,44 @@ Deno.serve(async (req) => {
 
       bodyInner = dailyVerseCard + form + content + navLinks;
     } else if (tab === 'gospel') {
-      bodyInner = '<div style="max-width:800px;margin:0 auto;">' +
-        '<h1 style="text-align:center;margin-bottom:12px;">How to be Saved</h1>' +
-        '<p style="text-align:center;margin-bottom:6px;font-size:16px;">The Gospel is the glad tidings of the Lord Jesus Christ:</p>' +
-        '<p style="text-align:center;margin-bottom:32px;font-size:16px;color:#555;">Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.</p>' +
-        '<div class="step"><h4>1. Believe you are a sinner that deserves hell</h4>' +
-        '<blockquote><p>"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin."</p><span class="ref">&mdash; Romans 3:20</span></blockquote>' +
-        '<blockquote><p>"The wicked shall be turned into hell, and all the nations that forget God."</p><span class="ref">&mdash; Psalm 9:17</span></blockquote></div>' +
-        '<div class="step"><h4>2. Believe that Jesus is God manifested in the flesh</h4>' +
-        '<blockquote><p>"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory."</p><span class="ref">&mdash; 1 Timothy 3:16</span></blockquote></div>' +
-        '<div class="step"><h4>3. Believe he died, shed his blood, was buried and rose again</h4>' +
-        '<blockquote><p>"Moreover, brethren, I declare unto you the gospel which I preached unto you, which also ye have received, and wherein ye stand; By which also ye are saved, if ye keep in memory what I preached unto you, unless ye have believed in vain. For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures."</p><span class="ref">&mdash; 1 Corinthians 15:1&ndash;4</span></blockquote>' +
-        '<blockquote><p>"Whom God hath set forth to be a propitiation through faith in his blood, to declare his righteousness for the remission of sins that are past, through the forbearance of God;"</p><span class="ref">&mdash; Romans 3:25</span></blockquote></div>' +
-        '<div class="warn"><h4>These do NOT make you a Christian:</h4>' +
-        '<ul><li>Repenting of sins</li><li>Making Jesus Lord</li><li>Being a member of a church</li><li>Tithing</li><li>Being baptised (water)</li><li>Saying a sinner\'s prayer</li><li>Confessing with your mouth</li><li>Lordship Salvation</li></ul></div>' +
-        '<div class="step"><h4>Once Saved, Always Saved</h4>' +
-        '<p style="margin-bottom:12px;">A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life. God\'s gift of eternal life is just that &mdash; eternal.</p>' +
-        '<blockquote><p>"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise."</p><span class="ref">&mdash; Ephesians 1:13</span></blockquote></div>' +
-        '<h2 style="margin:32px 0 16px;text-align:center;">Watch the Gospel</h2>' +
-        '<p style="margin-bottom:8px;"><a href="https://www.youtube.com/watch?v=znP9Dr6tOzU" target="_blank">Watch "THE GOSPEL THAT SAVES" by Robert Breaker on YouTube</a></p>' +
-        '<p><a href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq" target="_blank">Watch Full Gospel Playlist on YouTube</a></p>' +
+      bodyInner = '<div class="doc">' +
+        '<h1>How to be Saved</h1>' +
+        '<p class="lead">The Gospel is the glad tidings of the Lord Jesus Christ: trust he is God, died, shed his blood, was buried and rose again on the 3rd day for our sins.</p>' +
+        '<h2>1. Believe you are a sinner that deserves hell</h2>' +
+        '<blockquote>"Therefore by the deeds of the law there shall no flesh be justified in his sight: for by the law is the knowledge of sin." &mdash; Romans 3:20</blockquote>' +
+        '<blockquote>"The wicked shall be turned into hell, and all the nations that forget God." &mdash; Psalm 9:17</blockquote>' +
+        '<h2>2. Believe that Jesus is God manifested in the flesh</h2>' +
+        '<blockquote>"And without controversy great is the mystery of godliness: God was manifest in the flesh, justified in the Spirit, seen of angels, preached unto the Gentiles, believed on in the world, received up into glory." &mdash; 1 Timothy 3:16</blockquote>' +
+        '<h2>3. Believe he died, shed his blood, was buried and rose again</h2>' +
+        '<blockquote>"Moreover, brethren, I declare unto you the gospel which I preached unto you, which also ye have received, and wherein ye stand; By which also ye are saved, if ye keep in memory what I preached unto you, unless ye have believed in vain. For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." &mdash; 1 Corinthians 15:1&ndash;4</blockquote>' +
+        '<blockquote>"Whom God hath set forth to be a propitiation through faith in his blood, to declare his righteousness for the remission of sins that are past, through the forbearance of God;" &mdash; Romans 3:25</blockquote>' +
+        '<h2>These do NOT make you a Christian</h2>' +
+        '<ul><li>Repenting of sins</li><li>Making Jesus Lord</li><li>Being a member of a church</li><li>Tithing</li><li>Being baptised (water)</li><li>Saying a sinner\'s prayer</li><li>Confessing with your mouth</li><li>Lordship Salvation</li></ul>' +
+        '<h2>Once Saved, Always Saved</h2>' +
+        '<p>A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life. God\'s gift of eternal life is just that &mdash; eternal.</p>' +
+        '<blockquote>"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." &mdash; Ephesians 1:13</blockquote>' +
+        '<h2>Watch the Gospel</h2>' +
+        '<p><a href="https://www.youtube.com/watch?v=znP9Dr6tOzU" target="_blank">"THE GOSPEL THAT SAVES" by Robert Breaker</a></p>' +
+        '<p><a href="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq" target="_blank">Full Gospel Playlist on YouTube</a></p>' +
         '</div>';
     } else if (tab === 'resources') {
-      const lnk = (url, title, desc) => '<a class="lnk" href="' + url + '" target="_blank"><b>' + title + '</b>' + (desc ? '<span>' + desc + '</span>' : '') + '</a>';
-      bodyInner = '<div style="max-width:800px;margin:0 auto;">' +
-        '<h1 style="text-align:center;margin-bottom:12px;">Resources</h1>' +
-        '<p style="text-align:center;margin-bottom:24px;color:#555;">KJB defence materials, studies on modern version corruption, and links to free Bible study resources.</p>' +
+      const lnk = (url, title, desc) => '<p class="rlnk"><a href="' + url + '" target="_blank">' + title + '</a>' + (desc ? '<span> &mdash; ' + desc + '</span>' : '') + '</p>';
+      bodyInner = '<div class="doc">' +
+        '<h1>Resources</h1>' +
+        '<p class="lead">KJB defence materials, studies on modern version corruption, and links to free Bible study resources.</p>' +
 
-        '<div class="step" style="border-left-color:#1a7f37;"><h4 style="color:#1a7f37;">KJBI.org &mdash; Free Online Bible College</h4>' +
-        '<p style="margin-bottom:10px;">King James Bible Institute &mdash; a free online Bible college for those who want to go deeper in God\'s Word.</p>' +
-        lnk('https://kjbi.org', 'Visit KJBI.org', '') + '</div>' +
+        '<h2>KJBI.org &mdash; Free Online Bible College</h2>' +
+        '<p>King James Bible Institute &mdash; a free online Bible college for those who want to go deeper in God\'s Word.</p>' +
+        lnk('https://kjbi.org', 'Visit KJBI.org', '') +
 
-        '<div class="res-cat">Why the KJB is God\'s Word</div>' +
-        '<p style="margin-bottom:12px;color:#555;">The King James Bible is the only preserved Word of God in the English Language.</p>' +
+        '<h2>Why the KJB is God\'s Word</h2>' +
+        '<p>The King James Bible is the only preserved Word of God in the English Language.</p>' +
         lnk('https://archive.org/details/wordgodwillkeepi0000faus', 'The Word of God Will Keep Its Infallibility', 'A historical book demonstrating that the KJB is the infallible, preserved Word of God in English. Read on Archive.org.') +
         lnk('https://www.scionofzion.com/nkjv.htm', 'Warning on the NKJV', 'The NKJV is not the same as the King James Bible. NKJV comparison.') +
         lnk('https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs', 'Textus Receptus Bibles', 'Research on the Textus Receptus &mdash; the Greek text underlying the King James Bible.') +
 
-        '<div class="res-cat">Verified KJB Preachers</div>' +
-        '<p style="margin-bottom:12px;color:#555;">KJB-believing, soul-winning preachers.</p>' +
+        '<h2>Verified KJB Preachers</h2>' +
+        '<p>KJB-believing, soul-winning preachers.</p>' +
         lnk('https://www.youtube.com/@Robertbreaker3', 'Robert Breaker', 'KJB missionary evangelist. YouTube, TikTok (@robertbreaker), thecloudchurch.org') +
         lnk('https://www.instagram.com/robert.potthoff/', 'Robert Potthoff', 'Big Red Preacher &mdash; KJB soul winner. Instagram, Facebook, mission1611.com') +
         lnk('https://youtube.com/@josephgonzalez3', 'Joseph Gonzalez', 'KJB Elites &mdash; faithful preacher. YouTube, TikTok (@joyfullychurch), Joyfully Church') +
@@ -470,23 +469,23 @@ Deno.serve(async (req) => {
         lnk('https://www.youtube.com/channel/UCWBR5DmAi2XPMFRtb-wqHwg', 'CPR Missions', 'Church Planting and Revival Missions. YouTube, TikTok, Facebook, Instagram') +
         lnk('https://youtube.com/@jamesbrayall3?si=nXkuHAhyVvC_0KVg', 'James Bray', 'KJB preacher and Bible teacher on YouTube.') +
 
-        '<div class="res-cat">Ministry Links</div>' +
+        '<h2>Ministry Links</h2>' +
         lnk('https://godisgracious1031ministriescom.odoo.com/', 'God is Gracious 1031 Ministries', 'Ministry website') +
         lnk('mailto:Kingjamesbiblereader.com@outlook.com', 'Contact the Ministry', 'Kingjamesbiblereader.com@outlook.com') +
 
-        '<div class="warn" style="margin-top:18px;"><p style="font-size:13px;"><em>Note: The resources below are for educational purposes only. I may not affirm all doctrinal statements of every resource or ministry linked here. Please use discernment and compare all things to the King James Bible.</em></p></div>' +
+        '<p class="note"><em>Note: The resources below are for educational purposes only. I may not affirm all doctrinal statements of every resource or ministry linked here. Please use discernment and compare all things to the King James Bible.</em></p>' +
 
-        '<div class="res-cat">How to Read the Bible</div>' +
+        '<h2>How to Read the Bible</h2>' +
         lnk('https://avpublications.com/', 'AV Publications', 'Books and resources for King James Bible believers.') +
 
-        '<div class="res-cat">KJB Defence</div>' +
+        '<h2>KJB Defence</h2>' +
         lnk('https://www.bibleprotector.com', 'Pure Cambridge Edition & Free Download', 'The definitive electronic text of the Pure Cambridge Edition of the KJB.') +
         lnk('https://archive.org/details/wordgodwillkeepi0000faus/page/18/mode/1up?q=%22King+James+Bible+is+infallible%22', 'The Word of God Will Keep Its Infallibility', 'Archive.org') +
         lnk('https://kjvcompare.com/', 'KJV Compare', 'Hundreds of changes made in modern versions of the Bible.') +
         lnk('https://www.scionofzion.com/kjcomparisons.html', 'Scion of Zion &mdash; KJB Comparisons', '') +
         lnk('https://www.scionofzion.com/1_john_5_7.htm', '1 John 5:7 Defence', '') +
 
-        '<div class="res-cat">Why Modern Versions Are Corrupt</div>' +
+        '<h2>Why Modern Versions Are Corrupt</h2>' +
         lnk('https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf', 'The Critical Text & Westcott-Hort', 'PDF') +
         lnk('https://www.scionofzion.com/nkjv.htm', 'NKJV Exposed', '') +
         lnk('https://www.youtube.com/watch?v=RmXBj2N9fhY&list=PLiMliTxa3H172BW4ANpBAavcIGVz-KXFW', 'A Lamp in the Dark', 'Full documentary') +
@@ -497,31 +496,31 @@ Deno.serve(async (req) => {
         lnk('https://www.preservedwords.com/bp/index.html', 'Preserved Words', '') +
         lnk('https://brandplucked.com/kjbarticles.htm', 'Brandplucked &mdash; KJB Articles', '') +
 
-        '<div class="res-cat">1 John 5:7 Defence</div>' +
+        '<h2>1 John 5:7 Defence</h2>' +
         lnk('https://kjvdebate.com/blog/f/i-john-57-the-1st-century-latinspain-connection', '1 John 5:7 - The 1st Century Latin/Spain Connection', '') +
         lnk('https://catalog.obitel-minsk.com/blog/2021/08/the-authenticity-of-1-john-57-historical-evidence-and-the-church-tradition', 'The Authenticity of 1 John 5:7', '') +
         lnk('https://textus-receptus.com/wiki/1_John_5:7', 'Textus Receptus - 1 John 5:7', '') +
         lnk('https://kjvdebate.com/pdf', 'KJV Debate - 1 John 5:7 PDF', '') +
 
-        '<div class="res-cat">Westcott & Hort Heresies</div>' +
+        '<h2>Westcott & Hort Heresies</h2>' +
         lnk('https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf', 'Theological Heresies of Westcott and Hort', 'PDF') +
         lnk('https://scatteredchristrians.org/WescottHort.html', 'Scattered Christians - Westcott & Hort', '') +
         lnk('https://textusreceptusbibles.com/Editorial/Umlauts', 'Textus Receptus Bibles - Editorial Issues', '') +
         lnk('https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs', 'Differences Between Textus Receptus and NA/UBS', '') +
 
-        '<div class="res-cat">NKJV Exposed</div>' +
+        '<h2>NKJV Exposed</h2>' +
         lnk('https://www.av1611.org/nkjv.html', 'AV1611 - NKJV Exposed', '') +
         lnk('https://www.tbsbibles.org/page/WhatTodaysChristianNeedsToKnowAboutTheNewKingJamesVersion', 'TBS - What Today\'s Christian Needs to Know About NKJV', '') +
         lnk('https://www.tbsbibles.org/page/DoesTheNKJVLiveUpToItsClaims', 'TBS - Does the NKJV Live Up to Its Claims?', '') +
         lnk('https://www.tbsbibles.org/page/TheNewKingJamesVersion', 'TBS - The New King James Version Overview', '') +
         lnk('https://cdn.ymaws.com/www.tbsbibles.org/resource/collection/D4DCAF37-AEB6-4CEC-880F-FD229A90560F/An-Examination-of-NKJV-Part-1.pdf', 'TBS - An Examination of the NKJV (Parts 1 & 2)', '') +
 
-        '<div class="res-cat">Living Bible Exposed</div>' +
+        '<h2>Living Bible Exposed</h2>' +
         lnk('https://cdn.ymaws.com/www.tbsbibles.org/resource/collection/D4DCAF37-AEB6-4CEC-880F-FD229A90560F/The-Living-Bible.pdf', 'TBS - The Living Bible Exposed', 'PDF') +
         lnk('https://www.jesus-is-savior.com/Bible/Living%20Bible/lb_exposed.htm', 'Jesus is Savior - Living Bible Exposed', '') +
         lnk('https://jesus-is-savior.com/Bible/NLT/nlt_exposed.htm', 'Jesus is Savior - NLT Bible Exposed', '') +
 
-        '<div class="res-cat">ESV & NIV Exposed</div>' +
+        '<h2>ESV & NIV Exposed</h2>' +
         lnk('https://brandplucked.com/is-the-esv-inerrant.html', 'Brandplucked - Is the ESV Inerrant?', '') +
         lnk('https://brandplucked.com/theesv.htm', 'Brandplucked - The ESV Examined', '') +
         lnk('https://www.tbsbibles.org/page/EnglishStandardVersion', 'TBS - English Standard Version', '') +
