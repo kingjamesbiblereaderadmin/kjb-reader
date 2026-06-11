@@ -320,10 +320,21 @@ async function fetchDailyVerse(base44) {
   }
 }
 
+const STATIC_LEGACY_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/efdf106f1_kjb-legacy-reader.html';
+const STATIC_LEGACY_DOMAINS = ['kjbreaderlegacy.com', 'kingjamesbiblereader.com'];
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const url = new URL(req.url);
+
+    // For legacy-dedicated domains, redirect straight to the static HTML file.
+    // This works on IE and any browser — no server-side rendering needed.
+    const host = (url.hostname || '').toLowerCase();
+    if (STATIC_LEGACY_DOMAINS.some(d => host === d || host.endsWith('.' + d))) {
+      return Response.redirect(STATIC_LEGACY_URL, 302);
+    }
+
     // The legacy reader is now a single page: the Full Bible (which also
     // embeds Gospel, Resources and About). All other tabs are removed.
     let book = url.searchParams.get('book') || 'Genesis';
