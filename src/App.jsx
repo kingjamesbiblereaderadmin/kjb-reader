@@ -246,58 +246,10 @@ const AuthenticatedApp = () => {
   }, []);
 
   useEffect(() => {
-    let isMounted = true;
-    
-    // Always release splash within 3 seconds max - Bible loads on-demand
-    const maxSplashTimer = setTimeout(() => {
-      console.log('[App] Max splash timer - releasing');
-      if (isMounted) setUpdateCheckDone(true);
-    }, 3000);
-
-    // Quick update check - non-blocking
-    const checkUpdates = async () => {
-      try {
-        if (typeof navigator === 'undefined' || navigator.onLine === false) {
-          if (isMounted) setUpdateCheckDone(true);
-          return;
-        }
-
-        // Check for pending Bible update from background download
-        if (sessionStorage.getItem('kjb_pending_bible_update')) {
-          sessionStorage.removeItem('kjb_pending_bible_update');
-          sessionStorage.setItem('kjb_sw_updated', 'bible');
-          setTimeout(() => window.location.reload(), 500);
-          return;
-        }
-
-        // No active SW update check needed here — main.jsx handles all SW
-        // update detection (periodic polling, visibilitychange, controllerchange
-        // → reload with ?updated=true). We just release the splash.
-
-        // Start Bible download in background if needed - don't await
-        try {
-          const { isBibleCached, downloadBibleForOffline } = await import('@/lib/bibleCache').catch(() => ({}));
-          if (isBibleCached && downloadBibleForOffline) {
-            const cached = await isBibleCached().catch(() => true);
-            if (!cached) {
-              downloadBibleForOffline().catch(() => {});
-            }
-          }
-        } catch {}
-
-      } catch (err) {
-        console.warn('[App] Update check failed:', err);
-      } finally {
-        if (isMounted) setUpdateCheckDone(true);
-      }
-    };
-
-    checkUpdates();
-
-    return () => { 
-      isMounted = false; 
-      clearTimeout(maxSplashTimer);
-    };
+    // main.jsx handles all SW update detection and reloads with ?updated=true.
+    // We just need to release the splash quickly.
+    const timer = setTimeout(() => setUpdateCheckDone(true), 300);
+    return () => clearTimeout(timer);
   }, []);
 
   // Preload route chunks in background
