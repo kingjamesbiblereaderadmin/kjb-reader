@@ -270,65 +270,9 @@ const AuthenticatedApp = () => {
           return;
         }
 
-        // SW update check on home page. registration.update() is async and the
-        // new worker often hasn't installed yet at first render, so we actively
-        // trigger an update and wait for a waiting/installing worker before
-        // activating it and reloading. We hold the splash open the whole time
-        // (clearing the 3s max timer) so the reload isn't raced by the splash
-        // releasing early on slow networks.
-        if ('serviceWorker' in navigator && window.location.pathname === '/') {
-          const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-          if (reg && reg.active) {
-            // Activate a waiting worker. We mark kjb_sw_updated so the
-            // post-reload splash shows the "update" text, then post SKIP_WAITING.
-            // main.jsx's controllerchange handler performs the actual reload
-            // (appending ?updated=true) — we keep the splash open until then.
-            const applyUpdate = (worker) => {
-              clearTimeout(maxSplashTimer);
-              try { sessionStorage.setItem('kjb_sw_updated', 'app'); } catch {}
-              worker.postMessage({ type: 'SKIP_WAITING' });
-              // Safety net: if controllerchange doesn't fire, reload ourselves.
-              setTimeout(() => window.location.reload(), 2500);
-            };
-
-            // Already waiting before we even check? Apply immediately.
-            if (reg.waiting) {
-              applyUpdate(reg.waiting);
-              return;
-            }
-
-            // Ask the browser to check for a new SW now, and wait for the result.
-            await reg.update().catch(() => {});
-
-            // After update(), a new worker may now be waiting or installing.
-            if (reg.waiting) {
-              applyUpdate(reg.waiting);
-              return;
-            }
-
-            const installingWorker = reg.installing;
-            if (installingWorker) {
-              // Hold the splash open until install finishes (or 5s fallback),
-              // so the reload always happens during this splash, not the next.
-              clearTimeout(maxSplashTimer);
-              const applied = await new Promise((resolve) => {
-                let done = false;
-                const finish = (val) => { if (!done) { done = true; resolve(val); } };
-                installingWorker.addEventListener('statechange', () => {
-                  if (installingWorker.state === 'installed') finish(true);
-                  else if (installingWorker.state === 'redundant') finish(false);
-                });
-                setTimeout(() => finish(false), 5000);
-              });
-              if (applied && reg.waiting) {
-                applyUpdate(reg.waiting);
-                return;
-              }
-              // No update applied — let the splash continue/release normally.
-              if (isMounted) setUpdateCheckDone(true);
-            }
-          }
-        }
+        // No active SW update check needed here — main.jsx handles all SW
+        // update detection (periodic polling, visibilitychange, controllerchange
+        // → reload with ?updated=true). We just release the splash.
 
         // Start Bible download in background if needed - don't await
         try {

@@ -33,62 +33,11 @@ window.addEventListener('load', async () => {
       const registration = await navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none', scope: '/' });
       console.log('[SW] Registered:', registration.scope);
 
-      // Instead of forcing a reload, notify the UI to show the update banner
-      const notifyUpdate = (waitingWorker) => {
-        window.dispatchEvent(new CustomEvent('kjb-update-available', { detail: { waitingWorker } }));
-      };
-
-      // If a worker is already waiting when we register, activate it immediately
-      // so the latest version takes over without the user having to close tabs.
-      if (registration.waiting && navigator.serviceWorker.controller) {
-        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-        notifyUpdate(registration.waiting);
-      }
-
-      // Listen for newly-found workers — activate them right away so updates
-      // apply on the next load (the controllerchange handler reloads the page).
-      registration.addEventListener('updatefound', () => {
-        const newWorker = registration.installing;
-        if (!newWorker) return;
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            newWorker.postMessage({ type: 'SKIP_WAITING' });
-            notifyUpdate(newWorker);
-          }
-        });
-      });
-
-      // Proactively check for an updated worker on every load.
-      registration.update().catch(() => {});
-
-      // Periodic background update check while the app stays open, so an idle
-      // tab auto-reloads when a new version is deployed (no manual refresh).
-      // Runs every 60s but only when the tab is visible and online. When a new
-      // worker is found, the updatefound/controllerchange handlers above take
-      // over and reload the page automatically.
-      const POLL_MS = 60 * 1000;
-      setInterval(() => {
-        if (document.visibilityState !== 'visible') return;
-        if (navigator.onLine === false) return;
-        registration.update().catch(() => {});
-      }, POLL_MS);
-
-      // Also check immediately whenever the tab regains focus.
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible' && navigator.onLine !== false) {
-          registration.update().catch(() => {});
-        }
-      });
-
-      // Reload the page when the new service worker takes over
+      // Reload when a new SW takes over — must be registered FIRST so it
+      // catches controllerchange even if SKIP_WAITING is called synchronously.
       let refreshing = false;
       let hasExistingController = !!navigator.serviceWorker.controller;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        // A new worker has taken control — reload so the freshly-cached app
-        // assets (new code/UI changes) actually load. Reload on every page, not
-        // just the homepage, otherwise other pages keep showing stale assets
-        // until a manual refresh. The hasExistingController guard prevents a
-        // reload on the very first install (when there was no prior worker).
         if (hasExistingController && !refreshing) {
           refreshing = true;
           console.log('[SW] Controller changed. Reloading to apply updates.');
@@ -96,6 +45,41 @@ window.addEventListener('load', async () => {
           window.location.href = window.location.pathname + window.location.search + sep + 'updated=true';
         }
         hasExistingController = true;
+      });
+
+      // If a worker is already waiting when we register, activate it immediately.
+      if (registration.waiting && navigator.serviceWorker.controller) {
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+
+      // Listen for newly-found workers and activate them right away.
+      // controllerchange (above) then reloads the page with ?updated=true.
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        if (!newWorker) return;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            newWorker.postMessage({ type: 'SKIP_WAITING' });
+          }
+        });
+      });
+
+      // Proactively check for an updated worker on every load.
+      registration.update().catch(() => {});
+
+      // Periodic background update check — every 60s while tab is visible.
+      const POLL_MS = 60 * 1000;
+      setInterval(() => {
+        if (document.visibilityState !== 'visible') return;
+        if (navigator.onLine === false) return;
+        registration.update().catch(() => {});
+      }, POLL_MS);
+
+      // Also check immediately whenever the tab becomes visible again.
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && navigator.onLine !== false) {
+          registration.update().catch(() => {});
+        }
       });
 
       // Prewarm: tell SW to cache every <script> and <link rel=stylesheet> on the page
