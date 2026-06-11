@@ -14,13 +14,27 @@ function markVisited() {
   try { localStorage.setItem(FIRST_VISIT_KEY, 'true'); } catch {}
 }
 
-// Check if there's a waiting or installing SW worker
+// Check if there's a waiting or installing SW worker.
+// After calling reg.update() we also wait briefly for `updatefound` so we
+// catch the case where the new SW starts installing AFTER the update() call
+// returns (common when the SW file was just changed on the server).
 async function detectSwUpdate() {
   if (!('serviceWorker' in navigator)) return { hasUpdate: false };
   try {
     const reg = await navigator.serviceWorker.getRegistration();
     if (!reg) return { hasUpdate: false };
-    await reg.update().catch(() => {});
+
+    // Fire the update check and wait up to 3 s for an updatefound event
+    const updateFoundPromise = new Promise((resolve) => {
+      if (reg.waiting || reg.installing) { resolve(); return; }
+      const onFound = () => { reg.removeEventListener('updatefound', onFound); resolve(); };
+      reg.addEventListener('updatefound', onFound);
+      setTimeout(() => { reg.removeEventListener('updatefound', onFound); resolve(); }, 3000);
+    });
+
+    reg.update().catch(() => {});
+    await updateFoundPromise;
+
     const hasUpdate = !!(reg.waiting || reg.installing) && !!navigator.serviceWorker.controller;
     return { hasUpdate, reg };
   } catch {
