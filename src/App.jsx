@@ -279,16 +279,21 @@ const AuthenticatedApp = () => {
         if ('serviceWorker' in navigator && window.location.pathname === '/') {
           const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
           if (reg && reg.active) {
-            // Helper: activate a worker and reload once it takes over.
-            const activateAndReload = (worker) => {
+            // Activate a waiting worker. We mark kjb_sw_updated so the
+            // post-reload splash shows the "update" text, then post SKIP_WAITING.
+            // main.jsx's controllerchange handler performs the actual reload
+            // (appending ?updated=true) — we keep the splash open until then.
+            const applyUpdate = (worker) => {
+              clearTimeout(maxSplashTimer);
+              try { sessionStorage.setItem('kjb_sw_updated', 'app'); } catch {}
               worker.postMessage({ type: 'SKIP_WAITING' });
-              setTimeout(() => window.location.reload(), 800);
+              // Safety net: if controllerchange doesn't fire, reload ourselves.
+              setTimeout(() => window.location.reload(), 2500);
             };
 
             // Already waiting before we even check? Apply immediately.
             if (reg.waiting) {
-              clearTimeout(maxSplashTimer);
-              activateAndReload(reg.waiting);
+              applyUpdate(reg.waiting);
               return;
             }
 
@@ -297,8 +302,7 @@ const AuthenticatedApp = () => {
 
             // After update(), a new worker may now be waiting or installing.
             if (reg.waiting) {
-              clearTimeout(maxSplashTimer);
-              activateAndReload(reg.waiting);
+              applyUpdate(reg.waiting);
               return;
             }
 
@@ -317,7 +321,7 @@ const AuthenticatedApp = () => {
                 setTimeout(() => finish(false), 5000);
               });
               if (applied && reg.waiting) {
-                activateAndReload(reg.waiting);
+                applyUpdate(reg.waiting);
                 return;
               }
               // No update applied — let the splash continue/release normally.
