@@ -10,6 +10,7 @@ const TikTokIcon = () => (
 );
 import ImageCropper from '@/components/bible/ImageCropper';
 import DownloadBibleSection from '@/components/bible/DownloadBibleSection';
+import OfflineHtmlSection from '@/components/bible/OfflineHtmlSection';
 import ThemeColorPicker from '@/components/bible/ThemeColorPicker';
 import { Switch } from '@/components/ui/switch';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
@@ -49,8 +50,8 @@ const isBookmarkBrowser = () => {
   return !isMobile && (isFirefox || (isMac && isSafari));
 };
 
-const LAST_REVISED = 'June 10th, 2026';
-const WORKER_VERSION = 'v20260610_280';
+const LAST_REVISED = 'June 11th, 2026';
+const WORKER_VERSION = 'v20260611_319';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -70,6 +71,7 @@ export default function SettingsPage() {
     offline: true,
     downloadPdf: true,
     notifications: true,
+    offlineHtml: true,
     info: true,
     credits: true,
     advanced: false,
@@ -384,6 +386,7 @@ export default function SettingsPage() {
       offline: newState,
       downloadPdf: newState,
       notifications: newState,
+      offlineHtml: newState,
       info: newState,
       credits: newState,
       advanced: newState,
@@ -1234,6 +1237,21 @@ export default function SettingsPage() {
         {expandedSections.downloadPdf && <DownloadBibleSection />}
       </div>
 
+      {/* Offline HTML Bible — single self-contained file for old browsers / hosting */}
+      <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
+        <button
+          onClick={() => toggleSection('offlineHtml')}
+          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
+        >
+          <div className="flex flex-col gap-1">
+            <h2 className="font-serif text-lg font-semibold text-foreground">Standalone HTML Bible</h2>
+            <p className="font-sans text-xs text-muted-foreground">One file — works on old browsers & offline</p>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.offlineHtml ? 'rotate-180' : ''}`} />
+        </button>
+        {expandedSections.offlineHtml && <OfflineHtmlSection />}
+      </div>
+
       {/* Notifications — hidden in private/incognito windows where they won't persist */}
       {!isIncognito && (
       <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
@@ -1342,7 +1360,7 @@ export default function SettingsPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Legacy Reader</p>
-                <p className="font-sans text-xs text-muted-foreground">For Internet Explorer and older devices</p>
+                <p className="font-sans text-xs text-muted-foreground">Tested on Windows 8.1 (Internet Explorer 11). Does not work on Internet Explorer 9.</p>
               </div>
               <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
             </Link>

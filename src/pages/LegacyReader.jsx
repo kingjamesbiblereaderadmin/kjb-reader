@@ -8,7 +8,18 @@ import { appParams } from '@/lib/app-params';
 // chapter) so deep links like ?tab=resources land on the right page.
 export default function LegacyReader() {
   useEffect(() => {
-    window.location.replace('https://media.base44.com/files/public/6a05d76723afe58d80c589e8/efdf106f1_kjb-legacy-reader.html');
+    const host = window.location.hostname || '';
+    // On a custom domain the function is reachable at a clean /functions/legacy
+    // path (no app_id needed). Only base44.app hosting requires the app-scoped
+    // path with app_id.
+    const isCustom = host.indexOf('base44.app') === -1 && host.indexOf('localhost') === -1;
+
+    if (isCustom || !appParams.appId) {
+      window.location.replace('/functions/legacy');
+      return;
+    }
+
+    window.location.replace(`/api/apps/${appParams.appId}/functions/legacy?app_id=${appParams.appId}`);
   }, []);
 
   return (

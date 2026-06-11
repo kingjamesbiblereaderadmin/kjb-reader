@@ -402,27 +402,25 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   }
 
   // ── LINE MODE (default): each verse is its own line ──
-  // Drop-cap verse 1: number sits beside the first text line; the big first
-  // letter is wrapped (kjb-dropcap-letter) and floats left within the text.
+  // Drop-cap verse 1 uses the SAME flex layout (verse-number column + text
+  // column) as every other verse, so its text aligns perfectly with verses 2+.
+  // The drop-cap group (number + big letter) renders INSIDE the html and is
+  // floated/pulled back via CSS so it still begins at the left margin.
   if (dropCap && !selectMode) {
-    // Indent the wrapped text lines of verse 1 so they align with the text
-    // column of verse 2 onward (which sits right of the verse-number column).
-    // The floated drop-cap group is pulled back left so the big letter + number
-    // still begin at the true left margin.
     return (
       <span id={id} className="block relative mt-2 scroll-mt-24" style={{ display: 'flow-root' }}>
         {stanzaHeading}
         <span
           onClick={() => setSelected(s => !s)}
-          className="block leading-relaxed rounded cursor-pointer px-[0.4em] py-[0.25em]"
-          style={{ display: 'flow-root' }}
+          className="flex items-start leading-relaxed rounded cursor-pointer px-[0.4em] py-[0.15em] gap-[0.6em] w-full"
         >
-          <span
-            className={`block leading-relaxed [&_em]:italic [&_em]:text-foreground/75 break-words text-left [&_.kjb-dropcap-group]:-ml-[1.25em] ${isCursive ? 'cursive-em-style' : ''}`}
-            style={{ paddingLeft: '1.25em', ...(isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle) }}
-          >
+          {/* Spacer matching the verse-number column so verse 1's text column
+              lines up with verses 2+. The actual number lives in the drop-cap. */}
+          <span className="text-[0.6em] shrink-0 select-none mt-[0.2em] mr-[0.3em] invisible" aria-hidden="true">{verse.verse}</span>
+          <span className="flex-1 min-w-0 leading-relaxed break-words text-left [&_.kjb-dropcap-group]:-ml-[1.4em]">
             <span
-              className={`box-decoration-clone rounded transition-colors duration-200 px-[0.3em] py-[0.1em] ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
+              className={`inline [&_em]:italic [&_em]:text-foreground/75 box-decoration-clone rounded transition-colors duration-200 px-[0.3em] py-[0.1em] ${isCursive ? 'cursive-em-style' : ''} ${isHighlighted ? highlightBg : 'hover:bg-secondary/60'}`}
+              style={{ display: 'inline', ...(isCursive ? { fontSize: `${zoomLevel / 100 * 1.125}rem` } : textStyle) }}
               dangerouslySetInnerHTML={{ __html: html }}
             />
           </span>
@@ -432,11 +430,11 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     );
   }
   return (
-    <span id={id} className={`block relative scroll-mt-24 ${hasPilcrow && !isFirstVerse ? 'mt-12' : 'mt-2'}`}>
+    <span id={id} className={`block relative scroll-mt-24 ${hasPilcrow && !isFirstVerse ? 'mt-12' : 'mt-3'}`}>
       {stanzaHeading}
       <span
         onClick={() => selectMode ? onSelect?.(verse.verse) : setSelected(s => !s)}
-        className="flex items-start leading-relaxed rounded cursor-pointer px-[0.4em] py-[0.25em] gap-[0.6em] w-full"
+        className="flex items-start leading-relaxed rounded cursor-pointer px-[0.4em] py-[0.15em] gap-[0.6em] w-full"
       >
         <sup className="text-accent font-sans font-bold text-[0.6em] shrink-0 select-none mt-[0.2em] mr-[0.3em]">{verse.verse}</sup>
         <span className={`flex-1 min-w-0 flex items-start gap-[0.6em] ${selectMode && isSelected ? 'bg-primary/10 border border-primary/30 rounded-[0.5em] px-[0.3em] py-[0.1em]' : ''}`}>
