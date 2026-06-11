@@ -32,29 +32,30 @@
 @layer base {
   :root {
     --font-serif: 'Merriweather', 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
-    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-sans: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
 
-    /* Vibrant blue→indigo→purple theme (matches Verse of the Day style) */
-    --background: 240 30% 99%;
-    --foreground: 248 55% 8%;
-    --card: 240 12% 95%;
-    --card-foreground: 248 55% 8%;
+    /* Windows 8.1 Metro theme — flat, bright, squared. Light mode uses a
+       clean near-white canvas with the signature cobalt-blue accent. */
+    --background: 0 0% 96%;
+    --foreground: 0 0% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 248 55% 8%;
-    --primary: 245 80% 52%;
+    --popover-foreground: 0 0% 12%;
+    --primary: 206 100% 42%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 14% 89%;
-    --secondary-foreground: 250 30% 24%;
-    --muted: 240 14% 91%;
-    --muted-foreground: 245 12% 40%;
-    --accent: 248 80% 56%;
+    --secondary: 0 0% 90%;
+    --secondary-foreground: 0 0% 18%;
+    --muted: 0 0% 92%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 206 100% 42%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 358 75% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 245 22% 68%;
-    --input: 245 22% 68%;
-    --ring: 250 75% 55%;
-    --radius: 0.5rem;
+    --border: 0 0% 82%;
+    --input: 0 0% 82%;
+    --ring: 206 100% 42%;
+    --radius: 0rem;
     --sidebar-background: 245 40% 98%;
     --sidebar-foreground: 245 35% 15%;
     --sidebar-primary: 250 75% 55%;
@@ -66,26 +67,26 @@
   }
 
   .dark {
-    /* Vibrant indigo/purple theme — dark mode */
-    --background: 250 30% 8%;
-    --foreground: 245 25% 92%;
-    --card: 250 28% 12%;
-    --card-foreground: 245 25% 92%;
-    --popover: 250 28% 12%;
-    --popover-foreground: 245 25% 92%;
-    --primary: 255 80% 68%;
-    --primary-foreground: 250 30% 8%;
-    --secondary: 250 22% 18%;
-    --secondary-foreground: 245 25% 88%;
-    --muted: 250 22% 18%;
-    --muted-foreground: 245 15% 60%;
-    --accent: 270 75% 68%;
-    --accent-foreground: 250 30% 8%;
-    --destructive: 0 62.8% 45%;
+    /* Windows 8.1 Metro — dark mode: near-black canvas, bright cobalt accent */
+    --background: 0 0% 7%;
+    --foreground: 0 0% 92%;
+    --card: 0 0% 11%;
+    --card-foreground: 0 0% 92%;
+    --popover: 0 0% 11%;
+    --popover-foreground: 0 0% 92%;
+    --primary: 206 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 16%;
+    --secondary-foreground: 0 0% 88%;
+    --muted: 0 0% 16%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 206 100% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 358 70% 48%;
     --destructive-foreground: 0 0% 98%;
-    --border: 250 18% 34%;
-    --input: 250 18% 34%;
-    --ring: 255 80% 68%;
+    --border: 0 0% 24%;
+    --input: 0 0% 24%;
+    --ring: 206 100% 50%;
     --sidebar-background: 250 30% 9%;
     --sidebar-foreground: 245 25% 88%;
     --sidebar-primary: 255 80% 68%;
@@ -114,6 +115,35 @@
     -webkit-user-select: none;
     user-select: none;
   }
+
+  /* ── Windows 8.1 Metro tiles ──
+     Flat solid-color blocks, no rounded corners, no shadows. The :active
+     "press" gives the signature Metro tilt/sink feedback. */
+  .metro-tile {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    transition: transform 120ms ease, filter 120ms ease;
+    font-weight: 300;
+  }
+  .metro-tile:hover {
+    filter: brightness(1.06);
+  }
+  .metro-tile:active {
+    transform: scale(0.97);
+    filter: brightness(0.94);
+  }
+  /* Metro accent colour blocks */
+  .metro-blue   { background: #0078D4; color: #fff; }
+  .metro-teal   { background: #008272; color: #fff; }
+  .metro-green  { background: #107C10; color: #fff; }
+  .metro-purple { background: #5C2D91; color: #fff; }
+  .metro-magenta{ background: #B4009E; color: #fff; }
+  .metro-orange { background: #D83B01; color: #fff; }
+  .metro-red    { background: #E81123; color: #fff; }
+  .metro-slate  { background: #515C6B; color: #fff; }
+  /* Thin Metro headings */
+  .metro-title { font-weight: 300; letter-spacing: -0.01em; }
   
   /* Page transitions: native-like horizontal slide on every route change.
      Forward navigation enters from the right; back navigation enters from
