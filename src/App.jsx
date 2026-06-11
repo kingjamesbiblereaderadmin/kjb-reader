@@ -158,7 +158,7 @@ const AuthenticatedApp = () => {
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
   
   // Determine splash mode once on mount
-  const splashMode = React.useMemo(() => {
+  const [splashMode, setSplashMode] = React.useState(() => {
     // Check BOTH localStorage and sessionStorage for home-update flag
     // localStorage persists through SW reloads, sessionStorage is a fallback
     const localFlag = localStorage.getItem('kjb-splash-home-update');
@@ -177,7 +177,22 @@ const AuthenticatedApp = () => {
     const mode = hasVisited ? 'subsequent' : 'first_load';
     console.log('[App] Mode:', mode);
     return mode;
-  }, []);
+  });
+  
+  // Check for waiting service worker on mount — force home_update mode if found
+  React.useEffect(() => {
+    if ('serviceWorker' in navigator && splashMode !== 'home_update') {
+      navigator.serviceWorker.getRegistration().then((reg) => {
+        if (reg?.waiting || reg?.installing) {
+          console.log('[App] Waiting SW found — forcing home_update mode');
+          localStorage.setItem('kjb-splash-home-update', 'true');
+          sessionStorage.setItem('kjb-splash-home-update', 'true');
+          setSplashMode('home_update');
+          if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        }
+      }).catch(() => {});
+    }
+  }, [splashMode]);
   
   const handleSplashDone = () => {
     setFadeSplash(true);
