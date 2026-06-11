@@ -22,30 +22,57 @@ async function getSwReg() {
 
 // Trigger a fresh SW update check and WAIT until we know whether a new worker
 // is installing/waiting. Resolves true if a new worker becomes available.
-async function waitForSwUpdate(timeoutMs = 4000) {
+async function waitForSwUpdate(timeoutMs = 8000) {
   const reg = await getSwReg();
   if (!reg) return false;
 
   // Already have a waiting worker ready to activate.
-  if (reg.waiting) return true;
+  if (reg.waiting) {
+    console.log('[SW Update] Waiting worker found immediately');
+    return true;
+  }
 
   // Kick off a fresh check against the server for a new sw.js.
-  try { await reg.update(); } catch {}
-  if (reg.waiting) return true;
+  console.log('[SW Update] Checking for updates...');
+  try { await reg.update(); } catch (e) { console.error('[SW Update] Update check failed:', e); }
+  
+  // Wait a moment for the browser to detect the new worker
+  await new Promise(r => setTimeout(r, 500));
+  
+  if (reg.waiting) {
+    console.log('[SW Update] Waiting worker found after update check');
+    return true;
+  }
+  
+  if (reg.installing) {
+    console.log('[SW Update] Installing worker detected, waiting...');
+  }
 
   // A new worker is downloading — wait for it to finish installing.
   const installing = reg.installing;
-  if (!installing) return false;
+  if (!installing) {
+    console.log('[SW Update] No worker installing or waiting');
+    return false;
+  }
 
   return await new Promise((resolve) => {
     let settled = false;
     const finish = (val) => { if (!settled) { settled = true; resolve(val); } };
     const onState = () => {
-      if (installing.state === 'installed' || installing.state === 'activated') finish(true);
-      else if (installing.state === 'redundant') finish(false);
+      console.log('[SW Update] Worker state changed:', installing.state);
+      if (installing.state === 'installed' || installing.state === 'activated') {
+        console.log('[SW Update] Worker installed/activated');
+        finish(true);
+      } else if (installing.state === 'redundant') {
+        console.log('[SW Update] Worker became redundant');
+        finish(false);
+      }
     };
     installing.addEventListener('statechange', onState);
-    setTimeout(() => finish(!!reg.waiting), timeoutMs);
+    setTimeout(() => {
+      console.log('[SW Update] Timeout - checking final state:', !!reg.waiting);
+      finish(!!reg.waiting);
+    }, timeoutMs);
   });
 }
 
