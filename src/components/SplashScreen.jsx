@@ -11,10 +11,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
   const doneRef = useRef(false);
   const stepsLog = useRef([]);
 
-  // Detect incognito mode on mount
-  React.useEffect(() => {
-    detectIncognito().then(setIsIncognito);
-  }, []);
+
 
   const setStep = (message) => {
     stepsLog.current.push(message);
@@ -30,10 +27,13 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
     doneRef.current = true;
 
     (async () => {
+      // Wait for incognito detection to complete before starting splash flow
+      await detectIncognito().then(setIsIncognito);
+      
       let isFirstVisit = mode === 'first_load';
       let isHomeUpdate = mode === 'home_update';
       
-      console.log('[KJB Splash] Mode:', mode);
+      console.log('[KJB Splash] Mode:', mode, 'Incognito:', isIncognito);
 
       // Set has-visited flag for subsequent visits
       if (!isFirstVisit && !isHomeUpdate) {
