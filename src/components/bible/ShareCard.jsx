@@ -171,29 +171,27 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             >
               — {verse.ref}
             </span>
+            {/* Date badge — part of the same centered block so it grows/flows
+                together with the verse + ref (never overlaps on long verses). */}
+            <span
+              style={{
+                display: 'inline-block',
+                marginTop: '52px',
+                background: dateBadgeBg,
+                borderRadius: '999px',
+                padding: '10px 28px 16px',
+                fontFamily: "'Inter', system-ui, sans-serif",
+                fontSize: '26px',
+                fontWeight: 700,
+                lineHeight: 1,
+                letterSpacing: '0.04em',
+                color: '#ffffff',
+                textShadow: 'none',
+              }}
+            >
+              {dateStr}
+            </span>
           </blockquote>
-        </div>
-
-        {/* Date badge — centered in the gap between the verse block and the
-            footer gradient divider. */}
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', flexShrink: 0, marginBottom: '8px' }}>
-          <span
-            style={{
-              display: 'inline-block',
-              background: dateBadgeBg,
-              borderRadius: '999px',
-              padding: '10px 28px 16px',
-              fontFamily: "'Inter', system-ui, sans-serif",
-              fontSize: '26px',
-              fontWeight: 700,
-              lineHeight: 1,
-              letterSpacing: '0.04em',
-              color: '#ffffff',
-              textShadow: 'none',
-            }}
-          >
-            {dateStr}
-          </span>
         </div>
 
         {/* Footer URL with curved gradient divider above */}
