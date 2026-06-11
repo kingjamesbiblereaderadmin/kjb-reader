@@ -659,7 +659,7 @@ Deno.serve(async (req) => {
       '<li>Tested on Windows 8.1 (Internet Explorer 11). Does not work on Internet Explorer 9.</li>' +
       '<li>If pages will not load on a very old computer, use the <b>Download HTML File</b> button below &mdash; it works fully offline in any browser.</li>' +
       '<li>Installing as an app (PWA) is not supported here.</li>' +
-      '<li>Search is not supported in legacy mode.</li>' +
+      '<li><b>To find a word or verse:</b> use your browser&rsquo;s Find feature &mdash; press <b>Ctrl + F</b> (or <b>&#8984; + F</b> on Mac) and type what you are looking for.</li>' +
       '<li>YouTube videos and some external links may not open or play on old browsers.</li>' +
       '<li>Found a bug? Email <a href="mailto:kingjamesbiblereader@outlook.sg">kingjamesbiblereader@outlook.sg</a>.</li>' +
       '</ul></div>';
