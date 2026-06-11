@@ -55,6 +55,14 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         localStorage.setItem('kjb-has-visited-app', 'true');
       }
 
+      // Force first_load mode if has-visited was incorrectly set (edge case from testing)
+      // This ensures truly fresh visits show "WELCOME TO KJB READER." not "WELCOME BACK"
+      const hasVisited = localStorage.getItem('kjb-has-visited-app');
+      if (mode === 'first_load' && hasVisited) {
+        console.log('[Splash] Clearing stale has-visited flag for first_load mode');
+        localStorage.removeItem('kjb-has-visited-app');
+      }
+
       // === FIRST LOAD FLOW ===
       if (isFirstVisit) {
         // 1. Loading
