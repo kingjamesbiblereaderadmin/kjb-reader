@@ -1,7 +1,7 @@
 // KJB Reader Service Worker v20260611_900
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260611_900';
+const CACHE_NAME = 'kjb-reader-v20260611_1000';
 const LEGACY_CACHE_NAME = 'kjb-legacy-v9';
 
 const APP_SHELL_FILES = [
@@ -12,6 +12,7 @@ const APP_SHELL_FILES = [
 ];
 
 self.addEventListener('install', (event) => {
+  console.log('[SW] Installing new version');
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[SW] Caching app shell');
@@ -20,9 +21,10 @@ self.addEventListener('install', (event) => {
         return Promise.resolve();
       });
     }).then(() => {
-      console.log('[SW] Sending UPDATE_FOUND to all clients');
+      console.log('[SW] Sending UPDATE_FOUND to all clients from install');
       return self.clients.matchAll().then(clients => {
         clients.forEach(client => {
+          console.log('[SW] Notifying client:', client.url, client.id);
           client.postMessage({ type: 'UPDATE_FOUND' });
         });
       });
@@ -34,6 +36,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
+  console.log('[SW] Activating new version');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -47,6 +50,14 @@ self.addEventListener('activate', (event) => {
     }).then(() => {
       console.log('[SW] Claiming all clients');
       return self.clients.claim();
+    }).then(() => {
+      // Send update notification again after claiming clients
+      console.log('[SW] Sending UPDATE_FOUND from activate');
+      return self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+          client.postMessage({ type: 'UPDATE_FOUND' });
+        });
+      });
     })
   );
 });
@@ -151,7 +162,7 @@ self.addEventListener('fetch', (event) => {
 
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    console.log('[SW] Skipping waiting, activating now');
+    console.log('[SW] Received SKIP_WAITING message');
     self.skipWaiting();
   }
   
@@ -175,5 +186,10 @@ self.addEventListener('message', (event) => {
         })
       );
     }
+  }
+  
+  // Respond to keep-alive pings from clients
+  if (event.data && event.data.type === 'KEEP_ALIVE_PING') {
+    event.ports[0]?.postMessage({ type: 'KEEP_ALIVE_PONG', timestamp: Date.now() });
   }
 });
