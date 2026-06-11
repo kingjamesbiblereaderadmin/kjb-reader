@@ -12,6 +12,7 @@ import { registerSW, scheduleDailyNotification, getNotificationsEnabled, request
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { isBibleCached, CACHE_VERSION } from '@/lib/bibleCache';
 import { toast } from 'sonner';
+import { detectIncognito } from '@/lib/incognito';
 
 const READ_LINK = { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', color: 'bg-primary text-primary-foreground' };
 
@@ -81,8 +82,13 @@ export default function HomePage() {
     });
     
     // Preload Bible cache on home page mount to ensure italics are ready
-    import('@/lib/bibleCache').then(({ getBibleData }) => {
-      getBibleData().catch(() => {});
+    // Skip in incognito/private mode since cache won't persist
+    detectIncognito().then((isIncog) => {
+      if (!isIncog) {
+        import('@/lib/bibleCache').then(({ getBibleData }) => {
+          getBibleData().catch(() => {});
+        });
+      }
     });
 
     // Check frequently to instantly update the verse when midnight hits
