@@ -197,6 +197,7 @@ export default function HomePage() {
               await new Promise(r => setTimeout(r, 500));
 
               sessionStorage.setItem('kjb_sw_updated', updateType);
+              sessionStorage.setItem('kjb-splash-home-update', 'true');
 
               if (swUpdated && 'serviceWorker' in navigator) {
                 const reg = await navigator.serviceWorker.getRegistration();

@@ -156,6 +156,18 @@ const AuthenticatedApp = () => {
   useEffect(() => { preloadAllRoutes(); }, []);
 
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
+  
+  // Determine splash mode: home_update (from HomePage), first_load, subsequent, or auto
+  const getSplashMode = () => {
+    if (sessionStorage.getItem('kjb-splash-home-update') === 'true') {
+      sessionStorage.removeItem('kjb-splash-home-update');
+      return 'home_update';
+    }
+    const hasVisited = localStorage.getItem('kjb-has-visited-app');
+    return hasVisited ? 'subsequent' : 'first_load';
+  };
+  const splashMode = getSplashMode();
+  
   const handleSplashDone = () => {
     setFadeSplash(true);
     setTimeout(() => {
@@ -177,7 +189,7 @@ const AuthenticatedApp = () => {
   return (
     <>
       {renderSplash && !isInitializing && location.pathname !== '/legacy' && (
-        <SplashScreen isFadingOut={fadeSplash} onDone={handleSplashDone} />
+        <SplashScreen isFadingOut={fadeSplash} onDone={handleSplashDone} mode={splashMode} />
       )}
       {!isInitializing && !authError && (
         <Routes location={location}>
