@@ -80,17 +80,11 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         setStep('LOADING KJB READER...');
         await pause(STEP_PAUSE_MS);
 
-        // 2. Check if Bible is already cached (use localStorage version check for reliability)
+        // 2. Downloading offline data if not cached - FIRE BANNER
         const { downloadBibleForOffline, isBibleCached } = await import('@/lib/bibleCache');
-        const cachedVersion = localStorage.getItem('bible_cache_version');
-        const alreadyCached = !!cachedVersion;
-        
-        // Double-check with IndexedDB for reliability
         const isActuallyCached = await isBibleCached();
-        console.log('[Splash] Cache check:', { cachedVersion, alreadyCached, isActuallyCached });
         
         if (!detectedIncognito && !isActuallyCached) {
-          // 2. Downloading offline data (only if not already cached) - FIRE BANNER
           console.log('[Splash] Starting offline download...');
           setStep('DOWNLOADING OFFLINE DATA...', true);
           try {
@@ -105,11 +99,11 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         } else if (detectedIncognito) {
           console.log('[Splash] Incognito mode detected — skipping offline download');
         } else {
-          console.log('[Splash] Bible already cached (version:', cachedVersion, ') — skipping download');
+          console.log('[Splash] Bible already cached — skipping download');
         }
 
-        // 3. Checking for updates (no banner - just status)
-        setStep('CHECKING FOR UPDATES...');
+        // 3. Checking for updates - FIRE BANNER
+        setStep('CHECKING FOR UPDATES...', true);
         await pause(STEP_PAUSE_MS);
 
         // Check for updates
