@@ -118,6 +118,9 @@ const PageLoader = ({ isFadingOut }) => {
   const isPostUpdate = sessionStorage.getItem('kjb_sw_updated');
   const isForcedUpdate = window.location.search.includes('updated=true');
   const isUpdate = !!(isPostUpdate || isForcedUpdate);
+  // Clear after reading so subsequent loads don't keep showing "Applying updates..."
+  if (isPostUpdate) { try { sessionStorage.removeItem('kjb_sw_updated'); } catch {} }
+  console.log('[PageLoader] isPostUpdate:', isPostUpdate, 'isForcedUpdate:', isForcedUpdate, 'search:', window.location.search);
 
   const defaultText = isFirstVisit
     ? "Welcome to KJB Reader..."
