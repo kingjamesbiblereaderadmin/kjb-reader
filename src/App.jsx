@@ -359,6 +359,30 @@ const AuthenticatedApp = () => {
         setRenderSplash(false);
         window.kjbSplashDone = true;
         window.dispatchEvent(new Event('kjb-splash-done'));
+
+        // Final background SW check after splash — ensures any newly-deployed
+        // SW that arrived while the app was loading gets registered for next visit.
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistration().then((reg) => {
+            if (!reg) {
+              console.log('[KJB Post-Splash] ⏭ No SW registration — skipping post-splash check');
+              return;
+            }
+            console.log('[KJB Post-Splash] 🔍 Running final SW update check...');
+            return reg.update().then(() => {
+              const waiting = reg.waiting;
+              const installing = reg.installing;
+              console.log('[KJB Post-Splash] SW state after check — waiting:', !!waiting, '| installing:', !!installing);
+              if (waiting || installing) {
+                console.log('[KJB Post-Splash] 🔧 New SW available — will activate on next page load');
+              } else {
+                console.log('[KJB Post-Splash] ✅ SW is current — no pending updates');
+              }
+            });
+          }).catch((err) => {
+            console.warn('[KJB Post-Splash] ⚠️ Post-splash SW check failed:', err.message);
+          });
+        }
       }, 1100);
       return () => { clearTimeout(fadeTimer); clearTimeout(timer); };
     } else {
