@@ -260,10 +260,15 @@ const AuthenticatedApp = () => {
       try {
         const prev = JSON.parse(localStorage.getItem('kjb-splash-log') || '[]');
         const entry = { at: new Date().toISOString(), log: splashLog };
-        // Keep last 5 splash runs
         const next = [entry, ...prev].slice(0, 5);
         localStorage.setItem('kjb-splash-log', JSON.stringify(next));
       } catch {}
+      // Print a concise summary to the console
+      const last = splashLog[splashLog.length - 1] || '';
+      const outcome = last.includes('No updates') ? '✅ No updates' : last.includes('Error') ? '❌ Error' : '🔄 Updated';
+      console.groupCollapsed(`[KJB Splash] ${outcome} — ${splashLog.length} step(s)`);
+      splashLog.forEach(l => console.log(l));
+      console.groupEnd();
     };
     const emit = (msg) => {
       logEntry(msg);
