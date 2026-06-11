@@ -149,23 +149,27 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
 
   return (
     <div
-      className={`fixed inset-0 z-[999999] bg-background flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+      style={{ background: '#0f1117' }}
     >
-      <div className="flex flex-col items-center gap-8 -mt-16">
-        {/* Logo */}
-        <div className="relative">
-          <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full scale-150 animate-pulse" />
-          <img
-            src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png"
-            alt="KJB Reader"
-            className="relative w-28 h-28 object-contain drop-shadow-xl"
-          />
-        </div>
+      <div className="flex flex-col items-center -mt-16" style={{ gap: '48px' }}>
+        {/* Logo — large, no glow */}
+        <img
+          src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png"
+          alt="KJB Reader"
+          className="w-44 h-44 object-contain rounded-2xl"
+        />
 
-        {/* Spinner + updating text */}
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-5 h-5 animate-spin text-primary/60" style={{ animationDuration: '1.5s' }} />
-          <span className="font-sans text-sm text-foreground/70 tracking-wide transition-all duration-300">
+        {/* Spinner then text */}
+        <div className="flex flex-col items-center gap-5">
+          <Loader2
+            className="w-8 h-8 animate-spin"
+            style={{ color: '#4f6aff', animationDuration: '1.2s' }}
+          />
+          <span
+            className="font-sans text-sm font-light tracking-[0.25em] uppercase transition-all duration-300"
+            style={{ color: '#c8cdd8' }}
+          >
             {currentMessage}
           </span>
         </div>

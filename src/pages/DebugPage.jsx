@@ -409,7 +409,31 @@ export default function DebugPage() {
           <Play className="w-5 h-5 text-muted-foreground" />
           <h2 className="font-serif text-lg font-bold text-foreground">Splash Screen Tester</h2>
         </div>
-        <p className="font-sans text-xs text-muted-foreground mb-4">Preview each splash screen scenario. Each step pauses for 10 seconds. Press Dismiss or wait for the sequence to finish.</p>
+        <p className="font-sans text-xs text-muted-foreground mb-3">Preview each splash screen scenario. Each step pauses for 10 seconds. Press Dismiss or wait for the sequence to finish.</p>
+        <button
+          onClick={async () => {
+            const { default: fetchText } = await import('@/api/base44Client').then(() => ({ default: async (url) => (await fetch(url)).text() }));
+            // Read the SplashScreen source and copy it
+            try {
+              const res = await fetch('/src/components/SplashScreen.jsx');
+              const code = res.ok ? await res.text() : null;
+              if (code) {
+                navigator.clipboard.writeText(code);
+                setCopiedCode('__full__');
+                setTimeout(() => setCopiedCode(null), 2000);
+              }
+            } catch {
+              // fallback: just copy the import snippet
+              navigator.clipboard.writeText(`import SplashScreen from '@/components/SplashScreen';\n\n<SplashScreen mode="auto" isFadingOut={false} onDone={() => {}} />`);
+              setCopiedCode('__full__');
+              setTimeout(() => setCopiedCode(null), 2000);
+            }
+          }}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-background font-sans text-xs font-medium text-foreground hover:bg-accent/20 transition-all mb-4"
+        >
+          {copiedCode === '__full__' ? <CheckCircle className="w-3.5 h-3.5 text-green-500" /> : <Code className="w-3.5 h-3.5" />}
+          {copiedCode === '__full__' ? 'Copied!' : 'Copy Full SplashScreen Code'}
+        </button>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {SPLASH_SCENARIOS.map(({ mode, label, description }) => (
             <div
