@@ -18,8 +18,7 @@
           var qsEarly = window.location.search || '';
           var optedOutEarly = qsEarly.indexOf('nolegacy=1') !== -1;
           var STATIC_LEGACY_FILE = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/kjb-reader-legacy.html';
-          if ((legacyHost === 'kjbreaderlegacy.com' || legacyHost.indexOf('.kjbreaderlegacy.com') !== -1 ||
-               legacyHost === 'kingjamesbiblereader.com' || legacyHost.indexOf('.kingjamesbiblereader.com') !== -1) && !optedOutEarly) {
+          if ((legacyHost === 'kjbreaderlegacy.com' || legacyHost.indexOf('.kjbreaderlegacy.com') !== -1) && !optedOutEarly) {
             window.location.replace(STATIC_LEGACY_FILE);
             return;
           }
