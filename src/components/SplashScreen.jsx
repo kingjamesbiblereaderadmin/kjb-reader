@@ -88,6 +88,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
       log.current.push(text);
       setDevLog(prev => [...prev, entry]);
       setStatusText(text);
+      console.log(`[KJB Splash] ${entry}`);
       return new Promise(resolve => setTimeout(resolve, STEP_MS));
     };
 
