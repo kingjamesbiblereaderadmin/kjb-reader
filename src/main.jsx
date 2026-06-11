@@ -33,28 +33,18 @@ window.addEventListener('load', async () => {
       const registration = await navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none', scope: '/' });
       console.log('[SW] Registered:', registration.scope);
 
-      // Reload when a new SW takes over — but only AFTER the SplashScreen is
-      // done. SplashScreen sets window.kjbSplashDone and fires 'kjb-splash-done'
-      // when it finishes, so we wait for that before reloading.
+      // Reload when a new SW takes over in the BACKGROUND (after splash is done).
+      // If the splash itself applied the update (_kjbSplashApplyingUpdate), skip
+      // the reload entirely — the new SW is already active, no reload needed.
       let refreshing = false;
       let hasExistingController = !!navigator.serviceWorker.controller;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (hasExistingController && !refreshing) {
+        if (hasExistingController && !refreshing && !window._kjbSplashApplyingUpdate) {
           refreshing = true;
-          console.log('[SW] Controller changed. Waiting for splash before reload.');
+          console.log('[SW] Background controller change — reloading.');
           try { sessionStorage.setItem('kjb_sw_updated', 'app'); } catch {}
-          const doReload = () => {
-            console.log('[SW] Reloading to apply updates.');
-            const sep = window.location.search ? '&' : '?';
-            window.location.href = window.location.pathname + window.location.search + sep + 'updated=true';
-          };
-          if (window.kjbSplashDone) {
-            doReload();
-          } else {
-            window.addEventListener('kjb-splash-done', doReload, { once: true });
-            // Safety fallback: reload after 10s even if splash never fires
-            setTimeout(() => { window.removeEventListener('kjb-splash-done', doReload); doReload(); }, 10000);
-          }
+          const sep = window.location.search ? '&' : '?';
+          window.location.href = window.location.pathname + window.location.search + sep + 'updated=true';
         }
         hasExistingController = true;
       });
