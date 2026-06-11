@@ -93,7 +93,9 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
               const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
               if (reg) {
                 await reg.update().catch(() => {});
-                hasUpdates = !!(reg.waiting || reg.installing);
+                // Only count as update if there's a WAITING worker (newer version found)
+                // reg.installing on first load is just initial install, not an update
+                hasUpdates = !!reg.waiting;
               }
             }
             if (!hasUpdates) {
@@ -174,7 +176,9 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
               const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
               if (reg) {
                 await reg.update().catch(() => {});
-                hasUpdates = !!(reg.waiting || reg.installing);
+                // Only count as update if there's a WAITING worker (newer version found)
+                // reg.installing on first load is just initial install, not an update
+                hasUpdates = !!reg.waiting;
               }
             }
             if (!hasUpdates) {
