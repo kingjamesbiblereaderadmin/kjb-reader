@@ -8,20 +8,18 @@ import { appParams } from '@/lib/app-params';
 // chapter) so deep links like ?tab=resources land on the right page.
 export default function LegacyReader() {
   useEffect(() => {
-    const base = appParams.appId
-      ? `/api/apps/${appParams.appId}/functions/legacy`
-      : '/functions/legacy';
+    const host = window.location.hostname || '';
+    // On a custom domain the function is reachable at a clean /functions/legacy
+    // path (no app_id needed). Only base44.app hosting requires the app-scoped
+    // path with app_id.
+    const isCustom = host.indexOf('base44.app') === -1 && host.indexOf('localhost') === -1;
 
-    // Forward existing query params (tab/book/chapter), stripping base44 internals.
-    const incoming = new URLSearchParams(window.location.search);
-    // The legacy reader is now a single page (the Full Bible) — no tab/book/
-    // chapter params needed. We only forward app_id for base44 hosting.
-    const forward = new URLSearchParams();
-    // On base44 hosting the function needs app_id in its own links — forward it.
-    if (appParams.appId) forward.set('app_id', appParams.appId);
+    if (isCustom || !appParams.appId) {
+      window.location.replace('/functions/legacy');
+      return;
+    }
 
-    const qs = forward.toString();
-    window.location.replace(qs ? `${base}?${qs}` : base);
+    window.location.replace(`/api/apps/${appParams.appId}/functions/legacy?app_id=${appParams.appId}`);
   }, []);
 
   return (

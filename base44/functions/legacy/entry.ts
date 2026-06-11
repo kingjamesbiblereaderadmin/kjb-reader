@@ -407,7 +407,11 @@ Deno.serve(async (req) => {
         'Access-Control-Allow-Origin': '*'
       } });
     }
-    const basePath = appId
+    // On a custom domain the function is reachable at the clean /functions/legacy
+    // path (no app_id needed). Only base44.app hosting needs the app-scoped path.
+    const reqHost = url.hostname || '';
+    const isCustomHost = reqHost.indexOf('base44.app') === -1 && reqHost.indexOf('localhost') === -1;
+    const basePath = (!isCustomHost && appId)
       ? '/api/apps/' + encodeURIComponent(appId) + '/functions/legacy'
       : '/functions/legacy';
     const theme = url.searchParams.get('theme') === 'dark' ? 'dark' : 'light';
@@ -633,7 +637,7 @@ Deno.serve(async (req) => {
       // Serve the download THROUGH this same function (?download=1) so it stays
       // on the Cloudflare TLS-1.0 origin — reachable by IE9. (base44.app is
       // TLS-1.2-only and would fail on IE9.)
-      const HTML_FILE_URL = basePath + '?download=1' + (appId ? '&app_id=' + encodeURIComponent(appId) : '');
+      const HTML_FILE_URL = basePath + '?download=1' + (!isCustomHost && appId ? '&app_id=' + encodeURIComponent(appId) : '');
       const downloadBox = '<div class="dl-box"><b>&#128190; Download this Bible as a single file</b>' +
         '<p>Save the entire King James Bible (all 66 books, plus Gospel, Resources and About) as one self-contained HTML file. It needs no internet and no app &mdash; ideal for very old computers, or for keeping your own offline copy.</p>' +
         '<p><a class="dl-btn" href="' + HTML_FILE_URL + '" download="kjb-bible.html">Download HTML File (about 6 MB)</a></p>' +
