@@ -303,7 +303,7 @@ const AuthenticatedApp = () => {
 
         // Check for Bible data update (version mismatch in localStorage)
         const localBibleVersion = (() => { try { return localStorage.getItem('bible_cache_version'); } catch { return null; } })();
-        const CURRENT_BIBLE_VERSION = 'v20260611_334';
+        const CURRENT_BIBLE_VERSION = 'v20260611_335';
         const hasBibleUpdate = localBibleVersion && localBibleVersion !== CURRENT_BIBLE_VERSION;
         // Include swUpdateDetected/controllerChanged to catch cases where skipWaiting()
         // caused the new SW to activate before we could read reg.waiting.
@@ -315,22 +315,8 @@ const AuthenticatedApp = () => {
         if (!hasBibleUpdate && !hasSwUpdate) {
           console.log('[KJB Splash] ✅ Everything up to date — no updates needed');
           emit('No updates found');
-          // Final check: re-poll after a short delay in case a new SW just finished installing
-          await new Promise(r => setTimeout(r, 1500));
-          await reg.update().catch(() => {});
-          const recheckWaiting = reg.waiting;
-          const recheckInstalling = reg.installing;
-          console.log('[KJB Splash] 🔁 Re-check after data load — waiting:', !!recheckWaiting, '| installing:', !!recheckInstalling);
-          if ((recheckWaiting || recheckInstalling) && hasController) {
-            console.log('[KJB Splash] 🔧 New SW found after re-check — activating');
-            await new Promise(r => setTimeout(r, 500));
-            emit('Applying updates...');
-            await new Promise(r => setTimeout(r, 600));
-            const target = recheckWaiting || recheckInstalling;
-            if (target) { target.postMessage({ type: 'SKIP_WAITING' }); console.log('[KJB Splash] ✉️ SKIP_WAITING sent after re-check'); }
-            setTimeout(() => { if (!cancelled) setUpdateCheckDone(true); }, 3000);
-            return;
-          }
+          // Show "No updates found" for a readable moment before dismissing
+          await new Promise(r => setTimeout(r, 1200));
           if (!cancelled) setUpdateCheckDone(true);
           return;
         }
