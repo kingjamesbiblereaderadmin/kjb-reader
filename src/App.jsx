@@ -98,6 +98,7 @@ function preloadAllRoutes() {
 }
 
 import { Loader2 } from 'lucide-react';
+import SplashScreen from '@/components/SplashScreen';
 
 const RouteLoader = () => (
   <div className="flex justify-center py-24">
@@ -136,6 +137,8 @@ const FadeIn = ({ children }) => {
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const location = useLocation();
+  const [renderSplash, setRenderSplash] = useState(true);
+  const [fadeSplash, setFadeSplash] = useState(false);
 
   useEffect(() => {
     const originalTitle = document.title;
@@ -153,13 +156,14 @@ const AuthenticatedApp = () => {
   useEffect(() => { preloadAllRoutes(); }, []);
 
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
-
-  useEffect(() => {
-    if (!isInitializing) {
+  const handleSplashDone = () => {
+    setFadeSplash(true);
+    setTimeout(() => {
+      setRenderSplash(false);
       window.kjbSplashDone = true;
       window.dispatchEvent(new Event('kjb-splash-done'));
-    }
-  }, [isInitializing]);
+    }, 500);
+  };
 
   if (authError && !isInitializing) {
     if (authError.type === 'user_not_registered') {
@@ -172,6 +176,9 @@ const AuthenticatedApp = () => {
 
   return (
     <>
+      {renderSplash && !isInitializing && location.pathname !== '/legacy' && (
+        <SplashScreen isFadingOut={fadeSplash} onDone={handleSplashDone} />
+      )}
       {!isInitializing && !authError && (
         <Routes location={location}>
           <Route element={<AppLayout />}>
