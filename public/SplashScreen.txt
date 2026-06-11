@@ -1,40 +1,17 @@
-// ============================================================
-// SplashScreen.jsx — KJB Reader
-// Copy this file to components/SplashScreen.jsx in your app.
-//
-// MODES:
-//   'auto'                    — detects first vs returning visit automatically (production use)
-//   'first_load'              — Loading → Download data → Check updates → Welcome
-//   'subsequent'              — Loading → Check updates → No updates → Welcome back
-//   'subsequent_with_updates' — Loading → Check updates → Found updates → Install → Apply → Welcome back
-//   'home_update'             — Loading → Found app update → Install → Apply → Welcome back
-//
-// USAGE:
-//   <SplashScreen mode="auto" isFadingOut={fadeSplash} onDone={handleSplashDone} />
-//
-// TO ADAPT FOR YOUR OWN APP:
-//   1. Replace the logo src URL with your own image URL
-//   2. Change 'kjb-has-visited-app' localStorage key to your app name
-//   3. Remove or replace the @/lib/bibleCache imports with your own offline data logic
-//   4. Change the welcome messages to match your app name
-// ============================================================
+// SplashScreen.jsx — drop into components/SplashScreen.jsx
+// Adapt the 3 marked lines for your own app.
 
 import React, { useEffect, useState, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 
-const STEP_PAUSE_MS = 10000; // milliseconds between each step (10 seconds)
+const STEP_PAUSE_MS = 10000;
 
-// mode: 'auto' | 'first_load' | 'subsequent' | 'subsequent_with_updates' | 'home_update'
-export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
+export default function SplashScreen({ isFadingOut, onDone }) {
   const [currentMessage, setCurrentMessage] = useState('Loading\u2026');
   const doneRef = useRef(false);
   const stepsLog = useRef([]);
 
-  const setStep = (message) => {
-    stepsLog.current.push(message);
-    setCurrentMessage(message);
-  };
-
+  const setStep = (msg) => { stepsLog.current.push(msg); setCurrentMessage(msg); };
   const pause = (ms) => new Promise(r => setTimeout(r, ms));
 
   useEffect(() => {
@@ -42,139 +19,90 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
     doneRef.current = true;
 
     (async () => {
-      let isFirstVisit;
-      let forceUpdates = false;
-      let forceHomeUpdate = false;
+      // ── Detect first vs returning visit ──
+      const isFirstVisit = !localStorage.getItem('kjb-has-visited-app'); // <-- change key
+      if (isFirstVisit) localStorage.setItem('kjb-has-visited-app', 'true');
 
-      if (mode === 'first_load') {
-        isFirstVisit = true;
-      } else if (mode === 'subsequent') {
-        isFirstVisit = false;
-      } else if (mode === 'subsequent_with_updates') {
-        isFirstVisit = false;
-        forceUpdates = true;
-      } else if (mode === 'home_update') {
-        isFirstVisit = false;
-        forceHomeUpdate = true;
-      } else {
-        // auto — real app behaviour
-        isFirstVisit = !localStorage.getItem('kjb-has-visited-app'); // <-- change key for your app
-        if (isFirstVisit) localStorage.setItem('kjb-has-visited-app', 'true');
-      }
-
-      // ── Step 1: Loading ──
+      // Step 1: Loading
       setStep('Loading\u2026');
       await pause(STEP_PAUSE_MS);
 
-      // ── Step 2 (first visit only): Download offline data ──
+      // Step 2 (first visit only): Download offline data
       if (isFirstVisit) {
-        setStep('Downloading offline Bible data\u2026'); // <-- change message for your app
-        if (mode === 'auto') {
-          try {
-            // Replace with your own offline data download logic:
-            const { isBibleCached, downloadBibleForOffline } = await import('@/lib/bibleCache');
-            const cached = await isBibleCached().catch(() => false);
-            if (!cached && navigator.onLine) {
-              await downloadBibleForOffline().catch(() => {});
-            }
-          } catch {}
-        }
+        setStep('Downloading offline Bible data\u2026'); // <-- change message
+        try {
+          // Replace with your own offline data download logic:
+          const { isBibleCached, downloadBibleForOffline } = await import('@/lib/bibleCache');
+          const cached = await isBibleCached().catch(() => false);
+          if (!cached && navigator.onLine) await downloadBibleForOffline().catch(() => {});
+        } catch {}
         await pause(STEP_PAUSE_MS);
       }
 
-      // ── Step 3: Update check loop (up to 3 rounds) ──
-      const maxChecks = 3;
-      let checkRound = 0;
-
-      while (checkRound < maxChecks) {
-        checkRound++;
+      // Step 3: Check for updates (up to 3 rounds)
+      for (let round = 0; round < 3; round++) {
         setStep('Checking for updates\u2026');
         await pause(STEP_PAUSE_MS);
 
         let swUpdated = false;
-        let bibleNeedsUpdate = false;
+        let dataUpdated = false;
 
-        if (forceUpdates) {
-          // Test mode: simulate finding updates
-          swUpdated = true;
-          bibleNeedsUpdate = true;
-        } else if (forceHomeUpdate) {
-          // Test mode: simulate app-only update
-          swUpdated = true;
-        } else if (mode === 'auto' && navigator.onLine) {
-          // Check service worker for app updates
+        if (navigator.onLine) {
           try {
             if ('serviceWorker' in navigator) {
               const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-              if (reg) {
-                await reg.update().catch(() => {});
-                swUpdated = !!(reg.waiting || reg.installing);
-              }
+              if (reg) { await reg.update().catch(() => {}); swUpdated = !!(reg.waiting || reg.installing); }
             }
           } catch {}
-          // Check for data/content updates (replace with your own logic):
           try {
+            // Replace with your own update-check logic (or remove if not needed):
             const { checkForUpdates } = await import('@/lib/bibleCache');
-            bibleNeedsUpdate = await checkForUpdates().catch(() => false);
+            dataUpdated = await checkForUpdates().catch(() => false);
           } catch {}
         }
 
-        const hasUpdate = swUpdated || bibleNeedsUpdate;
-
-        if (!hasUpdate) {
+        if (!swUpdated && !dataUpdated) {
           setStep('No updates found.');
           await pause(STEP_PAUSE_MS);
           break;
         }
 
-        // Describe what was found
-        const updateLabel = swUpdated && bibleNeedsUpdate
-          ? 'Found app & Bible updates.'
-          : bibleNeedsUpdate ? 'Found Bible data updates.' : 'Found app updates.';
-        setStep(updateLabel);
+        const label = swUpdated && dataUpdated ? 'Found app & Bible updates.'
+          : dataUpdated ? 'Found Bible data updates.' : 'Found app updates.';
+        setStep(label);
         await pause(STEP_PAUSE_MS);
 
-        // Install
         setStep('Installing updates\u2026');
-        if (mode === 'auto') {
-          try {
-            if (bibleNeedsUpdate) {
-              // Replace with your own data update logic:
-              const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-              localStorage.removeItem('bible_cache_version');
-              localStorage.removeItem('bible_last_refresh');
-              await downloadBibleForOffline().catch(() => {});
-            }
-          } catch {}
-        }
+        try {
+          if (dataUpdated) {
+            // Replace with your own data update logic:
+            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+            localStorage.removeItem('bible_cache_version');
+            localStorage.removeItem('bible_last_refresh');
+            await downloadBibleForOffline().catch(() => {});
+          }
+        } catch {}
         await pause(STEP_PAUSE_MS);
 
-        // Apply
         setStep('Applying updates\u2026');
         await pause(STEP_PAUSE_MS);
 
-        // Activate new service worker
-        if (mode === 'auto' && swUpdated && 'serviceWorker' in navigator) {
+        if (swUpdated && 'serviceWorker' in navigator) {
           try {
             const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
             sessionStorage.setItem('kjb_sw_updated', 'app');
             if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
           } catch {}
         }
-
-        if (mode !== 'auto') break; // test modes only loop once
+        break; // one update cycle is enough
       }
 
-      // ── Step 4: Welcome ──
-      const welcomeMsg = isFirstVisit
-        ? 'Welcome to KJB Reader.'      // <-- change for your app
-        : 'Welcome back to KJB Reader.'; // <-- change for your app
-      setStep(welcomeMsg);
+      // Step 4: Welcome
+      setStep(isFirstVisit ? 'Welcome to KJB Reader.' : 'Welcome back to KJB Reader.'); // <-- change name
       await pause(STEP_PAUSE_MS);
 
-      // Log summary to dev console
-      console.group('[KJB Splash] Summary');
-      stepsLog.current.forEach((msg, i) => console.log(`${i + 1}. ${msg}`));
+      console.group('[Splash] Summary');
+      stepsLog.current.forEach((m, i) => console.log(`${i + 1}. ${m}`));
       console.groupEnd();
 
       onDone?.();
@@ -190,14 +118,13 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
     >
       <div className="flex flex-col items-center -mt-16" style={{ gap: '48px' }}>
 
-        {/* Logo — replace src with your own image URL */}
+        {/* Replace src with your logo URL */}
         <img
           src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png"
-          alt="KJB Reader"
+          alt="App Logo"
           className="w-44 h-44 object-contain rounded-2xl"
         />
 
-        {/* Spinner + status text */}
         <div className="flex flex-col items-center gap-5">
           <Loader2
             className="w-8 h-8 animate-spin"
