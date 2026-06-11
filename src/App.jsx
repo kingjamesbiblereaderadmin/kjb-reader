@@ -333,7 +333,7 @@ const AuthenticatedApp = () => {
 
         // Check for Bible data update (version mismatch in localStorage)
         const localBibleVersion = (() => { try { return localStorage.getItem('bible_cache_version'); } catch { return null; } })();
-        const CURRENT_BIBLE_VERSION = 'v20260611_337';
+        const CURRENT_BIBLE_VERSION = 'v20260611_338';
         const hasBibleUpdate = localBibleVersion && localBibleVersion !== CURRENT_BIBLE_VERSION;
         // Include swUpdateDetected/controllerChanged to catch cases where skipWaiting()
         // caused the new SW to activate before we could read reg.waiting.
@@ -463,7 +463,8 @@ const AuthenticatedApp = () => {
   useEffect(() => { preloadAllRoutes(); }, []);
 
   // Check for SW updates whenever the tab becomes visible again.
-  // If a new SW is waiting, show the progress banner and reload to apply it.
+  // If a new SW is waiting, show the full splash overlay then reload.
+  const [tabFocusSplash, setTabFocusSplash] = useState(false);
   useEffect(() => {
     let applying = false;
     const handleVisibility = async () => {
@@ -479,16 +480,20 @@ const AuthenticatedApp = () => {
         console.log('[KJB Tab-Focus] SW check — waiting:', !!waiting, '| installing:', !!installing);
         if (!waiting && !installing) return;
         applying = true;
-        console.log('[KJB Tab-Focus] 🔧 New SW found — applying update...');
+        console.log('[KJB Tab-Focus] 🔧 New SW found — showing splash and applying update...');
+        // Show splash overlay
+        setTabFocusSplash(true);
         window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Found updates...' } }));
-        await new Promise(r => setTimeout(r, 700));
+        await new Promise(r => setTimeout(r, 800));
         window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Applying updates...' } }));
-        await new Promise(r => setTimeout(r, 600));
+        await new Promise(r => setTimeout(r, 700));
+        try { sessionStorage.setItem('kjb_sw_updated', 'app'); } catch {}
         const target = waiting || installing;
         if (target) target.postMessage({ type: 'SKIP_WAITING' });
-        // controllerchange will trigger a reload via main.jsx
+        // controllerchange in main.jsx will reload the page
       } catch (err) {
         console.warn('[KJB Tab-Focus] Update check failed:', err.message);
+        applying = false;
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);
@@ -497,7 +502,7 @@ const AuthenticatedApp = () => {
 
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
   const isLegacyRoute = location.pathname === '/legacy';
-  const showSplash = !isLegacyRoute && (isInitializing || !minSplashDone || !updateCheckDone || !fontsLoaded);
+  const showSplash = !isLegacyRoute && (isInitializing || !minSplashDone || !updateCheckDone || !fontsLoaded || tabFocusSplash);
 
   const [renderSplash, setRenderSplash] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
