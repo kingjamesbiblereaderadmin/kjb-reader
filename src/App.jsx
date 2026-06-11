@@ -137,7 +137,7 @@ const FadeIn = ({ children }) => {
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const location = useLocation();
-  const [renderSplash, setRenderSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
 
   useEffect(() => {
@@ -157,28 +157,22 @@ const AuthenticatedApp = () => {
 
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
   
-  // Determine splash mode: home_update (from HomePage), first_load, subsequent, or auto
-  const getSplashMode = () => {
+  // Determine splash mode once on mount
+  const splashMode = React.useMemo(() => {
     const homeUpdate = sessionStorage.getItem('kjb-splash-home-update') === 'true';
     const hasVisited = localStorage.getItem('kjb-has-visited-app');
     
-    let mode;
     if (homeUpdate) {
       sessionStorage.removeItem('kjb-splash-home-update');
-      mode = 'home_update';
-    } else {
-      mode = hasVisited ? 'subsequent' : 'first_load';
+      return 'home_update';
     }
-    
-    console.log('[App.jsx] Splash mode determined:', mode, { homeUpdate, hasVisited });
-    return mode;
-  };
-  const splashMode = getSplashMode();
+    return hasVisited ? 'subsequent' : 'first_load';
+  }, []);
   
   const handleSplashDone = () => {
     setFadeSplash(true);
     setTimeout(() => {
-      setRenderSplash(false);
+      setShowSplash(false);
       window.kjbSplashDone = true;
       window.dispatchEvent(new Event('kjb-splash-done'));
     }, 500);
@@ -195,9 +189,13 @@ const AuthenticatedApp = () => {
 
   return (
     <>
-      {renderSplash && !isInitializing && location.pathname !== '/legacy' && (
-        <SplashScreen isFadingOut={fadeSplash} onDone={handleSplashDone} mode={splashMode} />
-      )}
+      {/* Splash screen always renders initially to prevent flash */}
+      <SplashScreen
+        isFadingOut={fadeSplash}
+        onDone={handleSplashDone}
+        mode={splashMode}
+        isVisible={showSplash && !isInitializing && location.pathname !== '/legacy'}
+      />
       {!isInitializing && !authError && (
         <Routes location={location}>
           <Route element={<AppLayout />}>

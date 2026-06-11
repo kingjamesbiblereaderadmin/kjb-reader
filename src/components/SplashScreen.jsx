@@ -3,8 +3,8 @@ import { Loader2 } from 'lucide-react';
 
 const STEP_PAUSE_MS = 1500;
 
-// mode: 'auto' | 'first_load' | 'subsequent' | 'subsequent_with_updates' | 'home_update'
-export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
+// mode: 'first_load' | 'subsequent' | 'home_update'
+export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load', isVisible = true }) {
   const [currentMessage, setCurrentMessage] = useState('Loading…');
   const doneRef = useRef(false);
   const stepsLog = useRef([]);
@@ -13,140 +13,267 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
     stepsLog.current.push(message);
     setCurrentMessage(message);
     console.log('[KJB Splash]', message);
-    // Also dispatch to progress bar for real-time sync
     window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message, status: 'loading' } }));
   };
 
   const pause = (ms) => new Promise(r => setTimeout(r, ms));
 
   useEffect(() => {
-    if (doneRef.current) return;
+    if (!isVisible || doneRef.current) return;
     doneRef.current = true;
 
     (async () => {
-      let isFirstVisit = false;
-      let skipLoading = false;
+      let isFirstVisit = mode === 'first_load';
+      let isHomeUpdate = mode === 'home_update';
+      
+      console.log('[KJB Splash] Mode:', mode);
 
-      if (mode === 'first_load') {
-        isFirstVisit = true;
-        console.log('[KJB Splash] Mode: first_load');
-      } else if (mode === 'subsequent_with_updates' || mode === 'home_update') {
-        skipLoading = true;
-        console.log('[KJB Splash] Mode:', mode, '(skip loading, start with updates)');
-      } else if (mode === 'subsequent') {
-        console.log('[KJB Splash] Mode: subsequent');
-      } else {
-        isFirstVisit = !localStorage.getItem('kjb-has-visited-app');
-        if (isFirstVisit) localStorage.setItem('kjb-has-visited-app', 'true');
-        console.log('[KJB Splash] Mode: auto — isFirstVisit:', isFirstVisit);
+      // Set has-visited flag for subsequent visits
+      if (!isFirstVisit && !isHomeUpdate) {
+        localStorage.setItem('kjb-has-visited-app', 'true');
       }
 
-      // Step 1: Loading (skip for home_update / subsequent_with_updates)
-      if (!skipLoading) {
+      // === FIRST LOAD FLOW ===
+      if (isFirstVisit) {
+        // 1. Loading
         setStep('Loading…');
         await pause(STEP_PAUSE_MS);
 
-        // Step 2 (first visit): Download offline data
-        if (isFirstVisit) {
-          setStep('Downloading offline data…');
+        // 2. Downloading offline data
+        setStep('Downloading offline data…');
+        try {
+          const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+          await downloadBibleForOffline();
+        } catch (err) {
+          console.error('[Splash] Offline download failed:', err.message);
+        }
+        await pause(STEP_PAUSE_MS);
+
+        // 3. Checking for updates
+        setStep('Checking for updates…');
+        await pause(STEP_PAUSE_MS);
+
+        // Check for updates
+        let hasUpdates = false;
+        if (navigator.onLine) {
+          try {
+            if ('serviceWorker' in navigator) {
+              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+              if (reg) {
+                await reg.update().catch(() => {});
+                hasUpdates = !!(reg.waiting || reg.installing);
+              }
+            }
+            if (!hasUpdates) {
+              const { checkForUpdates } = await import('@/lib/bibleCache');
+              hasUpdates = await checkForUpdates().catch(() => false);
+            }
+          } catch {}
+        }
+
+        if (hasUpdates) {
+          // 4. Found updates
+          setStep('Found updates.');
+          await pause(STEP_PAUSE_MS);
+
+          // 5. Installing updates
+          setStep('Installing updates…');
           try {
             const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-            await downloadBibleForOffline((pct, msg) => {
-              // Real-time progress updates
-              setCurrentMessage(msg || `Downloading... ${pct}%`);
-              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: msg || `Downloading... ${pct}%`, status: 'loading' } }));
-            });
+            await downloadBibleForOffline();
           } catch (err) {
-            console.error('[Splash] Offline download failed:', err.message);
-            setStep('Download failed.');
+            console.error('[Splash] Data install failed:', err.message);
           }
           await pause(STEP_PAUSE_MS);
-        }
-      }
 
-      // Step 3: Update check loop
-      const maxChecks = 3;
-      let checkRound = 0;
-
-      while (checkRound < maxChecks) {
-        checkRound++;
-
-        // For home_update mode: skip "Checking" on first round, go straight to "Found updates"
-        // For other modes: always check first
-        if (skipLoading && checkRound === 1) {
-          // Skip checking, assume updates found
-        } else {
-          setStep('Checking for updates…');
+          // 6. Applying updates
+          setStep('Applying updates…');
           await pause(STEP_PAUSE_MS);
 
-          // Check for updates
-          let swUpdated = false;
-          let dataUpdated = false;
-          if (navigator.onLine) {
+          // Activate service worker
+          if ('serviceWorker' in navigator) {
             try {
-              if ('serviceWorker' in navigator) {
-                const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-                if (reg) {
-                  await reg.update().catch(() => {});
-                  swUpdated = !!(reg.waiting || reg.installing);
-                }
-              }
-              const { checkForUpdates } = await import('@/lib/bibleCache');
-              dataUpdated = await checkForUpdates().catch(() => false);
+              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+              if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
             } catch {}
           }
 
-          if (!swUpdated && !dataUpdated) {
-            setStep('No updates found.');
-            await pause(STEP_PAUSE_MS);
-            break;
-          }
+          // 7. Check again (loop)
+          setStep('Checking for updates…');
+          await pause(STEP_PAUSE_MS);
+        } else {
+          // No updates
+          setStep('No updates found.');
+          await pause(STEP_PAUSE_MS);
         }
 
-        setStep('Found app updates.');
+        // 8. Welcome
+        setStep('Welcome to KJB Reader.');
+        window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Welcome to KJB Reader.', status: 'success' } }));
+        await pause(STEP_PAUSE_MS);
+        window.dispatchEvent(new Event('kjb-progress-clear'));
+
+        console.group('[Splash] Summary');
+        stepsLog.current.forEach((msg, i) => console.log(`${i + 1}. ${msg}`));
+        console.groupEnd();
+        onDone?.();
+        return;
+      }
+
+      // === SUBSEQUENT VISIT FLOW ===
+      if (!isHomeUpdate) {
+        // 1. Loading
+        setStep('Loading…');
         await pause(STEP_PAUSE_MS);
 
+        // 2. Checking for updates
+        setStep('Checking for updates…');
+        await pause(STEP_PAUSE_MS);
+
+        let hasUpdates = false;
+        if (navigator.onLine) {
+          try {
+            if ('serviceWorker' in navigator) {
+              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+              if (reg) {
+                await reg.update().catch(() => {});
+                hasUpdates = !!(reg.waiting || reg.installing);
+              }
+            }
+            if (!hasUpdates) {
+              const { checkForUpdates } = await import('@/lib/bibleCache');
+              hasUpdates = await checkForUpdates().catch(() => false);
+            }
+          } catch {}
+        }
+
+        if (hasUpdates) {
+          // 3. Found updates
+          setStep('Found updates.');
+          await pause(STEP_PAUSE_MS);
+
+          // 4. Installing updates
+          setStep('Installing updates…');
+          try {
+            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+            await downloadBibleForOffline();
+          } catch (err) {
+            console.error('[Splash] Data install failed:', err.message);
+          }
+          await pause(STEP_PAUSE_MS);
+
+          // 5. Applying updates
+          setStep('Applying updates…');
+          await pause(STEP_PAUSE_MS);
+
+          // Activate service worker
+          if ('serviceWorker' in navigator) {
+            try {
+              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+              if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            } catch {}
+          }
+
+          // 6. Check again (loop if more updates)
+          setStep('Checking for updates…');
+          await pause(STEP_PAUSE_MS);
+        } else {
+          // No updates
+          setStep('No updates found.');
+          await pause(STEP_PAUSE_MS);
+        }
+
+        // 7. Welcome back
+        setStep('Welcome back to KJB Reader.');
+        window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Welcome back to KJB Reader.', status: 'success' } }));
+        await pause(STEP_PAUSE_MS);
+        window.dispatchEvent(new Event('kjb-progress-clear'));
+
+        console.group('[Splash] Summary');
+        stepsLog.current.forEach((msg, i) => console.log(`${i + 1}. ${msg}`));
+        console.groupEnd();
+        onDone?.();
+        return;
+      }
+
+      // === HOME UPDATE FLOW ===
+      if (isHomeUpdate) {
+        // 1. Found updates (skip loading/checking)
+        setStep('Found updates.');
+        await pause(STEP_PAUSE_MS);
+
+        // 2. Installing updates
         setStep('Installing updates…');
         try {
           const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-          await downloadBibleForOffline((pct, msg) => {
-            // Real-time progress updates
-            setCurrentMessage(msg || `Installing... ${pct}%`);
-            window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: msg || `Installing... ${pct}%`, status: 'loading' } }));
-          });
+          await downloadBibleForOffline();
         } catch (err) {
           console.error('[Splash] Data install failed:', err.message);
-          setStep('Install failed.');
         }
         await pause(STEP_PAUSE_MS);
 
+        // 3. Applying updates
         setStep('Applying updates…');
         await pause(STEP_PAUSE_MS);
 
+        // Activate service worker
         if ('serviceWorker' in navigator) {
           try {
             const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
             if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
           } catch {}
         }
+
+        // 4. Checking for updates (repeat if found)
+        setStep('Checking for updates…');
+        await pause(STEP_PAUSE_MS);
+
+        let hasMoreUpdates = false;
+        if (navigator.onLine) {
+          try {
+            const { checkForUpdates } = await import('@/lib/bibleCache');
+            hasMoreUpdates = await checkForUpdates().catch(() => false);
+          } catch {}
+        }
+
+        if (hasMoreUpdates) {
+          // Loop: Found → Installing → Applying → Checking
+          setStep('Found updates.');
+          await pause(STEP_PAUSE_MS);
+          setStep('Installing updates…');
+          try {
+            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+            await downloadBibleForOffline();
+          } catch (err) {
+            console.error('[Splash] Data install failed:', err.message);
+          }
+          await pause(STEP_PAUSE_MS);
+          setStep('Applying updates…');
+          await pause(STEP_PAUSE_MS);
+          if ('serviceWorker' in navigator) {
+            try {
+              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+              if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            } catch {}
+          }
+        }
+
+        // 5. Welcome back
+        setStep('Welcome back to KJB Reader.');
+        window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Welcome back to KJB Reader.', status: 'success' } }));
+        await pause(STEP_PAUSE_MS);
+        window.dispatchEvent(new Event('kjb-progress-clear'));
+
+        console.group('[Splash] Summary');
+        stepsLog.current.forEach((msg, i) => console.log(`${i + 1}. ${msg}`));
+        console.groupEnd();
+        onDone?.();
+        return;
       }
-
-      // Step 4: Welcome
-      const welcomeMsg = isFirstVisit ? 'Welcome to KJB Reader.' : 'Welcome back to KJB Reader.';
-      setStep(welcomeMsg);
-      window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: welcomeMsg, status: 'success' } }));
-      await pause(STEP_PAUSE_MS);
-
-      // Clear progress bar
-      window.dispatchEvent(new Event('kjb-progress-clear'));
-
-      console.group('[Splash] Summary');
-      stepsLog.current.forEach((msg, i) => console.log(`${i + 1}. ${msg}`));
-      console.groupEnd();
-
-      onDone?.();
     })();
-  }, []);
+  }, [isVisible, mode]);
+
+  if (!isVisible) return null;
 
   return (
     <div
