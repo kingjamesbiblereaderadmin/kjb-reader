@@ -28,7 +28,6 @@ const loaders = {
   ManifestIcons: () => import('@/pages/ManifestIcons.jsx').catch((err) => { console.error('Failed to load ManifestIcons:', err); throw err; }),
   Privacy: () => import('@/pages/PrivacyPolicyPage.jsx').catch((err) => { console.error('Failed to load PrivacyPolicyPage:', err); throw err; }),
   LegacyReader: () => import('@/pages/LegacyReader.jsx').catch((err) => { console.error('Failed to load LegacyReader:', err); throw err; }),
-  Debug: () => import('@/pages/DebugPage').catch((err) => { console.error('Failed to load DebugPage:', err); throw err; }),
 };
 const HomePage = lazy(loaders.Home);
 const BibleReader = lazy(loaders.BibleReader);
@@ -43,7 +42,6 @@ const RefreshCache = lazy(loaders.RefreshCache);
 const ManifestIcons = lazy(loaders.ManifestIcons);
 const PrivacyPolicyPage = lazy(loaders.Privacy);
 const LegacyReader = lazy(loaders.LegacyReader);
-const DebugPage = lazy(loaders.Debug);
 
 const getLoaderForPath = (pathname) => {
   if (pathname === '/') return loaders.Home;
@@ -197,7 +195,6 @@ const AuthenticatedApp = () => {
         <Route path="/manifest-icons" element={<Suspense fallback={<RouteLoader />}><FadeIn><ManifestIcons /></FadeIn></Suspense>} />
         <Route path="/privacy" element={<Suspense fallback={<RouteLoader />}><FadeIn><PrivacyPolicyPage /></FadeIn></Suspense>} />
         <Route path="/legacy" element={<Suspense fallback={<RouteLoader />}><FadeIn><LegacyReader /></FadeIn></Suspense>} />
-        <Route path="/debug" element={<Suspense fallback={<RouteLoader />}><FadeIn><DebugPage /></FadeIn></Suspense>} />
           </Route>
           <Route path="*" element={<PageNotFound />} />
         </Routes>
