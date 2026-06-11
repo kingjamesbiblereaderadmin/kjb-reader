@@ -136,9 +136,35 @@ export default function HomePage() {
       }
     }, 5 * 60 * 1000); // 5 minutes
 
+    // Check for updates on visibility change (when user returns to tab)
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState !== 'visible' || !navigator.onLine) return;
+      try {
+        if ('serviceWorker' in navigator) {
+          const reg = await navigator.serviceWorker.getRegistration();
+          if (reg) {
+            await reg.update().catch(() => {});
+            if (reg.waiting || (reg.installing && reg.installing.state === 'installed')) {
+              console.log('[Home] Visibility change found update — triggering splash flow');
+              localStorage.setItem('kjb-splash-home-update', 'true');
+              sessionStorage.setItem('kjb-splash-home-update', 'true');
+              if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+              setTimeout(() => {
+                window.location.href = window.location.pathname + '?refresh=' + Date.now();
+              }, 300);
+            }
+          }
+        }
+      } catch (e) {
+        console.error('[Home] Visibility check failed:', e);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       clearInterval(minuteInterval);
       clearInterval(swCheckInterval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
