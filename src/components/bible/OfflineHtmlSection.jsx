@@ -29,7 +29,6 @@ export default function OfflineHtmlSection() {
       <a
         href={HTML_FILE_URL}
         download="kjb-bible.html"
-        target="_blank"
         rel="noopener noreferrer"
         className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] w-fit"
       >
