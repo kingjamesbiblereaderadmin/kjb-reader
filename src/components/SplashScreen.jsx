@@ -3,7 +3,7 @@ import { CheckCircle2, Loader2, AlertCircle, Info } from 'lucide-react';
 
 // Each step: { message, status: 'loading'|'done'|'error'|'info' }
 
-const STEP_PAUSE_MS = 10000; // 10 second pause per step as requested
+const STEP_PAUSE_MS = 10000; // 10 second pause per step
 
 function StepIcon({ status }) {
   if (status === 'loading') return <Loader2 className="w-4 h-4 animate-spin text-primary/70 flex-shrink-0" style={{ animationDuration: '2s' }} />;
@@ -13,10 +13,10 @@ function StepIcon({ status }) {
   return null;
 }
 
-export default function SplashScreen({ isFadingOut, onDone }) {
+// mode: 'auto' | 'first_load' | 'subsequent' | 'subsequent_with_updates' | 'home_update'
+export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
   const [steps, setSteps] = useState([]);
   const [summaryVisible, setSummaryVisible] = useState(false);
-  const [welcomeMessage, setWelcomeMessage] = useState('Welcome to KJB Reader');
   const doneRef = useRef(false);
 
   const addStep = (message, status = 'loading') => {
@@ -38,11 +38,26 @@ export default function SplashScreen({ isFadingOut, onDone }) {
     doneRef.current = true;
 
     (async () => {
-      const isFirstVisit = !localStorage.getItem('kjb-has-visited-app');
-      const isSubsequent = !isFirstVisit;
+      // Determine scenario
+      let isFirstVisit;
+      let forceUpdates = false;
+      let forceHomeUpdate = false;
 
-      // Mark visited
-      if (isFirstVisit) localStorage.setItem('kjb-has-visited-app', 'true');
+      if (mode === 'first_load') {
+        isFirstVisit = true;
+      } else if (mode === 'subsequent') {
+        isFirstVisit = false;
+      } else if (mode === 'subsequent_with_updates') {
+        isFirstVisit = false;
+        forceUpdates = true;
+      } else if (mode === 'home_update') {
+        isFirstVisit = false;
+        forceHomeUpdate = true;
+      } else {
+        // auto
+        isFirstVisit = !localStorage.getItem('kjb-has-visited-app');
+        if (isFirstVisit) localStorage.setItem('kjb-has-visited-app', 'true');
+      }
 
       // ── STEP 1: Loading ──
       addStep('Loading…', 'loading');
@@ -52,21 +67,22 @@ export default function SplashScreen({ isFadingOut, onDone }) {
       // ── STEP 2 (first load only): Downloading offline Bible data ──
       if (isFirstVisit) {
         addStep('Downloading offline Bible data…', 'loading');
-        try {
-          const { isBibleCached, downloadBibleForOffline } = await import('@/lib/bibleCache');
-          const cached = await isBibleCached().catch(() => false);
-          if (!cached && navigator.onLine) {
-            await downloadBibleForOffline().catch(() => {});
-          }
-        } catch {}
+        if (mode === 'auto') {
+          try {
+            const { isBibleCached, downloadBibleForOffline } = await import('@/lib/bibleCache');
+            const cached = await isBibleCached().catch(() => false);
+            if (!cached && navigator.onLine) {
+              await downloadBibleForOffline().catch(() => {});
+            }
+          } catch {}
+        }
         await pause(STEP_PAUSE_MS);
         resolveLastStep('done');
       }
 
       // ── STEP 3: Checking for updates (loop) ──
-      let foundAnyUpdate = false;
-      let checkRound = 0;
       const maxChecks = 3;
+      let checkRound = 0;
 
       while (checkRound < maxChecks) {
         checkRound++;
@@ -76,7 +92,14 @@ export default function SplashScreen({ isFadingOut, onDone }) {
         let swUpdated = false;
         let bibleNeedsUpdate = false;
 
-        if (navigator.onLine) {
+        if (forceUpdates) {
+          // Simulate finding updates
+          swUpdated = true;
+          bibleNeedsUpdate = true;
+        } else if (forceHomeUpdate) {
+          // Home screen update: just SW update
+          swUpdated = true;
+        } else if (mode === 'auto' && navigator.onLine) {
           try {
             if ('serviceWorker' in navigator) {
               const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
@@ -86,7 +109,6 @@ export default function SplashScreen({ isFadingOut, onDone }) {
               }
             }
           } catch {}
-
           try {
             const { checkForUpdates } = await import('@/lib/bibleCache');
             bibleNeedsUpdate = await checkForUpdates().catch(() => false);
@@ -100,12 +122,11 @@ export default function SplashScreen({ isFadingOut, onDone }) {
           addStep('No updates found.', 'info');
           await pause(STEP_PAUSE_MS);
           resolveLastStep('info');
-          break; // exit loop — no more to check
+          break;
         }
 
         // Found updates
         resolveLastStep('done');
-        foundAnyUpdate = true;
 
         const updateLabel = swUpdated && bibleNeedsUpdate
           ? 'Found app & Bible updates.'
@@ -116,14 +137,16 @@ export default function SplashScreen({ isFadingOut, onDone }) {
 
         // Installing
         addStep('Installing updates…', 'loading');
-        try {
-          if (bibleNeedsUpdate) {
-            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-            localStorage.removeItem('bible_cache_version');
-            localStorage.removeItem('bible_last_refresh');
-            await downloadBibleForOffline().catch(() => {});
-          }
-        } catch {}
+        if (mode === 'auto') {
+          try {
+            if (bibleNeedsUpdate) {
+              const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+              localStorage.removeItem('bible_cache_version');
+              localStorage.removeItem('bible_last_refresh');
+              await downloadBibleForOffline().catch(() => {});
+            }
+          } catch {}
+        }
         await pause(STEP_PAUSE_MS);
         resolveLastStep('done');
 
@@ -132,8 +155,8 @@ export default function SplashScreen({ isFadingOut, onDone }) {
         await pause(STEP_PAUSE_MS);
         resolveLastStep('done');
 
-        // Activate SW if needed
-        if (swUpdated && 'serviceWorker' in navigator) {
+        // Activate SW if needed (auto only)
+        if (mode === 'auto' && swUpdated && 'serviceWorker' in navigator) {
           try {
             const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
             sessionStorage.setItem('kjb_sw_updated', 'app');
@@ -141,12 +164,12 @@ export default function SplashScreen({ isFadingOut, onDone }) {
           } catch {}
         }
 
-        // Loop back to check again (up to maxChecks)
+        // In test modes, only loop once
+        if (mode !== 'auto') break;
       }
 
       // ── STEP 4: Welcome ──
-      const welcomeMsg = isSubsequent ? 'Welcome back to KJB Reader.' : 'Welcome to KJB Reader.';
-      setWelcomeMessage(welcomeMsg);
+      const welcomeMsg = isFirstVisit ? 'Welcome to KJB Reader.' : 'Welcome back to KJB Reader.';
       addStep(welcomeMsg, 'loading');
       await pause(STEP_PAUSE_MS);
       resolveLastStep('done');
