@@ -47,28 +47,28 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         setStep('LOADING KJB READER...');
         await pause(STEP_PAUSE_MS);
 
-        // 2. Skip offline download in incognito (cache won't persist)
-        if (!detectedIncognito) {
-          // 2. Downloading offline data
+        // 2. Check if Bible is already cached
+        const { isBibleCached, downloadBibleForOffline } = await import('@/lib/bibleCache');
+        const alreadyCached = await isBibleCached().catch(() => false);
+        
+        if (!detectedIncognito && !alreadyCached) {
+          // 2. Downloading offline data (only if not already cached)
           setStep('DOWNLOADING OFFLINE DATA...');
           try {
-            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
             await downloadBibleForOffline();
           } catch (err) {
             console.error('[Splash] Offline download failed:', err.message);
           }
           await pause(STEP_PAUSE_MS);
-
-          // 3. Checking for updates
-          setStep('CHECKING FOR UPDATES...');
-          await pause(STEP_PAUSE_MS);
-        } else {
-          // Incognito mode: skip download, go straight to update check
+        } else if (detectedIncognito) {
           console.log('[Splash] Incognito mode detected — skipping offline download');
-          // 2. Checking for updates (renumbered for incognito)
-          setStep('CHECKING FOR UPDATES...');
-          await pause(STEP_PAUSE_MS);
+        } else {
+          console.log('[Splash] Bible already cached — skipping download');
         }
+
+        // 3. Checking for updates
+        setStep('CHECKING FOR UPDATES...');
+        await pause(STEP_PAUSE_MS);
 
         // Check for updates
         let hasUpdates = false;
