@@ -83,33 +83,28 @@ async function applyUpdates() {
 
 // ── Scenario step sequences ───────────────────────────────────────────────────
 
+// "Checking for updates…" / "No updates found." are intentionally NEVER shown.
+// Update-related steps only appear when there's an ACTUAL update to apply.
 const SCENARIOS = {
-  // first_load: status text after "Checking for updates…" is decided at runtime
-  // (either "No updates found." or "Applying updates…") depending on whether a
-  // waiting service-worker app update exists.
+  // first_load: the update steps are injected at runtime (right before Welcome)
+  // ONLY if a waiting service-worker app update exists — see __FIRST_LOAD_UPDATE_STEP__.
   first_load: [
     'Loading…',
     'Downloading offline data…',
-    'Checking for updates…',
     '__FIRST_LOAD_UPDATE_STEP__',
     `Welcome to ${APP_NAME}.`,
   ],
+  // No updates → no "Checking", just straight to welcome.
   subsequent: [
     'Loading…',
-    'Checking for updates…',
-    'No updates found.',
     `Welcome back to ${APP_NAME}.`,
   ],
   subsequent_with_updates: [
-    'Loading…',
-    'Checking for updates…',
     'Found app & data updates.',
     'Installing updates…',
     'Applying updates…',
     `Welcome back to ${APP_NAME}.`,
   ],
-  // home_update skips Loading/Checking — by the time we pick this scenario we've
-  // already confirmed an app update exists, so jump straight to "Found updates".
   home_update: [
     'Found app updates.',
     'Installing updates…',
@@ -166,15 +161,21 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
 
     const runSteps = async (scenario, steps, preShown = []) => {
       const log = [...preShown];
-      for (let step of steps) {
-        if (cancelled) return;
-
-        // first_load resolves its update-step at runtime: if a service-worker
-        // app update is waiting, apply it; otherwise just say "No updates found."
-        if (step === '__FIRST_LOAD_UPDATE_STEP__') {
+      // Expand the first_load placeholder: if a waiting app update exists, inject
+      // the found→installing→applying steps; otherwise drop the placeholder
+      // entirely (no "Checking"/"No updates" filler).
+      const expanded = [];
+      for (const s of steps) {
+        if (s === '__FIRST_LOAD_UPDATE_STEP__') {
           const hasAppUpdate = mode === 'auto' ? await waitForSwUpdate() : false;
-          step = hasAppUpdate ? 'Applying updates…' : 'No updates found.';
+          if (hasAppUpdate) expanded.push('Found app updates.', 'Installing updates…', 'Applying updates…');
+        } else {
+          expanded.push(s);
         }
+      }
+
+      for (const step of expanded) {
+        if (cancelled) return;
 
         setStatusText(step);
         console.log(`[KJB Splash] ${step}`);
