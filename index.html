@@ -7,6 +7,14 @@
     <script>
       (function () {
         try {
+          // On the dedicated legacy domain, EVERY visitor goes straight to the
+          // server-rendered legacy reader function — no React, no /legacy hop.
+          var lh = window.location.hostname || '';
+          if (/(^|\.)kjbreaderlegacy\.com$/i.test(lh) && window.location.search.indexOf('nolegacy=1') === -1) {
+            var lo = window.location.origin || (window.location.protocol + '//' + window.location.host);
+            window.location.replace(lo + '/functions/legacy');
+            return;
+          }
           var ua = navigator.userAgent || '';
           // IE10/11 ("Trident") and older IE ("MSIE"). Not Edge.
           var isIE = /Trident|MSIE/i.test(ua);
