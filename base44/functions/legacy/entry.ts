@@ -320,10 +320,18 @@ async function fetchDailyVerse(base44) {
   }
 }
 
+const STATIC_LEGACY_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/efdf106f1_kjb-legacy-reader.html';
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const url = new URL(req.url);
+    // Redirect to the static pre-built legacy HTML file for all non-chunk requests.
+    // IE 11 follows plain 302 redirects — this is how kjbreaderlegacy.com and
+    // kingjamesbiblereader.com/functions/legacy both land on the static HTML.
+    if (!url.searchParams.has('chunk')) {
+      return Response.redirect(STATIC_LEGACY_URL, 302);
+    }
     // The legacy reader is now a single page: the Full Bible (which also
     // embeds Gospel, Resources and About). All other tabs are removed.
     let book = url.searchParams.get('book') || 'Genesis';
@@ -375,10 +383,8 @@ Deno.serve(async (req) => {
     }
 
     // ── CHUNK MODE: ?chunk=N returns just book N's HTML (small, cacheable) ──
-    // The shell page below fetches these one-by-one so each download is small
-    // and reliable even on a weak connection.
     const chunkParam = url.searchParams.get('chunk');
-    if (chunkParam !== null) {
+    {
       const bi = parseInt(chunkParam, 10);
       if (isNaN(bi) || bi < 0 || bi >= BOOK_ORDER.length) {
         return new Response('Bad chunk', { status: 400 });
@@ -391,7 +397,7 @@ Deno.serve(async (req) => {
         'Expires': 'Fri, 31 Dec 9999 23:59:59 GMT',
         'Access-Control-Allow-Origin': '*'
       } });
-    }
+    };
     const basePath = appId
       ? '/api/apps/' + encodeURIComponent(appId) + '/functions/legacy'
       : '/functions/legacy';

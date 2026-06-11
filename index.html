@@ -24,19 +24,27 @@
           var atRoot = window.location.pathname === '/' || window.location.pathname === '';
           var wantsLegacyTab = atRoot && qs.indexOf('tab=') !== -1;
 
+          var LEGACY_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/efdf106f1_kjb-legacy-reader.html';
+          var host = window.location.hostname || '';
+
+          // kjbreaderlegacy.com — always serve the legacy reader for every browser
+          if (host === 'kjbreaderlegacy.com' || host === 'www.kjbreaderlegacy.com') {
+            window.location.replace(LEGACY_URL);
+            return;
+          }
+
           // A direct visit to "/legacy" always means the server-rendered Full
-          // Bible reader — send EVERY browser straight to the function endpoint
-          // (the React /legacy page can't run on IE and only redirects anyway).
+          // Bible reader — send EVERY browser straight to the static legacy HTML.
           if (window.location.pathname === '/legacy' && !optedOut) {
-            window.location.replace('https://media.base44.com/files/public/6a05d76723afe58d80c589e8/efdf106f1_kjb-legacy-reader.html');
+            window.location.replace(LEGACY_URL);
             return;
           }
           if (wantsLegacyTab && !optedOut) {
-            window.location.replace('https://media.base44.com/files/public/6a05d76723afe58d80c589e8/efdf106f1_kjb-legacy-reader.html');
+            window.location.replace(LEGACY_URL);
             return;
           }
           if ((isIE || tooOld) && !optedOut) {
-            window.location.replace('https://media.base44.com/files/public/6a05d76723afe58d80c589e8/efdf106f1_kjb-legacy-reader.html');
+            window.location.replace(LEGACY_URL);
           }
         } catch (e) {
           try { window.location.replace('https://media.base44.com/files/public/6a05d76723afe58d80c589e8/efdf106f1_kjb-legacy-reader.html'); } catch (e2) {}
