@@ -380,17 +380,9 @@ Deno.serve(async (req) => {
     // ── DOWNLOAD MODE: ?download=1 streams the self-contained single-file
     // Bible THROUGH this function (same Cloudflare TLS-1.0 origin) so IE9/IE11
     // users — who cannot reach base44.app's TLS-1.2-only host — can still get it. ──
-    if (url.searchParams.get('download') === '1') {
-      const FILE_URL = 'https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/efdf106f1_kjb-legacy-reader.html';
-      const fileRes = await fetch(FILE_URL);
-      if (!fileRes.ok) return new Response('Download unavailable', { status: 502 });
-      const fileBody = await fileRes.arrayBuffer();
-      return new Response(fileBody, { headers: {
-        'Content-Type': 'text/html;charset=UTF-8',
-        'Content-Disposition': 'attachment; filename="kjb-bible.html"',
-        'Cache-Control': 'public, max-age=31536000, immutable'
-      } });
-    }
+    // DOWNLOAD MODE flag — actual build happens later, after the
+    // Gospel/Resources/About HTML consts are defined (see below).
+    const isDownload = url.searchParams.get('download') === '1';
 
     const chunkParam = url.searchParams.get('chunk');
     if (chunkParam !== null) {
@@ -593,6 +585,60 @@ Deno.serve(async (req) => {
         '</ul>' +
         '</div>' +
         '</div>';
+
+    // ── DOWNLOAD MODE: build the self-contained single-file HTML Bible
+    // dynamically so it always carries the latest banner ("HTML mode" +
+    // Ctrl-F find tip) and content. Runs here because it needs the
+    // Gospel/Resources/About consts defined above. ──
+    if (isDownload) {
+      const dlBibleData = await loadBible();
+
+      let dlBooksHtml = '';
+      for (let bi = 0; bi < BOOK_ORDER.length; bi++) {
+        dlBooksHtml += buildBookHtml(dlBibleData, bi);
+      }
+
+      let dlIndex = '<div class="fb-index"><p class="fb-index-title">Quick Links &mdash; tap a book to jump</p>';
+      dlIndex += '<p class="fb-testament">Old Testament</p><p class="fb-books">';
+      const dlOtEnd = BOOK_ORDER.indexOf('Malachi');
+      for (let i = 0; i <= dlOtEnd; i++) {
+        dlIndex += '<a href="#b' + i + '">' + esc(BOOK_ORDER[i]) + '</a> ';
+      }
+      dlIndex += '</p><p class="fb-testament">New Testament</p><p class="fb-books">';
+      for (let i = dlOtEnd + 1; i < BOOK_ORDER.length; i++) {
+        dlIndex += '<a href="#b' + i + '">' + esc(BOOK_ORDER[i]) + '</a> ';
+      }
+      dlIndex += '</p><p class="fb-testament">More</p><p class="fb-books">' +
+        '<a href="#gospel">Gospel</a> <a href="#resources">Resources</a> <a href="#about">About</a>' +
+        '</p></div>';
+
+      const dlExtras =
+        '<div class="fb-book"><a name="gospel" id="gospel"></a><p class="fb-top"><a href="#top">&uarr; Back to top</a></p>' + gospelHtml + '</div>' +
+        '<div class="fb-book"><a name="resources" id="resources"></a><p class="fb-top"><a href="#top">&uarr; Back to top</a></p>' + resourcesHtml + '</div>' +
+        '<div class="fb-book"><a name="about" id="about"></a><p class="fb-top"><a href="#top">&uarr; Back to top</a></p>' + aboutHtml + '</div>';
+
+      const dlBanner = '<div class="banner"><b>&#128196; HTML mode</b>' +
+        'This is a plain, self-contained HTML copy of the King James Bible. It works fully offline in any browser, with no internet, app or JavaScript required.' +
+        '<ul>' +
+        '<li><b>To find a word or verse:</b> use your browser&rsquo;s Find feature &mdash; press <b>Ctrl + F</b> (or <b>&#8984; + F</b> on Mac) and type what you are looking for.</li>' +
+        '<li>Use the quick links below to jump to any book, the Gospel, Resources or About.</li>' +
+        '<li>Found a bug? Email <a href="mailto:kingjamesbiblereader@outlook.sg">kingjamesbiblereader@outlook.sg</a>.</li>' +
+        '</ul></div>';
+
+      const dlBody = '<a name="top" id="top"></a>' +
+        '<p class="fb-intro">The complete King James Bible on a single page, plus the Gospel, Resources and About sections. Use the quick links to jump to any book instantly.</p>' +
+        dlIndex + '<div id="fb-books-target">' + dlBooksHtml + '</div>' + dlExtras;
+
+      const dlStyle = '*{margin:0;padding:0;box-sizing:border-box;}body{background:#f5f5f7;color:#1a1a1a;font-family:Georgia,serif;font-size:16px;line-height:1.6;}.hdr{background:#2d2a6e;color:#fff;padding:16px;text-align:center;}.hdr h1{font-size:22px;}.hdr p{font-size:12px;color:#cfcfe8;}.wrap{max-width:760px;margin:0 auto;padding:16px;}.verse{display:block;margin:20px 0 10px 0;line-height:1.5;}.vn{font-weight:bold;color:#2d2a6e;font-size:11px;margin-right:4px;}.subscript{text-align:center;color:#555;font-size:14px;margin:0 0 16px;}.colophon{text-align:center;color:#555;font-size:14px;margin:18px 0 0;padding-top:12px;border-top:1px solid #e0e0ec;}.pil{color:#888;display:inline;white-space:nowrap;}em{font-style:italic;}.doc{max-width:760px;margin:0 auto;}.doc h1{font-size:26px;color:#2d2a6e;margin:12px 0 24px;text-align:center;}.doc h2{font-size:19px;color:#2d2a6e;margin:44px 0 18px;padding-bottom:8px;border-bottom:1px solid #e0e0ec;}.doc h3{font-size:16px;color:#444;margin:30px 0 14px;}.doc p{margin:0 0 22px;line-height:1.85;}.doc p.lead{color:#555;font-size:17px;margin-bottom:36px;}.doc p.note{color:#777;font-size:13px;margin:32px 0;}.doc ul{margin:0 0 28px 28px;list-style-type:disc;}.doc li{margin-bottom:16px;line-height:1.75;padding-left:6px;}.doc blockquote{margin:0 0 22px;padding-left:18px;border-left:3px solid #c9c7e0;color:#444;font-style:italic;line-height:1.85;}.doc a{color:#2d2a6e;}.doc p.rlnk{margin:0 0 16px;}.doc p.rlnk span{color:#666;font-style:normal;}.banner{background:#eef0fb;border-bottom:2px solid #c9c7e0;color:#2d2a6e;padding:12px 16px;font-family:Arial,sans-serif;font-size:13px;line-height:1.5;}.banner b{display:block;font-size:14px;margin-bottom:4px;}.banner ul{margin:6px 0 0 18px;}.banner li{margin-bottom:3px;}.banner a{color:#2d2a6e;font-weight:bold;}.fb-intro{font-size:15px;color:#555;margin-bottom:16px;line-height:1.6;}.fb-index{background:#fff;border:1px solid #e0e0ec;padding:14px 16px;margin-bottom:24px;}.fb-index-title{font-size:13px;font-weight:bold;color:#333;font-family:Arial,sans-serif;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;}.fb-testament{font-size:15px;font-weight:bold;color:#2d2a6e;margin:12px 0 6px;}.fb-books{line-height:2.2;}.fb-books a{display:inline-block;padding:3px 9px;margin:2px;background:#f7f7fb;border:1px solid #e0e0ec;color:#2d2a6e;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;}.fb-book{margin-bottom:32px;border-top:2px solid #e0e0ec;padding-top:8px;}.fb-bookname{font-size:21px;color:#2d2a6e;text-align:center;margin:16px 0 4px;}.fb-top{text-align:center;margin-bottom:12px;}.fb-top a{font-size:12px;color:#888;text-decoration:none;font-family:Arial,sans-serif;}.fb-chap{font-size:15px;color:#666;font-weight:bold;margin:20px 0 8px;font-family:Arial,sans-serif;border-bottom:1px solid #eee;padding-bottom:4px;}.fb-chaplinks{margin:0 0 16px;line-height:2.2;}.fb-chaplinks-label{font-size:13px;font-weight:bold;color:#333;font-family:Arial,sans-serif;margin-right:6px;}.fb-chaplinks a{display:inline-block;min-width:24px;text-align:center;padding:3px 7px;margin:2px;background:#f7f7fb;border:1px solid #e0e0ec;color:#2d2a6e;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;}.fb-chaptop{font-size:11px;font-weight:normal;color:#888;text-decoration:none;font-family:Arial,sans-serif;margin-left:8px;}';
+
+      const dlHtml = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>KJB Reader (HTML Bible)</title><style>' + dlStyle + '</style></head><body><div class="hdr"><h1>KJB Reader</h1><p>King James Bible &mdash; Pure Cambridge Edition</p></div>' + dlBanner + '<div class="wrap" id="wrap">' + dlBody + '</div></body></html>';
+
+      return new Response(dlHtml, { headers: {
+        'Content-Type': 'text/html;charset=UTF-8',
+        'Content-Disposition': 'attachment; filename="kjb-bible.html"',
+        'Cache-Control': 'public, max-age=86400'
+      } });
+    }
 
     {
       // The ENTIRE Bible rendered inline on one page, with anchor quick-links
