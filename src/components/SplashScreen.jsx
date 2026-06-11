@@ -75,6 +75,7 @@ async function downloadOfflineData() {
 
 export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
   const [statusText, setStatusText] = useState('Loading…');
+  const [devLog, setDevLog] = useState([]);
   const doneRef = useRef(false);
   const log = useRef([]);
 
@@ -83,7 +84,9 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
 
     const show = (text) => {
       if (cancelled) return Promise.resolve();
+      const entry = `[${new Date().toISOString().slice(11,23)}] ${text}`;
       log.current.push(text);
+      setDevLog(prev => [...prev, entry]);
       setStatusText(text);
       return new Promise(resolve => setTimeout(resolve, STEP_MS));
     };
@@ -200,6 +203,17 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
             {statusText}
           </span>
         </div>
+      </div>
+
+      {/* Dev log — visible in-app so you can see splash steps without opening DevTools */}
+      <div
+        className="absolute bottom-0 left-0 right-0 p-4 font-mono text-[10px] leading-relaxed"
+        style={{ color: '#5a6070', maxHeight: 160, overflowY: 'auto' }}
+      >
+        <div style={{ color: '#3a4060', marginBottom: 4 }}>mode: {mode}</div>
+        {devLog.map((line, i) => (
+          <div key={i} style={{ color: i === devLog.length - 1 ? '#a0b0ff' : '#5a6070' }}>{line}</div>
+        ))}
       </div>
     </div>
   );
