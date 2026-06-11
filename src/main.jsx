@@ -61,6 +61,25 @@ window.addEventListener('load', async () => {
       // Proactively check for an updated worker on every load.
       registration.update().catch(() => {});
 
+      // Periodic background update check while the app stays open, so an idle
+      // tab auto-reloads when a new version is deployed (no manual refresh).
+      // Runs every 60s but only when the tab is visible and online. When a new
+      // worker is found, the updatefound/controllerchange handlers above take
+      // over and reload the page automatically.
+      const POLL_MS = 60 * 1000;
+      setInterval(() => {
+        if (document.visibilityState !== 'visible') return;
+        if (navigator.onLine === false) return;
+        registration.update().catch(() => {});
+      }, POLL_MS);
+
+      // Also check immediately whenever the tab regains focus.
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && navigator.onLine !== false) {
+          registration.update().catch(() => {});
+        }
+      });
+
       // Reload the page when the new service worker takes over
       let refreshing = false;
       let hasExistingController = !!navigator.serviceWorker.controller;
