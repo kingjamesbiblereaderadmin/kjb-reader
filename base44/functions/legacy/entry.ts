@@ -328,12 +328,7 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const url = new URL(req.url);
 
-    // For legacy-dedicated domains, redirect straight to the static HTML file.
-    // This works on IE and any browser — no server-side rendering needed.
-    const host = (url.hostname || '').toLowerCase();
-    if (STATIC_LEGACY_DOMAINS.some(d => host === d || host.endsWith('.' + d))) {
-      return Response.redirect(STATIC_LEGACY_URL, 302);
-    }
+    // Legacy domains fall through to the server-rendered page (static file removed).
 
     // The legacy reader is now a single page: the Full Bible (which also
     // embeds Gospel, Resources and About). All other tabs are removed.
