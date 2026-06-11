@@ -178,7 +178,7 @@ const AuthenticatedApp = () => {
 
   return (
     <>
-      {renderSplash && !isInitializing && (
+      {renderSplash && !isInitializing && location.pathname !== '/legacy' && (
         <SplashScreen isFadingOut={fadeSplash} onDone={handleSplashDone} />
       )}
       {!isInitializing && !authError && (
