@@ -189,14 +189,11 @@ export default function HomePage() {
               await new Promise(r => setTimeout(r, 500));
 
               if (bibleNeedsUpdate) {
-                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Downloading Bible data...', status: 'loading' } }));
+                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Installing updates...', status: 'loading' } }));
                 console.log('[UpdateCheck] Downloading new Bible data...');
                 localStorage.removeItem('bible_cache_version');
                 localStorage.removeItem('bible_last_refresh');
-                await downloadBibleForOffline((pct, msg) => {
-                  // Real-time progress updates
-                  window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: msg || `Downloading... ${pct}%`, status: 'loading' } }));
-                });
+                await downloadBibleForOffline();
               } else if (swUpdated) {
                 window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Installing updates...', status: 'loading' } }));
                 await new Promise(r => setTimeout(r, 500));
