@@ -266,7 +266,7 @@ const AuthenticatedApp = () => {
       // Print a concise summary to the console
       const last = splashLog[splashLog.length - 1] || '';
       const outcome = last.includes('No updates') ? '✅ No updates' : last.includes('Error') ? '❌ Error' : '🔄 Updated';
-      const swVer = 'v20260611_344';
+      const swVer = 'v20260611_345';
       const bibleVer = (() => { try { return localStorage.getItem('bible_cache_version') || '(none)'; } catch { return '(none)'; } })();
       console.groupCollapsed(`[KJB Splash] ${outcome} — SW: ${swVer} | Bible: ${bibleVer} — ${splashLog.length} step(s)`);
       splashLog.forEach(l => console.log(l));
@@ -278,7 +278,7 @@ const AuthenticatedApp = () => {
     };
 
     const check = async () => {
-      const swVer = 'v20260611_344';
+      const swVer = 'v20260611_345';
       const bibleVerAtStart = (() => { try { return localStorage.getItem('bible_cache_version') || '(none)'; } catch { return '(none)'; } })();
       console.log(`[KJB Splash] 🚦 Update check starting — SW: ${swVer} | Bible: ${bibleVerAtStart}`);
       if (!('serviceWorker' in navigator)) {
@@ -410,11 +410,11 @@ const AuthenticatedApp = () => {
           setTimeout(() => { if (!cancelled) setMinSplashDone(true); }, 4000);
 
           emit('Found updates...');
-          await new Promise(r => setTimeout(r, 700));
+          await new Promise(r => setTimeout(r, 1200));
 
+          emit('Installing updates...');
+          console.log('[KJB Splash] ⏳ Waiting for installing worker to reach installed state...');
           if (installingWorker && !waitingWorker) {
-            emit('Installing updates...');
-            console.log('[KJB Splash] ⏳ Waiting for installing worker to reach installed state...');
             await new Promise((resolve) => {
               const worker = installingWorker;
               const handler = () => {
@@ -427,12 +427,11 @@ const AuthenticatedApp = () => {
               worker.addEventListener('statechange', handler);
               setTimeout(resolve, 5000);
             });
-            await new Promise(r => setTimeout(r, 700));
           }
+          await new Promise(r => setTimeout(r, 1200));
 
           emit('Applying updates...');
           console.log('[KJB Splash] 🚀 Splash: "Applying updates" — posting SKIP_WAITING');
-          await new Promise(r => setTimeout(r, 600));
           const target = reg.waiting || reg.installing;
           if (target) {
             target.postMessage({ type: 'SKIP_WAITING' });
@@ -440,10 +439,11 @@ const AuthenticatedApp = () => {
           } else {
             console.log('[KJB Splash] ⚠️ No target worker to send SKIP_WAITING to');
           }
+          await new Promise(r => setTimeout(r, 1200));
           // Re-check after SW update: Bible data may also need updating
           emit('Checking for updates...');
           console.log('[KJB Splash] 🔁 Re-check after SW update — looking for Bible data updates...');
-          await new Promise(r => setTimeout(r, 700));
+          await new Promise(r => setTimeout(r, 1000));
           await reg.update().catch(() => {});
           const postSwWaiting = reg.waiting;
           const postSwInstalling = reg.installing;
