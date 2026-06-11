@@ -99,52 +99,8 @@ function preloadAllRoutes() {
   }
 }
 
-// Provide a beautiful splash screen for initial app loading
+import SplashScreen from '@/components/SplashScreen';
 import { Loader2 } from 'lucide-react';
-
-// Detect first visit ONCE at module level so PageLoader can read it without
-// side-effects (localStorage.setItem is handled in AuthenticatedApp).
-const _isFirstVisit = (() => {
-  try { return !localStorage.getItem('kjb-has-visited-app'); } catch { return false; }
-})();
-
-const PageLoader = ({ isFadingOut, welcomeText }) => {
-  const [text, setText] = useState('Loading...');
-
-  useEffect(() => {
-    const handler = (e) => { if (e.detail?.message) setText(e.detail.message); };
-    const doneHandler = () => setText(welcomeText);
-    window.addEventListener('kjb-progress', handler);
-    window.addEventListener('kjb-splash-done-soon', doneHandler);
-    return () => {
-      window.removeEventListener('kjb-progress', handler);
-      window.removeEventListener('kjb-splash-done-soon', doneHandler);
-    };
-  }, [welcomeText]);
-
-  return (
-    <div className={`fixed inset-0 z-[999999] bg-background flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-      <div className="flex flex-col items-center justify-center -mt-16 w-full max-w-sm px-6">
-        <div className="relative mb-12">
-          <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full scale-150 animate-pulse"></div>
-          <img 
-            src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
-            alt="KJB Reader" 
-            className="relative w-32 h-32 object-contain drop-shadow-xl"
-          />
-        </div>
-        <div className="flex flex-col items-center gap-6 w-full">
-          <div className="flex flex-col items-center gap-3 text-center">
-            <Loader2 className="w-6 h-6 animate-spin text-primary/70" style={{ animationDuration: '2s' }} />
-            <span className="font-sans text-xs text-foreground/70 font-medium tracking-[0.2em] uppercase">
-              {text}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const RouteLoader = () => (
   <div className="flex justify-center py-24">
@@ -183,23 +139,8 @@ const FadeIn = ({ children }) => {
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const location = useLocation();
-  const [minSplashDone, setMinSplashDone] = useState(false);
-  const [updateCheckDone, setUpdateCheckDone] = useState(false);
-  const [fontsLoaded, setFontsLoaded] = useState(false);
-
-  // Determine visit context once on mount
-  const [visitContext] = useState(() => {
-    const isFirstVisit = _isFirstVisit;
-    // Mark visited now so subsequent loads see it
-    if (isFirstVisit) { try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {} }
-    const isPostUpdate = !!(sessionStorage.getItem('kjb_sw_updated') || window.location.search.includes('updated=true'));
-    try { sessionStorage.removeItem('kjb_sw_updated'); } catch {}
-    return { isFirstVisit, isPostUpdate };
-  });
-
-  const welcomeText = visitContext.isFirstVisit
-    ? 'Welcome to KJB Reader!'
-    : 'Welcome back!';
+  const [renderSplash, setRenderSplash] = useState(true);
+  const [fadeSplash, setFadeSplash] = useState(false);
 
   useEffect(() => {
     const originalTitle = document.title;
@@ -213,108 +154,20 @@ const AuthenticatedApp = () => {
     };
   }, []);
 
-  useEffect(() => {
-    let timeout;
-    if (document.fonts) {
-      document.fonts.ready.then(() => {
-        timeout = setTimeout(() => setFontsLoaded(true), 300);
-      });
-      setTimeout(() => setFontsLoaded(true), 3000);
-    } else {
-      setFontsLoaded(true);
-    }
-    return () => clearTimeout(timeout);
-  }, []);
-
-  // Minimum splash: always at least 2500ms; extended when an update is applying
-  useEffect(() => {
-    const timer = setTimeout(() => setMinSplashDone(true), 2500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    const emit = (msg) => {
-      console.log('[KJB Splash]', msg);
-      window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: msg } }));
-    };
-
-    const check = async () => {
-      if (!('serviceWorker' in navigator)) { if (!cancelled) setUpdateCheckDone(true); return; }
-      try {
-        const reg = await navigator.serviceWorker.getRegistration();
-        if (!reg) { if (!cancelled) setUpdateCheckDone(true); return; }
-
-        emit('Checking for updates...');
-        await new Promise(r => setTimeout(r, 600));
-        await reg.update().catch(() => {});
-
-        const waitingWorker = reg.waiting;
-        const installingWorker = reg.installing;
-        console.log('[KJB Splash] SW check — waiting:', !!waitingWorker, '| installing:', !!installingWorker, '| controller:', !!navigator.serviceWorker.controller);
-
-        if ((waitingWorker || installingWorker) && navigator.serviceWorker.controller) {
-          // Extend minimum splash to cover the update flow
-          setTimeout(() => { if (!cancelled) setMinSplashDone(true); }, 4000);
-
-          if (installingWorker && !waitingWorker) {
-            emit('Installing updates...');
-            await new Promise((resolve) => {
-              const worker = installingWorker;
-              const handler = () => {
-                if (['installed', 'activating', 'activated', 'redundant'].includes(worker.state)) {
-                  worker.removeEventListener('statechange', handler);
-                  resolve();
-                }
-              };
-              worker.addEventListener('statechange', handler);
-              setTimeout(resolve, 5000);
-            });
-          }
-
-          await new Promise(r => setTimeout(r, 700));
-          emit('Applying updates...');
-          await new Promise(r => setTimeout(r, 600));
-          const target = reg.waiting || reg.installing;
-          if (target) target.postMessage({ type: 'SKIP_WAITING' });
-          // Hold splash until controllerchange triggers reload (3s safety fallback)
-          setTimeout(() => { if (!cancelled) setUpdateCheckDone(true); }, 3000);
-          return;
-        }
-      } catch {}
-      if (!cancelled) setUpdateCheckDone(true);
-    };
-    check();
-    return () => { cancelled = true; };
-  }, []);
-
   // Preload route chunks in background
   useEffect(() => { preloadAllRoutes(); }, []);
 
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
   const isLegacyRoute = location.pathname === '/legacy';
-  const showSplash = !isLegacyRoute && (isInitializing || !minSplashDone || !updateCheckDone || !fontsLoaded);
 
-  const [renderSplash, setRenderSplash] = useState(true);
-  const [fadeSplash, setFadeSplash] = useState(false);
-
-  useEffect(() => {
-    if (!showSplash) {
-      // Emit welcome text, then fade out
-      window.dispatchEvent(new Event('kjb-splash-done-soon'));
-      const fadeTimer = setTimeout(() => setFadeSplash(true), 600);
-      const timer = setTimeout(() => {
-        setRenderSplash(false);
-        window.kjbSplashDone = true;
-        window.dispatchEvent(new Event('kjb-splash-done'));
-      }, 1100);
-      return () => { clearTimeout(fadeTimer); clearTimeout(timer); };
-    } else {
-      setRenderSplash(true);
-      setFadeSplash(false);
-      window.kjbSplashDone = false;
-    }
-  }, [showSplash]);
+  const handleSplashDone = () => {
+    setFadeSplash(true);
+    setTimeout(() => {
+      setRenderSplash(false);
+      window.kjbSplashDone = true;
+      window.dispatchEvent(new Event('kjb-splash-done'));
+    }, 500);
+  };
 
   if (authError && !isInitializing) {
     if (authError.type === 'user_not_registered') {
@@ -327,7 +180,9 @@ const AuthenticatedApp = () => {
 
   return (
     <>
-      {renderSplash && <PageLoader isFadingOut={fadeSplash} welcomeText={welcomeText} />}
+      {renderSplash && !isInitializing && !isLegacyRoute && (
+        <SplashScreen isFadingOut={fadeSplash} onDone={handleSplashDone} />
+      )}
       {!isInitializing && !authError && (
         <Routes location={location}>
           <Route element={<AppLayout />}>
