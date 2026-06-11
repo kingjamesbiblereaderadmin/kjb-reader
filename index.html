@@ -7,23 +7,6 @@
     <script>
       (function () {
         try {
-          var __ua = navigator.userAgent || '';
-          var __isIE = /Trident|MSIE/i.test(__ua);
-          var __optedOut = (window.location.search || '').indexOf('nolegacy=1') !== -1;
-          // Catch Internet Explorer FIRST, before any other routing — IE can't
-          // run the React SPA at all, so send it straight to the legacy domain.
-          if (__isIE && !__optedOut) {
-            window.location.replace('https://kjbreaderlegacy.com/');
-            return;
-          }
-          // On the dedicated legacy domain, EVERY visitor goes straight to the
-          // server-rendered legacy reader function — no React, no /legacy hop.
-          var lh = window.location.hostname || '';
-          if (/(^|\.)kjbreaderlegacy\.com$/i.test(lh) && window.location.search.indexOf('nolegacy=1') === -1) {
-            var lo = window.location.origin || (window.location.protocol + '//' + window.location.host);
-            window.location.replace(lo + '/functions/legacy');
-            return;
-          }
           var ua = navigator.userAgent || '';
           // IE10/11 ("Trident") and older IE ("MSIE"). Not Edge.
           var isIE = /Trident|MSIE/i.test(ua);
@@ -82,13 +65,6 @@
             return;
           }
           if ((isIE || tooOld) && !optedOut) {
-            // Redirect IE / very old browsers to the dedicated legacy domain,
-            // which itself routes straight to the server-rendered Full Bible
-            // function. (No React — IE can't run the SPA.)
-            window.location.replace('https://kjbreaderlegacy.com/');
-            return;
-          }
-          if (false) {
             var host = window.location.hostname || '';
             var isCustom = host.indexOf('base44.app') === -1 && host.indexOf('localhost') === -1;
             // IE8 lacks window.location.origin — build it manually as a fallback.
