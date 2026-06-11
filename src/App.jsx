@@ -274,6 +274,22 @@ const AuthenticatedApp = () => {
 
         if (!hasBibleUpdate && !hasSwUpdate) {
           console.log('[KJB Splash] ✅ Everything up to date — no updates needed');
+          // Final check: re-poll after a short delay in case a new SW just finished installing
+          await new Promise(r => setTimeout(r, 1500));
+          await reg.update().catch(() => {});
+          const recheckWaiting = reg.waiting;
+          const recheckInstalling = reg.installing;
+          console.log('[KJB Splash] 🔁 Re-check after data load — waiting:', !!recheckWaiting, '| installing:', !!recheckInstalling);
+          if ((recheckWaiting || recheckInstalling) && hasController) {
+            console.log('[KJB Splash] 🔧 New SW found after re-check — activating');
+            await new Promise(r => setTimeout(r, 500));
+            emit('Applying updates...');
+            await new Promise(r => setTimeout(r, 600));
+            const target = recheckWaiting || recheckInstalling;
+            if (target) { target.postMessage({ type: 'SKIP_WAITING' }); console.log('[KJB Splash] ✉️ SKIP_WAITING sent after re-check'); }
+            setTimeout(() => { if (!cancelled) setUpdateCheckDone(true); }, 3000);
+            return;
+          }
           if (!cancelled) setUpdateCheckDone(true);
           return;
         }
@@ -291,6 +307,19 @@ const AuthenticatedApp = () => {
           emit('Applying updates...');
           console.log('[KJB Splash] 🔄 Splash: "Applying updates" — Bible data will re-download in background');
           await new Promise(r => setTimeout(r, 600));
+          // Re-check SW after Bible update in case a new worker also arrived
+          console.log('[KJB Splash] 🔁 Re-checking SW after Bible data update...');
+          await reg.update().catch(() => {});
+          const postBibleWaiting = reg.waiting;
+          const postBibleInstalling = reg.installing;
+          console.log('[KJB Splash] Post-Bible-update SW state — waiting:', !!postBibleWaiting, '| installing:', !!postBibleInstalling);
+          if ((postBibleWaiting || postBibleInstalling) && hasController) {
+            console.log('[KJB Splash] 🔧 SW update also found — activating');
+            const target = postBibleWaiting || postBibleInstalling;
+            if (target) { target.postMessage({ type: 'SKIP_WAITING' }); console.log('[KJB Splash] ✉️ SKIP_WAITING sent after Bible update'); }
+            setTimeout(() => { if (!cancelled) setUpdateCheckDone(true); }, 3000);
+            return;
+          }
           if (!cancelled) setUpdateCheckDone(true);
           return;
         }
@@ -328,6 +357,12 @@ const AuthenticatedApp = () => {
           } else {
             console.log('[KJB Splash] ⚠️ No target worker to send SKIP_WAITING to');
           }
+          // Re-check after SW update applied in case Bible data also needs updating
+          await new Promise(r => setTimeout(r, 1000));
+          await reg.update().catch(() => {});
+          const postSwWaiting = reg.waiting;
+          const postSwInstalling = reg.installing;
+          console.log('[KJB Splash] 🔁 Re-check after SW update — waiting:', !!postSwWaiting, '| installing:', !!postSwInstalling);
           setTimeout(() => { if (!cancelled) setUpdateCheckDone(true); }, 3000);
           return;
         }
