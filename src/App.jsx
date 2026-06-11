@@ -270,13 +270,45 @@ const AuthenticatedApp = () => {
           return;
         }
 
-        // Quick SW check - only reload if there's a waiting worker on home page
+        // SW update check on home page. registration.update() is async and the
+        // new worker often hasn't installed yet at first render, so we actively
+        // trigger an update and wait briefly for a waiting/installing worker
+        // before activating it and reloading.
         if ('serviceWorker' in navigator && window.location.pathname === '/') {
           const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-          if (reg?.waiting && reg.active) {
-            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-            setTimeout(() => window.location.reload(), 1000);
-            return;
+          if (reg && reg.active) {
+            // Ask the browser to check for a new SW now.
+            await reg.update().catch(() => {});
+
+            // Helper: activate a worker and reload once it takes over.
+            const activateAndReload = (worker) => {
+              worker.postMessage({ type: 'SKIP_WAITING' });
+              setTimeout(() => window.location.reload(), 1000);
+            };
+
+            // Already waiting? Apply immediately.
+            if (reg.waiting) {
+              activateAndReload(reg.waiting);
+              return;
+            }
+
+            // Installing right now? Wait (up to 2.5s) for it to finish installing.
+            if (reg.installing) {
+              const worker = reg.installing;
+              const applied = await new Promise((resolve) => {
+                let done = false;
+                const finish = (val) => { if (!done) { done = true; resolve(val); } };
+                worker.addEventListener('statechange', () => {
+                  if (worker.state === 'installed') finish(true);
+                  else if (worker.state === 'redundant') finish(false);
+                });
+                setTimeout(() => finish(false), 2500);
+              });
+              if (applied && reg.waiting) {
+                activateAndReload(reg.waiting);
+                return;
+              }
+            }
           }
         }
 
