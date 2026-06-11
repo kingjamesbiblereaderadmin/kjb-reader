@@ -4,7 +4,7 @@ import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import OfflineStatusBanner from '@/components/OfflineStatusBanner';
 import IncognitoWarning from '@/components/IncognitoWarning';
-import FirstLoadPrompt from '@/components/FirstLoadPrompt';
+
 import { getDailyVerse, getDailyVerseFromBible, getLastCachedDailyVerse } from '@/lib/dailyVerse';
 import { getTodayVerseBackground } from '@/lib/dailyVerseTheme';
 import { useTheme } from '@/lib/themeContext';

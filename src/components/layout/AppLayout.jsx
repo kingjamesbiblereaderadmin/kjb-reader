@@ -4,12 +4,11 @@ import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Men
 import { useTheme } from '@/lib/themeContext';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
-import FirstLoadPrompt from '@/components/FirstLoadPrompt';
+
 import ShortcutsModal from '@/components/ShortcutsModal';
 import ScrollToTop from '@/components/ScrollToTop';
 import AutoUpdateHandler from '@/components/AutoUpdateHandler';
-import { useInstallPrompt } from '@/hooks/useInstallPrompt';
-import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, initNotifications } from '@/lib/notifications';
+
 import { getBibleData, isBibleCached, initPeriodicCacheRefresh, downloadBibleForOffline, refreshCacheIfDue, CACHE_VERSION } from '@/lib/bibleCache';
 import { toast } from 'sonner';
 import { useSoftReload } from '@/lib/SoftReloadContext';
@@ -165,73 +164,7 @@ export default function AppLayout() {
   // Footer is always visible on desktop, controlled by bottom nav on mobile
   const isRoot = pathname === '/';
 
-  // FirstLoadPrompt state (centralized in AppLayout)
-  const { isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss } = useAppLayoutPrompt();
-  const [showPrompt, setShowPrompt] = useState(false);
 
-  useEffect(() => {
-    // Apply app-wide accessibility font preference on load
-    applyAccessibilityFont(getAccessibilityFont());
-
-    // Initialization (like updates and caching) now happens safely inside App.jsx during the splash screen!
-
-    // Initialize periodic cache refresh (checks every 24 hours when user opens app)
-    initPeriodicCacheRefresh();
-
-    // Initialize daily-verse notifications app-wide (not just on HomePage), so the
-    // in-page poll is armed regardless of which page the user is on.
-    if (getNotificationsEnabled()) {
-      initNotifications();
-    }
-
-    // When device comes back online and has no cache yet, download the Bible
-    // so they get offline access. If already cached, do nothing.
-    const handleOnline = async () => {
-      try {
-        const { isBibleCached, preloadBibleData } = await import('@/lib/bibleCache');
-        const cached = await isBibleCached();
-        if (cached) return; // already have it — don't re-download
-        console.log('[AppLayout] Back online, no cache — downloading Bible');
-        preloadBibleData();
-        // Silent — no toast needed
-      } catch (err) {
-        console.error('[AppLayout] Online handler failed:', err.message);
-      }
-    };
-    window.addEventListener('online', handleOnline);
-
-    // Show prompt once per session, after a delay
-    const alreadyInstalled = window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
-    const notifGranted = 'Notification' in window && Notification.permission === 'granted';
-    const dismissed = localStorage.getItem('kjb-prompt-dismissed') === 'true' || localStorage.getItem('kjb-install-dismissed') === 'true';
-
-    const triggerPrompt = () => {
-      // If installed but notifications not enabled, always prompt (ignore dismissal)
-      if (alreadyInstalled && !notifGranted) {
-        setTimeout(() => setShowPrompt(true), 1500);
-      }
-      // Otherwise, respect dismissal and skip when already installed
-      else if (!alreadyInstalled && !dismissed) {
-        setTimeout(() => setShowPrompt(true), 1500);
-      }
-    };
-
-    if (window.kjbSplashDone) {
-      triggerPrompt();
-    } else {
-      const onSplashDone = () => {
-        window.removeEventListener('kjb-splash-done', onSplashDone);
-        triggerPrompt();
-      };
-      window.addEventListener('kjb-splash-done', onSplashDone);
-      return () => window.removeEventListener('kjb-splash-done', onSplashDone);
-    }
-  }, []);
-
-  const handleDismissPrompt = () => {
-    setShowPrompt(false);
-    handleDismiss();
-  };
 
   // Legacy reader gets no layout chrome - just render the outlet
   if (isLegacy) {
@@ -370,16 +303,7 @@ export default function AppLayout() {
       {/* Scroll to top button - appears on all pages when scrolling */}
       <ScrollToTop />
 
-      {/* FirstLoadPrompt - shows once per session */}
-      {showPrompt && (
-        <FirstLoadPrompt
-          isInstallable={isInstallable}
-          notifPermission={notifPermission}
-          onInstall={handleInstall}
-          onEnableNotif={handleEnableNotif}
-          onDismiss={handleDismissPrompt}
-        />
-      )}
+
 
       <DesktopFooter navigate={navigate} setMenuOpen={setMenuOpen} />
 
@@ -450,62 +374,7 @@ function DesktopFooter({ navigate, setMenuOpen }) {
   );
 }
 
-function useAppLayoutPrompt() {
-  const installPromptResult = useInstallPrompt();
-  const { isInstallable, isInstalled, promptInstall, dismiss } = installPromptResult;
-  
-  const [notifPermission, setNotifPermission] = useState(() => {
-    if (!('serviceWorker' in navigator)) return 'unsupported';
-    if (!('Notification' in window)) return 'supported';
-    return Notification.permission;
-  });
-  const [notifEnabled, setNotifEnabled] = useState(() => getNotificationsEnabled());
 
-  useEffect(() => {
-    const checkNotif = () => {
-      if (!('Notification' in window)) return;
-      setNotifPermission(Notification.permission);
-      setNotifEnabled(getNotificationsEnabled());
-    };
-    window.addEventListener('storage', checkNotif);
-    window.addEventListener('focus', checkNotif);
-    document.addEventListener('visibilitychange', checkNotif);
-    return () => {
-      window.removeEventListener('storage', checkNotif);
-      window.removeEventListener('focus', checkNotif);
-      document.removeEventListener('visibilitychange', checkNotif);
-    };
-  }, []);
-
-  const handleInstall = () => {
-    return promptInstall();
-  };
-
-  const handleEnableNotif = async () => {
-    try {
-      const result = await requestNotificationPermission();
-      setNotifPermission(result);
-      if (result === 'granted' || result === 'unsupported') {
-        scheduleDailyNotification();
-        setNotifEnabled(true);
-        window.dispatchEvent(new Event('storage'));
-        return true;
-      } else if (result === 'denied') {
-        alert('Notifications are blocked. Please allow notifications in your browser/app settings for this site.');
-      }
-    } catch (err) {
-      console.error('Notification permission error:', err);
-    }
-    return false;
-  };
-
-  const handleDismiss = () => {
-    dismiss();
-    try { localStorage.setItem('kjb-prompt-dismissed', 'true'); } catch {}
-  };
-
-  return { isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss };
-}
 
 function BottomNav({ pathname, navigate }) {
   const [showMode, setShowMode] = useState(() => {
