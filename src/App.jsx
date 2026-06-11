@@ -240,6 +240,7 @@ const AuthenticatedApp = () => {
     };
 
     const check = async () => {
+      console.log('[KJB Splash] 🚦 Update check starting (pre-splash)');
       if (!('serviceWorker' in navigator)) {
         console.log('[KJB Splash] ⏭ No SW support — skipping update check');
         if (!cancelled) setUpdateCheckDone(true);
@@ -253,15 +254,19 @@ const AuthenticatedApp = () => {
           return;
         }
 
+        // Log what SW state looks like BEFORE calling update() — this is what
+        // the browser already has from the previous session.
+        console.log('[KJB Splash] 📋 Pre-update() SW snapshot — waiting:', !!reg.waiting, '| installing:', !!reg.installing, '| controller:', !!navigator.serviceWorker.controller, '| scriptURL:', reg.active?.scriptURL || '(none)');
+
         emit('Checking for updates...');
-        console.log('[KJB Splash] 🔍 Checking for updates...');
+        console.log('[KJB Splash] 🔍 Calling reg.update() to fetch latest SW from network...');
         await new Promise(r => setTimeout(r, 600));
-        await reg.update().catch(() => {});
+        await reg.update().catch((e) => console.warn('[KJB Splash] reg.update() threw:', e.message));
 
         const waitingWorker = reg.waiting;
         const installingWorker = reg.installing;
         const hasController = !!navigator.serviceWorker.controller;
-        console.log('[KJB Splash] SW state — waiting:', !!waitingWorker, '| installing:', !!installingWorker, '| controller:', hasController);
+        console.log('[KJB Splash] 📋 Post-update() SW snapshot — waiting:', !!waitingWorker, '| installing:', !!installingWorker, '| controller:', hasController);
 
         // Check for Bible data update (version mismatch in localStorage)
         const localBibleVersion = (() => { try { return localStorage.getItem('bible_cache_version'); } catch { return null; } })();
