@@ -126,8 +126,15 @@ const PageLoader = ({ isFadingOut }) => {
 
   useEffect(() => {
     const handler = (e) => { if (e.detail?.message) setText(e.detail.message); };
-    // Use a ref-stable callback so the closure captures the correct welcomeText
-    const doneHandler = () => setText(isFirstVisit ? "Welcome to KJB Reader!" : "Welcome back!");
+    // Only show welcome text if we're not mid-update (avoid overwriting "Applying updates...")
+    const doneHandler = () => {
+      setText(prev => {
+        if (prev.includes('update') || prev.includes('Installing') || prev.includes('Applying') || prev.includes('Checking')) {
+          return prev; // keep the update message visible
+        }
+        return isFirstVisit ? "Welcome to KJB Reader!" : "Welcome back!";
+      });
+    };
     window.addEventListener('kjb-progress', handler);
     window.addEventListener('kjb-splash-done-soon', doneHandler);
     return () => {
