@@ -159,12 +159,19 @@ const AuthenticatedApp = () => {
   
   // Determine splash mode: home_update (from HomePage), first_load, subsequent, or auto
   const getSplashMode = () => {
-    if (sessionStorage.getItem('kjb-splash-home-update') === 'true') {
-      sessionStorage.removeItem('kjb-splash-home-update');
-      return 'home_update';
-    }
+    const homeUpdate = sessionStorage.getItem('kjb-splash-home-update') === 'true';
     const hasVisited = localStorage.getItem('kjb-has-visited-app');
-    return hasVisited ? 'subsequent' : 'first_load';
+    
+    let mode;
+    if (homeUpdate) {
+      sessionStorage.removeItem('kjb-splash-home-update');
+      mode = 'home_update';
+    } else {
+      mode = hasVisited ? 'subsequent' : 'first_load';
+    }
+    
+    console.log('[App.jsx] Splash mode determined:', mode, { homeUpdate, hasVisited });
+    return mode;
   };
   const splashMode = getSplashMode();
   
