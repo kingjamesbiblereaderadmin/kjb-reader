@@ -108,6 +108,20 @@ const _isFirstVisit = (() => {
   try { return !localStorage.getItem('kjb-has-visited-app'); } catch { return false; }
 })();
 
+// Print persisted splash logs from previous runs so they survive page reloads
+try {
+  const prev = JSON.parse(localStorage.getItem('kjb-splash-log') || '[]');
+  if (prev.length) {
+    console.groupCollapsed(`[KJB Splash History] Last ${prev.length} run(s)`);
+    prev.forEach((run, i) => {
+      console.group(`Run ${i + 1}: ${run.at}`);
+      run.log.forEach(l => console.log(l));
+      console.groupEnd();
+    });
+    console.groupEnd();
+  }
+} catch {}
+
 const PageLoader = ({ isFadingOut, welcomeText }) => {
   const [text, setText] = useState('Loading...');
 
