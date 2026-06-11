@@ -1,7 +1,7 @@
-// KJB Reader Service Worker v20260611_305
+// KJB Reader Service Worker v20260611_306
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260611_305';
+const CACHE_NAME = 'kjb-reader-v20260611_306';
 // Bumped to purge any partially-cached legacy chunks so every client re-caches
 // the full Bible fresh to 100% on the next online visit.
 const LEGACY_CACHE_NAME = 'kjb-legacy-v4';
