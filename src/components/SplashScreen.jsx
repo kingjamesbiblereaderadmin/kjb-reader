@@ -16,9 +16,11 @@ async function detectSwUpdate() {
   if (!('serviceWorker' in navigator)) return { hasUpdate: false };
   try {
     const reg = await navigator.serviceWorker.getRegistration();
+    console.log('[SplashScreen] SW reg:', reg, 'controller:', navigator.serviceWorker.controller, 'waiting:', reg?.waiting, 'installing:', reg?.installing);
     if (!reg) return { hasUpdate: false };
     // Already has a queued update
     if (reg.waiting && navigator.serviceWorker.controller) {
+      console.log('[SplashScreen] Found waiting SW update immediately');
       return { hasUpdate: true, reg };
     }
     // Trigger network check, wait up to 2s for updatefound
@@ -30,8 +32,10 @@ async function detectSwUpdate() {
       setTimeout(() => { reg.removeEventListener('updatefound', onFound); resolve(); }, 2000);
     });
     const hasUpdate = !!(reg.waiting || reg.installing) && !!navigator.serviceWorker.controller;
+    console.log('[SplashScreen] After update check — hasUpdate:', hasUpdate, 'waiting:', reg.waiting, 'installing:', reg.installing);
     return { hasUpdate, reg };
-  } catch {
+  } catch (e) {
+    console.error('[SplashScreen] detectSwUpdate error:', e);
     return { hasUpdate: false };
   }
 }
