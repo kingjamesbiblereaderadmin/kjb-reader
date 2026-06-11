@@ -122,21 +122,19 @@ const PageLoader = ({ isFadingOut }) => {
 
   const welcomeText = isFirstVisit ? "Welcome to KJB Reader!" : "Welcome back!";
 
-  // Post-update reload: start at "Applying updates..." then show welcome
-  // Normal load: start at "Loading..."
   const [text, setText] = useState(isUpdate ? "Applying updates..." : "Loading...");
 
   useEffect(() => {
-    // Show welcome text just before splash fades out
     const handler = (e) => { if (e.detail?.message) setText(e.detail.message); };
-    const doneHandler = () => setText(welcomeText);
+    // Use a ref-stable callback so the closure captures the correct welcomeText
+    const doneHandler = () => setText(isFirstVisit ? "Welcome to KJB Reader!" : "Welcome back!");
     window.addEventListener('kjb-progress', handler);
     window.addEventListener('kjb-splash-done-soon', doneHandler);
     return () => {
       window.removeEventListener('kjb-progress', handler);
       window.removeEventListener('kjb-splash-done-soon', doneHandler);
     };
-  }, []);
+  }, [isFirstVisit]);
 
   return (
     <div className={`fixed inset-0 z-[999999] bg-background flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
