@@ -226,9 +226,9 @@ const AuthenticatedApp = () => {
     return () => clearTimeout(timeout);
   }, []);
 
-  // Minimum splash: always at least 1500ms; 2500ms when an update is applying
+  // Minimum splash: always at least 2500ms; extended when an update is applying
   useEffect(() => {
-    const timer = setTimeout(() => setMinSplashDone(true), 1500);
+    const timer = setTimeout(() => setMinSplashDone(true), 2500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -246,6 +246,7 @@ const AuthenticatedApp = () => {
         if (!reg) { if (!cancelled) setUpdateCheckDone(true); return; }
 
         emit('Checking for updates...');
+        await new Promise(r => setTimeout(r, 600));
         await reg.update().catch(() => {});
 
         const waitingWorker = reg.waiting;
@@ -254,7 +255,7 @@ const AuthenticatedApp = () => {
 
         if ((waitingWorker || installingWorker) && navigator.serviceWorker.controller) {
           // Extend minimum splash to cover the update flow
-          setTimeout(() => { if (!cancelled) setMinSplashDone(true); }, 2500);
+          setTimeout(() => { if (!cancelled) setMinSplashDone(true); }, 4000);
 
           if (installingWorker && !waitingWorker) {
             emit('Installing updates...');
@@ -271,7 +272,9 @@ const AuthenticatedApp = () => {
             });
           }
 
+          await new Promise(r => setTimeout(r, 700));
           emit('Applying updates...');
+          await new Promise(r => setTimeout(r, 600));
           const target = reg.waiting || reg.installing;
           if (target) target.postMessage({ type: 'SKIP_WAITING' });
           // Hold splash until controllerchange triggers reload (3s safety fallback)
