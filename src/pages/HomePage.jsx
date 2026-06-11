@@ -111,7 +111,7 @@ export default function HomePage() {
       }
     }, 2000);
 
-    // Periodic service worker update check for open tabs (every 30 seconds)
+    // Periodic service worker update check for open tabs (every 10 seconds)
     const swCheckInterval = setInterval(async () => {
       if (!navigator.onLine) return;
       try {
@@ -134,7 +134,7 @@ export default function HomePage() {
       } catch (e) {
         console.error('[Home] Periodic SW check failed:', e);
       }
-    }, 30 * 1000); // 30 seconds
+    }, 10 * 1000); // 10 seconds
 
     // Check for updates on visibility change (when user returns to tab)
     const handleVisibilityChange = async () => {
