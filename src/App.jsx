@@ -310,10 +310,9 @@ const AuthenticatedApp = () => {
         // the browser already has from the previous session.
         console.log('[KJB Splash] 📋 Pre-update() SW snapshot — waiting:', !!reg.waiting, '| installing:', !!reg.installing, '| controller:', !!navigator.serviceWorker.controller, '| scriptURL:', reg.active?.scriptURL || '(none)');
 
-        // Always show "Checking for updates..." on every app load
-        emit('Checking for updates...');
-        console.log('[KJB Splash] 🔍 Calling reg.update() to fetch latest SW from network...');
-        await new Promise(r => setTimeout(r, 900));
+        // If an update is already waiting (e.g. loaded after a previous reload),
+        // skip straight to "Found updates..." — no need to show "Checking" first.
+        const alreadyWaiting = !!(reg.waiting || reg.installing);
 
         // Listen BEFORE reg.update() so we catch skipWaiting() activations
         // that happen before reg.waiting can be read.
@@ -324,7 +323,18 @@ const AuthenticatedApp = () => {
         reg.addEventListener('updatefound', onUpdateFound);
         navigator.serviceWorker.addEventListener('controllerchange', onControllerChange);
 
+        if (!alreadyWaiting) {
+          emit('Checking for updates...');
+          console.log('[KJB Splash] 🔍 Calling reg.update() to fetch latest SW from network...');
+        } else {
+          console.log('[KJB Splash] ⚡ Update already waiting — skipping "Checking" phase');
+        }
+
         await reg.update().catch((e) => console.warn('[KJB Splash] reg.update() threw:', e.message));
+
+        if (!alreadyWaiting) {
+          await new Promise(r => setTimeout(r, 900));
+        }
 
         // reg.update() resolves when the SW file is fetched, but the new worker
         // may still be mid-install. Wait up to 3s for it to reach 'installed'
