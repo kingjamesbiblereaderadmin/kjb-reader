@@ -46,11 +46,6 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
       
       console.log('[Splash] Mode from App.jsx:', mode, { isFirstVisit, isHomeUpdate, detectedIncognito });
 
-      // Set has-visited flag for subsequent visits (not home updates, which already have it)
-      if (!isFirstVisit && !isHomeUpdate && !detectedIncognito) {
-        localStorage.setItem('kjb-has-visited-app', 'true');
-      }
-
       // === FIRST LOAD FLOW ===
       if (isFirstVisit) {
         // 1. Loading
@@ -172,6 +167,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         }
 
         // 8. Welcome - fire banner (success)
+        // Set has-visited flag at the END of first visit so next visit is 'subsequent'
+        if (!detectedIncognito) {
+          localStorage.setItem('kjb-has-visited-app', 'true');
+        }
         if (detectedIncognito) {
           setStep('WELCOME.', true);
         } else {
@@ -193,7 +192,24 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         setStep('LOADING KJB READER...');
         await pause(STEP_PAUSE_MS);
 
-        // 2. Checking for updates (no banner - checking silently)
+        // 2. Download offline data if not cached (no banner - silent download)
+        const { downloadBibleForOffline, isBibleCached } = await import('@/lib/bibleCache');
+        const isActuallyCached = await isBibleCached();
+        
+        if (!detectedIncognito && !isActuallyCached) {
+          console.log('[Splash] Bible not cached — downloading...');
+          try {
+            await downloadBibleForOffline((pct, msg) => {
+              console.log('[Splash] Download progress:', pct, msg);
+            });
+            console.log('[Splash] Offline download completed successfully');
+          } catch (err) {
+            console.error('[Splash] Offline download failed:', err.message);
+          }
+          await pause(STEP_PAUSE_MS);
+        }
+
+        // 3. Checking for updates (no banner - checking silently)
         setStep('CHECKING FOR UPDATES...');
         await pause(STEP_PAUSE_MS);
 
@@ -215,11 +231,11 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         }
 
         if (hasUpdates) {
-          // 3. Found updates - fire banner
+          // 4. Found updates - fire banner
           setStep('FOUND UPDATES.', true);
           await pause(STEP_PAUSE_MS);
 
-          // 4. Installing updates - fire banner
+          // 5. Installing updates - fire banner
           setStep('INSTALLING UPDATES...', true);
           try {
             const { downloadBibleForOffline } = await import('@/lib/bibleCache');
@@ -229,7 +245,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           }
           await pause(STEP_PAUSE_MS);
 
-          // 5. Applying updates - fire banner
+          // 6. Applying updates - fire banner
           setStep('APPLYING UPDATES...', true);
           await pause(STEP_PAUSE_MS);
 
@@ -241,7 +257,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
             } catch {}
           }
 
-          // 6. Check again (loop if more updates) - no banner
+          // 7. Check again (loop if more updates) - no banner
           setStep('CHECKING FOR UPDATES...');
           await pause(STEP_PAUSE_MS);
           
@@ -284,7 +300,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           await pause(STEP_PAUSE_MS);
         }
 
-        // 7. Welcome back - fire banner (success)
+        // 8. Welcome back - fire banner (success)
         setStep('WELCOME BACK TO KJB READER.', true);
         await pause(STEP_PAUSE_MS);
         window.dispatchEvent(new Event('kjb-progress-clear'));
