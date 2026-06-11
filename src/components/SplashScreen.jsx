@@ -135,7 +135,7 @@ export default function SplashScreen({ isFadingOut, onDone }) {
         await downloadOfflineData();
         await safeStep('Checking for updates…', 700);
         if (hasUpdate) {
-          await safeStep('Found app updates.', 700);
+          await safeStep('Found app & data updates.', 700);
           await safeStep('Installing updates…', 700);
           await applySwUpdate(swResult.reg);
           await safeStep('Applying updates…', 700);
