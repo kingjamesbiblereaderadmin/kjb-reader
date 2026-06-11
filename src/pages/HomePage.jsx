@@ -16,13 +16,13 @@ import { toast } from 'sonner';
 const READ_LINK = { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', color: 'metro-blue' };
 
 const QUICK_LINKS = [
-  { path: '/contents', icon: List, label: 'Table of Contents', desc: 'Browse all 66 books', color: 'metro-teal' },
-  { path: null, icon: null, label: '__RANDOM__', desc: '', color: 'metro-purple' },
-  { path: '/saved', icon: Bookmark, label: 'Saved Verses', desc: 'Your bookmarked verses', color: 'metro-green' },
-  { path: '/gospel', icon: Heart, label: 'Gospel', desc: 'Learn how to be saved', color: 'metro-red' },
-  { path: '/resources', icon: Library, label: 'Resources', desc: 'KJB defence & study', color: 'metro-magenta' },
-  { path: '/about', icon: Info, label: 'About', desc: 'Ministry & links', color: 'metro-slate' },
-  { path: '/settings', icon: Settings, label: 'Settings', desc: 'Offline downloads & info', color: 'metro-orange' },
+  { path: '/contents', icon: List, label: 'Table of Contents', desc: 'Browse all 66 books', color: 'metro-blue' },
+  { path: null, icon: null, label: '__RANDOM__', desc: '', color: 'metro-blue' },
+  { path: '/saved', icon: Bookmark, label: 'Saved Verses', desc: 'Your bookmarked verses', color: 'metro-blue' },
+  { path: '/gospel', icon: Heart, label: 'Gospel', desc: 'Learn how to be saved', color: 'metro-blue' },
+  { path: '/resources', icon: Library, label: 'Resources', desc: 'KJB defence & study', color: 'metro-blue' },
+  { path: '/about', icon: Info, label: 'About', desc: 'Ministry & links', color: 'metro-blue' },
+  { path: '/settings', icon: Settings, label: 'Settings', desc: 'Offline downloads & info', color: 'metro-blue' },
 ];
 
 export default function HomePage() {
@@ -509,7 +509,7 @@ export default function HomePage() {
               <button
                 key="random"
                 onClick={handleRandomChapter}
-                className="metro-tile relative flex items-center gap-4 p-5 metro-purple text-left"
+                className="metro-tile relative flex items-center gap-4 p-5 metro-blue text-left"
               >
                 <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-white/15 text-white">
                   <Shuffle className="w-6 h-6" strokeWidth={1.5} />

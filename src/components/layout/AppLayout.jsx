@@ -266,7 +266,7 @@ export default function AppLayout() {
                   setMenuOpen(false);
                   navigate(-1);
                 }}
-                className="flex items-center gap-1 pl-2 pr-2 sm:pr-3 h-12 rounded-xl hover:bg-secondary/50 active:bg-secondary transition-colors text-foreground touch-manipulation cursor-pointer"
+                className="flex items-center gap-1 pl-2 pr-2 sm:pr-3 h-12 hover:bg-secondary/50 active:bg-secondary transition-colors text-foreground touch-manipulation cursor-pointer"
                 title="Back"
               >
                 <ChevronLeft className="w-6 h-6 pointer-events-none" />
@@ -294,7 +294,7 @@ export default function AppLayout() {
           {/* Actions - responsive button sizes with visible square touch targets */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <button 
-              className={`w-11 h-11 sm:w-10 sm:h-10 shrink-0 rounded-lg border transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation ${isOnline ? 'border-border bg-secondary/30 text-green-600 dark:text-green-400 hover:bg-secondary/50' : 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/40'}`}
+              className={`w-11 h-11 sm:w-10 sm:h-10 shrink-0 transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation ${isOnline ? 'bg-secondary text-green-600 dark:text-green-400 hover:brightness-95' : 'bg-[#E81123] text-white hover:brightness-110'}`}
               onClick={(e) => { 
                 e.stopPropagation(); 
                 window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: isOnline ? 'You are online' : 'You are offline (reading from cache)', status: 'info' } }));
@@ -305,7 +305,7 @@ export default function AppLayout() {
             >
               {isOnline ? <Wifi className="w-4 h-4 pointer-events-none" /> : <WifiOff className="w-4 h-4 pointer-events-none" />}
             </button>
-            <button className="w-11 h-11 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
+            <button className="w-11 h-11 sm:w-10 sm:h-10 shrink-0 bg-secondary hover:brightness-95 active:brightness-90 transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
               onClick={(e) => { e.stopPropagation(); try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {} toggleTheme(); }}
               type="button"
               aria-label="Toggle theme"
@@ -342,10 +342,10 @@ export default function AppLayout() {
                         scrollMainToTop();
                         navigate(item.path);
                       }}
-                      className={`relative flex items-center gap-2.5 px-3 py-2.5 rounded-lg border font-sans text-sm font-medium transition-all duration-200 hover:z-10 hover:shadow-md active:scale-95 ${
+                      className={`metro-tile relative flex items-center gap-2.5 px-3 py-2.5 font-sans text-sm font-medium ${
                         active
-                          ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                          : 'bg-card text-foreground border-border hover:bg-secondary hover:border-muted-foreground/30'
+                          ? 'metro-blue'
+                          : 'bg-secondary text-foreground'
                       }`}
                     >
                       <Icon className="w-4 h-4 flex-shrink-0 transition-transform duration-200" />
