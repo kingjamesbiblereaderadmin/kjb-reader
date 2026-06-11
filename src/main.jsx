@@ -33,17 +33,28 @@ window.addEventListener('load', async () => {
       const registration = await navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none', scope: '/' });
       console.log('[SW] Registered:', registration.scope);
 
-      // Reload when a new SW takes over — must be registered FIRST so it
-      // catches controllerchange even if SKIP_WAITING is called synchronously.
+      // Reload when a new SW takes over — but only AFTER the SplashScreen is
+      // done. SplashScreen sets window.kjbSplashDone and fires 'kjb-splash-done'
+      // when it finishes, so we wait for that before reloading.
       let refreshing = false;
       let hasExistingController = !!navigator.serviceWorker.controller;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (hasExistingController && !refreshing) {
           refreshing = true;
-          console.log('[SW] Controller changed. Reloading to apply updates.');
+          console.log('[SW] Controller changed. Waiting for splash before reload.');
           try { sessionStorage.setItem('kjb_sw_updated', 'app'); } catch {}
-          const sep = window.location.search ? '&' : '?';
-          window.location.href = window.location.pathname + window.location.search + sep + 'updated=true';
+          const doReload = () => {
+            console.log('[SW] Reloading to apply updates.');
+            const sep = window.location.search ? '&' : '?';
+            window.location.href = window.location.pathname + window.location.search + sep + 'updated=true';
+          };
+          if (window.kjbSplashDone) {
+            doReload();
+          } else {
+            window.addEventListener('kjb-splash-done', doReload, { once: true });
+            // Safety fallback: reload after 10s even if splash never fires
+            setTimeout(() => { window.removeEventListener('kjb-splash-done', doReload); doReload(); }, 10000);
+          }
         }
         hasExistingController = true;
       });
