@@ -266,7 +266,7 @@ const AuthenticatedApp = () => {
       // Print a concise summary to the console
       const last = splashLog[splashLog.length - 1] || '';
       const outcome = last.includes('No updates') ? '✅ No updates' : last.includes('Error') ? '❌ Error' : '🔄 Updated';
-      const swVer = 'v20260611_343';
+      const swVer = 'v20260611_344';
       const bibleVer = (() => { try { return localStorage.getItem('bible_cache_version') || '(none)'; } catch { return '(none)'; } })();
       console.groupCollapsed(`[KJB Splash] ${outcome} — SW: ${swVer} | Bible: ${bibleVer} — ${splashLog.length} step(s)`);
       splashLog.forEach(l => console.log(l));
@@ -278,7 +278,7 @@ const AuthenticatedApp = () => {
     };
 
     const check = async () => {
-      const swVer = 'v20260611_343';
+      const swVer = 'v20260611_344';
       const bibleVerAtStart = (() => { try { return localStorage.getItem('bible_cache_version') || '(none)'; } catch { return '(none)'; } })();
       console.log(`[KJB Splash] 🚦 Update check starting — SW: ${swVer} | Bible: ${bibleVerAtStart}`);
       if (!('serviceWorker' in navigator)) {
@@ -409,6 +409,9 @@ const AuthenticatedApp = () => {
           console.log('[KJB Splash] 🔧 SW update detected — activating new worker');
           setTimeout(() => { if (!cancelled) setMinSplashDone(true); }, 4000);
 
+          emit('Found updates...');
+          await new Promise(r => setTimeout(r, 700));
+
           if (installingWorker && !waitingWorker) {
             emit('Installing updates...');
             console.log('[KJB Splash] ⏳ Waiting for installing worker to reach installed state...');
@@ -424,9 +427,9 @@ const AuthenticatedApp = () => {
               worker.addEventListener('statechange', handler);
               setTimeout(resolve, 5000);
             });
+            await new Promise(r => setTimeout(r, 700));
           }
 
-          await new Promise(r => setTimeout(r, 700));
           emit('Applying updates...');
           console.log('[KJB Splash] 🚀 Splash: "Applying updates" — posting SKIP_WAITING');
           await new Promise(r => setTimeout(r, 600));
