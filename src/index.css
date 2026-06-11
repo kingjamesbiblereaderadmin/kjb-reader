@@ -321,14 +321,13 @@
     display: flex;
     align-items: flex-start;
     padding-right: 0.14em;
-    /* Height locked to exactly two text lines using `lh` units, so the float
-       clears after exactly two lines regardless of the active font's line box
-       (serif, dyslexic, hyperlegible, etc.). This keeps verse 1's wrapped text
-       and verse 2 aligned to the same left edge. */
-    height: 2lh;
+    /* No fixed height — the float clears to the natural height of the big
+       letter (~2 lines). A fixed `height: 2lh` over-reserved vertical space
+       when verse 1 was short (one line), creating an awkward gap before
+       verse 2. Letting it clear naturally removes that gap. */
   }
   .kjb-dropcap-letter {
-    /* Sized to fill the 2-line box. Height of the glyph follows the line box. */
+    /* Sized to span two text lines. Height of the glyph follows the line box. */
     font-size: 2lh;
     line-height: 1;
     font-weight: 700;
