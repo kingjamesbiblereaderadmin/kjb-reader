@@ -81,12 +81,16 @@ export default function HomePage() {
       setIsOffline(true);
     });
     
-    // Preload Bible cache on home page mount to ensure italics are ready
-    // Skip in incognito/private mode since cache won't persist
+    // Skip auto-preload on first load — SplashScreen handles the download flow.
+    // Only preload on subsequent visits when cache already exists.
     detectIncognito().then((isIncog) => {
       if (!isIncog) {
-        import('@/lib/bibleCache').then(({ getBibleData }) => {
-          getBibleData().catch(() => {});
+        isBibleCached().then((cached) => {
+          if (cached) {
+            import('@/lib/bibleCache').then(({ getBibleData }) => {
+              getBibleData().catch(() => {});
+            });
+          }
         });
       }
     });
