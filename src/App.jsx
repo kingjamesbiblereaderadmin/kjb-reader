@@ -279,10 +279,13 @@ const AuthenticatedApp = () => {
     const wait = (ms) => new Promise(r => setTimeout(r, ms));
     const done = () => { saveSplashLog(); if (!cancelled) setUpdateCheckDone(true); };
 
+    const SW_VER = 'v20260611_348';
+    const CURRENT_BIBLE_VERSION = 'v20260611_340';
+    const getBibleVer = () => { try { return localStorage.getItem('bible_cache_version') || '(none)'; } catch { return '(none)'; } };
+
     const check = async () => {
       // --- Detect context ---
       const isFirst = _isFirstVisit;
-      const CURRENT_BIBLE_VERSION = 'v20260611_340';
       const localBibleVersion = (() => { try { return localStorage.getItem('bible_cache_version'); } catch { return null; } })();
       const hasBibleUpdate = localBibleVersion && localBibleVersion !== CURRENT_BIBLE_VERSION;
 
@@ -317,9 +320,35 @@ const AuthenticatedApp = () => {
 
       console.log('[KJB Splash] Context — firstVisit:', isFirst, '| hasBibleUpdate:', hasBibleUpdate, '| hasSwUpdate:', hasSwUpdate);
 
+      // Helper: apply pending SW worker and re-check for more updates
+      const applyAndRecheck = async () => {
+        emit('Applying updates...');
+        if (reg) {
+          const target = reg.waiting || reg.installing;
+          if (target) target.postMessage({ type: 'SKIP_WAITING' });
+        }
+        await wait(STEP);
+        emit('Checking for updates...');
+        if (reg) await reg.update().catch(() => {});
+        await wait(STEP);
+        const stillHasSw = reg ? !!(reg.waiting || reg.installing) : false;
+        const localBibleNow = (() => { try { return localStorage.getItem('bible_cache_version'); } catch { return null; } })();
+        const stillHasBible = localBibleNow && localBibleNow !== CURRENT_BIBLE_VERSION;
+        if (stillHasSw || stillHasBible) {
+          emit('Found updates...');
+          await wait(STEP);
+          emit('Installing updates...');
+          await wait(STEP);
+          emit('Applying updates...');
+          if (reg) { const t = reg.waiting || reg.installing; if (t) t.postMessage({ type: 'SKIP_WAITING' }); }
+          await wait(STEP);
+        } else {
+          emit('No updates found');
+          await wait(STEP);
+        }
+      };
+
       // ── FIRST LOAD ──
-      // Loading → Downloading offline Bible data → Checking for updates →
-      // [if updates] Found → Installing → Applying → Welcome to KJB Reader!
       if (isFirst) {
         emit('Loading...');
         await wait(STEP);
@@ -332,22 +361,14 @@ const AuthenticatedApp = () => {
           await wait(STEP);
           emit('Installing updates...');
           await wait(STEP);
-          emit('Applying updates...');
-          if (reg) {
-            const target = reg.waiting || reg.installing;
-            if (target) target.postMessage({ type: 'SKIP_WAITING' });
-          }
-          await wait(STEP);
+          await applyAndRecheck();
         }
-        logEntry('✅ First load complete');
+        logEntry(`✅ First load complete — SW: ${SW_VER} | Bible: ${getBibleVer()}`);
         done();
         return;
       }
 
       // ── SUBSEQUENT LOAD ──
-      // Loading → Checking for updates →
-      // [if updates] Found → Installing → Applying → Welcome back!
-      // [if no updates] No updates found → Welcome back!
       emit('Loading...');
       await wait(STEP);
       emit('Checking for updates...');
@@ -357,17 +378,12 @@ const AuthenticatedApp = () => {
         await wait(STEP);
         emit('Installing updates...');
         await wait(STEP);
-        emit('Applying updates...');
-        if (reg) {
-          const target = reg.waiting || reg.installing;
-          if (target) target.postMessage({ type: 'SKIP_WAITING' });
-        }
-        await wait(STEP);
+        await applyAndRecheck();
       } else {
         emit('No updates found');
         await wait(STEP);
       }
-      logEntry('✅ Load complete');
+      logEntry(`✅ Load complete — SW: ${SW_VER} | Bible: ${getBibleVer()}`);
       done();
     };
 
@@ -408,7 +424,21 @@ const AuthenticatedApp = () => {
         if (target) target.postMessage({ type: 'SKIP_WAITING' });
         await new Promise(r => setTimeout(r, STEP));
         setTabFocusSplashMsg('Checking for updates...');
+        await reg.update().catch(() => {});
         await new Promise(r => setTimeout(r, STEP));
+        const stillWaiting = reg.waiting || reg.installing;
+        if (stillWaiting) {
+          setTabFocusSplashMsg('Found updates...');
+          await new Promise(r => setTimeout(r, STEP));
+          setTabFocusSplashMsg('Installing updates...');
+          await new Promise(r => setTimeout(r, STEP));
+          setTabFocusSplashMsg('Applying updates...');
+          stillWaiting.postMessage({ type: 'SKIP_WAITING' });
+          await new Promise(r => setTimeout(r, STEP));
+        } else {
+          setTabFocusSplashMsg('No updates found');
+          await new Promise(r => setTimeout(r, STEP));
+        }
         setTabFocusSplashMsg('Welcome back!');
         // controllerchange in main.jsx triggers the page reload
       } catch (err) {
@@ -447,9 +477,8 @@ const AuthenticatedApp = () => {
             const hasError = current.log.some(l => l.includes('❌'));
             const hasUpdate = current.log.some(l => l.includes('Found updates') || l.includes('Applying') || l.includes('Bible update'));
             const outcome = hasError ? '❌ Error' : hasUpdate ? '🔄 Updated' : '✅ No updates';
-            const swVer = 'v20260611_347';
             const bibleVer = (() => { try { return localStorage.getItem('bible_cache_version') || '(none)'; } catch { return '(none)'; } })();
-            console.group(`[KJB Splash Summary] App loaded — ${outcome} — SW: ${swVer} | Bible: ${bibleVer}`);
+            console.group(`[KJB Splash Summary] App loaded — ${outcome} — SW: v20260611_348 | Bible: ${bibleVer}`);
             current.log.forEach((l, i) => console.log(`  ${i + 1}. ${l}`));
             if (allRuns.length > 1) {
               console.groupCollapsed(`Previous ${allRuns.length - 1} run(s)`);
