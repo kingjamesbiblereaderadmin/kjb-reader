@@ -120,43 +120,9 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
             } catch {}
           }
 
-          // 7. Check again (loop) - no banner, check silently
-          setStep('CHECKING FOR UPDATES...');
-          await pause(STEP_PAUSE_MS);
-          
-          // Re-check for more updates
-          let hasMoreUpdates = false;
-          if (navigator.onLine) {
-            try {
-              const { checkForUpdates } = await import('@/lib/bibleCache');
-              hasMoreUpdates = await checkForUpdates().catch(() => false);
-            } catch {}
-          }
-          
-          if (hasMoreUpdates) {
-            // Loop: Found → Installing → Applying → Checking - fire banners
-            setStep('FOUND UPDATES.', true);
-            await pause(STEP_PAUSE_MS);
-            setStep('INSTALLING UPDATES...', true);
-            try {
-              const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-              await downloadBibleForOffline();
-            } catch (err) {
-              console.error('[Splash] Data install failed:', err.message);
-            }
-            await pause(STEP_PAUSE_MS);
-            setStep('APPLYING UPDATES...', true);
-            await pause(STEP_PAUSE_MS);
-            if ('serviceWorker' in navigator) {
-              try {
-                const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-                if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-              } catch {}
-            }
-            // Final check - no banner
-            setStep('CHECKING FOR UPDATES...');
-            await pause(STEP_PAUSE_MS);
-          }
+          // 7. Final check - no banner, no loop on first_load
+          // Skip re-checking to prevent infinite reload loop on fresh installs
+          console.log('[Splash] First load - skipping update re-check to prevent loop');
         } else {
           // No updates - fire banner
           setStep('NO UPDATES FOUND.', true);
@@ -260,43 +226,9 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
             } catch {}
           }
 
-          // 7. Check again (loop if more updates) - no banner
-          setStep('CHECKING FOR UPDATES...');
-          await pause(STEP_PAUSE_MS);
-          
-          // Re-check for more updates
-          let hasMoreUpdates = false;
-          if (navigator.onLine) {
-            try {
-              const { checkForUpdates } = await import('@/lib/bibleCache');
-              hasMoreUpdates = await checkForUpdates().catch(() => false);
-            } catch {}
-          }
-          
-          if (hasMoreUpdates) {
-            // Loop: Found → Installing → Applying → Checking - fire banners
-            setStep('FOUND UPDATES.', true);
-            await pause(STEP_PAUSE_MS);
-            setStep('INSTALLING UPDATES...', true);
-            try {
-              const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-              await downloadBibleForOffline();
-            } catch (err) {
-              console.error('[Splash] Data install failed:', err.message);
-            }
-            await pause(STEP_PAUSE_MS);
-            setStep('APPLYING UPDATES...', true);
-            await pause(STEP_PAUSE_MS);
-            if ('serviceWorker' in navigator) {
-              try {
-                const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-                if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-              } catch {}
-            }
-            // Final check - no banner
-            setStep('CHECKING FOR UPDATES...');
-            await pause(STEP_PAUSE_MS);
-          }
+          // 7. Final check - no banner, no loop on subsequent visits
+          // Skip re-checking to prevent infinite reload loop
+          console.log('[Splash] Subsequent visit - skipping update re-check to prevent loop');
         } else {
           // No updates - fire banner
           setStep('NO UPDATES FOUND.', true);
@@ -343,43 +275,9 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           } catch {}
         }
 
-        // 4. Checking for updates - no banner
-        setStep('CHECKING FOR UPDATES...');
-        await pause(STEP_PAUSE_MS);
-
-        // Check if more updates found
-        let hasMoreUpdates = false;
-        if (navigator.onLine) {
-          try {
-            const { checkForUpdates } = await import('@/lib/bibleCache');
-            hasMoreUpdates = await checkForUpdates().catch(() => false);
-          } catch {}
-        }
-
-        if (hasMoreUpdates) {
-          // Loop: Found → Installing → Applying → Checking - fire banners
-          setStep('FOUND UPDATES.', true);
-          await pause(STEP_PAUSE_MS);
-          setStep('INSTALLING UPDATES...', true);
-          try {
-            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-            await downloadBibleForOffline();
-          } catch (err) {
-            console.error('[Splash] Data install failed:', err.message);
-          }
-          await pause(STEP_PAUSE_MS);
-          setStep('APPLYING UPDATES...', true);
-          await pause(STEP_PAUSE_MS);
-          if ('serviceWorker' in navigator) {
-            try {
-              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-              if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-            } catch {}
-          }
-          // Check again - no banner
-          setStep('CHECKING FOR UPDATES...');
-          await pause(STEP_PAUSE_MS);
-        }
+        // 4. Final check - no banner, no loop on home updates
+        // Skip re-checking to prevent infinite reload loop
+        console.log('[Splash] Home update - skipping update re-check to prevent loop');
 
         // 5. Welcome back - fire banner (success)
         setStep('WELCOME BACK TO KJB READER.', true);
