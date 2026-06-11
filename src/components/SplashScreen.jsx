@@ -22,125 +22,100 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
     doneRef.current = true;
 
     (async () => {
-      let isFirstVisit;
-      let forceUpdates = false;
-      let forceHomeUpdate = false;
+      let isFirstVisit = false;
+      let skipLoading = false;
 
       if (mode === 'first_load') {
         isFirstVisit = true;
-        console.log('[KJB Splash] Mode: first_load (simulated first visit)');
+        console.log('[KJB Splash] Mode: first_load');
+      } else if (mode === 'subsequent_with_updates' || mode === 'home_update') {
+        skipLoading = true;
+        console.log('[KJB Splash] Mode:', mode, '(skip loading, start with updates)');
       } else if (mode === 'subsequent') {
-        isFirstVisit = false;
-        console.log('[KJB Splash] Mode: subsequent (returning user, no updates)');
-      } else if (mode === 'subsequent_with_updates') {
-        isFirstVisit = false;
-        forceUpdates = true;
-        console.log('[KJB Splash] Mode: subsequent_with_updates (simulated updates)');
-      } else if (mode === 'home_update') {
-        isFirstVisit = false;
-        forceHomeUpdate = true;
-        console.log('[KJB Splash] Mode: home_update (triggered from home page)');
+        console.log('[KJB Splash] Mode: subsequent');
       } else {
         isFirstVisit = !localStorage.getItem('kjb-has-visited-app');
         if (isFirstVisit) localStorage.setItem('kjb-has-visited-app', 'true');
         console.log('[KJB Splash] Mode: auto — isFirstVisit:', isFirstVisit);
       }
 
-      // Step 1: Loading
-      setStep('Loading…');
-      await pause(STEP_PAUSE_MS);
+      // Step 1: Loading (skip for home_update / subsequent_with_updates)
+      if (!skipLoading) {
+        setStep('Loading…');
+        await pause(STEP_PAUSE_MS);
 
-      // Step 2 (first visit): Download offline data
-      if (isFirstVisit) {
-        setStep('Downloading offline data…');
-        if (mode === 'auto') {
+        // Step 2 (first visit): Download offline data
+        if (isFirstVisit) {
+          setStep('Downloading offline data…');
           try {
             const { downloadBibleForOffline } = await import('@/lib/bibleCache');
             await downloadBibleForOffline();
           } catch (err) {
             console.error('[Splash] Offline download failed:', err.message);
           }
+          await pause(STEP_PAUSE_MS);
         }
-        await pause(STEP_PAUSE_MS);
       }
 
-      // Step 3: Update check loop — re-checks after each update cycle
+      // Step 3: Update check loop
       const maxChecks = 3;
       let checkRound = 0;
 
       while (checkRound < maxChecks) {
         checkRound++;
-        
-        // Skip "Checking" on first iteration for home_update mode
-        if (!(forceHomeUpdate && checkRound === 1)) {
+
+        // For modes starting with updates, skip first "Checking"
+        if (skipLoading && checkRound === 1) {
+          // Already know there are updates
+        } else {
           setStep('Checking for updates…');
           await pause(STEP_PAUSE_MS);
-        }
 
-        let swUpdated = false;
-        let dataUpdated = false;
-
-        if (forceUpdates) {
-          swUpdated = true;
-          dataUpdated = true;
-          console.log('[KJB Splash] Force updates: swUpdated=true, dataUpdated=true');
-        } else if (forceHomeUpdate) {
-          swUpdated = true;
-          console.log('[KJB Splash] Force home update: swUpdated=true');
-        } else if (mode === 'auto' && navigator.onLine) {
-          try {
-            if ('serviceWorker' in navigator) {
-              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-              if (reg) {
-                await reg.update().catch(() => {});
-                swUpdated = !!(reg.waiting || reg.installing);
+          // Check for updates
+          let swUpdated = false;
+          let dataUpdated = false;
+          if (navigator.onLine) {
+            try {
+              if ('serviceWorker' in navigator) {
+                const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+                if (reg) {
+                  await reg.update().catch(() => {});
+                  swUpdated = !!(reg.waiting || reg.installing);
+                }
               }
-            }
-            const { checkForUpdates } = await import('@/lib/bibleCache');
-            dataUpdated = await checkForUpdates().catch(() => false);
-          } catch {}
-        }
+              const { checkForUpdates } = await import('@/lib/bibleCache');
+              dataUpdated = await checkForUpdates().catch(() => false);
+            } catch {}
+          }
 
-        const hasUpdate = swUpdated || dataUpdated;
-
-        if (!hasUpdate) {
-          // Only show "No updates found" for auto/subsequent modes, NOT home_update
-          if (!forceHomeUpdate) {
+          if (!swUpdated && !dataUpdated) {
             setStep('No updates found.');
             await pause(STEP_PAUSE_MS);
+            break;
           }
-          break;
         }
 
-        const updateLabel = swUpdated && dataUpdated
-          ? 'Found app & data updates.'
-          : dataUpdated ? 'Found data updates.' : 'Found app updates.';
-        setStep(updateLabel);
+        setStep('Found app updates.');
         await pause(STEP_PAUSE_MS);
 
         setStep('Installing updates…');
-        if (mode === 'auto' && dataUpdated) {
-          try {
-            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-            await downloadBibleForOffline();
-          } catch (err) {
-            console.error('[Splash] Data install failed:', err.message);
-          }
+        try {
+          const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+          await downloadBibleForOffline();
+        } catch (err) {
+          console.error('[Splash] Data install failed:', err.message);
         }
         await pause(STEP_PAUSE_MS);
 
         setStep('Applying updates…');
         await pause(STEP_PAUSE_MS);
 
-        if (mode === 'auto' && swUpdated && 'serviceWorker' in navigator) {
+        if ('serviceWorker' in navigator) {
           try {
             const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
             if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
           } catch {}
         }
-
-        // Loop continues to re-check for more updates after applying
-        if (mode !== 'auto') break;
       }
 
       // Step 4: Welcome
