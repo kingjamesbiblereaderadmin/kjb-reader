@@ -206,6 +206,7 @@ export default function HomePage() {
               sessionStorage.setItem('kjb-splash-home-update', 'true');
               sessionStorage.setItem('kjb_sw_updated', updateType);
               console.log('[UpdateCheck] Set kjb-splash-home-update flag:', sessionStorage.getItem('kjb-splash-home-update'));
+              console.log('[UpdateCheck] All session storage:', Object.keys(sessionStorage));
 
               if (swUpdated && 'serviceWorker' in navigator) {
                 const reg = await navigator.serviceWorker.getRegistration();

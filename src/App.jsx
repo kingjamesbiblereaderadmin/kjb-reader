@@ -164,6 +164,12 @@ const AuthenticatedApp = () => {
     const hasVisited = localStorage.getItem('kjb-has-visited-app');
     
     console.log('[App] Splash mode check:', { homeUpdateFlag, homeUpdate, hasVisited });
+    console.log('[App] All session storage keys:', Object.keys(sessionStorage));
+    console.log('[App] Session storage contents:', {
+      'kjb-splash-home-update': sessionStorage.getItem('kjb-splash-home-update'),
+      'kjb_sw_updated': sessionStorage.getItem('kjb_sw_updated'),
+      'kjb_last_app_update': sessionStorage.getItem('kjb_last_app_update')
+    });
     
     if (homeUpdate) {
       console.log('[App] Home update mode - removing flag');
