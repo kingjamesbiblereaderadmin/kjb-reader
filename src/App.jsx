@@ -171,16 +171,22 @@ const AuthenticatedApp = () => {
       return 'home_update';
     }
     
-    // In incognito/private mode, ALWAYS use first_load (storage doesn't persist)
-    // Check this BEFORE checking hasVisited flag
+    // In incognito/private mode, ALWAYS use first_load (storage doesn't persist across sessions)
+    // Detect incognito BEFORE checking hasVisited flag to prevent "WELCOME BACK" in private windows
     const hasVisited = localStorage.getItem('kjb-has-visited-app');
-    const mightBeIncognito = !hasVisited;
     
-    // If no hasVisited flag, could be first load OR incognito — SplashScreen will detect
-    // For now, assume first_load; SplashScreen handles incognito messaging
-    const mode = hasVisited ? 'subsequent' : 'first_load';
-    console.log('[App] Splash mode:', mode, { hasVisited: !!hasVisited, mightBeIncognito });
-    return mode;
+    // Quick incognito check: if no hasVisited flag OR we're in a private session,
+    // assume first_load. SplashScreen will do a thorough incognito detection and override if needed.
+    // This prevents "subsequent" mode from being set in private/InPrivate windows.
+    const isLikelyIncognito = !hasVisited;
+    
+    if (isLikelyIncognito) {
+      console.log('[App] No hasVisited flag — using first_load mode (could be incognito)');
+      return 'first_load';
+    }
+    
+    console.log('[App] hasVisited flag found — using subsequent mode');
+    return 'subsequent';
   });
   
   // Check for waiting SW on mount — upgrade to home_update if found (user has visited before)

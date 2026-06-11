@@ -31,20 +31,21 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
       // Wait for incognito detection to complete before starting splash flow
       const detectedIncognito = await detectIncognito();
       setIsIncognito(detectedIncognito);
+      console.log('[Splash] Incognito detection result:', detectedIncognito);
       
       // Trust the mode passed from App.jsx — it already checked flags and SW state
       let isHomeUpdate = mode === 'home_update';
       let isFirstVisit = mode === 'first_load';
       
-      // In incognito mode, ALWAYS treat as first load (storage doesn't persist)
+      // In incognito/private mode, ALWAYS treat as first load (storage doesn't persist across sessions)
       // This prevents "WELCOME BACK" from showing in private windows
       if (detectedIncognito) {
-        console.log('[Splash] Incognito detected — forcing first_load behavior');
+        console.log('[Splash] Incognito detected — forcing first_load behavior, ignoring any flags');
         isFirstVisit = true;
         isHomeUpdate = false;
       }
       
-      console.log('[Splash] Mode from App.jsx:', mode, { isFirstVisit, isHomeUpdate, detectedIncognito });
+      console.log('[Splash] Final mode:', { mode, isFirstVisit, isHomeUpdate, detectedIncognito });
 
       // === FIRST LOAD FLOW ===
       if (isFirstVisit) {
@@ -168,13 +169,13 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
         // 8. Welcome - fire banner (success)
         // Set has-visited flag at the END of first visit so next visit is 'subsequent'
+        // NEVER set in incognito/private mode - storage clears when window closes
         if (!detectedIncognito) {
           localStorage.setItem('kjb-has-visited-app', 'true');
-        }
-        if (detectedIncognito) {
-          setStep('WELCOME.', true);
-        } else {
           setStep('WELCOME TO KJB READER.', true);
+        } else {
+          console.log('[Splash] Incognito mode - skipping has-visited flag');
+          setStep('WELCOME.', true);
         }
         await pause(STEP_PAUSE_MS);
         window.dispatchEvent(new Event('kjb-progress-clear'));
