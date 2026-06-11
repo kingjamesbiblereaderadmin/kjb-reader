@@ -58,12 +58,12 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         await pause(STEP_PAUSE_MS);
 
         // 2. Downloading offline data if not cached - FIRE BANNER
-        // Always show this step in first_load, but skip actual download in incognito
+        // Only show this step on first load when Bible is NOT cached
         const { downloadBibleForOffline, isBibleCached } = await import('@/lib/bibleCache');
         const isActuallyCached = await isBibleCached();
         
-        setStep('DOWNLOADING OFFLINE DATA...', true);
         if (!detectedIncognito && !isActuallyCached) {
+          setStep('DOWNLOADING OFFLINE DATA...', true);
           console.log('[Splash] Starting offline download...');
           try {
             await downloadBibleForOffline((pct, msg) => {
@@ -73,12 +73,12 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           } catch (err) {
             console.error('[Splash] Offline download failed:', err.message);
           }
+          await pause(STEP_PAUSE_MS);
         } else if (detectedIncognito) {
-          console.log('[Splash] Incognito mode detected — skipping download (storage not persistent)');
+          console.log('[Splash] Incognito mode detected — skipping offline download (storage not persistent)');
         } else {
           console.log('[Splash] Bible already cached — skipping download');
         }
-        await pause(STEP_PAUSE_MS);
 
         // 3. Checking for updates - FIRE BANNER
         setStep('CHECKING FOR UPDATES...', true);
