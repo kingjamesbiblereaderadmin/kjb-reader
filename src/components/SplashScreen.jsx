@@ -13,11 +13,11 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
 
 
-  const setStep = (message, fireBanner = false) => {
+  const setStep = (message, fireBanner = true) => {
     stepsLog.current.push(message);
     setCurrentMessage(message);
     console.log('[KJB Splash]', message);
-    // Only fire progress banner for actual work (downloading/installing/applying/welcome)
+    // Fire banner for all steps EXCEPT passive results like "NO UPDATES FOUND"
     if (fireBanner) {
       window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message, status: message.includes('WELCOME') ? 'success' : 'loading' } }));
     }
@@ -147,7 +147,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           setStep('CHECKING FOR UPDATES...');
           await pause(STEP_PAUSE_MS);
         } else {
-          // No updates - no banner
+          // No updates - no banner (passive result)
           setStep('NO UPDATES FOUND.');
           await pause(STEP_PAUSE_MS);
         }
@@ -228,7 +228,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           setStep('CHECKING FOR UPDATES...');
           await pause(STEP_PAUSE_MS);
         } else {
-          // No updates - no banner
+          // No updates - no banner (passive result)
           setStep('NO UPDATES FOUND.');
           await pause(STEP_PAUSE_MS);
         }
