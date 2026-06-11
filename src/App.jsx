@@ -189,12 +189,12 @@ const AuthenticatedApp = () => {
 
   return (
     <>
-      {/* Splash screen always renders initially to prevent flash */}
+      {/* Splash screen ALWAYS renders on first paint to prevent flash — hidden via opacity, not removed */}
       <SplashScreen
         isFadingOut={fadeSplash}
         onDone={handleSplashDone}
         mode={splashMode}
-        isVisible={showSplash && !isInitializing && location.pathname !== '/legacy'}
+        isVisible={showSplash && location.pathname !== '/legacy'}
       />
       {!isInitializing && !authError && (
         <Routes location={location}>
