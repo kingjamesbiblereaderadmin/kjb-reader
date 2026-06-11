@@ -561,7 +561,7 @@ const AuthenticatedApp = () => {
   return (
     <>
       {renderSplash && <PageLoader isFadingOut={fadeSplash} welcomeText={welcomeText} />}
-      {tabFocusUpdatePending && !renderSplash && (
+      {tabFocusUpdatePending && (
         <PageLoader isFadingOut={false} welcomeText={tabFocusSplashMsg} staticText={tabFocusSplashMsg} />
       )}
       {!isInitializing && !authError && (
