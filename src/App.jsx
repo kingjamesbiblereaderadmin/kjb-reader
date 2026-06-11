@@ -278,7 +278,9 @@ const AuthenticatedApp = () => {
     };
 
     const check = async () => {
-      console.log('[KJB Splash] 🚦 Update check starting (pre-splash)');
+      const swVer = 'v20260611_340';
+      const bibleVerAtStart = (() => { try { return localStorage.getItem('bible_cache_version') || '(none)'; } catch { return '(none)'; } })();
+      console.log(`[KJB Splash] 🚦 Update check starting — SW: ${swVer} | Bible: ${bibleVerAtStart}`);
       if (!('serviceWorker' in navigator)) {
         console.log('[KJB Splash] ⏭ No SW support — skipping update check');
         if (!cancelled) setUpdateCheckDone(true);
