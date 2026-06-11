@@ -627,6 +627,7 @@ Deno.serve(async (req) => {
     const banner = '<div class="banner"><b>&#9888; Legacy mode &mdash; for old browsers like Internet Explorer</b>' +
       'This version is unsupported, may contain bugs, and could have security issues. Please upgrade to a modern browser (Chrome, Firefox, Edge or Safari) &mdash; or upgrade your device &mdash; for the best, most secure experience.' +
       '<ul>' +
+      '<li>Tested on Windows 8.1 (Internet Explorer 11). Does not work on Internet Explorer 9.</li>' +
       '<li>Installing as an app (PWA) is not supported here.</li>' +
       '<li>Search is not supported in legacy mode.</li>' +
       '<li>YouTube videos and some external links may not open or play on old browsers.</li>' +

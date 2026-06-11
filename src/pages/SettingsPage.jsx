@@ -1342,7 +1342,7 @@ export default function SettingsPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Legacy Reader</p>
-                <p className="font-sans text-xs text-muted-foreground">For Internet Explorer and older devices</p>
+                <p className="font-sans text-xs text-muted-foreground">Tested on Windows 8.1 (Internet Explorer 11). Does not work on Internet Explorer 9.</p>
               </div>
               <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
             </Link>
