@@ -377,20 +377,7 @@ Deno.serve(async (req) => {
     // ── CHUNK MODE: ?chunk=N returns just book N's HTML (small, cacheable) ──
     // The shell page below fetches these one-by-one so each download is small
     // and reliable even on a weak connection.
-    // ── DOWNLOAD MODE: ?download=1 streams the self-contained single-file
-    // Bible THROUGH this function (same Cloudflare TLS-1.0 origin) so IE9 users
-    // — who cannot reach base44.app's TLS-1.2-only host — can still get it. ──
-    if (url.searchParams.get('download') === '1') {
-      const FILE_URL = 'https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/efdf106f1_kjb-legacy-reader.html';
-      const fileRes = await fetch(FILE_URL);
-      if (!fileRes.ok) return new Response('Download unavailable', { status: 502 });
-      const fileBody = await fileRes.arrayBuffer();
-      return new Response(fileBody, { headers: {
-        'Content-Type': 'text/html;charset=UTF-8',
-        'Content-Disposition': 'attachment; filename="kjb-bible.html"',
-        'Cache-Control': 'public, max-age=31536000, immutable'
-      } });
-    }
+    const isDownload = url.searchParams.get('download') === '1';
 
     const chunkParam = url.searchParams.get('chunk');
     if (chunkParam !== null) {
@@ -647,6 +634,21 @@ Deno.serve(async (req) => {
       bodyInner = '<a name="top" id="top"></a>' +
         '<p class="fb-intro">The complete King James Bible on a single page, plus the Gospel, Resources and About sections. Use the quick links to jump to any book instantly.</p>' +
         downloadBox + index + body + extras;
+
+      // ── DOWNLOAD MODE: ?download=1 builds the complete self-contained
+      // single-file Bible ON THE FLY from the live data, so it always matches
+      // the legacy page. No download box or banner inside the saved file.
+      if (isDownload) {
+        const dlInner = '<a name="top" id="top"></a>' +
+          '<p class="fb-intro">The complete King James Bible on a single page, plus the Gospel, Resources and About sections. Use the quick links to jump to any book instantly.</p>' +
+          index + body + extras;
+        const dlHtml = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>King James Bible (Pure Cambridge Edition)</title><style>' + STYLE + '</style></head><body><div class="hdr"><h1>King James Bible</h1><p>Pure Cambridge Edition</p></div><div class="wrap">' + dlInner + '</div></body></html>';
+        return new Response(dlHtml, { headers: {
+          'Content-Type': 'text/html;charset=UTF-8',
+          'Content-Disposition': 'attachment; filename="kjb-bible.html"',
+          'Cache-Control': 'public, max-age=86400'
+        } });
+      }
     }
 
     // The Bible is now rendered INLINE (no JS chunk loading), so no loader
