@@ -272,42 +272,56 @@ const AuthenticatedApp = () => {
 
         // SW update check on home page. registration.update() is async and the
         // new worker often hasn't installed yet at first render, so we actively
-        // trigger an update and wait briefly for a waiting/installing worker
-        // before activating it and reloading.
+        // trigger an update and wait for a waiting/installing worker before
+        // activating it and reloading. We hold the splash open the whole time
+        // (clearing the 3s max timer) so the reload isn't raced by the splash
+        // releasing early on slow networks.
         if ('serviceWorker' in navigator && window.location.pathname === '/') {
           const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
           if (reg && reg.active) {
-            // Ask the browser to check for a new SW now.
-            await reg.update().catch(() => {});
-
             // Helper: activate a worker and reload once it takes over.
             const activateAndReload = (worker) => {
               worker.postMessage({ type: 'SKIP_WAITING' });
-              setTimeout(() => window.location.reload(), 1000);
+              setTimeout(() => window.location.reload(), 800);
             };
 
-            // Already waiting? Apply immediately.
+            // Already waiting before we even check? Apply immediately.
             if (reg.waiting) {
+              clearTimeout(maxSplashTimer);
               activateAndReload(reg.waiting);
               return;
             }
 
-            // Installing right now? Wait (up to 2.5s) for it to finish installing.
-            if (reg.installing) {
-              const worker = reg.installing;
+            // Ask the browser to check for a new SW now, and wait for the result.
+            await reg.update().catch(() => {});
+
+            // After update(), a new worker may now be waiting or installing.
+            if (reg.waiting) {
+              clearTimeout(maxSplashTimer);
+              activateAndReload(reg.waiting);
+              return;
+            }
+
+            const installingWorker = reg.installing;
+            if (installingWorker) {
+              // Hold the splash open until install finishes (or 5s fallback),
+              // so the reload always happens during this splash, not the next.
+              clearTimeout(maxSplashTimer);
               const applied = await new Promise((resolve) => {
                 let done = false;
                 const finish = (val) => { if (!done) { done = true; resolve(val); } };
-                worker.addEventListener('statechange', () => {
-                  if (worker.state === 'installed') finish(true);
-                  else if (worker.state === 'redundant') finish(false);
+                installingWorker.addEventListener('statechange', () => {
+                  if (installingWorker.state === 'installed') finish(true);
+                  else if (installingWorker.state === 'redundant') finish(false);
                 });
-                setTimeout(() => finish(false), 2500);
+                setTimeout(() => finish(false), 5000);
               });
               if (applied && reg.waiting) {
                 activateAndReload(reg.waiting);
                 return;
               }
+              // No update applied — let the splash continue/release normally.
+              if (isMounted) setUpdateCheckDone(true);
             }
           }
         }
