@@ -120,7 +120,7 @@ const PageLoader = ({ isFadingOut }) => {
   const isUpdate = !!(isPostUpdate || isForcedUpdate);
   // Clear after reading so subsequent loads don't keep showing "Applying updates..."
   if (isPostUpdate) { try { sessionStorage.removeItem('kjb_sw_updated'); } catch {} }
-  console.log('[PageLoader] isPostUpdate:', isPostUpdate, 'isForcedUpdate:', isForcedUpdate, 'search:', window.location.search);
+
 
   const defaultText = isFirstVisit
     ? "Welcome to KJB Reader..."
@@ -270,10 +270,26 @@ const AuthenticatedApp = () => {
   }, []);
 
   useEffect(() => {
-    // main.jsx handles all SW update detection and reloads with ?updated=true.
-    // We just need to release the splash quickly.
-    const timer = setTimeout(() => setUpdateCheckDone(true), 300);
-    return () => clearTimeout(timer);
+    let cancelled = false;
+    const check = async () => {
+      if (!('serviceWorker' in navigator)) { if (!cancelled) setUpdateCheckDone(true); return; }
+      try {
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (!reg) { if (!cancelled) setUpdateCheckDone(true); return; }
+        await reg.update().catch(() => {});
+        // If a new worker is already waiting, activate it now and let
+        // the controllerchange in main.jsx handle the reload.
+        if (reg.waiting && navigator.serviceWorker.controller) {
+          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          // Give controllerchange + reload a moment; if it doesn't fire, proceed.
+          setTimeout(() => { if (!cancelled) setUpdateCheckDone(true); }, 2000);
+          return;
+        }
+      } catch {}
+      if (!cancelled) setUpdateCheckDone(true);
+    };
+    check();
+    return () => { cancelled = true; };
   }, []);
 
   // Preload route chunks in background
