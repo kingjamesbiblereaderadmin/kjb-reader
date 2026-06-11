@@ -118,32 +118,25 @@ const PageLoader = ({ isFadingOut }) => {
   const isPostUpdate = sessionStorage.getItem('kjb_sw_updated');
   const isForcedUpdate = window.location.search.includes('updated=true');
   const isUpdate = !!(isPostUpdate || isForcedUpdate);
-  // Clear after reading so subsequent loads don't keep showing "Applying updates..."
   if (isPostUpdate) { try { sessionStorage.removeItem('kjb_sw_updated'); } catch {} }
 
+  const welcomeText = isFirstVisit ? "Welcome to KJB Reader!" : "Welcome back!";
 
-  const defaultText = isFirstVisit
-    ? "Welcome to KJB Reader..."
-    : isUpdate
-      ? "Applying updates..."
-      : "Loading...";
-
-  const [progressText, setProgressText] = useState('');
+  // Post-update reload: start at "Applying updates..." then show welcome
+  // Normal load: start at "Loading..."
+  const [text, setText] = useState(isUpdate ? "Applying updates..." : "Loading...");
 
   useEffect(() => {
-    const handler = (e) => {
-      if (e.detail?.message) setProgressText(e.detail.message);
-    };
-    const clearHandler = () => setProgressText('');
+    // Show welcome text just before splash fades out
+    const handler = (e) => { if (e.detail?.message) setText(e.detail.message); };
+    const doneHandler = () => setText(welcomeText);
     window.addEventListener('kjb-progress', handler);
-    window.addEventListener('kjb-progress-clear', clearHandler);
+    window.addEventListener('kjb-splash-done-soon', doneHandler);
     return () => {
       window.removeEventListener('kjb-progress', handler);
-      window.removeEventListener('kjb-progress-clear', clearHandler);
+      window.removeEventListener('kjb-splash-done-soon', doneHandler);
     };
   }, []);
-
-  const text = progressText || defaultText;
 
   return (
     <div className={`fixed inset-0 z-[999999] bg-background flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
@@ -271,18 +264,44 @@ const AuthenticatedApp = () => {
 
   useEffect(() => {
     let cancelled = false;
+    const emit = (msg) => window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: msg } }));
+
     const check = async () => {
       if (!('serviceWorker' in navigator)) { if (!cancelled) setUpdateCheckDone(true); return; }
       try {
         const reg = await navigator.serviceWorker.getRegistration();
         if (!reg) { if (!cancelled) setUpdateCheckDone(true); return; }
+
+        emit('Checking for updates...');
         await reg.update().catch(() => {});
-        // If a new worker is already waiting, activate it now and let
-        // the controllerchange in main.jsx handle the reload.
-        if (reg.waiting && navigator.serviceWorker.controller) {
-          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-          // Give controllerchange + reload a moment; if it doesn't fire, proceed.
-          setTimeout(() => { if (!cancelled) setUpdateCheckDone(true); }, 2000);
+
+        const waitingWorker = reg.waiting;
+        const installingWorker = reg.installing;
+
+        if ((waitingWorker || installingWorker) && navigator.serviceWorker.controller) {
+          // There's a new SW ready or installing — drive the progress messages
+          if (installingWorker && !waitingWorker) {
+            emit('Installing updates...');
+            // Wait for it to reach 'installed' state
+            await new Promise((resolve) => {
+              const worker = installingWorker;
+              const handler = () => {
+                if (worker.state === 'installed' || worker.state === 'activating' || worker.state === 'activated' || worker.state === 'redundant') {
+                  worker.removeEventListener('statechange', handler);
+                  resolve();
+                }
+              };
+              worker.addEventListener('statechange', handler);
+              setTimeout(resolve, 5000); // safety timeout
+            });
+          }
+
+          emit('Applying updates...');
+          const target = reg.waiting || reg.installing;
+          if (target) target.postMessage({ type: 'SKIP_WAITING' });
+          // controllerchange in main.jsx will reload — hold splash until then
+          // (up to 3s safety fallback)
+          setTimeout(() => { if (!cancelled) setUpdateCheckDone(true); }, 3000);
           return;
         }
       } catch {}
@@ -307,13 +326,15 @@ const AuthenticatedApp = () => {
 
   useEffect(() => {
     if (!showSplash) {
-      setFadeSplash(true);
+      // Show welcome message briefly before fading out
+      window.dispatchEvent(new Event('kjb-splash-done-soon'));
+      const fadeTimer = setTimeout(() => setFadeSplash(true), 400);
       const timer = setTimeout(() => {
         setRenderSplash(false);
         window.kjbSplashDone = true;
         window.dispatchEvent(new Event('kjb-splash-done'));
-      }, 500);
-      return () => clearTimeout(timer);
+      }, 900);
+      return () => { clearTimeout(fadeTimer); clearTimeout(timer); };
     } else {
       setRenderSplash(true);
       setFadeSplash(false);
