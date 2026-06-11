@@ -320,7 +320,7 @@ async function fetchDailyVerse(base44) {
   }
 }
 
-const STATIC_LEGACY_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/efdf106f1_kjb-legacy-reader.html';
+const STATIC_LEGACY_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/kjb-reader-legacy.html';
 const STATIC_LEGACY_DOMAINS = ['kjbreaderlegacy.com', 'kingjamesbiblereader.com'];
 
 Deno.serve(async (req) => {
