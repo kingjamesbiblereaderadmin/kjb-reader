@@ -171,12 +171,11 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             >
               — {verse.ref}
             </span>
-            {/* Date badge — part of the same centered block so it grows/flows
-                together with the verse + ref (never overlaps on long verses). */}
+            {/* Date badge — part of the same block */}
             <span
               style={{
                 display: 'inline-block',
-                marginTop: '52px',
+                marginTop: '48px',
                 background: dateBadgeBg,
                 borderRadius: '999px',
                 padding: '10px 28px 16px',

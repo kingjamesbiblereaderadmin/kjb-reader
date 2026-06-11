@@ -13,16 +13,16 @@ import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { isBibleCached, CACHE_VERSION } from '@/lib/bibleCache';
 import { toast } from 'sonner';
 
-const READ_LINK = { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', color: 'metro-blue' };
+const READ_LINK = { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', color: 'bg-primary text-primary-foreground' };
 
 const QUICK_LINKS = [
-  { path: '/contents', icon: List, label: 'Table of Contents', desc: 'Browse all 66 books', color: 'metro-blue' },
-  { path: null, icon: null, label: '__RANDOM__', desc: '', color: 'metro-blue' },
-  { path: '/saved', icon: Bookmark, label: 'Saved Verses', desc: 'Your bookmarked verses', color: 'metro-blue' },
-  { path: '/gospel', icon: Heart, label: 'Gospel', desc: 'Learn how to be saved', color: 'metro-blue' },
-  { path: '/resources', icon: Library, label: 'Resources', desc: 'KJB defence & study', color: 'metro-blue' },
-  { path: '/about', icon: Info, label: 'About', desc: 'Ministry & links', color: 'metro-blue' },
-  { path: '/settings', icon: Settings, label: 'Settings', desc: 'Offline downloads & info', color: 'metro-blue' },
+  { path: '/contents', icon: List, label: 'Table of Contents', desc: 'Browse all 66 books', color: 'bg-secondary text-secondary-foreground' },
+  { path: null, icon: null, label: '__RANDOM__', desc: '', color: '' },
+  { path: '/saved', icon: Bookmark, label: 'Saved Verses', desc: 'Your bookmarked verses', color: 'bg-secondary text-secondary-foreground' },
+  { path: '/gospel', icon: Heart, label: 'Gospel', desc: 'Learn how to be saved', color: 'bg-secondary text-secondary-foreground' },
+  { path: '/resources', icon: Library, label: 'Resources', desc: 'KJB defence & study', color: 'bg-secondary text-secondary-foreground' },
+  { path: '/about', icon: Info, label: 'About', desc: 'Ministry & links', color: 'bg-secondary text-secondary-foreground' },
+  { path: '/settings', icon: Settings, label: 'Settings', desc: 'Offline downloads & info', color: 'bg-secondary text-secondary-foreground' },
 ];
 
 export default function HomePage() {
@@ -451,7 +451,7 @@ export default function HomePage() {
 
   return (
     <div
-      className="bg-background"
+      className="bg-gradient-to-br from-background via-accent/5 to-background"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -465,7 +465,7 @@ export default function HomePage() {
         {verse ? (
           <DailyVerseImage verse={verse} onClick={handleVerseCardClick} onToggleNotif={handleToggleNotif} notifEnabled={notifEnabled} isOffline={isOffline} />
         ) : (
-          <div className="w-full min-h-[300px] bg-secondary animate-pulse flex items-center justify-center">
+          <div className="w-full min-h-[300px] bg-secondary/50 animate-pulse border border-border rounded-2xl shadow-lg flex items-center justify-center">
             <span className="font-sans text-sm text-muted-foreground">Loading daily verse...</span>
           </div>
         )}
@@ -478,14 +478,14 @@ export default function HomePage() {
       <Link
         to={READ_LINK.path}
         onClick={() => window.scrollTo({ top: 0 })}
-        className="metro-tile print:hidden relative flex items-center gap-5 p-6 mb-4 sm:hidden metro-blue"
+        className={`print:hidden relative flex items-center gap-5 p-6 rounded-3xl shadow-lg border-2 border-white/20 hover:z-10 hover:shadow-xl active:scale-[0.98] transition-all mb-4 sm:hidden ${colorMode === 'daily' ? `bg-gradient-to-br ${dailyBg.gradient} text-white` : READ_LINK.color}`}
       >
-        <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-white/15 text-white">
-          <BookOpen className="w-7 h-7" strokeWidth={1.5} />
+        <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 shadow-sm text-white">
+          <BookOpen className="w-6 h-6" />
         </div>
         <div>
-          <p className="metro-title text-xl leading-tight">{READ_LINK.label}</p>
-          <p className="font-sans text-xs opacity-80 mt-0.5 font-normal">{READ_LINK.desc}</p>
+          <p className="font-serif font-bold text-lg leading-tight">{READ_LINK.label}</p>
+          <p className="font-sans text-xs opacity-75 mt-0.5">{READ_LINK.desc}</p>
         </div>
       </Link>
       <div className="print:hidden grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
@@ -493,14 +493,14 @@ export default function HomePage() {
         <Link
           to={READ_LINK.path}
           onClick={() => window.scrollTo({ top: 0 })}
-          className="metro-tile hidden sm:flex relative items-center gap-5 p-6 metro-blue"
+          className={`hidden sm:flex relative items-center gap-5 p-6 rounded-3xl shadow-lg border-2 border-white/20 hover:z-10 hover:shadow-xl active:scale-[0.98] transition-all ${colorMode === 'daily' ? `bg-gradient-to-br ${dailyBg.gradient} text-white` : READ_LINK.color}`}
         >
-          <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-white/15 text-white">
-            <BookOpen className="w-7 h-7" strokeWidth={1.5} />
+          <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 shadow-sm text-white">
+            <BookOpen className="w-6 h-6" />
           </div>
           <div>
-            <p className="metro-title text-xl leading-tight">{READ_LINK.label}</p>
-            <p className="font-sans text-xs opacity-80 mt-0.5 font-normal">{READ_LINK.desc}</p>
+            <p className="font-serif font-bold text-lg leading-tight">{READ_LINK.label}</p>
+            <p className="font-sans text-xs opacity-75 mt-0.5">{READ_LINK.desc}</p>
           </div>
         </Link>
         {QUICK_LINKS.map(link => {
@@ -509,14 +509,14 @@ export default function HomePage() {
               <button
                 key="random"
                 onClick={handleRandomChapter}
-                className="metro-tile relative flex items-center gap-4 p-5 metro-blue text-left"
+                className="relative flex items-center gap-4 p-5 rounded-2xl border border-border shadow-sm hover:z-10 hover:shadow-md active:scale-[0.98] transition-all bg-secondary text-secondary-foreground text-left"
               >
-                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-white/15 text-white">
-                  <Shuffle className="w-6 h-6" strokeWidth={1.5} />
+                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-background/50 backdrop-blur-md border border-border shadow-sm text-foreground">
+                  <Shuffle className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="metro-title text-lg leading-tight">Random Chapter</p>
-                  <p className="font-sans text-xs opacity-80 mt-0.5 font-normal">Jump to a random chapter</p>
+                  <p className="font-serif font-bold text-lg leading-tight">Random Chapter</p>
+                  <p className="font-sans text-xs opacity-75 mt-0.5">Jump to a random chapter</p>
                 </div>
               </button>
             );
@@ -527,14 +527,14 @@ export default function HomePage() {
               key={link.path}
               to={link.path}
               onClick={() => window.scrollTo({ top: 0 })}
-              className={`metro-tile relative flex items-center gap-4 p-5 ${link.color}`}
+              className={`relative flex items-center gap-4 p-5 rounded-2xl border border-border shadow-sm hover:z-10 hover:shadow-md active:scale-[0.98] transition-all ${link.color}`}
             >
-              <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-white/15 text-white">
-                <Icon className="w-6 h-6" strokeWidth={1.5} />
+              <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-background/50 backdrop-blur-md border border-border shadow-sm text-foreground">
+                <Icon className="w-5 h-5" />
               </div>
               <div>
-                <p className="metro-title text-lg leading-tight">{link.label}</p>
-                <p className="font-sans text-xs opacity-80 mt-0.5 font-normal">{link.desc}</p>
+                <p className="font-serif font-bold text-lg leading-tight">{link.label}</p>
+                <p className="font-sans text-xs opacity-75 mt-0.5">{link.desc}</p>
               </div>
             </Link>
           );
@@ -542,15 +542,15 @@ export default function HomePage() {
       </div>
 
       {/* Gospel call */}
-      <div className="print:hidden bg-secondary border-l-4 border-[#E81123] p-6 text-center mb-6">
-        <p className="metro-title text-2xl text-[#E81123] dark:text-red-400 mb-2">Are you saved?</p>
-        <div className="font-sans text-sm text-foreground/80 mb-4 space-y-1.5 font-normal">
+      <div className="print:hidden bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-6 text-center mb-6">
+        <p className="font-serif text-xl font-bold text-red-700 dark:text-red-400 mb-2">Are you saved?</p>
+        <div className="font-sans text-sm text-foreground/80 mb-4 space-y-1.5">
           <p>Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins.</p>
           <p className="font-medium">Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.</p>
         </div>
         <Link
           to="/gospel"
-          className="metro-tile inline-flex items-center gap-2 px-5 py-2.5 metro-red font-sans text-sm font-medium"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:shadow-md active:scale-[0.98]"
         >
           <Heart className="w-4 h-4" />
           Learn How to be Saved
