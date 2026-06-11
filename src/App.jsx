@@ -263,6 +263,26 @@ const AuthenticatedApp = () => {
         await new Promise(r => setTimeout(r, 600));
         await reg.update().catch((e) => console.warn('[KJB Splash] reg.update() threw:', e.message));
 
+        // reg.update() resolves when the SW file is fetched, but the new worker
+        // may still be mid-install. Wait up to 3s for it to reach 'installed'
+        // (i.e. move to reg.waiting) before we decide there's no update.
+        if (reg.installing) {
+          console.log('[KJB Splash] ⏳ New SW is installing — waiting for it to settle...');
+          await new Promise((resolve) => {
+            const worker = reg.installing;
+            if (!worker) { resolve(); return; }
+            const handler = () => {
+              console.log('[KJB Splash] SW install progress:', worker.state);
+              if (['installed', 'activating', 'activated', 'redundant'].includes(worker.state)) {
+                worker.removeEventListener('statechange', handler);
+                resolve();
+              }
+            };
+            worker.addEventListener('statechange', handler);
+            setTimeout(resolve, 3000);
+          });
+        }
+
         const waitingWorker = reg.waiting;
         const installingWorker = reg.installing;
         const hasController = !!navigator.serviceWorker.controller;
