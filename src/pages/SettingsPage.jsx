@@ -1237,19 +1237,41 @@ export default function SettingsPage() {
         {expandedSections.downloadPdf && <DownloadBibleSection />}
       </div>
 
-      {/* Offline HTML Bible — single self-contained file for old browsers / hosting */}
+      {/* Offline HTML Bible & Legacy Reader — for old browsers / no-JS environments */}
       <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
         <button
           onClick={() => toggleSection('offlineHtml')}
           className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
         >
           <div className="flex flex-col gap-1">
-            <h2 className="font-serif text-lg font-semibold text-foreground">Standalone HTML Bible</h2>
-            <p className="font-sans text-xs text-muted-foreground">One file — works on old browsers & offline</p>
+            <h2 className="font-serif text-lg font-semibold text-foreground">Old Browser & Offline Options</h2>
+            <p className="font-sans text-xs text-muted-foreground">Standalone HTML file and Legacy Reader for IE & old devices</p>
           </div>
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.offlineHtml ? 'rotate-180' : ''}`} />
         </button>
-        {expandedSections.offlineHtml && <OfflineHtmlSection />}
+        {expandedSections.offlineHtml && (
+          <div>
+            <OfflineHtmlSection />
+            <div className="px-5 pb-5 pt-1 border-t border-border space-y-2">
+              <p className="font-sans text-xs text-muted-foreground pt-3 leading-relaxed">
+                The <strong className="text-foreground">Legacy Reader</strong> is a fully server-rendered version of the Bible — no JavaScript required. Designed for Internet Explorer 11, old Android browsers, and devices that can't run the modern app.
+              </p>
+              <Link
+                to="/legacy"
+                className="flex items-center gap-3 p-3 rounded-xl bg-transparent border border-border hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
+              >
+                <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-background/50 backdrop-blur-md border border-border shadow-sm">
+                  <MonitorSmartphone className="w-4 h-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Open Legacy Reader</p>
+                  <p className="font-sans text-xs text-muted-foreground">Works on IE 11, Windows 8.1, and old Android browsers</p>
+                </div>
+                <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Notifications — hidden in private/incognito windows where they won't persist */}
@@ -1351,19 +1373,6 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
-            <Link
-              to="/legacy"
-              className="flex items-center gap-3 p-3 rounded-xl bg-transparent border border-border hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
-            >
-              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-background/50 backdrop-blur-md border border-border shadow-sm">
-                <MonitorSmartphone className="w-4 h-4 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Legacy Reader</p>
-                <p className="font-sans text-xs text-muted-foreground">Tested on Windows 8.1 (Internet Explorer 11). Does not work on Internet Explorer 9.</p>
-              </div>
-              <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
-            </Link>
             <div className="space-y-2">
               <div className="flex justify-between items-center font-sans text-sm gap-4">
                 <span className="text-muted-foreground shrink-0">Bible Text</span>
