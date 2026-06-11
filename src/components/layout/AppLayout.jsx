@@ -293,6 +293,18 @@ export default function AppLayout() {
 
           {/* Actions - responsive button sizes with visible square touch targets */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <button 
+              className={`w-11 h-11 sm:w-10 sm:h-10 shrink-0 rounded-lg border transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation ${isOnline ? 'border-border bg-secondary/30 text-green-600 dark:text-green-400 hover:bg-secondary/50' : 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/40'}`}
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: isOnline ? 'You are online' : 'You are offline (reading from cache)', status: 'info' } }));
+                setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
+              }}
+              title={isOnline ? 'Online' : 'Offline'}
+              type="button"
+            >
+              {isOnline ? <Wifi className="w-4 h-4 pointer-events-none" /> : <WifiOff className="w-4 h-4 pointer-events-none" />}
+            </button>
             <button className="w-11 h-11 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
               onClick={(e) => { e.stopPropagation(); try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {} toggleTheme(); }}
               type="button"
@@ -317,13 +329,7 @@ export default function AppLayout() {
               onClick={() => setMenuOpen(false)}
             />
             <div data-kjb-menu className="absolute top-full right-0 left-0 z-50 bg-card backdrop-blur-md border-b border-border shadow-lg">
-              <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 pt-4">
-                <div className={`flex items-center gap-2 px-3 py-2 mb-3 rounded-lg border text-sm font-medium ${isOnline ? 'border-border bg-secondary/30 text-green-600 dark:text-green-400' : 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-900/30'}`}>
-                  {isOnline ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
-                  <span className="font-sans">{isOnline ? 'Online' : 'Offline — reading from cache'}</span>
-                </div>
-              </div>
-              <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 pb-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {NAV_ITEMS.map(item => {
                   const Icon = item.icon;
                   const active = item.path === '/' ? pathname === '/' : pathname === item.path;

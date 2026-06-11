@@ -64,18 +64,18 @@ export default function SettingsPage() {
   const [isIncognito, setIsIncognito] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     text: true,
-    accessibility: false,
-    shortcuts: false,
+    accessibility: true,
+    shortcuts: true,
     appearance: true,
-    install: false,
-    offline: false,
-    downloadPdf: false,
-    notifications: false,
-    offlineHtml: false,
-    info: false,
-    credits: false,
+    install: true,
+    offline: true,
+    downloadPdf: true,
+    notifications: true,
+    offlineHtml: true,
+    info: true,
+    credits: true,
     advanced: false,
-    contact: false,
+    contact: true,
     developer: false,
   });
   const { isDark, mode, setMode, colourId, setColourId } = useTheme();
