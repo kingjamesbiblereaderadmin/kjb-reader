@@ -17,6 +17,7 @@ import CurrentlyReadingIndicator from '@/components/bible/CurrentlyReadingIndica
 import MinimizedHeaderBar from '@/components/bible/MinimizedHeaderBar';
 import ReadingRangeBar from '@/components/bible/ReadingRangeBar';
 import SelectActionBar from '@/components/bible/SelectActionBar';
+import ReaderMoreMenu from '@/components/bible/ReaderMoreMenu';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -1012,10 +1013,13 @@ export default function BibleReader() {
               </SelectorSheet>
               </div>
 
-              <button onClick={toggleFlow} onTouchEnd={(e) => { e.preventDefault(); toggleFlow(); }} title={flowMode === 'line' ? 'Switch to paragraph' : 'Switch to line-by-line'} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap">{flowMode === 'line' ? <List className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <AlignJustify className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}<span className="hidden lg:inline">{flowMode === 'line' ? 'Lines' : 'Para'}</span></button>
-              <button onClick={toggleColumn} onTouchEnd={(e) => { e.preventDefault(); toggleColumn(); }} title={columnOn ? 'Switch to single column' : 'Switch to two-column'} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap">{columnOn ? <Columns2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <AlignLeft className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}<span className="hidden lg:inline">{columnOn ? '2-Col' : '1-Col'}</span></button>
-              <button onClick={toggleSelectMode} onTouchEnd={(e) => { e.preventDefault(); toggleSelectMode(); }} title="Select verses" className={`flex items-center justify-center gap-1.5 px-3 rounded-lg border border-border font-sans text-xs font-medium transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap ${selectMode ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'}`}><CheckSquare className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /><span className="hidden lg:inline">Select</span></button>
-              
+              <ReaderMoreMenu
+                flowMode={flowMode} onToggleFlow={toggleFlow}
+                columnOn={columnOn} onToggleColumn={toggleColumn}
+                selectMode={selectMode} onToggleSelect={toggleSelectMode}
+                onPrint={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode, paragraphMode)}
+              />
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button title={shareFeedback || shareLinkFeedback ? 'Copied!' : 'Share'} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap">
@@ -1034,8 +1038,6 @@ export default function BibleReader() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-
-              <button onClick={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode, paragraphMode)} title="Print Chapter" className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap"><Printer className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /><span className="hidden lg:inline">Print</span></button>
 
               <div className="kjb-fixed-btn flex items-stretch gap-1.5 shrink-0">
                 <button onClick={goPrev} onTouchEnd={(e) => { e.preventDefault(); goPrev(); }} disabled={isFirstChapterFirstBook} title="Previous" className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 text-foreground disabled:opacity-30 transition-all duration-200 touch-manipulation h-11 whitespace-nowrap"><ChevronLeft className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /><span className="hidden lg:inline">Prev</span></button>
