@@ -455,7 +455,6 @@ const AuthenticatedApp = () => {
           // Re-check after SW update: Bible data may also need updating
           emit('Checking for updates...');
           console.log('[KJB Splash] 🔁 Re-check after SW update — looking for Bible data updates...');
-          await new Promise(r => setTimeout(r, 20000));
           await reg.update().catch(() => {});
           const postSwWaiting = reg.waiting;
           const postSwInstalling = reg.installing;
@@ -476,10 +475,11 @@ const AuthenticatedApp = () => {
           } else {
             logEntry('✅ No further updates after SW update');
             emit('No updates found');
+            await new Promise(r => setTimeout(r, 20000));
           }
 
           saveSplashLog();
-          setTimeout(() => { if (!cancelled) setUpdateCheckDone(true); }, 3000);
+          if (!cancelled) setUpdateCheckDone(true);
           return;
         }
       } catch (err) {
