@@ -159,14 +159,20 @@ const AuthenticatedApp = () => {
   
   // Determine splash mode once on mount
   const splashMode = React.useMemo(() => {
-    const homeUpdate = sessionStorage.getItem('kjb-splash-home-update') === 'true';
+    const homeUpdateFlag = sessionStorage.getItem('kjb-splash-home-update');
+    const homeUpdate = homeUpdateFlag === 'true';
     const hasVisited = localStorage.getItem('kjb-has-visited-app');
     
+    console.log('[App] Splash mode check:', { homeUpdateFlag, homeUpdate, hasVisited });
+    
     if (homeUpdate) {
+      console.log('[App] Home update mode - removing flag');
       sessionStorage.removeItem('kjb-splash-home-update');
       return 'home_update';
     }
-    return hasVisited ? 'subsequent' : 'first_load';
+    const mode = hasVisited ? 'subsequent' : 'first_load';
+    console.log('[App] Mode:', mode);
+    return mode;
   }, []);
   
   const handleSplashDone = () => {
