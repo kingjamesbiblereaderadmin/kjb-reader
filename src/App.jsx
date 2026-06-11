@@ -251,7 +251,7 @@ const AuthenticatedApp = () => {
 
   // Minimum splash: always at least 2500ms; extended when an update is applying
   useEffect(() => {
-    const timer = setTimeout(() => setMinSplashDone(true), 2500);
+    const timer = setTimeout(() => setMinSplashDone(true), 20000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -331,7 +331,7 @@ const AuthenticatedApp = () => {
         await reg.update().catch((e) => console.warn('[KJB Splash] reg.update() threw:', e.message));
 
         if (!alreadyWaiting) {
-          await new Promise(r => setTimeout(r, 900));
+          await new Promise(r => setTimeout(r, 20000));
         }
 
         // reg.update() resolves when the SW file is fetched, but the new worker
@@ -378,7 +378,7 @@ const AuthenticatedApp = () => {
           emit('No updates found');
           saveSplashLog();
           // Show "No updates found" for a readable moment before dismissing
-          await new Promise(r => setTimeout(r, 1200));
+          await new Promise(r => setTimeout(r, 20000));
           if (!cancelled) setUpdateCheckDone(true);
           return;
         }
@@ -389,13 +389,13 @@ const AuthenticatedApp = () => {
           setTimeout(() => { if (!cancelled) setMinSplashDone(true); }, 4000);
           emit('Found updates...');
           console.log('[KJB Splash] 📥 Splash: "Found updates"');
-          await new Promise(r => setTimeout(r, 700));
+          await new Promise(r => setTimeout(r, 20000));
           emit('Installing updates...');
           console.log('[KJB Splash] ⚙️ Splash: "Installing updates"');
-          await new Promise(r => setTimeout(r, 700));
+          await new Promise(r => setTimeout(r, 20000));
           emit('Applying updates...');
           console.log('[KJB Splash] 🔄 Splash: "Applying updates" — Bible data will re-download in background');
-          await new Promise(r => setTimeout(r, 600));
+          await new Promise(r => setTimeout(r, 20000));
           // Re-check SW after Bible update in case a new worker also arrived
           console.log('[KJB Splash] 🔁 Re-checking SW after Bible data update...');
           await reg.update().catch(() => {});
@@ -422,7 +422,7 @@ const AuthenticatedApp = () => {
           setTimeout(() => { if (!cancelled) setMinSplashDone(true); }, 4000);
 
           emit('Found updates...');
-          await new Promise(r => setTimeout(r, 1200));
+          await new Promise(r => setTimeout(r, 20000));
 
           emit('Installing updates...');
           console.log('[KJB Splash] ⏳ Waiting for installing worker to reach installed state...');
@@ -440,7 +440,7 @@ const AuthenticatedApp = () => {
               setTimeout(resolve, 5000);
             });
           }
-          await new Promise(r => setTimeout(r, 1200));
+          await new Promise(r => setTimeout(r, 20000));
 
           emit('Applying updates...');
           console.log('[KJB Splash] 🚀 Splash: "Applying updates" — posting SKIP_WAITING');
@@ -451,11 +451,11 @@ const AuthenticatedApp = () => {
           } else {
             console.log('[KJB Splash] ⚠️ No target worker to send SKIP_WAITING to');
           }
-          await new Promise(r => setTimeout(r, 1200));
+          await new Promise(r => setTimeout(r, 20000));
           // Re-check after SW update: Bible data may also need updating
           emit('Checking for updates...');
           console.log('[KJB Splash] 🔁 Re-check after SW update — looking for Bible data updates...');
-          await new Promise(r => setTimeout(r, 1000));
+          await new Promise(r => setTimeout(r, 20000));
           await reg.update().catch(() => {});
           const postSwWaiting = reg.waiting;
           const postSwInstalling = reg.installing;
@@ -469,10 +469,10 @@ const AuthenticatedApp = () => {
           if (postSwHasBibleUpdate) {
             console.log('[KJB Splash] 📖 Bible data also needs updating after SW update');
             emit('Installing updates...');
-            await new Promise(r => setTimeout(r, 700));
+            await new Promise(r => setTimeout(r, 20000));
             emit('Applying updates...');
             console.log('[KJB Splash] 🔄 Bible data will re-download in background');
-            await new Promise(r => setTimeout(r, 600));
+            await new Promise(r => setTimeout(r, 20000));
           } else {
             logEntry('✅ No further updates after SW update');
             emit('No updates found');
@@ -518,15 +518,15 @@ const AuthenticatedApp = () => {
         console.log('[KJB Tab-Focus] 🔧 New SW found — showing splash and applying update...');
         setTabFocusSplashMsg('Found updates...');
         setTabFocusUpdatePending(true);
-        await new Promise(r => setTimeout(r, 1000));
+        await new Promise(r => setTimeout(r, 20000));
         setTabFocusSplashMsg('Installing updates...');
-        await new Promise(r => setTimeout(r, 1000));
+        await new Promise(r => setTimeout(r, 20000));
         setTabFocusSplashMsg('Applying updates...');
         const target = waiting || installing;
         if (target) target.postMessage({ type: 'SKIP_WAITING' });
-        await new Promise(r => setTimeout(r, 1000));
+        await new Promise(r => setTimeout(r, 20000));
         setTabFocusSplashMsg('Checking for updates...');
-        await new Promise(r => setTimeout(r, 1000));
+        await new Promise(r => setTimeout(r, 20000));
         setTabFocusSplashMsg('Welcome back!');
         // controllerchange in main.jsx triggers the reload
       } catch (err) {
