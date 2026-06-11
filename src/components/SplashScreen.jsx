@@ -36,10 +36,18 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
       let isHomeUpdate = mode === 'home_update';
       let isFirstVisit = mode === 'first_load';
       
-      console.log('[Splash] Mode from App.jsx:', mode, { isFirstVisit, isHomeUpdate });
+      // In incognito mode, ALWAYS treat as first load (storage doesn't persist)
+      // This prevents "WELCOME BACK" from showing in private windows
+      if (detectedIncognito) {
+        console.log('[Splash] Incognito detected — forcing first_load behavior');
+        isFirstVisit = true;
+        isHomeUpdate = false;
+      }
+      
+      console.log('[Splash] Mode from App.jsx:', mode, { isFirstVisit, isHomeUpdate, detectedIncognito });
 
       // Set has-visited flag for subsequent visits (not home updates, which already have it)
-      if (!isFirstVisit && !isHomeUpdate) {
+      if (!isFirstVisit && !isHomeUpdate && !detectedIncognito) {
         localStorage.setItem('kjb-has-visited-app', 'true');
       }
 
@@ -50,12 +58,13 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         await pause(STEP_PAUSE_MS);
 
         // 2. Downloading offline data if not cached - FIRE BANNER
+        // Always show this step in first_load, but skip actual download in incognito
         const { downloadBibleForOffline, isBibleCached } = await import('@/lib/bibleCache');
         const isActuallyCached = await isBibleCached();
         
+        setStep('DOWNLOADING OFFLINE DATA...', true);
         if (!detectedIncognito && !isActuallyCached) {
           console.log('[Splash] Starting offline download...');
-          setStep('DOWNLOADING OFFLINE DATA...', true);
           try {
             await downloadBibleForOffline((pct, msg) => {
               console.log('[Splash] Download progress:', pct, msg);
@@ -64,12 +73,12 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           } catch (err) {
             console.error('[Splash] Offline download failed:', err.message);
           }
-          await pause(STEP_PAUSE_MS);
         } else if (detectedIncognito) {
-          console.log('[Splash] Incognito mode detected — skipping offline download');
+          console.log('[Splash] Incognito mode detected — skipping download (storage not persistent)');
         } else {
           console.log('[Splash] Bible already cached — skipping download');
         }
+        await pause(STEP_PAUSE_MS);
 
         // 3. Checking for updates - FIRE BANNER
         setStep('CHECKING FOR UPDATES...', true);

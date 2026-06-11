@@ -99,6 +99,7 @@ function preloadAllRoutes() {
 
 import { Loader2 } from 'lucide-react';
 import SplashScreen from '@/components/SplashScreen';
+import { detectIncognito } from '@/lib/incognito';
 
 const RouteLoader = () => (
   <div className="flex justify-center py-24">
@@ -157,11 +158,10 @@ const AuthenticatedApp = () => {
 
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
   
-  // Determine splash mode once on mount — check flags FIRST, then SW state
+  // Determine splash mode once on mount — check incognito FIRST, then flags
   const [splashMode, setSplashMode] = React.useState(() => {
     const localFlag = localStorage.getItem('kjb-splash-home-update');
     const sessionFlag = sessionStorage.getItem('kjb-splash-home-update');
-    const hasVisited = localStorage.getItem('kjb-has-visited-app');
     
     // If home-update flag is set (from HomePage update detection), use home_update mode
     if (localFlag === 'true' || sessionFlag === 'true') {
@@ -171,9 +171,15 @@ const AuthenticatedApp = () => {
       return 'home_update';
     }
     
-    // Otherwise determine based on visit history
+    // In incognito/private mode, ALWAYS use first_load (storage doesn't persist)
+    // Check this BEFORE checking hasVisited flag
+    const hasVisited = localStorage.getItem('kjb-has-visited-app');
+    const mightBeIncognito = !hasVisited;
+    
+    // If no hasVisited flag, could be first load OR incognito — SplashScreen will detect
+    // For now, assume first_load; SplashScreen handles incognito messaging
     const mode = hasVisited ? 'subsequent' : 'first_load';
-    console.log('[App] Splash mode:', mode, { hasVisited: !!hasVisited });
+    console.log('[App] Splash mode:', mode, { hasVisited: !!hasVisited, mightBeIncognito });
     return mode;
   });
   
