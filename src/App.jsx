@@ -222,7 +222,7 @@ const AuthenticatedApp = () => {
 
   const welcomeText = visitContext.isFirstVisit
     ? 'Welcome to KJB Reader!'
-    : 'Welcome back!';
+    : 'Welcome back to KJB Reader!';
 
   useEffect(() => {
     const originalTitle = document.title;
@@ -257,7 +257,7 @@ const AuthenticatedApp = () => {
 
   useEffect(() => {
     let cancelled = false;
-    const STEP = 12000; // 12-second pause between each visible banner step
+    const STEP = 10000; // 10-second pause between each visible banner step
     const splashLog = [];
 
     const logEntry = (msg) => {
@@ -279,7 +279,7 @@ const AuthenticatedApp = () => {
     const wait = (ms) => new Promise(r => setTimeout(r, ms));
     const done = () => { saveSplashLog(); if (!cancelled) setUpdateCheckDone(true); };
 
-    const SW_VER = 'v20260611_349';
+    const SW_VER = 'v20260611_350';
     const CURRENT_BIBLE_VERSION = 'v20260611_340';
     const getBibleVer = () => { try { return localStorage.getItem('bible_cache_version') || '(none)'; } catch { return '(none)'; } };
 
@@ -322,29 +322,30 @@ const AuthenticatedApp = () => {
 
       // Helper: apply pending SW worker and re-check for more updates
       const applyAndRecheck = async () => {
-        emit('Applying updates...');
-        if (reg) {
-          const target = reg.waiting || reg.installing;
-          if (target) target.postMessage({ type: 'SKIP_WAITING' });
-        }
-        await wait(STEP);
-        emit('Checking for updates...');
-        if (reg) await reg.update().catch(() => {});
-        await wait(STEP);
-        const stillHasSw = reg ? !!(reg.waiting || reg.installing) : false;
-        const localBibleNow = (() => { try { return localStorage.getItem('bible_cache_version'); } catch { return null; } })();
-        const stillHasBible = localBibleNow && localBibleNow !== CURRENT_BIBLE_VERSION;
-        if (stillHasSw || stillHasBible) {
-          emit('Found updates...');
-          await wait(STEP);
-          emit('Installing updates...');
-          await wait(STEP);
+        let keepChecking = true;
+        while (keepChecking && !cancelled) {
           emit('Applying updates...');
-          if (reg) { const t = reg.waiting || reg.installing; if (t) t.postMessage({ type: 'SKIP_WAITING' }); }
+          if (reg) {
+            const target = reg.waiting || reg.installing;
+            if (target) target.postMessage({ type: 'SKIP_WAITING' });
+          }
           await wait(STEP);
-        } else {
-          emit('No updates found');
+          emit('Checking for updates...');
+          if (reg) await reg.update().catch(() => {});
           await wait(STEP);
+          const stillHasSw = reg ? !!(reg.waiting || reg.installing) : false;
+          const localBibleNow = (() => { try { return localStorage.getItem('bible_cache_version'); } catch { return null; } })();
+          const stillHasBible = localBibleNow && localBibleNow !== CURRENT_BIBLE_VERSION;
+          keepChecking = !!(stillHasSw || stillHasBible);
+          if (keepChecking) {
+            emit('Found updates...');
+            await wait(STEP);
+            emit('Installing updates...');
+            await wait(STEP);
+          } else {
+            emit('No updates found');
+            await wait(STEP);
+          }
         }
       };
 
@@ -362,7 +363,12 @@ const AuthenticatedApp = () => {
           emit('Installing updates...');
           await wait(STEP);
           await applyAndRecheck();
+        } else {
+          emit('No updates found');
+          await wait(STEP);
         }
+        emit(welcomeText);
+        await wait(STEP);
         logEntry(`✅ First load complete — SW: ${SW_VER} | Bible: ${getBibleVer()}`);
         done();
         return;
@@ -383,6 +389,8 @@ const AuthenticatedApp = () => {
         emit('No updates found');
         await wait(STEP);
       }
+      emit(welcomeText);
+      await wait(STEP);
       logEntry(`✅ Load complete — SW: ${SW_VER} | Bible: ${getBibleVer()}`);
       done();
     };
@@ -399,7 +407,7 @@ const AuthenticatedApp = () => {
   const [tabFocusUpdatePending, setTabFocusUpdatePending] = useState(false);
   const [tabFocusSplashMsg, setTabFocusSplashMsg] = useState('Found updates...');
   useEffect(() => {
-    const STEP = 12000;
+    const STEP = 10000;
     let applying = false;
     const handleVisibility = async () => {
       if (document.visibilityState !== 'visible') return;
@@ -419,27 +427,27 @@ const AuthenticatedApp = () => {
         await new Promise(r => setTimeout(r, STEP));
         setTabFocusSplashMsg('Installing updates...');
         await new Promise(r => setTimeout(r, STEP));
-        setTabFocusSplashMsg('Applying updates...');
-        const target = waiting || installing;
-        if (target) target.postMessage({ type: 'SKIP_WAITING' });
-        await new Promise(r => setTimeout(r, STEP));
-        setTabFocusSplashMsg('Checking for updates...');
-        await reg.update().catch(() => {});
-        await new Promise(r => setTimeout(r, STEP));
-        const stillWaiting = reg.waiting || reg.installing;
-        if (stillWaiting) {
-          setTabFocusSplashMsg('Found updates...');
-          await new Promise(r => setTimeout(r, STEP));
-          setTabFocusSplashMsg('Installing updates...');
-          await new Promise(r => setTimeout(r, STEP));
+        let keepChecking = true;
+        while (keepChecking) {
           setTabFocusSplashMsg('Applying updates...');
-          stillWaiting.postMessage({ type: 'SKIP_WAITING' });
+          const target = reg.waiting || reg.installing || waiting || installing;
+          if (target) target.postMessage({ type: 'SKIP_WAITING' });
           await new Promise(r => setTimeout(r, STEP));
-        } else {
-          setTabFocusSplashMsg('No updates found');
+          setTabFocusSplashMsg('Checking for updates...');
+          await reg.update().catch(() => {});
           await new Promise(r => setTimeout(r, STEP));
+          keepChecking = !!(reg.waiting || reg.installing);
+          if (keepChecking) {
+            setTabFocusSplashMsg('Found updates...');
+            await new Promise(r => setTimeout(r, STEP));
+            setTabFocusSplashMsg('Installing updates...');
+            await new Promise(r => setTimeout(r, STEP));
+          } else {
+            setTabFocusSplashMsg('No updates found');
+            await new Promise(r => setTimeout(r, STEP));
+          }
         }
-        setTabFocusSplashMsg('Welcome back!');
+        setTabFocusSplashMsg('Welcome back to KJB Reader!');
         // controllerchange in main.jsx triggers the page reload
       } catch (err) {
         console.warn('[KJB Tab-Focus] Update check failed:', err.message);
@@ -478,7 +486,7 @@ const AuthenticatedApp = () => {
             const hasUpdate = current.log.some(l => l.includes('Found updates') || l.includes('Applying') || l.includes('Bible update'));
             const outcome = hasError ? '❌ Error' : hasUpdate ? '🔄 Updated' : '✅ No updates';
             const bibleVer = (() => { try { return localStorage.getItem('bible_cache_version') || '(none)'; } catch { return '(none)'; } })();
-            console.group(`[KJB Splash Summary] App loaded — ${outcome} — SW: v20260611_349 | Bible: ${bibleVer}`);
+            console.group(`[KJB Splash Summary] App loaded — ${outcome} — SW: v20260611_350 | Bible: ${bibleVer}`);
             current.log.forEach((l, i) => console.log(`  ${i + 1}. ${l}`));
             if (allRuns.length > 1) {
               console.groupCollapsed(`Previous ${allRuns.length - 1} run(s)`);
