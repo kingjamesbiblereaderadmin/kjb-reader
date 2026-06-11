@@ -320,6 +320,22 @@ export default function HomePage() {
     };
     navigator.serviceWorker?.addEventListener('message', handleSWUpdate);
     
+    // Check for waiting service worker on mount (in case message was missed)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistration().then((reg) => {
+        if (reg?.waiting) {
+          console.log('[Home] Waiting SW found on mount — setting flags and reloading');
+          localStorage.setItem('kjb-splash-home-update', 'true');
+          sessionStorage.setItem('kjb-splash-home-update', 'true');
+          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          setTimeout(() => {
+            console.log('[Home] Reloading now to show splash (waiting SW)...');
+            window.location.href = window.location.pathname + '?refresh=' + Date.now();
+          }, 300);
+        }
+      }).catch(() => {});
+    }
+    
     // Also check on focus and online (when user returns to the app or internet is restored)
     const handleFocus = () => {
       setNotifEnabled(getNotificationsEnabled());
