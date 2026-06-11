@@ -101,7 +101,7 @@ function preloadAllRoutes() {
 
 // Provide a beautiful splash screen for initial app loading
 import { Loader2 } from 'lucide-react';
-const PageLoader = ({ isFadingOut, updateCheckDone }) => {
+const PageLoader = ({ isFadingOut }) => {
   const [isFirstVisit] = useState(() => {
     try {
       const visited = localStorage.getItem('kjb-has-visited-app');
@@ -115,11 +115,32 @@ const PageLoader = ({ isFadingOut, updateCheckDone }) => {
     }
   });
 
-  const text = isFirstVisit
+  const isPostUpdate = sessionStorage.getItem('kjb_sw_updated');
+  const isForcedUpdate = window.location.search.includes('updated=true');
+  const isUpdate = !!(isPostUpdate || isForcedUpdate);
+
+  const defaultText = isFirstVisit
     ? "Welcome to KJB Reader..."
-    : !updateCheckDone
-      ? "Loading..."
-      : "Welcome back...";
+    : isUpdate
+      ? "Applying updates..."
+      : "Loading...";
+
+  const [progressText, setProgressText] = useState('');
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.detail?.message) setProgressText(e.detail.message);
+    };
+    const clearHandler = () => setProgressText('');
+    window.addEventListener('kjb-progress', handler);
+    window.addEventListener('kjb-progress-clear', clearHandler);
+    return () => {
+      window.removeEventListener('kjb-progress', handler);
+      window.removeEventListener('kjb-progress-clear', clearHandler);
+    };
+  }, []);
+
+  const text = progressText || defaultText;
 
   return (
     <div className={`fixed inset-0 z-[999999] bg-background flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
@@ -292,7 +313,7 @@ const AuthenticatedApp = () => {
 
   return (
     <>
-      {renderSplash && <PageLoader isFadingOut={fadeSplash} updateCheckDone={updateCheckDone} />}
+      {renderSplash && <PageLoader isFadingOut={fadeSplash} />}
       {!isInitializing && !authError && (
         <Routes location={location}>
           <Route element={<AppLayout />}>
