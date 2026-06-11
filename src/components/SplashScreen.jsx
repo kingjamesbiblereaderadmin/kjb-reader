@@ -139,10 +139,9 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
       style={{ background: '#0f1117' }}
     >
       <div className="flex flex-col items-center -mt-16" style={{ gap: '48px' }}>
-        {/* Replace src with your logo URL */}
         <img
-          src="YOUR_LOGO_URL"
-          alt="App Logo"
+          src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png"
+          alt="KJB Reader Logo"
           className="w-44 h-44 object-contain rounded-2xl"
         />
         <div className="flex flex-col items-center gap-5">
