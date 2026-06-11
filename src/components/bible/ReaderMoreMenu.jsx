@@ -22,7 +22,7 @@ export default function ReaderMoreMenu({
           <span className="hidden lg:inline">More</span>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-52">
+      <DropdownMenuContent align="end" sideOffset={8} className="w-52 z-[100]">
         <DropdownMenuLabel>Display</DropdownMenuLabel>
         <DropdownMenuItem onClick={onToggleFlow} className="cursor-pointer">
           {flowMode === 'line' ? <List className="w-4 h-4 mr-2" /> : <AlignJustify className="w-4 h-4 mr-2" />}
