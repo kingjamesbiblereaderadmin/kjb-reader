@@ -537,6 +537,26 @@ const AuthenticatedApp = () => {
         window.kjbSplashDone = true;
         window.dispatchEvent(new Event('kjb-splash-done'));
 
+        // App is now loaded — print a summary of ALL splash runs (including
+        // ones that ran before the most recent reload) so the full update
+        // history is visible in the console after updates are applied.
+        try {
+          const runs = JSON.parse(localStorage.getItem('kjb-splash-log') || '[]');
+          if (runs.length) {
+            console.groupCollapsed(`[KJB Splash Summary] ✅ App loaded — ${runs.length} run(s) recorded`);
+            runs.forEach((run, i) => {
+              console.group(`Run ${i + 1}: ${run.at}`);
+              run.log.forEach(l => console.log(l));
+              console.groupEnd();
+            });
+            console.groupEnd();
+          } else {
+            console.log('[KJB Splash Summary] ✅ App loaded — no splash runs recorded');
+          }
+        } catch (e) {
+          console.warn('[KJB Splash Summary] Could not read splash history:', e.message);
+        }
+
         // Final background SW check after splash — ensures any newly-deployed
         // SW that arrived while the app was loading gets registered for next visit.
         if ('serviceWorker' in navigator) {
