@@ -255,7 +255,7 @@ const AuthenticatedApp = () => {
 
         // Check for Bible data update (version mismatch in localStorage)
         const localBibleVersion = (() => { try { return localStorage.getItem('bible_cache_version'); } catch { return null; } })();
-        const hasBibleUpdate = localBibleVersion && localBibleVersion !== 'v20260611_320';
+        const hasBibleUpdate = localBibleVersion && localBibleVersion !== 'v20260611_321';
         if (hasBibleUpdate) {
           console.log('[KJB Splash] Bible cache outdated:', localBibleVersion, '→ v20260611_320');
         }
