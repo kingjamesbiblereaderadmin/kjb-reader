@@ -3,65 +3,21 @@ import { Loader2 } from 'lucide-react';
 
 const APP_NAME = 'KJB Reader';
 const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png';
-const FIRST_VISIT_KEY = 'kjb-has-visited-app';
-const STEP_MS = 800;
+const FIRST_VISIT_KEY = 'kjb_has_visited';
+const STEP_MS = 10000;
 
-function checkIsFirstVisit() {
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function isFirstVisit() {
   try { return !localStorage.getItem(FIRST_VISIT_KEY); } catch { return false; }
 }
 function markVisited() {
   try { localStorage.setItem(FIRST_VISIT_KEY, 'true'); } catch {}
 }
 
-async function getSwReg(timeoutMs = 4000) {
+async function getSwReg() {
   if (!('serviceWorker' in navigator)) return null;
-  const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-  if (reg) return reg;
-  return new Promise((resolve) => {
-    const interval = setInterval(async () => {
-      const r = await navigator.serviceWorker.getRegistration().catch(() => null);
-      if (r) { clearInterval(interval); clearTimeout(timer); resolve(r); }
-    }, 150);
-    const timer = setTimeout(() => { clearInterval(interval); resolve(null); }, timeoutMs);
-  });
-}
-
-async function checkForUpdate(reg) {
-  if (!reg) return false;
-  if (reg.waiting) return true;
-  await reg.update().catch(() => {});
-  if (reg.waiting) return true;
-  return new Promise((resolve) => {
-    if (reg.waiting) { resolve(true); return; }
-    const onInstalling = (worker) => {
-      const onState = () => {
-        if (worker.state === 'installed') { worker.removeEventListener('statechange', onState); resolve(true); }
-        else if (worker.state === 'redundant') { worker.removeEventListener('statechange', onState); resolve(false); }
-      };
-      worker.addEventListener('statechange', onState);
-    };
-    if (reg.installing) { onInstalling(reg.installing); setTimeout(() => resolve(false), 5000); return; }
-    const onFound = () => {
-      reg.removeEventListener('updatefound', onFound);
-      if (reg.installing) onInstalling(reg.installing);
-      else resolve(false);
-    };
-    reg.addEventListener('updatefound', onFound);
-    setTimeout(() => { reg.removeEventListener('updatefound', onFound); resolve(false); }, 5000);
-  });
-}
-
-async function applyUpdate(reg) {
-  const target = reg?.waiting || reg?.installing;
-  if (!target) return;
-  window._kjbSplashApplyingUpdate = true;
-  target.postMessage({ type: 'SKIP_WAITING' });
-  await new Promise((resolve) => {
-    const onController = () => { navigator.serviceWorker.removeEventListener('controllerchange', onController); resolve(); };
-    navigator.serviceWorker.addEventListener('controllerchange', onController);
-    setTimeout(resolve, 3000);
-  });
-  window._kjbSplashApplyingUpdate = false;
+  try { return await navigator.serviceWorker.getRegistration(); } catch { return null; }
 }
 
 async function downloadOfflineData() {
@@ -71,130 +27,138 @@ async function downloadOfflineData() {
   } catch {}
 }
 
-// ─────────────────────────────────────────────────────────────────
+async function installUpdates() {
+  // No-op hook — actual installation happens via SW registration flow
+}
+
+async function applyUpdates() {
+  try {
+    const reg = await getSwReg();
+    const target = reg?.waiting || reg?.installing;
+    if (!target) return;
+    window._kjbSplashApplyingUpdate = true;
+    target.postMessage({ type: 'SKIP_WAITING' });
+    await new Promise((resolve) => {
+      const onController = () => {
+        navigator.serviceWorker.removeEventListener('controllerchange', onController);
+        resolve();
+      };
+      navigator.serviceWorker.addEventListener('controllerchange', onController);
+      setTimeout(resolve, 3000);
+    });
+    window._kjbSplashApplyingUpdate = false;
+  } catch {}
+}
+
+// ── Scenario step sequences ───────────────────────────────────────────────────
+
+const SCENARIOS = {
+  first_load: [
+    'Loading…',
+    'Downloading offline data…',
+    'Checking for updates…',
+    'No updates found.',
+    `Welcome to ${APP_NAME}.`,
+  ],
+  subsequent: [
+    'Loading…',
+    'Checking for updates…',
+    'No updates found.',
+    `Welcome back to ${APP_NAME}.`,
+  ],
+  subsequent_with_updates: [
+    'Loading…',
+    'Checking for updates…',
+    'Found app & data updates.',
+    'Installing updates…',
+    'Applying updates…',
+    `Welcome back to ${APP_NAME}.`,
+  ],
+  home_update: [
+    'Loading…',
+    'Checking for updates…',
+    'Found app updates.',
+    'Installing updates…',
+    'Applying updates…',
+    `Welcome back to ${APP_NAME}.`,
+  ],
+};
+
+async function detectAutoScenario() {
+  const first = isFirstVisit();
+
+  // Check for waiting/installing SW (update available)
+  const reg = await getSwReg();
+  const hasSwUpdate = !!(reg?.waiting || reg?.installing);
+
+  // Check for data version mismatch
+  let hasDataUpdate = false;
+  try {
+    const localVer = localStorage.getItem('kjb_data_version');
+    const remoteVer = window.kjbRemoteDataVersion;
+    if (remoteVer && localVer !== remoteVer) hasDataUpdate = true;
+  } catch {}
+
+  if (first) {
+    markVisited();
+    if (hasSwUpdate && hasDataUpdate) return 'subsequent_with_updates';
+    if (hasSwUpdate) return 'home_update';
+    return 'first_load';
+  }
+
+  if (hasSwUpdate && hasDataUpdate) return 'subsequent_with_updates';
+  if (hasSwUpdate) return 'home_update';
+  if (hasDataUpdate) return 'subsequent_with_updates';
+  return 'subsequent';
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
 
 export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
   const [statusText, setStatusText] = useState('Loading…');
-  const [devLog, setDevLog] = useState([]);
   const doneRef = useRef(false);
-  const log = useRef([]);
 
   useEffect(() => {
     let cancelled = false;
 
-    const show = (text) => {
-      if (cancelled) return Promise.resolve();
-      const entry = `[${new Date().toISOString().slice(11,23)}] ${text}`;
-      log.current.push(text);
-      setDevLog(prev => [...prev, entry]);
-      setStatusText(text);
-      console.log(`[KJB Splash] ${entry}`);
-      return new Promise(resolve => setTimeout(resolve, STEP_MS));
-    };
+    const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
-    const delay = (ms) => new Promise(r => setTimeout(r, ms));
+    const runSteps = async (steps) => {
+      const log = [];
 
-    const done = () => {
-      if (cancelled || doneRef.current) return;
-      doneRef.current = true;
-      console.groupCollapsed('[KJB Splash] Steps');
-      log.current.forEach((s, i) => console.log(`${i + 1}. ${s}`));
+      for (const step of steps) {
+        if (cancelled) return;
+        setStatusText(step);
+        console.log(`[KJB Splash] ${step}`);
+        log.push(step);
+
+        // Side-effect hooks
+        if (step.includes('Downloading offline')) await downloadOfflineData();
+        if (step.includes('Installing updates')) await installUpdates();
+        if (step.includes('Applying updates')) await applyUpdates();
+
+        await delay(STEP_MS);
+        if (cancelled) return;
+      }
+
+      // Log summary
+      console.groupCollapsed('[KJB Splash] Steps completed');
+      log.forEach((s, i) => console.log(`${i + 1}. ${s}`));
       console.groupEnd();
-      onDone?.();
+
+      if (!doneRef.current) {
+        doneRef.current = true;
+        onDone?.();
+      }
     };
 
     const run = async () => {
-      log.current = ['Loading…'];
-
-      // ── Simulated test scenarios ──────────────────────────────
-
-      if (mode === 'first_load') {
-        // Scenario 1: brand new user
-        await show('Downloading offline Bible data…');
-        await delay(1200);
-        await show('Checking for updates…');
-        await show('No updates found.');
-        await show(`Welcome to ${APP_NAME}.`);
-        done(); return;
+      let scenario = mode;
+      if (mode === 'auto') {
+        scenario = await detectAutoScenario();
       }
-
-      if (mode === 'subsequent') {
-        // Scenario 2: returning user, no updates
-        await show('Checking for updates…');
-        await show('No updates found.');
-        await show(`Welcome back to ${APP_NAME}.`);
-        done(); return;
-      }
-
-      if (mode === 'subsequent_with_updates') {
-        // Scenario 3: returning user, updates available
-        await show('Checking for updates…');
-        await show('Updates found.');
-        await show('Installing updates…');
-        await delay(1200);
-        await show('Applying updates…');
-        await delay(800);
-        // Verify update applied
-        const verified3 = true; // simulated success
-        if (verified3) {
-          await show(`Welcome back to ${APP_NAME}.`);
-        } else {
-          await show('Update could not be applied. Welcome back.');
-        }
-        done(); return;
-      }
-
-      if (mode === 'home_update') {
-        // Scenario 4: opened from home screen, update waiting
-        await show('Updates found.');
-        await show('Installing updates…');
-        await delay(1200);
-        await show('Applying updates…');
-        await delay(800);
-        // Verify update applied
-        const verified4 = true; // simulated success
-        if (verified4) {
-          await show(`Welcome back to ${APP_NAME}.`);
-        } else {
-          await show('Update could not be applied. Welcome back.');
-        }
-        done(); return;
-      }
-
-      // ── Auto mode: real production logic ─────────────────────
-
-      const isFirst = checkIsFirstVisit();
-      if (isFirst) markVisited();
-
-      let reg = await getSwReg();
-
-      if (isFirst) {
-        await show('Downloading offline Bible data…');
-        await downloadOfflineData();
-      }
-
-      await show('Checking for updates…');
-      const hasUpdate = await checkForUpdate(reg);
-
-      if (hasUpdate) {
-        await show('Updates found.');
-        await show('Installing updates…');
-        await applyUpdate(reg);
-        await show('Applying updates…');
-        // Re-check: verify the update was actually applied
-        reg = await getSwReg();
-        const stillPending = await checkForUpdate(reg);
-        if (stillPending) {
-          // Update didn't fully apply — try once more
-          await show('Verifying update…');
-          await applyUpdate(reg);
-        }
-      } else {
-        await show('No updates found.');
-      }
-
-      await show(isFirst ? `Welcome to ${APP_NAME}.` : `Welcome back to ${APP_NAME}.`);
-      done();
+      const steps = SCENARIOS[scenario] || SCENARIOS.subsequent;
+      await runSteps(steps);
     };
 
     run();
@@ -209,7 +173,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
       <div className="flex flex-col items-center -mt-16">
         <img
           src={LOGO_URL}
-          alt="KJB Reader"
+          alt={APP_NAME}
           className="rounded-2xl object-contain"
           style={{ width: 176, height: 176 }}
         />
@@ -225,17 +189,6 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
             {statusText}
           </span>
         </div>
-      </div>
-
-      {/* Dev log — visible in-app so you can see splash steps without opening DevTools */}
-      <div
-        className="absolute bottom-0 left-0 right-0 p-4 font-mono text-[10px] leading-relaxed"
-        style={{ color: '#5a6070', maxHeight: 160, overflowY: 'auto' }}
-      >
-        <div style={{ color: '#3a4060', marginBottom: 4 }}>mode: {mode}</div>
-        {devLog.map((line, i) => (
-          <div key={i} style={{ color: i === devLog.length - 1 ? '#a0b0ff' : '#5a6070' }}>{line}</div>
-        ))}
       </div>
     </div>
   );
