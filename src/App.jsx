@@ -234,8 +234,24 @@ const AuthenticatedApp = () => {
 
   useEffect(() => {
     let cancelled = false;
-    const emit = (msg) => {
+    // Persist splash log to localStorage so it survives reloads
+    const splashLog = [];
+    const logEntry = (msg) => {
+      const ts = new Date().toISOString().slice(11, 23);
+      splashLog.push(`${ts} ${msg}`);
       console.log('[KJB Splash]', msg);
+    };
+    const saveSplashLog = () => {
+      try {
+        const prev = JSON.parse(localStorage.getItem('kjb-splash-log') || '[]');
+        const entry = { at: new Date().toISOString(), log: splashLog };
+        // Keep last 5 splash runs
+        const next = [entry, ...prev].slice(0, 5);
+        localStorage.setItem('kjb-splash-log', JSON.stringify(next));
+      } catch {}
+    };
+    const emit = (msg) => {
+      logEntry(msg);
       window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: msg } }));
     };
 
@@ -313,8 +329,9 @@ const AuthenticatedApp = () => {
         console.log('[KJB Splash] SW update available:', hasSwUpdate);
 
         if (!hasBibleUpdate && !hasSwUpdate) {
-          console.log('[KJB Splash] ✅ Everything up to date — no updates needed');
+          logEntry('✅ No updates needed');
           emit('No updates found');
+          saveSplashLog();
           // Show "No updates found" for a readable moment before dismissing
           await new Promise(r => setTimeout(r, 1200));
           if (!cancelled) setUpdateCheckDone(true);
@@ -341,12 +358,15 @@ const AuthenticatedApp = () => {
           const postBibleInstalling = reg.installing;
           console.log('[KJB Splash] Post-Bible-update SW state — waiting:', !!postBibleWaiting, '| installing:', !!postBibleInstalling);
           if ((postBibleWaiting || postBibleInstalling) && hasController) {
-            console.log('[KJB Splash] 🔧 SW update also found — activating');
+            logEntry('🔧 SW update also found after Bible update — activating');
+            saveSplashLog();
             const target = postBibleWaiting || postBibleInstalling;
             if (target) { target.postMessage({ type: 'SKIP_WAITING' }); console.log('[KJB Splash] ✉️ SKIP_WAITING sent after Bible update'); }
             setTimeout(() => { if (!cancelled) setUpdateCheckDone(true); }, 3000);
             return;
           }
+          logEntry('✅ Bible update applied, no SW update needed');
+          saveSplashLog();
           if (!cancelled) setUpdateCheckDone(true);
           return;
         }
@@ -406,15 +426,18 @@ const AuthenticatedApp = () => {
             console.log('[KJB Splash] 🔄 Bible data will re-download in background');
             await new Promise(r => setTimeout(r, 600));
           } else {
+            logEntry('✅ No further updates after SW update');
             emit('No updates found');
-            console.log('[KJB Splash] ✅ No further updates after SW update');
           }
 
+          saveSplashLog();
           setTimeout(() => { if (!cancelled) setUpdateCheckDone(true); }, 3000);
           return;
         }
       } catch (err) {
+        logEntry('❌ Error: ' + err.message);
         console.error('[KJB Splash] ❌ Update check error:', err.message);
+        saveSplashLog();
       }
       if (!cancelled) setUpdateCheckDone(true);
     };
