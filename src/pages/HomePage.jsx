@@ -114,6 +114,8 @@ export default function HomePage() {
     // Periodic service worker update check for open tabs (every 10 seconds)
     const swCheckInterval = setInterval(async () => {
       if (!navigator.onLine) return;
+      // Skip checks if splash screen hasn't completed yet
+      if (!window.kjbSplashDone) return;
       try {
         if ('serviceWorker' in navigator) {
           const reg = await navigator.serviceWorker.getRegistration();
@@ -139,6 +141,8 @@ export default function HomePage() {
     // Check for updates on visibility change (when user returns to tab)
     const handleVisibilityChange = async () => {
       if (document.visibilityState !== 'visible' || !navigator.onLine) return;
+      // Skip checks if splash screen hasn't completed yet
+      if (!window.kjbSplashDone) return;
       try {
         if ('serviceWorker' in navigator) {
           const reg = await navigator.serviceWorker.getRegistration();
@@ -367,6 +371,11 @@ export default function HomePage() {
     // Listen for service worker update messages — set flag for SplashScreen
     const handleSWUpdate = (event) => {
       if (event.data?.type === 'UPDATE_FOUND') {
+        // Skip if splash screen hasn't completed yet (prevents premature reload on app open)
+        if (!window.kjbSplashDone) {
+          console.log('[Home] SW update detected but splash not done — ignoring until splash completes');
+          return;
+        }
         console.log('[Home] SW update detected — setting flags and reloading for splash flow');
         // Set BOTH flags (localStorage persists through SW reloads)
         localStorage.setItem('kjb-splash-home-update', 'true');
@@ -384,6 +393,11 @@ export default function HomePage() {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistration().then((reg) => {
         if (reg?.waiting) {
+          // Skip if splash screen hasn't completed yet (prevents premature reload on app open)
+          if (!window.kjbSplashDone) {
+            console.log('[Home] Waiting SW found but splash not done — ignoring until splash completes');
+            return;
+          }
           console.log('[Home] Waiting SW found on mount — setting flags and reloading');
           localStorage.setItem('kjb-splash-home-update', 'true');
           sessionStorage.setItem('kjb-splash-home-update', 'true');
