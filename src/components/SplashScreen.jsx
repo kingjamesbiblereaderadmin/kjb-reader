@@ -16,24 +16,61 @@ async function detectSwUpdate() {
   if (!('serviceWorker' in navigator)) return { hasUpdate: false };
   try {
     const reg = await navigator.serviceWorker.getRegistration();
-    console.log('[SplashScreen] SW reg:', reg, 'controller:', navigator.serviceWorker.controller, 'waiting:', reg?.waiting, 'installing:', reg?.installing);
     if (!reg) return { hasUpdate: false };
-    // Already has a queued update
-    if (reg.waiting && navigator.serviceWorker.controller) {
-      console.log('[SplashScreen] Found waiting SW update immediately');
+
+    // Already has a worker queued up waiting to activate
+    if (reg.waiting) {
+      console.log('[SplashScreen] Waiting SW found immediately');
       return { hasUpdate: true, reg };
     }
-    // Trigger network check, wait up to 2s for updatefound
+
+    // Trigger a network fetch of sw.js, then wait up to 4s for a new worker
+    // to finish installing (updatefound → installing → installed/waiting).
     await reg.update().catch(() => {});
-    await new Promise((resolve) => {
-      if (reg.installing || reg.waiting) { resolve(); return; }
-      const onFound = () => { reg.removeEventListener('updatefound', onFound); resolve(); };
+
+    const hasUpdate = await new Promise((resolve) => {
+      // Already installing by the time update() resolves
+      if (reg.waiting) { resolve(true); return; }
+
+      if (reg.installing) {
+        const worker = reg.installing;
+        const onState = () => {
+          if (worker.state === 'installed' || worker.state === 'waiting') {
+            worker.removeEventListener('statechange', onState);
+            resolve(true);
+          } else if (worker.state === 'redundant') {
+            worker.removeEventListener('statechange', onState);
+            resolve(false);
+          }
+        };
+        worker.addEventListener('statechange', onState);
+        setTimeout(() => { worker.removeEventListener('statechange', onState); resolve(false); }, 4000);
+        return;
+      }
+
+      // No worker installing yet — wait for updatefound, then track its state
+      const onFound = () => {
+        reg.removeEventListener('updatefound', onFound);
+        const worker = reg.installing;
+        if (!worker) { resolve(false); return; }
+        const onState = () => {
+          if (worker.state === 'installed' || worker.state === 'waiting') {
+            worker.removeEventListener('statechange', onState);
+            resolve(true);
+          } else if (worker.state === 'redundant') {
+            worker.removeEventListener('statechange', onState);
+            resolve(false);
+          }
+        };
+        worker.addEventListener('statechange', onState);
+        setTimeout(() => { worker.removeEventListener('statechange', onState); resolve(false); }, 4000);
+      };
       reg.addEventListener('updatefound', onFound);
-      setTimeout(() => { reg.removeEventListener('updatefound', onFound); resolve(); }, 2000);
+      setTimeout(() => { reg.removeEventListener('updatefound', onFound); resolve(false); }, 4000);
     });
-    const hasUpdate = !!(reg.waiting || reg.installing) && !!navigator.serviceWorker.controller;
-    console.log('[SplashScreen] After update check — hasUpdate:', hasUpdate, 'waiting:', reg.waiting, 'installing:', reg.installing);
-    return { hasUpdate, reg };
+
+    console.log('[SplashScreen] detectSwUpdate result:', hasUpdate, '| waiting:', !!reg.waiting, '| controller:', !!navigator.serviceWorker.controller);
+    return { hasUpdate: hasUpdate && !!navigator.serviceWorker.controller, reg };
   } catch (e) {
     console.error('[SplashScreen] detectSwUpdate error:', e);
     return { hasUpdate: false };
