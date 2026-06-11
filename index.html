@@ -7,6 +7,15 @@
     <script>
       (function () {
         try {
+          var __ua = navigator.userAgent || '';
+          var __isIE = /Trident|MSIE/i.test(__ua);
+          var __optedOut = (window.location.search || '').indexOf('nolegacy=1') !== -1;
+          // Catch Internet Explorer FIRST, before any other routing — IE can't
+          // run the React SPA at all, so send it straight to the legacy domain.
+          if (__isIE && !__optedOut) {
+            window.location.replace('https://kjbreaderlegacy.com/');
+            return;
+          }
           // On the dedicated legacy domain, EVERY visitor goes straight to the
           // server-rendered legacy reader function — no React, no /legacy hop.
           var lh = window.location.hostname || '';
