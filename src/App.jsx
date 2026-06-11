@@ -185,6 +185,12 @@ const FadeIn = ({ children }) => {
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const location = useLocation();
+
+  // On the dedicated legacy domain (kjbreaderlegacy.com), always route visitors
+  // straight to the legacy reader — regardless of which path they land on.
+  const isLegacyDomain = typeof window !== 'undefined'
+    && /(^|\.)kjbreaderlegacy\.com$/i.test(window.location.hostname);
+  const shouldRedirectToLegacy = isLegacyDomain && location.pathname !== '/legacy';
   const [minSplashDone, setMinSplashDone] = useState(false);
   const [updateCheckDone, setUpdateCheckDone] = useState(false);
   const [routeLoaded, setRouteLoaded] = useState(false);
@@ -342,6 +348,10 @@ const AuthenticatedApp = () => {
       navigateToLogin();
       return null;
     }
+  }
+
+  if (shouldRedirectToLegacy) {
+    return <Navigate to="/legacy" replace />;
   }
 
   return (
