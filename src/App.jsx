@@ -257,7 +257,7 @@ const AuthenticatedApp = () => {
 
   useEffect(() => {
     let cancelled = false;
-    const STEP = 10000; // 10-second pause between each visible banner step
+    const STEP = 12000; // 12-second pause between each visible banner step
     const splashLog = [];
 
     const logEntry = (msg) => {
@@ -279,7 +279,7 @@ const AuthenticatedApp = () => {
     const wait = (ms) => new Promise(r => setTimeout(r, ms));
     const done = () => { saveSplashLog(); if (!cancelled) setUpdateCheckDone(true); };
 
-    const SW_VER = 'v20260611_348';
+    const SW_VER = 'v20260611_349';
     const CURRENT_BIBLE_VERSION = 'v20260611_340';
     const getBibleVer = () => { try { return localStorage.getItem('bible_cache_version') || '(none)'; } catch { return '(none)'; } };
 
@@ -399,7 +399,7 @@ const AuthenticatedApp = () => {
   const [tabFocusUpdatePending, setTabFocusUpdatePending] = useState(false);
   const [tabFocusSplashMsg, setTabFocusSplashMsg] = useState('Found updates...');
   useEffect(() => {
-    const STEP = 10000;
+    const STEP = 12000;
     let applying = false;
     const handleVisibility = async () => {
       if (document.visibilityState !== 'visible') return;
@@ -478,7 +478,7 @@ const AuthenticatedApp = () => {
             const hasUpdate = current.log.some(l => l.includes('Found updates') || l.includes('Applying') || l.includes('Bible update'));
             const outcome = hasError ? '❌ Error' : hasUpdate ? '🔄 Updated' : '✅ No updates';
             const bibleVer = (() => { try { return localStorage.getItem('bible_cache_version') || '(none)'; } catch { return '(none)'; } })();
-            console.group(`[KJB Splash Summary] App loaded — ${outcome} — SW: v20260611_348 | Bible: ${bibleVer}`);
+            console.group(`[KJB Splash Summary] App loaded — ${outcome} — SW: v20260611_349 | Bible: ${bibleVer}`);
             current.log.forEach((l, i) => console.log(`  ${i + 1}. ${l}`));
             if (allRuns.length > 1) {
               console.groupCollapsed(`Previous ${allRuns.length - 1} run(s)`);
