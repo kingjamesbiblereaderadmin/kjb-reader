@@ -253,6 +253,25 @@ const AuthenticatedApp = () => {
         const installingWorker = reg.installing;
         console.log('[KJB Splash] SW check — waiting:', !!waitingWorker, '| installing:', !!installingWorker, '| controller:', !!navigator.serviceWorker.controller);
 
+        // Check for Bible data update (version mismatch in localStorage)
+        const localBibleVersion = (() => { try { return localStorage.getItem('bible_cache_version'); } catch { return null; } })();
+        const hasBibleUpdate = localBibleVersion && localBibleVersion !== 'v20260611_320';
+        if (hasBibleUpdate) {
+          console.log('[KJB Splash] Bible cache outdated:', localBibleVersion, '→ v20260611_320');
+        }
+
+        if (hasBibleUpdate && !(waitingWorker || installingWorker)) {
+          setTimeout(() => { if (!cancelled) setMinSplashDone(true); }, 4000);
+          emit('Found updates...');
+          await new Promise(r => setTimeout(r, 700));
+          emit('Installing updates...');
+          await new Promise(r => setTimeout(r, 700));
+          emit('Applying updates...');
+          await new Promise(r => setTimeout(r, 600));
+          if (!cancelled) setUpdateCheckDone(true);
+          return;
+        }
+
         if ((waitingWorker || installingWorker) && navigator.serviceWorker.controller) {
           // Extend minimum splash to cover the update flow
           setTimeout(() => { if (!cancelled) setMinSplashDone(true); }, 4000);
