@@ -65,9 +65,12 @@ window.addEventListener('load', async () => {
       let refreshing = false;
       let hasExistingController = !!navigator.serviceWorker.controller;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (hasExistingController && !refreshing) {
+        // Only auto-reload on the homepage so users aren't interrupted while
+        // reading on other pages. The new worker is already active; other pages
+        // will pick it up on their next navigation/reload.
+        if (hasExistingController && !refreshing && window.location.pathname === '/') {
           refreshing = true;
-          console.log('[SW] Controller changed. Reloading to apply updates.');
+          console.log('[SW] Controller changed. Reloading homepage to apply updates.');
           window.location.href = window.location.pathname + '?updated=true';
         }
         hasExistingController = true;
