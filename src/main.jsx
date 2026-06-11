@@ -48,25 +48,11 @@ window.addEventListener('load', async () => {
         hasExistingController = true;
       });
 
-      // If a worker is already waiting when we register, activate it immediately.
-      if (registration.waiting && navigator.serviceWorker.controller) {
-        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-      }
+      // NOTE: SKIP_WAITING and update activation are handled by SplashScreen.
+      // main.jsx must NOT auto-activate waiting workers on load, or the page
+      // reloads before SplashScreen can show the update flow to the user.
 
-      // Listen for newly-found workers and activate them right away.
-      // controllerchange (above) then reloads the page with ?updated=true.
-      registration.addEventListener('updatefound', () => {
-        const newWorker = registration.installing;
-        if (!newWorker) return;
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            newWorker.postMessage({ type: 'SKIP_WAITING' });
-          }
-        });
-      });
-
-      // Proactively check for an updated worker on every load.
-      registration.update().catch(() => {});
+      // Periodic background update check — starts after SplashScreen is done.
 
       // Periodic background update check — every 60s while tab is visible.
       const POLL_MS = 60 * 1000;
