@@ -12,6 +12,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
   const setStep = (message) => {
     stepsLog.current.push(message);
     setCurrentMessage(message);
+    console.log('[KJB Splash]', message);
   };
 
   const pause = (ms) => new Promise(r => setTimeout(r, ms));
@@ -27,17 +28,22 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
 
       if (mode === 'first_load') {
         isFirstVisit = true;
+        console.log('[KJB Splash] Mode: first_load (simulated first visit)');
       } else if (mode === 'subsequent') {
         isFirstVisit = false;
+        console.log('[KJB Splash] Mode: subsequent (returning user, no updates)');
       } else if (mode === 'subsequent_with_updates') {
         isFirstVisit = false;
         forceUpdates = true;
+        console.log('[KJB Splash] Mode: subsequent_with_updates (simulated updates)');
       } else if (mode === 'home_update') {
         isFirstVisit = false;
         forceHomeUpdate = true;
+        console.log('[KJB Splash] Mode: home_update (triggered from home page)');
       } else {
         isFirstVisit = !localStorage.getItem('kjb-has-visited-app');
         if (isFirstVisit) localStorage.setItem('kjb-has-visited-app', 'true');
+        console.log('[KJB Splash] Mode: auto — isFirstVisit:', isFirstVisit);
       }
 
       // Step 1: Loading
@@ -68,8 +74,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
         if (forceUpdates) {
           swUpdated = true;
           dataUpdated = true;
+          console.log('[KJB Splash] Force updates: swUpdated=true, dataUpdated=true');
         } else if (forceHomeUpdate) {
           swUpdated = true;
+          console.log('[KJB Splash] Force home update: swUpdated=true');
         } else if (mode === 'auto' && navigator.onLine) {
           try {
             if ('serviceWorker' in navigator) {
