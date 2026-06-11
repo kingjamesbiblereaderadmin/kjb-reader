@@ -266,7 +266,7 @@ const AuthenticatedApp = () => {
       // Print a concise summary to the console
       const last = splashLog[splashLog.length - 1] || '';
       const outcome = last.includes('No updates') ? '✅ No updates' : last.includes('Error') ? '❌ Error' : '🔄 Updated';
-      const swVer = 'v20260611_340';
+      const swVer = 'v20260611_343';
       const bibleVer = (() => { try { return localStorage.getItem('bible_cache_version') || '(none)'; } catch { return '(none)'; } })();
       console.groupCollapsed(`[KJB Splash] ${outcome} — SW: ${swVer} | Bible: ${bibleVer} — ${splashLog.length} step(s)`);
       splashLog.forEach(l => console.log(l));
@@ -278,7 +278,7 @@ const AuthenticatedApp = () => {
     };
 
     const check = async () => {
-      const swVer = 'v20260611_340';
+      const swVer = 'v20260611_343';
       const bibleVerAtStart = (() => { try { return localStorage.getItem('bible_cache_version') || '(none)'; } catch { return '(none)'; } })();
       console.log(`[KJB Splash] 🚦 Update check starting — SW: ${swVer} | Bible: ${bibleVerAtStart}`);
       if (!('serviceWorker' in navigator)) {
