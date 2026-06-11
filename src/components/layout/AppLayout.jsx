@@ -3,8 +3,10 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked, List, Wifi, WifiOff } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
+import { useInstallPrompt } from '@/hooks/useInstallPrompt';
+import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, initNotifications } from '@/lib/notifications';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
-
+import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import ShortcutsModal from '@/components/ShortcutsModal';
 import ScrollToTop from '@/components/ScrollToTop';
 import AutoUpdateHandler from '@/components/AutoUpdateHandler';
@@ -164,7 +166,51 @@ export default function AppLayout() {
   // Footer is always visible on desktop, controlled by bottom nav on mobile
   const isRoot = pathname === '/';
 
+  // FirstLoadPrompt state (centralized in AppLayout)
+  const { isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss } = useAppLayoutPrompt();
+  const [showPrompt, setShowPrompt] = useState(false);
 
+  useEffect(() => {
+    // Apply app-wide accessibility font preference on load
+    applyAccessibilityFont(getAccessibilityFont());
+
+    // Initialize periodic cache refresh (checks every 24 hours when user opens app)
+    initPeriodicCacheRefresh();
+
+    // Initialize daily-verse notifications app-wide
+    if (getNotificationsEnabled()) {
+      initNotifications();
+    }
+
+    // Show prompt once per session
+    const alreadyInstalled = window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
+    const notifGranted = 'Notification' in window && Notification.permission === 'granted';
+    const dismissed = localStorage.getItem('kjb-prompt-dismissed') === 'true' || localStorage.getItem('kjb-install-dismissed') === 'true';
+
+    const triggerPrompt = () => {
+      if (alreadyInstalled && !notifGranted) {
+        setTimeout(() => setShowPrompt(true), 1500);
+      } else if (!alreadyInstalled && !dismissed) {
+        setTimeout(() => setShowPrompt(true), 1500);
+      }
+    };
+
+    if (window.kjbSplashDone) {
+      triggerPrompt();
+    } else {
+      const onSplashDone = () => {
+        window.removeEventListener('kjb-splash-done', onSplashDone);
+        triggerPrompt();
+      };
+      window.addEventListener('kjb-splash-done', onSplashDone);
+      return () => window.removeEventListener('kjb-splash-done', onSplashDone);
+    }
+  }, []);
+
+  const handleDismissPrompt = () => {
+    setShowPrompt(false);
+    handleDismiss();
+  };
 
   // Legacy reader gets no layout chrome - just render the outlet
   if (isLegacy) {
@@ -300,6 +346,17 @@ export default function AppLayout() {
 
       <BottomNav pathname={pathname} navigate={navigate} />
 
+      {/* FirstLoadPrompt - shows once per session */}
+      {showPrompt && (
+        <FirstLoadPrompt
+          isInstallable={isInstallable}
+          notifPermission={notifPermission}
+          onInstall={handleInstall}
+          onEnableNotif={handleEnableNotif}
+          onDismiss={handleDismissPrompt}
+        />
+      )}
+
       {/* Scroll to top button - appears on all pages when scrolling */}
       <ScrollToTop />
 
@@ -375,6 +432,63 @@ function DesktopFooter({ navigate, setMenuOpen }) {
 }
 
 
+
+function useAppLayoutPrompt() {
+  const installPromptResult = useInstallPrompt();
+  const { isInstallable, isInstalled, promptInstall, dismiss } = installPromptResult;
+  
+  const [notifPermission, setNotifPermission] = useState(() => {
+    if (!('serviceWorker' in navigator)) return 'unsupported';
+    if (!('Notification' in window)) return 'supported';
+    return Notification.permission;
+  });
+  const [notifEnabled, setNotifEnabled] = useState(() => getNotificationsEnabled());
+
+  useEffect(() => {
+    const checkNotif = () => {
+      if (!('Notification' in window)) return;
+      setNotifPermission(Notification.permission);
+      setNotifEnabled(getNotificationsEnabled());
+    };
+    window.addEventListener('storage', checkNotif);
+    window.addEventListener('focus', checkNotif);
+    document.addEventListener('visibilitychange', checkNotif);
+    return () => {
+      window.removeEventListener('storage', checkNotif);
+      window.removeEventListener('focus', checkNotif);
+      document.removeEventListener('visibilitychange', checkNotif);
+    };
+  }, []);
+
+  const handleInstall = () => {
+    return promptInstall();
+  };
+
+  const handleEnableNotif = async () => {
+    try {
+      const result = await requestNotificationPermission();
+      setNotifPermission(result);
+      if (result === 'granted' || result === 'unsupported') {
+        scheduleDailyNotification();
+        setNotifEnabled(true);
+        window.dispatchEvent(new Event('storage'));
+        return true;
+      } else if (result === 'denied') {
+        alert('Notifications are blocked. Please allow notifications in your browser/app settings for this site.');
+      }
+    } catch (err) {
+      console.error('Notification permission error:', err);
+    }
+    return false;
+  };
+
+  const handleDismiss = () => {
+    dismiss();
+    try { localStorage.setItem('kjb-prompt-dismissed', 'true'); } catch {}
+  };
+
+  return { isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss };
+}
 
 function BottomNav({ pathname, navigate }) {
   const [showMode, setShowMode] = useState(() => {
