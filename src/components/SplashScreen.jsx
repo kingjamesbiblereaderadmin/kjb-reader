@@ -252,17 +252,11 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         setStep('APPLYING UPDATES...');
         await pause(STEP_PAUSE_MS);
 
-        // Activate service worker and reload to apply
+        // Activate service worker
         if ('serviceWorker' in navigator) {
           try {
             const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-            if (reg?.waiting) {
-              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-              // Reload after SW activates to apply the update
-              await pause(STEP_PAUSE_MS);
-              window.location.href = window.location.pathname + '?refresh=' + Date.now();
-              return;
-            }
+            if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
           } catch {}
         }
 
@@ -298,6 +292,9 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
               if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
             } catch {}
           }
+          // Check again after applying
+          setStep('CHECKING FOR UPDATES...');
+          await pause(STEP_PAUSE_MS);
         }
 
         // 5. Welcome back
