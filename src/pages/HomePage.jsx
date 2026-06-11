@@ -111,8 +111,34 @@ export default function HomePage() {
       }
     }, 2000);
 
+    // Periodic service worker update check for open tabs (every 5 minutes)
+    const swCheckInterval = setInterval(async () => {
+      if (!navigator.onLine) return;
+      try {
+        if ('serviceWorker' in navigator) {
+          const reg = await navigator.serviceWorker.getRegistration();
+          if (reg) {
+            await reg.update().catch(() => {});
+            // Check if new SW is waiting
+            if (reg.waiting || (reg.installing && reg.installing.state === 'installed')) {
+              console.log('[Home] Periodic SW check found update — triggering splash flow');
+              localStorage.setItem('kjb-splash-home-update', 'true');
+              sessionStorage.setItem('kjb-splash-home-update', 'true');
+              if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+              setTimeout(() => {
+                window.location.href = window.location.pathname + '?refresh=' + Date.now();
+              }, 300);
+            }
+          }
+        }
+      } catch (e) {
+        console.error('[Home] Periodic SW check failed:', e);
+      }
+    }, 5 * 60 * 1000); // 5 minutes
+
     return () => {
       clearInterval(minuteInterval);
+      clearInterval(swCheckInterval);
     };
   }, []);
 
