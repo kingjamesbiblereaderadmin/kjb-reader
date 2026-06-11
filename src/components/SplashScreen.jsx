@@ -35,9 +35,17 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
       // Check for waiting service worker — if found, treat as home update
       // (covers reloads where sessionStorage flag was lost)
       let isHomeUpdate = mode === 'home_update';
-      console.log('[Splash] Received mode:', mode, 'isHomeUpdate initially:', isHomeUpdate);
-      console.log('[Splash] localStorage flag:', localStorage.getItem('kjb-splash-home-update'));
-      console.log('[Splash] sessionStorage flag:', sessionStorage.getItem('kjb-splash-home-update'));
+      const hasVisited = localStorage.getItem('kjb-has-visited-app');
+      const splashLocal = localStorage.getItem('kjb-splash-home-update');
+      const splashSession = sessionStorage.getItem('kjb-splash-home-update');
+      const bibleVer = localStorage.getItem('bible_cache_version');
+      
+      console.log('[Splash] DEBUG:', {
+        mode, hasVisited, splashLocal, splashSession, bibleVer,
+        detectedIncognito,
+        isFirstLoad: mode === 'first_load'
+      });
+      
       if (!isHomeUpdate && mode === 'subsequent' && 'serviceWorker' in navigator) {
         try {
           const reg = await navigator.serviceWorker.getRegistration();
@@ -49,7 +57,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
       }
       let isFirstVisit = mode === 'first_load';
       
-      console.log('[KJB Splash] Final mode:', mode, 'isHomeUpdate:', isHomeUpdate, 'Incognito:', detectedIncognito);
+      console.log('[Splash] Final determination:', { isFirstVisit, isHomeUpdate, detectedIncognito });
 
       // Set has-visited flag for subsequent visits
       if (!isFirstVisit && !isHomeUpdate) {
@@ -58,11 +66,13 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
       // Force first_load mode if has-visited was incorrectly set (edge case from testing)
       // This ensures truly fresh visits show "WELCOME TO KJB READER." not "WELCOME BACK"
-      const hasVisited = localStorage.getItem('kjb-has-visited-app');
       if (mode === 'first_load' && hasVisited) {
         console.log('[Splash] Clearing stale has-visited flag for first_load mode');
         localStorage.removeItem('kjb-has-visited-app');
+        isFirstVisit = true; // Reset to first load flow
       }
+      
+      console.log('[Splash] Final determination:', { mode, isFirstVisit, isHomeUpdate, hasVisited });
 
       // === FIRST LOAD FLOW ===
       if (isFirstVisit) {
@@ -71,15 +81,23 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         await pause(STEP_PAUSE_MS);
 
         // 2. Check if Bible is already cached (use localStorage version check for reliability)
-        const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+        const { downloadBibleForOffline, isBibleCached } = await import('@/lib/bibleCache');
         const cachedVersion = localStorage.getItem('bible_cache_version');
         const alreadyCached = !!cachedVersion;
         
-        if (!detectedIncognito && !alreadyCached) {
+        // Double-check with IndexedDB for reliability
+        const isActuallyCached = await isBibleCached();
+        console.log('[Splash] Cache check:', { cachedVersion, alreadyCached, isActuallyCached });
+        
+        if (!detectedIncognito && !isActuallyCached) {
           // 2. Downloading offline data (only if not already cached) - FIRE BANNER
+          console.log('[Splash] Starting offline download...');
           setStep('DOWNLOADING OFFLINE DATA...', true);
           try {
-            await downloadBibleForOffline();
+            await downloadBibleForOffline((pct, msg) => {
+              console.log('[Splash] Download progress:', pct, msg);
+            });
+            console.log('[Splash] Offline download completed successfully');
           } catch (err) {
             console.error('[Splash] Offline download failed:', err.message);
           }

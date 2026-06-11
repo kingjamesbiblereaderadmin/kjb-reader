@@ -180,17 +180,26 @@ const AuthenticatedApp = () => {
   });
   
   // Check for waiting service worker on mount — force home_update mode if found
+  // ONLY if user has visited before (don't treat fresh installs as updates)
   React.useEffect(() => {
     if ('serviceWorker' in navigator && splashMode !== 'home_update') {
-      navigator.serviceWorker.getRegistration().then((reg) => {
-        if (reg?.waiting || reg?.installing) {
-          console.log('[App] Waiting SW found — forcing home_update mode');
-          localStorage.setItem('kjb-splash-home-update', 'true');
-          sessionStorage.setItem('kjb-splash-home-update', 'true');
-          setSplashMode('home_update');
-          if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-        }
-      }).catch(() => {});
+      const hasVisited = localStorage.getItem('kjb-has-visited-app');
+      // Only treat as home update if user has visited before AND there's a waiting SW
+      if (hasVisited) {
+        navigator.serviceWorker.getRegistration().then((reg) => {
+          if (reg?.waiting) {
+            console.log('[App] Waiting SW found + hasVisited — forcing home_update mode');
+            localStorage.setItem('kjb-splash-home-update', 'true');
+            sessionStorage.setItem('kjb-splash-home-update', 'true');
+            setSplashMode('home_update');
+            if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          } else {
+            console.log('[App] No waiting SW or first install — keeping current mode');
+          }
+        }).catch(() => {});
+      } else {
+        console.log('[App] First visit — skipping SW update check');
+      }
     }
   }, [splashMode]);
   
