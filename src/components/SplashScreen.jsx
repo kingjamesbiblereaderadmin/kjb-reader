@@ -6,7 +6,7 @@ const STEP_PAUSE_MS = 1500;
 
 // mode: 'first_load' | 'subsequent' | 'home_update'
 export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load', isVisible = true }) {
-  const [currentMessage, setCurrentMessage] = useState('LOADING KJB READER...');
+  const [currentMessage, setCurrentMessage] = useState('');
   const [isIncognito, setIsIncognito] = useState(false);
   const doneRef = useRef(false);
   const stepsLog = useRef([]);
@@ -221,6 +221,8 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
       // === HOME UPDATE FLOW ===
       if (isHomeUpdate) {
+        // Set has-visited flag
+        localStorage.setItem('kjb-has-visited-app', 'true');
         // 1. Found updates (skip loading/checking)
         setStep('FOUND UPDATES.');
         await pause(STEP_PAUSE_MS);
