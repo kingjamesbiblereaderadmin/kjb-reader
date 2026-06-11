@@ -210,7 +210,7 @@ export default function HomePage() {
               console.log('[UpdateCheck] ✓ Set kjb-splash-home-update flag (localStorage):', localStorage.getItem('kjb-splash-home-update'));
               console.log('[UpdateCheck] Will reload page in 500ms...');
 
-              // Activate SW if present, but ALWAYS do a manual reload after to ensure flag persists
+              // Activate SW if present — don't reload manually, let SplashScreen handle the flow
               if (swUpdated && 'serviceWorker' in navigator) {
                 const reg = await navigator.serviceWorker.getRegistration();
                 sessionStorage.setItem('kjb_last_app_update', Date.now().toString());
@@ -222,9 +222,8 @@ export default function HomePage() {
                 console.log('[UpdateCheck] Activating new service worker...');
               }
 
-              // Manual reload ensures localStorage flag persists (SW auto-reload can happen too fast)
-              console.log('[UpdateCheck] Manually reloading application...');
-              setTimeout(() => { window.location.href = window.location.pathname + '?refresh=' + Date.now(); }, 500);
+              // Don't reload here — SplashScreen will detect the waiting SW and show the proper sequence
+              console.log('[UpdateCheck] Updates applied — SplashScreen will handle the flow');
               return;
             }
 
