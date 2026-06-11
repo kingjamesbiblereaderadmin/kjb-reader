@@ -261,6 +261,16 @@ const AuthenticatedApp = () => {
         emit('Checking for updates...');
         console.log('[KJB Splash] 🔍 Calling reg.update() to fetch latest SW from network...');
         await new Promise(r => setTimeout(r, 600));
+
+        // Listen BEFORE reg.update() so we catch skipWaiting() activations
+        // that happen before reg.waiting can be read.
+        let swUpdateDetected = false;
+        let controllerChanged = false;
+        const onUpdateFound = () => { swUpdateDetected = true; console.log('[KJB Splash] 🆕 updatefound fired'); };
+        const onControllerChange = () => { controllerChanged = true; console.log('[KJB Splash] 🔄 controllerchange fired'); };
+        reg.addEventListener('updatefound', onUpdateFound);
+        navigator.serviceWorker.addEventListener('controllerchange', onControllerChange);
+
         await reg.update().catch((e) => console.warn('[KJB Splash] reg.update() threw:', e.message));
 
         // reg.update() resolves when the SW file is fetched, but the new worker
@@ -283,16 +293,21 @@ const AuthenticatedApp = () => {
           });
         }
 
+        reg.removeEventListener('updatefound', onUpdateFound);
+        navigator.serviceWorker.removeEventListener('controllerchange', onControllerChange);
+
         const waitingWorker = reg.waiting;
         const installingWorker = reg.installing;
         const hasController = !!navigator.serviceWorker.controller;
-        console.log('[KJB Splash] 📋 Post-update() SW snapshot — waiting:', !!waitingWorker, '| installing:', !!installingWorker, '| controller:', hasController);
+        console.log('[KJB Splash] 📋 Post-update() SW snapshot — waiting:', !!waitingWorker, '| installing:', !!installingWorker, '| controller:', hasController, '| updatefound:', swUpdateDetected, '| controllerchange:', controllerChanged);
 
         // Check for Bible data update (version mismatch in localStorage)
         const localBibleVersion = (() => { try { return localStorage.getItem('bible_cache_version'); } catch { return null; } })();
         const CURRENT_BIBLE_VERSION = 'v20260611_321';
         const hasBibleUpdate = localBibleVersion && localBibleVersion !== CURRENT_BIBLE_VERSION;
-        const hasSwUpdate = !!(waitingWorker || installingWorker) && hasController;
+        // Include swUpdateDetected/controllerChanged to catch cases where skipWaiting()
+        // caused the new SW to activate before we could read reg.waiting.
+        const hasSwUpdate = !!(waitingWorker || installingWorker || swUpdateDetected || controllerChanged) && hasController;
 
         console.log('[KJB Splash] Bible cache version — local:', localBibleVersion || '(none)', '| current:', CURRENT_BIBLE_VERSION, '| needs update:', hasBibleUpdate);
         console.log('[KJB Splash] SW update available:', hasSwUpdate);
