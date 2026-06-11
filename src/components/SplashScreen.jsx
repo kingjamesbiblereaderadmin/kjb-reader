@@ -28,12 +28,13 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
     (async () => {
       // Wait for incognito detection to complete before starting splash flow
-      await detectIncognito().then(setIsIncognito);
+      const detectedIncognito = await detectIncognito();
+      setIsIncognito(detectedIncognito);
       
       let isFirstVisit = mode === 'first_load';
       let isHomeUpdate = mode === 'home_update';
       
-      console.log('[KJB Splash] Mode:', mode, 'Incognito:', isIncognito);
+      console.log('[KJB Splash] Mode:', mode, 'Incognito:', detectedIncognito);
 
       // Set has-visited flag for subsequent visits
       if (!isFirstVisit && !isHomeUpdate) {
@@ -47,7 +48,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         await pause(STEP_PAUSE_MS);
 
         // 2. Skip offline download in incognito (cache won't persist)
-        if (!isIncognito) {
+        if (!detectedIncognito) {
           // 2. Downloading offline data
           setStep('DOWNLOADING OFFLINE DATA...');
           try {
@@ -124,7 +125,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         }
 
         // 8. Welcome
-        if (isIncognito) {
+        if (detectedIncognito) {
           setStep('WELCOME (PRIVATE MODE).');
           window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME (PRIVATE MODE).', status: 'success' } }));
         } else {
