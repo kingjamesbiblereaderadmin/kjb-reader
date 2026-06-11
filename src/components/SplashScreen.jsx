@@ -15,31 +15,29 @@ function markVisited() {
 }
 
 // Check if there's a waiting or installing SW worker.
-// Strategy: if reg.waiting/installing is already set, report update immediately.
-// Otherwise call reg.update() and wait up to 1.5s for updatefound.
+// Most reliable approach: call reg.update(), wait 2s for the browser to
+// fetch + compare sw.js, then read reg.waiting / reg.installing.
 async function detectSwUpdate() {
   if (!('serviceWorker' in navigator)) return { hasUpdate: false };
   try {
     const reg = await navigator.serviceWorker.getRegistration();
     if (!reg) return { hasUpdate: false };
 
-    // Already has a pending update — report immediately
-    if ((reg.waiting || reg.installing) && navigator.serviceWorker.controller) {
+    // Already has a queued update (e.g. previous tab triggered it)
+    if (reg.waiting && navigator.serviceWorker.controller) {
       return { hasUpdate: true, reg };
     }
 
-    // Kick off a network check, then wait a short window for updatefound
-    const updateFoundPromise = new Promise((resolve) => {
-      const onFound = () => { reg.removeEventListener('updatefound', onFound); resolve(true); };
+    // Trigger the browser's HTTP check against the server
+    await reg.update().catch(() => {});
+
+    // Wait for the new SW to begin installing (up to 2 s)
+    await new Promise((resolve) => {
+      if (reg.installing || reg.waiting) { resolve(); return; }
+      const onFound = () => { reg.removeEventListener('updatefound', onFound); resolve(); };
       reg.addEventListener('updatefound', onFound);
-      setTimeout(() => { reg.removeEventListener('updatefound', onFound); resolve(false); }, 1500);
+      setTimeout(() => { reg.removeEventListener('updatefound', onFound); resolve(); }, 2000);
     });
-
-    reg.update().catch(() => {});
-    const found = await updateFoundPromise;
-
-    // Give the installing worker a moment to settle
-    if (found) await new Promise(r => setTimeout(r, 300));
 
     const hasUpdate = !!(reg.waiting || reg.installing) && !!navigator.serviceWorker.controller;
     return { hasUpdate, reg };
@@ -97,6 +95,8 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
       let swResult = null;
 
       if (mode === 'auto') {
+        // Show "Loading…" while we detect
+        setStep('Loading…');
         swResult = await detectSwUpdate();
         if (isFirstVisit) resolvedMode = 'first_load';
         else if (swResult.hasUpdate) resolvedMode = 'subsequent_with_updates';
@@ -123,10 +123,6 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
 
       // Scenario 2: Returning user, no updates
       else if (resolvedMode === 'subsequent') {
-        setStep('Loading…');
-        await new Promise(r => setTimeout(r, 900));
-        setStep('Checking for updates…');
-        await new Promise(r => setTimeout(r, 900));
         setStep('No updates found.');
         await new Promise(r => setTimeout(r, 700));
         setStep(`Welcome back to ${APP_NAME}.`);
@@ -135,11 +131,6 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
 
       // Scenario 3: Returning user with updates (app + data)
       else if (resolvedMode === 'subsequent_with_updates') {
-        setStep('Loading…');
-        await new Promise(r => setTimeout(r, 900));
-        setStep('Checking for updates…');
-        if (!swResult) swResult = await detectSwUpdate();
-        await new Promise(r => setTimeout(r, 900));
         setStep('Found app & data updates.');
         await new Promise(r => setTimeout(r, 900));
         setStep('Installing updates…');
