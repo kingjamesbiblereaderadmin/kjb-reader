@@ -84,11 +84,14 @@ async function applyUpdates() {
 // ── Scenario step sequences ───────────────────────────────────────────────────
 
 const SCENARIOS = {
+  // first_load: status text after "Checking for updates…" is decided at runtime
+  // (either "No updates found." or "Applying updates…") depending on whether a
+  // waiting service-worker app update exists.
   first_load: [
     'Loading…',
     'Downloading offline data…',
     'Checking for updates…',
-    'No updates found.',
+    '__FIRST_LOAD_UPDATE_STEP__',
     `Welcome to ${APP_NAME}.`,
   ],
   subsequent: [
@@ -105,9 +108,9 @@ const SCENARIOS = {
     'Applying updates…',
     `Welcome back to ${APP_NAME}.`,
   ],
+  // home_update skips Loading/Checking — by the time we pick this scenario we've
+  // already confirmed an app update exists, so jump straight to "Found updates".
   home_update: [
-    'Loading…',
-    'Checking for updates…',
     'Found app updates.',
     'Installing updates…',
     'Applying updates…',
@@ -161,10 +164,18 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
     let cancelled = false;
     const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
-    const runSteps = async (scenario, steps) => {
-      const log = ['Loading…'];
-      for (const step of steps) {
+    const runSteps = async (scenario, steps, preShown = []) => {
+      const log = [...preShown];
+      for (let step of steps) {
         if (cancelled) return;
+
+        // first_load resolves its update-step at runtime: if a service-worker
+        // app update is waiting, apply it; otherwise just say "No updates found."
+        if (step === '__FIRST_LOAD_UPDATE_STEP__') {
+          const hasAppUpdate = mode === 'auto' ? await waitForSwUpdate() : false;
+          step = hasAppUpdate ? 'Applying updates…' : 'No updates found.';
+        }
+
         setStatusText(step);
         console.log(`[KJB Splash] ${step}`);
         log.push(step);
@@ -197,10 +208,14 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
       const scenario = mode === 'auto' ? await detectAutoScenario() : mode;
       if (cancelled) return;
       console.log('[KJB Splash] Scenario:', scenario);
-      // The first step of every scenario is "Loading…", which we've already
-      // shown during detection — skip it so we don't double-pause on it.
-      const steps = (SCENARIOS[scenario] || SCENARIOS.subsequent).slice(1);
-      await runSteps(scenario, steps);
+      const fullSteps = SCENARIOS[scenario] || SCENARIOS.subsequent;
+      // If the scenario starts with "Loading…", we've already shown+paused on it
+      // during detection, so skip it (and record it in the log). home_update
+      // starts directly at "Found app updates." — don't skip anything there.
+      const startsWithLoading = fullSteps[0] === 'Loading…';
+      const steps = startsWithLoading ? fullSteps.slice(1) : fullSteps;
+      const preShown = startsWithLoading ? ['Loading…'] : [];
+      await runSteps(scenario, steps, preShown);
     };
 
     run();
