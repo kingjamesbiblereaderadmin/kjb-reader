@@ -657,7 +657,7 @@ Deno.serve(async (req) => {
       'This version is unsupported, may contain bugs, and could have security issues. Please upgrade to a modern browser (Chrome, Firefox, Edge or Safari) &mdash; or upgrade your device &mdash; for the best, most secure experience.' +
       '<ul>' +
       '<li>Tested on Windows 8.1 (Internet Explorer 11). Does not work on Internet Explorer 9. On IE11, if pages will not load, open Internet Options &rarr; Advanced &rarr; Security and tick <b>"Use TLS 1.0"</b>, then reload.</li>' +
-      '<li>If pages will not load on a very old computer, use the <b>Download HTML File</b> button above &mdash; it works fully offline in any browser.</li>' +
+      '<li>If pages will not load on a very old computer, use the <b>Download HTML File</b> button below &mdash; it works fully offline in any browser.</li>' +
       '<li>Installing as an app (PWA) is not supported here.</li>' +
       '<li>Search is not supported in legacy mode.</li>' +
       '<li>YouTube videos and some external links may not open or play on old browsers.</li>' +
