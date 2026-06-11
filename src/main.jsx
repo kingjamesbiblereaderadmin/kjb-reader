@@ -65,13 +65,16 @@ window.addEventListener('load', async () => {
       let refreshing = false;
       let hasExistingController = !!navigator.serviceWorker.controller;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        // Only auto-reload on the homepage so users aren't interrupted while
-        // reading on other pages. The new worker is already active; other pages
-        // will pick it up on their next navigation/reload.
-        if (hasExistingController && !refreshing && window.location.pathname === '/') {
+        // A new worker has taken control — reload so the freshly-cached app
+        // assets (new code/UI changes) actually load. Reload on every page, not
+        // just the homepage, otherwise other pages keep showing stale assets
+        // until a manual refresh. The hasExistingController guard prevents a
+        // reload on the very first install (when there was no prior worker).
+        if (hasExistingController && !refreshing) {
           refreshing = true;
-          console.log('[SW] Controller changed. Reloading homepage to apply updates.');
-          window.location.href = window.location.pathname + '?updated=true';
+          console.log('[SW] Controller changed. Reloading to apply updates.');
+          const sep = window.location.search ? '&' : '?';
+          window.location.href = window.location.pathname + window.location.search + sep + 'updated=true';
         }
         hasExistingController = true;
       });
