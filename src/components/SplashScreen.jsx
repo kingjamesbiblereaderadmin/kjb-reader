@@ -20,6 +20,37 @@ async function getSwReg() {
   try { return await navigator.serviceWorker.getRegistration(); } catch { return null; }
 }
 
+// Trigger a fresh SW update check and WAIT until we know whether a new worker
+// is installing/waiting. Without this wait, the splash reads reg.waiting too
+// early (before the browser has fetched the new sw.js) and always sees "no
+// update". Resolves true if a new worker becomes available within `timeoutMs`.
+async function waitForSwUpdate(timeoutMs = 4000) {
+  const reg = await getSwReg();
+  if (!reg) return false;
+
+  // Already have a waiting/installed worker ready to activate.
+  if (reg.waiting) return true;
+
+  // Kick off a fresh check against the server for a new sw.js.
+  try { await reg.update(); } catch {}
+  if (reg.waiting) return true;
+
+  // A new worker is downloading — wait for it to finish installing.
+  const installing = reg.installing;
+  if (!installing) return false;
+
+  return await new Promise((resolve) => {
+    let settled = false;
+    const finish = (val) => { if (!settled) { settled = true; resolve(val); } };
+    const onState = () => {
+      if (installing.state === 'installed' || installing.state === 'activated') finish(true);
+      else if (installing.state === 'redundant') finish(false);
+    };
+    installing.addEventListener('statechange', onState);
+    setTimeout(() => finish(!!reg.waiting), timeoutMs);
+  });
+}
+
 // Download the Bible data so the app works offline (first-visit only, auto mode).
 async function downloadOfflineData() {
   try {
@@ -86,12 +117,26 @@ const SCENARIOS = {
 
 // Auto-detect which scenario applies on a real production load.
 async function detectAutoScenario() {
-  const first = isFirstVisit();
+  // First visit = the Bible isn't cached on this device yet. This is the most
+  // reliable signal (the localStorage flag alone gave false negatives because
+  // it was often already set from a prior session). We still flip the flag for
+  // good measure.
+  let bibleCached = false;
+  try {
+    const { isBibleCached } = await import('@/lib/bibleCache');
+    bibleCached = await isBibleCached().catch(() => false);
+  } catch {}
+  const first = isFirstVisit() || !bibleCached;
   if (first) markVisited();
 
-  // Service worker update available?
-  const reg = await getSwReg();
-  const hasAppUpdate = !!(reg?.waiting || reg?.installing);
+  if (first) {
+    // Brand new user (or no offline data yet) → download + welcome flow.
+    return 'first_load';
+  }
+
+  // Returning user: WAIT for the service worker update check to resolve so we
+  // don't read reg.waiting before the browser has fetched the new sw.js.
+  const hasAppUpdate = await waitForSwUpdate();
 
   // Content/data version update available?
   let hasDataUpdate = false;
@@ -100,10 +145,6 @@ async function detectAutoScenario() {
     hasDataUpdate = await checkForUpdates().catch(() => false);
   } catch {}
 
-  if (first) {
-    // Brand new user always runs the first_load flow (download + welcome).
-    return 'first_load';
-  }
   if (hasAppUpdate && hasDataUpdate) return 'subsequent_with_updates';
   if (hasAppUpdate) return 'home_update';
   if (hasDataUpdate) return 'subsequent_with_updates';
@@ -121,7 +162,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
     const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
     const runSteps = async (scenario, steps) => {
-      const log = [];
+      const log = ['Loading…'];
       for (const step of steps) {
         if (cancelled) return;
         setStatusText(step);
@@ -149,8 +190,16 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
     };
 
     const run = async () => {
+      // Show "Loading…" immediately while we detect the scenario (detection can
+      // take a few seconds waiting for the SW update check).
+      setStatusText('Loading…');
+      console.log('[KJB Splash] Loading…');
       const scenario = mode === 'auto' ? await detectAutoScenario() : mode;
-      const steps = SCENARIOS[scenario] || SCENARIOS.subsequent;
+      if (cancelled) return;
+      console.log('[KJB Splash] Scenario:', scenario);
+      // The first step of every scenario is "Loading…", which we've already
+      // shown during detection — skip it so we don't double-pause on it.
+      const steps = (SCENARIOS[scenario] || SCENARIOS.subsequent).slice(1);
       await runSteps(scenario, steps);
     };
 
