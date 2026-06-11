@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 
-const STEP_PAUSE_MS = 10000;
+const STEP_PAUSE_MS = 1500;
 
 // mode: 'auto' | 'first_load' | 'subsequent' | 'subsequent_with_updates' | 'home_update'
 export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
@@ -13,6 +13,8 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
     stepsLog.current.push(message);
     setCurrentMessage(message);
     console.log('[KJB Splash]', message);
+    // Also dispatch to progress bar for real-time sync
+    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message, status: 'loading' } }));
   };
 
   const pause = (ms) => new Promise(r => setTimeout(r, ms));
@@ -49,9 +51,14 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
           setStep('Downloading offline data…');
           try {
             const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-            await downloadBibleForOffline();
+            await downloadBibleForOffline((pct, msg) => {
+              // Real-time progress updates
+              setCurrentMessage(msg || `Downloading... ${pct}%`);
+              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: msg || `Downloading... ${pct}%`, status: 'loading' } }));
+            });
           } catch (err) {
             console.error('[Splash] Offline download failed:', err.message);
+            setStep('Download failed.');
           }
           await pause(STEP_PAUSE_MS);
         }
@@ -102,9 +109,14 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
         setStep('Installing updates…');
         try {
           const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-          await downloadBibleForOffline();
+          await downloadBibleForOffline((pct, msg) => {
+            // Real-time progress updates
+            setCurrentMessage(msg || `Installing... ${pct}%`);
+            window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: msg || `Installing... ${pct}%`, status: 'loading' } }));
+          });
         } catch (err) {
           console.error('[Splash] Data install failed:', err.message);
+          setStep('Install failed.');
         }
         await pause(STEP_PAUSE_MS);
 
@@ -122,7 +134,11 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
       // Step 4: Welcome
       const welcomeMsg = isFirstVisit ? 'Welcome to KJB Reader.' : 'Welcome back to KJB Reader.';
       setStep(welcomeMsg);
+      window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: welcomeMsg, status: 'success' } }));
       await pause(STEP_PAUSE_MS);
+
+      // Clear progress bar
+      window.dispatchEvent(new Event('kjb-progress-clear'));
 
       console.group('[Splash] Summary');
       stepsLog.current.forEach((msg, i) => console.log(`${i + 1}. ${msg}`));
