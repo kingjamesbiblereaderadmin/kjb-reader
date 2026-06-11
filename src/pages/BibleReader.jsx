@@ -806,7 +806,17 @@ export default function BibleReader() {
   return (
     <div onClick={(e) => { if (!e.target.closest('.kjb-verse-container, h1, h2, h3, .kjb-subscript, .kjb-colophon, #kjb-colophon-anchor, #kjb-subscript-anchor, button, a')) { setHighlightVerse(null); setHighlightSection(null); if (!selectMode) setHighlightedVerses(new Set()); } }} className={`w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-3 ${hideHeader ? 'pt-16' : ''}`}>
       {!hideHeader && (
-        <div ref={topRef} className="print:hidden sticky top-0 z-[100] border-b border-border pb-2 pt-2 mb-2 relative shadow-sm -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 bg-background before:content-[''] before:absolute before:bottom-full before:left-0 before:right-0 before:h-12 before:bg-background">
+        <div
+          ref={topRef}
+          onClick={(e) => {
+            // Close any open picker/popover when tapping empty space inside the
+            // toolbar (anywhere that isn't a button or an open popover/selector).
+            if (!e.target.closest('button, [role="dialog"], .kjb-reader-popover')) {
+              setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false);
+              setShowZoomPopover(false); setShowFontPopover(false);
+            }
+          }}
+          className="print:hidden sticky top-0 z-[100] border-b border-border pb-2 pt-2 mb-2 relative shadow-sm -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 bg-background before:content-[''] before:absolute before:bottom-full before:left-0 before:right-0 before:h-12 before:bg-background">
           <div className="flex flex-wrap items-stretch justify-stretch gap-1.5 w-full max-w-[120rem] mx-auto [&>button:not(.kjb-fixed-btn)]:flex-grow [&>button:not(.kjb-fixed-btn)]:basis-auto [&>div.relative]:flex-grow [&>div.relative>button]:w-full">
             <div className="relative flex">
               <button
@@ -818,7 +828,7 @@ export default function BibleReader() {
                 <ChevronRight className={`w-3 h-3 opacity-70 transition-transform duration-200 flex-shrink-0 ${showBookPicker ? 'rotate-90' : ''}`} />
               </button>
               {showBookPicker && !isMobile() && (
-                <div className="absolute top-full left-0 mt-1 z-[100]">
+                <div className="kjb-reader-popover absolute top-full left-0 mt-1 z-[100]">
                   <BookSelector
                     currentAbbr={pos.abbr}
                     onSelect={(b, isTitlePage, showChapter) => {
@@ -853,7 +863,7 @@ export default function BibleReader() {
                   <ChevronRight className={`w-3 h-3 opacity-70 transition-transform duration-200 flex-shrink-0 ${showChapterPicker ? 'rotate-90' : ''}`} />
                 </button>
                 {showChapterPicker && !isMobile() && (
-                  <div className="absolute top-full left-0 mt-1 z-[100]">
+                  <div className="kjb-reader-popover absolute top-full left-0 mt-1 z-[100]">
                     <ChapterSelector
                       totalChapters={book.chapters}
                       currentChapter={pos.chapter}
@@ -887,7 +897,7 @@ export default function BibleReader() {
                   {selectMode ? <CheckSquare className="w-3.5 h-3.5 opacity-70 flex-shrink-0 transition-transform duration-200" /> : <ChevronRight className={`w-3 h-3 opacity-70 transition-transform duration-200 flex-shrink-0 ${showVersePicker ? 'rotate-90' : ''}`} />}
                 </button>
                 {showVersePicker && verseCount > 0 && !isMobile() && (
-                  <div className="absolute top-full left-0 mt-1 z-[100]">
+                  <div className="kjb-reader-popover absolute top-full left-0 mt-1 z-[100]">
                     <VerseSelector
                       totalVerses={verseCount}
                       currentVerse={highlightVerse}
