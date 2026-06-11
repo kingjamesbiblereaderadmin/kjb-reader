@@ -620,7 +620,7 @@ Deno.serve(async (req) => {
       const dlBanner = '<div class="banner"><b>&#128196; HTML mode</b>' +
         'This is a plain, self-contained HTML copy of the King James Bible. It works fully offline in any browser, with no internet, app or JavaScript required.' +
         '<ul>' +
-        '<li><b>To find a word or verse:</b> use your browser&rsquo;s Find feature &mdash; press <b>Ctrl + F</b> (or <b>&#8984; + F</b> on Mac) and type what you are looking for.</li>' +
+        '<li><b>To find a word or verse:</b> on desktop press <b>Ctrl + F</b> (<b>&#8984; + F</b> on Mac); on mobile open your browser menu and tap <b>Find in page</b>.</li>' +
         '<li>Use the quick links below to jump to any book, the Gospel, Resources or About.</li>' +
         '<li>Found a bug? Email <a href="mailto:kingjamesbiblereader@outlook.sg">kingjamesbiblereader@outlook.sg</a>.</li>' +
         '</ul></div>';
@@ -705,7 +705,7 @@ Deno.serve(async (req) => {
       '<li>Tested on Windows 8.1 (Internet Explorer 11). Does not work on Internet Explorer 9.</li>' +
       '<li>If pages will not load on a very old computer, use the <b>Download HTML File</b> button below &mdash; it works fully offline in any browser.</li>' +
       '<li>Installing as an app (PWA) is not supported here.</li>' +
-      '<li><b>To find a word or verse:</b> use your browser&rsquo;s Find feature &mdash; press <b>Ctrl + F</b> (or <b>&#8984; + F</b> on Mac) and type what you are looking for.</li>' +
+      '<li><b>To find a word or verse:</b> on desktop press <b>Ctrl + F</b> (<b>&#8984; + F</b> on Mac); on mobile open your browser menu and tap <b>Find in page</b>.</li>' +
       '<li>YouTube videos and some external links may not open or play on old browsers.</li>' +
       '<li>Found a bug? Email <a href="mailto:kingjamesbiblereader@outlook.sg">kingjamesbiblereader@outlook.sg</a>.</li>' +
       '</ul></div>';
