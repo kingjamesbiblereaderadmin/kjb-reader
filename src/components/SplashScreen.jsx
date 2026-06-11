@@ -141,8 +141,8 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
         // 8. Welcome
         if (detectedIncognito) {
-          setStep('WELCOME (PRIVATE MODE).');
-          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME (PRIVATE MODE).', status: 'success' } }));
+          setStep('WELCOME.');
+          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME.', status: 'success' } }));
         } else {
           setStep('WELCOME TO KJB READER.');
           window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME TO KJB READER.', status: 'success' } }));
