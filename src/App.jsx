@@ -249,16 +249,17 @@ const AuthenticatedApp = () => {
     return () => clearTimeout(timeout);
   }, []);
 
-  // Minimum splash: always at least 2500ms; extended when an update is applying
+  // minSplash is controlled entirely by the scripted sequence below
   useEffect(() => {
-    const timer = setTimeout(() => setMinSplashDone(true), 20000);
+    const timer = setTimeout(() => setMinSplashDone(true), 500);
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     let cancelled = false;
-    // Persist splash log to localStorage so it survives reloads
+    const STEP = 10000; // 10-second pause between each visible banner step
     const splashLog = [];
+
     const logEntry = (msg) => {
       const ts = new Date().toISOString().slice(11, 23);
       splashLog.push(`${ts} ${msg}`);
@@ -267,8 +268,7 @@ const AuthenticatedApp = () => {
     const saveSplashLog = () => {
       try {
         const prev = JSON.parse(localStorage.getItem('kjb-splash-log') || '[]');
-        const entry = { at: new Date().toISOString(), log: splashLog };
-        const next = [entry, ...prev].slice(0, 5);
+        const next = [{ at: new Date().toISOString(), log: splashLog }, ...prev].slice(0, 5);
         localStorage.setItem('kjb-splash-log', JSON.stringify(next));
       } catch {}
     };
@@ -276,213 +276,101 @@ const AuthenticatedApp = () => {
       logEntry(msg);
       window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: msg } }));
     };
+    const wait = (ms) => new Promise(r => setTimeout(r, ms));
+    const done = () => { saveSplashLog(); if (!cancelled) setUpdateCheckDone(true); };
 
     const check = async () => {
-      const swVer = 'v20260611_347';
-      const bibleVerAtStart = (() => { try { return localStorage.getItem('bible_cache_version') || '(none)'; } catch { return '(none)'; } })();
-      console.log(`[KJB Splash] 🚦 Update check starting — SW: ${swVer} | Bible: ${bibleVerAtStart}`);
-      if (!('serviceWorker' in navigator)) {
-        console.log('[KJB Splash] ⏭ No SW support — skipping update check');
-        logEntry('⏭ No SW support');
-        saveSplashLog();
-        if (!cancelled) setUpdateCheckDone(true);
+      // --- Detect context ---
+      const isFirst = _isFirstVisit;
+      const CURRENT_BIBLE_VERSION = 'v20260611_340';
+      const localBibleVersion = (() => { try { return localStorage.getItem('bible_cache_version'); } catch { return null; } })();
+      const hasBibleUpdate = localBibleVersion && localBibleVersion !== CURRENT_BIBLE_VERSION;
+
+      let hasSwUpdate = false;
+      let reg = null;
+      if ('serviceWorker' in navigator) {
+        try {
+          reg = await navigator.serviceWorker.getRegistration();
+          if (reg) {
+            console.log('[KJB Splash] Pre-update SW — waiting:', !!reg.waiting, '| installing:', !!reg.installing);
+            let swDetected = false;
+            let ctrlChanged = false;
+            reg.addEventListener('updatefound', () => { swDetected = true; });
+            navigator.serviceWorker.addEventListener('controllerchange', () => { ctrlChanged = true; });
+            await reg.update().catch((e) => console.warn('[KJB Splash] reg.update():', e.message));
+            // Wait for installing worker to settle
+            if (reg.installing) {
+              await new Promise((resolve) => {
+                const w = reg.installing;
+                if (!w) { resolve(); return; }
+                const h = () => { if (['installed','activating','activated','redundant'].includes(w.state)) { w.removeEventListener('statechange', h); resolve(); } };
+                w.addEventListener('statechange', h);
+                setTimeout(resolve, 3000);
+              });
+            }
+            const hasCtrl = !!navigator.serviceWorker.controller;
+            hasSwUpdate = !!(reg.waiting || reg.installing || swDetected || ctrlChanged) && hasCtrl;
+            console.log('[KJB Splash] Post-update SW — waiting:', !!reg.waiting, '| installing:', !!reg.installing, '| swUpdate:', hasSwUpdate);
+          }
+        } catch (e) { console.warn('[KJB Splash] SW check error:', e.message); }
+      }
+
+      console.log('[KJB Splash] Context — firstVisit:', isFirst, '| hasBibleUpdate:', hasBibleUpdate, '| hasSwUpdate:', hasSwUpdate);
+
+      // ── FIRST LOAD ──
+      // Loading → Downloading offline Bible data → Checking for updates →
+      // [if updates] Found → Installing → Applying → Welcome to KJB Reader!
+      if (isFirst) {
+        emit('Loading...');
+        await wait(STEP);
+        emit('Downloading offline Bible data...');
+        await wait(STEP);
+        emit('Checking for updates...');
+        await wait(STEP);
+        if (hasSwUpdate || hasBibleUpdate) {
+          emit('Found updates...');
+          await wait(STEP);
+          emit('Installing updates...');
+          await wait(STEP);
+          emit('Applying updates...');
+          if (reg) {
+            const target = reg.waiting || reg.installing;
+            if (target) target.postMessage({ type: 'SKIP_WAITING' });
+          }
+          await wait(STEP);
+        }
+        logEntry('✅ First load complete');
+        done();
         return;
       }
-      try {
-        const reg = await navigator.serviceWorker.getRegistration();
-        if (!reg) {
-          console.log('[KJB Splash] ⏭ No SW registration found — skipping update check');
-          logEntry('⏭ No SW registration');
-          saveSplashLog();
-          if (!cancelled) setUpdateCheckDone(true);
-          return;
-        }
 
-        // Log what SW state looks like BEFORE calling update() — this is what
-        // the browser already has from the previous session.
-        console.log('[KJB Splash] 📋 Pre-update() SW snapshot — waiting:', !!reg.waiting, '| installing:', !!reg.installing, '| controller:', !!navigator.serviceWorker.controller, '| scriptURL:', reg.active?.scriptURL || '(none)');
-
-        // If an update is already waiting (e.g. loaded after a previous reload),
-        // skip straight to "Found updates..." — no need to show "Checking" first.
-        const alreadyWaiting = !!(reg.waiting || reg.installing);
-
-        // Listen BEFORE reg.update() so we catch skipWaiting() activations
-        // that happen before reg.waiting can be read.
-        let swUpdateDetected = false;
-        let controllerChanged = false;
-        const onUpdateFound = () => { swUpdateDetected = true; console.log('[KJB Splash] 🆕 updatefound fired'); };
-        const onControllerChange = () => { controllerChanged = true; console.log('[KJB Splash] 🔄 controllerchange fired'); };
-        reg.addEventListener('updatefound', onUpdateFound);
-        navigator.serviceWorker.addEventListener('controllerchange', onControllerChange);
-
-        if (!alreadyWaiting) {
-          emit('Checking for updates...');
-          console.log('[KJB Splash] 🔍 Calling reg.update() to fetch latest SW from network...');
-        } else {
-          console.log('[KJB Splash] ⚡ Update already waiting — skipping "Checking" phase');
-        }
-
-        await reg.update().catch((e) => console.warn('[KJB Splash] reg.update() threw:', e.message));
-
-        if (!alreadyWaiting) {
-          await new Promise(r => setTimeout(r, 20000));
-        }
-
-        // reg.update() resolves when the SW file is fetched, but the new worker
-        // may still be mid-install. Wait up to 3s for it to reach 'installed'
-        // (i.e. move to reg.waiting) before we decide there's no update.
-        if (reg.installing) {
-          console.log('[KJB Splash] ⏳ New SW is installing — waiting for it to settle...');
-          await new Promise((resolve) => {
-            const worker = reg.installing;
-            if (!worker) { resolve(); return; }
-            const handler = () => {
-              console.log('[KJB Splash] SW install progress:', worker.state);
-              if (['installed', 'activating', 'activated', 'redundant'].includes(worker.state)) {
-                worker.removeEventListener('statechange', handler);
-                resolve();
-              }
-            };
-            worker.addEventListener('statechange', handler);
-            setTimeout(resolve, 3000);
-          });
-        }
-
-        reg.removeEventListener('updatefound', onUpdateFound);
-        navigator.serviceWorker.removeEventListener('controllerchange', onControllerChange);
-
-        const waitingWorker = reg.waiting;
-        const installingWorker = reg.installing;
-        const hasController = !!navigator.serviceWorker.controller;
-        console.log('[KJB Splash] 📋 Post-update() SW snapshot — waiting:', !!waitingWorker, '| installing:', !!installingWorker, '| controller:', hasController, '| updatefound:', swUpdateDetected, '| controllerchange:', controllerChanged);
-
-        // Check for Bible data update (version mismatch in localStorage)
-        const localBibleVersion = (() => { try { return localStorage.getItem('bible_cache_version'); } catch { return null; } })();
-        const CURRENT_BIBLE_VERSION = 'v20260611_340';
-        const hasBibleUpdate = localBibleVersion && localBibleVersion !== CURRENT_BIBLE_VERSION;
-        // Include swUpdateDetected/controllerChanged to catch cases where skipWaiting()
-        // caused the new SW to activate before we could read reg.waiting.
-        const hasSwUpdate = !!(waitingWorker || installingWorker || swUpdateDetected || controllerChanged) && hasController;
-
-        console.log('[KJB Splash] Bible cache version — local:', localBibleVersion || '(none)', '| current:', CURRENT_BIBLE_VERSION, '| needs update:', hasBibleUpdate);
-        console.log('[KJB Splash] SW update available:', hasSwUpdate);
-
-        if (!hasBibleUpdate && !hasSwUpdate) {
-          logEntry('✅ No updates needed');
-          emit('No updates found');
-          saveSplashLog();
-          // Show "No updates found" for a readable moment before dismissing
-          await new Promise(r => setTimeout(r, 20000));
-          if (!cancelled) setUpdateCheckDone(true);
-          return;
-        }
-
-        // Bible-data-only update (no new SW)
-        if (hasBibleUpdate && !hasSwUpdate) {
-          console.log('[KJB Splash] 📖 Bible data update detected:', localBibleVersion, '→', CURRENT_BIBLE_VERSION);
-          setTimeout(() => { if (!cancelled) setMinSplashDone(true); }, 4000);
-          emit('Found updates...');
-          console.log('[KJB Splash] 📥 Splash: "Found updates"');
-          await new Promise(r => setTimeout(r, 20000));
-          emit('Installing updates...');
-          console.log('[KJB Splash] ⚙️ Splash: "Installing updates"');
-          await new Promise(r => setTimeout(r, 20000));
-          emit('Applying updates...');
-          console.log('[KJB Splash] 🔄 Splash: "Applying updates" — Bible data will re-download in background');
-          await new Promise(r => setTimeout(r, 20000));
-          // Re-check SW after Bible update in case a new worker also arrived
-          console.log('[KJB Splash] 🔁 Re-checking SW after Bible data update...');
-          await reg.update().catch(() => {});
-          const postBibleWaiting = reg.waiting;
-          const postBibleInstalling = reg.installing;
-          console.log('[KJB Splash] Post-Bible-update SW state — waiting:', !!postBibleWaiting, '| installing:', !!postBibleInstalling);
-          if ((postBibleWaiting || postBibleInstalling) && hasController) {
-            logEntry('🔧 SW update also found after Bible update — activating');
-            saveSplashLog();
-            const target = postBibleWaiting || postBibleInstalling;
-            if (target) { target.postMessage({ type: 'SKIP_WAITING' }); console.log('[KJB Splash] ✉️ SKIP_WAITING sent after Bible update'); }
-            setTimeout(() => { if (!cancelled) setUpdateCheckDone(true); }, 3000);
-            return;
-          }
-          logEntry('✅ Bible update applied, no SW update needed');
-          saveSplashLog();
-          if (!cancelled) setUpdateCheckDone(true);
-          return;
-        }
-
-        // SW update (with or without Bible update)
-        if (hasSwUpdate) {
-          console.log('[KJB Splash] 🔧 SW update detected — activating new worker');
-          setTimeout(() => { if (!cancelled) setMinSplashDone(true); }, 4000);
-
-          emit('Found updates...');
-          await new Promise(r => setTimeout(r, 20000));
-
-          emit('Installing updates...');
-          console.log('[KJB Splash] ⏳ Waiting for installing worker to reach installed state...');
-          if (installingWorker && !waitingWorker) {
-            await new Promise((resolve) => {
-              const worker = installingWorker;
-              const handler = () => {
-                console.log('[KJB Splash] SW installing state change:', worker.state);
-                if (['installed', 'activating', 'activated', 'redundant'].includes(worker.state)) {
-                  worker.removeEventListener('statechange', handler);
-                  resolve();
-                }
-              };
-              worker.addEventListener('statechange', handler);
-              setTimeout(resolve, 5000);
-            });
-          }
-          await new Promise(r => setTimeout(r, 20000));
-
-          emit('Applying updates...');
-          console.log('[KJB Splash] 🚀 Splash: "Applying updates" — posting SKIP_WAITING');
+      // ── SUBSEQUENT LOAD ──
+      // Loading → Checking for updates →
+      // [if updates] Found → Installing → Applying → Welcome back!
+      // [if no updates] No updates found → Welcome back!
+      emit('Loading...');
+      await wait(STEP);
+      emit('Checking for updates...');
+      await wait(STEP);
+      if (hasSwUpdate || hasBibleUpdate) {
+        emit('Found updates...');
+        await wait(STEP);
+        emit('Installing updates...');
+        await wait(STEP);
+        emit('Applying updates...');
+        if (reg) {
           const target = reg.waiting || reg.installing;
-          if (target) {
-            target.postMessage({ type: 'SKIP_WAITING' });
-            console.log('[KJB Splash] ✉️ SKIP_WAITING sent to', target.state, 'worker');
-          } else {
-            console.log('[KJB Splash] ⚠️ No target worker to send SKIP_WAITING to');
-          }
-          await new Promise(r => setTimeout(r, 20000));
-          // Re-check after SW update: Bible data may also need updating
-          emit('Checking for updates...');
-          console.log('[KJB Splash] 🔁 Re-check after SW update — looking for Bible data updates...');
-          await reg.update().catch(() => {});
-          const postSwWaiting = reg.waiting;
-          const postSwInstalling = reg.installing;
-          console.log('[KJB Splash] 🔁 Re-check after SW update — waiting:', !!postSwWaiting, '| installing:', !!postSwInstalling);
-
-          // Check if Bible data also needs a re-download
-          const postSwLocalBibleVersion = (() => { try { return localStorage.getItem('bible_cache_version'); } catch { return null; } })();
-          const postSwHasBibleUpdate = postSwLocalBibleVersion && postSwLocalBibleVersion !== CURRENT_BIBLE_VERSION;
-          console.log('[KJB Splash] Post-SW Bible version check — local:', postSwLocalBibleVersion, '| current:', CURRENT_BIBLE_VERSION, '| needs update:', postSwHasBibleUpdate);
-
-          if (postSwHasBibleUpdate) {
-            console.log('[KJB Splash] 📖 Bible data also needs updating after SW update');
-            emit('Installing updates...');
-            await new Promise(r => setTimeout(r, 20000));
-            emit('Applying updates...');
-            console.log('[KJB Splash] 🔄 Bible data will re-download in background');
-            await new Promise(r => setTimeout(r, 20000));
-          } else {
-            logEntry('✅ No further updates after SW update');
-            emit('No updates found');
-            await new Promise(r => setTimeout(r, 20000));
-          }
-
-          saveSplashLog();
-          if (!cancelled) setUpdateCheckDone(true);
-          return;
+          if (target) target.postMessage({ type: 'SKIP_WAITING' });
         }
-      } catch (err) {
-        logEntry('❌ Error: ' + err.message);
-        console.error('[KJB Splash] ❌ Update check error:', err.message);
-        saveSplashLog();
+        await wait(STEP);
+      } else {
+        emit('No updates found');
+        await wait(STEP);
       }
-      if (!cancelled) setUpdateCheckDone(true);
+      logEntry('✅ Load complete');
+      done();
     };
+
     check();
     return () => { cancelled = true; };
   }, []);
@@ -490,11 +378,12 @@ const AuthenticatedApp = () => {
   // Preload route chunks in background
   useEffect(() => { preloadAllRoutes(); }, []);
 
-  // Check for SW updates whenever the tab becomes visible again.
-  // If a new SW is waiting, show the full splash overlay and reload to apply it.
+  // Check for SW updates whenever the tab becomes visible (Home screen / tab focus).
+  // Sequence: Found updates → Installing → Applying → Checking for updates → Welcome back!
   const [tabFocusUpdatePending, setTabFocusUpdatePending] = useState(false);
   const [tabFocusSplashMsg, setTabFocusSplashMsg] = useState('Found updates...');
   useEffect(() => {
+    const STEP = 10000;
     let applying = false;
     const handleVisibility = async () => {
       if (document.visibilityState !== 'visible') return;
@@ -509,20 +398,19 @@ const AuthenticatedApp = () => {
         console.log('[KJB Tab-Focus] SW check — waiting:', !!waiting, '| installing:', !!installing);
         if (!waiting && !installing) return;
         applying = true;
-        console.log('[KJB Tab-Focus] 🔧 New SW found — showing splash and applying update...');
         setTabFocusSplashMsg('Found updates...');
         setTabFocusUpdatePending(true);
-        await new Promise(r => setTimeout(r, 20000));
+        await new Promise(r => setTimeout(r, STEP));
         setTabFocusSplashMsg('Installing updates...');
-        await new Promise(r => setTimeout(r, 20000));
+        await new Promise(r => setTimeout(r, STEP));
         setTabFocusSplashMsg('Applying updates...');
         const target = waiting || installing;
         if (target) target.postMessage({ type: 'SKIP_WAITING' });
-        await new Promise(r => setTimeout(r, 20000));
+        await new Promise(r => setTimeout(r, STEP));
         setTabFocusSplashMsg('Checking for updates...');
-        await new Promise(r => setTimeout(r, 20000));
+        await new Promise(r => setTimeout(r, STEP));
         setTabFocusSplashMsg('Welcome back!');
-        // controllerchange in main.jsx triggers the reload
+        // controllerchange in main.jsx triggers the page reload
       } catch (err) {
         console.warn('[KJB Tab-Focus] Update check failed:', err.message);
         setTabFocusUpdatePending(false);
