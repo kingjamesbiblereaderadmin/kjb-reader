@@ -300,16 +300,10 @@ const AuthenticatedApp = () => {
         // the browser already has from the previous session.
         console.log('[KJB Splash] 📋 Pre-update() SW snapshot — waiting:', !!reg.waiting, '| installing:', !!reg.installing, '| controller:', !!navigator.serviceWorker.controller, '| scriptURL:', reg.active?.scriptURL || '(none)');
 
-        // If a worker is already waiting/installing from a previous check,
-        // skip "Checking for updates" and jump straight to "Found updates".
-        const alreadyHasUpdate = !!(reg.waiting || reg.installing);
-        if (alreadyHasUpdate) {
-          console.log('[KJB Splash] ⚡ Update already waiting — skipping check phase');
-        } else {
-          emit('Checking for updates...');
-          console.log('[KJB Splash] 🔍 Calling reg.update() to fetch latest SW from network...');
-          await new Promise(r => setTimeout(r, 600));
-        }
+        // Always show "Checking for updates..." on every app load
+        emit('Checking for updates...');
+        console.log('[KJB Splash] 🔍 Calling reg.update() to fetch latest SW from network...');
+        await new Promise(r => setTimeout(r, 900));
 
         // Listen BEFORE reg.update() so we catch skipWaiting() activations
         // that happen before reg.waiting can be read.
@@ -506,11 +500,16 @@ const AuthenticatedApp = () => {
         console.log('[KJB Tab-Focus] 🔧 New SW found — showing splash and applying update...');
         setTabFocusSplashMsg('Found updates...');
         setTabFocusUpdatePending(true);
-        await new Promise(r => setTimeout(r, 800));
+        await new Promise(r => setTimeout(r, 1000));
+        setTabFocusSplashMsg('Installing updates...');
+        await new Promise(r => setTimeout(r, 1000));
         setTabFocusSplashMsg('Applying updates...');
-        await new Promise(r => setTimeout(r, 700));
         const target = waiting || installing;
         if (target) target.postMessage({ type: 'SKIP_WAITING' });
+        await new Promise(r => setTimeout(r, 1000));
+        setTabFocusSplashMsg('Checking for updates...');
+        await new Promise(r => setTimeout(r, 1000));
+        setTabFocusSplashMsg('Welcome back!');
         // controllerchange in main.jsx triggers the reload
       } catch (err) {
         console.warn('[KJB Tab-Focus] Update check failed:', err.message);
