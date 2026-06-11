@@ -203,10 +203,11 @@ export default function HomePage() {
               await new Promise(r => setTimeout(r, 500));
 
               // Set the flag BEFORE reload so SplashScreen detects home update mode
-              sessionStorage.setItem('kjb-splash-home-update', 'true');
+              // Use localStorage instead of sessionStorage - it persists through SW reloads
+              localStorage.setItem('kjb-splash-home-update', 'true');
               sessionStorage.setItem('kjb_sw_updated', updateType);
-              console.log('[UpdateCheck] Set kjb-splash-home-update flag:', sessionStorage.getItem('kjb-splash-home-update'));
-              console.log('[UpdateCheck] All session storage:', Object.keys(sessionStorage));
+              console.log('[UpdateCheck] ✓ Set kjb-splash-home-update flag (localStorage):', localStorage.getItem('kjb-splash-home-update'));
+              console.log('[UpdateCheck] Will reload page in 500ms...');
 
               if (swUpdated && 'serviceWorker' in navigator) {
                 const reg = await navigator.serviceWorker.getRegistration();
