@@ -122,10 +122,11 @@ try {
   }
 } catch {}
 
-const PageLoader = ({ isFadingOut, welcomeText }) => {
-  const [text, setText] = useState('Loading...');
+const PageLoader = ({ isFadingOut, welcomeText, staticText }) => {
+  const [text, setText] = useState(staticText || 'Loading...');
 
   useEffect(() => {
+    if (staticText) { setText(staticText); return; }
     const handler = (e) => { if (e.detail?.message) setText(e.detail.message); };
     const doneHandler = () => setText(welcomeText);
     window.addEventListener('kjb-progress', handler);
@@ -134,7 +135,7 @@ const PageLoader = ({ isFadingOut, welcomeText }) => {
       window.removeEventListener('kjb-progress', handler);
       window.removeEventListener('kjb-splash-done-soon', doneHandler);
     };
-  }, [welcomeText]);
+  }, [welcomeText, staticText]);
 
   return (
     <div className={`fixed inset-0 z-[999999] bg-background flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
@@ -333,7 +334,7 @@ const AuthenticatedApp = () => {
 
         // Check for Bible data update (version mismatch in localStorage)
         const localBibleVersion = (() => { try { return localStorage.getItem('bible_cache_version'); } catch { return null; } })();
-        const CURRENT_BIBLE_VERSION = 'v20260611_338';
+        const CURRENT_BIBLE_VERSION = 'v20260611_337';
         const hasBibleUpdate = localBibleVersion && localBibleVersion !== CURRENT_BIBLE_VERSION;
         // Include swUpdateDetected/controllerChanged to catch cases where skipWaiting()
         // caused the new SW to activate before we could read reg.waiting.
@@ -463,8 +464,9 @@ const AuthenticatedApp = () => {
   useEffect(() => { preloadAllRoutes(); }, []);
 
   // Check for SW updates whenever the tab becomes visible again.
-  // If a new SW is waiting, show the full splash overlay then reload.
-  const [tabFocusSplash, setTabFocusSplash] = useState(false);
+  // If a new SW is waiting, show the full splash overlay and reload to apply it.
+  const [tabFocusUpdatePending, setTabFocusUpdatePending] = useState(false);
+  const [tabFocusSplashMsg, setTabFocusSplashMsg] = useState('Found updates...');
   useEffect(() => {
     let applying = false;
     const handleVisibility = async () => {
@@ -481,19 +483,17 @@ const AuthenticatedApp = () => {
         if (!waiting && !installing) return;
         applying = true;
         console.log('[KJB Tab-Focus] 🔧 New SW found — showing splash and applying update...');
-        // Show splash overlay
-        setTabFocusSplash(true);
-        window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Found updates...' } }));
+        setTabFocusSplashMsg('Found updates...');
+        setTabFocusUpdatePending(true);
         await new Promise(r => setTimeout(r, 800));
-        window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Applying updates...' } }));
+        setTabFocusSplashMsg('Applying updates...');
         await new Promise(r => setTimeout(r, 700));
-        try { sessionStorage.setItem('kjb_sw_updated', 'app'); } catch {}
         const target = waiting || installing;
         if (target) target.postMessage({ type: 'SKIP_WAITING' });
-        // controllerchange in main.jsx will reload the page
+        // controllerchange in main.jsx triggers the reload
       } catch (err) {
         console.warn('[KJB Tab-Focus] Update check failed:', err.message);
-        applying = false;
+        setTabFocusUpdatePending(false);
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);
@@ -502,7 +502,7 @@ const AuthenticatedApp = () => {
 
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
   const isLegacyRoute = location.pathname === '/legacy';
-  const showSplash = !isLegacyRoute && (isInitializing || !minSplashDone || !updateCheckDone || !fontsLoaded || tabFocusSplash);
+  const showSplash = !isLegacyRoute && (isInitializing || !minSplashDone || !updateCheckDone || !fontsLoaded);
 
   const [renderSplash, setRenderSplash] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
@@ -561,6 +561,9 @@ const AuthenticatedApp = () => {
   return (
     <>
       {renderSplash && <PageLoader isFadingOut={fadeSplash} welcomeText={welcomeText} />}
+      {tabFocusUpdatePending && !renderSplash && (
+        <PageLoader isFadingOut={false} welcomeText={tabFocusSplashMsg} staticText={tabFocusSplashMsg} />
+      )}
       {!isInitializing && !authError && (
         <Routes location={location}>
           <Route element={<AppLayout />}>
