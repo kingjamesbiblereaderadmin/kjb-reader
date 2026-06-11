@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw, ChevronRight } from 'lucide-react';
+import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw, ChevronRight, FlaskConical } from 'lucide-react';
+import SplashScreen from '@/components/SplashScreen';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import OfflineStatusBanner from '@/components/OfflineStatusBanner';
 import IncognitoWarning from '@/components/IncognitoWarning';
@@ -260,6 +261,18 @@ export default function HomePage() {
     handleVerseClick();
   };
 
+  const [testSplash, setTestSplash] = useState(null); // null | mode string
+  const [testFading, setTestFading] = useState(false);
+
+  const launchTestSplash = (mode) => {
+    setTestFading(false);
+    setTestSplash(mode);
+  };
+  const handleTestDone = () => {
+    setTestFading(true);
+    setTimeout(() => setTestSplash(null), 500);
+  };
+
   const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifPermission, setNotifPermission] = useState(() => {
     if (!('serviceWorker' in navigator)) return 'unsupported';
@@ -450,12 +463,14 @@ export default function HomePage() {
   };
 
   return (
-    <div
-      className="bg-gradient-to-br from-background via-accent/5 to-background"
+    <div className="bg-gradient-to-br from-background via-accent/5 to-background"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
+      {testSplash && (
+        <SplashScreen mode={testSplash} isFadingOut={testFading} onDone={handleTestDone} />
+      )}
       <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-6">
       <OfflineStatusBanner />
       <IncognitoWarning />
@@ -539,6 +554,30 @@ export default function HomePage() {
             </Link>
           );
         })}
+      </div>
+
+      {/* Splash Screen Test Panel */}
+      <div className="print:hidden bg-card border border-border rounded-2xl p-4 mb-6">
+        <div className="flex items-center gap-2 mb-3">
+          <FlaskConical className="w-4 h-4 text-muted-foreground" />
+          <p className="font-sans text-sm font-semibold text-foreground">Splash Screen Tests</p>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { mode: 'first_load', label: 'First Load' },
+            { mode: 'subsequent', label: 'Subsequent' },
+            { mode: 'subsequent_with_updates', label: 'With Updates' },
+            { mode: 'home_update', label: 'Home Update' },
+          ].map(({ mode, label }) => (
+            <button
+              key={mode}
+              onClick={() => launchTestSplash(mode)}
+              className="py-2 px-3 rounded-xl bg-secondary border border-border text-foreground font-sans text-xs font-medium hover:border-accent transition-all active:scale-[0.97]"
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Gospel call */}
