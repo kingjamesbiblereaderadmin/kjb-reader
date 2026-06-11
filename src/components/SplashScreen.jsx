@@ -141,23 +141,28 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
         setStep('Applying updates…');
         if (swResult?.reg) await applySwUpdate(swResult.reg);
         await new Promise(r => setTimeout(r, 900));
+        setStep('Verifying update…');
+        const recheck = await detectSwUpdate();
+        await new Promise(r => setTimeout(r, 700));
+        setStep(recheck.hasUpdate ? 'More updates pending…' : 'Update applied successfully.');
+        await new Promise(r => setTimeout(r, 900));
         setStep(`Welcome back to ${APP_NAME}.`);
         await new Promise(r => setTimeout(r, 900));
       }
 
       // Scenario 4: Home screen / app update only
       else if (resolvedMode === 'home_update') {
-        setStep('Loading…');
-        await new Promise(r => setTimeout(r, 900));
-        setStep('Checking for updates…');
-        if (!swResult) swResult = await detectSwUpdate();
-        await new Promise(r => setTimeout(r, 900));
         setStep('Found app updates.');
         await new Promise(r => setTimeout(r, 900));
         setStep('Installing updates…');
         await new Promise(r => setTimeout(r, 1000));
         setStep('Applying updates…');
         if (swResult?.reg) await applySwUpdate(swResult.reg);
+        await new Promise(r => setTimeout(r, 900));
+        setStep('Verifying update…');
+        const recheck = await detectSwUpdate();
+        await new Promise(r => setTimeout(r, 700));
+        setStep(recheck.hasUpdate ? 'More updates pending…' : 'Update applied successfully.');
         await new Promise(r => setTimeout(r, 900));
         setStep(`Welcome back to ${APP_NAME}.`);
         await new Promise(r => setTimeout(r, 900));
