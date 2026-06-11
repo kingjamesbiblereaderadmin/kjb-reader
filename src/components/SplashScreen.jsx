@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 const APP_NAME = 'KJB Reader';
 const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png';
 const FIRST_VISIT_KEY = 'kjb_has_visited';
-const STEP_MS = 10000;
+const STEP_MS = 1500;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
