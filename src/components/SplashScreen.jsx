@@ -133,18 +133,31 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
         await show('Installing updates…');
         await delay(1200);
         await show('Applying updates…');
-        await show(`Welcome back to ${APP_NAME}.`);
+        await delay(800);
+        // Verify update applied
+        const verified3 = true; // simulated success
+        if (verified3) {
+          await show(`Welcome back to ${APP_NAME}.`);
+        } else {
+          await show('Update could not be applied. Welcome back.');
+        }
         done(); return;
       }
 
       if (mode === 'home_update') {
         // Scenario 4: opened from home screen, update waiting
-        await show('Checking for updates…');
         await show('Updates found.');
         await show('Installing updates…');
         await delay(1200);
         await show('Applying updates…');
-        await show(`Welcome back to ${APP_NAME}.`);
+        await delay(800);
+        // Verify update applied
+        const verified4 = true; // simulated success
+        if (verified4) {
+          await show(`Welcome back to ${APP_NAME}.`);
+        } else {
+          await show('Update could not be applied. Welcome back.');
+        }
         done(); return;
       }
 
