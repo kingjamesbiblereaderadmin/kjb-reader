@@ -38,21 +38,28 @@ window.addEventListener('load', async () => {
         window.dispatchEvent(new CustomEvent('kjb-update-available', { detail: { waitingWorker } }));
       };
 
-      // If a worker is already waiting when we register, notify the UI
+      // If a worker is already waiting when we register, activate it immediately
+      // so the latest version takes over without the user having to close tabs.
       if (registration.waiting && navigator.serviceWorker.controller) {
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
         notifyUpdate(registration.waiting);
       }
 
-      // Listen for newly-found workers and notify the UI
+      // Listen for newly-found workers — activate them right away so updates
+      // apply on the next load (the controllerchange handler reloads the page).
       registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing;
         if (!newWorker) return;
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            newWorker.postMessage({ type: 'SKIP_WAITING' });
             notifyUpdate(newWorker);
           }
         });
       });
+
+      // Proactively check for an updated worker on every load.
+      registration.update().catch(() => {});
 
       // Reload the page when the new service worker takes over
       let refreshing = false;
