@@ -41,6 +41,7 @@ window.addEventListener('load', async () => {
         if (hasExistingController && !refreshing) {
           refreshing = true;
           console.log('[SW] Controller changed. Reloading to apply updates.');
+          try { sessionStorage.setItem('kjb_sw_updated', 'app'); } catch {}
           const sep = window.location.search ? '&' : '?';
           window.location.href = window.location.pathname + window.location.search + sep + 'updated=true';
         }
