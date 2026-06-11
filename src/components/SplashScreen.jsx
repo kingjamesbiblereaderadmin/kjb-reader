@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 const APP_NAME = 'KJB Reader';
 const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png';
 const FIRST_VISIT_KEY = 'kjb-has-visited-app';
-const STEP_MS = 800; // pause between each status message
+const STEP_MS = 800;
 
 function checkIsFirstVisit() {
   try { return !localStorage.getItem(FIRST_VISIT_KEY); } catch { return false; }
@@ -13,7 +13,6 @@ function markVisited() {
   try { localStorage.setItem(FIRST_VISIT_KEY, 'true'); } catch {}
 }
 
-// Get the SW registration, waiting up to 4s for it to appear
 async function getSwRegistration(timeoutMs = 4000) {
   if (!('serviceWorker' in navigator)) return null;
   const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
@@ -27,17 +26,13 @@ async function getSwRegistration(timeoutMs = 4000) {
   });
 }
 
-// Trigger reg.update() and wait up to 5s to see if a new worker installs
 async function checkForSwUpdate(reg) {
   if (!reg) return false;
   if (reg.waiting) return true;
-
   await reg.update().catch(() => {});
   if (reg.waiting) return true;
-
   return new Promise((resolve) => {
     if (reg.waiting) { resolve(true); return; }
-
     const onInstalling = (worker) => {
       const onState = () => {
         if (worker.state === 'installed') { worker.removeEventListener('statechange', onState); resolve(true); }
@@ -45,13 +40,7 @@ async function checkForSwUpdate(reg) {
       };
       worker.addEventListener('statechange', onState);
     };
-
-    if (reg.installing) {
-      onInstalling(reg.installing);
-      setTimeout(() => resolve(false), 5000);
-      return;
-    }
-
+    if (reg.installing) { onInstalling(reg.installing); setTimeout(() => resolve(false), 5000); return; }
     const onFound = () => {
       reg.removeEventListener('updatefound', onFound);
       if (reg.installing) onInstalling(reg.installing);
@@ -62,7 +51,6 @@ async function checkForSwUpdate(reg) {
   });
 }
 
-// Send SKIP_WAITING to waiting/installing SW and wait for it to become controller
 async function applySwUpdate(reg) {
   const target = reg?.waiting || reg?.installing;
   if (!target) return;
@@ -74,7 +62,7 @@ async function applySwUpdate(reg) {
       resolve();
     };
     navigator.serviceWorker.addEventListener('controllerchange', onController);
-    setTimeout(resolve, 3000); // safety timeout
+    setTimeout(resolve, 3000);
   });
   window._kjbSplashApplyingUpdate = false;
 }
@@ -86,25 +74,92 @@ async function downloadOfflineData() {
   } catch {}
 }
 
-// Install updates in a loop: check → apply → re-check → repeat until no more updates
-async function installUpdatesLoop(reg, show) {
-  let hasUpdate = await checkForSwUpdate(reg);
-  if (!hasUpdate) {
-    await show('No updates found.');
-    return;
-  }
-  while (hasUpdate) {
+// ── Scenario runners ──────────────────────────────────────────────
+
+async function runFirstLoad(show, reg) {
+  await show('Downloading offline Bible data…');
+  await downloadOfflineData();
+  await show('Checking for updates…');
+  const hasUpdate = await checkForSwUpdate(reg);
+  if (hasUpdate) {
     await show('Found app updates.');
     await show('Installing updates…');
     await applySwUpdate(reg);
     await show('Applying updates…');
-    await show('Checking for updates…');
-    // Re-fetch registration in case it changed
-    reg = await getSwRegistration(2000);
-    hasUpdate = reg ? await checkForSwUpdate(reg) : false;
+  } else {
+    await show('No updates found.');
   }
-  await show('No updates found.');
+  await show(`Welcome to ${APP_NAME}.`);
 }
+
+async function runSubsequent(show, reg) {
+  await show('Checking for updates…');
+  const hasUpdate = await checkForSwUpdate(reg);
+  if (hasUpdate) {
+    await show('Found app updates.');
+    await show('Installing updates…');
+    await applySwUpdate(reg);
+    await show('Applying updates…');
+  } else {
+    await show('No updates found.');
+  }
+  await show(`Welcome back to ${APP_NAME}.`);
+}
+
+async function runHomeUpdate(show, reg) {
+  await show('Checking for updates…');
+  await show('Found app updates.');
+  await show('Installing updates…');
+  await applySwUpdate(reg);
+  await show('Applying updates…');
+  const reg2 = await getSwRegistration(2000);
+  const hasMore = reg2 ? await checkForSwUpdate(reg2) : false;
+  if (hasMore) {
+    await show('Found app updates.');
+    await show('Installing updates…');
+    await applySwUpdate(reg2);
+    await show('Applying updates…');
+  } else {
+    await show('No updates found.');
+  }
+  await show(`Welcome back to ${APP_NAME}.`);
+}
+
+// ── Simulated test runners (no real SW/network ops) ───────────────
+
+async function simFirstLoad(show) {
+  await show('Downloading offline Bible data…');
+  await new Promise(r => setTimeout(r, 1200));
+  await show('Checking for updates…');
+  await show('No updates found.');
+  await show(`Welcome to ${APP_NAME}.`);
+}
+
+async function simSubsequent(show) {
+  await show('Checking for updates…');
+  await show('No updates found.');
+  await show(`Welcome back to ${APP_NAME}.`);
+}
+
+async function simSubsequentWithUpdates(show) {
+  await show('Checking for updates…');
+  await show('Found app & data updates.');
+  await show('Installing updates…');
+  await new Promise(r => setTimeout(r, 1200));
+  await show('Applying updates…');
+  await show(`Welcome back to ${APP_NAME}.`);
+}
+
+async function simHomeUpdate(show) {
+  await show('Checking for updates…');
+  await show('Found app updates.');
+  await show('Installing updates…');
+  await new Promise(r => setTimeout(r, 1200));
+  await show('Applying updates…');
+  await show(`Welcome back to ${APP_NAME}.`);
+}
+
+// ─────────────────────────────────────────────────────────────────
 
 export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
   const [statusText, setStatusText] = useState('Loading…');
@@ -123,64 +178,30 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
 
     const run = async () => {
       log.current = ['Loading…'];
+      await new Promise(r => setTimeout(r, 100)); // let the UI paint first
 
-      // ── TEST MODES (simulated, no real SW/network ops) ──
       if (mode === 'first_load') {
-        await show('Downloading offline Bible data…');
-        await new Promise(r => setTimeout(r, 1200)); // simulate download
-        await show('Checking for updates…');
-        await show('No updates found.');
-        await show(`Welcome to ${APP_NAME}.`);
-        if (!cancelled && !doneRef.current) { doneRef.current = true; onDone?.(); }
-        return;
-      }
-      if (mode === 'subsequent_with_updates') {
-        await show('Checking for updates…');
-        await show('Found app updates.');
-        await show('Installing updates…');
-        await new Promise(r => setTimeout(r, 1200));
-        await show('Applying updates…');
-        await show('Checking for updates…');
-        await show('No updates found.');
-        await show(`Welcome back to ${APP_NAME}.`);
-        if (!cancelled && !doneRef.current) { doneRef.current = true; onDone?.(); }
-        return;
-      }
-
-      const isFirstVisit = mode === 'auto' && checkIsFirstVisit();
-      let reg = await getSwRegistration();
-
-      if (isFirstVisit) {
-        // ── FIRST LOAD (real) ──
-        markVisited();
-        await show('Downloading offline Bible data…');
-        await downloadOfflineData();
-        await show('Checking for updates…');
-        await installUpdatesLoop(reg, show);
-        await show(`Welcome to ${APP_NAME}.`);
-
+        await simFirstLoad(show);
+      } else if (mode === 'subsequent') {
+        await simSubsequent(show);
+      } else if (mode === 'subsequent_with_updates') {
+        await simSubsequentWithUpdates(show);
       } else if (mode === 'home_update') {
-        // ── HOME SCREEN / PWA update ──
-        // Skip "Loading…" / "Checking…" — jump straight to update flow
-        await show('Found app updates.');
-        await show('Installing updates…');
-        await applySwUpdate(reg);
-        await show('Applying updates…');
-        await show('Checking for updates…');
-        reg = await getSwRegistration(2000);
-        const hasMore = reg ? await checkForSwUpdate(reg) : false;
-        if (hasMore) {
-          await installUpdatesLoop(reg, show);
-        } else {
-          await show('No updates found.');
-        }
-        await show(`Welcome back to ${APP_NAME}.`);
-
+        await simHomeUpdate(show);
       } else {
-        // ── SUBSEQUENT VISIT ──
-        await show('Checking for updates…');
-        await installUpdatesLoop(reg, show);
-        await show(`Welcome back to ${APP_NAME}.`);
+        // ── mode='auto' — production path ──
+        const isFirst = checkIsFirstVisit();
+        const reg = await getSwRegistration();
+
+        if (isFirst) {
+          markVisited();
+          await runFirstLoad(show, reg);
+        } else if (reg?.waiting) {
+          // A new SW is already waiting — treat as home_update
+          await runHomeUpdate(show, reg);
+        } else {
+          await runSubsequent(show, reg);
+        }
       }
 
       if (!cancelled) {
