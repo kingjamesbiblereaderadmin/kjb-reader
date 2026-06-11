@@ -1,7 +1,7 @@
-// KJB Reader Service Worker v20260611_354
+// KJB Reader Service Worker v20260611_355
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260611_354';
+const CACHE_NAME = 'kjb-reader-v20260611_355';
 // Bumped to force complete reinstall for all users
 const LEGACY_CACHE_NAME = 'kjb-legacy-v9';
 
@@ -15,6 +15,7 @@ const APP_SHELL_FILES = [
 
 // Install event - cache app shell
 self.addEventListener('install', (event) => {
+  self.skipWaiting(); // Auto-activate since SplashScreen is removed
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[SW] Caching app shell');
@@ -24,7 +25,6 @@ self.addEventListener('install', (event) => {
       });
     })
   );
-  // Do NOT skipWaiting here — SplashScreen controls activation timing.
 });
 
 // Activate event - clean old caches
