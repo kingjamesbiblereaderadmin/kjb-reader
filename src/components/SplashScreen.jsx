@@ -56,6 +56,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         // 2. Downloading offline data if not cached - fire banner
         const { downloadBibleForOffline, isBibleCached } = await import('@/lib/bibleCache');
         const isActuallyCached = await isBibleCached();
+        let justDownloadedBible = false;
         
         if (!detectedIncognito && !isActuallyCached) {
           setStep('DOWNLOADING OFFLINE DATA...', true);
@@ -65,6 +66,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
               console.log('[Splash] Download progress:', pct, msg);
             });
             console.log('[Splash] Offline download completed successfully');
+            justDownloadedBible = true; // Mark that we just downloaded fresh data
           } catch (err) {
             console.error('[Splash] Offline download failed:', err.message);
           }
@@ -74,10 +76,11 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         }
 
         // 3. Checking for updates - fire banner
+        // Only check for SERVICE WORKER updates, NOT Bible data (we just downloaded it if needed)
         setStep('CHECKING FOR UPDATES...');
         await pause(STEP_PAUSE_MS);
 
-        // Check for updates
+        // Check for service worker code updates only
         let hasUpdates = false;
         if (navigator.onLine) {
           try {
@@ -90,7 +93,8 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
                 hasUpdates = !!reg.waiting;
               }
             }
-            if (!hasUpdates) {
+            // Skip Bible data update check if we just downloaded fresh data
+            if (!hasUpdates && !justDownloadedBible) {
               const { checkForUpdates } = await import('@/lib/bibleCache');
               hasUpdates = await checkForUpdates().catch(() => false);
             }
@@ -196,6 +200,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         // 2. Download offline data if not cached (FIRE BANNER - same as first load)
         const { downloadBibleForOffline, isBibleCached } = await import('@/lib/bibleCache');
         const isActuallyCached = await isBibleCached();
+        let justDownloadedBible = false;
         
         if (!detectedIncognito && !isActuallyCached) {
           setStep('DOWNLOADING OFFLINE DATA...', true);
@@ -205,6 +210,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
               console.log('[Splash] Download progress:', pct, msg);
             });
             console.log('[Splash] Offline download completed successfully');
+            justDownloadedBible = true; // Mark that we just downloaded fresh data
           } catch (err) {
             console.error('[Splash] Offline download failed:', err.message);
           }
@@ -212,9 +218,11 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         }
 
         // 3. Checking for updates (no banner - checking silently)
+        // Only check for SERVICE WORKER updates, NOT Bible data (we just downloaded it if needed)
         setStep('CHECKING FOR UPDATES...');
         await pause(STEP_PAUSE_MS);
 
+        // Check for service worker code updates only
         let hasUpdates = false;
         if (navigator.onLine) {
           try {
@@ -225,7 +233,8 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
                 hasUpdates = !!reg.waiting;
               }
             }
-            if (!hasUpdates) {
+            // Skip Bible data update check if we just downloaded fresh data
+            if (!hasUpdates && !justDownloadedBible) {
               const { checkForUpdates } = await import('@/lib/bibleCache');
               hasUpdates = await checkForUpdates().catch(() => false);
             }
