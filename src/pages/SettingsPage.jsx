@@ -10,6 +10,7 @@ const TikTokIcon = () => (
 );
 import ImageCropper from '@/components/bible/ImageCropper';
 import DownloadBibleSection from '@/components/bible/DownloadBibleSection';
+import OfflineHtmlSection from '@/components/bible/OfflineHtmlSection';
 import ThemeColorPicker from '@/components/bible/ThemeColorPicker';
 import { Switch } from '@/components/ui/switch';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
@@ -70,6 +71,7 @@ export default function SettingsPage() {
     offline: true,
     downloadPdf: true,
     notifications: true,
+    offlineHtml: true,
     info: true,
     credits: true,
     advanced: false,
@@ -384,6 +386,7 @@ export default function SettingsPage() {
       offline: newState,
       downloadPdf: newState,
       notifications: newState,
+      offlineHtml: newState,
       info: newState,
       credits: newState,
       advanced: newState,
@@ -1232,6 +1235,21 @@ export default function SettingsPage() {
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.downloadPdf ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.downloadPdf && <DownloadBibleSection />}
+      </div>
+
+      {/* Offline HTML Bible — single self-contained file for old browsers / hosting */}
+      <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
+        <button
+          onClick={() => toggleSection('offlineHtml')}
+          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
+        >
+          <div className="flex flex-col gap-1">
+            <h2 className="font-serif text-lg font-semibold text-foreground">Standalone HTML Bible</h2>
+            <p className="font-sans text-xs text-muted-foreground">One file — works on old browsers & offline</p>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.offlineHtml ? 'rotate-180' : ''}`} />
+        </button>
+        {expandedSections.offlineHtml && <OfflineHtmlSection />}
       </div>
 
       {/* Notifications — hidden in private/incognito windows where they won't persist */}
