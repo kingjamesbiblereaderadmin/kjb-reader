@@ -1,13 +1,20 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
+import { detectIncognito } from '@/lib/incognito';
 
 const STEP_PAUSE_MS = 1500;
 
 // mode: 'first_load' | 'subsequent' | 'home_update'
 export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load', isVisible = true }) {
   const [currentMessage, setCurrentMessage] = useState('LOADING KJB READER...');
+  const [isIncognito, setIsIncognito] = useState(false);
   const doneRef = useRef(false);
   const stepsLog = useRef([]);
+
+  // Detect incognito mode on mount
+  React.useEffect(() => {
+    detectIncognito().then(setIsIncognito);
+  }, []);
 
   const setStep = (message) => {
     stepsLog.current.push(message);
@@ -36,22 +43,31 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
       // === FIRST LOAD FLOW ===
       if (isFirstVisit) {
         // 1. Loading
-        setStep('Loading…');
+        setStep('LOADING KJB READER...');
         await pause(STEP_PAUSE_MS);
 
-        // 2. Downloading offline data
-        setStep('DOWNLOADING OFFLINE DATA...');
-        try {
-          const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-          await downloadBibleForOffline();
-        } catch (err) {
-          console.error('[Splash] Offline download failed:', err.message);
+        // 2. Skip offline download in incognito (cache won't persist)
+        if (!isIncognito) {
+          // 2. Downloading offline data
+          setStep('DOWNLOADING OFFLINE DATA...');
+          try {
+            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+            await downloadBibleForOffline();
+          } catch (err) {
+            console.error('[Splash] Offline download failed:', err.message);
+          }
+          await pause(STEP_PAUSE_MS);
+
+          // 3. Checking for updates
+          setStep('CHECKING FOR UPDATES...');
+          await pause(STEP_PAUSE_MS);
+        } else {
+          // Incognito mode: skip download, go straight to update check
+          console.log('[Splash] Incognito mode detected — skipping offline download');
+          // 2. Checking for updates (renumbered for incognito)
+          setStep('CHECKING FOR UPDATES...');
+          await pause(STEP_PAUSE_MS);
         }
-        await pause(STEP_PAUSE_MS);
-
-        // 3. Checking for updates
-        setStep('CHECKING FOR UPDATES...');
-        await pause(STEP_PAUSE_MS);
 
         // Check for updates
         let hasUpdates = false;
@@ -99,7 +115,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           }
 
           // 7. Check again (loop)
-          setStep('Checking for updates…');
+          setStep('CHECKING FOR UPDATES...');
           await pause(STEP_PAUSE_MS);
         } else {
           // No updates
@@ -108,8 +124,13 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         }
 
         // 8. Welcome
-        setStep('WELCOME TO KJB READER.');
-        window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME TO KJB READER.', status: 'success' } }));
+        if (isIncognito) {
+          setStep('WELCOME (PRIVATE MODE).');
+          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME (PRIVATE MODE).', status: 'success' } }));
+        } else {
+          setStep('WELCOME TO KJB READER.');
+          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME TO KJB READER.', status: 'success' } }));
+        }
         await pause(STEP_PAUSE_MS);
         window.dispatchEvent(new Event('kjb-progress-clear'));
 
