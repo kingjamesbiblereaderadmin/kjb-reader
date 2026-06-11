@@ -378,6 +378,27 @@ const AuthenticatedApp = () => {
   // Preload route chunks in background
   useEffect(() => { preloadAllRoutes(); }, []);
 
+  // Silently check for SW updates whenever the tab becomes visible again
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState !== 'visible') return;
+      if (!('serviceWorker' in navigator)) return;
+      navigator.serviceWorker.getRegistration().then((reg) => {
+        if (!reg) return;
+        return reg.update().then(() => {
+          const waiting = reg.waiting;
+          const installing = reg.installing;
+          console.log('[KJB Tab-Focus] SW check — waiting:', !!waiting, '| installing:', !!installing);
+          if (waiting || installing) {
+            console.log('[KJB Tab-Focus] 🔧 New SW available — will activate on next reload');
+          }
+        });
+      }).catch(() => {});
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, []);
+
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
   const isLegacyRoute = location.pathname === '/legacy';
   const showSplash = !isLegacyRoute && (isInitializing || !minSplashDone || !updateCheckDone || !fontsLoaded);
