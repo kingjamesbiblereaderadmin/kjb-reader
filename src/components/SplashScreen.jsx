@@ -31,10 +31,21 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
       const detectedIncognito = await detectIncognito();
       setIsIncognito(detectedIncognito);
       
-      let isFirstVisit = mode === 'first_load';
+      // Check for waiting service worker — if found, treat as home update
+      // (covers reloads where sessionStorage flag was lost)
       let isHomeUpdate = mode === 'home_update';
+      if (!isHomeUpdate && mode === 'subsequent' && 'serviceWorker' in navigator) {
+        try {
+          const reg = await navigator.serviceWorker.getRegistration();
+          if (reg?.waiting || reg?.installing) {
+            console.log('[Splash] Waiting SW found — treating as home update');
+            isHomeUpdate = true;
+          }
+        } catch {}
+      }
+      let isFirstVisit = mode === 'first_load';
       
-      console.log('[KJB Splash] Mode:', mode, 'Incognito:', detectedIncognito);
+      console.log('[KJB Splash] Mode:', mode, 'isHomeUpdate:', isHomeUpdate, 'Incognito:', detectedIncognito);
 
       // Set has-visited flag for subsequent visits
       if (!isFirstVisit && !isHomeUpdate) {
