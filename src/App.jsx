@@ -262,7 +262,10 @@ const AuthenticatedApp = () => {
 
   useEffect(() => {
     let cancelled = false;
-    const emit = (msg) => window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: msg } }));
+    const emit = (msg) => {
+      console.log('[KJB Splash]', msg);
+      window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: msg } }));
+    };
 
     const check = async () => {
       if (!('serviceWorker' in navigator)) { if (!cancelled) setUpdateCheckDone(true); return; }
@@ -275,6 +278,8 @@ const AuthenticatedApp = () => {
 
         const waitingWorker = reg.waiting;
         const installingWorker = reg.installing;
+
+        console.log('[KJB Splash] SW check — waiting:', !!waitingWorker, '| installing:', !!installingWorker, '| controller:', !!navigator.serviceWorker.controller);
 
         if ((waitingWorker || installingWorker) && navigator.serviceWorker.controller) {
           // There's a new SW ready or installing — drive the progress messages
