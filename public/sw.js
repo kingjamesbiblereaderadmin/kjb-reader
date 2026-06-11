@@ -13,16 +13,27 @@ const APP_SHELL_FILES = [
   '/manifest.json',
 ];
 
-// Install event - cache app shell
+// Install event - cache app shell and notify clients before activating
 self.addEventListener('install', (event) => {
-  self.skipWaiting(); // Auto-activate since SplashScreen is removed
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[SW] Caching app shell');
       return cache.addAll(APP_SHELL_FILES).catch(err => {
         console.warn('[SW] Some resources failed to cache:', err);
-        return Promise.resolve(); // Don't fail install if some resources fail
+        return Promise.resolve();
       });
+    }).then(() => {
+      // Notify ALL open tabs about the update BEFORE activating
+      console.log('[SW] Sending UPDATE_FOUND to all clients');
+      return self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+          client.postMessage({ type: 'UPDATE_FOUND' });
+        });
+      });
+    }).then(() => {
+      // Now skip waiting to activate
+      console.log('[SW] Skipping waiting');
+      return self.skipWaiting();
     })
   );
 });
