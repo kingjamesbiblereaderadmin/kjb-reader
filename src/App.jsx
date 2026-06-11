@@ -283,6 +283,7 @@ const AuthenticatedApp = () => {
       console.log(`[KJB Splash] 🚦 Update check starting — SW: ${swVer} | Bible: ${bibleVerAtStart}`);
       if (!('serviceWorker' in navigator)) {
         console.log('[KJB Splash] ⏭ No SW support — skipping update check');
+        saveSplashLog();
         if (!cancelled) setUpdateCheckDone(true);
         return;
       }
@@ -290,6 +291,7 @@ const AuthenticatedApp = () => {
         const reg = await navigator.serviceWorker.getRegistration();
         if (!reg) {
           console.log('[KJB Splash] ⏭ No SW registration found — skipping update check');
+          saveSplashLog();
           if (!cancelled) setUpdateCheckDone(true);
           return;
         }
