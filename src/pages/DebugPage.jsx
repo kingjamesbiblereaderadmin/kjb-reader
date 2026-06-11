@@ -410,15 +410,184 @@ export default function DebugPage() {
           <h2 className="font-serif text-lg font-bold text-foreground">Splash Screen Tester</h2>
         </div>
         <p className="font-sans text-xs text-muted-foreground mb-3">Preview each splash screen scenario. Each step pauses for 10 seconds. Press Dismiss or wait for the sequence to finish.</p>
-        <a
-          href="/SplashScreen.txt"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-background font-sans text-xs font-medium text-foreground hover:bg-accent/20 transition-all mb-4 w-fit"
+        <button
+          onClick={() => {
+            const SPLASH_CODE = `import React, { useEffect, useState, useRef } from 'react';
+import { Loader2 } from 'lucide-react';
+
+const STEP_PAUSE_MS = 10000;
+
+// mode: 'auto' | 'first_load' | 'subsequent' | 'subsequent_with_updates' | 'home_update'
+export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
+  const [currentMessage, setCurrentMessage] = useState('Loading\u2026');
+  const doneRef = useRef(false);
+  const stepsLog = useRef([]);
+
+  const setStep = (message) => {
+    stepsLog.current.push(message);
+    setCurrentMessage(message);
+  };
+
+  const pause = (ms) => new Promise(r => setTimeout(r, ms));
+
+  useEffect(() => {
+    if (doneRef.current) return;
+    doneRef.current = true;
+
+    (async () => {
+      let isFirstVisit;
+      let forceUpdates = false;
+      let forceHomeUpdate = false;
+
+      if (mode === 'first_load') {
+        isFirstVisit = true;
+      } else if (mode === 'subsequent') {
+        isFirstVisit = false;
+      } else if (mode === 'subsequent_with_updates') {
+        isFirstVisit = false;
+        forceUpdates = true;
+      } else if (mode === 'home_update') {
+        isFirstVisit = false;
+        forceHomeUpdate = true;
+      } else {
+        isFirstVisit = !localStorage.getItem('YOUR_APP_KEY-has-visited-app');
+        if (isFirstVisit) localStorage.setItem('YOUR_APP_KEY-has-visited-app', 'true');
+      }
+
+      // Step 1: Loading
+      setStep('Loading\u2026');
+      await pause(STEP_PAUSE_MS);
+
+      // Step 2 (first visit): Download offline data
+      if (isFirstVisit) {
+        setStep('Downloading offline data\u2026');
+        if (mode === 'auto') {
+          // TODO: replace with your own offline data download logic
+        }
+        await pause(STEP_PAUSE_MS);
+      }
+
+      // Step 3: Update check loop — re-checks after each update cycle
+      const maxChecks = 3;
+      let checkRound = 0;
+
+      while (checkRound < maxChecks) {
+        checkRound++;
+        setStep('Checking for updates\u2026');
+        await pause(STEP_PAUSE_MS);
+
+        let swUpdated = false;
+        let dataUpdated = false;
+
+        if (forceUpdates) {
+          swUpdated = true;
+          dataUpdated = true;
+        } else if (forceHomeUpdate) {
+          swUpdated = true;
+        } else if (mode === 'auto' && navigator.onLine) {
+          try {
+            if ('serviceWorker' in navigator) {
+              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+              if (reg) {
+                await reg.update().catch(() => {});
+                swUpdated = !!(reg.waiting || reg.installing);
+              }
+            }
+          } catch {}
+          // TODO: replace with your own update-check logic
+          // dataUpdated = await checkForUpdates().catch(() => false);
+        }
+
+        const hasUpdate = swUpdated || dataUpdated;
+
+        if (!hasUpdate) {
+          setStep('No updates found.');
+          await pause(STEP_PAUSE_MS);
+          break;
+        }
+
+        const updateLabel = swUpdated && dataUpdated
+          ? 'Found app & data updates.'
+          : dataUpdated ? 'Found data updates.' : 'Found app updates.';
+        setStep(updateLabel);
+        await pause(STEP_PAUSE_MS);
+
+        setStep('Installing updates\u2026');
+        if (mode === 'auto') {
+          // TODO: replace with your own data install logic
+        }
+        await pause(STEP_PAUSE_MS);
+
+        setStep('Applying updates\u2026');
+        await pause(STEP_PAUSE_MS);
+
+        if (mode === 'auto' && swUpdated && 'serviceWorker' in navigator) {
+          try {
+            const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+            if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          } catch {}
+        }
+
+        // Loop continues to re-check for more updates after applying
+        if (mode !== 'auto') break;
+      }
+
+      // Step 4: Welcome
+      const welcomeMsg = isFirstVisit ? 'Welcome to [Your App].' : 'Welcome back to [Your App].';
+      setStep(welcomeMsg);
+      await pause(STEP_PAUSE_MS);
+
+      console.group('[Splash] Summary');
+      stepsLog.current.forEach((msg, i) => console.log(\`\${i + 1}. \${msg}\`));
+      console.groupEnd();
+
+      onDone?.();
+    })();
+  }, []);
+
+  return (
+    <div
+      className={\`fixed inset-0 z-[999999] flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out \${
+        isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      }\`}
+      style={{ background: '#0f1117' }}
+    >
+      <div className="flex flex-col items-center -mt-16" style={{ gap: '48px' }}>
+        {/* Replace src with your logo URL */}
+        <img
+          src="YOUR_LOGO_URL"
+          alt="App Logo"
+          className="w-44 h-44 object-contain rounded-2xl"
+        />
+        <div className="flex flex-col items-center gap-5">
+          <Loader2
+            className="w-8 h-8 animate-spin"
+            style={{ color: '#4f6aff', animationDuration: '1.2s' }}
+          />
+          <span
+            className="font-sans text-sm font-light tracking-[0.25em] uppercase transition-all duration-300"
+            style={{ color: '#c8cdd8' }}
+          >
+            {currentMessage}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}`;
+            const blob = new Blob([SPLASH_CODE], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'SplashScreen.jsx';
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-background font-sans text-xs font-medium text-foreground hover:bg-accent/20 transition-all mb-4"
         >
           <Code className="w-3.5 h-3.5" />
-          Download SplashScreen.txt
-        </a>
+          Download SplashScreen.jsx
+        </button>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {SPLASH_SCENARIOS.map(({ mode, label, description }) => (
             <div

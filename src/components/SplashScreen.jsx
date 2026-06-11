@@ -130,6 +130,8 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
           } catch {}
         }
 
+        // Loop continues — re-check for more updates after applying
+        // (test modes only do one cycle)
         if (mode !== 'auto') break;
       }
 
