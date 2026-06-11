@@ -117,11 +117,9 @@ try {
   console.group(label);
   if (prev.length) {
     prev.forEach((run, i) => {
-      const outcome = run.log.some(l => l.includes('Updated') || l.includes('🔄'))
-        ? '🔄 Updated'
-        : run.log.some(l => l.includes('Error') || l.includes('❌'))
-          ? '❌ Error'
-          : '✅ No updates';
+      const hasError = run.log.some(l => l.includes('❌'));
+      const hasUpdate = run.log.some(l => l.includes('Found updates') || l.includes('Applying updates') || l.includes('Bible update'));
+      const outcome = hasError ? '❌ Error' : hasUpdate ? '🔄 Updated' : '✅ No updates';
       console.groupCollapsed(`Run ${i + 1} [${outcome}] — ${run.at}`);
       run.log.forEach(l => console.log(l));
       console.groupEnd();
@@ -551,38 +549,36 @@ const AuthenticatedApp = () => {
     if (!showSplash) {
       // Emit welcome text, then fade out
       window.dispatchEvent(new Event('kjb-splash-done-soon'));
+
+      // Print summary immediately — saveSplashLog() has already been called by
+      // the check() function before setUpdateCheckDone(true), so the current
+      // run is already persisted. Do this BEFORE the fade timer so it's in the
+      // console even if the user closes DevTools quickly.
+      try {
+        const allRuns = JSON.parse(localStorage.getItem('kjb-splash-log') || '[]');
+        console.group(`[KJB Splash Summary] App loaded — ${allRuns.length} run(s) on record`);
+        allRuns.forEach((run, i) => {
+          const hasError = run.log.some(l => l.includes('❌'));
+          const hasUpdate = run.log.some(l => l.includes('Found updates') || l.includes('Applying updates') || l.includes('Bible update'));
+          const outcome = hasError ? '❌ Error' : hasUpdate ? '🔄 Updated' : '✅ No updates';
+          console.groupCollapsed(`Run ${i + 1} [${outcome}] — ${run.at}`);
+          run.log.forEach(l => console.log(l));
+          console.groupEnd();
+        });
+        console.groupEnd();
+      } catch {}
+
       const fadeTimer = setTimeout(() => setFadeSplash(true), 600);
       const timer = setTimeout(() => {
         setRenderSplash(false);
         window.kjbSplashDone = true;
         window.dispatchEvent(new Event('kjb-splash-done'));
 
-        // Print full splash history to console now that this run is complete
-        try {
-          const allRuns = JSON.parse(localStorage.getItem('kjb-splash-log') || '[]');
-          console.group(`[KJB Splash Summary] ${allRuns.length} run(s) on record`);
-          allRuns.forEach((run, i) => {
-            const outcome = run.log.some(l => l.includes('🔄 Updated') || (!l.includes('No updates') && l.includes('update')))
-              ? '🔄 Updated'
-              : run.log.some(l => l.includes('❌'))
-                ? '❌ Error'
-                : '✅ No updates';
-            console.groupCollapsed(`Run ${i + 1} [${outcome}] — ${run.at}`);
-            run.log.forEach(l => console.log(l));
-            console.groupEnd();
-          });
-          console.groupEnd();
-        } catch {}
-
         // Final background SW check after splash — ensures any newly-deployed
         // SW that arrived while the app was loading gets registered for next visit.
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.getRegistration().then((reg) => {
-            if (!reg) {
-              console.log('[KJB Post-Splash] ⏭ No SW registration — skipping post-splash check');
-              return;
-            }
-            console.log('[KJB Post-Splash] 🔍 Running final SW update check...');
+            if (!reg) return;
             return reg.update().then(() => {
               const waiting = reg.waiting;
               const installing = reg.installing;
@@ -593,9 +589,7 @@ const AuthenticatedApp = () => {
                 console.log('[KJB Post-Splash] ✅ SW is current — no pending updates');
               }
             });
-          }).catch((err) => {
-            console.warn('[KJB Post-Splash] ⚠️ Post-splash SW check failed:', err.message);
-          });
+          }).catch(() => {});
         }
       }, 1100);
       return () => { clearTimeout(fadeTimer); clearTimeout(timer); };
