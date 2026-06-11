@@ -297,12 +297,13 @@ export default function HomePage() {
     // Listen for storage events (syncs across tabs/pages)
     window.addEventListener('storage', handleStorageChange);
     
-    // Listen for service worker update messages
+    // Listen for service worker update messages — set flag for SplashScreen
+    // but DON'T reload here; let SplashScreen handle the update flow
     const handleSWUpdate = (event) => {
       if (event.data?.type === 'UPDATE_FOUND') {
-        console.log('[Home] SW update detected, reloading...');
+        console.log('[Home] SW update detected — flagging for SplashScreen');
         sessionStorage.setItem('kjb-splash-home-update', 'true');
-        window.location.reload();
+        // Do NOT reload here — SplashScreen will detect the waiting SW and show "FOUND UPDATES." first
       }
     };
     navigator.serviceWorker?.addEventListener('message', handleSWUpdate);

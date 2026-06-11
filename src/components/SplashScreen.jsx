@@ -252,11 +252,17 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         setStep('APPLYING UPDATES...');
         await pause(STEP_PAUSE_MS);
 
-        // Activate service worker
+        // Activate service worker and reload to apply
         if ('serviceWorker' in navigator) {
           try {
             const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-            if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            if (reg?.waiting) {
+              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+              // Reload after SW activates to apply the update
+              await pause(STEP_PAUSE_MS);
+              window.location.href = window.location.pathname + '?refresh=' + Date.now();
+              return;
+            }
           } catch {}
         }
 
