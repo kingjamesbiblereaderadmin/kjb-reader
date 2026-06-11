@@ -181,6 +181,14 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
         await show('Installing updates…');
         await applyUpdate(reg);
         await show('Applying updates…');
+        // Re-check: verify the update was actually applied
+        reg = await getSwReg();
+        const stillPending = await checkForUpdate(reg);
+        if (stillPending) {
+          // Update didn't fully apply — try once more
+          await show('Verifying update…');
+          await applyUpdate(reg);
+        }
       } else {
         await show('No updates found.');
       }
