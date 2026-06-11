@@ -15,7 +15,18 @@ function markVisited() {
 async function detectSwUpdate() {
   if (!('serviceWorker' in navigator)) return { hasUpdate: false };
   try {
-    const reg = await navigator.serviceWorker.getRegistration();
+    // Wait for a registration to exist (main.jsx registers on 'load', which
+    // may not have fired yet when SplashScreen mounts). Poll up to 3s.
+    let reg = await navigator.serviceWorker.getRegistration();
+    if (!reg) {
+      reg = await new Promise((resolve) => {
+        const check = setInterval(async () => {
+          const r = await navigator.serviceWorker.getRegistration().catch(() => null);
+          if (r) { clearInterval(check); resolve(r); }
+        }, 200);
+        setTimeout(() => { clearInterval(check); resolve(null); }, 3000);
+      });
+    }
     if (!reg) return { hasUpdate: false };
 
     // Already has a worker queued up waiting to activate
@@ -124,7 +135,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
         log('Loading…');
         const [swRes] = await Promise.all([
           detectSwUpdate(),
-          new Promise(r => setTimeout(r, 1200)),
+          new Promise(r => setTimeout(r, 2000)),
         ]);
         swResult = swRes;
         if (isFirstVisit) resolvedMode = 'first_load';
