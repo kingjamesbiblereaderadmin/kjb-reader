@@ -4,6 +4,7 @@ import { Loader2 } from 'lucide-react';
 const APP_NAME = 'KJB Reader';
 const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png';
 const FIRST_VISIT_KEY = 'kjb-has-visited-app';
+const STEP_MS = 800; // pause between each status message
 
 function checkIsFirstVisit() {
   try { return !localStorage.getItem(FIRST_VISIT_KEY); } catch { return false; }
@@ -12,10 +13,10 @@ function markVisited() {
   try { localStorage.setItem(FIRST_VISIT_KEY, 'true'); } catch {}
 }
 
-// Wait for SW registration to exist (main.jsx registers on 'load')
+// Get the SW registration, waiting up to 4s for it to appear
 async function getSwRegistration(timeoutMs = 4000) {
   if (!('serviceWorker' in navigator)) return null;
-  let reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+  const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
   if (reg) return reg;
   return new Promise((resolve) => {
     const interval = setInterval(async () => {
@@ -26,22 +27,15 @@ async function getSwRegistration(timeoutMs = 4000) {
   });
 }
 
-// Check if there's a waiting/installing SW that represents a new update
-async function detectSwUpdate() {
-  const reg = await getSwRegistration();
-  if (!reg) return { hasUpdate: false, reg: null };
+// Trigger reg.update() and wait up to 5s to see if a new worker installs
+async function checkForSwUpdate(reg) {
+  if (!reg) return false;
+  if (reg.waiting) return true;
 
-  // Already waiting
-  if (reg.waiting) return { hasUpdate: true, reg };
-
-  // Trigger update check and wait for result
   await reg.update().catch(() => {});
+  if (reg.waiting) return true;
 
-  // Check again after update()
-  if (reg.waiting) return { hasUpdate: true, reg };
-
-  // Wait for a new worker to install
-  const hasUpdate = await new Promise((resolve) => {
+  return new Promise((resolve) => {
     if (reg.waiting) { resolve(true); return; }
 
     const onInstalling = (worker) => {
@@ -66,29 +60,23 @@ async function detectSwUpdate() {
     reg.addEventListener('updatefound', onFound);
     setTimeout(() => { reg.removeEventListener('updatefound', onFound); resolve(false); }, 5000);
   });
-
-  return { hasUpdate, reg };
 }
 
-// Tell the waiting SW to activate. Does NOT cause a page reload —
-// main.jsx's controllerchange listener is suppressed during splash.
+// Send SKIP_WAITING to waiting/installing SW and wait for it to become controller
 async function applySwUpdate(reg) {
   const target = reg?.waiting || reg?.installing;
-  if (target) {
-    // Signal main.jsx to ignore this controllerchange (splash is handling it)
-    window._kjbSplashApplyingUpdate = true;
-    target.postMessage({ type: 'SKIP_WAITING' });
-    // Wait for the new SW to actually become the controller
-    await new Promise((resolve) => {
-      const onController = () => {
-        navigator.serviceWorker.removeEventListener('controllerchange', onController);
-        resolve();
-      };
-      navigator.serviceWorker.addEventListener('controllerchange', onController);
-      setTimeout(resolve, 3000); // safety
-    });
-    window._kjbSplashApplyingUpdate = false;
-  }
+  if (!target) return;
+  window._kjbSplashApplyingUpdate = true;
+  target.postMessage({ type: 'SKIP_WAITING' });
+  await new Promise((resolve) => {
+    const onController = () => {
+      navigator.serviceWorker.removeEventListener('controllerchange', onController);
+      resolve();
+    };
+    navigator.serviceWorker.addEventListener('controllerchange', onController);
+    setTimeout(resolve, 3000); // safety timeout
+  });
+  window._kjbSplashApplyingUpdate = false;
 }
 
 async function downloadOfflineData() {
@@ -98,60 +86,84 @@ async function downloadOfflineData() {
   } catch {}
 }
 
-const MIN_DISPLAY_MS = 2200;
+// Install updates in a loop: check → apply → re-check → repeat until no more updates
+async function installUpdatesLoop(reg, show) {
+  let hasUpdate = await checkForSwUpdate(reg);
+  if (!hasUpdate) {
+    await show('No updates found.');
+    return;
+  }
+  while (hasUpdate) {
+    await show('Found app updates.');
+    await show('Installing updates…');
+    await applySwUpdate(reg);
+    await show('Applying updates…');
+    await show('Checking for updates…');
+    // Re-fetch registration in case it changed
+    reg = await getSwRegistration(2000);
+    hasUpdate = reg ? await checkForSwUpdate(reg) : false;
+  }
+  await show('No updates found.');
+}
 
-export default function SplashScreen({ isFadingOut, onDone }) {
+export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
   const [statusText, setStatusText] = useState('Loading…');
   const doneRef = useRef(false);
-
-  const step = (text, delay = 900) => new Promise((resolve) => {
-    setStatusText(text);
-    setTimeout(resolve, delay);
-  });
+  const log = useRef([]);
 
   useEffect(() => {
     let cancelled = false;
-    const safeStep = (text, delay) => cancelled ? Promise.resolve() : step(text, delay);
+
+    const show = (text) => {
+      if (cancelled) return Promise.resolve();
+      log.current.push(text);
+      setStatusText(text);
+      return new Promise(resolve => setTimeout(resolve, STEP_MS));
+    };
 
     const run = async () => {
-      const isFirstVisit = checkIsFirstVisit();
-      const startTime = Date.now();
+      const isFirstVisit = mode === 'first_load' || (mode === 'auto' && checkIsFirstVisit());
+      log.current = ['Loading…'];
 
-      // Detect SW update and enforce minimum display time in parallel
-      const [swResult] = await Promise.all([
-        detectSwUpdate(),
-        new Promise(r => setTimeout(r, MIN_DISPLAY_MS)),
-      ]);
-
-      if (cancelled) return;
-
-      if (isFirstVisit) markVisited();
-
-      const hasUpdate = swResult.hasUpdate;
+      let reg = await getSwRegistration();
 
       if (isFirstVisit) {
-        // First ever visit
-        setStatusText('Downloading offline data…');
+        // ── FIRST LOAD ──
+        if (mode === 'auto') markVisited();
+        await show('Downloading offline Bible data…');
         await downloadOfflineData();
-        await safeStep('Checking for updates…', 700);
-        if (hasUpdate) {
-          await safeStep('Found app & data updates.', 700);
-          await safeStep('Installing updates…', 700);
-          await applySwUpdate(swResult.reg);
-          await safeStep('Applying updates…', 700);
+        await show('Checking for updates…');
+        await installUpdatesLoop(reg, show);
+        await show(`Welcome to ${APP_NAME}.`);
+
+      } else if (mode === 'home_update') {
+        // ── HOME SCREEN / PWA update ──
+        // Skip "Loading…" / "Checking…" — jump straight to update flow
+        await show('Found app updates.');
+        await show('Installing updates…');
+        await applySwUpdate(reg);
+        await show('Applying updates…');
+        await show('Checking for updates…');
+        reg = await getSwRegistration(2000);
+        const hasMore = reg ? await checkForSwUpdate(reg) : false;
+        if (hasMore) {
+          await installUpdatesLoop(reg, show);
         } else {
-          await safeStep('No updates found.', 700);
+          await show('No updates found.');
         }
-        await safeStep(`Welcome to ${APP_NAME}.`, 900);
-      } else if (hasUpdate) {
-        // Returning user with a new SW waiting
-        await safeStep('Found app updates.', 800);
-        await safeStep('Installing…', 900);
-        await applySwUpdate(swResult.reg);
-        await safeStep('Done. Welcome back.', 900);
+        await show(`Welcome back to ${APP_NAME}.`);
+
       } else {
-        // Returning user, no update
-        await safeStep(`Welcome back to ${APP_NAME}.`, 900);
+        // ── SUBSEQUENT VISIT ──
+        await show('Checking for updates…');
+        await installUpdatesLoop(reg, show);
+        await show(`Welcome back to ${APP_NAME}.`);
+      }
+
+      if (!cancelled) {
+        console.groupCollapsed('[KJB Splash] Steps completed');
+        log.current.forEach((s, i) => console.log(`${i + 1}. ${s}`));
+        console.groupEnd();
       }
 
       if (!cancelled && !doneRef.current) {

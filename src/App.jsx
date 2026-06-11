@@ -158,8 +158,6 @@ const AuthenticatedApp = () => {
   useEffect(() => { preloadAllRoutes(); }, []);
 
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
-  const isLegacyRoute = location.pathname === '/legacy';
-
   const handleSplashDone = () => {
     setFadeSplash(true);
     setTimeout(() => {
@@ -180,7 +178,7 @@ const AuthenticatedApp = () => {
 
   return (
     <>
-      {renderSplash && !isInitializing && !isLegacyRoute && (
+      {renderSplash && !isInitializing && (
         <SplashScreen isFadingOut={fadeSplash} onDone={handleSplashDone} />
       )}
       {!isInitializing && !authError && (
