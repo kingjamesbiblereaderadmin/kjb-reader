@@ -166,6 +166,7 @@ const AuthenticatedApp = () => {
     
     console.log('[App] Splash mode check:', { homeUpdateFlag, homeUpdate, hasVisited });
     console.log('[App] localStorage kjb-splash-home-update:', localStorage.getItem('kjb-splash-home-update'));
+    console.log('[App] localStorage kjb-splash-home-update:', localStorage.getItem('kjb-splash-home-update'));
     
     if (homeUpdate) {
       console.log('[App] Home update mode - removing flag');
