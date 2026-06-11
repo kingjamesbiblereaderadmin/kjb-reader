@@ -29,7 +29,7 @@ async function detectSwUpdate() {
       if (reg.waiting || reg.installing) { resolve(); return; }
       const onFound = () => { reg.removeEventListener('updatefound', onFound); resolve(); };
       reg.addEventListener('updatefound', onFound);
-      setTimeout(() => { reg.removeEventListener('updatefound', onFound); resolve(); }, 3000);
+      setTimeout(() => { reg.removeEventListener('updatefound', onFound); resolve(); }, 6000);
     });
 
     reg.update().catch(() => {});
