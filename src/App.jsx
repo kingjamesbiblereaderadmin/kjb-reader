@@ -271,14 +271,31 @@ const AuthenticatedApp = () => {
         const next = [entry, ...prev].slice(0, 5);
         localStorage.setItem('kjb-splash-log', JSON.stringify(next));
       } catch {}
-      // Print a concise summary to the console
+    };
+    const printSplashSummary = () => {
       const last = splashLog[splashLog.length - 1] || '';
       const outcome = last.includes('No updates') ? '✅ No updates' : last.includes('Error') ? '❌ Error' : '🔄 Updated';
       const swVer = 'v20260611_347';
       const bibleVer = (() => { try { return localStorage.getItem('bible_cache_version') || '(none)'; } catch { return '(none)'; } })();
-      console.groupCollapsed(`[KJB Splash] ${outcome} — SW: ${swVer} | Bible: ${bibleVer} — ${splashLog.length} step(s)`);
-      splashLog.forEach(l => console.log(l));
+      console.group(`[KJB Splash Summary] ${outcome} — SW: ${swVer} | Bible: ${bibleVer} — ${splashLog.length} step(s)`);
+      splashLog.forEach((l, i) => console.log(`  ${i + 1}. ${l}`));
       console.groupEnd();
+      // Also print previous runs for history
+      try {
+        const allRuns = JSON.parse(localStorage.getItem('kjb-splash-log') || '[]');
+        if (allRuns.length > 1) {
+          console.groupCollapsed(`[KJB Splash History] ${allRuns.length - 1} previous run(s)`);
+          allRuns.slice(1).forEach((run, i) => {
+            const hasError = run.log.some(l => l.includes('❌'));
+            const hasUpdate = run.log.some(l => l.includes('Found updates') || l.includes('Applying') || l.includes('Bible update'));
+            const runOutcome = hasError ? '❌ Error' : hasUpdate ? '🔄 Updated' : '✅ No updates';
+            console.groupCollapsed(`Run -${i + 1} [${runOutcome}] — ${run.at}`);
+            run.log.forEach((l, j) => console.log(`  ${j + 1}. ${l}`));
+            console.groupEnd();
+          });
+          console.groupEnd();
+        }
+      } catch {}
     };
     const emit = (msg) => {
       logEntry(msg);
@@ -377,6 +394,7 @@ const AuthenticatedApp = () => {
           logEntry('✅ No updates needed');
           emit('No updates found');
           saveSplashLog();
+          printSplashSummary();
           // Show "No updates found" for a readable moment before dismissing
           await new Promise(r => setTimeout(r, 20000));
           if (!cancelled) setUpdateCheckDone(true);
@@ -412,6 +430,7 @@ const AuthenticatedApp = () => {
           }
           logEntry('✅ Bible update applied, no SW update needed');
           saveSplashLog();
+          printSplashSummary();
           if (!cancelled) setUpdateCheckDone(true);
           return;
         }
@@ -479,6 +498,7 @@ const AuthenticatedApp = () => {
           }
 
           saveSplashLog();
+          printSplashSummary();
           if (!cancelled) setUpdateCheckDone(true);
           return;
         }
@@ -486,6 +506,7 @@ const AuthenticatedApp = () => {
         logEntry('❌ Error: ' + err.message);
         console.error('[KJB Splash] ❌ Update check error:', err.message);
         saveSplashLog();
+        printSplashSummary();
       }
       if (!cancelled) setUpdateCheckDone(true);
     };
@@ -549,24 +570,6 @@ const AuthenticatedApp = () => {
     if (!showSplash) {
       // Emit welcome text, then fade out
       window.dispatchEvent(new Event('kjb-splash-done-soon'));
-
-      // Print summary immediately — saveSplashLog() has already been called by
-      // the check() function before setUpdateCheckDone(true), so the current
-      // run is already persisted. Do this BEFORE the fade timer so it's in the
-      // console even if the user closes DevTools quickly.
-      try {
-        const allRuns = JSON.parse(localStorage.getItem('kjb-splash-log') || '[]');
-        console.group(`[KJB Splash Summary] App loaded — ${allRuns.length} run(s) on record`);
-        allRuns.forEach((run, i) => {
-          const hasError = run.log.some(l => l.includes('❌'));
-          const hasUpdate = run.log.some(l => l.includes('Found updates') || l.includes('Applying updates') || l.includes('Bible update'));
-          const outcome = hasError ? '❌ Error' : hasUpdate ? '🔄 Updated' : '✅ No updates';
-          console.groupCollapsed(`Run ${i + 1} [${outcome}] — ${run.at}`);
-          run.log.forEach(l => console.log(l));
-          console.groupEnd();
-        });
-        console.groupEnd();
-      } catch {}
 
       const fadeTimer = setTimeout(() => setFadeSplash(true), 600);
       const timer = setTimeout(() => {
