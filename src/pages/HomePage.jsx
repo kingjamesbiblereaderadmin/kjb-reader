@@ -297,6 +297,16 @@ export default function HomePage() {
     // Listen for storage events (syncs across tabs/pages)
     window.addEventListener('storage', handleStorageChange);
     
+    // Listen for service worker update messages
+    const handleSWUpdate = (event) => {
+      if (event.data?.type === 'UPDATE_FOUND') {
+        console.log('[Home] SW update detected, reloading...');
+        sessionStorage.setItem('kjb-splash-home-update', 'true');
+        window.location.reload();
+      }
+    };
+    navigator.serviceWorker?.addEventListener('message', handleSWUpdate);
+    
     // Also check on focus and online (when user returns to the app or internet is restored)
     const handleFocus = () => {
       setNotifEnabled(getNotificationsEnabled());
@@ -323,6 +333,7 @@ export default function HomePage() {
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      navigator.serviceWorker?.removeEventListener('message', handleSWUpdate);
       window.removeEventListener('focus', handleFocus);
       window.removeEventListener('online', handleFocus);
       document.removeEventListener('visibilitychange', handleFocus);

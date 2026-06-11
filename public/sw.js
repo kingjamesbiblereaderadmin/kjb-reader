@@ -230,3 +230,24 @@ self.addEventListener('message', (event) => {
     }
   }
 });
+
+// Notify all open tabs when a new service worker is installed
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('[SW] Caching app shell');
+      return cache.addAll(APP_SHELL_FILES).catch(err => {
+        console.warn('[SW] Some resources failed to cache:', err);
+        return Promise.resolve();
+      });
+    }).then(() => {
+      // Notify all open clients about the update
+      return self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+          client.postMessage({ type: 'UPDATE_FOUND' });
+        });
+      });
+    })
+  );
+});
