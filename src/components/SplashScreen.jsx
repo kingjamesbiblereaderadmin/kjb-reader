@@ -70,8 +70,12 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
 
       while (checkRound < maxChecks) {
         checkRound++;
-        setStep('Checking for updates…');
-        await pause(STEP_PAUSE_MS);
+        
+        // Skip "Checking" on first iteration for home_update mode
+        if (!(forceHomeUpdate && checkRound === 1)) {
+          setStep('Checking for updates…');
+          await pause(STEP_PAUSE_MS);
+        }
 
         let swUpdated = false;
         let dataUpdated = false;
@@ -100,8 +104,11 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
         const hasUpdate = swUpdated || dataUpdated;
 
         if (!hasUpdate) {
-          setStep('No updates found.');
-          await pause(STEP_PAUSE_MS);
+          // Only show "No updates found" for auto/subsequent modes, NOT home_update
+          if (!forceHomeUpdate) {
+            setStep('No updates found.');
+            await pause(STEP_PAUSE_MS);
+          }
           break;
         }
 
