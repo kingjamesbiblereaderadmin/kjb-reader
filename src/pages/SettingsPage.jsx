@@ -1265,7 +1265,7 @@ export default function SettingsPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Open Legacy Reader</p>
-                  <p className="font-sans text-xs text-muted-foreground">Works on IE 11, Windows 8.1, and old Android browsers</p>
+                  <p className="font-sans text-xs text-muted-foreground">Tested on IE 11 / Windows 8.1. Android untested — contact kingjamesbiblereader@outlook.sg if you find issues.</p>
                 </div>
                 <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
               </Link>
