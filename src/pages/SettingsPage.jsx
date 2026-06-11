@@ -1039,7 +1039,7 @@ export default function SettingsPage() {
           className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
         >
           <div className="flex flex-col gap-1">
-            <h2 className="font-serif text-lg font-semibold text-foreground">Bible Cache</h2>
+            <h2 className="font-serif text-lg font-semibold text-foreground">Offline Library</h2>
             <p className="font-sans text-xs text-muted-foreground">Download for offline reading</p>
           </div>
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.offline ? 'rotate-180' : ''}`} />
@@ -1169,7 +1169,7 @@ export default function SettingsPage() {
                   </button>
                 )}
                 {dlStatus && !downloading && (
-                  <p className="font-sans text-sm text-green-600 text-green-600 dark:text-green-400 flex items-center gap-1.5 mt-2">
+                  <p className="font-sans text-sm text-green-600 dark:text-green-400 flex items-center gap-1.5 mt-2">
                     <CheckCircle2 className="w-4 h-4" /> {dlStatus}
                   </p>
                 )}
@@ -1206,7 +1206,7 @@ export default function SettingsPage() {
                   </div>
                 )}
                 {dlStatus && !downloading && (
-                  <p className="font-sans text-sm text-green-600 text-green-600 dark:text-green-400 flex items-center gap-1.5">
+                  <p className="font-sans text-sm text-green-600 dark:text-green-400 flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4" /> {dlStatus}
                   </p>
                 )}
@@ -1217,6 +1217,32 @@ export default function SettingsPage() {
                 )}
               </div>
             )}
+          </div>
+        )}
+      </div>
+      )}
+
+      {/* Incognito warning for offline features */}
+      {isIncognito && (
+      <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
+        <button
+          onClick={() => toggleSection('offline')}
+          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
+        >
+          <div className="flex flex-col gap-1">
+            <h2 className="font-serif text-lg font-semibold text-foreground">Offline Library</h2>
+            <p className="font-sans text-xs text-muted-foreground">Not available in private mode</p>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.offline ? 'rotate-180' : ''}`} />
+        </button>
+        {expandedSections.offline && (
+          <div className="px-5 pb-6 pt-3">
+            <div className="rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 p-4">
+              <p className="font-sans text-sm text-amber-700 dark:text-amber-400 font-medium leading-relaxed flex items-start gap-2">
+                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                <span>Offline downloads are not available in private/incognito mode. The cache would be deleted when you close the private window. Open this app in a normal window to download the Bible for offline reading.</span>
+              </p>
+            </div>
           </div>
         )}
       </div>
