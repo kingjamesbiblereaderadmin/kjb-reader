@@ -303,7 +303,7 @@ const AuthenticatedApp = () => {
 
         // Check for Bible data update (version mismatch in localStorage)
         const localBibleVersion = (() => { try { return localStorage.getItem('bible_cache_version'); } catch { return null; } })();
-        const CURRENT_BIBLE_VERSION = 'v20260611_333';
+        const CURRENT_BIBLE_VERSION = 'v20260611_334';
         const hasBibleUpdate = localBibleVersion && localBibleVersion !== CURRENT_BIBLE_VERSION;
         // Include swUpdateDetected/controllerChanged to catch cases where skipWaiting()
         // caused the new SW to activate before we could read reg.waiting.
@@ -419,6 +419,9 @@ const AuthenticatedApp = () => {
             emit('Applying updates...');
             console.log('[KJB Splash] 🔄 Bible data will re-download in background');
             await new Promise(r => setTimeout(r, 600));
+          } else {
+            emit('No updates found');
+            console.log('[KJB Splash] ✅ No further updates after SW update');
           }
 
           setTimeout(() => { if (!cancelled) setUpdateCheckDone(true); }, 3000);
