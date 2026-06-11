@@ -130,44 +130,7 @@ try {
   console.groupEnd();
 } catch {}
 
-const PageLoader = ({ isFadingOut, welcomeText, staticText }) => {
-  const [text, setText] = useState(staticText || 'Loading...');
-
-  useEffect(() => {
-    if (staticText) { setText(staticText); return; }
-    const handler = (e) => { if (e.detail?.message) setText(e.detail.message); };
-    const doneHandler = () => setText(welcomeText);
-    window.addEventListener('kjb-progress', handler);
-    window.addEventListener('kjb-splash-done-soon', doneHandler);
-    return () => {
-      window.removeEventListener('kjb-progress', handler);
-      window.removeEventListener('kjb-splash-done-soon', doneHandler);
-    };
-  }, [welcomeText, staticText]);
-
-  return (
-    <div className={`fixed inset-0 z-[999999] bg-background flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-      <div className="flex flex-col items-center justify-center -mt-16 w-full max-w-sm px-6">
-        <div className="relative mb-12">
-          <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full scale-150 animate-pulse"></div>
-          <img 
-            src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
-            alt="KJB Reader" 
-            className="relative w-32 h-32 object-contain drop-shadow-xl"
-          />
-        </div>
-        <div className="flex flex-col items-center gap-6 w-full">
-          <div className="flex flex-col items-center gap-3 text-center">
-            <Loader2 className="w-6 h-6 animate-spin text-primary/70" style={{ animationDuration: '2s' }} />
-            <span className="font-sans text-xs text-foreground/70 font-medium tracking-[0.2em] uppercase">
-              {text}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+import SplashScreenManager from '@/components/SplashScreenManager';
 
 const RouteLoader = () => (
   <div className="flex justify-center py-24">
@@ -206,8 +169,8 @@ const FadeIn = ({ children }) => {
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const location = useLocation();
-  const [minSplashDone, setMinSplashDone] = useState(false);
-  const [updateCheckDone, setUpdateCheckDone] = useState(false);
+  const isLegacyRoute = location.pathname === '/legacy';
+  const [splashComplete, setSplashComplete] = useState(isLegacyRoute);
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
   // Determine visit context once on mount
@@ -219,10 +182,6 @@ const AuthenticatedApp = () => {
     try { sessionStorage.removeItem('kjb_sw_updated'); } catch {}
     return { isFirstVisit, isPostUpdate };
   });
-
-  const welcomeText = visitContext.isFirstVisit
-    ? 'Welcome to KJB Reader!'
-    : 'Welcome back to KJB Reader!';
 
   useEffect(() => {
     const originalTitle = document.title;
@@ -249,286 +208,8 @@ const AuthenticatedApp = () => {
     return () => clearTimeout(timeout);
   }, []);
 
-  // minSplash is controlled entirely by the scripted sequence below
-  useEffect(() => {
-    const timer = setTimeout(() => setMinSplashDone(true), 500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    const STEP = 10000; // 10-second pause between each visible banner step
-    const splashLog = [];
-
-    const logEntry = (msg) => {
-      const ts = new Date().toISOString().slice(11, 23);
-      splashLog.push(`${ts} ${msg}`);
-      console.log('[KJB Splash]', msg);
-    };
-    const saveSplashLog = () => {
-      try {
-        const prev = JSON.parse(localStorage.getItem('kjb-splash-log') || '[]');
-        const next = [{ at: new Date().toISOString(), log: splashLog }, ...prev].slice(0, 5);
-        localStorage.setItem('kjb-splash-log', JSON.stringify(next));
-      } catch {}
-    };
-    const emit = (msg) => {
-      logEntry(msg);
-      window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: msg } }));
-    };
-    const wait = (ms) => new Promise(r => setTimeout(r, ms));
-    const done = () => { saveSplashLog(); if (!cancelled) setUpdateCheckDone(true); };
-
-    const SW_VER = 'v20260611_350';
-    const CURRENT_BIBLE_VERSION = 'v20260611_340';
-    const getBibleVer = () => { try { return localStorage.getItem('bible_cache_version') || '(none)'; } catch { return '(none)'; } };
-
-    const check = async () => {
-      // --- Detect context ---
-      const isFirst = _isFirstVisit;
-      const localBibleVersion = (() => { try { return localStorage.getItem('bible_cache_version'); } catch { return null; } })();
-      const hasBibleUpdate = localBibleVersion && localBibleVersion !== CURRENT_BIBLE_VERSION;
-
-      let hasSwUpdate = false;
-      let reg = null;
-      if ('serviceWorker' in navigator) {
-        try {
-          reg = await navigator.serviceWorker.getRegistration();
-          if (reg) {
-            console.log('[KJB Splash] Pre-update SW — waiting:', !!reg.waiting, '| installing:', !!reg.installing);
-            let swDetected = false;
-            let ctrlChanged = false;
-            reg.addEventListener('updatefound', () => { swDetected = true; });
-            navigator.serviceWorker.addEventListener('controllerchange', () => { ctrlChanged = true; });
-            await reg.update().catch((e) => console.warn('[KJB Splash] reg.update():', e.message));
-            // Wait for installing worker to settle
-            if (reg.installing) {
-              await new Promise((resolve) => {
-                const w = reg.installing;
-                if (!w) { resolve(); return; }
-                const h = () => { if (['installed','activating','activated','redundant'].includes(w.state)) { w.removeEventListener('statechange', h); resolve(); } };
-                w.addEventListener('statechange', h);
-                setTimeout(resolve, 3000);
-              });
-            }
-            const hasCtrl = !!navigator.serviceWorker.controller;
-            hasSwUpdate = !!(reg.waiting || reg.installing || swDetected || ctrlChanged) && hasCtrl;
-            console.log('[KJB Splash] Post-update SW — waiting:', !!reg.waiting, '| installing:', !!reg.installing, '| swUpdate:', hasSwUpdate);
-          }
-        } catch (e) { console.warn('[KJB Splash] SW check error:', e.message); }
-      }
-
-      console.log('[KJB Splash] Context — firstVisit:', isFirst, '| hasBibleUpdate:', hasBibleUpdate, '| hasSwUpdate:', hasSwUpdate);
-
-      // Helper: apply pending SW worker and re-check for more updates
-      const applyAndRecheck = async () => {
-        let keepChecking = true;
-        while (keepChecking && !cancelled) {
-          emit('Applying updates...');
-          if (reg) {
-            const target = reg.waiting || reg.installing;
-            if (target) target.postMessage({ type: 'SKIP_WAITING' });
-          }
-          await wait(STEP);
-          emit('Checking for updates...');
-          if (reg) await reg.update().catch(() => {});
-          await wait(STEP);
-          const stillHasSw = reg ? !!(reg.waiting || reg.installing) : false;
-          const localBibleNow = (() => { try { return localStorage.getItem('bible_cache_version'); } catch { return null; } })();
-          const stillHasBible = localBibleNow && localBibleNow !== CURRENT_BIBLE_VERSION;
-          keepChecking = !!(stillHasSw || stillHasBible);
-          if (keepChecking) {
-            emit('Found updates...');
-            await wait(STEP);
-            emit('Installing updates...');
-            await wait(STEP);
-          } else {
-            emit('No updates found');
-            await wait(STEP);
-          }
-        }
-      };
-
-      // ── FIRST LOAD ──
-      if (isFirst) {
-        emit('Loading...');
-        await wait(STEP);
-        emit('Downloading offline Bible data...');
-        await wait(STEP);
-        emit('Checking for updates...');
-        await wait(STEP);
-        if (hasSwUpdate || hasBibleUpdate) {
-          emit('Found updates...');
-          await wait(STEP);
-          emit('Installing updates...');
-          await wait(STEP);
-          await applyAndRecheck();
-        } else {
-          emit('No updates found');
-          await wait(STEP);
-        }
-        emit(welcomeText);
-        await wait(STEP);
-        logEntry(`✅ First load complete — SW: ${SW_VER} | Bible: ${getBibleVer()}`);
-        done();
-        return;
-      }
-
-      // ── SUBSEQUENT LOAD ──
-      emit('Loading...');
-      await wait(STEP);
-      emit('Checking for updates...');
-      await wait(STEP);
-      if (hasSwUpdate || hasBibleUpdate) {
-        emit('Found updates...');
-        await wait(STEP);
-        emit('Installing updates...');
-        await wait(STEP);
-        await applyAndRecheck();
-      } else {
-        emit('No updates found');
-        await wait(STEP);
-      }
-      emit(welcomeText);
-      await wait(STEP);
-      logEntry(`✅ Load complete — SW: ${SW_VER} | Bible: ${getBibleVer()}`);
-      done();
-    };
-
-    check();
-    return () => { cancelled = true; };
-  }, []);
-
-  // Preload route chunks in background
-  useEffect(() => { preloadAllRoutes(); }, []);
-
-  // Check for SW updates whenever the tab becomes visible (Home screen / tab focus).
-  // Sequence: Found updates → Installing → Applying → Checking for updates → Welcome back!
-  const [tabFocusUpdatePending, setTabFocusUpdatePending] = useState(false);
-  const [tabFocusSplashMsg, setTabFocusSplashMsg] = useState('Found updates...');
-  useEffect(() => {
-    const STEP = 10000;
-    let applying = false;
-    const handleVisibility = async () => {
-      if (document.visibilityState !== 'visible') return;
-      if (!('serviceWorker' in navigator)) return;
-      if (applying) return;
-      try {
-        const reg = await navigator.serviceWorker.getRegistration();
-        if (!reg) return;
-        await reg.update().catch(() => {});
-        const waiting = reg.waiting;
-        const installing = reg.installing;
-        console.log('[KJB Tab-Focus] SW check — waiting:', !!waiting, '| installing:', !!installing);
-        if (!waiting && !installing) return;
-        applying = true;
-        setTabFocusSplashMsg('Found updates...');
-        setTabFocusUpdatePending(true);
-        await new Promise(r => setTimeout(r, STEP));
-        setTabFocusSplashMsg('Installing updates...');
-        await new Promise(r => setTimeout(r, STEP));
-        let keepChecking = true;
-        while (keepChecking) {
-          setTabFocusSplashMsg('Applying updates...');
-          const target = reg.waiting || reg.installing || waiting || installing;
-          if (target) target.postMessage({ type: 'SKIP_WAITING' });
-          await new Promise(r => setTimeout(r, STEP));
-          setTabFocusSplashMsg('Checking for updates...');
-          await reg.update().catch(() => {});
-          await new Promise(r => setTimeout(r, STEP));
-          keepChecking = !!(reg.waiting || reg.installing);
-          if (keepChecking) {
-            setTabFocusSplashMsg('Found updates...');
-            await new Promise(r => setTimeout(r, STEP));
-            setTabFocusSplashMsg('Installing updates...');
-            await new Promise(r => setTimeout(r, STEP));
-          } else {
-            setTabFocusSplashMsg('No updates found');
-            await new Promise(r => setTimeout(r, STEP));
-          }
-        }
-        setTabFocusSplashMsg('Welcome back to KJB Reader!');
-        // controllerchange in main.jsx triggers the page reload
-      } catch (err) {
-        console.warn('[KJB Tab-Focus] Update check failed:', err.message);
-        setTabFocusUpdatePending(false);
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibility);
-    return () => document.removeEventListener('visibilitychange', handleVisibility);
-  }, []);
-
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
-  const isLegacyRoute = location.pathname === '/legacy';
-  const showSplash = !isLegacyRoute && (isInitializing || !minSplashDone || !updateCheckDone || !fontsLoaded);
-
-  const [renderSplash, setRenderSplash] = useState(true);
-  const [fadeSplash, setFadeSplash] = useState(false);
-
-  useEffect(() => {
-    if (!showSplash) {
-      // Emit welcome text, then fade out
-      window.dispatchEvent(new Event('kjb-splash-done-soon'));
-
-      const fadeTimer = setTimeout(() => setFadeSplash(true), 600);
-      const timer = setTimeout(() => {
-        setRenderSplash(false);
-        window.kjbSplashDone = true;
-        window.dispatchEvent(new Event('kjb-splash-done'));
-
-        // Print full summary NOW — app is fully loaded and visible.
-        // The current run was already saved to localStorage by check() via saveSplashLog().
-        try {
-          const allRuns = JSON.parse(localStorage.getItem('kjb-splash-log') || '[]');
-          const current = allRuns[0];
-          if (current) {
-            const hasError = current.log.some(l => l.includes('❌'));
-            const hasUpdate = current.log.some(l => l.includes('Found updates') || l.includes('Applying') || l.includes('Bible update'));
-            const outcome = hasError ? '❌ Error' : hasUpdate ? '🔄 Updated' : '✅ No updates';
-            const bibleVer = (() => { try { return localStorage.getItem('bible_cache_version') || '(none)'; } catch { return '(none)'; } })();
-            console.group(`[KJB Splash Summary] App loaded — ${outcome} — SW: v20260611_350 | Bible: ${bibleVer}`);
-            current.log.forEach((l, i) => console.log(`  ${i + 1}. ${l}`));
-            if (allRuns.length > 1) {
-              console.groupCollapsed(`Previous ${allRuns.length - 1} run(s)`);
-              allRuns.slice(1).forEach((run, i) => {
-                const e = run.log.some(l => l.includes('❌'));
-                const u = run.log.some(l => l.includes('Found updates') || l.includes('Applying'));
-                const ro = e ? '❌' : u ? '🔄' : '✅';
-                console.groupCollapsed(`Run -${i + 1} [${ro}] — ${run.at}`);
-                run.log.forEach((l, j) => console.log(`  ${j + 1}. ${l}`));
-                console.groupEnd();
-              });
-              console.groupEnd();
-            }
-            console.groupEnd();
-          }
-        } catch {}
-
-        // Final background SW check after splash — ensures any newly-deployed
-        // SW that arrived while the app was loading gets registered for next visit.
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistration().then((reg) => {
-            if (!reg) return;
-            return reg.update().then(() => {
-              const waiting = reg.waiting;
-              const installing = reg.installing;
-              console.log('[KJB Post-Splash] SW state after check — waiting:', !!waiting, '| installing:', !!installing);
-              if (waiting || installing) {
-                console.log('[KJB Post-Splash] 🔧 New SW available — will activate on next page load');
-              } else {
-                console.log('[KJB Post-Splash] ✅ SW is current — no pending updates');
-              }
-            });
-          }).catch(() => {});
-        }
-      }, 1100);
-      return () => { clearTimeout(fadeTimer); clearTimeout(timer); };
-    } else {
-      setRenderSplash(true);
-      setFadeSplash(false);
-      window.kjbSplashDone = false;
-    }
-  }, [showSplash]);
+  const isReady = !isInitializing && fontsLoaded;
 
   if (authError && !isInitializing) {
     if (authError.type === 'user_not_registered') {
@@ -541,11 +222,18 @@ const AuthenticatedApp = () => {
 
   return (
     <>
-      {renderSplash && <PageLoader isFadingOut={fadeSplash} welcomeText={welcomeText} />}
-      {tabFocusUpdatePending && (
-        <PageLoader isFadingOut={false} welcomeText={tabFocusSplashMsg} staticText={tabFocusSplashMsg} />
+      {!isLegacyRoute && !splashComplete && (
+        <SplashScreenManager 
+          isFirstVisit={visitContext.isFirstVisit} 
+          isReady={isReady} 
+          onComplete={() => {
+            window.kjbSplashDone = true;
+            window.dispatchEvent(new Event('kjb-splash-done'));
+            setSplashComplete(true);
+          }} 
+        />
       )}
-      {!isInitializing && !authError && (
+      {!isInitializing && !authError && splashComplete && (
         <Routes location={location}>
           <Route element={<AppLayout />}>
         <Route path="/" element={<Suspense fallback={<RouteLoader />}><FadeIn><HomePage /></FadeIn></Suspense>} />
