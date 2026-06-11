@@ -36,17 +36,21 @@ window.addEventListener('load', async () => {
       // Reload when a new SW takes over in the BACKGROUND (after splash is done).
       // If the splash itself applied the update (_kjbSplashApplyingUpdate), skip
       // the reload entirely — the new SW is already active, no reload needed.
+      // Only reload on controllerchange if it's a background update (not triggered by splash).
+      // Splash sets window._kjbSplashApplyingUpdate before calling SKIP_WAITING so we skip reload.
       let refreshing = false;
       let hasExistingController = !!navigator.serviceWorker.controller;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (hasExistingController && !refreshing && !window._kjbSplashApplyingUpdate) {
+        // Always update the flag first
+        const wasExisting = hasExistingController;
+        hasExistingController = true;
+        if (wasExisting && !refreshing && !window._kjbSplashApplyingUpdate) {
           refreshing = true;
           console.log('[SW] Background controller change — reloading.');
           try { sessionStorage.setItem('kjb_sw_updated', 'app'); } catch {}
           const sep = window.location.search ? '&' : '?';
           window.location.href = window.location.pathname + window.location.search + sep + 'updated=true';
         }
-        hasExistingController = true;
       });
 
       // NOTE: SKIP_WAITING and update activation are handled by SplashScreen.
