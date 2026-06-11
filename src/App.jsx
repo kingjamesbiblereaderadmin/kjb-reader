@@ -333,7 +333,7 @@ const AuthenticatedApp = () => {
 
         // Check for Bible data update (version mismatch in localStorage)
         const localBibleVersion = (() => { try { return localStorage.getItem('bible_cache_version'); } catch { return null; } })();
-        const CURRENT_BIBLE_VERSION = 'v20260611_335';
+        const CURRENT_BIBLE_VERSION = 'v20260611_337';
         const hasBibleUpdate = localBibleVersion && localBibleVersion !== CURRENT_BIBLE_VERSION;
         // Include swUpdateDetected/controllerChanged to catch cases where skipWaiting()
         // caused the new SW to activate before we could read reg.waiting.
@@ -462,22 +462,34 @@ const AuthenticatedApp = () => {
   // Preload route chunks in background
   useEffect(() => { preloadAllRoutes(); }, []);
 
-  // Silently check for SW updates whenever the tab becomes visible again
+  // Check for SW updates whenever the tab becomes visible again.
+  // If a new SW is waiting, show the progress banner and reload to apply it.
   useEffect(() => {
-    const handleVisibility = () => {
+    let applying = false;
+    const handleVisibility = async () => {
       if (document.visibilityState !== 'visible') return;
       if (!('serviceWorker' in navigator)) return;
-      navigator.serviceWorker.getRegistration().then((reg) => {
+      if (applying) return;
+      try {
+        const reg = await navigator.serviceWorker.getRegistration();
         if (!reg) return;
-        return reg.update().then(() => {
-          const waiting = reg.waiting;
-          const installing = reg.installing;
-          console.log('[KJB Tab-Focus] SW check — waiting:', !!waiting, '| installing:', !!installing);
-          if (waiting || installing) {
-            console.log('[KJB Tab-Focus] 🔧 New SW available — will activate on next reload');
-          }
-        });
-      }).catch(() => {});
+        await reg.update().catch(() => {});
+        const waiting = reg.waiting;
+        const installing = reg.installing;
+        console.log('[KJB Tab-Focus] SW check — waiting:', !!waiting, '| installing:', !!installing);
+        if (!waiting && !installing) return;
+        applying = true;
+        console.log('[KJB Tab-Focus] 🔧 New SW found — applying update...');
+        window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Found updates...' } }));
+        await new Promise(r => setTimeout(r, 700));
+        window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Applying updates...' } }));
+        await new Promise(r => setTimeout(r, 600));
+        const target = waiting || installing;
+        if (target) target.postMessage({ type: 'SKIP_WAITING' });
+        // controllerchange will trigger a reload via main.jsx
+      } catch (err) {
+        console.warn('[KJB Tab-Focus] Update check failed:', err.message);
+      }
     };
     document.addEventListener('visibilitychange', handleVisibility);
     return () => document.removeEventListener('visibilitychange', handleVisibility);
