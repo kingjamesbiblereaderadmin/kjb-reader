@@ -202,13 +202,15 @@ export default function HomePage() {
               window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Applying updates...', status: 'loading' } }));
               await new Promise(r => setTimeout(r, 500));
 
-              // Set the flag BEFORE reload so SplashScreen detects home update mode
-              // Use localStorage instead of sessionStorage - it persists through SW reloads
+              // Set BOTH localStorage and sessionStorage flags before reload
+              // localStorage persists through SW reloads, sessionStorage is a fallback
               localStorage.setItem('kjb-splash-home-update', 'true');
+              sessionStorage.setItem('kjb-splash-home-update', 'true');
               sessionStorage.setItem('kjb_sw_updated', updateType);
               console.log('[UpdateCheck] ✓ Set kjb-splash-home-update flag (localStorage):', localStorage.getItem('kjb-splash-home-update'));
               console.log('[UpdateCheck] Will reload page in 500ms...');
 
+              // Activate SW if present, but ALWAYS do a manual reload after to ensure flag persists
               if (swUpdated && 'serviceWorker' in navigator) {
                 const reg = await navigator.serviceWorker.getRegistration();
                 sessionStorage.setItem('kjb_last_app_update', Date.now().toString());
@@ -218,10 +220,9 @@ export default function HomePage() {
                   reg.installing.postMessage({ type: 'SKIP_WAITING' });
                 }
                 console.log('[UpdateCheck] Activating new service worker...');
-                // SW will reload automatically when it activates
-                return;
               }
 
+              // Manual reload ensures localStorage flag persists (SW auto-reload can happen too fast)
               console.log('[UpdateCheck] Manually reloading application...');
               setTimeout(() => { window.location.href = window.location.pathname + '?refresh=' + Date.now(); }, 500);
               return;

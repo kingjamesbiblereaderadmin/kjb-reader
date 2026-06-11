@@ -159,18 +159,19 @@ const AuthenticatedApp = () => {
   
   // Determine splash mode once on mount
   const splashMode = React.useMemo(() => {
-    // Check localStorage for home-update flag (persists through SW reloads)
-    const homeUpdateFlag = localStorage.getItem('kjb-splash-home-update');
-    const homeUpdate = homeUpdateFlag === 'true';
+    // Check BOTH localStorage and sessionStorage for home-update flag
+    // localStorage persists through SW reloads, sessionStorage is a fallback
+    const localFlag = localStorage.getItem('kjb-splash-home-update');
+    const sessionFlag = sessionStorage.getItem('kjb-splash-home-update');
+    const homeUpdate = localFlag === 'true' || sessionFlag === 'true';
     const hasVisited = localStorage.getItem('kjb-has-visited-app');
     
-    console.log('[App] Splash mode check:', { homeUpdateFlag, homeUpdate, hasVisited });
-    console.log('[App] localStorage kjb-splash-home-update:', localStorage.getItem('kjb-splash-home-update'));
-    console.log('[App] localStorage kjb-splash-home-update:', localStorage.getItem('kjb-splash-home-update'));
+    console.log('[App] Splash mode check:', { localFlag, sessionFlag, homeUpdate, hasVisited });
     
     if (homeUpdate) {
-      console.log('[App] Home update mode - removing flag');
+      console.log('[App] Home update mode - removing flags');
       localStorage.removeItem('kjb-splash-home-update');
+      sessionStorage.removeItem('kjb-splash-home-update');
       return 'home_update';
     }
     const mode = hasVisited ? 'subsequent' : 'first_load';
