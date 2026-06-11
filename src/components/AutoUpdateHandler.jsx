@@ -14,7 +14,10 @@ export default function AutoUpdateHandler({ children }) {
     const handleControllerChange = () => {
       if (refreshing) return;
       refreshing = true;
-      console.log('[AutoUpdateHandler] New SW took control — reloading for update');
+      console.log('[AutoUpdateHandler] New SW took control — triggering SplashScreen update flow');
+      // Set flag so SplashScreen shows: Found → Installing → Applying → Checking → Welcome Back
+      localStorage.setItem('kjb-splash-home-update', 'true');
+      sessionStorage.setItem('kjb-splash-home-update', 'true');
       window.location.reload();
     };
 
