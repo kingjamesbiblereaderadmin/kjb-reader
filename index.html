@@ -73,11 +73,13 @@
             return;
           }
           if ((isIE || tooOld) && !optedOut) {
-            // Redirect IE / very old browsers STRAIGHT to the server-rendered
-            // Full Bible function (no React involved — IE can't run the SPA,
-            // and the /legacy route is a React page). Works on every host.
-            // On a custom domain the function is reachable at the origin path
-            // /functions/legacy; on base44 hosting it needs the app_id path.
+            // Redirect IE / very old browsers to the dedicated legacy domain,
+            // which itself routes straight to the server-rendered Full Bible
+            // function. (No React — IE can't run the SPA.)
+            window.location.replace('https://kjbreaderlegacy.com/');
+            return;
+          }
+          if (false) {
             var host = window.location.hostname || '';
             var isCustom = host.indexOf('base44.app') === -1 && host.indexOf('localhost') === -1;
             // IE8 lacks window.location.origin — build it manually as a fallback.
