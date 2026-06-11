@@ -272,31 +272,6 @@ const AuthenticatedApp = () => {
         localStorage.setItem('kjb-splash-log', JSON.stringify(next));
       } catch {}
     };
-    const printSplashSummary = () => {
-      const last = splashLog[splashLog.length - 1] || '';
-      const outcome = last.includes('No updates') ? '✅ No updates' : last.includes('Error') ? '❌ Error' : '🔄 Updated';
-      const swVer = 'v20260611_347';
-      const bibleVer = (() => { try { return localStorage.getItem('bible_cache_version') || '(none)'; } catch { return '(none)'; } })();
-      console.group(`[KJB Splash Summary] ${outcome} — SW: ${swVer} | Bible: ${bibleVer} — ${splashLog.length} step(s)`);
-      splashLog.forEach((l, i) => console.log(`  ${i + 1}. ${l}`));
-      console.groupEnd();
-      // Also print previous runs for history
-      try {
-        const allRuns = JSON.parse(localStorage.getItem('kjb-splash-log') || '[]');
-        if (allRuns.length > 1) {
-          console.groupCollapsed(`[KJB Splash History] ${allRuns.length - 1} previous run(s)`);
-          allRuns.slice(1).forEach((run, i) => {
-            const hasError = run.log.some(l => l.includes('❌'));
-            const hasUpdate = run.log.some(l => l.includes('Found updates') || l.includes('Applying') || l.includes('Bible update'));
-            const runOutcome = hasError ? '❌ Error' : hasUpdate ? '🔄 Updated' : '✅ No updates';
-            console.groupCollapsed(`Run -${i + 1} [${runOutcome}] — ${run.at}`);
-            run.log.forEach((l, j) => console.log(`  ${j + 1}. ${l}`));
-            console.groupEnd();
-          });
-          console.groupEnd();
-        }
-      } catch {}
-    };
     const emit = (msg) => {
       logEntry(msg);
       window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: msg } }));
@@ -308,6 +283,7 @@ const AuthenticatedApp = () => {
       console.log(`[KJB Splash] 🚦 Update check starting — SW: ${swVer} | Bible: ${bibleVerAtStart}`);
       if (!('serviceWorker' in navigator)) {
         console.log('[KJB Splash] ⏭ No SW support — skipping update check');
+        logEntry('⏭ No SW support');
         saveSplashLog();
         if (!cancelled) setUpdateCheckDone(true);
         return;
@@ -316,6 +292,7 @@ const AuthenticatedApp = () => {
         const reg = await navigator.serviceWorker.getRegistration();
         if (!reg) {
           console.log('[KJB Splash] ⏭ No SW registration found — skipping update check');
+          logEntry('⏭ No SW registration');
           saveSplashLog();
           if (!cancelled) setUpdateCheckDone(true);
           return;
@@ -394,7 +371,6 @@ const AuthenticatedApp = () => {
           logEntry('✅ No updates needed');
           emit('No updates found');
           saveSplashLog();
-          printSplashSummary();
           // Show "No updates found" for a readable moment before dismissing
           await new Promise(r => setTimeout(r, 20000));
           if (!cancelled) setUpdateCheckDone(true);
@@ -430,7 +406,6 @@ const AuthenticatedApp = () => {
           }
           logEntry('✅ Bible update applied, no SW update needed');
           saveSplashLog();
-          printSplashSummary();
           if (!cancelled) setUpdateCheckDone(true);
           return;
         }
@@ -498,7 +473,6 @@ const AuthenticatedApp = () => {
           }
 
           saveSplashLog();
-          printSplashSummary();
           if (!cancelled) setUpdateCheckDone(true);
           return;
         }
@@ -506,7 +480,6 @@ const AuthenticatedApp = () => {
         logEntry('❌ Error: ' + err.message);
         console.error('[KJB Splash] ❌ Update check error:', err.message);
         saveSplashLog();
-        printSplashSummary();
       }
       if (!cancelled) setUpdateCheckDone(true);
     };
@@ -576,6 +549,35 @@ const AuthenticatedApp = () => {
         setRenderSplash(false);
         window.kjbSplashDone = true;
         window.dispatchEvent(new Event('kjb-splash-done'));
+
+        // Print full summary NOW — app is fully loaded and visible.
+        // The current run was already saved to localStorage by check() via saveSplashLog().
+        try {
+          const allRuns = JSON.parse(localStorage.getItem('kjb-splash-log') || '[]');
+          const current = allRuns[0];
+          if (current) {
+            const hasError = current.log.some(l => l.includes('❌'));
+            const hasUpdate = current.log.some(l => l.includes('Found updates') || l.includes('Applying') || l.includes('Bible update'));
+            const outcome = hasError ? '❌ Error' : hasUpdate ? '🔄 Updated' : '✅ No updates';
+            const swVer = 'v20260611_347';
+            const bibleVer = (() => { try { return localStorage.getItem('bible_cache_version') || '(none)'; } catch { return '(none)'; } })();
+            console.group(`[KJB Splash Summary] App loaded — ${outcome} — SW: ${swVer} | Bible: ${bibleVer}`);
+            current.log.forEach((l, i) => console.log(`  ${i + 1}. ${l}`));
+            if (allRuns.length > 1) {
+              console.groupCollapsed(`Previous ${allRuns.length - 1} run(s)`);
+              allRuns.slice(1).forEach((run, i) => {
+                const e = run.log.some(l => l.includes('❌'));
+                const u = run.log.some(l => l.includes('Found updates') || l.includes('Applying'));
+                const ro = e ? '❌' : u ? '🔄' : '✅';
+                console.groupCollapsed(`Run -${i + 1} [${ro}] — ${run.at}`);
+                run.log.forEach((l, j) => console.log(`  ${j + 1}. ${l}`));
+                console.groupEnd();
+              });
+              console.groupEnd();
+            }
+            console.groupEnd();
+          }
+        } catch {}
 
         // Final background SW check after splash — ensures any newly-deployed
         // SW that arrived while the app was loading gets registered for next visit.
