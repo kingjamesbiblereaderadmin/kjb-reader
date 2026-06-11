@@ -76,27 +76,19 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         }
 
         // 3. Checking for updates - fire banner
-        // Only check for SERVICE WORKER updates, NOT Bible data (we just downloaded it if needed)
+        // Only check for SERVICE WORKER updates (Bible data was just downloaded if needed)
         setStep('CHECKING FOR UPDATES...');
         await pause(STEP_PAUSE_MS);
 
         // Check for service worker code updates only
         let hasUpdates = false;
-        if (navigator.onLine) {
+        if (navigator.onLine && 'serviceWorker' in navigator) {
           try {
-            if ('serviceWorker' in navigator) {
-              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-              if (reg) {
-                await reg.update().catch(() => {});
-                // Only count as update if there's a WAITING worker (newer version found)
-                // reg.installing on first load is just initial install, not an update
-                hasUpdates = !!reg.waiting;
-              }
-            }
-            // Skip Bible data update check if we just downloaded fresh data
-            if (!hasUpdates && !justDownloadedBible) {
-              const { checkForUpdates } = await import('@/lib/bibleCache');
-              hasUpdates = await checkForUpdates().catch(() => false);
+            const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+            if (reg) {
+              await reg.update().catch(() => {});
+              // Only count as update if there's a WAITING worker (newer version found)
+              hasUpdates = !!reg.waiting;
             }
           } catch {}
         }
