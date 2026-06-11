@@ -693,7 +693,7 @@ Deno.serve(async (req) => {
       const downloadBox = '<div class="dl-box"><b>&#128190; Download this Bible as a single file</b>' +
         '<p>Save the entire King James Bible (all 66 books, plus Gospel, Resources and About) as one self-contained HTML file. It needs no internet and no app &mdash; ideal for very old computers, or for keeping your own offline copy.</p>' +
         '<p><a class="dl-btn" href="' + HTML_FILE_URL + '" download="kjb-bible.html">Download HTML File (about 6 MB)</a></p>' +
-        '<p class="dl-how"><b>How to use it:</b> Tap the link above to save the file, then open it by double-tapping &mdash; it works in any browser, even offline. Bookmark it or save it to your Home Screen for quick access. You can also rename it to <i>index.html</i> and upload it to any web host.</p>' +
+        '<p class="dl-how"><b>How to use it:</b> Tap the link above to save the file, then open it by double-tapping &mdash; it works in any browser, even offline. Bookmark it or save it to your Home Screen for quick access. </p>' +
         '</div>';
 
       bodyInner = '<a name="top" id="top"></a>' +

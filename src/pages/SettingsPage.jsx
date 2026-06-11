@@ -51,7 +51,7 @@ const isBookmarkBrowser = () => {
 };
 
 const LAST_REVISED = 'June 11th, 2026';
-const WORKER_VERSION = 'v20260611_324';
+const WORKER_VERSION = 'v20260611_325';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -1265,7 +1265,7 @@ export default function SettingsPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Open Legacy Reader</p>
-                  <p className="font-sans text-xs text-muted-foreground">Tested on IE 11 / Windows 8.1. Old iOS, macOS, and Android are untested — email kingjamesbiblereader@outlook.sg to report any issues.</p>
+                  <p className="font-sans text-xs text-muted-foreground">Tested on Internet Explorer 11 / Windows 8.1. Old iOS, macOS, and Android are untested — email kingjamesbiblereader@outlook.sg to report any issues.</p>
                 </div>
                 <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
               </Link>
