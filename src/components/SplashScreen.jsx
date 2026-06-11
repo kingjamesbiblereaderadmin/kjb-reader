@@ -123,14 +123,21 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
         isFirst = isFirstVisit() || !bibleCached;
         if (isFirst) markVisited();
 
+        console.log('[KJB Splash] First visit:', isFirst, 'Bible cached:', bibleCached);
+
         // Check for app updates (service worker)
+        console.log('[KJB Splash] Checking for SW update...');
         hasAppUpdate = await waitForSwUpdate();
+        console.log('[KJB Splash] SW update found:', hasAppUpdate);
 
         // Check for Bible data updates
+        console.log('[KJB Splash] Checking for Bible update...');
         hasBibleUpdate = await checkBibleUpdates();
+        console.log('[KJB Splash] Bible update found:', hasBibleUpdate);
       }
 
       const hasAnyUpdate = hasAppUpdate || hasBibleUpdate;
+      console.log('[KJB Splash] Has any update:', hasAnyUpdate);
 
       // ── FIRST LOAD FLOW ─────────────────────────────────────────────────────
       if (isFirst) {
@@ -149,14 +156,6 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
         await step(`Welcome to ${APP_NAME}.`);
       }
       // ── SUBSEQUENT LOAD FLOW ───────────────────────────────────────────────
-      else if (mode === 'home_update') {
-        // Home page already detected an update — skip checking, just apply
-        await step('Found updates.');
-        await step('Installing updates…');
-        await step('Applying updates…', applyUpdates);
-        await step(`Welcome back to ${APP_NAME}.`);
-      }
-      // ── NORMAL SUBSEQUENT LOAD ─────────────────────────────────────────────
       else {
         await step('Loading…');
         await step('Checking for updates…');
