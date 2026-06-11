@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 
-const STEP = 5000;
+const STEP = 8000;
 const SW_VER = 'v20260611_351';
 
 export default function SplashScreenManager({ isReady, isFirstVisit, onComplete }) {
@@ -26,87 +26,83 @@ export default function SplashScreenManager({ isReady, isFirstVisit, onComplete 
     };
 
     const logEntry = (msg) => {
-      const ts = new Date().toLocaleTimeString('en-SG', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const ts = new Date().toLocaleTimeString('en-SG', { hour12: false });
       const entry = `${ts} ${msg}`;
       logRef.current.push(entry);
       console.log('[KJB Splash]', entry);
     };
 
-    const emit = (msg) => {
+    const emit = async (msg) => {
       if (cancelled) return;
       setText(msg);
       logEntry(msg);
+      await wait(STEP);
     };
 
     const checkUpdates = async () => {
-      let sw = false;
-      if ('serviceWorker' in navigator) {
-        try {
-          const reg = await navigator.serviceWorker.getRegistration();
-          if (reg) {
-            await reg.update().catch(() => {});
-            // Wait briefly for installing state to settle
-            await wait(800);
-            sw = !!(reg.waiting || (reg.installing && reg.installing.state !== 'activated'));
-          }
-        } catch {}
-      }
-      return sw;
+      if (!('serviceWorker' in navigator)) return false;
+      try {
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (!reg) return false;
+        await reg.update().catch(() => {});
+        await wait(600);
+        return !!(reg.waiting || (reg.installing && reg.installing.state !== 'activated'));
+      } catch { return false; }
     };
 
     const applyUpdates = async () => {
-      if ('serviceWorker' in navigator) {
-        try {
-          const reg = await navigator.serviceWorker.getRegistration();
-          if (reg) {
-            const target = reg.waiting || reg.installing;
-            if (target) target.postMessage({ type: 'SKIP_WAITING' });
-          }
-        } catch {}
-      }
+      if (!('serviceWorker' in navigator)) return;
+      try {
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (!reg) return;
+        const target = reg.waiting || reg.installing;
+        if (target) target.postMessage({ type: 'SKIP_WAITING' });
+      } catch {}
     };
 
     const waitForReady = async () => {
-      while (!isReadyRef.current && !cancelled) {
-        await wait(300);
-      }
+      while (!isReadyRef.current && !cancelled) await wait(300);
     };
 
+    // Runs the update loop: found → installing → applying → checking → repeat.
+    // Returns true if at least one update cycle ran.
     const runUpdateLoop = async () => {
-      // Returns true if any updates were applied
       let didUpdate = false;
       let hasUpdates = await checkUpdates();
+
+      if (!hasUpdates) {
+        await emit('No updates found');
+        return didUpdate;
+      }
+
       while (hasUpdates && !cancelled) {
         didUpdate = true;
-        emit('Found updates...');
-        await wait(STEP);
+        await emit('Found updates...');
         if (cancelled) return didUpdate;
-        emit('Installing updates...');
-        await wait(STEP);
+        await emit('Installing updates...');
         if (cancelled) return didUpdate;
         emit('Applying updates...');
         await applyUpdates();
         await wait(STEP);
         if (cancelled) return didUpdate;
-        emit('Checking for updates...');
-        await wait(STEP);
+        await emit('Checking for updates...');
         if (cancelled) return didUpdate;
         hasUpdates = await checkUpdates();
+        if (hasUpdates) continue;
+        await emit('No updates found');
       }
+
       return didUpdate;
     };
 
     const printSummary = (outcomeLabel) => {
       const log = [...logRef.current];
-      const bv = getBibleVer();
       try {
         const prev = JSON.parse(localStorage.getItem('kjb-splash-log') || '[]');
-        const entry = { at: new Date().toISOString(), log };
-        const next = [entry, ...prev].slice(0, 5);
+        const next = [{ at: new Date().toISOString(), log }, ...prev].slice(0, 5);
         localStorage.setItem('kjb-splash-log', JSON.stringify(next));
       } catch {}
-
-      console.group(`[KJB Splash Summary] ${outcomeLabel} — SW: ${SW_VER} | Bible: ${bv}`);
+      console.group(`[KJB Splash Summary] ${outcomeLabel} — SW: ${SW_VER} | Bible: ${getBibleVer()}`);
       log.forEach((l, i) => console.log(`  ${i + 1}. ${l}`));
       console.groupEnd();
     };
@@ -114,8 +110,7 @@ export default function SplashScreenManager({ isReady, isFirstVisit, onComplete 
     const finish = async (welcomeMsg, outcomeLabel) => {
       await waitForReady();
       if (cancelled) return;
-      emit(welcomeMsg);
-      await wait(STEP);
+      await emit(welcomeMsg);
       if (cancelled) return;
       printSummary(outcomeLabel);
       setIsFadingOut(true);
@@ -125,50 +120,69 @@ export default function SplashScreenManager({ isReady, isFirstVisit, onComplete 
       onComplete();
     };
 
-    // ── INITIAL FLOW ─────────────────────────────────────────────────────────
+    // ── FLOW: First load ──────────────────────────────────────────────────────
+    // Loading → Downloading offline Bible data → Checking for updates →
+    // [update loop] → Welcome to KJB Reader!
+    //
+    // ── FLOW: Subsequent load ─────────────────────────────────────────────────
+    // Loading → Checking for updates → [update loop] → Welcome back to KJB Reader!
     const runInitialFlow = async () => {
-      emit('Loading...');
-      await wait(STEP);
+      await emit('Loading...');
       if (cancelled) return;
 
       if (isFirstVisit) {
-        emit('Downloading offline Bible data...');
-        await wait(STEP);
+        await emit('Downloading offline Bible data...');
         if (cancelled) return;
       }
 
-      emit('Checking for updates...');
-      await wait(STEP);
+      await emit('Checking for updates...');
       if (cancelled) return;
 
       const didUpdate = await runUpdateLoop();
-
       initialFlowDone.current = true;
 
       const welcome = isFirstVisit ? 'Welcome to KJB Reader!' : 'Welcome back to KJB Reader!';
-      const outcome = didUpdate ? '🔄 Updated' : '✅ No updates';
-      await finish(welcome, outcome);
+      await finish(welcome, didUpdate ? '🔄 Updated' : '✅ No updates');
     };
 
     runInitialFlow();
 
-    // ── TAB FOCUS FLOW ───────────────────────────────────────────────────────
+    // ── FLOW: Tab focus ───────────────────────────────────────────────────────
+    // (only fires after initial flow completes, only if updates exist)
+    // Found updates → installing → applying → checking → [repeat] → Welcome back
     let tabFocusRunning = false;
     const handleVisibility = async () => {
       if (document.visibilityState !== 'visible') return;
-      if (cancelled) return;
-      if (!initialFlowDone.current) return; // Don't interfere with initial flow
-      if (tabFocusRunning) return;
+      if (cancelled || !initialFlowDone.current || tabFocusRunning) return;
 
       const hasUpdates = await checkUpdates();
       if (!hasUpdates) return;
 
       tabFocusRunning = true;
       logRef.current = [];
-      setVisible(true);
       setIsFadingOut(false);
+      setVisible(true);
 
-      const didUpdate = await runUpdateLoop();
+      // Tab-focus loop starts directly at "Found updates" (no Loading step)
+      let currentHasUpdates = true;
+      let didUpdate = false;
+      while (currentHasUpdates && !cancelled) {
+        didUpdate = true;
+        await emit('Found updates...');
+        if (cancelled) break;
+        await emit('Installing updates...');
+        if (cancelled) break;
+        emit('Applying updates...');
+        await applyUpdates();
+        await wait(STEP);
+        if (cancelled) break;
+        await emit('Checking for updates...');
+        if (cancelled) break;
+        currentHasUpdates = await checkUpdates();
+        if (currentHasUpdates) continue;
+        await emit('No updates found');
+      }
+
       if (!cancelled) {
         await finish('Welcome back to KJB Reader!', didUpdate ? '🔄 Tab-focus updated' : '✅ No tab-focus updates');
       }
@@ -176,7 +190,6 @@ export default function SplashScreenManager({ isReady, isFirstVisit, onComplete 
     };
 
     document.addEventListener('visibilitychange', handleVisibility);
-
     return () => {
       cancelled = true;
       document.removeEventListener('visibilitychange', handleVisibility);
