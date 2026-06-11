@@ -10,18 +10,6 @@
           var ua = navigator.userAgent || '';
           // IE10/11 ("Trident") and older IE ("MSIE"). Not Edge.
           var isIE = /Trident|MSIE/i.test(ua);
-          // A dedicated legacy domain should ALWAYS land on the server-rendered
-          // legacy reader, regardless of browser. Send every visitor straight
-          // to the function endpoint (which the React /legacy page only redirects
-          // to anyway).
-          var legacyHost = (window.location.hostname || '').toLowerCase();
-          var qsEarly = window.location.search || '';
-          var optedOutEarly = qsEarly.indexOf('nolegacy=1') !== -1;
-          if (legacyHost.indexOf('kjbreaderlegacy.com') !== -1 && !optedOutEarly) {
-            var legacyOrigin = window.location.origin || (window.location.protocol + '//' + window.location.host);
-            window.location.replace(legacyOrigin + '/functions/legacy');
-            return;
-          }
           // Only treat as "too old" if it's clearly NOT a modern browser.
           // The bare Promise/fetch check can misfire in some embedded/in-app
           // browsers, so we additionally require an old-IE-style userAgent.
@@ -77,6 +65,11 @@
             return;
           }
           if ((isIE || tooOld) && !optedOut) {
+            // Redirect IE / very old browsers STRAIGHT to the server-rendered
+            // Full Bible function (no React involved — IE can't run the SPA,
+            // and the /legacy route is a React page). Works on every host.
+            // On a custom domain the function is reachable at the origin path
+            // /functions/legacy; on base44 hosting it needs the app_id path.
             var host = window.location.hostname || '';
             var isCustom = host.indexOf('base44.app') === -1 && host.indexOf('localhost') === -1;
             // IE8 lacks window.location.origin — build it manually as a fallback.

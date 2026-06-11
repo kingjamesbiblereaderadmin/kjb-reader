@@ -101,36 +101,52 @@ function preloadAllRoutes() {
 
 // Provide a beautiful splash screen for initial app loading
 import { Loader2 } from 'lucide-react';
+const PageLoader = ({ isFadingOut, updateCheckDone }) => {
+  const [isFirstVisit] = useState(() => {
+    try {
+      const visited = localStorage.getItem('kjb-has-visited-app');
+      if (!visited) {
+        localStorage.setItem('kjb-has-visited-app', 'true');
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  });
 
-// Detect first visit ONCE at module level so PageLoader can read it without
-// side-effects (localStorage.setItem is handled in AuthenticatedApp).
-const _isFirstVisit = (() => {
-  try { return !localStorage.getItem('kjb-has-visited-app'); } catch { return false; }
-})();
+  const text = isFirstVisit
+    ? "Welcome to KJB Reader..."
+    : !updateCheckDone
+      ? "Loading..."
+      : "Welcome back...";
 
-// Print persisted splash logs from ALL previous runs on every load
-try {
-  const prev = JSON.parse(localStorage.getItem('kjb-splash-log') || '[]');
-  const label = prev.length
-    ? `[KJB Splash History] ${prev.length} run(s) on record`
-    : '[KJB Splash History] No previous runs recorded';
-  console.group(label);
-  if (prev.length) {
-    prev.forEach((run, i) => {
-      const hasError = run.log.some(l => l.includes('❌'));
-      const hasUpdate = run.log.some(l => l.includes('Found updates') || l.includes('Applying updates') || l.includes('Bible update'));
-      const outcome = hasError ? '❌ Error' : hasUpdate ? '🔄 Updated' : '✅ No updates';
-      console.groupCollapsed(`Run ${i + 1} [${outcome}] — ${run.at}`);
-      run.log.forEach(l => console.log(l));
-      console.groupEnd();
-    });
-  } else {
-    console.log('(No splash history saved yet)');
-  }
-  console.groupEnd();
-} catch {}
+  return (
+    <div className={`fixed inset-0 z-[999999] bg-background flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+      <div className="flex flex-col items-center justify-center -mt-16 w-full max-w-sm px-6">
+        <div className="relative mb-12">
+          <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full scale-150 animate-pulse"></div>
+          <img 
+            src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
+            alt="KJB Reader" 
+            className="relative w-32 h-32 object-contain drop-shadow-xl"
+          />
+        </div>
+        
+        <div className="flex flex-col items-center gap-6 w-full">
+          <div className="flex flex-col items-center gap-3 text-center">
+            <Loader2 className="w-6 h-6 animate-spin text-primary/70" style={{ animationDuration: '2s' }} />
+            <span className="font-sans text-xs text-foreground/70 font-medium tracking-[0.2em] uppercase">
+              {text}
+            </span>
+          </div>
+        </div>
+      </div>
 
-import SplashScreenManager from '@/components/SplashScreenManager';
+
+    </div>
+  );
+};
 
 const RouteLoader = () => (
   <div className="flex justify-center py-24">
@@ -169,23 +185,14 @@ const FadeIn = ({ children }) => {
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const location = useLocation();
-  const isLegacyRoute = location.pathname === '/legacy';
-  const [splashComplete, setSplashComplete] = useState(isLegacyRoute);
+  const [minSplashDone, setMinSplashDone] = useState(false);
+  const [updateCheckDone, setUpdateCheckDone] = useState(false);
+  const [routeLoaded, setRouteLoaded] = useState(false);
   const [fontsLoaded, setFontsLoaded] = useState(false);
-
-  // Determine visit context once on mount
-  const [visitContext] = useState(() => {
-    const isFirstVisit = _isFirstVisit;
-    // Mark visited now so subsequent loads see it
-    if (isFirstVisit) { try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {} }
-    const isPostUpdate = !!(sessionStorage.getItem('kjb_sw_updated') || window.location.search.includes('updated=true'));
-    try { sessionStorage.removeItem('kjb_sw_updated'); } catch {}
-    return { isFirstVisit, isPostUpdate };
-  });
 
   useEffect(() => {
     const originalTitle = document.title;
-    const beforePrint = () => { document.title = '\u200B'; };
+    const beforePrint = () => { document.title = '\u200B'; }; // Zero-width space removes title from print header
     const afterPrint = () => { document.title = originalTitle; };
     window.addEventListener('beforeprint', beforePrint);
     window.addEventListener('afterprint', afterPrint);
@@ -199,8 +206,11 @@ const AuthenticatedApp = () => {
     let timeout;
     if (document.fonts) {
       document.fonts.ready.then(() => {
+        // Add a small buffer after fonts report 'ready' to ensure browser painting catches up
+        // and avoids the FOUT (Flash of Unstyled Text)
         timeout = setTimeout(() => setFontsLoaded(true), 300);
       });
+      // Fallback in case fonts.ready hangs indefinitely
       setTimeout(() => setFontsLoaded(true), 3000);
     } else {
       setFontsLoaded(true);
@@ -208,8 +218,122 @@ const AuthenticatedApp = () => {
     return () => clearTimeout(timeout);
   }, []);
 
+  useEffect(() => {
+    // Always release routeLoaded quickly - chunks load in background via Suspense
+    const timer = setTimeout(() => setRouteLoaded(true), 500);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const isPostUpdate = sessionStorage.getItem('kjb_sw_updated');
+    const isForcedUpdate = window.location.search.includes('updated=true');
+    let isFresh = true;
+    try {
+      isFresh = !sessionStorage.getItem('kjb_session_active_timer');
+      sessionStorage.setItem('kjb_session_active_timer', 'true');
+    } catch {}
+    
+    // Extend minimum splash times just enough to not flash abruptly
+    let delay = 1000; // Fresh load
+    if (isPostUpdate || isForcedUpdate) {
+      delay = 1500; // Update applied
+    } else if (!isFresh) {
+      delay = 500; // Returning session
+    }
+
+    const timer = setTimeout(() => setMinSplashDone(true), delay); 
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    
+    // Always release splash within 3 seconds max - Bible loads on-demand
+    const maxSplashTimer = setTimeout(() => {
+      console.log('[App] Max splash timer - releasing');
+      if (isMounted) setUpdateCheckDone(true);
+    }, 3000);
+
+    // Quick update check - non-blocking
+    const checkUpdates = async () => {
+      try {
+        if (typeof navigator === 'undefined' || navigator.onLine === false) {
+          if (isMounted) setUpdateCheckDone(true);
+          return;
+        }
+
+        // Check for pending Bible update from background download
+        if (sessionStorage.getItem('kjb_pending_bible_update')) {
+          sessionStorage.removeItem('kjb_pending_bible_update');
+          sessionStorage.setItem('kjb_sw_updated', 'bible');
+          setTimeout(() => window.location.reload(), 500);
+          return;
+        }
+
+        // Quick SW check - only reload if there's a waiting worker on home page
+        if ('serviceWorker' in navigator && window.location.pathname === '/') {
+          const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+          if (reg?.waiting && reg.active) {
+            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            setTimeout(() => window.location.reload(), 1000);
+            return;
+          }
+        }
+
+        // Start Bible download in background if needed - don't await
+        try {
+          const { isBibleCached, downloadBibleForOffline } = await import('@/lib/bibleCache').catch(() => ({}));
+          if (isBibleCached && downloadBibleForOffline) {
+            const cached = await isBibleCached().catch(() => true);
+            if (!cached) {
+              downloadBibleForOffline().catch(() => {});
+            }
+          }
+        } catch {}
+
+      } catch (err) {
+        console.warn('[App] Update check failed:', err);
+      } finally {
+        if (isMounted) setUpdateCheckDone(true);
+      }
+    };
+
+    checkUpdates();
+
+    return () => { 
+      isMounted = false; 
+      clearTimeout(maxSplashTimer);
+    };
+  }, []);
+
+  // Preload route chunks in background
+  useEffect(() => { 
+    preloadAllRoutes();
+  }, []);
+
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
-  const isReady = !isInitializing && fontsLoaded;
+  // Skip splash for /legacy route — it redirects to server-rendered HTML
+  const isLegacyRoute = location.pathname === '/legacy';
+  const showSplash = !isLegacyRoute && (isInitializing || !minSplashDone || !updateCheckDone || !routeLoaded || !fontsLoaded);
+
+  const [renderSplash, setRenderSplash] = useState(true);
+  const [fadeSplash, setFadeSplash] = useState(false);
+
+  useEffect(() => {
+    if (!showSplash) {
+      setFadeSplash(true);
+      const timer = setTimeout(() => {
+        setRenderSplash(false);
+        window.kjbSplashDone = true;
+        window.dispatchEvent(new Event('kjb-splash-done'));
+      }, 500);
+      return () => clearTimeout(timer);
+    } else {
+      setRenderSplash(true);
+      setFadeSplash(false);
+      window.kjbSplashDone = false;
+    }
+  }, [showSplash]);
 
   if (authError && !isInitializing) {
     if (authError.type === 'user_not_registered') {
@@ -222,18 +346,8 @@ const AuthenticatedApp = () => {
 
   return (
     <>
-      {!isLegacyRoute && !splashComplete && (
-        <SplashScreenManager 
-          isFirstVisit={visitContext.isFirstVisit} 
-          isReady={isReady} 
-          onComplete={() => {
-            window.kjbSplashDone = true;
-            window.dispatchEvent(new Event('kjb-splash-done'));
-            setSplashComplete(true);
-          }} 
-        />
-      )}
-      {!isInitializing && !authError && splashComplete && (
+      {renderSplash && <PageLoader isFadingOut={fadeSplash} updateCheckDone={updateCheckDone} />}
+      {!isInitializing && !authError && (
         <Routes location={location}>
           <Route element={<AppLayout />}>
         <Route path="/" element={<Suspense fallback={<RouteLoader />}><FadeIn><HomePage /></FadeIn></Suspense>} />

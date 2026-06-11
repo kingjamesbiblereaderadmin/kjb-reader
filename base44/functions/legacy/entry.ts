@@ -377,13 +377,6 @@ Deno.serve(async (req) => {
     // ── CHUNK MODE: ?chunk=N returns just book N's HTML (small, cacheable) ──
     // The shell page below fetches these one-by-one so each download is small
     // and reliable even on a weak connection.
-    // ── DOWNLOAD MODE: ?download=1 streams the self-contained single-file
-    // Bible THROUGH this function (same Cloudflare TLS-1.0 origin) so IE9/IE11
-    // users — who cannot reach base44.app's TLS-1.2-only host — can still get it. ──
-    // DOWNLOAD MODE flag — actual build happens later, after the
-    // Gospel/Resources/About HTML consts are defined (see below).
-    const isDownload = url.searchParams.get('download') === '1';
-
     const chunkParam = url.searchParams.get('chunk');
     if (chunkParam !== null) {
       const bi = parseInt(chunkParam, 10);
@@ -399,11 +392,7 @@ Deno.serve(async (req) => {
         'Access-Control-Allow-Origin': '*'
       } });
     }
-    // On a custom domain the function is reachable at the clean /functions/legacy
-    // path (no app_id needed). Only base44.app hosting needs the app-scoped path.
-    const reqHost = url.hostname || '';
-    const isCustomHost = reqHost.indexOf('base44.app') === -1 && reqHost.indexOf('localhost') === -1;
-    const basePath = (!isCustomHost && appId)
+    const basePath = appId
       ? '/api/apps/' + encodeURIComponent(appId) + '/functions/legacy'
       : '/functions/legacy';
     const theme = url.searchParams.get('theme') === 'dark' ? 'dark' : 'light';
@@ -412,8 +401,8 @@ Deno.serve(async (req) => {
     // path keeps resolving correctly.
     const idSuffix = (appId ? '&app_id=' + encodeURIComponent(appId) : '') + (isDark ? '&theme=dark' : '');
 
-    const STYLE = '*{margin:0;padding:0;box-sizing:border-box;}body{background:#f5f5f7;color:#1a1a1a;font-family:Georgia,serif;font-size:16px;line-height:1.6;}.hdr{background:#2d2a6e;color:#fff;padding:16px;text-align:center;}.hdr h1{font-size:22px;}.hdr p{font-size:12px;color:#cfcfe8;}.tabs{width:100%;background:#3d3a80;font-size:0;}.tabs a{display:inline-block;width:20%;padding:12px 2px;text-align:center;color:#cfcfe8;text-decoration:none;font-size:12px;font-family:Arial,sans-serif;}.tabs a.on{background:#5b59a0;color:#fff;font-weight:bold;}.wrap{max-width:760px;margin:0 auto;padding:16px;}.box{background:#fff;padding:16px;margin-bottom:16px;border:1px solid #e0e0ec;}.ctl{margin-bottom:12px;}.ctl label{display:block;font-size:14px;font-weight:bold;color:#333;margin-bottom:5px;font-family:Arial,sans-serif;}.ctl select{width:100%;padding:9px;font-size:16px;border:1px solid #ccc;font-family:Arial,sans-serif;}.read-btn{background:#2d2a6e;color:#fff;padding:11px;border:none;cursor:pointer;font-size:16px;font-weight:bold;font-family:Arial,sans-serif;width:100%;}.chead{text-align:center;margin:20px 0 16px;}.cbook{font-size:22px;font-weight:bold;color:#2d2a6e;display:block;}.cnum{font-size:13px;color:#666;display:block;margin-top:4px;}.verse{display:block;margin:20px 0 10px 0;line-height:1.5;}.vn{font-weight:bold;color:#2d2a6e;font-size:11px;margin-right:4px;}.subscript{text-align:center;color:#555;font-size:14px;margin:0 0 16px;}.colophon{text-align:center;color:#555;font-size:14px;margin:18px 0 0;padding-top:12px;border-top:1px solid #e0e0ec;}.pil{color:#888;display:inline;white-space:nowrap;}em{font-style:italic;}.nav{text-align:center;margin:20px 0;}.nav a{display:inline-block;padding:10px 18px;margin:0 4px;background:#2d2a6e;color:#fff;text-decoration:none;font-size:14px;font-family:Arial,sans-serif;}.box h3{color:#2d2a6e;margin-bottom:10px;font-size:16px;}.box blockquote{background:#f7f7fb;padding:12px;margin:8px 0;border-left:3px solid #2d2a6e;font-style:italic;}.box a{color:#2d2a6e;}.sec-title{font-size:20px;color:#2d2a6e;font-weight:bold;margin:24px 0 10px;text-align:center;}.sec-sub{font-size:14px;color:#666;text-align:center;margin-bottom:16px;}.step{background:#fff;border:1px solid #e0e0ec;border-left:4px solid #2d2a6e;padding:14px 16px;margin-bottom:14px;}.step h4{color:#2d2a6e;font-size:15px;margin-bottom:8px;font-family:Arial,sans-serif;}.step .ref{display:block;margin-top:8px;font-size:13px;color:#444;font-family:Arial,sans-serif;}.warn{background:#fdf0f0;border:1px solid #e9c4c4;padding:14px 16px;margin-bottom:14px;}.warn h4{color:#b02525;font-size:15px;margin-bottom:8px;font-family:Arial,sans-serif;}.warn ul{margin:6px 0 0 18px;}.warn li{font-size:14px;margin-bottom:3px;}.lnk{display:block;padding:10px 12px;margin-bottom:8px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;font-size:14px;font-family:Arial,sans-serif;}.lnk b{display:block;color:#1a1a1a;margin-bottom:2px;}.lnk span{display:block;color:#666;font-size:12px;}.res-cat{font-size:16px;color:#2d2a6e;font-weight:bold;margin:18px 0 8px;font-family:Arial,sans-serif;border-bottom:2px solid #e0e0ec;padding-bottom:5px;}.about-list{margin:8px 0 0 18px;}.about-list li{font-size:14px;margin-bottom:8px;line-height:1.5;}.doc{max-width:760px;margin:0 auto;}.doc h1{font-size:26px;color:#2d2a6e;margin:12px 0 24px;text-align:center;}.doc h2{font-size:19px;color:#2d2a6e;margin:44px 0 18px;padding-bottom:8px;border-bottom:1px solid #e0e0ec;}.doc h3{font-size:16px;color:#444;margin:30px 0 14px;}.doc p{margin:0 0 22px;line-height:1.85;}.doc p.lead{color:#555;font-size:17px;margin-bottom:36px;}.doc p.note{color:#777;font-size:13px;margin:32px 0;}.doc ul{margin:0 0 28px 28px;list-style-type:disc;}.doc li{margin-bottom:16px;line-height:1.75;padding-left:6px;}.doc blockquote{margin:0 0 22px;padding-left:18px;border-left:3px solid #c9c7e0;color:#444;font-style:italic;line-height:1.85;}.doc a{color:#2d2a6e;}.doc p.rlnk{margin:0 0 16px;}.doc p.rlnk span{color:#666;font-style:normal;}.banner{background:#fdf0f0;border-bottom:2px solid #e9c4c4;color:#7a1f1f;padding:12px 16px;font-family:Arial,sans-serif;font-size:13px;line-height:1.5;text-align:center;}.banner>b{display:block;font-size:14px;margin-bottom:4px;}.banner li b{display:inline;}.banner ul{margin:6px auto 0;padding:0;list-style-position:inside;display:inline-block;text-align:left;}.banner li{margin-bottom:3px;}.banner a{color:#7a1f1f;font-weight:bold;}.fb-intro{font-size:15px;color:#555;margin-bottom:16px;line-height:1.6;}.fb-index{background:#fff;border:1px solid #e0e0ec;padding:14px 16px;margin-bottom:24px;}.fb-index-title{font-size:13px;font-weight:bold;color:#333;font-family:Arial,sans-serif;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;}.fb-testament{font-size:15px;font-weight:bold;color:#2d2a6e;margin:12px 0 6px;}.fb-books{line-height:2.2;}.fb-books a{display:inline-block;padding:3px 9px;margin:2px;background:#f7f7fb;border:1px solid #e0e0ec;color:#2d2a6e;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;}.fb-book{margin-bottom:32px;border-top:2px solid #e0e0ec;padding-top:8px;}.fb-bookname{font-size:21px;color:#2d2a6e;text-align:center;margin:16px 0 4px;}.fb-top{text-align:center;margin-bottom:12px;}.fb-top a{font-size:12px;color:#888;text-decoration:none;font-family:Arial,sans-serif;}.fb-chap{font-size:15px;color:#666;font-weight:bold;margin:20px 0 8px;font-family:Arial,sans-serif;border-bottom:1px solid #eee;padding-bottom:4px;}.fb-chaplinks{margin:0 0 16px;line-height:2.2;}.fb-chaplinks-label{font-size:13px;font-weight:bold;color:#333;font-family:Arial,sans-serif;margin-right:6px;}.fb-chaplinks a{display:inline-block;min-width:24px;text-align:center;padding:3px 7px;margin:2px;background:#f7f7fb;border:1px solid #e0e0ec;color:#2d2a6e;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;}.fb-chaptop{font-size:11px;font-weight:normal;color:#888;text-decoration:none;font-family:Arial,sans-serif;margin-left:8px;}.dl-box{background:#eef0fb;border:1px solid #c9c7e0;padding:16px;margin-bottom:24px;}.dl-box b{display:block;font-size:15px;color:#2d2a6e;margin-bottom:8px;}.dl-box p{font-size:14px;color:#444;margin:0 0 10px;line-height:1.6;}.dl-box .dl-how{font-size:13px;color:#555;margin-bottom:0;}.dl-btn{display:inline-block;background:#2d2a6e;color:#fff;text-decoration:none;padding:11px 18px;font-size:15px;font-weight:bold;font-family:Arial,sans-serif;}';
-    const DARK_STYLE = 'body{background:#1a1a1e;color:#e5e5e5;}.hdr{background:#1e1b4d;}.tabs{background:#2d2a6e;}.tabs a{color:#a5a5d0;}.tabs a.on{background:#3d3a80;color:#fff;}.box{background:#252830;border-color:#3a3d4a;color:#e5e5e5;}.ctl label{color:#e5e5e5;}.ctl select{background:#1a1a1e;border-color:#4a4d5a;color:#e5e5e5;}.read-btn{background:#3d3a80;}.cbook{color:#7c7ceb;}.vn{color:#7c7ceb;}.subscript,.colophon{color:#aaa;}.pil{color:#666;}.nav a{background:#3d3a80;}.box blockquote{background:#1e1b4d;border-left-color:#7c7ceb;}.box a{color:#7c7ceb;}.sec-title{color:#7c7ceb;}.sec-sub{color:#aaa;}.step{background:#252830;border-color:#3a3d4a;border-left-color:#7c7ceb;}.step h4{color:#7c7ceb;}.step .ref{color:#aaa;}.warn{background:#2a1a1a;border-color:#4a2a2a;}.warn h4{color:#f56565;}.lnk{background:#1e1b4d;border-color:#3a3d4a;color:#7c7ceb;}.lnk b{color:#e5e5e5;}.lnk span{color:#aaa;}.res-cat{color:#7c7ceb;border-bottom-color:#3a3d4a;}.about-list li{color:#e5e5e5;}.banner{background:#2a1a1a;border-bottom-color:#4a2a2a;color:#f0b8b8;}.banner a{color:#f0b8b8;}.fb-intro{color:#aaa;}.fb-index{background:#252830;border-color:#3a3d4a;}.fb-index-title{color:#e5e5e5;}.fb-testament{color:#7c7ceb;}.fb-books a{background:#1e1b4d;border-color:#3a3d4a;color:#7c7ceb;}.fb-book{border-top-color:#3a3d4a;}.fb-bookname{color:#7c7ceb;}.fb-chap{color:#aaa;border-bottom-color:#3a3d4a;}.fb-chaplinks-label{color:#e5e5e5;}.fb-chaplinks a{background:#1e1b4d;border-color:#3a3d4a;color:#7c7ceb;}.fb-chaptop{color:#888;}.dl-box{background:#1e1b4d;border-color:#3a3d4a;}.dl-box b{color:#7c7ceb;}.dl-box p{color:#ccc;}.dl-box .dl-how{color:#aaa;}.dl-btn{background:#3d3a80;color:#fff;}';
+    const STYLE = '*{margin:0;padding:0;box-sizing:border-box;}body{background:#f5f5f7;color:#1a1a1a;font-family:Georgia,serif;font-size:16px;line-height:1.6;}.hdr{background:#2d2a6e;color:#fff;padding:16px;text-align:center;}.hdr h1{font-size:22px;}.hdr p{font-size:12px;color:#cfcfe8;}.tabs{width:100%;background:#3d3a80;font-size:0;}.tabs a{display:inline-block;width:20%;padding:12px 2px;text-align:center;color:#cfcfe8;text-decoration:none;font-size:12px;font-family:Arial,sans-serif;}.tabs a.on{background:#5b59a0;color:#fff;font-weight:bold;}.wrap{max-width:760px;margin:0 auto;padding:16px;}.box{background:#fff;padding:16px;margin-bottom:16px;border:1px solid #e0e0ec;}.ctl{margin-bottom:12px;}.ctl label{display:block;font-size:14px;font-weight:bold;color:#333;margin-bottom:5px;font-family:Arial,sans-serif;}.ctl select{width:100%;padding:9px;font-size:16px;border:1px solid #ccc;font-family:Arial,sans-serif;}.read-btn{background:#2d2a6e;color:#fff;padding:11px;border:none;cursor:pointer;font-size:16px;font-weight:bold;font-family:Arial,sans-serif;width:100%;}.chead{text-align:center;margin:20px 0 16px;}.cbook{font-size:22px;font-weight:bold;color:#2d2a6e;display:block;}.cnum{font-size:13px;color:#666;display:block;margin-top:4px;}.verse{display:block;margin:20px 0 10px 0;line-height:1.5;}.vn{font-weight:bold;color:#2d2a6e;font-size:11px;margin-right:4px;}.subscript{text-align:center;color:#555;font-size:14px;margin:0 0 16px;}.colophon{text-align:center;color:#555;font-size:14px;margin:18px 0 0;padding-top:12px;border-top:1px solid #e0e0ec;}.pil{color:#888;display:inline;white-space:nowrap;}em{font-style:italic;}.nav{text-align:center;margin:20px 0;}.nav a{display:inline-block;padding:10px 18px;margin:0 4px;background:#2d2a6e;color:#fff;text-decoration:none;font-size:14px;font-family:Arial,sans-serif;}.box h3{color:#2d2a6e;margin-bottom:10px;font-size:16px;}.box blockquote{background:#f7f7fb;padding:12px;margin:8px 0;border-left:3px solid #2d2a6e;font-style:italic;}.box a{color:#2d2a6e;}.sec-title{font-size:20px;color:#2d2a6e;font-weight:bold;margin:24px 0 10px;text-align:center;}.sec-sub{font-size:14px;color:#666;text-align:center;margin-bottom:16px;}.step{background:#fff;border:1px solid #e0e0ec;border-left:4px solid #2d2a6e;padding:14px 16px;margin-bottom:14px;}.step h4{color:#2d2a6e;font-size:15px;margin-bottom:8px;font-family:Arial,sans-serif;}.step .ref{display:block;margin-top:8px;font-size:13px;color:#444;font-family:Arial,sans-serif;}.warn{background:#fdf0f0;border:1px solid #e9c4c4;padding:14px 16px;margin-bottom:14px;}.warn h4{color:#b02525;font-size:15px;margin-bottom:8px;font-family:Arial,sans-serif;}.warn ul{margin:6px 0 0 18px;}.warn li{font-size:14px;margin-bottom:3px;}.lnk{display:block;padding:10px 12px;margin-bottom:8px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;font-size:14px;font-family:Arial,sans-serif;}.lnk b{display:block;color:#1a1a1a;margin-bottom:2px;}.lnk span{display:block;color:#666;font-size:12px;}.res-cat{font-size:16px;color:#2d2a6e;font-weight:bold;margin:18px 0 8px;font-family:Arial,sans-serif;border-bottom:2px solid #e0e0ec;padding-bottom:5px;}.about-list{margin:8px 0 0 18px;}.about-list li{font-size:14px;margin-bottom:8px;line-height:1.5;}.doc{max-width:760px;margin:0 auto;}.doc h1{font-size:26px;color:#2d2a6e;margin:12px 0 24px;text-align:center;}.doc h2{font-size:19px;color:#2d2a6e;margin:44px 0 18px;padding-bottom:8px;border-bottom:1px solid #e0e0ec;}.doc h3{font-size:16px;color:#444;margin:30px 0 14px;}.doc p{margin:0 0 22px;line-height:1.85;}.doc p.lead{color:#555;font-size:17px;margin-bottom:36px;}.doc p.note{color:#777;font-size:13px;margin:32px 0;}.doc ul{margin:0 0 28px 28px;list-style-type:disc;}.doc li{margin-bottom:16px;line-height:1.75;padding-left:6px;}.doc blockquote{margin:0 0 22px;padding-left:18px;border-left:3px solid #c9c7e0;color:#444;font-style:italic;line-height:1.85;}.doc a{color:#2d2a6e;}.doc p.rlnk{margin:0 0 16px;}.doc p.rlnk span{color:#666;font-style:normal;}.banner{background:#fdf0f0;border-bottom:2px solid #e9c4c4;color:#7a1f1f;padding:12px 16px;font-family:Arial,sans-serif;font-size:13px;line-height:1.5;}.banner b{display:block;font-size:14px;margin-bottom:4px;}.banner ul{margin:6px 0 0 18px;}.banner li{margin-bottom:3px;}.banner a{color:#7a1f1f;font-weight:bold;}.fb-intro{font-size:15px;color:#555;margin-bottom:16px;line-height:1.6;}.fb-index{background:#fff;border:1px solid #e0e0ec;padding:14px 16px;margin-bottom:24px;}.fb-index-title{font-size:13px;font-weight:bold;color:#333;font-family:Arial,sans-serif;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;}.fb-testament{font-size:15px;font-weight:bold;color:#2d2a6e;margin:12px 0 6px;}.fb-books{line-height:2.2;}.fb-books a{display:inline-block;padding:3px 9px;margin:2px;background:#f7f7fb;border:1px solid #e0e0ec;color:#2d2a6e;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;}.fb-book{margin-bottom:32px;border-top:2px solid #e0e0ec;padding-top:8px;}.fb-bookname{font-size:21px;color:#2d2a6e;text-align:center;margin:16px 0 4px;}.fb-top{text-align:center;margin-bottom:12px;}.fb-top a{font-size:12px;color:#888;text-decoration:none;font-family:Arial,sans-serif;}.fb-chap{font-size:15px;color:#666;font-weight:bold;margin:20px 0 8px;font-family:Arial,sans-serif;border-bottom:1px solid #eee;padding-bottom:4px;}.fb-chaplinks{margin:0 0 16px;line-height:2.2;}.fb-chaplinks-label{font-size:13px;font-weight:bold;color:#333;font-family:Arial,sans-serif;margin-right:6px;}.fb-chaplinks a{display:inline-block;min-width:24px;text-align:center;padding:3px 7px;margin:2px;background:#f7f7fb;border:1px solid #e0e0ec;color:#2d2a6e;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;}.fb-chaptop{font-size:11px;font-weight:normal;color:#888;text-decoration:none;font-family:Arial,sans-serif;margin-left:8px;}';
+    const DARK_STYLE = 'body{background:#1a1a1e;color:#e5e5e5;}.hdr{background:#1e1b4d;}.tabs{background:#2d2a6e;}.tabs a{color:#a5a5d0;}.tabs a.on{background:#3d3a80;color:#fff;}.box{background:#252830;border-color:#3a3d4a;color:#e5e5e5;}.ctl label{color:#e5e5e5;}.ctl select{background:#1a1a1e;border-color:#4a4d5a;color:#e5e5e5;}.read-btn{background:#3d3a80;}.cbook{color:#7c7ceb;}.vn{color:#7c7ceb;}.subscript,.colophon{color:#aaa;}.pil{color:#666;}.nav a{background:#3d3a80;}.box blockquote{background:#1e1b4d;border-left-color:#7c7ceb;}.box a{color:#7c7ceb;}.sec-title{color:#7c7ceb;}.sec-sub{color:#aaa;}.step{background:#252830;border-color:#3a3d4a;border-left-color:#7c7ceb;}.step h4{color:#7c7ceb;}.step .ref{color:#aaa;}.warn{background:#2a1a1a;border-color:#4a2a2a;}.warn h4{color:#f56565;}.lnk{background:#1e1b4d;border-color:#3a3d4a;color:#7c7ceb;}.lnk b{color:#e5e5e5;}.lnk span{color:#aaa;}.res-cat{color:#7c7ceb;border-bottom-color:#3a3d4a;}.about-list li{color:#e5e5e5;}.banner{background:#2a1a1a;border-bottom-color:#4a2a2a;color:#f0b8b8;}.banner a{color:#f0b8b8;}.fb-intro{color:#aaa;}.fb-index{background:#252830;border-color:#3a3d4a;}.fb-index-title{color:#e5e5e5;}.fb-testament{color:#7c7ceb;}.fb-books a{background:#1e1b4d;border-color:#3a3d4a;color:#7c7ceb;}.fb-book{border-top-color:#3a3d4a;}.fb-bookname{color:#7c7ceb;}.fb-chap{color:#aaa;border-bottom-color:#3a3d4a;}.fb-chaplinks-label{color:#e5e5e5;}.fb-chaplinks a{background:#1e1b4d;border-color:#3a3d4a;color:#7c7ceb;}.fb-chaptop{color:#888;}';
 
     let bodyInner = '';
 
@@ -586,60 +575,6 @@ Deno.serve(async (req) => {
         '</div>' +
         '</div>';
 
-    // ── DOWNLOAD MODE: build the self-contained single-file HTML Bible
-    // dynamically so it always carries the latest banner ("HTML mode" +
-    // Ctrl-F find tip) and content. Runs here because it needs the
-    // Gospel/Resources/About consts defined above. ──
-    if (isDownload) {
-      const dlBibleData = await loadBible();
-
-      let dlBooksHtml = '';
-      for (let bi = 0; bi < BOOK_ORDER.length; bi++) {
-        dlBooksHtml += buildBookHtml(dlBibleData, bi);
-      }
-
-      let dlIndex = '<div class="fb-index"><p class="fb-index-title">Quick Links &mdash; tap a book to jump</p>';
-      dlIndex += '<p class="fb-testament">Old Testament</p><p class="fb-books">';
-      const dlOtEnd = BOOK_ORDER.indexOf('Malachi');
-      for (let i = 0; i <= dlOtEnd; i++) {
-        dlIndex += '<a href="#b' + i + '">' + esc(BOOK_ORDER[i]) + '</a> ';
-      }
-      dlIndex += '</p><p class="fb-testament">New Testament</p><p class="fb-books">';
-      for (let i = dlOtEnd + 1; i < BOOK_ORDER.length; i++) {
-        dlIndex += '<a href="#b' + i + '">' + esc(BOOK_ORDER[i]) + '</a> ';
-      }
-      dlIndex += '</p><p class="fb-testament">More</p><p class="fb-books">' +
-        '<a href="#gospel">Gospel</a> <a href="#resources">Resources</a> <a href="#about">About</a>' +
-        '</p></div>';
-
-      const dlExtras =
-        '<div class="fb-book"><a name="gospel" id="gospel"></a><p class="fb-top"><a href="#top">&uarr; Back to top</a></p>' + gospelHtml + '</div>' +
-        '<div class="fb-book"><a name="resources" id="resources"></a><p class="fb-top"><a href="#top">&uarr; Back to top</a></p>' + resourcesHtml + '</div>' +
-        '<div class="fb-book"><a name="about" id="about"></a><p class="fb-top"><a href="#top">&uarr; Back to top</a></p>' + aboutHtml + '</div>';
-
-      const dlBanner = '<div class="banner"><b>&#128196; HTML mode</b>' +
-        'This is a plain, self-contained HTML copy of the King James Bible. It works fully offline in any browser, with no internet, app or JavaScript required.' +
-        '<ul>' +
-        '<li><b>To find a word or verse:</b> on desktop press <b>Ctrl + F</b> (<b>&#8984; + F</b> on Mac); on mobile open your browser menu and tap <b>Find in page</b>.</li>' +
-        '<li>Use the quick links below to jump to any book, the Gospel, Resources or About.</li>' +
-        '<li>Found a bug? Email <a href="mailto:kingjamesbiblereader@outlook.sg">kingjamesbiblereader@outlook.sg</a>.</li>' +
-        '</ul></div>';
-
-      const dlBody = '<a name="top" id="top"></a>' +
-        '<p class="fb-intro">The complete King James Bible on a single page, plus the Gospel, Resources and About sections. Use the quick links to jump to any book instantly.</p>' +
-        dlIndex + '<div id="fb-books-target">' + dlBooksHtml + '</div>' + dlExtras;
-
-      const dlStyle = '*{margin:0;padding:0;box-sizing:border-box;}body{background:#f5f5f7;color:#1a1a1a;font-family:Georgia,serif;font-size:16px;line-height:1.6;}.hdr{background:#2d2a6e;color:#fff;padding:16px;text-align:center;}.hdr h1{font-size:22px;}.hdr p{font-size:12px;color:#cfcfe8;}.wrap{max-width:760px;margin:0 auto;padding:16px;}.verse{display:block;margin:20px 0 10px 0;line-height:1.5;}.vn{font-weight:bold;color:#2d2a6e;font-size:11px;margin-right:4px;}.subscript{text-align:center;color:#555;font-size:14px;margin:0 0 16px;}.colophon{text-align:center;color:#555;font-size:14px;margin:18px 0 0;padding-top:12px;border-top:1px solid #e0e0ec;}.pil{color:#888;display:inline;white-space:nowrap;}em{font-style:italic;}.doc{max-width:760px;margin:0 auto;}.doc h1{font-size:26px;color:#2d2a6e;margin:12px 0 24px;text-align:center;}.doc h2{font-size:19px;color:#2d2a6e;margin:44px 0 18px;padding-bottom:8px;border-bottom:1px solid #e0e0ec;}.doc h3{font-size:16px;color:#444;margin:30px 0 14px;}.doc p{margin:0 0 22px;line-height:1.85;}.doc p.lead{color:#555;font-size:17px;margin-bottom:36px;}.doc p.note{color:#777;font-size:13px;margin:32px 0;}.doc ul{margin:0 0 28px 28px;list-style-type:disc;}.doc li{margin-bottom:16px;line-height:1.75;padding-left:6px;}.doc blockquote{margin:0 0 22px;padding-left:18px;border-left:3px solid #c9c7e0;color:#444;font-style:italic;line-height:1.85;}.doc a{color:#2d2a6e;}.doc p.rlnk{margin:0 0 16px;}.doc p.rlnk span{color:#666;font-style:normal;}.banner{background:#eef0fb;border-bottom:2px solid #c9c7e0;color:#2d2a6e;padding:12px 16px;font-family:Arial,sans-serif;font-size:13px;line-height:1.5;text-align:center;}.banner>b{display:block;font-size:14px;margin-bottom:4px;}.banner li b{display:inline;}.banner ul{margin:6px auto 0;padding:0;list-style-position:inside;display:inline-block;text-align:left;}.banner li{margin-bottom:3px;}.banner a{color:#2d2a6e;font-weight:bold;}.fb-intro{font-size:15px;color:#555;margin-bottom:16px;line-height:1.6;}.fb-index{background:#fff;border:1px solid #e0e0ec;padding:14px 16px;margin-bottom:24px;}.fb-index-title{font-size:13px;font-weight:bold;color:#333;font-family:Arial,sans-serif;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;}.fb-testament{font-size:15px;font-weight:bold;color:#2d2a6e;margin:12px 0 6px;}.fb-books{line-height:2.2;}.fb-books a{display:inline-block;padding:3px 9px;margin:2px;background:#f7f7fb;border:1px solid #e0e0ec;color:#2d2a6e;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;}.fb-book{margin-bottom:32px;border-top:2px solid #e0e0ec;padding-top:8px;}.fb-bookname{font-size:21px;color:#2d2a6e;text-align:center;margin:16px 0 4px;}.fb-top{text-align:center;margin-bottom:12px;}.fb-top a{font-size:12px;color:#888;text-decoration:none;font-family:Arial,sans-serif;}.fb-chap{font-size:15px;color:#666;font-weight:bold;margin:20px 0 8px;font-family:Arial,sans-serif;border-bottom:1px solid #eee;padding-bottom:4px;}.fb-chaplinks{margin:0 0 16px;line-height:2.2;}.fb-chaplinks-label{font-size:13px;font-weight:bold;color:#333;font-family:Arial,sans-serif;margin-right:6px;}.fb-chaplinks a{display:inline-block;min-width:24px;text-align:center;padding:3px 7px;margin:2px;background:#f7f7fb;border:1px solid #e0e0ec;color:#2d2a6e;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;}.fb-chaptop{font-size:11px;font-weight:normal;color:#888;text-decoration:none;font-family:Arial,sans-serif;margin-left:8px;}';
-
-      const dlHtml = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>KJB Reader (HTML Bible)</title><style>' + dlStyle + '</style></head><body><div class="hdr"><h1>KJB Reader</h1><p>King James Bible &mdash; Pure Cambridge Edition</p></div>' + dlBanner + '<div class="wrap" id="wrap">' + dlBody + '</div></body></html>';
-
-      return new Response(dlHtml, { headers: {
-        'Content-Type': 'text/html;charset=UTF-8',
-        'Content-Disposition': 'attachment; filename="kjb-bible.html"',
-        'Cache-Control': 'public, max-age=86400'
-      } });
-    }
-
     {
       // The ENTIRE Bible rendered inline on one page, with anchor quick-links
       // at the top, plus Gospel/Resources/About embedded. Navigation between
@@ -666,51 +601,154 @@ Deno.serve(async (req) => {
         '<a href="' + fbBase + '#gospel">Gospel</a> <a href="' + fbBase + '#resources">Resources</a> <a href="' + fbBase + '#about">About</a>' +
         '</p></div>';
 
-      // Render ALL 66 books INLINE directly into the HTML. This requires ZERO
-      // JavaScript to display, so it works on ancient browsers (IE8/IE9/Vista)
-      // where XHR chunk loading fails. The page is fully server-rendered.
-      let booksHtml = '';
-      for (let bi = 0; bi < BOOK_ORDER.length; bi++) {
-        booksHtml += buildBookHtml(bible, bi);
-      }
-      const body = '<div id="fb-books-target">' + booksHtml + '</div>';
+      // The 6 MB of book text is NOT inlined here — it's loaded in small,
+      // per-book sections by the loader script (see SECTION_SCRIPT below).
+      // We render an empty container the script fills as each book arrives.
+      const body = '<div id="fb-books-target"></div>';
 
       const extras =
         '<div class="fb-book"><a name="gospel" id="gospel"></a><p class="fb-top"><a href="' + fbBase + '#top">&uarr; Back to top</a></p>' + gospelHtml + '</div>' +
         '<div class="fb-book"><a name="resources" id="resources"></a><p class="fb-top"><a href="' + fbBase + '#top">&uarr; Back to top</a></p>' + resourcesHtml + '</div>' +
         '<div class="fb-book"><a name="about" id="about"></a><p class="fb-top"><a href="' + fbBase + '#top">&uarr; Back to top</a></p>' + aboutHtml + '</div>';
 
-      // Serve the download THROUGH this same function (?download=1) so it stays
-      // on the Cloudflare TLS-1.0 origin — reachable by IE9. (base44.app is
-      // TLS-1.2-only and would fail on IE9.)
-      const HTML_FILE_URL = basePath + '?download=1' + (!isCustomHost && appId ? '&app_id=' + encodeURIComponent(appId) : '');
-      const downloadBox = '<div class="dl-box"><b>&#128190; Download this Bible as a single file</b>' +
-        '<p>Save the entire King James Bible (all 66 books, plus Gospel, Resources and About) as one self-contained HTML file. It needs no internet and no app &mdash; ideal for very old computers, or for keeping your own offline copy.</p>' +
-        '<p><a class="dl-btn" href="' + HTML_FILE_URL + '" download="kjb-bible.html">Download HTML File (about 6 MB)</a></p>' +
-        '<p class="dl-how"><b>How to use it:</b> Tap the link above to save the file, then open it by double-tapping &mdash; it works in any browser, even offline. Bookmark it or save it to your Home Screen for quick access. You can also rename it to <i>index.html</i> and upload it to any web host.</p>' +
-        '</div>';
-
       bodyInner = '<a name="top" id="top"></a>' +
-        '<p class="fb-intro">The complete King James Bible on a single page, plus the Gospel, Resources and About sections. Use the quick links to jump to any book instantly.</p>' +
-        downloadBox + index + body + extras;
+        '<p class="fb-intro">The complete King James Bible on a single page, plus the Gospel, Resources and About sections. Use the quick links to jump to any book instantly &mdash; once loaded, navigation works without an internet connection.</p>' +
+        index + body + extras;
     }
 
-    // The Bible is now rendered INLINE (no JS chunk loading), so no loader
-    // script is required — the page works on browsers with JavaScript disabled
-    // or unsupported (IE8/IE9/Vista).
+    // The books are downloaded in small per-book sections via XHR. Each
+    // section is tiny so it downloads reliably on weak connections; the page
+    // is revealed only after ALL books have been assembled. The browser caches
+    // each chunk, so a repeat visit (even offline) reassembles instantly.
+    // Chunk URLs are STABLE (no version stamp). A book's text never changes, so
+    // a fixed URL means the Service Worker's cached copy always matches when
+    // offline — this is essential for offline reliability. (Versioning the
+    // chunk URL was the bug that broke offline loading.)
+    const chunkBase = basePath + '?chunk=';
+    const totalBooks = BOOK_ORDER.length;
+    const SECTION_SCRIPT = '<script>(function(){' +
+      'var BASE=' + JSON.stringify(chunkBase) + ';' +
+      'var TOTAL=' + totalBooks + ';' +
+      'var target=document.getElementById("fb-books-target");' +
+      'var bar=document.getElementById("kjb-bar");' +
+      'var pct=document.getElementById("kjb-pct");' +
+      'var parts=[];var done=0;var loaderShown=false;' +
+      'function reveal(){' +
+        'try{target.innerHTML=parts.join("");}catch(e){}' +
+        'try{if(document.body){document.body.className=document.body.className?document.body.className+" kjb-ready":"kjb-ready";}}catch(e){}' +
+        // Belt-and-braces: hide the loader AND fully remove it, in case some
+        // old browser mishandles dynamic class/style changes.
+        'try{var L=document.getElementById("kjb-loader");if(L){L.style.display="none";if(L.parentNode){L.parentNode.removeChild(L);}}}catch(e){}' +
+        'if(window.location.hash){try{window.location.href=window.location.hash;}catch(e){}}' +
+      '}' +
+      'function makeXHR(){if(window.XMLHttpRequest){return new XMLHttpRequest();}try{return new ActiveXObject("Msxml2.XMLHTTP");}catch(e){}try{return new ActiveXObject("Microsoft.XMLHTTP");}catch(e){}return null;}' +
+      // Each book retries INDEFINITELY until it loads successfully — we NEVER
+      // skip a book and NEVER reveal a partial page. The page only appears once
+      // ALL 66 books are present, so it can't "disappear" into a half-empty
+      // page partway through. A hung request (no readyState 4) is killed after
+      // 15s and retried. Backoff caps at 3s.
+      'function setPct(p){if(p<0)p=0;if(p>100)p=100;if(bar){bar.style.width=p+"%";}if(pct){pct.innerHTML=p+"%";}}' +
+      // i = number of books fully downloaded so far. So progress = i/TOTAL.
+      // Starts at 0 (nothing loaded) and reaches exactly 100 only after the
+      // final book (i===TOTAL) completes.
+      'var revealed=false;' +
+      'function next(i){' +
+        'setPct(Math.round(i*100/TOTAL));' +
+        'if(i>=TOTAL){setPct(100);if(!revealed){revealed=true;reveal();}return;}' +
+        // Yield to the browser (so the progress bar repaints) when the loader
+        // is visible. When chunks are cached we recurse straight through with
+        // no delay so the page appears quickly.
+        'if(loaderShown){setTimeout(function(){load(i,0);},0);}else{load(i,0);}' +
+      '}' +
+      'var warn=document.getElementById("kjb-warn");' +
+      'function showWarn(msg){if(warn){warn.innerHTML=msg;warn.style.display="block";}}' +
+      'function hideWarn(){if(warn){warn.style.display="none";}}' +
+      'function retry(i,tries){' +
+        'var wait=Math.min(700+tries*500,3000);' +
+        'if(pct){pct.innerHTML=Math.round(i*100/TOTAL)+"% (retrying book "+(i+1)+"\\u2026)";}' +
+        // Only after SEVERAL consecutive failures on the same book do we show a
+        // visible warning — a brief blip shouldn\'t flash "not connected".
+        'if(tries>=4){showWarn("&#9888; This is taking a while &mdash; book "+(i+1)+" of "+TOTAL+" is slow to load. Check your internet connection. Still trying&hellip;");}' +
+        'setTimeout(function(){load(i,tries+1);},wait);' +
+      '}' +
+      'function load(i,tries){' +
+        'var xhr=makeXHR();' +
+        'if(!xhr){return;}' +
+        'var settled=false;' +
+        'function fail(){if(settled)return;settled=true;try{xhr.abort();}catch(e){}retry(i,tries);}' +
+        'var killer=setTimeout(fail,15000);' +
+        'xhr.open("GET",BASE+i,true);' +
+        'xhr.onreadystatechange=function(){' +
+          'if(xhr.readyState===4){' +
+            'if(settled)return;' +
+            'var txt=xhr.responseText||"";' +
+            'var okBody=txt.indexOf("fb-book")!==-1 && txt.indexOf("kjb-loader")===-1;' +
+            'if((xhr.status===200||xhr.status===0)&&okBody){' +
+              'settled=true;clearTimeout(killer);hideWarn();parts[i]=txt;next(i+1);' +
+            '}else{' +
+              'settled=true;clearTimeout(killer);retry(i,tries);' +
+            '}' +
+          '}' +
+        '};' +
+        'try{xhr.send(null);}catch(e){clearTimeout(killer);fail();}' +
+      '}' +
+      // Show the loader whenever assembly isn\'t instant — both online
+      // (downloading) and offline (reassembling cached chunks). It reveals
+      // after a short delay so a truly instant cache hit skips it, but offline
+      // loads that take a moment now show a proper loading state instead of a
+      // blank screen.
+      'function isOffline(){try{return navigator&&navigator.onLine===false;}catch(e){return false;}}' +
+      'function showLoader(){if(loaderShown||revealed)return;loaderShown=true;var L=document.getElementById("kjb-loader");if(L){L.style.display="block";}var p=document.getElementById("kjb-loadtext");if(p&&isOffline()){p.innerHTML="Loading the Bible&hellip;";}}' +
+      // Only show the loader if assembly takes longer than 250ms (i.e. chunks
+      // are actually being downloaded). Cached visits assemble instantly and
+      // skip the loader entirely instead of flashing it.
+      'function start(){setTimeout(showLoader,250);setPct(0);next(0);}' +
+      'if(window.addEventListener){window.addEventListener("load",start,false);}else if(window.attachEvent){window.attachEvent("onload",start);}else{window.onload=start;}' +
+    '})();</script>';
 
     const banner = '<div class="banner"><b>&#9888; Legacy mode &mdash; for old browsers like Internet Explorer</b>' +
       'This version is unsupported, may contain bugs, and could have security issues. Please upgrade to a modern browser (Chrome, Firefox, Edge or Safari) &mdash; or upgrade your device &mdash; for the best, most secure experience.' +
       '<ul>' +
-      '<li>Tested on Windows 8.1 (Internet Explorer 11). Does not work on Internet Explorer 9.</li>' +
-      '<li>If pages will not load on a very old computer, use the <b>Download HTML File</b> button below &mdash; it works fully offline in any browser.</li>' +
       '<li>Installing as an app (PWA) is not supported here.</li>' +
-      '<li><b>To find a word or verse:</b> on desktop press <b>Ctrl + F</b> (<b>&#8984; + F</b> on Mac); on mobile open your browser menu and tap <b>Find in page</b>.</li>' +
+      '<li>Search is not supported in legacy mode.</li>' +
       '<li>YouTube videos and some external links may not open or play on old browsers.</li>' +
       '<li>Found a bug? Email <a href="mailto:kingjamesbiblereader@outlook.sg">kingjamesbiblereader@outlook.sg</a>.</li>' +
       '</ul></div>';
 
-    const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>KJB Reader (Legacy)</title><style>' + STYLE + (isDark ? DARK_STYLE : '') + '</style></head><body><div class="hdr"><h1>KJB Reader (Legacy)</h1><p>King James Bible &mdash; Pure Cambridge Edition</p></div>' + banner + '<div class="wrap" id="wrap">' + bodyInner + '</div></body></html>';
+    // For the heavy Full Bible page, hide the page behind a loading overlay
+    // until the whole document has finished parsing (window.onload), so the
+    // user never sees a half-rendered page mid-load.
+    // Mirror the native React splash (PageLoader): centred logo with a soft
+    // pulsing glow, a spinning ring, and the small uppercase caption — plus the
+    // chunked progress bar underneath. Colours follow the app's indigo theme.
+    const loaderBg = isDark ? '#1a1a1e' : '#f5f5f7';
+    const loaderFg = isDark ? '#e5e5e5' : '#1a1a1a';
+    const spinnerCol = isDark ? '#7c7ceb' : '#2d2a6e';
+    const loaderStyle =
+      // Loader starts HIDDEN — the script only reveals it if loading runs past
+      // 600ms (real download). Cached/offline loads finish faster and skip it.
+      '#kjb-loader{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;overflow:auto;background:' + loaderBg + ';color:' + loaderFg + ';font-family:Arial,sans-serif;text-align:center;display:none;padding:0 24px;}' +
+      '#kjb-loader .kjb-center{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 0;}' +
+      '#kjb-loader h2{font-size:20px;color:' + spinnerCol + ';margin-bottom:8px;}' +
+      '#kjb-loader p{font-size:14px;color:' + (isDark ? '#aaa' : '#666') + ';margin-bottom:24px;}' +
+      '#kjb-progress{max-width:280px;width:100%;margin:0 auto 8px;height:10px;background:' + (isDark ? '#2a2a33' : '#e0e0ec') + ';border-radius:9999px;overflow:hidden;}' +
+      '#kjb-bar{height:100%;width:0;background:' + spinnerCol + ';transition:width 0.2s ease;}' +
+      '#kjb-pct{font-size:14px;font-weight:bold;color:' + spinnerCol + ';}' +
+      '#kjb-warn{display:none;max-width:380px;margin:16px auto 0;padding:9px 13px;border:1px solid ' + (isDark ? '#5a3a3a' : '#e9c4c4') + ';border-radius:8px;background:' + (isDark ? '#2a1a1a' : '#fdf0f0') + ';font-size:12px;line-height:1.5;color:' + (isDark ? '#f0b8b8' : '#b02525') + ';}' +
+      '#kjb-loader .kjb-loader-banner{max-width:480px;margin:28px auto 0;text-align:left;}' +
+      'body.kjb-ready #kjb-loader{display:none;}body:not(.kjb-ready) #wrap,body:not(.kjb-ready) .banner,body:not(.kjb-ready) .hdr{visibility:hidden;}';
+    const upgradeWarn = '<div style="max-width:420px;margin:18px auto 0;padding:10px 14px;border:1px solid ' + (isDark ? '#3a3d4a' : '#c9c7e0') + ';border-radius:8px;background:' + (isDark ? '#1a1a22' : '#f3f2fb') + ';font-size:12px;line-height:1.5;color:' + (isDark ? '#c0c0c8' : '#555') + ';text-align:center;">&#9888; Using an old or unsupported device or browser? Some features may not work &mdash; please upgrade to the latest browser or device for the best experience.</div>';
+    const loaderHtml =
+      '<div id="kjb-loader"><div class="kjb-center">' +
+        '<img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" style="width:96px;height:96px;object-fit:contain;margin-bottom:20px;" />' +
+        '<h2>KJB Reader (Legacy)</h2>' +
+        '<p id="kjb-loadtext">Downloading the Bible&hellip;</p>' +
+        '<div id="kjb-progress"><div id="kjb-bar"></div></div>' +
+        '<div id="kjb-pct">0%</div>' +
+        '<div id="kjb-warn"></div>' +
+      '</div></div>';
+
+    const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>KJB Reader (Legacy)</title><style>' + STYLE + (isDark ? DARK_STYLE : '') + loaderStyle + '</style></head><body>' + loaderHtml + '<div class="hdr"><h1>KJB Reader (Legacy)</h1><p>King James Bible &mdash; Pure Cambridge Edition</p></div>' + banner + '<div class="wrap" id="wrap">' + bodyInner + '</div>' + SECTION_SCRIPT + '</body></html>';
 
     return new Response(html, { headers: {
       'Content-Type': 'text/html;charset=UTF-8',

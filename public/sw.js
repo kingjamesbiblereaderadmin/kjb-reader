@@ -1,7 +1,7 @@
-// KJB Reader Service Worker v20260611_351
+// KJB Reader Service Worker v20260610_280
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260611_351';
+const CACHE_NAME = 'kjb-reader-v20260610_301';
 // Bumped to purge any partially-cached legacy chunks so every client re-caches
 // the full Bible fresh to 100% on the next online visit.
 const LEGACY_CACHE_NAME = 'kjb-legacy-v4';
@@ -170,12 +170,9 @@ self.addEventListener('fetch', (event) => {
       
       // Not in cache - fetch from network
       return fetch(request).then((response) => {
-        // Don't cache non-successful responses (status 0 = opaque/CORS, skip silently)
-        if (!response.ok && response.status !== 0) {
+        // Don't cache non-successful responses
+        if (!response.ok) {
           console.log('[SW] Network response not ok:', response.status);
-          return response;
-        }
-        if (response.status === 0) {
           return response;
         }
 
