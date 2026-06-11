@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Database, Server, Cloud, Wifi, WifiOff, HardDrive, Trash2, RefreshCw, CheckCircle, XCircle, Loader2, BookOpen, Copy } from 'lucide-react';
+import { Database, Server, Cloud, Wifi, WifiOff, HardDrive, Trash2, RefreshCw, CheckCircle, XCircle, Loader2, BookOpen, Copy, Play } from 'lucide-react';
+import SplashScreen from '@/components/SplashScreen';
 import { isBibleCached, clearBibleCache, downloadBibleForOffline, CACHE_VERSION, getBibleData } from '@/lib/bibleCache';
 
+const SPLASH_SCENARIOS = [
+  { mode: 'first_load', label: 'First Time Load', description: 'Loading + Bible download + update check + Welcome' },
+  { mode: 'subsequent', label: 'Subsequent Load', description: 'Loading + update check (no updates) + Welcome back' },
+  { mode: 'subsequent_with_updates', label: 'Subsequent + Updates', description: 'Loading + update check + found updates + install + apply + Welcome back' },
+  { mode: 'home_update', label: 'Home Screen Update', description: 'Loading + found app update + install + apply + Welcome back' },
+];
+
 export default function DebugPage() {
+  const [splashMode, setSplashMode] = useState(null);
   const [cacheStatus, setCacheStatus] = useState(null);
   const [bibleCached, setBibleCached] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator?.onLine ?? true);
@@ -385,6 +394,45 @@ export default function DebugPage() {
           <p className="font-sans text-sm text-muted-foreground">No Bible data loaded</p>
         )}
       </div>
+
+      {/* Splash Screen Tester */}
+      <div className="bg-card border border-border rounded-2xl mb-6 p-5">
+        <div className="flex items-center gap-3 mb-2">
+          <Play className="w-5 h-5 text-muted-foreground" />
+          <h2 className="font-serif text-lg font-bold text-foreground">Splash Screen Tester</h2>
+        </div>
+        <p className="font-sans text-xs text-muted-foreground mb-4">Preview each splash screen scenario. Each step pauses for 10 seconds. Press Dismiss or wait for the sequence to finish.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {SPLASH_SCENARIOS.map(({ mode, label, description }) => (
+            <button
+              key={mode}
+              onClick={() => setSplashMode(mode)}
+              className="flex flex-col items-start gap-1 px-4 py-3 rounded-xl border border-border bg-secondary hover:bg-accent/20 transition-all text-left"
+            >
+              <span className="font-sans text-sm font-semibold text-foreground">{label}</span>
+              <span className="font-sans text-xs text-muted-foreground">{description}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Splash Screen Preview */}
+      {splashMode && (
+        <SplashScreen
+          key={splashMode + Date.now()}
+          mode={splashMode}
+          isFadingOut={false}
+          onDone={() => setSplashMode(null)}
+        />
+      )}
+      {splashMode && (
+        <button
+          onClick={() => setSplashMode(null)}
+          className="fixed bottom-6 right-6 z-[9999999] px-5 py-2.5 rounded-full bg-foreground text-background font-sans text-sm font-semibold shadow-xl hover:opacity-80 transition-all"
+        >
+          Dismiss
+        </button>
+      )}
 
       {/* Actions */}
       <div className="bg-card border border-border rounded-2xl p-5">
