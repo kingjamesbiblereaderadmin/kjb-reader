@@ -10,6 +10,7 @@ import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import ShortcutsModal from '@/components/ShortcutsModal';
 import ScrollToTop from '@/components/ScrollToTop';
 import AutoUpdateHandler from '@/components/AutoUpdateHandler';
+import ProgressBar from '@/components/ProgressBar';
 
 import { getBibleData, isBibleCached, initPeriodicCacheRefresh, downloadBibleForOffline, refreshCacheIfDue, CACHE_VERSION } from '@/lib/bibleCache';
 import { toast } from 'sonner';
@@ -360,7 +361,7 @@ export default function AppLayout() {
       {/* Scroll to top button - appears on all pages when scrolling */}
       <ScrollToTop />
 
-
+      <ProgressBar />
 
       <DesktopFooter navigate={navigate} setMenuOpen={setMenuOpen} />
 
