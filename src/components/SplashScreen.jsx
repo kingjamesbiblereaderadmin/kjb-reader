@@ -64,9 +64,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
       while (checkRound < maxChecks) {
         checkRound++;
 
-        // For modes starting with updates, skip first "Checking"
+        // For home_update mode: skip "Checking" on first round, go straight to "Found updates"
+        // For other modes: always check first
         if (skipLoading && checkRound === 1) {
-          // Already know there are updates
+          // Skip checking, assume updates found
         } else {
           setStep('Checking for updates…');
           await pause(STEP_PAUSE_MS);
