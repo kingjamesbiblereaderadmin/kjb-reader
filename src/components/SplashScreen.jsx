@@ -69,8 +69,8 @@ async function detectSwUpdate() {
       setTimeout(() => { reg.removeEventListener('updatefound', onFound); resolve(false); }, 4000);
     });
 
-    console.log('[SplashScreen] detectSwUpdate result:', hasUpdate, '| waiting:', !!reg.waiting, '| controller:', !!navigator.serviceWorker.controller);
-    return { hasUpdate: hasUpdate && !!navigator.serviceWorker.controller, reg };
+    console.log('[SplashScreen] detectSwUpdate result:', hasUpdate, '| waiting:', !!reg.waiting, '| installing:', !!reg.installing, '| controller:', !!navigator.serviceWorker.controller);
+    return { hasUpdate, reg };
   } catch (e) {
     console.error('[SplashScreen] detectSwUpdate error:', e);
     return { hasUpdate: false };
