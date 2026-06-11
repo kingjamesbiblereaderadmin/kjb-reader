@@ -163,8 +163,8 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
         </div>
 
         {/* Spinner + updating text */}
-        <div className="flex items-center gap-3">
-          <Loader2 className="w-4 h-4 animate-spin text-primary/60 flex-shrink-0" style={{ animationDuration: '1.5s' }} />
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-5 h-5 animate-spin text-primary/60" style={{ animationDuration: '1.5s' }} />
           <span className="font-sans text-sm text-foreground/70 tracking-wide transition-all duration-300">
             {currentMessage}
           </span>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Database, Server, Cloud, Wifi, WifiOff, HardDrive, Trash2, RefreshCw, CheckCircle, XCircle, Loader2, BookOpen, Copy, Play } from 'lucide-react';
+import { Database, Server, Cloud, Wifi, WifiOff, HardDrive, Trash2, RefreshCw, CheckCircle, XCircle, Loader2, BookOpen, Copy, Play, Code } from 'lucide-react';
 import SplashScreen from '@/components/SplashScreen';
 import { isBibleCached, clearBibleCache, downloadBibleForOffline, CACHE_VERSION, getBibleData } from '@/lib/bibleCache';
 
@@ -10,8 +10,16 @@ const SPLASH_SCENARIOS = [
   { mode: 'home_update', label: 'Home Screen Update', description: 'Loading + found app update + install + apply + Welcome back' },
 ];
 
+const SPLASH_CODE_SNIPPETS = {
+  first_load: `<SplashScreen mode="first_load" isFadingOut={false} onDone={() => {}} />`,
+  subsequent: `<SplashScreen mode="subsequent" isFadingOut={false} onDone={() => {}} />`,
+  subsequent_with_updates: `<SplashScreen mode="subsequent_with_updates" isFadingOut={false} onDone={() => {}} />`,
+  home_update: `<SplashScreen mode="home_update" isFadingOut={false} onDone={() => {}} />`,
+};
+
 export default function DebugPage() {
   const [splashMode, setSplashMode] = useState(null);
+  const [copiedCode, setCopiedCode] = useState(null);
   const [cacheStatus, setCacheStatus] = useState(null);
   const [bibleCached, setBibleCached] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator?.onLine ?? true);
@@ -404,14 +412,34 @@ export default function DebugPage() {
         <p className="font-sans text-xs text-muted-foreground mb-4">Preview each splash screen scenario. Each step pauses for 10 seconds. Press Dismiss or wait for the sequence to finish.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {SPLASH_SCENARIOS.map(({ mode, label, description }) => (
-            <button
+            <div
               key={mode}
-              onClick={() => setSplashMode(mode)}
-              className="flex flex-col items-start gap-1 px-4 py-3 rounded-xl border border-border bg-secondary hover:bg-accent/20 transition-all text-left"
+              className="flex flex-col gap-2 px-4 py-3 rounded-xl border border-border bg-secondary"
             >
-              <span className="font-sans text-sm font-semibold text-foreground">{label}</span>
-              <span className="font-sans text-xs text-muted-foreground">{description}</span>
-            </button>
+              <button
+                onClick={() => setSplashMode(mode)}
+                className="flex flex-col items-start gap-0.5 text-left hover:opacity-80 transition-opacity"
+              >
+                <span className="font-sans text-sm font-semibold text-foreground">{label}</span>
+                <span className="font-sans text-xs text-muted-foreground">{description}</span>
+              </button>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 font-mono text-xs bg-background/70 border border-border rounded px-2 py-1 text-foreground/70 truncate">
+                  {SPLASH_CODE_SNIPPETS[mode]}
+                </code>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(SPLASH_CODE_SNIPPETS[mode]);
+                    setCopiedCode(mode);
+                    setTimeout(() => setCopiedCode(null), 2000);
+                  }}
+                  className="flex-shrink-0 p-1.5 rounded-md bg-background border border-border hover:bg-accent/20 transition-all"
+                  title="Copy code"
+                >
+                  {copiedCode === mode ? <CheckCircle className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5 text-muted-foreground" />}
+                </button>
+              </div>
+            </div>
           ))}
         </div>
       </div>
