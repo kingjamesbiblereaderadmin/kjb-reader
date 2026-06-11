@@ -47,9 +47,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         setStep('LOADING KJB READER...');
         await pause(STEP_PAUSE_MS);
 
-        // 2. Check if Bible is already cached
-        const { isBibleCached, downloadBibleForOffline } = await import('@/lib/bibleCache');
-        const alreadyCached = await isBibleCached().catch(() => false);
+        // 2. Check if Bible is already cached (use localStorage version check for reliability)
+        const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+        const cachedVersion = localStorage.getItem('bible_cache_version');
+        const alreadyCached = !!cachedVersion;
         
         if (!detectedIncognito && !alreadyCached) {
           // 2. Downloading offline data (only if not already cached)
@@ -63,7 +64,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         } else if (detectedIncognito) {
           console.log('[Splash] Incognito mode detected — skipping offline download');
         } else {
-          console.log('[Splash] Bible already cached — skipping download');
+          console.log('[Splash] Bible already cached (version:', cachedVersion, ') — skipping download');
         }
 
         // 3. Checking for updates
