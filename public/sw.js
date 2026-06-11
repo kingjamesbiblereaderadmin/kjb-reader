@@ -233,7 +233,6 @@ self.addEventListener('message', (event) => {
 
 // Notify all open tabs when a new service worker is installed
 self.addEventListener('install', (event) => {
-  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[SW] Caching app shell');
@@ -242,12 +241,17 @@ self.addEventListener('install', (event) => {
         return Promise.resolve();
       });
     }).then(() => {
-      // Notify all open clients about the update
+      // Notify all open clients about the update BEFORE skipping waiting
+      console.log('[SW] Sending UPDATE_FOUND to all clients');
       return self.clients.matchAll().then(clients => {
         clients.forEach(client => {
           client.postMessage({ type: 'UPDATE_FOUND' });
         });
       });
+    }).then(() => {
+      // Now skip waiting to activate immediately
+      console.log('[SW] Skipping waiting');
+      return self.skipWaiting();
     })
   );
 });
