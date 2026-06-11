@@ -303,7 +303,7 @@ const AuthenticatedApp = () => {
 
         // Check for Bible data update (version mismatch in localStorage)
         const localBibleVersion = (() => { try { return localStorage.getItem('bible_cache_version'); } catch { return null; } })();
-        const CURRENT_BIBLE_VERSION = 'v20260611_329';
+        const CURRENT_BIBLE_VERSION = 'v20260611_332';
         const hasBibleUpdate = localBibleVersion && localBibleVersion !== CURRENT_BIBLE_VERSION;
         // Include swUpdateDetected/controllerChanged to catch cases where skipWaiting()
         // caused the new SW to activate before we could read reg.waiting.
@@ -397,12 +397,29 @@ const AuthenticatedApp = () => {
           } else {
             console.log('[KJB Splash] ⚠️ No target worker to send SKIP_WAITING to');
           }
-          // Re-check after SW update applied in case Bible data also needs updating
-          await new Promise(r => setTimeout(r, 1000));
+          // Re-check after SW update: Bible data may also need updating
+          emit('Checking for updates...');
+          console.log('[KJB Splash] 🔁 Re-check after SW update — looking for Bible data updates...');
+          await new Promise(r => setTimeout(r, 700));
           await reg.update().catch(() => {});
           const postSwWaiting = reg.waiting;
           const postSwInstalling = reg.installing;
           console.log('[KJB Splash] 🔁 Re-check after SW update — waiting:', !!postSwWaiting, '| installing:', !!postSwInstalling);
+
+          // Check if Bible data also needs a re-download
+          const postSwLocalBibleVersion = (() => { try { return localStorage.getItem('bible_cache_version'); } catch { return null; } })();
+          const postSwHasBibleUpdate = postSwLocalBibleVersion && postSwLocalBibleVersion !== CURRENT_BIBLE_VERSION;
+          console.log('[KJB Splash] Post-SW Bible version check — local:', postSwLocalBibleVersion, '| current:', CURRENT_BIBLE_VERSION, '| needs update:', postSwHasBibleUpdate);
+
+          if (postSwHasBibleUpdate) {
+            console.log('[KJB Splash] 📖 Bible data also needs updating after SW update');
+            emit('Installing updates...');
+            await new Promise(r => setTimeout(r, 700));
+            emit('Applying updates...');
+            console.log('[KJB Splash] 🔄 Bible data will re-download in background');
+            await new Promise(r => setTimeout(r, 600));
+          }
+
           setTimeout(() => { if (!cancelled) setUpdateCheckDone(true); }, 3000);
           return;
         }
