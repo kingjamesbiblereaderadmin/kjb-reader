@@ -377,6 +377,21 @@ Deno.serve(async (req) => {
     // ── CHUNK MODE: ?chunk=N returns just book N's HTML (small, cacheable) ──
     // The shell page below fetches these one-by-one so each download is small
     // and reliable even on a weak connection.
+    // ── DOWNLOAD MODE: ?download=1 streams the self-contained single-file
+    // Bible THROUGH this function (same Cloudflare TLS-1.0 origin) so IE9 users
+    // — who cannot reach base44.app's TLS-1.2-only host — can still get it. ──
+    if (url.searchParams.get('download') === '1') {
+      const FILE_URL = 'https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/efdf106f1_kjb-legacy-reader.html';
+      const fileRes = await fetch(FILE_URL);
+      if (!fileRes.ok) return new Response('Download unavailable', { status: 502 });
+      const fileBody = await fileRes.arrayBuffer();
+      return new Response(fileBody, { headers: {
+        'Content-Type': 'text/html;charset=UTF-8',
+        'Content-Disposition': 'attachment; filename="kjb-bible.html"',
+        'Cache-Control': 'public, max-age=31536000, immutable'
+      } });
+    }
+
     const chunkParam = url.searchParams.get('chunk');
     if (chunkParam !== null) {
       const bi = parseInt(chunkParam, 10);
@@ -615,7 +630,10 @@ Deno.serve(async (req) => {
         '<div class="fb-book"><a name="resources" id="resources"></a><p class="fb-top"><a href="' + fbBase + '#top">&uarr; Back to top</a></p>' + resourcesHtml + '</div>' +
         '<div class="fb-book"><a name="about" id="about"></a><p class="fb-top"><a href="' + fbBase + '#top">&uarr; Back to top</a></p>' + aboutHtml + '</div>';
 
-      const HTML_FILE_URL = 'https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/efdf106f1_kjb-legacy-reader.html';
+      // Serve the download THROUGH this same function (?download=1) so it stays
+      // on the Cloudflare TLS-1.0 origin — reachable by IE9. (base44.app is
+      // TLS-1.2-only and would fail on IE9.)
+      const HTML_FILE_URL = basePath + '?download=1' + (appId ? '&app_id=' + encodeURIComponent(appId) : '');
       const downloadBox = '<div class="dl-box"><b>&#128190; Download this Bible as a single file</b>' +
         '<p>Save the entire King James Bible (all 66 books, plus Gospel, Resources and About) as one self-contained HTML file. It needs no internet and no app &mdash; ideal for very old computers, or for keeping your own offline copy.</p>' +
         '<p><a class="dl-btn" href="' + HTML_FILE_URL + '" download="kjb-bible.html">Download HTML File (about 6 MB)</a></p>' +
@@ -634,7 +652,8 @@ Deno.serve(async (req) => {
     const banner = '<div class="banner"><b>&#9888; Legacy mode &mdash; for old browsers like Internet Explorer</b>' +
       'This version is unsupported, may contain bugs, and could have security issues. Please upgrade to a modern browser (Chrome, Firefox, Edge or Safari) &mdash; or upgrade your device &mdash; for the best, most secure experience.' +
       '<ul>' +
-      '<li>Tested on Windows 8.1 (Internet Explorer 11). Does not work on Internet Explorer 9.</li>' +
+      '<li>For Internet Explorer 9 on Windows 7: open Internet Options &rarr; Advanced &rarr; Security and tick <b>"Use TLS 1.0"</b>, then reload. Windows Vista cannot connect.</li>' +
+      '<li>If pages will not load on a very old computer, use the <b>Download HTML File</b> button above &mdash; it works fully offline in any browser.</li>' +
       '<li>Installing as an app (PWA) is not supported here.</li>' +
       '<li>Search is not supported in legacy mode.</li>' +
       '<li>YouTube videos and some external links may not open or play on old browsers.</li>' +
