@@ -108,18 +108,28 @@ const _isFirstVisit = (() => {
   try { return !localStorage.getItem('kjb-has-visited-app'); } catch { return false; }
 })();
 
-// Print persisted splash logs from previous runs so they survive page reloads
+// Print persisted splash logs from ALL previous runs on every load
 try {
   const prev = JSON.parse(localStorage.getItem('kjb-splash-log') || '[]');
+  const label = prev.length
+    ? `[KJB Splash History] ${prev.length} run(s) on record`
+    : '[KJB Splash History] No previous runs recorded';
+  console.group(label);
   if (prev.length) {
-    console.groupCollapsed(`[KJB Splash History] Last ${prev.length} run(s)`);
     prev.forEach((run, i) => {
-      console.group(`Run ${i + 1}: ${run.at}`);
+      const outcome = run.log.some(l => l.includes('Updated') || l.includes('🔄'))
+        ? '🔄 Updated'
+        : run.log.some(l => l.includes('Error') || l.includes('❌'))
+          ? '❌ Error'
+          : '✅ No updates';
+      console.groupCollapsed(`Run ${i + 1} [${outcome}] — ${run.at}`);
       run.log.forEach(l => console.log(l));
       console.groupEnd();
     });
-    console.groupEnd();
+  } else {
+    console.log('(No splash history saved yet)');
   }
+  console.groupEnd();
 } catch {}
 
 const PageLoader = ({ isFadingOut, welcomeText, staticText }) => {
@@ -266,7 +276,7 @@ const AuthenticatedApp = () => {
       // Print a concise summary to the console
       const last = splashLog[splashLog.length - 1] || '';
       const outcome = last.includes('No updates') ? '✅ No updates' : last.includes('Error') ? '❌ Error' : '🔄 Updated';
-      const swVer = 'v20260611_345';
+      const swVer = 'v20260611_346';
       const bibleVer = (() => { try { return localStorage.getItem('bible_cache_version') || '(none)'; } catch { return '(none)'; } })();
       console.groupCollapsed(`[KJB Splash] ${outcome} — SW: ${swVer} | Bible: ${bibleVer} — ${splashLog.length} step(s)`);
       splashLog.forEach(l => console.log(l));
@@ -278,7 +288,7 @@ const AuthenticatedApp = () => {
     };
 
     const check = async () => {
-      const swVer = 'v20260611_345';
+      const swVer = 'v20260611_346';
       const bibleVerAtStart = (() => { try { return localStorage.getItem('bible_cache_version') || '(none)'; } catch { return '(none)'; } })();
       console.log(`[KJB Splash] 🚦 Update check starting — SW: ${swVer} | Bible: ${bibleVerAtStart}`);
       if (!('serviceWorker' in navigator)) {
@@ -537,25 +547,22 @@ const AuthenticatedApp = () => {
         window.kjbSplashDone = true;
         window.dispatchEvent(new Event('kjb-splash-done'));
 
-        // App is now loaded — print a summary of ALL splash runs (including
-        // ones that ran before the most recent reload) so the full update
-        // history is visible in the console after updates are applied.
+        // Print full splash history to console now that this run is complete
         try {
-          const runs = JSON.parse(localStorage.getItem('kjb-splash-log') || '[]');
-          if (runs.length) {
-            console.groupCollapsed(`[KJB Splash Summary] ✅ App loaded — ${runs.length} run(s) recorded`);
-            runs.forEach((run, i) => {
-              console.group(`Run ${i + 1}: ${run.at}`);
-              run.log.forEach(l => console.log(l));
-              console.groupEnd();
-            });
+          const allRuns = JSON.parse(localStorage.getItem('kjb-splash-log') || '[]');
+          console.group(`[KJB Splash Summary] ${allRuns.length} run(s) on record`);
+          allRuns.forEach((run, i) => {
+            const outcome = run.log.some(l => l.includes('🔄 Updated') || (!l.includes('No updates') && l.includes('update')))
+              ? '🔄 Updated'
+              : run.log.some(l => l.includes('❌'))
+                ? '❌ Error'
+                : '✅ No updates';
+            console.groupCollapsed(`Run ${i + 1} [${outcome}] — ${run.at}`);
+            run.log.forEach(l => console.log(l));
             console.groupEnd();
-          } else {
-            console.log('[KJB Splash Summary] ✅ App loaded — no splash runs recorded');
-          }
-        } catch (e) {
-          console.warn('[KJB Splash Summary] Could not read splash history:', e.message);
-        }
+          });
+          console.groupEnd();
+        } catch {}
 
         // Final background SW check after splash — ensures any newly-deployed
         // SW that arrived while the app was loading gets registered for next visit.
