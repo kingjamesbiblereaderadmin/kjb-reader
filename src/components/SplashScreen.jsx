@@ -13,14 +13,12 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
 
 
-  const setStep = (message, fireBanner = false) => {
+  const setStep = (message) => {
     stepsLog.current.push(message);
     setCurrentMessage(message);
     console.log('[KJB Splash]', message);
-    // Only fire progress banner for real work (downloading/installing), not for status checks
-    if (fireBanner) {
-      window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message, status: 'loading' } }));
-    }
+    // Fire progress banner for all splash steps
+    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message, status: message.includes('WELCOME') ? 'success' : 'loading' } }));
   };
 
   const pause = (ms) => new Promise(r => setTimeout(r, ms));
@@ -68,7 +66,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
       // === FIRST LOAD FLOW ===
       if (isFirstVisit) {
-        // 1. Loading (no banner - just splash)
+        // 1. Loading
         setStep('LOADING KJB READER...');
         await pause(STEP_PAUSE_MS);
 
@@ -78,8 +76,8 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         const alreadyCached = !!cachedVersion;
         
         if (!detectedIncognito && !alreadyCached) {
-          // 2. Downloading offline data (only if not already cached) - FIRE BANNER
-          setStep('DOWNLOADING OFFLINE DATA...', true);
+          // 2. Downloading offline data (only if not already cached)
+          setStep('DOWNLOADING OFFLINE DATA...');
           try {
             await downloadBibleForOffline();
           } catch (err) {
@@ -92,7 +90,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           console.log('[Splash] Bible already cached (version:', cachedVersion, ') — skipping download');
         }
 
-        // 3. Checking for updates (no banner - just splash)
+        // 3. Checking for updates
         setStep('CHECKING FOR UPDATES...');
         await pause(STEP_PAUSE_MS);
 
@@ -117,12 +115,12 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         }
 
         if (hasUpdates) {
-          // 4. Found updates - FIRE BANNER
-          setStep('FOUND UPDATES.', true);
+          // 4. Found updates
+          setStep('FOUND UPDATES.');
           await pause(STEP_PAUSE_MS);
 
-          // 5. Installing updates - FIRE BANNER
-          setStep('INSTALLING UPDATES...', true);
+          // 5. Installing updates
+          setStep('INSTALLING UPDATES...');
           try {
             const { downloadBibleForOffline } = await import('@/lib/bibleCache');
             await downloadBibleForOffline();
@@ -131,8 +129,8 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           }
           await pause(STEP_PAUSE_MS);
 
-          // 6. Applying updates - FIRE BANNER
-          setStep('APPLYING UPDATES...', true);
+          // 6. Applying updates
+          setStep('APPLYING UPDATES...');
           await pause(STEP_PAUSE_MS);
 
           // Activate service worker
@@ -143,21 +141,21 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
             } catch {}
           }
 
-          // 7. Check again (loop) (no banner)
+          // 7. Check again (loop)
           setStep('CHECKING FOR UPDATES...');
           await pause(STEP_PAUSE_MS);
         } else {
-          // No updates (no banner)
+          // No updates
           setStep('NO UPDATES FOUND.');
           await pause(STEP_PAUSE_MS);
         }
 
-        // 8. Welcome - FIRE BANNER (success)
+        // 8. Welcome
         if (detectedIncognito) {
-          setStep('WELCOME.', true);
+          setStep('WELCOME.');
           window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME.', status: 'success' } }));
         } else {
-          setStep('WELCOME TO KJB READER.', true);
+          setStep('WELCOME TO KJB READER.');
           window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME TO KJB READER.', status: 'success' } }));
         }
         await pause(STEP_PAUSE_MS);
@@ -172,11 +170,11 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
       // === SUBSEQUENT VISIT FLOW ===
       if (!isHomeUpdate) {
-        // 1. Loading (no banner)
+        // 1. Loading
         setStep('LOADING KJB READER...');
         await pause(STEP_PAUSE_MS);
 
-        // 2. Checking for updates (no banner)
+        // 2. Checking for updates
         setStep('CHECKING FOR UPDATES...');
         await pause(STEP_PAUSE_MS);
 
@@ -200,12 +198,12 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         }
 
         if (hasUpdates) {
-          // 3. Found updates - FIRE BANNER
-          setStep('FOUND UPDATES.', true);
+          // 3. Found updates
+          setStep('FOUND UPDATES.');
           await pause(STEP_PAUSE_MS);
 
-          // 4. Installing updates - FIRE BANNER
-          setStep('INSTALLING UPDATES...', true);
+          // 4. Installing updates
+          setStep('INSTALLING UPDATES...');
           try {
             const { downloadBibleForOffline } = await import('@/lib/bibleCache');
             await downloadBibleForOffline();
@@ -214,8 +212,8 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           }
           await pause(STEP_PAUSE_MS);
 
-          // 5. Applying updates - FIRE BANNER
-          setStep('APPLYING UPDATES...', true);
+          // 5. Applying updates
+          setStep('APPLYING UPDATES...');
           await pause(STEP_PAUSE_MS);
 
           // Activate service worker
@@ -226,18 +224,17 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
             } catch {}
           }
 
-          // 6. Check again (loop if more updates) (no banner)
+          // 6. Check again (loop if more updates)
           setStep('CHECKING FOR UPDATES...');
           await pause(STEP_PAUSE_MS);
         } else {
-          // No updates (no banner)
+          // No updates
           setStep('NO UPDATES FOUND.');
           await pause(STEP_PAUSE_MS);
         }
 
-        // 7. Welcome back - FIRE BANNER (success)
-        setStep('WELCOME BACK TO KJB READER.', true);
-        window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME BACK TO KJB READER.', status: 'success' } }));
+        // 7. Welcome back
+        setStep('WELCOME BACK TO KJB READER.');
         await pause(STEP_PAUSE_MS);
         window.dispatchEvent(new Event('kjb-progress-clear'));
 
@@ -252,12 +249,12 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
       if (isHomeUpdate) {
         // Set has-visited flag
         localStorage.setItem('kjb-has-visited-app', 'true');
-        // 1. Found updates (skip loading/checking) - FIRE BANNER
-        setStep('FOUND UPDATES.', true);
+        // 1. Found updates (skip loading/checking)
+        setStep('FOUND UPDATES.');
         await pause(STEP_PAUSE_MS);
 
-        // 2. Installing updates - FIRE BANNER
-        setStep('INSTALLING UPDATES...', true);
+        // 2. Installing updates
+        setStep('INSTALLING UPDATES...');
         try {
           const { downloadBibleForOffline } = await import('@/lib/bibleCache');
           await downloadBibleForOffline();
@@ -266,8 +263,8 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         }
         await pause(STEP_PAUSE_MS);
 
-        // 3. Applying updates - FIRE BANNER
-        setStep('APPLYING UPDATES...', true);
+        // 3. Applying updates
+        setStep('APPLYING UPDATES...');
         await pause(STEP_PAUSE_MS);
 
         // Activate service worker
@@ -278,7 +275,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           } catch {}
         }
 
-        // 4. Checking for updates (repeat if found) - NO BANNER
+        // 4. Checking for updates (repeat if found)
         setStep('CHECKING FOR UPDATES...');
         await pause(STEP_PAUSE_MS);
 
@@ -291,10 +288,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         }
 
         if (hasMoreUpdates) {
-          // Loop: Found → Installing → Applying → Checking - FIRE BANNERS
-          setStep('FOUND UPDATES.', true);
+          // Loop: Found → Installing → Applying → Checking
+          setStep('FOUND UPDATES.');
           await pause(STEP_PAUSE_MS);
-          setStep('INSTALLING UPDATES...', true);
+          setStep('INSTALLING UPDATES...');
           try {
             const { downloadBibleForOffline } = await import('@/lib/bibleCache');
             await downloadBibleForOffline();
@@ -302,7 +299,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
             console.error('[Splash] Data install failed:', err.message);
           }
           await pause(STEP_PAUSE_MS);
-          setStep('APPLYING UPDATES...', true);
+          setStep('APPLYING UPDATES...');
           await pause(STEP_PAUSE_MS);
           if ('serviceWorker' in navigator) {
             try {
@@ -310,14 +307,13 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
               if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
             } catch {}
           }
-          // Check again after applying - NO BANNER
+          // Check again after applying
           setStep('CHECKING FOR UPDATES...');
           await pause(STEP_PAUSE_MS);
         }
 
-        // 5. Welcome back - FIRE BANNER (success)
-        setStep('WELCOME BACK TO KJB READER.', true);
-        window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME BACK TO KJB READER.', status: 'success' } }));
+        // 5. Welcome back
+        setStep('WELCOME BACK TO KJB READER.');
         await pause(STEP_PAUSE_MS);
         window.dispatchEvent(new Event('kjb-progress-clear'));
 
