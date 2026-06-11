@@ -122,14 +122,37 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
     };
 
     const run = async () => {
-      const isFirstVisit = mode === 'first_load' || (mode === 'auto' && checkIsFirstVisit());
       log.current = ['Loading…'];
 
+      // ── TEST MODES (simulated, no real SW/network ops) ──
+      if (mode === 'first_load') {
+        await show('Downloading offline Bible data…');
+        await new Promise(r => setTimeout(r, 1200)); // simulate download
+        await show('Checking for updates…');
+        await show('No updates found.');
+        await show(`Welcome to ${APP_NAME}.`);
+        if (!cancelled && !doneRef.current) { doneRef.current = true; onDone?.(); }
+        return;
+      }
+      if (mode === 'subsequent_with_updates') {
+        await show('Checking for updates…');
+        await show('Found app updates.');
+        await show('Installing updates…');
+        await new Promise(r => setTimeout(r, 1200));
+        await show('Applying updates…');
+        await show('Checking for updates…');
+        await show('No updates found.');
+        await show(`Welcome back to ${APP_NAME}.`);
+        if (!cancelled && !doneRef.current) { doneRef.current = true; onDone?.(); }
+        return;
+      }
+
+      const isFirstVisit = mode === 'auto' && checkIsFirstVisit();
       let reg = await getSwRegistration();
 
       if (isFirstVisit) {
-        // ── FIRST LOAD ──
-        if (mode === 'auto') markVisited();
+        // ── FIRST LOAD (real) ──
+        markVisited();
         await show('Downloading offline Bible data…');
         await downloadOfflineData();
         await show('Checking for updates…');
