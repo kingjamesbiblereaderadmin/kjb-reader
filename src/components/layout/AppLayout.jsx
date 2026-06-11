@@ -278,7 +278,7 @@ export default function AppLayout() {
                   setMenuOpen(false);
                   scrollMainToTop();
                 }}
-                className="flex items-center justify-center w-10 h-12 rounded-xl hover:bg-secondary/50 active:bg-secondary transition-colors text-foreground touch-manipulation cursor-pointer"
+                className="flex items-center justify-center w-10 h-12 hover:bg-secondary active:bg-secondary transition-colors text-foreground touch-manipulation cursor-pointer"
                 title="Home"
               >
                 <Home className="w-5 h-5 pointer-events-none text-muted-foreground hover:text-foreground transition-colors" />
@@ -312,7 +312,7 @@ export default function AppLayout() {
             >
               {mode === 'auto' ? <SunMoon className="w-4 h-4 pointer-events-none transition-transform duration-200" /> : isDark ? <Moon className="w-4 h-4 pointer-events-none transition-transform duration-200" /> : <Sun className="w-4 h-4 pointer-events-none transition-transform duration-200" />}
             </button>
-            <button data-kjb-menu-toggle className="w-11 h-11 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
+            <button data-kjb-menu-toggle className="w-11 h-11 sm:w-10 sm:h-10 shrink-0 bg-secondary hover:brightness-95 active:brightness-90 transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
               onClick={(e) => { e.stopPropagation(); setMenuOpen(o => !o); }}
               type="button"
               aria-label="Open menu"
