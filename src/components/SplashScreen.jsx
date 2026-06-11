@@ -54,7 +54,12 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
       if (isFirstVisit) {
         setStep('Downloading offline data…');
         if (mode === 'auto') {
-          // TODO: replace with your own offline data download logic
+          try {
+            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+            await downloadBibleForOffline();
+          } catch (err) {
+            console.error('[Splash] Offline download failed:', err.message);
+          }
         }
         await pause(STEP_PAUSE_MS);
       }
@@ -87,9 +92,9 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
                 swUpdated = !!(reg.waiting || reg.installing);
               }
             }
+            const { checkForUpdates } = await import('@/lib/bibleCache');
+            dataUpdated = await checkForUpdates().catch(() => false);
           } catch {}
-          // TODO: replace with your own update-check logic
-          // dataUpdated = await checkForUpdates().catch(() => false);
         }
 
         const hasUpdate = swUpdated || dataUpdated;
@@ -107,8 +112,13 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
         await pause(STEP_PAUSE_MS);
 
         setStep('Installing updates…');
-        if (mode === 'auto') {
-          // TODO: replace with your own data install logic
+        if (mode === 'auto' && dataUpdated) {
+          try {
+            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+            await downloadBibleForOffline();
+          } catch (err) {
+            console.error('[Splash] Data install failed:', err.message);
+          }
         }
         await pause(STEP_PAUSE_MS);
 
