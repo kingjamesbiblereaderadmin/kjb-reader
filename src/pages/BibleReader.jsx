@@ -1020,7 +1020,7 @@ export default function BibleReader() {
                 onPrint={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode, paragraphMode)}
               />
 
-              <DropdownMenu>
+              <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
                   <button title={shareFeedback || shareLinkFeedback ? 'Copied!' : 'Share'} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap">
                     <Share2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
