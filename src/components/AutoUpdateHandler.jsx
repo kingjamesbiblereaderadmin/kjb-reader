@@ -14,7 +14,10 @@ export default function AutoUpdateHandler({ children }) {
     let flagSet = false;
 
     const setUpdateFlagAndReload = () => {
-      if (refreshing || flagSet) return;
+      if (refreshing || flagSet) {
+        console.log('[AutoUpdateHandler] Already refreshing or flag set, skipping');
+        return;
+      }
       refreshing = true;
       flagSet = true;
       console.log('[AutoUpdateHandler] Update detected — setting flags and reloading');
@@ -22,17 +25,22 @@ export default function AutoUpdateHandler({ children }) {
       try {
         localStorage.setItem('kjb-splash-home-update', 'true');
         sessionStorage.setItem('kjb-splash-home-update', 'true');
-        console.log('[AutoUpdateHandler] Flags verified:', {
-          local: localStorage.getItem('kjb-splash-home-update'),
-          session: sessionStorage.getItem('kjb-splash-home-update')
-        });
+        // Verify immediately
+        const localCheck = localStorage.getItem('kjb-splash-home-update');
+        const sessionCheck = sessionStorage.getItem('kjb-splash-home-update');
+        console.log('[AutoUpdateHandler] Flags set and verified:', { local: localCheck, session: sessionCheck });
+        if (localCheck !== 'true' || sessionCheck !== 'true') {
+          console.error('[AutoUpdateHandler] Flag verification failed!');
+        }
       } catch (e) {
         console.error('[AutoUpdateHandler] Failed to set flags:', e);
       }
       // Reload after a short delay to ensure flags are persisted
+      console.log('[AutoUpdateHandler] Will reload in 500ms...');
       setTimeout(() => {
+        console.log('[AutoUpdateHandler] Reloading now...');
         window.location.reload();
-      }, 300);
+      }, 500);
     };
 
     const handleControllerChange = () => {
