@@ -1,7 +1,7 @@
-// KJB Reader Service Worker v20260611_337
+// KJB Reader Service Worker v20260611_338
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260611_337';
+const CACHE_NAME = 'kjb-reader-v20260611_338';
 // Bumped to force complete reinstall for all users
 const LEGACY_CACHE_NAME = 'kjb-legacy-v9';
 
@@ -120,6 +120,9 @@ self.addEventListener('fetch', (event) => {
 
   // Skip chrome-extension and other non-http requests
   if (!url.protocol.startsWith('http')) return;
+
+  // Never cache sw.js itself — browser must always fetch it fresh for update detection
+  if (url.pathname === '/sw.js') return;
 
   // DEV MODE: Skip service worker caching for development
   // This prevents stale React/Vite chunks from breaking the dev server
