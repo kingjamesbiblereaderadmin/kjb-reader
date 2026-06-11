@@ -190,8 +190,9 @@ const AuthenticatedApp = () => {
   });
   
   // Check for waiting SW on mount — upgrade to home_update if found (user has visited before)
+  // Only check AFTER splash completes to prevent premature mode switches
   React.useEffect(() => {
-    if ('serviceWorker' in navigator && splashMode !== 'home_update') {
+    if ('serviceWorker' in navigator && splashMode !== 'home_update' && window.kjbSplashDone) {
       const hasVisited = localStorage.getItem('kjb-has-visited-app');
       if (hasVisited) {
         navigator.serviceWorker.getRegistration().then((reg) => {
