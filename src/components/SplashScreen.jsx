@@ -18,30 +18,38 @@ function markVisited() {
 // Most reliable approach: call reg.update(), wait 2s for the browser to
 // fetch + compare sw.js, then read reg.waiting / reg.installing.
 async function detectSwUpdate() {
-  if (!('serviceWorker' in navigator)) return { hasUpdate: false };
+  if (!('serviceWorker' in navigator)) { console.log('[SW detect] no serviceWorker support'); return { hasUpdate: false }; }
   try {
     const reg = await navigator.serviceWorker.getRegistration();
+    console.log('[SW detect] reg:', reg);
     if (!reg) return { hasUpdate: false };
+
+    console.log('[SW detect] controller:', !!navigator.serviceWorker.controller, 'waiting:', !!reg.waiting, 'installing:', !!reg.installing);
 
     // Already has a queued update (e.g. previous tab triggered it)
     if (reg.waiting && navigator.serviceWorker.controller) {
+      console.log('[SW detect] already waiting → hasUpdate=true');
       return { hasUpdate: true, reg };
     }
 
     // Trigger the browser's HTTP check against the server
-    await reg.update().catch(() => {});
+    console.log('[SW detect] calling reg.update()...');
+    await reg.update().catch((e) => console.log('[SW detect] update() error:', e));
+    console.log('[SW detect] update() resolved. waiting:', !!reg.waiting, 'installing:', !!reg.installing);
 
     // Wait for the new SW to begin installing (up to 2 s)
     await new Promise((resolve) => {
-      if (reg.installing || reg.waiting) { resolve(); return; }
-      const onFound = () => { reg.removeEventListener('updatefound', onFound); resolve(); };
+      if (reg.installing || reg.waiting) { console.log('[SW detect] already installing/waiting after update()'); resolve(); return; }
+      const onFound = () => { console.log('[SW detect] updatefound fired!'); reg.removeEventListener('updatefound', onFound); resolve(); };
       reg.addEventListener('updatefound', onFound);
-      setTimeout(() => { reg.removeEventListener('updatefound', onFound); resolve(); }, 2000);
+      setTimeout(() => { console.log('[SW detect] timeout reached, no updatefound'); reg.removeEventListener('updatefound', onFound); resolve(); }, 2000);
     });
 
     const hasUpdate = !!(reg.waiting || reg.installing) && !!navigator.serviceWorker.controller;
+    console.log('[SW detect] final hasUpdate:', hasUpdate, 'waiting:', !!reg.waiting, 'installing:', !!reg.installing);
     return { hasUpdate, reg };
-  } catch {
+  } catch (e) {
+    console.log('[SW detect] error:', e);
     return { hasUpdate: false };
   }
 }
