@@ -437,8 +437,10 @@ const AuthenticatedApp = () => {
           } else {
             console.log('[KJB Splash] ⚠️ No target worker to send SKIP_WAITING to');
           }
-          // Re-check after SW update: Bible data may also need updating (silent)
+          // Re-check after SW update: Bible data may also need updating
+          emit('Checking for updates...');
           console.log('[KJB Splash] 🔁 Re-check after SW update — looking for Bible data updates...');
+          await new Promise(r => setTimeout(r, 700));
           await reg.update().catch(() => {});
           const postSwWaiting = reg.waiting;
           const postSwInstalling = reg.installing;
