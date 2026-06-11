@@ -131,14 +131,18 @@ export default function SplashScreen({ isFadingOut, onDone }) {
 
       if (isFirstVisit) {
         // First ever visit
-        await safeStep('Setting up…', 600);
+        setStatusText('Downloading offline data…');
         await downloadOfflineData();
+        await safeStep('Checking for updates…', 700);
         if (hasUpdate) {
-          await safeStep('Installing updates…', 900);
+          await safeStep('Found app updates.', 700);
+          await safeStep('Installing updates…', 700);
           await applySwUpdate(swResult.reg);
-          await safeStep('Up to date.', 700);
+          await safeStep('Applying updates…', 700);
+        } else {
+          await safeStep('No updates found.', 700);
         }
-        await safeStep(`Welcome to ${APP_NAME}.`, 1000);
+        await safeStep(`Welcome to ${APP_NAME}.`, 900);
       } else if (hasUpdate) {
         // Returning user with a new SW waiting
         await safeStep('Found app updates.', 800);
