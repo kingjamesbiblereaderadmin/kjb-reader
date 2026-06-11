@@ -144,11 +144,15 @@ export default function HomePage() {
           const reg = await navigator.serviceWorker.getRegistration();
           if (reg) {
             await reg.update().catch(() => {});
-            if (reg.waiting || (reg.installing && reg.installing.state === 'installed')) {
+            // Wait a moment for SW state to settle
+            await new Promise(r => setTimeout(r, 500));
+            // Re-check registration after update
+            const freshReg = await navigator.serviceWorker.getRegistration();
+            if (freshReg?.waiting || (freshReg?.installing && freshReg.installing.state === 'installed')) {
               console.log('[Home] Visibility change found update — triggering splash flow');
               localStorage.setItem('kjb-splash-home-update', 'true');
               sessionStorage.setItem('kjb-splash-home-update', 'true');
-              if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+              if (freshReg.waiting) freshReg.waiting.postMessage({ type: 'SKIP_WAITING' });
               setTimeout(() => {
                 window.location.href = window.location.pathname + '?refresh=' + Date.now();
               }, 300);

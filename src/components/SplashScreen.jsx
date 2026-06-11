@@ -32,47 +32,16 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
       const detectedIncognito = await detectIncognito();
       setIsIncognito(detectedIncognito);
       
-      // Check for waiting service worker — if found, treat as home update
-      // (covers reloads where sessionStorage flag was lost)
+      // Trust the mode passed from App.jsx — it already checked flags and SW state
       let isHomeUpdate = mode === 'home_update';
-      const hasVisited = localStorage.getItem('kjb-has-visited-app');
-      const splashLocal = localStorage.getItem('kjb-splash-home-update');
-      const splashSession = sessionStorage.getItem('kjb-splash-home-update');
-      const bibleVer = localStorage.getItem('bible_cache_version');
-      
-      console.log('[Splash] DEBUG:', {
-        mode, hasVisited, splashLocal, splashSession, bibleVer,
-        detectedIncognito,
-        isFirstLoad: mode === 'first_load'
-      });
-      
-      if (!isHomeUpdate && mode === 'subsequent' && 'serviceWorker' in navigator) {
-        try {
-          const reg = await navigator.serviceWorker.getRegistration();
-          if (reg?.waiting || reg?.installing) {
-            console.log('[Splash] Waiting SW found — treating as home update');
-            isHomeUpdate = true;
-          }
-        } catch {}
-      }
       let isFirstVisit = mode === 'first_load';
       
-      console.log('[Splash] Final determination:', { isFirstVisit, isHomeUpdate, detectedIncognito });
+      console.log('[Splash] Mode from App.jsx:', mode, { isFirstVisit, isHomeUpdate });
 
-      // Set has-visited flag for subsequent visits
+      // Set has-visited flag for subsequent visits (not home updates, which already have it)
       if (!isFirstVisit && !isHomeUpdate) {
         localStorage.setItem('kjb-has-visited-app', 'true');
       }
-
-      // Force first_load mode if has-visited was incorrectly set (edge case from testing)
-      // This ensures truly fresh visits show "WELCOME TO KJB READER." not "WELCOME BACK"
-      if (mode === 'first_load' && hasVisited) {
-        console.log('[Splash] Clearing stale has-visited flag for first_load mode');
-        localStorage.removeItem('kjb-has-visited-app');
-        isFirstVisit = true; // Reset to first load flow
-      }
-      
-      console.log('[Splash] Final determination:', { mode, isFirstVisit, isHomeUpdate, hasVisited });
 
       // === FIRST LOAD FLOW ===
       if (isFirstVisit) {

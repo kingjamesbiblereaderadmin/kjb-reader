@@ -157,48 +157,40 @@ const AuthenticatedApp = () => {
 
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
   
-  // Determine splash mode once on mount
+  // Determine splash mode once on mount — check flags FIRST, then SW state
   const [splashMode, setSplashMode] = React.useState(() => {
-    // Check BOTH localStorage and sessionStorage for home-update flag
-    // localStorage persists through SW reloads, sessionStorage is a fallback
     const localFlag = localStorage.getItem('kjb-splash-home-update');
     const sessionFlag = sessionStorage.getItem('kjb-splash-home-update');
-    const homeUpdate = localFlag === 'true' || sessionFlag === 'true';
     const hasVisited = localStorage.getItem('kjb-has-visited-app');
     
-    console.log('[App] Splash mode check:', { localFlag, sessionFlag, homeUpdate, hasVisited });
-    
-    if (homeUpdate) {
-      console.log('[App] Home update mode - removing flags');
+    // If home-update flag is set (from HomePage update detection), use home_update mode
+    if (localFlag === 'true' || sessionFlag === 'true') {
+      console.log('[App] Home update flag found — using home_update mode');
       localStorage.removeItem('kjb-splash-home-update');
       sessionStorage.removeItem('kjb-splash-home-update');
       return 'home_update';
     }
+    
+    // Otherwise determine based on visit history
     const mode = hasVisited ? 'subsequent' : 'first_load';
-    console.log('[App] Mode:', mode);
+    console.log('[App] Splash mode:', mode, { hasVisited: !!hasVisited });
     return mode;
   });
   
-  // Check for waiting service worker on mount — force home_update mode if found
-  // ONLY if user has visited before (don't treat fresh installs as updates)
+  // Check for waiting SW on mount — upgrade to home_update if found (user has visited before)
   React.useEffect(() => {
     if ('serviceWorker' in navigator && splashMode !== 'home_update') {
       const hasVisited = localStorage.getItem('kjb-has-visited-app');
-      // Only treat as home update if user has visited before AND there's a waiting SW
       if (hasVisited) {
         navigator.serviceWorker.getRegistration().then((reg) => {
           if (reg?.waiting) {
-            console.log('[App] Waiting SW found + hasVisited — forcing home_update mode');
+            console.log('[App] Waiting SW found — upgrading to home_update mode');
             localStorage.setItem('kjb-splash-home-update', 'true');
             sessionStorage.setItem('kjb-splash-home-update', 'true');
             setSplashMode('home_update');
-            if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-          } else {
-            console.log('[App] No waiting SW or first install — keeping current mode');
+            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
           }
         }).catch(() => {});
-      } else {
-        console.log('[App] First visit — skipping SW update check');
       }
     }
   }, [splashMode]);
