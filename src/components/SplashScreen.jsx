@@ -77,8 +77,15 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
       let swResult = null;
 
       if (mode === 'auto') {
-        await safeStep('Loading…', 800);
-        swResult = await detectSwUpdate();
+        // Show "Loading…" while we detect the SW update in parallel,
+        // but always display it for at least 1200ms so it's visible.
+        setStatusText('Loading…');
+        log('Loading…');
+        const [swRes] = await Promise.all([
+          detectSwUpdate(),
+          new Promise(r => setTimeout(r, 1200)),
+        ]);
+        swResult = swRes;
         if (isFirstVisit) resolvedMode = 'first_load';
         else if (swResult.hasUpdate) resolvedMode = 'subsequent_with_updates';
         else resolvedMode = 'subsequent';
