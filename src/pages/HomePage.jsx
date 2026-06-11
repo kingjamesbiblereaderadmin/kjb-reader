@@ -564,10 +564,10 @@ export default function HomePage() {
         </div>
         <div className="grid grid-cols-2 gap-2">
           {[
-            { mode: 'first_load', label: 'First Load' },
-            { mode: 'subsequent', label: 'Subsequent' },
-            { mode: 'subsequent_with_updates', label: 'With Updates' },
-            { mode: 'home_update', label: 'Home Update' },
+            { mode: 'first_load', label: '1. First Load' },
+            { mode: 'subsequent', label: '2. Subsequent' },
+            { mode: 'subsequent_with_updates', label: '3. With Updates' },
+            { mode: 'home_update', label: '4. Home Update' },
           ].map(({ mode, label }) => (
             <button
               key={mode}
