@@ -36,7 +36,6 @@ window.addEventListener('load', async () => {
       // Reload when a new SW takes over in the BACKGROUND (after splash is done).
       // If the splash itself applied the update (_kjbSplashApplyingUpdate), skip
       // the reload entirely — the new SW is already active, no reload needed.
-      // Only reload on controllerchange if it's a background update (not triggered by splash).
       // Splash sets window._kjbSplashApplyingUpdate before calling SKIP_WAITING so we skip reload.
       let refreshing = false;
       let hasExistingController = !!navigator.serviceWorker.controller;
@@ -47,7 +46,12 @@ window.addEventListener('load', async () => {
         if (wasExisting && !refreshing && !window._kjbSplashApplyingUpdate) {
           refreshing = true;
           console.log('[SW] Background controller change — reloading.');
+          // Preserve the home-update flag if it was set by HomePage before the SW reload
+          const isHomeUpdate = sessionStorage.getItem('kjb-splash-home-update') === 'true';
           try { sessionStorage.setItem('kjb_sw_updated', 'app'); } catch {}
+          if (isHomeUpdate) {
+            console.log('[SW] Preserving home update flag through reload');
+          }
           const sep = window.location.search ? '&' : '?';
           window.location.href = window.location.pathname + window.location.search + sep + 'updated=true';
         }

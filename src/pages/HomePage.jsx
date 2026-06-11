@@ -202,8 +202,10 @@ export default function HomePage() {
               window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Applying updates...', status: 'loading' } }));
               await new Promise(r => setTimeout(r, 500));
 
-              sessionStorage.setItem('kjb_sw_updated', updateType);
+              // Set the flag BEFORE reload so SplashScreen detects home update mode
               sessionStorage.setItem('kjb-splash-home-update', 'true');
+              sessionStorage.setItem('kjb_sw_updated', updateType);
+              console.log('[UpdateCheck] Set kjb-splash-home-update flag:', sessionStorage.getItem('kjb-splash-home-update'));
 
               if (swUpdated && 'serviceWorker' in navigator) {
                 const reg = await navigator.serviceWorker.getRegistration();
@@ -214,10 +216,11 @@ export default function HomePage() {
                   reg.installing.postMessage({ type: 'SKIP_WAITING' });
                 }
                 console.log('[UpdateCheck] Activating new service worker...');
-                return; // main.jsx reloads it
+                // SW will reload automatically when it activates
+                return;
               }
 
-              console.log('[UpdateCheck] Reloading application...');
+              console.log('[UpdateCheck] Manually reloading application...');
               setTimeout(() => { window.location.href = window.location.pathname + '?refresh=' + Date.now(); }, 500);
               return;
             }
