@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 const APP_NAME = 'KJB Reader';
 const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png';
 const FIRST_VISIT_KEY = 'kjb_has_visited';
-const STEP_MS = 10000;
+const STEP_MS = 1500;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -21,14 +21,12 @@ async function getSwReg() {
 }
 
 // Trigger a fresh SW update check and WAIT until we know whether a new worker
-// is installing/waiting. Without this wait, the splash reads reg.waiting too
-// early (before the browser has fetched the new sw.js) and always sees "no
-// update". Resolves true if a new worker becomes available within `timeoutMs`.
+// is installing/waiting. Resolves true if a new worker becomes available.
 async function waitForSwUpdate(timeoutMs = 4000) {
   const reg = await getSwReg();
   if (!reg) return false;
 
-  // Already have a waiting/installed worker ready to activate.
+  // Already have a waiting worker ready to activate.
   if (reg.waiting) return true;
 
   // Kick off a fresh check against the server for a new sw.js.
@@ -51,7 +49,7 @@ async function waitForSwUpdate(timeoutMs = 4000) {
   });
 }
 
-// Download the Bible data so the app works offline (first-visit only, auto mode).
+// Download the Bible data so the app works offline.
 async function downloadOfflineData() {
   try {
     const { getBibleData } = await import('@/lib/bibleCache');
@@ -65,8 +63,6 @@ async function applyUpdates() {
     const reg = await getSwReg();
     const target = reg?.waiting || reg?.installing;
     if (!target) return;
-    // Flag so main.jsx's controllerchange handler does NOT reload the page —
-    // the splash applies the update in-place to avoid a jarring reload jump.
     window._kjbSplashApplyingUpdate = true;
     target.postMessage({ type: 'SKIP_WAITING' });
     await new Promise((resolve) => {
@@ -81,72 +77,14 @@ async function applyUpdates() {
   } catch {}
 }
 
-// ── Scenario step sequences ───────────────────────────────────────────────────
-
-// "Checking for updates…" / "No updates found." are intentionally NEVER shown.
-// Update-related steps only appear when there's an ACTUAL update to apply.
-const SCENARIOS = {
-  // first_load: the update steps are injected at runtime (right before Welcome)
-  // ONLY if a waiting service-worker app update exists — see __FIRST_LOAD_UPDATE_STEP__.
-  first_load: [
-    'Loading…',
-    'Downloading offline data…',
-    '__FIRST_LOAD_UPDATE_STEP__',
-    `Welcome to ${APP_NAME}.`,
-  ],
-  // No updates → no "Checking", just straight to welcome.
-  subsequent: [
-    'Loading…',
-    `Welcome back to ${APP_NAME}.`,
-  ],
-  subsequent_with_updates: [
-    'Found app & data updates.',
-    'Installing updates…',
-    'Applying updates…',
-    `Welcome back to ${APP_NAME}.`,
-  ],
-  home_update: [
-    'Found app updates.',
-    'Installing updates…',
-    'Applying updates…',
-    `Welcome back to ${APP_NAME}.`,
-  ],
-};
-
-// Auto-detect which scenario applies on a real production load.
-async function detectAutoScenario() {
-  // First visit = the Bible isn't cached on this device yet. This is the most
-  // reliable signal (the localStorage flag alone gave false negatives because
-  // it was often already set from a prior session). We still flip the flag for
-  // good measure.
-  let bibleCached = false;
-  try {
-    const { isBibleCached } = await import('@/lib/bibleCache');
-    bibleCached = await isBibleCached().catch(() => false);
-  } catch {}
-  const first = isFirstVisit() || !bibleCached;
-  if (first) markVisited();
-
-  if (first) {
-    // Brand new user (or no offline data yet) → download + welcome flow.
-    return 'first_load';
-  }
-
-  // Returning user: WAIT for the service worker update check to resolve so we
-  // don't read reg.waiting before the browser has fetched the new sw.js.
-  const hasAppUpdate = await waitForSwUpdate();
-
-  // Content/data version update available?
-  let hasDataUpdate = false;
+// Check if Bible data has updates available.
+async function checkBibleUpdates() {
   try {
     const { checkForUpdates } = await import('@/lib/bibleCache');
-    hasDataUpdate = await checkForUpdates().catch(() => false);
-  } catch {}
-
-  if (hasAppUpdate && hasDataUpdate) return 'subsequent_with_updates';
-  if (hasAppUpdate) return 'home_update';
-  if (hasDataUpdate) return 'subsequent_with_updates';
-  return 'subsequent';
+    return await checkForUpdates().catch(() => false);
+  } catch {
+    return false;
+  }
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -159,39 +97,83 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
     let cancelled = false;
     const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
-    const runSteps = async (scenario, steps, preShown = []) => {
-      const log = [...preShown];
-      // Expand the first_load placeholder: if a waiting app update exists, inject
-      // the found→installing→applying steps; otherwise drop the placeholder
-      // entirely (no "Checking"/"No updates" filler).
-      const expanded = [];
-      for (const s of steps) {
-        if (s === '__FIRST_LOAD_UPDATE_STEP__') {
-          const hasAppUpdate = mode === 'auto' ? await waitForSwUpdate() : false;
-          if (hasAppUpdate) expanded.push('Found app updates.', 'Installing updates…', 'Applying updates…');
-        } else {
-          expanded.push(s);
-        }
-      }
-
-      for (const step of expanded) {
+    const run = async () => {
+      const log = [];
+      const step = async (text, effect) => {
         if (cancelled) return;
-
-        setStatusText(step);
-        console.log(`[KJB Splash] ${step}`);
-        log.push(step);
-
-        // Real side-effects (only run in auto mode — test modes are display-only).
-        if (mode === 'auto') {
-          if (step.includes('Downloading offline')) await downloadOfflineData();
-          if (step.includes('Applying updates')) await applyUpdates();
-        }
-
+        setStatusText(text);
+        console.log(`[KJB Splash] ${text}`);
+        log.push(text);
+        if (effect && mode === 'auto') await effect();
         await delay(STEP_MS);
-        if (cancelled) return;
+      };
+
+      // Determine scenario
+      let isFirst = false;
+      let hasAppUpdate = false;
+      let hasBibleUpdate = false;
+
+      if (mode === 'auto') {
+        // Check if first visit
+        let bibleCached = false;
+        try {
+          const { isBibleCached } = await import('@/lib/bibleCache');
+          bibleCached = await isBibleCached().catch(() => false);
+        } catch {}
+        isFirst = isFirstVisit() || !bibleCached;
+        if (isFirst) markVisited();
+
+        // Check for app updates (service worker)
+        hasAppUpdate = await waitForSwUpdate();
+
+        // Check for Bible data updates
+        hasBibleUpdate = await checkBibleUpdates();
       }
 
-      console.groupCollapsed(`[KJB Splash] Done — scenario: ${scenario}`);
+      const hasAnyUpdate = hasAppUpdate || hasBibleUpdate;
+
+      // ── FIRST LOAD FLOW ─────────────────────────────────────────────────────
+      if (isFirst) {
+        await step('Loading…');
+        await step('Downloading offline Bible data…', downloadOfflineData);
+        await step('Checking for updates…');
+        
+        if (hasAnyUpdate) {
+          await step('Found updates.');
+          await step('Installing updates…');
+          await step('Applying updates…', applyUpdates);
+        } else {
+          await step('No updates found.');
+        }
+        
+        await step(`Welcome to ${APP_NAME}.`);
+      }
+      // ── SUBSEQUENT LOAD FLOW ───────────────────────────────────────────────
+      else if (mode === 'home_update') {
+        // Home page already detected an update — skip checking, just apply
+        await step('Found updates.');
+        await step('Installing updates…');
+        await step('Applying updates…', applyUpdates);
+        await step(`Welcome back to ${APP_NAME}.`);
+      }
+      // ── NORMAL SUBSEQUENT LOAD ─────────────────────────────────────────────
+      else {
+        await step('Loading…');
+        await step('Checking for updates…');
+        
+        if (hasAnyUpdate) {
+          await step('Found updates.');
+          await step('Installing updates…');
+          await step('Applying updates…', applyUpdates);
+        } else {
+          await step('No updates found.');
+        }
+        
+        await step(`Welcome back to ${APP_NAME}.`);
+      }
+
+      // Log summary
+      console.groupCollapsed(`[KJB Splash] Done — first:${isFirst} app:${hasAppUpdate} bible:${hasBibleUpdate}`);
       log.forEach((s, i) => console.log(`${i + 1}. ${s}`));
       console.groupEnd();
 
@@ -199,24 +181,6 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'auto' }) {
         doneRef.current = true;
         onDone?.();
       }
-    };
-
-    const run = async () => {
-      // Show "Loading…" immediately while we detect the scenario (detection can
-      // take a few seconds waiting for the SW update check).
-      setStatusText('Loading…');
-      console.log('[KJB Splash] Loading…');
-      const scenario = mode === 'auto' ? await detectAutoScenario() : mode;
-      if (cancelled) return;
-      console.log('[KJB Splash] Scenario:', scenario);
-      const fullSteps = SCENARIOS[scenario] || SCENARIOS.subsequent;
-      // If the scenario starts with "Loading…", we've already shown+paused on it
-      // during detection, so skip it (and record it in the log). home_update
-      // starts directly at "Found app updates." — don't skip anything there.
-      const startsWithLoading = fullSteps[0] === 'Loading…';
-      const steps = startsWithLoading ? fullSteps.slice(1) : fullSteps;
-      const preShown = startsWithLoading ? ['Loading…'] : [];
-      await runSteps(scenario, steps, preShown);
     };
 
     run();
