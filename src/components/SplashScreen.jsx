@@ -49,6 +49,11 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
       // === FIRST LOAD FLOW ===
       if (isFirstVisit) {
+        // Set flag IMMEDIATELY so it survives any SW-triggered reloads during the flow
+        if (!detectedIncognito) {
+          localStorage.setItem('kjb-has-visited-app', 'true');
+        }
+        
         // 1. Loading
         setStep('LOADING KJB READER...');
         await pause(STEP_PAUSE_MS);
@@ -130,10 +135,8 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         }
 
         // 8. Welcome - fire banner (success)
-        // Set has-visited flag at the END of first visit so next visit is 'subsequent'
-        // NEVER set in incognito/private mode - storage clears when window closes
+        // Flag was already set at start of first_load (survives reloads)
         if (!detectedIncognito) {
-          localStorage.setItem('kjb-has-visited-app', 'true');
           setStep('WELCOME TO KJB READER.', true);
         } else {
           console.log('[Splash] Incognito mode - skipping has-visited flag');
