@@ -222,8 +222,10 @@ export default function HomePage() {
                 console.log('[UpdateCheck] Activating new service worker...');
               }
 
-              // Don't reload here — SplashScreen will detect the waiting SW and show the proper sequence
-              console.log('[UpdateCheck] Updates applied — SplashScreen will handle the flow');
+              // Reload to trigger SplashScreen with home_update mode
+              // The flags are set, so SplashScreen will show: Found → Installing → Applying → Checking → Welcome Back
+              console.log('[UpdateCheck] Reloading to show SplashScreen update flow...');
+              setTimeout(() => { window.location.href = window.location.pathname + '?refresh=' + Date.now(); }, 1000);
               return;
             }
 
