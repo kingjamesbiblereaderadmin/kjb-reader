@@ -305,12 +305,17 @@ export default function HomePage() {
     window.addEventListener('storage', handleStorageChange);
     
     // Listen for service worker update messages — set flag for SplashScreen
-    // but DON'T reload here; let SplashScreen handle the update flow
     const handleSWUpdate = (event) => {
       if (event.data?.type === 'UPDATE_FOUND') {
-        console.log('[Home] SW update detected — flagging for SplashScreen');
+        console.log('[Home] SW update detected — setting flags and reloading for splash flow');
+        // Set BOTH flags (localStorage persists through SW reloads)
+        localStorage.setItem('kjb-splash-home-update', 'true');
         sessionStorage.setItem('kjb-splash-home-update', 'true');
-        // Do NOT reload here — SplashScreen will detect the waiting SW and show "FOUND UPDATES." first
+        // Reload after a tiny delay to ensure flags are persisted
+        setTimeout(() => {
+          console.log('[Home] Reloading now to show splash...');
+          window.location.reload();
+        }, 200);
       }
     };
     navigator.serviceWorker?.addEventListener('message', handleSWUpdate);
