@@ -1253,9 +1253,7 @@ export default function SettingsPage() {
           <div>
             <OfflineHtmlSection />
             <div className="px-5 pb-5 pt-1 border-t border-border space-y-2">
-              <p className="font-sans text-xs text-muted-foreground pt-3 leading-relaxed">
-                The <strong className="text-foreground">Legacy Reader</strong> is a fully server-rendered version of the Bible — no JavaScript required. Designed for Internet Explorer 11, old Android browsers, and devices that can't run the modern app.
-              </p>
+
               <Link
                 to="/legacy"
                 className="flex items-center gap-3 p-3 rounded-xl bg-transparent border border-border hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
