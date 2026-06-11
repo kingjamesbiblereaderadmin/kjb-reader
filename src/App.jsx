@@ -240,47 +240,73 @@ const AuthenticatedApp = () => {
     };
 
     const check = async () => {
-      if (!('serviceWorker' in navigator)) { if (!cancelled) setUpdateCheckDone(true); return; }
+      if (!('serviceWorker' in navigator)) {
+        console.log('[KJB Splash] ⏭ No SW support — skipping update check');
+        if (!cancelled) setUpdateCheckDone(true);
+        return;
+      }
       try {
         const reg = await navigator.serviceWorker.getRegistration();
-        if (!reg) { if (!cancelled) setUpdateCheckDone(true); return; }
+        if (!reg) {
+          console.log('[KJB Splash] ⏭ No SW registration found — skipping update check');
+          if (!cancelled) setUpdateCheckDone(true);
+          return;
+        }
 
         emit('Checking for updates...');
+        console.log('[KJB Splash] 🔍 Checking for updates...');
         await new Promise(r => setTimeout(r, 600));
         await reg.update().catch(() => {});
 
         const waitingWorker = reg.waiting;
         const installingWorker = reg.installing;
-        console.log('[KJB Splash] SW check — waiting:', !!waitingWorker, '| installing:', !!installingWorker, '| controller:', !!navigator.serviceWorker.controller);
+        const hasController = !!navigator.serviceWorker.controller;
+        console.log('[KJB Splash] SW state — waiting:', !!waitingWorker, '| installing:', !!installingWorker, '| controller:', hasController);
 
         // Check for Bible data update (version mismatch in localStorage)
         const localBibleVersion = (() => { try { return localStorage.getItem('bible_cache_version'); } catch { return null; } })();
-        const hasBibleUpdate = localBibleVersion && localBibleVersion !== 'v20260611_321';
-        if (hasBibleUpdate) {
-          console.log('[KJB Splash] Bible cache outdated:', localBibleVersion, '→ v20260611_320');
+        const CURRENT_BIBLE_VERSION = 'v20260611_321';
+        const hasBibleUpdate = localBibleVersion && localBibleVersion !== CURRENT_BIBLE_VERSION;
+        const hasSwUpdate = !!(waitingWorker || installingWorker) && hasController;
+
+        console.log('[KJB Splash] Bible cache version — local:', localBibleVersion || '(none)', '| current:', CURRENT_BIBLE_VERSION, '| needs update:', hasBibleUpdate);
+        console.log('[KJB Splash] SW update available:', hasSwUpdate);
+
+        if (!hasBibleUpdate && !hasSwUpdate) {
+          console.log('[KJB Splash] ✅ Everything up to date — no updates needed');
+          if (!cancelled) setUpdateCheckDone(true);
+          return;
         }
 
-        if (hasBibleUpdate && !(waitingWorker || installingWorker)) {
+        // Bible-data-only update (no new SW)
+        if (hasBibleUpdate && !hasSwUpdate) {
+          console.log('[KJB Splash] 📖 Bible data update detected:', localBibleVersion, '→', CURRENT_BIBLE_VERSION);
           setTimeout(() => { if (!cancelled) setMinSplashDone(true); }, 4000);
           emit('Found updates...');
+          console.log('[KJB Splash] 📥 Splash: "Found updates"');
           await new Promise(r => setTimeout(r, 700));
           emit('Installing updates...');
+          console.log('[KJB Splash] ⚙️ Splash: "Installing updates"');
           await new Promise(r => setTimeout(r, 700));
           emit('Applying updates...');
+          console.log('[KJB Splash] 🔄 Splash: "Applying updates" — Bible data will re-download in background');
           await new Promise(r => setTimeout(r, 600));
           if (!cancelled) setUpdateCheckDone(true);
           return;
         }
 
-        if ((waitingWorker || installingWorker) && navigator.serviceWorker.controller) {
-          // Extend minimum splash to cover the update flow
+        // SW update (with or without Bible update)
+        if (hasSwUpdate) {
+          console.log('[KJB Splash] 🔧 SW update detected — activating new worker');
           setTimeout(() => { if (!cancelled) setMinSplashDone(true); }, 4000);
 
           if (installingWorker && !waitingWorker) {
             emit('Installing updates...');
+            console.log('[KJB Splash] ⏳ Waiting for installing worker to reach installed state...');
             await new Promise((resolve) => {
               const worker = installingWorker;
               const handler = () => {
+                console.log('[KJB Splash] SW installing state change:', worker.state);
                 if (['installed', 'activating', 'activated', 'redundant'].includes(worker.state)) {
                   worker.removeEventListener('statechange', handler);
                   resolve();
@@ -293,14 +319,21 @@ const AuthenticatedApp = () => {
 
           await new Promise(r => setTimeout(r, 700));
           emit('Applying updates...');
+          console.log('[KJB Splash] 🚀 Splash: "Applying updates" — posting SKIP_WAITING');
           await new Promise(r => setTimeout(r, 600));
           const target = reg.waiting || reg.installing;
-          if (target) target.postMessage({ type: 'SKIP_WAITING' });
-          // Hold splash until controllerchange triggers reload (3s safety fallback)
+          if (target) {
+            target.postMessage({ type: 'SKIP_WAITING' });
+            console.log('[KJB Splash] ✉️ SKIP_WAITING sent to', target.state, 'worker');
+          } else {
+            console.log('[KJB Splash] ⚠️ No target worker to send SKIP_WAITING to');
+          }
           setTimeout(() => { if (!cancelled) setUpdateCheckDone(true); }, 3000);
           return;
         }
-      } catch {}
+      } catch (err) {
+        console.error('[KJB Splash] ❌ Update check error:', err.message);
+      }
       if (!cancelled) setUpdateCheckDone(true);
     };
     check();
