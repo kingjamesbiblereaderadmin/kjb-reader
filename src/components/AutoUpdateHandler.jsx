@@ -15,10 +15,18 @@ export default function AutoUpdateHandler({ children }) {
       if (refreshing) return;
       refreshing = true;
       console.log('[AutoUpdateHandler] New SW took control — triggering SplashScreen update flow');
+      console.log('[AutoUpdateHandler] Setting flags before reload...');
       // Set flag so SplashScreen shows: Found → Installing → Applying → Checking → Welcome Back
       localStorage.setItem('kjb-splash-home-update', 'true');
       sessionStorage.setItem('kjb-splash-home-update', 'true');
-      window.location.reload();
+      console.log('[AutoUpdateHandler] Flags set:', {
+        local: localStorage.getItem('kjb-splash-home-update'),
+        session: sessionStorage.getItem('kjb-splash-home-update')
+      });
+      // Small delay to ensure flags are written before reload
+      setTimeout(() => {
+        window.location.reload();
+      }, 200);
     };
 
     navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange);

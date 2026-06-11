@@ -34,6 +34,9 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
       // Check for waiting service worker — if found, treat as home update
       // (covers reloads where sessionStorage flag was lost)
       let isHomeUpdate = mode === 'home_update';
+      console.log('[Splash] Received mode:', mode, 'isHomeUpdate initially:', isHomeUpdate);
+      console.log('[Splash] localStorage flag:', localStorage.getItem('kjb-splash-home-update'));
+      console.log('[Splash] sessionStorage flag:', sessionStorage.getItem('kjb-splash-home-update'));
       if (!isHomeUpdate && mode === 'subsequent' && 'serviceWorker' in navigator) {
         try {
           const reg = await navigator.serviceWorker.getRegistration();
@@ -45,7 +48,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
       }
       let isFirstVisit = mode === 'first_load';
       
-      console.log('[KJB Splash] Mode:', mode, 'isHomeUpdate:', isHomeUpdate, 'Incognito:', detectedIncognito);
+      console.log('[KJB Splash] Final mode:', mode, 'isHomeUpdate:', isHomeUpdate, 'Incognito:', detectedIncognito);
 
       // Set has-visited flag for subsequent visits
       if (!isFirstVisit && !isHomeUpdate) {
