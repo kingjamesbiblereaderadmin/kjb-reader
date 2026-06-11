@@ -15,25 +15,31 @@ function markVisited() {
 }
 
 // Check if there's a waiting or installing SW worker.
-// After calling reg.update() we also wait briefly for `updatefound` so we
-// catch the case where the new SW starts installing AFTER the update() call
-// returns (common when the SW file was just changed on the server).
+// Strategy: if reg.waiting/installing is already set, report update immediately.
+// Otherwise call reg.update() and wait up to 1.5s for updatefound.
 async function detectSwUpdate() {
   if (!('serviceWorker' in navigator)) return { hasUpdate: false };
   try {
     const reg = await navigator.serviceWorker.getRegistration();
     if (!reg) return { hasUpdate: false };
 
-    // Fire the update check and wait up to 3 s for an updatefound event
+    // Already has a pending update — report immediately
+    if ((reg.waiting || reg.installing) && navigator.serviceWorker.controller) {
+      return { hasUpdate: true, reg };
+    }
+
+    // Kick off a network check, then wait a short window for updatefound
     const updateFoundPromise = new Promise((resolve) => {
-      if (reg.waiting || reg.installing) { resolve(); return; }
-      const onFound = () => { reg.removeEventListener('updatefound', onFound); resolve(); };
+      const onFound = () => { reg.removeEventListener('updatefound', onFound); resolve(true); };
       reg.addEventListener('updatefound', onFound);
-      setTimeout(() => { reg.removeEventListener('updatefound', onFound); resolve(); }, 6000);
+      setTimeout(() => { reg.removeEventListener('updatefound', onFound); resolve(false); }, 1500);
     });
 
     reg.update().catch(() => {});
-    await updateFoundPromise;
+    const found = await updateFoundPromise;
+
+    // Give the installing worker a moment to settle
+    if (found) await new Promise(r => setTimeout(r, 300));
 
     const hasUpdate = !!(reg.waiting || reg.installing) && !!navigator.serviceWorker.controller;
     return { hasUpdate, reg };
