@@ -133,8 +133,10 @@
     transform: scale(0.97);
     filter: brightness(0.94);
   }
-  /* Metro accent colour blocks */
-  .metro-blue   { background: #0078D4; color: #fff; }
+  /* Metro accent colour blocks.
+     .metro-blue is the primary tile colour — it follows the app's daily accent
+     (--primary), so all main tiles change colour automatically each day. */
+  .metro-blue   { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
   .metro-teal   { background: #008272; color: #fff; }
   .metro-green  { background: #107C10; color: #fff; }
   .metro-purple { background: #5C2D91; color: #fff; }
