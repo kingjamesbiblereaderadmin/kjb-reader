@@ -155,19 +155,18 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         const hasUpdates = await runStep('CHECKING FOR UPDATES...', () => checkRealUpdates(swUpdatedAtMount));
 
         if (hasUpdates) {
-          // 4. Found updates
-          setStep('FOUND UPDATES.');
-          await pause(STEP_PAUSE_MS);
-
-          // 5. Installing updates (real download with live %)
-          await downloadWithProgress('INSTALLING UPDATES...');
-
-          // 6. Applying updates (real SW activation)
-          await runStep('APPLYING UPDATES...', applyServiceWorker);
-
-          // 7. Re-check for real — then report the actual result
-          const stillHasUpdates = await runStep('CHECKING FOR UPDATES...', () => checkRealUpdates(false));
-          setStep(stillHasUpdates ? 'FOUND UPDATES.' : 'NO UPDATES FOUND.');
+          // Loop: Found → Installing → Applying → Checking, until no more updates.
+          let more = true;
+          let guard = 0;
+          while (more && guard < 5) {
+            guard++;
+            setStep('FOUND UPDATES.');
+            await pause(STEP_PAUSE_MS);
+            await downloadWithProgress('INSTALLING UPDATES...');
+            await runStep('APPLYING UPDATES...', applyServiceWorker);
+            more = await runStep('CHECKING FOR UPDATES...', () => checkRealUpdates(false));
+          }
+          setStep('NO UPDATES FOUND.');
           await pause(STEP_PAUSE_MS);
         } else {
           // No updates
@@ -205,19 +204,18 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         const hasUpdates = await runStep('CHECKING FOR UPDATES...', () => checkRealUpdates(swUpdatedAtMount));
 
         if (hasUpdates) {
-          // 3. Found updates
-          setStep('FOUND UPDATES.');
-          await pause(STEP_PAUSE_MS);
-
-          // 4. Installing updates — real download progress
-          await downloadWithProgress('INSTALLING UPDATES...');
-
-          // 5. Applying updates — real SW activation
-          await runStep('APPLYING UPDATES...', applyServiceWorker);
-
-          // 6. Check again — real re-check, then report actual result
-          const stillHasUpdates = await runStep('CHECKING FOR UPDATES...', () => checkRealUpdates(false));
-          setStep(stillHasUpdates ? 'FOUND UPDATES.' : 'NO UPDATES FOUND.');
+          // Loop: Found → Installing → Applying → Checking, until no more updates.
+          let more = true;
+          let guard = 0;
+          while (more && guard < 5) {
+            guard++;
+            setStep('FOUND UPDATES.');
+            await pause(STEP_PAUSE_MS);
+            await downloadWithProgress('INSTALLING UPDATES...');
+            await runStep('APPLYING UPDATES...', applyServiceWorker);
+            more = await runStep('CHECKING FOR UPDATES...', () => checkRealUpdates(false));
+          }
+          setStep('NO UPDATES FOUND.');
           await pause(STEP_PAUSE_MS);
         } else {
           // No updates
