@@ -223,7 +223,7 @@ const AuthenticatedApp = () => {
         <Route path="/legacy" element={<Suspense fallback={<RouteLoader />}><FadeIn><LegacyReader /></FadeIn></Suspense>} />
           </Route>
           <Route path="/dailyverse.txt" element={<Suspense fallback={null}><DailyVerseTxt /></Suspense>} />
-          <Route path="/bible.txt" element={<Suspense fallback={null}><DailyVerseTxt /></Suspense>} />
+          <Route path="/bible.txt" element={<Suspense fallback={null}><BibleTxt /></Suspense>} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       )}
