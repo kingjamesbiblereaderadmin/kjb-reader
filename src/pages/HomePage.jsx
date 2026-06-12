@@ -81,16 +81,12 @@ export default function HomePage() {
       setIsOffline(true);
     });
     
-    // Skip auto-preload on first load — SplashScreen handles the download flow.
-    // Only preload on subsequent visits when cache already exists.
+    // Preload Bible cache on home page mount to ensure italics are ready
+    // Skip in incognito/private mode since cache won't persist
     detectIncognito().then((isIncog) => {
       if (!isIncog) {
-        isBibleCached().then((cached) => {
-          if (cached) {
-            import('@/lib/bibleCache').then(({ getBibleData }) => {
-              getBibleData().catch(() => {});
-            });
-          }
+        import('@/lib/bibleCache').then(({ getBibleData }) => {
+          getBibleData().catch(() => {});
         });
       }
     });
@@ -110,12 +106,6 @@ export default function HomePage() {
         });
       }
     }, 2000);
-
-    // NOTE: We removed the periodic + visibility-change SW reload checks.
-    // They detected a "waiting" SW and reloaded the page repeatedly, which
-    // (combined with the SW activating on install) caused an infinite refresh
-    // loop. SW updates are now only applied via an explicit user action
-    // (Settings → Check for Updates) and the SplashScreen on a fresh visit.
 
     return () => {
       clearInterval(minuteInterval);
@@ -212,15 +202,9 @@ export default function HomePage() {
               window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Applying updates...', status: 'loading' } }));
               await new Promise(r => setTimeout(r, 500));
 
-              // Set BOTH localStorage and sessionStorage flags before reload
-              // localStorage persists through SW reloads, sessionStorage is a fallback
-              localStorage.setItem('kjb-splash-home-update', 'true');
-              sessionStorage.setItem('kjb-splash-home-update', 'true');
               sessionStorage.setItem('kjb_sw_updated', updateType);
-              console.log('[UpdateCheck] ✓ Set kjb-splash-home-update flag (localStorage):', localStorage.getItem('kjb-splash-home-update'));
-              console.log('[UpdateCheck] Will reload page in 500ms...');
+              sessionStorage.setItem('kjb-splash-home-update', 'true');
 
-              // Activate SW if present — don't reload manually, let SplashScreen handle the flow
               if (swUpdated && 'serviceWorker' in navigator) {
                 const reg = await navigator.serviceWorker.getRegistration();
                 sessionStorage.setItem('kjb_last_app_update', Date.now().toString());
@@ -230,12 +214,11 @@ export default function HomePage() {
                   reg.installing.postMessage({ type: 'SKIP_WAITING' });
                 }
                 console.log('[UpdateCheck] Activating new service worker...');
+                return; // main.jsx reloads it
               }
 
-              // Reload to trigger SplashScreen with home_update mode
-              // The flags are set, so SplashScreen will show: Found → Installing → Applying → Checking → Welcome Back
-              console.log('[UpdateCheck] Reloading to show SplashScreen update flow...');
-              setTimeout(() => { window.location.href = window.location.pathname + '?refresh=' + Date.now(); }, 1000);
+              console.log('[UpdateCheck] Reloading application...');
+              setTimeout(() => { window.location.href = window.location.pathname + '?refresh=' + Date.now(); }, 500);
               return;
             }
 
@@ -313,11 +296,7 @@ export default function HomePage() {
     
     // Listen for storage events (syncs across tabs/pages)
     window.addEventListener('storage', handleStorageChange);
-
-    // NOTE: Removed the UPDATE_FOUND message listener and the "waiting SW on
-    // mount" auto-reload — both triggered page reloads that caused an infinite
-    // refresh loop. Updates are applied via Settings → Check for Updates only.
-
+    
     // Also check on focus and online (when user returns to the app or internet is restored)
     const handleFocus = () => {
       setNotifEnabled(getNotificationsEnabled());

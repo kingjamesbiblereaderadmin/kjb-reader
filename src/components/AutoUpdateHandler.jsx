@@ -6,11 +6,22 @@ export default function AutoUpdateHandler({ children }) {
     // Bible data cache refresh check
     refreshCacheIfDue();
 
-    // NOTE: We intentionally do NOT auto-reload on controllerchange or
-    // UPDATE_FOUND here. The service worker calls skipWaiting()/clients.claim()
-    // on install, which fires controllerchange — auto-reloading on that caused
-    // an infinite refresh loop. The SplashScreen owns the update flow and
-    // performs any needed reloads at the right time.
+    // SW auto-reload: when a new service worker takes control (after skipWaiting),
+    // reload the page so the user gets the latest app shell immediately.
+    if (!('serviceWorker' in navigator)) return;
+
+    let refreshing = false;
+    const handleControllerChange = () => {
+      if (refreshing) return;
+      refreshing = true;
+      console.log('[AutoUpdateHandler] New SW took control — reloading for update');
+      window.location.reload();
+    };
+
+    navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange);
+    return () => {
+      navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
+    };
   }, []);
 
   return children;

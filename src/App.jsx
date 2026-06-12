@@ -99,7 +99,6 @@ function preloadAllRoutes() {
 
 import { Loader2 } from 'lucide-react';
 import SplashScreen from '@/components/SplashScreen';
-import { detectIncognito } from '@/lib/incognito';
 
 const RouteLoader = () => (
   <div className="flex justify-center py-24">
@@ -158,58 +157,17 @@ const AuthenticatedApp = () => {
 
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
   
-  // Determine splash mode once on mount — check incognito FIRST, then flags
-  const [splashMode, setSplashMode] = React.useState(() => {
-    try {
-      const localFlag = localStorage.getItem('kjb-splash-home-update');
-      const sessionFlag = sessionStorage.getItem('kjb-splash-home-update');
-      
-      // If home-update flag is set (from HomePage update detection), use home_update mode
-      if (localFlag === 'true' || sessionFlag === 'true') {
-        console.log('[App] Home update flag found — using home_update mode');
-        localStorage.removeItem('kjb-splash-home-update');
-        sessionStorage.removeItem('kjb-splash-home-update');
-        return 'home_update';
-      }
-      
-      // CRITICAL: Check sessionStorage FIRST - if we're mid first_load flow (after SW reload),
-      // stay in first_load mode even if localStorage flag exists.
-      const isFirstLoadFlow = sessionStorage.getItem('kjb-first-load-flow') === 'true';
-      
-      if (isFirstLoadFlow) {
-        console.log('[App] First load flow in progress (session flag) — using first_load mode');
-        return 'first_load';
-      }
-      
-      // For fresh browser profile detection, check SPECIFICALLY for Bible cache
-      // Ignore other localStorage keys (Base44 platform may set auth/theme keys automatically)
-      const bibleCacheVersion = localStorage.getItem('bible_cache_version');
-      
-      // Debug: log ALL localStorage keys to see what's persisting
-      console.log('[App] Fresh browser check - localStorage keys:', Object.keys(localStorage));
-      console.log('[App] bible_cache_version:', bibleCacheVersion);
-      
-      // No Bible cache version = fresh install (first_load)
-      // Has Bible cache version = user has completed at least one full visit (subsequent)
-      if (!bibleCacheVersion) {
-        console.log('[App] No Bible cache found — using first_load mode (fresh browser profile)');
-        return 'first_load';
-      }
-      
-      // Bible IS cached = user has completed at least one full visit
-      console.log('[App] Bible cache found (version:', bibleCacheVersion, ') — using subsequent mode');
-      return 'subsequent';
-    } catch (err) {
-      console.error('[App] Error determining splash mode:', err);
-      // Fallback to subsequent mode to prevent black screen
-      return 'subsequent';
+  // Determine splash mode once on mount
+  const splashMode = React.useMemo(() => {
+    const homeUpdate = sessionStorage.getItem('kjb-splash-home-update') === 'true';
+    const hasVisited = localStorage.getItem('kjb-has-visited-app');
+    
+    if (homeUpdate) {
+      sessionStorage.removeItem('kjb-splash-home-update');
+      return 'home_update';
     }
-  });
-  
-  // NOTE: Removed the "waiting SW on mount → home_update" auto-switch. It set
-  // the home-update flag and triggered the splash update flow on every load
-  // (there is almost always a waiting SW in this environment), which caused an
-  // infinite refresh loop. Updates are applied via Settings → Check for Updates.
+    return hasVisited ? 'subsequent' : 'first_load';
+  }, []);
   
   const handleSplashDone = () => {
     setFadeSplash(true);

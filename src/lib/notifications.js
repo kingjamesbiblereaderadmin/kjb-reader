@@ -26,10 +26,32 @@ export async function registerSW() {
   if (!('serviceWorker' in navigator)) return null;
   try {
     const reg = await navigator.serviceWorker.register('/sw.js');
-    // NOTE: We intentionally do NOT auto-reload on controllerchange and do NOT
-    // auto-send SKIP_WAITING here. Those caused an infinite refresh loop
-    // (install → skipWaiting → activate → controllerchange → reload → repeat).
-    // Updates are applied only via Settings → Check for Updates (user action).
+    
+    // Automatically reload the page when a new service worker takes over
+    // so users get the latest UI updates immediately.
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!refreshing) {
+        refreshing = true;
+        window.location.reload();
+      }
+    });
+
+    if (reg.waiting) {
+      reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+    }
+    reg.addEventListener('updatefound', () => {
+      const installingWorker = reg.installing;
+      if (installingWorker) {
+        installingWorker.addEventListener('statechange', () => {
+          if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            installingWorker.postMessage({ type: 'SKIP_WAITING' });
+          }
+        });
+      }
+    });
+    // Force an update check to ensure users get the latest app shell features (e.g. WiFi icon)
+    reg.update();
     return reg;
   } catch { return null; }
 }

@@ -172,7 +172,26 @@
     </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center">
+        <div class="flex flex-col items-center justify-center -mt-16 w-full max-w-sm px-6">
+          <div class="relative mb-12">
+            <div class="absolute inset-0 bg-primary/20 blur-3xl rounded-full scale-150 animate-pulse"></div>
+            <img 
+              src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
+              alt="KJB Reader" 
+              class="relative w-32 h-32 object-contain drop-shadow-xl"
+            />
+          </div>
+          <div class="flex flex-col items-center gap-6 w-full">
+            <div class="flex flex-col items-center gap-3 text-center">
+              <svg class="w-6 h-6 animate-spin text-primary/70" style="animation-duration: 2s;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+              <span class="font-sans text-xs text-foreground/70 font-medium tracking-[0.2em] uppercase">Loading KJB Reader...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

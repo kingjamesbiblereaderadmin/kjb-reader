@@ -6,7 +6,7 @@ const STEP_PAUSE_MS = 1500;
 
 // mode: 'first_load' | 'subsequent' | 'home_update'
 export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load', isVisible = true }) {
-  const [currentMessage, setCurrentMessage] = useState('');
+  const [currentMessage, setCurrentMessage] = useState('LOADING KJB READER...');
   const [isIncognito, setIsIncognito] = useState(false);
   const doneRef = useRef(false);
   const stepsLog = useRef([]);
@@ -17,73 +17,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
     stepsLog.current.push(message);
     setCurrentMessage(message);
     console.log('[KJB Splash]', message);
-    // Fire banner for ALL splash screen steps
-    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message, status: message.includes('WELCOME') ? 'success' : 'loading' } }));
+    window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message, status: 'loading' } }));
   };
 
   const pause = (ms) => new Promise(r => setTimeout(r, ms));
-
-  // The waiting worker we've already applied this session — used so the same
-  // waiting SW is never treated as a "new" update again (prevents loops).
-  const appliedWorkerRef = useRef(null);
-
-  // Detect whether there's a NEW service-worker version waiting to activate.
-  // A worker we already applied in this session does not count again.
-  const hasSWUpdate = async () => {
-    if (!navigator.onLine || !('serviceWorker' in navigator)) return false;
-    try {
-      const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-      if (!reg) return false;
-      await reg.update().catch(() => {});
-      return !!reg.waiting && reg.waiting !== appliedWorkerRef.current;
-    } catch { return false; }
-  };
-
-  // Run ONE strictly-linear update cycle: found → installing → applying → check.
-  // Returns true only if a genuinely NEW worker is waiting afterwards.
-  const runUpdateCycle = async () => {
-    setStep('FOUND UPDATES.');
-    await pause(STEP_PAUSE_MS);
-
-    setStep('INSTALLING UPDATES...');
-    try {
-      const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-      await downloadBibleForOffline();
-    } catch (err) {
-      console.error('[Splash] Data install failed:', err.message);
-    }
-    await pause(STEP_PAUSE_MS);
-
-    setStep('APPLYING UPDATES...');
-    await pause(STEP_PAUSE_MS);
-
-    // Activate the waiting SW once and remember it (no page reload — the
-    // controllerchange auto-reload was removed, so this can't loop).
-    if ('serviceWorker' in navigator) {
-      try {
-        const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-        if (reg?.waiting) {
-          appliedWorkerRef.current = reg.waiting;
-          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-        }
-      } catch {}
-    }
-
-    setStep('CHECKING FOR UPDATES...');
-    await pause(STEP_PAUSE_MS);
-    return await hasSWUpdate();
-  };
-
-  // Repeat the linear cycle only while a genuinely new worker keeps appearing.
-  // Hard-capped at 3 iterations as a final safety guard against any loop.
-  const runUpdateLoop = async () => {
-    let more = true;
-    let guard = 0;
-    while (more && guard < 3) {
-      more = await runUpdateCycle();
-      guard++;
-    }
-  };
 
   useEffect(() => {
     if (!isVisible || doneRef.current) return;
@@ -93,79 +30,110 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
       // Wait for incognito detection to complete before starting splash flow
       const detectedIncognito = await detectIncognito();
       setIsIncognito(detectedIncognito);
-      console.log('[Splash] Incognito detection result:', detectedIncognito);
       
-      // Trust the mode passed from App.jsx — it already checked flags and SW state
-      let isHomeUpdate = mode === 'home_update';
       let isFirstVisit = mode === 'first_load';
+      let isHomeUpdate = mode === 'home_update';
       
-      // In incognito/private mode, ALWAYS treat as first load (storage doesn't persist across sessions)
-      // This prevents "WELCOME BACK" from showing in private windows
-      if (detectedIncognito) {
-        console.log('[Splash] Incognito detected — forcing first_load behavior, ignoring any flags');
-        isFirstVisit = true;
-        isHomeUpdate = false;
+      console.log('[KJB Splash] Mode:', mode, 'Incognito:', detectedIncognito);
+
+      // Set has-visited flag for subsequent visits
+      if (!isFirstVisit && !isHomeUpdate) {
+        localStorage.setItem('kjb-has-visited-app', 'true');
       }
-      
-      console.log('[Splash] Final mode:', { mode, isFirstVisit, isHomeUpdate, detectedIncognito });
 
       // === FIRST LOAD FLOW ===
       if (isFirstVisit) {
-        // Set flags at START to survive SW reloads
-        sessionStorage.setItem('kjb-first-load-flow', 'true');
-        // Don't set hasVisited flag here — App.jsx now uses Bible cache only
-        
         // 1. Loading
         setStep('LOADING KJB READER...');
         await pause(STEP_PAUSE_MS);
 
-        // 2. Downloading offline data - ALWAYS download on first_load (don't skip if cached)
-        const { downloadBibleForOffline, isBibleCached } = await import('@/lib/bibleCache');
-        let justDownloadedBible = false;
-        
+        // 2. Skip offline download in incognito (cache won't persist)
         if (!detectedIncognito) {
-          setStep('DOWNLOADING OFFLINE DATA...', true);
-          console.log('[Splash] Starting offline download...');
+          // 2. Downloading offline data
+          setStep('DOWNLOADING OFFLINE DATA...');
           try {
-            await downloadBibleForOffline((pct, msg) => {
-              console.log('[Splash] Download progress:', pct, msg);
-            });
-            console.log('[Splash] Offline download completed successfully');
-            justDownloadedBible = true;
+            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+            await downloadBibleForOffline();
           } catch (err) {
             console.error('[Splash] Offline download failed:', err.message);
           }
           await pause(STEP_PAUSE_MS);
+
+          // 3. Checking for updates
+          setStep('CHECKING FOR UPDATES...');
+          await pause(STEP_PAUSE_MS);
         } else {
-          console.log('[Splash] Incognito - skipping offline download');
+          // Incognito mode: skip download, go straight to update check
+          console.log('[Splash] Incognito mode detected — skipping offline download');
+          // 2. Checking for updates (renumbered for incognito)
+          setStep('CHECKING FOR UPDATES...');
+          await pause(STEP_PAUSE_MS);
         }
 
-        // 3. Checking for updates - fire banner
-        // Only check for SERVICE WORKER updates (Bible data was just downloaded if needed)
-        setStep('CHECKING FOR UPDATES...');
-        await pause(STEP_PAUSE_MS);
+        // Check for updates
+        let hasUpdates = false;
+        if (navigator.onLine) {
+          try {
+            if ('serviceWorker' in navigator) {
+              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+              if (reg) {
+                await reg.update().catch(() => {});
+                hasUpdates = !!(reg.waiting || reg.installing);
+              }
+            }
+            if (!hasUpdates) {
+              const { checkForUpdates } = await import('@/lib/bibleCache');
+              hasUpdates = await checkForUpdates().catch(() => false);
+            }
+          } catch {}
+        }
 
-        // Repeat update cycles automatically until none remain, then welcome.
-        if (await hasSWUpdate()) {
-          await runUpdateLoop();
-          console.log('[Splash] First load - update loop complete, proceeding to WELCOME');
+        if (hasUpdates) {
+          // 4. Found updates
+          setStep('FOUND UPDATES.');
+          await pause(STEP_PAUSE_MS);
+
+          // 5. Installing updates
+          setStep('INSTALLING UPDATES...');
+          try {
+            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+            await downloadBibleForOffline();
+          } catch (err) {
+            console.error('[Splash] Data install failed:', err.message);
+          }
+          await pause(STEP_PAUSE_MS);
+
+          // 6. Applying updates
+          setStep('APPLYING UPDATES...');
+          await pause(STEP_PAUSE_MS);
+
+          // Activate service worker
+          if ('serviceWorker' in navigator) {
+            try {
+              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+              if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            } catch {}
+          }
+
+          // 7. Check again (loop)
+          setStep('CHECKING FOR UPDATES...');
+          await pause(STEP_PAUSE_MS);
         } else {
+          // No updates
           setStep('NO UPDATES FOUND.');
           await pause(STEP_PAUSE_MS);
         }
 
-        // 8. Welcome - fire banner (success)
-        if (!detectedIncognito) {
-          setStep('WELCOME TO KJB READER.', true);
+        // 8. Welcome
+        if (detectedIncognito) {
+          setStep('WELCOME (PRIVATE MODE).');
+          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME (PRIVATE MODE).', status: 'success' } }));
         } else {
-          console.log('[Splash] Incognito mode - skipping has-visited flag');
-          setStep('WELCOME TO KJB READER.', true);
+          setStep('WELCOME TO KJB READER.');
+          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME TO KJB READER.', status: 'success' } }));
         }
         await pause(STEP_PAUSE_MS);
         window.dispatchEvent(new Event('kjb-progress-clear'));
-
-        // Clear session flag - first_load flow complete
-        sessionStorage.removeItem('kjb-first-load-flow');
 
         console.group('[Splash] Summary');
         stepsLog.current.forEach((msg, i) => console.log(`${i + 1}. ${msg}`));
@@ -176,58 +144,70 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
       // === SUBSEQUENT VISIT FLOW ===
       if (!isHomeUpdate) {
-        // 1. Loading (no banner)
+        // 1. Loading
         setStep('LOADING KJB READER...');
         await pause(STEP_PAUSE_MS);
 
-        // 2. Download offline data if not cached (FIRE BANNER - same as first load)
-        const { downloadBibleForOffline, isBibleCached } = await import('@/lib/bibleCache');
-        const isActuallyCached = await isBibleCached();
-        let justDownloadedBible = false;
-        
-        if (!detectedIncognito && !isActuallyCached) {
-          setStep('DOWNLOADING OFFLINE DATA...', true);
-          console.log('[Splash] Bible not cached — downloading...');
-          try {
-            await downloadBibleForOffline((pct, msg) => {
-              console.log('[Splash] Download progress:', pct, msg);
-            });
-            console.log('[Splash] Offline download completed successfully');
-            justDownloadedBible = true; // Mark that we just downloaded fresh data
-          } catch (err) {
-            console.error('[Splash] Offline download failed:', err.message);
-          }
-          await pause(STEP_PAUSE_MS);
-        }
+        // 2. Checking for updates
+        setStep('CHECKING FOR UPDATES...');
+        await pause(STEP_PAUSE_MS);
 
-        // 3. Checking for updates - ONLY if online (offline = no updates possible)
+        let hasUpdates = false;
         if (navigator.onLine) {
-          setStep('CHECKING FOR UPDATES...');
-          await pause(STEP_PAUSE_MS);
-
-          // Detect updates (SW code, or Bible data if not just downloaded).
-          let hasUpdates = await hasSWUpdate();
-          if (!hasUpdates && !justDownloadedBible) {
-            try {
+          try {
+            if ('serviceWorker' in navigator) {
+              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+              if (reg) {
+                await reg.update().catch(() => {});
+                hasUpdates = !!(reg.waiting || reg.installing);
+              }
+            }
+            if (!hasUpdates) {
               const { checkForUpdates } = await import('@/lib/bibleCache');
               hasUpdates = await checkForUpdates().catch(() => false);
+            }
+          } catch {}
+        }
+
+        if (hasUpdates) {
+          // 3. Found updates
+          setStep('FOUND UPDATES.');
+          await pause(STEP_PAUSE_MS);
+
+          // 4. Installing updates
+          setStep('INSTALLING UPDATES...');
+          try {
+            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+            await downloadBibleForOffline();
+          } catch (err) {
+            console.error('[Splash] Data install failed:', err.message);
+          }
+          await pause(STEP_PAUSE_MS);
+
+          // 5. Applying updates
+          setStep('APPLYING UPDATES...');
+          await pause(STEP_PAUSE_MS);
+
+          // Activate service worker
+          if ('serviceWorker' in navigator) {
+            try {
+              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+              if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
             } catch {}
           }
 
-          if (hasUpdates) {
-            await runUpdateLoop();
-            console.log('[Splash] Subsequent visit - update loop complete, proceeding to WELCOME');
-          } else {
-            setStep('NO UPDATES FOUND.');
-            await pause(STEP_PAUSE_MS);
-          }
+          // 6. Check again (loop if more updates)
+          setStep('CHECKING FOR UPDATES...');
+          await pause(STEP_PAUSE_MS);
         } else {
-          // Offline - skip update check entirely, go straight to welcome
-          console.log('[Splash] Offline - skipping update check');
+          // No updates
+          setStep('NO UPDATES FOUND.');
+          await pause(STEP_PAUSE_MS);
         }
 
-        // 8. Welcome back - fire banner (success)
-        setStep('WELCOME BACK TO KJB READER.', true);
+        // 7. Welcome back
+        setStep('WELCOME BACK TO KJB READER.');
+        window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME BACK TO KJB READER.', status: 'success' } }));
         await pause(STEP_PAUSE_MS);
         window.dispatchEvent(new Event('kjb-progress-clear'));
 
@@ -240,16 +220,69 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
       // === HOME UPDATE FLOW ===
       if (isHomeUpdate) {
-        // Run update cycles automatically until none remain (online only).
-        if (navigator.onLine) {
-          await runUpdateLoop();
-          console.log('[Splash] Home update - update loop complete, proceeding to WELCOME');
-        } else {
-          console.log('[Splash] Home update but offline - skipping update flow');
+        // 1. Found updates (skip loading/checking)
+        setStep('FOUND UPDATES.');
+        await pause(STEP_PAUSE_MS);
+
+        // 2. Installing updates
+        setStep('INSTALLING UPDATES...');
+        try {
+          const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+          await downloadBibleForOffline();
+        } catch (err) {
+          console.error('[Splash] Data install failed:', err.message);
+        }
+        await pause(STEP_PAUSE_MS);
+
+        // 3. Applying updates
+        setStep('APPLYING UPDATES...');
+        await pause(STEP_PAUSE_MS);
+
+        // Activate service worker
+        if ('serviceWorker' in navigator) {
+          try {
+            const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+            if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          } catch {}
         }
 
-        // 5. Welcome back - fire banner (success)
-        setStep('WELCOME BACK TO KJB READER.', true);
+        // 4. Checking for updates (repeat if found)
+        setStep('CHECKING FOR UPDATES...');
+        await pause(STEP_PAUSE_MS);
+
+        let hasMoreUpdates = false;
+        if (navigator.onLine) {
+          try {
+            const { checkForUpdates } = await import('@/lib/bibleCache');
+            hasMoreUpdates = await checkForUpdates().catch(() => false);
+          } catch {}
+        }
+
+        if (hasMoreUpdates) {
+          // Loop: Found → Installing → Applying → Checking
+          setStep('FOUND UPDATES.');
+          await pause(STEP_PAUSE_MS);
+          setStep('INSTALLING UPDATES...');
+          try {
+            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+            await downloadBibleForOffline();
+          } catch (err) {
+            console.error('[Splash] Data install failed:', err.message);
+          }
+          await pause(STEP_PAUSE_MS);
+          setStep('APPLYING UPDATES...');
+          await pause(STEP_PAUSE_MS);
+          if ('serviceWorker' in navigator) {
+            try {
+              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+              if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            } catch {}
+          }
+        }
+
+        // 5. Welcome back
+        setStep('WELCOME BACK TO KJB READER.');
+        window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME BACK TO KJB READER.', status: 'success' } }));
         await pause(STEP_PAUSE_MS);
         window.dispatchEvent(new Event('kjb-progress-clear'));
 
@@ -259,15 +292,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         onDone?.();
         return;
       }
-    })().catch((err) => {
-      console.error('[Splash] Fatal error in splash flow:', err);
-      // Fallback: show welcome and complete splash to prevent black screen
-      setStep('WELCOME TO KJB READER.');
-      setTimeout(() => {
-        window.dispatchEvent(new Event('kjb-progress-clear'));
-        onDone?.();
-      }, 1500);
-    });
+    })();
   }, [isVisible, mode]);
 
   if (!isVisible) return null;
