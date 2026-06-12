@@ -321,8 +321,30 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
             } catch {}
           }
 
-          // Skip re-checking to prevent infinite reload loop
-          console.log('[Splash] Home update - update cycle complete, skipping re-check');
+          // Final check for chained updates
+          setStep('CHECKING FOR UPDATES...');
+          await pause(STEP_PAUSE_MS);
+          let hasMoreUpdates = false;
+          if (navigator.onLine && 'serviceWorker' in navigator) {
+            try {
+              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+              if (reg) {
+                await reg.update().catch(() => {});
+                hasMoreUpdates = !!reg.waiting;
+              }
+            } catch {}
+          }
+          if (hasMoreUpdates) {
+            // Found chained update — trigger reload to restart the splash flow
+            console.log('[Splash] Home update - chained update found, reloading to restart splash flow');
+            localStorage.setItem('kjb-splash-home-update', 'true');
+            sessionStorage.setItem('kjb-splash-home-update', 'true');
+            setTimeout(() => {
+              window.location.href = window.location.pathname + '?refresh=' + Date.now();
+            }, 500);
+            return; // Don't continue to WELCOME
+          }
+          console.log('[Splash] Home update - no more updates, proceeding to WELCOME');
         } else {
           // Offline - skip update flow entirely
           console.log('[Splash] Home update but offline - skipping update flow');
