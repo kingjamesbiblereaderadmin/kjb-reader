@@ -84,7 +84,7 @@ function buildGospelText() {
 
 The Gospel is the glad tidings of the Lord Jesus Christ:
 
-Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.
+Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins according to the scriptures.
 
 ━━━━━━━━━━━━━━━━━━━━
 
@@ -344,7 +344,7 @@ export default function GospelPage() {
           The Gospel is the glad tidings of the Lord Jesus Christ:
         </p>
         <p className="font-sans text-muted-foreground max-w-lg mx-auto mt-3">
-          Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins.
+          Trust he is God, died, shed his blood, buried and rose again on the 3rd day for our sins according to the scriptures.
         </p>
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         <div className="mt-5">
