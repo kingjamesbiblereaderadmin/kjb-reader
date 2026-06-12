@@ -108,7 +108,7 @@ ${link('1Tim', 3, 16)}
 
 ━━━━━━━━━━━━━━━━━━━━
 
-3. Believe he died, shed his blood, was buried and rose again:
+3. Believe he died, shed his blood, was buried and rose again for our sins according to the scriptures:
 
 “Moreover, brethren, I declare unto you the gospel which I preached unto you, which also ye have received, and wherein ye stand; By which also ye are saved, if ye keep in memory what I preached unto you, unless ye have believed in vain. For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures.”
 — 1 Corinthians 15:1-4
@@ -403,8 +403,8 @@ export default function GospelPage() {
           </div>
           <div className="flex-1">
             <div className="flex items-start justify-between gap-4 mb-2">
-              <h3 className="font-serif text-xl font-semibold text-foreground">Believe he died, shed his blood, was buried and rose again</h3>
-              <CopyButton text={`3. Believe he died, shed his blood, was buried and rose again\n\n"Moreover, brethren, I declare unto you the gospel which I preached unto you... how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." — 1 Corinthians 15:1–4\n\n${VERSE_TEXTS['Rom3:25']}`} className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors flex-shrink-0 cursor-pointer" />
+              <h3 className="font-serif text-xl font-semibold text-foreground">Believe he died, shed his blood, was buried and rose again for our sins according to the scriptures</h3>
+              <CopyButton text={`3. Believe he died, shed his blood, was buried and rose again for our sins according to the scriptures\n\n"Moreover, brethren, I declare unto you the gospel which I preached unto you... how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." — 1 Corinthians 15:1–4\n\n${VERSE_TEXTS['Rom3:25']}`} className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors flex-shrink-0 cursor-pointer" />
             </div>
             <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
               "Moreover, brethren, I declare unto you the gospel which I preached unto you, which also ye have received, and wherein ye stand; By which also ye are saved, if ye keep in memory what I preached unto you, unless ye have believed in vain. For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." — 1 Corinthians 15:1–4
