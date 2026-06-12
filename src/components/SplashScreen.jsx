@@ -137,8 +137,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
             } catch {}
           }
 
-          // 7. Check again (loop)
+          // 7. Check again (loop) — then confirm nothing more to apply
           setStep('CHECKING FOR UPDATES...');
+          await pause(STEP_PAUSE_MS);
+          setStep('NO UPDATES FOUND.');
           await pause(STEP_PAUSE_MS);
         } else {
           // No updates
@@ -227,8 +229,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
             } catch {}
           }
 
-          // 6. Check again (loop if more updates)
+          // 6. Check again (loop if more updates) — then confirm none remain
           setStep('CHECKING FOR UPDATES...');
+          await pause(STEP_PAUSE_MS);
+          setStep('NO UPDATES FOUND.');
           await pause(STEP_PAUSE_MS);
         } else {
           // No updates
@@ -313,7 +317,13 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
               if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
             } catch {}
           }
+          setStep('CHECKING FOR UPDATES...');
+          await pause(STEP_PAUSE_MS);
         }
+
+        // Confirm nothing more to apply before welcoming back.
+        setStep('NO UPDATES FOUND.');
+        await pause(STEP_PAUSE_MS);
 
         // 5. Welcome back
         setStep('WELCOME BACK TO KJB READER.');
