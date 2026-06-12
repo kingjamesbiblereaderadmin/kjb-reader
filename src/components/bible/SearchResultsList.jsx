@@ -15,13 +15,19 @@ function getFontFamilyValue(family) {
   return "'Merriweather', 'Cormorant Garamond', Georgia, serif";
 }
 
-// Count occurrences of the search term within a verse's text (multiple hits per verse)
+// Count occurrences of the search term(s) within a verse's text (multiple hits per verse).
+// `term` may be a comma-separated list (multi-keyword search) — sum each term's hits.
 function countOccurrences(text, term, caseSensitive) {
   if (!term) return 1;
-  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const re = new RegExp(escaped, caseSensitive ? 'g' : 'gi');
   const clean = (text || '').replace(/[[\]]/g, '');
-  return (clean.match(re) || []).length;
+  const terms = term.split(',').map(t => t.trim()).filter(Boolean);
+  let total = 0;
+  for (const t of terms) {
+    const escaped = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp(escaped, caseSensitive ? 'g' : 'gi');
+    total += (clean.match(re) || []).length;
+  }
+  return total || (terms.length ? 0 : 1);
 }
 
 function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, selectMode, selected, onToggleSelect, onGoToVerse, resultRefs }) {

@@ -22,14 +22,18 @@ function renderWithItalics(text, searchTerm, caseSensitive) {
   }
 
   // 2. Mark which clean-char indices fall inside a search-term match.
+  //    searchTerm may be a comma-separated list (multi-keyword search) — highlight each term.
   const highlightFlags = new Array(clean.length).fill(false);
   if (searchTerm) {
-    const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(escaped, caseSensitive ? 'g' : 'gi');
-    let mm;
-    while ((mm = regex.exec(clean)) !== null) {
-      for (let p = mm.index; p < mm.index + mm[0].length; p++) highlightFlags[p] = true;
-      if (mm.index === regex.lastIndex) regex.lastIndex++; // avoid zero-width loops
+    const terms = searchTerm.split(',').map(t => t.trim()).filter(Boolean);
+    for (const term of terms) {
+      const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(escaped, caseSensitive ? 'g' : 'gi');
+      let mm;
+      while ((mm = regex.exec(clean)) !== null) {
+        for (let p = mm.index; p < mm.index + mm[0].length; p++) highlightFlags[p] = true;
+        if (mm.index === regex.lastIndex) regex.lastIndex++; // avoid zero-width loops
+      }
     }
   }
 

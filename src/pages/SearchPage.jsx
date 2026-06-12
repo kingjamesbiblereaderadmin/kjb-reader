@@ -142,6 +142,18 @@ export default function SearchPage() {
       
       const kwLower = searchTerm.toLowerCase();
 
+      // Multi-keyword AND search: if the query has multiple comma-separated terms
+      // (e.g. "heart, imagination"), find verses containing ALL of them and
+      // highlight each. Single-word or quoted queries are unaffected.
+      const multiTerms = !isQuotedPhrase
+        ? searchTerm.split(',').map(t => t.trim()).filter(t => t.length >= 2)
+        : [];
+      const isMultiKeyword = multiTerms.length >= 2;
+      if (isMultiKeyword) {
+        // Highlight every term (comma-joined; the highlighter splits on commas).
+        setHighlightTerm(multiTerms.join(','));
+      }
+
       // Check if the query is a scripture reference (by name OR abbreviation),
       // e.g. "jn 3:16", "gen 1", "1 cor 13:4-7", "psalm 23". If so, jump straight to it.
       if (!isQuotedPhrase) {
@@ -371,7 +383,34 @@ export default function SearchPage() {
             // Strip bracket markers so word boundaries match real words (e.g. [sin] -> sin)
             const searchText = verseObj.text.replace(/[[\]]/g, '');
             const searchTextLower = searchText.toLowerCase();
-            
+
+            // Multi-keyword AND: verse must contain EVERY term (case-insensitive,
+            // honouring whole-word when enabled).
+            if (isMultiKeyword) {
+              found = multiTerms.every(term => {
+                const tl = term.toLowerCase();
+                if (effectiveWholeWord) {
+                  const esc = tl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                  return new RegExp(`(^|[^a-z'])${esc}($|[^a-z'])`, 'i').test(searchText);
+                }
+                return searchTextLower.includes(tl);
+              });
+              if (found) {
+                const key = `${bookName}-${chapterNum}-${verseObj.verse}`;
+                if (seen.has(key)) continue;
+                seen.add(key);
+                const bookEntry = BOOK_BY_API_NAME[bookName];
+                matches.push({
+                  book: bookName,
+                  chapter: parseInt(chapterNum, 10),
+                  verse: parseInt(verseObj.verse, 10),
+                  text: verseObj.text,
+                  abbr: bookEntry ? bookEntry.abbr : bookName.slice(0, 3).toUpperCase(),
+                });
+              }
+              continue;
+            }
+
             if (effectiveCaseSensitive) {
               if (effectiveWholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -543,21 +582,22 @@ export default function SearchPage() {
       setBooksWithResults(booksWithHits);
       
       // Compute total occurrences (multiple hits per verse counted) so the
-      // results header matches standard concordance figures.
-      const occEscaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      let occRe;
-      if (effectiveWholeWord) {
-        occRe = new RegExp(`(?<![A-Za-z'])${occEscaped}(?![A-Za-z'])`, effectiveCaseSensitive ? 'g' : 'gi');
-      } else {
-        occRe = new RegExp(occEscaped, effectiveCaseSensitive ? 'g' : 'gi');
-      }
+      // results header matches standard concordance figures. For multi-keyword
+      // searches, count every term's hits across each verse.
+      const occTerms = isMultiKeyword ? multiTerms : [searchTerm];
+      const occRes = occTerms.map(t => {
+        const esc = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return effectiveWholeWord
+          ? new RegExp(`(?<![A-Za-z'])${esc}(?![A-Za-z'])`, effectiveCaseSensitive ? 'g' : 'gi')
+          : new RegExp(esc, effectiveCaseSensitive ? 'g' : 'gi');
+      });
       let totalOcc = 0;
       let otVerses = 0, ntVerses = 0;
       let otOcc = 0, ntOcc = 0;
       
       for (const m of matches) {
         const clean = (m.text || '').replace(/[[\]]/g, '');
-        const occInVerse = (clean.match(occRe) || []).length;
+        const occInVerse = occRes.reduce((sum, re) => sum + (clean.match(re) || []).length, 0);
         totalOcc += occInVerse;
         
         if (OT_BOOKS.has(m.book)) {
@@ -940,7 +980,7 @@ export default function SearchPage() {
               }
             }}
             enterKeyHint="search"
-            placeholder="e.g. grace, faith, blood..."
+            placeholder="e.g. faith · or heart, imagination (all words)"
             leftPadClass="pl-9"
             inputClassName="w-full pl-9 pr-4 py-2 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors"
             autoFocus={!getQueryFromUrl()}
