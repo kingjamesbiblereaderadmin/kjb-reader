@@ -149,12 +149,8 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
             await pause(STEP_PAUSE_MS);
             setStep('APPLYING UPDATES...', true);
             await pause(STEP_PAUSE_MS);
-            if ('serviceWorker' in navigator) {
-              try {
-                const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-                if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-              } catch {}
-            }
+            // Don't trigger reload yet — let the flow complete to WELCOME first
+            console.log('[Splash] Chained update applied, waiting for WELCOME before reload');
           }
           console.log('[Splash] First load - update cycle complete');
         } else {
@@ -284,12 +280,8 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
               await pause(STEP_PAUSE_MS);
               setStep('APPLYING UPDATES...', true);
               await pause(STEP_PAUSE_MS);
-              if ('serviceWorker' in navigator) {
-                try {
-                  const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-                  if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                } catch {}
-              }
+              // Don't trigger reload yet — let the flow complete to WELCOME first
+              console.log('[Splash] Chained update applied, waiting for WELCOME before reload');
             }
             console.log('[Splash] Subsequent visit - update cycle complete');
           } else {
