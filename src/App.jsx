@@ -181,7 +181,7 @@ const AuthenticatedApp = () => {
     }
     
     // Check if Bible data is cached - if NOT cached, this is a true first load
-    // (even if hasVisited flag exists from a broken previous install)
+    // Ignore hasVisited flag entirely — only the Bible cache determines first vs subsequent
     const bibleCacheVersion = localStorage.getItem('bible_cache_version');
     const hasBibleData = !!bibleCacheVersion;
     
@@ -190,17 +190,8 @@ const AuthenticatedApp = () => {
       return 'first_load';
     }
     
-    // Bible is cached - check visit history
-    const hasVisited = localStorage.getItem('kjb-has-visited-app');
-    
-    console.log('[App] Bible cached, hasVisited flag:', hasVisited);
-    
-    if (!hasVisited) {
-      console.log('[App] Bible cached but no hasVisited flag — using subsequent mode');
-      return 'subsequent';
-    }
-    
-    console.log('[App] Bible cached and hasVisited flag found — using subsequent mode');
+    // Bible IS cached = user has completed at least one full visit
+    console.log('[App] Bible cache found (version:', bibleCacheVersion, ') — using subsequent mode');
     return 'subsequent';
   });
   

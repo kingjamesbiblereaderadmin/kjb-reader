@@ -51,9 +51,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
       if (isFirstVisit) {
         // Set flags at START to survive SW reloads
         sessionStorage.setItem('kjb-first-load-flow', 'true');
-        if (!detectedIncognito) {
-          try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {}
-        }
+        // Don't set hasVisited flag here — App.jsx now uses Bible cache only
         
         // 1. Loading
         setStep('LOADING KJB READER...');
