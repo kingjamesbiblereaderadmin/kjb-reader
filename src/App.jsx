@@ -201,7 +201,7 @@ const AuthenticatedApp = () => {
         isFadingOut={fadeSplash}
         onDone={handleSplashDone}
         mode={splashMode}
-        isVisible={showSplash && location.pathname !== '/legacy' && location.pathname !== '/dailyverse.txt'}
+        isVisible={showSplash && location.pathname !== '/legacy' && location.pathname !== '/dailyverse.txt' && location.pathname !== '/bible.txt'}
       />
       {!isInitializing && !authError && (
         <Routes location={location}>
@@ -221,6 +221,7 @@ const AuthenticatedApp = () => {
         <Route path="/legacy" element={<Suspense fallback={<RouteLoader />}><FadeIn><LegacyReader /></FadeIn></Suspense>} />
           </Route>
           <Route path="/dailyverse.txt" element={<Suspense fallback={null}><DailyVerseTxt /></Suspense>} />
+          <Route path="/bible.txt" element={<Suspense fallback={null}><DailyVerseTxt /></Suspense>} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       )}
