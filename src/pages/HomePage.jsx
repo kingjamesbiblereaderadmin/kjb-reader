@@ -63,11 +63,9 @@ export default function HomePage() {
     checkCache();
   }, []);
 
-  // Auto-check for updates once on home load. If found, the splash "home update"
-  // sequence runs after reload. Runs only once per session to avoid loops.
+  // Auto-check for updates on every home load. If found, the splash "home update"
+  // sequence runs after reload.
   useEffect(() => {
-    if (sessionStorage.getItem('kjb-home-update-checked') === 'true') return;
-    sessionStorage.setItem('kjb-home-update-checked', 'true');
     if (typeof navigator === 'undefined' || !navigator.onLine) return;
     // Wait for the splash to finish before auto-checking
     const run = () => {
