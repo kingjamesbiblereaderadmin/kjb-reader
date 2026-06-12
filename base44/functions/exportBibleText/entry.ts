@@ -52,18 +52,27 @@ Deno.serve(async (req) => {
       const bookName = ABBR_TO_NAME[abbr];
       if (!bookName) continue;
 
-      // Clean markers: trailing colophon [..], paragraph marks, superscription
-      // <<..>>, and the [italic] brackets — leaving plain readable text.
       // Paragraph marks may appear as ¶ (U+00B6) or as a replacement char
-      // (U+FFFD) depending on the source encoding — strip both.
-      vt = vt.replace(/\s*[\u00B6\uFFFD]\s*\[.*?\]\s*$/, '');
-      vt = vt.replace(/[\u00B6\uFFFD]\s*/g, '');
+      // (U+FFFD) depending on the source encoding. Normalise both to ¶ first,
+      // then detect whether this verse begins a new paragraph so we can keep
+      // a clean pilcrow at the start of the verse text.
+      vt = vt.replace(/[\uFFFD]/g, '\u00B6');
+
+      // Strip the trailing colophon (e.g. "¶ [The book ... was written ...]").
+      vt = vt.replace(/\s*\u00B6\s*\[.*?\]\s*$/, '');
+
+      // A leading ¶ (after optional superscription) marks a new paragraph.
+      const startsParagraph = /^\s*(?:<<[^>]*>>\s*)?\u00B6/.test(vt);
+
+      // Remove any remaining pilcrows, superscription <<..>> and [italic] brackets.
+      vt = vt.replace(/\u00B6\s*/g, '');
       vt = vt.replace(/<<[^>]*>>\s*/g, '');
       vt = vt.replace(/[\[\]]/g, '');
       vt = vt.replace(/\s+/g, ' ').trim();
       if (!vt) continue;
 
-      out.push(`${bookName} ${chapter}:${verse} ${vt}`);
+      const prefix = startsParagraph ? '\u00B6 ' : '';
+      out.push(`${bookName} ${chapter}:${verse} ${prefix}${vt}`);
     }
 
     const body = out.join('\n') + '\n';
