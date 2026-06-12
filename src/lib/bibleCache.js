@@ -52,7 +52,7 @@ function isPsalm9Correct(data) {
   return true;
 }
 
-async function fetchWithRetry(url, retries = 5, expectPilcrows = false) {
+async function fetchWithRetry(url, retries = 5, expectPilcrows = false, onProgress = null) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       // Add timestamp to bypass browser/CDN cache
@@ -80,7 +80,31 @@ async function fetchWithRetry(url, retries = 5, expectPilcrows = false) {
         }
         throw new Error('HTTP ' + res.status);
       }
-      const buf = await res.arrayBuffer();
+
+      // Stream the body so we can report REAL download progress (bytes received
+      // / total). Falls back to a plain arrayBuffer() if streaming isn't
+      // available or there's no Content-Length header.
+      const total = parseInt(res.headers.get('Content-Length') || '0', 10);
+      let buf;
+      if (onProgress && res.body && res.body.getReader && total > 0) {
+        const reader = res.body.getReader();
+        const chunks = [];
+        let received = 0;
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          received += value.length;
+          // Reserve 0–90% for the download; parsing/saving uses the rest.
+          onProgress(Math.min(90, Math.round((received / total) * 90)), 'Downloading Bible text...');
+        }
+        const merged = new Uint8Array(received);
+        let offset = 0;
+        for (const c of chunks) { merged.set(c, offset); offset += c.length; }
+        buf = merged.buffer;
+      } else {
+        buf = await res.arrayBuffer();
+      }
       const text = new TextDecoder('windows-1252').decode(buf);
       console.log('[FETCH] Received', text.length, 'characters');
       
@@ -178,11 +202,11 @@ async function loadFromCache() {
   }
 }
 
-async function fetchAndParse() {
+async function fetchAndParse(onProgress = null) {
   console.log('[FETCH] Fetching single PCE text file...');
   console.log('[FETCH] PCE URL:', PCE_TEXT_FILE_URL);
 
-  const mainText = await fetchWithRetry(PCE_TEXT_FILE_URL, 3, false);
+  const mainText = await fetchWithRetry(PCE_TEXT_FILE_URL, 3, false, onProgress);
   console.log('[FETCH] ✓ PCE text:', mainText.length, 'chars');
 
   const bracketCount = (mainText.match(/\[/g) || []).length;
@@ -334,28 +358,11 @@ export async function forceReloadBibleData() {
 export async function downloadBibleForOffline(onProgress) {
   // Clear IndexedDB only (don't reload page)
   await clearIndexedDB();
-  onProgress && onProgress(5, 'Fetching Bible text...');
+  onProgress && onProgress(0, 'Downloading Bible text...');
 
-  // The parse step (fetchAndParse) can take several seconds with no native
-  // progress events. Without feedback the bar appears to freeze/disappear at
-  // 50%. Animate it smoothly from 10→85 while parsing runs in the background.
-  let creeping = true;
-  let pct = 10;
-  const creep = setInterval(() => {
-    if (!creeping) return;
-    if (pct < 85) {
-      pct += 1;
-      onProgress && onProgress(pct, 'Parsing 66 books...');
-    }
-  }, 120);
-
-  let data;
-  try {
-    data = await fetchAndParse();
-  } finally {
-    creeping = false;
-    clearInterval(creep);
-  }
+  // Real byte-level download progress (0–90%) streamed from the network, then
+  // parsing → saving fill the remaining 90–100%.
+  const data = await fetchAndParse(onProgress);
 
   if (!isValidBibleData(data)) {
     throw new Error('Download incomplete: only got ' + Object.keys(data).filter(k => k !== '__colophons').length + ' books');
