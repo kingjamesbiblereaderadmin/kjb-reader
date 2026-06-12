@@ -334,11 +334,29 @@ export async function forceReloadBibleData() {
 export async function downloadBibleForOffline(onProgress) {
   // Clear IndexedDB only (don't reload page)
   await clearIndexedDB();
-  onProgress && onProgress(0, 'Fetching Bible text...');
+  onProgress && onProgress(5, 'Fetching Bible text...');
 
-  onProgress && onProgress(50, 'Parsing 66 books...');
+  // The parse step (fetchAndParse) can take several seconds with no native
+  // progress events. Without feedback the bar appears to freeze/disappear at
+  // 50%. Animate it smoothly from 10→85 while parsing runs in the background.
+  let creeping = true;
+  let pct = 10;
+  const creep = setInterval(() => {
+    if (!creeping) return;
+    if (pct < 85) {
+      pct += 1;
+      onProgress && onProgress(pct, 'Parsing 66 books...');
+    }
+  }, 120);
 
-  const data = await fetchAndParse();
+  let data;
+  try {
+    data = await fetchAndParse();
+  } finally {
+    creeping = false;
+    clearInterval(creep);
+  }
+
   if (!isValidBibleData(data)) {
     throw new Error('Download incomplete: only got ' + Object.keys(data).filter(k => k !== '__colophons').length + ' books');
   }
