@@ -798,6 +798,12 @@ export default function BibleReader() {
     else { const prev = getPrevBook(pos.abbr); if (prev) navigate(prev.abbr, prev.chapters); }
   };
 
+  const anyMenuOpen = showBookPicker || showChapterPicker || showVersePicker || showZoomPopover || showFontPopover;
+  const closeAllMenus = () => {
+    setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false);
+    setShowZoomPopover(false); setShowFontPopover(false);
+  };
+
   const lastReadingActive = !!(lastReadingPos && !lastReadingPos.cleared && lastReadingPos.abbr === pos.abbr && lastReadingPos.chapter === pos.chapter);
   const isLastChapterLastBook = pos.abbr === 'REV' && pos.chapter === 22;
   const isFirstChapterFirstBook = pos.abbr === 'GEN' && pos.chapter === 0;
@@ -807,7 +813,15 @@ export default function BibleReader() {
     <div onClick={(e) => { if (!e.target.closest('.kjb-verse-container, h1, h2, h3, .kjb-subscript, .kjb-colophon, #kjb-colophon-anchor, #kjb-subscript-anchor, button, a')) { setHighlightVerse(null); setHighlightSection(null); if (!selectMode) setHighlightedVerses(new Set()); } }} className={`w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-3 ${hideHeader ? 'pt-16' : ''}`}>
       {!hideHeader && (
         <div ref={topRef} className="print:hidden sticky top-0 z-[100] border-b border-border pb-4 pt-3 mb-8 relative shadow-sm -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 bg-background before:content-[''] before:absolute before:bottom-full before:left-0 before:right-0 before:h-12 before:bg-background">
-          <div className="flex flex-wrap items-stretch justify-stretch gap-3 w-full max-w-[120rem] mx-auto [&>button:not(.kjb-fixed-btn)]:flex-grow [&>button:not(.kjb-fixed-btn)]:basis-auto [&>div.relative]:flex-grow [&>div.relative>button]:w-full">
+          <div
+            onClickCapture={(e) => {
+              // Tapping empty space inside the toolbar (the gaps/padding between
+              // buttons, not a button or an open popover) closes any open menu.
+              if (anyMenuOpen && !e.target.closest('button, [role="menu"], .kjb-popover-panel')) {
+                closeAllMenus();
+              }
+            }}
+            className="flex flex-wrap items-stretch justify-stretch gap-3 w-full max-w-[120rem] mx-auto [&>button:not(.kjb-fixed-btn)]:flex-grow [&>button:not(.kjb-fixed-btn)]:basis-auto [&>div.relative]:flex-grow [&>div.relative>button]:w-full">
             <div className="relative flex">
               <button
                 onClick={() => { setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
@@ -818,7 +832,7 @@ export default function BibleReader() {
                 <ChevronRight className={`w-3 h-3 opacity-70 transition-transform duration-200 flex-shrink-0 ${showBookPicker ? 'rotate-90' : ''}`} />
               </button>
               {showBookPicker && !isMobile() && (
-                <div className="absolute top-full left-0 mt-1 z-[100]">
+                <div className="kjb-popover-panel absolute top-full left-0 mt-1 z-[100]">
                   <BookSelector
                     currentAbbr={pos.abbr}
                     onSelect={(b, isTitlePage, showChapter) => {
@@ -853,7 +867,7 @@ export default function BibleReader() {
                   <ChevronRight className={`w-3 h-3 opacity-70 transition-transform duration-200 flex-shrink-0 ${showChapterPicker ? 'rotate-90' : ''}`} />
                 </button>
                 {showChapterPicker && !isMobile() && (
-                  <div className="absolute top-full left-0 mt-1 z-[100]">
+                  <div className="kjb-popover-panel absolute top-full left-0 mt-1 z-[100]">
                     <ChapterSelector
                       totalChapters={book.chapters}
                       currentChapter={pos.chapter}
@@ -887,7 +901,7 @@ export default function BibleReader() {
                   {selectMode ? <CheckSquare className="w-3.5 h-3.5 opacity-70 flex-shrink-0 transition-transform duration-200" /> : <ChevronRight className={`w-3 h-3 opacity-70 transition-transform duration-200 flex-shrink-0 ${showVersePicker ? 'rotate-90' : ''}`} />}
                 </button>
                 {showVersePicker && verseCount > 0 && !isMobile() && (
-                  <div className="absolute top-full left-0 mt-1 z-[100]">
+                  <div className="kjb-popover-panel absolute top-full left-0 mt-1 z-[100]">
                     <VerseSelector
                       totalVerses={verseCount}
                       currentVerse={highlightVerse}
@@ -932,7 +946,7 @@ export default function BibleReader() {
                 <span className="truncate">{zoomLevel}%</span>
               </button>
               {showZoomPopover && !isMobile() && (
-                <div className="absolute top-full right-0 mt-1 z-[100]" onClick={(e) => e.stopPropagation()}>
+                <div className="kjb-popover-panel absolute top-full right-0 mt-1 z-[100]" onClick={(e) => e.stopPropagation()}>
                   <div className="bg-card border border-border rounded-xl shadow-xl p-4 w-64 relative overflow-hidden">
                     <div className="flex items-center justify-between mb-3 pr-6">
                       <span className="font-sans text-xs font-medium text-foreground">Text Size</span>
@@ -979,7 +993,7 @@ export default function BibleReader() {
                 <span className="hidden sm:inline">{(() => { const active = a11yActive ? a11yFont : fontFamily; return active === 'serif' ? 'Serif' : active === 'sans-serif' ? 'Sans' : active === 'monospace' ? 'Mono' : active === 'dyslexic' ? 'Dyslexic' : active === 'hyperlegible' ? 'Legible' : 'Cursive'; })()}</span>
               </button>
               {showFontPopover && !isMobile() && (
-                <div className="absolute top-full left-0 mt-1 z-[100]" onClick={(e) => e.stopPropagation()}>
+                <div className="kjb-popover-panel absolute top-full left-0 mt-1 z-[100]" onClick={(e) => e.stopPropagation()}>
                   <div className="bg-card border border-border rounded-xl shadow-xl p-4 w-64 relative overflow-hidden">
                     <div className="flex items-center justify-between mb-3 pr-6"><span className="font-sans text-xs font-medium text-foreground">Font Family</span></div>
                     <button onClick={() => setShowFontPopover(false)} className="absolute top-3 right-3 p-1 rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"><X className="w-4 h-4" /></button>
