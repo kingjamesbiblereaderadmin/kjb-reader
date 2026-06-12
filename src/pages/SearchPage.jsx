@@ -912,23 +912,22 @@ export default function SearchPage() {
     exportVerses(format, items, q, filters);
   };
 
+  // Share search results as a LINK ONLY — builds the search URL and copies/shares it.
   const handleShare = async () => {
-    const indices = selected.size > 0 ? selected : new Set(results.map((_, i) => i));
-    const text = formatVerses(indices);
     const q = getQueryFromUrl() || query;
-    const shareText = `KJB Search Results — "${q}"\n\n${text}`;
-    
+    const shareUrl = `<${window.location.origin}/search?q=${encodeURIComponent(q)}>`;
+
     try {
       if (navigator.share) {
-        await navigator.share({ title: `KJB Search: ${q}`, text: shareText });
+        await navigator.share({ title: `KJB Search: ${q}`, text: shareUrl });
         return;
       }
     } catch (err) {
       if (err?.name === 'AbortError') return;
     }
-    
+
     try {
-      await navigator.clipboard.writeText(shareText);
+      await navigator.clipboard.writeText(shareUrl);
       setShareFeedback(true);
       setTimeout(() => setShareFeedback(false), 1800);
     } catch {}
