@@ -361,7 +361,15 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         onDone?.();
         return;
       }
-    })();
+    })().catch((err) => {
+      console.error('[Splash] Fatal error in splash flow:', err);
+      // Fallback: show welcome and complete splash to prevent black screen
+      setStep('WELCOME TO KJB READER.');
+      setTimeout(() => {
+        window.dispatchEvent(new Event('kjb-progress-clear'));
+        onDone?.();
+      }, 1500);
+    });
   }, [isVisible, mode]);
 
   if (!isVisible) return null;
