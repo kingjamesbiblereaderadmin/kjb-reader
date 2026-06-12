@@ -63,6 +63,27 @@ export default function HomePage() {
     checkCache();
   }, []);
 
+  // Auto-check for updates once on home load. If found, the splash "home update"
+  // sequence runs after reload. Runs only once per session to avoid loops.
+  useEffect(() => {
+    if (sessionStorage.getItem('kjb-home-update-checked') === 'true') return;
+    sessionStorage.setItem('kjb-home-update-checked', 'true');
+    if (typeof navigator === 'undefined' || !navigator.onLine) return;
+    // Wait for the splash to finish before auto-checking
+    const run = () => {
+      import('@/lib/homeUpdateCheck').then(({ checkHomeForUpdates }) => {
+        checkHomeForUpdates().catch(() => {});
+      });
+    };
+    if (window.kjbSplashDone) {
+      setTimeout(run, 1000);
+    } else {
+      const onDone = () => { window.removeEventListener('kjb-splash-done', onDone); setTimeout(run, 1000); };
+      window.addEventListener('kjb-splash-done', onDone);
+      return () => window.removeEventListener('kjb-splash-done', onDone);
+    }
+  }, []);
+
   useEffect(() => {
     // 2. Fetch today's verse in the background quietly
     console.log("[HomePage] Starting verse fetch...");
@@ -138,114 +159,21 @@ export default function HomePage() {
       if (typeof navigator !== 'undefined' && navigator.onLine) {
         (async () => {
           try {
-            let swUpdated = false;
-            if ('serviceWorker' in navigator) {
-              const reg = await navigator.serviceWorker.getRegistration();
-              if (reg) {
-                await reg.update().catch(() => {});
-                if (reg.waiting) {
-                  swUpdated = true;
-                } else if (reg.installing) {
-                  if (reg.installing.state === 'installed') {
-                    swUpdated = true;
-                  } else {
-                    await new Promise(resolve => {
-                      const worker = reg.installing;
-                      worker.addEventListener('statechange', () => {
-                        if (worker.state === 'installed') {
-                          swUpdated = true;
-                          resolve();
-                        } else if (worker.state === 'redundant') {
-                          resolve();
-                        }
-                      });
-                      setTimeout(resolve, 5000);
-                    });
-                  }
-                }
-              }
-            }
-            console.log(`[UpdateCheck] App code updates found (pull): ${swUpdated}`);
-            
-            // Check Bible updates
-            const { checkForUpdates, downloadBibleForOffline } = await import('@/lib/bibleCache');
-            const bibleNeedsUpdate = await checkForUpdates().catch(() => false);
-            console.log(`[UpdateCheck] Bible updates found (pull): ${bibleNeedsUpdate}`);
+            const { checkHomeForUpdates } = await import('@/lib/homeUpdateCheck');
+            const updating = await checkHomeForUpdates();
+            if (updating) return; // splash + reload handles the rest
 
-            // Ensure the checking message is visible for at least a brief moment so it doesn't flash
-            await new Promise(r => setTimeout(r, 500));
-
-            if (swUpdated || bibleNeedsUpdate) {
-              console.log('[UpdateCheck] Updates found (pull). Triggering splash screen and applying...');
-              let reloadText = 'Found updates...';
-              let updateType = 'app';
-              if (swUpdated && bibleNeedsUpdate) { reloadText = 'Found app & Bible updates...'; updateType = 'both'; }
-              else if (bibleNeedsUpdate) { reloadText = 'Found Bible data updates...'; updateType = 'bible'; }
-              else if (swUpdated) { reloadText = 'Found app updates...'; updateType = 'app'; }
-              
-              window.dispatchEvent(new Event('kjb-progress-clear'));
-              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: reloadText, status: 'loading' } }));
-
-              await new Promise(r => setTimeout(r, 500));
-
-              if (bibleNeedsUpdate) {
-                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Installing updates...', status: 'loading' } }));
-                console.log('[UpdateCheck] Downloading new Bible data...');
-                localStorage.removeItem('bible_cache_version');
-                localStorage.removeItem('bible_last_refresh');
-                await downloadBibleForOffline();
-              } else if (swUpdated) {
-                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Installing updates...', status: 'loading' } }));
-                await new Promise(r => setTimeout(r, 500));
-              }
-
-              window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'Applying updates...', status: 'loading' } }));
-              await new Promise(r => setTimeout(r, 500));
-
-              sessionStorage.setItem('kjb_sw_updated', updateType);
-              sessionStorage.setItem('kjb-splash-home-update', 'true');
-
-              if (swUpdated && 'serviceWorker' in navigator) {
-                const reg = await navigator.serviceWorker.getRegistration();
-                sessionStorage.setItem('kjb_last_app_update', Date.now().toString());
-                if (reg && reg.waiting) {
-                  reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                } else if (reg && reg.installing && (reg.installing.state === 'installed' || reg.installing.state === 'activating' || reg.installing.state === 'activated')) {
-                  reg.installing.postMessage({ type: 'SKIP_WAITING' });
-                }
-                console.log('[UpdateCheck] Activating new service worker...');
-                return; // main.jsx reloads it
-              }
-
-              console.log('[UpdateCheck] Reloading application...');
-              setTimeout(() => { window.location.href = window.location.pathname + '?refresh=' + Date.now(); }, 500);
-              return;
-            }
-
-            console.log('[UpdateCheck] No updates found (pull). Loading verse...');
-            // If no updates, load the verse
+            console.log('[UpdateCheck] No updates found (pull). Loading verse silently...');
+            // No updates — just refresh the verse silently, no toast banner.
             const v = await getDailyVerseFromBible();
             setVerse(v);
             setIsOffline(false);
             window.dispatchEvent(new Event('kjb-daily-verse-updated'));
-            
-            window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "App & Bible are up to date.", status: 'success' } }));
-            const clearTimer = setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
-            // Dismiss the banner immediately if the user scrolls
-            const scrollEl = document.getElementById('kjb-scroll');
-            const onScrollDismiss = () => {
-              clearTimeout(clearTimer);
-              window.dispatchEvent(new Event('kjb-progress-clear'));
-              scrollEl?.removeEventListener('scroll', onScrollDismiss);
-            };
-            scrollEl?.addEventListener('scroll', onScrollDismiss, { passive: true, once: true });
             scheduleDailyNotification();
           } catch (e) {
             console.error('[UpdateCheck] Pull-to-refresh check failed:', e);
             setVerse(getDailyVerse());
             setIsOffline(true);
-            window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'You are offline.', status: 'info' } }));
-            setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
           }
         })();
       } else {
@@ -253,14 +181,10 @@ export default function HomePage() {
           setVerse(v);
           setIsOffline(false);
           window.dispatchEvent(new Event('kjb-daily-verse-updated'));
-          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "Verse refreshed.", status: 'success' } }));
-          setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
           scheduleDailyNotification();
         }).catch(() => {
           setVerse(getDailyVerse());
           setIsOffline(true);
-          window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'You are offline.', status: 'info' } }));
-          setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
         });
       }
     }
