@@ -45,8 +45,12 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
       
       console.log('[KJB Splash] Mode:', mode, 'Incognito:', detectedIncognito);
 
-      // Set has-visited flag for subsequent visits
-      if (!isFirstVisit && !isHomeUpdate) {
+      // Mark the app as visited as soon as the splash runs (for ANY mode), so the
+      // NEXT visit is correctly classified as "subsequent". Previously this was
+      // only set in the subsequent branch, so a true first-load never wrote it —
+      // causing returning visitors to be wrongly treated as first-time (showing
+      // "DOWNLOADING OFFLINE DATA" and "WELCOME TO KJB READER" again).
+      if (!detectedIncognito) {
         localStorage.setItem('kjb-has-visited-app', 'true');
       }
 
