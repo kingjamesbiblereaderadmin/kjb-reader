@@ -193,7 +193,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         setStep('LOADING KJB READER...');
         await pause(STEP_PAUSE_MS);
 
-        // 2. Checking for updates (real check)
+        // 2. Checking for updates — real detection
         const hasUpdates = await runStep('CHECKING FOR UPDATES...', () => checkRealUpdates(swUpdatedAtMount));
 
         if (hasUpdates) {
@@ -201,13 +201,13 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           setStep('FOUND UPDATES.');
           await pause(STEP_PAUSE_MS);
 
-          // 4. Installing updates (real download with live %)
+          // 4. Installing updates — real download progress
           await downloadWithProgress('INSTALLING UPDATES...');
 
-          // 5. Applying updates (real SW activation)
+          // 5. Applying updates — real SW activation
           await runStep('APPLYING UPDATES...', applyServiceWorker);
 
-          // 6. Re-check for real — then report the actual result
+          // 6. Check again — real re-check, then report actual result
           const stillHasUpdates = await runStep('CHECKING FOR UPDATES...', () => checkRealUpdates(false));
           setStep(stillHasUpdates ? 'FOUND UPDATES.' : 'NO UPDATES FOUND.');
           await pause(STEP_PAUSE_MS);
@@ -238,29 +238,26 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         setStep('FOUND UPDATES.');
         await pause(STEP_PAUSE_MS);
 
-        // 2. Installing updates (real download with live %)
+        // 2. Installing updates — real download progress
         await downloadWithProgress('INSTALLING UPDATES...');
 
-        // 3. Applying updates (real SW activation)
+        // 3. Applying updates — real SW activation
         await runStep('APPLYING UPDATES...', applyServiceWorker);
 
-        // 4. Checking for updates (real check, repeat if found)
+        // 4. Checking for updates — real re-check (loop once if more found)
         const hasMoreUpdates = await runStep('CHECKING FOR UPDATES...', () => checkRealUpdates(false));
 
         if (hasMoreUpdates) {
-          // Loop once: Found → Installing → Applying → Checking
           setStep('FOUND UPDATES.');
           await pause(STEP_PAUSE_MS);
           await downloadWithProgress('INSTALLING UPDATES...');
           await runStep('APPLYING UPDATES...', applyServiceWorker);
-          const stillMore = await runStep('CHECKING FOR UPDATES...', () => checkRealUpdates(false));
-          setStep(stillMore ? 'FOUND UPDATES.' : 'NO UPDATES FOUND.');
-          await pause(STEP_PAUSE_MS);
-        } else {
-          // Confirm nothing more to apply before welcoming back.
-          setStep('NO UPDATES FOUND.');
-          await pause(STEP_PAUSE_MS);
+          await runStep('CHECKING FOR UPDATES...', () => checkRealUpdates(false));
         }
+
+        // Confirm nothing more to apply before welcoming back.
+        setStep('NO UPDATES FOUND.');
+        await pause(STEP_PAUSE_MS);
 
         // 5. Welcome back
         setStep('WELCOME BACK TO KJB READER.');
