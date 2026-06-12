@@ -109,8 +109,17 @@ export function renderVerseText(text, searchTerm = null) {
   // Each match gets a sequential data-occ index so the reader can scroll to a
   // specific occurrence when a verse contains the term more than once.
   if (searchTerm && searchTerm.trim().length > 0) {
-    const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const termRegex = new RegExp(`(${escaped})`, 'gi');
+    // Multi-keyword search (e.g. "heart, imagination") arrives comma-joined.
+    // Highlight EACH keyword. A quoted phrase stays as a single term.
+    const raw = searchTerm.trim();
+    const isQuoted = (raw.startsWith('"') && raw.endsWith('"')) || (raw.startsWith('\u201C') && raw.endsWith('\u201D'));
+    const inner = isQuoted ? raw.slice(1, -1) : raw;
+    const terms = isQuoted
+      ? [inner.trim()].filter(Boolean)
+      : inner.split(',').map(t => t.trim()).filter(Boolean);
+    const list = terms.length ? terms : [inner.trim()].filter(Boolean);
+    const escapedTerms = list.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    const termRegex = new RegExp(`(${escapedTerms.join('|')})`, 'gi');
     let occ = 0;
     // Split the HTML string into tag and text segments, only replace in text segments
     result = result.replace(/(<[^>]+>)|([^<]+)/g, (chunk, tag, text) => {
