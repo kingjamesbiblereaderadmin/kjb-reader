@@ -100,8 +100,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Default: cache-first for app shell, network-first for JS chunks
-  const isJsChunk = url.includes('/src/') || url.includes('.jsx') || url.includes('/assets/');
+  // Network-first for JavaScript chunks (prevents stale module errors)
+  const isJsChunk = url.includes('/src/') && (url.includes('/pages/') || url.includes('/components/') || url.includes('.jsx'));
   
   if (isJsChunk) {
     // Network-first for code chunks to prevent stale module errors
