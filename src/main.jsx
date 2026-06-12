@@ -27,10 +27,16 @@ window.addEventListener('load', async () => {
     return;
   }
   
-  // Register fresh service worker with cache-busting
+  // Register fresh service worker with aggressive cache-busting
   if ('serviceWorker' in navigator) {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js?v=' + Date.now(), { updateViaCache: 'none', scope: '/' });
+      // Force fresh SW fetch with timestamp + disable all caching layers
+      const swUrl = '/sw.js?t=' + Date.now();
+      const registration = await navigator.serviceWorker.register(swUrl, { 
+        updateViaCache: 'none', 
+        scope: '/',
+        type: 'classic'
+      });
       console.log('[SW] Registered:', registration.scope);
 
       // Reload when a new SW takes over in the BACKGROUND (after splash is done).

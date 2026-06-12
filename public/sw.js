@@ -12,7 +12,8 @@ const APP_SHELL_FILES = [
 ];
 
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing new version');
+  console.log('[SW] Installing new version', CACHE_NAME);
+  // Force all clients to reload immediately on install (clears all old module caches)
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[SW] Caching app shell');
@@ -33,6 +34,8 @@ self.addEventListener('install', (event) => {
       return self.skipWaiting();
     })
   );
+  // Force immediate reload of ALL open tabs to clear stale module memory
+  self.clients.claim();
 });
 
 self.addEventListener('activate', (event) => {
