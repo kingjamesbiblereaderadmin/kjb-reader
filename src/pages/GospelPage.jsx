@@ -79,7 +79,9 @@ function VerseLink({ book, chapter, verse, verseEnd, children }) {
 // a link to the gospel page, and the Robert Breaker video link.
 function buildGospelText() {
   const origin = (typeof window !== 'undefined' && window.location?.origin) ? window.location.origin : '';
-  const link = (abbr, chapter, verse) => `${origin}/read?book=${abbr}&chapter=${chapter}&verse=${verse}&from=gospel`;
+  // Wrap links in <> so messaging apps (WhatsApp, Telegram, Discord, etc.) don't
+  // render a big link preview/embed when the gospel is shared or copied.
+  const link = (abbr, chapter, verse) => `<${origin}/read?book=${abbr}&chapter=${chapter}&verse=${verse}&from=gospel>`;
   return `✝ HOW TO BE SAVED
 
 The Gospel is the glad tidings of the Lord Jesus Christ:
@@ -146,13 +148,13 @@ ${link('Eph', 1, 13)}
 Trust Jesus died, shed his blood, buried and rose again on the third day for your sins according to the scriptures.
 
 📖 Read the full gospel:
-${origin}/gospel
+<${origin}/gospel>
 
 ▶ Watch “THE GOSPEL THAT SAVES” by Robert Breaker:
-https://www.youtube.com/watch?v=znP9Dr6tOzU
+<https://www.youtube.com/watch?v=znP9Dr6tOzU>
 
 🎬 Watch the full gospel video playlist:
-https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq`;
+<https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq>`;
 }
 
 function GospelActions() {
@@ -199,6 +201,9 @@ function GospelActions() {
   // that don't render in document fonts (jsPDF, Word), and uses ASCII separators.
   const buildGospelTextPlain = () => {
     return buildGospelText()
+      // Strip the <> link wrappers — document/print exports show links plainly,
+      // the <> are only needed to suppress embeds in chat apps (copy/share).
+      .replace(/<((?:https?:)?\/\/[^>]+)>/g, '$1')
       .replace(/[━]+/g, '------------------------')
       // Strip ALL emoji / pictographic / symbol / arrow characters (incl. variation selectors)
       .replace(/[\u{1F000}-\u{1FFFF}\u{2190}-\u{2BFF}\u{2600}-\u{27BF}\u{2122}\u{2139}\u{FE00}-\u{FE0F}\u{200D}]/gu, '')
@@ -485,7 +490,7 @@ export default function GospelPage() {
             <p className="font-sans text-xs text-muted-foreground">Robert Breaker</p>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <CopyButton text="https://www.youtube.com/watch?v=znP9Dr6tOzU" className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors" />
+            <CopyButton text="<https://www.youtube.com/watch?v=znP9Dr6tOzU>" className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors" />
             <a
               href="https://www.youtube.com/watch?v=znP9Dr6tOzU"
               target="_blank"
@@ -514,7 +519,7 @@ export default function GospelPage() {
             </svg>
             Watch Full Playlist on YouTube
           </a>
-          <CopyButton text="https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq" className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors" />
+          <CopyButton text="<https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq>" className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors" />
         </div>
       </div>
 

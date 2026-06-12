@@ -159,10 +159,11 @@ export function exportTxt(items, query, filters, options = {}) {
 
       let formattedText = (!isReading && query) ? highlightTermText(text, query, filters) : text;
 
+      // Wrap the link in <> so chat apps don't render a link embed/preview.
       if (isSpecial) {
-        return `${prefix}${heading}${formattedText}\n  — ${it.ref} (KJB)${it.url ? `\n  Read: ${it.url}` : ''}`;
+        return `${prefix}${heading}${formattedText}\n  — ${it.ref} (KJB)${it.url ? `\n  Read: <${it.url}>` : ''}`;
       }
-      return `${prefix}${heading}• "${formattedText}"\n  — ${it.ref} (KJB)${it.url ? `\n  Read: ${it.url}` : ''}`;
+      return `${prefix}${heading}• "${formattedText}"\n  — ${it.ref} (KJB)${it.url ? `\n  Read: <${it.url}>` : ''}`;
     }).join('\n\n');
     return heading + verses;
   }).join('\n\n\n');

@@ -333,7 +333,8 @@ export default function BibleReader() {
     const hasSel = selectedVerses.size > 0;
     const ref = hasSel ? `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}` : `${book.shortName} ${pos.chapter}`;
     const url = buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: hasSel ? Math.min(...selectedVerses) : null, verseEnd: hasSel ? Math.max(...selectedVerses) : null });
-    const shareText = `${ref} (KJB)\n\n${url}`;
+    // Wrap the link in <> so chat apps don't render a link embed/preview.
+    const shareText = `${ref} (KJB)\n\n<${url}>`;
     try {
       if (navigator.share) return await navigator.share({ title: `${ref} — KJB Reader`, text: shareText, url });
     } catch (err) { if (err?.name === 'AbortError') return; }
