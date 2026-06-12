@@ -80,9 +80,7 @@ function VerseLink({ book, chapter, verse, verseEnd, children }) {
 function buildGospelText() {
   const origin = (typeof window !== 'undefined' && window.location?.origin) ? window.location.origin : '';
   const link = (abbr, chapter, verse) => `${origin}/read?book=${abbr}&chapter=${chapter}&verse=${verse}&from=gospel`;
-  return `✝ HOW TO BE SAVED?
-
-The Gospel of Jesus Christ:
+  return `✝ HOW TO BE SAVED
 
 The Gospel is the glad tidings of the Lord Jesus Christ:
 
@@ -112,7 +110,7 @@ ${link('1Tim', 3, 16)}
 
 3. Believe he died, shed his blood, was buried and rose again:
 
-“Moreover, brethren, I declare unto you the gospel which I preached unto you... how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures.”
+“Moreover, brethren, I declare unto you the gospel which I preached unto you, which also ye have received, and wherein ye stand; By which also ye are saved, if ye keep in memory what I preached unto you, unless ye have believed in vain. For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures.”
 — 1 Corinthians 15:1-4
 ${link('1Cor', 15, 1)}
 
@@ -136,6 +134,8 @@ These do NOT make you a Christian:
 ━━━━━━━━━━━━━━━━━━━━
 
 Once Saved, Always Saved:
+
+A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life. God's gift of eternal life is just that — eternal.
 
 “In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise.”
 — Ephesians 1:13
