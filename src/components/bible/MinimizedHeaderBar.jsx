@@ -12,7 +12,6 @@ export default function MinimizedHeaderBar({ fullscreen, toggleFullscreen, setHi
           <button
             type="button"
             onClick={toggleFullscreen}
-            onTouchEnd={(e) => { e.preventDefault(); toggleFullscreen(); }}
             title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
             className="p-2 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center cursor-pointer"
           >
@@ -21,7 +20,6 @@ export default function MinimizedHeaderBar({ fullscreen, toggleFullscreen, setHi
           <button
             type="button"
             onClick={() => setHideHeader(false)}
-            onTouchEnd={(e) => { e.preventDefault(); setHideHeader(false); }}
             className="p-2 rounded-lg bg-secondary hover:bg-accent/20 text-foreground transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center cursor-pointer"
             title="Show header"
           >
