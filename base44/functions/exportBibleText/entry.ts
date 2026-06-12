@@ -86,7 +86,9 @@ Deno.serve(async (req) => {
       out.push(`${bookName} ${chapter}:${verse} ${vt}`);
     }
 
-    const body = out.join('\n') + '\n';
+    // Prepend a UTF-8 BOM so editors/browsers reliably detect the encoding
+    // and render ¶ and — correctly (otherwise they appear as mojibake like "Â¶").
+    const body = '\uFEFF' + out.join('\n') + '\n';
     return new Response(body, {
       status: 200,
       headers: {
