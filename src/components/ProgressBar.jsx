@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Loader2, CheckCircle2, AlertCircle, Info } from 'lucide-react';
+import { useHeaderHide } from '@/lib/HeaderHideContext';
 
 export default function ProgressBar() {
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState(null); // 'loading' | 'success' | 'info' | 'error'
   const [visible, setVisible] = useState(false);
+  const { hideHeader } = useHeaderHide();
 
   useEffect(() => {
     const handleProgress = (e) => {
@@ -44,7 +46,7 @@ export default function ProgressBar() {
   const Icon = config.icon;
 
   return (
-    <div className={`fixed top-16 sm:top-14 left-1/2 -translate-x-1/2 z-[9999] w-[calc(100%-2rem)] sm:w-auto sm:min-w-[320px] sm:max-w-md px-4 py-2.5 rounded-xl border shadow-lg backdrop-blur-md ${config.bg} ${config.border} flex items-center gap-2.5`}>
+    <div className={`fixed ${hideHeader ? 'top-4' : 'top-16 sm:top-14'} left-1/2 -translate-x-1/2 z-[9999] w-[calc(100%-2rem)] sm:w-auto sm:min-w-[320px] sm:max-w-md px-4 py-2.5 rounded-xl border shadow-lg backdrop-blur-md transition-all duration-300 ${config.bg} ${config.border} flex items-center gap-2.5`}>
       <Icon className={`w-4 h-4 shrink-0 ${config.color} ${status === 'loading' ? 'animate-spin' : ''}`} style={{ animationDuration: '1.2s' }} />
       <p className="font-sans text-xs font-medium text-foreground flex-1">{message}</p>
     </div>
