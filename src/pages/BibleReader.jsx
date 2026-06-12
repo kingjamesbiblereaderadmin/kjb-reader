@@ -799,10 +799,25 @@ export default function BibleReader() {
   };
 
   const anyMenuOpen = showBookPicker || showChapterPicker || showVersePicker || showZoomPopover || showFontPopover;
-  const closeAllMenus = () => {
+  const closeAllMenus = useCallback(() => {
     setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false);
     setShowZoomPopover(false); setShowFontPopover(false);
-  };
+  }, []);
+
+  // Close any open reader menu when the user clicks ANYWHERE outside the reader
+  // toolbar / open popovers — including the app header bar buttons (search,
+  // home, dark mode, 3-dot menu), which call stopPropagation and so never reach
+  // the in-page backdrop. A capture-phase document listener catches them all.
+  useEffect(() => {
+    if (!anyMenuOpen) return;
+    const onDocClick = (e) => {
+      if (!e.target.closest('.kjb-reader-toolbar, .kjb-popover-panel, [role="menu"], [data-radix-popper-content-wrapper]')) {
+        closeAllMenus();
+      }
+    };
+    document.addEventListener('click', onDocClick, true);
+    return () => document.removeEventListener('click', onDocClick, true);
+  }, [anyMenuOpen, closeAllMenus]);
 
   const lastReadingActive = !!(lastReadingPos && !lastReadingPos.cleared && lastReadingPos.abbr === pos.abbr && lastReadingPos.chapter === pos.chapter);
   const isLastChapterLastBook = pos.abbr === 'REV' && pos.chapter === 22;
@@ -821,7 +836,7 @@ export default function BibleReader() {
                 closeAllMenus();
               }
             }}
-            className="flex flex-wrap items-stretch justify-stretch gap-3 w-full max-w-[120rem] mx-auto [&>button:not(.kjb-fixed-btn)]:flex-grow [&>button:not(.kjb-fixed-btn)]:basis-auto [&>div.relative]:flex-grow [&>div.relative>button]:w-full">
+            className="kjb-reader-toolbar flex flex-wrap items-stretch justify-stretch gap-3 w-full max-w-[120rem] mx-auto [&>button:not(.kjb-fixed-btn)]:flex-grow [&>button:not(.kjb-fixed-btn)]:basis-auto [&>div.relative]:flex-grow [&>div.relative>button]:w-full">
             <div className="relative flex">
               <button
                 onClick={() => { setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
