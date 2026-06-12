@@ -111,19 +111,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           setStep('APPLYING UPDATES...', true);
           await pause(STEP_PAUSE_MS);
 
-          // CRITICAL: Set flag BEFORE activating SW so it survives the reload
-          if (!detectedIncognito) {
-            try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {}
-          }
-
-          // Activate service worker (triggers reload)
-          if ('serviceWorker' in navigator) {
-            try {
-              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-              if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-            } catch {}
-          }
-
+          // 6. Applying updates - fire banner (already set above)
+          // Skip SW reload on first_load - let it activate in background to avoid mode switch
+          console.log('[Splash] First load - skipping SW reload to prevent "WELCOME BACK" issue');
+          
           // 7. Final check - no banner, no loop on first_load
           // Skip re-checking to prevent infinite reload loop on fresh installs
           console.log('[Splash] First load - skipping update re-check to prevent loop');
