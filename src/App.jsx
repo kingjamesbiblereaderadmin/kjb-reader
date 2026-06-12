@@ -157,19 +157,24 @@ const AuthenticatedApp = () => {
 
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
   
-  // Determine splash mode once on mount
+  // Determine splash mode once on mount.
+  // IMPORTANT: do NOT remove the 'kjb-splash-home-update' flag here. If a
+  // background SW reload happens mid-flow, removing it early would drop us back
+  // into the 'subsequent' flow (showing "LOADING → CHECKING → FOUND" instead of
+  // "FOUND UPDATES" first). The flag is cleared only when the splash completes.
   const splashMode = React.useMemo(() => {
     const homeUpdate = sessionStorage.getItem('kjb-splash-home-update') === 'true';
     const hasVisited = localStorage.getItem('kjb-has-visited-app');
-    
+
     if (homeUpdate) {
-      sessionStorage.removeItem('kjb-splash-home-update');
       return 'home_update';
     }
     return hasVisited ? 'subsequent' : 'first_load';
   }, []);
-  
+
   const handleSplashDone = () => {
+    // Splash flow finished — now it's safe to clear the home-update flag.
+    try { sessionStorage.removeItem('kjb-splash-home-update'); } catch {}
     setFadeSplash(true);
     setTimeout(() => {
       setShowSplash(false);

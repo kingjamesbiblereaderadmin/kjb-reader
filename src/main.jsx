@@ -47,6 +47,11 @@ window.addEventListener('load', async () => {
         // splash plays "Found updates → Installing → Applying" then finishes in
         // place. Reloading would interrupt it and consume the flag prematurely.
         if (window._kjbSplashApplyingUpdate) return;
+        // Also never reload while a home-update splash is still pending/in-flight.
+        // Its mode flag is only cleared once the splash completes, so reloading
+        // now would drop us into the "subsequent" flow (LOADING → CHECKING →
+        // FOUND) instead of starting with FOUND UPDATES.
+        if (sessionStorage.getItem('kjb-splash-home-update') === 'true') return;
         // Only reload ONCE per session for a background SW takeover, and set the
         // flag BEFORE reloading so the splash on the reloaded page shows
         // "Found updates" instead of "No updates found".
