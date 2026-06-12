@@ -23,19 +23,24 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
   const pause = (ms) => new Promise(r => setTimeout(r, ms));
 
-  // Detect whether there's a new service-worker version waiting to activate.
+  // The waiting worker we've already applied this session — used so the same
+  // waiting SW is never treated as a "new" update again (prevents loops).
+  const appliedWorkerRef = useRef(null);
+
+  // Detect whether there's a NEW service-worker version waiting to activate.
+  // A worker we already applied in this session does not count again.
   const hasSWUpdate = async () => {
     if (!navigator.onLine || !('serviceWorker' in navigator)) return false;
     try {
       const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
       if (!reg) return false;
       await reg.update().catch(() => {});
-      return !!reg.waiting;
+      return !!reg.waiting && reg.waiting !== appliedWorkerRef.current;
     } catch { return false; }
   };
 
-  // Run ONE update cycle: found → installing → applying → check again.
-  // Returns true if, after applying, another update is still waiting.
+  // Run ONE strictly-linear update cycle: found → installing → applying → check.
+  // Returns true only if a genuinely NEW worker is waiting afterwards.
   const runUpdateCycle = async () => {
     setStep('FOUND UPDATES.');
     await pause(STEP_PAUSE_MS);
@@ -52,11 +57,15 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
     setStep('APPLYING UPDATES...');
     await pause(STEP_PAUSE_MS);
 
-    // Activate the waiting SW (no page reload — avoids the refresh loop).
+    // Activate the waiting SW once and remember it (no page reload — the
+    // controllerchange auto-reload was removed, so this can't loop).
     if ('serviceWorker' in navigator) {
       try {
         const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-        if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        if (reg?.waiting) {
+          appliedWorkerRef.current = reg.waiting;
+          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        }
       } catch {}
     }
 
@@ -65,12 +74,12 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
     return await hasSWUpdate();
   };
 
-  // Automatically repeat update cycles while updates keep being found.
-  // Capped at 5 iterations so a perpetually-waiting SW can never loop forever.
+  // Repeat the linear cycle only while a genuinely new worker keeps appearing.
+  // Hard-capped at 3 iterations as a final safety guard against any loop.
   const runUpdateLoop = async () => {
     let more = true;
     let guard = 0;
-    while (more && guard < 5) {
+    while (more && guard < 3) {
       more = await runUpdateCycle();
       guard++;
     }
