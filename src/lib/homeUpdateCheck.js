@@ -1,9 +1,14 @@
 // Shared home-page update check.
-// Detects new app-code (service worker) and Bible-data caches. When an update
-// is found, it downloads the new Bible data, activates the new service worker,
-// flags the splash "home update" sequence, and reloads — so the splash screen
-// plays "Found updates → Installing → Applying → Checking → Welcome back".
-// When no update is found, resolves false silently (no splash, no toast).
+// DETECTION ONLY: detects new app-code (service worker) and Bible-data caches.
+// When an update is found, it ONLY flags the "home update" splash sequence and
+// reloads. It does NOT install or activate anything here — doing so would call
+// SKIP_WAITING, fire controllerchange, and reload the page before the splash
+// could play (resetting to a plain "loading → no updates found" sequence).
+//
+// After the reload, SplashScreen's home_update flow performs the actual
+// "Found updates → Installing → Applying → Checking → Welcome back" steps,
+// including downloading Bible data and activating the new service worker.
+// When no update is found, resolves false silently (no splash, no reload).
 
 export async function checkHomeForUpdates() {
   if (typeof navigator === 'undefined' || !navigator.onLine) return false;
@@ -34,36 +39,20 @@ export async function checkHomeForUpdates() {
   }
 
   // 2. Bible data update
-  const { checkForUpdates, downloadBibleForOffline } = await import('@/lib/bibleCache');
+  const { checkForUpdates } = await import('@/lib/bibleCache');
   const bibleNeedsUpdate = await checkForUpdates().catch(() => false);
 
   if (!swUpdated && !bibleNeedsUpdate) return false;
 
-  // Updates found — apply and trigger splash
+  // Updates found — flag the splash sequence and reload. The splash (running on
+  // the reloaded page) does the install + activate with proper messaging.
   let updateType = 'app';
   if (swUpdated && bibleNeedsUpdate) updateType = 'both';
   else if (bibleNeedsUpdate) updateType = 'bible';
 
-  if (bibleNeedsUpdate) {
-    localStorage.removeItem('bible_cache_version');
-    localStorage.removeItem('bible_last_refresh');
-    await downloadBibleForOffline();
-  }
-
   sessionStorage.setItem('kjb_sw_updated', updateType);
   sessionStorage.setItem('kjb-splash-home-update', 'true');
 
-  if (swUpdated && 'serviceWorker' in navigator) {
-    const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-    sessionStorage.setItem('kjb_last_app_update', Date.now().toString());
-    if (reg?.waiting) {
-      reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-    } else if (reg?.installing && ['installed', 'activating', 'activated'].includes(reg.installing.state)) {
-      reg.installing.postMessage({ type: 'SKIP_WAITING' });
-    }
-    return true; // main.jsx reloads on controllerchange
-  }
-
-  setTimeout(() => { window.location.href = window.location.pathname + '?refresh=' + Date.now(); }, 500);
+  setTimeout(() => { window.location.href = window.location.pathname + '?refresh=' + Date.now(); }, 300);
   return true;
 }

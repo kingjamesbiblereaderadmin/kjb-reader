@@ -107,9 +107,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           setStep('APPLYING UPDATES...');
           await pause(STEP_PAUSE_MS);
 
-          // Activate service worker
+          // Activate service worker (flag so main.jsx skips its reload)
           if ('serviceWorker' in navigator) {
             try {
+              window._kjbSplashApplyingUpdate = true;
               const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
               if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
             } catch {}
@@ -188,9 +189,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           setStep('APPLYING UPDATES...');
           await pause(STEP_PAUSE_MS);
 
-          // Activate service worker
+          // Activate service worker (flag so main.jsx skips its reload)
           if ('serviceWorker' in navigator) {
             try {
+              window._kjbSplashApplyingUpdate = true;
               const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
               if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
             } catch {}
@@ -238,9 +240,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         setStep('APPLYING UPDATES...');
         await pause(STEP_PAUSE_MS);
 
-        // Activate service worker
+        // Activate service worker (flag so main.jsx skips its reload)
         if ('serviceWorker' in navigator) {
           try {
+            window._kjbSplashApplyingUpdate = true;
             const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
             if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
           } catch {}
@@ -274,6 +277,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           await pause(STEP_PAUSE_MS);
           if ('serviceWorker' in navigator) {
             try {
+              window._kjbSplashApplyingUpdate = true;
               const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
               if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
             } catch {}
