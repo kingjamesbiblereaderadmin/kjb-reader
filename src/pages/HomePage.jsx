@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, RotateCw, ChevronRight } from 'lucide-react';
+import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, ChevronRight } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import OfflineStatusBanner from '@/components/OfflineStatusBanner';
 import IncognitoWarning from '@/components/IncognitoWarning';
@@ -208,36 +208,6 @@ export default function HomePage() {
           setIsOffline(true);
         });
       }
-    }
-  };
-
-  const [checkingUpdates, setCheckingUpdates] = useState(false);
-
-  // Visible, always-available "Check for Updates" affordance (the home pull-to-refresh
-  // gesture can't be triggered by automated tests). Runs the same update-check flow:
-  // if an update is found, the splash "home update" sequence runs after reload;
-  // otherwise the daily verse is refreshed silently.
-  const handleCheckUpdates = async () => {
-    if (checkingUpdates) return;
-    setCheckingUpdates(true);
-    try {
-      if (typeof navigator !== 'undefined' && navigator.onLine) {
-        const { checkHomeForUpdates } = await import('@/lib/homeUpdateCheck');
-        const updating = await checkHomeForUpdates();
-        if (updating) return; // splash + reload handles the rest
-        toast.success('You are up to date.');
-      }
-      const v = await getDailyVerseFromBible();
-      setVerse(v);
-      setIsOffline(navigator.onLine === false);
-      window.dispatchEvent(new Event('kjb-daily-verse-updated'));
-      scheduleDailyNotification();
-    } catch (e) {
-      console.error('[UpdateCheck] Manual check failed:', e);
-      setVerse(getDailyVerse());
-      setIsOffline(true);
-    } finally {
-      setCheckingUpdates(false);
     }
   };
 
@@ -528,18 +498,6 @@ export default function HomePage() {
             </Link>
           );
         })}
-      </div>
-
-      {/* Check for updates — visible, always-available trigger */}
-      <div className="print:hidden flex justify-center mb-6">
-        <button
-          onClick={handleCheckUpdates}
-          disabled={checkingUpdates}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary text-secondary-foreground border border-border font-sans text-sm font-medium hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100"
-        >
-          <RotateCw className={`w-4 h-4 ${checkingUpdates ? 'animate-spin' : ''}`} />
-          {checkingUpdates ? 'Checking…' : 'Check for Updates'}
-        </button>
       </div>
 
       {/* Gospel call */}
