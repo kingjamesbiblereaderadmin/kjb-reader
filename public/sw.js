@@ -100,7 +100,29 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Default: cache-first for app shell, network-first for other assets
+  // Default: cache-first for app shell, network-first for JS chunks
+  const isJsChunk = url.includes('/src/') || url.includes('.jsx') || url.includes('/assets/');
+  
+  if (isJsChunk) {
+    // Network-first for code chunks to prevent stale module errors
+    event.respondWith(
+      fetch(event.request).then((response) => {
+        if (response.ok) {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
+        }
+        return response;
+      }).catch(() => {
+        // Fallback to cache only if network fails
+        return caches.match(event.request);
+      })
+    );
+    return;
+  }
+  
+  // Cache-first for other assets
   event.respondWith(
     caches.open(CACHE_NAME).then(async (cache) => {
       const cachedResponse = await cache.match(event.request);
