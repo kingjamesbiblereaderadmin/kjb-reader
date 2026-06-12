@@ -180,13 +180,27 @@ const AuthenticatedApp = () => {
       return 'first_load';
     }
     
-    // Check if Bible data is cached - if NOT cached, this is a true first load
-    // Ignore hasVisited flag entirely — only the Bible cache determines first vs subsequent
+    // For fresh browser profile detection, check if ANY localStorage exists
+    // A truly fresh profile should have ZERO keys in localStorage
+    const hasAnyLocalStorage = localStorage.length > 0;
     const bibleCacheVersion = localStorage.getItem('bible_cache_version');
+    
+    // Debug: log ALL localStorage keys to see what's persisting
+    console.log('[App] Fresh browser check - localStorage keys:', Object.keys(localStorage));
+    console.log('[App] localStorage.length:', localStorage.length);
+    console.log('[App] bible_cache_version:', bibleCacheVersion);
+    
+    // If localStorage is completely empty, this is definitely a fresh browser profile
+    if (!hasAnyLocalStorage) {
+      console.log('[App] localStorage is completely empty — using first_load mode (fresh browser profile)');
+      return 'first_load';
+    }
+    
+    // localStorage has keys - check if Bible cache specifically exists
     const hasBibleData = !!bibleCacheVersion;
     
     if (!hasBibleData) {
-      console.log('[App] No Bible cache found — using first_load mode (true fresh install)');
+      console.log('[App] No Bible cache found — using first_load mode');
       return 'first_load';
     }
     
