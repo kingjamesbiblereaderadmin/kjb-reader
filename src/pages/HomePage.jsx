@@ -82,6 +82,11 @@ export default function HomePage() {
       intervalId = setInterval(run, 60 * 1000); // every minute
     };
 
+    // Also re-check whenever the app regains focus / becomes visible.
+    const onVisible = () => { if (document.visibilityState === 'visible') run(); };
+    window.addEventListener('focus', run);
+    document.addEventListener('visibilitychange', onVisible);
+
     let cleanupDoneListener = null;
     if (window.kjbSplashDone) {
       const t = setTimeout(startChecking, 1000);
@@ -95,6 +100,8 @@ export default function HomePage() {
     return () => {
       if (intervalId) clearInterval(intervalId);
       cleanupDoneListener?.();
+      window.removeEventListener('focus', run);
+      document.removeEventListener('visibilitychange', onVisible);
     };
   }, []);
 
