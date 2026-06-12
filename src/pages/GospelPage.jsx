@@ -143,7 +143,7 @@ ${link('Eph', 1, 13)}
 
 ━━━━━━━━━━━━━━━━━━━━
 
-Trust the blood — believe the gospel and be saved.
+Trust Jesus died, shed his blood, buried and rose again on the third day for your sins according to the scriptures.
 
 📖 Read the full gospel:
 ${origin}/gospel
