@@ -63,23 +63,39 @@ export default function HomePage() {
     checkCache();
   }, []);
 
-  // Auto-check for updates on every home load. If found, the splash "home update"
-  // sequence runs after reload.
+  // Auto-check for updates on home load, then every minute while the home page
+  // is open. If an update is found, the splash "home update" sequence runs
+  // after reload.
   useEffect(() => {
-    if (typeof navigator === 'undefined' || !navigator.onLine) return;
-    // Wait for the splash to finish before auto-checking
+    if (typeof navigator === 'undefined') return;
+    let intervalId = null;
+
     const run = () => {
+      if (!navigator.onLine) return;
       import('@/lib/homeUpdateCheck').then(({ checkHomeForUpdates }) => {
         checkHomeForUpdates().catch(() => {});
       });
     };
+
+    const startChecking = () => {
+      run();
+      intervalId = setInterval(run, 60 * 1000); // every minute
+    };
+
+    let cleanupDoneListener = null;
     if (window.kjbSplashDone) {
-      setTimeout(run, 1000);
+      const t = setTimeout(startChecking, 1000);
+      cleanupDoneListener = () => clearTimeout(t);
     } else {
-      const onDone = () => { window.removeEventListener('kjb-splash-done', onDone); setTimeout(run, 1000); };
+      const onDone = () => { window.removeEventListener('kjb-splash-done', onDone); setTimeout(startChecking, 1000); };
       window.addEventListener('kjb-splash-done', onDone);
-      return () => window.removeEventListener('kjb-splash-done', onDone);
+      cleanupDoneListener = () => window.removeEventListener('kjb-splash-done', onDone);
     }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+      cleanupDoneListener?.();
+    };
   }, []);
 
   useEffect(() => {
