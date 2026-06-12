@@ -29,6 +29,12 @@ Deno.serve(async (req) => {
     const lines = text.split('\n');
     const out = [];
 
+    // Pending subscript/heading lines (e.g. Psalm titles, "ALEPH.") that should
+    // be printed immediately before the NEXT verse they belong to.
+    let pendingSubscript = null;
+
+    const norm = (s) => s.replace(/[\uFFFD]/g, '\u00B6').replace(/\s+/g, ' ').trim();
+
     for (const raw of lines) {
       const trimmed = raw.trim();
       if (!trimmed) continue;
@@ -36,43 +42,48 @@ Deno.serve(async (req) => {
       const spaceIdx = trimmed.indexOf(' ');
       if (spaceIdx === -1) continue;
       const abbr = trimmed.slice(0, spaceIdx);
-      const rest = trimmed.slice(spaceIdx + 1);
+      const bookName = ABBR_TO_NAME[abbr];
+      // Skip structural metadata lines ("Book Name:", "GENESIS CHAPTER 1", etc.)
+      if (!bookName) continue;
 
+      const rest = trimmed.slice(spaceIdx + 1);
       const colonIdx = rest.indexOf(':');
-      if (colonIdx === -1) continue;
+
+      // ── Non-verse lines belonging to a book (no "chapter:verse") ──
+      // These are either a colophon ("¶ [Written to the Romans ...]") or a
+      // Psalm subscript / heading ("A Psalm of David...", "ALEPH.").
+      const looksLikeVerse = colonIdx !== -1 && /^\d+:\d+\s/.test(rest);
+      if (!looksLikeVerse) {
+        const clean = norm(rest);
+        if (!clean) continue;
+        if (/^\u00B6?\s*\[.*\]\s*$/.test(clean)) {
+          // Colophon — print as its own line at the end of the chapter.
+          out.push(`${bookName} — ${clean.replace(/^\u00B6\s*/, '\u00B6 ')}`);
+        } else {
+          // Subscript / heading — hold it for the next verse.
+          pendingSubscript = clean;
+        }
+        continue;
+      }
+
       const chapter = parseInt(rest.slice(0, colonIdx), 10);
       if (isNaN(chapter)) continue;
-
       const spaceIdx2 = rest.indexOf(' ', colonIdx);
       if (spaceIdx2 === -1) continue;
       const verse = parseInt(rest.slice(colonIdx + 1, spaceIdx2), 10);
       let vt = rest.slice(spaceIdx2 + 1);
       if (isNaN(verse) || !vt) continue;
 
-      const bookName = ABBR_TO_NAME[abbr];
-      if (!bookName) continue;
+      // Normalise the paragraph mark, keep [italic] brackets and pilcrows.
+      vt = norm(vt);
 
-      // Paragraph marks may appear as ¶ (U+00B6) or as a replacement char
-      // (U+FFFD) depending on the source encoding. Normalise both to ¶ first,
-      // then detect whether this verse begins a new paragraph so we can keep
-      // a clean pilcrow at the start of the verse text.
-      vt = vt.replace(/[\uFFFD]/g, '\u00B6');
+      // If a subscript was held, print it just before this verse.
+      if (pendingSubscript) {
+        out.push(`${bookName} ${chapter}:${verse} [${pendingSubscript}]`);
+        pendingSubscript = null;
+      }
 
-      // Strip the trailing colophon (e.g. "¶ [The book ... was written ...]").
-      vt = vt.replace(/\s*\u00B6\s*\[.*?\]\s*$/, '');
-
-      // A leading ¶ (after optional superscription) marks a new paragraph.
-      const startsParagraph = /^\s*(?:<<[^>]*>>\s*)?\u00B6/.test(vt);
-
-      // Remove any remaining pilcrows, superscription <<..>> and [italic] brackets.
-      vt = vt.replace(/\u00B6\s*/g, '');
-      vt = vt.replace(/<<[^>]*>>\s*/g, '');
-      vt = vt.replace(/[\[\]]/g, '');
-      vt = vt.replace(/\s+/g, ' ').trim();
-      if (!vt) continue;
-
-      const prefix = startsParagraph ? '\u00B6 ' : '';
-      out.push(`${bookName} ${chapter}:${verse} ${prefix}${vt}`);
+      out.push(`${bookName} ${chapter}:${verse} ${vt}`);
     }
 
     const body = out.join('\n') + '\n';
