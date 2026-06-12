@@ -40,9 +40,10 @@ Deno.serve(async (req) => {
     // the last verse of a book) can be labelled with that verse number.
     let lastChapter = null, lastVerse = null;
 
-    // Use the real pilcrow (¶) for the paragraph mark. The file is encoded as
-    // proper UTF-8 below so this renders correctly in any modern viewer.
-    const norm = (s) => s.replace(/[\uFFFD\u00B6]/g, '\u00B6').replace(/\s+/g, ' ').trim();
+    // Use a plain ASCII marker (#) for the paragraph mark so the file renders
+    // correctly in EVERY viewer/editor regardless of encoding (the real ¶ shows
+    // as "Â¶" in Latin-1 viewers).
+    const norm = (s) => s.replace(/[\uFFFD\u00B6]/g, '#').replace(/\s+/g, ' ').trim();
 
     for (const raw of lines) {
       const trimmed = raw.trim();
@@ -65,11 +66,11 @@ Deno.serve(async (req) => {
       if (!looksLikeVerse) {
         const clean = norm(rest);
         if (!clean) continue;
-        if (/^\u00B6?\s*\[.*\]\s*$/.test(clean)) {
+        if (/^#?\s*\[.*\]\s*$/.test(clean)) {
           // Colophon - print as its own line at the end of the chapter.
           // Strip the outer wrapping brackets (keep any inner [italic] words).
           const colo = clean
-            .replace(/^\u00B6\s*/, '\u00B6 ')
+            .replace(/^#\s*/, '# ')
             .replace(/\[([\s\S]*)\]/, '$1');
           // Colophons follow the book's final verse — label them with it.
           const ref = (lastChapter != null && lastVerse != null)
