@@ -49,8 +49,11 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
       // === FIRST LOAD FLOW ===
       if (isFirstVisit) {
-        // Set a session flag to track we're in first_load flow (survives SW reloads)
+        // Set flags at START to survive SW reloads
         sessionStorage.setItem('kjb-first-load-flow', 'true');
+        if (!detectedIncognito) {
+          try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {}
+        }
         
         // 1. Loading
         setStep('LOADING KJB READER...');
@@ -113,15 +116,6 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           // 6. Applying updates - fire banner
           setStep('APPLYING UPDATES...', true);
           await pause(STEP_PAUSE_MS);
-
-          // 6. Applying updates - fire banner
-          setStep('APPLYING UPDATES...', true);
-          await pause(STEP_PAUSE_MS);
-
-          // CRITICAL: Set localStorage flag BEFORE SW reload so it survives
-          if (!detectedIncognito) {
-            try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {}
-          }
 
           // Activate service worker (triggers reload to get new code)
           if ('serviceWorker' in navigator) {
