@@ -99,6 +99,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
               }
             }
             if (!hasUpdates) {
+              const { isSwUpdateAvailable } = await import('@/lib/swVersionCheck');
+              hasUpdates = await isSwUpdateAvailable().catch(() => false);
+            }
+            if (!hasUpdates) {
               const { checkForUpdates } = await import('@/lib/bibleCache');
               hasUpdates = await checkForUpdates().catch(() => false);
             }
@@ -156,6 +160,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         console.group('[Splash] Summary');
         stepsLog.current.forEach((msg, i) => console.log(`${i + 1}. ${msg}`));
         console.groupEnd();
+        try { const { markSwVersionApplied } = await import('@/lib/swVersionCheck'); markSwVersionApplied(); } catch {}
         markVisited();
         onDone?.();
         return;
@@ -182,6 +187,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
                 await reg.update().catch(() => {});
                 hasUpdates = !!(reg.waiting || reg.installing);
               }
+            }
+            if (!hasUpdates) {
+              const { isSwUpdateAvailable } = await import('@/lib/swVersionCheck');
+              hasUpdates = await isSwUpdateAvailable().catch(() => false);
             }
             if (!hasUpdates) {
               const { checkForUpdates } = await import('@/lib/bibleCache');
@@ -236,6 +245,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         console.group('[Splash] Summary');
         stepsLog.current.forEach((msg, i) => console.log(`${i + 1}. ${msg}`));
         console.groupEnd();
+        try { const { markSwVersionApplied } = await import('@/lib/swVersionCheck'); markSwVersionApplied(); } catch {}
         markVisited();
         onDone?.();
         return;
