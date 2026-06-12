@@ -36,6 +36,9 @@ Deno.serve(async (req) => {
     // Pending subscript/heading lines (e.g. Psalm titles, "ALEPH.") that should
     // be printed immediately before the NEXT verse they belong to.
     let pendingSubscript = null;
+    // Track the most recent chapter:verse so a colophon (which always follows
+    // the last verse of a book) can be labelled with that verse number.
+    let lastChapter = null, lastVerse = null;
 
     // Use the real pilcrow (¶) for the paragraph mark. The file is encoded as
     // proper UTF-8 below so this renders correctly in any modern viewer.
@@ -68,7 +71,11 @@ Deno.serve(async (req) => {
           const colo = clean
             .replace(/^\u00B6\s*/, '\u00B6 ')
             .replace(/\[([\s\S]*)\]/, '$1');
-          out.push(`${bookName} - ${colo}`);
+          // Colophons follow the book's final verse — label them with it.
+          const ref = (lastChapter != null && lastVerse != null)
+            ? `${bookName} ${lastChapter}:${lastVerse}`
+            : `${bookName} -`;
+          out.push(`${ref} ${colo}`);
         } else {
           // Subscript / heading — hold it for the next verse.
           pendingSubscript = clean;
@@ -94,6 +101,8 @@ Deno.serve(async (req) => {
       }
 
       out.push(`${bookName} ${chapter}:${verse} ${vt}`);
+      lastChapter = chapter;
+      lastVerse = verse;
     }
 
     // Encode the full text as plain UTF-8 bytes (NO BOM) and return as a binary
