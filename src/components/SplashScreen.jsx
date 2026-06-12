@@ -123,7 +123,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
             } catch {}
           }
 
-          // Final check for chained updates (one-time only, no infinite loop)
+          // Final check for chained updates
           setStep('CHECKING FOR UPDATES...');
           await pause(STEP_PAUSE_MS);
           let hasMoreUpdates = false;
@@ -137,22 +137,15 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
             } catch {}
           }
           if (hasMoreUpdates) {
-            setStep('FOUND UPDATES.', true);
-            await pause(STEP_PAUSE_MS);
-            setStep('INSTALLING UPDATES...', true);
-            try {
-              const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-              await downloadBibleForOffline();
-            } catch (err) {
-              console.error('[Splash] Chained update install failed:', err.message);
-            }
-            await pause(STEP_PAUSE_MS);
-            setStep('APPLYING UPDATES...', true);
-            await pause(STEP_PAUSE_MS);
-            // Don't trigger reload yet — let the flow complete to WELCOME first
-            console.log('[Splash] Chained update applied, waiting for WELCOME before reload');
+            // Found chained update — trigger reload to restart the splash flow from beginning
+            console.log('[Splash] Chained update found — reloading to restart splash flow');
+            sessionStorage.setItem('kjb-first-load-flow', 'true');
+            setTimeout(() => {
+              window.location.href = window.location.pathname + '?refresh=' + Date.now();
+            }, 500);
+            return; // Don't continue to WELCOME
           }
-          console.log('[Splash] First load - update cycle complete');
+          console.log('[Splash] First load - no more updates, proceeding to WELCOME');
         } else {
           // No updates - fire banner
           setStep('NO UPDATES FOUND.', true);
@@ -254,7 +247,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
               } catch {}
             }
 
-            // Final check for chained updates (one-time only, no infinite loop)
+            // Final check for chained updates
             setStep('CHECKING FOR UPDATES...');
             await pause(STEP_PAUSE_MS);
             let hasMoreUpdates = false;
@@ -268,22 +261,14 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
               } catch {}
             }
             if (hasMoreUpdates) {
-              setStep('FOUND UPDATES.', true);
-              await pause(STEP_PAUSE_MS);
-              setStep('INSTALLING UPDATES...', true);
-              try {
-                const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-                await downloadBibleForOffline();
-              } catch (err) {
-                console.error('[Splash] Chained update install failed:', err.message);
-              }
-              await pause(STEP_PAUSE_MS);
-              setStep('APPLYING UPDATES...', true);
-              await pause(STEP_PAUSE_MS);
-              // Don't trigger reload yet — let the flow complete to WELCOME first
-              console.log('[Splash] Chained update applied, waiting for WELCOME before reload');
+              // Found chained update — trigger reload to restart the splash flow from beginning
+              console.log('[Splash] Chained update found — reloading to restart splash flow');
+              setTimeout(() => {
+                window.location.href = window.location.pathname + '?refresh=' + Date.now();
+              }, 500);
+              return; // Don't continue to WELCOME
             }
-            console.log('[Splash] Subsequent visit - update cycle complete');
+            console.log('[Splash] Subsequent visit - no more updates, proceeding to WELCOME');
           } else {
             // No updates - fire banner
             setStep('NO UPDATES FOUND.', true);
