@@ -230,7 +230,15 @@ export default function HomePage() {
             window.dispatchEvent(new Event('kjb-daily-verse-updated'));
             
             window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: "App & Bible are up to date.", status: 'success' } }));
-            setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
+            const clearTimer = setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 3000);
+            // Dismiss the banner immediately if the user scrolls
+            const scrollEl = document.getElementById('kjb-scroll');
+            const onScrollDismiss = () => {
+              clearTimeout(clearTimer);
+              window.dispatchEvent(new Event('kjb-progress-clear'));
+              scrollEl?.removeEventListener('scroll', onScrollDismiss);
+            };
+            scrollEl?.addEventListener('scroll', onScrollDismiss, { passive: true, once: true });
             scheduleDailyNotification();
           } catch (e) {
             console.error('[UpdateCheck] Pull-to-refresh check failed:', e);
