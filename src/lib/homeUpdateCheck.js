@@ -28,6 +28,15 @@ async function fetchDeployedSwVersion() {
 export async function checkHomeForUpdates() {
   if (typeof navigator === 'undefined' || !navigator.onLine) return false;
 
+  // Guard against a premature background reload: calling reg.update() below can
+  // install AND auto-activate a freshly-deployed worker (it calls skipWaiting),
+  // which fires controllerchange in main.jsx. If the home-update splash flag
+  // isn't set yet, main.jsx would reload first and drop us into the
+  // "subsequent" flow ("LOADING → CHECKING"). Set the flag up-front so
+  // main.jsx's controllerchange guard blocks that reload. We clear it again at
+  // the end if no update was actually found.
+  sessionStorage.setItem('kjb-splash-home-update', 'true');
+
   // 1. App code update — a new service worker waiting/installing
   let swUpdated = false;
   if ('serviceWorker' in navigator) {
@@ -76,7 +85,12 @@ export async function checkHomeForUpdates() {
   const { checkForUpdates } = await import('@/lib/bibleCache');
   const bibleNeedsUpdate = await checkForUpdates().catch(() => false);
 
-  if (!swUpdated && !bibleNeedsUpdate) return false;
+  if (!swUpdated && !bibleNeedsUpdate) {
+    // No real update — clear the pre-emptive flag so the next normal load
+    // doesn't wrongly start in the home-update flow.
+    sessionStorage.removeItem('kjb-splash-home-update');
+    return false;
+  }
 
   // Updates found — flag the splash sequence and reload. The splash (running on
   // the reloaded page) does the install + activate with proper messaging.
@@ -85,7 +99,7 @@ export async function checkHomeForUpdates() {
   else if (bibleNeedsUpdate) updateType = 'bible';
 
   sessionStorage.setItem('kjb_sw_updated', updateType);
-  sessionStorage.setItem('kjb-splash-home-update', 'true');
+  // kjb-splash-home-update already set at the top of this function.
 
   setTimeout(() => { window.location.href = window.location.pathname + '?refresh=' + Date.now(); }, 300);
   return true;
