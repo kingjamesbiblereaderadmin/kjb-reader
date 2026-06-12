@@ -171,94 +171,99 @@ export function exportTxt(items, query, filters, options = {}) {
   downloadBlob(blob, `kjb-${sanitizeFilename(query)}${filterSuffix(filters)}.txt`);
 }
 
-// Highlight a search term in plain text
-function highlightTermText(text, query, filters) {
-  if (!query) return text;
-  let term = query.trim();
-  const isQuoted = (term.startsWith('"') && term.endsWith('"')) || (term.startsWith('\u201C') && term.endsWith('\u201D'));
-  if (isQuoted && term.length >= 3) term = term.slice(1, -1).trim();
-  if (!term) return text;
-
-  const cs = isQuoted || (filters && filters.caseSensitive);
-  const ww = isQuoted || (filters && filters.wholeWord);
-  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const re = ww 
-    ? new RegExp(`(^|[^a-zA-Z'])(${escaped})(?=[^a-zA-Z']|$)`, cs ? 'g' : 'gi')
-    : new RegExp(`(${escaped})`, cs ? 'g' : 'gi');
-
-  if (ww) {
-    return text.replace(re, (match, prefix, termMatch) => `${prefix}***${termMatch}***`);
-  }
-  return text.replace(re, (match) => `***${match}***`);
-}
-
-// Split string into highlighted and non-highlighted parts for PDF
-function splitForHighlight(str, query, filters) {
-  if (!query) return [{ text: str, highlight: false }];
-  let term = query.trim();
-  const isQuoted = (term.startsWith('"') && term.endsWith('"')) || (term.startsWith('\u201C') && term.endsWith('\u201D'));
-  if (isQuoted && term.length >= 3) term = term.slice(1, -1).trim();
-  if (!term) return [{ text: str, highlight: false }];
-
-  const cs = isQuoted || (filters && filters.caseSensitive);
-  const ww = isQuoted || (filters && filters.wholeWord);
-  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const re = ww 
-    ? new RegExp(`(^|[^a-zA-Z'])(${escaped})(?=[^a-zA-Z']|$)`, cs ? 'g' : 'gi')
-    : new RegExp(`(${escaped})`, cs ? 'g' : 'gi');
-
-  const parts = [];
-  let lastIndex = 0;
-  let match;
-  while ((match = re.exec(str)) !== null) {
-    const prefix = ww ? match[1] : '';
-    const termMatch = ww ? match[2] : match[0];
-    const matchStart = match.index + prefix.length;
-    
-    if (matchStart > lastIndex) {
-      parts.push({ text: str.substring(lastIndex, matchStart), highlight: false });
-    }
-    parts.push({ text: termMatch, highlight: true });
-    lastIndex = matchStart + termMatch.length;
-    
-    if (re.lastIndex === match.index) re.lastIndex++;
-  }
-  if (lastIndex < str.length) {
-    parts.push({ text: str.substring(lastIndex), highlight: false });
-  }
-  return parts;
-}
-
-// Highlight a search term in HTML text (safely skipping HTML tags)
-function highlightTermHtml(html, query, filters) {
-  if (!query) return html;
-  let term = query.trim();
+// Parse a query into its highlight term(s). Quoted queries → a single literal
+// phrase; otherwise split on commas to support multi-keyword search.
+function parseQueryTerms(query) {
+  let term = (query || '').trim();
   const isQuoted = (term.startsWith('"') && term.endsWith('"')) || (term.startsWith('\u201C') && term.endsWith('\u201D'));
   if (isQuoted && term.length >= 3) {
-    term = term.slice(1, -1).trim();
+    const inner = term.slice(1, -1).trim();
+    return { terms: inner ? [inner] : [], isQuoted: true };
   }
-  if (!term) return html;
+  const terms = term.split(',').map(t => t.trim()).filter(t => t.length >= 2);
+  if (terms.length >= 2) return { terms, isQuoted: false };
+  return { terms: term ? [term] : [], isQuoted: false };
+}
+
+// Highlight search term(s) in plain text (supports multiple comma-separated terms)
+function highlightTermText(text, query, filters) {
+  const { terms, isQuoted } = parseQueryTerms(query);
+  if (!terms.length) return text;
+  const cs = isQuoted || (filters && filters.caseSensitive);
+  const ww = isQuoted || (filters && filters.wholeWord);
+  let out = text;
+  for (const term of terms) {
+    const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = ww
+      ? new RegExp(`(^|[^a-zA-Z'])(${escaped})(?=[^a-zA-Z']|$)`, cs ? 'g' : 'gi')
+      : new RegExp(`(${escaped})`, cs ? 'g' : 'gi');
+    out = ww
+      ? out.replace(re, (m, prefix, tm) => `${prefix}***${tm}***`)
+      : out.replace(re, (m) => `***${m}***`);
+  }
+  return out;
+}
+
+// Split string into highlighted and non-highlighted parts for PDF.
+// Supports multiple comma-separated terms: builds a boolean highlight map.
+function splitForHighlight(str, query, filters) {
+  const { terms, isQuoted } = parseQueryTerms(query);
+  if (!terms.length) return [{ text: str, highlight: false }];
+
+  const cs = isQuoted || (filters && filters.caseSensitive);
+  const ww = isQuoted || (filters && filters.wholeWord);
+
+  const flags = new Array(str.length).fill(false);
+  for (const term of terms) {
+    const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = ww
+      ? new RegExp(`(^|[^a-zA-Z'])(${escaped})(?=[^a-zA-Z']|$)`, cs ? 'g' : 'gi')
+      : new RegExp(`(${escaped})`, cs ? 'g' : 'gi');
+    let match;
+    while ((match = re.exec(str)) !== null) {
+      const prefix = ww ? match[1] : '';
+      const termMatch = ww ? match[2] : match[0];
+      const start = match.index + prefix.length;
+      for (let p = start; p < start + termMatch.length; p++) flags[p] = true;
+      if (re.lastIndex === match.index) re.lastIndex++;
+    }
+  }
+
+  // Coalesce consecutive same-flag chars into runs.
+  const parts = [];
+  let i = 0;
+  while (i < str.length) {
+    const hl = flags[i];
+    let j = i;
+    while (j < str.length && flags[j] === hl) j++;
+    parts.push({ text: str.substring(i, j), highlight: hl });
+    i = j;
+  }
+  return parts.length ? parts : [{ text: str, highlight: false }];
+}
+
+// Highlight search term(s) in HTML text (safely skipping HTML tags).
+// Supports multiple comma-separated terms.
+function highlightTermHtml(html, query, filters) {
+  const { terms, isQuoted } = parseQueryTerms(query);
+  if (!terms.length) return html;
 
   const caseSensitive = isQuoted || (filters && filters.caseSensitive);
   const wholeWord = isQuoted || (filters && filters.wholeWord);
 
-  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const re = wholeWord 
-    ? new RegExp(`(^|[^a-zA-Z'])(${escaped})(?=[^a-zA-Z']|$)`, caseSensitive ? 'g' : 'gi')
-    : new RegExp(`(${escaped})`, caseSensitive ? 'g' : 'gi');
-
   const parts = html.split(/(<[^>]+>)/g);
-  for (let i = 0; i < parts.length; i += 2) {
-    if (parts[i]) {
-      if (wholeWord) {
-        parts[i] = parts[i].replace(re, (match, prefix, termMatch) => {
-          return `${prefix}<span style="background-color:#fef08a;color:inherit;">${termMatch}</span>`;
-        });
-      } else {
-        parts[i] = parts[i].replace(re, (match, termMatch) => {
-          return `<span style="background-color:#fef08a;color:inherit;">${termMatch}</span>`;
-        });
-      }
+  for (const term of terms) {
+    const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = wholeWord
+      ? new RegExp(`(^|[^a-zA-Z'])(${escaped})(?=[^a-zA-Z']|$)`, caseSensitive ? 'g' : 'gi')
+      : new RegExp(`(${escaped})`, caseSensitive ? 'g' : 'gi');
+    for (let i = 0; i < parts.length; i += 2) {
+      if (!parts[i]) continue;
+      // Don't re-highlight text already inside a highlight span (avoid nesting).
+      if (parts[i].includes('background-color:#fef08a')) continue;
+      parts[i] = wholeWord
+        ? parts[i].replace(re, (m, prefix, tm) => `${prefix}<span style="background-color:#fef08a;color:inherit;">${tm}</span>`)
+        : parts[i].replace(re, (m, tm) => `<span style="background-color:#fef08a;color:inherit;">${tm}</span>`);
     }
   }
   return parts.join('');
@@ -293,7 +298,7 @@ export function exportDocx(items, query, filters, options = {}) {
         return `${heading}<li style="margin:0 0 8pt 0;font-family:Georgia,serif;font-size:12pt;${isSpecial ? 'list-style-type:none;text-align:center;color:#555;' : ''}">` +
         `${formattedText}<br/>` +
         `<span style="font-size:10pt;color:#555;">&mdash; ${escapeHtml(it.ref)} (KJB)</span>` +
-        (it.url ? `<br/><a href="${escapeHtml(it.url)}" style="font-size:9pt;color:#2a5ac8;">${escapeHtml(it.url)}</a>` : '') +
+        (it.url ? `<br/><a href="${escapeHtml(it.url)}" style="font-size:9pt;color:#2a5ac8;word-break:break-all;overflow-wrap:break-word;">${escapeHtml(it.url)}</a>` : '') +
         `</li>`;
       }).join('') + `</ul>`;
   }).join('');
@@ -441,12 +446,19 @@ export function exportPdf(items, query, filters, options = {}) {
     doc.setFontSize(9);
     doc.setTextColor(90);
     doc.text(`— ${ref} (KJB)`, marginX + 15, y);
-    // Clickable verse link
+    // Clickable verse link — wrap long URLs so they never overflow the page.
     if (url) {
       y += lineH - 2;
       ensureSpace(lineH);
       doc.setTextColor(40, 90, 200);
-      doc.textWithLink(url, marginX + 15, y, { url });
+      const linkStartX = marginX + 15;
+      const linkMaxW = pageW - marginX - linkStartX;
+      // Break the URL into chunks that each fit within linkMaxW.
+      const chunks = doc.splitTextToSize(url, linkMaxW);
+      chunks.forEach((chunk, ci) => {
+        if (ci > 0) { y += lineH - 4; ensureSpace(lineH); }
+        doc.textWithLink(chunk, linkStartX, y, { url });
+      });
       doc.setTextColor(0);
     } else {
       doc.setTextColor(0);
