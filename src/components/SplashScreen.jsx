@@ -22,6 +22,75 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
   const pause = (ms) => new Promise(r => setTimeout(r, ms));
 
+  // Run a real async task while showing `label`. The banner stays visible for at
+  // least MIN_VISIBLE_MS so it's readable, but it never advances before the real
+  // work actually finishes — so every banner reflects real-time progress.
+  const MIN_VISIBLE_MS = 600;
+  const runStep = async (label, task) => {
+    setStep(label);
+    const start = Date.now();
+    let result;
+    try {
+      result = await task();
+    } finally {
+      const elapsed = Date.now() - start;
+      if (elapsed < MIN_VISIBLE_MS) await pause(MIN_VISIBLE_MS - elapsed);
+    }
+    return result;
+  };
+
+  // Download Bible data while live-updating the banner with real % progress.
+  const downloadWithProgress = async (label) => {
+    const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+    const start = Date.now();
+    try {
+      await downloadBibleForOffline((pct, msg) => {
+        setCurrentMessage(`${label} ${pct}%`);
+        window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: `${label} ${pct}%`, status: 'loading' } }));
+      });
+    } catch (err) {
+      console.error('[Splash] Download failed:', err.message);
+    }
+    const elapsed = Date.now() - start;
+    if (elapsed < MIN_VISIBLE_MS) await pause(MIN_VISIBLE_MS - elapsed);
+  };
+
+  // Real update detection: SW registration, SW version, then Bible cache version.
+  const checkRealUpdates = async (swUpdatedAtMount) => {
+    let hasUpdates = !!swUpdatedAtMount;
+    if (!hasUpdates && navigator.onLine) {
+      try {
+        if ('serviceWorker' in navigator) {
+          const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+          if (reg) {
+            await reg.update().catch(() => {});
+            hasUpdates = !!(reg.waiting || reg.installing);
+          }
+        }
+        if (!hasUpdates) {
+          const { isSwUpdateAvailable } = await import('@/lib/swVersionCheck');
+          hasUpdates = await isSwUpdateAvailable().catch(() => false);
+        }
+        if (!hasUpdates) {
+          const { checkForUpdates } = await import('@/lib/bibleCache');
+          hasUpdates = await checkForUpdates().catch(() => false);
+        }
+      } catch {}
+    }
+    return hasUpdates;
+  };
+
+  // Real SW activation.
+  const applyServiceWorker = async () => {
+    if ('serviceWorker' in navigator) {
+      try {
+        window._kjbSplashApplyingUpdate = true;
+        const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+        if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      } catch {}
+    }
+  };
+
   useEffect(() => {
     if (!isVisible || doneRef.current) return;
     doneRef.current = true;
@@ -64,87 +133,33 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
         // 2. Skip offline download in incognito (cache won't persist)
         if (!detectedIncognito) {
-          // 2. Downloading offline data
-          setStep('DOWNLOADING OFFLINE DATA...');
-          try {
-            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-            await downloadBibleForOffline();
-          } catch (err) {
-            console.error('[Splash] Offline download failed:', err.message);
-          }
-          await pause(STEP_PAUSE_MS);
+          // 2. Downloading offline data (real-time % progress)
+          await downloadWithProgress('DOWNLOADING OFFLINE DATA...');
 
           // 2b. Offline data complete
           setStep('OFFLINE BIBLE DATA COMPLETE.');
           await pause(STEP_PAUSE_MS);
-
-          // 3. Checking for updates
-          setStep('CHECKING FOR UPDATES...');
-          await pause(STEP_PAUSE_MS);
         } else {
-          // Incognito mode: skip download, go straight to update check
           console.log('[Splash] Incognito mode detected — skipping offline download');
-          // 2. Checking for updates (renumbered for incognito)
-          setStep('CHECKING FOR UPDATES...');
-          await pause(STEP_PAUSE_MS);
         }
 
-        // Honour the SW-update flag captured at mount (main.jsx sets it when a
-        // freshly-bumped, auto-activated SW takes over), since by now there's
-        // often no `waiting`/`installing` worker left to detect.
-        let hasUpdates = !!swUpdatedAtMount;
-        if (!hasUpdates && navigator.onLine) {
-          try {
-            if ('serviceWorker' in navigator) {
-              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-              if (reg) {
-                await reg.update().catch(() => {});
-                hasUpdates = !!(reg.waiting || reg.installing);
-              }
-            }
-            if (!hasUpdates) {
-              const { isSwUpdateAvailable } = await import('@/lib/swVersionCheck');
-              hasUpdates = await isSwUpdateAvailable().catch(() => false);
-            }
-            if (!hasUpdates) {
-              const { checkForUpdates } = await import('@/lib/bibleCache');
-              hasUpdates = await checkForUpdates().catch(() => false);
-            }
-          } catch {}
-        }
+        // 3. Checking for updates (real check)
+        const hasUpdates = await runStep('CHECKING FOR UPDATES...', () => checkRealUpdates(swUpdatedAtMount));
 
         if (hasUpdates) {
           // 4. Found updates
           setStep('FOUND UPDATES.');
           await pause(STEP_PAUSE_MS);
 
-          // 5. Installing updates
-          setStep('INSTALLING UPDATES...');
-          try {
-            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-            await downloadBibleForOffline();
-          } catch (err) {
-            console.error('[Splash] Data install failed:', err.message);
-          }
-          await pause(STEP_PAUSE_MS);
+          // 5. Installing updates (real download with live %)
+          await downloadWithProgress('INSTALLING UPDATES...');
 
-          // 6. Applying updates
-          setStep('APPLYING UPDATES...');
-          await pause(STEP_PAUSE_MS);
+          // 6. Applying updates (real SW activation)
+          await runStep('APPLYING UPDATES...', applyServiceWorker);
 
-          // Activate service worker (flag so main.jsx skips its reload)
-          if ('serviceWorker' in navigator) {
-            try {
-              window._kjbSplashApplyingUpdate = true;
-              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-              if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-            } catch {}
-          }
-
-          // 7. Check again (loop) — then confirm nothing more to apply
-          setStep('CHECKING FOR UPDATES...');
-          await pause(STEP_PAUSE_MS);
-          setStep('NO UPDATES FOUND.');
+          // 7. Re-check for real — then report the actual result
+          const stillHasUpdates = await runStep('CHECKING FOR UPDATES...', () => checkRealUpdates(false));
+          setStep(stillHasUpdates ? 'FOUND UPDATES.' : 'NO UPDATES FOUND.');
           await pause(STEP_PAUSE_MS);
         } else {
           // No updates
@@ -178,65 +193,23 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         setStep('LOADING KJB READER...');
         await pause(STEP_PAUSE_MS);
 
-        // 2. Checking for updates
-        setStep('CHECKING FOR UPDATES...');
-        await pause(STEP_PAUSE_MS);
-
-        // Honour the SW-update flag captured at mount so the "Found updates"
-        // sequence still plays after a freshly-bumped SW auto-activated.
-        let hasUpdates = !!swUpdatedAtMount;
-        if (!hasUpdates && navigator.onLine) {
-          try {
-            if ('serviceWorker' in navigator) {
-              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-              if (reg) {
-                await reg.update().catch(() => {});
-                hasUpdates = !!(reg.waiting || reg.installing);
-              }
-            }
-            if (!hasUpdates) {
-              const { isSwUpdateAvailable } = await import('@/lib/swVersionCheck');
-              hasUpdates = await isSwUpdateAvailable().catch(() => false);
-            }
-            if (!hasUpdates) {
-              const { checkForUpdates } = await import('@/lib/bibleCache');
-              hasUpdates = await checkForUpdates().catch(() => false);
-            }
-          } catch {}
-        }
+        // 2. Checking for updates (real check)
+        const hasUpdates = await runStep('CHECKING FOR UPDATES...', () => checkRealUpdates(swUpdatedAtMount));
 
         if (hasUpdates) {
           // 3. Found updates
           setStep('FOUND UPDATES.');
           await pause(STEP_PAUSE_MS);
 
-          // 4. Installing updates
-          setStep('INSTALLING UPDATES...');
-          try {
-            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-            await downloadBibleForOffline();
-          } catch (err) {
-            console.error('[Splash] Data install failed:', err.message);
-          }
-          await pause(STEP_PAUSE_MS);
+          // 4. Installing updates (real download with live %)
+          await downloadWithProgress('INSTALLING UPDATES...');
 
-          // 5. Applying updates
-          setStep('APPLYING UPDATES...');
-          await pause(STEP_PAUSE_MS);
+          // 5. Applying updates (real SW activation)
+          await runStep('APPLYING UPDATES...', applyServiceWorker);
 
-          // Activate service worker (flag so main.jsx skips its reload)
-          if ('serviceWorker' in navigator) {
-            try {
-              window._kjbSplashApplyingUpdate = true;
-              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-              if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-            } catch {}
-          }
-
-          // 6. Check again (loop if more updates) — then confirm none remain
-          setStep('CHECKING FOR UPDATES...');
-          await pause(STEP_PAUSE_MS);
-          setStep('NO UPDATES FOUND.');
+          // 6. Re-check for real — then report the actual result
+          const stillHasUpdates = await runStep('CHECKING FOR UPDATES...', () => checkRealUpdates(false));
+          setStep(stillHasUpdates ? 'FOUND UPDATES.' : 'NO UPDATES FOUND.');
           await pause(STEP_PAUSE_MS);
         } else {
           // No updates
@@ -265,69 +238,29 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         setStep('FOUND UPDATES.');
         await pause(STEP_PAUSE_MS);
 
-        // 2. Installing updates
-        setStep('INSTALLING UPDATES...');
-        try {
-          const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-          await downloadBibleForOffline();
-        } catch (err) {
-          console.error('[Splash] Data install failed:', err.message);
-        }
-        await pause(STEP_PAUSE_MS);
+        // 2. Installing updates (real download with live %)
+        await downloadWithProgress('INSTALLING UPDATES...');
 
-        // 3. Applying updates
-        setStep('APPLYING UPDATES...');
-        await pause(STEP_PAUSE_MS);
+        // 3. Applying updates (real SW activation)
+        await runStep('APPLYING UPDATES...', applyServiceWorker);
 
-        // Activate service worker (flag so main.jsx skips its reload)
-        if ('serviceWorker' in navigator) {
-          try {
-            window._kjbSplashApplyingUpdate = true;
-            const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-            if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-          } catch {}
-        }
-
-        // 4. Checking for updates (repeat if found)
-        setStep('CHECKING FOR UPDATES...');
-        await pause(STEP_PAUSE_MS);
-
-        let hasMoreUpdates = false;
-        if (navigator.onLine) {
-          try {
-            const { checkForUpdates } = await import('@/lib/bibleCache');
-            hasMoreUpdates = await checkForUpdates().catch(() => false);
-          } catch {}
-        }
+        // 4. Checking for updates (real check, repeat if found)
+        const hasMoreUpdates = await runStep('CHECKING FOR UPDATES...', () => checkRealUpdates(false));
 
         if (hasMoreUpdates) {
-          // Loop: Found → Installing → Applying → Checking
+          // Loop once: Found → Installing → Applying → Checking
           setStep('FOUND UPDATES.');
           await pause(STEP_PAUSE_MS);
-          setStep('INSTALLING UPDATES...');
-          try {
-            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-            await downloadBibleForOffline();
-          } catch (err) {
-            console.error('[Splash] Data install failed:', err.message);
-          }
+          await downloadWithProgress('INSTALLING UPDATES...');
+          await runStep('APPLYING UPDATES...', applyServiceWorker);
+          const stillMore = await runStep('CHECKING FOR UPDATES...', () => checkRealUpdates(false));
+          setStep(stillMore ? 'FOUND UPDATES.' : 'NO UPDATES FOUND.');
           await pause(STEP_PAUSE_MS);
-          setStep('APPLYING UPDATES...');
-          await pause(STEP_PAUSE_MS);
-          if ('serviceWorker' in navigator) {
-            try {
-              window._kjbSplashApplyingUpdate = true;
-              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-              if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-            } catch {}
-          }
-          setStep('CHECKING FOR UPDATES...');
+        } else {
+          // Confirm nothing more to apply before welcoming back.
+          setStep('NO UPDATES FOUND.');
           await pause(STEP_PAUSE_MS);
         }
-
-        // Confirm nothing more to apply before welcoming back.
-        setStep('NO UPDATES FOUND.');
-        await pause(STEP_PAUSE_MS);
 
         // 5. Welcome back
         setStep('WELCOME BACK TO KJB READER.');
