@@ -68,6 +68,7 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(() => getQueryFromUrl().trim().length >= 2);
   const [highlightTerm, setHighlightTerm] = useState('');
   const [highlightCaseSensitive, setHighlightCaseSensitive] = useState(false);
+  const [highlightWholeWord, setHighlightWholeWord] = useState(false);
   const [results, setResults] = useState([]);
   const [totalOccurrences, setTotalOccurrences] = useState(0);
   const [searched, setSearched] = useState(false);
@@ -135,6 +136,7 @@ export default function SearchPage() {
       const effectiveCaseSensitive = isQuotedPhrase ? true : caseSensitive;
       const effectiveWholeWord = isQuotedPhrase ? true : wholeWord;
       setHighlightCaseSensitive(effectiveCaseSensitive);
+      setHighlightWholeWord(effectiveWholeWord);
       if (isQuotedPhrase) {
         if (!wholeWord) setWholeWord(true);
         if (!caseSensitive) setCaseSensitive(true);
