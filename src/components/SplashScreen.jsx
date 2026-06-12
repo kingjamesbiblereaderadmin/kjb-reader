@@ -74,6 +74,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           }
           await pause(STEP_PAUSE_MS);
 
+          // 2b. Offline data complete
+          setStep('OFFLINE BIBLE DATA COMPLETE.');
+          await pause(STEP_PAUSE_MS);
+
           // 3. Checking for updates
           setStep('CHECKING FOR UPDATES...');
           await pause(STEP_PAUSE_MS);
