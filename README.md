@@ -4,6 +4,7 @@ King James Bible Reader is an amazing Bible app where you can read the pure, inf
 
 Its works offline as well after you download (automatic) the offline Bible data, there is search abilites, daily verses and much more. 
 
+Link: https://kingjamesbiblereader.com
 
 --=-------------------------------------------
 HOW TO BE SAVED?
