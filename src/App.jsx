@@ -171,15 +171,19 @@ const AuthenticatedApp = () => {
       return 'home_update';
     }
     
-    // CRITICAL: In a truly fresh browser (cleared all data), localStorage should be EMPTY.
-    // If kjb-has-visited-app exists, user has visited before → subsequent mode.
-    // If it doesn't exist → first_load mode (fresh browser or incognito).
-    // SplashScreen will do thorough incognito detection and adjust messaging accordingly.
-    const allKeys = Object.keys(localStorage);
+    // CRITICAL: Check sessionStorage FIRST - if we're mid first_load flow (after SW reload),
+    // stay in first_load mode even if localStorage flag exists.
+    const isFirstLoadFlow = sessionStorage.getItem('kjb-first-load-flow') === 'true';
+    
+    if (isFirstLoadFlow) {
+      console.log('[App] First load flow in progress (session flag) — using first_load mode');
+      return 'first_load';
+    }
+    
+    // No session flag - check localStorage for visit history
     const hasVisited = localStorage.getItem('kjb-has-visited-app');
     
-    console.log('[App] localStorage keys:', allKeys);
-    console.log('[App] hasVisited flag value:', hasVisited);
+    console.log('[App] localStorage hasVisited flag:', hasVisited);
     
     if (!hasVisited) {
       console.log('[App] No hasVisited flag — using first_load mode (fresh browser or incognito)');

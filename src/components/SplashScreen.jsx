@@ -49,6 +49,9 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
       // === FIRST LOAD FLOW ===
       if (isFirstVisit) {
+        // Set a session flag to track we're in first_load flow (survives SW reloads)
+        sessionStorage.setItem('kjb-first-load-flow', 'true');
+        
         // 1. Loading
         setStep('LOADING KJB READER...');
         await pause(STEP_PAUSE_MS);
@@ -111,10 +114,23 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           setStep('APPLYING UPDATES...', true);
           await pause(STEP_PAUSE_MS);
 
-          // 6. Applying updates - fire banner (already set above)
-          // Skip SW reload on first_load - let it activate in background to avoid mode switch
-          console.log('[Splash] First load - skipping SW reload to prevent "WELCOME BACK" issue');
-          
+          // 6. Applying updates - fire banner
+          setStep('APPLYING UPDATES...', true);
+          await pause(STEP_PAUSE_MS);
+
+          // CRITICAL: Set localStorage flag BEFORE SW reload so it survives
+          if (!detectedIncognito) {
+            try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {}
+          }
+
+          // Activate service worker (triggers reload to get new code)
+          if ('serviceWorker' in navigator) {
+            try {
+              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+              if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            } catch {}
+          }
+
           // 7. Final check - no banner, no loop on first_load
           // Skip re-checking to prevent infinite reload loop on fresh installs
           console.log('[Splash] First load - skipping update re-check to prevent loop');
@@ -125,7 +141,6 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         }
 
         // 8. Welcome - fire banner (success)
-        // Flag already set before SW reload (or here if no reload happened)
         if (!detectedIncognito) {
           setStep('WELCOME TO KJB READER.', true);
         } else {
@@ -134,6 +149,9 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         }
         await pause(STEP_PAUSE_MS);
         window.dispatchEvent(new Event('kjb-progress-clear'));
+
+        // Clear session flag - first_load flow complete
+        sessionStorage.removeItem('kjb-first-load-flow');
 
         console.group('[Splash] Summary');
         stepsLog.current.forEach((msg, i) => console.log(`${i + 1}. ${msg}`));
