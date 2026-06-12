@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { Download, FileCode, HardDrive, FileText, Loader2 } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import React from 'react';
+import { Download, FileCode, HardDrive } from 'lucide-react';
 
 // The standalone, single-file HTML version of the entire KJB (all 66 books +
 // Gospel, Resources, About). 100% self-contained, no JavaScript, works on any
@@ -8,29 +7,6 @@ import { base44 } from '@/api/base44Client';
 const HTML_FILE_URL = 'https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/efdf106f1_kjb-legacy-reader.html';
 
 export default function OfflineHtmlSection() {
-  const [downloadingTxt, setDownloadingTxt] = useState(false);
-
-  const handleDownloadTxt = async () => {
-    setDownloadingTxt(true);
-    try {
-      const res = await base44.functions.invoke('exportBibleText', {}, { responseType: 'text' });
-      const data = typeof res.data === 'string' ? res.data : JSON.stringify(res.data);
-      const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'KJB_PureCambridge.txt';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error('TXT download failed:', err);
-      alert('Download failed. Please check your connection and try again.');
-    }
-    setDownloadingTxt(false);
-  };
-
   return (
     <div className="px-5 pb-6 pt-3 space-y-4">
       <p className="font-sans text-sm text-muted-foreground leading-relaxed">
@@ -49,23 +25,6 @@ export default function OfflineHtmlSection() {
         <Download className="w-4 h-4" />
         Download HTML File
       </a>
-
-      <div className="pt-1">
-        <p className="font-sans text-sm text-muted-foreground leading-relaxed mb-3">
-          Or download the whole Bible as a plain text file — one verse per line in
-          the format <span className="text-foreground font-medium">Book Chapter:Verse Text</span>
-          (e.g. <span className="text-foreground font-medium">John 3:16 For God so loved the world…</span>).
-          Great for searching, scripts, or importing into other apps.
-        </p>
-        <button
-          onClick={handleDownloadTxt}
-          disabled={downloadingTxt}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:border-accent disabled:opacity-60 w-fit"
-        >
-          {downloadingTxt ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-          {downloadingTxt ? 'Preparing…' : 'Download as Plain Text (.txt)'}
-        </button>
-      </div>
 
       <div className="rounded-xl bg-secondary/50 border border-border p-4 space-y-3">
         <div className="flex items-center gap-2">
