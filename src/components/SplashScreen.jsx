@@ -145,7 +145,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           setStep('WELCOME TO KJB READER.', true);
         } else {
           console.log('[Splash] Incognito mode - skipping has-visited flag');
-          setStep('WELCOME.', true);
+          setStep('WELCOME TO KJB READER.', true);
         }
         await pause(STEP_PAUSE_MS);
         window.dispatchEvent(new Event('kjb-progress-clear'));
