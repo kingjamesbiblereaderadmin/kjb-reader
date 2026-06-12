@@ -28,6 +28,7 @@ const loaders = {
   ManifestIcons: () => import('@/pages/ManifestIcons.jsx').catch((err) => { console.error('Failed to load ManifestIcons:', err); throw err; }),
   Privacy: () => import('@/pages/PrivacyPolicyPage.jsx').catch((err) => { console.error('Failed to load PrivacyPolicyPage:', err); throw err; }),
   LegacyReader: () => import('@/pages/LegacyReader.jsx').catch((err) => { console.error('Failed to load LegacyReader:', err); throw err; }),
+  DailyVerseTxt: () => import('@/pages/DailyVerseTxt.jsx').catch((err) => { console.error('Failed to load DailyVerseTxt:', err); throw err; }),
 };
 const HomePage = lazy(loaders.Home);
 const BibleReader = lazy(loaders.BibleReader);
@@ -42,6 +43,7 @@ const RefreshCache = lazy(loaders.RefreshCache);
 const ManifestIcons = lazy(loaders.ManifestIcons);
 const PrivacyPolicyPage = lazy(loaders.Privacy);
 const LegacyReader = lazy(loaders.LegacyReader);
+const DailyVerseTxt = lazy(loaders.DailyVerseTxt);
 
 const getLoaderForPath = (pathname) => {
   if (pathname === '/') return loaders.Home;
@@ -199,7 +201,7 @@ const AuthenticatedApp = () => {
         isFadingOut={fadeSplash}
         onDone={handleSplashDone}
         mode={splashMode}
-        isVisible={showSplash && location.pathname !== '/legacy'}
+        isVisible={showSplash && location.pathname !== '/legacy' && location.pathname !== '/dailyverse.txt'}
       />
       {!isInitializing && !authError && (
         <Routes location={location}>
@@ -218,6 +220,7 @@ const AuthenticatedApp = () => {
         <Route path="/privacy" element={<Suspense fallback={<RouteLoader />}><FadeIn><PrivacyPolicyPage /></FadeIn></Suspense>} />
         <Route path="/legacy" element={<Suspense fallback={<RouteLoader />}><FadeIn><LegacyReader /></FadeIn></Suspense>} />
           </Route>
+          <Route path="/dailyverse.txt" element={<Suspense fallback={null}><DailyVerseTxt /></Suspense>} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       )}
