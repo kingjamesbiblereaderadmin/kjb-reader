@@ -37,7 +37,9 @@ Deno.serve(async (req) => {
     // be printed immediately before the NEXT verse they belong to.
     let pendingSubscript = null;
 
-    const norm = (s) => s.replace(/[\uFFFD\u00B6]/g, '\u00B6').replace(/\s+/g, ' ').trim();
+    // Use a plain ASCII marker (#) for the paragraph mark so the file renders
+    // correctly in EVERY viewer/editor regardless of encoding.
+    const norm = (s) => s.replace(/[\uFFFD\u00B6]/g, '#').replace(/\s+/g, ' ').trim();
 
     for (const raw of lines) {
       const trimmed = raw.trim();
@@ -60,13 +62,13 @@ Deno.serve(async (req) => {
       if (!looksLikeVerse) {
         const clean = norm(rest);
         if (!clean) continue;
-        if (/^\u00B6?\s*\[.*\]\s*$/.test(clean)) {
-          // Colophon — print as its own line at the end of the chapter.
+        if (/^#?\s*\[.*\]\s*$/.test(clean)) {
+          // Colophon - print as its own line at the end of the chapter.
           // Strip the outer wrapping brackets (keep any inner [italic] words).
           const colo = clean
-            .replace(/^\u00B6\s*/, '\u00B6 ')
+            .replace(/^#\s*/, '# ')
             .replace(/\[([\s\S]*)\]/, '$1');
-          out.push(`${bookName} — ${colo}`);
+          out.push(`${bookName} - ${colo}`);
         } else {
           // Subscript / heading — hold it for the next verse.
           pendingSubscript = clean;
@@ -97,7 +99,15 @@ Deno.serve(async (req) => {
     // Encode the full text as plain UTF-8 bytes (NO BOM) and return as a binary
     // body so the whole Bible is sent without truncation. Avoid the BOM since
     // some viewers double-decode it and show mojibake (Â¶, â€").
-    const body = out.join('\n') + '\n';
+    // Final safety pass: convert any remaining non-ASCII punctuation to ASCII
+    // so the file is 100% ASCII and renders cleanly in every viewer.
+    const asciiOut = out.map((line) =>
+      line
+        .replace(/[\u2018\u2019]/g, "'")   // curly single quotes -> '
+        .replace(/[\u201C\u201D]/g, '"')   // curly double quotes -> "
+        .replace(/[\u2013\u2014]/g, '-')   // en/em dash -> -
+    );
+    const body = asciiOut.join('\n') + '\n';
     const encoded = new TextEncoder().encode(body);
     return new Response(encoded, {
       status: 200,
