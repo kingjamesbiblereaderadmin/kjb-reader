@@ -1,7 +1,7 @@
-// KJB Reader Service Worker v20260612_394
+// KJB Reader Service Worker v20260612_395
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260612_394';
+const CACHE_NAME = 'kjb-reader-v20260612_395';
 // Bumped to force complete reinstall for all users
 const LEGACY_CACHE_NAME = 'kjb-legacy-v9';
 
@@ -15,7 +15,10 @@ const APP_SHELL_FILES = [
 
 // Install event - cache app shell
 self.addEventListener('install', (event) => {
-  self.skipWaiting(); // Auto-activate since SplashScreen is removed
+  // NOTE: Do NOT call skipWaiting() here. A freshly-installed worker must WAIT
+  // (not auto-activate) so the SplashScreen controls activation explicitly via
+  // SKIP_WAITING. Auto-activating fires controllerchange before the home-update
+  // flag is set, dropping the home flow into the "subsequent" sequence.
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[SW] Caching app shell');
