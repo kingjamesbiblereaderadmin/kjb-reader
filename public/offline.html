@@ -1,92 +1,74 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KJB Reader - Offline</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      color: #1a1a1a;
-    }
-    .container {
-      background: white;
-      border-radius: 20px;
-      padding: 40px;
-      max-width: 500px;
-      text-align: center;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    }
-    .icon {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 40px;
-    }
-    h1 {
-      font-size: 24px;
-      margin-bottom: 12px;
-      color: #1a1a1a;
-    }
-    p {
-      color: #666;
-      line-height: 1.6;
-      margin-bottom: 20px;
-    }
-    .btn {
-      display: inline-block;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 12px 30px;
-      border-radius: 10px;
-      text-decoration: none;
-      font-weight: 600;
-      transition: transform 0.2s;
-    }
-    .btn:hover {
-      transform: scale(1.05);
-    }
-    .status {
-      margin-top: 20px;
-      padding: 15px;
-      background: #f5f5f5;
-      border-radius: 10px;
-      font-size: 14px;
-      color: #666;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="icon">📖</div>
-    <h1>You're Offline</h1>
-    <p>It looks like you've lost your internet connection. Don't worry - you can still read the Bible if you've downloaded it for offline use.</p>
-    
-    <div class="status">
-      <strong>Tip:</strong> Go to Settings and download the Bible for offline reading to access all 66 books without an internet connection.
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>KJB Reader — Offline</title>
+    <link rel="icon" type="image/png" href="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" />
+    <style>
+      html, body {
+        margin: 0;
+        height: 100%;
+        background: #0f1117;
+        color: #c8cdd8;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      }
+      .wrap {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 24px;
+        box-sizing: border-box;
+      }
+      img {
+        width: 160px;
+        height: 160px;
+        object-fit: contain;
+        border-radius: 24px;
+        margin-bottom: 40px;
+      }
+      h1 {
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        margin: 0 0 12px;
+        color: #e6e9f0;
+      }
+      p {
+        font-size: 14px;
+        font-weight: 300;
+        line-height: 1.6;
+        margin: 0 0 28px;
+        max-width: 320px;
+        color: #9aa1b2;
+      }
+      button {
+        background: #4f6aff;
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 28px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        font-family: inherit;
+      }
+      button:active { opacity: 0.85; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <img
+        src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png"
+        alt="KJB Reader Logo"
+      />
+      <h1>You're Offline</h1>
+      <p>This page isn't available without a connection. Please reconnect to the internet and try again.</p>
+      <button onclick="location.reload()">Retry</button>
     </div>
-    
-    <br>
-    <a href="/" class="btn" onclick="window.location.reload(); return false;">Try Again</a>
-  </div>
-  
-  <script>
-    // Auto-reload when connection is restored
-    window.addEventListener('online', () => {
-      window.location.reload();
-    });
-  </script>
-</body>
+  </body>
 </html>
