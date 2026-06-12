@@ -8,7 +8,7 @@ import { BOOK_BY_API_NAME } from '@/lib/bibleData';
 // span across italic boundaries (e.g. "lov[e]d" still highlights "love"). We
 // build a per-character map of (isItalic, isHighlight) and then emit runs that
 // share the same state, wrapping italics in <em> and highlights in <mark>.
-function renderWithItalics(text, searchTerm, caseSensitive) {
+function renderWithItalics(text, searchTerm, caseSensitive, wholeWord) {
   // 1. Strip brackets → clean text, tracking which clean-char indices are italic.
   let clean = '';
   const italicFlags = []; // italicFlags[i] === true if clean char i was bracketed
@@ -28,10 +28,18 @@ function renderWithItalics(text, searchTerm, caseSensitive) {
     const terms = searchTerm.split(',').map(t => t.trim()).filter(Boolean);
     for (const term of terms) {
       const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const regex = new RegExp(escaped, caseSensitive ? 'g' : 'gi');
+      // Whole-word: capture the term in a group with non-word boundaries around it,
+      // so only the term itself (not the surrounding char) gets highlighted.
+      const regex = wholeWord
+        ? new RegExp(`(?:^|[^A-Za-z'])(${escaped})(?=$|[^A-Za-z'])`, caseSensitive ? 'g' : 'gi')
+        : new RegExp(`(${escaped})`, caseSensitive ? 'g' : 'gi');
       let mm;
       while ((mm = regex.exec(clean)) !== null) {
-        for (let p = mm.index; p < mm.index + mm[0].length; p++) highlightFlags[p] = true;
+        // For the whole-word regex the match may include a leading boundary char;
+        // highlight only the captured group (mm[1]).
+        const matchText = mm[1] !== undefined ? mm[1] : mm[0];
+        const start = mm.index + (mm[0].length - matchText.length);
+        for (let p = start; p < start + matchText.length; p++) highlightFlags[p] = true;
         if (mm.index === regex.lastIndex) regex.lastIndex++; // avoid zero-width loops
       }
     }
@@ -63,7 +71,7 @@ function renderWithItalics(text, searchTerm, caseSensitive) {
 
 // A single search result row. Memoized so only the rows whose props actually
 // change (e.g. the focused/selected one) re-render — not the whole list.
-function SearchResultRow({ r, i, thisIndex, isFocused, isSelected, selectMode, highlightTerm, highlightCaseSensitive, fontStyle, onToggleSelect, onGoToVerse, setRef }) {
+function SearchResultRow({ r, i, thisIndex, isFocused, isSelected, selectMode, highlightTerm, highlightCaseSensitive, highlightWholeWord, fontStyle, onToggleSelect, onGoToVerse, setRef }) {
   const isSubscript = r.isSubscript;
   const isHeading = r.isHeading;
   const isColophon = r.isColophon || (r.verse === 0 && !isSubscript && !isHeading);
@@ -109,11 +117,11 @@ function SearchResultRow({ r, i, thisIndex, isFocused, isSelected, selectMode, h
         </p>
         <p className="text-base text-foreground leading-relaxed print:text-black" style={fontStyle}>
           {isHeading ? (
-            <span className="font-bold tracking-wide">{renderWithItalics(r.text, highlightTerm, highlightCaseSensitive)}</span>
+            <span className="font-bold tracking-wide">{renderWithItalics(r.text, highlightTerm, highlightCaseSensitive, highlightWholeWord)}</span>
           ) : (isColophon || isSubscript) ? (
-            <span>¶ {renderWithItalics(r.text, highlightTerm, highlightCaseSensitive)}</span>
+            <span>¶ {renderWithItalics(r.text, highlightTerm, highlightCaseSensitive, highlightWholeWord)}</span>
           ) : (
-            <span>"{renderWithItalics(r.text, highlightTerm, highlightCaseSensitive)}"</span>
+            <span>"{renderWithItalics(r.text, highlightTerm, highlightCaseSensitive, highlightWholeWord)}"</span>
           )}
         </p>
       </div>

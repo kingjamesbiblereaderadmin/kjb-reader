@@ -17,20 +17,23 @@ function getFontFamilyValue(family) {
 
 // Count occurrences of the search term(s) within a verse's text (multiple hits per verse).
 // `term` may be a comma-separated list (multi-keyword search) — sum each term's hits.
-function countOccurrences(text, term, caseSensitive) {
+// Honours whole-word boundaries so the count matches what's highlighted.
+function countOccurrences(text, term, caseSensitive, wholeWord) {
   if (!term) return 1;
   const clean = (text || '').replace(/[[\]]/g, '');
   const terms = term.split(',').map(t => t.trim()).filter(Boolean);
   let total = 0;
   for (const t of terms) {
     const escaped = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const re = new RegExp(escaped, caseSensitive ? 'g' : 'gi');
+    const re = wholeWord
+      ? new RegExp(`(?:^|[^A-Za-z'])${escaped}(?=$|[^A-Za-z'])`, caseSensitive ? 'g' : 'gi')
+      : new RegExp(escaped, caseSensitive ? 'g' : 'gi');
     total += (clean.match(re) || []).length;
   }
   return total || (terms.length ? 0 : 1);
 }
 
-function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, selectMode, selected, onToggleSelect, onGoToVerse, resultRefs }) {
+function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, highlightWholeWord, selectMode, selected, onToggleSelect, onGoToVerse, resultRefs }) {
   // Stable ref setter so rows don't re-render just because the callback identity changed.
   const setRowRef = useCallback((idx, el) => {
     if (resultRefs) resultRefs.current[idx] = el;
@@ -72,7 +75,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
     let ot = 0, nt = 0;
     let otV = 0, ntV = 0;
     results.forEach((r, i) => {
-      const occ = countOccurrences(r.text, highlightTerm, highlightCaseSensitive);
+      const occ = countOccurrences(r.text, highlightTerm, highlightCaseSensitive, highlightWholeWord);
       if (NT_BOOKS.has(r.book)) {
         nt += occ;
         ntV++;
@@ -100,7 +103,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
       otVerses: otV,
       ntVerses: ntV,
     };
-  }, [results, highlightTerm, highlightCaseSensitive]);
+  }, [results, highlightTerm, highlightCaseSensitive, highlightWholeWord]);
 
   const toggleBook = useCallback((apiName) => {
     setCollapsedBooks(prev => {
@@ -305,6 +308,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, sel
                           selectMode={selectMode}
                           highlightTerm={highlightTerm}
                           highlightCaseSensitive={highlightCaseSensitive}
+                          highlightWholeWord={highlightWholeWord}
                           fontStyle={fontStyle}
                           onToggleSelect={onToggleSelect}
                           onGoToVerse={onGoToVerse}

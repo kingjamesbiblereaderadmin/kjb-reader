@@ -153,7 +153,7 @@ export default function SearchPage() {
       const isMultiKeyword = multiTerms.length >= 2;
       if (isMultiKeyword) {
         // Highlight every term (comma-joined; the highlighter splits on commas).
-        setHighlightTerm(multiTerms.join(','));
+        setHighlightTerm(multiTerms.join(', '));
       }
 
       // Check if the query is a scripture reference (by name OR abbreviation),
@@ -1478,6 +1478,7 @@ export default function SearchPage() {
             results={results}
             highlightTerm={highlightTerm}
             highlightCaseSensitive={highlightCaseSensitive}
+            highlightWholeWord={highlightWholeWord}
             selectMode={selectMode}
             selected={selected}
             onToggleSelect={toggleSelect}
