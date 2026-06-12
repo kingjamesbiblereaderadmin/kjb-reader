@@ -8,6 +8,8 @@ const STEP_PAUSE_MS = 1500;
 export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load', isVisible = true }) {
   const [currentMessage, setCurrentMessage] = useState('LOADING KJB READER...');
   const [isIncognito, setIsIncognito] = useState(false);
+  // progress: 0-100 for a determinate bar (during downloads); null = indeterminate
+  const [progress, setProgress] = useState(null);
   const doneRef = useRef(false);
   const stepsLog = useRef([]);
 
@@ -16,6 +18,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
   const setStep = (message) => {
     stepsLog.current.push(message);
     setCurrentMessage(message);
+    setProgress(null); // non-download steps use an indeterminate bar
     console.log('[KJB Splash]', message);
     window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message, status: 'loading' } }));
   };
@@ -43,11 +46,16 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
   const downloadWithProgress = async (label) => {
     const { downloadBibleForOffline } = await import('@/lib/bibleCache');
     const start = Date.now();
+    stepsLog.current.push(label);
+    setCurrentMessage(label);
+    setProgress(0);
     try {
       await downloadBibleForOffline((pct, msg) => {
+        setProgress(pct);
         setCurrentMessage(`${label} ${pct}%`);
         window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: `${label} ${pct}%`, status: 'loading' } }));
       });
+      setProgress(100);
     } catch (err) {
       console.error('[Splash] Download failed:', err.message);
     }
@@ -238,21 +246,64 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         setStep('FOUND UPDATES.');
         await pause(STEP_PAUSE_MS);
 
-        // 2. Installing updates — real download progress
-        await downloadWithProgress('INSTALLING UPDATES...');
+        // 2. Installing updates
+        setStep('INSTALLING UPDATES...');
+        try {
+          const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+          await downloadBibleForOffline();
+        } catch (err) {
+          console.error('[Splash] Data install failed:', err.message);
+        }
+        await pause(STEP_PAUSE_MS);
 
-        // 3. Applying updates — real SW activation
-        await runStep('APPLYING UPDATES...', applyServiceWorker);
+        // 3. Applying updates
+        setStep('APPLYING UPDATES...');
+        await pause(STEP_PAUSE_MS);
 
-        // 4. Checking for updates — real re-check (loop once if more found)
-        const hasMoreUpdates = await runStep('CHECKING FOR UPDATES...', () => checkRealUpdates(false));
+        // Activate service worker (flag so main.jsx skips its reload)
+        if ('serviceWorker' in navigator) {
+          try {
+            window._kjbSplashApplyingUpdate = true;
+            const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+            if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          } catch {}
+        }
+
+        // 4. Checking for updates (repeat if found)
+        setStep('CHECKING FOR UPDATES...');
+        await pause(STEP_PAUSE_MS);
+
+        let hasMoreUpdates = false;
+        if (navigator.onLine) {
+          try {
+            const { checkForUpdates } = await import('@/lib/bibleCache');
+            hasMoreUpdates = await checkForUpdates().catch(() => false);
+          } catch {}
+        }
 
         if (hasMoreUpdates) {
+          // Loop: Found → Installing → Applying → Checking
           setStep('FOUND UPDATES.');
           await pause(STEP_PAUSE_MS);
-          await downloadWithProgress('INSTALLING UPDATES...');
-          await runStep('APPLYING UPDATES...', applyServiceWorker);
-          await runStep('CHECKING FOR UPDATES...', () => checkRealUpdates(false));
+          setStep('INSTALLING UPDATES...');
+          try {
+            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+            await downloadBibleForOffline();
+          } catch (err) {
+            console.error('[Splash] Data install failed:', err.message);
+          }
+          await pause(STEP_PAUSE_MS);
+          setStep('APPLYING UPDATES...');
+          await pause(STEP_PAUSE_MS);
+          if ('serviceWorker' in navigator) {
+            try {
+              window._kjbSplashApplyingUpdate = true;
+              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+              if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            } catch {}
+          }
+          setStep('CHECKING FOR UPDATES...');
+          await pause(STEP_PAUSE_MS);
         }
 
         // Confirm nothing more to apply before welcoming back.
@@ -300,18 +351,37 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           alt="KJB Reader Logo"
           className="w-44 h-44 object-contain rounded-2xl"
         />
-        <div className="flex flex-col items-center gap-5">
-          <Loader2
-            className="w-8 h-8 animate-spin"
-            style={{ color: '#4f6aff', animationDuration: '1.2s' }}
-          />
+        <div className="flex flex-col items-center gap-5 w-64">
+          {/* Progress bar — determinate (download %) or indeterminate (other steps) */}
+          <div
+            className="w-full h-1.5 rounded-full overflow-hidden relative"
+            style={{ background: 'rgba(255,255,255,0.08)' }}
+          >
+            {progress === null ? (
+              <div
+                className="absolute top-0 h-full rounded-full"
+                style={{ width: '40%', background: '#4f6aff', animation: 'kjb-splash-indeterminate 1.2s ease-in-out infinite' }}
+              />
+            ) : (
+              <div
+                className="h-full rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${progress}%`, background: '#4f6aff' }}
+              />
+            )}
+          </div>
           <span
-            className="font-sans text-sm font-light tracking-[0.25em] uppercase transition-all duration-300"
+            className="font-sans text-sm font-light tracking-[0.25em] uppercase transition-all duration-300 text-center"
             style={{ color: '#c8cdd8' }}
           >
             {currentMessage}
           </span>
         </div>
+        <style>{`
+          @keyframes kjb-splash-indeterminate {
+            0% { left: -40%; }
+            100% { left: 100%; }
+          }
+        `}</style>
       </div>
     </div>
   );
