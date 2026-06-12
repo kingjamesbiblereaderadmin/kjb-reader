@@ -61,6 +61,12 @@ window.addEventListener('load', async () => {
           try {
             sessionStorage.setItem('kjb_sw_updated', 'app');
             sessionStorage.setItem('kjb_sw_reloaded', '1');
+            // If the user is on the home page when a background update lands,
+            // start the reloaded splash with the HOME flow ("FOUND UPDATES"
+            // first) instead of the subsequent flow ("LOADING → CHECKING").
+            if (window.location.pathname === '/') {
+              sessionStorage.setItem('kjb-splash-home-update', 'true');
+            }
           } catch {}
           const sep = window.location.search ? '&' : '?';
           window.location.href = window.location.pathname + window.location.search + sep + 'updated=true';
