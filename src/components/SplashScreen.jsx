@@ -311,6 +311,16 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         await pause(STEP_PAUSE_MS);
         window.dispatchEvent(new Event('kjb-progress-clear'));
 
+        // Record the deployed SW version as applied, so the next home check
+        // only re-triggers when a NEW version is deployed.
+        try {
+          const pending = sessionStorage.getItem('kjb-pending-sw-version');
+          if (pending) {
+            localStorage.setItem('kjb-applied-sw-version', pending);
+            sessionStorage.removeItem('kjb-pending-sw-version');
+          }
+        } catch {}
+
         console.group('[Splash] Summary');
         stepsLog.current.forEach((msg, i) => console.log(`${i + 1}. ${msg}`));
         console.groupEnd();
