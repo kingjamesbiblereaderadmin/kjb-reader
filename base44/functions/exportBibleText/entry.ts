@@ -94,10 +94,10 @@ Deno.serve(async (req) => {
       out.push(`${bookName} ${chapter}:${verse} ${vt}`);
     }
 
-    // Encode the full text as UTF-8 bytes (with BOM) and return as a binary
-    // body so the whole Bible is sent without truncation, and ¶/— render
-    // correctly in editors.
-    const body = '\uFEFF' + out.join('\n') + '\n';
+    // Encode the full text as plain UTF-8 bytes (NO BOM) and return as a binary
+    // body so the whole Bible is sent without truncation. Avoid the BOM since
+    // some viewers double-decode it and show mojibake (Â¶, â€").
+    const body = out.join('\n') + '\n';
     const encoded = new TextEncoder().encode(body);
     return new Response(encoded, {
       status: 200,
