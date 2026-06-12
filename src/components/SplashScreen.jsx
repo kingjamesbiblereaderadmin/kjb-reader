@@ -70,9 +70,16 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           await pause(STEP_PAUSE_MS);
         }
 
-        // Check for updates
+        // Check for updates. Honour the `kjb_sw_updated` flag main.jsx sets when
+        // a freshly-bumped (auto-activated) SW takes over, since by now there's
+        // often no `waiting`/`installing` worker left to detect.
         let hasUpdates = false;
-        if (navigator.onLine) {
+        const swUpdatedFlag = sessionStorage.getItem('kjb_sw_updated');
+        if (swUpdatedFlag) {
+          hasUpdates = true;
+          sessionStorage.removeItem('kjb_sw_updated');
+        }
+        if (!hasUpdates && navigator.onLine) {
           try {
             if ('serviceWorker' in navigator) {
               const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
@@ -153,8 +160,18 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         setStep('CHECKING FOR UPDATES...');
         await pause(STEP_PAUSE_MS);
 
+        // A new service worker bumped by a version change auto-activates (sw.js
+        // calls skipWaiting in install), so by the time we check there's often
+        // no `waiting`/`installing` worker. main.jsx records that an SW update
+        // just took over via the `kjb_sw_updated` sessionStorage flag — honour
+        // it here so the "Found updates" sequence still plays after a reload.
         let hasUpdates = false;
-        if (navigator.onLine) {
+        const swUpdatedFlag = sessionStorage.getItem('kjb_sw_updated');
+        if (swUpdatedFlag) {
+          hasUpdates = true;
+          sessionStorage.removeItem('kjb_sw_updated');
+        }
+        if (!hasUpdates && navigator.onLine) {
           try {
             if ('serviceWorker' in navigator) {
               const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
