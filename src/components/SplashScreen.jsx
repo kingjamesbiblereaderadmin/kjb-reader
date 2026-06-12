@@ -49,21 +49,15 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
       // === FIRST LOAD FLOW ===
       if (isFirstVisit) {
-        // Set flag IMMEDIATELY so it survives any SW-triggered reloads during the flow
-        if (!detectedIncognito) {
-          localStorage.setItem('kjb-has-visited-app', 'true');
-        }
-        
         // 1. Loading
         setStep('LOADING KJB READER...');
         await pause(STEP_PAUSE_MS);
 
-        // 2. Downloading offline data if not cached - fire banner
+        // 2. Downloading offline data - ALWAYS download on first_load (don't skip if cached)
         const { downloadBibleForOffline, isBibleCached } = await import('@/lib/bibleCache');
-        const isActuallyCached = await isBibleCached();
         let justDownloadedBible = false;
         
-        if (!detectedIncognito && !isActuallyCached) {
+        if (!detectedIncognito) {
           setStep('DOWNLOADING OFFLINE DATA...', true);
           console.log('[Splash] Starting offline download...');
           try {
@@ -71,13 +65,13 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
               console.log('[Splash] Download progress:', pct, msg);
             });
             console.log('[Splash] Offline download completed successfully');
-            justDownloadedBible = true; // Mark that we just downloaded fresh data
+            justDownloadedBible = true;
           } catch (err) {
             console.error('[Splash] Offline download failed:', err.message);
           }
           await pause(STEP_PAUSE_MS);
         } else {
-          console.log('[Splash] Skipping offline download (incognito or already cached)');
+          console.log('[Splash] Incognito - skipping offline download');
         }
 
         // 3. Checking for updates - fire banner
@@ -135,8 +129,9 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         }
 
         // 8. Welcome - fire banner (success)
-        // Flag was already set at start of first_load (survives reloads)
+        // Set flag ONLY at the END of successful first_load
         if (!detectedIncognito) {
+          localStorage.setItem('kjb-has-visited-app', 'true');
           setStep('WELCOME TO KJB READER.', true);
         } else {
           console.log('[Splash] Incognito mode - skipping has-visited flag');

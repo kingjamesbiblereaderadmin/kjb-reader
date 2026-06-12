@@ -175,7 +175,11 @@ const AuthenticatedApp = () => {
     // If kjb-has-visited-app exists, user has visited before → subsequent mode.
     // If it doesn't exist → first_load mode (fresh browser or incognito).
     // SplashScreen will do thorough incognito detection and adjust messaging accordingly.
+    const allKeys = Object.keys(localStorage);
     const hasVisited = localStorage.getItem('kjb-has-visited-app');
+    
+    console.log('[App] localStorage keys:', allKeys);
+    console.log('[App] hasVisited flag value:', hasVisited);
     
     if (!hasVisited) {
       console.log('[App] No hasVisited flag — using first_load mode (fresh browser or incognito)');
