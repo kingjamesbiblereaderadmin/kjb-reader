@@ -29,6 +29,7 @@ const loaders = {
   Privacy: () => import('@/pages/PrivacyPolicyPage.jsx').catch((err) => { console.error('Failed to load PrivacyPolicyPage:', err); throw err; }),
   LegacyReader: () => import('@/pages/LegacyReader.jsx').catch((err) => { console.error('Failed to load LegacyReader:', err); throw err; }),
   DailyVerseTxt: () => import('@/pages/DailyVerseTxt.jsx').catch((err) => { console.error('Failed to load DailyVerseTxt:', err); throw err; }),
+  BibleTxt: () => import('@/pages/BibleTxt.jsx').catch((err) => { console.error('Failed to load BibleTxt:', err); throw err; }),
 };
 const HomePage = lazy(loaders.Home);
 const BibleReader = lazy(loaders.BibleReader);
@@ -44,6 +45,7 @@ const ManifestIcons = lazy(loaders.ManifestIcons);
 const PrivacyPolicyPage = lazy(loaders.Privacy);
 const LegacyReader = lazy(loaders.LegacyReader);
 const DailyVerseTxt = lazy(loaders.DailyVerseTxt);
+const BibleTxt = lazy(loaders.BibleTxt);
 
 const getLoaderForPath = (pathname) => {
   if (pathname === '/') return loaders.Home;
