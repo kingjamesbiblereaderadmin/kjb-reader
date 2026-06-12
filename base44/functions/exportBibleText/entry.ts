@@ -37,9 +37,9 @@ Deno.serve(async (req) => {
     // be printed immediately before the NEXT verse they belong to.
     let pendingSubscript = null;
 
-    // Use a plain ASCII marker (#) for the paragraph mark so the file renders
-    // correctly in EVERY viewer/editor regardless of encoding.
-    const norm = (s) => s.replace(/[\uFFFD\u00B6]/g, '#').replace(/\s+/g, ' ').trim();
+    // Use the real pilcrow (¶) for the paragraph mark. The file is encoded as
+    // proper UTF-8 below so this renders correctly in any modern viewer.
+    const norm = (s) => s.replace(/[\uFFFD\u00B6]/g, '\u00B6').replace(/\s+/g, ' ').trim();
 
     for (const raw of lines) {
       const trimmed = raw.trim();
@@ -62,11 +62,11 @@ Deno.serve(async (req) => {
       if (!looksLikeVerse) {
         const clean = norm(rest);
         if (!clean) continue;
-        if (/^#?\s*\[.*\]\s*$/.test(clean)) {
+        if (/^\u00B6?\s*\[.*\]\s*$/.test(clean)) {
           // Colophon - print as its own line at the end of the chapter.
           // Strip the outer wrapping brackets (keep any inner [italic] words).
           const colo = clean
-            .replace(/^#\s*/, '# ')
+            .replace(/^\u00B6\s*/, '\u00B6 ')
             .replace(/\[([\s\S]*)\]/, '$1');
           out.push(`${bookName} - ${colo}`);
         } else {
