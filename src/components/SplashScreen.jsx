@@ -123,8 +123,40 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
             } catch {}
           }
 
-          // Skip re-checking to prevent infinite reload loop
-          console.log('[Splash] First load - update cycle complete, skipping re-check');
+          // Final check for chained updates (one-time only, no infinite loop)
+          setStep('CHECKING FOR UPDATES...');
+          await pause(STEP_PAUSE_MS);
+          let hasMoreUpdates = false;
+          if (navigator.onLine && 'serviceWorker' in navigator) {
+            try {
+              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+              if (reg) {
+                await reg.update().catch(() => {});
+                hasMoreUpdates = !!reg.waiting;
+              }
+            } catch {}
+          }
+          if (hasMoreUpdates) {
+            setStep('FOUND UPDATES.', true);
+            await pause(STEP_PAUSE_MS);
+            setStep('INSTALLING UPDATES...', true);
+            try {
+              const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+              await downloadBibleForOffline();
+            } catch (err) {
+              console.error('[Splash] Chained update install failed:', err.message);
+            }
+            await pause(STEP_PAUSE_MS);
+            setStep('APPLYING UPDATES...', true);
+            await pause(STEP_PAUSE_MS);
+            if ('serviceWorker' in navigator) {
+              try {
+                const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+                if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+              } catch {}
+            }
+          }
+          console.log('[Splash] First load - update cycle complete');
         } else {
           // No updates - fire banner
           setStep('NO UPDATES FOUND.', true);
@@ -226,8 +258,40 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
               } catch {}
             }
 
-            // Skip re-checking to prevent infinite reload loop
-            console.log('[Splash] Subsequent visit - update cycle complete, skipping re-check');
+            // Final check for chained updates (one-time only, no infinite loop)
+            setStep('CHECKING FOR UPDATES...');
+            await pause(STEP_PAUSE_MS);
+            let hasMoreUpdates = false;
+            if (navigator.onLine && 'serviceWorker' in navigator) {
+              try {
+                const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+                if (reg) {
+                  await reg.update().catch(() => {});
+                  hasMoreUpdates = !!reg.waiting;
+                }
+              } catch {}
+            }
+            if (hasMoreUpdates) {
+              setStep('FOUND UPDATES.', true);
+              await pause(STEP_PAUSE_MS);
+              setStep('INSTALLING UPDATES...', true);
+              try {
+                const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+                await downloadBibleForOffline();
+              } catch (err) {
+                console.error('[Splash] Chained update install failed:', err.message);
+              }
+              await pause(STEP_PAUSE_MS);
+              setStep('APPLYING UPDATES...', true);
+              await pause(STEP_PAUSE_MS);
+              if ('serviceWorker' in navigator) {
+                try {
+                  const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+                  if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                } catch {}
+              }
+            }
+            console.log('[Splash] Subsequent visit - update cycle complete');
           } else {
             // No updates - fire banner
             setStep('NO UPDATES FOUND.', true);
