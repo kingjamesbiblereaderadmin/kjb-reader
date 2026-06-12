@@ -45,14 +45,16 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
       
       console.log('[KJB Splash] Mode:', mode, 'Incognito:', detectedIncognito);
 
-      // Mark the app as visited as soon as the splash runs (for ANY mode), so the
-      // NEXT visit is correctly classified as "subsequent". Previously this was
-      // only set in the subsequent branch, so a true first-load never wrote it —
-      // causing returning visitors to be wrongly treated as first-time (showing
-      // "DOWNLOADING OFFLINE DATA" and "WELCOME TO KJB READER" again).
-      if (!detectedIncognito) {
-        localStorage.setItem('kjb-has-visited-app', 'true');
-      }
+      // Helper: mark the app as visited so the NEXT visit is "subsequent".
+      // IMPORTANT: this must only be called once a flow COMPLETES — never at the
+      // start. If set early and the page reloads mid-flow (e.g. a SW update),
+      // the reloaded splash would wrongly treat a first-time visitor as
+      // returning (skipping "DOWNLOADING OFFLINE DATA", showing "WELCOME BACK").
+      const markVisited = () => {
+        if (!detectedIncognito) {
+          try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {}
+        }
+      };
 
       // === FIRST LOAD FLOW ===
       if (isFirstVisit) {
@@ -154,6 +156,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         console.group('[Splash] Summary');
         stepsLog.current.forEach((msg, i) => console.log(`${i + 1}. ${msg}`));
         console.groupEnd();
+        markVisited();
         onDone?.();
         return;
       }
@@ -233,6 +236,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         console.group('[Splash] Summary');
         stepsLog.current.forEach((msg, i) => console.log(`${i + 1}. ${msg}`));
         console.groupEnd();
+        markVisited();
         onDone?.();
         return;
       }
@@ -310,6 +314,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         console.group('[Splash] Summary');
         stepsLog.current.forEach((msg, i) => console.log(`${i + 1}. ${msg}`));
         console.groupEnd();
+        markVisited();
         onDone?.();
         return;
       }
