@@ -1,7 +1,7 @@
-// KJB Reader Service Worker v20260612_1100
+// KJB Reader Service Worker v20260612_1200
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260612_1100';
+const CACHE_NAME = 'kjb-reader-v20260612_1200';
 const LEGACY_CACHE_NAME = 'kjb-legacy-v9';
 
 const APP_SHELL_FILES = [
@@ -100,14 +100,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Network-only for JavaScript chunks (prevents stale module errors)
-  const isJsChunk = url.includes('/src/') && (url.includes('/pages/') || url.includes('/components/') || url.includes('.jsx'));
-  if (isJsChunk) {
+  // Network-only for ALL JavaScript/JSX files (prevents stale module errors)
+  const isJsFile = url.endsWith('.js') || url.endsWith('.jsx') || url.includes('/src/');
+  if (isJsFile) {
     event.respondWith(
       fetch(event.request).then((response) => {
-        // Don't cache - always fetch fresh
+        console.log('[SW] Network-only for JS:', url);
         return response;
       }).catch(() => {
+        console.warn('[SW] JS fetch failed:', url);
         return caches.match(event.request);
       })
     );
