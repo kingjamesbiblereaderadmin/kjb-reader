@@ -180,14 +180,13 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           await pause(STEP_PAUSE_MS);
         }
 
-        // 3. Checking for updates (no banner - checking silently)
-        // Only check for SERVICE WORKER updates, NOT Bible data (we just downloaded it if needed)
-        setStep('CHECKING FOR UPDATES...');
-        await pause(STEP_PAUSE_MS);
-
-        // Check for service worker code updates only
-        let hasUpdates = false;
+        // 3. Checking for updates - ONLY if online (offline = no updates possible)
         if (navigator.onLine) {
+          setStep('CHECKING FOR UPDATES...');
+          await pause(STEP_PAUSE_MS);
+
+          // Check for service worker code updates only
+          let hasUpdates = false;
           try {
             if ('serviceWorker' in navigator) {
               const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
@@ -202,42 +201,45 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
               hasUpdates = await checkForUpdates().catch(() => false);
             }
           } catch {}
-        }
 
-        if (hasUpdates) {
-          // 4. Found updates - fire banner
-          setStep('FOUND UPDATES.', true);
-          await pause(STEP_PAUSE_MS);
+          if (hasUpdates) {
+            // 4. Found updates - fire banner
+            setStep('FOUND UPDATES.', true);
+            await pause(STEP_PAUSE_MS);
 
-          // 5. Installing updates - fire banner
-          setStep('INSTALLING UPDATES...', true);
-          try {
-            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-            await downloadBibleForOffline();
-          } catch (err) {
-            console.error('[Splash] Data install failed:', err.message);
-          }
-          await pause(STEP_PAUSE_MS);
-
-          // 6. Applying updates - fire banner
-          setStep('APPLYING UPDATES...', true);
-          await pause(STEP_PAUSE_MS);
-
-          // Activate service worker
-          if ('serviceWorker' in navigator) {
+            // 5. Installing updates - fire banner
+            setStep('INSTALLING UPDATES...', true);
             try {
-              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-              if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-            } catch {}
-          }
+              const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+              await downloadBibleForOffline();
+            } catch (err) {
+              console.error('[Splash] Data install failed:', err.message);
+            }
+            await pause(STEP_PAUSE_MS);
 
-          // 7. Final check - no banner, no loop on subsequent visits
-          // Skip re-checking to prevent infinite reload loop
-          console.log('[Splash] Subsequent visit - skipping update re-check to prevent loop');
+            // 6. Applying updates - fire banner
+            setStep('APPLYING UPDATES...', true);
+            await pause(STEP_PAUSE_MS);
+
+            // Activate service worker
+            if ('serviceWorker' in navigator) {
+              try {
+                const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+                if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+              } catch {}
+            }
+
+            // 7. Final check - no banner, no loop on subsequent visits
+            // Skip re-checking to prevent infinite reload loop
+            console.log('[Splash] Subsequent visit - skipping update re-check to prevent loop');
+          } else {
+            // No updates - fire banner
+            setStep('NO UPDATES FOUND.', true);
+            await pause(STEP_PAUSE_MS);
+          }
         } else {
-          // No updates - fire banner
-          setStep('NO UPDATES FOUND.', true);
-          await pause(STEP_PAUSE_MS);
+          // Offline - skip update check entirely, go straight to welcome
+          console.log('[Splash] Offline - skipping update check');
         }
 
         // 8. Welcome back - fire banner (success)
@@ -254,35 +256,41 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
       // === HOME UPDATE FLOW ===
       if (isHomeUpdate) {
-        // 1. Found updates - fire banner
-        setStep('FOUND UPDATES.', true);
-        await pause(STEP_PAUSE_MS);
+        // Only proceed with update flow if online
+        if (navigator.onLine) {
+          // 1. Found updates - fire banner
+          setStep('FOUND UPDATES.', true);
+          await pause(STEP_PAUSE_MS);
 
-        // 2. Installing updates - fire banner
-        setStep('INSTALLING UPDATES...', true);
-        try {
-          const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-          await downloadBibleForOffline();
-        } catch (err) {
-          console.error('[Splash] Data install failed:', err.message);
-        }
-        await pause(STEP_PAUSE_MS);
-
-        // 3. Applying updates - fire banner
-        setStep('APPLYING UPDATES...', true);
-        await pause(STEP_PAUSE_MS);
-
-        // Activate service worker
-        if ('serviceWorker' in navigator) {
+          // 2. Installing updates - fire banner
+          setStep('INSTALLING UPDATES...', true);
           try {
-            const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-            if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-          } catch {}
-        }
+            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+            await downloadBibleForOffline();
+          } catch (err) {
+            console.error('[Splash] Data install failed:', err.message);
+          }
+          await pause(STEP_PAUSE_MS);
 
-        // 4. Final check - no banner, no loop on home updates
-        // Skip re-checking to prevent infinite reload loop
-        console.log('[Splash] Home update - skipping update re-check to prevent loop');
+          // 3. Applying updates - fire banner
+          setStep('APPLYING UPDATES...', true);
+          await pause(STEP_PAUSE_MS);
+
+          // Activate service worker
+          if ('serviceWorker' in navigator) {
+            try {
+              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+              if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            } catch {}
+          }
+
+          // 4. Final check - no banner, no loop on home updates
+          // Skip re-checking to prevent infinite reload loop
+          console.log('[Splash] Home update - skipping update re-check to prevent loop');
+        } else {
+          // Offline - skip update flow entirely
+          console.log('[Splash] Home update but offline - skipping update flow');
+        }
 
         // 5. Welcome back - fire banner (success)
         setStep('WELCOME BACK TO KJB READER.', true);
