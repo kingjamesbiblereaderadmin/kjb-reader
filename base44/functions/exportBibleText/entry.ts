@@ -25,15 +25,19 @@ Deno.serve(async (req) => {
   try {
     const res = await fetch(TEXT_URL);
     if (!res.ok) throw new Error('Failed to fetch Bible text');
-    const text = await res.text();
-    const lines = text.split('\n');
+    // The source file is Latin-1 encoded: the paragraph mark (¶) is a single
+    // byte 0xB6. Decoding as UTF-8 corrupts it into "Â¶"/U+FFFD, so decode as
+    // latin1 and let norm() handle the marker.
+    const bytes = new Uint8Array(await res.arrayBuffer());
+    const text = new TextDecoder('latin1').decode(bytes);
+    const lines = text.split(/\r?\n/);
     const out = [];
 
     // Pending subscript/heading lines (e.g. Psalm titles, "ALEPH.") that should
     // be printed immediately before the NEXT verse they belong to.
     let pendingSubscript = null;
 
-    const norm = (s) => s.replace(/[\uFFFD]/g, '\u00B6').replace(/\s+/g, ' ').trim();
+    const norm = (s) => s.replace(/[\uFFFD\u00B6]/g, '\u00B6').replace(/\s+/g, ' ').trim();
 
     for (const raw of lines) {
       const trimmed = raw.trim();
@@ -90,13 +94,16 @@ Deno.serve(async (req) => {
       out.push(`${bookName} ${chapter}:${verse} ${vt}`);
     }
 
-    // Prepend a UTF-8 BOM so editors/browsers reliably detect the encoding
-    // and render ¶ and — correctly (otherwise they appear as mojibake like "Â¶").
+    // Encode the full text as UTF-8 bytes (with BOM) and return as a binary
+    // body so the whole Bible is sent without truncation, and ¶/— render
+    // correctly in editors.
     const body = '\uFEFF' + out.join('\n') + '\n';
-    return new Response(body, {
+    const encoded = new TextEncoder().encode(body);
+    return new Response(encoded, {
       status: 200,
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
+        'Content-Length': String(encoded.length),
         'Content-Disposition': 'attachment; filename="KJB_PureCambridge.txt"'
       }
     });
