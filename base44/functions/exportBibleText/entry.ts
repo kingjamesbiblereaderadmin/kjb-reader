@@ -58,7 +58,11 @@ Deno.serve(async (req) => {
         if (!clean) continue;
         if (/^\u00B6?\s*\[.*\]\s*$/.test(clean)) {
           // Colophon — print as its own line at the end of the chapter.
-          out.push(`${bookName} — ${clean.replace(/^\u00B6\s*/, '\u00B6 ')}`);
+          // Strip the outer wrapping brackets (keep any inner [italic] words).
+          const colo = clean
+            .replace(/^\u00B6\s*/, '\u00B6 ')
+            .replace(/\[([\s\S]*)\]/, '$1');
+          out.push(`${bookName} — ${colo}`);
         } else {
           // Subscript / heading — hold it for the next verse.
           pendingSubscript = clean;
@@ -77,9 +81,9 @@ Deno.serve(async (req) => {
       // Normalise the paragraph mark, keep [italic] brackets and pilcrows.
       vt = norm(vt);
 
-      // If a subscript was held, print it just before this verse.
+      // If a subscript was held, print it just before this verse (no brackets).
       if (pendingSubscript) {
-        out.push(`${bookName} ${chapter}:${verse} [${pendingSubscript}]`);
+        out.push(`${bookName} ${chapter}:${verse} ${pendingSubscript}`);
         pendingSubscript = null;
       }
 
