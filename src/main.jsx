@@ -41,13 +41,22 @@ window.addEventListener('load', async () => {
       let refreshing = false;
       let hasExistingController = !!navigator.serviceWorker.controller;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        // Always update the flag first
         const wasExisting = hasExistingController;
         hasExistingController = true;
-        if (wasExisting && !refreshing && !window._kjbSplashApplyingUpdate) {
+        // If the splash is applying the update itself, never reload here — the
+        // splash plays "Found updates → Installing → Applying" then finishes in
+        // place. Reloading would interrupt it and consume the flag prematurely.
+        if (window._kjbSplashApplyingUpdate) return;
+        // Only reload ONCE per session for a background SW takeover, and set the
+        // flag BEFORE reloading so the splash on the reloaded page shows
+        // "Found updates" instead of "No updates found".
+        if (wasExisting && !refreshing && !sessionStorage.getItem('kjb_sw_reloaded')) {
           refreshing = true;
-          console.log('[SW] Background controller change — reloading.');
-          try { sessionStorage.setItem('kjb_sw_updated', 'app'); } catch {}
+          console.log('[SW] Background controller change — reloading once.');
+          try {
+            sessionStorage.setItem('kjb_sw_updated', 'app');
+            sessionStorage.setItem('kjb_sw_reloaded', '1');
+          } catch {}
           const sep = window.location.search ? '&' : '?';
           window.location.href = window.location.pathname + window.location.search + sep + 'updated=true';
         }

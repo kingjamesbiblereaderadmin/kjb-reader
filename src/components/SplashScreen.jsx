@@ -26,6 +26,15 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
     if (!isVisible || doneRef.current) return;
     doneRef.current = true;
 
+    // Capture the SW-update flag IMMEDIATELY on mount, before any async pause —
+    // otherwise a background controllerchange/reload in main.jsx could consume
+    // or clear it before the splash reaches its "checking" step. Stash it so the
+    // flows below can use it without racing.
+    const swUpdatedAtMount = sessionStorage.getItem('kjb_sw_updated');
+    if (swUpdatedAtMount) sessionStorage.removeItem('kjb_sw_updated');
+    // Prevent main.jsx from reloading while the splash is running this flow.
+    window._kjbSplashApplyingUpdate = true;
+
     (async () => {
       // Wait for incognito detection to complete before starting splash flow
       const detectedIncognito = await detectIncognito();
@@ -70,15 +79,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           await pause(STEP_PAUSE_MS);
         }
 
-        // Check for updates. Honour the `kjb_sw_updated` flag main.jsx sets when
-        // a freshly-bumped (auto-activated) SW takes over, since by now there's
+        // Honour the SW-update flag captured at mount (main.jsx sets it when a
+        // freshly-bumped, auto-activated SW takes over), since by now there's
         // often no `waiting`/`installing` worker left to detect.
-        let hasUpdates = false;
-        const swUpdatedFlag = sessionStorage.getItem('kjb_sw_updated');
-        if (swUpdatedFlag) {
-          hasUpdates = true;
-          sessionStorage.removeItem('kjb_sw_updated');
-        }
+        let hasUpdates = !!swUpdatedAtMount;
         if (!hasUpdates && navigator.onLine) {
           try {
             if ('serviceWorker' in navigator) {
@@ -160,17 +164,9 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         setStep('CHECKING FOR UPDATES...');
         await pause(STEP_PAUSE_MS);
 
-        // A new service worker bumped by a version change auto-activates (sw.js
-        // calls skipWaiting in install), so by the time we check there's often
-        // no `waiting`/`installing` worker. main.jsx records that an SW update
-        // just took over via the `kjb_sw_updated` sessionStorage flag — honour
-        // it here so the "Found updates" sequence still plays after a reload.
-        let hasUpdates = false;
-        const swUpdatedFlag = sessionStorage.getItem('kjb_sw_updated');
-        if (swUpdatedFlag) {
-          hasUpdates = true;
-          sessionStorage.removeItem('kjb_sw_updated');
-        }
+        // Honour the SW-update flag captured at mount so the "Found updates"
+        // sequence still plays after a freshly-bumped SW auto-activated.
+        let hasUpdates = !!swUpdatedAtMount;
         if (!hasUpdates && navigator.onLine) {
           try {
             if ('serviceWorker' in navigator) {
