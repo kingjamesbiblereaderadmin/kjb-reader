@@ -12,22 +12,24 @@ import { SoftReloadProvider, useSoftReload } from '@/lib/SoftReloadContext';
 import AppLayout from '@/components/layout/AppLayout';
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 
-// Lazy-load pages. Each import() factory is kept as a reference so we can
-// also trigger it manually in the background to preload all routes.
+// Lazy-load pages with cache-busting query param to prevent stale chunk errors.
+// Each import() factory is kept as a reference so we can also trigger it manually
+// in the background to preload all routes.
+const CACHE_BUST = '?v=' + (typeof window !== 'undefined' ? Date.now() : '');
 const loaders = {
-  Home: () => import('@/pages/HomePage').catch((err) => { console.error('Failed to load HomePage:', err); throw err; }),
-  BibleReader: () => import('@/pages/BibleReader').catch((err) => { console.error('Failed to load BibleReader:', err); throw err; }),
-  Gospel: () => import('@/pages/GospelPage').catch((err) => { console.error('Failed to load GospelPage:', err); throw err; }),
-  Resources: () => import('@/pages/ResourcesPage').catch((err) => { console.error('Failed to load ResourcesPage:', err); throw err; }),
-  About: () => import('@/pages/AboutPage').catch((err) => { console.error('Failed to load AboutPage:', err); throw err; }),
-  Contents: () => import('@/pages/ContentsPage.jsx').catch((err) => { console.error('Failed to load ContentsPage:', err); throw err; }),
-  Settings: () => import('@/pages/SettingsPage.jsx').catch((err) => { console.error('Failed to load SettingsPage:', err); throw err; }),
-  Search: () => import('@/pages/SearchPage.jsx').catch((err) => { console.error('Failed to load SearchPage:', err); throw err; }),
-  Saved: () => import('@/pages/SavedVersesPage.jsx').catch((err) => { console.error('Failed to load SavedVersesPage:', err); throw err; }),
-  RefreshCache: () => import('@/pages/RefreshCache.jsx').catch((err) => { console.error('Failed to load RefreshCache:', err); throw err; }),
-  ManifestIcons: () => import('@/pages/ManifestIcons.jsx').catch((err) => { console.error('Failed to load ManifestIcons:', err); throw err; }),
-  Privacy: () => import('@/pages/PrivacyPolicyPage.jsx').catch((err) => { console.error('Failed to load PrivacyPolicyPage:', err); throw err; }),
-  LegacyReader: () => import('@/pages/LegacyReader.jsx').catch((err) => { console.error('Failed to load LegacyReader:', err); throw err; }),
+  Home: () => import('@/pages/HomePage' + CACHE_BUST).catch((err) => { console.error('Failed to load HomePage:', err); throw err; }),
+  BibleReader: () => import('@/pages/BibleReader' + CACHE_BUST).catch((err) => { console.error('Failed to load BibleReader:', err); throw err; }),
+  Gospel: () => import('@/pages/GospelPage' + CACHE_BUST).catch((err) => { console.error('Failed to load GospelPage:', err); throw err; }),
+  Resources: () => import('@/pages/ResourcesPage' + CACHE_BUST).catch((err) => { console.error('Failed to load ResourcesPage:', err); throw err; }),
+  About: () => import('@/pages/AboutPage' + CACHE_BUST).catch((err) => { console.error('Failed to load AboutPage:', err); throw err; }),
+  Contents: () => import('@/pages/ContentsPage.jsx' + CACHE_BUST).catch((err) => { console.error('Failed to load ContentsPage:', err); throw err; }),
+  Settings: () => import('@/pages/SettingsPage.jsx' + CACHE_BUST).catch((err) => { console.error('Failed to load SettingsPage:', err); throw err; }),
+  Search: () => import('@/pages/SearchPage.jsx' + CACHE_BUST).catch((err) => { console.error('Failed to load SearchPage:', err); throw err; }),
+  Saved: () => import('@/pages/SavedVersesPage.jsx' + CACHE_BUST).catch((err) => { console.error('Failed to load SavedVersesPage:', err); throw err; }),
+  RefreshCache: () => import('@/pages/RefreshCache.jsx' + CACHE_BUST).catch((err) => { console.error('Failed to load RefreshCache:', err); throw err; }),
+  ManifestIcons: () => import('@/pages/ManifestIcons.jsx' + CACHE_BUST).catch((err) => { console.error('Failed to load ManifestIcons:', err); throw err; }),
+  Privacy: () => import('@/pages/PrivacyPolicyPage.jsx' + CACHE_BUST).catch((err) => { console.error('Failed to load PrivacyPolicyPage:', err); throw err; }),
+  LegacyReader: () => import('@/pages/LegacyReader.jsx' + CACHE_BUST).catch((err) => { console.error('Failed to load LegacyReader:', err); throw err; }),
 };
 const HomePage = lazy(loaders.Home);
 const BibleReader = lazy(loaders.BibleReader);
