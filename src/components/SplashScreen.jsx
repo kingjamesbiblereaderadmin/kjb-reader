@@ -88,7 +88,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
     return hasUpdates;
   };
 
-  // Real SW activation.
+  // Real SW activation. Also marks the deployed SW version as applied so the
+  // NEXT "CHECKING FOR UPDATES" step in the loop doesn't re-detect the same
+  // update we just installed (which caused an endless FOUND → INSTALLING →
+  // CHECKING → FOUND loop until the guard cap).
   const applyServiceWorker = async () => {
     if ('serviceWorker' in navigator) {
       try {
@@ -97,6 +100,12 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
       } catch {}
     }
+    try {
+      const { markSwVersionApplied } = await import('@/lib/swVersionCheck');
+      markSwVersionApplied();
+    } catch {}
+    // Mark Bible data version applied too so checkForUpdates() won't re-fire.
+    try { localStorage.setItem('bible_last_refresh', String(Date.now())); } catch {}
   };
 
   useEffect(() => {
