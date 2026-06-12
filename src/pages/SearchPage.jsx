@@ -720,11 +720,21 @@ export default function SearchPage() {
     // can re-highlight non-verse sections instead of just loading the chapter.
     // Expand each verse into ONE entry per occurrence of the term, so stepping
     // up/down stops at every occurrence within the same verse separately.
-    const occRe = (() => {
-      if (!q) return null;
-      const cleaned = (q.startsWith('"') && q.endsWith('"')) || (q.startsWith('\u201C') && q.endsWith('\u201D')) ? q.slice(1, -1) : q;
-      const esc = cleaned.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      try { return new RegExp(esc, highlightCaseSensitive ? 'g' : 'gi'); } catch { return null; }
+    // Build one regex per search term. For a multi-keyword query like
+    // "heart, imagination" we split on commas so EACH keyword occurrence in a
+    // verse becomes its own a/b/c stepper stop. Quoted phrases stay as one term.
+    const occRes = (() => {
+      if (!q) return [];
+      const isQuoted = (q.startsWith('"') && q.endsWith('"')) || (q.startsWith('\u201C') && q.endsWith('\u201D'));
+      const cleaned = isQuoted ? q.slice(1, -1) : q;
+      const terms = isQuoted
+        ? [cleaned.trim()].filter(Boolean)
+        : cleaned.split(',').map(t => t.trim()).filter(t => t.length >= 2);
+      const list = terms.length ? terms : [cleaned.trim()].filter(Boolean);
+      return list.map(t => {
+        const esc = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        try { return new RegExp(esc, highlightCaseSensitive ? 'g' : 'gi'); } catch { return null; }
+      }).filter(Boolean);
     })();
     const compact = [];
     let startNavIndex = 0;
@@ -739,10 +749,12 @@ export default function SearchPage() {
         section: r.isColophon ? 'colophon' : r.isSubscript ? 'subscript' : null,
       };
       // Count occurrences in plain verses only (not ranges/colophons/subscripts).
+      // Sum every search term's hits so multi-keyword verses get one stepper
+      // stop (a/b/c) per keyword occurrence.
       let count = 1;
-      if (!base.section && !base.verseEnd && occRe) {
+      if (!base.section && !base.verseEnd && occRes.length) {
         const clean = (r.text || '').replace(/[[\]]/g, '');
-        count = Math.max(1, (clean.match(occRe) || []).length);
+        count = Math.max(1, occRes.reduce((sum, re) => sum + (clean.match(re) || []).length, 0));
       }
       for (let o = 0; o < count; o++) compact.push({ ...base, occurrence: o });
     });
