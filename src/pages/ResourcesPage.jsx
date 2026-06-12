@@ -104,15 +104,6 @@ const PREACHERS = [
 
 },
 {
-  name: 'Joseph Gonzalez',
-  desc: 'KJB Elites — faithful preacher of the word.',
-  links: [
-  'https://youtube.com/@josephgonzalez3',
-  'https://www.tiktok.com/@joyfullychurch',
-  'https://joyfullychurch.univer.se/']
-
-},
-{
   name: 'Ryan Poff',
   desc: 'Seed of Hope Church — KJB pastor and preacher.',
   links: [
