@@ -371,16 +371,15 @@ export default function HomePage() {
     // Listen for service worker update messages — set flag for SplashScreen
     const handleSWUpdate = (event) => {
       if (event.data?.type === 'UPDATE_FOUND') {
-        // Skip if splash screen hasn't completed yet (prevents premature reload on app open)
+        // ALWAYS skip if splash screen hasn't completed yet — prevents premature reload
+        // The splash screen handles the entire update flow end-to-end
         if (!window.kjbSplashDone) {
-          console.log('[Home] SW update detected but splash not done — ignoring until splash completes');
+          console.log('[Home] SW update detected but splash not done — ignoring');
           return;
         }
         console.log('[Home] SW update detected — setting flags and reloading for splash flow');
-        // Set BOTH flags (localStorage persists through SW reloads)
         localStorage.setItem('kjb-splash-home-update', 'true');
         sessionStorage.setItem('kjb-splash-home-update', 'true');
-        // Reload after a tiny delay to ensure flags are persisted
         setTimeout(() => {
           console.log('[Home] Reloading now to show splash...');
           window.location.reload();
@@ -393,9 +392,9 @@ export default function HomePage() {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistration().then((reg) => {
         if (reg?.waiting) {
-          // Skip if splash screen hasn't completed yet (prevents premature reload on app open)
+          // ALWAYS skip if splash screen hasn't completed — splash handles updates end-to-end
           if (!window.kjbSplashDone) {
-            console.log('[Home] Waiting SW found but splash not done — ignoring until splash completes');
+            console.log('[Home] Waiting SW found but splash not done — ignoring');
             return;
           }
           console.log('[Home] Waiting SW found on mount — setting flags and reloading');
