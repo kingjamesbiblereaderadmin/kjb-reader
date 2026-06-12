@@ -111,7 +111,12 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           setStep('APPLYING UPDATES...', true);
           await pause(STEP_PAUSE_MS);
 
-          // Activate service worker
+          // CRITICAL: Set flag BEFORE activating SW so it survives the reload
+          if (!detectedIncognito) {
+            try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {}
+          }
+
+          // Activate service worker (triggers reload)
           if ('serviceWorker' in navigator) {
             try {
               const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
@@ -129,9 +134,8 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         }
 
         // 8. Welcome - fire banner (success)
-        // Set flag ONLY at the END of successful first_load
+        // Flag already set before SW reload (or here if no reload happened)
         if (!detectedIncognito) {
-          localStorage.setItem('kjb-has-visited-app', 'true');
           setStep('WELCOME TO KJB READER.', true);
         } else {
           console.log('[Splash] Incognito mode - skipping has-visited flag');
