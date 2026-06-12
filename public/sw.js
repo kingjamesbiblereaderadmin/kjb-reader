@@ -13,29 +13,19 @@ const APP_SHELL_FILES = [
 
 self.addEventListener('install', (event) => {
   console.log('[SW] Installing new version', CACHE_NAME);
-  // Force all clients to reload immediately on install (clears all old module caches)
+  // Cache the app shell. Do NOT call skipWaiting()/clients.claim() here and do
+  // NOT post UPDATE_FOUND — auto-activating on install fired controllerchange
+  // immediately and caused an infinite refresh loop. The new SW stays in the
+  // "waiting" state until the SplashScreen explicitly sends SKIP_WAITING.
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[SW] Caching app shell');
-      return cache.addAll(APP_SHELL_FILES).catch(err => {
+      return cache.addAll(APP_SHELL_FILES).catch((err) => {
         console.warn('[SW] Some resources failed to cache:', err);
         return Promise.resolve();
       });
-    }).then(() => {
-      console.log('[SW] Sending UPDATE_FOUND to all clients from install');
-      return self.clients.matchAll().then(clients => {
-        clients.forEach(client => {
-          console.log('[SW] Notifying client:', client.url, client.id);
-          client.postMessage({ type: 'UPDATE_FOUND' });
-        });
-      });
-    }).then(() => {
-      console.log('[SW] Skipping waiting');
-      return self.skipWaiting();
     })
   );
-  // Force immediate reload of ALL open tabs to clear stale module memory
-  self.clients.claim();
 });
 
 self.addEventListener('activate', (event) => {
@@ -51,13 +41,6 @@ self.addEventListener('activate', (event) => {
           })
       );
     }).then(() => {
-      console.log('[SW] Sending UPDATE_FOUND to all clients from activate');
-      return self.clients.matchAll().then(clients => {
-        clients.forEach(client => {
-          client.postMessage({ type: 'UPDATE_FOUND' });
-        });
-      });
-    }).then(() => {
       console.log('[SW] Claiming clients');
       return self.clients.claim();
     })
@@ -66,13 +49,13 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const url = event.request.url;
-  
+
   // Skip non-GET requests
   if (event.request.method !== 'GET') return;
-  
+
   // Skip chrome-extension and other non-http(s) requests
   if (!url.startsWith('http://') && !url.startsWith('https://')) return;
-  
+
   // Handle Bible data requests with cache-first strategy
   if (url.includes('KingJamesBible-PureCambridgeEditionTextfile2.txt')) {
     event.respondWith(
@@ -82,7 +65,7 @@ self.addEventListener('fetch', (event) => {
           console.log('[SW] Cache-first: returning cached Bible data');
           return cachedResponse;
         }
-        
+
         console.log('[SW] Cache miss for Bible data, fetching from network');
         const fetchPromise = fetch(url).then((response) => {
           if (!response.ok) {
@@ -92,9 +75,9 @@ self.addEventListener('fetch', (event) => {
           cache.put(url, responseClone);
           return response;
         });
-        
+
         return fetchPromise;
-      }).catch(err => {
+      }).catch((err) => {
         console.warn('[SW] Bible data fetch failed:', err);
         // Return cached version even if stale
         return caches.match(url);
@@ -102,13 +85,12 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
-  
+
   // Network-only for ALL JavaScript/JSX files (prevents stale module errors)
   const isJsFile = url.endsWith('.js') || url.endsWith('.jsx') || url.includes('/src/');
   if (isJsFile) {
     event.respondWith(
       fetch(event.request).then((response) => {
-        console.log('[SW] Network-only for JS:', url);
         return response;
       }).catch(() => {
         console.warn('[SW] JS fetch failed:', url);
@@ -117,16 +99,15 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
-  
+
   // Default: cache-first for app shell, network-first for other assets
   event.respondWith(
     caches.open(CACHE_NAME).then(async (cache) => {
       const cachedResponse = await cache.match(event.request);
       if (cachedResponse) {
-        console.log('[SW] Returning cached:', event.request.url);
         return cachedResponse;
       }
-      
+
       try {
         const response = await fetch(event.request);
         if (response.ok) {
@@ -144,18 +125,18 @@ self.addEventListener('fetch', (event) => {
 // Handle messages from clients
 self.addEventListener('message', (event) => {
   console.log('[SW] Received message:', event.data);
-  
+
   if (event.data && event.data.type === 'SKIP_WAITING') {
     console.log('[SW] Skipping waiting on message');
     self.skipWaiting();
   }
-  
+
   if (event.data && event.data.type === 'PREWARM_ASSETS') {
     const urls = event.data.urls || [];
     console.log('[SW] Prewarming', urls.length, 'assets');
     event.waitUntil(
       caches.open(CACHE_NAME).then((cache) => {
-        return cache.addAll(urls).catch(err => {
+        return cache.addAll(urls).catch((err) => {
           console.warn('[SW] Some prewarm assets failed:', err);
           return Promise.resolve();
         });

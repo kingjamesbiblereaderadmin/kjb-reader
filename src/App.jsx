@@ -206,24 +206,10 @@ const AuthenticatedApp = () => {
     }
   });
   
-  // Check for waiting SW on mount — upgrade to home_update if found (user has visited before)
-  // Only check AFTER splash completes to prevent premature mode switches
-  React.useEffect(() => {
-    if ('serviceWorker' in navigator && splashMode !== 'home_update' && window.kjbSplashDone) {
-      const hasVisited = localStorage.getItem('kjb-has-visited-app');
-      if (hasVisited) {
-        navigator.serviceWorker.getRegistration().then((reg) => {
-          if (reg?.waiting) {
-            console.log('[App] Waiting SW found — upgrading to home_update mode');
-            localStorage.setItem('kjb-splash-home-update', 'true');
-            sessionStorage.setItem('kjb-splash-home-update', 'true');
-            setSplashMode('home_update');
-            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-          }
-        }).catch(() => {});
-      }
-    }
-  }, [splashMode]);
+  // NOTE: Removed the "waiting SW on mount → home_update" auto-switch. It set
+  // the home-update flag and triggered the splash update flow on every load
+  // (there is almost always a waiting SW in this environment), which caused an
+  // infinite refresh loop. Updates are applied via Settings → Check for Updates.
   
   const handleSplashDone = () => {
     setFadeSplash(true);

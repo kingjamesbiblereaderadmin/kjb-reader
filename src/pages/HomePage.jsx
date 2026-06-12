@@ -111,68 +111,14 @@ export default function HomePage() {
       }
     }, 2000);
 
-    // Periodic service worker update check for open tabs (every 10 seconds)
-    const swCheckInterval = setInterval(async () => {
-      if (!navigator.onLine) return;
-      // Skip checks if splash screen hasn't completed yet
-      if (!window.kjbSplashDone) return;
-      try {
-        if ('serviceWorker' in navigator) {
-          const reg = await navigator.serviceWorker.getRegistration();
-          if (reg) {
-            await reg.update().catch(() => {});
-            // Check if new SW is waiting
-            if (reg.waiting || (reg.installing && reg.installing.state === 'installed')) {
-              console.log('[Home] Periodic SW check found update — triggering splash flow');
-              localStorage.setItem('kjb-splash-home-update', 'true');
-              sessionStorage.setItem('kjb-splash-home-update', 'true');
-              if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-              setTimeout(() => {
-                window.location.href = window.location.pathname + '?refresh=' + Date.now();
-              }, 300);
-            }
-          }
-        }
-      } catch (e) {
-        console.error('[Home] Periodic SW check failed:', e);
-      }
-    }, 10 * 1000); // 10 seconds
-
-    // Check for updates on visibility change (when user returns to tab)
-    const handleVisibilityChange = async () => {
-      if (document.visibilityState !== 'visible' || !navigator.onLine) return;
-      // Skip checks if splash screen hasn't completed yet
-      if (!window.kjbSplashDone) return;
-      try {
-        if ('serviceWorker' in navigator) {
-          const reg = await navigator.serviceWorker.getRegistration();
-          if (reg) {
-            await reg.update().catch(() => {});
-            // Wait a moment for SW state to settle
-            await new Promise(r => setTimeout(r, 500));
-            // Re-check registration after update
-            const freshReg = await navigator.serviceWorker.getRegistration();
-            if (freshReg?.waiting || (freshReg?.installing && freshReg.installing.state === 'installed')) {
-              console.log('[Home] Visibility change found update — triggering splash flow');
-              localStorage.setItem('kjb-splash-home-update', 'true');
-              sessionStorage.setItem('kjb-splash-home-update', 'true');
-              if (freshReg.waiting) freshReg.waiting.postMessage({ type: 'SKIP_WAITING' });
-              setTimeout(() => {
-                window.location.href = window.location.pathname + '?refresh=' + Date.now();
-              }, 300);
-            }
-          }
-        }
-      } catch (e) {
-        console.error('[Home] Visibility check failed:', e);
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    // NOTE: We removed the periodic + visibility-change SW reload checks.
+    // They detected a "waiting" SW and reloaded the page repeatedly, which
+    // (combined with the SW activating on install) caused an infinite refresh
+    // loop. SW updates are now only applied via an explicit user action
+    // (Settings → Check for Updates) and the SplashScreen on a fresh visit.
 
     return () => {
       clearInterval(minuteInterval);
-      clearInterval(swCheckInterval);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
@@ -367,48 +313,11 @@ export default function HomePage() {
     
     // Listen for storage events (syncs across tabs/pages)
     window.addEventListener('storage', handleStorageChange);
-    
-    // Listen for service worker update messages — set flag for SplashScreen
-    const handleSWUpdate = (event) => {
-      if (event.data?.type === 'UPDATE_FOUND') {
-        // ALWAYS skip if splash screen hasn't completed yet — prevents premature reload
-        // The splash screen handles the entire update flow end-to-end
-        if (!window.kjbSplashDone) {
-          console.log('[Home] SW update detected but splash not done — ignoring');
-          return;
-        }
-        console.log('[Home] SW update detected — setting flags and reloading for splash flow');
-        localStorage.setItem('kjb-splash-home-update', 'true');
-        sessionStorage.setItem('kjb-splash-home-update', 'true');
-        setTimeout(() => {
-          console.log('[Home] Reloading now to show splash...');
-          window.location.reload();
-        }, 200);
-      }
-    };
-    navigator.serviceWorker?.addEventListener('message', handleSWUpdate);
-    
-    // Check for waiting service worker on mount (in case message was missed)
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistration().then((reg) => {
-        if (reg?.waiting) {
-          // ALWAYS skip if splash screen hasn't completed — splash handles updates end-to-end
-          if (!window.kjbSplashDone) {
-            console.log('[Home] Waiting SW found but splash not done — ignoring');
-            return;
-          }
-          console.log('[Home] Waiting SW found on mount — setting flags and reloading');
-          localStorage.setItem('kjb-splash-home-update', 'true');
-          sessionStorage.setItem('kjb-splash-home-update', 'true');
-          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-          setTimeout(() => {
-            console.log('[Home] Reloading now to show splash (waiting SW)...');
-            window.location.href = window.location.pathname + '?refresh=' + Date.now();
-          }, 300);
-        }
-      }).catch(() => {});
-    }
-    
+
+    // NOTE: Removed the UPDATE_FOUND message listener and the "waiting SW on
+    // mount" auto-reload — both triggered page reloads that caused an infinite
+    // refresh loop. Updates are applied via Settings → Check for Updates only.
+
     // Also check on focus and online (when user returns to the app or internet is restored)
     const handleFocus = () => {
       setNotifEnabled(getNotificationsEnabled());
@@ -435,7 +344,6 @@ export default function HomePage() {
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      navigator.serviceWorker?.removeEventListener('message', handleSWUpdate);
       window.removeEventListener('focus', handleFocus);
       window.removeEventListener('online', handleFocus);
       document.removeEventListener('visibilitychange', handleFocus);

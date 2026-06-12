@@ -123,36 +123,11 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
             } catch {}
           }
 
-          // Final check for chained updates - but skip if we just reloaded for updates
-          const justReloadedForUpdate = sessionStorage.getItem('kjb_just_updated') === 'true';
-          if (!justReloadedForUpdate) {
-            setStep('CHECKING FOR UPDATES...');
-            await pause(STEP_PAUSE_MS);
-            let hasMoreUpdates = false;
-            if (navigator.onLine && 'serviceWorker' in navigator) {
-              try {
-                const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-                if (reg) {
-                  await reg.update().catch(() => {});
-                  hasMoreUpdates = !!reg.waiting;
-                }
-              } catch {}
-            }
-            if (hasMoreUpdates) {
-              // Found chained update — trigger reload to restart the splash flow from beginning
-              console.log('[Splash] Chained update found — reloading to restart splash flow');
-              sessionStorage.setItem('kjb_just_updated', 'true');
-              sessionStorage.setItem('kjb-first-load-flow', 'true');
-              setTimeout(() => {
-                window.location.href = window.location.pathname + '?refresh=' + Date.now();
-              }, 500);
-              return; // Don't continue to WELCOME
-            }
-          } else {
-            console.log('[Splash] First load - skipping re-check (just reloaded)');
-            sessionStorage.removeItem('kjb_just_updated');
-          }
-          console.log('[Splash] First load - no more updates, proceeding to WELCOME');
+          // Final check for chained updates (display only — no reload, to avoid
+          // the infinite refresh loop). The SW was already activated above.
+          setStep('CHECKING FOR UPDATES...');
+          await pause(STEP_PAUSE_MS);
+          console.log('[Splash] First load - proceeding to WELCOME');
         } else {
           // No updates - fire banner
           setStep('NO UPDATES FOUND.', true);
@@ -254,35 +229,11 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
               } catch {}
             }
 
-            // Final check for chained updates - but skip if we just reloaded for updates
-            const justReloadedForUpdate = sessionStorage.getItem('kjb_just_updated') === 'true';
-            if (!justReloadedForUpdate) {
-              setStep('CHECKING FOR UPDATES...');
-              await pause(STEP_PAUSE_MS);
-              let hasMoreUpdates = false;
-              if (navigator.onLine && 'serviceWorker' in navigator) {
-                try {
-                  const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-                  if (reg) {
-                    await reg.update().catch(() => {});
-                    hasMoreUpdates = !!reg.waiting;
-                  }
-                } catch {}
-              }
-              if (hasMoreUpdates) {
-                // Found chained update — trigger reload to restart the splash flow from beginning
-                console.log('[Splash] Chained update found — reloading to restart splash flow');
-                sessionStorage.setItem('kjb_just_updated', 'true');
-                setTimeout(() => {
-                  window.location.href = window.location.pathname + '?refresh=' + Date.now();
-                }, 500);
-                return; // Don't continue to WELCOME
-              }
-            } else {
-              console.log('[Splash] Subsequent visit - skipping re-check (just reloaded)');
-              sessionStorage.removeItem('kjb_just_updated');
-            }
-            console.log('[Splash] Subsequent visit - no more updates, proceeding to WELCOME');
+            // Final check for chained updates (display only — no reload, to avoid
+            // the infinite refresh loop). The SW was already activated above.
+            setStep('CHECKING FOR UPDATES...');
+            await pause(STEP_PAUSE_MS);
+            console.log('[Splash] Subsequent visit - proceeding to WELCOME');
           } else {
             // No updates - fire banner
             setStep('NO UPDATES FOUND.', true);
@@ -335,38 +286,11 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
             } catch {}
           }
 
-          // Final check for chained updates - but skip if we just reloaded for updates
-          // to prevent infinite loops (check session storage for reload marker)
-          const justReloadedForUpdate = sessionStorage.getItem('kjb_just_updated') === 'true';
-          if (!justReloadedForUpdate) {
-            setStep('CHECKING FOR UPDATES...');
-            await pause(STEP_PAUSE_MS);
-            let hasMoreUpdates = false;
-            if (navigator.onLine && 'serviceWorker' in navigator) {
-              try {
-                const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-                if (reg) {
-                  await reg.update().catch(() => {});
-                  hasMoreUpdates = !!reg.waiting;
-                }
-              } catch {}
-            }
-            if (hasMoreUpdates) {
-              // Found chained update — trigger reload to restart the splash flow
-              console.log('[Splash] Home update - chained update found, reloading to restart splash flow');
-              sessionStorage.setItem('kjb_just_updated', 'true');
-              localStorage.setItem('kjb-splash-home-update', 'true');
-              sessionStorage.setItem('kjb-splash-home-update', 'true');
-              setTimeout(() => {
-                window.location.href = window.location.pathname + '?refresh=' + Date.now();
-              }, 500);
-              return; // Don't continue to WELCOME
-            }
-          } else {
-            console.log('[Splash] Home update - skipping re-check (just reloaded)');
-            sessionStorage.removeItem('kjb_just_updated');
-          }
-          console.log('[Splash] Home update - no more updates, proceeding to WELCOME');
+          // Final check for chained updates (display only — no reload, to avoid
+          // the infinite refresh loop). The SW was already activated above.
+          setStep('CHECKING FOR UPDATES...');
+          await pause(STEP_PAUSE_MS);
+          console.log('[Splash] Home update - proceeding to WELCOME');
         } else {
           // Offline - skip update flow entirely
           console.log('[Splash] Home update but offline - skipping update flow');

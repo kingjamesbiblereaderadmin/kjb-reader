@@ -3,7 +3,7 @@ Deno.serve(async (req) => {
   try {
     const text = await fetch("https://preview-sandbox--6a05d76723afe58d80c589e8.base44.app/sw.js").then(r => r.text());
     return Response.json({ 
-      chunk1: text.substring(0, 1500)
+      chunk1: text.substring(3400, 5300)
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
