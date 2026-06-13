@@ -14,7 +14,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
         onClick={() => { onSelect(book, false, true); onClose(); }}
         className={`w-full text-left px-4 py-2.5 text-sm font-sans transition-colors border-b border-border/60 last:border-b-0 ${
           active
-            ? 'bg-primary/15 text-primary font-semibold'
+            ? 'bg-primary text-primary-foreground font-semibold'
             : 'hover:bg-accent/10 text-foreground'
         }`}
       >
