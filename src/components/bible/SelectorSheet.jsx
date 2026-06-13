@@ -9,10 +9,10 @@ import { X } from 'lucide-react';
  */
 export default function SelectorSheet({ open, onClose, title, children }) {
   return (
-    <Drawer.Root open={open} onOpenChange={(o) => { if (!o) onClose(); }} shouldScaleBackground>
+    <Drawer.Root open={open} onOpenChange={(o) => { if (!o) onClose(); }} shouldScaleBackground dismissible={false}>
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" />
-        <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 flex flex-col rounded-t-2xl bg-card border-t border-border max-h-[80vh] sm:max-h-[85vh]">
+        <Drawer.Overlay onClick={onClose} className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" />
+        <Drawer.Content data-vaul-no-drag className="fixed bottom-0 left-0 right-0 z-50 flex flex-col rounded-t-2xl bg-card border-t border-border max-h-[80vh] sm:max-h-[85vh]">
           {/* Drag handle */}
           <div className="mx-auto mt-3 mb-2 w-10 h-1.5 rounded-full bg-border flex-shrink-0" />
           <div className="flex items-center justify-center relative pb-3 flex-shrink-0 px-4">
