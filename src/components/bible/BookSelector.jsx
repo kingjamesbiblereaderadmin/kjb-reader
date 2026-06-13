@@ -39,7 +39,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
         {/* Title Page - Above Old Testament */}
         <button
           onClick={() => { onSelect({ abbr: 'GEN', name: 'Genesis', chapters: 50, shortName: 'Gen' }, true, false); onClose(); }}
-          className="w-full text-left px-4 py-3 text-sm font-sans transition-colors hover:bg-accent/10 font-medium text-primary border-y border-border"
+          className="w-full text-left px-4 py-3 text-sm font-sans transition-colors hover:bg-accent/10 font-medium text-foreground border-y border-border"
         >
           <span>Title Page</span>
         </button>
@@ -48,7 +48,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
         <button
           data-vaul-no-drag
           onPointerDown={(e) => e.stopPropagation()}
-          className="w-full flex items-center justify-between px-4 py-3 font-sans font-semibold text-sm text-primary bg-secondary/40 hover:bg-accent/10 transition-colors border-y border-border"
+          className="w-full flex items-center justify-between px-4 py-3 font-sans font-bold text-sm text-foreground bg-secondary/40 hover:bg-accent/10 transition-colors border-y border-border"
           onClick={() => setOldOpen(o => !o)}
         >
           <span>Old Testament <span className="text-muted-foreground font-normal">(39 books)</span></span>
@@ -64,7 +64,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
         <button
           data-vaul-no-drag
           onPointerDown={(e) => e.stopPropagation()}
-          className="w-full flex items-center justify-between px-4 py-3 font-sans font-semibold text-sm text-primary bg-secondary/40 hover:bg-accent/10 transition-colors border-y border-border"
+          className="w-full flex items-center justify-between px-4 py-3 font-sans font-bold text-sm text-foreground bg-secondary/40 hover:bg-accent/10 transition-colors border-y border-border"
           onClick={() => setNewOpen(o => !o)}
         >
           <span>New Testament <span className="text-muted-foreground font-normal">(27 books)</span></span>
@@ -74,7 +74,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
           <div className="flex flex-col">
             <button
               onClick={() => { onSelect({ abbr: 'MAT', name: 'Matthew', chapters: 28, shortName: 'Mat' }, true); onClose(); }}
-              className="w-full text-left px-4 py-2.5 text-sm font-sans transition-colors hover:bg-accent/10 text-primary font-medium border-b border-border"
+              className="w-full text-left px-4 py-2.5 text-sm font-sans transition-colors hover:bg-accent/10 text-foreground font-medium border-b border-border"
             >
               <span>Title Page</span>
             </button>
