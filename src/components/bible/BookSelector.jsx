@@ -39,7 +39,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
         {/* Title Page - Above Old Testament */}
         <button
           onClick={() => { onSelect({ abbr: 'GEN', name: 'Genesis', chapters: 50, shortName: 'Gen' }, true, false); onClose(); }}
-          className="w-full text-left px-4 py-3.5 text-sm font-serif italic transition-colors hover:bg-accent/10 font-medium text-muted-foreground border-b border-border"
+          className="w-full text-left px-4 py-3.5 text-sm font-serif italic transition-colors hover:bg-accent/10 font-medium text-foreground border-b border-border"
         >
           <span>Title Page</span>
         </button>
