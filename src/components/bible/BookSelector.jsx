@@ -46,6 +46,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
 
         {/* Old Testament */}
         <button
+          data-vaul-no-drag
           className="w-full flex items-center justify-between px-4 py-3 font-sans font-semibold text-sm text-primary hover:bg-secondary transition-colors border-y border-foreground/30"
           onClick={() => setOldOpen(o => !o)}
         >
@@ -60,6 +61,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose }) {
 
         {/* New Testament */}
         <button
+          data-vaul-no-drag
           className="w-full flex items-center justify-between px-4 py-3 font-sans font-semibold text-sm text-primary hover:bg-secondary transition-colors border-y border-foreground/30"
           onClick={() => setNewOpen(o => !o)}
         >
