@@ -166,31 +166,39 @@
       })();
     </script>
     <style>
-      html, body { background-color: #ffffff; color: #000000; margin: 0; width: 100%; min-height: 100vh; }
-      html.dark, html.dark body { background-color: #0f1718; color: #ffffff; }
+      /* Boot background is dark to match the splash placeholder — prevents a
+         white flash behind the splash before React mounts. */
+      html, body { background-color: #0f1117; color: #ffffff; margin: 0; width: 100%; min-height: 100vh; }
+      html.dark, html.dark body { background-color: #0f1117; color: #ffffff; }
       #root { min-height: 100vh; width: 100%; background-color: inherit; }
     </style>
   </head>
   <body>
     <div id="root">
-      <div class="fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center">
-        <div class="flex flex-col items-center justify-center -mt-16 w-full max-w-sm px-6">
-          <div class="relative mb-12">
-            <div class="absolute inset-0 bg-primary/20 blur-3xl rounded-full scale-150 animate-pulse"></div>
-            <img 
-              src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png" 
-              alt="KJB Reader" 
-              class="relative w-32 h-32 object-contain drop-shadow-xl"
-            />
-          </div>
-          <div class="flex flex-col items-center gap-6 w-full">
-            <div class="flex flex-col items-center gap-3 text-center">
-              <svg class="w-6 h-6 animate-spin text-primary/70" style="animation-duration: 2s;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-              <span class="font-sans text-xs text-foreground/70 font-medium tracking-[0.2em] uppercase">Loading KJB Reader...</span>
+      <!-- Static placeholder that EXACTLY matches the React SplashScreen's idle
+           look (dark bg, same logo size, progress bar, uppercase text) so there
+           is no visual flash/jump when React mounts and takes over. -->
+      <div style="position:fixed;inset:0;z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0f1117;">
+        <div style="display:flex;flex-direction:column;align-items:center;margin-top:-4rem;gap:48px;">
+          <img
+            src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png"
+            alt="KJB Reader Logo"
+            style="width:11rem;height:11rem;object-fit:contain;border-radius:1rem;"
+          />
+          <div style="display:flex;flex-direction:column;align-items:center;gap:20px;width:16rem;">
+            <div style="width:100%;height:6px;border-radius:9999px;overflow:hidden;position:relative;background:rgba(255,255,255,0.08);">
+              <div style="position:absolute;top:0;height:100%;border-radius:9999px;width:40%;background:#4f6aff;animation:kjb-boot-indeterminate 1.2s ease-in-out infinite;"></div>
             </div>
+            <span style="font-family:Inter,system-ui,sans-serif;font-size:0.875rem;font-weight:300;letter-spacing:0.25em;text-transform:uppercase;text-align:center;color:#c8cdd8;">Loading KJB Reader...</span>
           </div>
         </div>
       </div>
+      <style>
+        @keyframes kjb-boot-indeterminate {
+          0% { left: -40%; }
+          100% { left: 100%; }
+        }
+      </style>
     </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
