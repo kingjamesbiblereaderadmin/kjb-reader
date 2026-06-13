@@ -547,8 +547,18 @@ export default function BibleReader() {
     try {
       const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
       if (p && p.abbr && p.chapter) {
-        setPos({ abbr: p.abbr, chapter: p.chapter, verse: null });
-        loadChapter(p.abbr, p.chapter, null);
+        // Restore a previously highlighted verse or multi-verse range so coming
+        // back to the Reader keeps the highlight, not just the chapter.
+        if (p.verse && p.verseEnd && p.verseEnd > p.verse) {
+          const range = new Set();
+          for (let v = p.verse; v <= p.verseEnd; v++) range.add(v);
+          setSelectedVerses(range); setHighlightedVerses(range); setFilterMode(true);
+        } else {
+          setFilterMode(false); setSelectedVerses(new Set()); setHighlightedVerses(new Set());
+        }
+        setPos({ abbr: p.abbr, chapter: p.chapter, verse: p.verse || null });
+        setHighlightVerse(p.verse || null);
+        loadChapter(p.abbr, p.chapter, p.verse || null);
       }
     } catch {}
     try {
