@@ -443,12 +443,24 @@ export default function BibleReader() {
       setHighlightVerse(verseNum || null);
       loadChapter(urlBookObj.abbr, chapterNum, verseNum);
     } else {
-      loadChapter(pos.abbr, pos.chapter, null);
-    }
-    if (pos.verse && pos.verseEnd && pos.verseEnd > pos.verse) {
-      const range = new Set();
-      for (let v = pos.verse; v <= pos.verseEnd; v++) range.add(v);
-      setSelectedVerses(range); setHighlightedVerses(range); setFilterMode(true);
+      // No URL params (e.g. Home → Reader): restore the LAST saved position
+      // AND its highlighted verse / range, not the default GEN 1.
+      let restored = false;
+      try {
+        const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        if (p && p.abbr && p.chapter) {
+          if (p.verse && p.verseEnd && p.verseEnd > p.verse) {
+            const range = new Set();
+            for (let v = p.verse; v <= p.verseEnd; v++) range.add(v);
+            setSelectedVerses(range); setHighlightedVerses(range); setFilterMode(true);
+          }
+          setPos({ abbr: p.abbr, chapter: p.chapter, verse: p.verse || null });
+          setHighlightVerse(p.verse || null);
+          loadChapter(p.abbr, p.chapter, p.verse || null);
+          restored = true;
+        }
+      } catch {}
+      if (!restored) loadChapter(pos.abbr, pos.chapter, null);
     }
   }, []);
 
