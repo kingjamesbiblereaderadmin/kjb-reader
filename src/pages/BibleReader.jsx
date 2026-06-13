@@ -619,13 +619,29 @@ export default function BibleReader() {
       return;
     }
     if (highlightSection) return;
-    const timer = setTimeout(() => {
-      try {
-        const saved = parseInt(sessionStorage.getItem(`kjb-scroll-${pos.abbr}-${pos.chapter}`) || '0', 10);
-        if (saved > 0) (document.getElementById('kjb-scroll') || window).scrollTo({ top: saved });
-      } catch {}
-    }, 80);
-    return () => clearTimeout(timer);
+    // Restore the saved scroll position for this chapter. The content may not
+    // have its full height yet right after a fresh mount/navigation, so we retry
+    // across several frames AND observe the content for layout changes — this
+    // prevents the scroll from collapsing to the top before the page is laid out.
+    let saved = 0;
+    try { saved = parseInt(sessionStorage.getItem(`kjb-scroll-${pos.abbr}-${pos.chapter}`) || '0', 10); } catch {}
+    if (!saved || saved <= 0) return;
+    const restore = () => {
+      const scroller = document.getElementById('kjb-scroll');
+      const target = scroller || window;
+      const maxY = scroller
+        ? scroller.scrollHeight - scroller.clientHeight
+        : document.documentElement.scrollHeight - window.innerHeight;
+      // Only restore once the page is tall enough to actually reach the saved Y.
+      if (maxY >= saved - 4) { target.scrollTo({ top: saved }); return true; }
+      return false;
+    };
+    const t1 = setTimeout(restore, 60), t2 = setTimeout(restore, 200), t3 = setTimeout(restore, 500), t4 = setTimeout(restore, 1000);
+    const container = document.querySelector('.kjb-reader-content');
+    let ro = null;
+    if (container && window.ResizeObserver) { ro = new ResizeObserver(() => { if (restore()) ro && ro.disconnect(); }); ro.observe(container); }
+    const tStop = setTimeout(() => ro && ro.disconnect(), 2500);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); clearTimeout(tStop); ro && ro.disconnect(); };
   }, [verses, loading, highlightVerse, highlightSection, pos.abbr, pos.chapter]);
 
   useEffect(() => {
