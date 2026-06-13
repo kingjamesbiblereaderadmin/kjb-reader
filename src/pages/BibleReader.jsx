@@ -119,6 +119,9 @@ export default function BibleReader() {
   const [searchTotalResults, setSearchTotalResults] = useState(() => getSearchNav().results.length);
   const searchClearedRef = useRef(false);
   const lastReadingClearedRef = useRef(false);
+  // The reading position saved BEFORE a search jump, so closing the search
+  // results returns the reader to where the user was reading.
+  const preSearchPosRef = useRef(null);
 
   const [gospelMode, setGospelMode] = useState(false);
   const [gospelResultIndex, setGospelResultIndex] = useState(() => getGospelNav().index);
@@ -785,6 +788,17 @@ export default function BibleReader() {
   };
 
   const stepToResult = (r) => {
+    // Remember where the user was reading BEFORE the first search jump, so
+    // closing the search results can return them there. Only capture once per
+    // search session (cleared in clearSearchContext).
+    if (!preSearchPosRef.current) {
+      try {
+        const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        if (cur && cur.abbr && cur.chapter) {
+          preSearchPosRef.current = { abbr: cur.abbr, chapter: cur.chapter };
+        }
+      } catch {}
+    }
     const section = r.section || null;
     const targetVerse = section ? null : (r.verse || null);
     setHighlightSection(section);
@@ -823,7 +837,20 @@ export default function BibleReader() {
   };
 
   const clearSearchContext = () => {
-    searchClearedRef.current = true; clearSearchNav(); setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0); setHighlightVerse(null);
+    searchClearedRef.current = true; clearSearchNav(); setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
+    // Return to the chapter the user was reading before they searched.
+    const back = preSearchPosRef.current;
+    preSearchPosRef.current = null;
+    setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
+    setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
+    setShowFilterOverlay(false);
+    if (back && back.abbr && back.chapter) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr: back.abbr, chapter: back.chapter, verse: null, verseEnd: null })); } catch {}
+      try { window.history.replaceState({}, '', '/read'); } catch {}
+      freshNavRef.current = true;
+      setPos({ abbr: back.abbr, chapter: back.chapter, verse: null });
+      loadChapter(back.abbr, back.chapter, null);
+    }
   };
 
   const goNext = (isAutoAdvance = false) => {
