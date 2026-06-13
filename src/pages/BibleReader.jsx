@@ -850,7 +850,7 @@ export default function BibleReader() {
   useEffect(() => {
     if (!anyMenuOpen) return;
     const onDocClick = (e) => {
-      if (!e.target.closest('.kjb-reader-toolbar, .kjb-popover-panel, [role="menu"], [data-radix-popper-content-wrapper]')) {
+      if (!e.target.closest('.kjb-reader-toolbar, .kjb-popover-panel, [role="menu"], [data-radix-popper-content-wrapper], [vaul-drawer], [data-vaul-drawer], [vaul-overlay], [data-vaul-overlay]')) {
         closeAllMenus();
       }
     };
