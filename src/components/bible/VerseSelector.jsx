@@ -76,6 +76,8 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
             return (
               <button
                 key={v}
+                data-vaul-no-drag
+                onPointerDown={(e) => e.stopPropagation()}
                 onClick={() => toggle(v)}
                 className={`h-9 w-full rounded text-sm font-sans font-medium border transition-colors ${
                   isActive

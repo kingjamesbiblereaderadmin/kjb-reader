@@ -20,6 +20,8 @@ export default function ChapterSelector({ totalChapters, currentChapter, onSelec
           {Array.from({ length: totalChapters }, (_, i) => i + 1).map(ch => (
             <button
               key={ch}
+              data-vaul-no-drag
+              onPointerDown={(e) => e.stopPropagation()}
               onClick={() => setSelectedChapter(ch)}
               className={`h-9 w-full rounded text-sm font-sans font-medium border transition-colors ${
                 ch === selectedChapter
