@@ -52,21 +52,21 @@ window.addEventListener('load', async () => {
         // now would drop us into the "subsequent" flow (LOADING → CHECKING →
         // FOUND) instead of starting with FOUND UPDATES.
         if (sessionStorage.getItem('kjb-splash-home-update') === 'true') return;
-        // In-app updates only reload when the user is on the HOME screen. On any
-        // other page (e.g. reading), do nothing — the update applies silently and
-        // will be picked up next time they land on home / reopen the app, so we
-        // never interrupt reading.
-        if (window.location.pathname !== '/') return;
         // Only reload ONCE per session for a background SW takeover, and set the
-        // HOME-update flag BEFORE reloading so the splash starts with
-        // "FOUND UPDATES" first (home flow), not "LOADING → CHECKING".
+        // flag BEFORE reloading so the splash on the reloaded page shows
+        // "Found updates" instead of "No updates found".
         if (wasExisting && !refreshing && !sessionStorage.getItem('kjb_sw_reloaded')) {
           refreshing = true;
-          console.log('[SW] Background controller change on home — reloading once.');
+          console.log('[SW] Background controller change — reloading once.');
           try {
             sessionStorage.setItem('kjb_sw_updated', 'app');
             sessionStorage.setItem('kjb_sw_reloaded', '1');
-            sessionStorage.setItem('kjb-splash-home-update', 'true');
+            // If the user is on the home page when a background update lands,
+            // start the reloaded splash with the HOME flow ("FOUND UPDATES"
+            // first) instead of the subsequent flow ("LOADING → CHECKING").
+            if (window.location.pathname === '/') {
+              sessionStorage.setItem('kjb-splash-home-update', 'true');
+            }
           } catch {}
           const sep = window.location.search ? '&' : '?';
           window.location.href = window.location.pathname + window.location.search + sep + 'updated=true';
