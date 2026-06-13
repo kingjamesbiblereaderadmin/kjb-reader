@@ -1214,7 +1214,10 @@ export default function BibleReader() {
 
       {hideHeader && <MinimizedHeaderBar fullscreen={fullscreen} toggleFullscreen={toggleFullscreen} setHideHeader={setHideHeader} />}
 
-      {(showBookPicker || showChapterPicker || showVersePicker || showZoomPopover || showFontPopover) && (
+      {/* Desktop-only backdrop for the inline popovers. On mobile the selectors
+          use the Vaul drawer (SelectorSheet), which has its own overlay — rendering
+          this backdrop there would intercept the first tap and close the sheet. */}
+      {!isMobile() && (showBookPicker || showChapterPicker || showVersePicker || showZoomPopover || showFontPopover) && (
         <div
           className="fixed inset-0 z-[99]"
           onClick={() => { setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
