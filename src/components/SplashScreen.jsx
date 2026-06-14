@@ -63,10 +63,20 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
     if (elapsed < MIN_VISIBLE_MS) await pause(MIN_VISIBLE_MS - elapsed);
   };
 
+  // Tracks when we last applied an update in this flow. Re-checks within a short
+  // cooldown after applying must IGNORE the just-activated service worker, which
+  // otherwise lingers as waiting/installing for a moment and gets re-counted as a
+  // "new" update — causing the endless FOUND → INSTALLING → CHECKING → FOUND loop.
+  const justAppliedAt = useRef(0);
+  const APPLY_COOLDOWN_MS = 12000;
+
   // Real update detection: SW registration, SW version, then Bible cache version.
   const checkRealUpdates = async (swUpdatedAtMount) => {
     let hasUpdates = !!swUpdatedAtMount;
-    if (!hasUpdates && navigator.onLine) {
+    // Within the cooldown after applying, skip SW-registration detection so the
+    // worker we just activated isn't mistaken for a brand-new update.
+    const inCooldown = Date.now() - justAppliedAt.current < APPLY_COOLDOWN_MS;
+    if (!hasUpdates && !inCooldown && navigator.onLine) {
       try {
         if ('serviceWorker' in navigator) {
           const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
@@ -106,6 +116,9 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
     } catch {}
     // Mark Bible data version applied too so checkForUpdates() won't re-fire.
     try { localStorage.setItem('bible_last_refresh', String(Date.now())); } catch {}
+    // Start the cooldown so the immediate next "CHECKING" step ignores the
+    // worker we just activated (prevents the double FOUND loop).
+    justAppliedAt.current = Date.now();
   };
 
   useEffect(() => {
