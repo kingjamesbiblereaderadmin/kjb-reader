@@ -155,7 +155,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             }}
           >
             {/* Force KJB italic words (<em>) to render italic in every font */}
-            <style>{`.kjb-sharecard-verse em { font-style: italic !important; font-weight: inherit;${isCursive ? ' color: rgba(255,255,255,0.6) !important;' : ''} } .kjb-sharecard-verse .pilcrow { font-family: 'Merriweather', Georgia, 'Times New Roman', serif !important; }`}</style>
+            <style>{`.kjb-sharecard-verse em { font-style: italic !important; font-weight: inherit;${isCursive ? ' color: rgba(255,255,255,0.6) !important;' : ''} }`}</style>
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
             {/* Reference, inline-block so it sits within the same flow */}
             <span
