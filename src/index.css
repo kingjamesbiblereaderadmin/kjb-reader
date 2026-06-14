@@ -311,14 +311,13 @@
   }
 
 
-  /* The ¶ glyph is missing from OpenDyslexic, so under the dyslexic/hyperlegible
-     a11y fonts the pilcrow renders as a blank/box. The accessibility font keeps
-     applying to ALL the surrounding text — we override the font ONLY on the
-     pilcrow span so just the ¶ symbol falls back to a font that has the glyph.
-     The extra :not() selectors raise specificity above the broad a11y *:not() rule. */
+  /* Render the pilcrow (¶) in OpenDyslexic in both accessibility font modes.
+     In hyperlegible mode (Atkinson, which lacks ¶) we force OpenDyslexic too so
+     the symbol is consistent. The extra :not() selectors raise specificity above
+     the broad a11y *:not() rule. */
   html[data-a11y-font="dyslexic"] .pilcrow:not(.x):not(.y),
   html[data-a11y-font="hyperlegible"] .pilcrow:not(.x):not(.y) {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+    font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif !important;
   }
 
   /* Drop cap — large decorative first letter on verse 1 of a chapter.
