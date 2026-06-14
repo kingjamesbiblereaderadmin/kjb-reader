@@ -18,6 +18,8 @@ export function buildVerseUrl({ abbr, chapter, verse, verseEnd, from } = {}) {
 // only collapse whitespace so the shared text matches what's on screen.
 export function cleanVerseText(text = '') {
   return String(text)
+    // Broken replacement char (�/\uFFFD) should render as a pilcrow (¶).
+    .replace(/\uFFFD/g, '¶')
     .replace(/\s+/g, ' ')
     .trim();
 }
