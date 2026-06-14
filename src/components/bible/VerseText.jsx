@@ -94,9 +94,13 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     const groupStyle = dropHighlight
       ? ` style="background-color:hsl(var(--background));"`
       : '';
+    // Match the first letter that is part of the actual TEXT, skipping any
+    // leading HTML tags (e.g. <em>, <span class="pilcrow">). Using a bare
+    // /[A-Za-z]/ would match the "e" inside a leading "<em>" tag and break it
+    // into a stray "<m>" — so we capture any leading tags and re-emit them.
     html = html.replace(
-      /([A-Za-z])/,
-      `<span class="kjb-dropcap-group"${groupStyle}><span class="kjb-dropcap-num">${verse.verse}</span><span class="kjb-dropcap-letter"${letterStyle}>$1</span></span>`
+      /^((?:<[^>]+>|\s)*)([A-Za-z])/,
+      `$1<span class="kjb-dropcap-group"${groupStyle}><span class="kjb-dropcap-num">${verse.verse}</span><span class="kjb-dropcap-letter"${letterStyle}>$2</span></span>`
     );
   }
 
