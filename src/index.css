@@ -203,9 +203,10 @@
     -webkit-user-select: none;
   }
   /* Always render the pilcrow glyph itself in a serif font — overrides any
-     app-wide accessibility font that lacks the ¶ glyph (e.g. OpenDyslexic). */
-  html[data-a11y-font="dyslexic"] .pilcrow,
-  html[data-a11y-font="hyperlegible"] .pilcrow {
+     app-wide accessibility font that lacks the ¶ glyph (e.g. OpenDyslexic).
+     Extra :not() raises specificity above the broad a11y *:not() rule so it wins. */
+  html[data-a11y-font="dyslexic"] span.pilcrow:not(.x):not(.y),
+  html[data-a11y-font="hyperlegible"] span.pilcrow:not(.x):not(.y) {
     font-family: 'Merriweather', Georgia, 'Times New Roman', serif !important;
   }
   
