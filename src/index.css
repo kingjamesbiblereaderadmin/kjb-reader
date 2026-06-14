@@ -310,6 +310,16 @@
     font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif !important;
   }
 
+  /* OpenDyslexic (and Atkinson Hyperlegible) have no ¶ glyph, so the pilcrow
+     renders as a blank/box in those a11y modes. Override the font ONLY on the
+     pilcrow span so the ¶ symbol falls back to a font that has the glyph — the
+     surrounding scripture text stays in the chosen accessibility font.
+     The extra :not() selectors raise specificity above the broad a11y *:not() rule. */
+  html[data-a11y-font="dyslexic"] .pilcrow:not(.x):not(.y),
+  html[data-a11y-font="hyperlegible"] .pilcrow:not(.x):not(.y) {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  }
+
   /* The ¶ glyph is missing from OpenDyslexic, so under the dyslexic/hyperlegible
      a11y fonts the pilcrow renders as a blank/box. The accessibility font keeps
      applying to ALL the surrounding text — we override the font ONLY on the
