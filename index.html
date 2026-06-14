@@ -158,6 +158,12 @@
           if (isDark) document.documentElement.classList.add('dark');
         } catch (e) {}
         try {
+          // A shared link can carry ?font=dyslexic — persist it so the
+          // recipient opens (and stays) in dyslexic mode.
+          var qsFont = window.location.search || '';
+          if (qsFont.indexOf('font=dyslexic') !== -1) {
+            localStorage.setItem('kjb-a11y-font', 'dyslexic');
+          }
           var a11yFont = localStorage.getItem('kjb-a11y-font');
           if (a11yFont === 'dyslexic' || a11yFont === 'hyperlegible' || a11yFont === 'system') {
             document.documentElement.setAttribute('data-a11y-font', a11yFont);
