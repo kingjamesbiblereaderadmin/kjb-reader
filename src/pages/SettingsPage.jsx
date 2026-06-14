@@ -21,7 +21,7 @@ import { toast } from 'sonner';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   getNotificationsEnabled, getNotificationTime, setNotificationTime,
-  requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification
+  requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification, cleanForNotification
 } from '@/lib/notifications';
 
 import { getDailyVerse } from '@/lib/dailyVerse';
@@ -324,7 +324,7 @@ export default function SettingsPage() {
     console.log('[Settings] Showing test notification...');
     try {
       // Use timestamp string to prevent notification caching/overwriting the real one
-      await showLocalNotification('KJB — Daily Verse Test', `"${v.text}" — ${v.ref} (KJB)`, null, `/?test=${Date.now()}`);
+      await showLocalNotification('KJB — Daily Verse Test', `"${cleanForNotification(v.text)}" — ${v.ref} (KJB)`, null, `/?test=${Date.now()}`);
       console.log('[Settings] Test notification completed');
     } catch (err) {
       console.error('[Settings] Test notification failed:', err);

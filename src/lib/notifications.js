@@ -125,6 +125,19 @@ export function disableNotifications() {
 
 const APP_LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
 
+// Clean verse text for plain-text notifications: remove pilcrow paragraph marks
+// (literal ¶ or bracketed [¶]), superscription markers, and the [italic]
+// brackets so the body reads as clean prose.
+export function cleanForNotification(text) {
+  return (text || '')
+    .replace(/\[\s*¶\s*\]/g, '')
+    .replace(/¶/g, '')
+    .replace(/^<<[^>]*>>\s*/, '')
+    .replace(/\[|\]/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
 // ---- App-based notifications only ----
 // Reminders are handled entirely on-device via the in-app timer + service
 // worker (showLocalNotification). No server push / VAPID is used.
@@ -226,7 +239,7 @@ async function fireNotificationNow() {
   
   showLocalNotification(
     'King James Bible — Daily Verse',
-    `"${verse.text}" — ${verse.ref} (KJB)`,
+    `"${cleanForNotification(verse.text)}" — ${verse.ref} (KJB)`,
     null,
     `/read?book=${verse.abbr}&chapter=${verse.chapter}&verse=${verse.verse}&from=daily`
   );
@@ -314,7 +327,7 @@ export async function triggerScheduledNotification() {
   
   await showLocalNotification(
     'KJB — Manual Test',
-    `"${verse.text}" — ${verse.ref} (KJB)`,
+    `"${cleanForNotification(verse.text)}" — ${verse.ref} (KJB)`,
     null,
     `/read?book=${verse.abbr}&chapter=${verse.chapter}&verse=${verse.verse}&from=daily`
   );
