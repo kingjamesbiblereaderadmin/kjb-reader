@@ -13,7 +13,7 @@ const EXCLUDED_REFS = new Set([
 
 // Daily verses are now fetched entirely from the API so all users see the same verse.
 
-const DAILY_VERSE_CACHE_KEY = 'kjb-daily-verse-cache-v11';
+const DAILY_VERSE_CACHE_KEY = 'kjb-daily-verse-cache-v12';
 
 function getTodayKey() {
   const d = new Date();
@@ -110,7 +110,7 @@ export async function getDailyVerseFromBible() {
         currentSeed++;
       }
       
-      const text = verseObj.text.replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
+      const text = verseObj.text.replace(/^<<[^>]*>>\s*/, '');
       const bookData = BIBLE_BOOKS.find(b => b.name === bookName || b.shortName === bookName);
       
       const offlineVerse = {

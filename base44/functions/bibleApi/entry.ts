@@ -175,9 +175,8 @@ Deno.serve(async (req) => {
         currentSeed++;
       }
 
-      // Preserve [italics] brackets; strip only pilcrow + superscription markers
+      // Preserve [italics] brackets AND pilcrows; strip only superscription markers
       const text = verseObj.text
-        .replace(/¶\s*/g, '')
         .replace(/^<<[^>]*>>\s*/, '');
 
       const abbrMatches = Object.entries(ABBR_TO_NAME).find(([k, v]) => v === bookName);
@@ -242,9 +241,8 @@ Deno.serve(async (req) => {
         currentSeed++;
       }
 
-      // Preserve [italics] brackets; strip only pilcrow + superscription markers
+      // Preserve [italics] brackets AND pilcrows; strip only superscription markers
       const text = verseObj.text
-        .replace(/¶\s*/g, '')
         .replace(/^<<[^>]*>>\s*/, '');
 
       const abbrMatches = Object.entries(ABBR_TO_NAME).find(([k, v]) => v === bookName);
