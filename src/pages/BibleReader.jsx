@@ -661,12 +661,14 @@ export default function BibleReader() {
       if (maxY >= saved - 4) { target.scrollTo({ top: saved }); return true; }
       return false;
     };
-    const t1 = setTimeout(restore, 60), t2 = setTimeout(restore, 200), t3 = setTimeout(restore, 500), t4 = setTimeout(restore, 1000);
+    const timers = [60, 200, 500, 1000, 1800, 3000].map(ms => setTimeout(restore, ms));
     const container = document.querySelector('.kjb-reader-content');
     let ro = null;
     if (container && window.ResizeObserver) { ro = new ResizeObserver(() => { if (restore()) ro && ro.disconnect(); }); ro.observe(container); }
-    const tStop = setTimeout(() => ro && ro.disconnect(), 2500);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); clearTimeout(tStop); ro && ro.disconnect(); };
+    // Keep observing for longer so late layout shifts (fonts, images, large
+    // chapters) still let the restore land instead of collapsing to the top.
+    const tStop = setTimeout(() => ro && ro.disconnect(), 5000);
+    return () => { timers.forEach(clearTimeout); clearTimeout(tStop); ro && ro.disconnect(); };
   }, [verses, loading, highlightVerse, highlightSection, pos.abbr, pos.chapter]);
 
   useEffect(() => {
@@ -697,6 +699,13 @@ export default function BibleReader() {
     const target = scroller || window;
     const getY = () => (scroller ? scroller.scrollTop : window.scrollY);
     let raf = null;
+    // Write the current scroll position immediately (used on scroll-idle and
+    // when the app is backgrounded/closed/unmounted, so the LAST position is
+    // never lost to a dropped rAF callback).
+    const flush = () => {
+      if (raf) { cancelAnimationFrame(raf); raf = null; }
+      try { sessionStorage.setItem(key, String(Math.round(getY()))); } catch {}
+    };
     const onScroll = () => {
       if (raf) return;
       raf = requestAnimationFrame(() => {
@@ -704,8 +713,22 @@ export default function BibleReader() {
         try { sessionStorage.setItem(key, String(Math.round(getY()))); } catch {}
       });
     };
+    // Flush the latest position whenever the page is hidden/closed. pagehide +
+    // visibilitychange cover reload, tab close, app background, and PWA close —
+    // cases where a pending rAF would otherwise never run.
+    const onHide = () => flush();
     target.addEventListener('scroll', onScroll, { passive: true });
-    return () => { target.removeEventListener('scroll', onScroll); if (raf) cancelAnimationFrame(raf); };
+    window.addEventListener('pagehide', onHide);
+    window.addEventListener('beforeunload', onHide);
+    document.addEventListener('visibilitychange', onHide);
+    return () => {
+      flush();
+      target.removeEventListener('scroll', onScroll);
+      window.removeEventListener('pagehide', onHide);
+      window.removeEventListener('beforeunload', onHide);
+      document.removeEventListener('visibilitychange', onHide);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, [loading, isViewingTitlePage, pos.abbr, pos.chapter]);
 
   useEffect(() => {
