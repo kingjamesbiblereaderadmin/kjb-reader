@@ -60,6 +60,7 @@ export default function SettingsPage() {
   const [deleting, setDeleting] = useState(false);
   const [a11yFont, setA11yFont] = useState(getAccessibilityFont);
   const [showInstallHint, setShowInstallHint] = useState(false);
+  const [showReinstallHint, setShowReinstallHint] = useState(false);
   const [bookmarkBrowser] = useState(isBookmarkBrowser);
   const [isIncognito, setIsIncognito] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
@@ -956,6 +957,25 @@ export default function SettingsPage() {
               <Bell className="w-4 h-4 shrink-0" />
               <span className="font-sans text-xs font-medium">Notifications work when the app is open or in background</span>
             </div>
+            <button
+              onClick={() => setShowReinstallHint(v => !v)}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:border-accent"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Reinstall App
+            </button>
+            {showReinstallHint && (
+              <div className="space-y-2 bg-secondary/50 rounded-xl p-4">
+                <p className="font-sans text-xs text-foreground mb-1">
+                  <strong>How to reinstall:</strong>
+                </p>
+                <div className="font-sans text-xs text-muted-foreground space-y-1.5">
+                  <p>1. Uninstall the current app: <strong>long-press the app icon</strong> (mobile) and choose <span className="text-foreground font-medium">Uninstall / Remove</span>, or remove it from your browser's app/extensions page (desktop).</p>
+                  <p>2. Open the app in your browser again.</p>
+                  <p>3. Use <span className="text-foreground font-medium">Add to Home Screen</span> / <span className="text-foreground font-medium">Install App</span> to reinstall the latest version.</p>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-3">
