@@ -30,21 +30,17 @@ if (typeof window !== 'undefined') {
 
 const checkIsInstalled = () => {
   if (typeof window === 'undefined') return false;
-  // The only reliable signal is the actual display mode (running standalone).
-  // The stored flag can go stale if the user later uninstalls the app from the
-  // browser, so we self-heal it here.
+  // The ONLY reliable signal is the actual display mode (running standalone).
+  // We deliberately do NOT trust the stored flag for reporting, because it goes
+  // stale after the user uninstalls the app from their browser/home screen.
   const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
   if (standalone) {
     try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
     return true;
   }
-  // Not standalone. If a future install prompt is available, the app clearly
-  // isn't installed — clear the stale flag.
-  if (window.kjbDeferredPrompt) {
-    try { localStorage.removeItem(INSTALLED_KEY); } catch {}
-    return false;
-  }
-  try { return localStorage.getItem(INSTALLED_KEY) === 'true'; } catch { return false; }
+  // Not running standalone → treat as NOT installed and clear any stale flag.
+  try { localStorage.removeItem(INSTALLED_KEY); } catch {}
+  return false;
 };
 
 export function useInstallPrompt() {
