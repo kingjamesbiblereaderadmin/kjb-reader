@@ -411,62 +411,41 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#060906]"
+    <div className="min-h-screen bg-[#f5efe1]"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      <div className="w-full max-w-5xl mx-auto px-5 sm:px-8 lg:px-12 py-6">
+      <div className="w-full max-w-4xl mx-auto px-5 sm:px-8 lg:px-12 py-8">
       <OfflineStatusBanner />
       <IncognitoWarning />
 
-      {/* Terminal masthead */}
-      <div className="print:hidden border border-[#1f3a1f] bg-[#0a0f0a] mb-5">
-        <div className="flex items-center gap-1.5 px-3 py-2 border-b border-[#1f3a1f]">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#39FF14]/30" />
-          <span className="w-2.5 h-2.5 rounded-full bg-[#39FF14]/30" />
-          <span className="w-2.5 h-2.5 rounded-full bg-[#39FF14]/30" />
-          <span className="ml-2 font-mono text-[11px] text-[#5fae5f]/70">kjb-reader — ~ /scripture</span>
-        </div>
-        <div className="px-4 py-3 font-mono">
-          <p className="text-sm text-[#39FF14]"><span className="text-[#39FF14]/40">$ </span>cat king_james_bible.pce</p>
-          <p className="text-[11px] text-[#5fae5f]/70 mt-1">Pure Cambridge Edition · 66 books loaded</p>
+      {/* Editorial masthead */}
+      <div className="print:hidden text-center mb-8">
+        <p className="font-sans text-[10px] uppercase tracking-[0.4em] text-[#9a7b3f] mb-3">The Daily Scripture · Est. 1611</p>
+        <h1 className="font-serif text-5xl sm:text-6xl font-bold text-[#231d12] leading-none tracking-tight">KJB Reader</h1>
+        <div className="flex items-center justify-center gap-3 mt-4">
+          <div className="w-12 h-px bg-[#231d12]" />
+          <p className="font-serif italic text-sm text-[#6b5d44]">Pure Cambridge Edition</p>
+          <div className="w-12 h-px bg-[#231d12]" />
         </div>
       </div>
 
-      {/* Daily verse card */}
-      <div className="print:hidden w-full mb-5 relative border border-[#1f3a1f] bg-[#0a0f0a] overflow-hidden">
+      {/* Daily verse card — featured editorial */}
+      <div className="print:hidden w-full mb-10 relative border-y-2 border-[#231d12] overflow-hidden">
         {verse ? (
           <DailyVerseImage verse={verse} onClick={handleVerseCardClick} onToggleNotif={handleToggleNotif} notifEnabled={notifEnabled} isOffline={isOffline} />
         ) : (
-          <div className="w-full min-h-[300px] bg-[#0a0f0a] animate-pulse flex items-center justify-center">
-            <span className="font-mono text-sm text-[#5fae5f]/60">&gt; loading daily verse...</span>
+          <div className="w-full min-h-[300px] bg-[#ece3cf] animate-pulse flex items-center justify-center">
+            <span className="font-serif italic text-sm text-[#6b5d44]">Loading daily verse…</span>
           </div>
         )}
       </div>
 
-      {/* Gospel call — terminal alert block */}
-      <div className="print:hidden relative border border-[#39FF14]/40 bg-[#0d1f0d] p-6 mb-5 font-mono">
-        <p className="text-[11px] text-[#39FF14]/50 mb-2">// salvation.txt</p>
-        <p className="text-xl font-bold text-[#39FF14] mb-3"><span className="text-[#39FF14]/40">&gt; </span>Are you saved?</p>
-        <div className="text-sm text-[#9fd89f] mb-4 space-y-2 max-w-2xl">
-          <p>Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins.</p>
-          <p className="font-semibold text-[#c8f5c8]">Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.</p>
-        </div>
-        <Link
-          to="/gospel"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#39FF14]/15 hover:bg-[#39FF14]/25 text-[#39FF14] font-mono text-sm font-semibold border border-[#39FF14]/50 transition-all duration-150 active:translate-y-px"
-        >
-          <Heart className="w-4 h-4" />
-          Learn How to be Saved
-        </Link>
-      </div>
-
-      {/* Quick links — terminal list */}
-      <div className="print:hidden grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-        <div className="sm:col-span-2">
-          <HomeQuickLink icon={BookOpen} label={READ_LINK.label} desc={READ_LINK.desc} to={READ_LINK.path} primary />
-        </div>
+      {/* Quick links — editorial index list */}
+      <div className="print:hidden mb-10">
+        <p className="font-sans text-[10px] uppercase tracking-[0.3em] text-[#9a7b3f] mb-1 border-b border-[#231d12]/20 pb-2">Contents</p>
+        <HomeQuickLink icon={BookOpen} label={READ_LINK.label} desc={READ_LINK.desc} to={READ_LINK.path} primary />
         {QUICK_LINKS.map(link => {
           if (link.label === '__RANDOM__') {
             return (
@@ -477,6 +456,23 @@ export default function HomePage() {
             <HomeQuickLink key={link.path} icon={link.icon} label={link.label} desc={link.desc} to={link.path} />
           );
         })}
+      </div>
+
+      {/* Gospel call — editorial feature box */}
+      <div className="print:hidden relative bg-[#231d12] text-[#f5efe1] p-8 mb-6 text-center">
+        <p className="font-sans text-[10px] uppercase tracking-[0.3em] text-[#caa75f] mb-3">Of First Importance</p>
+        <p className="font-serif text-3xl font-bold mb-4">Are you saved?</p>
+        <div className="font-serif text-base text-[#e3d9c3] mb-6 space-y-2 max-w-xl mx-auto leading-relaxed">
+          <p>Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins.</p>
+          <p className="italic text-[#f5efe1]">Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.</p>
+        </div>
+        <Link
+          to="/gospel"
+          className="inline-flex items-center gap-2 px-7 py-3 bg-[#caa75f] hover:bg-[#b8954d] text-[#231d12] font-sans text-xs font-bold uppercase tracking-widest transition-all duration-200 active:scale-[0.98]"
+        >
+          <Heart className="w-4 h-4" />
+          Learn How to be Saved
+        </Link>
       </div>
 
       </div>
