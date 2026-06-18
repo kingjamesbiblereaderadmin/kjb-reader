@@ -81,6 +81,28 @@ export default function AppLayout() {
     setMenuOpen(false);
   }, [pathname]);
 
+  // Remember the last route the user was on (persisted across app restarts), so
+  // a full reload / app-open can reopen the Reader if that's where they were.
+  useEffect(() => {
+    if (pathname === '/legacy') return;
+    try { localStorage.setItem('kjb-last-route', pathname); } catch {}
+  }, [pathname]);
+
+  // On cold app-open / full reload, if the last route was the Reader, reopen it
+  // (with its last chapter + scroll restored). Runs once on mount only.
+  const didRestoreRouteRef = useRef(false);
+  useEffect(() => {
+    if (didRestoreRouteRef.current) return;
+    didRestoreRouteRef.current = true;
+    try {
+      const last = localStorage.getItem('kjb-last-route');
+      if (last === '/read' && pathname === '/') {
+        navigate('/read', { replace: true });
+      }
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Keyboard shortcuts: Alt+← (Back) and Alt+H (Home).
   // Ignored while typing in an input/textarea so they don't hijack text editing.
   useEffect(() => {
