@@ -870,7 +870,9 @@ export default function BibleReader() {
     if (back && back.abbr && back.chapter) {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr: back.abbr, chapter: back.chapter, verse: null, verseEnd: null })); } catch {}
       try { window.history.replaceState({}, '', '/read'); } catch {}
-      freshNavRef.current = true;
+      // Returning to the chapter you were reading before searching — let the
+      // saved per-chapter scroll restore (do NOT force scroll-to-top).
+      freshNavRef.current = false;
       setPos({ abbr: back.abbr, chapter: back.chapter, verse: null });
       loadChapter(back.abbr, back.chapter, null);
     }
@@ -1218,7 +1220,10 @@ export default function BibleReader() {
                       setHighlightVerse(null); setShowFilterOverlay(false); setLastReadingPos(null);
                       try { localStorage.removeItem('kjb-last-reading'); localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr, chapter, verse: null })); } catch {}
                       try { window.history.replaceState({}, '', '/read'); } catch {}
-                      freshNavRef.current = true;
+                      // Returning to the chapter you were reading before the daily
+                      // verse / random jump — let the saved per-chapter scroll
+                      // restore (do NOT force scroll-to-top).
+                      freshNavRef.current = false;
                       setPos({ abbr, chapter, verse: null });
                       loadChapter(abbr, chapter, null);
                     } else if (filterMode && selectedVerses.size > 0) {
