@@ -411,53 +411,59 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F3F4F6]"
+    <div className="min-h-screen bg-[#060906]"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      <div className="w-full max-w-6xl mx-auto px-5 sm:px-8 lg:px-12 py-6">
+      <div className="w-full max-w-5xl mx-auto px-5 sm:px-8 lg:px-12 py-6">
       <OfflineStatusBanner />
       <IncognitoWarning />
 
-      {/* Header rule — Swiss technical masthead */}
-      <div className="print:hidden flex items-end justify-between border-b-2 border-[#111827] pb-2 mb-7">
-        <p className="font-sans text-2xl font-bold uppercase tracking-tight text-[#111827]">KJB Reader</p>
-        <p className="font-sans text-[10px] uppercase tracking-[0.25em] text-[#FF5722] font-semibold mb-1">Pure Cambridge Ed.</p>
+      {/* Terminal masthead */}
+      <div className="print:hidden border border-[#1f3a1f] bg-[#0a0f0a] mb-5">
+        <div className="flex items-center gap-1.5 px-3 py-2 border-b border-[#1f3a1f]">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#39FF14]/30" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#39FF14]/30" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#39FF14]/30" />
+          <span className="ml-2 font-mono text-[11px] text-[#5fae5f]/70">kjb-reader — ~ /scripture</span>
+        </div>
+        <div className="px-4 py-3 font-mono">
+          <p className="text-sm text-[#39FF14]"><span className="text-[#39FF14]/40">$ </span>cat king_james_bible.pce</p>
+          <p className="text-[11px] text-[#5fae5f]/70 mt-1">Pure Cambridge Edition · 66 books loaded</p>
+        </div>
       </div>
 
-      {/* Main grid: verse + gospel side-by-side on desktop */}
-      <div className="print:hidden grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-        {/* Daily verse card */}
-        <div className="lg:col-span-2 w-full relative border border-[#E5E7EB] bg-white overflow-hidden">
-          {verse ? (
-            <DailyVerseImage verse={verse} onClick={handleVerseCardClick} onToggleNotif={handleToggleNotif} notifEnabled={notifEnabled} isOffline={isOffline} />
-          ) : (
-            <div className="w-full min-h-[300px] bg-[#F3F4F6] animate-pulse flex items-center justify-center">
-              <span className="font-sans text-sm text-[#6B7280]">Loading daily verse...</span>
-            </div>
-          )}
-        </div>
-
-        {/* Gospel call — high-contrast orange-bordered block */}
-        <div className="relative border-2 border-[#FF5722] bg-white p-6 flex flex-col justify-center">
-          <p className="font-sans text-xl font-bold uppercase tracking-tight text-[#111827] mb-3">Are you saved?</p>
-          <div className="font-sans text-sm text-[#374151] mb-4 space-y-2">
-            <p>Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins.</p>
-            <p className="font-semibold text-[#111827]">Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.</p>
+      {/* Daily verse card */}
+      <div className="print:hidden w-full mb-5 relative border border-[#1f3a1f] bg-[#0a0f0a] overflow-hidden">
+        {verse ? (
+          <DailyVerseImage verse={verse} onClick={handleVerseCardClick} onToggleNotif={handleToggleNotif} notifEnabled={notifEnabled} isOffline={isOffline} />
+        ) : (
+          <div className="w-full min-h-[300px] bg-[#0a0f0a] animate-pulse flex items-center justify-center">
+            <span className="font-mono text-sm text-[#5fae5f]/60">&gt; loading daily verse...</span>
           </div>
-          <Link
-            to="/gospel"
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#FF5722] hover:bg-[#e64a19] text-white font-sans text-sm font-semibold uppercase tracking-wide transition-all duration-150 active:translate-y-px"
-          >
-            <Heart className="w-4 h-4" />
-            Learn How to be Saved
-          </Link>
-        </div>
+        )}
       </div>
 
-      {/* Quick links — modular grid */}
-      <div className="print:hidden grid grid-cols-1 sm:grid-cols-2 gap-px bg-[#E5E7EB] border border-[#E5E7EB]">
+      {/* Gospel call — terminal alert block */}
+      <div className="print:hidden relative border border-[#39FF14]/40 bg-[#0d1f0d] p-6 mb-5 font-mono">
+        <p className="text-[11px] text-[#39FF14]/50 mb-2">// salvation.txt</p>
+        <p className="text-xl font-bold text-[#39FF14] mb-3"><span className="text-[#39FF14]/40">&gt; </span>Are you saved?</p>
+        <div className="text-sm text-[#9fd89f] mb-4 space-y-2 max-w-2xl">
+          <p>Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins.</p>
+          <p className="font-semibold text-[#c8f5c8]">Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.</p>
+        </div>
+        <Link
+          to="/gospel"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#39FF14]/15 hover:bg-[#39FF14]/25 text-[#39FF14] font-mono text-sm font-semibold border border-[#39FF14]/50 transition-all duration-150 active:translate-y-px"
+        >
+          <Heart className="w-4 h-4" />
+          Learn How to be Saved
+        </Link>
+      </div>
+
+      {/* Quick links — terminal list */}
+      <div className="print:hidden grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         <div className="sm:col-span-2">
           <HomeQuickLink icon={BookOpen} label={READ_LINK.label} desc={READ_LINK.desc} to={READ_LINK.path} primary />
         </div>

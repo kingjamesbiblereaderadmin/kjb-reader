@@ -1,27 +1,29 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-// A single Swiss Technical Grid quick-link card. Used for both <Link> and
+// A single Terminal Scholar quick-link card. Used for both <Link> and
 // <button> (random chapter) via the `onClick` prop.
 export default function HomeQuickLink({ icon: Icon, label, desc, to, onClick, primary = false }) {
-  const baseClasses = `group relative flex items-center gap-4 p-5 border transition-all duration-150 active:translate-y-px text-left ${
+  const baseClasses = `group relative flex items-center gap-3.5 px-4 py-4 border transition-all duration-150 active:translate-y-px text-left font-mono ${
     primary
-      ? 'border-[#111827] bg-[#111827] hover:bg-[#1f2937]'
-      : 'border-[#E5E7EB] bg-white hover:border-[#FF5722]'
+      ? 'border-[#39FF14]/40 bg-[#0d1f0d] hover:border-[#39FF14]/80 hover:bg-[#102a10]'
+      : 'border-[#1f3a1f] bg-[#0a0f0a] hover:border-[#39FF14]/50 hover:bg-[#0d160d]'
   }`;
 
   const inner = (
     <>
-      <div className={`flex-shrink-0 w-10 h-10 flex items-center justify-center border ${
+      <div className={`flex-shrink-0 w-9 h-9 flex items-center justify-center border ${
         primary
-          ? 'border-white/20 bg-white/10 text-[#FF5722]'
-          : 'border-[#E5E7EB] bg-[#F3F4F6] text-[#111827] group-hover:text-[#FF5722]'
+          ? 'border-[#39FF14]/40 bg-[#39FF14]/10 text-[#39FF14]'
+          : 'border-[#1f3a1f] bg-[#39FF14]/5 text-[#39FF14]/70 group-hover:text-[#39FF14]'
       }`}>
-        <Icon className="w-5 h-5" />
+        <Icon className="w-4 h-4" />
       </div>
       <div className="min-w-0">
-        <p className={`font-sans font-bold text-sm uppercase tracking-wide leading-tight ${primary ? 'text-white' : 'text-[#111827]'}`}>{label}</p>
-        <p className={`font-sans text-xs mt-1 ${primary ? 'text-white/55' : 'text-[#6B7280]'}`}>{desc}</p>
+        <p className="font-mono font-bold text-sm leading-tight text-[#39FF14]">
+          <span className="text-[#39FF14]/40">&gt; </span>{label}
+        </p>
+        <p className="font-mono text-[11px] mt-1 text-[#5fae5f]/70">{desc}</p>
       </div>
     </>
   );
