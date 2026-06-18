@@ -777,7 +777,10 @@ export default function BibleReader() {
 
     if ((fromDailyVerse || fromRandom) && pos.abbr && pos.chapter) {
       lastReadingClearedRef.current = false;
-      const lastPos = { abbr: pos.abbr, chapter: pos.chapter, fromDailyVerse, fromRandom };
+      // Capture the exact scroll position so clearing returns there precisely.
+      const scroller = document.getElementById('kjb-scroll');
+      const scrollY = scroller ? scroller.scrollTop : window.scrollY;
+      const lastPos = { abbr: pos.abbr, chapter: pos.chapter, fromDailyVerse, fromRandom, scrollY };
       try { localStorage.setItem('kjb-last-reading', JSON.stringify(lastPos)); } catch {}
       setLastReadingPos(lastPos);
     } else {
@@ -816,17 +819,22 @@ export default function BibleReader() {
     // search session (cleared in clearSearchContext).
     if (!preSearchPosRef.current) {
       try {
+        // Capture the EXACT live scroll position now, so closing the search can
+        // restore the precise pixel offset (the per-chapter saved key gets
+        // overwritten when the result is in the same chapter the user was in).
+        const scroller = document.getElementById('kjb-scroll');
+        const exactY = scroller ? scroller.scrollTop : window.scrollY;
         // Prefer the pre-jump position stashed by SearchPage (kjb-pre-search) or
         // GospelPage (kjb-pre-jump) before they overwrote kjb-position with the
         // jump target. Fall back to the current position (covers in-reader
         // stepping where no stash exists yet).
         const stash = JSON.parse(localStorage.getItem('kjb-pre-search') || localStorage.getItem('kjb-pre-jump') || 'null');
         if (stash && stash.abbr && stash.chapter) {
-          preSearchPosRef.current = { abbr: stash.abbr, chapter: stash.chapter };
+          preSearchPosRef.current = { abbr: stash.abbr, chapter: stash.chapter, scrollY: typeof stash.scrollY === 'number' ? stash.scrollY : exactY };
         } else {
           const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
           if (cur && cur.abbr && cur.chapter) {
-            preSearchPosRef.current = { abbr: cur.abbr, chapter: cur.chapter };
+            preSearchPosRef.current = { abbr: cur.abbr, chapter: cur.chapter, scrollY: exactY };
           }
         }
       } catch {}
@@ -873,12 +881,17 @@ export default function BibleReader() {
   // back on the chapter at its saved scroll position — never the top. It clears
   // all overlay/highlight state and leaves freshNavRef false so the per-chapter
   // scroll-restore effect runs instead of forcing scroll-to-top.
-  const returnToChapter = (abbr, chapter) => {
+  const returnToChapter = (abbr, chapter, exactY) => {
     if (!abbr || !chapter) return;
     setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
     setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
     setShowFilterOverlay(false);
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr, chapter, verse: null, verseEnd: null })); } catch {}
+    // Seed the per-chapter scroll key with the EXACT pre-search offset so the
+    // scroll-restore effect lands on the precise position the user left from.
+    if (typeof exactY === 'number' && exactY > 0) {
+      try { localStorage.setItem(`kjb-scroll-${abbr}-${chapter}`, String(Math.round(exactY))); } catch {}
+    }
     try { window.history.replaceState({}, '', '/read'); } catch {}
     freshNavRef.current = false;
     setPos({ abbr, chapter, verse: null });
@@ -892,7 +905,7 @@ export default function BibleReader() {
     preSearchPosRef.current = null;
     try { localStorage.removeItem('kjb-pre-search'); } catch {}
     if (back && back.abbr && back.chapter) {
-      returnToChapter(back.abbr, back.chapter);
+      returnToChapter(back.abbr, back.chapter, back.scrollY);
     } else {
       setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
       setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
@@ -1236,7 +1249,7 @@ export default function BibleReader() {
                       preSearchPosRef.current = null;
                       try { localStorage.removeItem('kjb-pre-jump'); } catch {}
                       if (back && back.abbr && back.chapter) {
-                        returnToChapter(back.abbr, back.chapter);
+                        returnToChapter(back.abbr, back.chapter, back.scrollY);
                       } else {
                         setHighlightVerse(null); setHighlightSection(null);
                         try { window.history.replaceState({}, '', '/read'); } catch {}
@@ -1252,8 +1265,8 @@ export default function BibleReader() {
                       setLastReadingPos(null);
                       try { localStorage.removeItem('kjb-last-reading'); } catch {}
                       // Returning to the chapter you were reading before the daily
-                      // verse / random jump — restore its saved scroll position.
-                      returnToChapter(abbr, chapter);
+                      // verse / random jump — restore its exact saved scroll position.
+                      returnToChapter(abbr, chapter, typeof lastReadingPos.scrollY === 'number' ? lastReadingPos.scrollY : undefined);
                     } else if (filterMode && selectedVerses.size > 0) {
                       setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
                       setHighlightVerse(null); setShowFilterOverlay(false);
