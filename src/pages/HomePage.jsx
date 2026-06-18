@@ -411,7 +411,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#121214]"
+    <div className="min-h-screen bg-[#F3F4F6]"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -420,28 +420,44 @@ export default function HomePage() {
       <OfflineStatusBanner />
       <IncognitoWarning />
 
-      {/* Title rule */}
-      <div className="print:hidden flex items-center gap-4 mb-7">
-        <div className="flex-1 h-px bg-gradient-to-r from-transparent to-[#D4AF37]/40" />
-        <p className="font-serif text-sm tracking-[0.3em] uppercase text-[#D4AF37]/80">KJB Reader</p>
-        <div className="flex-1 h-px bg-gradient-to-l from-transparent to-[#D4AF37]/40" />
+      {/* Header rule — Swiss technical masthead */}
+      <div className="print:hidden flex items-end justify-between border-b-2 border-[#111827] pb-2 mb-7">
+        <p className="font-sans text-2xl font-bold uppercase tracking-tight text-[#111827]">KJB Reader</p>
+        <p className="font-sans text-[10px] uppercase tracking-[0.25em] text-[#FF5722] font-semibold mb-1">Pure Cambridge Ed.</p>
       </div>
 
-      {/* Daily verse card — framed parchment */}
-      <div className="w-full mx-auto mb-9 relative rounded-2xl p-[1.5px] bg-gradient-to-br from-[#D4AF37]/50 via-[#D4AF37]/15 to-transparent">
-        <div className="rounded-2xl overflow-hidden">
+      {/* Main grid: verse + gospel side-by-side on desktop */}
+      <div className="print:hidden grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+        {/* Daily verse card */}
+        <div className="lg:col-span-2 w-full relative border border-[#E5E7EB] bg-white overflow-hidden">
           {verse ? (
             <DailyVerseImage verse={verse} onClick={handleVerseCardClick} onToggleNotif={handleToggleNotif} notifEnabled={notifEnabled} isOffline={isOffline} />
           ) : (
-            <div className="w-full min-h-[300px] bg-[#17171a] animate-pulse flex items-center justify-center">
-              <span className="font-sans text-sm text-[#EAE6DF]/50">Loading daily verse...</span>
+            <div className="w-full min-h-[300px] bg-[#F3F4F6] animate-pulse flex items-center justify-center">
+              <span className="font-sans text-sm text-[#6B7280]">Loading daily verse...</span>
             </div>
           )}
         </div>
+
+        {/* Gospel call — high-contrast orange-bordered block */}
+        <div className="relative border-2 border-[#FF5722] bg-white p-6 flex flex-col justify-center">
+          <p className="font-sans text-xl font-bold uppercase tracking-tight text-[#111827] mb-3">Are you saved?</p>
+          <div className="font-sans text-sm text-[#374151] mb-4 space-y-2">
+            <p>Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins.</p>
+            <p className="font-semibold text-[#111827]">Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.</p>
+          </div>
+          <Link
+            to="/gospel"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#FF5722] hover:bg-[#e64a19] text-white font-sans text-sm font-semibold uppercase tracking-wide transition-all duration-150 active:translate-y-px"
+          >
+            <Heart className="w-4 h-4" />
+            Learn How to be Saved
+          </Link>
+        </div>
       </div>
 
-      {/* Quick links grid */}
-      <div className="print:hidden grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-7">
+      {/* Quick links — modular grid */}
+      <div className="print:hidden grid grid-cols-1 sm:grid-cols-2 gap-px bg-[#E5E7EB] border border-[#E5E7EB]">
         <div className="sm:col-span-2">
           <HomeQuickLink icon={BookOpen} label={READ_LINK.label} desc={READ_LINK.desc} to={READ_LINK.path} primary />
         </div>
@@ -455,25 +471,6 @@ export default function HomePage() {
             <HomeQuickLink key={link.path} icon={link.icon} label={link.label} desc={link.desc} to={link.path} />
           );
         })}
-      </div>
-
-      {/* Gospel call — illuminated manuscript callout */}
-      <div className="print:hidden relative rounded-xl border border-[#D4AF37]/25 bg-gradient-to-br from-[#1a1410] to-[#121214] p-6 mb-6 overflow-hidden">
-        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#D4AF37] via-[#b8341f] to-[#D4AF37]" />
-        <div className="pl-3 text-center">
-          <p className="font-serif text-2xl font-bold text-[#D4AF37] mb-2">Are you saved?</p>
-          <div className="font-sans text-sm text-[#EAE6DF]/75 mb-4 space-y-1.5 max-w-2xl mx-auto">
-            <p>Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins.</p>
-            <p className="font-medium text-[#EAE6DF]/90">Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.</p>
-          </div>
-          <Link
-            to="/gospel"
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#b8341f] hover:bg-[#9c2b18] text-[#F2E9D8] rounded-lg font-sans text-sm font-medium transition-all duration-200 active:scale-[0.98] border border-[#D4AF37]/30"
-          >
-            <Heart className="w-4 h-4" />
-            Learn How to be Saved
-          </Link>
-        </div>
       </div>
 
       </div>
