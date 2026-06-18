@@ -4,6 +4,9 @@ module.exports = {
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
   	extend: {
+  	    screens: {
+  	      'xs': '420px',
+  	    },
   	    fontFamily: {
   	      serif: ['Merriweather', 'Cormorant Garamond', 'Georgia', 'serif'],
   	      sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],

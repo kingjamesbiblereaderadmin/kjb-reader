@@ -1404,64 +1404,71 @@ export default function SearchPage() {
               )}
             </div>
 
-            {/* Action buttons */}
-            <div className="flex items-center gap-1.5 flex-wrap">
+            {/* Action buttons — compact on narrow screens (icon-only), full labels on wider ones */}
+            <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
               {!selectMode ? (
                 <>
                   <button
                     onClick={() => setSelectMode(true)}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+                    title="Select"
+                    className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
                   >
-                    <CheckSquare className="w-3.5 h-3.5" /> Select
+                    <CheckSquare className="w-3.5 h-3.5 flex-shrink-0" /> <span className="hidden xs:inline">Select</span>
                   </button>
                   <button
                     onClick={handleCopySelected}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+                    title="Copy All"
+                    className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
                   >
-                    <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy All'}
+                    <Copy className="w-3.5 h-3.5 flex-shrink-0" /> <span className="hidden xs:inline">{copyFeedback ? 'Copied!' : 'Copy All'}</span>
                   </button>
                   <ExportMenu onExport={handleExport} label="Export" warning />
                   <button
                     onClick={() => handleExport('print')}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+                    title="Print"
+                    className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
                   >
-                    <Printer className="w-3.5 h-3.5" /> Print
+                    <Printer className="w-3.5 h-3.5 flex-shrink-0" /> <span className="hidden xs:inline">Print</span>
                   </button>
                   <button
                     onClick={handleShare}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+                    title="Share"
+                    className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
                   >
-                    <Share2 className="w-3.5 h-3.5" /> {shareFeedback ? 'Copied!' : 'Share'}
+                    <Share2 className="w-3.5 h-3.5 flex-shrink-0" /> <span className="hidden xs:inline">{shareFeedback ? 'Copied!' : 'Share'}</span>
                   </button>
                 </>
               ) : (
                 <>
-                  <button onClick={selectAll} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors">
-                    <CheckSquare className="w-3.5 h-3.5" /> All
+                  <button onClick={selectAll} title="Select All" className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors">
+                    <CheckSquare className="w-3.5 h-3.5 flex-shrink-0" /> <span className="hidden xs:inline">All</span>
                   </button>
-                  <button onClick={clearSelection} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors">
-                    <X className="w-3.5 h-3.5" /> Cancel
+                  <button onClick={clearSelection} title="Cancel" className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors">
+                    <X className="w-3.5 h-3.5 flex-shrink-0" /> <span className="hidden xs:inline">Cancel</span>
                   </button>
                   {selected.size > 0 && (
                     <>
                       <button
                         onClick={handleCopySelected}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
+                        title={`Copy (${selected.size})`}
+                        className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-opacity"
                       >
-                        <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : `Copy (${selected.size})`}
+                        <Copy className="w-3.5 h-3.5 flex-shrink-0" /> <span className="hidden xs:inline">{copyFeedback ? 'Copied!' : `Copy (${selected.size})`}</span>
                       </button>
                       <ExportMenu onExport={handleExport} count={selected.size} label="Export" warning />
                       <button
                         onClick={() => handleExport('print')}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+                        title="Print"
+                        className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
                       >
-                        <Printer className="w-3.5 h-3.5" /> Print
+                        <Printer className="w-3.5 h-3.5 flex-shrink-0" /> <span className="hidden xs:inline">Print</span>
                       </button>
                       <button
                         onClick={handleShare}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+                        title={`Share (${selected.size})`}
+                        className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
                       >
-                        <Share2 className="w-3.5 h-3.5" /> {shareFeedback ? 'Copied!' : `Share (${selected.size})`}
+                        <Share2 className="w-3.5 h-3.5 flex-shrink-0" /> <span className="hidden xs:inline">{shareFeedback ? 'Copied!' : `Share (${selected.size})`}</span>
                       </button>
                     </>
                   )}

@@ -19,10 +19,11 @@ export default function ExportMenu({ onExport, count, label = 'Export', warning 
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+          title={`${label}${count != null ? ` (${count})` : ''}`}
+          className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
         >
-          <Download className="w-3.5 h-3.5" /> {label}{count != null ? ` (${count})` : ''}
-          <ChevronDown className="w-3 h-3" />
+          <Download className="w-3.5 h-3.5 flex-shrink-0" /> <span className="hidden xs:inline">{label}{count != null ? ` (${count})` : ''}</span>
+          <ChevronDown className="w-3 h-3 flex-shrink-0" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-[90vw] sm:w-56 overflow-hidden">
