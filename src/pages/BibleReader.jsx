@@ -649,7 +649,7 @@ export default function BibleReader() {
     // across several frames AND observe the content for layout changes — this
     // prevents the scroll from collapsing to the top before the page is laid out.
     let saved = 0;
-    try { saved = parseInt(sessionStorage.getItem(`kjb-scroll-${pos.abbr}-${pos.chapter}`) || '0', 10); } catch {}
+    try { saved = parseInt(localStorage.getItem(`kjb-scroll-${pos.abbr}-${pos.chapter}`) || '0', 10); } catch {}
     if (!saved || saved <= 0) return;
     const restore = () => {
       const scroller = document.getElementById('kjb-scroll');
@@ -704,13 +704,13 @@ export default function BibleReader() {
     // never lost to a dropped rAF callback).
     const flush = () => {
       if (raf) { cancelAnimationFrame(raf); raf = null; }
-      try { sessionStorage.setItem(key, String(Math.round(getY()))); } catch {}
+      try { localStorage.setItem(key, String(Math.round(getY()))); } catch {}
     };
     const onScroll = () => {
       if (raf) return;
       raf = requestAnimationFrame(() => {
         raf = null;
-        try { sessionStorage.setItem(key, String(Math.round(getY()))); } catch {}
+        try { localStorage.setItem(key, String(Math.round(getY()))); } catch {}
       });
     };
     // Flush the latest position whenever the page is hidden/closed. pagehide +
