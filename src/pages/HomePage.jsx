@@ -5,6 +5,7 @@ import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import OfflineStatusBanner from '@/components/OfflineStatusBanner';
 import IncognitoWarning from '@/components/IncognitoWarning';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
+import HomeQuickLink from '@/components/home/HomeQuickLink';
 import { getDailyVerse, getDailyVerseFromBible, getLastCachedDailyVerse } from '@/lib/dailyVerse';
 import { getTodayVerseBackground } from '@/lib/dailyVerseTheme';
 import { useTheme } from '@/lib/themeContext';
@@ -410,110 +411,69 @@ export default function HomePage() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-background via-accent/5 to-background"
+    <div className="min-h-screen bg-[#121214]"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-6">
+      <div className="w-full max-w-6xl mx-auto px-5 sm:px-8 lg:px-12 py-6">
       <OfflineStatusBanner />
       <IncognitoWarning />
 
-      {/* Daily verse card */}
-      <div className="w-full mx-auto mb-8 relative">
-        {verse ? (
-          <DailyVerseImage verse={verse} onClick={handleVerseCardClick} onToggleNotif={handleToggleNotif} notifEnabled={notifEnabled} isOffline={isOffline} />
-        ) : (
-          <div className="w-full min-h-[300px] bg-secondary/50 animate-pulse border border-border rounded-2xl shadow-lg flex items-center justify-center">
-            <span className="font-sans text-sm text-muted-foreground">Loading daily verse...</span>
-          </div>
-        )}
+      {/* Title rule */}
+      <div className="print:hidden flex items-center gap-4 mb-7">
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent to-[#D4AF37]/40" />
+        <p className="font-serif text-sm tracking-[0.3em] uppercase text-[#D4AF37]/80">KJB Reader</p>
+        <div className="flex-1 h-px bg-gradient-to-l from-transparent to-[#D4AF37]/40" />
       </div>
 
-
-
-      {/* Quick links */}
-      {/* Read the Bible — full width on mobile, shares a row on desktop */}
-      <Link
-        to={READ_LINK.path}
-        onClick={() => window.scrollTo({ top: 0 })}
-        className={`print:hidden relative flex items-center gap-5 p-6 rounded-3xl shadow-lg border-2 border-white/20 hover:z-10 hover:shadow-xl active:scale-[0.98] transition-all mb-4 sm:hidden ${colorMode === 'daily' ? `bg-gradient-to-br ${dailyBg.gradient} text-white` : READ_LINK.color}`}
-      >
-        <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 shadow-sm text-white">
-          <BookOpen className="w-6 h-6" />
+      {/* Daily verse card — framed parchment */}
+      <div className="w-full mx-auto mb-9 relative rounded-2xl p-[1.5px] bg-gradient-to-br from-[#D4AF37]/50 via-[#D4AF37]/15 to-transparent">
+        <div className="rounded-2xl overflow-hidden">
+          {verse ? (
+            <DailyVerseImage verse={verse} onClick={handleVerseCardClick} onToggleNotif={handleToggleNotif} notifEnabled={notifEnabled} isOffline={isOffline} />
+          ) : (
+            <div className="w-full min-h-[300px] bg-[#17171a] animate-pulse flex items-center justify-center">
+              <span className="font-sans text-sm text-[#EAE6DF]/50">Loading daily verse...</span>
+            </div>
+          )}
         </div>
-        <div>
-          <p className="font-serif font-bold text-lg leading-tight">{READ_LINK.label}</p>
-          <p className="font-sans text-xs opacity-75 mt-0.5">{READ_LINK.desc}</p>
+      </div>
+
+      {/* Quick links grid */}
+      <div className="print:hidden grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-7">
+        <div className="sm:col-span-2">
+          <HomeQuickLink icon={BookOpen} label={READ_LINK.label} desc={READ_LINK.desc} to={READ_LINK.path} primary />
         </div>
-      </Link>
-      <div className="print:hidden grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-        {/* Read the Bible inside the grid on desktop only, so rows stay even */}
-        <Link
-          to={READ_LINK.path}
-          onClick={() => window.scrollTo({ top: 0 })}
-          className={`hidden sm:flex relative items-center gap-5 p-6 rounded-3xl shadow-lg border-2 border-white/20 hover:z-10 hover:shadow-xl active:scale-[0.98] transition-all ${colorMode === 'daily' ? `bg-gradient-to-br ${dailyBg.gradient} text-white` : READ_LINK.color}`}
-        >
-          <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 shadow-sm text-white">
-            <BookOpen className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="font-serif font-bold text-lg leading-tight">{READ_LINK.label}</p>
-            <p className="font-sans text-xs opacity-75 mt-0.5">{READ_LINK.desc}</p>
-          </div>
-        </Link>
         {QUICK_LINKS.map(link => {
           if (link.label === '__RANDOM__') {
             return (
-              <button
-                key="random"
-                onClick={handleRandomChapter}
-                className="relative flex items-center gap-4 p-5 rounded-2xl border border-border shadow-sm hover:z-10 hover:shadow-md active:scale-[0.98] transition-all bg-secondary text-secondary-foreground text-left"
-              >
-                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-background/50 backdrop-blur-md border border-border shadow-sm text-foreground">
-                  <Shuffle className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="font-serif font-bold text-lg leading-tight">Random Chapter</p>
-                  <p className="font-sans text-xs opacity-75 mt-0.5">Jump to a random chapter</p>
-                </div>
-              </button>
+              <HomeQuickLink key="random" icon={Shuffle} label="Random Chapter" desc="Jump to a random chapter" onClick={handleRandomChapter} />
             );
           }
-          const Icon = link.icon;
           return (
-            <Link
-              key={link.path}
-              to={link.path}
-              onClick={() => window.scrollTo({ top: 0 })}
-              className={`relative flex items-center gap-4 p-5 rounded-2xl border border-border shadow-sm hover:z-10 hover:shadow-md active:scale-[0.98] transition-all ${link.color}`}
-            >
-              <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-background/50 backdrop-blur-md border border-border shadow-sm text-foreground">
-                <Icon className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="font-serif font-bold text-lg leading-tight">{link.label}</p>
-                <p className="font-sans text-xs opacity-75 mt-0.5">{link.desc}</p>
-              </div>
-            </Link>
+            <HomeQuickLink key={link.path} icon={link.icon} label={link.label} desc={link.desc} to={link.path} />
           );
         })}
       </div>
 
-      {/* Gospel call */}
-      <div className="print:hidden bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-6 text-center mb-6">
-        <p className="font-serif text-xl font-bold text-red-700 dark:text-red-400 mb-2">Are you saved?</p>
-        <div className="font-sans text-sm text-foreground/80 mb-4 space-y-1.5">
-          <p>Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins.</p>
-          <p className="font-medium">Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.</p>
+      {/* Gospel call — illuminated manuscript callout */}
+      <div className="print:hidden relative rounded-xl border border-[#D4AF37]/25 bg-gradient-to-br from-[#1a1410] to-[#121214] p-6 mb-6 overflow-hidden">
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#D4AF37] via-[#b8341f] to-[#D4AF37]" />
+        <div className="pl-3 text-center">
+          <p className="font-serif text-2xl font-bold text-[#D4AF37] mb-2">Are you saved?</p>
+          <div className="font-sans text-sm text-[#EAE6DF]/75 mb-4 space-y-1.5 max-w-2xl mx-auto">
+            <p>Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins.</p>
+            <p className="font-medium text-[#EAE6DF]/90">Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.</p>
+          </div>
+          <Link
+            to="/gospel"
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#b8341f] hover:bg-[#9c2b18] text-[#F2E9D8] rounded-lg font-sans text-sm font-medium transition-all duration-200 active:scale-[0.98] border border-[#D4AF37]/30"
+          >
+            <Heart className="w-4 h-4" />
+            Learn How to be Saved
+          </Link>
         </div>
-        <Link
-          to="/gospel"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:shadow-md active:scale-[0.98]"
-        >
-          <Heart className="w-4 h-4" />
-          Learn How to be Saved
-        </Link>
       </div>
 
       </div>
