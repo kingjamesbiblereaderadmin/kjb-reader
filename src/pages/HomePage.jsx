@@ -74,7 +74,7 @@ export default function HomePage() {
       if (!navigator.onLine) return;
       import('@/lib/homeUpdateCheck').then(({ checkHomeForUpdates }) => {
         checkHomeForUpdates().catch(() => {});
-      });
+      }).catch(() => {});
     };
 
     const startChecking = () => {
