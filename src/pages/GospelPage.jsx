@@ -50,6 +50,12 @@ function VerseLink({ book, chapter, verse, verseEnd, children }) {
     const index = Math.max(0, results.findIndex(r => r.abbr === bookData.abbr && r.chapter === chapter && r.verse === verse));
     const hasRange = verseEnd && verseEnd > verse;
     try {
+      // Stash where the user was reading BEFORE this gospel jump, so closing the
+      // gospel stepper in the reader returns them there (at saved scroll).
+      const cur = JSON.parse(localStorage.getItem('kjb-position') || 'null');
+      if (cur && cur.abbr && cur.chapter) {
+        localStorage.setItem('kjb-pre-jump', JSON.stringify({ abbr: cur.abbr, chapter: cur.chapter }));
+      }
       localStorage.removeItem('kjb-search-term');
       setGospelNav(results, index);
       // For a range, store every verse in the selection so all are highlighted

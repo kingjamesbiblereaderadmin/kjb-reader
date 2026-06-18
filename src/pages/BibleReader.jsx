@@ -816,10 +816,11 @@ export default function BibleReader() {
     // search session (cleared in clearSearchContext).
     if (!preSearchPosRef.current) {
       try {
-        // Prefer the pre-search position SearchPage stashed before it overwrote
-        // kjb-position with the search target. Fall back to the current position
-        // (covers in-reader stepping where no stash exists yet).
-        const stash = JSON.parse(localStorage.getItem('kjb-pre-search') || 'null');
+        // Prefer the pre-jump position stashed by SearchPage (kjb-pre-search) or
+        // GospelPage (kjb-pre-jump) before they overwrote kjb-position with the
+        // jump target. Fall back to the current position (covers in-reader
+        // stepping where no stash exists yet).
+        const stash = JSON.parse(localStorage.getItem('kjb-pre-search') || localStorage.getItem('kjb-pre-jump') || 'null');
         if (stash && stash.abbr && stash.chapter) {
           preSearchPosRef.current = { abbr: stash.abbr, chapter: stash.chapter };
         } else {
@@ -1227,8 +1228,19 @@ export default function BibleReader() {
                   }}
                   onClear={() => {
                     if (gospelMode) {
-                      setGospelMode(false); clearGospelNav(); setHighlightVerse(null);
-                      try { window.history.replaceState({}, '', '/read'); } catch {}
+                      clearGospelNav(); setGospelMode(false);
+                      // Return to where the user was reading before the gospel jump
+                      // (captured in preSearchPosRef by stepToResult), at its saved
+                      // scroll position — same robust path as search/daily/random.
+                      const back = preSearchPosRef.current;
+                      preSearchPosRef.current = null;
+                      try { localStorage.removeItem('kjb-pre-jump'); } catch {}
+                      if (back && back.abbr && back.chapter) {
+                        returnToChapter(back.abbr, back.chapter);
+                      } else {
+                        setHighlightVerse(null); setHighlightSection(null);
+                        try { window.history.replaceState({}, '', '/read'); } catch {}
+                      }
                       return;
                     }
                     if (searchTerm) {
