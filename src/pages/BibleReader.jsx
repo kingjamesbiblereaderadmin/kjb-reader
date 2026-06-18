@@ -231,6 +231,11 @@ export default function BibleReader() {
     }
   };
 
+  const activateSelectFromVerse = (verseNum) => {
+    setSelectMode(true);
+    setSelectedVerses(new Set([parseInt(verseNum, 10)]));
+  };
+
   const toggleVerseSelect = (verseNum) => {
     setSelectedVerses(prev => {
       const next = new Set(prev);
@@ -1373,7 +1378,7 @@ export default function BibleReader() {
               <VerseText
                 key={`${pos.abbr}-${pos.chapter}-${v.verse}`} verse={v} highlight={parseInt(highlightVerse, 10) === parseInt(v.verse, 10) || highlightedVerses.has(parseInt(v.verse, 10))}
                 id={`v${v.verse}`} bookName={book.name} abbr={pos.abbr} chapter={pos.chapter} isFirstVerse={idx === 0} paragraphMode={paragraphMode} selectMode={selectMode}
-                isSelected={selectedVerses.has(parseInt(v.verse, 10)) || selectedVerses.has(String(v.verse))} onSelect={toggleVerseSelect} totalVerses={verseCount}
+                isSelected={selectedVerses.has(parseInt(v.verse, 10)) || selectedVerses.has(String(v.verse))} onSelect={toggleVerseSelect} onActivateSelect={activateSelectFromVerse} totalVerses={verseCount}
                 colophon={verses.length > 0 && String(v.verse) === String(verses[verses.length - 1].verse) ? colophon : null}
                 subscript={parseInt(v.verse, 10) === 1 ? (SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] || null) : null}
                 isCursive={fontFamily === 'cursive'} fontFamilyValue={getFontFamilyValue(fontFamily)} zoomLevel={zoomLevel} columnMode={useColumns} dropCap={idx === 0 && parseInt(v.verse, 10) === 1}

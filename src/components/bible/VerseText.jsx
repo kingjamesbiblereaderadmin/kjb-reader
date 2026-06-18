@@ -6,7 +6,7 @@ import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { formatVerseShare, buildVerseUrl } from '@/lib/formatDailyVerse';
 import VersePopover from '@/components/bible/VersePopover';
 
-export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, totalVerses = 0, colophon = null, subscript = null, isCursive = false, fontFamilyValue = null, zoomLevel = 100, hasSubscript = false, searchTerm = null, dropCap = false, columnMode = false }) {
+export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, onActivateSelect, totalVerses = 0, colophon = null, subscript = null, isCursive = false, fontFamilyValue = null, zoomLevel = 100, hasSubscript = false, searchTerm = null, dropCap = false, columnMode = false }) {
   const bookEntry = BIBLE_BOOKS.find(b => b.abbr === abbr);
   const shortBookName = bookEntry ? bookEntry.shortName : bookName;
   const [selected, setSelected] = useState(false);
@@ -334,6 +334,16 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
           {saved ? <BookmarkCheck className="w-3 h-3 text-accent" /> : <Bookmark className="w-3 h-3" />}
           {saved ? 'Saved' : 'Save'}
         </button>
+        {onActivateSelect && (
+          <button
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setSelected(false); onActivateSelect(verse.verse); }}
+            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setSelected(false); onActivateSelect(verse.verse); }}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+            title="Select verses"
+          >
+            <CheckSquare className="w-3 h-3" /> Select
+          </button>
+        )}
         <button
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setSelected(false); }}
           onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setSelected(false); }}
