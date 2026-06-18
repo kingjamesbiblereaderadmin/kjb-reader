@@ -816,9 +816,17 @@ export default function BibleReader() {
     // search session (cleared in clearSearchContext).
     if (!preSearchPosRef.current) {
       try {
-        const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        if (cur && cur.abbr && cur.chapter) {
-          preSearchPosRef.current = { abbr: cur.abbr, chapter: cur.chapter };
+        // Prefer the pre-search position SearchPage stashed before it overwrote
+        // kjb-position with the search target. Fall back to the current position
+        // (covers in-reader stepping where no stash exists yet).
+        const stash = JSON.parse(localStorage.getItem('kjb-pre-search') || 'null');
+        if (stash && stash.abbr && stash.chapter) {
+          preSearchPosRef.current = { abbr: stash.abbr, chapter: stash.chapter };
+        } else {
+          const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+          if (cur && cur.abbr && cur.chapter) {
+            preSearchPosRef.current = { abbr: cur.abbr, chapter: cur.chapter };
+          }
         }
       } catch {}
     }
@@ -864,6 +872,7 @@ export default function BibleReader() {
     // Return to the chapter the user was reading before they searched.
     const back = preSearchPosRef.current;
     preSearchPosRef.current = null;
+    try { localStorage.removeItem('kjb-pre-search'); } catch {}
     setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
     setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
     setShowFilterOverlay(false);

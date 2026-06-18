@@ -650,6 +650,9 @@ export default function SearchPage() {
       if (q !== lastQueryRef.current) {
         lastQueryRef.current = q;
         setSelectedBooks(new Set());
+        // New query → forget the previous pre-search position so the next
+        // result click captures the current reading chapter fresh.
+        try { localStorage.removeItem('kjb-pre-search'); } catch {}
       }
       runSearch(q);
     }
@@ -712,6 +715,18 @@ export default function SearchPage() {
     // identity stays stable while typing — otherwise SearchResultsList's
     // React.memo breaks and the whole list re-renders on every keystroke.
     const q = getQueryFromUrl();
+    // Remember where the user was reading BEFORE this search jump, so closing
+    // the search results returns them to the prior chapter (not the search one).
+    // Only set it once per search session — don't overwrite when stepping
+    // between results.
+    try {
+      if (!localStorage.getItem('kjb-pre-search')) {
+        const cur = JSON.parse(localStorage.getItem('kjb-position') || '{}');
+        if (cur && cur.abbr && cur.chapter) {
+          localStorage.setItem('kjb-pre-search', JSON.stringify({ abbr: cur.abbr, chapter: cur.chapter }));
+        }
+      }
+    } catch {}
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null, verseEnd: verseEnd || null, highlight: section || null })); } catch {}
     // Clear last reading position (from daily verse/random) when navigating from search
     try { localStorage.removeItem('kjb-last-reading'); } catch {}
