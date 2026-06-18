@@ -1233,6 +1233,8 @@ export default function BibleReader() {
                       // verse / random jump — let the saved per-chapter scroll
                       // restore (do NOT force scroll-to-top).
                       freshNavRef.current = false;
+                      setHighlightSection(null);
+                      setHighlightedVerses(new Set());
                       setPos({ abbr, chapter, verse: null });
                       loadChapter(abbr, chapter, null);
                     } else if (filterMode && selectedVerses.size > 0) {
