@@ -73,12 +73,15 @@ export default function ReadingRangeBar({ label, filterMode, copyFeedback, share
       <button
         id="kjb-reading-range-clear-btn"
         onClick={(e) => {
+          // Shared guard with the CurrentlyReadingIndicator clear button: the two
+          // buttons click each other to stay in sync, so without this guard the
+          // clear logic runs twice and drops the return-to-chapter stash.
+          if (window.kjbClearGuard) return;
+          window.kjbClearGuard = true;
+          setTimeout(() => { window.kjbClearGuard = false; }, 400);
           onClear(e);
-          if (window.isKjbClearing) return;
-          window.isKjbClearing = true;
           const indicatorBtn = document.getElementById('kjb-currently-reading-clear-btn');
           if (indicatorBtn) indicatorBtn.click();
-          window.isKjbClearing = false;
         }}
         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
       >

@@ -132,22 +132,15 @@ export default function CurrentlyReadingIndicator({
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
+            // On touch devices a tap fires touchend THEN click — guard so the
+            // clear logic (which consumes the return-to-chapter stash) only runs
+            // once per tap. Running twice drops the stash and breaks the return.
+            if (window.kjbClearGuard) return;
+            window.kjbClearGuard = true;
+            setTimeout(() => { window.kjbClearGuard = false; }, 400);
             onClear();
-            if (window.isKjbClearing) return;
-            window.isKjbClearing = true;
             const clearBtn = document.getElementById('kjb-reading-range-clear-btn');
             if (clearBtn) clearBtn.click();
-            window.isKjbClearing = false;
-          }}
-          onTouchEnd={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onClear();
-            if (window.isKjbClearing) return;
-            window.isKjbClearing = true;
-            const clearBtn = document.getElementById('kjb-reading-range-clear-btn');
-            if (clearBtn) clearBtn.click();
-            window.isKjbClearing = false;
           }}
           title={clearLabel}
           className="ml-0.5 p-0.5 rounded hover:bg-black/20 transition-all duration-200 hover:scale-110 active:scale-95 flex-shrink-0"
