@@ -867,23 +867,35 @@ export default function BibleReader() {
     loadChapter(r.abbr, r.chapter, targetVerse);
   };
 
+  // Single source of truth for "return to a previously-read chapter". Used by
+  // every Clear/deselect path (search, daily verse, random) so they ALL land
+  // back on the chapter at its saved scroll position — never the top. It clears
+  // all overlay/highlight state and leaves freshNavRef false so the per-chapter
+  // scroll-restore effect runs instead of forcing scroll-to-top.
+  const returnToChapter = (abbr, chapter) => {
+    if (!abbr || !chapter) return;
+    setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
+    setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
+    setShowFilterOverlay(false);
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr, chapter, verse: null, verseEnd: null })); } catch {}
+    try { window.history.replaceState({}, '', '/read'); } catch {}
+    freshNavRef.current = false;
+    setPos({ abbr, chapter, verse: null });
+    loadChapter(abbr, chapter, null);
+  };
+
   const clearSearchContext = () => {
     searchClearedRef.current = true; clearSearchNav(); setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
     // Return to the chapter the user was reading before they searched.
     const back = preSearchPosRef.current;
     preSearchPosRef.current = null;
     try { localStorage.removeItem('kjb-pre-search'); } catch {}
-    setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
-    setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
-    setShowFilterOverlay(false);
     if (back && back.abbr && back.chapter) {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr: back.abbr, chapter: back.chapter, verse: null, verseEnd: null })); } catch {}
-      try { window.history.replaceState({}, '', '/read'); } catch {}
-      // Returning to the chapter you were reading before searching — let the
-      // saved per-chapter scroll restore (do NOT force scroll-to-top).
-      freshNavRef.current = false;
-      setPos({ abbr: back.abbr, chapter: back.chapter, verse: null });
-      loadChapter(back.abbr, back.chapter, null);
+      returnToChapter(back.abbr, back.chapter);
+    } else {
+      setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
+      setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
+      setShowFilterOverlay(false);
     }
   };
 
@@ -1225,18 +1237,11 @@ export default function BibleReader() {
                       const abbr = lastReadingPos.prevAbbr || lastReadingPos.abbr;
                       const chapter = lastReadingPos.prevChapter || lastReadingPos.chapter;
                       lastReadingClearedRef.current = true; searchClearedRef.current = true;
-                      setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
-                      setHighlightVerse(null); setShowFilterOverlay(false); setLastReadingPos(null);
-                      try { localStorage.removeItem('kjb-last-reading'); localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr, chapter, verse: null })); } catch {}
-                      try { window.history.replaceState({}, '', '/read'); } catch {}
+                      setLastReadingPos(null);
+                      try { localStorage.removeItem('kjb-last-reading'); } catch {}
                       // Returning to the chapter you were reading before the daily
-                      // verse / random jump — let the saved per-chapter scroll
-                      // restore (do NOT force scroll-to-top).
-                      freshNavRef.current = false;
-                      setHighlightSection(null);
-                      setHighlightedVerses(new Set());
-                      setPos({ abbr, chapter, verse: null });
-                      loadChapter(abbr, chapter, null);
+                      // verse / random jump — restore its saved scroll position.
+                      returnToChapter(abbr, chapter);
                     } else if (filterMode && selectedVerses.size > 0) {
                       setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
                       setHighlightVerse(null); setShowFilterOverlay(false);
