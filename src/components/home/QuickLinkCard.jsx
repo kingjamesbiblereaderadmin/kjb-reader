@@ -21,7 +21,7 @@ export default function QuickLinkCard({ to, onClick, icon: Icon, label, desc, ic
   );
 
   const className =
-    'group relative flex items-center gap-4 p-4 sm:p-5 rounded-3xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200';
+    'group relative flex items-center gap-4 p-4 sm:p-5 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border shadow-sm hover:shadow-lg hover:border-accent/60 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200';
 
   if (onClick) {
     return (
