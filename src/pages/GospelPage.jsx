@@ -344,11 +344,12 @@ const VERSE_TEXTS = {
 
 export default function GospelPage() {
   return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
     <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-10">
       {/* Header */}
       <div className="text-center mb-10">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/30 mb-4">
-          <Heart className="w-7 h-7 text-red-500" />
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 shadow-lg shadow-red-500/30 mb-4">
+          <Heart className="w-7 h-7 text-white" />
         </div>
         <h1 className="font-serif text-4xl font-bold text-foreground mb-3">How to be Saved</h1>
         <p className="font-sans text-muted-foreground max-w-lg mx-auto">
@@ -366,9 +367,9 @@ export default function GospelPage() {
       {/* Gospel Steps */}
       <div className="space-y-6 mb-10">
         {/* Step 1 */}
-        <div className="bg-card border border-border rounded-xl p-6 flex gap-4">
-          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-            <AlertCircle className="w-5 h-5 text-red-500" />
+        <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 flex gap-4 shadow-lg shadow-black/[0.03]">
+          <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 shadow-md shadow-red-500/30 flex items-center justify-center">
+            <AlertCircle className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
             <div className="flex items-start justify-between gap-4 mb-2">
@@ -389,9 +390,9 @@ export default function GospelPage() {
         </div>
 
         {/* Step 2 */}
-        <div className="bg-card border border-border rounded-xl p-6 flex gap-4">
-          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-            <CheckCircle className="w-5 h-5 text-blue-500" />
+        <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 flex gap-4 shadow-lg shadow-black/[0.03]">
+          <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-md shadow-blue-500/30 flex items-center justify-center">
+            <CheckCircle className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
             <div className="flex items-start justify-between gap-4 mb-2">
@@ -408,9 +409,9 @@ export default function GospelPage() {
         </div>
 
         {/* Step 3 */}
-        <div className="bg-card border border-border rounded-xl p-6 flex gap-4">
-          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
-            <CheckCircle className="w-5 h-5 text-yellow-500" />
+        <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 flex gap-4 shadow-lg shadow-black/[0.03]">
+          <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-500 shadow-md shadow-yellow-500/30 flex items-center justify-center">
+            <CheckCircle className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
             <div className="flex items-start justify-between gap-4 mb-2">
@@ -462,7 +463,7 @@ export default function GospelPage() {
       </div>
 
       {/* OSAS */}
-      <div className="bg-card border border-border rounded-xl p-6 mb-10">
+      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 mb-10 shadow-lg shadow-black/[0.03]">
         <div className="flex items-start justify-between gap-4 mb-2">
           <h3 className="font-serif text-xl font-semibold text-foreground">Once Saved, Always Saved</h3>
           <CopyButton text={`Once Saved, Always Saved\n\nA believer who has trusted the gospel cannot lose salvation, no matter what happens in their life. God's gift of eternal life is just that — eternal.\n\n"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." — Ephesians 1:13`} className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors flex-shrink-0 cursor-pointer" />
@@ -477,7 +478,7 @@ export default function GospelPage() {
 
       {/* Video */}
       <h2 className="font-serif text-2xl font-bold text-foreground mb-4">Watch the Gospel</h2>
-      <div className="rounded-xl overflow-hidden border border-border mb-6">
+      <div className="rounded-2xl overflow-hidden border border-border/60 mb-6 shadow-lg shadow-black/[0.03]">
         <div className="aspect-video w-full">
           <iframe
             src="https://www.youtube-nocookie.com/embed/znP9Dr6tOzU?rel=0&modestbranding=1&playsinline=1"
@@ -529,6 +530,7 @@ export default function GospelPage() {
         </div>
       </div>
 
+    </div>
     </div>
   );
 }

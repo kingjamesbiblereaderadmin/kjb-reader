@@ -105,8 +105,8 @@ export default function ContentsPage() {
     <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-10">
       {/* Header */}
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-secondary mb-4">
-          <List className="w-7 h-7 text-accent" />
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-indigo-500/30 mb-4">
+          <List className="w-7 h-7 text-white" />
         </div>
         <h1 className="font-serif text-4xl font-bold text-foreground mb-2">Table of Contents</h1>
         <p className="font-sans text-sm text-muted-foreground">King James Bible — Pure Cambridge Edition</p>

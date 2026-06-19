@@ -242,8 +242,8 @@ export default function AppLayout() {
 
   return (
     <AutoUpdateHandler>
-    <div className="h-screen bg-background flex flex-col overflow-hidden">
-      <header className={`print:hidden border-b border-border bg-card/95 backdrop-blur-md z-50 flex-shrink-0 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
+    <div className="h-screen bg-gradient-to-br from-background via-accent/5 to-background flex flex-col overflow-hidden">
+      <header className={`print:hidden border-b border-border/60 bg-card/70 backdrop-blur-xl z-50 flex-shrink-0 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
         <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 h-14 flex items-center gap-2 sm:gap-3">
           {/* Logo / Back Button */}
           {pathname === '/' ? (
@@ -296,7 +296,7 @@ export default function AppLayout() {
           {/* Actions - responsive button sizes with visible square touch targets */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <button 
-              className={`w-11 h-11 sm:w-10 sm:h-10 shrink-0 rounded-lg border transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation ${isOnline ? 'border-border bg-secondary/30 text-green-600 dark:text-green-400 hover:bg-secondary/50' : 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/40'}`}
+              className={`w-11 h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation ${isOnline ? 'border-border bg-secondary/30 text-green-600 dark:text-green-400 hover:bg-secondary/50' : 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/40'}`}
               onClick={(e) => { 
                 e.stopPropagation(); 
                 window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: isOnline ? 'You are online' : 'You are offline (reading from cache)', status: 'info' } }));
@@ -307,14 +307,14 @@ export default function AppLayout() {
             >
               {isOnline ? <Wifi className="w-4 h-4 pointer-events-none" /> : <WifiOff className="w-4 h-4 pointer-events-none" />}
             </button>
-            <button className="w-11 h-11 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
+            <button className="w-11 h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
               onClick={(e) => { e.stopPropagation(); try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {} toggleTheme(); }}
               type="button"
               aria-label="Toggle theme"
             >
               {mode === 'auto' ? <SunMoon className="w-4 h-4 pointer-events-none transition-transform duration-200" /> : isDark ? <Moon className="w-4 h-4 pointer-events-none transition-transform duration-200" /> : <Sun className="w-4 h-4 pointer-events-none transition-transform duration-200" />}
             </button>
-            <button data-kjb-menu-toggle className="w-11 h-11 sm:w-10 sm:h-10 shrink-0 rounded-lg border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
+            <button data-kjb-menu-toggle className="w-11 h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
               onClick={(e) => { e.stopPropagation(); setMenuOpen(o => !o); }}
               type="button"
               aria-label="Open menu"
@@ -346,8 +346,8 @@ export default function AppLayout() {
                       }}
                       className={`relative flex items-center gap-2.5 px-3 py-2.5 rounded-lg border font-sans text-sm font-medium transition-all duration-200 hover:z-10 hover:shadow-md active:scale-95 ${
                         active
-                          ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                          : 'bg-card text-foreground border-border hover:bg-secondary hover:border-muted-foreground/30'
+                          ? 'bg-gradient-to-br from-primary to-accent text-primary-foreground border-transparent shadow-md shadow-primary/20'
+                          : 'bg-card/60 text-foreground border-border hover:bg-secondary hover:border-accent/40'
                       }`}
                     >
                       <Icon className="w-4 h-4 flex-shrink-0 transition-transform duration-200" />
@@ -405,7 +405,7 @@ function DesktopFooter({ navigate, setMenuOpen }) {
     });
   };
   return (
-      <footer className={`print:hidden hidden sm:block border-t border-border bg-card/80 flex-shrink-0 ${open ? 'py-3' : 'py-0.5'}`}>
+      <footer className={`print:hidden hidden sm:block border-t border-border/60 bg-card/70 backdrop-blur-xl flex-shrink-0 ${open ? 'py-3' : 'py-0.5'}`}>
         <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12">
           <div className={`flex justify-center ${open ? 'mb-2' : 'mb-0'}`}>
             <button
@@ -553,7 +553,7 @@ function BottomNav({ pathname, navigate }) {
   }
 
   return (
-    <nav className="print:hidden sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/95 backdrop-blur-md border-t border-border overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+    <nav className="print:hidden sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/70 backdrop-blur-xl border-t border-border/60 overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12">
         {/* Primary row: 5 nav items + chevron toggle button */}
         <div className="flex items-stretch">

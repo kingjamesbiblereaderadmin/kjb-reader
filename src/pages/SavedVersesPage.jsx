@@ -125,10 +125,11 @@ export default function SavedVersesPage() {
   };
 
   return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
     <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-10">
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-secondary mb-4">
-          <Bookmark className="w-7 h-7 text-accent" />
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-fuchsia-500 to-pink-600 shadow-lg shadow-pink-500/30 mb-4">
+          <Bookmark className="w-7 h-7 text-white" />
         </div>
         <h1 className="font-serif text-4xl font-bold text-foreground mb-2">Saved Verses</h1>
         <p className="font-sans text-sm text-muted-foreground">{saved.length} verse{saved.length !== 1 ? 's' : ''} saved</p>
@@ -164,7 +165,7 @@ export default function SavedVersesPage() {
           onClick={() => setActiveFolder('All')}
           className={`flex items-center gap-2 px-4 py-2 rounded-full font-sans text-sm font-medium whitespace-nowrap transition-colors ${
             activeFolder === 'All' 
-              ? 'bg-primary text-primary-foreground' 
+              ? 'bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-md shadow-primary/20' 
               : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
           }`}
         >
@@ -176,7 +177,7 @@ export default function SavedVersesPage() {
               onClick={() => setActiveFolder(folder)}
               className={`flex items-center gap-2 px-4 py-2 rounded-full font-sans text-sm font-medium whitespace-nowrap transition-colors ${
                 activeFolder === folder 
-                  ? 'bg-primary text-primary-foreground' 
+                  ? 'bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-md shadow-primary/20' 
                   : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
               }`}
             >
@@ -224,7 +225,7 @@ export default function SavedVersesPage() {
             .map((entry, i) => (
             <div
               key={i}
-              className="bg-card border border-border rounded-xl p-5 flex items-start gap-4"
+              className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-5 flex items-start gap-4 shadow-lg shadow-black/[0.03] transition-shadow hover:shadow-xl"
             >
               <button
                 onClick={() => handleNavigate(entry)}
@@ -301,6 +302,7 @@ export default function SavedVersesPage() {
           )}
         </div>
       )}
+    </div>
     </div>
   );
 }
