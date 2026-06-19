@@ -325,14 +325,14 @@ export default function AppLayout() {
               type="button"
               aria-label="Toggle theme"
             >
-              {mode === 'auto' ? <SunMoon className="w-4 h-4 pointer-events-none transition-transform duration-200" /> : isDark ? <Moon className="w-4 h-4 pointer-events-none transition-transform duration-200" /> : <Sun className="w-4 h-4 pointer-events-none transition-transform duration-200" />}
+              {mode === 'auto' ? <SunMoon className="w-4 h-4 pointer-events-none transition-transform duration-200 text-amber-500" /> : isDark ? <Moon className="w-4 h-4 pointer-events-none transition-transform duration-200 text-indigo-400" /> : <Sun className="w-4 h-4 pointer-events-none transition-transform duration-200 text-amber-500" />}
             </button>
             <button data-kjb-menu-toggle className="w-11 h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
               onClick={(e) => { e.stopPropagation(); setMenuOpen(o => !o); }}
               type="button"
               aria-label="Open menu"
             >
-              {menuOpen ? <X className="w-4 h-4 pointer-events-none transition-transform duration-200" /> : <Menu className="w-4 h-4 pointer-events-none transition-transform duration-200" />}
+              {menuOpen ? <X className="w-4 h-4 pointer-events-none transition-transform duration-200 text-violet-500" /> : <Menu className="w-4 h-4 pointer-events-none transition-transform duration-200 text-violet-500" />}
             </button>
           </div>
         </div>
