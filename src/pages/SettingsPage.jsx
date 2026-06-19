@@ -418,10 +418,10 @@ export default function SettingsPage() {
       </div>
 
       {/* Text Settings */}
-      <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
+      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
         <button
           onClick={() => toggleSection('text')}
-          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
         >
           <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Text</h2>
@@ -524,10 +524,10 @@ export default function SettingsPage() {
       </div>
 
       {/* Accessibility */}
-      <div id="kjb-accessibility-section" className="bg-card border border-border rounded-2xl mb-6 overflow-hidden scroll-mt-4">
+      <div id="kjb-accessibility-section" className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-6 overflow-hidden shadow-lg shadow-black/[0.03] scroll-mt-4">
         <button
           onClick={() => toggleSection('accessibility')}
-          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
         >
           <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Accessibility</h2>
@@ -581,10 +581,10 @@ export default function SettingsPage() {
       </div>
 
       {/* Keyboard Shortcuts */}
-      <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
+      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
         <button
           onClick={() => toggleSection('shortcuts')}
-          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
         >
           <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Keyboard Shortcuts</h2>
@@ -607,10 +607,10 @@ export default function SettingsPage() {
       </div>
 
       {/* Appearance */}
-      <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
+      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
         <button
           onClick={() => toggleSection('appearance')}
-          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
         >
           <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Appearance</h2>
@@ -922,10 +922,10 @@ export default function SettingsPage() {
 
       {/* Install App — hidden in private/incognito windows where install won't work */}
       {!isIncognito && (
-      <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
+      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
         <button
           onClick={() => toggleSection('install')}
-          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
         >
           <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Install App</h2>
@@ -1033,10 +1033,10 @@ export default function SettingsPage() {
 
       {/* Offline Library — hidden in private/incognito windows where caching won't persist */}
       {!isIncognito && (
-      <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
+      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
         <button
           onClick={() => toggleSection('offline')}
-          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
         >
           <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Offline Library</h2>
@@ -1224,10 +1224,10 @@ export default function SettingsPage() {
 
       {/* Incognito warning for offline features */}
       {isIncognito && (
-      <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
+      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
         <button
           onClick={() => toggleSection('offline')}
-          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
         >
           <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Offline Library</h2>
@@ -1249,10 +1249,10 @@ export default function SettingsPage() {
       )}
 
       {/* Download Bible as PDF */}
-      <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
+      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
         <button
           onClick={() => toggleSection('downloadPdf')}
-          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
         >
           <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Download Bible</h2>
@@ -1264,10 +1264,10 @@ export default function SettingsPage() {
       </div>
 
       {/* Offline HTML Bible & Legacy Reader — for old browsers / no-JS environments */}
-      <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
+      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
         <button
           onClick={() => toggleSection('offlineHtml')}
-          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
         >
           <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Old Browser & Offline Options</h2>
@@ -1300,10 +1300,10 @@ export default function SettingsPage() {
 
       {/* Notifications — hidden in private/incognito windows where they won't persist */}
       {!isIncognito && (
-      <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
+      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
         <button
           onClick={() => toggleSection('notifications')}
-          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
         >
           <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Daily Verse Reminders</h2>
@@ -1373,10 +1373,10 @@ export default function SettingsPage() {
       )}
 
       {/* App Info */}
-      <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
+      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
         <button
           onClick={() => toggleSection('info')}
-          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
         >
           <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">App Info</h2>
@@ -1472,10 +1472,10 @@ export default function SettingsPage() {
       </div>
 
       {/* Credits */}
-      <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
+      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
         <button
           onClick={() => toggleSection('credits')}
-          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
         >
           <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Credits</h2>
@@ -1502,10 +1502,10 @@ export default function SettingsPage() {
       </div>
 
       {/* Advanced */}
-      <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
+      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
         <button
           onClick={() => toggleSection('advanced')}
-          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
         >
           <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Advanced</h2>
@@ -1564,10 +1564,10 @@ export default function SettingsPage() {
       </div>
 
       {/* Contact & Feedback */}
-      <div className="bg-card border border-border rounded-2xl mb-5 overflow-hidden shadow-sm">
+      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
         <button
           onClick={() => toggleSection('contact')}
-          className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-accent/5 transition-colors text-left"
+          className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
         >
           <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Contact & Feedback</h2>

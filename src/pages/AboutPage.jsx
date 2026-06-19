@@ -12,16 +12,16 @@ function TikTokLinkIcon({ className }) {
 function AccordionSection({ title, children }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border border-border rounded-xl overflow-hidden mb-5 shadow-sm">
+    <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl overflow-hidden mb-5 shadow-lg shadow-black/[0.03]">
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-secondary/50 transition-colors text-left"
+        className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
       >
         <h3 className="font-serif text-lg font-semibold text-foreground">{title}</h3>
         {open ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground rotate-[-90deg]" />}
       </button>
       {open && (
-        <div className="px-5 pb-6 pt-4 bg-card border-t border-border">
+        <div className="px-5 pb-6 pt-4 border-t border-border/60">
           {children}
         </div>
       )}
@@ -40,18 +40,19 @@ function TikTokIcon({ className }) {
 
 export default function AboutPage() {
   return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
     <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-10">
       {/* Header */}
       <div className="text-center mb-10">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-secondary mb-4">
-          <Info className="w-7 h-7 text-accent" />
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-500/30 mb-4">
+          <Info className="w-7 h-7 text-white" />
         </div>
         <h1 className="font-serif text-4xl font-bold text-foreground mb-3">About</h1>
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
       </div>
 
       {/* About Shawn */}
-      <div className="bg-card border border-border rounded-xl p-7 mb-8">
+      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-7 mb-8 shadow-lg shadow-black/[0.03]">
         <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">About the Ministry</h2>
         <p className="font-sans text-foreground/85 leading-relaxed mb-4">
           I'm Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. 
@@ -116,7 +117,7 @@ export default function AboutPage() {
       </div>
 
       {/* Links */}
-      <div className="bg-card border border-border rounded-xl p-7 mb-8">
+      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-7 mb-8 shadow-lg shadow-black/[0.03]">
         <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">Links & Contact</h2>
         <div className="space-y-3">
           <a
@@ -212,6 +213,7 @@ export default function AboutPage() {
       </div>
 
 
+    </div>
     </div>
   );
 }
