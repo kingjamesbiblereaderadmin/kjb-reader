@@ -511,7 +511,7 @@ export default function GospelPage() {
       </div>
 
       {/* Full playlist */}
-      <div className="bg-card border border-border rounded-xl p-5 mb-6">
+      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-5 mb-6 shadow-lg shadow-black/[0.03]">
         <h3 className="font-serif text-xl font-semibold text-foreground mb-2">Playlist on Gospel Videos</h3>
         <div className="flex flex-wrap items-center gap-3">
           <a

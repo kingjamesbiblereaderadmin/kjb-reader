@@ -978,6 +978,7 @@ export default function SearchPage() {
   };
 
   return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background print:bg-none">
     <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-6 print:p-0 print:pt-4">
       <h1 className="font-serif text-2xl font-bold text-foreground mb-4 print:hidden">Search Bible</h1>
 
@@ -1017,7 +1018,7 @@ export default function SearchPage() {
         <button
           type="submit"
           disabled={query.trim().length < 2 || loading}
-          className="px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 disabled:opacity-40 transition-opacity flex items-center gap-2"
+          className="px-4 py-2 rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground font-sans text-sm font-medium shadow-md shadow-primary/20 hover:brightness-105 disabled:opacity-40 transition-all flex items-center gap-2"
         >
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
           Search
@@ -1526,6 +1527,7 @@ export default function SearchPage() {
           Type a word or phrase above and press Search.
         </p>
       )}
+    </div>
     </div>
   );
 }

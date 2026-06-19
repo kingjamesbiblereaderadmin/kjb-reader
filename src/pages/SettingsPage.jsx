@@ -403,8 +403,8 @@ export default function SettingsPage() {
     <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 pt-10 pb-32">
       {/* Header */}
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-secondary mb-4">
-          <Settings className="w-7 h-7 text-accent" />
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-500 to-slate-700 shadow-lg shadow-slate-500/30 mb-4">
+          <Settings className="w-7 h-7 text-white" />
         </div>
         <h1 className="font-serif text-4xl font-bold text-foreground mb-2">Settings</h1>
         <p className="font-sans text-sm text-muted-foreground">Customize your experience</p>

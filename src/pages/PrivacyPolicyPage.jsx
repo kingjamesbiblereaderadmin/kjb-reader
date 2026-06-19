@@ -5,7 +5,7 @@ const LAST_UPDATED = 'June 9th, 2026';
 
 function Section({ title, children }) {
   return (
-    <div className="bg-card border border-border rounded-xl p-6 sm:p-7 mb-5 shadow-sm">
+    <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 sm:p-7 mb-5 shadow-lg shadow-black/[0.03]">
       <h2 className="font-serif text-xl sm:text-2xl font-semibold text-foreground mb-3">{title}</h2>
       <div className="font-sans text-sm text-foreground/85 leading-relaxed space-y-3">
         {children}
@@ -16,11 +16,12 @@ function Section({ title, children }) {
 
 export default function PrivacyPolicyPage() {
   return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
     <div className="w-full max-w-3xl mx-auto px-5 sm:px-8 lg:px-12 py-10 pb-24">
       {/* Header */}
       <div className="text-center mb-10">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-secondary mb-4">
-          <Shield className="w-7 h-7 text-accent" />
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-500 to-slate-700 shadow-lg shadow-slate-500/30 mb-4">
+          <Shield className="w-7 h-7 text-white" />
         </div>
         <h1 className="font-serif text-4xl font-bold text-foreground mb-2">Privacy Policy</h1>
         <p className="font-sans text-sm text-muted-foreground">Last updated: {LAST_UPDATED}</p>
@@ -110,6 +111,7 @@ export default function PrivacyPolicyPage() {
           </a>.
         </p>
       </Section>
+    </div>
     </div>
   );
 }
