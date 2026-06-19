@@ -8,7 +8,7 @@ export default function QuickLinkCard({ to, onClick, icon: Icon, label, desc, ic
   const inner = (
     <>
       <div
-        className={`flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-2xl text-white shadow-md bg-gradient-to-br ${iconGradient}`}
+        className={`flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-2xl text-white shadow-md bg-gradient-to-br dark:ring-2 dark:ring-white/25 dark:shadow-lg ${iconGradient}`}
       >
         <Icon className="w-6 h-6" />
       </div>
