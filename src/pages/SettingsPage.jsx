@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, MonitorSmartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Instagram, Youtube, RotateCcw, Accessibility, Keyboard, Star, Server } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, MonitorSmartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Instagram, Youtube, RotateCcw, Accessibility, Keyboard, Star, Server, Globe } from 'lucide-react';
 import ShortcutsList from '@/components/ShortcutsList';
 
 const TikTokIcon = () => (
-  <svg className="w-4 h-4 text-green-500" viewBox="0 0 24 24" fill="currentColor">
+  <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05 6.33 6.33 0 0 0-5 10.14 6.32 6.32 0 0 0 10.93-4.5V8.38a7.72 7.72 0 0 0 4.22 1.28V6.69a4.76 4.76 0 0 1-3.77-4.25Z"/>
   </svg>
 );
@@ -1579,10 +1579,10 @@ export default function SettingsPage() {
           <div className="px-5 pb-6 pt-3 space-y-2">
             <button
               onClick={() => navigate('/privacy')}
-              className="w-full flex items-center gap-3 p-3 rounded-xl bg-transparent border border-border hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group text-left"
+              className="w-full flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group text-left"
             >
-              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-background/50 backdrop-blur-md border border-border shadow-sm">
-                <Shield className="w-4 h-4 text-primary" />
+              <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-600">
+                <Shield className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Privacy Policy</p>
@@ -1592,10 +1592,10 @@ export default function SettingsPage() {
             </button>
             <a
               href="mailto:kingjamesbiblereader@outlook.sg"
-              className="flex items-center gap-3 p-3 rounded-xl bg-transparent border border-border hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
+              className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
             >
-              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-background/50 backdrop-blur-md border border-border shadow-sm">
-                <CheckCircle className="w-4 h-4 text-green-500" />
+              <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-emerald-500 to-teal-600">
+                <CheckCircle className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Email for Support</p>
@@ -1607,10 +1607,10 @@ export default function SettingsPage() {
               href="https://godisgracious1031ministriescom.odoo.com/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-xl bg-transparent border border-border hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
+              className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
             >
-              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-background/50 backdrop-blur-md border border-border shadow-sm">
-                <CheckCircle className="w-4 h-4 text-green-500" />
+              <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-sky-500 to-blue-600">
+                <Globe className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Ministry Website</p>
@@ -1622,10 +1622,10 @@ export default function SettingsPage() {
               href="https://discord.com/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-xl bg-transparent border border-border hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
+              className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
             >
-              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-background/50 backdrop-blur-md border border-border shadow-sm">
-                <MessageCircle className="w-4 h-4 text-green-500" />
+              <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-indigo-500 to-violet-600">
+                <MessageCircle className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Discord</p>
@@ -1637,9 +1637,9 @@ export default function SettingsPage() {
               href="https://www.tiktok.com/@svdbyfaithinr325av?_r=1&_t=ZS-96WRhWSLUoe"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-xl bg-transparent border border-border hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
+              className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
             >
-              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-background/50 backdrop-blur-md border border-border shadow-sm">
+              <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-slate-700 to-slate-900">
                 <TikTokIcon />
               </div>
               <div className="flex-1 min-w-0">
@@ -1652,10 +1652,10 @@ export default function SettingsPage() {
               href="https://www.instagram.com/svdbyfaithinhisbloodr325av?igsh=NTl0NmM1NWoyb2F0"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-xl bg-transparent border border-border hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
+              className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
             >
-              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-background/50 backdrop-blur-md border border-border shadow-sm">
-                <Instagram className="w-4 h-4 text-pink-500" />
+              <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-fuchsia-500 to-pink-600">
+                <Instagram className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Instagram</p>
@@ -1667,10 +1667,10 @@ export default function SettingsPage() {
               href="https://youtube.com/@shawnr325av?si=zC_gQm4I2S_xj-NS"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-xl bg-transparent border border-border hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
+              className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
             >
-              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-background/50 backdrop-blur-md border border-border shadow-sm">
-                <Youtube className="w-4 h-4 text-red-500" />
+              <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-red-500 to-rose-600">
+                <Youtube className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">YouTube</p>
