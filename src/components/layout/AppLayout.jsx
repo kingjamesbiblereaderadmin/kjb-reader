@@ -23,6 +23,19 @@ const scrollMainToTop = () => {
   else window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
+// Per-route colours so icons are colourful everywhere (menu, bottom nav, footer).
+// `gradient` = icon-chip background; `text` = inactive icon colour.
+const NAV_COLORS = {
+  '/':          { gradient: 'from-blue-500 to-indigo-600',    text: 'text-blue-500' },
+  '/contents':  { gradient: 'from-amber-500 to-orange-600',   text: 'text-amber-500' },
+  '/read':      { gradient: 'from-emerald-500 to-teal-600',   text: 'text-emerald-500' },
+  '/gospel':    { gradient: 'from-rose-500 to-pink-600',      text: 'text-rose-500' },
+  '/resources': { gradient: 'from-violet-500 to-purple-600',  text: 'text-violet-500' },
+  '/saved':     { gradient: 'from-fuchsia-500 to-pink-600',   text: 'text-fuchsia-500' },
+  '/about':     { gradient: 'from-sky-500 to-cyan-600',       text: 'text-sky-500' },
+  '/settings':  { gradient: 'from-slate-500 to-slate-700',    text: 'text-slate-500' },
+};
+
 const NAV_ITEMS = [
   { path: '/', icon: Home, label: 'Home' },
   { path: '/contents', icon: List, label: 'Contents' },
@@ -335,6 +348,7 @@ export default function AppLayout() {
                 {NAV_ITEMS.map(item => {
                   const Icon = item.icon;
                   const active = item.path === '/' ? pathname === '/' : pathname === item.path;
+                  const colors = NAV_COLORS[item.path] || NAV_COLORS['/'];
                   return (
                     <Link
                       key={item.path}
@@ -350,7 +364,9 @@ export default function AppLayout() {
                           : 'bg-card/60 text-foreground border-border hover:bg-secondary hover:border-accent/40'
                       }`}
                     >
-                      <Icon className="w-4 h-4 flex-shrink-0 transition-transform duration-200" />
+                      <span className={`flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-white shadow-sm bg-gradient-to-br ${colors.gradient}`}>
+                        <Icon className="w-4 h-4 transition-transform duration-200" />
+                      </span>
                       {item.label}
                     </Link>
                   );
@@ -420,6 +436,7 @@ function DesktopFooter({ navigate, setMenuOpen }) {
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mb-3">
             {NAV_ITEMS.map(item => {
               const Icon = item.icon;
+              const colors = NAV_COLORS[item.path] || NAV_COLORS['/'];
               return (
                 <Link
                   key={item.path}
@@ -431,7 +448,7 @@ function DesktopFooter({ navigate, setMenuOpen }) {
                   }}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-sans text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200"
                 >
-                  <Icon className="w-3.5 h-3.5 transition-transform duration-200" />
+                  <Icon className={`w-3.5 h-3.5 transition-transform duration-200 ${colors.text}`} />
                   {item.label}
                 </Link>
               );
@@ -560,6 +577,7 @@ function BottomNav({ pathname, navigate }) {
           {BOTTOM_NAV_PRIMARY.map(item => {
             const Icon = item.icon;
             const active = item.path === '/' ? pathname === '/' : pathname === item.path;
+            const colors = NAV_COLORS[item.path] || NAV_COLORS['/'];
             return (
               <button
                 key={item.path}
@@ -581,8 +599,14 @@ function BottomNav({ pathname, navigate }) {
                 }}
                 className="flex flex-col items-center justify-center flex-1 min-h-[48px] active:bg-secondary/50 transition-all duration-200"
               >
-                <Icon className={`w-4 h-4 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'} transition-transform duration-200`} />
-                <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
+                {active ? (
+                  <span className={`w-7 h-7 mb-0.5 flex items-center justify-center rounded-lg text-white shadow-sm bg-gradient-to-br ${colors.gradient}`}>
+                    <Icon className="w-4 h-4 transition-transform duration-200" />
+                  </span>
+                ) : (
+                  <Icon className={`w-4 h-4 mb-0.5 ${colors.text} transition-transform duration-200`} />
+                )}
+                <span className={`font-sans text-[10px] font-medium ${active ? 'text-foreground' : 'text-muted-foreground'}`}>{item.label}</span>
               </button>
             );
           })}
@@ -603,6 +627,7 @@ function BottomNav({ pathname, navigate }) {
             {BOTTOM_NAV_SECONDARY.map(item => {
               const Icon = item.icon;
               const active = pathname === item.path;
+              const colors = NAV_COLORS[item.path] || NAV_COLORS['/'];
               return (
                 <button
                   key={item.path}
@@ -624,8 +649,14 @@ function BottomNav({ pathname, navigate }) {
                   }}
                   className="flex flex-col items-center justify-center w-full min-h-[48px] active:bg-secondary/50 transition-all duration-200"
                 >
-                  <Icon className={`w-4 h-4 mb-0.5 ${active ? 'text-primary' : 'text-muted-foreground'} transition-transform duration-200`} />
-                  <span className={`font-sans text-[10px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>{item.label}</span>
+                  {active ? (
+                    <span className={`w-7 h-7 mb-0.5 flex items-center justify-center rounded-lg text-white shadow-sm bg-gradient-to-br ${colors.gradient}`}>
+                      <Icon className="w-4 h-4 transition-transform duration-200" />
+                    </span>
+                  ) : (
+                    <Icon className={`w-4 h-4 mb-0.5 ${colors.text} transition-transform duration-200`} />
+                  )}
+                  <span className={`font-sans text-[10px] font-medium ${active ? 'text-foreground' : 'text-muted-foreground'}`}>{item.label}</span>
                 </button>
               );
             })}
