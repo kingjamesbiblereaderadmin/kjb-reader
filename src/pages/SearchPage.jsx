@@ -212,11 +212,13 @@ export default function SearchPage() {
         const chroniclesBooks = BIBLE_BOOKS.filter(b => ['1CH', '2CH'].includes(b.abbr));
         bookMatches = chroniclesBooks;
       } else {
-        // Standard matching
+        // Standard matching. Require at least 2 chars before matching a book
+        // abbreviation, so a single letter (e.g. "f") doesn't accidentally
+        // match a one-letter internal abbr and suggest the wrong book.
         bookMatches = BIBLE_BOOKS.filter(b => 
           b.shortName.toLowerCase() === kwLower ||
           b.apiName.toLowerCase() === kwLower ||
-          b.abbr.toLowerCase() === kwLower ||
+          (kwLower.length >= 2 && b.abbr.toLowerCase() === kwLower) ||
           (kwLower.length >= 3 && b.shortName.toLowerCase().includes(kwLower))
         );
       }
@@ -237,7 +239,7 @@ export default function SearchPage() {
       const exactBookMatch = bookMatches.find(b => 
         b.shortName.toLowerCase() === kwLower ||
         b.apiName.toLowerCase() === kwLower ||
-        b.abbr.toLowerCase() === kwLower
+        (kwLower.length >= 2 && b.abbr.toLowerCase() === kwLower)
       );
       const bookMatch = exactBookMatch || (bookMatches.length > 0 ? bookMatches[0] : null);
       
