@@ -330,7 +330,7 @@ export default function AppLayout() {
               className="fixed inset-0 top-14 z-40 bg-black/50 backdrop-blur-sm"
               onClick={() => setMenuOpen(false)}
             />
-            <div data-kjb-menu className="absolute top-full right-0 left-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border/60 shadow-lg shadow-black/[0.05]">
+            <div data-kjb-menu className="absolute top-full right-0 left-0 z-50 bg-card backdrop-blur-xl border-b border-border/60 shadow-lg shadow-black/[0.05]">
               <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {NAV_ITEMS.map(item => {
                   const Icon = item.icon;
