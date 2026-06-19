@@ -123,78 +123,90 @@ export default function AboutPage() {
             href="https://godisgracious1031ministriescom.odoo.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
+            className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
           >
-            <Globe className="w-4 h-4 text-accent" />
-            <div>
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">God is Gracious 1031 Ministries</p>
-              <p className="font-sans text-xs text-muted-foreground">Ministry Website</p>
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-sky-500 to-blue-600">
+              <Globe className="w-5 h-5" />
             </div>
-            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+            <div className="min-w-0 flex-1">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">God is Gracious 1031 Ministries</p>
+              <p className="font-sans text-xs text-muted-foreground truncate">Ministry Website</p>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
           </a>
 
           <a
             href="https://youtube.com/@shawnr325av?si=zC_gQm4I2S_xj-NS"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
+            className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
           >
-            <Youtube className="w-4 h-4 text-red-500" />
-            <div>
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">YouTube</p>
-              <p className="font-sans text-xs text-muted-foreground">@shawnr325av</p>
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-red-500 to-rose-600">
+              <Youtube className="w-5 h-5" />
             </div>
-            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+            <div className="min-w-0 flex-1">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">YouTube</p>
+              <p className="font-sans text-xs text-muted-foreground truncate">@shawnr325av</p>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
           </a>
           <a
             href="https://www.tiktok.com/@svdbyfaithinr325av?_r=1&_t=ZS-96WRhWSLUoe"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
+            className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
           >
-            <TikTokLinkIcon className="w-4 h-4 text-foreground" />
-            <div>
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">TikTok</p>
-              <p className="font-sans text-xs text-muted-foreground">@svdbyfaithinr325av</p>
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-slate-700 to-slate-900">
+              <TikTokLinkIcon className="w-5 h-5" />
             </div>
-            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+            <div className="min-w-0 flex-1">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">TikTok</p>
+              <p className="font-sans text-xs text-muted-foreground truncate">@svdbyfaithinr325av</p>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
           </a>
           <a
             href="https://www.instagram.com/svdbyfaithinhisbloodr325av?igsh=NTl0NmM1NWoyb2F0"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
+            className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
           >
-            <Instagram className="w-4 h-4 text-pink-500" />
-            <div>
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Instagram</p>
-              <p className="font-sans text-xs text-muted-foreground">@svdbyfaithinhisbloodr325av</p>
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-fuchsia-500 to-pink-600">
+              <Instagram className="w-5 h-5" />
             </div>
-            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+            <div className="min-w-0 flex-1">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">Instagram</p>
+              <p className="font-sans text-xs text-muted-foreground truncate">@svdbyfaithinhisbloodr325av</p>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
           </a>
 
           <a
             href="mailto:kingjamesbiblereader@outlook.sg"
-            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
+            className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
           >
-            <Mail className="w-4 h-4 text-accent" />
-            <div>
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Email</p>
-              <p className="font-sans text-xs text-muted-foreground">kingjamesbiblereader@outlook.sg</p>
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-emerald-500 to-teal-600">
+              <Mail className="w-5 h-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">Email</p>
+              <p className="font-sans text-xs text-muted-foreground truncate">kingjamesbiblereader@outlook.sg</p>
             </div>
           </a>
           <a
             href="https://discord.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-colors group"
+            className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
           >
-            <MessageSquare className="w-4 h-4 text-accent" />
-            <div>
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Discord</p>
-              <p className="font-sans text-xs text-muted-foreground">shawn_svdbyfaithinhisbloodr325av</p>
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-indigo-500 to-violet-600">
+              <MessageSquare className="w-5 h-5" />
             </div>
-            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+            <div className="min-w-0 flex-1">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">Discord</p>
+              <p className="font-sans text-xs text-muted-foreground truncate">shawn_svdbyfaithinhisbloodr325av</p>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
           </a>
         </div>
       </div>

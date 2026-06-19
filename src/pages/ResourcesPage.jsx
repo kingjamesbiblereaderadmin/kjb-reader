@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ExternalLink, FileText, BookOpen, ShieldAlert, Globe, CheckCircle, Users, ChevronDown, Youtube, Facebook, Instagram, Link as LinkIcon, Copy, Printer } from 'lucide-react';
+import { ExternalLink, FileText, BookOpen, ShieldAlert, Globe, CheckCircle, Users, ChevronDown, Youtube, Facebook, Instagram, Link as LinkIcon, Copy, Printer, Mail } from 'lucide-react';
 import { printHtml } from '@/lib/printHelpers';
 
 function CopyButton({ text, className }) {
@@ -755,9 +755,11 @@ export default function ResourcesPage() {
             href="https://godisgracious1031ministriescom.odoo.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
+            className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
           >
-            <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-sky-500 to-blue-600">
+              <Globe className="w-5 h-5" />
+            </div>
             <div className="flex-1 min-w-0">
               <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">God is Gracious 1031 Ministries</p>
               <p className="font-sans text-xs text-muted-foreground">Ministry Website</p>
@@ -769,9 +771,11 @@ export default function ResourcesPage() {
           </a>
           <a
             href="mailto:Kingjamesbiblereader.com@outlook.com"
-            className="flex items-center gap-3 p-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
+            className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
           >
-            <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-emerald-500 to-teal-600">
+              <Mail className="w-5 h-5" />
+            </div>
             <div className="flex-1 min-w-0">
               <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Contact the Ministry</p>
               <p className="font-sans text-xs text-muted-foreground">Kingjamesbiblereader.com@outlook.com</p>
