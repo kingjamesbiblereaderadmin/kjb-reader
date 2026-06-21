@@ -91,9 +91,13 @@ export function renderVerseText(text, searchTerm = null) {
     .replace(/\u201C/g, '"')   // left double quote
     .replace(/\u201D/g, '"')   // right double quote
     .replace(/\u2032/g, "'");  // prime
-  // Fix pilcrow characters used as apostrophes within words (e.g., "Christ¶s" → "Christ's")
-  cleaned = cleaned.replace(/(\w)\u00B6(\w)/g, '$1\'$2');
-  cleaned = cleaned.replace(/(\w)\uFFFD(\w)/g, '$1\'$2');
+  // In the source text every apostrophe is stored as a pilcrow/replacement char
+  // immediately after a letter. Convert ALL such cases to an apostrophe, covering
+  // both in-word ("Christ¶s" → "Christ's") and trailing possessives
+  // ("sons¶ wives" → "sons' wives"). The remaining (verse-start / post-space)
+  // pilcrows are handled below as paragraph marks.
+  cleaned = cleaned.replace(/([A-Za-z])[\u00B6\uFFFD](?=[A-Za-z])/g, "$1'");
+  cleaned = cleaned.replace(/([A-Za-z])[\u00B6\uFFFD](?=[^A-Za-z]|$)/g, "$1'");
   // Render pilcrow as a paragraph marker when it appears at the START of the text…
   cleaned = cleaned.replace(/^[\u00B6\uFFFD]\s*/, '<span class="pilcrow">¶</span> ');
   // …or mid-verse when preceded by a space or sentence punctuation (e.g. "houses. ¶But").

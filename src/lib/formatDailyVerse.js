@@ -22,10 +22,13 @@ export function buildVerseUrl({ abbr, chapter, verse, verseEnd, from } = {}) {
 // only collapse whitespace so the shared text matches what's on screen.
 export function cleanVerseText(text = '') {
   return String(text)
-    // A broken replacement char (�/\uFFFD) sitting BETWEEN two letters is a
-    // corrupted apostrophe (e.g. "David�s" → "David's"), not a pilcrow.
-    .replace(/(\p{L})\uFFFD(\p{L})/gu, "$1'$2")
-    // Any remaining broken replacement char is a standalone paragraph mark (¶).
+    // In the source text every apostrophe AND pilcrow is stored as the broken
+    // replacement char (�/\uFFFD); they're told apart purely by position:
+    //  • Immediately AFTER a letter → a corrupted apostrophe. This covers both
+    //    "David�s" → "David's" and trailing possessives "sons� wives" → "sons' wives".
+    //  • Otherwise (verse start / after a space or punctuation) → a pilcrow ¶.
+    .replace(/(\p{L})\uFFFD/gu, "$1'")
+    // Any remaining broken replacement char is a paragraph mark (¶).
     .replace(/\uFFFD/g, '¶')
     .replace(/\s+/g, ' ')
     .trim();
