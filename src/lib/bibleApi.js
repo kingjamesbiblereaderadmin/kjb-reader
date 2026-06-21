@@ -151,10 +151,15 @@ function highlightInHtml(html, searchTerm) {
 // Render colophon text (epistolary closing notes): pilcrow prefix + [brackets] → italic
 export function renderColophonText(text, searchTerm = null) {
   if (!text || typeof text !== 'string') return '';
-  const normalized = mergeAdjacentBrackets(text
+  let normalized = text
     .replace(/\u2019/g, "'").replace(/\u2018/g, "'")
     .replace(/\u201C/g, '"').replace(/\u201D/g, '"')
-    .replace(/^[\u00B6\uFFFD]\s*/, ''));
+    .replace(/^[\u00B6\uFFFD]\s*/, '');
+  // Convert replacement-char/pilcrow apostrophes (e.g. "David�s" → "David's")
+  normalized = normalized
+    .replace(/([A-Za-z])[\u00B6\uFFFD](?=[A-Za-z])/g, "$1'")
+    .replace(/([A-Za-z])[\u00B6\uFFFD](?=[^A-Za-z]|$)/g, "$1'");
+  normalized = mergeAdjacentBrackets(normalized);
   const parts = normalized.split(/\[([^\]]+)\]/g);
   const rendered = parts.map((part, i) =>
     i % 2 === 1 ? `<em>${part}</em>` : part
@@ -166,9 +171,14 @@ export function renderColophonText(text, searchTerm = null) {
 // Non-italic by default, [bracketed] words italic, with a pilcrow prefix.
 export function renderSubscriptText(text, searchTerm = null) {
   if (!text || typeof text !== 'string') return '';
-  const normalized = mergeAdjacentBrackets(text
+  let normalized = text
     .replace(/\u2019/g, "'").replace(/\u2018/g, "'")
-    .replace(/\u201C/g, '"').replace(/\u201D/g, '"'));
+    .replace(/\u201C/g, '"').replace(/\u201D/g, '"');
+  // Convert replacement-char/pilcrow apostrophes to real apostrophes
+  normalized = normalized
+    .replace(/([A-Za-z])[\u00B6\uFFFD](?=[A-Za-z])/g, "$1'")
+    .replace(/([A-Za-z])[\u00B6\uFFFD](?=[^A-Za-z]|$)/g, "$1'");
+  normalized = mergeAdjacentBrackets(normalized);
   const parts = normalized.split(/\[([^\]]+)\]/g);
   const rendered = parts.map((part, i) =>
     i % 2 === 1 ? `<em>${part}</em>` : part
