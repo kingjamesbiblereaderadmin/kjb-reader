@@ -22,7 +22,10 @@ export function buildVerseUrl({ abbr, chapter, verse, verseEnd, from } = {}) {
 // only collapse whitespace so the shared text matches what's on screen.
 export function cleanVerseText(text = '') {
   return String(text)
-    // Broken replacement char (�/\uFFFD) should render as a pilcrow (¶).
+    // A broken replacement char (�/\uFFFD) sitting BETWEEN two letters is a
+    // corrupted apostrophe (e.g. "David�s" → "David's"), not a pilcrow.
+    .replace(/(\p{L})\uFFFD(\p{L})/gu, "$1'$2")
+    // Any remaining broken replacement char is a standalone paragraph mark (¶).
     .replace(/\uFFFD/g, '¶')
     .replace(/\s+/g, ' ')
     .trim();
