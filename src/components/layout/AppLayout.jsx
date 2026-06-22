@@ -555,7 +555,7 @@ function BottomNav({ pathname, navigate }) {
   if (showMode === 'bar') {
     return (
       <nav className="print:hidden sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/80 backdrop-blur-md border-t border-border/50" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12">
+        <div className="w-full max-w-[120rem] mx-auto px-2 sm:px-8 lg:px-12">
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); cycleShowMode(); }}
