@@ -7,7 +7,7 @@ import { getNotificationsEnabled, requestNotificationPermission, disableNotifica
 
 const ImageCropper = React.lazy(() => import('./ImageCropper'));
 const ShareCard = React.lazy(() => import('./ShareCard.jsx'));
-import { formatDailyVerseForCopy } from '@/lib/formatDailyVerse';
+import { formatDailyVerseForCopy, cleanVerseText } from '@/lib/formatDailyVerse';
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
 import { VERSE_BACKGROUNDS } from '@/lib/dailyVerseTheme';
 
@@ -918,7 +918,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               wordBreak: 'break-word'
             }}
           >
-            "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
+            "<span dangerouslySetInnerHTML={{ __html: renderVerseText(cleanVerseText(verse.text)) }} />"
           </blockquote>
           <p 
             className="text-base md:text-lg font-semibold mt-4 text-center"
@@ -1248,7 +1248,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 textShadow: '0 2px 8px rgba(0,0,0,0.3)'
               }}
             >
-              "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
+              "<span dangerouslySetInnerHTML={{ __html: renderVerseText(cleanVerseText(verse.text)) }} />"
             </blockquote>
             <p 
               className="text-base md:text-lg font-semibold mt-12"

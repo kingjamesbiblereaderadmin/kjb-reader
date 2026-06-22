@@ -1,5 +1,6 @@
 import React from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
+import { cleanVerseText } from '@/lib/formatDailyVerse';
 
 // Fixed 1024×1024 square card used ONLY for the shared/downloaded image.
 // Style: vertical blue→purple gradient, logo top-left, "VERSE OF THE DAY"
@@ -156,7 +157,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
           >
             {/* Force KJB italic words (<em>) to render italic in every font */}
             <style>{`.kjb-sharecard-verse em { font-style: italic !important; font-weight: inherit;${isCursive ? ' color: rgba(255,255,255,0.6) !important;' : ''} }`}</style>
-            "<span dangerouslySetInnerHTML={{ __html: renderVerseText(verse.text) }} />"
+            "<span dangerouslySetInnerHTML={{ __html: renderVerseText(cleanVerseText(verse.text)) }} />"
             {/* Reference, inline-block so it sits within the same flow */}
             <span
               style={{
