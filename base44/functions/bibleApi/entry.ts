@@ -213,35 +213,37 @@ Deno.serve(async (req) => {
         return Response.json({ error: 'No bible data' }, { status: 500 });
       }
 
-      let currentSeed = seed;
-      let bookName, chapterNum, verseObj;
-      
-      while (true) {
-        bookName = BOOK_ORDER[currentSeed % BOOK_ORDER.length];
-        if (!bible[bookName]) {
-          currentSeed++;
-          continue;
+      // Build a flat list of every (book, chapter, verse) reference, then pick
+      // one deterministically by the date seed. Indexing into a single flat
+      // list guarantees consecutive days land on different verses (the previous
+      // approach derived book/chapter/verse all from the same seed, so nearby
+      // seeds could collide on the same verse).
+      const flat = [];
+      for (const bn of BOOK_ORDER) {
+        if (!bible[bn]) continue;
+        const chapters = Object.keys(bible[bn]);
+        for (const cn of chapters) {
+          const verses = bible[bn][cn];
+          if (!verses || !verses.length) continue;
+          for (const vo of verses) {
+            const ref = `${bn} ${cn}:${vo.verse}`;
+            const isExcludedChapter = bn === 'Romans' && parseInt(cn) === 10;
+            if (EXCLUDED_REFS.has(ref) || isExcludedChapter) continue;
+            flat.push({ bookName: bn, chapterNum: cn, verseObj: vo });
+          }
         }
-        const chapters = Object.keys(bible[bookName]);
-        if (!chapters.length) {
-          currentSeed++;
-          continue;
-        }
-        chapterNum = chapters[currentSeed % chapters.length];
-        const verses = bible[bookName][chapterNum];
-        if (!verses || !verses.length) {
-          currentSeed++;
-          continue;
-        }
-        verseObj = verses[currentSeed % verses.length];
-        
-        const ref = `${bookName} ${chapterNum}:${verseObj.verse}`;
-        const isExcludedChapter = bookName === 'Romans' && parseInt(chapterNum) === 10;
-        const hasExcludedText = EXCLUDED_REFS.has(ref);
-        
-        if (!hasExcludedText && !isExcludedChapter) break;
-        currentSeed++;
       }
+      if (!flat.length) {
+        return Response.json({ error: 'No eligible verses' }, { status: 500 });
+      }
+
+      // Scatter consecutive days across the whole Bible: multiplying the date
+      // seed by a large prime (coprime to the list length) makes each day jump
+      // far from the previous one instead of landing on the next verse.
+      const picked = flat[((seed * 2654435761) % flat.length + flat.length) % flat.length];
+      const bookName = picked.bookName;
+      const chapterNum = picked.chapterNum;
+      const verseObj = picked.verseObj;
 
       // Preserve [italics] brackets AND pilcrows; strip only superscription markers
       const text = verseObj.text
@@ -261,8 +263,8 @@ Deno.serve(async (req) => {
         },
         _debug: {
           seed,
-          booksLength: BOOK_ORDER.length,
-          modResult: seed % BOOK_ORDER.length
+          totalVerses: flat.length,
+          modResult: seed % flat.length
         }
       });
     }
