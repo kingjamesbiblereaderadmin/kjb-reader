@@ -125,12 +125,17 @@ export function disableNotifications() {
 
 const APP_LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
 
-// Clean verse text for plain-text notifications. KEEP pilcrows (¶) and the
-// [italic] brackets — only fix the broken replacement character (�/\uFFFD),
-// which should display as a pilcrow, and collapse extra whitespace.
+// Clean verse text for plain-text notifications. The source stores every
+// apostrophe AND pilcrow as the broken replacement char (�/\uFFFD); they're
+// told apart by position — letter+� → apostrophe (e.g. "David's"), otherwise
+// → pilcrow ¶. Then strip superscription markers and [italic] brackets for a
+// clean single-line notification.
 export function cleanForNotification(text) {
   return (text || '')
+    .replace(/(\p{L})\uFFFD/gu, "$1'")
     .replace(/\uFFFD/g, '¶')
+    .replace(/^<<[^>]*>>\s*/, '')
+    .replace(/\[([^\]]+)\]/g, '$1')
     .replace(/\s{2,}/g, ' ')
     .trim();
 }
