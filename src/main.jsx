@@ -6,6 +6,17 @@ import { initNotifications } from '@/lib/notifications'
 import { getDailyVerse } from '@/lib/dailyVerse'
 import { toast } from 'sonner'
 
+// Swallow the harmless, transient "Failed to update a ServiceWorker ... Not
+// found" rejection that the preview sandbox throws when /sw.js momentarily
+// can't be fetched. It's already caught at every call site; this is a final
+// safety net so it never surfaces as an uncaught error.
+window.addEventListener('unhandledrejection', (event) => {
+  const msg = event?.reason?.message || String(event?.reason || '');
+  if (/Failed to update a ServiceWorker/i.test(msg)) {
+    event.preventDefault();
+  }
+});
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />
@@ -27,6 +38,18 @@ window.addEventListener('load', async () => {
     return;
   }
   
+  // The preview sandbox occasionally can't serve /sw.js, making
+  // registration.update() reject with "Failed to update a ServiceWorker ...
+  // Not found". Wrap update() so any such transient rejection is fully
+  // swallowed and never surfaces as an uncaught error.
+  const safeSwUpdate = (reg) => {
+    try {
+      return Promise.resolve(reg.update()).catch(() => {});
+    } catch {
+      return Promise.resolve();
+    }
+  };
+
   // Register fresh service worker
   if ('serviceWorker' in navigator) {
     try {
@@ -84,13 +107,13 @@ window.addEventListener('load', async () => {
       setInterval(() => {
         if (document.visibilityState !== 'visible') return;
         if (navigator.onLine === false) return;
-        registration.update().catch(() => {});
+        safeSwUpdate(registration);
       }, POLL_MS);
 
       // Also check immediately whenever the tab becomes visible again.
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible' && navigator.onLine !== false) {
-          registration.update().catch(() => {});
+          safeSwUpdate(registration);
         }
       });
 
