@@ -59,16 +59,19 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const resolvedFont = resolveFontFamily(fontFamily, a11yFont);
 
   const textLen = verse?.text?.length || 0;
-  let panelTextClass = fontFamily === 'cursive' ? 'text-5xl md:text-6xl' : 'text-4xl md:text-5xl';
+  // Scale text by verse length. The smallest size is the narrow-phone base
+  // (default Tailwind), bumping up at the `xs` (420px) and `md` breakpoints so
+  // long verses never overflow on small screens.
+  let panelTextClass = fontFamily === 'cursive' ? 'text-4xl xs:text-5xl md:text-6xl' : 'text-3xl xs:text-4xl md:text-5xl';
   let lightboxTextClass = fontFamily === 'cursive' ? 'text-4xl md:text-6xl' : 'text-4xl md:text-6xl';
   if (textLen > 400) {
-    panelTextClass = fontFamily === 'cursive' ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl';
+    panelTextClass = fontFamily === 'cursive' ? 'text-xl xs:text-2xl md:text-3xl' : 'text-lg xs:text-xl md:text-2xl';
     lightboxTextClass = fontFamily === 'cursive' ? 'text-3xl md:text-4xl' : 'text-2xl md:text-3xl';
   } else if (textLen > 250) {
-    panelTextClass = fontFamily === 'cursive' ? 'text-3xl md:text-4xl' : 'text-2xl md:text-3xl';
+    panelTextClass = fontFamily === 'cursive' ? 'text-2xl xs:text-3xl md:text-4xl' : 'text-xl xs:text-2xl md:text-3xl';
     lightboxTextClass = fontFamily === 'cursive' ? 'text-4xl md:text-5xl' : 'text-3xl md:text-4xl';
   } else if (textLen > 150) {
-    panelTextClass = fontFamily === 'cursive' ? 'text-4xl md:text-5xl' : 'text-3xl md:text-4xl';
+    panelTextClass = fontFamily === 'cursive' ? 'text-3xl xs:text-4xl md:text-5xl' : 'text-2xl xs:text-3xl md:text-4xl';
     lightboxTextClass = fontFamily === 'cursive' ? 'text-5xl md:text-6xl' : 'text-4xl md:text-5xl';
   }
 
@@ -893,15 +896,15 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
       {showVersePanel ? (
         <div className="px-2 pt-2 pb-2 text-center flex-1 flex flex-col w-full max-w-full overflow-hidden">
-          <div className={`inline-flex self-center items-center justify-center gap-4 mt-3 mb-6 ${hasCustomBg ? 'rounded-2xl bg-black/25 backdrop-blur-[2px] px-5 py-2' : ''}`}>
-            <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
+          <div className={`inline-flex self-center items-center justify-center gap-2 xs:gap-4 mt-3 mb-6 max-w-full ${hasCustomBg ? 'rounded-2xl bg-black/25 backdrop-blur-[2px] px-3 xs:px-5 py-2' : ''}`}>
+            <span className="h-px w-6 xs:w-12 bg-current opacity-50 flex-shrink-0" style={{ color: textColor }} />
             <p 
-              className={`font-sans text-lg md:text-xl font-black tracking-[0.22em] uppercase ${accentClass}`}
+              className={`font-sans text-sm xs:text-lg md:text-xl font-black tracking-[0.12em] xs:tracking-[0.22em] uppercase ${accentClass}`}
               style={{ opacity: 1, color: textColor, fontFamily: "'Inter', system-ui, sans-serif", textShadow: '0 2px 10px rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.45)' }}
             >
               {isOffline ? 'Offline Verse of the Day' : 'Verse of the Day'}
             </p>
-            <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
+            <span className="h-px w-6 xs:w-12 bg-current opacity-50 flex-shrink-0" style={{ color: textColor }} />
           </div>
           <div className="flex-1 flex flex-col justify-center">
           <div className={hasCustomBg ? 'mx-auto w-full max-w-none rounded-2xl bg-black/20 backdrop-blur-[2px] px-2 sm:px-4 py-6' : 'mx-auto w-full max-w-none px-1 sm:px-2'}>
@@ -912,7 +915,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               opacity: textOpacity, 
               fontFamily: resolvedFont,
               fontWeight: '700',
-              lineHeight: '2',
+              lineHeight: '1.55',
               textShadow: '0 2px 8px rgba(0,0,0,0.35)',
               overflowWrap: 'break-word',
               wordBreak: 'break-word'
@@ -968,15 +971,15 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         </div>
       ) : (
         <div className="px-6 py-4 text-center flex-1 flex flex-col justify-center">
-          <div className={`inline-flex self-center items-center justify-center gap-4 ${hasCustomBg ? 'rounded-2xl bg-black/25 backdrop-blur-[2px] px-5 py-2' : ''}`}>
-            <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
+          <div className={`inline-flex self-center items-center justify-center gap-2 xs:gap-4 max-w-full ${hasCustomBg ? 'rounded-2xl bg-black/25 backdrop-blur-[2px] px-3 xs:px-5 py-2' : ''}`}>
+            <span className="h-px w-6 xs:w-12 bg-current opacity-50 flex-shrink-0" style={{ color: textColor }} />
             <p 
-              className={`font-sans text-lg md:text-xl font-black tracking-[0.22em] uppercase ${accentClass}`}
+              className={`font-sans text-sm xs:text-lg md:text-xl font-black tracking-[0.12em] xs:tracking-[0.22em] uppercase ${accentClass}`}
               style={{ opacity: 1, color: textColor, fontFamily: "'Inter', system-ui, sans-serif", textShadow: '0 2px 10px rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.45)' }}
             >
               {isOffline ? 'Offline Verse of the Day' : 'Verse of the Day'}
             </p>
-            <span className="h-px w-12 bg-current opacity-50" style={{ color: textColor }} />
+            <span className="h-px w-6 xs:w-12 bg-current opacity-50 flex-shrink-0" style={{ color: textColor }} />
           </div>
         </div>
       )}
@@ -1244,7 +1247,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 opacity: textOpacity, 
                 fontFamily: resolvedFont,
                 fontWeight: '700',
-                lineHeight: '2',
+                lineHeight: '1.6',
                 textShadow: '0 2px 8px rgba(0,0,0,0.3)'
               }}
             >
