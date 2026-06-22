@@ -571,7 +571,7 @@ function BottomNav({ pathname, navigate }) {
 
   return (
     <nav className="print:hidden sm:hidden fixed left-0 right-0 bottom-0 z-50 bg-card/70 backdrop-blur-xl border-t border-border/60 overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12">
+      <div className="w-full max-w-[120rem] mx-auto px-2 sm:px-8 lg:px-12">
         {/* Primary row: 5 nav items + chevron toggle button */}
         <div className="flex items-stretch">
           {BOTTOM_NAV_PRIMARY.map(item => {
