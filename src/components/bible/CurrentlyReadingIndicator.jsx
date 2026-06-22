@@ -36,6 +36,19 @@ export default function CurrentlyReadingIndicator({
 }) {
   const isFilterMode = filterMode && selectedVerses.size > 0;
   const isRandom = lastReadingPos && lastReadingPos.fromRandom;
+  // After a reload or SPA back-navigation, the search-term / daily-verse props
+  // may not be re-hydrated yet even though the highlighted verse came from one.
+  // Fall back to the persisted context so the chip keeps its "Search" / "Daily
+  // Verse" label instead of showing only the bare verse reference.
+  let effectiveSearchTerm = searchTerm;
+  if (!effectiveSearchTerm && !gospelMode && typeof window !== 'undefined') {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('from') === 'search') {
+        effectiveSearchTerm = params.get('q') || localStorage.getItem('kjb-search-term') || null;
+      }
+    } catch {}
+  }
   // Use lastReadingPos if available, but also check the URL for 'from=daily' 
   // to handle cases where the user clicked a notification or opened a shared link.
   const isDaily = (lastReadingPos && lastReadingPos.fromDailyVerse) || 
@@ -60,8 +73,8 @@ export default function CurrentlyReadingIndicator({
       : verseNum ? `:${verseNum}` : '';
     reference = `${book.shortName} ${pos.chapter}${gospelVerses}`;
     clearLabel = 'Clear';
-  } else if (searchTerm) {
-    typeLabel = `Search: "${searchTerm}"`;
+  } else if (effectiveSearchTerm) {
+    typeLabel = `Search: "${effectiveSearchTerm}"`;
     const isStanza = book.abbr === 'PSA' && pos.chapter === 119 && selectedVerses && selectedVerses.size > 1;
     const searchVerses = isStanza
       ? ` (Stanza)`
@@ -91,7 +104,7 @@ export default function CurrentlyReadingIndicator({
 
   if (!reference) return null;
 
-  const showNavigation = (searchTerm || gospelMode) && totalResults > 1 && onPrevResult && onNextResult;
+  const showNavigation = (effectiveSearchTerm || gospelMode) && totalResults > 1 && onPrevResult && onNextResult;
 
   return (
     <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-yellow-500 text-black font-sans text-xs font-medium h-11 whitespace-nowrap flex-shrink-0">
