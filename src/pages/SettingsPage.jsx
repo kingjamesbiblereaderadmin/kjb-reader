@@ -1031,6 +1031,80 @@ export default function SettingsPage() {
       </div>
       )}
 
+      {/* Notifications — hidden in private/incognito windows where they won't persist */}
+      {!isIncognito && (
+      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
+        <button
+          onClick={() => toggleSection('notifications')}
+          className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
+        >
+          <div className="flex flex-col gap-1">
+            <h2 className="font-serif text-lg font-semibold text-foreground">Daily Verse Reminders</h2>
+            <p className="font-sans text-xs text-muted-foreground">Get daily verse notifications</p>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.notifications ? 'rotate-180' : ''}`} />
+        </button>
+        {expandedSections.notifications && (
+        <div className="px-5 pb-6 pt-3 space-y-4">
+        {isIncognito && (
+          <div className="rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 p-3">
+            <p className="font-sans text-xs text-amber-700 dark:text-amber-400 font-medium leading-snug flex items-start gap-1.5">
+              <span className="shrink-0 leading-none mt-0.5">⚠️</span>
+              <span>You're in a private window (Incognito, InPrivate, or Guest) — notifications are unreliable here and won't persist after you close the window.</span>
+            </p>
+          </div>
+        )}
+        {notifPermission === 'unsupported' ? (
+          <div className="space-y-3">
+            <p className="font-sans text-sm text-muted-foreground">
+              Browser notifications are not supported in your current environment. To enable this feature, please install the application:
+            </p>
+            <div className="font-sans text-xs text-muted-foreground space-y-1.5 bg-secondary/50 rounded-xl p-4">
+              <p>• <strong>Apple iOS:</strong> Tap the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Share</span> button in Safari, then select <span className="text-foreground font-medium">"Add to Home Screen"</span>.</p>
+              <p>• <strong>Android / Chrome:</strong> Open the browser menu <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">(⋮ or ⋯)</span>, then select <span className="text-foreground font-medium">"Add to phone"</span>, <span className="text-foreground font-medium">"Install app"</span> or <span className="text-foreground font-medium">"Add to Home screen"</span>.</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Verse of the Day */}
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <p className="font-sans text-sm text-foreground font-medium">Verse of the Day</p>
+                  {notifEnabled && <Bell className="w-3.5 h-3.5 text-primary" />}
+                </div>
+                <p className="font-sans text-xs text-muted-foreground">
+                  {notifPermission === 'denied'
+                    ? 'Blocked — go to your browser/app settings and allow notifications for this site'
+                    : 'Shows the daily verse when you open the app on a new day'}
+                </p>
+              </div>
+              <Switch
+                checked={notifEnabled}
+                onCheckedChange={handleToggleNotifications}
+                disabled={notifPermission === 'denied'}
+                className="shrink-0"
+              />
+            </div>
+            {notifEnabled && (
+            <div className="pt-1">
+              <button
+                onClick={handleTestNotif}
+                className="px-4 py-2 rounded-xl bg-transparent border border-border text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:border-accent"
+              >
+                Test Notification
+              </button>
+            </div>
+            )}
+
+
+          </>
+        )}
+        </div>
+        )}
+      </div>
+      )}
+
       {/* Offline Library — hidden in private/incognito windows where caching won't persist */}
       {!isIncognito && (
       <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
@@ -1297,80 +1371,6 @@ export default function SettingsPage() {
           </div>
         )}
       </div>
-
-      {/* Notifications — hidden in private/incognito windows where they won't persist */}
-      {!isIncognito && (
-      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
-        <button
-          onClick={() => toggleSection('notifications')}
-          className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
-        >
-          <div className="flex flex-col gap-1">
-            <h2 className="font-serif text-lg font-semibold text-foreground">Daily Verse Reminders</h2>
-            <p className="font-sans text-xs text-muted-foreground">Get daily verse notifications</p>
-          </div>
-          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.notifications ? 'rotate-180' : ''}`} />
-        </button>
-        {expandedSections.notifications && (
-        <div className="px-5 pb-6 pt-3 space-y-4">
-        {isIncognito && (
-          <div className="rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 p-3">
-            <p className="font-sans text-xs text-amber-700 dark:text-amber-400 font-medium leading-snug flex items-start gap-1.5">
-              <span className="shrink-0 leading-none mt-0.5">⚠️</span>
-              <span>You're in a private window (Incognito, InPrivate, or Guest) — notifications are unreliable here and won't persist after you close the window.</span>
-            </p>
-          </div>
-        )}
-        {notifPermission === 'unsupported' ? (
-          <div className="space-y-3">
-            <p className="font-sans text-sm text-muted-foreground">
-              Browser notifications are not supported in your current environment. To enable this feature, please install the application:
-            </p>
-            <div className="font-sans text-xs text-muted-foreground space-y-1.5 bg-secondary/50 rounded-xl p-4">
-              <p>• <strong>Apple iOS:</strong> Tap the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Share</span> button in Safari, then select <span className="text-foreground font-medium">"Add to Home Screen"</span>.</p>
-              <p>• <strong>Android / Chrome:</strong> Open the browser menu <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">(⋮ or ⋯)</span>, then select <span className="text-foreground font-medium">"Add to phone"</span>, <span className="text-foreground font-medium">"Install app"</span> or <span className="text-foreground font-medium">"Add to Home screen"</span>.</p>
-            </div>
-          </div>
-        ) : (
-          <>
-            {/* Verse of the Day */}
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <p className="font-sans text-sm text-foreground font-medium">Verse of the Day</p>
-                  {notifEnabled && <Bell className="w-3.5 h-3.5 text-primary" />}
-                </div>
-                <p className="font-sans text-xs text-muted-foreground">
-                  {notifPermission === 'denied'
-                    ? 'Blocked — go to your browser/app settings and allow notifications for this site'
-                    : 'Shows the daily verse when you open the app on a new day'}
-                </p>
-              </div>
-              <Switch
-                checked={notifEnabled}
-                onCheckedChange={handleToggleNotifications}
-                disabled={notifPermission === 'denied'}
-                className="shrink-0"
-              />
-            </div>
-            {notifEnabled && (
-            <div className="pt-1">
-              <button
-                onClick={handleTestNotif}
-                className="px-4 py-2 rounded-xl bg-transparent border border-border text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:border-accent"
-              >
-                Test Notification
-              </button>
-            </div>
-            )}
-
-
-          </>
-        )}
-        </div>
-        )}
-      </div>
-      )}
 
       {/* App Info */}
       <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
