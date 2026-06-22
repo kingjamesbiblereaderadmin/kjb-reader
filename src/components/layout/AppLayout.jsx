@@ -257,7 +257,7 @@ export default function AppLayout() {
     <AutoUpdateHandler>
     <div className="h-screen bg-gradient-to-br from-background via-accent/5 to-background flex flex-col overflow-hidden">
       <header className={`print:hidden border-b border-border/60 bg-card/70 backdrop-blur-xl z-50 flex-shrink-0 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
-        <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 h-14 flex items-center gap-2 sm:gap-3">
+        <div className="w-full max-w-[120rem] mx-auto px-3 xs:px-5 sm:px-8 lg:px-12 h-14 flex items-center gap-1.5 xs:gap-2 sm:gap-3">
           {/* Logo / Back Button */}
           {pathname === '/' ? (
             <Link
@@ -307,9 +307,9 @@ export default function AppLayout() {
           </div>
 
           {/* Actions - responsive button sizes with visible square touch targets */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 shrink-0">
             <button 
-              className={`w-11 h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation ${isOnline ? 'border-border bg-secondary/30 text-green-600 dark:text-green-400 hover:bg-secondary/50' : 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/40'}`}
+              className={`w-9 h-9 xs:w-11 xs:h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation ${isOnline ? 'border-border bg-secondary/30 text-green-600 dark:text-green-400 hover:bg-secondary/50' : 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/40'}`}
               onClick={(e) => { 
                 e.stopPropagation(); 
                 window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: isOnline ? 'You are online' : 'You are offline (reading from cache)', status: 'info' } }));
@@ -320,14 +320,14 @@ export default function AppLayout() {
             >
               {isOnline ? <Wifi className="w-4 h-4 pointer-events-none" /> : <WifiOff className="w-4 h-4 pointer-events-none" />}
             </button>
-            <button className="w-11 h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
+            <button className="w-9 h-9 xs:w-11 xs:h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
               onClick={(e) => { e.stopPropagation(); try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {} toggleTheme(); }}
               type="button"
               aria-label="Toggle theme"
             >
               {mode === 'auto' ? <SunMoon className="w-4 h-4 pointer-events-none transition-transform duration-200 text-amber-500" /> : isDark ? <Moon className="w-4 h-4 pointer-events-none transition-transform duration-200 text-indigo-400" /> : <Sun className="w-4 h-4 pointer-events-none transition-transform duration-200 text-amber-500" />}
             </button>
-            <button data-kjb-menu-toggle className="w-11 h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
+            <button data-kjb-menu-toggle className="w-9 h-9 xs:w-11 xs:h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
               onClick={(e) => { e.stopPropagation(); setMenuOpen(o => !o); }}
               type="button"
               aria-label="Open menu"
