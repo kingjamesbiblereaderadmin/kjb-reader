@@ -55,7 +55,7 @@ export default function ReaderPrintMenu({ defaultColumnMode = false, defaultPara
         <ChevronDown className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-1 z-[150] w-64 bg-card border border-border rounded-xl shadow-xl overflow-hidden p-3 space-y-3" onClick={(e) => e.stopPropagation()}>
+        <div className="absolute right-0 top-full mt-1 z-[150] w-[min(16rem,calc(100vw-2.5rem))] max-w-[calc(100vw-2.5rem)] bg-card border border-border rounded-xl shadow-xl p-3 space-y-3" onClick={(e) => e.stopPropagation()}>
           <div className="space-y-1.5">
             <p className="font-sans text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Columns</p>
             <div className="flex gap-2">
