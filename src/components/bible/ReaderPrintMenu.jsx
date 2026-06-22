@@ -13,18 +13,20 @@ export default function ReaderPrintMenu({ defaultColumnMode = false, defaultPara
   const btnRef = useRef(null);
 
   // Re-sync defaults whenever the menu opens, so it mirrors the current view.
-  // Also measure the button so the fixed menu sits right under it, kept inside
-  // the viewport (anchored to the right edge, clamped to a 12px gutter).
   useEffect(() => {
-    if (open) {
-      setColumns(defaultColumnMode ? 2 : 1);
-      setParagraph(defaultParagraphMode);
-      if (btnRef.current) {
-        const r = btnRef.current.getBoundingClientRect();
-        setPos({ top: r.bottom + 8, right: Math.max(12, window.innerWidth - r.right) });
-      }
-    }
+    if (open) { setColumns(defaultColumnMode ? 2 : 1); setParagraph(defaultParagraphMode); }
   }, [open, defaultColumnMode, defaultParagraphMode]);
+
+  // Measure the button and toggle the menu open. Measuring synchronously on the
+  // click (not in an effect) guarantees pos is set before the menu renders, so
+  // it always appears right under the button and inside the viewport.
+  const toggleOpen = () => {
+    if (!open && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      setPos({ top: r.bottom + 8, right: Math.max(12, window.innerWidth - r.right) });
+    }
+    setOpen(o => !o);
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -58,7 +60,7 @@ export default function ReaderPrintMenu({ defaultColumnMode = false, defaultPara
     <div className="relative flex" ref={ref}>
       <button
         ref={btnRef}
-        onClick={() => setOpen(o => !o)}
+        onClick={toggleOpen}
         title="Print"
         className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap w-full"
       >
