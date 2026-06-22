@@ -600,8 +600,8 @@ function BottomNav({ pathname, navigate }) {
                 className="flex flex-col items-center justify-center flex-1 min-h-[48px] active:bg-secondary/50 transition-all duration-200"
               >
                 {active ? (
-                  <span className={`w-6 h-6 mb-0.5 flex items-center justify-center rounded-lg text-white shadow-sm bg-gradient-to-br ${colors.gradient}`}>
-                    <Icon className="w-3.5 h-3.5 transition-transform duration-200" />
+                  <span className={`w-5 h-5 mb-0.5 flex items-center justify-center rounded-md text-white shadow-sm bg-gradient-to-br ${colors.gradient}`}>
+                    <Icon className="w-3 h-3 transition-transform duration-200" />
                   </span>
                 ) : (
                   <Icon className={`w-4 h-4 mb-0.5 ${colors.text} transition-transform duration-200`} />
@@ -650,8 +650,8 @@ function BottomNav({ pathname, navigate }) {
                   className="flex flex-col items-center justify-center w-full min-h-[48px] active:bg-secondary/50 transition-all duration-200"
                 >
                   {active ? (
-                    <span className={`w-6 h-6 mb-0.5 flex items-center justify-center rounded-lg text-white shadow-sm bg-gradient-to-br ${colors.gradient}`}>
-                      <Icon className="w-3.5 h-3.5 transition-transform duration-200" />
+                    <span className={`w-5 h-5 mb-0.5 flex items-center justify-center rounded-md text-white shadow-sm bg-gradient-to-br ${colors.gradient}`}>
+                      <Icon className="w-3 h-3 transition-transform duration-200" />
                     </span>
                   ) : (
                     <Icon className={`w-4 h-4 mb-0.5 ${colors.text} transition-transform duration-200`} />
