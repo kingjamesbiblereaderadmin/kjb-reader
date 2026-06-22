@@ -23,8 +23,12 @@ export default function VersePopover({ children }) {
       const vh = window.innerHeight;
       const margin = 8;
 
-      // Vertical: prefer below; flip above if it would overflow the viewport bottom
-      const spaceBelow = vh - parentRect.bottom;
+      // Vertical: prefer below; flip above if it would overflow the viewport bottom.
+      // The footer nav bar covers the bottom of the screen, so treat the usable
+      // bottom edge as above it — otherwise the popover lands hidden behind it.
+      const footerH = 96;
+      const usableBottom = vh - footerH;
+      const spaceBelow = usableBottom - parentRect.bottom;
       const flipUp = spaceBelow < popRect.height + margin && parentRect.top > popRect.height + margin;
 
       // Horizontal: keep the popover fully inside the viewport
