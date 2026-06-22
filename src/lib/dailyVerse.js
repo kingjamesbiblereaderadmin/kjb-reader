@@ -15,7 +15,7 @@ const EXCLUDED_REFS = new Set([
 
 // Daily verses are now fetched entirely from the API so all users see the same verse.
 
-const DAILY_VERSE_CACHE_KEY = 'kjb-daily-verse-cache-v14';
+const DAILY_VERSE_CACHE_KEY = 'kjb-daily-verse-cache-v15';
 
 function getTodayKey() {
   const d = new Date();
