@@ -1374,14 +1374,22 @@ export default function BibleReader() {
           <RunningHead bookName={book.name} chapter={pos.chapter} baseFontRem={zoomLevel / 100 * 0.7} isCursive={fontFamily === 'cursive'} />
         )}
         {!loading && !error && verses.length > 0 && (() => {
-          const shownCount = filterMode ? verses.filter(v => selectedVerses.has(v.verse)).length : verses.length;
+          // selectedVerses may contain numbers (restored from localStorage) while
+          // v.verse can be a string from the cached Bible data. Coerce both so the
+          // filter matches — otherwise every verse is filtered out and only the
+          // chapter heading / reference shows with no verse text.
+          const verseInSelection = (v) => selectedVerses.has(parseInt(v.verse, 10)) || selectedVerses.has(String(v.verse));
+          // Only actually filter when there's a real selection — never blank the
+          // whole chapter (which left just the reference/highlight visible).
+          const activeFilter = filterMode && selectedVerses.size > 0;
+          const shownCount = activeFilter ? verses.filter(verseInSelection).length : verses.length;
           const useColumns = columnMode && shownCount > 6;
           return (
           <div className={`${useColumns ? 'kjb-two-col text-left hyphens-auto' : 'text-left'} ${paragraphMode ? 'text-left px-2 sm:px-4' : ''}`} style={useColumns ? { fontSize: 'inherit', columnCount: 2, columnGap: '1.5rem', columnRule: '1px solid hsl(var(--border))' } : { fontSize: 'inherit' }}>
             {columnMode && !isViewingTitlePage && SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
               <p onClick={() => setHighlightSection(s => s === 'subscript' ? null : 'subscript')} id="kjb-subscript-anchor" className={`kjb-subscript text-center text-muted-foreground mb-4 leading-relaxed transition-colors duration-500 rounded-lg cursor-pointer ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} ${highlightSection === 'subscript' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, breakInside: 'avoid' }} dangerouslySetInnerHTML={{ __html: renderSubscriptText(SUBSCRIPTS[`${book.apiName}:${pos.chapter}`], highlightSection === 'subscript' ? searchTerm : null) }} />
             )}
-            {verses.filter(v => !filterMode || selectedVerses.has(v.verse)).map((v, idx) => (
+            {verses.filter(v => !activeFilter || verseInSelection(v)).map((v, idx) => (
               <VerseText
                 key={`${pos.abbr}-${pos.chapter}-${v.verse}`} verse={v} highlight={parseInt(highlightVerse, 10) === parseInt(v.verse, 10) || highlightedVerses.has(parseInt(v.verse, 10))}
                 id={`v${v.verse}`} bookName={book.name} abbr={pos.abbr} chapter={pos.chapter} isFirstVerse={idx === 0} paragraphMode={paragraphMode} selectMode={selectMode}
