@@ -8,11 +8,22 @@ export default function ReaderPrintMenu({ defaultColumnMode = false, defaultPara
   const [open, setOpen] = useState(false);
   const [columns, setColumns] = useState(defaultColumnMode ? 2 : 1);
   const [paragraph, setParagraph] = useState(defaultParagraphMode);
+  const [pos, setPos] = useState({ top: 0, right: 12 });
   const ref = useRef(null);
+  const btnRef = useRef(null);
 
   // Re-sync defaults whenever the menu opens, so it mirrors the current view.
+  // Also measure the button so the fixed menu sits right under it, kept inside
+  // the viewport (anchored to the right edge, clamped to a 12px gutter).
   useEffect(() => {
-    if (open) { setColumns(defaultColumnMode ? 2 : 1); setParagraph(defaultParagraphMode); }
+    if (open) {
+      setColumns(defaultColumnMode ? 2 : 1);
+      setParagraph(defaultParagraphMode);
+      if (btnRef.current) {
+        const r = btnRef.current.getBoundingClientRect();
+        setPos({ top: r.bottom + 8, right: Math.max(12, window.innerWidth - r.right) });
+      }
+    }
   }, [open, defaultColumnMode, defaultParagraphMode]);
 
   useEffect(() => {
@@ -46,6 +57,7 @@ export default function ReaderPrintMenu({ defaultColumnMode = false, defaultPara
   return (
     <div className="relative flex" ref={ref}>
       <button
+        ref={btnRef}
         onClick={() => setOpen(o => !o)}
         title="Print"
         className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap w-full"
@@ -55,7 +67,7 @@ export default function ReaderPrintMenu({ defaultColumnMode = false, defaultPara
         <ChevronDown className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-1 z-[150] w-[min(16rem,calc(100vw-2.5rem))] max-w-[calc(100vw-2.5rem)] bg-card border border-border rounded-xl shadow-xl p-3 space-y-3" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed z-[150] w-[min(18rem,calc(100vw-1.5rem))] bg-card border border-border rounded-xl shadow-2xl p-3 space-y-3" style={{ top: pos.top, right: pos.right }} onClick={(e) => e.stopPropagation()}>
           <div className="space-y-1.5">
             <p className="font-sans text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Columns</p>
             <div className="flex gap-2">
