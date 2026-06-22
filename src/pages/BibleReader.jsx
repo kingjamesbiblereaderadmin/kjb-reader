@@ -30,7 +30,6 @@ import { useReaderUrlSync } from '@/lib/useReaderUrlSync';
 import { resolveBook, formatVerseRange } from '@/lib/readerHelpers';
 import { useClosePopovers } from '@/lib/useClosePopovers';
 import { printChapterContents } from '@/lib/printHelpers';
-import ReaderPrintMenu from '@/components/bible/ReaderPrintMenu';
 
 const isMobile = () => window.innerWidth < 640;
 const STORAGE_KEY = 'kjb-position';
@@ -1191,11 +1190,14 @@ export default function BibleReader() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <ReaderPrintMenu
-                defaultColumnMode={columnMode}
-                defaultParagraphMode={paragraphMode}
-                onPrint={({ columnMode: cm, paragraphMode: pm }) => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, cm, pm)}
-              />
+              <button
+                onClick={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode, paragraphMode)}
+                title="Print"
+                className="kjb-fixed-btn flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 text-foreground transition-all duration-200 touch-manipulation h-11 whitespace-nowrap"
+              >
+                <Printer className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
+                <span className="hidden lg:inline">Print</span>
+              </button>
 
               <div className="flex gap-2 flex-shrink-0">
                 <button onClick={goPrev} disabled={isFirstChapterFirstBook} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 text-foreground disabled:opacity-30 transition-all duration-200 touch-manipulation h-11 whitespace-nowrap"><ChevronLeft className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /><span className="hidden lg:inline">Prev</span></button>
