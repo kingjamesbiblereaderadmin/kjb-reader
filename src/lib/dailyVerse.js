@@ -83,34 +83,30 @@ export async function getDailyVerseFromBible() {
       // Use biblical book order to match API (BOOK_ORDER from bibleApi)
       const BOOK_ORDER = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
       
-      let currentSeed = seed;
-      let bookName, chapterNum, verseObj;
-      while (true) {
-        bookName = BOOK_ORDER[currentSeed % BOOK_ORDER.length];
-        if (!bible[bookName]) {
-          currentSeed++;
-          continue;
+      // Build a flat list of every eligible (book, chapter, verse) reference,
+      // then pick one by the date seed — IDENTICAL to the backend's daily_verse
+      // logic so the offline verse always matches the online one for a given day.
+      const flat = [];
+      for (const bn of BOOK_ORDER) {
+        if (!bible[bn]) continue;
+        const chapters = Object.keys(bible[bn]);
+        for (const cn of chapters) {
+          const verses = bible[bn][cn];
+          if (!verses || !verses.length) continue;
+          for (const vo of verses) {
+            const ref = `${bn} ${cn}:${vo.verse}`;
+            const isExcludedChapter = bn === 'Romans' && parseInt(cn) === 10;
+            if (EXCLUDED_REFS.has(ref) || isExcludedChapter) continue;
+            flat.push({ bookName: bn, chapterNum: cn, verseObj: vo });
+          }
         }
-        const chapters = Object.keys(bible[bookName]);
-        if (!chapters.length) {
-          currentSeed++;
-          continue;
-        }
-        chapterNum = chapters[currentSeed % chapters.length];
-        const verses = bible[bookName][chapterNum];
-        if (!verses || !verses.length) {
-          currentSeed++;
-          continue;
-        }
-        verseObj = verses[currentSeed % verses.length];
-        
-        const ref = `${bookName} ${chapterNum}:${verseObj.verse}`;
-        const isExcludedChapter = bookName === 'Romans' && parseInt(chapterNum) === 10;
-        const hasExcludedText = EXCLUDED_REFS.has(ref);
-        
-        if (!hasExcludedText && !isExcludedChapter) break;
-        currentSeed++;
       }
+      if (!flat.length) return getDailyVerse();
+      // Same prime-scatter as the backend so consecutive days differ widely.
+      const picked = flat[((seed * 2654435761) % flat.length + flat.length) % flat.length];
+      const bookName = picked.bookName;
+      const chapterNum = picked.chapterNum;
+      const verseObj = picked.verseObj;
       
       const text = verseObj.text.replace(/^<<[^>]*>>\s*/, '');
       const bookData = BIBLE_BOOKS.find(b => b.name === bookName || b.shortName === bookName);
