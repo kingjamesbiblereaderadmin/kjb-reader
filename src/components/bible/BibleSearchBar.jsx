@@ -354,7 +354,8 @@ export default function BibleSearchBar({ onClose }) {
     setSuggestions([]);
     setOpen(false);
     onClose?.();
-    const url = verse ? `/read?book=${abbr}&chapter=${chapter}&verse=${verse}` : `/read?book=${abbr}&chapter=${chapter}`;
+    const vEndParam = verse && verseEnd && verseEnd > verse ? `&verseEnd=${verseEnd}` : '';
+    const url = verse ? `/read?book=${abbr}&chapter=${chapter}&verse=${verse}${vEndParam}` : `/read?book=${abbr}&chapter=${chapter}`;
     navigate(url);
     // If already on /read with the same URL, notify the mounted reader to load it.
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
