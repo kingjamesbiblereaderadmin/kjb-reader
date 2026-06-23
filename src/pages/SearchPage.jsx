@@ -864,6 +864,7 @@ export default function SearchPage() {
         .replace(/\[([^\]]+)\]/g, '$1');
       const bookEntry = BIBLE_BOOKS.find(b => b.apiName === r.book);
       const bookName = bookEntry ? bookEntry.shortName : r.book;
+      const isColophon = r.isColophon || (r.verse === 0 && !r.isSubscript && !r.isHeading);
       const ref = r.isSubscript
         ? `${bookName} ${r.chapter} superscription`
         : r.isHeading
@@ -871,7 +872,10 @@ export default function SearchPage() {
         : (r.isColophon || r.verse === 0)
         ? `${bookName} ${r.chapter} colophon`
         : `${bookName} ${r.chapter}:${r.verse}`;
-      return `• "${text}"\n  — ${ref} (KJB)`;
+      const q = getQueryFromUrl() || query;
+      const url = buildVerseUrl({ abbr: r.abbr, chapter: r.chapter, verse: (isColophon || r.isSubscript) ? null : r.verse, from: 'search' }) + (q ? `&q=${encodeURIComponent(q)}` : '');
+      // Wrap the link in <> so chat apps don't render a link embed/preview.
+      return `• "${text}"\n  — ${ref} (KJB)\n  Read: <${url}>`;
     });
     return lines.join('\n\n');
   };
