@@ -800,7 +800,8 @@ export default function SearchPage() {
     } catch {}
     clearSearchNav();
     const vParam = ref.verse ? `&verse=${ref.verse}` : '';
-    navigate(`/read?book=${ref.abbr}&chapter=${ref.chapter}${vParam}`);
+    const vEndParam = ref.verse && ref.verseEnd && ref.verseEnd > ref.verse ? `&verseEnd=${ref.verseEnd}` : '';
+    navigate(`/read?book=${ref.abbr}&chapter=${ref.chapter}${vParam}${vEndParam}`);
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   }, [navigate]);
 
