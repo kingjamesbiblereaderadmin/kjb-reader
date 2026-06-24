@@ -8,6 +8,8 @@ Deno.serve(async () => {
     start_url: "/",
     scope: "/",
     display: "standalone",
+    display_override: ["standalone", "minimal-ui"],
+    launch_handler: { client_mode: "navigate-existing" },
     orientation: "portrait",
     background_color: "#0f1117",
     theme_color: "#0f1718",
