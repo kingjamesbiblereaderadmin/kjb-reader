@@ -90,10 +90,8 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     };
     checkNotif();
     window.addEventListener('focus', checkNotif);
-    window.addEventListener('storage', checkNotif);
     return () => {
       window.removeEventListener('focus', checkNotif);
-      window.removeEventListener('storage', checkNotif);
     };
   }, [notifPermission]);
 
