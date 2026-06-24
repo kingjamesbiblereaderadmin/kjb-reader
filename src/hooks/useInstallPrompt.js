@@ -39,8 +39,9 @@ const checkIsInstalled = () => {
     return true;
   }
   // Not standalone. If a future install prompt is available, the app clearly
-  // isn't installed — clear the stale flag.
-  if (window.kjbDeferredPrompt) {
+  // isn't installed (or was uninstalled) — clear the stale flag so the install
+  // button re-enables.
+  if (window.kjbDeferredPrompt || deferredPrompt) {
     try { localStorage.removeItem(INSTALLED_KEY); } catch {}
     return false;
   }
@@ -62,6 +63,9 @@ export function useInstallPrompt() {
         deferredPrompt = window.kjbDeferredPrompt;
       }
       setIsInstallable(!!deferredPrompt);
+      // A re-fired install prompt means the app isn't installed anymore
+      // (e.g. user uninstalled it) — refresh the installed flag too.
+      setIsInstalled(checkIsInstalled());
     };
     const handleInstalled = () => {
       setIsInstalled(checkIsInstalled());
