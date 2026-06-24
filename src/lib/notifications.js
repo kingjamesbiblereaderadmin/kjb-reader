@@ -169,7 +169,6 @@ export async function showLocalNotification(title, body, imageUrl = null, target
         await reg.showNotification(title, {
           body: body,
           icon: APP_LOGO_URL,
-          badge: APP_LOGO_URL,
           tag: 'daily-verse',
           renotify: true,
           vibrate: [200, 100, 200],
@@ -200,7 +199,6 @@ export async function showLocalNotification(title, body, imageUrl = null, target
       const notif = new Notification(title, { 
         body: body,
         icon: APP_LOGO_URL,
-        badge: APP_LOGO_URL,
         tag: 'daily-verse',
         renotify: true,
         vibrate: [200, 100, 200],

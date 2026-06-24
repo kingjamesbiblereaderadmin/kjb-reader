@@ -22,6 +22,9 @@ const A11Y_FONTS = [
 const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
 const isMobile = () => /iphone|ipad|ipod|android/i.test(navigator.userAgent);
 const isAndroid = () => /android/i.test(navigator.userAgent);
+// Samsung Internet doesn't support the beforeinstallprompt API, so the native
+// install prompt can never fire — auto-show the manual guide instead.
+const isSamsungInternet = () => / samsungbrowser\//i.test(navigator.userAgent);
 const isBookmarkBrowser = () => {
   const ua = navigator.userAgent;
   const isFirefox = /firefox/i.test(ua);
@@ -46,7 +49,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   const [dismissed, setDismissed] = useState(() => {
     try { return localStorage.getItem(DISMISSED_KEY) === 'true'; } catch { return false; }
   });
-  const [showIOSHint, setShowIOSHint] = useState(false);
+  const [showIOSHint, setShowIOSHint] = useState(isSamsungInternet);
   const [installDone, setInstallDone] = useState(isInStandaloneMode);
   const [notifDone, setNotifDone] = useState(() =>
     'Notification' in window && Notification.permission === 'granted'
@@ -158,10 +161,11 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop — tap/click outside the card dismisses the prompt (and the blur) */}
       <div
         className="fixed inset-0 z-[99998] bg-black/50 backdrop-blur-md"
         onClick={handleClose}
+        onTouchEnd={(e) => { e.preventDefault(); handleClose(); }}
       />
       <div
         className="fixed bottom-20 sm:bottom-6 right-4 z-[99999] w-72 sm:w-80 bg-card border border-border rounded-2xl shadow-2xl p-3 sm:p-4 flex flex-col min-h-0 pointer-events-auto max-h-[calc(100dvh-7rem)] sm:max-h-[calc(100dvh-4rem)] overflow-hidden"
