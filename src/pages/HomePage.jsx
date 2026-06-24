@@ -5,7 +5,6 @@ import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import QuickLinkCard from '@/components/home/QuickLinkCard';
 import OfflineStatusBanner from '@/components/OfflineStatusBanner';
 import IncognitoWarning from '@/components/IncognitoWarning';
-import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { getDailyVerse, getDailyVerseFromBible, getLastCachedDailyVerse } from '@/lib/dailyVerse';
 import { getTodayVerseBackground } from '@/lib/dailyVerseTheme';
 import { useTheme } from '@/lib/themeContext';
@@ -14,7 +13,6 @@ import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { isBibleCached, CACHE_VERSION } from '@/lib/bibleCache';
 import { toast } from 'sonner';
 import { detectIncognito } from '@/lib/incognito';
-import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 
 const QUICK_LINKS = [
   { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', iconGradient: 'from-indigo-500 to-violet-600' },
@@ -42,22 +40,6 @@ export default function HomePage() {
   const [bibleCached, setBibleCached] = useState(null);
   const touchStartY = useRef(0);
   const touchEndY = useRef(0);
-
-  const { isInstallable, promptInstall } = useInstallPrompt();
-
-  // Show the first-load onboarding prompt once the splash screen has finished.
-  // FirstLoadPrompt manages its own "dismissed" flag internally, so it returns
-  // null for returning users who already dismissed it.
-  const [showFirstPrompt, setShowFirstPrompt] = useState(false);
-  useEffect(() => {
-    if (window.kjbSplashDone) {
-      setShowFirstPrompt(true);
-      return;
-    }
-    const onDone = () => setShowFirstPrompt(true);
-    window.addEventListener('kjb-splash-done', onDone);
-    return () => window.removeEventListener('kjb-splash-done', onDone);
-  }, []);
 
   // Track real network connectivity so the daily card's "Offline" label reflects
   // actual internet status — not merely whether the cached verse fetch succeeded.
@@ -492,18 +474,6 @@ export default function HomePage() {
 
       </div>
 
-      {showFirstPrompt && (
-        <FirstLoadPrompt
-          isInstallable={isInstallable}
-          notifPermission={notifPermission}
-          onInstall={promptInstall}
-          onEnableNotif={async () => {
-            await handleToggleNotif();
-            return 'Notification' in window && Notification.permission === 'granted';
-          }}
-          onDismiss={() => setShowFirstPrompt(false)}
-        />
-      )}
     </div>
   );
 }
