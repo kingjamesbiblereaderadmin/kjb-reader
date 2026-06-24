@@ -25,13 +25,34 @@ export function setNotificationTime(time) {
 export async function registerSW() {
   if (!('serviceWorker' in navigator)) return null;
   try {
-    // Just ensure a service worker is registered so notifications can be
-    // delivered. Do NOT force SKIP_WAITING or reload here — that is owned by
-    // main.jsx (with proper home/path guards). Reloading mid-action (e.g. right
-    // after the user grants notification permission) wipes the page and makes
-    // it look like nothing happened.
-    const existing = await navigator.serviceWorker.getRegistration('/');
-    return existing || await navigator.serviceWorker.register('/sw.js');
+    const reg = await navigator.serviceWorker.register('/sw.js');
+    
+    // Automatically reload the page when a new service worker takes over
+    // so users get the latest UI updates immediately.
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!refreshing) {
+        refreshing = true;
+        window.location.reload();
+      }
+    });
+
+    if (reg.waiting) {
+      reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+    }
+    reg.addEventListener('updatefound', () => {
+      const installingWorker = reg.installing;
+      if (installingWorker) {
+        installingWorker.addEventListener('statechange', () => {
+          if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            installingWorker.postMessage({ type: 'SKIP_WAITING' });
+          }
+        });
+      }
+    });
+    // Force an update check to ensure users get the latest app shell features (e.g. WiFi icon)
+    reg.update();
+    return reg;
   } catch { return null; }
 }
 
@@ -134,17 +155,7 @@ export async function showLocalNotification(title, body, imageUrl = null, target
   if ('serviceWorker' in navigator) {
     try {
       console.log('[Notif] Checking for active service worker...');
-      // Wait for an ACTIVE worker. Right after a version bump the SW may still
-      // be installing/waiting, so getRegistration() alone returns one without
-      // an .active worker and the notification silently no-ops. navigator
-      // .serviceWorker.ready resolves only once a worker is active.
-      let reg = await navigator.serviceWorker.getRegistration();
-      if (!reg || !reg.active) {
-        reg = await Promise.race([
-          navigator.serviceWorker.ready,
-          new Promise((resolve) => setTimeout(() => resolve(null), 4000)),
-        ]);
-      }
+      const reg = await navigator.serviceWorker.getRegistration();
       if (reg && reg.active) {
         console.log('[Notif] Service worker ready:', reg);
         console.log('[Notif] SW registration scope:', reg.scope);

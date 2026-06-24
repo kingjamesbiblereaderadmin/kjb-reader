@@ -21,7 +21,7 @@ import { toast } from 'sonner';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   getNotificationsEnabled, getNotificationTime, setNotificationTime,
-  registerSW, disableNotifications, scheduleDailyNotification, showLocalNotification, cleanForNotification
+  requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification, cleanForNotification
 } from '@/lib/notifications';
 
 import { getDailyVerse } from '@/lib/dailyVerse';
@@ -51,7 +51,7 @@ const isBookmarkBrowser = () => {
 };
 
 const LAST_REVISED = 'June 12th, 2026';
-const WORKER_VERSION = 'v20260624_482';
+const WORKER_VERSION = 'v20260624_464';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -268,16 +268,16 @@ export default function SettingsPage() {
       setNotifPermission(permission);
 
       if (permission === 'granted') {
-        // Turn reminders ON immediately so the toggle reflects the granted state.
+        // Register the service worker (needed on Android PWA to show notifications).
+        await requestNotificationPermission();
+        // Explicitly turn daily verse reminders ON so they're active right after
+        // the browser permission is granted.
         localStorage.setItem('kjb-notifications-enabled', 'true');
         setNotifEnabled(true);
-        // Make sure the service worker is registered (needed on Android PWA),
-        // but don't block the toggle state on it.
-        registerSW().catch(() => {});
         scheduleDailyNotification(getDailyVerse());
         window.dispatchEvent(new Event('storage'));
       } else if (permission === 'denied') {
-        alert('Notifications are blocked. Please allow notifications in your browser/app settings for this site, then try again.');
+        alert('Notifications are blocked. Please allow notifications in your browser/app settings for this site.');
       }
       // 'default' = user dismissed the popup without choosing; do nothing.
     } catch (err) {
@@ -976,21 +976,18 @@ export default function SettingsPage() {
               </button>
             ) : (
             <button
-              onClick={async () => {
-                // Default browser install API: fire the captured beforeinstallprompt
-                // event. If the browser never offered one (already installed, or the
-                // engagement/manifest criteria aren't met yet), show the manual guide
-                // — that's the browser's own behaviour, not something we can force.
-                const hasPrompt = isInstallable || (typeof window !== 'undefined' && !!window.kjbDeferredPrompt);
-                if (!hasPrompt) {
-                  toast.info('Install not offered by your browser yet', {
-                    description: 'Use your browser menu (or address-bar install icon) to add the app. Steps are shown below.',
-                  });
+              onClick={() => {
+                if (!isInstallable) {
                   setShowInstallHint(true);
                   return;
                 }
-                const ok = await promptInstall();
-                if (!ok) setShowInstallHint(true);
+                promptInstall().catch((err) => {
+                  console.error('Install prompt failed:', err);
+                  toast.error("Browser blocked automatic install", { 
+                    description: "Please check your address bar for the install icon or use the manual guide below." 
+                  });
+                  setShowInstallHint(true);
+                });
               }}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
@@ -1085,6 +1082,7 @@ export default function SettingsPage() {
               <Switch
                 checked={notifEnabled}
                 onCheckedChange={handleToggleNotifications}
+                disabled={notifPermission === 'denied'}
                 className="shrink-0"
               />
             </div>

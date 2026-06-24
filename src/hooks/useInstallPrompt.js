@@ -6,14 +6,6 @@ const INSTALLED_KEY = 'kjb-is-installed';
 let deferredPrompt = null;
 
 if (typeof window !== 'undefined') {
-  // One-time self-heal: an earlier build could leave kjb-is-installed="true"
-  // stuck on, hiding the Install button forever. If the app is NOT actually
-  // running standalone, clear the stale flag so detection is honest again.
-  try {
-    const reallyStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-    if (!reallyStandalone) localStorage.removeItem(INSTALLED_KEY);
-  } catch {}
-
   if (window.kjbDeferredPrompt) {
     deferredPrompt = window.kjbDeferredPrompt;
   }
@@ -38,14 +30,16 @@ if (typeof window !== 'undefined') {
 
 const checkIsInstalled = () => {
   if (typeof window === 'undefined') return false;
-  // The only reliable LIVE signal is the actual display mode (running standalone).
+  // The only reliable signal is the actual display mode (running standalone).
+  // The stored flag can go stale if the user later uninstalls the app from the
+  // browser, so we self-heal it here.
   const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
   if (standalone) {
     try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
     return true;
   }
-  // Not standalone (running in a browser tab). If a future install prompt is
-  // available, the app clearly isn't installed — clear the stale flag.
+  // Not standalone. If a future install prompt is available, the app clearly
+  // isn't installed — clear the stale flag.
   if (window.kjbDeferredPrompt) {
     try { localStorage.removeItem(INSTALLED_KEY); } catch {}
     return false;
