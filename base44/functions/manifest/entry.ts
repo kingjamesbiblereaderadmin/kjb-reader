@@ -33,7 +33,7 @@ Deno.serve(async () => {
         purpose: "any"
       },
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/ed44b9f05_generated_image.png",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/1d2632b85_generated_image.png",
         sizes: "1024x1024",
         type: "image/png",
         purpose: "maskable"
