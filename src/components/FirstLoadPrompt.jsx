@@ -22,9 +22,6 @@ const A11Y_FONTS = [
 const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
 const isMobile = () => /iphone|ipad|ipod|android/i.test(navigator.userAgent);
 const isAndroid = () => /android/i.test(navigator.userAgent);
-// Samsung Internet doesn't support the beforeinstallprompt API, so the native
-// install prompt can never fire — auto-show the manual guide instead.
-const isSamsungInternet = () => / samsungbrowser\//i.test(navigator.userAgent);
 const isBookmarkBrowser = () => {
   const ua = navigator.userAgent;
   const isFirefox = /firefox/i.test(ua);
@@ -49,7 +46,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   const [dismissed, setDismissed] = useState(() => {
     try { return localStorage.getItem(DISMISSED_KEY) === 'true'; } catch { return false; }
   });
-  const [showIOSHint, setShowIOSHint] = useState(isSamsungInternet);
+  const [showIOSHint, setShowIOSHint] = useState(false);
   const [installDone, setInstallDone] = useState(isInStandaloneMode);
   const [notifDone, setNotifDone] = useState(() =>
     'Notification' in window && Notification.permission === 'granted'
