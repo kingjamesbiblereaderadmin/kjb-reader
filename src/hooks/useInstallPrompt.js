@@ -6,6 +6,14 @@ const INSTALLED_KEY = 'kjb-is-installed';
 let deferredPrompt = null;
 
 if (typeof window !== 'undefined') {
+  // One-time self-heal: an earlier build could leave kjb-is-installed="true"
+  // stuck on, hiding the Install button forever. If the app is NOT actually
+  // running standalone, clear the stale flag so detection is honest again.
+  try {
+    const reallyStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    if (!reallyStandalone) localStorage.removeItem(INSTALLED_KEY);
+  } catch {}
+
   if (window.kjbDeferredPrompt) {
     deferredPrompt = window.kjbDeferredPrompt;
   }
