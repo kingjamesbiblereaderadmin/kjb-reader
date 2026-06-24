@@ -249,6 +249,24 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const captureShareCard = async () => {
     // Guarantee the logo is available as a same-origin data URL before capture.
     await fetchLogoDataUrl();
+    // Ensure the active accessibility/reading web font is fully loaded BEFORE
+    // html2canvas snapshots — otherwise it falls back to a default font and the
+    // shared image won't match the on-screen card (e.g. OpenDyslexic dropped).
+    try {
+      if (document.fonts) {
+        const fams = [];
+        if (/opendyslexic/i.test(resolvedFont)) fams.push('OpenDyslexic');
+        else if (/atkinson hyperlegible/i.test(resolvedFont)) fams.push('Atkinson Hyperlegible');
+        else if (/dancing script/i.test(resolvedFont)) fams.push('Dancing Script');
+        await Promise.all([
+          ...fams.flatMap(f => [
+            document.fonts.load(`700 48px "${f}"`),
+            document.fonts.load(`italic 700 48px "${f}"`),
+          ]),
+          document.fonts.ready,
+        ]);
+      }
+    } catch {}
     // Give React a tick to render the <img> with the data URL src.
     await new Promise(r => setTimeout(r, 50));
     const el = shareCardRef.current;
