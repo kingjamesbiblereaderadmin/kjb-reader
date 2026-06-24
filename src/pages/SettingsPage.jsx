@@ -51,7 +51,7 @@ const isBookmarkBrowser = () => {
 };
 
 const LAST_REVISED = 'June 12th, 2026';
-const WORKER_VERSION = 'v20260624_465';
+const WORKER_VERSION = 'v20260624_466';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -274,7 +274,10 @@ export default function SettingsPage() {
         // the browser permission is granted.
         localStorage.setItem('kjb-notifications-enabled', 'true');
         setNotifEnabled(true);
-        scheduleDailyNotification(getDailyVerse());
+        scheduleDailyNotification();
+        // Fire an immediate confirmation so the user sees notifications work.
+        const v = getDailyVerse();
+        showLocalNotification('KJB — Reminders On', `"${cleanForNotification(v.text)}" — ${v.ref} (KJB)`, null, '/');
         window.dispatchEvent(new Event('storage'));
       } else if (permission === 'denied') {
         alert('Notifications are blocked. Please allow notifications in your browser/app settings for this site.');
