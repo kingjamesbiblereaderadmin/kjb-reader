@@ -41,9 +41,9 @@ Deno.serve(async () => {
     ],
     screenshots: [
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/77e83b08f_Screenshot_20260624_103619_OneDrive.jpg",
-        sizes: "493x1024",
-        type: "image/jpeg",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/cd66db5f0_BCOf0297029-2e38-446b-bd58-076244d9d764.png",
+        sizes: "1024x683",
+        type: "image/png",
         form_factor: "narrow",
         label: "The Gospel of Salvation"
       },
