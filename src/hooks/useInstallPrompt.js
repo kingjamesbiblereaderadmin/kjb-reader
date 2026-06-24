@@ -30,19 +30,32 @@ if (typeof window !== 'undefined') {
 
 const checkIsInstalled = () => {
   if (typeof window === 'undefined') return false;
-  // The only reliable signal is the actual display mode (running standalone).
-  // The stored flag can go stale if the user later uninstalls the app from the
-  // browser, so we self-heal it here.
+  // The only reliable LIVE signal is the actual display mode (running standalone).
   const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
   if (standalone) {
     try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
     return true;
   }
-  // Not standalone. If a future install prompt is available, the app clearly
-  // isn't installed — clear the stale flag.
+  // Not standalone (running in a browser tab). If a future install prompt is
+  // available, the app clearly isn't installed — clear the stale flag.
   if (window.kjbDeferredPrompt) {
     try { localStorage.removeItem(INSTALLED_KEY); } catch {}
     return false;
+  }
+  // When opened in a browser tab with no install prompt, we can't be certain.
+  // Don't trust the sticky stored flag on its own — it lingers "true" forever
+  // after the user removes the PWA, which is the "still says installed" bug.
+  // Verify against the browser's real list of installed apps when supported,
+  // and self-heal the flag accordingly.
+  if (navigator.getInstalledRelatedApps) {
+    navigator.getInstalledRelatedApps().then((apps) => {
+      const reallyInstalled = Array.isArray(apps) && apps.length > 0;
+      try {
+        if (reallyInstalled) localStorage.setItem(INSTALLED_KEY, 'true');
+        else localStorage.removeItem(INSTALLED_KEY);
+      } catch {}
+      window.dispatchEvent(new Event('pwa-installed'));
+    }).catch(() => {});
   }
   try { return localStorage.getItem(INSTALLED_KEY) === 'true'; } catch { return false; }
 };
