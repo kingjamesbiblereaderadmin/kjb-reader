@@ -26,18 +26,18 @@ Deno.serve(async () => {
     ],
     screenshots: [
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/5f4727bd1_BCObc7bb469-f8ce-4d13-b0bd-1d6f9d4206f1.png",
-        sizes: "1024x683",
-        type: "image/png",
-        form_factor: "wide",
-        label: "KJB Reader — read the King James Version with ease"
-      },
-      {
         src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/63d4f4921_Screenshot_20260624_103619_OneDrive.jpg",
         sizes: "512x1024",
         type: "image/jpeg",
         form_factor: "narrow",
         label: "The Gospel of Salvation"
+      },
+      {
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/5f4727bd1_BCObc7bb469-f8ce-4d13-b0bd-1d6f9d4206f1.png",
+        sizes: "1024x683",
+        type: "image/png",
+        form_factor: "wide",
+        label: "KJB Reader — read the King James Version with ease"
       },
       {
         src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/cc74f89af_Screenshot_20260624_103754_OneDrive.jpg",
