@@ -196,6 +196,19 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           await pause(STEP_PAUSE_MS);
         }
 
+        // 7b. Give the browser's install prompt a brief moment to fire so the
+        // Install button is ready immediately (Edge fires beforeinstallprompt
+        // late). Skip in incognito where install isn't available. Capped short
+        // so it never noticeably delays the welcome.
+        if (!detectedIncognito && !window.kjbDeferredPrompt) {
+          await new Promise((resolve) => {
+            let done = false;
+            const finish = () => { if (!done) { done = true; window.removeEventListener('pwa-installable', finish); resolve(); } };
+            window.addEventListener('pwa-installable', finish);
+            setTimeout(finish, 1500);
+          });
+        }
+
         // 8. Welcome
         if (detectedIncognito) {
           setStep('WELCOME TO KJB READER (GUEST MODE)');
