@@ -11,29 +11,29 @@ Deno.serve(async () => {
     display_override: ["standalone", "minimal-ui"],
     launch_handler: { client_mode: "navigate-existing" },
     orientation: "portrait",
-    background_color: "#0f1117",
-    theme_color: "#0f1718",
+    background_color: "#3b9ad6",
+    theme_color: "#3b9ad6",
     icons: [
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/9a9013416_generated_image.png",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/391154913_cfb4bf781_Untitled.png",
         sizes: "192x192",
         type: "image/png",
         purpose: "any"
       },
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/9a9013416_generated_image.png",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/391154913_cfb4bf781_Untitled.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "any"
       },
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/9a9013416_generated_image.png",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/391154913_cfb4bf781_Untitled.png",
         sizes: "1024x1024",
         type: "image/png",
         purpose: "any"
       },
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/9a9013416_generated_image.png",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/391154913_cfb4bf781_Untitled.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable"
