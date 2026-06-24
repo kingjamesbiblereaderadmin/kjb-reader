@@ -134,7 +134,17 @@ export async function showLocalNotification(title, body, imageUrl = null, target
   if ('serviceWorker' in navigator) {
     try {
       console.log('[Notif] Checking for active service worker...');
-      const reg = await navigator.serviceWorker.getRegistration();
+      // Wait for an ACTIVE worker. Right after a version bump the SW may still
+      // be installing/waiting, so getRegistration() alone returns one without
+      // an .active worker and the notification silently no-ops. navigator
+      // .serviceWorker.ready resolves only once a worker is active.
+      let reg = await navigator.serviceWorker.getRegistration();
+      if (!reg || !reg.active) {
+        reg = await Promise.race([
+          navigator.serviceWorker.ready,
+          new Promise((resolve) => setTimeout(() => resolve(null), 4000)),
+        ]);
+      }
       if (reg && reg.active) {
         console.log('[Notif] Service worker ready:', reg);
         console.log('[Notif] SW registration scope:', reg.scope);
