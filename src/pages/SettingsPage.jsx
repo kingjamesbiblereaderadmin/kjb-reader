@@ -51,7 +51,7 @@ const isBookmarkBrowser = () => {
 };
 
 const LAST_REVISED = 'June 12th, 2026';
-const WORKER_VERSION = 'v20260624_476';
+const WORKER_VERSION = 'v20260624_477';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -976,18 +976,29 @@ export default function SettingsPage() {
               </button>
             ) : (
             <button
-              onClick={() => {
-                if (!isInstallable) {
+              onClick={async () => {
+                // The beforeinstallprompt event often fires a few seconds AFTER
+                // this page first renders, so isInstallable may still be false
+                // at click time even in a real browser tab. Re-check the global
+                // capture from index.html and try to prompt directly before
+                // falling back to the manual guide.
+                const hasPrompt = isInstallable || (typeof window !== 'undefined' && !!window.kjbDeferredPrompt);
+                if (!hasPrompt) {
                   setShowInstallHint(true);
                   return;
                 }
-                promptInstall().catch((err) => {
+                try {
+                  const ok = await promptInstall();
+                  // promptInstall returns false when no native prompt was
+                  // actually available — show the manual guide in that case.
+                  if (!ok) setShowInstallHint(true);
+                } catch (err) {
                   console.error('Install prompt failed:', err);
-                  toast.error("Browser blocked automatic install", { 
-                    description: "Please check your address bar for the install icon or use the manual guide below." 
+                  toast.error("Browser blocked automatic install", {
+                    description: "Please check your address bar for the install icon or use the manual guide below."
                   });
                   setShowInstallHint(true);
-                });
+                }
               }}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
