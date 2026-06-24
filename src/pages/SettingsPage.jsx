@@ -997,46 +997,19 @@ export default function SettingsPage() {
               </button>
             ) : (
             <button
-              disabled={waitingForPrompt}
-              onClick={async () => {
-                // The official PWA install API — always installs the App (full
-                // PWA), never a shortcut. Chrome/Samsung fire beforeinstallprompt
-                // early; Edge fires it a beat after load. Always check the live
-                // global capture first, then wait for it before any fallback.
-                if (window.kjbDeferredPrompt || isInstallable) {
-                  promptInstall().catch((err) => {
-                    console.error('Install prompt failed:', err);
-                    setShowInstallHint(true);
-                  });
-                  return;
-                }
-                // Prompt not captured yet — wait for it (Edge fires it late).
-                setWaitingForPrompt(true);
-                const got = await new Promise((resolve) => {
-                  let done = false;
-                  const finish = (val) => { if (!done) { done = true; window.removeEventListener('pwa-installable', onReady); resolve(val); } };
-                  const onReady = () => finish(true);
-                  window.addEventListener('pwa-installable', onReady);
-                  // Poll the global capture too, in case the event fired before
-                  // this listener attached.
-                  const poll = setInterval(() => { if (window.kjbDeferredPrompt) { clearInterval(poll); finish(true); } }, 200);
-                  setTimeout(() => { clearInterval(poll); finish(!!window.kjbDeferredPrompt); }, 5000);
-                });
-                setWaitingForPrompt(false);
-                if (got) {
-                  promptInstall().catch(() => setShowInstallHint(true));
-                } else {
+              onClick={() => {
+                // Fire the browser's official PWA install API directly.
+                promptInstall().then((ok) => {
+                  if (!ok) setShowInstallHint(true);
+                }).catch((err) => {
+                  console.error('Install prompt failed:', err);
                   setShowInstallHint(true);
-                }
+                });
               }}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
-              {waitingForPrompt
-                ? <Loader2 className="w-4 h-4 animate-spin" />
-                : (/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? <Smartphone className="w-4 h-4" /> : <MonitorSmartphone className="w-4 h-4" />)}
-              {waitingForPrompt
-                ? 'Preparing…'
-                : (/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? 'Add to Home Screen' : 'Install App')}
+              {/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? <Smartphone className="w-4 h-4" /> : <MonitorSmartphone className="w-4 h-4" />}
+              {/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? 'Add to Home Screen' : 'Install App'}
             </button>
             )}
             
