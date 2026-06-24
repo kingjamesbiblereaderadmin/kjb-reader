@@ -50,6 +50,10 @@ const isBookmarkBrowser = () => {
   return !isMobile && (isFirefox || (isMac && isSafari));
 };
 
+// Edge's automatic install prompt is unreliable, so we route Edge users
+// straight to the manual guide (which explains the App vs Shortcut choice).
+const isEdge = () => typeof navigator !== 'undefined' && /\bEdg\//.test(navigator.userAgent);
+
 const LAST_REVISED = 'June 12th, 2026';
 const WORKER_VERSION = 'v20260624_484';
 
@@ -999,10 +1003,15 @@ export default function SettingsPage() {
             <button
               disabled={waitingForPrompt}
               onClick={async () => {
+                // Edge: skip the unreliable auto-prompt and go straight to the
+                // manual guide, which explains the App vs Shortcut choice.
+                if (isEdge()) {
+                  setShowInstallHint(true);
+                  return;
+                }
                 // The official PWA install API — always installs the App (full
                 // PWA), never a shortcut. Chrome/Samsung fire beforeinstallprompt
-                // early; Edge fires it a beat after load. Always check the live
-                // global capture first, then wait for it before any fallback.
+                // early. Always check the live global capture first.
                 if (window.kjbDeferredPrompt || isInstallable) {
                   promptInstall().catch((err) => {
                     console.error('Install prompt failed:', err);
