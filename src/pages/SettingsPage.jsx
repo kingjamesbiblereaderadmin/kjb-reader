@@ -51,7 +51,7 @@ const isBookmarkBrowser = () => {
 };
 
 const LAST_REVISED = 'June 12th, 2026';
-const WORKER_VERSION = 'v20260624_483';
+const WORKER_VERSION = 'v20260624_484';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -966,6 +966,16 @@ export default function SettingsPage() {
               <Bell className="w-4 h-4 shrink-0" />
               <span className="font-sans text-xs font-medium">Notifications work when the app is open or in background</span>
             </div>
+            <button
+              onClick={() => {
+                try { localStorage.removeItem('kjb-is-installed'); } catch {}
+                window.dispatchEvent(new Event('pwa-installed'));
+                window.location.reload();
+              }}
+              className="font-sans text-xs text-muted-foreground underline hover:text-accent transition-colors"
+            >
+              Already uninstalled it? Click here to reset
+            </button>
           </div>
         ) : (
           <div className="space-y-3">
