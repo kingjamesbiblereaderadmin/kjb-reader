@@ -51,7 +51,7 @@ const isBookmarkBrowser = () => {
 };
 
 const LAST_REVISED = 'June 12th, 2026';
-const WORKER_VERSION = 'v20260624_479';
+const WORKER_VERSION = 'v20260624_480';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -977,10 +977,18 @@ export default function SettingsPage() {
             ) : (
             <button
               onClick={async () => {
-                // Use the browser's native install prompt directly. The deferred
-                // beforeinstallprompt event is captured globally in index.html
-                // (window.kjbDeferredPrompt) and by the hook; fire it. Only fall
-                // back to the manual guide if the browser truly never offered one.
+                // Default browser install API: fire the captured beforeinstallprompt
+                // event. If the browser never offered one (already installed, or the
+                // engagement/manifest criteria aren't met yet), show the manual guide
+                // — that's the browser's own behaviour, not something we can force.
+                const hasPrompt = isInstallable || (typeof window !== 'undefined' && !!window.kjbDeferredPrompt);
+                if (!hasPrompt) {
+                  toast.info('Install not offered by your browser yet', {
+                    description: 'Use your browser menu (or address-bar install icon) to add the app. Steps are shown below.',
+                  });
+                  setShowInstallHint(true);
+                  return;
+                }
                 const ok = await promptInstall();
                 if (!ok) setShowInstallHint(true);
               }}
