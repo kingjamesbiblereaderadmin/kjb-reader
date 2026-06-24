@@ -21,7 +21,7 @@ import { toast } from 'sonner';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   getNotificationsEnabled, getNotificationTime, setNotificationTime,
-  requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification, cleanForNotification
+  registerSW, disableNotifications, scheduleDailyNotification, showLocalNotification, cleanForNotification
 } from '@/lib/notifications';
 
 import { getDailyVerse } from '@/lib/dailyVerse';
@@ -51,7 +51,7 @@ const isBookmarkBrowser = () => {
 };
 
 const LAST_REVISED = 'June 12th, 2026';
-const WORKER_VERSION = 'v20260624_477';
+const WORKER_VERSION = 'v20260624_478';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -268,16 +268,16 @@ export default function SettingsPage() {
       setNotifPermission(permission);
 
       if (permission === 'granted') {
-        // Register the service worker (needed on Android PWA to show notifications).
-        await requestNotificationPermission();
-        // Explicitly turn daily verse reminders ON so they're active right after
-        // the browser permission is granted.
+        // Turn reminders ON immediately so the toggle reflects the granted state.
         localStorage.setItem('kjb-notifications-enabled', 'true');
         setNotifEnabled(true);
+        // Make sure the service worker is registered (needed on Android PWA),
+        // but don't block the toggle state on it.
+        registerSW().catch(() => {});
         scheduleDailyNotification(getDailyVerse());
         window.dispatchEvent(new Event('storage'));
       } else if (permission === 'denied') {
-        alert('Notifications are blocked. Please allow notifications in your browser/app settings for this site.');
+        alert('Notifications are blocked. Please allow notifications in your browser/app settings for this site, then try again.');
       }
       // 'default' = user dismissed the popup without choosing; do nothing.
     } catch (err) {
@@ -977,28 +977,12 @@ export default function SettingsPage() {
             ) : (
             <button
               onClick={async () => {
-                // The beforeinstallprompt event often fires a few seconds AFTER
-                // this page first renders, so isInstallable may still be false
-                // at click time even in a real browser tab. Re-check the global
-                // capture from index.html and try to prompt directly before
-                // falling back to the manual guide.
-                const hasPrompt = isInstallable || (typeof window !== 'undefined' && !!window.kjbDeferredPrompt);
-                if (!hasPrompt) {
-                  setShowInstallHint(true);
-                  return;
-                }
-                try {
-                  const ok = await promptInstall();
-                  // promptInstall returns false when no native prompt was
-                  // actually available — show the manual guide in that case.
-                  if (!ok) setShowInstallHint(true);
-                } catch (err) {
-                  console.error('Install prompt failed:', err);
-                  toast.error("Browser blocked automatic install", {
-                    description: "Please check your address bar for the install icon or use the manual guide below."
-                  });
-                  setShowInstallHint(true);
-                }
+                // Use the browser's native install prompt directly. The deferred
+                // beforeinstallprompt event is captured globally in index.html
+                // (window.kjbDeferredPrompt) and by the hook; fire it. Only fall
+                // back to the manual guide if the browser truly never offered one.
+                const ok = await promptInstall();
+                if (!ok) setShowInstallHint(true);
               }}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
