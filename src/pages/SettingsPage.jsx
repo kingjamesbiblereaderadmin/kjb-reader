@@ -399,6 +399,13 @@ export default function SettingsPage() {
   };
 
   const toggleSection = (section) => {
+    // When opening the Notifications section, re-read the live OS permission so
+    // the toggle un-disables itself the moment the user has unblocked the site
+    // (the mounted value can be a stale 'denied').
+    if (section === 'notifications' && !expandedSections.notifications) {
+      setNotifPermission('Notification' in window ? Notification.permission : 'unsupported');
+      setNotifEnabled(isNotifReallyOn());
+    }
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
