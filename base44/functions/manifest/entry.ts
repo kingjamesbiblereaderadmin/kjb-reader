@@ -15,25 +15,25 @@ Deno.serve(async () => {
     theme_color: "#0f1718",
     icons: [
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/b21886c38_generated_image.png",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/9a9013416_generated_image.png",
         sizes: "192x192",
         type: "image/png",
         purpose: "any"
       },
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/b21886c38_generated_image.png",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/9a9013416_generated_image.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "any"
       },
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/b21886c38_generated_image.png",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/9a9013416_generated_image.png",
         sizes: "1024x1024",
         type: "image/png",
         purpose: "any"
       },
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/b21886c38_generated_image.png",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/9a9013416_generated_image.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable"
