@@ -1000,27 +1000,27 @@ export default function SettingsPage() {
               disabled={waitingForPrompt}
               onClick={async () => {
                 // The official PWA install API — always installs the App (full
-                // PWA), never a shortcut.
-                // Chrome/Samsung fire beforeinstallprompt early; Edge fires it
-                // a beat after load. If the prompt isn't captured yet, wait for
-                // it (up to 5s) before falling back to the manual guide.
-                if (isInstallable || window.kjbDeferredPrompt) {
+                // PWA), never a shortcut. Chrome/Samsung fire beforeinstallprompt
+                // early; Edge fires it a beat after load. Always check the live
+                // global capture first, then wait for it before any fallback.
+                if (window.kjbDeferredPrompt || isInstallable) {
                   promptInstall().catch((err) => {
                     console.error('Install prompt failed:', err);
-                    toast.error('Browser blocked automatic install', {
-                      description: 'Use your browser menu — pick "App", not "Shortcut" — or see the guide below.',
-                    });
                     setShowInstallHint(true);
                   });
                   return;
                 }
+                // Prompt not captured yet — wait for it (Edge fires it late).
                 setWaitingForPrompt(true);
                 const got = await new Promise((resolve) => {
                   let done = false;
-                  const onReady = () => { if (!done) { done = true; cleanup(); resolve(true); } };
-                  const cleanup = () => window.removeEventListener('pwa-installable', onReady);
+                  const finish = (val) => { if (!done) { done = true; window.removeEventListener('pwa-installable', onReady); resolve(val); } };
+                  const onReady = () => finish(true);
                   window.addEventListener('pwa-installable', onReady);
-                  setTimeout(() => { if (!done) { done = true; cleanup(); resolve(!!window.kjbDeferredPrompt); } }, 5000);
+                  // Poll the global capture too, in case the event fired before
+                  // this listener attached.
+                  const poll = setInterval(() => { if (window.kjbDeferredPrompt) { clearInterval(poll); finish(true); } }, 200);
+                  setTimeout(() => { clearInterval(poll); finish(!!window.kjbDeferredPrompt); }, 5000);
                 });
                 setWaitingForPrompt(false);
                 if (got) {
