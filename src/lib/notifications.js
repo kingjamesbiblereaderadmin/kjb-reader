@@ -25,34 +25,13 @@ export function setNotificationTime(time) {
 export async function registerSW() {
   if (!('serviceWorker' in navigator)) return null;
   try {
-    const reg = await navigator.serviceWorker.register('/sw.js');
-    
-    // Automatically reload the page when a new service worker takes over
-    // so users get the latest UI updates immediately.
-    let refreshing = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (!refreshing) {
-        refreshing = true;
-        window.location.reload();
-      }
-    });
-
-    if (reg.waiting) {
-      reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-    }
-    reg.addEventListener('updatefound', () => {
-      const installingWorker = reg.installing;
-      if (installingWorker) {
-        installingWorker.addEventListener('statechange', () => {
-          if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            installingWorker.postMessage({ type: 'SKIP_WAITING' });
-          }
-        });
-      }
-    });
-    // Force an update check to ensure users get the latest app shell features (e.g. WiFi icon)
-    reg.update();
-    return reg;
+    // Just ensure a service worker is registered so notifications can be
+    // delivered. Do NOT force SKIP_WAITING or reload here — that is owned by
+    // main.jsx (with proper home/path guards). Reloading mid-action (e.g. right
+    // after the user grants notification permission) wipes the page and makes
+    // it look like nothing happened.
+    const existing = await navigator.serviceWorker.getRegistration('/');
+    return existing || await navigator.serviceWorker.register('/sw.js');
   } catch { return null; }
 }
 
