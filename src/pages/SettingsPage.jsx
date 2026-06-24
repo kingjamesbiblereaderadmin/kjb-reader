@@ -996,18 +996,38 @@ export default function SettingsPage() {
               </button>
             ) : (
             <button
-              onClick={() => {
-                if (!isInstallable) {
-                  setShowInstallHint(true);
+              onClick={async () => {
+                // The official PWA install API — this always installs the App
+                // (full PWA), never a shortcut. If the prompt isn't ready yet
+                // (Edge fires beforeinstallprompt a beat after load), wait
+                // briefly for it before falling back to the manual guide.
+                const tryPrompt = async () => {
+                  const ok = await promptInstall();
+                  return ok || window.kjbDeferredPrompt != null;
+                };
+                if (isInstallable || window.kjbDeferredPrompt) {
+                  promptInstall().catch((err) => {
+                    console.error('Install prompt failed:', err);
+                    toast.error('Browser blocked automatic install', {
+                      description: 'Use your browser menu — pick "App", not "Shortcut" — or see the guide below.',
+                    });
+                    setShowInstallHint(true);
+                  });
                   return;
                 }
-                promptInstall().catch((err) => {
-                  console.error('Install prompt failed:', err);
-                  toast.error("Browser blocked automatic install", { 
-                    description: "Please check your address bar for the install icon or use the manual guide below." 
-                  });
-                  setShowInstallHint(true);
+                // No prompt captured yet — wait up to 2.5s for it to fire.
+                const got = await new Promise((resolve) => {
+                  let done = false;
+                  const onReady = () => { if (!done) { done = true; cleanup(); resolve(true); } };
+                  const cleanup = () => window.removeEventListener('pwa-installable', onReady);
+                  window.addEventListener('pwa-installable', onReady);
+                  setTimeout(() => { if (!done) { done = true; cleanup(); resolve(!!window.kjbDeferredPrompt); } }, 2500);
                 });
+                if (got) {
+                  promptInstall().catch(() => setShowInstallHint(true));
+                } else {
+                  setShowInstallHint(true);
+                }
               }}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
