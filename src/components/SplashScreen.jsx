@@ -371,24 +371,32 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
   if (!isVisible) return null;
 
+  // Theme-aware splash colors: light bg in light mode, dark bg in dark mode —
+  // matching the boot placeholder in index.html so there's no flash/white box.
+  const isDarkSplash = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+  const splashBg = isDarkSplash ? '#0f1117' : '#fef9f3';
+  const trackBg = isDarkSplash ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+  const textColor = isDarkSplash ? '#c8cdd8' : '#5a6472';
+
   return (
     <div
       className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${
         isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
-      style={{ background: '#0f1117' }}
+      style={{ background: splashBg }}
     >
       <div className="flex flex-col items-center -mt-16" style={{ gap: '48px' }}>
         <img
           src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png"
           alt="KJB Reader Logo"
-          className="w-44 h-44 object-contain rounded-2xl"
+          className="w-44 h-44 object-contain rounded-2xl p-3"
+          style={{ background: splashBg }}
         />
         <div className="flex flex-col items-center gap-5 w-64">
           {/* Progress bar — determinate (download %) or indeterminate (other steps) */}
           <div
             className="w-full h-1.5 rounded-full overflow-hidden relative"
-            style={{ background: 'rgba(255,255,255,0.08)' }}
+            style={{ background: trackBg }}
           >
             {progress === null ? (
               <div
@@ -404,7 +412,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           </div>
           <span
             className="font-sans text-sm font-light tracking-[0.25em] uppercase transition-all duration-300 text-center"
-            style={{ color: '#c8cdd8' }}
+            style={{ color: textColor }}
           >
             {currentMessage}
           </span>
