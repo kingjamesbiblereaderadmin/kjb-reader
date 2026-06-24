@@ -42,21 +42,6 @@ const checkIsInstalled = () => {
     try { localStorage.removeItem(INSTALLED_KEY); } catch {}
     return false;
   }
-  // When opened in a browser tab with no install prompt, we can't be certain.
-  // Don't trust the sticky stored flag on its own — it lingers "true" forever
-  // after the user removes the PWA, which is the "still says installed" bug.
-  // Verify against the browser's real list of installed apps when supported,
-  // and self-heal the flag accordingly.
-  if (navigator.getInstalledRelatedApps) {
-    navigator.getInstalledRelatedApps().then((apps) => {
-      const reallyInstalled = Array.isArray(apps) && apps.length > 0;
-      try {
-        if (reallyInstalled) localStorage.setItem(INSTALLED_KEY, 'true');
-        else localStorage.removeItem(INSTALLED_KEY);
-      } catch {}
-      window.dispatchEvent(new Event('pwa-installed'));
-    }).catch(() => {});
-  }
   try { return localStorage.getItem(INSTALLED_KEY) === 'true'; } catch { return false; }
 };
 
