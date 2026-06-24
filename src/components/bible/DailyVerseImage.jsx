@@ -50,7 +50,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const menuRef = useRef(null);
   const [uploadingComplete, setUploadingComplete] = useState(false);
   const [textColor, setTextColor] = useState(() => localStorage.getItem('kjb-verse-text-color') || '#ffffff');
-  const [textOpacity, setTextOpacity] = useState(() => parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '0.95'));
+  const [textOpacity, setTextOpacity] = useState(() => parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '1'));
   const [fontFamily, setFontFamily] = useState(() => {
     try { return localStorage.getItem('kjb-verse-font-family') || 'serif'; } catch { return 'serif'; }
   });
@@ -666,7 +666,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                           localStorage.removeItem('kjb-daily-verse-bg-original');
                           // Reset text color and opacity to defaults
                           handleTextColorChange('#ffffff');
-                          handleTextOpacityChange(0.95);
+                          handleTextOpacityChange(1);
                           handleFontFamilyChange('serif');
                           window.dispatchEvent(new Event('storage'));
                         }
@@ -737,7 +737,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               onClick={(e) => {
                 e.stopPropagation();
                 handleTextColorChange('#ffffff');
-                handleTextOpacityChange(0.95);
+                handleTextOpacityChange(1);
                 handleFontFamilyChange('serif');
               }}
               className="flex items-center gap-1 px-2 py-1 rounded-md bg-secondary hover:bg-accent/20 text-slate-700 dark:text-slate-300 font-sans text-[10px] font-medium transition-colors touch-manipulation"

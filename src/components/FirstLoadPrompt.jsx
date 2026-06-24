@@ -326,6 +326,35 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             </div>
           </div>
 
+          {/* Daily Verse Font */}
+          <div className="rounded-xl bg-secondary/40 border border-border p-2">
+            <div className="flex items-center gap-1.5 mb-1.5 px-0.5">
+              <Type className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <span className="font-sans text-[11px] sm:text-xs font-medium text-foreground">Daily Verse Font</span>
+            </div>
+            <div className="grid grid-cols-4 gap-1.5">
+              {VERSE_FONTS.map(font => {
+                const isActive = a11yFont !== 'default' ? false : verseFontFamily === font.value;
+                const isDisabled = a11yFont !== 'default';
+                return (
+                <button
+                  key={font.value}
+                  disabled={isDisabled}
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); pickVerseFont(font.value); }}
+                  className={`px-1 py-1.5 rounded-lg border font-sans text-[9px] sm:text-[10px] font-medium transition-all touch-manipulation ${
+                    isActive
+                      ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                      : 'bg-card text-foreground border-border hover:border-accent'
+                  } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
+                  style={{ fontFamily: font.value }}
+                >
+                  {font.label}
+                </button>
+              )})}
+            </div>
+          </div>
+
           {/* Accessibility font — dyslexic & high-legibility options */}
           <div className="rounded-xl bg-primary/5 border-2 border-primary/20 p-2">
             <div className="flex items-center gap-1.5 mb-1.5 px-0.5">

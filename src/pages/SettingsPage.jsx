@@ -51,7 +51,7 @@ const isBookmarkBrowser = () => {
 };
 
 const LAST_REVISED = 'June 12th, 2026';
-const WORKER_VERSION = 'v20260624_488';
+const WORKER_VERSION = 'v20260624_489';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -105,7 +105,7 @@ export default function SettingsPage() {
     try { return localStorage.getItem('kjb-verse-text-color') || '#ffffff'; } catch { return '#ffffff'; }
   });
   const [verseTextOpacity, setVerseTextOpacity] = useState(() => {
-    try { return parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '0.95'); } catch { return 0.95; }
+    try { return parseFloat(localStorage.getItem('kjb-verse-text-opacity') || '1'); } catch { return 1; }
   });
   const [readerFontFamily, setReaderFontFamily] = useState(() => {
     try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
@@ -813,11 +813,11 @@ export default function SettingsPage() {
           <button
             onClick={() => {
               setVerseTextColor('#ffffff');
-              setVerseTextOpacity(0.95);
+              setVerseTextOpacity(1);
               setVerseFontFamily('serif');
               setShowVersePanel(true);
               localStorage.setItem('kjb-verse-text-color', '#ffffff');
-              localStorage.setItem('kjb-verse-text-opacity', '0.95');
+              localStorage.setItem('kjb-verse-text-opacity', '1');
               localStorage.setItem('kjb-verse-font-family', 'serif');
               localStorage.setItem('kjb-verse-panel-visible', 'true');
               window.dispatchEvent(new Event('storage'));
