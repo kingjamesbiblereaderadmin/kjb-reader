@@ -60,6 +60,7 @@ export default function SettingsPage() {
   const [deleting, setDeleting] = useState(false);
   const [a11yFont, setA11yFont] = useState(getAccessibilityFont);
   const [showInstallHint, setShowInstallHint] = useState(false);
+  const [waitingForPrompt, setWaitingForPrompt] = useState(false);
   const [bookmarkBrowser] = useState(isBookmarkBrowser);
   const [isIncognito, setIsIncognito] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
@@ -996,25 +997,46 @@ export default function SettingsPage() {
               </button>
             ) : (
             <button
-              onClick={() => {
-                // The official PWA install API — this always installs the App
-                // (full PWA), never a shortcut. Fire it immediately on click.
-                if (!isInstallable && !window.kjbDeferredPrompt) {
-                  setShowInstallHint(true);
+              disabled={waitingForPrompt}
+              onClick={async () => {
+                // The official PWA install API — always installs the App (full
+                // PWA), never a shortcut.
+                // Chrome/Samsung fire beforeinstallprompt early; Edge fires it
+                // a beat after load. If the prompt isn't captured yet, wait for
+                // it (up to 5s) before falling back to the manual guide.
+                if (isInstallable || window.kjbDeferredPrompt) {
+                  promptInstall().catch((err) => {
+                    console.error('Install prompt failed:', err);
+                    toast.error('Browser blocked automatic install', {
+                      description: 'Use your browser menu — pick "App", not "Shortcut" — or see the guide below.',
+                    });
+                    setShowInstallHint(true);
+                  });
                   return;
                 }
-                promptInstall().catch((err) => {
-                  console.error('Install prompt failed:', err);
-                  toast.error('Browser blocked automatic install', {
-                    description: 'Use your browser menu — pick "App", not "Shortcut" — or see the guide below.',
-                  });
-                  setShowInstallHint(true);
+                setWaitingForPrompt(true);
+                const got = await new Promise((resolve) => {
+                  let done = false;
+                  const onReady = () => { if (!done) { done = true; cleanup(); resolve(true); } };
+                  const cleanup = () => window.removeEventListener('pwa-installable', onReady);
+                  window.addEventListener('pwa-installable', onReady);
+                  setTimeout(() => { if (!done) { done = true; cleanup(); resolve(!!window.kjbDeferredPrompt); } }, 5000);
                 });
+                setWaitingForPrompt(false);
+                if (got) {
+                  promptInstall().catch(() => setShowInstallHint(true));
+                } else {
+                  setShowInstallHint(true);
+                }
               }}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100"
             >
-              {/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? <Smartphone className="w-4 h-4" /> : <MonitorSmartphone className="w-4 h-4" />}
-              {/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? 'Add to Home Screen' : 'Install App'}
+              {waitingForPrompt
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : (/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? <Smartphone className="w-4 h-4" /> : <MonitorSmartphone className="w-4 h-4" />)}
+              {waitingForPrompt
+                ? 'Preparing…'
+                : (/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? 'Add to Home Screen' : 'Install App')}
             </button>
             )}
             
