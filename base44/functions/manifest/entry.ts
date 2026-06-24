@@ -15,16 +15,10 @@ Deno.serve(async () => {
     theme_color: "#3b9ad6",
     icons: [
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/bd5456635_generated_image.png",
-        sizes: "192x192 512x512 1024x1024",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/391154913_cfb4bf781_Untitled.png",
+        sizes: "any",
         type: "image/png",
         purpose: "any"
-      },
-      {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/1d2632b85_generated_image.png",
-        sizes: "1024x1024",
-        type: "image/png",
-        purpose: "maskable"
       }
     ],
     screenshots: [
