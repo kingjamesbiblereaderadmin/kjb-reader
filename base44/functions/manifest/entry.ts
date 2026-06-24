@@ -23,6 +23,22 @@ Deno.serve(async () => {
         type: "image/png",
         purpose: "maskable"
       }
+    ],
+    screenshots: [
+      {
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/13d75b163_Screenshot_20260624_103754_OneDrive.jpg",
+        sizes: "1024x683",
+        type: "image/jpeg",
+        form_factor: "wide",
+        label: "KJB Reader — read the King James Bible with ease"
+      },
+      {
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/9bab7b31b_Screenshot_20260624_103619_OneDrive.jpg",
+        sizes: "486x1080",
+        type: "image/jpeg",
+        form_factor: "narrow",
+        label: "The Gospel of Salvation"
+      }
     ]
   };
 
