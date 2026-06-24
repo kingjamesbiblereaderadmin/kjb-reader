@@ -52,11 +52,25 @@ Deno.serve(async () => {
         label: "Read the King James Bible with ease"
       },
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/731b8ee99_WhatsAppImage2026-05-31at190642.jpg",
-        sizes: "1024x564",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/0c619d9c1_BCOf0297029-2e38-446b-bd58-076244d9d764.png",
+        sizes: "1024x683",
+        type: "image/png",
+        form_factor: "wide",
+        label: "The Gospel of Salvation"
+      },
+      {
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/f082f27cb_WhatsAppImage2026-05-31at182822.jpg",
+        sizes: "1024x649",
         type: "image/jpeg",
         form_factor: "wide",
-        label: "KJB Reader — read the King James Bible with ease"
+        label: "Read the King James Bible with ease"
+      },
+      {
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/84904fb55_80aa2d055_screenshot-1024x500.png",
+        sizes: "750x500",
+        type: "image/png",
+        form_factor: "wide",
+        label: "Read the King James Version of the Bible with ease"
       }
     ]
   };
