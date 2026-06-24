@@ -58,6 +58,24 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   // The font actually rendered — accessibility font overrides the verse's own choice
   const resolvedFont = resolveFontFamily(fontFamily, a11yFont);
 
+  // Web fonts (OpenDyslexic, Atkinson Hyperlegible, Dancing Script) are loaded
+  // lazily from a CDN. Until the browser actually fetches the font file, the
+  // card renders a fallback — so the on-screen card "doesn't show" the chosen
+  // font. Force-load the active font so it applies immediately on screen.
+  useEffect(() => {
+    try {
+      if (!document.fonts) return;
+      let fam = null;
+      if (/opendyslexic/i.test(resolvedFont)) fam = 'OpenDyslexic';
+      else if (/atkinson hyperlegible/i.test(resolvedFont)) fam = 'Atkinson Hyperlegible';
+      else if (/dancing script/i.test(resolvedFont)) fam = 'Dancing Script';
+      if (fam) {
+        document.fonts.load(`700 48px "${fam}"`);
+        document.fonts.load(`italic 700 48px "${fam}"`);
+      }
+    } catch {}
+  }, [resolvedFont]);
+
   const textLen = verse?.text?.length || 0;
   // Scale text by verse length. The smallest size is the narrow-phone base
   // (default Tailwind), bumping up at the `xs` (420px) and `md` breakpoints so
