@@ -31,6 +31,12 @@ Deno.serve(async () => {
         sizes: "1024x1024",
         type: "image/png",
         purpose: "any"
+      },
+      {
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/ed44b9f05_generated_image.png",
+        sizes: "1024x1024",
+        type: "image/png",
+        purpose: "maskable"
       }
     ],
     screenshots: [
