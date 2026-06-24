@@ -57,13 +57,6 @@ Deno.serve(async () => {
         type: "image/jpeg",
         form_factor: "wide",
         label: "KJB Reader — read the King James Bible with ease"
-      },
-      {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/d6f1b119b_Screenshot_20260624_103754_OneDrive.jpg",
-        sizes: "1024x685",
-        type: "image/jpeg",
-        form_factor: "wide",
-        label: "Install KJB Reader on any browser"
       }
     ]
   };
