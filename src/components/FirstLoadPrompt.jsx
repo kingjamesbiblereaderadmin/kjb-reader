@@ -366,7 +366,8 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
                 <button
                   key={font.value}
                   type="button"
-                  onClick={(e) => { e.stopPropagation(); setA11yFont(font.value); setAccessibilityFont(font.value); }}
+                  onClick={(e) => { e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setA11yFont(font.value); setAccessibilityFont(font.value); }}
+                  onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setA11yFont(font.value); setAccessibilityFont(font.value); }}
                   className={`px-1 py-2 rounded-xl border-2 font-sans text-[10px] sm:text-xs font-bold transition-all touch-manipulation flex flex-col items-center justify-center text-center ${
                     a11yFont === font.value
                       ? 'bg-primary text-primary-foreground border-primary shadow-md scale-[1.02]'
