@@ -119,30 +119,26 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   };
 
   const handleInstallClick = async (e) => {
-    // Always try the browser's native install prompt first — the deferred
-    // event may be captured globally (window.kjbDeferredPrompt) even when the
-    // isInstallable React state hasn't caught up yet. Only fall back to the
-    // manual guide if the native prompt genuinely isn't available.
-    if (onInstall) {
+    // Try the browser's native install prompt first. The deferred event may be
+    // captured globally (window.kjbDeferredPrompt) even when the isInstallable
+    // React state hasn't caught up yet, so check the global directly.
+    const hasPrompt = isInstallable || (typeof window !== 'undefined' && !!window.kjbDeferredPrompt);
+    if (hasPrompt && onInstall) {
       try {
         const accepted = await onInstall();
         if (accepted) {
           setInstallDone(true);
           return;
         }
-        // onInstall returned false: no deferred prompt was available, or the
-        // user dismissed the native dialog. Show the manual guide only when
-        // there's no prompt to fire at all.
-        if (!isInstallable && !window.kjbDeferredPrompt) {
-          setShowIOSHint(true);
-        }
+        // User dismissed the native dialog — don't nag with the manual guide.
+        return;
       } catch (err) {
         console.error('Install prompt failed:', err);
-        setShowIOSHint(true);
       }
-    } else {
-      setShowIOSHint(true);
     }
+    // No native prompt available (Samsung Internet, iOS, Firefox, etc.) — show
+    // the manual installation guide.
+    setShowIOSHint(true);
   };
 
   const handleNotifClick = async (e) => {
