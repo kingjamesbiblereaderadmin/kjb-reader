@@ -34,18 +34,17 @@ const checkIsInstalled = () => {
   // The stored flag can go stale if the user later uninstalls the app from the
   // browser, so we self-heal it here.
   const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  // The ONLY reliable signal that the app is installed AND in use is running in
+  // standalone display mode. Cancelling the install prompt previously left a
+  // stale localStorage flag that falsely reported "Installed" — so we no longer
+  // trust that flag and rely solely on the live display-mode signal.
   if (standalone) {
     try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
     return true;
   }
-  // Not standalone. If a future install prompt is available, the app clearly
-  // isn't installed (or was uninstalled) — clear the stale flag so the install
-  // button re-enables.
-  if (window.kjbDeferredPrompt || deferredPrompt) {
-    try { localStorage.removeItem(INSTALLED_KEY); } catch {}
-    return false;
-  }
-  try { return localStorage.getItem(INSTALLED_KEY) === 'true'; } catch { return false; }
+  // Not running standalone — treat as not installed (clears any stale flag).
+  try { localStorage.removeItem(INSTALLED_KEY); } catch {}
+  return false;
 };
 
 export function useInstallPrompt() {
@@ -97,16 +96,21 @@ export function useInstallPrompt() {
       const result = await deferredPrompt.userChoice;
       console.log(result.outcome); // "accepted" or "dismissed"
 
-      deferredPrompt = null;       // Must reset
-      window.kjbDeferredPrompt = null;
-      setIsInstallable(false);
-      window.dispatchEvent(new Event('pwa-installable'));
-
       if (result.outcome === 'accepted') {
+        // Only NOW is the prompt consumed and the app actually installed.
+        deferredPrompt = null;
+        window.kjbDeferredPrompt = null;
+        setIsInstallable(false);
         try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
         window.dispatchEvent(new Event('pwa-installed'));
+        window.dispatchEvent(new Event('pwa-installable'));
         return true;
       }
+
+      // User CANCELLED — must NOT mark the app as installed. Clear any stale
+      // flag so the UI keeps showing "not installed".
+      try { localStorage.removeItem(INSTALLED_KEY); } catch {}
+      setIsInstalled(false);
       return false;
     } catch (err) {
       console.error('Install prompt error:', err);
