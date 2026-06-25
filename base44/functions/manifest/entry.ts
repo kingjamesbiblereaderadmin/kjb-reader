@@ -11,8 +11,8 @@ Deno.serve(async () => {
     display_override: ["standalone", "minimal-ui"],
     launch_handler: { client_mode: "navigate-existing" },
     orientation: "portrait",
-    background_color: "#3b9ad6",
-    theme_color: "#3b9ad6",
+    background_color: "#0f1117",
+    theme_color: "#0f1117",
     prefer_related_applications: false,
     icons: [
       {
