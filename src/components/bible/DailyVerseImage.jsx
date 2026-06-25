@@ -963,7 +963,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           <div className="flex-1 flex flex-col justify-center">
           <div className={hasCustomBg ? 'mx-auto w-full max-w-none rounded-2xl bg-black/20 backdrop-blur-[2px] px-2 sm:px-4 py-6' : 'mx-auto w-full max-w-none px-1 sm:px-2'}>
           <blockquote 
-            className={`text-center [&_em]:italic break-words ${fontFamily === 'cursive' ? 'kjb-verse-card cursive-em-style' : ''} ${panelTextClass}`}
+            className={`text-center [&_em]:italic break-words ${fontFamily === 'cursive' && a11yFont === 'default' ? 'kjb-verse-card cursive-em-style' : ''} ${panelTextClass}`}
             style={{ 
               color: textColor, 
               opacity: textOpacity, 
@@ -1295,7 +1295,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               {isOffline ? 'Offline Verse of the Day' : 'Verse of the Day'}
             </p>
             <blockquote 
-              className={`mb-12 [&_em]:italic ${fontFamily === 'cursive' ? 'kjb-verse-card cursive-em-style' : ''} ${lightboxTextClass}`}
+              className={`mb-12 [&_em]:italic ${fontFamily === 'cursive' && a11yFont === 'default' ? 'kjb-verse-card cursive-em-style' : ''} ${lightboxTextClass}`}
               style={{ 
                 color: textColor, 
                 opacity: textOpacity, 
