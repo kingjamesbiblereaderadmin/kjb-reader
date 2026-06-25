@@ -20,6 +20,13 @@ if (typeof window !== 'undefined') {
   });
 
   window.addEventListener('appinstalled', () => {
+    // Edge can fire `appinstalled` even when the user taps out / cancels the
+    // install dialog, which previously created a FAKE "installed" state and
+    // hid the Install button. Don't trust this event on its own — only act if
+    // the app is genuinely running standalone now. Otherwise keep the
+    // deferredPrompt so the Install button stays available (like Chrome/Samsung).
+    const reallyInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    if (!reallyInstalled) return;
     console.log('PWA installed');
     deferredPrompt = null;
     window.kjbDeferredPrompt = null;
