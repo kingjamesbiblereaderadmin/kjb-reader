@@ -126,23 +126,26 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
           style={{ position: 'absolute', top: '40px', left: '40px', width: '104px', height: '104px', objectFit: 'contain', borderRadius: '20px' }}
         />
 
-        {/* VERSE OF THE DAY header with gradient side rules.
+        {/* VERSE OF THE DAY header with gradient side rules, wrapped in a
+            translucent box like the daily card.
             Left padding keeps the first dash clear of the top-left logo. */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginTop: '24px', marginBottom: '24px', width: '100%', paddingLeft: '96px' }}>
-          <HeaderRule />
-          <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '34px', fontWeight: 800, letterSpacing: '0.16em', color: '#ffffff', textShadow: '0 2px 8px rgba(0,0,0,0.4)', whiteSpace: 'nowrap' }}>
-            {isOffline ? 'OFFLINE VERSE OF THE DAY' : 'VERSE OF THE DAY'}
-          </span>
-          <HeaderRule flip />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginTop: '24px', marginBottom: '24px', paddingLeft: '96px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', background: 'rgba(0,0,0,0.25)', borderRadius: '24px', padding: '14px 36px' }}>
+            <HeaderRule />
+            <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '34px', fontWeight: 800, letterSpacing: '0.16em', color: '#ffffff', textShadow: '0 2px 8px rgba(0,0,0,0.4)', whiteSpace: 'nowrap' }}>
+              {isOffline ? 'OFFLINE VERSE OF THE DAY' : 'VERSE OF THE DAY'}
+            </span>
+            <HeaderRule flip />
+          </div>
         </div>
 
         {/* Verse text — centered flex column; verse, ref and date all flow
             together and stay vertically centered, so long verses never overlap
             the footer divider below. */}
         <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', overflow: 'hidden', paddingBottom: '0' }}>
-          {/* Verse, reference and date are all one inline-flowing block so a long
-              verse pushes the ref + date down together and never overlaps the
-              footer divider — the whole group stays vertically centered. */}
+          {/* Verse, reference and date are all one inline-flowing block, wrapped
+              in a translucent box like the daily card. The box stays vertically
+              centered, so long verses never overlap the footer divider. */}
           <blockquote
             className="kjb-sharecard-verse"
             style={{
@@ -155,7 +158,12 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
               color: verseColor,
               opacity: verseOpacity,
               textShadow: '0 3px 10px rgba(0,0,0,0.4)',
+              width: '100%',
               maxWidth: '960px',
+              boxSizing: 'border-box',
+              background: 'rgba(0,0,0,0.20)',
+              borderRadius: '28px',
+              padding: '48px 44px',
             }}
           >
             {/* Force KJB italic words (<em>) to render italic in every font */}
