@@ -25,8 +25,8 @@
       "purpose": "any"
     },
     {
-      "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/491196637_cfb4bf781_Untitled.png",
-      "sizes": "any",
+      "src": "https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/57d8144ac_kjb-maskable-512.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     }
