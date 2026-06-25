@@ -978,7 +978,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(cleanVerseText(verse.text)) }} />"
           </blockquote>
           <p 
-            className="text-base md:text-lg font-semibold mt-4 text-center"
+            className="text-base md:text-lg font-semibold mt-2 text-center"
             style={{ 
               opacity: Math.min(1, textOpacity + 0.05), 
               color: textColor, 
@@ -992,7 +992,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
           {/* Date — merged into the same block as verse + ref so long verses
               flow naturally without overlapping or overflowing. */}
-          <div className="flex flex-col items-center justify-center w-full mt-6 relative z-10">
+          <div className="flex flex-col items-center justify-center w-full mt-5 relative z-10">
             <span
               className="whitespace-nowrap"
               style={{
