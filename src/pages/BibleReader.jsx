@@ -30,6 +30,7 @@ import { useReaderUrlSync } from '@/lib/useReaderUrlSync';
 import { resolveBook, formatVerseRange } from '@/lib/readerHelpers';
 import { useClosePopovers } from '@/lib/useClosePopovers';
 import { printChapterContents } from '@/lib/printHelpers';
+import { usePinchZoom } from '@/hooks/usePinchZoom';
 
 const isMobile = () => window.innerWidth < 640;
 const STORAGE_KEY = 'kjb-position';
@@ -354,6 +355,12 @@ export default function BibleReader() {
   };
 
   const topRef = useRef(null);
+  const readerContentRef = useRef(null);
+  const setZoomPersist = useCallback((next) => {
+    setZoomLevel(next);
+    try { localStorage.setItem('kjb-zoom', String(next)); } catch {}
+  }, []);
+  usePinchZoom(readerContentRef, zoomLevel, setZoomPersist);
   const rangeHighlightRef = useRef(false);
   const resultViewRef = useRef('filter');
   const freshNavRef = useRef(false);
@@ -1362,6 +1369,7 @@ export default function BibleReader() {
       )}
 
       <div 
+        ref={readerContentRef}
         className={`kjb-reader-content leading-loose text-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`}
         style={{ fontSize: `${zoomLevel / 100 * 1.125}rem`, lineHeight: zoomLevel > 100 ? '1.8' : '1.6', ...(fontFamily !== 'cursive' ? { fontFamily: getFontFamilyValue(fontFamily) } : {}) }}
       >
