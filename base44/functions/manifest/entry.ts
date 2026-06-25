@@ -28,8 +28,8 @@ Deno.serve(async () => {
         purpose: "any"
       },
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/0dd7c6f01_generated_image.png",
-        sizes: "512x512",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/491196637_cfb4bf781_Untitled.png",
+        sizes: "any",
         type: "image/png",
         purpose: "maskable"
       }
