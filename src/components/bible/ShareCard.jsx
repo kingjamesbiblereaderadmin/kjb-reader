@@ -123,14 +123,14 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
           src={logoSrc || LOGO_URL}
           alt="KJB Reader"
           crossOrigin="anonymous"
-          style={{ position: 'absolute', top: '24px', left: '24px', width: '96px', height: '96px', objectFit: 'contain', borderRadius: '20px' }}
+          style={{ position: 'absolute', top: '16px', left: '16px', width: '80px', height: '80px', objectFit: 'contain', borderRadius: '18px' }}
         />
 
         {/* VERSE OF THE DAY header with gradient side rules, wrapped in a
             translucent box like the daily card.
             Left padding keeps the first dash clear of the top-left logo. */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginTop: '24px', marginBottom: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', background: 'rgba(0,0,0,0.25)', borderRadius: '24px', padding: '14px 36px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', width: '100%', maxWidth: '960px', boxSizing: 'border-box', background: 'rgba(0,0,0,0.20)', borderRadius: '28px', padding: '48px 44px' }}>
             <HeaderRule />
             <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '34px', fontWeight: 800, letterSpacing: '0.16em', color: '#ffffff', textShadow: '0 2px 8px rgba(0,0,0,0.4)', whiteSpace: 'nowrap' }}>
               {isOffline ? 'OFFLINE VERSE OF THE DAY' : 'VERSE OF THE DAY'}
