@@ -46,18 +46,18 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
   // Scale both font size and line height down as the verse grows longer, so
   // even very long verses fit inside the fixed 1024px card without overflowing.
   // Short verses scale UP so they fill the card instead of leaving empty space.
-  let dynamicFontSize = '96px';
-  let dynamicLineHeight = 1.55;
+  let dynamicFontSize = '72px';
+  let dynamicLineHeight = 1.5;
   if (textLen > 650) { dynamicFontSize = '22px'; dynamicLineHeight = 1.4; }
   else if (textLen > 550) { dynamicFontSize = '25px'; dynamicLineHeight = 1.45; }
   else if (textLen > 450) { dynamicFontSize = '28px'; dynamicLineHeight = 1.5; }
-  else if (textLen > 380) { dynamicFontSize = '32px'; dynamicLineHeight = 1.55; }
-  else if (textLen > 300) { dynamicFontSize = '38px'; dynamicLineHeight = 1.6; }
-  else if (textLen > 250) { dynamicFontSize = '44px'; dynamicLineHeight = 1.6; }
-  else if (textLen > 200) { dynamicFontSize = '50px'; dynamicLineHeight = 1.6; }
-  else if (textLen > 150) { dynamicFontSize = '58px'; dynamicLineHeight = 1.6; }
-  else if (textLen > 100) { dynamicFontSize = '68px'; dynamicLineHeight = 1.55; }
-  else if (textLen > 60) { dynamicFontSize = '80px'; dynamicLineHeight = 1.5; }
+  else if (textLen > 380) { dynamicFontSize = '32px'; dynamicLineHeight = 1.5; }
+  else if (textLen > 300) { dynamicFontSize = '36px'; dynamicLineHeight = 1.5; }
+  else if (textLen > 250) { dynamicFontSize = '40px'; dynamicLineHeight = 1.5; }
+  else if (textLen > 200) { dynamicFontSize = '46px'; dynamicLineHeight = 1.5; }
+  else if (textLen > 150) { dynamicFontSize = '52px'; dynamicLineHeight = 1.5; }
+  else if (textLen > 100) { dynamicFontSize = '60px'; dynamicLineHeight = 1.5; }
+  else if (textLen > 60) { dynamicFontSize = '66px'; dynamicLineHeight = 1.45; }
 
   // Thin full-width gradient line (blue → purple) with soft glow
   const SeparatorLine = () => (
@@ -184,7 +184,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             <span
               style={{
                 display: 'inline-block',
-                marginTop: '48px',
+                marginTop: '36px',
                 background: dateBadgeBg,
                 borderRadius: '999px',
                 padding: '10px 28px 16px',
