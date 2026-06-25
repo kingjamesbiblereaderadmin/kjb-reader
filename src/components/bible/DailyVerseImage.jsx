@@ -17,6 +17,22 @@ function resolveFontFamily(choice, a11yFont) {
   if (a11yFont === 'dyslexic') return "'OpenDyslexic', 'Comic Sans MS', sans-serif";
   if (a11yFont === 'hyperlegible') return "'Atkinson Hyperlegible', system-ui, sans-serif";
   if (a11yFont === 'system') return 'system-ui, -apple-system, sans-serif';
+  return null;
+}
+
+// The font for UI chrome (header label, date pill). Follows the accessibility
+// font when active, otherwise stays Inter so chrome is consistent.
+function resolveUiFont(a11yFont) {
+  if (a11yFont === 'dyslexic') return "'OpenDyslexic', 'Comic Sans MS', sans-serif";
+  if (a11yFont === 'hyperlegible') return "'Atkinson Hyperlegible', system-ui, sans-serif";
+  if (a11yFont === 'system') return 'system-ui, -apple-system, sans-serif';
+  return "'Inter', system-ui, sans-serif";
+}
+
+function resolveVerseFontFamily(choice, a11yFont) {
+  const a11y = resolveFontFamily(null, a11yFont);
+  if (a11y) return a11y;
+  if (choice === 'serif') return "'Merriweather', 'Cormorant Garamond', Georgia, serif";
   if (choice === 'sans-serif') return "'Inter', system-ui, -apple-system, sans-serif";
   if (choice === 'monospace') return "'Courier New', monospace";
   if (choice === 'cursive') return "'Dancing Script', cursive";
@@ -56,7 +72,9 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   });
   const [a11yFont, setA11yFont] = useState(getAccessibilityFont);
   // The font actually rendered — accessibility font overrides the verse's own choice
-  const resolvedFont = resolveFontFamily(fontFamily, a11yFont);
+  const resolvedFont = resolveVerseFontFamily(fontFamily, a11yFont);
+  // UI chrome (header label, date pill) — follows the accessibility font too
+  const uiFont = resolveUiFont(a11yFont);
 
   // Web fonts (OpenDyslexic, Atkinson Hyperlegible, Dancing Script) are loaded
   // lazily from a CDN. Until the browser actually fetches the font file, the
@@ -936,7 +954,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             <span className="h-px w-6 xs:w-12 bg-current opacity-50 flex-shrink-0" style={{ color: textColor }} />
             <p 
               className={`font-sans text-sm xs:text-lg md:text-xl font-black tracking-[0.12em] xs:tracking-[0.22em] uppercase ${accentClass}`}
-              style={{ opacity: 1, color: textColor, fontFamily: "'Inter', system-ui, sans-serif", textShadow: '0 2px 10px rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.45)' }}
+              style={{ opacity: 1, color: textColor, fontFamily: uiFont, textShadow: '0 2px 10px rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.45)' }}
             >
               {isOffline ? 'Offline Verse of the Day' : 'Verse of the Day'}
             </p>
@@ -982,7 +1000,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 border: '1px solid rgba(255,255,255,0.18)',
                 borderRadius: '11px',
                 color: 'rgba(255,255,255,0.98)',
-                fontFamily: "'Inter', system-ui, sans-serif",
+                fontFamily: uiFont,
                 fontSize: '13px',
                 fontWeight: 700,
                 letterSpacing: '0.03em',
@@ -1011,7 +1029,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             <span className="h-px w-6 xs:w-12 bg-current opacity-50 flex-shrink-0" style={{ color: textColor }} />
             <p 
               className={`font-sans text-sm xs:text-lg md:text-xl font-black tracking-[0.12em] xs:tracking-[0.22em] uppercase ${accentClass}`}
-              style={{ opacity: 1, color: textColor, fontFamily: "'Inter', system-ui, sans-serif", textShadow: '0 2px 10px rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.45)' }}
+              style={{ opacity: 1, color: textColor, fontFamily: uiFont, textShadow: '0 2px 10px rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.45)' }}
             >
               {isOffline ? 'Offline Verse of the Day' : 'Verse of the Day'}
             </p>
@@ -1031,7 +1049,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               border: '1px solid rgba(255,255,255,0.18)',
               borderRadius: '11px',
               color: 'rgba(255,255,255,0.98)',
-              fontFamily: "'Inter', system-ui, sans-serif",
+              fontFamily: uiFont,
               fontSize: '13px',
               fontWeight: 700,
               letterSpacing: '0.03em',
@@ -1311,7 +1329,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
       {/* Off-screen fixed-size card used for the shared/downloaded image */}
       <Suspense fallback={null}>
-        <ShareCard ref={shareCardRef} verse={verse} logoSrc={logoDataUrl} fontFamily={resolvedFont} textColor={textColor} textOpacity={textOpacity} gradient={hasCustomBg ? null : defaultBg.hex} isOffline={isOffline} />
+        <ShareCard ref={shareCardRef} verse={verse} logoSrc={logoDataUrl} fontFamily={resolvedFont} uiFont={uiFont} textColor={textColor} textOpacity={textOpacity} gradient={hasCustomBg ? null : defaultBg.hex} isOffline={isOffline} />
       </Suspense>
     </div>
   );
