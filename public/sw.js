@@ -1,7 +1,7 @@
-// KJB Reader Service Worker kjb-reader-20260625_516
+// KJB Reader Service Worker kjb-reader-20260625_517
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260625_516';
+const CACHE_NAME = 'kjb-reader-v20260625_517';
 // Bumped to force complete reinstall for all users
 const LEGACY_CACHE_NAME = 'kjb-legacy-v9';
 
