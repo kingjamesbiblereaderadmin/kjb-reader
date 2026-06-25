@@ -132,8 +132,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <meta name="description" content="Read the King James Bible (Pure Cambridge Edition) with offline support, daily verses, and beautiful typography." />
     <meta name="keywords" content="Bible, King James Bible, KJB, Pure Cambridge Edition, offline Bible, Christian, scripture" />
-    <!-- PWA manifest -->
-    <link rel="manifest" href="/manifest.json" />
+    <!-- PWA manifest (versioned URL forces Chrome/Samsung/Edge to re-read the
+         corrected icons instead of serving a stale cached manifest) -->
+    <link rel="manifest" href="/manifest.json?v=20260625_531" />
     <!-- Prevent flash of wrong theme: apply saved theme BEFORE React mounts -->
     <script>
       window.kjbDeferredPrompt = null;

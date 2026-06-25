@@ -1,7 +1,7 @@
-// KJB Reader Service Worker kjb-reader-20260625_531
+// KJB Reader Service Worker kjb-reader-20260625_532
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260625_531';
+const CACHE_NAME = 'kjb-reader-v20260625_532';
 // Bumped to force complete reinstall for all users
 const LEGACY_CACHE_NAME = 'kjb-legacy-v9';
 
@@ -126,6 +126,22 @@ self.addEventListener('fetch', (event) => {
 
   // Never cache sw.js itself — browser must always fetch it fresh for update detection
   if (url.pathname === '/sw.js') return;
+
+  // Always fetch the manifest fresh (network-first) so corrected icons reach
+  // Chrome/Samsung/Edge immediately instead of a stale cached version. Falls
+  // back to cache only when offline.
+  if (url.pathname === '/manifest.json') {
+    event.respondWith(
+      fetch(request).then((response) => {
+        if (response && response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+        }
+        return response;
+      }).catch(() => caches.match(request))
+    );
+    return;
+  }
 
   // DEV MODE: Skip service worker caching for development
   // This prevents stale React/Vite chunks from breaking the dev server
