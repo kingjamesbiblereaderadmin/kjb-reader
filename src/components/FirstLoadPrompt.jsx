@@ -32,8 +32,9 @@ const isBookmarkBrowser = () => {
 };
 const isInStandaloneMode = () => {
   if (typeof window === 'undefined') return false;
-  if (window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone) return true;
-  try { return localStorage.getItem('kjb-is-installed') === 'true'; } catch { return false; }
+  // Only trust the ACTUAL running display mode. The persisted flag can stick
+  // around (e.g. after cancelling an install) and wrongly show "Installed".
+  return window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
 };
 
 const DISMISSED_KEY = 'kjb-prompt-dismissed';
