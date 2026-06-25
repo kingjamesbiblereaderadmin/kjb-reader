@@ -78,7 +78,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
     <span
       style={{
         display: 'block',
-        width: '120px',
+        flex: 1,
         height: '3px',
         borderRadius: '3px',
         background: flip
