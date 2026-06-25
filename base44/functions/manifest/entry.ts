@@ -16,19 +16,19 @@ Deno.serve(async () => {
     prefer_related_applications: false,
     icons: [
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/2b6630610_cfb4bf781_Untitled.png",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/35e329953_cfb4bf781_Untitled.png",
         sizes: "141x141",
         type: "image/png",
         purpose: "any"
       },
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/2b6630610_cfb4bf781_Untitled.png",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/35e329953_cfb4bf781_Untitled.png",
         sizes: "any",
         type: "image/png",
         purpose: "any"
       },
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/2b6630610_cfb4bf781_Untitled.png",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/35e329953_cfb4bf781_Untitled.png",
         sizes: "any",
         type: "image/png",
         purpose: "maskable"

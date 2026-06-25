@@ -387,7 +387,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
     >
       <div className="flex flex-col items-center -mt-16" style={{ gap: '48px' }}>
         <img
-          src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/2b6630610_cfb4bf781_Untitled.png"
+          src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/35e329953_cfb4bf781_Untitled.png"
           alt="KJB Reader Logo"
           className="w-44 h-44 object-contain rounded-2xl p-3"
           style={{ background: splashBg }}
