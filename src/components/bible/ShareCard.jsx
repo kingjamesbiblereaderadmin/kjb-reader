@@ -127,17 +127,14 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
           style={{ position: 'absolute', top: '16px', left: '16px', width: '80px', height: '80px', objectFit: 'contain', borderRadius: '18px' }}
         />
 
-        {/* VERSE OF THE DAY header with gradient side rules, wrapped in a
-            translucent box like the daily card.
-            Left padding keeps the first dash clear of the top-left logo. */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginTop: '24px', marginBottom: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', width: '100%', maxWidth: '960px', boxSizing: 'border-box', background: 'rgba(0,0,0,0.20)', borderRadius: '28px', padding: '48px 44px' }}>
-            <HeaderRule />
-            <span style={{ flexShrink: 0, fontFamily: headerFont, fontSize: '34px', fontWeight: 800, letterSpacing: '0.16em', color: '#ffffff', textShadow: '0 2px 8px rgba(0,0,0,0.4)', whiteSpace: 'nowrap', textAlign: 'center' }}>
-              {isOffline ? 'OFFLINE VERSE OF THE DAY' : 'VERSE OF THE DAY'}
-            </span>
-            <HeaderRule flip />
-          </div>
+        {/* VERSE OF THE DAY header with gradient side rules — matches the
+            on-screen card: no translucent box, just dashes around the title. */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', width: '100%', maxWidth: '960px', boxSizing: 'border-box', marginTop: '40px', marginBottom: '40px' }}>
+          <HeaderRule />
+          <span style={{ flexShrink: 0, fontFamily: headerFont, fontSize: '34px', fontWeight: 800, letterSpacing: '0.16em', color: verseColor, textShadow: '0 2px 8px rgba(0,0,0,0.4)', whiteSpace: 'nowrap', textAlign: 'center' }}>
+            {isOffline ? 'OFFLINE VERSE OF THE DAY' : 'VERSE OF THE DAY'}
+          </span>
+          <HeaderRule flip />
         </div>
 
         {/* Verse text — centered flex column; verse, ref and date all flow
@@ -162,9 +159,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
               width: '100%',
               maxWidth: '960px',
               boxSizing: 'border-box',
-              background: 'rgba(0,0,0,0.20)',
-              borderRadius: '28px',
-              padding: '48px 44px',
+              padding: '0 24px',
             }}
           >
             {/* Force KJB italic words (<em>) to render italic in every font */}
