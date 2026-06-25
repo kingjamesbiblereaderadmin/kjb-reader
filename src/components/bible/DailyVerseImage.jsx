@@ -949,16 +949,16 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {showVersePanel ? (
-        <div className="px-2 pt-2 pb-2 text-center flex-1 flex flex-col w-full max-w-full overflow-hidden">
-          <div className={`inline-flex self-center items-center justify-center gap-2 xs:gap-4 mt-3 mb-6 max-w-full ${hasCustomBg ? 'rounded-2xl bg-black/25 backdrop-blur-[2px] px-3 xs:px-5 py-2' : ''}`}>
-            <span className="h-px w-6 xs:w-12 bg-current opacity-50 flex-shrink-0" style={{ color: textColor }} />
+        <div className="px-2 pt-2 pb-2 text-center flex-1 flex flex-col w-full max-w-full">
+          <div className={`flex self-stretch items-center justify-center gap-2 xs:gap-4 mt-3 mb-6 w-full ${hasCustomBg ? 'rounded-2xl bg-black/25 backdrop-blur-[2px] px-3 xs:px-5 py-2' : ''}`}>
+            <span className="h-px flex-1 bg-current opacity-50" style={{ color: textColor }} />
             <p 
-              className={`font-sans text-sm xs:text-lg md:text-xl font-black tracking-[0.12em] xs:tracking-[0.22em] uppercase ${accentClass}`}
+              className={`font-sans text-sm xs:text-lg md:text-xl font-black tracking-[0.12em] xs:tracking-[0.22em] uppercase flex-shrink-0 ${accentClass}`}
               style={{ opacity: 1, color: textColor, fontFamily: uiFont, textShadow: '0 2px 10px rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.45)' }}
             >
               {isOffline ? 'Offline Verse of the Day' : 'Verse of the Day'}
             </p>
-            <span className="h-px w-6 xs:w-12 bg-current opacity-50 flex-shrink-0" style={{ color: textColor }} />
+            <span className="h-px flex-1 bg-current opacity-50" style={{ color: textColor }} />
           </div>
           <div className="flex-1 flex flex-col justify-center">
           <div className={hasCustomBg ? 'mx-auto w-full max-w-none rounded-2xl bg-black/20 backdrop-blur-[2px] px-2 sm:px-4 py-6' : 'mx-auto w-full max-w-none px-1 sm:px-2'}>
