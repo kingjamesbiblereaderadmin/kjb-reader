@@ -202,26 +202,21 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
               </button>
             </div>
           )}
-          {showInstall && !isBookmarkBrowser() && (
+          {showInstall && !isBookmarkBrowser() && !installDone && (
             <div className="space-y-2 shrink-0">
               <button
                 type="button"
-                disabled={installDone}
-                onClick={installDone ? undefined : handleInstallClick}
-                className={`w-full flex items-center gap-2 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl font-sans text-[13px] sm:text-sm font-medium transition-all duration-200 touch-manipulation ${
-                  installDone 
-                    ? 'bg-secondary/40 border border-border text-foreground cursor-not-allowed opacity-80'
-                    : 'hover:scale-[1.02] active:scale-[0.98] bg-primary text-primary-foreground border-2 border-primary'
-                }`}
+                onClick={handleInstallClick}
+                className="w-full flex items-center gap-2 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl font-sans text-[13px] sm:text-sm font-medium transition-all duration-200 touch-manipulation hover:scale-[1.02] active:scale-[0.98] bg-primary text-primary-foreground border-2 border-primary"
               >
                 {isIOS() ? <Share className="w-4 h-4 shrink-0" /> : isMobile() ? <Download className="w-4 h-4 shrink-0" /> : <MonitorSmartphone className="w-4 h-4 shrink-0" />}
                 <span className="text-left leading-tight">
-                  <span className="block font-semibold">{installDone ? 'App Installed' : isInstallable ? (isMobile() ? 'Add to Home Screen' : 'Install App') : 'How to Install App'}</span>
-                  <span className="block text-[10px] sm:text-xs opacity-80">{installDone ? 'Available on your device' : isInstallable ? 'Offline access, faster loading' : 'View manual instructions'}</span>
+                  <span className="block font-semibold">{isInstallable ? (isMobile() ? 'Add to Home Screen' : 'Install App') : 'How to Install App'}</span>
+                  <span className="block text-[10px] sm:text-xs opacity-80">{isInstallable ? 'Offline access, faster loading' : 'View manual instructions'}</span>
                 </span>
               </button>
               
-              {showIOSHint && !installDone && (
+              {showIOSHint && (
                 <div className="bg-secondary/40 border border-border rounded-xl p-2.5 sm:p-3">
                   {!isInstallable && (
                     <div className="mb-2 pb-2 border-b border-border/50">
@@ -251,6 +246,15 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
                   </p>
                 </div>
               )}
+            </div>
+          )}
+          
+          {installDone && (
+            <div className="rounded-xl bg-green-50 dark:bg-green-900/15 border border-green-200 dark:border-green-900/40 p-2.5 shrink-0">
+              <p className="font-sans text-[10px] sm:text-xs text-green-700 dark:text-green-400 font-medium leading-snug flex items-center gap-1.5">
+                <span className="shrink-0">✓</span>
+                <span>App installed successfully! Configure your reading preferences below.</span>
+              </p>
             </div>
           )}
 
