@@ -50,8 +50,8 @@ const isBookmarkBrowser = () => {
   return !isMobile && (isFirefox || (isMac && isSafari));
 };
 
-const LAST_REVISED = 'June 26th, 2026';
-const WORKER_VERSION = 'v20260626_2000';
+const LAST_REVISED = 'June 27th, 2026';
+const WORKER_VERSION = 'v20260627_0000';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -1017,11 +1017,6 @@ export default function SettingsPage() {
             ) : (
             <button
               onClick={() => {
-                // Edge/desktop: no native prompt, show manual guide immediately
-                if (!isInstallable) {
-                  setShowInstallHint(true);
-                  return;
-                }
                 // Fire the native prompt. If cancelled or failed, show manual guide.
                 promptInstall().then((result) => {
                   if (result === false) setShowInstallHint(true);

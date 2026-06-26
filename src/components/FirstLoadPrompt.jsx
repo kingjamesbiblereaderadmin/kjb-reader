@@ -141,15 +141,8 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
   };
 
   const handleInstallClick = async (e) => {
-    const hasPrompt = isInstallable || (typeof window !== 'undefined' && !!window.kjbDeferredPrompt);
     promptedRef.current = true;
     try { window.kjbPromptedThisSession = true; } catch {}
-    
-    // Edge/desktop: no native prompt available, show manual guide immediately
-    if (!hasPrompt) {
-      setShowIOSHint(true);
-      return;
-    }
     
     if (onInstall) {
       try {
@@ -162,7 +155,7 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
         console.error('Install prompt failed:', err);
       }
     }
-    // Native prompt was cancelled or failed, show manual guide
+    // Native prompt was cancelled or not available, show manual guide
     setShowIOSHint(true);
   };
 
