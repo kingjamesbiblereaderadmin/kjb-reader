@@ -283,23 +283,6 @@ export default function SettingsPage() {
       return;
     }
     
-    const isSamsungInternet = /SamsungBrowser/i.test(navigator.userAgent);
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-                         window.matchMedia('(display-mode: minimal-ui)').matches ||
-                         window.navigator.standalone === true;
-    
-    // Samsung Internet: show special message if not installed as PWA
-    if (isSamsungInternet && !isStandalone) {
-      const result = await requestNotificationPermission();
-      if (result === 'samsung_pwa_required') {
-        localStorage.setItem('kjb-notifications-enabled', 'true');
-        setNotifEnabled(true);
-        alert('Samsung Internet: Notifications will work after you install this app. Go to Menu → Add page to → Home screen, then enable notifications.');
-        window.dispatchEvent(new Event('storage'));
-        return;
-      }
-    }
-    
     if (!('Notification' in window)) {
       alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
       return;

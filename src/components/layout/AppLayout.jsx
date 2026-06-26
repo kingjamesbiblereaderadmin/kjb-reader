@@ -508,13 +508,6 @@ function useAppLayoutPrompt() {
     try {
       const result = await requestNotificationPermission();
       setNotifPermission(result);
-      // Handle Samsung Internet special case
-      if (result === 'samsung_pwa_required') {
-        alert('Samsung Internet: Notifications will work after you install this app. Go to Menu → Add page to → Home screen.');
-        setNotifEnabled(true);
-        window.dispatchEvent(new Event('storage'));
-        return true;
-      }
       const granted = result === 'granted';
       if (granted) {
         scheduleDailyNotification();

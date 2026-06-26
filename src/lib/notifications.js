@@ -66,31 +66,6 @@ export async function requestNotificationPermission() {
   console.log('[Notif] Service Worker supported:', 'serviceWorker' in navigator);
   console.log('[Notif] Notification API supported:', 'Notification' in window);
   
-  const isSamsungInternet = /SamsungBrowser/i.test(navigator.userAgent);
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-                       window.matchMedia('(display-mode: minimal-ui)').matches ||
-                       window.navigator.standalone === true;
-  
-  // Samsung Internet: notifications only work when app is installed as PWA
-  if (isSamsungInternet && !isStandalone) {
-    console.log('[Notif] Samsung Internet detected - PWA install required for notifications');
-    // Still register SW and enable the setting, but warn user
-    if ('serviceWorker' in navigator) {
-      try {
-        let reg = await navigator.serviceWorker.getRegistration('/');
-        if (!reg) {
-          reg = await navigator.serviceWorker.register('/sw.js');
-        }
-        console.log('[Notif] SW registered for Samsung Internet');
-      } catch (err) {
-        console.error('[Notif] SW registration failed:', err.message);
-      }
-    }
-    // Enable the setting but return special status
-    localStorage.setItem(NOTIF_KEY, 'true');
-    return 'samsung_pwa_required';
-  }
-  
   let hasPermission = false;
   
   // Step 1: Register service worker FIRST (required for Android/Samsung)
@@ -107,7 +82,7 @@ export async function requestNotificationPermission() {
     }
   }
   
-  // Step 2: Request Notification API permission
+  // Step 2: Request Notification API permission - ALWAYS trigger browser prompt
   if ('Notification' in window) {
     try {
       console.log('[Notif] Current Notification permission:', Notification.permission);
