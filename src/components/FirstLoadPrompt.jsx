@@ -126,8 +126,8 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
   // Only show install prompt if NOT installed AND (native prompt available OR manual guide needed)
   const showInstall = !isIncognito && !actuallyInstalled && (isInstallable || isIOS() || isAndroid() || !isMobile());
 
-  // Auto-hide when app is actually installed (user may still be configuring settings)
-  const shouldShow = !dismissed && !actuallyInstalled;
+  // Show prompt for configuration even when installed — only hide install section
+  const shouldShow = !dismissed;
 
   if (!shouldShow) return null;
 
