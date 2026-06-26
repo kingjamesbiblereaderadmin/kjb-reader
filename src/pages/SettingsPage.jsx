@@ -1017,8 +1017,12 @@ export default function SettingsPage() {
             ) : (
             <button
               onClick={() => {
-                // Fire the native prompt immediately. If there's no native
-                // prompt available, fall back to the manual guide.
+                // Edge/desktop: no native prompt, show manual guide immediately
+                if (!isInstallable) {
+                  setShowInstallHint(true);
+                  return;
+                }
+                // Fire the native prompt. If cancelled or failed, show manual guide.
                 promptInstall().then((result) => {
                   if (result === false) setShowInstallHint(true);
                 }).catch((err) => {
