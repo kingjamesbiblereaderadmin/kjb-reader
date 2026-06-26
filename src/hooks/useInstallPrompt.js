@@ -2,69 +2,76 @@ import { useState, useEffect } from 'react';
 
 const DISMISSED_KEY = 'kjb-install-dismissed';
 
-let deferredPrompt = null;
-// True once the browser has fired beforeinstallprompt at least once. Used to
-// decide whether to wait for a RE-fired prompt after a cancel (Chrome/Edge
-// re-fire it; Samsung Internet does not).
-let hadPromptOnce = false;
-// Set to true ONLY by the browser's real `appinstalled` event. This is the one
-// authoritative signal that the app was actually installed. We never infer
-// "installed" from display-mode alone in a tab that produced an install prompt,
-// because Chrome/Samsung can momentarily mis-report `display-mode: standalone`
-// as the window refocuses after a cancelled dialog.
-let trulyInstalled = false;
+// ── Module-level state (shared across all hook instances) ───────────────────
+// The latest captured beforeinstallprompt event. Null when none is available.
+let deferredPrompt = (typeof window !== 'undefined' && window.kjbDeferredPrompt) || null;
+// True once this browser tab has fired beforeinstallprompt at least once.
+// Such a tab is a browser tab (not a launched PWA), so it is NOT installed
+// until the real `appinstalled` event fires.
+let promptedThisSession = false;
+// Set to true ONLY by the browser's authoritative `appinstalled` event.
+let installedThisSession = false;
 
 const inIframe = () => {
   try { return window.self !== window.top; } catch { return true; }
 };
 
-// The page is genuinely running as a standalone app.
+// Live check: is the page launched as a real standalone PWA right now?
 const isStandalone = () => {
   if (typeof window === 'undefined') return false;
   // The Base44 preview renders the app in an iframe, which can falsely report
-  // display-mode: standalone — an iframe is never a real installed PWA.
+  // standalone — a real installed PWA is never in an iframe.
   if (inIframe()) return false;
-  if (window.navigator.standalone === true) return true; // iOS
+  if (window.navigator.standalone === true) return true; // iOS Safari
   return window.matchMedia('(display-mode: standalone)').matches;
 };
 
-// The single source of truth for the "Installed" state.
-// Rule: if this browser tab EVER fired `beforeinstallprompt`, it is a browser
-// tab — not a standalone PWA — so it can only be considered installed once the
-// real `appinstalled` event fires. Tabs that never fire beforeinstallprompt
-// (iOS Safari, an actual launched PWA) fall back to the live display-mode check.
+// Single source of truth for "is the app installed?".
+// 1. Real appinstalled event fired this session  → installed.
+// 2. This tab ever showed an install prompt        → NOT installed (it's a tab).
+//    This is what kills the Chrome/Samsung false-positive after a cancel.
+// 3. Otherwise (iOS, or app launched standalone)   → trust the display mode.
 const computeInstalled = () => {
-  if (trulyInstalled) return true;
-  if (hadPromptOnce) return false; // a browser tab with an install prompt is not installed
+  if (installedThisSession) return true;
+  if (promptedThisSession) return false;
   return isStandalone();
 };
 
 if (typeof window !== 'undefined') {
-  if (window.kjbDeferredPrompt) {
-    deferredPrompt = window.kjbDeferredPrompt;
-  }
+  // index.html may have already captured a prompt before this module loaded.
+  if (window.kjbPromptedThisSession) promptedThisSession = true;
 
   window.addEventListener('beforeinstallprompt', (event) => {
     event.preventDefault();
     deferredPrompt = event;
     window.kjbDeferredPrompt = event;
-    hadPromptOnce = true;
-    window.dispatchEvent(new Event('pwa-installable'));
+    window.kjbPromptedThisSession = true;
+    promptedThisSession = true;
+    window.dispatchEvent(new Event('kjb-install-state'));
   });
 
-  // The ONLY trustworthy "installed" signal — fired after a real install.
+  // Bridge the legacy event name used by index.html's early listener.
+  window.addEventListener('pwa-installable', () => {
+    if (window.kjbDeferredPrompt) deferredPrompt = window.kjbDeferredPrompt;
+    if (window.kjbPromptedThisSession) promptedThisSession = true;
+    window.dispatchEvent(new Event('kjb-install-state'));
+  });
+
   window.addEventListener('appinstalled', () => {
-    trulyInstalled = true;
+    installedThisSession = true;
     deferredPrompt = null;
     window.kjbDeferredPrompt = null;
-    window.dispatchEvent(new Event('pwa-installable'));
+    window.dispatchEvent(new Event('kjb-install-state'));
   });
 }
 
 export function useInstallPrompt() {
+  // Adopt a prompt captured before this hook mounted (e.g. by index.html).
   if (!deferredPrompt && typeof window !== 'undefined' && window.kjbDeferredPrompt) {
     deferredPrompt = window.kjbDeferredPrompt;
+    promptedThisSession = true;
   }
+
   const [isInstallable, setIsInstallable] = useState(!!deferredPrompt);
   const [isInstalled, setIsInstalled] = useState(computeInstalled());
   const [showPrompt, setShowPrompt] = useState(false);
@@ -73,12 +80,13 @@ export function useInstallPrompt() {
     const sync = () => {
       if (!deferredPrompt && typeof window !== 'undefined' && window.kjbDeferredPrompt) {
         deferredPrompt = window.kjbDeferredPrompt;
+        promptedThisSession = true;
       }
       setIsInstallable(!!deferredPrompt);
       setIsInstalled(computeInstalled());
     };
 
-    window.addEventListener('pwa-installable', sync);
+    window.addEventListener('kjb-install-state', sync);
     window.addEventListener('focus', sync);
     const mq = window.matchMedia('(display-mode: standalone)');
     mq.addEventListener?.('change', sync);
@@ -86,22 +94,24 @@ export function useInstallPrompt() {
     sync();
 
     return () => {
-      window.removeEventListener('pwa-installable', sync);
+      window.removeEventListener('kjb-install-state', sync);
       window.removeEventListener('focus', sync);
       mq.removeEventListener?.('change', sync);
     };
   }, []);
 
+  // Fire the native install dialog. Returns:
+  //   true        → user accepted (installing)
+  //   'cancelled' → user dismissed the native dialog
+  //   false       → no native prompt available (caller shows manual guide)
   const promptInstall = async () => {
     if (!deferredPrompt && typeof window !== 'undefined' && window.kjbDeferredPrompt) {
       deferredPrompt = window.kjbDeferredPrompt;
     }
     // Chrome/Edge re-fire a fresh beforeinstallprompt shortly after a cancel,
-    // but it can arrive a moment late — wait briefly so a repeat click re-opens
-    // the native dialog. ONLY do this if a prompt has fired before; Samsung
-    // Internet never re-fires, so waiting there would just stall and then
-    // wrongly flip to the manual guide.
-    if (!deferredPrompt && hadPromptOnce && typeof window !== 'undefined') {
+    // which can arrive a moment late. If this tab has prompted before, wait
+    // briefly for the re-fired event so a repeat click re-opens the dialog.
+    if (!deferredPrompt && promptedThisSession && typeof window !== 'undefined') {
       deferredPrompt = await new Promise((resolve) => {
         const start = Date.now();
         const poll = setInterval(() => {
@@ -116,24 +126,18 @@ export function useInstallPrompt() {
 
     try {
       deferredPrompt.prompt();
-      const result = await deferredPrompt.userChoice;
+      const { outcome } = await deferredPrompt.userChoice;
+      // The event is single-use either way.
+      deferredPrompt = null;
+      window.kjbDeferredPrompt = null;
 
-      if (result.outcome === 'accepted') {
-        deferredPrompt = null;
-        window.kjbDeferredPrompt = null;
+      if (outcome === 'accepted') {
+        // `appinstalled` will flip isInstalled; until then just hide the button.
         setIsInstallable(false);
         return true;
       }
-      // Cancelled — the used prompt event is spent and can't be re-fired.
-      // Drop the stale reference, but the browser (Chrome/Edge) re-fires a
-      // FRESH `beforeinstallprompt` shortly after a cancel; our global listener
-      // captures it into window.kjbDeferredPrompt, so the button keeps working
-      // and re-opens the native dialog on the next click. Keep isInstallable
-      // true so the Install button stays visible until the app is installed.
-      deferredPrompt = null;
-      window.kjbDeferredPrompt = null;
-      // A cancel means the app is NOT installed — never flip to "Installed".
-      setIsInstalled(false);
+      // Cancelled: stay "not installed" and keep the button visible. The browser
+      // re-fires beforeinstallprompt, which our listener re-captures.
       return 'cancelled';
     } catch (err) {
       console.error('Install prompt error:', err);
@@ -151,11 +155,9 @@ export function useInstallPrompt() {
   };
 
   const handleInstall = async () => {
-    const accepted = await promptInstall();
-    if (accepted === true) {
-      setShowPrompt(false);
-    }
-    return accepted;
+    const result = await promptInstall();
+    if (result === true) setShowPrompt(false);
+    return result;
   };
 
   const handleDismiss = () => {
