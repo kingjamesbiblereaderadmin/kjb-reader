@@ -59,12 +59,16 @@ Deno.serve(async () => {
     ]
   };
 
+  // Add timestamp to force fresh loading on mobile browsers
+  const timestamp = new Date().toISOString();
   return new Response(JSON.stringify(manifest), {
     status: 200,
     headers: {
       "Content-Type": "application/manifest+json",
-      "Cache-Control": "no-cache, no-store, must-revalidate",
-      "Access-Control-Allow-Origin": "*"
+      "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
+      "Access-Control-Allow-Origin": "*",
+      "Last-Modified": new Date().toUTCString(),
+      "ETag": `"manifest-${timestamp}"`
     }
   });
 });

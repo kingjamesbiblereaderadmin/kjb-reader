@@ -110,7 +110,8 @@ self.addEventListener('fetch', (event) => {
 
   // Always fetch the manifest fresh (network-first) so corrected icons reach
   // Chrome/Samsung/Edge immediately instead of a stale cached version.
-  if (url.pathname === '/manifest.json') {
+  // Match manifest with or without query params (cache-busting version)
+  if (url.pathname === '/manifest.json' || url.pathname.startsWith('/manifest.json?')) {
     event.respondWith(
       fetch(request).then((response) => {
         if (response && response.ok) {
