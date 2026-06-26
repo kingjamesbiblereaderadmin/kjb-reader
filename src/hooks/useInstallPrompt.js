@@ -8,6 +8,14 @@ const DISMISSED_KEY = 'kjb-install-dismissed';
 const checkInstalledAsync = async () => {
   if (typeof window === 'undefined') return false;
   
+  // Never report installed when running inside an iframe (preview/embed)
+  try {
+    if (window.self !== window.top) return false;
+  } catch (e) {
+    // Cross-origin iframe - also not installed
+    return false;
+  }
+  
   // iOS: use navigator.standalone (reliable on iOS)
   if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
     try { return window.navigator.standalone === true; } catch { return false; }

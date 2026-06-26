@@ -38,6 +38,12 @@ const inIframe = () => {
 // Detect if running as installed PWA (standalone mode)
 const isStandalonePWA = () => {
   if (typeof window === 'undefined') return false;
+  // Never report installed when running inside an iframe (preview/embed)
+  try {
+    if (window.self !== window.top) return false;
+  } catch (e) {
+    return false;
+  }
   // Check display-mode media queries (covers all display_override values from manifest)
   if (window.matchMedia('(display-mode: standalone)').matches) return true;
   if (window.matchMedia('(display-mode: minimal-ui)').matches) return true;
