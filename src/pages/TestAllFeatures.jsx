@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
-import { BookOpen, Search, Type, Link, Shuffle, Eye, Columns, Maximize2 } from 'lucide-react';
+import { Download, RefreshCw, Image, Shuffle, BookOpen, Search, Type, Link as LinkIcon, Eye, Columns, Maximize2 } from 'lucide-react';
+import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -11,21 +12,54 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Link as RouterLink } from 'react-router-dom';
 
+const TEST_VERSES = [
+  {
+    text: 'For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.',
+    ref: 'John 3:16',
+    category: 'Salvation'
+  },
+  {
+    text: 'The LORD is my shepherd; I shall not want.',
+    ref: 'Psalm 23:1',
+    category: 'Comfort'
+  },
+  {
+    text: 'In the beginning God created the heaven and the earth.',
+    ref: 'Genesis 1:1',
+    category: 'Creation'
+  },
+  {
+    text: 'Jesus wept.',
+    ref: 'John 11:35',
+    category: 'Short'
+  },
+  {
+    text: 'And Jesus said unto them, Come ye yourselves apart into a desert place, and rest a while: for there were many coming and going, and they had no leisure so much as to eat. And they departed into a desert place by ship privately. And the people saw them departing, and many knew him, and ran afoot thither out of all cities, and outwent them, and came together unto him. And Jesus, when he came out, saw much people, and was moved with compassion toward them, because they were as sheep not having a shepherd: and he began to teach them many things.',
+    ref: 'Mark 6:31-34',
+    category: 'Long'
+  },
+  {
+    text: 'Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God.',
+    ref: 'Philippians 4:6',
+    category: 'Peace'
+  }
+];
+
 const BIBLE_BOOKS = [
   'Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy',
   'Joshua', 'Judges', 'Ruth', '1 Samuel', '2 Samuel',
-  '1 Kings', '2 Kings', '1 Chronicles', '2 Chronicles',
-  'Ezra', 'Nehemiah', 'Esther', 'Job', 'Psalms', 'Proverbs',
-  'Ecclesiastes', 'Song of Solomon', 'Isaiah', 'Jeremiah',
-  'Lamentations', 'Ezekiel', 'Daniel', 'Hosea', 'Joel',
-  'Amos', 'Obadiah', 'Jonah', 'Micah', 'Nahum',
-  'Habakkuk', 'Zephaniah', 'Haggai', 'Zechariah', 'Malachi',
+  '1 Kings', '2 Kings', '1 Chronicles', '2 Chronicles', 'Ezra',
+  'Nehemiah', 'Esther', 'Job', 'Psalms', 'Proverbs',
+  'Ecclesiastes', 'Song of Solomon', 'Isaiah', 'Jeremiah', 'Lamentations',
+  'Ezekiel', 'Daniel', 'Hosea', 'Joel', 'Amos',
+  'Obadiah', 'Jonah', 'Micah', 'Nahum', 'Habakkuk',
+  'Zephaniah', 'Haggai', 'Zechariah', 'Malachi',
   'Matthew', 'Mark', 'Luke', 'John', 'Acts',
   'Romans', '1 Corinthians', '2 Corinthians', 'Galatians', 'Ephesians',
-  'Philippians', 'Colossians', '1 Thessalonians', '2 Thessalonians',
-  '1 Timothy', '2 Timothy', 'Titus', 'Philemon', 'Hebrews',
-  'James', '1 Peter', '2 Peter', '1 John', '2 John',
-  '3 John', 'Jude', 'Revelation'
+  'Philippians', 'Colossians', '1 Thessalonians', '2 Thessalonians', '1 Timothy',
+  '2 Timothy', 'Titus', 'Philemon', 'Hebrews', 'James',
+  '1 Peter', '2 Peter', '1 John', '2 John', '3 John',
+  'Jude', 'Revelation'
 ];
 
 const READING_MODES = [
@@ -34,32 +68,137 @@ const READING_MODES = [
   { id: 'full', label: 'Full Screen', icon: Maximize2 },
 ];
 
-export default function TestFeatures() {
+const TEST_LINKS = [
+  { label: 'Home', path: '/', clicked: false },
+  { label: 'Bible Reader', path: '/read', clicked: false },
+  { label: 'Gospel', path: '/gospel', clicked: false },
+  { label: 'Resources', path: '/resources', clicked: false },
+  { label: 'About', path: '/about', clicked: false },
+  { label: 'Contents', path: '/contents', clicked: false },
+  { label: 'Settings', path: '/settings', clicked: false },
+  { label: 'Search', path: '/search', clicked: false },
+  { label: 'Saved Verses', path: '/saved', clicked: false },
+  { label: 'Daily Verse Test', path: '/test-daily-verse', clicked: false },
+];
+
+export default function TestAllFeatures() {
+  // Daily Verse state
+  const [selectedVerse, setSelectedVerse] = useState(TEST_VERSES[0]);
+  const [isOffline, setIsOffline] = useState(false);
+  const [customBook, setCustomBook] = useState('John');
+  const [customChapter, setCustomChapter] = useState(3);
+  const [customVerse, setCustomVerse] = useState(16);
+  const [useCustom, setUseCustom] = useState(false);
+  const verseCardRef = useRef(null);
+
+  // Random chapter state
   const [randomChapter, setRandomChapter] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // Search state
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [testVerse, setTestVerse] = useState({
-    book: 'John',
-    chapter: 3,
-    verse: 16
-  });
+
+  // Read mode state
   const [readingMode, setReadingMode] = useState('line');
   const [twoColumn, setTwoColumn] = useState(false);
   const [cursive, setCursive] = useState(false);
-  const [testLinks, setTestLinks] = useState([
-    { label: 'Home', path: '/', clicked: false },
-    { label: 'Bible Reader', path: '/read', clicked: false },
-    { label: 'Gospel', path: '/gospel', clicked: false },
-    { label: 'Resources', path: '/resources', clicked: false },
-    { label: 'About', path: '/about', clicked: false },
-    { label: 'Contents', path: '/contents', clicked: false },
-    { label: 'Settings', path: '/settings', clicked: false },
-    { label: 'Search', path: '/search', clicked: false },
-    { label: 'Saved Verses', path: '/saved', clicked: false },
-    { label: 'Daily Verse Test', path: '/test-daily-verse', clicked: false },
-  ]);
+  const [testVerse, setTestVerse] = useState({ book: 'John', chapter: 3, verse: 16 });
+
+  // Links state
+  const [testLinks, setTestLinks] = useState(TEST_LINKS);
+
+  const handleDownload = async () => {
+    if (!verseCardRef.current) return;
+    
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(verseCardRef.current, {
+        backgroundColor: null,
+        scale: 2,
+        useCORS: true,
+      });
+      
+      const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
+      const cat = useCustom ? `${customBook}-${customChapter}-${customVerse}` : selectedVerse.category;
+      const link = document.createElement('a');
+      link.download = `test-daily-verse-${dateStr}-${cat}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (err) {
+      console.error('Failed to download:', err);
+      alert('Failed to generate image. Please try again.');
+    }
+  };
+
+  const fetchCustomVerse = async () => {
+    try {
+      const response = await base44.functions.invoke('bibleApi', {
+        action: 'getChapter',
+        book: customBook,
+        chapter: customChapter
+      });
+      
+      if (response?.data?.verses) {
+        const verseObj = response.data.verses.find(v => v.verse === customVerse);
+        if (verseObj) {
+          const verseData = {
+            text: verseObj.text,
+            ref: `${customBook} ${customChapter}:${customVerse}`,
+            category: 'Custom'
+          };
+          setSelectedVerse(verseData);
+          setUseCustom(true);
+        } else {
+          alert(`Verse ${customVerse} not found in ${customBook} ${customChapter}`);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch verse:', err);
+      alert('Failed to fetch verse. Please try again.');
+    }
+  };
+
+  const pickRandomVerse = async () => {
+    const randomBook = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
+    const randomChapter = Math.floor(Math.random() * 50) + 1;
+    const randomVerse = Math.floor(Math.random() * 30) + 1;
+    
+    setCustomBook(randomBook);
+    setCustomChapter(randomChapter);
+    setCustomVerse(randomVerse);
+    
+    try {
+      const response = await base44.functions.invoke('bibleApi', {
+        action: 'getChapter',
+        book: randomBook,
+        chapter: randomChapter
+      });
+      
+      if (response?.data?.verses) {
+        const verseObj = response.data.verses.find(v => v.verse === randomVerse);
+        if (verseObj) {
+          const verseData = {
+            text: verseObj.text,
+            ref: `${randomBook} ${randomChapter}:${randomVerse}`,
+            category: 'Custom'
+          };
+          setSelectedVerse(verseData);
+          setUseCustom(true);
+        } else {
+          pickRandomVerse();
+          return;
+        }
+      } else {
+        pickRandomVerse();
+        return;
+      }
+    } catch (err) {
+      console.error('Failed to fetch random verse:', err);
+      pickRandomVerse();
+    }
+  };
 
   const fetchRandomChapter = async () => {
     setLoading(true);
@@ -81,7 +220,6 @@ export default function TestFeatures() {
           colophon: response.data.colophon
         });
       } else {
-        // Retry with different chapter
         fetchRandomChapter();
       }
     } catch (err) {
@@ -107,7 +245,6 @@ export default function TestFeatures() {
       }
     } catch (err) {
       console.error('Search failed:', err);
-      // Mock results for testing
       setSearchResults([
         { book: 'John', chapter: 3, verse: 16, text: 'For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.' },
         { book: 'Romans', chapter: 8, verse: 28, text: 'And we know that all things work together for good to them that love God, to them who are the called according to his purpose.' },
@@ -128,30 +265,127 @@ export default function TestFeatures() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
-        <div className="flex items-center gap-3 mb-6">
-          <BookOpen className="w-8 h-8 text-primary" />
-          <div>
-            <h1 className="text-2xl font-bold font-serif">Feature Testing Page</h1>
-            <p className="text-muted-foreground text-sm">Test Bible reading features, search, and navigation</p>
-          </div>
+        <div className="text-center space-y-2">
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-foreground">Bible Feature Testing Hub</h1>
+          <p className="font-sans text-sm text-muted-foreground">Test all Bible reading features in one place</p>
         </div>
 
-        <Tabs defaultValue="random" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="random">Random Chapter</TabsTrigger>
+        <Tabs defaultValue="daily-verse" className="w-full">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="daily-verse">Daily Verse</TabsTrigger>
+            <TabsTrigger value="random-chapter">Random Chapter</TabsTrigger>
             <TabsTrigger value="search">Search</TabsTrigger>
-            <TabsTrigger value="read">Read Mode</TabsTrigger>
+            <TabsTrigger value="read-mode">Read Mode</TabsTrigger>
             <TabsTrigger value="links">Links</TabsTrigger>
           </TabsList>
 
-          {/* Random Chapter Tab */}
-          <TabsContent value="random" className="space-y-4">
+          {/* Daily Verse Tab */}
+          <TabsContent value="daily-verse" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Shuffle className="w-5 h-5" />
+                  <Image className="w-5 h-5" />
+                  Daily Verse Card Tester
+                </CardTitle>
+                <CardDescription>Test different verse lengths and formats with download capability</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex flex-wrap gap-2">
+                  {TEST_VERSES.map((verse, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setSelectedVerse(verse);
+                        setUseCustom(false);
+                      }}
+                      className={`px-3 py-1.5 rounded-lg font-sans text-xs font-medium transition-all ${
+                        selectedVerse === verse && !useCustom
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
+                      }`}
+                    >
+                      {verse.category}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex flex-wrap gap-2 items-end">
+                  <div className="flex-1 min-w-[140px]">
+                    <label className="block font-sans text-xs text-muted-foreground mb-1">Book</label>
+                    <select
+                      value={customBook}
+                      onChange={(e) => setCustomBook(e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg border border-border bg-background font-sans text-sm"
+                    >
+                      {BIBLE_BOOKS.map(book => (
+                        <option key={book} value={book}>{book}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="w-20">
+                    <label className="block font-sans text-xs text-muted-foreground mb-1">Chapter</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="150"
+                      value={customChapter}
+                      onChange={(e) => setCustomChapter(parseInt(e.target.value) || 1)}
+                      className="w-full px-3 py-2 rounded-lg border border-border bg-background font-sans text-sm"
+                    />
+                  </div>
+                  <div className="w-20">
+                    <label className="block font-sans text-xs text-muted-foreground mb-1">Verse</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="176"
+                      value={customVerse}
+                      onChange={(e) => setCustomVerse(parseInt(e.target.value) || 1)}
+                      className="w-full px-3 py-2 rounded-lg border border-border bg-background font-sans text-sm"
+                    />
+                  </div>
+                  <Button onClick={fetchCustomVerse}>Load</Button>
+                  <Button onClick={pickRandomVerse} variant="outline">
+                    <Shuffle className="w-4 h-4 mr-2" />
+                    Random
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Switch
+                      checked={isOffline}
+                      onCheckedChange={setIsOffline}
+                    />
+                    <span className="font-sans text-sm text-foreground">Simulate Offline Mode</span>
+                  </label>
+                  <Button onClick={handleDownload}>
+                    <Download className="w-4 h-4 mr-2" />
+                    Download Card
+                  </Button>
+                </div>
+
+                <div ref={verseCardRef}>
+                  <DailyVerseImage
+                    verse={selectedVerse}
+                    isOffline={isOffline}
+                    onClick={() => {}}
+                    onToggleNotif={() => {}}
+                    notifEnabled={false}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Random Chapter Tab */}
+          <TabsContent value="random-chapter" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BookOpen className="w-5 h-5" />
                   Random Chapter Tester
                 </CardTitle>
                 <CardDescription>Fetch and display a random Bible chapter</CardDescription>
@@ -248,7 +482,7 @@ export default function TestFeatures() {
           </TabsContent>
 
           {/* Read Mode Tab */}
-          <TabsContent value="read" className="space-y-4">
+          <TabsContent value="read-mode" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -349,7 +583,7 @@ export default function TestFeatures() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Link className="w-5 h-5" />
+                  <LinkIcon className="w-5 h-5" />
                   Link Tester
                 </CardTitle>
                 <CardDescription>Test navigation to all app pages</CardDescription>
