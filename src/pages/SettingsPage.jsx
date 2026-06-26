@@ -51,7 +51,7 @@ const isBookmarkBrowser = () => {
 };
 
 const LAST_REVISED = 'June 26th, 2026';
-const WORKER_VERSION = 'v20260626_1845';
+const WORKER_VERSION = 'v20260626_1900';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
