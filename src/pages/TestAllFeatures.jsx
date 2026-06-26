@@ -205,32 +205,38 @@ export default function TestAllFeatures() {
 
   const fetchRandomChapter = async () => {
     setLoading(true);
-    try {
-      const randomBook = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
-      const randomChapter = Math.floor(Math.random() * 50) + 1;
-      
-      const response = await base44.functions.invoke('bibleApi', {
-        action: 'getChapter',
-        book: randomBook,
-        chapter: randomChapter
-      });
-      
-      if (response?.data?.verses) {
-        setRandomChapter({
+    let attempts = 0;
+    const maxAttempts = 10;
+    
+    while (attempts < maxAttempts) {
+      try {
+        const randomBook = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
+        const randomChapter = Math.floor(Math.random() * 50) + 1;
+        
+        const response = await base44.functions.invoke('bibleApi', {
+          action: 'getChapter',
           book: randomBook,
-          chapter: randomChapter,
-          verses: response.data.verses,
-          colophon: response.data.colophon
+          chapter: randomChapter
         });
-      } else {
-        fetchRandomChapter();
+        
+        if (response?.data?.verses && response.data.verses.length > 0) {
+          setRandomChapter({
+            book: randomBook,
+            chapter: randomChapter,
+            verses: response.data.verses,
+            colophon: response.data.colophon
+          });
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.error('Attempt', attempts + 1, 'failed:', err.message);
       }
-    } catch (err) {
-      console.error('Failed to fetch random chapter:', err);
-      alert('Failed to fetch chapter. Try again.');
-    } finally {
-      setLoading(false);
+      attempts++;
     }
+    
+    setLoading(false);
+    alert('Failed to fetch a valid chapter after multiple attempts. Please try again.');
   };
 
   const handleSearch = async () => {
