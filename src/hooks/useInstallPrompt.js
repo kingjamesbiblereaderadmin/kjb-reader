@@ -24,13 +24,37 @@ const inIframe = () => {
 };
 
 // Frozen at module load — see note above.
+//
+// Samsung Internet wrongly reports `display-mode: standalone` in a NORMAL tab,
+// which is the root cause of the false "Installed" state. To defeat that we
+// require BOTH: (a) the standalone display signal, AND (b) a launch that
+// looks like a real app launch rather than an in-browser tab — i.e. the page
+// was NOT opened from another browsing context (no referrer, no opener).
+// A genuinely installed PWA launches from the OS home-screen with an empty
+// referrer; a Samsung tab that's been navigated to always has one. Treating
+// any ambiguous/in-browser launch as NOT installed errs on the safe side.
 const LAUNCHED_STANDALONE = (() => {
   if (typeof window === 'undefined') return false;
   // The Base44 preview runs the app in an iframe, which can falsely report
   // standalone. A real installed PWA is never inside an iframe.
   if (inIframe()) return false;
-  if (window.navigator.standalone === true) return true; // iOS Safari
-  try { return window.matchMedia('(display-mode: standalone)').matches; } catch { return false; }
+  // iOS Safari's navigator.standalone is reliable — trust it directly.
+  if (window.navigator.standalone === true) return true;
+
+  let displayStandalone = false;
+  try { displayStandalone = window.matchMedia('(display-mode: standalone)').matches; } catch { displayStandalone = false; }
+  if (!displayStandalone) return false;
+
+  // Secondary check to filter out Samsung's false standalone-in-tab report:
+  // a real home-screen launch has no opener and an empty referrer. If the page
+  // was reached from a browsing context, it's a tab — not an installed app.
+  try {
+    const hasOpener = !!window.opener;
+    const hasReferrer = !!document.referrer;
+    if (hasOpener || hasReferrer) return false;
+  } catch {}
+
+  return true;
 })();
 
 // Shared module state.
