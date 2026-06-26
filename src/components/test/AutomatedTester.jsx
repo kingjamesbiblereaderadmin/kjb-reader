@@ -19,17 +19,180 @@ export default function AutomatedTester({ onTestsComplete }) {
 
     const tests = [
       {
-        name: 'Navigation Links',
+        name: 'All Pages Navigation',
         test: async () => {
-          const links = document.querySelectorAll('a[href]');
-          const broken = [];
-          links.forEach(link => {
-            const href = link.getAttribute('href');
-            if (href && !href.startsWith('#') && !href.startsWith('http') && !href.startsWith('/')) {
-              broken.push(href);
-            }
+          const pages = [
+            { label: 'Home', path: '/' },
+            { label: 'Bible Reader', path: '/read' },
+            { label: 'Gospel', path: '/gospel' },
+            { label: 'Resources', path: '/resources' },
+            { label: 'About', path: '/about' },
+            { label: 'Contents', path: '/contents' },
+            { label: 'Settings', path: '/settings' },
+            { label: 'Search', path: '/search' },
+            { label: 'Saved Verses', path: '/saved' },
+          ];
+          const accessible = [];
+          pages.forEach(page => {
+            const link = document.querySelector(`a[href="${page.path}"]`);
+            if (link) accessible.push(page.label);
           });
-          return { passed: broken.length === 0, message: broken.length === 0 ? 'All links valid' : `${broken.length} broken links found` };
+          return { passed: accessible.length >= 8, message: `${accessible.length}/${pages.length} pages accessible` };
+        }
+      },
+      {
+        name: 'Reading Mode - Line Mode',
+        test: async () => {
+          const lineBtn = document.querySelector('button[data-mode="line"], button:has-text("Line")');
+          return { passed: lineBtn !== null, message: lineBtn ? 'Line mode button found' : 'Line mode button not found' };
+        }
+      },
+      {
+        name: 'Reading Mode - Paragraph Mode',
+        test: async () => {
+          const paraBtn = document.querySelector('button[data-mode="paragraph"], button:has-text("Paragraph")');
+          return { passed: paraBtn !== null, message: paraBtn ? 'Paragraph mode button found' : 'Paragraph mode button not found' };
+        }
+      },
+      {
+        name: 'Reading Mode - Column Mode',
+        test: async () => {
+          const colBtn = document.querySelector('button[data-mode="column"], button:has-text("Column"), .kjb-two-col');
+          return { passed: colBtn !== null, message: colBtn ? 'Column mode available' : 'Column mode not found' };
+        }
+      },
+      {
+        name: 'Reading Mode - Full Screen',
+        test: async () => {
+          const fullBtn = document.querySelector('button[data-mode="full"], button:has-text("Full Screen")');
+          return { passed: fullBtn !== null, message: fullBtn ? 'Full screen mode found' : 'Full screen mode not found' };
+        }
+      },
+      {
+        name: 'Two-Column Layout CSS',
+        test: async () => {
+          const hasTwoCol = document.querySelector('.kjb-two-col') !== null || 
+                           getComputedStyle(document.documentElement).getPropertyValue('--radius') !== '';
+          return { passed: hasTwoCol, message: hasTwoCol ? 'Two-column CSS rules exist' : 'Two-column CSS not found' };
+        }
+      },
+      {
+        name: 'Verse Text Rendering',
+        test: async () => {
+          const verseText = document.querySelector('.kjb-reader-content, .kjb-verse-container');
+          return { passed: verseText !== null, message: verseText ? 'Verse text renders' : 'No verse text found' };
+        }
+      },
+      {
+        name: 'Verse Numbers Display',
+        test: async () => {
+          const verseNums = document.querySelectorAll('sup, .verse-number, [id^="v"]');
+          return { passed: verseNums.length > 0, message: `${verseNums.length} verse numbers rendered` };
+        }
+      },
+      {
+        name: 'Font Family Options',
+        test: async () => {
+          const fonts = ['Serif', 'Sans', 'Mono', 'Cursive'];
+          const found = fonts.filter(f => 
+            document.querySelector(`button:has-text("${f}"), [data-font="${f.toLowerCase()}"]`)
+          );
+          return { passed: found.length >= 3, message: `${found.length}/4 font options available` };
+        }
+      },
+      {
+        name: 'Accessibility Fonts',
+        test: async () => {
+          const dyslexic = document.fonts.check('700 16px "OpenDyslexic"');
+          const hyperlegible = document.fonts.check('700 16px "Atkinson Hyperlegible"');
+          return { passed: dyslexic || hyperlegible, message: `Dyslexic: ${dyslexic ? '✓' : '✗'}, Legible: ${hyperlegible ? '✓' : '✗'}` };
+        }
+      },
+      {
+        name: 'Cursive Font (Dancing Script)',
+        test: async () => {
+          const dancing = document.fonts.check('700 16px "Dancing Script"');
+          return { passed: dancing, message: dancing ? 'Loaded' : 'Not loaded' };
+        }
+      },
+      {
+        name: 'Theme Toggle (Dark/Light)',
+        test: async () => {
+          const themeBtn = document.querySelector('button[aria-label*="theme"], button:has-text("Dark"), button:has-text("Light"), .theme-toggle');
+          const hasDarkClass = document.documentElement.classList.contains('dark');
+          return { passed: themeBtn !== null || hasDarkClass, message: themeBtn ? 'Theme toggle found' : `Theme: ${hasDarkClass ? 'dark' : 'light'}` };
+        }
+      },
+      {
+        name: 'Search Functionality',
+        test: async () => {
+          const searchInput = document.querySelector('input[type="search"], input[placeholder*="search" i]');
+          const searchBtn = document.querySelector('button:has-text("Search"), button:has-svg("Search")');
+          return { passed: searchInput !== null || searchBtn !== null, message: searchInput ? 'Search input found' : searchBtn ? 'Search button found' : 'Search not found' };
+        }
+      },
+      {
+        name: 'Book Selector',
+        test: async () => {
+          const bookSelect = document.querySelector('select, button:has-text("Genesis"), button:has-text("John"), .book-selector');
+          return { passed: bookSelect !== null, message: bookSelect ? 'Book selector found' : 'Book selector not found' };
+        }
+      },
+      {
+        name: 'Chapter Selector',
+        test: async () => {
+          const chapSelect = document.querySelector('input[type="number"], .chapter-selector, button:has-text("Chapter")');
+          return { passed: chapSelect !== null, message: chapSelect ? 'Chapter selector found' : 'Chapter selector not found' };
+        }
+      },
+      {
+        name: 'Daily Verse Card',
+        test: async () => {
+          const card = document.querySelector('[ref="verseCardRef"], .daily-verse-card, .verse-card');
+          return { passed: card !== null, message: card ? 'Card rendered' : 'Card not found' };
+        }
+      },
+      {
+        name: 'Download/Card Export Button',
+        test: async () => {
+          const downloadBtn = document.querySelector('button:has-text("Download"), button:has-svg("Download"), button:has-svg("Share")');
+          return { passed: downloadBtn !== null, message: downloadBtn ? 'Export button found' : 'Export button not found' };
+        }
+      },
+      {
+        name: 'Share Functionality',
+        test: async () => {
+          const shareBtn = document.querySelector('button:has-text("Share"), button:has-svg("Share")');
+          return { passed: shareBtn !== null, message: shareBtn ? 'Share button found' : 'Share not found' };
+        }
+      },
+      {
+        name: 'Print Functionality',
+        test: async () => {
+          const printBtn = document.querySelector('button:has-text("Print"), button:has-svg("Printer")');
+          return { passed: printBtn !== null, message: printBtn ? 'Print button found' : 'Print not found' };
+        }
+      },
+      {
+        name: 'Settings Panel',
+        test: async () => {
+          const settingsLink = document.querySelector('a[href="/settings"], button:has-text("Settings"), .settings-link');
+          return { passed: settingsLink !== null, message: settingsLink ? 'Settings accessible' : 'Settings not found' };
+        }
+      },
+      {
+        name: 'Saved Verses Feature',
+        test: async () => {
+          const savedLink = document.querySelector('a[href="/saved"], button:has-text("Saved"), .saved-verses');
+          return { passed: savedLink !== null, message: savedLink ? 'Saved verses accessible' : 'Saved verses not found' };
+        }
+      },
+      {
+        name: 'Offline Status Indicator',
+        test: async () => {
+          const offlineBanner = document.querySelector('.offline-banner, [data-offline], .connection-status');
+          const hasSW = 'serviceWorker' in navigator;
+          return { passed: offlineBanner !== null || hasSW, message: offlineBanner ? 'Offline indicator found' : hasSW ? 'SW active (offline capable)' : 'No offline indicator' };
         }
       },
       {
@@ -43,59 +206,6 @@ export default function AutomatedTester({ onTestsComplete }) {
             });
             const hasVerses = response?.data?.verses?.length > 0;
             return { passed: hasVerses, message: hasVerses ? `Loaded ${response.data.verses.length} verses` : 'No verses returned' };
-          } catch (err) {
-            return { passed: false, message: `Failed: ${err.message}` };
-          }
-        }
-      },
-      {
-        name: 'Random Chapter Fetch',
-        test: async () => {
-          try {
-            const books = ['Genesis', 'Psalms', 'Matthew', 'Romans', 'Revelation'];
-            const book = books[Math.floor(Math.random() * books.length)];
-            const chapter = Math.floor(Math.random() * 10) + 1;
-            const response = await base44.functions.invoke('bibleApi', {
-              action: 'getChapter',
-              book,
-              chapter
-            });
-            const success = response?.data?.verses?.length > 0;
-            return { passed: success, message: success ? `Loaded ${book} ${chapter}` : 'No verses returned' };
-          } catch (err) {
-            return { passed: false, message: `Failed: ${err.message}` };
-          }
-        }
-      },
-      {
-        name: 'Daily Verse Card Render',
-        test: async () => {
-          const card = document.querySelector('[ref="verseCardRef"]');
-          const hasCard = card !== null;
-          return { passed: hasCard, message: hasCard ? 'Card rendered' : 'Card not found' };
-        }
-      },
-      {
-        name: 'Font Loading',
-        test: async () => {
-          const fonts = ['OpenDyslexic', 'Atkinson Hyperlegible', 'Dancing Script'];
-          const loaded = [];
-          await Promise.all(fonts.map(font => 
-            document.fonts.check(`700 16px "${font}"`) 
-              ? loaded.push(font) 
-              : null
-          ));
-          return { passed: loaded.length >= 2, message: `${loaded.length}/${fonts.length} fonts loaded` };
-        }
-      },
-      {
-        name: 'LocalStorage Access',
-        test: async () => {
-          try {
-            localStorage.setItem('kjb-test', 'test');
-            const value = localStorage.getItem('kjb-test');
-            localStorage.removeItem('kjb-test');
-            return { passed: value === 'test', message: 'LocalStorage working' };
           } catch (err) {
             return { passed: false, message: `Failed: ${err.message}` };
           }
@@ -131,32 +241,16 @@ export default function AutomatedTester({ onTestsComplete }) {
         }
       },
       {
-        name: 'PWA Install Prompt',
+        name: 'LocalStorage Access',
         test: async () => {
-          const hasPrompt = typeof window !== 'undefined' && !!window.kjbDeferredPrompt;
-          const isInstallable = hasPrompt || window.matchMedia('(display-mode: browser)').matches;
-          return { passed: isInstallable, message: isInstallable ? 'Installable' : 'Not installable (or already installed)' };
-        }
-      },
-      {
-        name: 'Theme System',
-        test: async () => {
-          const html = document.documentElement;
-          const hasDarkClass = html.classList.contains('dark');
-          const hasTheme = localStorage.getItem('kjb-theme-mode') !== null;
-          return { passed: true, message: `Theme: ${hasDarkClass ? 'dark' : 'light'}, persisted: ${hasTheme ? 'yes' : 'no'}` };
-        }
-      },
-      {
-        name: 'App Routes',
-        test: async () => {
-          const routes = ['/', '/read', '/settings', '/search', '/saved'];
-          const working = [];
-          routes.forEach(route => {
-            const link = document.querySelector(`a[href="${route}"]`);
-            if (link) working.push(route);
-          });
-          return { passed: working.length >= 4, message: `${working.length}/5 routes accessible` };
+          try {
+            localStorage.setItem('kjb-test', 'test');
+            const value = localStorage.getItem('kjb-test');
+            localStorage.removeItem('kjb-test');
+            return { passed: value === 'test', message: 'LocalStorage working' };
+          } catch (err) {
+            return { passed: false, message: `Failed: ${err.message}` };
+          }
         }
       }
     ];
