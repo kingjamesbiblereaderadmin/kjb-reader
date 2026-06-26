@@ -1,104 +1,68 @@
 import { useState, useEffect } from 'react';
 
 const DISMISSED_KEY = 'kjb-install-dismissed';
-const INSTALLED_KEY = 'kjb-is-installed';
 
 let deferredPrompt = null;
+
+// The ONE source of truth for "is the app installed AND running as an app":
+// is this page actually running in standalone display mode right now?
+// A normal browser tab (where Settings lives) is NEVER standalone, so cancelling
+// an install dialog can never flip this to true. This is deterministic — no
+// localStorage flags, no timing windows, no spurious `appinstalled` events.
+const isStandalone = () => {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+};
 
 if (typeof window !== 'undefined') {
   if (window.kjbDeferredPrompt) {
     deferredPrompt = window.kjbDeferredPrompt;
   }
-  
+
   window.addEventListener('beforeinstallprompt', (event) => {
     event.preventDefault();      // Prevent auto-prompt so the custom button can trigger it
     deferredPrompt = event;      // Save the event for later
     window.kjbDeferredPrompt = event;
-    // A fresh install prompt means the app is NOT installed — clear any stale flag.
-    try { localStorage.removeItem(INSTALLED_KEY); } catch {}
     window.dispatchEvent(new Event('pwa-installable'));
   });
 
-  window.addEventListener('appinstalled', () => {
-    // Edge can fire `appinstalled` even when the user taps out / cancels the
-    // install dialog, which previously created a FAKE "installed" state and
-    // hid the Install button. If the user JUST cancelled (within the last few
-    // seconds), ignore this event entirely — it's the spurious Edge cancel event.
-    if (window.kjbInstallJustCancelled && Date.now() - window.kjbInstallJustCancelled < 5000) {
-      return;
-    }
-    // Don't trust this event on its own — only act if the app is genuinely
-    // running standalone now. Otherwise keep the deferredPrompt so the Install
-    // button stays available (like Chrome/Samsung).
-    const reallyInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-    if (!reallyInstalled) return;
-    console.log('PWA installed');
-    deferredPrompt = null;
-    window.kjbDeferredPrompt = null;
-    try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
-    window.dispatchEvent(new Event('pwa-installed'));
-  });
+  // NOTE: We intentionally do NOT listen for `appinstalled`. Edge fires it even
+  // when the user CANCELS the install dialog, which falsely flipped the UI to
+  // "installed". Installed state is derived solely from the live display-mode
+  // check (isStandalone) instead, so it's always accurate.
 }
-
-const checkIsInstalled = () => {
-  if (typeof window === 'undefined') return false;
-  // The only reliable signal is the actual display mode (running standalone).
-  // The stored flag can go stale if the user later uninstalls the app from the
-  // browser, so we self-heal it here.
-  // If the user JUST cancelled the install dialog, ignore any transient
-  // standalone reading Edge briefly reports right after — it falsely flips the
-  // UI to "Installed". Treat as not-installed during this short window.
-  if (window.kjbInstallJustCancelled && Date.now() - window.kjbInstallJustCancelled < 5000) {
-    try { localStorage.removeItem(INSTALLED_KEY); } catch {}
-    return false;
-  }
-  const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-  // The ONLY reliable signal that the app is installed AND in use is running in
-  // standalone display mode. Cancelling the install prompt previously left a
-  // stale localStorage flag that falsely reported "Installed" — so we no longer
-  // trust that flag and rely solely on the live display-mode signal.
-  if (standalone) {
-    try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
-    return true;
-  }
-  // Not running standalone — treat as not installed (clears any stale flag).
-  try { localStorage.removeItem(INSTALLED_KEY); } catch {}
-  return false;
-};
 
 export function useInstallPrompt() {
   if (!deferredPrompt && typeof window !== 'undefined' && window.kjbDeferredPrompt) {
     deferredPrompt = window.kjbDeferredPrompt;
   }
   const [isInstallable, setIsInstallable] = useState(!!deferredPrompt);
-  const [isInstalled, setIsInstalled] = useState(checkIsInstalled());
+  const [isInstalled, setIsInstalled] = useState(isStandalone());
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
-    const handleInstallable = () => {
-      // Re-sync from the global capture before reporting installability.
+    const sync = () => {
       if (!deferredPrompt && typeof window !== 'undefined' && window.kjbDeferredPrompt) {
         deferredPrompt = window.kjbDeferredPrompt;
       }
       setIsInstallable(!!deferredPrompt);
-      // A re-fired install prompt means the app isn't installed anymore
-      // (e.g. user uninstalled it) — refresh the installed flag too.
-      setIsInstalled(checkIsInstalled());
-    };
-    const handleInstalled = () => {
-      setIsInstalled(checkIsInstalled());
-      setIsInstallable(!!deferredPrompt);
+      // Always re-read the live display mode — the only reliable signal.
+      setIsInstalled(isStandalone());
     };
 
-    window.addEventListener('pwa-installable', handleInstallable);
-    window.addEventListener('pwa-installed', handleInstalled);
+    window.addEventListener('pwa-installable', sync);
+    window.addEventListener('focus', sync);
+    // The display-mode media query itself changes when the app is launched
+    // standalone — listen so the UI updates without needing a reload.
+    const mq = window.matchMedia('(display-mode: standalone)');
+    mq.addEventListener?.('change', sync);
 
-    handleInstallable();
-    handleInstalled();
+    sync();
 
     return () => {
-      window.removeEventListener('pwa-installable', handleInstallable);
-      window.removeEventListener('pwa-installed', handleInstalled);
+      window.removeEventListener('pwa-installable', sync);
+      window.removeEventListener('focus', sync);
+      mq.removeEventListener?.('change', sync);
     };
   }, []);
 
@@ -109,8 +73,8 @@ export function useInstallPrompt() {
       deferredPrompt = window.kjbDeferredPrompt;
     }
     // Edge captures `beforeinstallprompt` slightly LATER than Chrome, so a fast
-    // click can land before the event arrives. Instead of immediately falling
-    // back to the manual guide, wait up to 3s for the prompt to fire.
+    // click can land before the event arrives. Wait up to 3s for it to fire
+    // before falling back to the manual guide.
     if (!deferredPrompt && typeof window !== 'undefined') {
       deferredPrompt = await new Promise((resolve) => {
         let settled = false;
@@ -121,7 +85,6 @@ export function useInstallPrompt() {
           resolve(window.kjbDeferredPrompt || null);
         };
         window.addEventListener('beforeinstallprompt', onPrompt);
-        // The global capture may also pick it up — poll briefly as a backup.
         const start = Date.now();
         const poll = setInterval(() => {
           if (window.kjbDeferredPrompt || Date.now() - start > 3000) {
@@ -134,33 +97,21 @@ export function useInstallPrompt() {
     if (!deferredPrompt) return false;
 
     try {
-      // Set the cancel-guard marker BEFORE showing the dialog. Edge can fire the
-      // spurious `appinstalled` event the instant the user dismisses — sometimes
-      // BEFORE userChoice resolves — so the marker must already be in place to
-      // block it. We clear it only on a confirmed "accepted" outcome below.
-      window.kjbInstallJustCancelled = Date.now();
       deferredPrompt.prompt();     // Show Edge/Chrome install dialog
       const result = await deferredPrompt.userChoice;
       console.log(result.outcome); // "accepted" or "dismissed"
 
       if (result.outcome === 'accepted') {
-        // Confirmed install — clear the cancel guard and mark installed.
-        window.kjbInstallJustCancelled = 0;
+        // Consumed — the browser will relaunch the app in standalone mode, where
+        // isStandalone() becomes true. We don't manually flip installed state.
         deferredPrompt = null;
         window.kjbDeferredPrompt = null;
         setIsInstallable(false);
-        try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
-        window.dispatchEvent(new Event('pwa-installed'));
-        window.dispatchEvent(new Event('pwa-installable'));
         return true;
       }
 
-      // User CANCELLED — keep the guard fresh (re-stamp), don't mark installed,
-      // and don't show the manual guide. Return 'cancelled' so the button stays
-      // an Install button.
-      window.kjbInstallJustCancelled = Date.now();
-      try { localStorage.removeItem(INSTALLED_KEY); } catch {}
-      setIsInstalled(false);
+      // User cancelled — keep the Install button (return 'cancelled'). Installed
+      // state stays false because the page is still a normal browser tab.
       return 'cancelled';
     } catch (err) {
       console.error('Install prompt error:', err);
@@ -179,7 +130,7 @@ export function useInstallPrompt() {
 
   const handleInstall = async () => {
     const accepted = await promptInstall();
-    if (accepted) {
+    if (accepted === true) {
       setShowPrompt(false);
     }
     return accepted;
