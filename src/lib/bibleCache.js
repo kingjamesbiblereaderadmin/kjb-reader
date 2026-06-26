@@ -340,6 +340,9 @@ export async function clearBibleCache() {
   localStorage.removeItem('bible_last_refresh');
   localStorage.removeItem('kjb-theme-preference');
   localStorage.removeItem('kjb-daily-verse-cache');
+  localStorage.removeItem('kjb-notifications-enabled');
+  localStorage.removeItem('kjb-notification-last');
+  localStorage.removeItem('kjb-notification-next');
   await clearIndexedDB();
   parsedData = null;
   console.log('[CLEAR] ✓✓✓ ALL cache cleared - will fetch fresh with brackets');
