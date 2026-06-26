@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Bell, X, Share, MonitorSmartphone, Download, Accessibility, Palette, Type, Moon, Sun, Monitor, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
@@ -62,6 +62,10 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   });
   const [notifFailed, setNotifFailed] = useState(false);
   const [isIncognito, setIsIncognito] = useState(false);
+  // Set the instant the user taps Install. A real installed PWA never shows an
+  // install prompt, so once we've shown one this session any `appinstalled`
+  // event is untrustworthy — Samsung Internet fires a bogus one on Cancel.
+  const promptedRef = useRef(false);
 
   useEffect(() => {
     detectIncognito().then(setIsIncognito);
@@ -99,6 +103,11 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   useEffect(() => {
     if (isInStandaloneMode()) setInstallDone(true);
     const handler = () => {
+      // Ignore appinstalled once the user has tapped Install this session —
+      // Samsung Internet fires a false appinstalled (and a transient standalone
+      // report) when the dialog is CANCELLED, which would wrongly show "App
+      // Installed". A genuine install is reflected on the next standalone launch.
+      if (promptedRef.current) return;
       if (isInStandaloneMode()) setInstallDone(true);
     };
     window.addEventListener('appinstalled', handler);
@@ -124,6 +133,9 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     // captured globally (window.kjbDeferredPrompt) even when the isInstallable
     // React state hasn't caught up yet, so check the global directly.
     const hasPrompt = isInstallable || (typeof window !== 'undefined' && !!window.kjbDeferredPrompt);
+    // Mark that we've shown a prompt this session — vetoes any later bogus
+    // appinstalled event (Samsung fires one on Cancel).
+    promptedRef.current = true;
     if (hasPrompt && onInstall) {
       try {
         const accepted = await onInstall();
