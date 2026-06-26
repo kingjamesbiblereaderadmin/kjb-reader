@@ -68,16 +68,28 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
   });
   const [notifFailed, setNotifFailed] = useState(false);
   const [isIncognito, setIsIncognito] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
   const promptedRef = useRef(false);
 
   useEffect(() => {
     detectIncognito().then(setIsIncognito);
   }, []);
 
-  // Sync install state from parent hook AND detect standalone PWA mode
+  // Detect standalone PWA mode on mount and when focus changes
+  useEffect(() => {
+    const checkStandalone = () => {
+      const standalone = isStandalonePWA();
+      setIsStandalone(standalone);
+      if (standalone) setInstallDone(true);
+    };
+    checkStandalone();
+    window.addEventListener('focus', checkStandalone);
+    return () => window.removeEventListener('focus', checkStandalone);
+  }, []);
+
+  // Sync install state from parent hook
   useEffect(() => {
     if (parentIsInstalled) setInstallDone(true);
-    if (isStandalonePWA()) setInstallDone(true);
   }, [parentIsInstalled]);
 
   // Sync notif state on focus
@@ -108,9 +120,6 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
     window.dispatchEvent(new Event('kjb-fonts-changed'));
   };
 
-  // Detect if already running as installed PWA
-  const isStandalone = isStandalonePWA();
-  
   // Hide install section if already in standalone PWA mode or parent says installed
   const actuallyInstalled = isStandalone || parentIsInstalled || installDone;
   
