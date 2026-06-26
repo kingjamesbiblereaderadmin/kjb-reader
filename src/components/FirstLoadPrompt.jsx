@@ -187,20 +187,27 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
   const handleNotifClick = async (e) => {
     if (!('Notification' in window)) {
       setNotifFailed(true);
+      alert('Notifications are not supported in this browser. Please install the app for notification support.');
       return;
     }
     try {
+      console.log('[FirstLoadPrompt] Requesting notification permission...');
       const permission = await Notification.requestPermission();
+      console.log('[FirstLoadPrompt] Permission result:', permission);
       if (permission === 'granted') {
         window.kjbNotifEnabledThisSession = true;
         setNotifDone(true);
         setNotifFailed(false);
+        console.log('[FirstLoadPrompt] Notifications enabled successfully');
       } else {
-        setNotifFailed(true);
+        // Permission denied - don't permanently fail, let user retry after manually enabling
+        setNotifFailed(false);
+        alert('Notifications blocked. Please enable notifications in your browser settings: Menu → Settings → Site permissions → Notifications.');
       }
     } catch (err) {
       console.error('Notif permission error:', err);
-      setNotifFailed(true);
+      setNotifFailed(false);
+      alert('Failed to request permission. Please enable notifications manually in your browser settings.');
     }
   };
 
@@ -447,7 +454,7 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
           {!isIncognito && (
           <button
             type="button"
-            disabled={notifFailed || notifDone}
+            disabled={notifDone}
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -459,7 +466,7 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
               handleNotifClick(e);
             }}
             className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-left touch-manipulation transition-all duration-200 ${
-              notifFailed || notifDone
+              notifDone
                 ? 'bg-secondary/40 border-border text-foreground cursor-not-allowed opacity-80' 
                 : 'bg-primary/10 border-primary/20 text-primary cursor-pointer hover:bg-primary/20 active:bg-primary/25 active:scale-[0.98] font-medium'
             }`}
@@ -467,11 +474,11 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
           >
             <Bell className="w-4 h-4 shrink-0" />
             <span className="flex-1 text-left leading-tight">
-              <span className={`block ${notifFailed || notifDone ? 'font-medium' : 'font-semibold'}`}>
+              <span className={`block ${notifDone ? 'font-medium' : 'font-semibold'}`}>
                 {notifDone ? 'Notifications Enabled' : 'Enable Daily Notifications'}
               </span>
               <span className="block text-[10px] sm:text-xs opacity-80 mt-0.5">
-                {notifDone ? 'You will receive the daily verse every morning' : notifFailed ? 'Blocked or not supported by browser' : 'Get the daily verse every morning'}
+                {notifDone ? 'You will receive the daily verse every morning' : 'Get the daily verse every morning'}
               </span>
             </span>
           </button>
