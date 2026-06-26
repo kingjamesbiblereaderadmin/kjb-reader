@@ -48,16 +48,20 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
   // Short verses scale UP so they fill the card instead of leaving empty space.
   let dynamicFontSize = '72px';
   let dynamicLineHeight = 1.5;
-  if (textLen > 650) { dynamicFontSize = '22px'; dynamicLineHeight = 1.4; }
-  else if (textLen > 550) { dynamicFontSize = '25px'; dynamicLineHeight = 1.45; }
-  else if (textLen > 450) { dynamicFontSize = '28px'; dynamicLineHeight = 1.5; }
-  else if (textLen > 380) { dynamicFontSize = '32px'; dynamicLineHeight = 1.5; }
-  else if (textLen > 300) { dynamicFontSize = '36px'; dynamicLineHeight = 1.5; }
-  else if (textLen > 250) { dynamicFontSize = '40px'; dynamicLineHeight = 1.5; }
-  else if (textLen > 200) { dynamicFontSize = '46px'; dynamicLineHeight = 1.5; }
-  else if (textLen > 150) { dynamicFontSize = '52px'; dynamicLineHeight = 1.5; }
-  else if (textLen > 100) { dynamicFontSize = '60px'; dynamicLineHeight = 1.5; }
-  else if (textLen > 60) { dynamicFontSize = '66px'; dynamicLineHeight = 1.45; }
+  // Gap before the reference + bottom padding both scale with verse length so
+  // any size verse stays vertically balanced and never clips the footer.
+  let refGap = '64px';
+  let blockPadBottom = '60px';
+  if (textLen > 650) { dynamicFontSize = '22px'; dynamicLineHeight = 1.4; refGap = '24px'; blockPadBottom = '0px'; }
+  else if (textLen > 550) { dynamicFontSize = '25px'; dynamicLineHeight = 1.45; refGap = '28px'; blockPadBottom = '8px'; }
+  else if (textLen > 450) { dynamicFontSize = '28px'; dynamicLineHeight = 1.5; refGap = '32px'; blockPadBottom = '16px'; }
+  else if (textLen > 380) { dynamicFontSize = '32px'; dynamicLineHeight = 1.5; refGap = '36px'; blockPadBottom = '24px'; }
+  else if (textLen > 300) { dynamicFontSize = '36px'; dynamicLineHeight = 1.5; refGap = '40px'; blockPadBottom = '32px'; }
+  else if (textLen > 250) { dynamicFontSize = '40px'; dynamicLineHeight = 1.5; refGap = '44px'; blockPadBottom = '40px'; }
+  else if (textLen > 200) { dynamicFontSize = '46px'; dynamicLineHeight = 1.5; refGap = '48px'; blockPadBottom = '48px'; }
+  else if (textLen > 150) { dynamicFontSize = '52px'; dynamicLineHeight = 1.5; refGap = '52px'; blockPadBottom = '52px'; }
+  else if (textLen > 100) { dynamicFontSize = '60px'; dynamicLineHeight = 1.5; refGap = '56px'; blockPadBottom = '56px'; }
+  else if (textLen > 60) { dynamicFontSize = '66px'; dynamicLineHeight = 1.45; refGap = '60px'; blockPadBottom = '60px'; }
 
   // Thin full-width gradient line (blue → purple) with soft glow
   const SeparatorLine = () => (
@@ -140,7 +144,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
         {/* Verse text — centered flex column; verse, ref and date all flow
             together and stay vertically centered, so long verses never overlap
             the footer divider below. */}
-        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', overflow: 'hidden', paddingBottom: '60px' }}>
+        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', overflow: 'hidden', paddingBottom: blockPadBottom }}>
           {/* Verse, reference and date are all one inline-flowing block, wrapped
               in a translucent box like the daily card. The box stays vertically
               centered, so long verses never overlap the footer divider. */}
@@ -169,7 +173,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             <span
               style={{
                 display: 'block',
-                marginTop: '64px',
+                marginTop: refGap,
                 fontFamily: verseFont,
                 fontWeight: 700,
                 fontSize: '26px',
