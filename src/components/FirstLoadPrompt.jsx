@@ -96,6 +96,21 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     detectIncognito().then(setIsIncognito);
   }, []);
 
+  // Authoritative install check (Android Chromium incl. Samsung Internet):
+  // navigator.getInstalledRelatedApps() reports whether THIS PWA is installed,
+  // even from a normal browser tab — unaffected by Samsung's false standalone
+  // report. If it confirms an install, mark it done; if it runs and finds none,
+  // it never flips state (other browsers lack the API, so absence ≠ proof).
+  useEffect(() => {
+    try {
+      if (navigator.getInstalledRelatedApps) {
+        navigator.getInstalledRelatedApps().then((apps) => {
+          if (apps && apps.length > 0) setInstallDone(true);
+        }).catch(() => {});
+      }
+    } catch {}
+  }, []);
+
   const pickReaderFont = (value) => {
     try { localStorage.setItem('kjb-reader-font-family', value); } catch {}
     setReaderFontFamily(value);

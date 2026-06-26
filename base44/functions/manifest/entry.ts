@@ -14,6 +14,12 @@ Deno.serve(async () => {
     background_color: "#0f1117",
     theme_color: "#0f1117",
     prefer_related_applications: false,
+    // Lets navigator.getInstalledRelatedApps() recognise THIS installed PWA
+    // from inside a normal browser tab (the only reliable cross-tab install
+    // check on Android Chromium browsers, incl. Samsung Internet).
+    related_applications: [
+      { platform: "webapp", url: "https://kingjamesbible.sg/manifest.json" }
+    ],
     icons: [
       {
         src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/35e329953_cfb4bf781_Untitled.png",
