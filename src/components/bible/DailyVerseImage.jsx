@@ -976,7 +976,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               fontSize: fontFamily === 'cursive' ? (textLen > 500 ? '0.9rem' : textLen > 400 ? '1rem' : textLen > 300 ? '1.15rem' : textLen > 200 ? '1.35rem' : textLen > 100 ? '1.6rem' : '2rem') : (textLen > 500 ? '0.8rem' : textLen > 400 ? '0.9rem' : textLen > 300 ? '1rem' : textLen > 200 ? '1.2rem' : textLen > 100 ? '1.45rem' : '1.8rem')
             }}
           >
-            "<span dangerouslySetInnerHTML={{ __html: renderVerseText(cleanVerseText(verse.text)) }} />"
+            "<span dangerouslySetInnerHTML={{ __html: renderVerseText(cleanVerseText(verse.text)).replace(/<span class="pilcrow">¶<\/span>/g, `<span class="pilcrow" style="color: ${textColor}; opacity: ${textOpacity}; font-family: ${resolvedFont};">¶</span>`) }} />"
           </blockquote>
           <p 
             className="text-sm md:text-base font-semibold mt-6 text-center"
