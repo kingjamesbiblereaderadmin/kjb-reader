@@ -73,10 +73,15 @@ export function useInstallPrompt() {
     const sync = () => {
       if (!deferredPrompt && window.kjbDeferredPrompt) deferredPrompt = window.kjbDeferredPrompt;
       setIsInstallable(!!deferredPrompt);
+      // Re-check installed state on focus (user may have just installed)
+      checkInstalledAsync().then(installed => {
+        if (!cancelled) setIsInstalled(installed);
+      });
     };
     
     window.addEventListener('kjb-install-change', sync);
     window.addEventListener('focus', sync);
+    window.addEventListener('pwa-installed', sync);
     return () => {
       cancelled = true;
       window.removeEventListener('kjb-install-change', sync);

@@ -186,7 +186,35 @@ export default function SettingsPage() {
   const [notifEnabled, setNotifEnabled] = useState(isNotifReallyOn);
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);
 
-  const { isInstallable, isInstalled, promptInstall } = useInstallPrompt();
+  const { isInstallable, isInstalled: hookIsInstalled, promptInstall } = useInstallPrompt();
+  // Double-check installed state using display-mode media query (most reliable for standalone PWA)
+  const [isInstalled, setIsInstalled] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return hookIsInstalled || 
+           window.matchMedia('(display-mode: standalone)').matches ||
+           window.matchMedia('(display-mode: minimal-ui)').matches ||
+           window.matchMedia('(display-mode: window-controls-overlay)').matches ||
+           (navigator.standalone === true);
+  });
+  
+  // Re-check on focus (user may have just installed the app)
+  useEffect(() => {
+    const checkInstalled = () => {
+      const installed = hookIsInstalled || 
+                        window.matchMedia('(display-mode: standalone)').matches ||
+                        window.matchMedia('(display-mode: minimal-ui)').matches ||
+                        window.matchMedia('(display-mode: window-controls-overlay)').matches ||
+                        (navigator.standalone === true);
+      setIsInstalled(installed);
+    };
+    checkInstalled();
+    window.addEventListener('focus', checkInstalled);
+    window.addEventListener('pwa-installed', checkInstalled);
+    return () => {
+      window.removeEventListener('focus', checkInstalled);
+      window.removeEventListener('pwa-installed', checkInstalled);
+    };
+  }, [hookIsInstalled]);
   const [cached, setCached] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [dlProgress, setDlProgress] = useState(0);
