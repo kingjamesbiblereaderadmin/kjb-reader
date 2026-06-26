@@ -37,6 +37,21 @@ const checkInstalledAsync = async () => {
 let deferredPrompt = (typeof window !== 'undefined' && window.kjbDeferredPrompt) || null;
 let promptEverOffered = (typeof window !== 'undefined' && window.kjbPromptedThisSession === true);
 
+// Edge/Chrome desktop: check if PWA meets install criteria even before beforeinstallprompt fires
+const isPwaInstallable = () => {
+  if (typeof window === 'undefined') return false;
+  // Has manifest with proper icons + start_url
+  const hasManifest = !!document.querySelector('link[rel="manifest"]');
+  // Running over HTTPS or localhost
+  const isSecure = location.protocol === 'https:' || location.hostname === 'localhost';
+  // Not already in standalone mode
+  const notStandalone = !window.matchMedia('(display-mode: standalone)').matches && 
+                        !window.matchMedia('(display-mode: minimal-ui)').matches &&
+                        !window.matchMedia('(display-mode: window-controls-overlay)').matches &&
+                        window.navigator.standalone !== true;
+  return hasManifest && isSecure && notStandalone;
+};
+
 if (typeof window !== 'undefined') {
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
