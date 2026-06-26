@@ -70,26 +70,6 @@ export function useInstallPrompt() {
     if (!deferredPrompt && typeof window !== 'undefined' && window.kjbDeferredPrompt) {
       deferredPrompt = window.kjbDeferredPrompt;
     }
-    // Edge captures `beforeinstallprompt` slightly later — wait up to 3s.
-    if (!deferredPrompt && typeof window !== 'undefined') {
-      deferredPrompt = await new Promise((resolve) => {
-        let settled = false;
-        const onPrompt = () => {
-          if (settled) return;
-          settled = true;
-          window.removeEventListener('beforeinstallprompt', onPrompt);
-          resolve(window.kjbDeferredPrompt || null);
-        };
-        window.addEventListener('beforeinstallprompt', onPrompt);
-        const start = Date.now();
-        const poll = setInterval(() => {
-          if (window.kjbDeferredPrompt || Date.now() - start > 3000) {
-            clearInterval(poll);
-            onPrompt();
-          }
-        }, 150);
-      });
-    }
     if (!deferredPrompt) return false;
 
     try {
