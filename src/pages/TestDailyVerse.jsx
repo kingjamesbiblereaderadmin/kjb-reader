@@ -87,21 +87,26 @@ export default function TestDailyVerse() {
 
   const fetchCustomVerse = async () => {
     try {
+      // Fetch the whole chapter and extract the specific verse
       const response = await base44.functions.invoke('bibleApi', {
-        action: 'getVerse',
+        action: 'getChapter',
         book: customBook,
-        chapter: customChapter,
-        verse: customVerse
+        chapter: customChapter
       });
       
-      if (response?.data?.verse) {
-        const verseData = {
-          text: response.data.verse.text,
-          ref: `${customBook} ${customChapter}:${customVerse}`,
-          category: 'Custom'
-        };
-        setSelectedVerse(verseData);
-        setUseCustom(true);
+      if (response?.data?.verses) {
+        const verseObj = response.data.verses.find(v => v.verse === customVerse);
+        if (verseObj) {
+          const verseData = {
+            text: verseObj.text,
+            ref: `${customBook} ${customChapter}:${customVerse}`,
+            category: 'Custom'
+          };
+          setSelectedVerse(verseData);
+          setUseCustom(true);
+        } else {
+          alert(`Verse ${customVerse} not found in ${customBook} ${customChapter}`);
+        }
       }
     } catch (err) {
       console.error('Failed to fetch verse:', err);
