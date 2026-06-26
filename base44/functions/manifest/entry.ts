@@ -43,14 +43,14 @@ Deno.serve(async () => {
     ],
     screenshots: [
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/5cbf6183a_BCObc7bb469-f8ce-4d13-b0bd-1d6f9d4206f1.png",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/90d27b0f1_BCObc7bb469-f8ce-4d13-b0bd-1d6f9d4206f1.png",
         sizes: "1024x1024",
         type: "image/png",
         form_factor: "narrow",
-        label: "KJB Reader - Responsive across devices"
+        label: "KJB Reader - Verse of the Day"
       },
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/efb303e93_BCOf0297029-2e38-446b-bd58-076244d9d764.png",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/74f9ab6b0_BCOf0297029-2e38-446b-bd58-076244d9d764.png",
         sizes: "1024x683",
         type: "image/png",
         form_factor: "wide",
