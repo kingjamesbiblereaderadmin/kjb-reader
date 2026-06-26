@@ -58,6 +58,7 @@ if (typeof window !== 'undefined') {
     deferredPrompt = e;
     window.kjbDeferredPrompt = e;
     promptEverOffered = true;
+    console.log('[useInstallPrompt] beforeinstallprompt fired');
     window.dispatchEvent(new Event('kjb-install-change'));
   });
   window.addEventListener('pwa-installable', () => {
@@ -107,11 +108,16 @@ export function useInstallPrompt() {
 
   const promptInstall = async () => {
     if (!deferredPrompt && window.kjbDeferredPrompt) deferredPrompt = window.kjbDeferredPrompt;
-    if (!deferredPrompt) return false;
+    console.log('[useInstallPrompt] promptInstall called, deferredPrompt:', !!deferredPrompt);
+    if (!deferredPrompt) {
+      console.log('[useInstallPrompt] No deferredPrompt available');
+      return false;
+    }
     try {
       promptEverOffered = true;
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
+      console.log('[useInstallPrompt] Prompt outcome:', outcome);
       deferredPrompt = null;
       window.kjbDeferredPrompt = null;
       setIsInstallable(false);
