@@ -57,9 +57,9 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
   });
   const [showIOSHint, setShowIOSHint] = useState(false);
   const [installDone, setInstallDone] = useState(parentIsInstalled || false);
-  const [notifDone, setNotifDone] = useState(() =>
-    'Notification' in window && Notification.permission === 'granted'
-  );
+  const [notifDone, setNotifDone] = useState(() => {
+    try { return localStorage.getItem('kjb-notifications-enabled') === 'true'; } catch { return false; }
+  });
   const [a11yFont, setA11yFont] = useState(getAccessibilityFont);
   const { mode, setMode } = useTheme();
   const [readerFontFamily, setReaderFontFamily] = useState(() => {
@@ -97,14 +97,15 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
   // Sync notif state on focus
   useEffect(() => {
     const checkNotif = () => {
-      if ('Notification' in window && Notification.permission === 'granted') {
-        setNotifDone(true);
-      }
+      try {
+        const enabled = localStorage.getItem('kjb-notifications-enabled') === 'true';
+        setNotifDone(enabled);
+      } catch {}
     };
     checkNotif();
     window.addEventListener('focus', checkNotif);
     return () => window.removeEventListener('focus', checkNotif);
-  }, [notifPermission]);
+  }, []);
 
   const pickReaderFont = (value) => {
     try { localStorage.setItem('kjb-reader-font-family', value); } catch {}
