@@ -242,8 +242,8 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
               >
                 {isIOS() ? <Share className="w-4 h-4 shrink-0" /> : isMobile() ? <Download className="w-4 h-4 shrink-0" /> : <MonitorSmartphone className="w-4 h-4 shrink-0" />}
                 <span className="text-left leading-tight">
-                  <span className="block font-semibold">{isInstallable ? (isMobile() ? 'Add to Home Screen' : 'Install App') : 'How to Install App'}</span>
-                  <span className="block text-[10px] sm:text-xs opacity-80">{isInstallable ? 'Offline access, faster loading' : 'View manual instructions'}</span>
+                  <span className="block font-semibold">{isMobile() ? 'Add to Home Screen' : 'Install App'}</span>
+                  <span className="block text-[10px] sm:text-xs opacity-80">Offline access, faster loading</span>
                 </span>
               </button>
               
