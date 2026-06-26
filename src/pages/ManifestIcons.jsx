@@ -24,8 +24,8 @@ function renderIcon(img, size, padRatio = 0) {
   ctx.imageSmoothingQuality = 'high';
 
   if (padRatio > 0) {
-    // Fill background so the masked (round) icon has no transparent corners.
-    ctx.fillStyle = '#3b9ad6';
+    // Fill background with neutral dark color matching app theme (no transparent corners).
+    ctx.fillStyle = '#0f1117';
     ctx.fillRect(0, 0, size, size);
   }
   const pad = Math.round(size * padRatio);
@@ -116,7 +116,7 @@ export default function ManifestIcons() {
         </button>
         {maskableUrl && (
           <div className="w-full flex flex-col items-center gap-3">
-            <div className="w-32 h-32 rounded-full overflow-hidden border border-border bg-secondary/40">
+            <div className="w-32 h-32 rounded-xl overflow-hidden border border-border bg-secondary/40">
               <img src={maskableUrl} alt="Padded maskable" className="w-full h-full object-contain" />
             </div>
             <button
@@ -136,7 +136,7 @@ export default function ManifestIcons() {
         {ICONS.map((icon, i) => (
           <div key={i} className="bg-card border border-border rounded-2xl p-6 flex flex-col items-center gap-4 shadow-sm">
             <div
-              className={`bg-secondary/40 border border-border flex items-center justify-center overflow-hidden ${icon.purpose === 'maskable' ? 'rounded-full' : 'rounded-2xl'}`}
+              className="bg-secondary/40 border border-border flex items-center justify-center overflow-hidden rounded-2xl"
               style={{ width: icon.size > 256 ? 256 : icon.size, height: icon.size > 256 ? 256 : icon.size }}
             >
               <img src={ICON_SRC} alt={`${icon.size} ${icon.purpose}`} className="w-full h-full object-contain" />
