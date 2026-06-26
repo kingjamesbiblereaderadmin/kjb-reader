@@ -30,12 +30,28 @@ const isBookmarkBrowser = () => {
   const mobile = /iphone|ipad|ipod|android/i.test(ua);
   return !mobile && (isFirefox || (isMac && isSafari));
 };
-const isInStandaloneMode = () => {
+// Frozen ONCE at module load. A genuinely installed PWA always launches in
+// standalone display mode from the very first paint, so reading this a single
+// time (not live) is enough to recognise a real install. Critically, freezing
+// it means the transient `display-mode: standalone` report that Samsung
+// Internet emits AFTER you CANCEL an install dialog can never be observed —
+// the value was captured before any dialog could open. Live re-reads were the
+// reason the button kept flipping to "Installed" on cancel.
+const LAUNCHED_STANDALONE = (() => {
   if (typeof window === 'undefined') return false;
-  // Only trust the ACTUAL running display mode. The persisted flag can stick
-  // around (e.g. after cancelling an install) and wrongly show "Installed".
-  return window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
-};
+  // The Base44 preview runs inside an iframe, which can falsely report
+  // standalone. A real installed PWA is never inside an iframe.
+  try { if (window.self !== window.top) return false; } catch { return false; }
+  if (window.navigator.standalone === true) return true;
+  let displayStandalone = false;
+  try { displayStandalone = window.matchMedia('(display-mode: standalone)').matches; } catch { displayStandalone = false; }
+  if (!displayStandalone) return false;
+  // Filter Samsung's false standalone-in-tab report: a real home-screen launch
+  // has no opener and an empty referrer. A navigated-to tab always has one.
+  try { if (window.opener || document.referrer) return false; } catch {}
+  return true;
+})();
+const isInStandaloneMode = () => LAUNCHED_STANDALONE;
 
 const DISMISSED_KEY = 'kjb-prompt-dismissed';
 
