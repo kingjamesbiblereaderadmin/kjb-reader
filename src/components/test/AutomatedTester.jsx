@@ -128,7 +128,59 @@ export default function AutomatedTester({ onTestsComplete }) {
         test: async () => {
           const searchInput = document.querySelector('input[type="search"], input[placeholder*="search" i]');
           const searchBtn = document.querySelector('button:has-text("Search"), button:has-svg("Search")');
-          return { passed: searchInput !== null || searchBtn !== null, message: searchInput ? 'Search input found' : searchBtn ? 'Search button found' : 'Search not found' };
+          const hasSearch = searchInput !== null || searchBtn !== null;
+          return { passed: hasSearch, message: searchInput ? 'Search input found' : searchBtn ? 'Search button found' : 'Search not found' };
+        }
+      },
+      {
+        name: 'Search Highlighting',
+        test: async () => {
+          const markElements = document.querySelectorAll('mark[data-occ], mark.highlight, .search-highlight');
+          const hasHighlightCSS = Array.from(document.styleSheets).some(sheet => {
+            try {
+              return Array.from(sheet.cssRules).some(rule => 
+                rule.selectorText?.includes('mark') || rule.selectorText?.includes('highlight')
+              );
+            } catch { return false; }
+          });
+          return { passed: markElements.length > 0 || hasHighlightCSS, message: markElements.length > 0 ? `${markElements.length} highlights found` : hasHighlightCSS ? 'Highlight CSS exists' : 'No highlighting found' };
+        }
+      },
+      {
+        name: 'Multiple Search Results',
+        test: async () => {
+          try {
+            const { getBibleData } = await import('@/lib/bibleCache');
+            const bible = await getBibleData();
+            const testTerms = ['God', 'Jesus', 'faith'];
+            const results = {};
+            let totalMatches = 0;
+            
+            for (const term of testTerms) {
+              const matches = [];
+              for (const bookName in bible) {
+                if (bookName === '__colophons') continue;
+                const chapters = bible[bookName];
+                for (const chapterNum in chapters) {
+                  const verses = chapters[chapterNum];
+                  for (const verseObj of verses) {
+                    if (verseObj.text.toLowerCase().includes(term.toLowerCase())) {
+                      matches.push(`${bookName} ${chapterNum}:${verseObj.verse}`);
+                      if (matches.length >= 5) break;
+                    }
+                  }
+                  if (matches.length >= 5) break;
+                }
+                if (matches.length >= 5) break;
+              }
+              results[term] = matches.length;
+              totalMatches += matches.length;
+            }
+            
+            return { passed: totalMatches > 0, message: `Found ${totalMatches} matches across ${Object.keys(results).filter(k => results[k] > 0).length}/3 terms (God: ${results['God']}, Jesus: ${results['Jesus']}, faith: ${results['faith']})` };
+          } catch (err) {
+            return { passed: false, message: `Failed: ${err.message}` };
+          }
         }
       },
       {

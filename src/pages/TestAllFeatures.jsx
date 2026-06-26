@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Download, RefreshCw, Image, Shuffle, BookOpen, Search, Type, Link as LinkIcon, Eye, Columns, Maximize2 } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
-import AutomatedTester from '@/components/test/AutomatedTester';
+import ComprehensiveTester from '@/components/test/ComprehensiveTester';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -716,9 +716,9 @@ export default function TestAllFeatures() {
             </Card>
           </TabsContent>
 
-          {/* Automated Tester Tab */}
+          {/* Comprehensive Tester Tab */}
           <TabsContent value="tester" className="space-y-4">
-            <AutomatedTester />
+            <ComprehensiveTester />
           </TabsContent>
         </Tabs>
       </div>
