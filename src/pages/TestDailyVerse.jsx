@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Download, RefreshCw, Image } from 'lucide-react';
+import { Download, RefreshCw, Image, Shuffle, BookOpen } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 
 const TEST_VERSES = [
@@ -39,7 +39,28 @@ const TEST_VERSES = [
 export default function TestDailyVerse() {
   const [selectedVerse, setSelectedVerse] = useState(TEST_VERSES[0]);
   const [isOffline, setIsOffline] = useState(false);
+  const [customBook, setCustomBook] = useState('John');
+  const [customChapter, setCustomChapter] = useState(3);
+  const [customVerse, setCustomVerse] = useState(16);
+  const [useCustom, setUseCustom] = useState(false);
   const verseCardRef = useRef(null);
+
+  const BIBLE_BOOKS = [
+    'Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy',
+    'Joshua', 'Judges', 'Ruth', '1 Samuel', '2 Samuel',
+    '1 Kings', '2 Kings', '1 Chronicles', '2 Chronicles', 'Ezra',
+    'Nehemiah', 'Esther', 'Job', 'Psalms', 'Proverbs',
+    'Ecclesiastes', 'Song of Solomon', 'Isaiah', 'Jeremiah', 'Lamentations',
+    'Ezekiel', 'Daniel', 'Hosea', 'Joel', 'Amos',
+    'Obadiah', 'Jonah', 'Micah', 'Nahum', 'Habakkuk',
+    'Zephaniah', 'Haggai', 'Zechariah', 'Malachi',
+    'Matthew', 'Mark', 'Luke', 'John', 'Acts',
+    'Romans', '1 Corinthians', '2 Corinthians', 'Galatians', 'Ephesians',
+    'Philippians', 'Colossians', '1 Thessalonians', '2 Thessalonians', '1 Timothy',
+    '2 Timothy', 'Titus', 'Philemon', 'Hebrews', 'James',
+    '1 Peter', '2 Peter', '1 John', '2 John', '3 John',
+    'Jude', 'Revelation'
+  ];
 
   const handleDownload = async () => {
     if (!verseCardRef.current) return;
@@ -54,13 +75,52 @@ export default function TestDailyVerse() {
       
       const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
       const link = document.createElement('a');
-      link.download = `test-daily-verse-${dateStr}-${selectedVerse.category}.png`;
+      const cat = useCustom ? `${customBook}-${customChapter}-${customVerse}` : selectedVerse.category;
+      link.download = `test-daily-verse-${dateStr}-${cat}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
     } catch (err) {
       console.error('Failed to download:', err);
       alert('Failed to generate image. Please try again.');
     }
+  };
+
+  const fetchCustomVerse = async () => {
+    try {
+      const response = await base44.functions.invoke('bibleApi', {
+        action: 'getVerse',
+        book: customBook,
+        chapter: customChapter,
+        verse: customVerse
+      });
+      
+      if (response?.data?.verse) {
+        const verseData = {
+          text: response.data.verse.text,
+          ref: `${customBook} ${customChapter}:${customVerse}`,
+          category: 'Custom'
+        };
+        setSelectedVerse(verseData);
+        setUseCustom(true);
+      }
+    } catch (err) {
+      console.error('Failed to fetch verse:', err);
+      alert('Failed to fetch verse. Please try again.');
+    }
+  };
+
+  const pickRandomVerse = () => {
+    const randomBook = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
+    const randomChapter = Math.floor(Math.random() * 50) + 1;
+    const randomVerse = Math.floor(Math.random() * 30) + 1;
+    setCustomBook(randomBook);
+    setCustomChapter(randomChapter);
+    setCustomVerse(randomVerse);
+    
+    // Auto-fetch the random verse
+    setTimeout(() => {
+      fetchCustomVerse();
+    }, 100);
   };
 
   return (
@@ -83,9 +143,12 @@ export default function TestDailyVerse() {
               {TEST_VERSES.map((verse, idx) => (
                 <button
                   key={idx}
-                  onClick={() => setSelectedVerse(verse)}
+                  onClick={() => {
+                    setSelectedVerse(verse);
+                    setUseCustom(false);
+                  }}
                   className={`px-3 py-1.5 rounded-lg font-sans text-xs font-medium transition-all ${
-                    selectedVerse === verse
+                    selectedVerse === verse && !useCustom
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
                   }`}
@@ -94,6 +157,70 @@ export default function TestDailyVerse() {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Custom Verse Picker */}
+          <div className="pt-4 border-t border-border">
+            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-primary" />
+                <span className="font-sans text-sm font-medium text-foreground">Pick Any Verse:</span>
+              </div>
+              <button
+                onClick={pickRandomVerse}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-accent/20 text-accent font-sans text-xs font-medium hover:bg-accent/30 transition-colors"
+              >
+                <Shuffle className="w-3.5 h-3.5" />
+                Random
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2 items-end">
+              <div className="flex-1 min-w-[140px]">
+                <label className="block font-sans text-xs text-muted-foreground mb-1">Book</label>
+                <select
+                  value={customBook}
+                  onChange={(e) => setCustomBook(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-background font-sans text-sm"
+                >
+                  {BIBLE_BOOKS.map(book => (
+                    <option key={book} value={book}>{book}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="w-20">
+                <label className="block font-sans text-xs text-muted-foreground mb-1">Chapter</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="150"
+                  value={customChapter}
+                  onChange={(e) => setCustomChapter(parseInt(e.target.value) || 1)}
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-background font-sans text-sm"
+                />
+              </div>
+              <div className="w-20">
+                <label className="block font-sans text-xs text-muted-foreground mb-1">Verse</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="176"
+                  value={customVerse}
+                  onChange={(e) => setCustomVerse(parseInt(e.target.value) || 1)}
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-background font-sans text-sm"
+                />
+              </div>
+              <button
+                onClick={fetchCustomVerse}
+                className="px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
+              >
+                Load
+              </button>
+            </div>
+            {useCustom && (
+              <p className="font-sans text-xs text-primary mt-2">
+                Currently showing: {customBook} {customChapter}:{customVerse}
+              </p>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-3 items-center justify-between pt-3 border-t border-border">
