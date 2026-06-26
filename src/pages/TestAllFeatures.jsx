@@ -353,18 +353,68 @@ export default function TestAllFeatures() {
                   </Button>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <Switch
-                      checked={isOffline}
-                      onCheckedChange={setIsOffline}
-                    />
-                    <span className="font-sans text-sm text-foreground">Simulate Offline Mode</span>
-                  </label>
-                  <Button onClick={handleDownload}>
-                    <Download className="w-4 h-4 mr-2" />
-                    Download Card
-                  </Button>
+                <div className="space-y-3">
+                  <div>
+                    <Label className="text-xs font-semibold mb-2 block">Test Font Family:</Label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { value: 'serif', label: 'Serif' },
+                        { value: 'sans-serif', label: 'Sans' },
+                        { value: 'monospace', label: 'Mono' },
+                        { value: 'cursive', label: 'Cursive' },
+                        { value: 'dyslexic', label: 'Dyslexic' },
+                        { value: 'hyperlegible', label: 'Legible' },
+                      ].map((font) => (
+                        <Button
+                          key={font.value}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            localStorage.setItem('kjb-verse-font-family', font.value);
+                            if (['dyslexic', 'hyperlegible'].includes(font.value)) {
+                              localStorage.setItem('kjb-accessibility-font', font.value);
+                            } else {
+                              localStorage.setItem('kjb-accessibility-font', 'default');
+                            }
+                            window.dispatchEvent(new Event('storage'));
+                            window.dispatchEvent(new Event('kjb-fonts-changed'));
+                            setTimeout(() => window.location.reload(), 100);
+                          }}
+                          className="text-xs"
+                          style={{
+                            fontFamily: font.value === 'serif' ? 'Merriweather, serif' :
+                              font.value === 'sans-serif' ? 'Inter, sans-serif' :
+                              font.value === 'monospace' ? 'Courier New, monospace' :
+                              font.value === 'cursive' ? 'Dancing Script, cursive' :
+                              font.value === 'dyslexic' ? 'OpenDyslexic, Comic Sans MS' :
+                              font.value === 'hyperlegible' ? 'Atkinson Hyperlegible, sans-serif' : 'inherit'
+                          }}
+                        >
+                          {font.label}
+                        </Button>
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Current: <span className="font-medium">{localStorage.getItem('kjb-verse-font-family') || 'serif'}</span>
+                      {localStorage.getItem('kjb-accessibility-font') !== 'default' && (
+                        <span> (Accessibility: <span className="font-medium">{localStorage.getItem('kjb-accessibility-font')}</span>)</span>
+                      )}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <Switch
+                        checked={isOffline}
+                        onCheckedChange={setIsOffline}
+                      />
+                      <span className="font-sans text-sm text-foreground">Simulate Offline Mode</span>
+                    </label>
+                    <Button onClick={handleDownload}>
+                      <Download className="w-4 h-4 mr-2" />
+                      Download Card
+                    </Button>
+                  </div>
                 </div>
 
                 <div ref={verseCardRef}>
