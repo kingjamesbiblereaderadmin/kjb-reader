@@ -86,15 +86,11 @@ export async function requestNotificationPermission() {
   if ('Notification' in window) {
     try {
       console.log('[Notif] Current Notification permission:', Notification.permission);
-      if (Notification.permission !== 'granted') {
-        console.log('[Notif] Requesting Notification permission...');
-        const result = await Notification.requestPermission();
-        console.log('[Notif] Notification permission result:', result);
-        if (result === 'granted') {
-          hasPermission = true;
-        }
-      } else {
-        console.log('[Notif] Notification permission already granted');
+      // Always request permission to ensure the browser prompt shows (Chrome fix)
+      console.log('[Notif] Requesting Notification permission...');
+      const result = await Notification.requestPermission();
+      console.log('[Notif] Notification permission result:', result);
+      if (result === 'granted') {
         hasPermission = true;
       }
     } catch (err) {
