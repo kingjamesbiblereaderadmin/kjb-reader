@@ -435,11 +435,12 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
               e.preventDefault();
               handleNotifClick(e);
             }}
-            className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-left touch-manipulation transition-colors ${
+            className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-left touch-manipulation transition-all duration-200 ${
               notifFailed || notifDone
                 ? 'bg-secondary/40 border-border text-foreground cursor-not-allowed opacity-80' 
-                : 'bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 active:bg-primary/25 font-medium'
+                : 'bg-primary/10 border-primary/20 text-primary cursor-pointer hover:bg-primary/20 active:bg-primary/25 active:scale-[0.98] font-medium'
             }`}
+            style={{ WebkitTapHighlightColor: 'transparent', WebkitAppearance: 'none' }}
           >
             <Bell className="w-4 h-4 shrink-0" />
             <span className="flex-1 text-left leading-tight">
