@@ -11,12 +11,15 @@ let deferredPrompt = null;
 // localStorage flags, no timing windows, no spurious `appinstalled` events.
 const isStandalone = () => {
   if (typeof window === 'undefined') return false;
-  // If the browser is still offering to install (a beforeinstallprompt is
-  // available), the app is NOT installed — Edge can briefly report a browser
-  // tab as "standalone" right after the install dialog is cancelled, which
-  // falsely flipped the UI. Having a live install prompt rules that out.
-  if (deferredPrompt || window.kjbDeferredPrompt) return false;
-  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  // iOS standalone flag is reliable on its own.
+  if (window.navigator.standalone === true) return true;
+  // A genuinely installed PWA launches in its own window: display-mode is
+  // 'standalone' AND 'browser' is FALSE. Edge's bug after cancelling an install
+  // dialog reports 'standalone' true while STILL being a 'browser' tab — so we
+  // require browser-mode to be false to count it as installed.
+  const standalone = window.matchMedia('(display-mode: standalone)').matches;
+  const browser = window.matchMedia('(display-mode: browser)').matches;
+  return standalone && !browser;
 };
 
 if (typeof window !== 'undefined') {
