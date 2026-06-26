@@ -58,7 +58,14 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
   const [showIOSHint, setShowIOSHint] = useState(false);
   const [installDone, setInstallDone] = useState(parentIsInstalled || false);
   const [notifDone, setNotifDone] = useState(() => {
-    try { return localStorage.getItem('kjb-notifications-enabled') === 'true'; } catch { return false; }
+    try {
+      const enabled = localStorage.getItem('kjb-notifications-enabled') === 'true';
+      // Only show as enabled if BOTH localStorage flag is set AND browser permission is granted
+      if (enabled && 'Notification' in window && Notification.permission === 'granted') {
+        return true;
+      }
+      return false;
+    } catch { return false; }
   });
   const [a11yFont, setA11yFont] = useState(getAccessibilityFont);
   const { mode, setMode } = useTheme();
@@ -94,12 +101,16 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
     if (parentIsInstalled) setInstallDone(true);
   }, [parentIsInstalled]);
 
-  // Sync notif state on focus
+  // Sync notif state on focus - only show enabled if BOTH localStorage flag AND browser permission are set
   useEffect(() => {
     const checkNotif = () => {
       try {
         const enabled = localStorage.getItem('kjb-notifications-enabled') === 'true';
-        setNotifDone(enabled);
+        if (enabled && 'Notification' in window && Notification.permission === 'granted') {
+          setNotifDone(true);
+        } else {
+          setNotifDone(false);
+        }
       } catch {}
     };
     checkNotif();
