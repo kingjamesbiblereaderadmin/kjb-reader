@@ -50,8 +50,8 @@ const isBookmarkBrowser = () => {
   return !isMobile && (isFirefox || (isMac && isSafari));
 };
 
-const LAST_REVISED = 'June 12th, 2026';
-const WORKER_VERSION = 'v20260626_608';
+const LAST_REVISED = 'June 26th, 2026';
+const WORKER_VERSION = 'v20260626_610';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
