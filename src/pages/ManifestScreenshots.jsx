@@ -76,9 +76,12 @@ export default function ManifestScreenshots() {
   const handleCropUpload = async (croppedDataUrl, type) => {
     setUploading(true);
     try {
-      const response = await fetch(croppedDataUrl);
-      const blob = await response.blob();
-      const file = new File([blob], `cropped-screenshot-${type}.png`, { type: 'image/png' });
+      const [meta, b64] = croppedDataUrl.split(',');
+      const mime = meta.match(/:(.*?);/)[1];
+      const bin = atob(b64);
+      const arr = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      const file = new File([arr], `cropped-screenshot-${type}.png`, { type: mime });
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       const targetWidth = type === 'mobile' ? 1024 : 1920;
       const targetHeight = type === 'mobile' ? 1707 : 1080;
