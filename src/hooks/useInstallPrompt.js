@@ -8,8 +8,16 @@ let deferredPrompt = null;
 // A normal browser tab is never standalone, so cancelling an install dialog
 // cannot flip this. No sticky session flags, no `appinstalled` (which Chromium
 // fires even on cancel) — purely the live display mode, recomputed each render.
+const inIframe = () => {
+  try { return window.self !== window.top; } catch { return true; }
+};
+
 const isStandalone = () => {
   if (typeof window === 'undefined') return false;
+  // A real installed PWA is never inside an iframe. The Base44 preview renders
+  // the app in an iframe, which can falsely report display-mode: standalone —
+  // so an iframe is never "installed".
+  if (inIframe()) return false;
   if (window.navigator.standalone === true) return true; // iOS
   return window.matchMedia('(display-mode: standalone)').matches;
 };
