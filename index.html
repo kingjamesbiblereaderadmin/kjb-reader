@@ -133,17 +133,17 @@
     <meta name="description" content="Read the King James Bible (Pure Cambridge Edition) with offline support, daily verses, and beautiful typography." />
     <meta name="keywords" content="Bible, King James Bible, KJB, Pure Cambridge Edition, offline Bible, Christian, scripture" />
     <!-- PWA manifest (no-cache headers ensure fresh load every time) -->
-    <link rel="manifest" href="/manifest.json?v=20260626_726&t=1" id="kjb-manifest-link" />
     <script>
-      // Force fresh manifest fetch on every load by updating the timestamp param
+      // Generate manifest link with cache-busting timestamp BEFORE browser fetches it
       (function() {
         try {
-          var link = document.getElementById('kjb-manifest-link');
-          if (link) {
-            var base = '/manifest.json?v=20260626_726';
-            var ts = '&t=' + Date.now();
-            link.href = base + ts;
-          }
+          var base = '/manifest.json?v=20260626_726';
+          var ts = '&t=' + Date.now();
+          var link = document.createElement('link');
+          link.rel = 'manifest';
+          link.href = base + ts;
+          link.id = 'kjb-manifest-link';
+          document.head.appendChild(link);
         } catch (e) {}
       })();
     </script>
