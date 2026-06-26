@@ -10,13 +10,13 @@ const TEST_VERSES = [
     category: 'Salvation'
   },
   {
-    text: 'The LORD is my shepherd; I shall not want. He maketh me to lie down in green pastures: he leadeth me beside the still waters. He restoreth my soul: he leadeth me in the paths of righteousness for his name\'s sake. Yea, though I walk through the valley of the shadow of death, I will fear no evil: for thou art with me; thy rod and thy staff they comfort me. Thou preparest a table before me in the presence of mine enemies: thou anointest my head with oil; my cup runneth over. Surely goodness and mercy shall follow me all the days of my life: and I will dwell in the house of the LORD for ever.',
-    ref: 'Psalm 23:1-6',
+    text: 'The LORD is my shepherd; I shall not want.',
+    ref: 'Psalm 23:1',
     category: 'Comfort'
   },
   {
-    text: 'In the beginning God created the heaven and the earth. And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters. And God said, Let there be light: and there was light. And God saw the light, that it was good: and God divided the light from the darkness.',
-    ref: 'Genesis 1:1-4',
+    text: 'In the beginning God created the heaven and the earth.',
+    ref: 'Genesis 1:1',
     category: 'Creation'
   },
   {
@@ -30,8 +30,8 @@ const TEST_VERSES = [
     category: 'Long'
   },
   {
-    text: 'Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God. And the peace of God, which passeth all understanding, shall keep your hearts and minds through Christ Jesus.',
-    ref: 'Philippians 4:6-7',
+    text: 'Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God.',
+    ref: 'Philippians 4:6',
     category: 'Peace'
   }
 ];
