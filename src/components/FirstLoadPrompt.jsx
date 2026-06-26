@@ -425,7 +425,16 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
           <button
             type="button"
             disabled={notifFailed || notifDone}
-            onClick={notifFailed || notifDone ? undefined : handleNotifClick}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              handleNotifClick(e);
+            }}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              handleNotifClick(e);
+            }}
             className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-left touch-manipulation transition-colors ${
               notifFailed || notifDone
                 ? 'bg-secondary/40 border-border text-foreground cursor-not-allowed opacity-80' 
