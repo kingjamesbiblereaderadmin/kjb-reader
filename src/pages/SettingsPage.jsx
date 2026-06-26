@@ -40,6 +40,14 @@ const inIframe = () => {
 
 // Firefox (any OS) and Safari on Mac don't support PWA install, so we offer
 // "Add to Favourites/Bookmarks" instead via the browser's bookmark shortcut.
+const isEdgeDesktop = () => {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent;
+  const isEdge = /edg/i.test(ua);
+  const isMobile = /iphone|ipad|ipod|android/i.test(ua);
+  return isEdge && !isMobile;
+};
+
 const isBookmarkBrowser = () => {
   if (typeof navigator === 'undefined') return false;
   const ua = navigator.userAgent;

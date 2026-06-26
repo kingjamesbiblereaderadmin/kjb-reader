@@ -22,6 +22,14 @@ const A11Y_FONTS = [
 const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
 const isMobile = () => /iphone|ipad|ipod|android/i.test(navigator.userAgent);
 const isAndroid = () => /android/i.test(navigator.userAgent);
+const isEdgeDesktop = () => {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent;
+  const isEdge = /edg/i.test(ua);
+  const isMobile = /iphone|ipad|ipod|android/i.test(ua);
+  return isEdge && !isMobile;
+};
+
 const isBookmarkBrowser = () => {
   const ua = navigator.userAgent;
   const isFirefox = /firefox/i.test(ua);
@@ -271,6 +279,11 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
                           <span className="shrink-0 leading-none mt-0.5">ℹ️</span>
                           You are viewing this inside the embed preview window, where Chrome/Edge block the PWA install prompt. Please click "Open in New Tab" (top right) to install it!
                         </p>
+                      ) : isEdgeDesktop() ? (
+                        <p className="font-sans text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 font-medium flex items-start gap-1 leading-snug">
+                          <span className="shrink-0 leading-none mt-0.5">ℹ️</span>
+                          Edge doesn't show the automatic install prompt. Use the manual steps below instead!
+                        </p>
                       ) : (
                         <p className="font-sans text-[10px] sm:text-xs text-amber-600 dark:text-amber-400 font-medium flex items-start gap-1 leading-snug">
                           <span className="shrink-0 leading-none mt-0.5">⚠️</span>
@@ -286,6 +299,8 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
                       <>Please tap the <strong>Share</strong> icon in your browser menu, then select <strong>"Add to Home Screen"</strong>.</>
                     ) : isMobile() ? (
                       <>Please open your browser's <strong>Menu (⋮ or ⋯)</strong> and select <strong>"Add to phone"</strong>, <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</>
+                    ) : isEdgeDesktop() ? (
+                      <>Click the <strong>Apps</strong> or <strong>Install</strong> icon in your address bar, or go to <strong>Menu (⋯) → Apps → Install this site as an app</strong>. Choose <strong>App</strong> (not Shortcut) for the full experience.</>
                     ) : (
                       <>If an <strong>Install</strong> icon appears in your address bar, click it. Otherwise, check your browser's main menu. <span className="italic opacity-80">(Note: Firefox and Safari for Mac do not support desktop installation)</span>.</>
                     )}
