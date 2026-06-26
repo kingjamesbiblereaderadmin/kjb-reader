@@ -82,8 +82,12 @@ export function useInstallPrompt() {
         setIsInstallable(false);
         return true;
       }
-      // Cancelled — keep the Install button. isInstalled stays false because
-      // the page is still a normal browser tab (not standalone).
+      // Cancelled — the prompt event is now spent and can't be re-fired.
+      // Clear it so the button stays visible and the NEXT click falls back to
+      // the manual install guide instead of silently doing nothing.
+      deferredPrompt = null;
+      window.kjbDeferredPrompt = null;
+      setIsInstallable(false);
       return 'cancelled';
     } catch (err) {
       console.error('Install prompt error:', err);
