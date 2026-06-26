@@ -133,7 +133,20 @@
     <meta name="description" content="Read the King James Bible (Pure Cambridge Edition) with offline support, daily verses, and beautiful typography." />
     <meta name="keywords" content="Bible, King James Bible, KJB, Pure Cambridge Edition, offline Bible, Christian, scripture" />
     <!-- PWA manifest (no-cache headers ensure fresh load every time) -->
-    <link rel="manifest" href="/manifest.json?v=20260626_725" />
+    <link rel="manifest" href="/manifest.json?v=20260626_725&t=1" id="kjb-manifest-link" />
+    <script>
+      // Force fresh manifest fetch on every load by updating the timestamp param
+      (function() {
+        try {
+          var link = document.getElementById('kjb-manifest-link');
+          if (link) {
+            var base = '/manifest.json?v=20260626_725';
+            var ts = '&t=' + Date.now();
+            link.href = base + ts;
+          }
+        } catch (e) {}
+      })();
+    </script>
     <!-- Prevent flash of wrong theme: apply saved theme BEFORE React mounts -->
     <script>
       window.kjbDeferredPrompt = null;
