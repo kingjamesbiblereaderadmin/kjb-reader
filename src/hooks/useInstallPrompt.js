@@ -3,24 +3,15 @@ import { useState, useEffect } from 'react';
 const DISMISSED_KEY = 'kjb-install-dismissed';
 
 let deferredPrompt = null;
-let didInstall = false; // set true only by a genuine `appinstalled` event
 
-// Is the app genuinely running as an installed standalone app right now?
+// "Installed" === the page is genuinely running as a standalone app RIGHT NOW.
+// A normal browser tab is never standalone, so cancelling an install dialog
+// cannot flip this. No sticky session flags, no `appinstalled` (which Chromium
+// fires even on cancel) — purely the live display mode, recomputed each render.
 const isStandalone = () => {
   if (typeof window === 'undefined') return false;
   if (window.navigator.standalone === true) return true; // iOS
   return window.matchMedia('(display-mode: standalone)').matches;
-};
-
-// The single source of truth for "installed":
-// - true if running in a standalone window, OR
-// - true if a genuine `appinstalled` event fired this session.
-// Crucially, if the browser is STILL offering an install prompt
-// (deferredPrompt present), the app is NOT installed — this stops a cancelled
-// install dialog (Chrome & Edge) from flipping the UI to "installed".
-const computeInstalled = () => {
-  if (deferredPrompt || window.kjbDeferredPrompt) return false;
-  return didInstall || isStandalone();
 };
 
 if (typeof window !== 'undefined') {
@@ -34,15 +25,6 @@ if (typeof window !== 'undefined') {
     window.kjbDeferredPrompt = event;
     window.dispatchEvent(new Event('pwa-installable'));
   });
-
-  // Fires only when the app is actually added. With a valid manifest this is
-  // reliable; we still clear the deferred prompt so state is consistent.
-  window.addEventListener('appinstalled', () => {
-    didInstall = true;
-    deferredPrompt = null;
-    window.kjbDeferredPrompt = null;
-    window.dispatchEvent(new Event('pwa-installable'));
-  });
 }
 
 export function useInstallPrompt() {
@@ -50,7 +32,7 @@ export function useInstallPrompt() {
     deferredPrompt = window.kjbDeferredPrompt;
   }
   const [isInstallable, setIsInstallable] = useState(!!deferredPrompt);
-  const [isInstalled, setIsInstalled] = useState(computeInstalled());
+  const [isInstalled, setIsInstalled] = useState(isStandalone());
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
@@ -59,7 +41,7 @@ export function useInstallPrompt() {
         deferredPrompt = window.kjbDeferredPrompt;
       }
       setIsInstallable(!!deferredPrompt);
-      setIsInstalled(computeInstalled());
+      setIsInstalled(isStandalone());
     };
 
     window.addEventListener('pwa-installable', sync);
@@ -112,9 +94,8 @@ export function useInstallPrompt() {
         setIsInstallable(false);
         return true;
       }
-
-      // Cancelled — keep the Install button. deferredPrompt stays set, so
-      // computeInstalled() still returns false.
+      // Cancelled — keep the Install button. isInstalled stays false because
+      // the page is still a normal browser tab (not standalone).
       return 'cancelled';
     } catch (err) {
       console.error('Install prompt error:', err);
