@@ -45,6 +45,13 @@ const checkIsInstalled = () => {
   // The only reliable signal is the actual display mode (running standalone).
   // The stored flag can go stale if the user later uninstalls the app from the
   // browser, so we self-heal it here.
+  // If the user JUST cancelled the install dialog, ignore any transient
+  // standalone reading Edge briefly reports right after — it falsely flips the
+  // UI to "Installed". Treat as not-installed during this short window.
+  if (window.kjbInstallJustCancelled && Date.now() - window.kjbInstallJustCancelled < 5000) {
+    try { localStorage.removeItem(INSTALLED_KEY); } catch {}
+    return false;
+  }
   const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
   // The ONLY reliable signal that the app is installed AND in use is running in
   // standalone display mode. Cancelling the install prompt previously left a
