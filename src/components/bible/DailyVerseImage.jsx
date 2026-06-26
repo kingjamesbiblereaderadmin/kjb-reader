@@ -973,7 +973,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               textShadow: '0 2px 8px rgba(0,0,0,0.35)',
               overflowWrap: 'break-word',
               wordBreak: 'break-word',
-              fontSize: fontFamily === 'cursive' ? (textLen > 500 ? '0.85rem' : textLen > 400 ? '0.95rem' : textLen > 300 ? '1.1rem' : textLen > 200 ? '1.3rem' : textLen > 150 ? '1.5rem' : '1.7rem') : (textLen > 500 ? '0.75rem' : textLen > 400 ? '0.85rem' : textLen > 300 ? '0.95rem' : textLen > 200 ? '1.1rem' : textLen > 150 ? '1.3rem' : '1.5rem')
+              fontSize: fontFamily === 'cursive' ? (textLen > 500 ? '0.9rem' : textLen > 400 ? '1rem' : textLen > 300 ? '1.15rem' : textLen > 200 ? '1.35rem' : textLen > 100 ? '1.6rem' : '2rem') : (textLen > 500 ? '0.8rem' : textLen > 400 ? '0.9rem' : textLen > 300 ? '1rem' : textLen > 200 ? '1.2rem' : textLen > 100 ? '1.45rem' : '1.8rem')
             }}
           >
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(cleanVerseText(verse.text)) }} />"
