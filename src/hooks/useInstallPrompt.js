@@ -16,26 +16,27 @@ const inIframe = () => {
   try { return window.self !== window.top; } catch { return true; }
 };
 
-// Live check: is the page launched as a real standalone PWA right now?
-const isStandalone = () => {
+// Whether the page was LAUNCHED as a real standalone PWA. Captured ONCE at
+// module load, before any runtime install-dialog cancel can transiently flip
+// `display-mode: standalone` (the Chrome/Samsung/Edge false-positive). A real
+// installed PWA always launches standalone from the very first paint, so this
+// frozen-at-load value is the only trustworthy display-mode signal.
+const launchedStandalone = (() => {
   if (typeof window === 'undefined') return false;
   // The Base44 preview renders the app in an iframe, which can falsely report
   // standalone — a real installed PWA is never in an iframe.
   if (inIframe()) return false;
   if (window.navigator.standalone === true) return true; // iOS Safari
   return window.matchMedia('(display-mode: standalone)').matches;
-};
+})();
 
 // Single source of truth for "is the app installed?".
-// 1. Real appinstalled event fired this session  → installed.
-// 2. This tab ever showed an install prompt        → NOT installed (it's a tab).
-//    This is what kills the Chrome/Samsung false-positive after a cancel.
-// 3. Otherwise (iOS, or app launched standalone)   → trust the display mode.
-const computeInstalled = () => {
-  if (installedThisSession) return true;
-  if (promptedThisSession) return false;
-  return isStandalone();
-};
+// 1. Real appinstalled event fired this session → installed (authoritative).
+// 2. The page was launched standalone at load    → installed.
+// 3. Anything else (incl. any runtime display-mode change after a cancel)
+//    → NOT installed. We deliberately ignore live display-mode reads so a
+//    cancelled install dialog can never flip the state.
+const computeInstalled = () => installedThisSession || launchedStandalone;
 
 if (typeof window !== 'undefined') {
   // index.html may have already captured a prompt before this module loaded.
@@ -88,15 +89,12 @@ export function useInstallPrompt() {
 
     window.addEventListener('kjb-install-state', sync);
     window.addEventListener('focus', sync);
-    const mq = window.matchMedia('(display-mode: standalone)');
-    mq.addEventListener?.('change', sync);
 
     sync();
 
     return () => {
       window.removeEventListener('kjb-install-state', sync);
       window.removeEventListener('focus', sync);
-      mq.removeEventListener?.('change', sync);
     };
   }, []);
 
