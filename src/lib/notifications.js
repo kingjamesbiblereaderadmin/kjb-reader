@@ -92,12 +92,10 @@ export async function requestNotificationPermission() {
         console.log('[Notif] Notification permission result:', result);
         if (result === 'granted') {
           hasPermission = true;
-          localStorage.setItem(NOTIF_KEY, 'true');
         }
       } else {
         console.log('[Notif] Notification permission already granted');
         hasPermission = true;
-        localStorage.setItem(NOTIF_KEY, 'true');
       }
     } catch (err) {
       console.warn('[Notif] Notification.requestPermission failed:', err.message);
