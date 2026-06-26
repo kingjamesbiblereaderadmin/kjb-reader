@@ -5,7 +5,7 @@ import { X, Check, Square, Crop } from 'lucide-react';
 export default function ImageCropper({ image, onCrop, onCancel, positionMode = 'center' }) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [aspect, setAspect] = useState(1); // 1:1 default; undefined = freeform
+  const [aspect, setAspect] = useState(positionMode === 'portrait' ? 9/16 : positionMode === 'landscape' ? 16/9 : 1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
