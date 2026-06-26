@@ -7,23 +7,36 @@ let deferredPrompt = null;
 // decide whether to wait for a RE-fired prompt after a cancel (Chrome/Edge
 // re-fire it; Samsung Internet does not).
 let hadPromptOnce = false;
+// Set to true ONLY by the browser's real `appinstalled` event. This is the one
+// authoritative signal that the app was actually installed. We never infer
+// "installed" from display-mode alone in a tab that produced an install prompt,
+// because Chrome/Samsung can momentarily mis-report `display-mode: standalone`
+// as the window refocuses after a cancelled dialog.
+let trulyInstalled = false;
 
-// "Installed" === the page is genuinely running as a standalone app RIGHT NOW.
-// A normal browser tab is never standalone, so cancelling an install dialog
-// cannot flip this. No sticky session flags, no `appinstalled` (which Chromium
-// fires even on cancel) — purely the live display mode, recomputed each render.
 const inIframe = () => {
   try { return window.self !== window.top; } catch { return true; }
 };
 
+// The page is genuinely running as a standalone app.
 const isStandalone = () => {
   if (typeof window === 'undefined') return false;
-  // A real installed PWA is never inside an iframe. The Base44 preview renders
-  // the app in an iframe, which can falsely report display-mode: standalone —
-  // so an iframe is never "installed".
+  // The Base44 preview renders the app in an iframe, which can falsely report
+  // display-mode: standalone — an iframe is never a real installed PWA.
   if (inIframe()) return false;
   if (window.navigator.standalone === true) return true; // iOS
   return window.matchMedia('(display-mode: standalone)').matches;
+};
+
+// The single source of truth for the "Installed" state.
+// Rule: if this browser tab EVER fired `beforeinstallprompt`, it is a browser
+// tab — not a standalone PWA — so it can only be considered installed once the
+// real `appinstalled` event fires. Tabs that never fire beforeinstallprompt
+// (iOS Safari, an actual launched PWA) fall back to the live display-mode check.
+const computeInstalled = () => {
+  if (trulyInstalled) return true;
+  if (hadPromptOnce) return false; // a browser tab with an install prompt is not installed
+  return isStandalone();
 };
 
 if (typeof window !== 'undefined') {
@@ -38,6 +51,14 @@ if (typeof window !== 'undefined') {
     hadPromptOnce = true;
     window.dispatchEvent(new Event('pwa-installable'));
   });
+
+  // The ONLY trustworthy "installed" signal — fired after a real install.
+  window.addEventListener('appinstalled', () => {
+    trulyInstalled = true;
+    deferredPrompt = null;
+    window.kjbDeferredPrompt = null;
+    window.dispatchEvent(new Event('pwa-installable'));
+  });
 }
 
 export function useInstallPrompt() {
@@ -45,7 +66,7 @@ export function useInstallPrompt() {
     deferredPrompt = window.kjbDeferredPrompt;
   }
   const [isInstallable, setIsInstallable] = useState(!!deferredPrompt);
-  const [isInstalled, setIsInstalled] = useState(!deferredPrompt && isStandalone());
+  const [isInstalled, setIsInstalled] = useState(computeInstalled());
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
@@ -54,12 +75,7 @@ export function useInstallPrompt() {
         deferredPrompt = window.kjbDeferredPrompt;
       }
       setIsInstallable(!!deferredPrompt);
-      // If we still hold a deferred install prompt, the app is by definition
-      // NOT installed yet — a real standalone PWA never receives
-      // beforeinstallprompt. This guards every browser (Chrome, Edge, Samsung)
-      // against a transient false "standalone" reading right after the install
-      // dialog closes on cancel.
-      setIsInstalled(!deferredPrompt && isStandalone());
+      setIsInstalled(computeInstalled());
     };
 
     window.addEventListener('pwa-installable', sync);
