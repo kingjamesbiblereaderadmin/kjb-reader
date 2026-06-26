@@ -961,7 +961,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             <span className="h-px flex-1 bg-current opacity-50" style={{ color: textColor }} />
           </div>
           <div className="flex-1 flex flex-col justify-center min-h-0">
-          <div className="mx-auto w-full max-w-none px-6 sm:px-8 py-4 max-h-[60vh] overflow-y-auto scrollbar-hide">
+          <div className="mx-auto w-full max-w-none px-6 sm:px-8 py-4">
           <blockquote 
             className={`text-center [&_em]:italic break-words ${fontFamily === 'cursive' && a11yFont === 'default' ? 'kjb-verse-card cursive-em-style' : ''}`}
             style={{ 
@@ -969,11 +969,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               opacity: textOpacity, 
               fontFamily: resolvedFont,
               fontWeight: '600',
-              lineHeight: '1.5',
+              lineHeight: '1.4',
               textShadow: '0 2px 8px rgba(0,0,0,0.35)',
               overflowWrap: 'break-word',
               wordBreak: 'break-word',
-              fontSize: fontFamily === 'cursive' ? (textLen > 400 ? '1rem' : textLen > 250 ? '1.2rem' : textLen > 150 ? '1.4rem' : '1.6rem') : (textLen > 400 ? '0.9rem' : textLen > 250 ? '1.05rem' : textLen > 150 ? '1.25rem' : '1.45rem')
+              fontSize: fontFamily === 'cursive' ? (textLen > 500 ? '0.85rem' : textLen > 400 ? '0.95rem' : textLen > 300 ? '1.1rem' : textLen > 200 ? '1.3rem' : textLen > 150 ? '1.5rem' : '1.7rem') : (textLen > 500 ? '0.75rem' : textLen > 400 ? '0.85rem' : textLen > 300 ? '0.95rem' : textLen > 200 ? '1.1rem' : textLen > 150 ? '1.3rem' : '1.5rem')
             }}
           >
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(cleanVerseText(verse.text)) }} />"
