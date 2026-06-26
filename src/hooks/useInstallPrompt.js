@@ -7,12 +7,6 @@ let deferredPrompt = null;
 // decide whether to wait for a RE-fired prompt after a cancel (Chrome/Edge
 // re-fire it; Samsung Internet does not).
 let hadPromptOnce = false;
-// Timestamp of the most recent install-dialog cancel. Samsung Internet can
-// briefly mis-report `display-mode: standalone` right after the dialog closes
-// and the window refocuses — which would wrongly flip the button to
-// "Installed". We ignore standalone detection for a short window after a cancel
-// so a cancelled install never looks like a successful one.
-let lastCancelAt = 0;
 
 // "Installed" === the page is genuinely running as a standalone app RIGHT NOW.
 // A normal browser tab is never standalone, so cancelling an install dialog
@@ -28,10 +22,6 @@ const isStandalone = () => {
   // the app in an iframe, which can falsely report display-mode: standalone —
   // so an iframe is never "installed".
   if (inIframe()) return false;
-  // Just cancelled an install dialog? Samsung Internet can momentarily report
-  // standalone as the window refocuses. Ignore it briefly so a cancel doesn't
-  // flip the button to "Installed".
-  if (Date.now() - lastCancelAt < 4000) return false;
   if (window.navigator.standalone === true) return true; // iOS
   return window.matchMedia('(display-mode: standalone)').matches;
 };
@@ -55,7 +45,7 @@ export function useInstallPrompt() {
     deferredPrompt = window.kjbDeferredPrompt;
   }
   const [isInstallable, setIsInstallable] = useState(!!deferredPrompt);
-  const [isInstalled, setIsInstalled] = useState(isStandalone());
+  const [isInstalled, setIsInstalled] = useState(!deferredPrompt && isStandalone());
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
@@ -64,7 +54,12 @@ export function useInstallPrompt() {
         deferredPrompt = window.kjbDeferredPrompt;
       }
       setIsInstallable(!!deferredPrompt);
-      setIsInstalled(isStandalone());
+      // If we still hold a deferred install prompt, the app is by definition
+      // NOT installed yet — a real standalone PWA never receives
+      // beforeinstallprompt. This guards every browser (Chrome, Edge, Samsung)
+      // against a transient false "standalone" reading right after the install
+      // dialog closes on cancel.
+      setIsInstalled(!deferredPrompt && isStandalone());
     };
 
     window.addEventListener('pwa-installable', sync);
@@ -121,9 +116,7 @@ export function useInstallPrompt() {
       // true so the Install button stays visible until the app is installed.
       deferredPrompt = null;
       window.kjbDeferredPrompt = null;
-      // Mark the cancel so isStandalone() ignores Samsung's transient
-      // false-positive standalone report for the next few seconds.
-      lastCancelAt = Date.now();
+      // A cancel means the app is NOT installed — never flip to "Installed".
       setIsInstalled(false);
       return 'cancelled';
     } catch (err) {
