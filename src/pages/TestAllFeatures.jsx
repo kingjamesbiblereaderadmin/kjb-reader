@@ -109,6 +109,9 @@ export default function TestAllFeatures() {
   // Links state
   const [testLinks, setTestLinks] = useState(TEST_LINKS);
 
+  // Font test key to force re-render when changing fonts
+  const [fontTestKey, setFontTestKey] = useState(0);
+
   const handleDownload = async () => {
     if (!verseCardRef.current) return;
     
@@ -370,15 +373,12 @@ export default function TestAllFeatures() {
                           variant="outline"
                           size="sm"
                           onClick={() => {
+                            const isA11y = ['dyslexic', 'hyperlegible'].includes(font.value);
                             localStorage.setItem('kjb-verse-font-family', font.value);
-                            if (['dyslexic', 'hyperlegible'].includes(font.value)) {
-                              localStorage.setItem('kjb-accessibility-font', font.value);
-                            } else {
-                              localStorage.setItem('kjb-accessibility-font', 'default');
-                            }
+                            localStorage.setItem('kjb-accessibility-font', isA11y ? font.value : 'default');
                             window.dispatchEvent(new Event('storage'));
                             window.dispatchEvent(new Event('kjb-fonts-changed'));
-                            setTimeout(() => window.location.reload(), 100);
+                            setFontTestKey(prev => prev + 1);
                           }}
                           className="text-xs"
                           style={{
@@ -386,7 +386,7 @@ export default function TestAllFeatures() {
                               font.value === 'sans-serif' ? 'Inter, sans-serif' :
                               font.value === 'monospace' ? 'Courier New, monospace' :
                               font.value === 'cursive' ? 'Dancing Script, cursive' :
-                              font.value === 'dyslexic' ? 'OpenDyslexic, Comic Sans MS' :
+                              font.value === 'dyslexic' ? 'OpenDyslexic, sans-serif' :
                               font.value === 'hyperlegible' ? 'Atkinson Hyperlegible, sans-serif' : 'inherit'
                           }}
                         >
@@ -417,7 +417,7 @@ export default function TestAllFeatures() {
                   </div>
                 </div>
 
-                <div ref={verseCardRef}>
+                <div key={fontTestKey} ref={verseCardRef}>
                   <DailyVerseImage
                     verse={selectedVerse}
                     isOffline={isOffline}
