@@ -240,7 +240,7 @@ export default function AppLayout() {
       window.addEventListener('kjb-splash-done', onSplashDone);
       return () => window.removeEventListener('kjb-splash-done', onSplashDone);
     }
-  }, [isInstalled]);
+  }, [isInstalled, notifPermission]);
 
   const handleDismissPrompt = () => {
     setShowPrompt(false);

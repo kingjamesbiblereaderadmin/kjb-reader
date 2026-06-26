@@ -56,6 +56,7 @@ export function useInstallPrompt() {
     let cancelled = false;
     const check = async () => {
       const installed = await checkInstalledAsync();
+      console.log('[InstallHook] Checked installed:', installed, 'UA:', navigator.userAgent?.substring(0, 50));
       if (!cancelled) {
         setIsInstalled(installed);
         setIsLoading(false);
@@ -66,6 +67,7 @@ export function useInstallPrompt() {
     const sync = () => {
       if (!deferredPrompt && window.kjbDeferredPrompt) deferredPrompt = window.kjbDeferredPrompt;
       setIsInstallable(!!deferredPrompt);
+      console.log('[InstallHook] Sync installable:', !!deferredPrompt);
     };
     
     window.addEventListener('kjb-install-change', sync);
