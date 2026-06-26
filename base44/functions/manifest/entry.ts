@@ -56,25 +56,46 @@ Deno.serve(async () => {
     ],
     screenshots: [
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/791f4a327_BCObc7bb469-f8ce-4d13-b0bd-1d6f9d4206f1.png?v=20260626_727",
-        sizes: "1024x1024",
+        src: "https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/4222aa582_screenshot-BCOf0297029-2e38-446b-bd58-076244d9d764.png",
+        sizes: "1024x1707",
         type: "image/png",
         form_factor: "narrow",
-        label: "KJB Reader - Multi-Device Experience"
+        label: "Screenshot 1"
       },
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/25956379b_BCOf0297029-2e38-446b-bd58-076244d9d764.png?v=20260626_727",
-        sizes: "1024x1024",
+        src: "https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/9c0bd6152_screenshot-BCObc7bb469-f8ce-4d13-b0bd-1d6f9d4206f1.png",
+        sizes: "1024x1707",
         type: "image/png",
         form_factor: "narrow",
-        label: "The Gospel of Salvation"
+        label: "Screenshot 2"
       },
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/0bfc96d17_WhatsAppImage2026-05-31at182822.jpg?v=20260626_727",
-        sizes: "1024x1024",
+        src: "https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/31cc1311c_screenshot-WhatsAppImage2026-05-31at182822.jpeg",
+        sizes: "1024x1707",
         type: "image/png",
         form_factor: "narrow",
-        label: "Available on All Browsers"
+        label: "Screenshot 3"
+      },
+      {
+        src: "https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/e8088dc25_screenshot-BCOf0297029-2e38-446b-bd58-076244d9d764.png",
+        sizes: "1920x1080",
+        type: "image/png",
+        form_factor: "wide",
+        label: "Screenshot 4"
+      },
+      {
+        src: "https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/aa9e7ed8a_screenshot-BCObc7bb469-f8ce-4d13-b0bd-1d6f9d4206f1.png",
+        sizes: "1920x1080",
+        type: "image/png",
+        form_factor: "wide",
+        label: "Screenshot 5"
+      },
+      {
+        src: "https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/534e626f0_screenshot-WhatsAppImage2026-05-31at182822.jpeg",
+        sizes: "1920x1080",
+        type: "image/png",
+        form_factor: "wide",
+        label: "Screenshot 6"
       }
     ]
   };
