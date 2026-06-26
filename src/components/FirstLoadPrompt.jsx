@@ -167,12 +167,16 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
     if (onEnableNotif) {
       try {
         const result = await onEnableNotif();
-        if (result === 'granted' || ('Notification' in window && Notification.permission === 'granted')) {
+        // Re-check actual permission directly after the call (Samsung/Android fix)
+        const actualPermission = 'Notification' in window ? Notification.permission : 'unsupported';
+        if (result === 'granted' || actualPermission === 'granted') {
           setNotifDone(true);
+          setNotifFailed(false);
         } else {
           setNotifFailed(true);
         }
       } catch (err) {
+        console.error('Notif click error:', err);
         setNotifFailed(true);
       }
     }

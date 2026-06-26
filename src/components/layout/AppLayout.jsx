@@ -507,20 +507,24 @@ function useAppLayoutPrompt() {
   const handleEnableNotif = async () => {
     try {
       const result = await requestNotificationPermission();
-      setNotifPermission(result);
-      const granted = result === 'granted';
+      // Re-read the actual permission directly (more reliable on Samsung/Android)
+      const actualPermission = 'Notification' in window ? Notification.permission : 'unsupported';
+      setNotifPermission(actualPermission);
+      
+      const granted = actualPermission === 'granted';
       if (granted) {
+        localStorage.setItem('kjb-notifications-enabled', 'true');
         scheduleDailyNotification();
         setNotifEnabled(true);
         window.dispatchEvent(new Event('storage'));
-        return true;
-      } else if (result === 'denied') {
+        return 'granted';
+      } else if (result === 'denied' || actualPermission === 'denied') {
         alert('Notifications are blocked. Please allow notifications in your browser/app settings for this site.');
       }
     } catch (err) {
       console.error('Notification permission error:', err);
     }
-    return false;
+    return 'denied';
   };
 
   const handleDismiss = () => {
