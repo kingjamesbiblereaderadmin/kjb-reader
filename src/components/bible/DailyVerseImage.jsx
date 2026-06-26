@@ -949,8 +949,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
       )}
 
       {showVersePanel ? (
-        <div className="px-2 pt-2 pb-2 text-center flex-1 flex flex-col w-full max-w-full">
-          <div className="flex self-stretch items-center justify-center gap-2 xs:gap-4 mt-3 mb-2 w-full px-3 xs:px-5 py-2">
+        <div className="px-2 pt-3 pb-2 text-center flex-1 flex flex-col w-full max-w-full">
+          <div className="flex self-stretch items-center justify-center gap-2 xs:gap-4 mt-4 mb-4 w-full px-3 xs:px-5 py-2">
             <span className="h-px flex-1 bg-current opacity-50" style={{ color: textColor }} />
             <p 
               className={`font-sans text-sm xs:text-lg md:text-xl font-black tracking-[0.12em] xs:tracking-[0.22em] uppercase flex-shrink-0 ${accentClass}`}
@@ -961,24 +961,25 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             <span className="h-px flex-1 bg-current opacity-50" style={{ color: textColor }} />
           </div>
           <div className="flex-1 flex flex-col justify-center">
-          <div className="mx-auto w-full max-w-none px-2 sm:px-4 py-2">
+          <div className="mx-auto w-full max-w-none px-6 sm:px-8 py-4">
           <blockquote 
-            className={`text-center [&_em]:italic break-words ${fontFamily === 'cursive' && a11yFont === 'default' ? 'kjb-verse-card cursive-em-style' : ''} ${panelTextClass}`}
+            className={`text-center [&_em]:italic break-words ${fontFamily === 'cursive' && a11yFont === 'default' ? 'kjb-verse-card cursive-em-style' : ''}`}
             style={{ 
               color: textColor, 
               opacity: textOpacity, 
               fontFamily: resolvedFont,
-              fontWeight: '700',
-              lineHeight: '1.55',
+              fontWeight: '600',
+              lineHeight: '1.5',
               textShadow: '0 2px 8px rgba(0,0,0,0.35)',
               overflowWrap: 'break-word',
-              wordBreak: 'break-word'
+              wordBreak: 'break-word',
+              fontSize: fontFamily === 'cursive' ? (textLen > 400 ? '1rem' : textLen > 250 ? '1.2rem' : textLen > 150 ? '1.4rem' : '1.6rem') : (textLen > 400 ? '0.9rem' : textLen > 250 ? '1.05rem' : textLen > 150 ? '1.25rem' : '1.45rem')
             }}
           >
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(cleanVerseText(verse.text)) }} />"
           </blockquote>
           <p 
-            className="text-base md:text-lg font-semibold mt-8 text-center"
+            className="text-sm md:text-base font-semibold mt-6 text-center"
             style={{ 
               opacity: Math.min(1, textOpacity + 0.05), 
               color: textColor, 
@@ -992,7 +993,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
           {/* Date — merged into the same block as verse + ref so long verses
               flow naturally without overlapping or overflowing. */}
-          <div className="flex flex-col items-center justify-center w-full mt-5 relative z-10">
+          <div className="flex flex-col items-center justify-center w-full mt-6 relative z-10">
             <span
               className="whitespace-nowrap"
               style={{
