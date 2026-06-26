@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react';
 
 const DISMISSED_KEY = 'kjb-install-dismissed';
 
-// Authoritative install detection — ONLY trust navigator.getInstalledRelatedApps().
-// This API returns the actual installed PWAs matching the manifest, unaffected by
-// Samsung's false display-mode reports or bogus appinstalled events on cancel.
-// iOS lacks this API — fall back to navigator.standalone (reliable on iOS).
+// Authoritative install detection.
+// iOS: navigator.standalone (reliable).
+// Android: getInstalledRelatedApps() ONLY — ignores false display-mode signals.
 const checkInstalledAsync = async () => {
   if (typeof window === 'undefined') return false;
   
@@ -18,12 +17,16 @@ const checkInstalledAsync = async () => {
   if (navigator.getInstalledRelatedApps) {
     try {
       const apps = await navigator.getInstalledRelatedApps();
-      return !!(apps && apps.length > 0);
-    } catch { return false; }
+      const installed = !!(apps && apps.length > 0);
+      console.log('[InstallCheck] getInstalledRelatedApps:', apps, '→ installed:', installed);
+      return installed;
+    } catch (err) {
+      console.error('[InstallCheck] getInstalledRelatedApps failed:', err);
+      return false;
+    }
   }
   
-  // Fallback for browsers without the API: assume not installed
-  // (better to miss an install than falsely claim one)
+  // No API available: assume not installed
   return false;
 };
 
@@ -56,7 +59,6 @@ export function useInstallPrompt() {
     let cancelled = false;
     const check = async () => {
       const installed = await checkInstalledAsync();
-      console.log('[InstallHook] Checked installed:', installed, 'UA:', navigator.userAgent?.substring(0, 50));
       if (!cancelled) {
         setIsInstalled(installed);
         setIsLoading(false);
@@ -67,7 +69,6 @@ export function useInstallPrompt() {
     const sync = () => {
       if (!deferredPrompt && window.kjbDeferredPrompt) deferredPrompt = window.kjbDeferredPrompt;
       setIsInstallable(!!deferredPrompt);
-      console.log('[InstallHook] Sync installable:', !!deferredPrompt);
     };
     
     window.addEventListener('kjb-install-change', sync);

@@ -17,8 +17,9 @@ Deno.serve(async () => {
     // Lets navigator.getInstalledRelatedApps() recognise THIS installed PWA
     // from inside a normal browser tab (the only reliable cross-tab install
     // check on Android Chromium browsers, incl. Samsung Internet).
+    // URL must match the manifest URL for detection to work.
     related_applications: [
-      { platform: "webapp", url: "https://kingjamesbiblereader.com/manifest.json" }
+      { platform: "webapp", url: "/manifest.json" }
     ],
     icons: [
       {
