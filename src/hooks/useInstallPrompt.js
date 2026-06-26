@@ -58,7 +58,6 @@ if (typeof window !== 'undefined') {
     deferredPrompt = e;
     window.kjbDeferredPrompt = e;
     promptEverOffered = true;
-    console.log('[useInstallPrompt] beforeinstallprompt fired');
     window.dispatchEvent(new Event('kjb-install-change'));
   });
   window.addEventListener('pwa-installable', () => {
@@ -108,20 +107,11 @@ export function useInstallPrompt() {
 
   const promptInstall = async () => {
     if (!deferredPrompt && window.kjbDeferredPrompt) deferredPrompt = window.kjbDeferredPrompt;
-    console.log('[useInstallPrompt] promptInstall called, deferredPrompt:', !!deferredPrompt);
-    
-    // Edge mobile and some browsers don't fire beforeinstallprompt
-    // If no deferredPrompt but PWA criteria are met, user needs manual install
-    if (!deferredPrompt) {
-      console.log('[useInstallPrompt] No deferredPrompt - PWA installable:', isPwaInstallable());
-      return false;
-    }
-    
+    if (!deferredPrompt) return false;
     try {
       promptEverOffered = true;
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
-      console.log('[useInstallPrompt] Prompt outcome:', outcome);
       deferredPrompt = null;
       window.kjbDeferredPrompt = null;
       setIsInstallable(false);
