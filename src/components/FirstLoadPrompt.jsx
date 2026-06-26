@@ -114,6 +114,7 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
   // Hide install section if already in standalone PWA mode or parent says installed
   const actuallyInstalled = isStandalone || parentIsInstalled || installDone;
   
+  // Only show install prompt if NOT installed AND (native prompt available OR manual guide needed)
   const showInstall = !isIncognito && !actuallyInstalled && (isInstallable || isIOS() || isAndroid() || !isMobile());
 
   // Auto-hide when app is actually installed (user may still be configuring settings)
