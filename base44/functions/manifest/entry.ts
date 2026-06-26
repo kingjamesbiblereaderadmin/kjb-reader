@@ -18,7 +18,7 @@ Deno.serve(async () => {
     // from inside a normal browser tab (the only reliable cross-tab install
     // check on Android Chromium browsers, incl. Samsung Internet).
     related_applications: [
-      { platform: "webapp", url: "https://kingjamesbible.sg/manifest.json" }
+      { platform: "webapp", url: "https://kingjamesbiblereader.com/manifest.json" }
     ],
     icons: [
       {
