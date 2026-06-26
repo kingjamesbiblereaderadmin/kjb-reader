@@ -8,9 +8,9 @@ Deno.serve(async () => {
     start_url: "/",
     scope: "/",
     display: "standalone",
-    display_override: ["standalone", "minimal-ui"],
+    display_override: ["standalone", "minimal-ui", "window-controls-overlay"],
     launch_handler: { client_mode: "navigate-existing" },
-    orientation: "portrait",
+    orientation: "any",
     background_color: "#0f1117",
     theme_color: "#0f1117",
     prefer_related_applications: false,
@@ -43,32 +43,18 @@ Deno.serve(async () => {
     ],
     screenshots: [
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/0c44fd0eb_generated_image.png",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/5cbf6183a_BCObc7bb469-f8ce-4d13-b0bd-1d6f9d4206f1.png",
         sizes: "1024x1024",
         type: "image/png",
         form_factor: "narrow",
-        label: "The Gospel of Salvation"
+        label: "KJB Reader - Responsive across devices"
       },
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/cd66db5f0_BCOf0297029-2e38-446b-bd58-076244d9d764.png",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/efb303e93_BCOf0297029-2e38-446b-bd58-076244d9d764.png",
         sizes: "1024x683",
         type: "image/png",
         form_factor: "wide",
         label: "The Gospel of Salvation"
-      },
-      {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/f082f27cb_WhatsAppImage2026-05-31at182822.jpg",
-        sizes: "1024x649",
-        type: "image/jpeg",
-        form_factor: "wide",
-        label: "Read the King James Bible with ease"
-      },
-      {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/84904fb55_80aa2d055_screenshot-1024x500.png",
-        sizes: "750x500",
-        type: "image/png",
-        form_factor: "wide",
-        label: "Read the King James Version of the Bible with ease"
       }
     ]
   };
