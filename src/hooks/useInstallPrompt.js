@@ -109,10 +109,14 @@ export function useInstallPrompt() {
   const promptInstall = async () => {
     if (!deferredPrompt && window.kjbDeferredPrompt) deferredPrompt = window.kjbDeferredPrompt;
     console.log('[useInstallPrompt] promptInstall called, deferredPrompt:', !!deferredPrompt);
+    
+    // Edge mobile and some browsers don't fire beforeinstallprompt
+    // If no deferredPrompt but PWA criteria are met, user needs manual install
     if (!deferredPrompt) {
-      console.log('[useInstallPrompt] No deferredPrompt available');
+      console.log('[useInstallPrompt] No deferredPrompt - PWA installable:', isPwaInstallable());
       return false;
     }
+    
     try {
       promptEverOffered = true;
       deferredPrompt.prompt();
