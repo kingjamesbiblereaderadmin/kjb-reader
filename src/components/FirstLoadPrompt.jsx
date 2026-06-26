@@ -96,11 +96,11 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
   useEffect(() => {
     const checkNotif = () => {
       try {
-        const enabled = localStorage.getItem('kjb-notifications-enabled') === 'true';
+        // Check if user explicitly enabled notifications in THIS session (not just from localStorage)
+        const sessionEnabled = window.kjbNotifEnabledThisSession === true;
         const permissionGranted = 'Notification' in window && Notification.permission === 'granted';
-        // Only show as enabled if user explicitly enabled notifications (not just from previous session)
-        // and browser permission is actually granted
-        if (enabled && permissionGranted) {
+        // Only show as enabled if BOTH: user clicked enable this session AND browser permission is granted
+        if (sessionEnabled && permissionGranted) {
           setNotifDone(true);
         }
       } catch {}
@@ -170,6 +170,8 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
         // Re-check actual permission directly after the call (Samsung/Android fix)
         const actualPermission = 'Notification' in window ? Notification.permission : 'unsupported';
         if (result === 'granted' || actualPermission === 'granted') {
+          // Mark as enabled in THIS session only (prevents Chrome auto-set bug)
+          window.kjbNotifEnabledThisSession = true;
           setNotifDone(true);
           setNotifFailed(false);
         } else {
