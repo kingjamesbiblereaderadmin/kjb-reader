@@ -22,6 +22,13 @@ const A11Y_FONTS = [
 const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
 const isMobile = () => /iphone|ipad|ipod|android/i.test(navigator.userAgent);
 const isAndroid = () => /android/i.test(navigator.userAgent);
+const isEdgeMobile = () => {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent;
+  const isEdge = /edg/i.test(ua);
+  const isMobile = /iphone|ipad|ipod|android/i.test(ua);
+  return isEdge && isMobile;
+};
 const isEdgeDesktop = () => {
   if (typeof navigator === 'undefined') return false;
   const ua = navigator.userAgent;
@@ -296,6 +303,8 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
                     <br />
                     {isIOS() ? (
                       <>Please tap the <strong>Share</strong> icon in your browser menu, then select <strong>"Add to Home Screen"</strong>.</>
+                    ) : isEdgeMobile() ? (
+                      <>Tap the <strong>Menu (⋯)</strong> at the bottom or top, then select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</>
                     ) : isMobile() ? (
                       <>Please open your browser's <strong>Menu (⋮ or ⋯)</strong> and select <strong>"Add to phone"</strong>, <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</>
                     ) : isEdgeDesktop() ? (
