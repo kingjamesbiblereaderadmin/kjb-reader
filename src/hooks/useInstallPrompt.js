@@ -137,11 +137,12 @@ export function useInstallPrompt() {
         return true;
       }
 
-      // User CANCELLED — must NOT mark the app as installed. Clear any stale
-      // flag so the UI keeps showing "not installed".
+      // User CANCELLED — must NOT mark the app as installed, and must NOT show
+      // the manual guide. The native prompt worked fine; the user just dismissed
+      // it. Return 'cancelled' so the button stays an Install button.
       try { localStorage.removeItem(INSTALLED_KEY); } catch {}
       setIsInstalled(false);
-      return false;
+      return 'cancelled';
     } catch (err) {
       console.error('Install prompt error:', err);
       return false;

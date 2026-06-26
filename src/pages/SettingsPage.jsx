@@ -1002,9 +1002,12 @@ export default function SettingsPage() {
                 // Edge fires beforeinstallprompt late — promptInstall() now waits
                 // up to 3s for it. Show a "Preparing…" state during that wait.
                 setWaitingForPrompt(true);
-                promptInstall().then((ok) => {
+                promptInstall().then((result) => {
                   setWaitingForPrompt(false);
-                  if (!ok) setShowInstallHint(true);
+                  // Only show the manual guide when there's NO native prompt
+                  // (result === false). If the user cancelled the native dialog
+                  // (result === 'cancelled'), keep showing the Install button.
+                  if (result === false) setShowInstallHint(true);
                 }).catch((err) => {
                   console.error('Install prompt failed:', err);
                   setWaitingForPrompt(false);
