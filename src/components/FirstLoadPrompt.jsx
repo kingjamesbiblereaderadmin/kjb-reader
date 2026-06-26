@@ -178,23 +178,22 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
   };
 
   const handleNotifClick = async (e) => {
-    if (onEnableNotif) {
-      try {
-        const result = await onEnableNotif();
-        // Re-check actual permission directly after the call (Samsung/Android fix)
-        const actualPermission = 'Notification' in window ? Notification.permission : 'unsupported';
-        if (result === 'granted' || actualPermission === 'granted') {
-          // Mark as enabled in THIS session only (prevents Chrome auto-set bug)
-          window.kjbNotifEnabledThisSession = true;
-          setNotifDone(true);
-          setNotifFailed(false);
-        } else {
-          setNotifFailed(true);
-        }
-      } catch (err) {
-        console.error('Notif click error:', err);
+    if (!('Notification' in window)) {
+      setNotifFailed(true);
+      return;
+    }
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        window.kjbNotifEnabledThisSession = true;
+        setNotifDone(true);
+        setNotifFailed(false);
+      } else {
         setNotifFailed(true);
       }
+    } catch (err) {
+      console.error('Notif permission error:', err);
+      setNotifFailed(true);
     }
   };
 
