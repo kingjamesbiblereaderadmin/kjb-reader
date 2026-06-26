@@ -134,12 +134,18 @@ export function useInstallPrompt() {
     if (!deferredPrompt) return false;
 
     try {
+      // Set the cancel-guard marker BEFORE showing the dialog. Edge can fire the
+      // spurious `appinstalled` event the instant the user dismisses — sometimes
+      // BEFORE userChoice resolves — so the marker must already be in place to
+      // block it. We clear it only on a confirmed "accepted" outcome below.
+      window.kjbInstallJustCancelled = Date.now();
       deferredPrompt.prompt();     // Show Edge/Chrome install dialog
       const result = await deferredPrompt.userChoice;
       console.log(result.outcome); // "accepted" or "dismissed"
 
       if (result.outcome === 'accepted') {
-        // Only NOW is the prompt consumed and the app actually installed.
+        // Confirmed install — clear the cancel guard and mark installed.
+        window.kjbInstallJustCancelled = 0;
         deferredPrompt = null;
         window.kjbDeferredPrompt = null;
         setIsInstallable(false);
@@ -149,10 +155,9 @@ export function useInstallPrompt() {
         return true;
       }
 
-      // User CANCELLED — must NOT mark the app as installed, and must NOT show
-      // the manual guide. The native prompt worked fine; the user just dismissed
-      // it. Set a short-lived marker so Edge's spurious `appinstalled` cancel
-      // event is ignored, then return 'cancelled' so the button stays Install.
+      // User CANCELLED — keep the guard fresh (re-stamp), don't mark installed,
+      // and don't show the manual guide. Return 'cancelled' so the button stays
+      // an Install button.
       window.kjbInstallJustCancelled = Date.now();
       try { localStorage.removeItem(INSTALLED_KEY); } catch {}
       setIsInstalled(false);
