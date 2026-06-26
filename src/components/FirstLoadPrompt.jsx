@@ -51,7 +51,16 @@ const LAUNCHED_STANDALONE = (() => {
   try { if (window.opener || document.referrer) return false; } catch {}
   return true;
 })();
-const isInStandaloneMode = () => LAUNCHED_STANDALONE;
+// A real installed PWA NEVER receives a beforeinstallprompt and never shows an
+// install dialog. So the moment a prompt has been offered this session, the app
+// is provably NOT installed — and any "standalone" report (Samsung Internet's
+// false standalone-in-tab, or its transient post-cancel report) must be vetoed.
+// `window.kjbPromptedThisSession` is set in index.html the instant a
+// beforeinstallprompt fires, and we also set it when the user taps Install.
+const promptWasOffered = () => {
+  try { return window.kjbPromptedThisSession === true; } catch { return false; }
+};
+const isInStandaloneMode = () => LAUNCHED_STANDALONE && !promptWasOffered();
 
 const DISMISSED_KEY = 'kjb-prompt-dismissed';
 
@@ -149,8 +158,10 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     // React state hasn't caught up yet, so check the global directly.
     const hasPrompt = isInstallable || (typeof window !== 'undefined' && !!window.kjbDeferredPrompt);
     // Mark that we've shown a prompt this session — vetoes any later bogus
-    // appinstalled event (Samsung fires one on Cancel).
+    // appinstalled event AND any false standalone report (Samsung fires both on
+    // Cancel). The global flag is what isInStandaloneMode() checks.
     promptedRef.current = true;
+    try { window.kjbPromptedThisSession = true; } catch {}
     if (hasPrompt && onInstall) {
       try {
         const accepted = await onInstall();
