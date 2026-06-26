@@ -130,7 +130,6 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     return () => window.removeEventListener('appinstalled', handler);
   }, []);
 
-  const alreadyInstalled = isInStandaloneMode() || installDone;
   const showInstall = !isIncognito && !isInStandaloneMode() && (isInstallable || isIOS() || isAndroid() || !isMobile());
 
   const shouldShow = !dismissed;
