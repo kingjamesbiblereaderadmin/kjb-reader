@@ -38,9 +38,10 @@ const inIframe = () => {
 // Detect if running as installed PWA (standalone mode)
 const isStandalonePWA = () => {
   if (typeof window === 'undefined') return false;
-  // Check display-mode media query (works in most PWAs)
-  const mq = window.matchMedia('(display-mode: standalone)');
-  if (mq.matches) return true;
+  // Check display-mode media queries (covers all display_override values from manifest)
+  if (window.matchMedia('(display-mode: standalone)').matches) return true;
+  if (window.matchMedia('(display-mode: minimal-ui)').matches) return true;
+  if (window.matchMedia('(display-mode: window-controls-overlay)').matches) return true;
   // iOS Safari
   if (window.navigator.standalone === true) return true;
   return false;

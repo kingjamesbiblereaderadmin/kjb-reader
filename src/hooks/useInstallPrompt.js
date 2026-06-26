@@ -4,7 +4,7 @@ const DISMISSED_KEY = 'kjb-install-dismissed';
 
 // Authoritative install detection.
 // iOS: navigator.standalone (reliable).
-// Android: getInstalledRelatedApps() ONLY — ignores false display-mode signals.
+// Android/desktop: getInstalledRelatedApps() + display-mode fallback.
 const checkInstalledAsync = async () => {
   if (typeof window === 'undefined') return false;
   
@@ -13,20 +13,24 @@ const checkInstalledAsync = async () => {
     try { return window.navigator.standalone === true; } catch { return false; }
   }
   
-  // Android/desktop: use getInstalledRelatedApps() as the ONLY signal
+  // Android/desktop: use getInstalledRelatedApps() as primary signal
   if (navigator.getInstalledRelatedApps) {
     try {
       const apps = await navigator.getInstalledRelatedApps();
       const installed = !!(apps && apps.length > 0);
       console.log('[InstallCheck] getInstalledRelatedApps:', apps, '→ installed:', installed);
-      return installed;
+      if (installed) return true;
     } catch (err) {
       console.error('[InstallCheck] getInstalledRelatedApps failed:', err);
-      return false;
     }
   }
   
-  // No API available: assume not installed
+  // Fallback: check display-mode media queries (works when PWA is actually running standalone)
+  // This catches cases where getInstalledRelatedApps() fails but the app is genuinely installed
+  if (window.matchMedia('(display-mode: standalone)').matches) return true;
+  if (window.matchMedia('(display-mode: minimal-ui)').matches) return true;
+  if (window.matchMedia('(display-mode: window-controls-overlay)').matches) return true;
+  
   return false;
 };
 
