@@ -66,9 +66,48 @@ export async function requestNotificationPermission() {
   console.log('[Notif] Service Worker supported:', 'serviceWorker' in navigator);
   console.log('[Notif] Notification API supported:', 'Notification' in window);
   
+  const isSamsungInternet = /SamsungBrowser/i.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                       window.matchMedia('(display-mode: minimal-ui)').matches ||
+                       window.navigator.standalone === true;
+  
+  // Samsung Internet: notifications only work when app is installed as PWA
+  if (isSamsungInternet && !isStandalone) {
+    console.log('[Notif] Samsung Internet detected - PWA install required for notifications');
+    // Still register SW and enable the setting, but warn user
+    if ('serviceWorker' in navigator) {
+      try {
+        let reg = await navigator.serviceWorker.getRegistration('/');
+        if (!reg) {
+          reg = await navigator.serviceWorker.register('/sw.js');
+        }
+        console.log('[Notif] SW registered for Samsung Internet');
+      } catch (err) {
+        console.error('[Notif] SW registration failed:', err.message);
+      }
+    }
+    // Enable the setting but return special status
+    localStorage.setItem(NOTIF_KEY, 'true');
+    return 'samsung_pwa_required';
+  }
+  
   let hasPermission = false;
   
-  // Step 1: Try standard Notification API permission (iOS 16.4+, desktop browsers)
+  // Step 1: Register service worker FIRST (required for Android/Samsung)
+  if ('serviceWorker' in navigator) {
+    try {
+      console.log('[Notif] Registering service worker...');
+      let reg = await navigator.serviceWorker.getRegistration('/');
+      if (!reg) {
+        reg = await navigator.serviceWorker.register('/sw.js');
+      }
+      console.log('[Notif] Service worker registered:', reg.scope);
+    } catch (err) {
+      console.error('[Notif] Service worker registration failed:', err.message);
+    }
+  }
+  
+  // Step 2: Request Notification API permission
   if ('Notification' in window) {
     try {
       console.log('[Notif] Current Notification permission:', Notification.permission);
@@ -88,26 +127,6 @@ export async function requestNotificationPermission() {
     } catch (err) {
       console.warn('[Notif] Notification.requestPermission failed:', err.message);
     }
-  }
-  
-  // Step 2: Register service worker (Android, PWA, all platforms)
-  // NOTE: On Android (Chrome/Edge), reg.showNotification() SILENTLY FAILS unless
-  // the real OS-level Notification.permission is 'granted'. So we must NOT force
-  // hasPermission=true just because a SW registered — that's why the toggle
-  // showed "enabled" but nothing ever fired. We only register the SW here.
-  if ('serviceWorker' in navigator) {
-    try {
-      console.log('[Notif] Checking service worker registration...');
-      let reg = await navigator.serviceWorker.getRegistration('/');
-      if (!reg) {
-        console.log('[Notif] Registering service worker...');
-        reg = await navigator.serviceWorker.register('/sw.js');
-      }
-    } catch (err) {
-      console.error('[Notif] Service worker registration failed:', err.message);
-    }
-  } else {
-    console.error('[Notif] Service Worker NOT supported in this browser');
   }
   
   console.log('[Notif] Final permission status:', hasPermission ? 'granted' : 'denied');

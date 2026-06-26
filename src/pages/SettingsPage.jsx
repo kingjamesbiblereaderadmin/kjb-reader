@@ -283,34 +283,43 @@ export default function SettingsPage() {
       return;
     }
     
+    const isSamsungInternet = /SamsungBrowser/i.test(navigator.userAgent);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                         window.matchMedia('(display-mode: minimal-ui)').matches ||
+                         window.navigator.standalone === true;
+    
+    // Samsung Internet: show special message if not installed as PWA
+    if (isSamsungInternet && !isStandalone) {
+      const result = await requestNotificationPermission();
+      if (result === 'samsung_pwa_required') {
+        localStorage.setItem('kjb-notifications-enabled', 'true');
+        setNotifEnabled(true);
+        alert('Samsung Internet: Notifications will work after you install this app. Go to Menu → Add page to → Home screen, then enable notifications.');
+        window.dispatchEvent(new Event('storage'));
+        return;
+      }
+    }
+    
     if (!('Notification' in window)) {
       alert('Notifications are not supported in this browser. Try installing the app or using a different browser.');
       return;
     }
 
     try {
-      // Call the browser's native permission request DIRECTLY inside the click
-      // handler so the standard OS popup reliably appears (some browsers
-      // suppress it when wrapped in extra async/service-worker logic first).
       const permission = await Notification.requestPermission();
       setNotifPermission(permission);
 
       if (permission === 'granted') {
-        // Register the service worker (needed on Android PWA to show notifications).
         await requestNotificationPermission();
-        // Explicitly turn daily verse reminders ON so they're active right after
-        // the browser permission is granted.
         localStorage.setItem('kjb-notifications-enabled', 'true');
         setNotifEnabled(true);
         scheduleDailyNotification();
-        // Fire an immediate confirmation so the user sees notifications work.
         const v = getDailyVerse();
         showLocalNotification('KJB — Reminders On', `"${cleanForNotification(v.text)}" — ${v.ref} (KJB)`, null, '/');
         window.dispatchEvent(new Event('storage'));
       } else if (permission === 'denied') {
         alert('Notifications are blocked. Please allow notifications in your browser/app settings for this site.');
       }
-      // 'default' = user dismissed the popup without choosing; do nothing.
     } catch (err) {
       console.error('Notification permission error:', err);
       alert('Failed to request notification permission. Please try again.');

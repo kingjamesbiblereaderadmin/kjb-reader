@@ -163,8 +163,14 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
   const handleNotifClick = async (e) => {
     if (onEnableNotif) {
       try {
-        const ok = await onEnableNotif();
-        if (ok || ('Notification' in window && Notification.permission === 'granted')) {
+        const result = await onEnableNotif();
+        // Handle Samsung Internet special case
+        if (result === 'samsung_pwa_required') {
+          alert('For Samsung Internet: Please install this app first (Menu → Add page to → Home screen), then notifications will work.');
+          setNotifDone(true);
+          return;
+        }
+        if (result === 'granted' || ('Notification' in window && Notification.permission === 'granted')) {
           setNotifDone(true);
         } else {
           setNotifFailed(true);
