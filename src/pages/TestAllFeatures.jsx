@@ -292,7 +292,9 @@ export default function TestAllFeatures() {
   };
 
   const getReaderUrl = () => {
-    return `/read?book=${encodeURIComponent(testVerse.book)}&chapter=${testVerse.chapter}&verse=${testVerse.verse}`;
+    const bookObj = BIBLE_BOOKS.find(b => b.shortName === testVerse.book);
+    const abbr = bookObj ? bookObj.abbr : 'JHN';
+    return `/read?book=${abbr}&chapter=${testVerse.chapter}&verse=${testVerse.verse}`;
   };
 
   return (
