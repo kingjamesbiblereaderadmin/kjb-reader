@@ -70,7 +70,7 @@ if (typeof window !== 'undefined') {
 }
 
 export function useInstallPrompt() {
-  const [isInstallable, setIsInstallable] = useState(!!deferredPrompt);
+  const [isInstallable, setIsInstallable] = useState(!!deferredPrompt || isPwaInstallable());
   const [isInstalled, setIsInstalled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -87,7 +87,8 @@ export function useInstallPrompt() {
     
     const sync = () => {
       if (!deferredPrompt && window.kjbDeferredPrompt) deferredPrompt = window.kjbDeferredPrompt;
-      setIsInstallable(!!deferredPrompt);
+      // Use deferredPrompt OR PWA criteria check (for Edge desktop on first load)
+      setIsInstallable(!!deferredPrompt || isPwaInstallable());
       // Re-check installed state on focus (user may have just installed)
       checkInstalledAsync().then(installed => {
         if (!cancelled) setIsInstalled(installed);
