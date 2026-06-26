@@ -508,7 +508,8 @@ function useAppLayoutPrompt() {
     try {
       const result = await requestNotificationPermission();
       setNotifPermission(result);
-      if (result === 'granted' || result === 'unsupported') {
+      const granted = result === 'granted';
+      if (granted) {
         scheduleDailyNotification();
         setNotifEnabled(true);
         window.dispatchEvent(new Event('storage'));
