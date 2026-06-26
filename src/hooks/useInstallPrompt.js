@@ -3,6 +3,10 @@ import { useState, useEffect } from 'react';
 const DISMISSED_KEY = 'kjb-install-dismissed';
 
 let deferredPrompt = null;
+// True once the browser has fired beforeinstallprompt at least once. Used to
+// decide whether to wait for a RE-fired prompt after a cancel (Chrome/Edge
+// re-fire it; Samsung Internet does not).
+let hadPromptOnce = false;
 
 // "Installed" === the page is genuinely running as a standalone app RIGHT NOW.
 // A normal browser tab is never standalone, so cancelling an install dialog
@@ -31,6 +35,7 @@ if (typeof window !== 'undefined') {
     event.preventDefault();
     deferredPrompt = event;
     window.kjbDeferredPrompt = event;
+    hadPromptOnce = true;
     window.dispatchEvent(new Event('pwa-installable'));
   });
 }
@@ -70,10 +75,12 @@ export function useInstallPrompt() {
     if (!deferredPrompt && typeof window !== 'undefined' && window.kjbDeferredPrompt) {
       deferredPrompt = window.kjbDeferredPrompt;
     }
-    // After a previous cancel the browser re-fires a fresh beforeinstallprompt,
-    // but it can arrive a moment later. Wait briefly for it so a repeat click
-    // reliably re-opens the native dialog instead of the manual guide.
-    if (!deferredPrompt && typeof window !== 'undefined') {
+    // Chrome/Edge re-fire a fresh beforeinstallprompt shortly after a cancel,
+    // but it can arrive a moment late — wait briefly so a repeat click re-opens
+    // the native dialog. ONLY do this if a prompt has fired before; Samsung
+    // Internet never re-fires, so waiting there would just stall and then
+    // wrongly flip to the manual guide.
+    if (!deferredPrompt && hadPromptOnce && typeof window !== 'undefined') {
       deferredPrompt = await new Promise((resolve) => {
         const start = Date.now();
         const poll = setInterval(() => {
