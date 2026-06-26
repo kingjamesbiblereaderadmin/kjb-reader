@@ -57,16 +57,7 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
   });
   const [showIOSHint, setShowIOSHint] = useState(false);
   const [installDone, setInstallDone] = useState(parentIsInstalled || false);
-  const [notifDone, setNotifDone] = useState(() => {
-    try {
-      const enabled = localStorage.getItem('kjb-notifications-enabled') === 'true';
-      // Only show as enabled if BOTH localStorage flag is set AND browser permission is granted
-      if (enabled && 'Notification' in window && Notification.permission === 'granted') {
-        return true;
-      }
-      return false;
-    } catch { return false; }
-  });
+  const [notifDone, setNotifDone] = useState(false);
   const [a11yFont, setA11yFont] = useState(getAccessibilityFont);
   const { mode, setMode } = useTheme();
   const [readerFontFamily, setReaderFontFamily] = useState(() => {
@@ -101,15 +92,16 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
     if (parentIsInstalled) setInstallDone(true);
   }, [parentIsInstalled]);
 
-  // Sync notif state on focus - only show enabled if BOTH localStorage flag AND browser permission are set
+  // Sync notif state on focus - only show enabled if user clicked enable in this session AND browser permission is granted
   useEffect(() => {
     const checkNotif = () => {
       try {
         const enabled = localStorage.getItem('kjb-notifications-enabled') === 'true';
-        if (enabled && 'Notification' in window && Notification.permission === 'granted') {
+        const permissionGranted = 'Notification' in window && Notification.permission === 'granted';
+        // Only show as enabled if user explicitly enabled notifications (not just from previous session)
+        // and browser permission is actually granted
+        if (enabled && permissionGranted) {
           setNotifDone(true);
-        } else {
-          setNotifDone(false);
         }
       } catch {}
     };
