@@ -95,7 +95,7 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
     window.dispatchEvent(new Event('kjb-fonts-changed'));
   };
 
-  const showInstall = !isIncognito && !installDone && (isInstallable || isIOS() || isAndroid() || !isMobile());
+  const showInstall = !isIncognito && !installDone && !parentIsInstalled && (isInstallable || isIOS() || isAndroid() || !isMobile());
 
   // Auto-hide when app is actually installed (user may still be configuring settings)
   const shouldShow = !dismissed && !parentIsInstalled;
@@ -202,7 +202,7 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
               </button>
             </div>
           )}
-          {showInstall && !isBookmarkBrowser() && !installDone && (
+          {showInstall && !isBookmarkBrowser() && (
             <div className="space-y-2 shrink-0">
               <button
                 type="button"
@@ -216,7 +216,7 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
                 </span>
               </button>
               
-              {showIOSHint && (
+              {showIOSHint && !parentIsInstalled && (
                 <div className="bg-secondary/40 border border-border rounded-xl p-2.5 sm:p-3">
                   {!isInstallable && (
                     <div className="mb-2 pb-2 border-b border-border/50">
