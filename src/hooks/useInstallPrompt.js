@@ -70,6 +70,20 @@ export function useInstallPrompt() {
     if (!deferredPrompt && typeof window !== 'undefined' && window.kjbDeferredPrompt) {
       deferredPrompt = window.kjbDeferredPrompt;
     }
+    // After a previous cancel the browser re-fires a fresh beforeinstallprompt,
+    // but it can arrive a moment later. Wait briefly for it so a repeat click
+    // reliably re-opens the native dialog instead of the manual guide.
+    if (!deferredPrompt && typeof window !== 'undefined') {
+      deferredPrompt = await new Promise((resolve) => {
+        const start = Date.now();
+        const poll = setInterval(() => {
+          if (window.kjbDeferredPrompt || Date.now() - start > 1500) {
+            clearInterval(poll);
+            resolve(window.kjbDeferredPrompt || null);
+          }
+        }, 100);
+      });
+    }
     if (!deferredPrompt) return false;
 
     try {
@@ -82,12 +96,14 @@ export function useInstallPrompt() {
         setIsInstallable(false);
         return true;
       }
-      // Cancelled — the prompt event is now spent and can't be re-fired.
-      // Clear it so the button stays visible and the NEXT click falls back to
-      // the manual install guide instead of silently doing nothing.
+      // Cancelled — the used prompt event is spent and can't be re-fired.
+      // Drop the stale reference, but the browser (Chrome/Edge) re-fires a
+      // FRESH `beforeinstallprompt` shortly after a cancel; our global listener
+      // captures it into window.kjbDeferredPrompt, so the button keeps working
+      // and re-opens the native dialog on the next click. Keep isInstallable
+      // true so the Install button stays visible until the app is installed.
       deferredPrompt = null;
       window.kjbDeferredPrompt = null;
-      setIsInstallable(false);
       return 'cancelled';
     } catch (err) {
       console.error('Install prompt error:', err);
