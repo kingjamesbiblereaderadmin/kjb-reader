@@ -218,15 +218,14 @@ export default function AppLayout() {
       initNotifications();
     }
 
-    // Show prompt once per session
-    const alreadyInstalled = window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
+    // Show prompt once per session — use ONLY the authoritative isInstalled from hook
     const notifGranted = 'Notification' in window && Notification.permission === 'granted';
     const dismissed = localStorage.getItem('kjb-prompt-dismissed') === 'true' || localStorage.getItem('kjb-install-dismissed') === 'true';
 
     const triggerPrompt = () => {
-      if (alreadyInstalled && !notifGranted) {
+      if (isInstalled && !notifGranted) {
         setTimeout(() => setShowPrompt(true), 1500);
-      } else if (!alreadyInstalled && !dismissed) {
+      } else if (!isInstalled && !dismissed) {
         setTimeout(() => setShowPrompt(true), 1500);
       }
     };
@@ -241,7 +240,7 @@ export default function AppLayout() {
       window.addEventListener('kjb-splash-done', onSplashDone);
       return () => window.removeEventListener('kjb-splash-done', onSplashDone);
     }
-  }, []);
+  }, [isInstalled]);
 
   const handleDismissPrompt = () => {
     setShowPrompt(false);
