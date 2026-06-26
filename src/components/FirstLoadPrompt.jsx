@@ -97,7 +97,8 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
 
   const showInstall = !isIncognito && !installDone && (isInstallable || isIOS() || isAndroid() || !isMobile());
 
-  const shouldShow = !dismissed;
+  // Auto-hide when app is actually installed (user may still be configuring settings)
+  const shouldShow = !dismissed && !parentIsInstalled;
 
   if (!shouldShow) return null;
 
