@@ -35,6 +35,17 @@ const inIframe = () => {
   try { return window.self !== window.top; } catch (e) { return true; }
 };
 
+// Detect if running as installed PWA (standalone mode)
+const isStandalonePWA = () => {
+  if (typeof window === 'undefined') return false;
+  // Check display-mode media query (works in most PWAs)
+  const mq = window.matchMedia('(display-mode: standalone)');
+  if (mq.matches) return true;
+  // iOS Safari
+  if (window.navigator.standalone === true) return true;
+  return false;
+};
+
 const DISMISSED_KEY = 'kjb-prompt-dismissed';
 
 export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsInstalled, notifPermission, onInstall, onDismiss, onEnableNotif }) {
@@ -62,9 +73,10 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
     detectIncognito().then(setIsIncognito);
   }, []);
 
-  // Sync install state from parent hook
+  // Sync install state from parent hook AND detect standalone PWA mode
   useEffect(() => {
     if (parentIsInstalled) setInstallDone(true);
+    if (isStandalonePWA()) setInstallDone(true);
   }, [parentIsInstalled]);
 
   // Sync notif state on focus
@@ -95,10 +107,16 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
     window.dispatchEvent(new Event('kjb-fonts-changed'));
   };
 
-  const showInstall = !isIncognito && !installDone && !parentIsInstalled && (isInstallable || isIOS() || isAndroid() || !isMobile());
+  // Detect if already running as installed PWA
+  const isStandalone = isStandalonePWA();
+  
+  // Hide install section if already in standalone PWA mode or parent says installed
+  const actuallyInstalled = isStandalone || parentIsInstalled || installDone;
+  
+  const showInstall = !isIncognito && !actuallyInstalled && (isInstallable || isIOS() || isAndroid() || !isMobile());
 
   // Auto-hide when app is actually installed (user may still be configuring settings)
-  const shouldShow = !dismissed && !parentIsInstalled;
+  const shouldShow = !dismissed && !actuallyInstalled;
 
   if (!shouldShow) return null;
 
