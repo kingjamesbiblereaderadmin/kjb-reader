@@ -203,7 +203,7 @@ export default function AppLayout() {
   const isRoot = pathname === '/';
 
   // FirstLoadPrompt state (centralized in AppLayout)
-  const { isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss } = useAppLayoutPrompt();
+  const { isInstallable, isInstalled, notifPermission, handleInstall, handleEnableNotif, handleDismiss } = useAppLayoutPrompt();
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
@@ -389,6 +389,7 @@ export default function AppLayout() {
       {showPrompt && (
         <FirstLoadPrompt
           isInstallable={isInstallable}
+          isInstalled={isInstalled}
           notifPermission={notifPermission}
           onInstall={handleInstall}
           onEnableNotif={handleEnableNotif}
@@ -527,7 +528,7 @@ function useAppLayoutPrompt() {
     try { localStorage.setItem('kjb-prompt-dismissed', 'true'); } catch {}
   };
 
-  return { isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss };
+  return { isInstallable, isInstalled, notifPermission, handleInstall, handleEnableNotif, handleDismiss };
 }
 
 function BottomNav({ pathname, navigate }) {

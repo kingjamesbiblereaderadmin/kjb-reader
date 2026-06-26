@@ -37,12 +37,12 @@ const inIframe = () => {
 
 const DISMISSED_KEY = 'kjb-prompt-dismissed';
 
-export default function FirstLoadPrompt({ isInstallable, notifPermission, onInstall, onDismiss, onEnableNotif }) {
+export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsInstalled, notifPermission, onInstall, onDismiss, onEnableNotif }) {
   const [dismissed, setDismissed] = useState(() => {
     try { return localStorage.getItem(DISMISSED_KEY) === 'true'; } catch { return false; }
   });
   const [showIOSHint, setShowIOSHint] = useState(false);
-  const [installDone, setInstallDone] = useState(false);
+  const [installDone, setInstallDone] = useState(parentIsInstalled || false);
   const [notifDone, setNotifDone] = useState(() =>
     'Notification' in window && Notification.permission === 'granted'
   );
@@ -56,48 +56,16 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   });
   const [notifFailed, setNotifFailed] = useState(false);
   const [isIncognito, setIsIncognito] = useState(false);
-  const [checkedInstall, setCheckedInstall] = useState(false);
   const promptedRef = useRef(false);
 
   useEffect(() => {
     detectIncognito().then(setIsIncognito);
   }, []);
 
-  // Authoritative install detection via getInstalledRelatedApps() — works on
-  // Android Chromium (Chrome, Samsung Internet, Edge) and returns the actual
-  // installed PWAs matching the manifest. This is the ONLY signal we trust.
+  // Sync install state from parent hook
   useEffect(() => {
-    let cancelled = false;
-    const checkInstall = async () => {
-      // Already checked or in incognito (install impossible) — skip.
-      if (checkedInstall || isIncognito) return;
-      
-      // iOS lacks getInstalledRelatedApps — use standalone detection only.
-      if (isIOS()) {
-        try {
-          const isStandalone = window.navigator.standalone === true;
-          if (isStandalone && !cancelled) setInstallDone(true);
-        } catch {}
-        setCheckedInstall(true);
-        return;
-      }
-
-      // Android/desktop: use getInstalledRelatedApps() as authoritative signal.
-      if (navigator.getInstalledRelatedApps) {
-        try {
-          const apps = await navigator.getInstalledRelatedApps();
-          if (!cancelled && apps && apps.length > 0) {
-            setInstallDone(true);
-          }
-        } catch (e) {
-          console.warn('[FirstLoadPrompt] getInstalledRelatedApps failed:', e);
-        }
-      }
-      setCheckedInstall(true);
-    };
-    checkInstall();
-    return () => { cancelled = true; };
-  }, [checkedInstall, isIncognito]);
+    if (parentIsInstalled) setInstallDone(true);
+  }, [parentIsInstalled]);
 
   // Sync notif state on focus
   useEffect(() => {
