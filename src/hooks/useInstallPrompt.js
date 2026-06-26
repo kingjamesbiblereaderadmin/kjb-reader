@@ -36,12 +36,18 @@ const LAUNCHED_STANDALONE = (() => {
 // Shared module state.
 let deferredPrompt = (typeof window !== 'undefined' && window.kjbDeferredPrompt) || null;
 let appInstalledFired = false;
+// True once the browser has ever offered an install prompt this session. A real
+// installed PWA NEVER fires beforeinstallprompt, so this firing is definitive
+// proof the app is NOT installed — used to veto a false standalone read on
+// browsers (e.g. Samsung Internet) that wrongly report standalone in a tab.
+let promptEverOffered = (typeof window !== 'undefined' && window.kjbPromptedThisSession === true);
 
 if (typeof window !== 'undefined') {
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
     window.kjbDeferredPrompt = e;
+    promptEverOffered = true;
     window.dispatchEvent(new Event('kjb-install-change'));
   });
   // index.html may capture the prompt before this module loads.
@@ -58,7 +64,11 @@ if (typeof window !== 'undefined') {
   });
 }
 
-const computeInstalled = () => appInstalledFired || LAUNCHED_STANDALONE;
+// The appinstalled event is always authoritative. Otherwise, a standalone
+// launch counts as installed ONLY if no install prompt has ever been offered
+// (since an installed PWA never gets one). This vetoes Samsung Internet's
+// bogus standalone-in-a-tab report.
+const computeInstalled = () => appInstalledFired || (LAUNCHED_STANDALONE && !promptEverOffered);
 
 export function useInstallPrompt() {
   const [isInstallable, setIsInstallable] = useState(!!deferredPrompt);
