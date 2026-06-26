@@ -244,20 +244,42 @@ export default function TestAllFeatures() {
     
     setSearchLoading(true);
     try {
-      const response = await base44.functions.invoke('bibleApi', {
-        action: 'search',
-        query: searchQuery
-      });
+      // Use the same client-side search as SearchPage
+      const { getBibleData } = await import('@/lib/bibleCache');
+      const bible = await getBibleData();
+      const kw = searchQuery.trim().toLowerCase();
+      const matches = [];
+      const seen = new Set();
       
-      if (response?.data?.results) {
-        setSearchResults(response.data.results.slice(0, 10));
+      for (const bookName in bible) {
+        if (bookName === '__colophons') continue;
+        const chapters = bible[bookName];
+        for (const chapterNum in chapters) {
+          const verses = chapters[chapterNum];
+          for (const verseObj of verses) {
+            const searchText = verseObj.text.toLowerCase();
+            if (searchText.includes(kw)) {
+              const key = `${bookName}-${chapterNum}-${verseObj.verse}`;
+              if (seen.has(key)) continue;
+              seen.add(key);
+              matches.push({
+                book: bookName,
+                chapter: parseInt(chapterNum),
+                verse: parseInt(verseObj.verse),
+                text: verseObj.text,
+              });
+              if (matches.length >= 10) break;
+            }
+          }
+          if (matches.length >= 10) break;
+        }
+        if (matches.length >= 10) break;
       }
+      
+      setSearchResults(matches);
     } catch (err) {
       console.error('Search failed:', err);
-      setSearchResults([
-        { book: 'John', chapter: 3, verse: 16, text: 'For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.' },
-        { book: 'Romans', chapter: 8, verse: 28, text: 'And we know that all things work together for good to them that love God, to them who are the called according to his purpose.' },
-      ]);
+      setSearchResults([]);
     } finally {
       setSearchLoading(false);
     }
