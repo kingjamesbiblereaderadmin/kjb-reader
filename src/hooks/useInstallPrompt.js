@@ -128,6 +128,11 @@ export function useInstallPrompt() {
     if (!deferredPrompt && window.kjbDeferredPrompt) deferredPrompt = window.kjbDeferredPrompt;
     if (!deferredPrompt) return false;
     try {
+      // Showing the prompt is definitive proof this is NOT an installed PWA
+      // (installed apps never get a prompt). Set the veto NOW so the bogus
+      // `appinstalled` Samsung Internet fires on Cancel can never mark the app
+      // installed — no matter the event timing/race.
+      promptEverOffered = true;
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       // The captured event is single-use; drop it. Chrome re-fires
