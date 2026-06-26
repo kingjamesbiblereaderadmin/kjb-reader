@@ -144,6 +144,14 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
     promptedRef.current = true;
     try { window.kjbPromptedThisSession = true; } catch {}
     
+    // Edge mobile and some browsers don't support native beforeinstallprompt
+    const hasNativePrompt = isInstallable || (typeof window !== 'undefined' && !!window.kjbDeferredPrompt);
+    
+    if (!hasNativePrompt) {
+      setShowIOSHint(true);
+      return;
+    }
+    
     if (onInstall) {
       try {
         const accepted = await onInstall();
@@ -155,7 +163,7 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
         console.error('Install prompt failed:', err);
       }
     }
-    // Native prompt was cancelled or not available, show manual guide
+    // Native prompt was cancelled or failed, show manual guide
     setShowIOSHint(true);
   };
 

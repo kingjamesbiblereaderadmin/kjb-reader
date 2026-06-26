@@ -1017,6 +1017,12 @@ export default function SettingsPage() {
             ) : (
             <button
               onClick={() => {
+                // Edge mobile doesn't support native beforeinstallprompt - show manual guide
+                const hasNativePrompt = isInstallable || (typeof window !== 'undefined' && !!window.kjbDeferredPrompt);
+                if (!hasNativePrompt) {
+                  setShowInstallHint(true);
+                  return;
+                }
                 // Fire the native prompt. If cancelled or failed, show manual guide.
                 promptInstall().then((result) => {
                   if (result === false) setShowInstallHint(true);
