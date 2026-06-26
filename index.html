@@ -158,11 +158,13 @@
           if (isDark) document.documentElement.classList.add('dark');
         } catch (e) {}
         try {
-          // A shared link can carry ?font=dyslexic — persist it so the
-          // recipient opens (and stays) in dyslexic mode.
+          // A shared link can carry ?font=dyslexic or ?font=hyperlegible —
+          // persist it so the recipient opens (and stays) in that font mode.
           var qsFont = window.location.search || '';
           if (qsFont.indexOf('font=dyslexic') !== -1) {
             localStorage.setItem('kjb-a11y-font', 'dyslexic');
+          } else if (qsFont.indexOf('font=hyperlegible') !== -1) {
+            localStorage.setItem('kjb-a11y-font', 'hyperlegible');
           }
           var a11yFont = localStorage.getItem('kjb-a11y-font');
           if (a11yFont === 'dyslexic' || a11yFont === 'hyperlegible' || a11yFont === 'system') {

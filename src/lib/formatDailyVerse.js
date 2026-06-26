@@ -10,9 +10,10 @@ export function buildVerseUrl({ abbr, chapter, verse, verseEnd, from } = {}) {
   if (verse) url += `&verse=${verse}`;
   if (verseEnd && verseEnd > verse) url += `&verseEnd=${verseEnd}`;
   if (from) url += `&from=${from}`;
-  // Carry the sharer's dyslexic font mode so the recipient opens in it too.
+  // Carry the sharer's accessibility font mode so the recipient opens in it too.
   try {
-    if (localStorage.getItem('kjb-a11y-font') === 'dyslexic') url += `&font=dyslexic`;
+    const a11y = localStorage.getItem('kjb-a11y-font');
+    if (a11y === 'dyslexic' || a11y === 'hyperlegible') url += `&font=${a11y}`;
   } catch {}
   return url;
 }
