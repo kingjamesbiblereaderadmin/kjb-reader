@@ -114,18 +114,49 @@ export default function TestDailyVerse() {
     }
   };
 
-  const pickRandomVerse = () => {
+  const pickRandomVerse = async () => {
     const randomBook = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
     const randomChapter = Math.floor(Math.random() * 50) + 1;
     const randomVerse = Math.floor(Math.random() * 30) + 1;
+    
+    // Update state and fetch immediately with new values
     setCustomBook(randomBook);
     setCustomChapter(randomChapter);
     setCustomVerse(randomVerse);
     
-    // Auto-fetch the random verse
-    setTimeout(() => {
-      fetchCustomVerse();
-    }, 100);
+    // Fetch using the new values directly (not from state)
+    try {
+      const response = await base44.functions.invoke('bibleApi', {
+        action: 'getChapter',
+        book: randomBook,
+        chapter: randomChapter
+      });
+      
+      if (response?.data?.verses) {
+        const verseObj = response.data.verses.find(v => v.verse === randomVerse);
+        if (verseObj) {
+          const verseData = {
+            text: verseObj.text,
+            ref: `${randomBook} ${randomChapter}:${randomVerse}`,
+            category: 'Custom'
+          };
+          setSelectedVerse(verseData);
+          setUseCustom(true);
+        } else {
+          // Verse doesn't exist in this chapter, try again
+          pickRandomVerse();
+          return;
+        }
+      } else {
+        // Chapter doesn't exist, try again
+        pickRandomVerse();
+        return;
+      }
+    } catch (err) {
+      console.error('Failed to fetch random verse:', err);
+      // Retry once on error
+      pickRandomVerse();
+    }
   };
 
   return (
