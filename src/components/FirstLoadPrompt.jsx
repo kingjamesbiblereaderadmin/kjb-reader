@@ -44,6 +44,8 @@ const isStandalonePWA = () => {
   if (window.matchMedia('(display-mode: window-controls-overlay)').matches) return true;
   // iOS Safari
   if (window.navigator.standalone === true) return true;
+  // Edge PWA: check for running in app window (no browser chrome)
+  if (window.outerWidth - window.innerWidth > 100 && window.outerHeight - window.innerHeight > 100) return true;
   return false;
 };
 
