@@ -22,9 +22,14 @@ if (typeof window !== 'undefined') {
   window.addEventListener('appinstalled', () => {
     // Edge can fire `appinstalled` even when the user taps out / cancels the
     // install dialog, which previously created a FAKE "installed" state and
-    // hid the Install button. Don't trust this event on its own — only act if
-    // the app is genuinely running standalone now. Otherwise keep the
-    // deferredPrompt so the Install button stays available (like Chrome/Samsung).
+    // hid the Install button. If the user JUST cancelled (within the last few
+    // seconds), ignore this event entirely — it's the spurious Edge cancel event.
+    if (window.kjbInstallJustCancelled && Date.now() - window.kjbInstallJustCancelled < 5000) {
+      return;
+    }
+    // Don't trust this event on its own — only act if the app is genuinely
+    // running standalone now. Otherwise keep the deferredPrompt so the Install
+    // button stays available (like Chrome/Samsung).
     const reallyInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
     if (!reallyInstalled) return;
     console.log('PWA installed');
@@ -139,7 +144,9 @@ export function useInstallPrompt() {
 
       // User CANCELLED — must NOT mark the app as installed, and must NOT show
       // the manual guide. The native prompt worked fine; the user just dismissed
-      // it. Return 'cancelled' so the button stays an Install button.
+      // it. Set a short-lived marker so Edge's spurious `appinstalled` cancel
+      // event is ignored, then return 'cancelled' so the button stays Install.
+      window.kjbInstallJustCancelled = Date.now();
       try { localStorage.removeItem(INSTALLED_KEY); } catch {}
       setIsInstalled(false);
       return 'cancelled';
