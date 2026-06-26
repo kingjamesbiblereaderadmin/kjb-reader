@@ -183,10 +183,44 @@ export default function ComprehensiveTester() {
         }
       },
       {
-        name: 'Service Worker Active',
+        name: 'Service Worker Registration',
         test: async () => {
-          const hasSW = 'serviceWorker' in navigator && navigator.serviceWorker.controller !== null;
-          return { passed: hasSW, message: hasSW ? 'Service worker active' : 'No service worker' };
+          if (!('serviceWorker' in navigator)) {
+            return { passed: false, message: 'Service Worker not supported' };
+          }
+          const registration = await navigator.serviceWorker.getRegistration();
+          const hasActive = registration?.active !== null;
+          const hasWaiting = registration?.waiting !== null;
+          const hasInstalling = registration?.installing !== null;
+          return { 
+            passed: hasActive, 
+            message: hasActive ? `Active ✓${hasWaiting ? ', Waiting update' : ''}${hasInstalling ? ', Installing' : ''}` : 'No active worker' 
+          };
+        }
+      },
+      {
+        name: 'Service Worker Version',
+        test: async () => {
+          try {
+            const response = await fetch('/sw.js');
+            const swText = await response.text();
+            const versionMatch = swText.match(/kjb-reader-v([^\s'"]+)/);
+            return { passed: !!versionMatch, message: versionMatch ? `v${versionMatch[1]}` : 'Version not found' };
+          } catch (err) {
+            return { passed: false, message: `Failed: ${err.message}` };
+          }
+        }
+      },
+      {
+        name: 'Cache Storage',
+        test: async () => {
+          try {
+            const cacheNames = await caches.keys();
+            const kjbCaches = cacheNames.filter(name => name.includes('kjb'));
+            return { passed: kjbCaches.length > 0, message: `${kjbCaches.length} cache(s): ${kjbCaches.join(', ')}` };
+          } catch (err) {
+            return { passed: false, message: `Failed: ${err.message}` };
+          }
         }
       },
       {
