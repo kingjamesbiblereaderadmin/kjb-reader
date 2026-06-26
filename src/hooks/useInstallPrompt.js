@@ -64,11 +64,16 @@ if (typeof window !== 'undefined') {
   });
 }
 
-// The appinstalled event is always authoritative. Otherwise, a standalone
-// launch counts as installed ONLY if no install prompt has ever been offered
-// (since an installed PWA never gets one). This vetoes Samsung Internet's
-// bogus standalone-in-a-tab report.
-const computeInstalled = () => appInstalledFired || (LAUNCHED_STANDALONE && !promptEverOffered);
+// A real installed PWA launches standalone and NEVER fires beforeinstallprompt.
+// So in any tab/session where a prompt has been offered, the app is provably
+// NOT installed — regardless of any appinstalled event. Samsung Internet (and
+// some Chromium builds) fire a bogus `appinstalled` the instant you CANCEL the
+// dialog, so we must NOT trust appinstalled once a prompt was offered. Installed
+// is true only for a clean standalone launch with no prompt ever seen.
+const computeInstalled = () => {
+  if (promptEverOffered) return false;
+  return appInstalledFired || LAUNCHED_STANDALONE;
+};
 
 export function useInstallPrompt() {
   const [isInstallable, setIsInstallable] = useState(!!deferredPrompt);
