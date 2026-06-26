@@ -997,19 +997,24 @@ export default function SettingsPage() {
               </button>
             ) : (
             <button
+              disabled={waitingForPrompt}
               onClick={() => {
-                // Fire the browser's official PWA install API directly.
+                // Edge fires beforeinstallprompt late — promptInstall() now waits
+                // up to 3s for it. Show a "Preparing…" state during that wait.
+                setWaitingForPrompt(true);
                 promptInstall().then((ok) => {
+                  setWaitingForPrompt(false);
                   if (!ok) setShowInstallHint(true);
                 }).catch((err) => {
                   console.error('Install prompt failed:', err);
+                  setWaitingForPrompt(false);
                   setShowInstallHint(true);
                 });
               }}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:hover:scale-100"
             >
-              {/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? <Smartphone className="w-4 h-4" /> : <MonitorSmartphone className="w-4 h-4" />}
-              {/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? 'Add to Home Screen' : 'Install App'}
+              {waitingForPrompt ? <Loader2 className="w-4 h-4 animate-spin" /> : (/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? <Smartphone className="w-4 h-4" /> : <MonitorSmartphone className="w-4 h-4" />)}
+              {waitingForPrompt ? 'Preparing install…' : (/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? 'Add to Home Screen' : 'Install App')}
             </button>
             )}
             

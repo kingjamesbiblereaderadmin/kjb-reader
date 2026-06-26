@@ -96,6 +96,29 @@ export function useInstallPrompt() {
     if (!deferredPrompt && typeof window !== 'undefined' && window.kjbDeferredPrompt) {
       deferredPrompt = window.kjbDeferredPrompt;
     }
+    // Edge captures `beforeinstallprompt` slightly LATER than Chrome, so a fast
+    // click can land before the event arrives. Instead of immediately falling
+    // back to the manual guide, wait up to 3s for the prompt to fire.
+    if (!deferredPrompt && typeof window !== 'undefined') {
+      deferredPrompt = await new Promise((resolve) => {
+        let settled = false;
+        const onPrompt = () => {
+          if (settled) return;
+          settled = true;
+          window.removeEventListener('beforeinstallprompt', onPrompt);
+          resolve(window.kjbDeferredPrompt || null);
+        };
+        window.addEventListener('beforeinstallprompt', onPrompt);
+        // The global capture may also pick it up — poll briefly as a backup.
+        const start = Date.now();
+        const poll = setInterval(() => {
+          if (window.kjbDeferredPrompt || Date.now() - start > 3000) {
+            clearInterval(poll);
+            onPrompt();
+          }
+        }, 150);
+      });
+    }
     if (!deferredPrompt) return false;
 
     try {
