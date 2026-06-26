@@ -26,6 +26,7 @@ const loaders = {
   Saved: () => import('@/pages/SavedVersesPage.jsx').catch((err) => { console.error('Failed to load SavedVersesPage:', err); throw err; }),
   RefreshCache: () => import('@/pages/RefreshCache.jsx').catch((err) => { console.error('Failed to load RefreshCache:', err); throw err; }),
   ManifestIcons: () => import('@/pages/ManifestIcons.jsx').catch((err) => { console.error('Failed to load ManifestIcons:', err); throw err; }),
+  ManifestScreenshots: () => import('@/pages/ManifestScreenshots.jsx').catch((err) => { console.error('Failed to load ManifestScreenshots:', err); throw err; }),
   Privacy: () => import('@/pages/PrivacyPolicyPage.jsx').catch((err) => { console.error('Failed to load PrivacyPolicyPage:', err); throw err; }),
   LegacyReader: () => import('@/pages/LegacyReader.jsx').catch((err) => { console.error('Failed to load LegacyReader:', err); throw err; }),
   DailyVerseTxt: () => import('@/pages/DailyVerseTxt.jsx').catch((err) => { console.error('Failed to load DailyVerseTxt:', err); throw err; }),
@@ -42,6 +43,7 @@ const SearchPage = lazy(loaders.Search);
 const SavedVersesPage = lazy(loaders.Saved);
 const RefreshCache = lazy(loaders.RefreshCache);
 const ManifestIcons = lazy(loaders.ManifestIcons);
+const ManifestScreenshots = lazy(loaders.ManifestScreenshots);
 const PrivacyPolicyPage = lazy(loaders.Privacy);
 const LegacyReader = lazy(loaders.LegacyReader);
 const DailyVerseTxt = lazy(loaders.DailyVerseTxt);
@@ -219,6 +221,7 @@ const AuthenticatedApp = () => {
         <Route path="/saved" element={<Suspense fallback={<RouteLoader />}><FadeIn><SavedVersesPage /></FadeIn></Suspense>} />
         <Route path="/refresh-cache" element={<Suspense fallback={<RouteLoader />}><FadeIn><RefreshCache /></FadeIn></Suspense>} />
         <Route path="/manifest-icons" element={<Suspense fallback={<RouteLoader />}><FadeIn><ManifestIcons /></FadeIn></Suspense>} />
+        <Route path="/manifest-screenshots" element={<Suspense fallback={<RouteLoader />}><FadeIn><ManifestScreenshots /></FadeIn></Suspense>} />
         <Route path="/privacy" element={<Suspense fallback={<RouteLoader />}><FadeIn><PrivacyPolicyPage /></FadeIn></Suspense>} />
         <Route path="/legacy" element={<Suspense fallback={<RouteLoader />}><FadeIn><LegacyReader /></FadeIn></Suspense>} />
           </Route>
