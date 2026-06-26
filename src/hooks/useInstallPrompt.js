@@ -3,23 +3,24 @@ import { useState, useEffect } from 'react';
 const DISMISSED_KEY = 'kjb-install-dismissed';
 
 let deferredPrompt = null;
+let didInstall = false; // set true only by a genuine `appinstalled` event
 
-// The ONE source of truth for "is the app installed AND running as an app":
-// is this page actually running in standalone display mode right now?
-// A normal browser tab (where Settings lives) is NEVER standalone, so cancelling
-// an install dialog can never flip this to true. This is deterministic — no
-// localStorage flags, no timing windows, no spurious `appinstalled` events.
+// Is the app genuinely running as an installed standalone app right now?
 const isStandalone = () => {
   if (typeof window === 'undefined') return false;
-  // iOS standalone flag is reliable on its own.
-  if (window.navigator.standalone === true) return true;
-  // A genuinely installed PWA launches in its own window: display-mode is
-  // 'standalone' AND 'browser' is FALSE. Edge's bug after cancelling an install
-  // dialog reports 'standalone' true while STILL being a 'browser' tab — so we
-  // require browser-mode to be false to count it as installed.
-  const standalone = window.matchMedia('(display-mode: standalone)').matches;
-  const browser = window.matchMedia('(display-mode: browser)').matches;
-  return standalone && !browser;
+  if (window.navigator.standalone === true) return true; // iOS
+  return window.matchMedia('(display-mode: standalone)').matches;
+};
+
+// The single source of truth for "installed":
+// - true if running in a standalone window, OR
+// - true if a genuine `appinstalled` event fired this session.
+// Crucially, if the browser is STILL offering an install prompt
+// (deferredPrompt present), the app is NOT installed — this stops a cancelled
+// install dialog (Chrome & Edge) from flipping the UI to "installed".
+const computeInstalled = () => {
+  if (deferredPrompt || window.kjbDeferredPrompt) return false;
+  return didInstall || isStandalone();
 };
 
 if (typeof window !== 'undefined') {
@@ -28,16 +29,20 @@ if (typeof window !== 'undefined') {
   }
 
   window.addEventListener('beforeinstallprompt', (event) => {
-    event.preventDefault();      // Prevent auto-prompt so the custom button can trigger it
-    deferredPrompt = event;      // Save the event for later
+    event.preventDefault();
+    deferredPrompt = event;
     window.kjbDeferredPrompt = event;
     window.dispatchEvent(new Event('pwa-installable'));
   });
 
-  // NOTE: We intentionally do NOT listen for `appinstalled`. Edge fires it even
-  // when the user CANCELS the install dialog, which falsely flipped the UI to
-  // "installed". Installed state is derived solely from the live display-mode
-  // check (isStandalone) instead, so it's always accurate.
+  // Fires only when the app is actually added. With a valid manifest this is
+  // reliable; we still clear the deferred prompt so state is consistent.
+  window.addEventListener('appinstalled', () => {
+    didInstall = true;
+    deferredPrompt = null;
+    window.kjbDeferredPrompt = null;
+    window.dispatchEvent(new Event('pwa-installable'));
+  });
 }
 
 export function useInstallPrompt() {
@@ -45,7 +50,7 @@ export function useInstallPrompt() {
     deferredPrompt = window.kjbDeferredPrompt;
   }
   const [isInstallable, setIsInstallable] = useState(!!deferredPrompt);
-  const [isInstalled, setIsInstalled] = useState(isStandalone());
+  const [isInstalled, setIsInstalled] = useState(computeInstalled());
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
@@ -54,14 +59,11 @@ export function useInstallPrompt() {
         deferredPrompt = window.kjbDeferredPrompt;
       }
       setIsInstallable(!!deferredPrompt);
-      // Always re-read the live display mode — the only reliable signal.
-      setIsInstalled(isStandalone());
+      setIsInstalled(computeInstalled());
     };
 
     window.addEventListener('pwa-installable', sync);
     window.addEventListener('focus', sync);
-    // The display-mode media query itself changes when the app is launched
-    // standalone — listen so the UI updates without needing a reload.
     const mq = window.matchMedia('(display-mode: standalone)');
     mq.addEventListener?.('change', sync);
 
@@ -75,14 +77,10 @@ export function useInstallPrompt() {
   }, []);
 
   const promptInstall = async () => {
-    // Always re-sync from the global capture in index.html — the event may have
-    // fired before this hook module loaded its own listener.
     if (!deferredPrompt && typeof window !== 'undefined' && window.kjbDeferredPrompt) {
       deferredPrompt = window.kjbDeferredPrompt;
     }
-    // Edge captures `beforeinstallprompt` slightly LATER than Chrome, so a fast
-    // click can land before the event arrives. Wait up to 3s for it to fire
-    // before falling back to the manual guide.
+    // Edge captures `beforeinstallprompt` slightly later — wait up to 3s.
     if (!deferredPrompt && typeof window !== 'undefined') {
       deferredPrompt = await new Promise((resolve) => {
         let settled = false;
@@ -105,21 +103,18 @@ export function useInstallPrompt() {
     if (!deferredPrompt) return false;
 
     try {
-      deferredPrompt.prompt();     // Show Edge/Chrome install dialog
+      deferredPrompt.prompt();
       const result = await deferredPrompt.userChoice;
-      console.log(result.outcome); // "accepted" or "dismissed"
 
       if (result.outcome === 'accepted') {
-        // Consumed — the browser will relaunch the app in standalone mode, where
-        // isStandalone() becomes true. We don't manually flip installed state.
         deferredPrompt = null;
         window.kjbDeferredPrompt = null;
         setIsInstallable(false);
         return true;
       }
 
-      // User cancelled — keep the Install button (return 'cancelled'). Installed
-      // state stays false because the page is still a normal browser tab.
+      // Cancelled — keep the Install button. deferredPrompt stays set, so
+      // computeInstalled() still returns false.
       return 'cancelled';
     } catch (err) {
       console.error('Install prompt error:', err);
