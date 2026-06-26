@@ -55,11 +55,15 @@ if (typeof window !== 'undefined') {
     if (window.kjbDeferredPrompt) deferredPrompt = window.kjbDeferredPrompt;
     window.dispatchEvent(new Event('kjb-install-change'));
   });
-  // THE ONLY runtime input that marks the app installed.
+  // appinstalled fires on a real install — but Samsung Internet and some
+  // Chromium builds ALSO fire it the instant you CANCEL the dialog. Since any
+  // tab that was offered a prompt is provably not an installed PWA, we ignore
+  // appinstalled entirely once a prompt has been offered. It only marks the app
+  // installed in the (rare) case it fires without a prompt ever being seen.
   window.addEventListener('appinstalled', () => {
-    appInstalledFired = true;
     deferredPrompt = null;
     window.kjbDeferredPrompt = null;
+    if (!promptEverOffered) appInstalledFired = true;
     window.dispatchEvent(new Event('kjb-install-change'));
   });
 }
