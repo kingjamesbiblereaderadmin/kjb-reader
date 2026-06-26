@@ -30,50 +30,19 @@ const isBookmarkBrowser = () => {
   const mobile = /iphone|ipad|ipod|android/i.test(ua);
   return !mobile && (isFirefox || (isMac && isSafari));
 };
-// Frozen ONCE at module load. A genuinely installed PWA always launches in
-// standalone display mode from the very first paint, so reading this a single
-// time (not live) is enough to recognise a real install. Critically, freezing
-// it means the transient `display-mode: standalone` report that Samsung
-// Internet emits AFTER you CANCEL an install dialog can never be observed —
-// the value was captured before any dialog could open. Live re-reads were the
-// reason the button kept flipping to "Installed" on cancel.
-const LAUNCHED_STANDALONE = (() => {
-  if (typeof window === 'undefined') return false;
-  // The Base44 preview runs inside an iframe, which can falsely report
-  // standalone. A real installed PWA is never inside an iframe.
-  try { if (window.self !== window.top) return false; } catch { return false; }
-  if (window.navigator.standalone === true) return true;
-  let displayStandalone = false;
-  try { displayStandalone = window.matchMedia('(display-mode: standalone)').matches; } catch { displayStandalone = false; }
-  if (!displayStandalone) return false;
-  // Filter Samsung's false standalone-in-tab report: a real home-screen launch
-  // has no opener and an empty referrer. A navigated-to tab always has one.
-  try { if (window.opener || document.referrer) return false; } catch {}
-  return true;
-})();
-// A real installed PWA NEVER receives a beforeinstallprompt and never shows an
-// install dialog. So the moment a prompt has been offered this session, the app
-// is provably NOT installed — and any "standalone" report (Samsung Internet's
-// false standalone-in-tab, or its transient post-cancel report) must be vetoed.
-// `window.kjbPromptedThisSession` is set in index.html the instant a
-// beforeinstallprompt fires, and we also set it when the user taps Install.
-const promptWasOffered = () => {
-  try { return window.kjbPromptedThisSession === true; } catch { return false; }
-};
-const isInStandaloneMode = () => LAUNCHED_STANDALONE && !promptWasOffered();
-
-const DISMISSED_KEY = 'kjb-prompt-dismissed';
 
 const inIframe = () => {
   try { return window.self !== window.top; } catch (e) { return true; }
 };
+
+const DISMISSED_KEY = 'kjb-prompt-dismissed';
 
 export default function FirstLoadPrompt({ isInstallable, notifPermission, onInstall, onDismiss, onEnableNotif }) {
   const [dismissed, setDismissed] = useState(() => {
     try { return localStorage.getItem(DISMISSED_KEY) === 'true'; } catch { return false; }
   });
   const [showIOSHint, setShowIOSHint] = useState(false);
-  const [installDone, setInstallDone] = useState(isInStandaloneMode);
+  const [installDone, setInstallDone] = useState(false);
   const [notifDone, setNotifDone] = useState(() =>
     'Notification' in window && Notification.permission === 'granted'
   );
@@ -87,29 +56,60 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   });
   const [notifFailed, setNotifFailed] = useState(false);
   const [isIncognito, setIsIncognito] = useState(false);
-  // Set the instant the user taps Install. A real installed PWA never shows an
-  // install prompt, so once we've shown one this session any `appinstalled`
-  // event is untrustworthy — Samsung Internet fires a bogus one on Cancel.
+  const [checkedInstall, setCheckedInstall] = useState(false);
   const promptedRef = useRef(false);
 
   useEffect(() => {
     detectIncognito().then(setIsIncognito);
   }, []);
 
-  // Authoritative install check (Android Chromium incl. Samsung Internet):
-  // navigator.getInstalledRelatedApps() reports whether THIS PWA is installed,
-  // even from a normal browser tab — unaffected by Samsung's false standalone
-  // report. If it confirms an install, mark it done; if it runs and finds none,
-  // it never flips state (other browsers lack the API, so absence ≠ proof).
+  // Authoritative install detection via getInstalledRelatedApps() — works on
+  // Android Chromium (Chrome, Samsung Internet, Edge) and returns the actual
+  // installed PWAs matching the manifest. This is the ONLY signal we trust.
   useEffect(() => {
-    try {
-      if (navigator.getInstalledRelatedApps) {
-        navigator.getInstalledRelatedApps().then((apps) => {
-          if (apps && apps.length > 0) setInstallDone(true);
-        }).catch(() => {});
+    let cancelled = false;
+    const checkInstall = async () => {
+      // Already checked or in incognito (install impossible) — skip.
+      if (checkedInstall || isIncognito) return;
+      
+      // iOS lacks getInstalledRelatedApps — use standalone detection only.
+      if (isIOS()) {
+        try {
+          const isStandalone = window.navigator.standalone === true;
+          if (isStandalone && !cancelled) setInstallDone(true);
+        } catch {}
+        setCheckedInstall(true);
+        return;
       }
-    } catch {}
-  }, []);
+
+      // Android/desktop: use getInstalledRelatedApps() as authoritative signal.
+      if (navigator.getInstalledRelatedApps) {
+        try {
+          const apps = await navigator.getInstalledRelatedApps();
+          if (!cancelled && apps && apps.length > 0) {
+            setInstallDone(true);
+          }
+        } catch (e) {
+          console.warn('[FirstLoadPrompt] getInstalledRelatedApps failed:', e);
+        }
+      }
+      setCheckedInstall(true);
+    };
+    checkInstall();
+    return () => { cancelled = true; };
+  }, [checkedInstall, isIncognito]);
+
+  // Sync notif state on focus
+  useEffect(() => {
+    const checkNotif = () => {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        setNotifDone(true);
+      }
+    };
+    checkNotif();
+    window.addEventListener('focus', checkNotif);
+    return () => window.removeEventListener('focus', checkNotif);
+  }, [notifPermission]);
 
   const pickReaderFont = (value) => {
     try { localStorage.setItem('kjb-reader-font-family', value); } catch {}
@@ -127,34 +127,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
     window.dispatchEvent(new Event('kjb-fonts-changed'));
   };
 
-  useEffect(() => {
-    const checkNotif = () => {
-      if ('Notification' in window && Notification.permission === 'granted') {
-        setNotifDone(true);
-      }
-    };
-    checkNotif();
-    window.addEventListener('focus', checkNotif);
-    return () => {
-      window.removeEventListener('focus', checkNotif);
-    };
-  }, [notifPermission]);
-
-  useEffect(() => {
-    if (isInStandaloneMode()) setInstallDone(true);
-    const handler = () => {
-      // Ignore appinstalled once the user has tapped Install this session —
-      // Samsung Internet fires a false appinstalled (and a transient standalone
-      // report) when the dialog is CANCELLED, which would wrongly show "App
-      // Installed". A genuine install is reflected on the next standalone launch.
-      if (promptedRef.current) return;
-      if (isInStandaloneMode()) setInstallDone(true);
-    };
-    window.addEventListener('appinstalled', handler);
-    return () => window.removeEventListener('appinstalled', handler);
-  }, []);
-
-  const showInstall = !isIncognito && !isInStandaloneMode() && (isInstallable || isIOS() || isAndroid() || !isMobile());
+  const showInstall = !isIncognito && !installDone && (isInstallable || isIOS() || isAndroid() || !isMobile());
 
   const shouldShow = !dismissed;
 
@@ -168,15 +141,10 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
   };
 
   const handleInstallClick = async (e) => {
-    // Try the browser's native install prompt first. The deferred event may be
-    // captured globally (window.kjbDeferredPrompt) even when the isInstallable
-    // React state hasn't caught up yet, so check the global directly.
     const hasPrompt = isInstallable || (typeof window !== 'undefined' && !!window.kjbDeferredPrompt);
-    // Mark that we've shown a prompt this session — vetoes any later bogus
-    // appinstalled event AND any false standalone report (Samsung fires both on
-    // Cancel). The global flag is what isInStandaloneMode() checks.
     promptedRef.current = true;
     try { window.kjbPromptedThisSession = true; } catch {}
+    
     if (hasPrompt && onInstall) {
       try {
         const accepted = await onInstall();
@@ -184,14 +152,11 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
           setInstallDone(true);
           return;
         }
-        // User dismissed the native dialog — don't nag with the manual guide.
         return;
       } catch (err) {
         console.error('Install prompt failed:', err);
       }
     }
-    // No native prompt available (Samsung Internet, iOS, Firefox, etc.) — show
-    // the manual installation guide.
     setShowIOSHint(true);
   };
 
@@ -212,7 +177,6 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
 
   return (
     <>
-      {/* Backdrop — tap/click outside the card dismisses the prompt (and the blur) */}
       <div
         className="fixed inset-0 z-[99998] bg-black/50 backdrop-blur-md"
         onClick={handleClose}
@@ -411,7 +375,7 @@ export default function FirstLoadPrompt({ isInstallable, notifPermission, onInst
             </div>
           </div>
 
-          {/* Accessibility font — dyslexic & high-legibility options */}
+          {/* Accessibility font */}
           <div className="rounded-xl bg-primary/5 border-2 border-primary/20 p-2">
             <div className="flex items-center gap-1.5 mb-1.5 px-0.5">
               <Accessibility className="w-3.5 h-3.5 text-primary shrink-0" />
