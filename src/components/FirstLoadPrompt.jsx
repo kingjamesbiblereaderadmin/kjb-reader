@@ -24,6 +24,7 @@ const A11Y_FONTS = [
 const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
 const isMobile = () => /iphone|ipad|ipod|android/i.test(navigator.userAgent);
 const isAndroid = () => /android/i.test(navigator.userAgent);
+const isSamsung = () => /SamsungBrowser/i.test(navigator.userAgent);
 const isEdgeMobile = () => {
   if (typeof navigator === 'undefined') return false;
   const ua = navigator.userAgent;
@@ -97,6 +98,12 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
 
   useEffect(() => {
     detectIncognito().then(setIsIncognito);
+  }, []);
+
+  // Samsung Internet (older versions) doesn't fire beforeinstallprompt, so the native
+  // install button is a no-op. Show the manual guide up front for Samsung users.
+  useEffect(() => {
+    if (isSamsung() && !window.kjbDeferredPrompt) setShowIOSHint(true);
   }, []);
 
   // Detect standalone PWA mode on mount and when focus changes
@@ -320,6 +327,8 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
                           <>Please tap the <strong>Share</strong> icon in your browser menu, then select <strong>"Add to Home Screen"</strong>.</>
                         ) : isEdgeMobile() ? (
                           <>Tap the <strong>Menu (⋯)</strong> at the bottom or top, then select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</>
+                        ) : isSamsung() ? (
+                          <>Tap the <strong>Menu (≡)</strong> at the bottom, then select <strong>"Add page to"</strong> → <strong>"Home screen"</strong>.</>
                         ) : isMobile() ? (
                           <>Please open your browser's <strong>Menu (⋮ or ⋯)</strong> and select <strong>"Add to phone"</strong>, <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</>
                         ) : isEdgeDesktop() ? (

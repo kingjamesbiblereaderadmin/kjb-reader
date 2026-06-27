@@ -1,7 +1,7 @@
-// KJB Reader Service Worker v20260627_3600
+// KJB Reader Service Worker v20260627_3700
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260627_3600';
+const CACHE_NAME = 'kjb-reader-v20260627_3700';
 const LEGACY_CACHE_NAME = 'kjb-legacy-v9';
 
 // Core app shell resources to cache immediately
@@ -182,7 +182,7 @@ self.addEventListener('message', (event) => {
       event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
           return Promise.all(
-            urls.map(url => 
+            urls.map(url =>
               fetch(url)
                 .then(response => {
                   if (response.ok) {
@@ -196,4 +196,37 @@ self.addEventListener('message', (event) => {
       );
     }
   }
+});
+
+// Handle notification taps - focus an existing window (and navigate it) or open a
+// new one. Required on Android/Samsung where notifications are shown via the SW.
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  const data = event.notification.data || {};
+  const targetUrl = data.url || '/';
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // Reuse an open window if one exists - focus it and navigate to the verse.
+      for (const client of clientList) {
+        if ('focus' in client) {
+          const focused = client.focus();
+          if ('navigate' in client) {
+            try {
+              client.navigate(targetUrl);
+            } catch (err) {
+              console.warn('[SW] notificationclick navigate failed:', err);
+            }
+          }
+          return focused;
+        }
+      }
+      // No window open - open a new one.
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(targetUrl);
+      }
+      return undefined;
+    })
+  );
 });

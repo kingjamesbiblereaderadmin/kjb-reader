@@ -131,11 +131,21 @@
           window.dispatchEvent(new Event('pwa-installable'));
         });
         
-        // Also listen for appinstalled to clear state
+        // Also listen for appinstalled to clear state and persist installed status
         window.addEventListener('appinstalled', function() {
           console.log('[index.html] appinstalled event fired');
           window.kjbDeferredPrompt = null;
           window.kjbPromptFired = false;
+          try {
+            localStorage.setItem('kjb-is-installed', 'true');
+            // Don't re-nag the install/welcome prompt after a successful install
+            localStorage.setItem('kjb-prompt-dismissed', 'true');
+            localStorage.setItem('kjb-install-dismissed', 'true');
+          } catch (e) {}
+          // Let the open browser tab (useInstallPrompt / FirstLoadPrompt /
+          // InstallAppSection) flip to the "Installed" state immediately.
+          window.dispatchEvent(new Event('storage'));
+          window.dispatchEvent(new Event('kjb-install-change'));
         });
       })();
     </script>

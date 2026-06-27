@@ -144,8 +144,14 @@ export async function showLocalNotification(title, body, imageUrl = null, target
   // Try service worker first (works on Android, PWA, all platforms)
   if ('serviceWorker' in navigator) {
     try {
-      console.log('[Notif] Checking for active service worker...');
-      const reg = await navigator.serviceWorker.getRegistration();
+      console.log('[Notif] Waiting for active service worker...');
+      // Await serviceWorker.ready so the immediate "Reminders On"/test notification
+      // doesn't fail when the SW is still installing. Race a timeout so we never hang
+      // if registration failed entirely, then fall through to the standard API.
+      const reg = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise((resolve) => setTimeout(() => resolve(null), 3000)),
+      ]) || await navigator.serviceWorker.getRegistration();
       if (reg && reg.active) {
         console.log('[Notif] Service worker ready:', reg);
         console.log('[Notif] SW registration scope:', reg.scope);

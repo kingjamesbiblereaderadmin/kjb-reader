@@ -18,7 +18,7 @@ const isBookmarkBrowser = () => {
 };
 
 export default function InstallAppSection({ expanded, isIncognito }) {
-  const { isInstallable, isInstalled: hookIsInstalled, promptInstall } = useInstallPrompt();
+  const { isInstallable, isInstalled: hookIsInstalled, isSamsung, promptInstall } = useInstallPrompt();
   const [isInstalled, setIsInstalled] = useState(false);
   const [showInstallHint, setShowInstallHint] = useState(false);
   const [bookmarkBrowser] = useState(isBookmarkBrowser);
@@ -27,6 +27,12 @@ export default function InstallAppSection({ expanded, isIncognito }) {
   useEffect(() => {
     detectIncognito().then(setLocalIncognito);
   }, []);
+
+  // Samsung Internet (older versions) doesn't fire beforeinstallprompt, so the native
+  // button is a no-op. Show the manual "Add page to → Home screen" guide up front.
+  useEffect(() => {
+    if (isSamsung && !isInstallable) setShowInstallHint(true);
+  }, [isSamsung, isInstallable]);
 
   useEffect(() => {
     try { 

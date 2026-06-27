@@ -84,13 +84,39 @@ export function useInstallPrompt() {
     setIsInstalled(installed);
     setIsLoading(false);
     setIsSamsung(isSamsungInternet());
-    
+
     const handleStorage = () => {
       setIsInstalled(checkInstalled());
     };
-    
+
+    // beforeinstallprompt can fire seconds after load (Chrome engagement heuristic).
+    // index.html captures it into window.kjbDeferredPrompt and dispatches these events,
+    // so re-evaluate installability when they arrive instead of staying stale.
+    const handleInstallChange = () => {
+      deferredPrompt = (typeof window !== 'undefined' && window.kjbDeferredPrompt) || deferredPrompt;
+      setIsInstallable(!!deferredPrompt || isPwaInstallable());
+      setIsInstalled(checkInstalled());
+    };
+
+    // When the user accepts the install, flip to installed immediately in this tab.
+    const handleAppInstalled = () => {
+      deferredPrompt = null;
+      try { window.kjbDeferredPrompt = null; } catch {}
+      try { localStorage.setItem(INSTALLED_KEY, 'true'); } catch {}
+      setIsInstallable(false);
+      setIsInstalled(true);
+    };
+
     window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
+    window.addEventListener('kjb-install-change', handleInstallChange);
+    window.addEventListener('pwa-installable', handleInstallChange);
+    window.addEventListener('appinstalled', handleAppInstalled);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('kjb-install-change', handleInstallChange);
+      window.removeEventListener('pwa-installable', handleInstallChange);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
   }, []);
 
   const promptInstall = async () => {
