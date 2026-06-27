@@ -483,7 +483,7 @@ export default function SettingsPage() {
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.text ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.text && (
-        <div className="px-5 pb-6 pt-3 space-y-4">
+        <div className="px-5 pb-6 pt-2 space-y-3">
         
         {/* Zoom Level */}
         <div className="pt-2 space-y-3">
@@ -589,7 +589,7 @@ export default function SettingsPage() {
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.accessibility ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.accessibility && (
-        <div className="px-5 pb-6 pt-3 space-y-4">
+        <div className="px-5 pb-6 pt-2 space-y-3">
           <div className="flex items-center gap-2">
             <Accessibility className="w-4 h-4 text-muted-foreground" />
             <p className="font-sans text-sm text-foreground font-medium">Accessibility Font</p>
@@ -672,7 +672,7 @@ export default function SettingsPage() {
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.appearance ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.appearance && (
-        <div className="px-5 pb-6 pt-3 space-y-4">
+        <div className="px-5 pb-6 pt-2 space-y-3">
         
         {/* Theme Mode */}
         <div className="space-y-3">
@@ -987,7 +987,7 @@ export default function SettingsPage() {
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.install ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.install && (
-        <div className="px-5 pb-6 pt-3 space-y-3">
+        <div className="px-5 pb-6 pt-2 space-y-2">
         {isIncognito && (
           <div className="rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 p-3">
             <p className="font-sans text-xs text-amber-700 dark:text-amber-400 font-medium leading-snug flex items-start gap-1.5">
@@ -1126,7 +1126,7 @@ export default function SettingsPage() {
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.notifications ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.notifications && (
-        <div className="px-5 pb-6 pt-3 space-y-4">
+        <div className="px-5 pb-6 pt-2 space-y-3">
         {isIncognito && (
           <div className="rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 p-3">
             <p className="font-sans text-xs text-amber-700 dark:text-amber-400 font-medium leading-snug flex items-start gap-1.5">
@@ -1220,7 +1220,7 @@ export default function SettingsPage() {
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.offline ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.offline && (
-          <div className="px-5 pb-8 pt-5">
+          <div className="px-5 pb-6 pt-2">
             {isIncognito || inIframe() ? (
               <div className="rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 p-4">
                 <p className="font-sans text-sm text-amber-700 dark:text-amber-400 font-medium leading-relaxed flex items-start gap-2">
@@ -1470,7 +1470,7 @@ export default function SettingsPage() {
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.info ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.info && (
-          <div className="px-5 pb-6 pt-3 space-y-3">
+          <div className="px-5 pb-6 pt-2 space-y-2">
             <div className="p-3 mb-4 rounded-xl bg-secondary/50 border border-border">
               <div className="flex items-start gap-2 text-primary">
                 <Shield className="w-4 h-4 shrink-0 mt-0.5" />
@@ -1574,7 +1574,7 @@ export default function SettingsPage() {
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.credits ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.credits && (
-        <div className="px-5 pb-6 pt-3 space-y-3">
+        <div className="px-5 pb-6 pt-2 space-y-2">
           <div className="space-y-2 font-sans text-xs text-muted-foreground">
         <p>• <strong className="text-foreground">App Platform:</strong> Built with <a href="https://base44.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Base44</a></p>
         <p>• <strong className="text-foreground">Bible Text:</strong> King James Bible: Pure Cambridge Edition: Wharton Text Format</p>
@@ -1604,7 +1604,7 @@ export default function SettingsPage() {
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.advanced ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.advanced && (
-          <div className="px-5 pb-6 pt-3 space-y-4">
+          <div className="px-5 pb-6 pt-2 space-y-3">
             <div className="space-y-2 mb-4 pt-1 border-b border-border pb-4">
               <div className="flex justify-between items-center font-sans text-sm gap-4">
                 <span className="text-muted-foreground shrink-0">Worker Version</span>
@@ -1666,7 +1666,7 @@ export default function SettingsPage() {
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.contact ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.contact && (
-          <div className="px-5 pb-6 pt-3 space-y-2">
+          <div className="px-5 pb-6 pt-2 space-y-2">
             <button
               onClick={() => navigate('/privacy')}
               className="w-full flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group text-left"
