@@ -100,10 +100,11 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
     detectIncognito().then(setIsIncognito);
   }, []);
 
-  // Samsung Internet (older versions) doesn't fire beforeinstallprompt, so the native
-  // install button is a no-op. Show the manual guide up front for Samsung users.
+  // Samsung Internet and Edge Desktop don't fire beforeinstallprompt reliably, so show
+  // the manual guide up front for these users.
   useEffect(() => {
     if (isSamsung() && !window.kjbDeferredPrompt) setShowIOSHint(true);
+    if (isEdgeDesktop()) setShowIOSHint(true);
   }, []);
 
   // Detect standalone PWA mode on mount and when focus changes
@@ -193,7 +194,14 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
     
     console.log('[FirstLoadPrompt] Install clicked | deferredPrompt:', !!window.kjbDeferredPrompt, '| isInstallable:', isInstallable);
     
-    // Always try native prompt first (Edge desktop/mobile, Chrome, Samsung)
+    // Edge desktop: always show manual guide (native prompt unreliable)
+    if (isEdgeDesktop()) {
+      setPromptCancelled(true);
+      setShowIOSHint(true);
+      return;
+    }
+    
+    // Always try native prompt first (Edge mobile, Chrome, Samsung)
     if (onInstall) {
       try {
         const accepted = await onInstall();
