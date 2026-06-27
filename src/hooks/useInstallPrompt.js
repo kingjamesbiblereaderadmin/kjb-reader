@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react';
 
 const DISMISSED_KEY = 'kjb-install-dismissed';
 const INSTALLED_KEY = 'kjb-is-installed';
-const INSTALLED_TIMESTAMP_KEY = 'kjb-installed-timestamp';
-const STALE_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes - PWA must open regularly to keep flag alive
 
 // Authoritative install detection.
 // Primary: display-mode media queries (most reliable cross-browser).
@@ -60,35 +58,28 @@ const checkInstalledAsync = async () => {
     }
   }
   
-  // PWA window: set flag + timestamp
+  // PWA window: set flag
   if (isInstalled) {
     try {
       localStorage.setItem(INSTALLED_KEY, 'true');
-      localStorage.setItem(INSTALLED_TIMESTAMP_KEY, Date.now().toString());
-      console.log('[InstallCheck] ✓ PWA installed, set flag + timestamp');
+      console.log('[InstallCheck] ✓ PWA installed, set flag');
       return true;
     } catch {}
   }
   
-  // Browser tab: check flag + timestamp + service worker registration
-  // After uninstall, PWA stops opening → timestamp expires → flag cleared
+  // Browser tab: check flag + verify service worker is still registered
+  // After uninstall, Chrome often deactivates/removes the SW registration
   try {
     const stored = localStorage.getItem(INSTALLED_KEY);
-    const timestamp = localStorage.getItem(INSTALLED_TIMESTAMP_KEY);
-    
-    if (stored === 'true' && timestamp) {
-      const age = Date.now() - parseInt(timestamp, 10);
-      const ageMin = Math.round(age / 1000 / 60);
-      
-      if (age < STALE_THRESHOLD_MS) {
-        console.log('[InstallCheck] ✓ Flag fresh (' + ageMin + 'min) → installed');
+    if (stored === 'true' && 'serviceWorker' in navigator) {
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg && (reg.active || reg.waiting || reg.installing)) {
+        console.log('[InstallCheck] ✓ Flag + SW registered → installed');
         return true;
       }
-      
-      // Stale flag - PWA hasn't opened in 5+ min, assume uninstalled
-      console.log('[InstallCheck] ✗ Flag stale (' + ageMin + 'min) → cleared (assume uninstalled)');
+      // SW not registered - likely uninstalled
+      console.log('[InstallCheck] ✗ No SW registration → cleared (uninstalled)');
       localStorage.removeItem(INSTALLED_KEY);
-      localStorage.removeItem(INSTALLED_TIMESTAMP_KEY);
     }
   } catch {}
   
