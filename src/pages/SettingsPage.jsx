@@ -1434,6 +1434,14 @@ export default function SettingsPage() {
         </button>
         {expandedSections.advanced && (
           <div className="px-5 pb-6 pt-2 space-y-3">
+            {/* PWA Debug Panel */}
+            <div className="rounded-xl bg-secondary/30 border border-border p-3 font-sans text-xs">
+              <p className="font-medium text-foreground mb-2">PWA Install Status:</p>
+              <p className="text-muted-foreground">display-mode standalone: <span className={typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches ? 'text-green-600' : 'text-red-500'}>{typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches ? 'true' : 'false'}</span></p>
+              <p className="text-muted-foreground">localStorage kjb-is-installed: <span className="text-amber-600">{typeof window !== 'undefined' ? localStorage.getItem('kjb-is-installed') : 'N/A'}</span></p>
+              <p className="text-muted-foreground">getInstalledRelatedApps: <span className="text-amber-600">{typeof navigator !== 'undefined' && navigator.getInstalledRelatedApps ? 'available' : 'unavailable'}</span></p>
+              <p className="text-muted-foreground mt-2">Check browser console for [InstallCheck] and [useInstallPrompt] logs</p>
+            </div>
             <div className="space-y-2 mb-4 pt-1 border-b border-border pb-4">
               <div className="flex justify-between items-center font-sans text-sm gap-4">
                 <span className="text-muted-foreground shrink-0">Worker Version</span>
