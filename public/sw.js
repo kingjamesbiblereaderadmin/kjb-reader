@@ -1,7 +1,7 @@
-// KJB Reader Service Worker v20260627_4500
+// KJB Reader Service Worker v20260627_4600
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260627_4500';
+const CACHE_NAME = 'kjb-reader-v20260627_4600';
 const LEGACY_CACHE_NAME = 'kjb-legacy-v9';
 
 // Core app shell resources to cache immediately
@@ -86,8 +86,10 @@ self.addEventListener('fetch', (event) => {
               });
               if (shell) return shell;
               return new Response(
-                '<!DOCTYPE html><html><body style="font-family:Arial;padding:20px;">' +
-                '<h1>Legacy Reader</h1><p>This page needs to be opened online once before it can be read offline.</p>' +
+                '' +
+                '<!DOCTYPE html><html><head><title>Legacy Reader</title></head><body>' +
+                '<h1>Legacy Reader</h1>' +
+                '<p>This page needs to be opened online once before it can be read offline.</p>' +
                 '</body></html>',
                 { headers: { 'Content-Type': 'text/html' } }
               );
@@ -125,12 +127,12 @@ self.addEventListener('fetch', (event) => {
   }
 
   // DEV MODE: Skip service worker caching for development
-  if (url.pathname.includes('/@vite') || 
-      url.pathname.includes('/@react-refresh') ||
-      url.pathname.includes('/node_modules/.vite') ||
-      url.pathname.startsWith('/src/') ||
-      url.pathname.endsWith('.jsx') ||
-      url.pathname.endsWith('.js') && url.pathname.includes('chunk-')) {
+  if (url.pathname.includes('/@vite') ||
+    url.pathname.includes('/@react-refresh') ||
+    url.pathname.includes('/node_modules/.vite') ||
+    url.pathname.startsWith('/src/') ||
+    url.pathname.endsWith('.jsx') ||
+    url.pathname.endsWith('.js') && url.pathname.includes('chunk-')) {
     return;
   }
 
@@ -141,7 +143,7 @@ self.addEventListener('fetch', (event) => {
         console.log('[SW] Serving from cache:', request.url);
         return cachedResponse;
       }
-      
+
       return fetch(request).then((response) => {
         if (!response.ok) {
           console.log('[SW] Network response not ok:', response.status);
@@ -149,7 +151,7 @@ self.addEventListener('fetch', (event) => {
         }
 
         const responseToCache = response.clone();
-        
+
         caches.open(CACHE_NAME).then((cache) => {
           cache.put(request, responseToCache);
         });
@@ -157,11 +159,11 @@ self.addEventListener('fetch', (event) => {
         return response;
       }).catch((error) => {
         console.log('[SW] Fetch failed, showing offline page:', error);
-        
+
         if (request.mode === 'navigate') {
           return caches.match('/offline.html');
         }
-        
+
         return new Response('Offline', { status: 503 });
       });
     })
@@ -174,7 +176,7 @@ self.addEventListener('message', (event) => {
     console.log('[SW] Skipping waiting, activating now');
     self.skipWaiting();
   }
-  
+
   if (event.data && event.data.type === 'PREWARM_ASSETS') {
     const urls = event.data.urls || [];
     if (urls.length > 0) {
