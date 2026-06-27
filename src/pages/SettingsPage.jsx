@@ -1077,9 +1077,9 @@ export default function SettingsPage() {
                 )}
 
                 {downloading && (
-                  <div className="w-full bg-secondary rounded-full h-2">
+                  <div className="w-full bg-secondary/70 rounded-full h-2 overflow-hidden">
                     <div
-                      className="bg-primary h-2 rounded-full transition-all duration-300"
+                      className="bg-gradient-to-r from-primary to-accent h-2 rounded-full transition-all duration-300"
                       style={{ width: `${dlProgress}%` }}
                     />
                   </div>
@@ -1209,9 +1209,9 @@ export default function SettingsPage() {
                 </button>
                 {downloading && (
                   <div className="space-y-2">
-                    <div className="w-full bg-secondary rounded-full h-2">
+                    <div className="w-full bg-secondary/70 rounded-full h-2 overflow-hidden">
                       <div
-                        className="bg-primary h-2 rounded-full transition-all duration-300"
+                        className="bg-gradient-to-r from-primary to-accent h-2 rounded-full transition-all duration-300"
                         style={{ width: `${dlProgress}%` }}
                       />
                     </div>
