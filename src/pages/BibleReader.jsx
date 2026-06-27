@@ -925,19 +925,19 @@ export default function BibleReader() {
     const section = r.section || null;
     const targetVerse = section ? null : (r.verse || null);
     setHighlightSection(section);
-    // Always use filter mode for search results to show the full toolbar (copy, share, print, full chapter)
+    // Preserve the current view mode (filter vs full chapter) when stepping through results
     const useFilter = resultViewRef.current !== 'full';
     if (!section && r.verse && r.verseEnd && parseInt(r.verseEnd, 10) > parseInt(r.verse, 10)) {
       const start = parseInt(r.verse, 10); const end = parseInt(r.verseEnd, 10);
       const range = new Set(); for (let v = start; v <= end; v++) range.add(v);
-      rangeHighlightRef.current = true; setHighlightedVerses(range); setSelectedVerses(range); setFilterMode(true);
+      rangeHighlightRef.current = true; setHighlightedVerses(range); setSelectedVerses(range); setFilterMode(useFilter);
       try {
         const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: start, verseEnd: end }));
       } catch {}
     } else if (!section && targetVerse) {
       const parsedTarget = parseInt(targetVerse, 10); const single = new Set([parsedTarget]);
-      rangeHighlightRef.current = true; setHighlightedVerses(single); setSelectedVerses(single); setFilterMode(true);
+      rangeHighlightRef.current = true; setHighlightedVerses(single); setSelectedVerses(single); setFilterMode(useFilter);
       try {
         const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: parsedTarget, verseEnd: null }));
@@ -1385,7 +1385,7 @@ export default function BibleReader() {
 
           {(selectMode || (filterMode && selectedVerses.size > 0) || (searchTerm && highlightVerse) || (gospelMode && highlightVerse)) && (
             <SelectActionBar
-              selectedCount={selectedVerses.size || (highlightVerse ? 1 : 0)} totalVerses={verses.length} copyFeedback={copyFeedback} shareFeedback={shareFeedback} shareLinkFeedback={shareLinkFeedback}
+              selectedCount={selectedVerses.size || (highlightVerse && filterMode ? 1 : 0)} totalVerses={verses.length} copyFeedback={copyFeedback} shareFeedback={shareFeedback} shareLinkFeedback={shareLinkFeedback}
               onSelectAll={selectAllVerses} onCancel={() => {
                 if (searchTerm) { clearSearchContext(); return; }
                 if (gospelMode) { clearGospelNav(); setGospelMode(false); setHighlightVerse(null); return; }
