@@ -206,19 +206,29 @@ export function useInstallPrompt() {
       installPollInterval = setInterval(() => {
         const stored = localStorage.getItem(INSTALLED_KEY);
         const shouldBeInstalled = stored === 'true';
-        console.log('[useInstallPrompt] Poll | localStorage:', stored, '| current state:', isInstalled, '| should be:', shouldBeInstalled);
-        if (shouldBeInstalled !== isInstalled) {
-          console.log('[useInstallPrompt] Poll → detected change, updating state');
-          setIsInstalled(shouldBeInstalled);
+        console.log('[useInstallPrompt] Poll | localStorage:', stored, '| checking if should update...');
+        if (shouldBeInstalled) {
+          console.log('[useInstallPrompt] Poll → Setting installed=true');
+          setIsInstalled(true);
           window.dispatchEvent(new Event('kjb-install-change'));
         }
       }, 2000);
     };
     
+    // Listen for storage events (when PWA writes to localStorage)
+    const handleStorageEvent = (e) => {
+      if (e.key === 'kjb-is-installed' || e.key === 'kjb-install-timestamp') {
+        console.log('[useInstallPrompt] Storage event | key:', e.key, '| newValue:', e.newValue);
+        if (e.newValue === 'true') {
+          setIsInstalled(true);
+        }
+      }
+    };
+    
     // Listen for events that might indicate install state change
     window.addEventListener('kjb-install-change', sync);
     window.addEventListener('focus', sync);
-    window.addEventListener('storage', sync);
+    window.addEventListener('storage', handleStorageEvent);
     window.addEventListener('visibilitychange', sync);
     // Check on mount
     console.log('[useInstallPrompt] Initial sync on mount');
@@ -228,7 +238,7 @@ export function useInstallPrompt() {
       cancelled = true;
       window.removeEventListener('kjb-install-change', sync);
       window.removeEventListener('focus', sync);
-      window.removeEventListener('storage', sync);
+      window.removeEventListener('storage', handleStorageEvent);
       if (installPollInterval) clearInterval(installPollInterval);
     };
   }, []);
