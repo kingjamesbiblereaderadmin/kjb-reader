@@ -1,11 +1,23 @@
 import { useRef } from 'react';
-import { savePosition } from '@/lib/bibleCache';
 
 export function useReaderNavigation(pos, loadChapter, routerNavigate, routerLocation) {
   const preSearchPosRef = useRef(null);
   const rangeHighlightRef = useRef(false);
   const resultViewRef = useRef('filter');
   const freshNavRef = useRef(false);
+
+  const savePosition = (abbr, chapter, verse = null) => {
+    try {
+      let verseEnd = null;
+      try {
+        const prev = JSON.parse(localStorage.getItem('kjb-position') || '{}');
+        if (prev.abbr === abbr && prev.chapter === chapter && prev.verse === verse && prev.verseEnd) {
+          verseEnd = prev.verseEnd;
+        }
+      } catch {}
+      localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse, verseEnd }));
+    } catch {}
+  };
 
   const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isAutoAdvance = false, section = null, preserveSearchContext = false, clearSearchNav, setGospelMode, clearGospelNav) => {
     if (newChapter === 0 && newAbbr !== 'GEN' && newAbbr !== 'MAT') return;
