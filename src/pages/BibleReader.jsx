@@ -1388,18 +1388,22 @@ export default function BibleReader() {
                       try { localStorage.removeItem('kjb-last-reading'); } catch {}
                       // Return to the chapter you were reading before daily/random
                       returnToChapter(abbr, chapter, typeof lastReadingPos.scrollY === 'number' ? lastReadingPos.scrollY : undefined);
-                    } else if (filterMode && selectedVerses.size > 0) {
-                      // Clear filter and return to previous reading session
+                    } else {
+                      // Clear filter/highlight and return to previous reading session
                       setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
                       setHighlightVerse(null); setShowFilterOverlay(false);
-                      // Return to previous reading session if available
-                      if (prevReadingSession && prevReadingSession.abbr && prevReadingSession.chapter) {
-                        returnToChapter(prevReadingSession.abbr, prevReadingSession.chapter, prevReadingSession.scrollY);
-                      }
-                    } else {
-                      // Clear highlight and return to previous reading session
-                      setHighlightVerse(null); setFilterMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false);
-                      // Return to previous reading session if available
+                      // Read directly from localStorage to get the freshest value
+                      try {
+                        const prevSaved = localStorage.getItem('kjb-prev-reading-session');
+                        if (prevSaved) {
+                          const prev = JSON.parse(prevSaved);
+                          if (prev && prev.abbr && prev.chapter) {
+                            returnToChapter(prev.abbr, prev.chapter, prev.scrollY);
+                            return;
+                          }
+                        }
+                      } catch {}
+                      // Fallback to state if localStorage fails
                       if (prevReadingSession && prevReadingSession.abbr && prevReadingSession.chapter) {
                         returnToChapter(prevReadingSession.abbr, prevReadingSession.chapter, prevReadingSession.scrollY);
                       }
