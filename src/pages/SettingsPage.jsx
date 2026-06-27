@@ -13,7 +13,7 @@ import DownloadBibleSection from '@/components/bible/DownloadBibleSection';
 import OfflineHtmlSection from '@/components/bible/OfflineHtmlSection';
 import ThemeColorPicker from '@/components/bible/ThemeColorPicker';
 import { Switch } from '@/components/ui/switch';
-import { useInstallPrompt } from '@/hooks/useInstallPrompt';
+import InstallAppSection from '@/components/settings/InstallAppSection';
 import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
 import { useTheme, COLOUR_PALETTES } from '@/lib/themeContext';
@@ -67,7 +67,6 @@ export default function SettingsPage() {
   const [deleteInput, setDeleteInput] = useState('');
   const [deleting, setDeleting] = useState(false);
   const [a11yFont, setA11yFont] = useState(getAccessibilityFont);
-  const [showInstallHint, setShowInstallHint] = useState(false);
   const [bookmarkBrowser] = useState(isBookmarkBrowser);
   const [isIncognito, setIsIncognito] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
@@ -193,48 +192,6 @@ export default function SettingsPage() {
   const isNotifReallyOn = () => getNotificationsEnabled() && ('Notification' in window) && Notification.permission === 'granted';
   const [notifEnabled, setNotifEnabled] = useState(isNotifReallyOn);
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);
-
-  const { isInstallable, isInstalled: hookIsInstalled, promptInstall, isSamsung } = useInstallPrompt();
-  // Double-check installed state using display-mode media query + localStorage flag
-  const [isInstalled, setIsInstalled] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    // Exclude iframe contexts to prevent false positives
-    try { if (window.self !== window.top) return false; } catch (e) { return false; }
-    // Check localStorage flag first (persists across PWA/browser windows)
-    try {
-      const stored = localStorage.getItem('kjb-is-installed');
-      if (stored === 'true') return true;
-    } catch {}
-    // Then check runtime signals
-    return hookIsInstalled || 
-           window.matchMedia('(display-mode: standalone)').matches ||
-           window.matchMedia('(display-mode: minimal-ui)').matches ||
-           window.matchMedia('(display-mode: window-controls-overlay)').matches ||
-           (navigator.standalone === true);
-  });
-  
-  // Re-check on focus and storage changes (user may have just installed the app)
-  useEffect(() => {
-    const checkInstalled = () => {
-      // Exclude iframe contexts to prevent false positives
-      try { if (window.self !== window.top) return; } catch (e) { return; }
-      const installed = hookIsInstalled || 
-                        window.matchMedia('(display-mode: standalone)').matches ||
-                        window.matchMedia('(display-mode: minimal-ui)').matches ||
-                        window.matchMedia('(display-mode: window-controls-overlay)').matches ||
-                        (navigator.standalone === true);
-      setIsInstalled(installed);
-    };
-    checkInstalled();
-    window.addEventListener('focus', checkInstalled);
-    window.addEventListener('pwa-installed', checkInstalled);
-    window.addEventListener('storage', checkInstalled);
-    return () => {
-      window.removeEventListener('focus', checkInstalled);
-      window.removeEventListener('pwa-installed', checkInstalled);
-      window.removeEventListener('storage', checkInstalled);
-    };
-  }, [hookIsInstalled]);
   const [cached, setCached] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [dlProgress, setDlProgress] = useState(0);
@@ -981,142 +938,8 @@ export default function SettingsPage() {
         )}
       </div>
 
-      {/* Install App — hidden in private/incognito windows where install won't work */}
-      {!isIncognito && (
-      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
-        <button
-          onClick={() => toggleSection('install')}
-          className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
-        >
-          <div className="flex flex-col gap-1">
-            <h2 className="font-serif text-lg font-semibold text-foreground">Install App</h2>
-            <p className="font-sans text-xs text-muted-foreground">Add to home screen for offline access</p>
-          </div>
-          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.install ? 'rotate-180' : ''}`} />
-        </button>
-        {expandedSections.install && (
-        <div className="px-5 pb-6 pt-2 space-y-2">
-        {isIncognito && (
-          <div className="rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 p-3">
-            <p className="font-sans text-xs text-amber-700 dark:text-amber-400 font-medium leading-snug flex items-start gap-1.5">
-              <span className="shrink-0 leading-none mt-0.5">⚠️</span>
-              <span>You're in a private window (Incognito, InPrivate, or Guest) — installing the app won't work here. Open the app in a normal window to install it.</span>
-            </p>
-          </div>
-        )}
-        <p className="font-sans text-sm text-muted-foreground leading-relaxed">
-          Add the KJB Reader to your home screen for quick access and offline reading.
-        </p>
-        {isInstalled ? (
-          <div className="space-y-3">
-            <div className="rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-900/40 p-4">
-              <div className="flex items-center gap-3">
-                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                  <CheckCircle2 className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-sans text-sm font-bold text-emerald-800 dark:text-emerald-300">✓ Installed as an app!</p>
-                </div>
-              </div>
-            </div>
-            <button
-              onClick={() => {
-                try { localStorage.removeItem('kjb-is-installed'); } catch {}
-                window.dispatchEvent(new Event('pwa-installed'));
-                window.location.reload();
-              }}
-              className="font-sans text-xs text-muted-foreground underline hover:text-accent transition-colors"
-            >
-              Already uninstalled it? Click here to reset
-            </button>
-          </div>
-        ) : inIframe() ? (
-          <div className="space-y-3">
-            <div className="rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 p-4">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <h3 className="font-sans text-sm font-bold text-amber-800 dark:text-amber-300 mb-1">Preview Mode Detected</h3>
-                  <p className="font-sans text-xs text-amber-700 dark:text-amber-400 leading-relaxed mb-3">
-                    You're viewing this inside a preview window. PWA installation is blocked in iframes. Open the app in a new tab to install it.
-                  </p>
-                  <a
-                    href="https://kingjamesbiblereader.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    Open kingjamesbiblereader.com
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <button
-              onClick={() => {
-                const ua = navigator.userAgent;
-                console.log('[Settings] Install clicked | UA:', ua.substring(0, 100));
-                console.log('[Settings] isInstallable:', isInstallable, '| window.kjbDeferredPrompt:', !!window.kjbDeferredPrompt);
-                // Try native prompt first (Android Chrome/Edge/Samsung). If not available or cancelled, show manual guide.
-                promptInstall().then((result) => {
-                  console.log('[Settings] promptInstall result:', result, '| isIOS:', /iphone|ipad|ipod/i.test(ua));
-                  // Only show manual guide if native prompt wasn't available OR user cancelled
-                  const isIOS = /iphone|ipad|ipod/i.test(ua);
-                  const isFirefox = /firefox/i.test(ua);
-                  const isMacSafari = !/chrome|android|crios|edg/i.test(ua) && /safari/i.test(ua) && /Macintosh|Mac OS X/i.test(ua);
-                  if (isIOS || isFirefox || isMacSafari || result === false) {
-                    setShowInstallHint(true);
-                  }
-                }).catch((err) => {
-                  console.error('[Settings] Install prompt failed:', err);
-                  setShowInstallHint(true);
-                });
-              }}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <Smartphone className="w-4 h-4" />
-              Add to Home Screen
-            </button>
-            
-            {showInstallHint && (
-              <div className="space-y-2 bg-secondary/50 rounded-xl p-4 mt-3">
-                {!isInstallable && (
-                  <div className="mb-3 pb-3 border-b border-border/50">
-                    {inIframe() ? (
-                      <p className="font-sans text-xs text-blue-600 dark:text-blue-400 font-medium flex items-start gap-1.5 leading-snug">
-                        <AlertCircle className="w-4 h-4 shrink-0 -mt-0.5" />
-                        <span>You are viewing this inside a preview window, where browsers block PWA installation. Please open the app in a new tab to install it!</span>
-                      </p>
-                    ) : (
-                      <p className="font-sans text-xs text-amber-600 dark:text-amber-400 font-medium flex items-start gap-1.5 leading-snug">
-                        <AlertCircle className="w-4 h-4 shrink-0 -mt-0.5" />
-                        <span>Your browser may not fully support automatic app installation. Try the manual steps below, or use Chrome for the best experience.</span>
-                      </p>
-                    )}
-                  </div>
-                )}
-                <p className="font-sans text-xs text-foreground mb-2">
-                  <strong>Manual Installation Guide:</strong>
-                </p>
-                <div className="font-sans text-xs text-muted-foreground space-y-1.5">
-                  <p>• <strong>Apple iOS:</strong> Tap the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Share</span> button in Safari, then select <span className="text-foreground font-medium">"Add to Home Screen"</span>.</p>
-                  <p>• <strong>Android / Chrome:</strong> Open the browser menu <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">(⋮ or ⋯)</span>, then select <span className="text-foreground font-medium">"Add to phone"</span>, <span className="text-foreground font-medium">"Install app"</span> or <span className="text-foreground font-medium">"Add to Home screen"</span>.</p>
-                  <p>• <strong>Samsung Internet:</strong> Samsung's browser doesn't support automatic install. Tap the menu <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">(≡)</span> → <span className="text-foreground font-medium">"Add page to"</span> → <span className="text-foreground font-medium">"Home screen"</span>.</p>
-                  <p>• <strong>Edge:</strong> Menu <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">(⋯)</span> → <span className="text-foreground font-medium">Apps</span> → <span className="text-foreground font-medium">"Install this site as an app"</span>. Choose <span className="text-foreground font-medium">App</span> (not Shortcut) for the full app experience.</p>
-                  <p>• <strong>Desktop:</strong> Click the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Install</span> icon located in your browser's address bar, or check the main menu.</p>
-                  <p>• <strong>Firefox & Safari (Mac):</strong> These browsers don't support installing apps — instead, press <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">⌘ D</span> (or use the menu) to <span className="text-foreground font-medium">Add to Favourites / Bookmarks</span> for quick access.</p>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-        </div>
-        )}
-      </div>
-      )}
+      {/* Install App */}
+      <InstallAppSection expanded={expandedSections.install} isIncognito={isIncognito} />
 
       {/* Notifications — hidden in private/incognito windows where they won't persist */}
       {!isIncognito && (
@@ -1537,17 +1360,18 @@ export default function SettingsPage() {
               <div className="flex justify-between items-center font-sans text-sm gap-4">
                 <span className="text-muted-foreground shrink-0">PWA Status</span>
                 <span className="text-foreground font-medium text-right flex items-center gap-1">
-                  {isInstalled ? (
-                    <>
-                      <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
-                      Installed
-                    </>
-                  ) : (
-                    <>
-                      <Smartphone className="w-3.5 h-3.5 text-muted-foreground" />
-                      Browser
-                    </>
-                  )}
+                  {(() => {
+                    try {
+                      const stored = localStorage.getItem('kjb-is-installed');
+                      const dmStandalone = typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches;
+                      const dmMinimal = typeof window !== 'undefined' && window.matchMedia('(display-mode: minimal-ui)').matches;
+                      const dmOverlay = typeof window !== 'undefined' && window.matchMedia('(display-mode: window-controls-overlay)').matches;
+                      if (stored === 'true' || dmStandalone || dmMinimal || dmOverlay || navigator.standalone === true) {
+                        return <><CheckCircle2 className="w-3.5 h-3.5 text-green-600" /> Installed</>;
+                      }
+                    } catch {}
+                    return <><Smartphone className="w-3.5 h-3.5 text-muted-foreground" /> Browser</>;
+                  })()}
                 </span>
               </div>
               <div className="flex justify-between items-center font-sans text-sm gap-4">

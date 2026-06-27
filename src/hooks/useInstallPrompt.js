@@ -57,7 +57,7 @@ const checkInstalledAsync = async () => {
   if (isInstalled) {
     try {
       localStorage.setItem(INSTALLED_KEY, 'true');
-      console.log('[InstallCheck] Persisted install state to localStorage');
+      console.log('[InstallCheck] ✓ Detected standalone, persisted to localStorage');
     } catch {}
     return true;
   }
@@ -65,12 +65,14 @@ const checkInstalledAsync = async () => {
   // Fallback: localStorage flag (persists across browser/PWA windows)
   try {
     const stored = localStorage.getItem(INSTALLED_KEY);
+    console.log('[InstallCheck] localStorage flag value:', stored);
     if (stored === 'true') {
-      console.log('[InstallCheck] localStorage flag → installed');
+      console.log('[InstallCheck] ✓ localStorage flag → installed');
       return true;
     }
   } catch {}
   
+  console.log('[InstallCheck] ✗ Not installed (no standalone mode, no localStorage flag)');
   return false;
 };
 
