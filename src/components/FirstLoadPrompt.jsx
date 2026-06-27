@@ -284,21 +284,6 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
               
               {showIOSHint && !parentIsInstalled && (
                 <div className="bg-secondary/40 border border-border rounded-xl p-2.5 sm:p-3">
-                  {!isInstallable && (
-                    <div className="mb-2 pb-2 border-b border-border/50">
-                      {inIframe() ? (
-                        <p className="font-sans text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 font-medium flex items-start gap-1 leading-snug">
-                          <span className="shrink-0 leading-none mt-0.5">ℹ️</span>
-                          You are viewing this inside the embed preview window, where Chrome/Edge block the PWA install prompt. Please click "Open in New Tab" (top right) to install it!
-                        </p>
-                      ) : (
-                        <p className="font-sans text-[10px] sm:text-xs text-amber-600 dark:text-amber-400 font-medium flex items-start gap-1 leading-snug">
-                          <span className="shrink-0 leading-none mt-0.5">⚠️</span>
-                          The automatic prompt was blocked by your browser. Try the manual steps below!
-                        </p>
-                      )}
-                    </div>
-                  )}
                   {inIframe() && (
                     <p className="font-sans text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 font-medium flex items-start gap-1 leading-snug mb-2">
                       <span className="shrink-0 leading-none mt-0.5">ℹ️</span>
