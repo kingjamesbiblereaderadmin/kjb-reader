@@ -846,15 +846,53 @@ export default function BibleReader() {
     return () => { window.removeEventListener('focus', refreshContext); };
   }, []);
 
+  // Persist toolbar state (filterMode, selectedVerses, search context) to localStorage
   useEffect(() => {
-    if (!filterMode && selectedVerses.size === 0 && !rangeHighlightRef.current) {
+    if (loading) return;
+    try {
+      const state = {
+        filterMode,
+        selectedVerses: [...selectedVerses],
+        resultView: resultViewRef.current,
+        searchTerm: searchTerm || null,
+        gospelMode,
+        timestamp: Date.now()
+      };
+      localStorage.setItem('kjb-reader-toolbar-state', JSON.stringify(state));
+    } catch {}
+  }, [filterMode, selectedVerses, searchTerm, gospelMode, loading]);
+
+  // Restore toolbar state on mount/focus
+  useEffect(() => {
+    const restoreToolbarState = () => {
+      if (loading) return;
       try {
+        const saved = localStorage.getItem('kjb-reader-toolbar-state');
+        if (!saved) return;
+        const state = JSON.parse(saved);
+        // Only restore if we're on the same chapter and state is recent (< 5 min)
         const current = JSON.parse(localStorage.getItem('kjb-position') || '{}');
-        if (current.verse || current.verseEnd) localStorage.setItem('kjb-position', JSON.stringify({ ...current, verse: null, verseEnd: null }));
+        if (state && current.abbr === pos.abbr && current.chapter === pos.chapter && Date.now() - state.timestamp < 300000) {
+          if (state.filterMode !== undefined) setFilterMode(state.filterMode);
+          if (state.selectedVerses && state.selectedVerses.length > 0) {
+            setSelectedVerses(new Set(state.selectedVerses));
+            setHighlightedVerses(new Set(state.selectedVerses));
+          }
+          if (state.resultView) resultViewRef.current = state.resultView;
+        }
       } catch {}
-      setHighlightedVerses(new Set());
+    };
+    restoreToolbarState();
+    window.addEventListener('focus', restoreToolbarState);
+    return () => window.removeEventListener('focus', restoreToolbarState);
+  }, [loading, pos.abbr, pos.chapter]);
+
+  // Clear toolbar state when leaving search/gospel mode
+  useEffect(() => {
+    if (!searchTerm && !gospelMode && !filterMode) {
+      try { localStorage.removeItem('kjb-reader-toolbar-state'); } catch {}
     }
-  }, [filterMode, selectedVerses]);
+  }, [searchTerm, gospelMode, filterMode]);
 
   const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isAutoAdvance = false, section = null, preserveSearchContext = false) => {
     if (newChapter === 0 && newAbbr !== 'GEN' && newAbbr !== 'MAT') return;
@@ -1388,7 +1426,8 @@ export default function BibleReader() {
             )}
           </div>
 
-          {(selectMode || (filterMode && selectedVerses.size > 0)) && (
+          {/* Single unified toolbar - SelectActionBar for multi-select mode, ReadingRangeBar for search/gospel/daily navigation */}
+          {(selectMode || (filterMode && selectedVerses.size > 0 && !searchTerm && !gospelMode && !lastReadingActive)) && (
             <SelectActionBar
               selectedCount={selectedVerses.size} totalVerses={verses.length} copyFeedback={copyFeedback} shareFeedback={shareFeedback} shareLinkFeedback={shareLinkFeedback}
               onSelectAll={selectAllVerses} onCancel={() => {
@@ -1401,8 +1440,8 @@ export default function BibleReader() {
               onPrintPage={() => window.print()} onPrintContents={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode, paragraphMode)}
             />
           )}
-
-          {!selectMode && selectedVerses.size > 0 && (
+          
+          {!selectMode && selectedVerses.size > 0 && (searchTerm || gospelMode || lastReadingActive) && (
             <ReadingRangeBar
               label={searchTerm ? `Search: "${searchTerm}"` : gospelMode ? 'Gospel' : `Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`}
               filterMode={filterMode} copyFeedback={copyFeedback} shareFeedback={shareFeedback} shareLinkFeedback={shareLinkFeedback}
