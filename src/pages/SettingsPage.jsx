@@ -302,7 +302,8 @@ export default function SettingsPage() {
     
     if (currentPermission === 'denied') {
       // Permission was previously denied - Chrome won't show prompt again
-      alert('Notifications are blocked in your browser settings.\n\nTo enable:\n1. Tap the lock icon (🔒) in the address bar\n2. Select "Site settings" or "Permissions"\n3. Find "Notifications" and change to "Allow"\n4. Return and toggle the switch again');
+      // Clearing cache doesn't reset permissions - must reset site data completely
+      alert('Notifications are blocked in Chrome.\n\nTo reset:\n1. Tap the lock icon (🔒) in the address bar\n2. Tap "Site settings" or "Permissions"\n3. Tap "Clear data" or "Reset permissions"\n4. Refresh the page\n5. Toggle the notifications switch again\n\nOr go to: Chrome Settings → Site settings → Notifications → Find this site → Remove');
       return;
     }
 
