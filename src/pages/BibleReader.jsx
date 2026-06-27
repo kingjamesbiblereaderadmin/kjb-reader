@@ -940,6 +940,11 @@ export default function BibleReader() {
     setSelectMode, setShowFilterOverlay
   );
   
+  // Debug: log toolbar state on every render
+  useEffect(() => {
+    console.log('[BibleReader] Render state:', { searchTerm, gospelMode, filterMode, selectedVerses: selectedVerses.size, highlightVerse, pos });
+  }, [searchTerm, gospelMode, filterMode, selectedVerses, highlightVerse, pos]);
+  
   const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isAutoAdvance = false, section = null, preserveSearchContext = false) => {
     // When navigating to a DIFFERENT chapter, clear search context (user moved on).
     // When staying on the SAME chapter (e.g., jumping to a verse), preserve it.

@@ -6,6 +6,10 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
   useEffect(() => {
     if (loading) return;
     try {
+      // Only save if we have an ACTIVE search/gospel context (don't save cleared state)
+      const hasActiveContext = (searchTerm && !searchClearedRef.current) || gospelMode || selectedVerses.size > 0;
+      if (!hasActiveContext) return;
+      
       const state = {
         abbr: pos.abbr,
         chapter: pos.chapter,
@@ -20,6 +24,7 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
         timestamp: Date.now()
       };
       localStorage.setItem('kjb-reader-toolbar-state', JSON.stringify(state));
+      console.log('[ToolbarState] Saved state:', state);
     } catch (err) {
       console.error('[ToolbarState] Save error:', err);
     }
@@ -31,19 +36,27 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
     const restoreToolbarState = () => {
       try {
         const saved = localStorage.getItem('kjb-reader-toolbar-state');
+        console.log('[ToolbarState] Restore attempt - saved:', saved);
         if (!saved) return;
         const state = JSON.parse(saved);
+        console.log('[ToolbarState] Parsed state:', state);
         // Restore search/gospel context if we're on the SAME chapter where it was saved
         if (state && state.abbr === pos.abbr && state.chapter === pos.chapter) {
-          if (state.filterMode !== undefined) setFilterMode(state.filterMode);
+          console.log('[ToolbarState] Chapter match - restoring');
+          if (state.filterMode !== undefined) {
+            console.log('[ToolbarState] Setting filterMode:', state.filterMode);
+            setFilterMode(state.filterMode);
+          }
           if (state.selectedVerses && state.selectedVerses.length > 0) {
             const newSet = new Set(state.selectedVerses);
+            console.log('[ToolbarState] Setting selectedVerses:', newSet);
             setSelectedVerses(newSet);
             setHighlightedVerses(newSet);
           }
           if (state.resultView) resultViewRef.current = state.resultView;
           // Always restore search context if it exists and hasn't been cleared
           if (state.hasSearchContext && state.searchTerm) {
+            console.log('[ToolbarState] Restoring search:', state.searchTerm);
             searchClearedRef.current = false;
             setSearchTerm(state.searchTerm);
             setSearchResultIndex(state.searchResultIndex || 0);
@@ -51,6 +64,7 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
           }
           // Restore gospel context
           if (state.hasGospelContext) {
+            console.log('[ToolbarState] Restoring gospel mode');
             const g = getGospelNav();
             if (g.results.length > 0) {
               setGospelMode(true);
@@ -58,6 +72,8 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
               setGospelTotalResults(g.results.length);
             }
           }
+        } else {
+          console.log('[ToolbarState] Chapter mismatch - not restoring', { state, pos });
         }
       } catch (err) {
         console.error('[ToolbarState] Restore error:', err);
