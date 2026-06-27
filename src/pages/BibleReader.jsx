@@ -575,6 +575,8 @@ export default function BibleReader() {
       // Set highlight BEFORE loading the chapter so it applies on render
       setHighlightVerse(verseNum || null);
       setPos({ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum });
+      // Force scroll-to-top so the subsequent scroll-to-verse works reliably
+      (document.getElementById('kjb-scroll') || window).scrollTo({ top: 0 });
       loadChapter(urlBookObj.abbr, chapterNum, verseNum);
       return;
     }
