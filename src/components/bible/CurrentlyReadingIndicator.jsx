@@ -35,7 +35,7 @@ export default function CurrentlyReadingIndicator({
   occurrenceLabel,
 }) {
   const isFilterMode = filterMode && selectedVerses.size > 0;
-  const isRandom = lastReadingPos && lastReadingPos.fromRandom;
+  // isRandom now defined above with isDaily
   // After a reload or SPA back-navigation, the search-term / daily-verse props
   // may not be re-hydrated yet even though the highlighted verse came from one.
   // Fall back to the persisted context so the chip keeps its "Search" / "Daily
@@ -51,8 +51,10 @@ export default function CurrentlyReadingIndicator({
   }
   // Use lastReadingPos if available, but also check the URL for 'from=daily' 
   // to handle cases where the user clicked a notification or opened a shared link.
-  const isDaily = (lastReadingPos && lastReadingPos.fromDailyVerse) || 
+  const isDaily = (lastReadingPos && (lastReadingPos.fromDailyVerse || lastReadingPos.fromDaily)) || 
                   (typeof window !== 'undefined' && window.location.search.includes('from=daily'));
+  const isRandom = (lastReadingPos && (lastReadingPos.fromRandom || lastReadingPos.fromRandomChapter)) ||
+                   (typeof window !== 'undefined' && window.location.search.includes('from=random'));
   const verseNum = pos.verse;
   // Suffix for non-verse sections (Psalm superscription / book colophon)
   const sectionSuffix = highlightSection === 'colophon'

@@ -116,13 +116,25 @@ export default function BibleReader() {
   }, []);
   
   const [searchTerm, setSearchTerm] = useState(() => {
-    try { return localStorage.getItem('kjb-search-term') || getSearchNav().term || null; } catch { return getSearchNav().term || null; }
+    try {
+      const stored = localStorage.getItem('kjb-search-term');
+      if (stored) return stored;
+    } catch {}
+    return getSearchNav().term || null;
   });
   const [searchResultIndex, setSearchResultIndex] = useState(() => {
-    try { return parseInt(localStorage.getItem('kjb-search-index') || String(getSearchNav().index), 10); } catch { return getSearchNav().index; }
+    try {
+      const stored = localStorage.getItem('kjb-search-index');
+      if (stored) return parseInt(stored, 10);
+    } catch {}
+    return getSearchNav().index;
   });
   const [searchTotalResults, setSearchTotalResults] = useState(() => {
-    try { const r = JSON.parse(localStorage.getItem('kjb-search-results') || '[]'); return r.length || getSearchNav().results.length; } catch { return getSearchNav().results.length; }
+    try {
+      const stored = localStorage.getItem('kjb-search-results');
+      if (stored) return JSON.parse(stored).length;
+    } catch {}
+    return getSearchNav().results.length;
   });
   const searchClearedRef = useRef(false);
   const lastReadingClearedRef = useRef(false);
@@ -769,19 +781,24 @@ export default function BibleReader() {
       // Re-read search context and last reading position so the indicator reappears on focus/storage change
       try {
         const term = localStorage.getItem('kjb-search-term');
-        const results = JSON.parse(localStorage.getItem('kjb-search-results') || '[]');
-        const index = parseInt(localStorage.getItem('kjb-search-index') || '0', 10);
-        if (term && results.length > 0) {
-          setSearchTerm(term);
-          setSearchResultIndex(index);
-          setSearchTotalResults(results.length);
+        const resultsRaw = localStorage.getItem('kjb-search-results');
+        const index = localStorage.getItem('kjb-search-index');
+        if (term && resultsRaw) {
+          const results = JSON.parse(resultsRaw);
+          if (results.length > 0) {
+            setSearchTerm(term);
+            setSearchResultIndex(index ? parseInt(index, 10) : 0);
+            setSearchTotalResults(results.length);
+          }
         }
       } catch {}
       try {
         const saved = localStorage.getItem('kjb-last-reading');
         if (saved) {
           const parsed = JSON.parse(saved);
-          setLastReadingPos(parsed);
+          if (parsed) {
+            setLastReadingPos(parsed);
+          }
         }
       } catch {}
     };
