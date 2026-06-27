@@ -198,6 +198,8 @@ export default function SettingsPage() {
   // Double-check installed state using display-mode media query (most reliable for standalone PWA)
   const [isInstalled, setIsInstalled] = useState(() => {
     if (typeof window === 'undefined') return false;
+    // Exclude iframe contexts to prevent false positives
+    try { if (window.self !== window.top) return false; } catch (e) { return false; }
     return hookIsInstalled || 
            window.matchMedia('(display-mode: standalone)').matches ||
            window.matchMedia('(display-mode: minimal-ui)').matches ||
@@ -208,6 +210,8 @@ export default function SettingsPage() {
   // Re-check on focus (user may have just installed the app)
   useEffect(() => {
     const checkInstalled = () => {
+      // Exclude iframe contexts to prevent false positives
+      try { if (window.self !== window.top) return; } catch (e) { return; }
       const installed = hookIsInstalled || 
                         window.matchMedia('(display-mode: standalone)').matches ||
                         window.matchMedia('(display-mode: minimal-ui)').matches ||
