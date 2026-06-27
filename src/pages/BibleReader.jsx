@@ -27,6 +27,9 @@ import { getSearchNav, setSearchNav, setSearchIndex, clearSearchNav, getGospelNa
 import { getGospelResults } from '@/lib/gospelVerses';
 import { getOccurrenceLabel, scrollToOccurrence, emphasizeOccurrence } from '@/lib/occurrenceLabel';
 import { useReaderUrlSync } from '@/lib/useReaderUrlSync';
+import { useReaderNavigation } from '@/lib/useReaderNavigation';
+import { useToolbarState } from '@/lib/useToolbarState';
+import { useSearchAndGospelResults } from '@/lib/useSearchAndGospelResults';
 import { resolveBook, formatVerseRange } from '@/lib/readerHelpers';
 import { useClosePopovers } from '@/lib/useClosePopovers';
 import { printChapterContents } from '@/lib/printHelpers';
@@ -120,9 +123,6 @@ export default function BibleReader() {
   const [searchTotalResults, setSearchTotalResults] = useState(0);
   const searchClearedRef = useRef(false);
   const lastReadingClearedRef = useRef(false);
-  // The reading position saved BEFORE a search jump, so closing the search
-  // results returns the reader to where the user was reading.
-  const preSearchPosRef = useRef(null);
 
   const [gospelMode, setGospelMode] = useState(false);
   const [gospelResultIndex, setGospelResultIndex] = useState(() => getGospelNav().index);
@@ -365,9 +365,6 @@ export default function BibleReader() {
     try { localStorage.setItem('kjb-zoom', String(next)); } catch {}
   }, []);
   usePinchZoom(readerContentRef, zoomLevel, setZoomPersist);
-  const rangeHighlightRef = useRef(false);
-  const resultViewRef = useRef('filter');
-  const freshNavRef = useRef(false);
   const posRef = useRef(pos);
   useEffect(() => { posRef.current = pos; }, [pos]);
   const book = BIBLE_BOOKS.find(b => b.abbr === pos.abbr) || BIBLE_BOOKS[0];
@@ -867,73 +864,20 @@ export default function BibleReader() {
     return () => { window.removeEventListener('focus', refreshContext); };
   }, []);
 
-  // Persist toolbar state with chapter + search/gospel context
-  useEffect(() => {
-    if (loading) return;
-    try {
-      const state = {
-        abbr: pos.abbr,
-        chapter: pos.chapter,
-        filterMode,
-        selectedVerses: [...selectedVerses],
-        resultView: resultViewRef.current,
-        hasSearchContext: !!(searchTerm && !searchClearedRef.current),
-        hasGospelContext: gospelMode,
-        // Persist actual search data so we can restore it exactly
-        searchTerm: searchTerm && !searchClearedRef.current ? searchTerm : null,
-        searchResultIndex: searchResultIndex,
-        searchTotalResults: searchTotalResults,
-        timestamp: Date.now()
-      };
-      localStorage.setItem('kjb-reader-toolbar-state', JSON.stringify(state));
-    } catch {}
-  }, [filterMode, selectedVerses, searchTerm, gospelMode, searchResultIndex, searchTotalResults, pos.abbr, pos.chapter, loading]);
+  useToolbarState(pos, loading, verses, filterMode, selectedVerses, searchTerm, searchResultIndex, searchTotalResults, gospelMode, searchClearedRef, setFilterMode, setSelectedVerses, setHighlightedVerses, resultViewRef, setSearchTerm, setSearchResultIndex, setSearchTotalResults);
 
-  // Restore toolbar state after chapter loads
-  useEffect(() => {
-    if (loading || verses.length === 0) return;
-    const restoreToolbarState = () => {
-      try {
-        const saved = localStorage.getItem('kjb-reader-toolbar-state');
-        if (!saved) return;
-        const state = JSON.parse(saved);
-        // Restore if we're on the same chapter (state is recent < 10 min)
-        if (state && state.abbr === pos.abbr && state.chapter === pos.chapter && Date.now() - state.timestamp < 600000) {
-          // Restore filterMode and selectedVerses
-          if (state.filterMode !== undefined) setFilterMode(state.filterMode);
-          if (state.selectedVerses && state.selectedVerses.length > 0) {
-            const newSet = new Set(state.selectedVerses);
-            setSelectedVerses(newSet);
-            setHighlightedVerses(newSet);
-          }
-          if (state.resultView) resultViewRef.current = state.resultView;
-          // Restore search context if present
-          if (state.hasSearchContext && state.searchTerm && !searchTerm) {
-            searchClearedRef.current = false;
-            setSearchTerm(state.searchTerm);
-            setSearchResultIndex(state.searchResultIndex || 0);
-            setSearchTotalResults(state.searchTotalResults || 0);
-          }
-        }
-      } catch {}
-    };
-    // Restore immediately after verses load, then on focus
-    restoreToolbarState();
-    const timer = setTimeout(restoreToolbarState, 100);
-    window.addEventListener('focus', restoreToolbarState);
-    return () => { clearTimeout(timer); window.removeEventListener('focus', restoreToolbarState); };
-  }, [loading, pos.abbr, pos.chapter, verses.length]);
-
+  const { navigate: baseNavigate, returnToChapter: baseReturnToChapter, preSearchPosRef, rangeHighlightRef, resultViewRef, freshNavRef } = useReaderNavigation(pos, loadChapter, routerNavigate, routerLocation);
+  const { stepToResult, clearSearchContext } = useSearchAndGospelResults(
+    posRef, loading, verses, topRef, searchTerm, gospelMode, setGospelMode, setGospelResultIndex, setGospelTotalResults,
+    setSearchTerm, setSearchResultIndex, setSearchTotalResults, resultViewRef, setFilterMode, setHighlightedVerses, setSelectedVerses,
+    setHighlightSection, setHighlightVerse, setPos, loadChapter, baseReturnToChapter, clearSearchNav, setGospelNav, setGospelIndex, clearGospelNav
+  );
+  
   const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isAutoAdvance = false, section = null, preserveSearchContext = false) => {
-    if (newChapter === 0 && newAbbr !== 'GEN' && newAbbr !== 'MAT') return;
-    // Only clear search context if explicitly told to (not when stepping through search results)
     if (!preserveSearchContext) {
       searchClearedRef.current = true; clearSearchNav(); setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
       setGospelMode(false); clearGospelNav();
     }
-    
-    savePosition(newAbbr, newChapter, jumpVerse);
-
     if ((fromDailyVerse || fromRandom) && pos.abbr && pos.chapter) {
       lastReadingClearedRef.current = false;
       const scroller = document.getElementById('kjb-scroll');
@@ -949,124 +893,28 @@ export default function BibleReader() {
         try { window.history.replaceState({}, '', '/read'); } catch {}
       }
     }
-    resultViewRef.current = 'filter';
     if (!jumpVerse) {
-      setHighlightVerse(null);
-      setFilterMode(false);
-      setSelectMode(false);
-      setSelectedVerses(new Set());
-      setHighlightedVerses(new Set());
-      setShowFilterOverlay(false);
-    } else {
-      // When jumping to a verse (daily/random), set it as highlighted
-      setHighlightVerse(jumpVerse);
-    }
+      setHighlightVerse(null); setFilterMode(false); setSelectMode(false);
+      setSelectedVerses(new Set()); setHighlightedVerses(new Set()); setShowFilterOverlay(false);
+    } else { setHighlightVerse(jumpVerse); }
     setHighlightSection(section);
-    rangeHighlightRef.current = false; freshNavRef.current = true;
-    const newPos = { abbr: newAbbr, chapter: newChapter, verse: jumpVerse };
-    setPos(newPos);
-    loadChapter(newAbbr, newChapter, jumpVerse);
-    try {
-      let url;
-      if (newChapter === 0) url = `/read?titlePage=${newAbbr === 'MAT' ? 'new' : 'old'}`;
-      else { url = `/read?book=${newAbbr}&chapter=${newChapter}`; if (jumpVerse) url += `&verse=${jumpVerse}`; if (section) url += `&highlight=${section}`; }
-      routerNavigate(url, { replace: isAutoAdvance || false });
-    } catch {}
+    setPos({ abbr: newAbbr, chapter: newChapter, verse: jumpVerse });
+    baseNavigate(newAbbr, newChapter, jumpVerse, fromDailyVerse, fromRandom, isAutoAdvance, section, preserveSearchContext, clearSearchNav, setGospelMode, clearGospelNav);
   };
-
-  const stepToResult = (r) => {
-    if (!preSearchPosRef.current) {
-      try {
-        const scroller = document.getElementById('kjb-scroll');
-        const exactY = scroller ? scroller.scrollTop : window.scrollY;
-        const stash = JSON.parse(localStorage.getItem('kjb-pre-search') || localStorage.getItem('kjb-pre-jump') || 'null');
-        if (stash && stash.abbr && stash.chapter) {
-          preSearchPosRef.current = { abbr: stash.abbr, chapter: stash.chapter, scrollY: typeof stash.scrollY === 'number' ? stash.scrollY : exactY };
-        } else {
-          const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-          if (cur && cur.abbr && cur.chapter) {
-            preSearchPosRef.current = { abbr: cur.abbr, chapter: cur.chapter, scrollY: exactY };
-          }
-        }
-      } catch {}
-    }
-    const section = r.section || null;
-    const targetVerse = section ? null : (r.verse || null);
-    setHighlightSection(section);
-    // Preserve the current view mode (filter vs full chapter) when stepping through results
-    const useFilter = resultViewRef.current !== 'full';
-    if (!section && r.verse && r.verseEnd && parseInt(r.verseEnd, 10) > parseInt(r.verse, 10)) {
-      const start = parseInt(r.verse, 10); const end = parseInt(r.verseEnd, 10);
-      const range = new Set(); for (let v = start; v <= end; v++) range.add(v);
-      rangeHighlightRef.current = true; setHighlightedVerses(range); setSelectedVerses(range); setFilterMode(useFilter);
-      try {
-        const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: start, verseEnd: end }));
-      } catch {}
-    } else if (!section && targetVerse) {
-      const parsedTarget = parseInt(targetVerse, 10); const single = new Set([parsedTarget]);
-      rangeHighlightRef.current = true; setHighlightedVerses(single); setSelectedVerses(single); setFilterMode(useFilter);
-      try {
-        const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: parsedTarget, verseEnd: null }));
-      } catch {}
-    } else {
-      rangeHighlightRef.current = false;
-      // Don't clear filterMode/selectedVerses when in search/gospel mode - preserve toolbar state
-      if (!searchTerm && !gospelMode) {
-        setFilterMode(false);
-      }
-      try {
-        const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: r.verse || null, verseEnd: null }));
-      } catch {}
-    }
-    const sameChapter = !loading && verses.length > 0 && posRef.current.abbr === r.abbr && posRef.current.chapter === r.chapter;
-    const sameVerse = sameChapter && posRef.current.verse === targetVerse;
-    setPos({ abbr: r.abbr, chapter: r.chapter, verse: targetVerse, occurrence: r.occurrence || 0 });
-    setHighlightVerse(targetVerse);
-    if (sameChapter) {
-      if (sameVerse && targetVerse) scrollToOccurrence(targetVerse, r.occurrence || 0, topRef);
-      return;
-    }
-    loadChapter(r.abbr, r.chapter, targetVerse);
-  };
-
-  // Single source of truth for "return to a previously-read chapter". Used by
-  // every Clear/deselect path (search, daily verse, random) so they ALL land
-  // back on the chapter at its saved scroll position — never the top. It clears
-  // all overlay/highlight state and leaves freshNavRef false so the per-chapter
-  // scroll-restore effect runs instead of forcing scroll-to-top.
+  
   const returnToChapter = (abbr, chapter, exactY) => {
     if (!abbr || !chapter) return;
     setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
     setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
     setShowFilterOverlay(false);
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr, chapter, verse: null, verseEnd: null })); } catch {}
-    // Seed the per-chapter scroll key with the EXACT pre-search offset so the
-    // scroll-restore effect lands on the precise position the user left from.
     if (typeof exactY === 'number' && exactY > 0) {
       try { localStorage.setItem(`kjb-scroll-${abbr}-${chapter}`, String(Math.round(exactY))); } catch {}
     }
     try { window.history.replaceState({}, '', '/read'); } catch {}
     freshNavRef.current = false;
     setPos({ abbr, chapter, verse: null });
-    loadChapter(abbr, chapter, null);
-  };
-
-  const clearSearchContext = () => {
-    searchClearedRef.current = true; clearSearchNav(); setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
-    // Return to the chapter the user was reading before they searched.
-    const back = preSearchPosRef.current;
-    preSearchPosRef.current = null;
-    try { localStorage.removeItem('kjb-pre-search'); } catch {}
-    if (back && back.abbr && back.chapter) {
-      returnToChapter(back.abbr, back.chapter, back.scrollY);
-    } else {
-      setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
-      setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
-      setShowFilterOverlay(false);
-    }
+    baseReturnToChapter(abbr, chapter, exactY);
   };
 
   const goNext = (isAutoAdvance = false) => {
