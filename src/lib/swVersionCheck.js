@@ -10,7 +10,7 @@ export async function fetchDeployedSwVersion() {
     const res = await fetch('/sw.js', { cache: 'no-store' });
     if (!res.ok) return null;
     const text = await res.text();
-    const m = text.match(/Service Worker\s+(v[0-9_]+)/i);
+    const m = text.match(/Service Worker\s+([a-zA-Z0-9_-]+)/i);
     return m ? m[1] : null;
   } catch {
     return null;
