@@ -950,7 +950,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
       {showVersePanel ? (
         <div className="px-1 pt-2 pb-2 text-center flex-1 flex flex-col w-full max-w-full">
-          <div className="flex self-stretch items-center justify-center gap-3 xs:gap-6 mt-3 mb-3 w-full px-2 xs:px-4 py-1.5">
+          <div className="flex self-stretch items-center justify-center gap-3 xs:gap-6 mt-4 mb-4 w-full px-2 xs:px-4 py-1.5">
             <span className="h-px flex-1 bg-current opacity-50" style={{ color: textColor }} />
             <p 
               className={`font-sans text-xs xs:text-base md:text-lg font-black tracking-[0.12em] xs:tracking-[0.22em] uppercase flex-shrink-0 ${accentClass}`}
@@ -961,7 +961,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             <span className="h-px flex-1 bg-current opacity-50" style={{ color: textColor }} />
           </div>
           <div className="flex-1 flex flex-col justify-center min-h-0">
-          <div className="mx-auto w-full max-w-none px-3 sm:px-4 py-3">
+          <div className="mx-auto w-full max-w-none px-4 sm:px-6 py-4">
           <blockquote 
             className={`text-center [&_em]:italic break-words ${fontFamily === 'cursive' && a11yFont === 'default' ? 'kjb-verse-card cursive-em-style' : ''}`}
             style={{ 
@@ -969,7 +969,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               opacity: textOpacity, 
               fontFamily: resolvedFont,
               fontWeight: '600',
-              lineHeight: '1.4',
+              lineHeight: '1.5',
               textShadow: '0 2px 8px rgba(0,0,0,0.35)',
               overflowWrap: 'break-word',
               wordBreak: 'break-word',
@@ -979,7 +979,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(cleanVerseText(verse.text)).replace(/<span class="pilcrow">¶<\/span>/g, `<span class="pilcrow" style="color: ${textColor}; opacity: ${textOpacity}; font-family: ${resolvedFont};">¶</span>`) }} />"
           </blockquote>
           <p 
-            className="text-sm md:text-base font-semibold mt-6 text-center"
+            className="text-sm md:text-base font-semibold mt-8 text-center"
             style={{ 
               opacity: Math.min(1, textOpacity + 0.05), 
               color: textColor, 
@@ -993,7 +993,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
           {/* Date — merged into the same block as verse + ref so long verses
               flow naturally without overlapping or overflowing. */}
-          <div className="flex flex-col items-center justify-center w-full mt-6 relative z-10">
+          <div className="flex flex-col items-center justify-center w-full mt-8 relative z-10">
             <span
               className="whitespace-nowrap"
               style={{
