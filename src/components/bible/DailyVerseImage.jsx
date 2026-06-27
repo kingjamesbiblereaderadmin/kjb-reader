@@ -973,7 +973,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               textShadow: '0 2px 8px rgba(0,0,0,0.35)',
               overflowWrap: 'break-word',
               wordBreak: 'break-word',
-              fontSize: fontFamily === 'cursive' ? (textLen > 500 ? '0.9rem' : textLen > 400 ? '1rem' : textLen > 300 ? '1.15rem' : textLen > 200 ? '1.35rem' : textLen > 100 ? '1.6rem' : '2rem') : (textLen > 500 ? '0.8rem' : textLen > 400 ? '0.9rem' : textLen > 300 ? '1rem' : textLen > 200 ? '1.2rem' : textLen > 100 ? '1.45rem' : '1.8rem')
+              // Dynamic font sizing: scales with container width AND verse length
+              // Short verses get larger text, long verses scale down to fit
+              fontSize: fontFamily === 'cursive' 
+                ? `clamp(1rem, ${textLen > 400 ? '2.5vw' : textLen > 250 ? '3.5vw' : '4.5vw'}, ${textLen > 400 ? '1.4rem' : textLen > 250 ? '2rem' : '2.8rem'})`
+                : `clamp(0.9rem, ${textLen > 400 ? '2.5vw' : textLen > 250 ? '3.5vw' : '4.5vw'}, ${textLen > 400 ? '1.3rem' : textLen > 250 ? '1.8rem' : '2.4rem'})`
             }}
           >
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(cleanVerseText(verse.text)).replace(/<span class="pilcrow">¶<\/span>/g, `<span class="pilcrow" style="color: ${textColor}; opacity: ${textOpacity}; font-family: ${resolvedFont};">¶</span>`) }} />"
