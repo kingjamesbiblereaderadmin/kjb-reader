@@ -194,7 +194,7 @@ export default function SettingsPage() {
   const [notifEnabled, setNotifEnabled] = useState(isNotifReallyOn);
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);
 
-  const { isInstallable, isInstalled: hookIsInstalled, promptInstall } = useInstallPrompt();
+  const { isInstallable, isInstalled: hookIsInstalled, promptInstall, isSamsung } = useInstallPrompt();
   // Double-check installed state using display-mode media query (most reliable for standalone PWA)
   const [isInstalled, setIsInstalled] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -1047,20 +1047,13 @@ export default function SettingsPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {bookmarkBrowser ? (
+            {bookmarkBrowser || isSamsung ? (
               <button
-                onClick={() => {
-                  const isMac = /Macintosh|Mac OS X/i.test(navigator.userAgent);
-                  toast.info('Add to Favourites / Bookmarks', {
-                    description: isMac
-                      ? 'Press ⌘ D to bookmark this app for quick access.'
-                      : 'Press Ctrl + D to bookmark this app for quick access.',
-                  });
-                }}
+                onClick={() => setShowInstallHint(true)}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               >
-                <Star className="w-4 h-4" />
-                Add to Favourites
+                <Smartphone className="w-4 h-4" />
+                Add to Home Screen
               </button>
             ) : (
             <button

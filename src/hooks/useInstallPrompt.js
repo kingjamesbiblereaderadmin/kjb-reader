@@ -45,6 +45,12 @@ const checkInstalledAsync = async () => {
 let deferredPrompt = (typeof window !== 'undefined' && window.kjbDeferredPrompt) || null;
 let promptEverOffered = (typeof window !== 'undefined' && window.kjbPromptedThisSession === true);
 
+// Samsung Internet doesn't support beforeinstallprompt - always use manual guide
+const isSamsungInternet = () => {
+  if (typeof window === 'undefined') return false;
+  return /SamsungBrowser/i.test(navigator.userAgent);
+};
+
 // Edge/Chrome desktop: check if PWA meets install criteria even before beforeinstallprompt fires
 const isPwaInstallable = () => {
   if (typeof window === 'undefined') return false;
@@ -81,6 +87,7 @@ export function useInstallPrompt() {
   const [isInstallable, setIsInstallable] = useState(!!deferredPrompt || isPwaInstallable());
   const [isInstalled, setIsInstalled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSamsung, setIsSamsung] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -89,6 +96,7 @@ export function useInstallPrompt() {
       if (!cancelled) {
         setIsInstalled(installed);
         setIsLoading(false);
+        setIsSamsung(isSamsungInternet());
       }
     };
     check();
@@ -142,5 +150,5 @@ export function useInstallPrompt() {
   };
   const handleDismiss = () => dismiss();
 
-  return { isInstallable, isInstalled, isLoading, promptInstall, dismiss, wasDismissed, handleInstall, handleDismiss };
+  return { isInstallable, isInstalled, isLoading, isSamsung, promptInstall, dismiss, wasDismissed, handleInstall, handleDismiss };
 }
