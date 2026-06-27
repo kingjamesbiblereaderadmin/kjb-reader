@@ -1049,8 +1049,10 @@ export default function SettingsPage() {
           <div className="space-y-3">
             <button
               onClick={() => {
+                console.log('[Settings] Install button clicked - isInstallable:', isInstallable, 'deferredPrompt:', !!window.kjbDeferredPrompt);
                 // Try native prompt first (Android Chrome/Edge/Samsung). If not available or cancelled, show manual guide.
                 promptInstall().then((result) => {
+                  console.log('[Settings] promptInstall result:', result);
                   // Only show manual guide if native prompt wasn't available OR user cancelled
                   // iOS Safari never has native prompt - always show manual
                   const ua = navigator.userAgent;
