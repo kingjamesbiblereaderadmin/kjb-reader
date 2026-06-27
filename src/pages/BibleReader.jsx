@@ -633,6 +633,35 @@ export default function BibleReader() {
     try {
       const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
       if (p && p.abbr && p.chapter) {
+        // Restore toolbar state from localStorage (search/gospel context persists across app restarts)
+        try {
+          const savedState = localStorage.getItem('kjb-reader-toolbar-state');
+          if (savedState) {
+            const state = JSON.parse(savedState);
+            if (state && state.abbr === p.abbr && state.chapter === p.chapter) {
+              if (state.hasSearchContext && state.searchTerm) {
+                searchClearedRef.current = false;
+                setSearchTerm(state.searchTerm);
+                setSearchResultIndex(state.searchResultIndex || 0);
+                setSearchTotalResults(state.searchTotalResults || 0);
+              }
+              if (state.hasGospelContext) {
+                const g = getGospelNav();
+                if (g.results.length > 0) {
+                  setGospelMode(true);
+                  setGospelResultIndex(g.index);
+                  setGospelTotalResults(g.results.length);
+                }
+              }
+              if (state.filterMode !== undefined) setFilterMode(state.filterMode);
+              if (state.selectedVerses && state.selectedVerses.length > 0) {
+                const newSet = new Set(state.selectedVerses);
+                setSelectedVerses(newSet);
+                setHighlightedVerses(newSet);
+              }
+            }
+          }
+        } catch {}
         // Restore a previously highlighted verse or multi-verse range so coming
         // back to the Reader keeps the highlight, not just the chapter.
         if (p.verse && p.verseEnd && p.verseEnd > p.verse) {
