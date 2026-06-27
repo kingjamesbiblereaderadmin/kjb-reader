@@ -1435,27 +1435,10 @@ export default function BibleReader() {
                     if (r) { setSearchIndex(nextIndex); setSearchResultIndex(nextIndex); stepToResult(r); }
                   }}
                   onClear={() => {
-                    if (searchTerm) {
-                      clearSearchContext();
-                      return;
-                    }
-                    if (gospelMode) {
-                      clearGospelNav(); setGospelMode(false);
-                      const back = preSearchPosRef.current;
-                      preSearchPosRef.current = null;
-                      try { localStorage.removeItem('kjb-pre-jump'); } catch {}
-                      if (back && back.abbr && back.chapter) {
-                        returnToChapter(back.abbr, back.chapter, back.scrollY);
-                      } else {
-                        setHighlightVerse(null); setHighlightSection(null);
-                        try { window.history.replaceState({}, '', '/read'); } catch {}
-                      }
-                      return;
-                    }
-                    // For ALL other cases (daily/random/search/filter/highlight), check both storage locations
+                    // ALWAYS check for a saved previous reading position FIRST (works for search/gospel/daily/random)
                     let prevAbbr, prevChapter, prevScrollY;
                     
-                    // First try kjb-last-reading (set by HomePage for daily/random)
+                    // Try kjb-last-reading first (has explicit prevAbbr/prevChapter fields)
                     try {
                       const lastRaw = localStorage.getItem('kjb-last-reading');
                       if (lastRaw) {
@@ -1463,12 +1446,12 @@ export default function BibleReader() {
                         if (last && last.prevAbbr && last.prevChapter) {
                           prevAbbr = last.prevAbbr;
                           prevChapter = last.prevChapter;
-                          prevScrollY = last.prevScrollY || 0;
+                          prevScrollY = typeof last.prevScrollY === 'number' ? last.prevScrollY : last.scrollY;
                         }
                       }
                     } catch {}
                     
-                    // If not found, try kjb-prev-reading-session (set by BibleReader navigate for search/gospel)
+                    // Fall back to kjb-prev-reading-session
                     if (!prevAbbr || !prevChapter) {
                       try {
                         const prevRaw = localStorage.getItem('kjb-prev-reading-session');
@@ -1477,20 +1460,22 @@ export default function BibleReader() {
                           if (prev && prev.abbr && prev.chapter) {
                             prevAbbr = prev.abbr;
                             prevChapter = prev.chapter;
-                            prevScrollY = prev.scrollY || 0;
+                            prevScrollY = prev.scrollY;
                           }
                         }
                       } catch {}
                     }
                     
-                    // Clear all state first
+                    // Clear ALL state first (search, gospel, daily, random, filter, highlight)
+                    if (searchTerm) { clearSearchContext(); }
+                    if (gospelMode) { clearGospelNav(); setGospelMode(false); }
                     setLastReadingPos(null); setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
                     setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
                     setShowFilterOverlay(false);
                     try { localStorage.removeItem('kjb-last-reading'); } catch {}
                     
+                    // Navigate back if we have a saved position
                     if (prevAbbr && prevChapter) {
-                      // Use returnToChapter which is designed for returning to previous positions
                       returnToChapter(prevAbbr, prevChapter, prevScrollY);
                     } else {
                       try { window.history.replaceState({}, '', '/read'); } catch {}
