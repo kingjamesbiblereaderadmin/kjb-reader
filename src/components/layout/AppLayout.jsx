@@ -215,7 +215,7 @@ export default function AppLayout() {
   const isRoot = pathname === '/';
 
   // FirstLoadPrompt state (centralized in AppLayout)
-  const { isInstallable, isInstalled, notifPermission, handleInstall, handleEnableNotif, handleDismiss } = useAppLayoutPrompt();
+  const { isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss } = useAppLayoutPrompt();
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
@@ -230,14 +230,14 @@ export default function AppLayout() {
       initNotifications();
     }
 
-    // Show prompt once per session — use ONLY the authoritative isInstalled from hook
+    // Show prompt once per session — use ONLY the authoritative isPWAInstalled from display-mode detection
     const notifGranted = 'Notification' in window && Notification.permission === 'granted';
     const dismissed = localStorage.getItem('kjb-prompt-dismissed') === 'true' || localStorage.getItem('kjb-install-dismissed') === 'true';
 
     const triggerPrompt = () => {
-      if (isInstalled && !notifGranted) {
+      if (isPWAInstalled && !notifGranted) {
         setTimeout(() => setShowPrompt(true), 1500);
-      } else if (!isInstalled && !dismissed) {
+      } else if (!isPWAInstalled && !dismissed) {
         setTimeout(() => setShowPrompt(true), 1500);
       }
     };
@@ -252,7 +252,7 @@ export default function AppLayout() {
       window.addEventListener('kjb-splash-done', onSplashDone);
       return () => window.removeEventListener('kjb-splash-done', onSplashDone);
     }
-  }, [isInstalled, notifPermission]);
+  }, [isPWAInstalled, notifPermission]);
 
   const handleDismissPrompt = () => {
     setShowPrompt(false);
@@ -320,7 +320,7 @@ export default function AppLayout() {
           {/* Actions - responsive button sizes with visible square touch targets */}
           <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 shrink-0">
             {/* PWA Installed Badge */}
-            {isInstalled && (
+            {isPWAInstalled && (
               <div className="hidden xs:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground border border-primary/30 shadow-sm shadow-primary/20" title="App installed">
                 <span className="font-sans text-[10px] font-bold tracking-wide">INSTALLED</span>
               </div>
@@ -406,7 +406,7 @@ export default function AppLayout() {
       {showPrompt && (
         <FirstLoadPrompt
           isInstallable={isInstallable}
-          isInstalled={isInstalled}
+          isInstalled={isPWAInstalled}
           notifPermission={notifPermission}
           onInstall={handleInstall}
           onEnableNotif={handleEnableNotif}
