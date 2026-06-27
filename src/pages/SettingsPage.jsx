@@ -1024,12 +1024,12 @@ export default function SettingsPage() {
           </div>
         ) : inIframe() ? (
           <div className="space-y-3">
-            <div className="rounded-xl bg-blue-50 dark:bg-blue-900/15 border border-blue-200 dark:border-blue-900/40 p-4">
+            <div className="rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 p-4">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <h3 className="font-sans text-sm font-bold text-blue-800 dark:text-blue-300 mb-1">Preview Mode Detected</h3>
-                  <p className="font-sans text-xs text-blue-700 dark:text-blue-400 leading-relaxed">
+                  <h3 className="font-sans text-sm font-bold text-amber-800 dark:text-amber-300 mb-1">Preview Mode Detected</h3>
+                  <p className="font-sans text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
                     You're viewing this inside a preview window. PWA installation is blocked in iframes. Please open the app in a new browser tab to install it.
                   </p>
                 </div>
