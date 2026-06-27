@@ -113,15 +113,29 @@
     </script>
     <link rel="icon" type="image/png" href="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/35e329953_cfb4bf781_Untitled.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <!-- Capture beforeinstallprompt early (Chrome/Edge desktop) -->
+    <!-- Capture beforeinstallprompt early (Chrome/Edge/Samsung/Android mobile) -->
     <script>
       (function() {
         if (typeof window === 'undefined') return;
+        // Set up global deferred prompt storage immediately
+        window.kjbDeferredPrompt = null;
+        window.kjbPromptFired = false;
+        
+        // Capture beforeinstallprompt as early as possible (mobile + desktop)
         window.addEventListener('beforeinstallprompt', function(e) {
           e.preventDefault();
           window.kjbDeferredPrompt = e;
-          console.log('[index.html] beforeinstallprompt captured');
+          window.kjbPromptFired = true;
+          console.log('[index.html] beforeinstallprompt captured -', navigator.userAgent.substring(0, 80));
           window.dispatchEvent(new Event('kjb-install-change'));
+          window.dispatchEvent(new Event('pwa-installable'));
+        });
+        
+        // Also listen for appinstalled to clear state
+        window.addEventListener('appinstalled', function() {
+          console.log('[index.html] appinstalled event fired');
+          window.kjbDeferredPrompt = null;
+          window.kjbPromptFired = false;
         });
       })();
     </script>

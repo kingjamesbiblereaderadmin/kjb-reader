@@ -139,14 +139,14 @@ export function useInstallPrompt() {
     check();
     
     const sync = () => {
-      // Always check window.kjbDeferredPrompt first (set by event listener)
+      // Always check window.kjbDeferredPrompt first (set by index.html event listener)
       if (!deferredPrompt && window.kjbDeferredPrompt) {
         deferredPrompt = window.kjbDeferredPrompt;
-        console.log('[useInstallPrompt] Synced deferredPrompt from window');
+        console.log('[useInstallPrompt] ✓ Synced deferredPrompt from window');
       }
       // Use deferredPrompt OR PWA criteria check (for Edge desktop on first load)
       const installable = !!deferredPrompt || isPwaInstallable();
-      console.log('[useInstallPrompt] isInstallable:', installable, 'deferredPrompt:', !!deferredPrompt);
+      console.log('[useInstallPrompt] isInstallable:', installable, '| deferredPrompt:', !!deferredPrompt, '| window.kjbDeferredPrompt:', !!window.kjbDeferredPrompt);
       setIsInstallable(installable);
       // Re-check installed state on focus (user may have just installed)
       checkInstalledAsync().then(installed => {
@@ -157,7 +157,7 @@ export function useInstallPrompt() {
     window.addEventListener('kjb-install-change', sync);
     window.addEventListener('focus', sync);
     window.addEventListener('pwa-installed', sync);
-    // Initial sync
+    // Initial sync on mount
     sync();
     return () => {
       cancelled = true;

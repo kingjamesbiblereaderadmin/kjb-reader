@@ -1049,13 +1049,13 @@ export default function SettingsPage() {
           <div className="space-y-3">
             <button
               onClick={() => {
-                console.log('[Settings] Install button clicked - isInstallable:', isInstallable, 'deferredPrompt:', !!window.kjbDeferredPrompt);
+                const ua = navigator.userAgent;
+                console.log('[Settings] Install clicked | UA:', ua.substring(0, 100));
+                console.log('[Settings] isInstallable:', isInstallable, '| window.kjbDeferredPrompt:', !!window.kjbDeferredPrompt);
                 // Try native prompt first (Android Chrome/Edge/Samsung). If not available or cancelled, show manual guide.
                 promptInstall().then((result) => {
-                  console.log('[Settings] promptInstall result:', result);
+                  console.log('[Settings] promptInstall result:', result, '| isIOS:', /iphone|ipad|ipod/i.test(ua));
                   // Only show manual guide if native prompt wasn't available OR user cancelled
-                  // iOS Safari never has native prompt - always show manual
-                  const ua = navigator.userAgent;
                   const isIOS = /iphone|ipad|ipod/i.test(ua);
                   const isFirefox = /firefox/i.test(ua);
                   const isMacSafari = !/chrome|android|crios|edg/i.test(ua) && /safari/i.test(ua) && /Macintosh|Mac OS X/i.test(ua);
@@ -1063,7 +1063,7 @@ export default function SettingsPage() {
                     setShowInstallHint(true);
                   }
                 }).catch((err) => {
-                  console.error('Install prompt failed:', err);
+                  console.error('[Settings] Install prompt failed:', err);
                   setShowInstallHint(true);
                 });
               }}

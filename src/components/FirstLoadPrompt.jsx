@@ -171,10 +171,13 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
     promptedRef.current = true;
     try { window.kjbPromptedThisSession = true; } catch {}
     
+    console.log('[FirstLoadPrompt] Install clicked | deferredPrompt:', !!window.kjbDeferredPrompt, '| isInstallable:', isInstallable);
+    
     // Always try native prompt first (Edge desktop/mobile, Chrome, Samsung)
     if (onInstall) {
       try {
         const accepted = await onInstall();
+        console.log('[FirstLoadPrompt] promptInstall result:', accepted);
         if (accepted) {
           setInstallDone(true);
           return;
@@ -191,6 +194,7 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
       }
     }
     // No native prompt available, show manual guide
+    console.log('[FirstLoadPrompt] No onInstall handler available');
     setPromptCancelled(true);
     setShowIOSHint(true);
   };
