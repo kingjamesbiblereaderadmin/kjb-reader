@@ -280,13 +280,19 @@ export default function AppLayout() {
     }
 
     // Show prompt once per session — use ONLY the authoritative isPWAInstalled from display-mode detection
+    // On mobile, only show if NOT installed (don't nag installed users during splash)
+    const isMob = /iphone|ipad|ipod|android/i.test(navigator.userAgent);
     const notifGranted = 'Notification' in window && Notification.permission === 'granted';
     const dismissed = localStorage.getItem('kjb-prompt-dismissed') === 'true' || localStorage.getItem('kjb-install-dismissed') === 'true';
 
     const triggerPrompt = () => {
       if (isPWAInstalled && !notifGranted) {
         setTimeout(() => setShowPrompt(true), 1500);
-      } else if (!isPWAInstalled && !dismissed) {
+      } else if (!isPWAInstalled && !dismissed && !isMob) {
+        // Desktop: show prompt for install/config
+        setTimeout(() => setShowPrompt(true), 1500);
+      } else if (!isPWAInstalled && !dismissed && isMob) {
+        // Mobile: only show if user hasn't dismissed (no aggressive prompt during splash)
         setTimeout(() => setShowPrompt(true), 1500);
       }
     };
