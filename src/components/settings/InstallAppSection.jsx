@@ -122,6 +122,9 @@ export default function InstallAppSection({ expanded, isIncognito }) {
             
             <button
               onClick={() => {
+                if (!confirm('Reset the installation status? This will not uninstall the app — it only clears the "installed" flag so you can see the install prompt again.')) {
+                  return;
+                }
                 localStorage.removeItem('kjb-is-installed');
                 localStorage.removeItem('kjb-install-dismissed');
                 localStorage.removeItem('kjb-prompt-dismissed');
