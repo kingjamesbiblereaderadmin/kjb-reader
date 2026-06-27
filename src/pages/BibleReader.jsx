@@ -517,8 +517,6 @@ export default function BibleReader() {
         const range = new Set();
         for (let v = verseNum; v <= verseEnd; v++) range.add(v);
         setSelectedVerses(range); setHighlightedVerses(range); setFilterMode(true);
-      } else {
-        setFilterMode(false); setSelectedVerses(new Set()); setHighlightedVerses(new Set());
       }
       
       if (isFromGospel) {
@@ -549,9 +547,25 @@ export default function BibleReader() {
           setSearchResultIndex(index); setSearchTotalResults(results.length);
         }
         if (results[index]) { stepToResult(results[index]); return; }
-      } else {
-        searchClearedRef.current = true; clearSearchNav(); setSearchTerm(null);
-        setSearchResultIndex(0); setSearchTotalResults(0);
+      } else if (!searchClearedRef.current) {
+        // Only clear search context if explicitly cleared (not on normal navigation)
+        // This preserves search state when returning to the reader
+        const savedState = localStorage.getItem('kjb-reader-toolbar-state');
+        if (savedState) {
+          try {
+            const state = JSON.parse(savedState);
+            if (state.hasSearchContext && state.abbr === urlBookObj?.abbr && state.chapter === chapterNum) {
+              // Restore search context from localStorage
+              const { term, index, results } = getSearchNav();
+              if (term && results.length > 0) {
+                searchClearedRef.current = false;
+                setSearchTerm(term);
+                setSearchResultIndex(index);
+                setSearchTotalResults(results.length);
+              }
+            }
+          } catch {}
+        }
       }
       
       if (posRef.current.abbr === urlBookObj.abbr && posRef.current.chapter === chapterNum && posRef.current.verse === verseNum && !isFromGospel) {
@@ -846,7 +860,7 @@ export default function BibleReader() {
     return () => { window.removeEventListener('focus', refreshContext); };
   }, []);
 
-  // Persist toolbar state (filterMode, selectedVerses, view mode) to localStorage with chapter context
+  // Persist toolbar state with chapter + search context
   useEffect(() => {
     if (loading) return;
     try {
@@ -856,37 +870,40 @@ export default function BibleReader() {
         filterMode,
         selectedVerses: [...selectedVerses],
         resultView: resultViewRef.current,
+        // Include search/gospel context so we restore the toolbar even if searchTerm state lags
+        hasSearchContext: !!(searchTerm || gospelMode || lastReadingActive),
         timestamp: Date.now()
       };
       localStorage.setItem('kjb-reader-toolbar-state', JSON.stringify(state));
     } catch {}
-  }, [filterMode, selectedVerses, pos.abbr, pos.chapter, loading]);
+  }, [filterMode, selectedVerses, searchTerm, gospelMode, lastReadingActive, pos.abbr, pos.chapter, loading]);
 
-  // Restore toolbar state on mount/focus when returning to the same chapter
+  // Restore toolbar state after chapter loads
   useEffect(() => {
+    if (loading || verses.length === 0) return;
     const restoreToolbarState = () => {
-      if (loading || verses.length === 0) return;
       try {
         const saved = localStorage.getItem('kjb-reader-toolbar-state');
         if (!saved) return;
         const state = JSON.parse(saved);
         // Restore if we're on the same chapter (state is recent < 10 min)
         if (state && state.abbr === pos.abbr && state.chapter === pos.chapter && Date.now() - state.timestamp < 600000) {
-          if (state.filterMode !== undefined && state.filterMode !== filterMode) setFilterMode(state.filterMode);
+          // Restore filterMode and selectedVerses
+          if (state.filterMode !== undefined) setFilterMode(state.filterMode);
           if (state.selectedVerses && state.selectedVerses.length > 0) {
             const newSet = new Set(state.selectedVerses);
-            if (newSet.size !== selectedVerses.size || ![...newSet].every(v => selectedVerses.has(v))) {
-              setSelectedVerses(newSet);
-              setHighlightedVerses(newSet);
-            }
+            setSelectedVerses(newSet);
+            setHighlightedVerses(newSet);
           }
           if (state.resultView) resultViewRef.current = state.resultView;
         }
       } catch {}
     };
+    // Restore immediately after verses load, then on focus
     restoreToolbarState();
+    const timer = setTimeout(restoreToolbarState, 100);
     window.addEventListener('focus', restoreToolbarState);
-    return () => window.removeEventListener('focus', restoreToolbarState);
+    return () => { clearTimeout(timer); window.removeEventListener('focus', restoreToolbarState); };
   }, [loading, pos.abbr, pos.chapter, verses.length]);
 
   const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isAutoAdvance = false, section = null, preserveSearchContext = false) => {
@@ -977,8 +994,9 @@ export default function BibleReader() {
       } catch {}
     } else {
       rangeHighlightRef.current = false;
+      // Don't clear filterMode/selectedVerses when in search/gospel mode - preserve toolbar state
       if (!searchTerm && !gospelMode) {
-        setFilterMode(false); setHighlightedVerses(new Set()); setSelectedVerses(new Set());
+        setFilterMode(false);
       }
       try {
         const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
