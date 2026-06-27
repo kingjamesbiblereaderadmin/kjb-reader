@@ -225,9 +225,22 @@ export default function AppLayout() {
     // Initialize periodic cache refresh (checks every 24 hours when user opens app)
     initPeriodicCacheRefresh();
 
-    // Initialize daily-verse notifications app-wide
-    if (getNotificationsEnabled()) {
+    // Initialize daily-verse notifications app-wide - check BOTH localStorage AND OS permission
+    const notifEnabled = getNotificationsEnabled();
+    const osPermission = 'Notification' in window ? Notification.permission : 'unsupported';
+    console.log('[AppLayout] Init | enabled:', notifEnabled, '| OS permission:', osPermission, '| PWA:', isPWAInstalled);
+    
+    if (notifEnabled && osPermission === 'granted') {
       initNotifications();
+    } else if (notifEnabled && osPermission !== 'granted') {
+      console.warn('[AppLayout] Notifications enabled in localStorage but OS permission is', osPermission, '- re-requesting...');
+      // User enabled notifications but OS permission was lost (e.g., cleared site data)
+      // Re-request permission to restore functionality
+      requestNotificationPermission().then(result => {
+        if (result === 'granted') {
+          initNotifications();
+        }
+      });
     }
 
     // Show prompt once per session — use ONLY the authoritative isPWAInstalled from display-mode detection
@@ -499,15 +512,24 @@ function useAppLayoutPrompt() {
   useEffect(() => {
     const checkNotif = () => {
       if (!('Notification' in window)) return;
-      setNotifPermission(Notification.permission);
-      setNotifEnabled(getNotificationsEnabled());
+      const perm = Notification.permission;
+      const enabled = getNotificationsEnabled();
+      console.log('[AppLayout] Notif sync | permission:', perm, '| enabled:', enabled);
+      setNotifPermission(perm);
+      setNotifEnabled(enabled);
     };
+    // Check immediately on mount
+    checkNotif();
+    // Sync on events
     window.addEventListener('storage', checkNotif);
     window.addEventListener('focus', checkNotif);
     document.addEventListener('visibilitychange', checkNotif);
+    // Custom event for cross-context sync
+    window.addEventListener('kjb-notif-changed', checkNotif);
     return () => {
       window.removeEventListener('storage', checkNotif);
       window.removeEventListener('focus', checkNotif);
+      window.removeEventListener('kjb-notif-changed', checkNotif);
       document.removeEventListener('visibilitychange', checkNotif);
     };
   }, []);
@@ -528,7 +550,9 @@ function useAppLayoutPrompt() {
         localStorage.setItem('kjb-notifications-enabled', 'true');
         scheduleDailyNotification();
         setNotifEnabled(true);
+        // Force sync across all contexts (PWA + browser tabs)
         window.dispatchEvent(new Event('storage'));
+        window.dispatchEvent(new CustomEvent('kjb-notif-changed', { detail: { enabled: true } }));
         return 'granted';
       } else if (result === 'denied' || actualPermission === 'denied') {
         alert('Notifications are blocked. Please allow notifications in your browser/app settings for this site.');
