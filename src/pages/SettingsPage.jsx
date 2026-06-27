@@ -195,11 +195,17 @@ export default function SettingsPage() {
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);
 
   const { isInstallable, isInstalled: hookIsInstalled, promptInstall, isSamsung } = useInstallPrompt();
-  // Double-check installed state using display-mode media query (most reliable for standalone PWA)
+  // Double-check installed state using display-mode media query + localStorage flag
   const [isInstalled, setIsInstalled] = useState(() => {
     if (typeof window === 'undefined') return false;
     // Exclude iframe contexts to prevent false positives
     try { if (window.self !== window.top) return false; } catch (e) { return false; }
+    // Check localStorage flag first (persists across PWA/browser windows)
+    try {
+      const stored = localStorage.getItem('kjb-is-installed');
+      if (stored === 'true') return true;
+    } catch {}
+    // Then check runtime signals
     return hookIsInstalled || 
            window.matchMedia('(display-mode: standalone)').matches ||
            window.matchMedia('(display-mode: minimal-ui)').matches ||
