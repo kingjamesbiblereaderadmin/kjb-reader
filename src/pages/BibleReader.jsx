@@ -973,46 +973,26 @@ export default function BibleReader() {
   }, [searchTerm, gospelMode, filterMode, selectedVerses, highlightVerse, pos]);
   
   const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isAutoAdvance = false, section = null, preserveSearchContext = false) => {
-    // ALWAYS clear search/gospel context for daily/random navigation (fresh start)
-    // For other navigation, clear only when moving to a DIFFERENT chapter.
     const sameChapter = newAbbr === pos.abbr && newChapter === pos.chapter;
     
-    // Save current position as previous reading session before navigating away
-    // (only if we're not already in a special mode like search/gospel/daily)
-    const hasActiveIndicator = searchTerm || gospelMode || lastReadingPos || (filterMode && selectedVerses.size > 0);
-    if (!hasActiveIndicator && pos.abbr && pos.chapter && !sameChapter) {
-      const scroller = document.getElementById('kjb-scroll');
-      const scrollY = scroller ? scroller.scrollTop : window.scrollY;
-      const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY };
-      try { localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession)); } catch {}
-      setPrevReadingSession(prevSession);
-    }
+    // ALWAYS save current position as previous reading session before any navigation
+    // This ensures we can always return to where the user was reading
+    const scroller = document.getElementById('kjb-scroll');
+    const scrollY = scroller ? scroller.scrollTop : window.scrollY;
+    const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY };
+    try { localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession)); } catch {}
+    setPrevReadingSession(prevSession);
     
-    if (fromDailyVerse || fromRandom) {
-      // Clear all search/gospel context for daily/random
-      searchClearedRef.current = true; clearSearchNav(); setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
-      setGospelMode(false); clearGospelNav();
-    } else if (!preserveSearchContext && !sameChapter) {
-      // Clear search context when moving to different chapter
+    // Clear search/gospel context for daily/random or when moving to different chapter
+    if (fromDailyVerse || fromRandom || (!preserveSearchContext && !sameChapter)) {
       searchClearedRef.current = true; clearSearchNav(); setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
       setGospelMode(false); clearGospelNav();
     }
     
-    // Also clear search context when daily verse flag is set (even if same chapter)
-    if (fromDailyVerse && searchTerm) {
-      searchClearedRef.current = true; clearSearchNav(); setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
-      setGospelMode(false); clearGospelNav();
-    }
     if ((fromDailyVerse || fromRandom) && pos.abbr && pos.chapter) {
       lastReadingClearedRef.current = false;
-      const scroller = document.getElementById('kjb-scroll');
-      const scrollY = scroller ? scroller.scrollTop : window.scrollY;
-      // Save current position as previous session, then set daily/random as lastReadingPos
-      const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY };
-      try { localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession)); } catch {}
-      setPrevReadingSession(prevSession);
-      // lastReadingPos now points to the daily/random verse location (where we're going)
-      const lastPos = { abbr: newAbbr, chapter: newChapter, fromDailyVerse, fromRandom, scrollY: 0, prevAbbr: pos.abbr, prevChapter: pos.chapter };
+      // lastReadingPos tracks the daily/random verse destination + where we came from
+      const lastPos = { abbr: newAbbr, chapter: newChapter, fromDailyVerse, fromRandom, prevAbbr: pos.abbr, prevChapter: pos.chapter, prevScrollY: scrollY };
       try { localStorage.setItem('kjb-last-reading', JSON.stringify(lastPos)); } catch {}
       setLastReadingPos(lastPos);
     } else {
@@ -1367,13 +1347,11 @@ export default function BibleReader() {
                   }}
                   onClear={() => {
                     if (searchTerm) {
-                      // Clear search context and return to previous reading position
                       clearSearchContext();
                       return;
                     }
                     if (gospelMode) {
                       clearGospelNav(); setGospelMode(false);
-                      // Return to where the user was reading before the gospel jump
                       const back = preSearchPosRef.current;
                       preSearchPosRef.current = null;
                       try { localStorage.removeItem('kjb-pre-jump'); } catch {}
@@ -1385,36 +1363,19 @@ export default function BibleReader() {
                       }
                       return;
                     }
-                    if (lastReadingPos && (lastReadingPos.fromDailyVerse || lastReadingPos.fromRandom)) {
-                      // Clearing daily/random verse - return to previous reading session
-                      const abbr = lastReadingPos.prevAbbr || (prevReadingSession && prevReadingSession.abbr);
-                      const chapter = lastReadingPos.prevChapter || (prevReadingSession && prevReadingSession.chapter);
-                      const scrollY = typeof lastReadingPos.scrollY === 'number' ? lastReadingPos.scrollY : (prevReadingSession && prevReadingSession.scrollY);
-                      lastReadingClearedRef.current = true; searchClearedRef.current = true;
-                      setLastReadingPos(null);
-                      try { localStorage.removeItem('kjb-last-reading'); } catch {}
-                      if (abbr && chapter) {
-                        returnToChapter(abbr, chapter, scrollY);
-                      }
+                    // For ALL other cases, return to previous reading session
+                    const abbr = (lastReadingPos && lastReadingPos.prevAbbr) || (prevReadingSession && prevReadingSession.abbr);
+                    const chapter = (lastReadingPos && lastReadingPos.prevChapter) || (prevReadingSession && prevReadingSession.chapter);
+                    const scrollY = (lastReadingPos && typeof lastReadingPos.prevScrollY === 'number') ? lastReadingPos.prevScrollY : (prevReadingSession && prevReadingSession.scrollY);
+                    // Clear all state
+                    if (lastReadingPos) { setLastReadingPos(null); try { localStorage.removeItem('kjb-last-reading'); } catch {} }
+                    setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
+                    setHighlightVerse(null); setHighlightSection(null); setShowFilterOverlay(false);
+                    setHighlightedVerses(new Set());
+                    if (abbr && chapter) {
+                      returnToChapter(abbr, chapter, scrollY);
                     } else {
-                      // Clear filter/highlight and return to previous reading session
-                      setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
-                      setHighlightVerse(null); setShowFilterOverlay(false);
-                      // Read directly from localStorage to get the freshest value
-                      try {
-                        const prevSaved = localStorage.getItem('kjb-prev-reading-session');
-                        if (prevSaved) {
-                          const prev = JSON.parse(prevSaved);
-                          if (prev && prev.abbr && prev.chapter) {
-                            returnToChapter(prev.abbr, prev.chapter, prev.scrollY);
-                            return;
-                          }
-                        }
-                      } catch {}
-                      // Fallback to state if localStorage fails
-                      if (prevReadingSession && prevReadingSession.abbr && prevReadingSession.chapter) {
-                        returnToChapter(prevReadingSession.abbr, prevReadingSession.chapter, prevReadingSession.scrollY);
-                      }
+                      try { window.history.replaceState({}, '', '/read'); } catch {}
                     }
                   }}
                 />
