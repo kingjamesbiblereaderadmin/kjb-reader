@@ -12,12 +12,24 @@ export default function InstallDebugPanel() {
   const dmOverlay = typeof window !== 'undefined' && window.matchMedia('(display-mode: window-controls-overlay)').matches;
   const localStorageInstalled = typeof window !== 'undefined' ? localStorage.getItem('kjb-is-installed') : 'N/A';
   const hasGetInstalled = typeof navigator !== 'undefined' && navigator.getInstalledRelatedApps;
+  
+  // Log all detection values on render
+  if (typeof window !== 'undefined') {
+    console.log('[DebugPanel] Detection values | dm-standalone:', dmStandalone, '| dm-minimal:', dmMinimal, '| dm-overlay:', dmOverlay, '| localStorage:', localStorageInstalled, '| getInstalled:', hasGetInstalled);
+  }
 
   useEffect(() => {
     if (hasGetInstalled && !isIframe) {
       navigator.getInstalledRelatedApps().then(apps => {
-        setGetInstalledResult(apps?.length || 0);
-        console.log('[DebugPanel] getInstalledRelatedApps:', apps);
+        const count = apps?.length || 0;
+        setGetInstalledResult(count);
+        console.log('[DebugPanel] getInstalledRelatedApps:', apps, '| count:', count);
+        // If apps found, ensure localStorage is set
+        if (count > 0) {
+          localStorage.setItem('kjb-is-installed', 'true');
+          localStorage.setItem('kjb-install-timestamp', Date.now().toString());
+          window.dispatchEvent(new Event('storage'));
+        }
       }).catch(err => {
         setGetInstalledResult('error');
         console.error('[DebugPanel] getInstalledRelatedApps error:', err);
