@@ -571,6 +571,13 @@ export default function BibleReader() {
             setLastReadingPos(dailyPos);
           }
         } catch {}
+        // For daily/random, set as a single-verse selection so the highlight shows
+        if (verseNum) {
+          const single = new Set([verseNum]);
+          setSelectedVerses(single);
+          setHighlightedVerses(single);
+          setFilterMode(true);
+        }
       }
       // Set highlight BEFORE loading the chapter so it applies on render
       setHighlightVerse(verseNum || null);
