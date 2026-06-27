@@ -53,8 +53,7 @@ const checkInstalledAsync = async () => {
     }
   }
   
-  // Persist install state to localStorage for cross-tab sync (but don't read it -
-  // we only trust runtime display-mode detection to avoid false positives after uninstall)
+  // Persist install state to localStorage for cross-tab sync
   if (isInstalled) {
     try {
       localStorage.setItem(INSTALLED_KEY, 'true');
@@ -63,7 +62,17 @@ const checkInstalledAsync = async () => {
     return true;
   }
   
-  console.log('[InstallCheck] ✗ Not installed (no standalone mode)');
+  // Fallback: check localStorage flag (set by PWA window when installed)
+  // This allows normal browser tabs to show "Installed" when PWA is installed
+  try {
+    const stored = localStorage.getItem(INSTALLED_KEY);
+    if (stored === 'true') {
+      console.log('[InstallCheck] ✓ localStorage flag → installed (PWA installed)');
+      return true;
+    }
+  } catch {}
+  
+  console.log('[InstallCheck] ✗ Not installed (no standalone mode, no localStorage flag)');
   return false;
 };
 

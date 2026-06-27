@@ -32,12 +32,8 @@ export default function InstallAppSection({ expanded, isIncognito }) {
     if (typeof window === 'undefined') return;
     try { if (window.self !== window.top) { setIsInstalled(false); return; } } catch { return; }
     
-    const result = hookIsInstalled || 
-                   window.matchMedia('(display-mode: standalone)').matches ||
-                   window.matchMedia('(display-mode: minimal-ui)').matches ||
-                   window.matchMedia('(display-mode: window-controls-overlay)').matches ||
-                   (navigator.standalone === true);
-    setIsInstalled(result);
+    // Use hook's authoritative check (includes localStorage sync for cross-tab install detection)
+    setIsInstalled(hookIsInstalled);
   }, [hookIsInstalled]);
 
   useEffect(() => {
