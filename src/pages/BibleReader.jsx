@@ -1388,7 +1388,7 @@ export default function BibleReader() {
             )}
           </div>
 
-          {(selectMode || (filterMode && selectedVerses.size > 0) || (searchTerm && highlightVerse) || (gospelMode && highlightVerse)) && (
+          {(selectMode || (filterMode && selectedVerses.size > 0)) && (
             <SelectActionBar
               selectedCount={selectedVerses.size} totalVerses={verses.length} copyFeedback={copyFeedback} shareFeedback={shareFeedback} shareLinkFeedback={shareLinkFeedback}
               onSelectAll={selectAllVerses} onCancel={() => {
@@ -1402,9 +1402,9 @@ export default function BibleReader() {
             />
           )}
 
-          {!selectMode && selectedVerses.size > 0 && !searchTerm && !gospelMode && (
+          {!selectMode && selectedVerses.size > 0 && (
             <ReadingRangeBar
-              label={`Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`}
+              label={searchTerm ? `Search: "${searchTerm}"` : gospelMode ? 'Gospel' : `Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`}
               filterMode={filterMode} copyFeedback={copyFeedback} shareFeedback={shareFeedback} shareLinkFeedback={shareLinkFeedback}
               onCopy={handleCopySelected} onShareText={handleShareChapter} onShareLink={handleShareLink} onPrintPage={() => window.print()}
               onPrintContents={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode, paragraphMode)}
@@ -1418,7 +1418,11 @@ export default function BibleReader() {
                   return next;
                 });
               }}
-              onClear={() => { rangeHighlightRef.current = false; setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setHighlightedVerses(new Set()); setShowFilterOverlay(false); }}
+              onClear={() => {
+                if (searchTerm) { clearSearchContext(); return; }
+                if (gospelMode) { clearGospelNav(); setGospelMode(false); setHighlightVerse(null); return; }
+                rangeHighlightRef.current = false; setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setHighlightedVerses(new Set()); setShowFilterOverlay(false);
+              }}
             />
           )}
         </div>
