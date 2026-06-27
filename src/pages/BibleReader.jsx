@@ -1016,6 +1016,12 @@ export default function BibleReader() {
       try { localStorage.setItem(`kjb-scroll-${abbr}-${chapter}`, String(Math.round(exactY))); } catch {}
     }
     
+    // CRITICAL: update pos to the target chapter. Without this, pos stays on the
+    // daily/search chapter, the URL-sync effect rewrites the URL back to it, and
+    // the chapter reloads — so Clear appears to "do nothing but hide the indicator".
+    setPos({ abbr, chapter, verse: null });
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr, chapter, verse: null, verseEnd: null })); } catch {}
+    
     try { window.history.replaceState({}, '', '/read'); } catch {}
     freshNavRef.current = false;
     
