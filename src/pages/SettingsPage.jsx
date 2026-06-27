@@ -1136,12 +1136,33 @@ export default function SettingsPage() {
                     : 'Shows the daily verse when you open the app on a new day'}
                 </p>
               </div>
-              <Switch
-                checked={notifEnabled}
-                onCheckedChange={handleToggleNotifications}
-                disabled={notifPermission === 'denied'}
-                className="shrink-0"
-              />
+              <div
+                role="switch"
+                aria-checked={notifEnabled}
+                tabIndex={notifPermission === 'denied' ? -1 : 0}
+                onClick={(e) => {
+                  if (notifPermission !== 'denied') {
+                    e.stopPropagation();
+                    handleToggleNotifications();
+                  }
+                }}
+                onTouchEnd={(e) => {
+                  if (notifPermission !== 'denied') {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    handleToggleNotifications();
+                  }
+                }}
+                className={`shrink-0 inline-flex h-5 w-9 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors ${
+                  notifEnabled ? 'bg-primary' : 'bg-input'
+                } ${notifPermission === 'denied' ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <div
+                  className={`pointer-events-none block h-4 w-4 rounded-full bg-background shadow-lg ring-0 transition-transform ${
+                    notifEnabled ? 'translate-x-4' : 'translate-x-0'
+                  }`}
+                />
+              </div>
             </div>
             {notifEnabled && (
             <div className="pt-1">
