@@ -679,6 +679,18 @@ export default function BibleReader() {
       const tStop = setTimeout(() => ro && ro.disconnect(), 2000);
       return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(tStop); ro && ro.disconnect(); };
     }
+    // When returning from home/navigation, check lastReading for daily verse highlight
+    const lastReadingRaw = localStorage.getItem('kjb-last-reading');
+    if (lastReadingRaw && !highlightVerse) {
+      try {
+        const parsed = JSON.parse(lastReadingRaw);
+        if (parsed && parsed.abbr === pos.abbr && parsed.chapter === pos.chapter && parsed.verse) {
+          setHighlightVerse(parsed.verse);
+          setHighlightedVerses(new Set([parsed.verse]));
+          setTimeout(() => scrollToVerseEl(parsed.verse), 100);
+        }
+      } catch {}
+    }
     if (freshNavRef.current) {
       freshNavRef.current = false;
       (document.getElementById('kjb-scroll') || window).scrollTo({ top: 0 });
@@ -797,6 +809,12 @@ export default function BibleReader() {
           const parsed = JSON.parse(saved);
           if (parsed) {
             setLastReadingPos(parsed);
+            // Restore highlight for daily verse when returning from home/navigation
+            if (parsed.abbr === pos.abbr && parsed.chapter === pos.chapter && parsed.verse) {
+              setHighlightVerse(parsed.verse);
+              setHighlightedVerses(new Set([parsed.verse]));
+              setTimeout(() => scrollToVerseEl(parsed.verse), 100);
+            }
           }
         }
       } catch {}
@@ -804,7 +822,7 @@ export default function BibleReader() {
     sync();
     window.addEventListener('storage', sync); window.addEventListener('focus', sync); window.addEventListener('kjb-fonts-changed', sync);
     return () => { window.removeEventListener('storage', sync); window.removeEventListener('focus', sync); window.removeEventListener('kjb-fonts-changed', sync); };
-  }, [routerLocation.pathname]);
+  }, [routerLocation.pathname, pos.abbr, pos.chapter]);
 
   useEffect(() => {
     const refreshContext = () => {
