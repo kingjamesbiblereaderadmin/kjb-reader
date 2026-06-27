@@ -123,21 +123,27 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
     if (parentIsInstalled) setInstallDone(true);
   }, [parentIsInstalled]);
 
-  // Sync notif state on focus - show enabled if localStorage flag is set AND browser permission is granted
+  // Sync notif state on mount and focus - show enabled if localStorage flag is set AND browser permission is granted
   useEffect(() => {
     const checkNotif = () => {
       try {
-        // Check localStorage (persistent) OR session flag
-        const enabled = localStorage.getItem('kjb-notifications-enabled') === 'true' || window.kjbNotifEnabledThisSession === true;
+        // Check localStorage (persistent) AND browser permission is granted
+        const enabled = localStorage.getItem('kjb-notifications-enabled') === 'true';
         const permissionGranted = 'Notification' in window && Notification.permission === 'granted';
         if (enabled && permissionGranted) {
           setNotifDone(true);
+        } else {
+          setNotifDone(false);
         }
       } catch {}
     };
     checkNotif();
     window.addEventListener('focus', checkNotif);
-    return () => window.removeEventListener('focus', checkNotif);
+    document.addEventListener('visibilitychange', checkNotif);
+    return () => {
+      window.removeEventListener('focus', checkNotif);
+      document.removeEventListener('visibilitychange', checkNotif);
+    };
   }, []);
 
   const pickReaderFont = (value) => {
