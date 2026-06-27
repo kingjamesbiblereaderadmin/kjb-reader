@@ -636,15 +636,19 @@ export default function BibleReader() {
         // Restore toolbar state from localStorage (search/gospel context persists across app restarts)
         try {
           const savedState = localStorage.getItem('kjb-reader-toolbar-state');
+          console.log('[BibleReader] Fallback restore - saved state:', savedState);
           if (savedState) {
             const state = JSON.parse(savedState);
+            console.log('[BibleReader] Fallback restore - parsed state:', state);
             if (state && state.abbr === p.abbr && state.chapter === p.chapter) {
+              // Restore search context
               if (state.hasSearchContext && state.searchTerm) {
                 searchClearedRef.current = false;
                 setSearchTerm(state.searchTerm);
                 setSearchResultIndex(state.searchResultIndex || 0);
                 setSearchTotalResults(state.searchTotalResults || 0);
               }
+              // Restore gospel context
               if (state.hasGospelContext) {
                 const g = getGospelNav();
                 if (g.results.length > 0) {
@@ -653,6 +657,7 @@ export default function BibleReader() {
                   setGospelTotalResults(g.results.length);
                 }
               }
+              // Restore filter mode and selected verses
               if (state.filterMode !== undefined) setFilterMode(state.filterMode);
               if (state.selectedVerses && state.selectedVerses.length > 0) {
                 const newSet = new Set(state.selectedVerses);
@@ -661,7 +666,9 @@ export default function BibleReader() {
               }
             }
           }
-        } catch {}
+        } catch (err) {
+          console.error('[BibleReader] Fallback restore error:', err);
+        }
         // Restore a previously highlighted verse or multi-verse range so coming
         // back to the Reader keeps the highlight, not just the chapter.
         if (p.verse && p.verseEnd && p.verseEnd > p.verse) {
@@ -675,7 +682,9 @@ export default function BibleReader() {
         setHighlightVerse(p.verse || null);
         loadChapter(p.abbr, p.chapter, p.verse || null);
       }
-    } catch {}
+    } catch (err) {
+      console.error('[BibleReader] Fallback restore error:', err);
+    }
     try {
       const saved = localStorage.getItem('kjb-last-reading');
       if (saved) {
