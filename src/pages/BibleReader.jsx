@@ -871,12 +871,12 @@ export default function BibleReader() {
         selectedVerses: [...selectedVerses],
         resultView: resultViewRef.current,
         // Include search/gospel context so we restore the toolbar even if searchTerm state lags
-        hasSearchContext: !!(searchTerm || gospelMode || lastReadingActive),
+        hasSearchContext: !!(searchTerm || gospelMode || (lastReadingPos && !lastReadingPos.cleared)),
         timestamp: Date.now()
       };
       localStorage.setItem('kjb-reader-toolbar-state', JSON.stringify(state));
     } catch {}
-  }, [filterMode, selectedVerses, searchTerm, gospelMode, lastReadingActive, pos.abbr, pos.chapter, loading]);
+  }, [filterMode, selectedVerses, searchTerm, gospelMode, lastReadingPos, pos.abbr, pos.chapter, loading]);
 
   // Restore toolbar state after chapter loads
   useEffect(() => {
