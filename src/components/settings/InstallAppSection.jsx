@@ -82,6 +82,15 @@ export default function InstallAppSection({ expanded, isIncognito }) {
         <p className="font-sans text-sm text-muted-foreground leading-relaxed">
           Add the KJB Reader to your home screen for quick access and offline reading.
         </p>
+        
+        {/* Debug info - shows detection state */}
+        <div className="rounded-xl bg-secondary/30 border border-border p-3 font-sans text-xs">
+          <p className="font-medium text-foreground mb-1">Debug Info:</p>
+          <p className="text-muted-foreground">hookIsInstalled: <span className={hookIsInstalled ? 'text-green-600' : 'text-red-500'}>{hookIsInstalled ? 'true' : 'false'}</span></p>
+          <p className="text-muted-foreground">local isInstalled: <span className={isInstalled ? 'text-green-600' : 'text-red-500'}>{isInstalled ? 'true' : 'false'}</span></p>
+          <p className="text-muted-foreground">localStorage kjb-is-installed: <span className="text-amber-600">{typeof window !== 'undefined' ? localStorage.getItem('kjb-is-installed') : 'N/A'}</span></p>
+          <p className="text-muted-foreground mt-2">Check browser console for [InstallCheck] and [useInstallPrompt] logs</p>
+        </div>
         {isInstalled ? (
           <div className="space-y-3">
             <div className="rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-900/40 p-4">
@@ -108,18 +117,16 @@ export default function InstallAppSection({ expanded, isIncognito }) {
             </div>
             <button
               onClick={() => {
-                if (confirm('Reset installation status? This will clear the "Installed" flag so you can see the install prompt again. Use this if you uninstalled the app from your home screen.')) {
-                  localStorage.removeItem('kjb-is-installed');
-                  localStorage.removeItem('kjb-install-dismissed');
-                  localStorage.removeItem('kjb-prompt-dismissed');
-                  window.dispatchEvent(new Event('storage'));
-                  window.dispatchEvent(new Event('kjb-install-change'));
-                }
+                localStorage.removeItem('kjb-is-installed');
+                localStorage.removeItem('kjb-install-dismissed');
+                localStorage.removeItem('kjb-prompt-dismissed');
+                window.dispatchEvent(new Event('storage'));
+                window.dispatchEvent(new Event('kjb-install-change'));
               }}
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive font-sans text-sm font-medium hover:bg-destructive/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               <Smartphone className="w-4 h-4" />
-              Reset (I Uninstalled the App)
+              Uninstalled? Reset the status
             </button>
           </div>
         ) : inIframe() ? (

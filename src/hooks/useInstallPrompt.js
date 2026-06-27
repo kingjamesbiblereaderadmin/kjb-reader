@@ -165,9 +165,10 @@ export function useInstallPrompt() {
       const installable = !!deferredPrompt || isPwaInstallable();
       console.log('[useInstallPrompt] isInstallable:', installable, '| deferredPrompt:', !!deferredPrompt, '| window.kjbDeferredPrompt:', !!window.kjbDeferredPrompt);
       setIsInstallable(installable);
-      // Re-check installed state on focus (user may have just installed/uninstalled)
+      // Re-check installed state - this calls checkInstalledAsync which checks display-mode + getInstalledRelatedApps + localStorage
+      console.log('[useInstallPrompt] sync: calling checkInstalledAsync...');
       checkInstalledAsync().then(installed => {
-        console.log('[useInstallPrompt] sync → installed:', installed);
+        console.log('[useInstallPrompt] sync → checkInstalledAsync returned:', installed, '| setting state');
         if (!cancelled) {
           setIsInstalled(installed);
           // Broadcast to other tabs
@@ -175,15 +176,23 @@ export function useInstallPrompt() {
             installChannel.postMessage({ type: 'install-status', installed });
           }
         }
+      }).catch(err => {
+        console.error('[useInstallPrompt] sync error:', err);
       });
     };
     
     // Listen for broadcast messages from PWA window
     if (installChannel) {
       installChannel.onmessage = (event) => {
+        console.log('[useInstallPrompt] 📩 Received broadcast:', event.data);
         if (event.data?.type === 'install-status') {
-          console.log('[useInstallPrompt] Received broadcast:', event.data);
           setIsInstalled(event.data.installed);
+          if (event.data.installed) {
+            localStorage.setItem(INSTALLED_KEY, 'true');
+          } else {
+            localStorage.removeItem(INSTALLED_KEY);
+          }
+          window.dispatchEvent(new Event('storage'));
         }
       };
     }
@@ -194,6 +203,7 @@ export function useInstallPrompt() {
     window.addEventListener('storage', sync);
     window.addEventListener('visibilitychange', sync);
     // Check on mount
+    console.log('[useInstallPrompt] Initial sync on mount');
     sync();
     return () => {
       cancelled = true;

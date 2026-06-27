@@ -92,17 +92,22 @@ export default function AppLayout() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
-      if (window.self !== window.top) return; // iframe
+      if (window.self !== window.top) {
+        console.log('[AppLayout] In iframe, skipping broadcast');
+        return;
+      }
     } catch (e) { return; }
     
     const channel = new BroadcastChannel('kjb-install-status');
+    console.log('[AppLayout] isPWAInstalled:', isPWAInstalled);
     // Only broadcast if we're actually in the PWA window
     if (isPWAInstalled) {
-      console.log('[AppLayout] Broadcasting installed status to browser tabs');
+      console.log('[AppLayout] ✓ Broadcasting installed=true to browser tabs');
       channel.postMessage({ type: 'install-status', installed: true });
       // Also set localStorage for sync
       localStorage.setItem('kjb-is-installed', 'true');
       window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new Event('kjb-install-change'));
     }
     return () => channel.close();
   }, [isPWAInstalled]);
