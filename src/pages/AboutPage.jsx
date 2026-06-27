@@ -116,14 +116,6 @@ export default function AboutPage() {
         </AccordionSection>
       </div>
 
-      {/* Credits */}
-      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-7 mb-8 shadow-lg shadow-black/[0.03]">
-        <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">Credits</h2>
-        <p className="font-sans text-foreground/85 leading-relaxed mb-4">
-          Special thanks to <strong>Elvish Ishaan</strong> for his valuable help and support in building this app.
-        </p>
-      </div>
-
       {/* Links */}
       <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-7 mb-8 shadow-lg shadow-black/[0.03]">
         <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">Links & Contact</h2>
