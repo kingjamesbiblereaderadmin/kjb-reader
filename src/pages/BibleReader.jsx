@@ -1332,15 +1332,13 @@ export default function BibleReader() {
                   }}
                   onClear={() => {
                     if (searchTerm) {
-                      // Clear search context and return to previous chapter
+                      // Clear search context and return to previous reading position
                       clearSearchContext();
                       return;
                     }
                     if (gospelMode) {
                       clearGospelNav(); setGospelMode(false);
                       // Return to where the user was reading before the gospel jump
-                      // (captured in preSearchPosRef by stepToResult), at its saved
-                      // scroll position — same robust path as search/daily/random.
                       const back = preSearchPosRef.current;
                       preSearchPosRef.current = null;
                       try { localStorage.removeItem('kjb-pre-jump'); } catch {}
@@ -1358,14 +1356,32 @@ export default function BibleReader() {
                       lastReadingClearedRef.current = true; searchClearedRef.current = true;
                       setLastReadingPos(null);
                       try { localStorage.removeItem('kjb-last-reading'); } catch {}
-                      // Returning to the chapter you were reading before the daily
-                      // verse / random jump — restore its exact saved scroll position.
+                      // Return to the chapter you were reading before daily/random
                       returnToChapter(abbr, chapter, typeof lastReadingPos.scrollY === 'number' ? lastReadingPos.scrollY : undefined);
                     } else if (filterMode && selectedVerses.size > 0) {
+                      // Clear filter and return to the saved scroll position for this chapter
                       setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
                       setHighlightVerse(null); setShowFilterOverlay(false);
+                      // Restore the saved scroll position for the current chapter
+                      const key = `kjb-scroll-${pos.abbr}-${pos.chapter}`;
+                      let savedY = 0;
+                      try { savedY = parseInt(localStorage.getItem(key) || '0', 10); } catch {}
+                      if (savedY > 0) {
+                        const scroller = document.getElementById('kjb-scroll');
+                        if (scroller) scroller.scrollTo({ top: savedY });
+                        else window.scrollTo({ top: savedY });
+                      }
                     } else {
+                      // Clear highlight and return to saved scroll position
                       setHighlightVerse(null); setFilterMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false);
+                      const key = `kjb-scroll-${pos.abbr}-${pos.chapter}`;
+                      let savedY = 0;
+                      try { savedY = parseInt(localStorage.getItem(key) || '0', 10); } catch {}
+                      if (savedY > 0) {
+                        const scroller = document.getElementById('kjb-scroll');
+                        if (scroller) scroller.scrollTo({ top: savedY });
+                        else window.scrollTo({ top: savedY });
+                      }
                     }
                   }}
                 />
