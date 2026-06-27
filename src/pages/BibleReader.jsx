@@ -852,9 +852,6 @@ export default function BibleReader() {
     const target = scroller || window;
     const getY = () => (scroller ? scroller.scrollTop : window.scrollY);
     let raf = null;
-    // Write the current scroll position immediately (used on scroll-idle and
-    // when the app is backgrounded/closed/unmounted, so the LAST position is
-    // never lost to a dropped rAF callback).
     const flush = () => {
       if (raf) { cancelAnimationFrame(raf); raf = null; }
       try { localStorage.setItem(key, String(Math.round(getY()))); } catch {}

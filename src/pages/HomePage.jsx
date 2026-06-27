@@ -286,42 +286,26 @@ export default function HomePage() {
     if (verse.ref === 'Offline Mode' || verse.book === 'Offline') {
       return;
     }
-    // Resolve the reader's book abbreviation from the full book name. We do NOT
-    // trust verse.abbr from the API — it uses a different abbreviation scheme
-    // (e.g. "1Jo" for 1 John) that the reader can't resolve, which previously
-    // caused a fallback to Genesis. Match on book name first, then verse.abbr.
+    // Resolve the reader's book abbreviation from the full book name.
     const bookData = BIBLE_BOOKS.find(
       b => b.shortName === verse.book || b.apiName === verse.book || b.abbr === verse.abbr
     );
     const abbr = bookData?.abbr || verse.abbr;
 
-    // Ensure we have valid verse data before navigating
     if (!abbr || !verse.chapter || !verse.verse) {
       console.warn('Invalid verse data:', verse, { resolvedAbbr: abbr });
       return;
     }
-    // Clear search term when navigating to daily verse
+    // Clear search term
     try {
       localStorage.removeItem('kjb-search-term');
       localStorage.removeItem('kjb-search-index');
       localStorage.removeItem('kjb-search-total');
       localStorage.removeItem('kjb-search-results');
     } catch {}
-    // Save daily verse as last reading position, plus the previous chapter so
-    // Clear returns to the prior reading session.
+    // Save the DAILY VERSE location (so indicator shows correctly) plus where we came FROM (so Clear returns there)
     try {
-      // Read from kjb-prev-reading-session (BibleReader's continuous save) first,
-      // fall back to kjb-position if not available
-      let currentPos = null;
-      try {
-        const prevSession = localStorage.getItem('kjb-prev-reading-session');
-        if (prevSession) currentPos = JSON.parse(prevSession);
-      } catch {}
-      if (!currentPos || !currentPos.abbr || !currentPos.chapter) {
-        try {
-          currentPos = JSON.parse(localStorage.getItem('kjb-position') || '{}');
-        } catch {}
-      }
+      const currentPos = JSON.parse(localStorage.getItem('kjb-position') || '{}');
       localStorage.setItem('kjb-last-reading', JSON.stringify({
         abbr: abbr,
         chapter: verse.chapter,
@@ -332,14 +316,12 @@ export default function HomePage() {
         prevScrollY: currentPos?.scrollY || 0,
       }));
     } catch {}
-    const savedData = { abbr: abbr, chapter: verse.chapter, verse: verse.verse };
+    // Update current position to the daily verse
     try {
-      localStorage.setItem('kjb-position', JSON.stringify(savedData));
+      localStorage.setItem('kjb-position', JSON.stringify({ abbr: abbr, chapter: verse.chapter, verse: verse.verse }));
     } catch (err) {
       console.error('Failed to save verse position:', err);
     }
-    // Navigate with URL params so the reader scrolls + highlights reliably,
-    // whether it's freshly mounted or already open.
     navigate(`/read?book=${abbr}&chapter=${verse.chapter}&verse=${verse.verse}&from=daily`);
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   };
