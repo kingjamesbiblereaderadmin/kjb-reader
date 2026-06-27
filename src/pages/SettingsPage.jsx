@@ -1049,7 +1049,7 @@ export default function SettingsPage() {
           <div className="space-y-3">
             <button
               onClick={() => {
-                // Fire the native prompt. If cancelled or failed, show manual guide.
+                // Fire the native prompt for ALL browsers. If cancelled or failed, show manual guide.
                 promptInstall().then((result) => {
                   if (result === false) setShowInstallHint(true);
                 }).catch((err) => {
@@ -1059,8 +1059,8 @@ export default function SettingsPage() {
               }}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
-              {/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? <Smartphone className="w-4 h-4" /> : <MonitorSmartphone className="w-4 h-4" />}
-              {/iphone|ipad|ipod|android/i.test(navigator.userAgent) ? 'Add to Home Screen' : 'Install App'}
+              <Smartphone className="w-4 h-4" />
+              Add to Home Screen
             </button>
             
             {showInstallHint && (
