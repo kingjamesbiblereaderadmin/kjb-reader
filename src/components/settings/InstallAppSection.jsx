@@ -32,26 +32,8 @@ export default function InstallAppSection({ expanded, isIncognito }) {
     if (typeof window === 'undefined') return;
     try { if (window.self !== window.top) { setIsInstalled(false); return; } } catch { return; }
     
-    // Use hook's authoritative check (includes localStorage sync for cross-tab install detection)
+    // Use hook's authoritative check (includes display-mode + localStorage sync)
     setIsInstalled(hookIsInstalled);
-  }, [hookIsInstalled]);
-
-  useEffect(() => {
-    const checkInstalled = () => {
-      try { if (window.self !== window.top) return; } catch { return; }
-      const result = hookIsInstalled || 
-                     window.matchMedia('(display-mode: standalone)').matches ||
-                     window.matchMedia('(display-mode: minimal-ui)').matches ||
-                     window.matchMedia('(display-mode: window-controls-overlay)').matches ||
-                     (navigator.standalone === true);
-      setIsInstalled(result);
-    };
-    window.addEventListener('focus', checkInstalled);
-    window.addEventListener('pwa-installed', checkInstalled);
-    return () => {
-      window.removeEventListener('focus', checkInstalled);
-      window.removeEventListener('pwa-installed', checkInstalled);
-    };
   }, [hookIsInstalled]);
 
   const handleInstall = async () => {
