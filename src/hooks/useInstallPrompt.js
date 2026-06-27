@@ -21,13 +21,18 @@ const checkInstalledAsync = async () => {
   let isInstalled = false;
   
   // PRIMARY: display-mode media queries - most reliable signal
-  if (window.matchMedia('(display-mode: standalone)').matches) {
+  const dmStandalone = window.matchMedia('(display-mode: standalone)').matches;
+  const dmMinimal = window.matchMedia('(display-mode: minimal-ui)').matches;
+  const dmOverlay = window.matchMedia('(display-mode: window-controls-overlay)').matches;
+  console.log('[InstallCheck] display-mode checks:', { standalone: dmStandalone, minimal: dmMinimal, overlay: dmOverlay });
+  
+  if (dmStandalone) {
     console.log('[InstallCheck] display-mode: standalone → installed');
     isInstalled = true;
-  } else if (window.matchMedia('(display-mode: minimal-ui)').matches) {
+  } else if (dmMinimal) {
     console.log('[InstallCheck] display-mode: minimal-ui → installed');
     isInstalled = true;
-  } else if (window.matchMedia('(display-mode: window-controls-overlay)').matches) {
+  } else if (dmOverlay) {
     console.log('[InstallCheck] display-mode: window-controls-overlay → installed');
     isInstalled = true;
   }

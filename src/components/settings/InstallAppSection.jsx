@@ -30,9 +30,16 @@ export default function InstallAppSection({ expanded, isIncognito }) {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    try { if (window.self !== window.top) { setIsInstalled(false); return; } } catch { return; }
+    try { 
+      if (window.self !== window.top) { 
+        console.log('[InstallAppSection] In iframe, not installed');
+        setIsInstalled(false); 
+        return; 
+      } 
+    } catch { return; }
     
     // Use hook's authoritative check (includes display-mode + localStorage sync)
+    console.log('[InstallAppSection] hookIsInstalled:', hookIsInstalled);
     setIsInstalled(hookIsInstalled);
   }, [hookIsInstalled]);
 
