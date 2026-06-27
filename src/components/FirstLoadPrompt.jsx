@@ -336,12 +336,54 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
           )}
           
           {installDone && (
-            <div className="rounded-xl bg-green-50 dark:bg-green-900/15 border border-green-200 dark:border-green-900/40 p-2.5 shrink-0">
-              <p className="font-sans text-[10px] sm:text-xs text-green-700 dark:text-green-400 font-medium leading-snug flex items-center gap-1.5">
-                <span className="shrink-0">✓</span>
-                <span>App installed successfully! Configure your reading preferences below.</span>
-              </p>
+            <>
+            <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-900/40 p-2.5 shrink-0">
+              <div className="flex items-start gap-2.5">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                  <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="font-sans text-[11px] sm:text-xs text-emerald-800 dark:text-emerald-300 font-bold leading-snug">✓ Installed!</p>
+                  <p className="font-sans text-[10px] sm:text-xs text-emerald-700 dark:text-emerald-400 mt-1 leading-relaxed">
+                    <strong>Find the app:</strong>
+                    {isIOS() && (
+                      <span className="block mt-0.5">Home screen (swipe right to App Library)</span>
+                    )}
+                    {isAndroid() && (
+                      <span className="block mt-0.5">App drawer or home screen</span>
+                    )}
+                    {!isMobile() && (
+                      <span className="block mt-0.5">Taskbar, Start menu, or Applications folder</span>
+                    )}
+                  </p>
+                </div>
+              </div>
             </div>
+            
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!confirm('Reset installation status? This won\'t uninstall the app — it only clears the "installed" flag so you can see the install prompt again.')) {
+                  return;
+                }
+                localStorage.removeItem('kjb-is-installed');
+                localStorage.removeItem('kjb-install-dismissed');
+                localStorage.removeItem('kjb-prompt-dismissed');
+                window.dispatchEvent(new Event('storage'));
+                window.dispatchEvent(new Event('kjb-install-change'));
+                setInstallDone(false);
+              }}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive font-sans text-xs font-medium hover:bg-destructive/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shrink-0"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v16h16M4 20l16-16" />
+              </svg>
+              Reset Installation Status
+            </button>
+            </>
           )}
 
           {/* Theme Mode */}
