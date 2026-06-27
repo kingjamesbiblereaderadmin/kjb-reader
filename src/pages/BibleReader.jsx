@@ -565,8 +565,9 @@ export default function BibleReader() {
           setSearchResultIndex(index); setSearchTotalResults(results.length);
         }
         if (results[index]) { stepToResult(results[index]); return; }
-      } else {
+      } else if (!isFromDaily && !isFromRandom) {
         // Try to restore search/gospel context from localStorage when returning to the same chapter
+        // Skip restoration for daily/random - they should NOT show search toolbar
         const savedState = localStorage.getItem('kjb-reader-toolbar-state');
         if (savedState) {
           try {
