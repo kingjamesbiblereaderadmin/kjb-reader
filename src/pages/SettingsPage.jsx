@@ -1049,9 +1049,17 @@ export default function SettingsPage() {
           <div className="space-y-3">
             <button
               onClick={() => {
-                // Fire the native prompt for ALL browsers. If cancelled or failed, show manual guide.
+                // Try native prompt first (Android Chrome/Edge/Samsung). If not available or cancelled, show manual guide.
                 promptInstall().then((result) => {
-                  if (result === false) setShowInstallHint(true);
+                  // Only show manual guide if native prompt wasn't available OR user cancelled
+                  // iOS Safari never has native prompt - always show manual
+                  const ua = navigator.userAgent;
+                  const isIOS = /iphone|ipad|ipod/i.test(ua);
+                  const isFirefox = /firefox/i.test(ua);
+                  const isMacSafari = !/chrome|android|crios|edg/i.test(ua) && /safari/i.test(ua) && /Macintosh|Mac OS X/i.test(ua);
+                  if (isIOS || isFirefox || isMacSafari || result === false) {
+                    setShowInstallHint(true);
+                  }
                 }).catch((err) => {
                   console.error('Install prompt failed:', err);
                   setShowInstallHint(true);

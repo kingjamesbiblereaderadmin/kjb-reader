@@ -68,10 +68,22 @@ const checkInstalledAsync = async () => {
 let deferredPrompt = (typeof window !== 'undefined' && window.kjbDeferredPrompt) || null;
 let promptEverOffered = (typeof window !== 'undefined' && window.kjbPromptedThisSession === true);
 
-// Samsung Internet doesn't support beforeinstallprompt - always use manual guide
+// Samsung Internet DOES support beforeinstallprompt (native prompt available)
 const isSamsungInternet = () => {
   if (typeof window === 'undefined') return false;
   return /SamsungBrowser/i.test(navigator.userAgent);
+};
+
+// Mobile browsers that support native PWA install prompts
+const supportsNativeInstall = () => {
+  if (typeof window === 'undefined') return false;
+  const ua = navigator.userAgent;
+  const isMobile = /iphone|ipad|ipod|android/i.test(ua);
+  const isSamsung = /SamsungBrowser/i.test(ua);
+  const isChrome = /chrome|crios/i.test(ua);
+  const isEdge = /edg/i.test(ua);
+  // iOS requires manual "Add to Home Screen", Android browsers support native prompts
+  return isMobile && !/iphone|ipad|ipod/i.test(ua) && (isChrome || isEdge || isSamsung);
 };
 
 // Edge/Chrome desktop: check if PWA meets install criteria even before beforeinstallprompt fires
@@ -90,11 +102,13 @@ const isPwaInstallable = () => {
 };
 
 if (typeof window !== 'undefined') {
+  // Capture beforeinstallprompt immediately on load (fires on Android Chrome/Edge/Samsung)
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
     window.kjbDeferredPrompt = e;
     promptEverOffered = true;
+    console.log('[InstallPrompt] beforeinstallprompt captured - native prompt ready');
     window.dispatchEvent(new Event('kjb-install-change'));
   });
   window.addEventListener('pwa-installable', () => {
@@ -146,19 +160,32 @@ export function useInstallPrompt() {
 
   const promptInstall = async () => {
     if (!deferredPrompt && window.kjbDeferredPrompt) deferredPrompt = window.kjbDeferredPrompt;
-    if (!deferredPrompt) return false;
-    try {
-      promptEverOffered = true;
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      window.kjbDeferredPrompt = null;
-      setIsInstallable(false);
-      return outcome === 'accepted';
-    } catch (err) {
-      console.error('Install prompt error:', err);
+    
+    // If we have a deferred prompt, use it (standard Chrome/Edge/Samsung flow)
+    if (deferredPrompt) {
+      try {
+        promptEverOffered = true;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        window.kjbDeferredPrompt = null;
+        setIsInstallable(false);
+        return outcome === 'accepted';
+      } catch (err) {
+        console.error('Install prompt error:', err);
+        return false;
+      }
+    }
+    
+    // No deferredPrompt available - check if we're on a browser that should support native installs
+    // If so, the prompt may have been lost (e.g., after page reload) - return false to show manual guide
+    // Edge Desktop: if PWA is installable but no prompt, user needs to reload or use browser menu
+    if (isPwaInstallable()) {
+      console.log('[InstallPrompt] PWA installable but no deferred prompt - user may need to reload or use browser menu');
       return false;
     }
+    
+    return false;
   };
 
   const wasDismissed = () => {
