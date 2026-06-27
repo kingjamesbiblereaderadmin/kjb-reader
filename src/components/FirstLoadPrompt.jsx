@@ -193,41 +193,20 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
       return;
     }
     
-    // Check current permission status first
-    const currentPermission = Notification.permission;
-    console.log('[FirstLoadPrompt] Current notification permission:', currentPermission);
-    
-    if (currentPermission === 'denied') {
-      // Permission was previously denied or auto-blocked by Chrome
-      // This happens when: user denied before, Chrome auto-blocks suspicious sites,
-      // or global notifications setting is disabled
-      alert('Chrome has blocked notifications for this site.\n\nTo unblock:\n\nMETHOD 1 (Quickest):\n1. Tap the lock icon (🔒) in the address bar\n2. Tap "Site settings"\n3. Tap "Clear data" then "Reset permissions"\n4. Refresh the page\n5. Try enabling notifications again\n\nMETHOD 2:\n1. Go to Chrome Settings\n2. Tap "Site settings" → "Notifications"\n3. Find this site in the Blocked list\n4. Tap it and select "Allow"\n\nMETHOD 3 (if all else fails):\n1. Chrome Settings → Site settings → Notifications\n2. Make sure "Sites can ask to send notifications" is ON\n3. Then reset this site\'s permissions as above');
-      return;
-    }
-    
     try {
-      console.log('[FirstLoadPrompt] Requesting notification permission...');
       const permission = await Notification.requestPermission();
-      console.log('[FirstLoadPrompt] Permission result:', permission);
       if (permission === 'granted') {
-        // Persist to localStorage so Settings toggle stays in sync
         localStorage.setItem('kjb-notifications-enabled', 'true');
         window.kjbNotifEnabledThisSession = true;
         setNotifDone(true);
         setNotifFailed(false);
-        // Schedule daily notification and show confirmation
         await requestNotificationPermission();
         scheduleDailyNotification();
         const v = getDailyVerse();
         showLocalNotification('KJB — Reminders On', `"${cleanForNotification(v.text)}" — ${v.ref} (KJB)`, null, '/');
-        console.log('[FirstLoadPrompt] Notifications enabled successfully');
-      } else if (permission === 'denied') {
-        // User just denied or Chrome auto-blocked
-        alert('Notifications were blocked. This may be automatic by Chrome.\n\nTo unblock:\n1. Tap the lock icon (🔒) in the address bar\n2. Tap "Site settings"\n3. Find "Notifications" and change to "Allow"\n4. Refresh and try again');
       }
     } catch (err) {
       console.error('Notif permission error:', err);
-      alert('Chrome blocked the request. Go to Chrome Settings → Site settings → Notifications and make sure sites can ask to send notifications.');
     }
   };
 
