@@ -946,10 +946,15 @@ export default function BibleReader() {
   }, [searchTerm, gospelMode, filterMode, selectedVerses, highlightVerse, pos]);
   
   const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isAutoAdvance = false, section = null, preserveSearchContext = false) => {
-    // When navigating to a DIFFERENT chapter, clear search context (user moved on).
-    // When staying on the SAME chapter (e.g., jumping to a verse), preserve it.
+    // ALWAYS clear search/gospel context for daily/random navigation (fresh start)
+    // For other navigation, clear only when moving to a DIFFERENT chapter.
     const sameChapter = newAbbr === pos.abbr && newChapter === pos.chapter;
-    if (!preserveSearchContext && !sameChapter) {
+    if (fromDailyVerse || fromRandom) {
+      // Clear all search/gospel context for daily/random
+      searchClearedRef.current = true; clearSearchNav(); setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
+      setGospelMode(false); clearGospelNav();
+    } else if (!preserveSearchContext && !sameChapter) {
+      // Clear search context when moving to different chapter
       searchClearedRef.current = true; clearSearchNav(); setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
       setGospelMode(false); clearGospelNav();
     }
