@@ -15,11 +15,10 @@ Deno.serve(async () => {
     theme_color: "#0f1117",
     prefer_related_applications: false,
     // Lets navigator.getInstalledRelatedApps() recognise THIS installed PWA
-    // from inside a normal browser tab (the only reliable cross-tab install
-    // check on Android Chromium browsers, incl. Samsung Internet).
-    // URL must match the manifest URL for detection to work.
+    // from inside a normal browser tab (Android Chrome/Samsung Internet).
+    // Use full URL for better compatibility
     related_applications: [
-      { platform: "webapp", url: "/manifest.json" }
+      { platform: "webapp", url: "https://kingjamesbiblereader.com/manifest.json" }
     ],
     // Protocol handlers — register as handler for bible: and kjb: URIs
     protocol_handlers: [

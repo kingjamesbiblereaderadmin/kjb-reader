@@ -35,16 +35,18 @@ const checkInstalledAsync = async () => {
   }
   
   // 2. getInstalledRelatedApps() - detects PWA from browser tab (Android Chrome/Samsung)
+  console.log('[InstallCheck] getInstalledRelatedApps available:', !!navigator.getInstalledRelatedApps);
   if (navigator.getInstalledRelatedApps) {
     try {
       const apps = await navigator.getInstalledRelatedApps();
+      console.log('[InstallCheck] getInstalledRelatedApps result:', apps);
       if (apps && apps.length > 0) {
         console.log('[InstallCheck] getInstalledRelatedApps → installed', apps);
         localStorage.setItem(INSTALLED_KEY, 'true');
         return true;
       }
     } catch (err) {
-      console.error('[InstallCheck] getInstalledRelatedApps failed:', err);
+      console.error('[InstallCheck] getInstalledRelatedApps error:', err);
     }
   }
   
