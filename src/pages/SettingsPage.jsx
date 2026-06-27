@@ -1183,7 +1183,7 @@ export default function SettingsPage() {
       </div>
       )}
 
-      {/* Offline Library — shows disabled state in private/incognito windows */}
+      {/* Offline Library — shows disabled state in private/incognito windows and iframes */}
       <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
         <button
           onClick={() => toggleSection('offline')}
@@ -1191,17 +1191,17 @@ export default function SettingsPage() {
         >
           <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Offline Library</h2>
-            <p className="font-sans text-xs text-muted-foreground">{isIncognito ? 'Not available in private mode' : 'Download for offline reading'}</p>
+            <p className="font-sans text-xs text-muted-foreground">{isIncognito || inIframe() ? 'Not available in preview mode' : 'Download for offline reading'}</p>
           </div>
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.offline ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.offline && (
           <div className="px-5 pb-8 pt-5">
-            {isIncognito ? (
+            {isIncognito || inIframe() ? (
               <div className="rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 p-4">
                 <p className="font-sans text-sm text-amber-700 dark:text-amber-400 font-medium leading-relaxed flex items-start gap-2">
                   <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-                  <span>Offline downloads are not available in private/incognito mode. The cache would be deleted when you close the private window. Open this app in a normal window to download the Bible for offline reading.</span>
+                  <span>{isIncognito ? 'Offline downloads are not available in private/incognito mode. The cache would be deleted when you close the private window. Open this app in a normal window to download the Bible for offline reading.' : 'You are viewing this inside a preview window where offline downloads are disabled. Open the app in a new tab to download the Bible for offline reading.'}</span>
                 </p>
               </div>
             ) : (
