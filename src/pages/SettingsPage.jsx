@@ -1029,15 +1029,20 @@ export default function SettingsPage() {
                 <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <h3 className="font-sans text-sm font-bold text-amber-800 dark:text-amber-300 mb-1">Preview Mode Detected</h3>
-                  <p className="font-sans text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
-                    You're viewing this inside a preview window. PWA installation is blocked in iframes. Please open the app in a new browser tab to install it.
+                  <p className="font-sans text-xs text-amber-700 dark:text-amber-400 leading-relaxed mb-3">
+                    You're viewing this inside a preview window. PWA installation is blocked in iframes. Open the app in a new tab to install it.
                   </p>
+                  <a
+                    href="https://kingjamesbiblereader.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Open kingjamesbiblereader.com
+                  </a>
                 </div>
               </div>
-            </div>
-            <div className="font-sans text-xs text-muted-foreground space-y-1.5 bg-secondary/50 rounded-xl p-4">
-              <p>• <strong>Desktop:</strong> Click the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Open in new tab</span> button in your preview toolbar.</p>
-              <p>• <strong>Mobile:</strong> Use the share menu to open in your browser.</p>
             </div>
           </div>
         ) : (
