@@ -82,11 +82,24 @@ export function useSearchAndGospelResults(
 
   const clearSearchContext = () => {
     clearSearchNavFn(); setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
-    const back = preSearchPosRef.current;
+
+    // Find the previous reading chapter the same way the daily-verse Clear does:
+    // prefer kjb-prev-reading-session (the accurate last normal-reading chapter),
+    // then fall back to the pre-search stash.
+    let back = null;
+    try {
+      const prevRaw = localStorage.getItem('kjb-prev-reading-session');
+      if (prevRaw) {
+        const prev = JSON.parse(prevRaw);
+        if (prev && prev.abbr && prev.chapter) back = { abbr: prev.abbr, chapter: prev.chapter, scrollY: prev.scrollY };
+      }
+    } catch {}
+    if (!back && preSearchPosRef.current && preSearchPosRef.current.abbr) back = preSearchPosRef.current;
+
     preSearchPosRef.current = null;
     try { localStorage.removeItem('kjb-pre-search'); } catch {}
     if (back && back.abbr && back.chapter) {
-      returnToChapter(back.abbr, back.chapter, back.scrollY, setFilterMode, setSelectMode, setSelectedVerses, setHighlightedVerses, setHighlightVerse, setHighlightSection, setShowFilterOverlay, loadChapter);
+      returnToChapter(back.abbr, back.chapter, back.scrollY);
     } else {
       setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
       setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
