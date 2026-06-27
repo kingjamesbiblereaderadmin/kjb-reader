@@ -4,10 +4,10 @@ const DISMISSED_KEY = 'kjb-install-dismissed';
 const INSTALLED_KEY = 'kjb-is-installed';
 
 // Authoritative install detection.
-// Primary: display-mode media queries (most reliable cross-browser).
-// Secondary: navigator.standalone (iOS).
-// Tertiary: getInstalledRelatedApps() (Android Chrome 94+ only).
-// Quaternary: localStorage flag (persists across browser/PWA windows).
+// PRIMARY: display-mode media queries - the ONLY reliable signal.
+// When you uninstall a PWA, the display-mode immediately changes from
+// 'standalone' back to 'browser' - this is instant and 100% accurate.
+// localStorage is used ONLY for cross-tab sync (not as a fallback).
 const checkInstalledAsync = async () => {
   if (typeof window === 'undefined') return false;
   
@@ -18,73 +18,35 @@ const checkInstalledAsync = async () => {
     return false;
   }
   
-  let isInstalled = false;
-  
-  // PRIMARY: display-mode media queries - most reliable signal
+  // PRIMARY & AUTHORITATIVE: display-mode media queries
   const dmStandalone = window.matchMedia('(display-mode: standalone)').matches;
   const dmMinimal = window.matchMedia('(display-mode: minimal-ui)').matches;
   const dmOverlay = window.matchMedia('(display-mode: window-controls-overlay)').matches;
-  console.log('[InstallCheck] display-mode checks:', { standalone: dmStandalone, minimal: dmMinimal, overlay: dmOverlay });
   
-  if (dmStandalone) {
-    console.log('[InstallCheck] display-mode: standalone → installed');
-    isInstalled = true;
-  } else if (dmMinimal) {
-    console.log('[InstallCheck] display-mode: minimal-ui → installed');
-    isInstalled = true;
-  } else if (dmOverlay) {
-    console.log('[InstallCheck] display-mode: window-controls-overlay → installed');
-    isInstalled = true;
-  }
+  const isInstalled = dmStandalone || dmMinimal || dmOverlay;
+  console.log('[InstallCheck] display-mode:', { standalone: dmStandalone, minimal: dmMinimal, overlay: dmOverlay, result: isInstalled });
   
-  // iOS: use navigator.standalone
+  // iOS fallback: navigator.standalone (older iOS versions)
   if (!isInstalled && /iphone|ipad|ipod/i.test(navigator.userAgent)) {
     try {
-      const isStandalone = window.navigator.standalone === true;
-      console.log('[InstallCheck] iOS navigator.standalone:', isStandalone);
-      if (isStandalone) isInstalled = true;
-    } catch { return false; }
-  }
-  
-  // Android/desktop: try getInstalledRelatedApps() (limited browser support)
-  if (!isInstalled && navigator.getInstalledRelatedApps) {
-    try {
-      const apps = await navigator.getInstalledRelatedApps();
-      const installed = !!(apps && apps.length > 0);
-      console.log('[InstallCheck] getInstalledRelatedApps:', apps, '→ installed:', installed);
-      if (installed) isInstalled = true;
-    } catch (err) {
-      console.error('[InstallCheck] getInstalledRelatedApps failed:', err);
-    }
-  }
-  
-  // PWA window: set flag
-  if (isInstalled) {
-    try {
-      localStorage.setItem(INSTALLED_KEY, 'true');
-      console.log('[InstallCheck] ✓ PWA installed, set flag');
-      return true;
+      const iOSStandalone = window.navigator.standalone === true;
+      if (iOSStandalone) {
+        console.log('[InstallCheck] iOS navigator.standalone → installed');
+        return true;
+      }
     } catch {}
   }
   
-  // Browser tab: check flag + verify service worker is still registered
-  // After uninstall, Chrome often deactivates/removes the SW registration
+  // Sync to localStorage for cross-tab communication
   try {
-    const stored = localStorage.getItem(INSTALLED_KEY);
-    if (stored === 'true' && 'serviceWorker' in navigator) {
-      const reg = await navigator.serviceWorker.getRegistration();
-      if (reg && (reg.active || reg.waiting || reg.installing)) {
-        console.log('[InstallCheck] ✓ Flag + SW registered → installed');
-        return true;
-      }
-      // SW not registered - likely uninstalled
-      console.log('[InstallCheck] ✗ No SW registration → cleared (uninstalled)');
+    if (isInstalled) {
+      localStorage.setItem(INSTALLED_KEY, 'true');
+    } else {
       localStorage.removeItem(INSTALLED_KEY);
     }
   } catch {}
   
-  console.log('[InstallCheck] ✗ Not installed');
-  return false;
+  return isInstalled;
 };
 
 let deferredPrompt = (typeof window !== 'undefined' && window.kjbDeferredPrompt) || null;
@@ -170,23 +132,22 @@ export function useInstallPrompt() {
       const installable = !!deferredPrompt || isPwaInstallable();
       console.log('[useInstallPrompt] isInstallable:', installable, '| deferredPrompt:', !!deferredPrompt, '| window.kjbDeferredPrompt:', !!window.kjbDeferredPrompt);
       setIsInstallable(installable);
-      // Re-check installed state on focus (user may have just installed)
+      // Re-check installed state on focus (user may have just installed/uninstalled)
       checkInstalledAsync().then(installed => {
         if (!cancelled) setIsInstalled(installed);
       });
     };
     
+    // Listen for events that might indicate install state change
     window.addEventListener('kjb-install-change', sync);
     window.addEventListener('focus', sync);
-    window.addEventListener('pwa-installed', sync);
     window.addEventListener('storage', sync);
-    // Initial sync on mount
+    // Check on mount
     sync();
     return () => {
       cancelled = true;
       window.removeEventListener('kjb-install-change', sync);
       window.removeEventListener('focus', sync);
-      window.removeEventListener('pwa-installed', sync);
       window.removeEventListener('storage', sync);
     };
   }, []);
