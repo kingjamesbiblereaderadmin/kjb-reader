@@ -1363,15 +1363,35 @@ export default function BibleReader() {
                       }
                       return;
                     }
-                    // For ALL other cases, return to previous reading session
-                    const abbr = (lastReadingPos && lastReadingPos.prevAbbr) || (prevReadingSession && prevReadingSession.abbr);
-                    const chapter = (lastReadingPos && lastReadingPos.prevChapter) || (prevReadingSession && prevReadingSession.chapter);
-                    const scrollY = (lastReadingPos && typeof lastReadingPos.prevScrollY === 'number') ? lastReadingPos.prevScrollY : (prevReadingSession && prevReadingSession.scrollY);
+                    // For ALL other cases, read FRESHEST from localStorage first (state can be stale)
+                    let abbr, chapter, scrollY;
+                    try {
+                      const lastRaw = localStorage.getItem('kjb-last-reading');
+                      if (lastRaw) {
+                        const last = JSON.parse(lastRaw);
+                        if (last && last.prevAbbr && last.prevChapter) {
+                          abbr = last.prevAbbr;
+                          chapter = last.prevChapter;
+                          scrollY = typeof last.prevScrollY === 'number' ? last.prevScrollY : last.scrollY;
+                        }
+                      }
+                      if (!abbr || !chapter) {
+                        const prevRaw = localStorage.getItem('kjb-prev-reading-session');
+                        if (prevRaw) {
+                          const prev = JSON.parse(prevRaw);
+                          if (prev && prev.abbr && prev.chapter) {
+                            abbr = prev.abbr;
+                            chapter = prev.chapter;
+                            scrollY = prev.scrollY;
+                          }
+                        }
+                      }
+                    } catch {}
                     // Clear all state
-                    if (lastReadingPos) { setLastReadingPos(null); try { localStorage.removeItem('kjb-last-reading'); } catch {} }
-                    setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
+                    setLastReadingPos(null); setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
                     setHighlightVerse(null); setHighlightSection(null); setShowFilterOverlay(false);
                     setHighlightedVerses(new Set());
+                    try { localStorage.removeItem('kjb-last-reading'); } catch {}
                     if (abbr && chapter) {
                       returnToChapter(abbr, chapter, scrollY);
                     } else {
