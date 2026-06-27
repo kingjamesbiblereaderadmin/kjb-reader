@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
+import { getGospelNav } from '@/lib/searchNav';
 
-export function useToolbarState(pos, loading, verses, filterMode, selectedVerses, searchTerm, searchResultIndex, searchTotalResults, gospelMode, searchClearedRef, setFilterMode, setSelectedVerses, setHighlightedVerses, resultViewRef, setSearchTerm, setSearchResultIndex, setSearchTotalResults) {
+export function useToolbarState(pos, loading, verses, filterMode, selectedVerses, searchTerm, searchResultIndex, searchTotalResults, gospelMode, searchClearedRef, setFilterMode, setSelectedVerses, setHighlightedVerses, resultViewRef, setSearchTerm, setSearchResultIndex, setSearchTotalResults, setGospelMode, setGospelResultIndex, setGospelTotalResults) {
   // Persist toolbar state with chapter + search/gospel context
   useEffect(() => {
     if (loading) return;
@@ -44,6 +45,15 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
             setSearchResultIndex(state.searchResultIndex || 0);
             setSearchTotalResults(state.searchTotalResults || 0);
           }
+          // Restore gospel context
+          if (state.hasGospelContext) {
+            const g = getGospelNav();
+            if (g.results.length > 0) {
+              setGospelMode(true);
+              setGospelResultIndex(g.index);
+              setGospelTotalResults(g.results.length);
+            }
+          }
         }
       } catch {}
     };
@@ -51,5 +61,5 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
     const timer = setTimeout(restoreToolbarState, 100);
     window.addEventListener('focus', restoreToolbarState);
     return () => { clearTimeout(timer); window.removeEventListener('focus', restoreToolbarState); };
-  }, [loading, pos.abbr, pos.chapter, verses.length]);
+  }, [loading, pos.abbr, pos.chapter, verses.length, setGospelMode, setGospelResultIndex, setGospelTotalResults]);
 }
