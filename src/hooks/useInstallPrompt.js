@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 
 const DISMISSED_KEY = 'kjb-install-dismissed';
+const INSTALLED_KEY = 'kjb-is-installed';
 
 // Authoritative install detection.
-// iOS: navigator.standalone (reliable).
-// Android/desktop: getInstalledRelatedApps() + display-mode fallback.
+// Primary: display-mode media queries (most reliable cross-browser).
+// Secondary: navigator.standalone (iOS).
+// Tertiary: getInstalledRelatedApps() (Android Chrome 94+ only).
+// Quaternary: localStorage flag (manual confirmation).
 const checkInstalledAsync = async () => {
   if (typeof window === 'undefined') return false;
   
@@ -12,16 +15,33 @@ const checkInstalledAsync = async () => {
   try {
     if (window.self !== window.top) return false;
   } catch (e) {
-    // Cross-origin iframe - also not installed
     return false;
   }
   
-  // iOS: use navigator.standalone (reliable on iOS)
-  if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
-    try { return window.navigator.standalone === true; } catch { return false; }
+  // PRIMARY: display-mode media queries - most reliable signal
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    console.log('[InstallCheck] display-mode: standalone → installed');
+    return true;
+  }
+  if (window.matchMedia('(display-mode: minimal-ui)').matches) {
+    console.log('[InstallCheck] display-mode: minimal-ui → installed');
+    return true;
+  }
+  if (window.matchMedia('(display-mode: window-controls-overlay)').matches) {
+    console.log('[InstallCheck] display-mode: window-controls-overlay → installed');
+    return true;
   }
   
-  // Android/desktop: use getInstalledRelatedApps() as primary signal
+  // iOS: use navigator.standalone
+  if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
+    try {
+      const isStandalone = window.navigator.standalone === true;
+      console.log('[InstallCheck] iOS navigator.standalone:', isStandalone);
+      if (isStandalone) return true;
+    } catch { return false; }
+  }
+  
+  // Android/desktop: try getInstalledRelatedApps() (limited browser support)
   if (navigator.getInstalledRelatedApps) {
     try {
       const apps = await navigator.getInstalledRelatedApps();
@@ -33,11 +53,14 @@ const checkInstalledAsync = async () => {
     }
   }
   
-  // Fallback: check display-mode media queries (works when PWA is actually running standalone)
-  // This catches cases where getInstalledRelatedApps() fails but the app is genuinely installed
-  if (window.matchMedia('(display-mode: standalone)').matches) return true;
-  if (window.matchMedia('(display-mode: minimal-ui)').matches) return true;
-  if (window.matchMedia('(display-mode: window-controls-overlay)').matches) return true;
+  // Fallback: localStorage flag (set after successful install)
+  try {
+    const stored = localStorage.getItem(INSTALLED_KEY);
+    if (stored === 'true') {
+      console.log('[InstallCheck] localStorage flag → installed');
+      return true;
+    }
+  } catch {}
   
   return false;
 };
