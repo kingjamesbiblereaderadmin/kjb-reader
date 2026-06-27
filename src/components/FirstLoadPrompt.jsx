@@ -80,6 +80,7 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
   });
   const [showIOSHint, setShowIOSHint] = useState(false);
   const [installDone, setInstallDone] = useState(parentIsInstalled || false);
+  const [promptCancelled, setPromptCancelled] = useState(false);
   const [notifDone, setNotifDone] = useState(false);
   const [a11yFont, setA11yFont] = useState(getAccessibilityFont);
   const { mode, setMode } = useTheme();
@@ -151,8 +152,8 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
   // Hide install section if already in standalone PWA mode or parent says installed
   const actuallyInstalled = isStandalone || parentIsInstalled || installDone;
   
-  // Only show install prompt if NOT installed AND (native prompt available OR manual guide needed)
-  const showInstall = !isIncognito && !actuallyInstalled && (isInstallable || isIOS() || isAndroid() || !isMobile());
+  // Show install button if NOT installed AND (native prompt available OR was cancelled/manual guide needed)
+  const showInstall = !isIncognito && !actuallyInstalled && (isInstallable || isIOS() || isAndroid() || !isMobile() || promptCancelled);
 
   // Show prompt for configuration even when installed — only hide install section
   const shouldShow = !dismissed;
@@ -178,16 +179,19 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
           setInstallDone(true);
           return;
         }
-        // Prompt was cancelled by user - still show manual guide
+        // Prompt was cancelled - keep button visible, show manual guide
+        setPromptCancelled(true);
         setShowIOSHint(true);
         return;
       } catch (err) {
         console.error('Install prompt failed:', err);
+        setPromptCancelled(true);
         setShowIOSHint(true);
         return;
       }
     }
     // No native prompt available, show manual guide
+    setPromptCancelled(true);
     setShowIOSHint(true);
   };
 
