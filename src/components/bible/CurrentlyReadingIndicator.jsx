@@ -36,25 +36,27 @@ export default function CurrentlyReadingIndicator({
 }) {
   const isFilterMode = filterMode && selectedVerses.size > 0;
   // isRandom now defined above with isDaily
-  // After a reload or SPA back-navigation, the search-term / daily-verse props
-  // may not be re-hydrated yet even though the highlighted verse came from one.
-  // Fall back to the persisted context so the chip keeps its "Search" / "Daily
-  // Verse" label instead of showing only the bare verse reference.
-  let effectiveSearchTerm = searchTerm;
-  if (!effectiveSearchTerm && !gospelMode && typeof window !== 'undefined') {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('from') === 'search') {
-        effectiveSearchTerm = params.get('q') || localStorage.getItem('kjb-search-term') || null;
-      }
-    } catch {}
-  }
+  // Check URL params first to determine the navigation source
+  const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const isFromDaily = urlParams?.get('from') === 'daily';
+  const isFromRandom = urlParams?.get('from') === 'random';
+  const isFromSearch = urlParams?.get('from') === 'search';
+  
   // Use lastReadingPos if available, but also check the URL for 'from=daily' 
   // to handle cases where the user clicked a notification or opened a shared link.
-  const isDaily = (lastReadingPos && (lastReadingPos.fromDailyVerse || lastReadingPos.fromDaily)) || 
-                  (typeof window !== 'undefined' && window.location.search.includes('from=daily'));
-  const isRandom = (lastReadingPos && (lastReadingPos.fromRandom || lastReadingPos.fromRandomChapter)) ||
-                   (typeof window !== 'undefined' && window.location.search.includes('from=random'));
+  const isDaily = isFromDaily || (lastReadingPos && (lastReadingPos.fromDailyVerse || lastReadingPos.fromDaily));
+  const isRandom = isFromRandom || (lastReadingPos && (lastReadingPos.fromRandom || lastReadingPos.fromRandomChapter));
+  
+  // Only use search term if we're actually in search mode (not daily/random)
+  let effectiveSearchTerm = searchTerm;
+  if (isDaily || isRandom) {
+    // Force clear search term for daily/random - don't show search toolbar
+    effectiveSearchTerm = null;
+  } else if (!effectiveSearchTerm && !gospelMode && urlParams) {
+    if (isFromSearch) {
+      effectiveSearchTerm = urlParams.get('q') || localStorage.getItem('kjb-search-term') || null;
+    }
+  }
   const verseNum = pos.verse;
   // Suffix for non-verse sections (Psalm superscription / book colophon)
   const sectionSuffix = highlightSection === 'colophon'
@@ -106,7 +108,7 @@ export default function CurrentlyReadingIndicator({
 
   if (!reference) return null;
 
-  const showNavigation = (effectiveSearchTerm || gospelMode) && totalResults > 1 && onPrevResult && onNextResult;
+  const showNavigation = !isDaily && !isRandom && (effectiveSearchTerm || gospelMode) && totalResults > 1 && onPrevResult && onNextResult;
 
   return (
     <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-yellow-500 text-black font-sans text-xs font-medium h-11 whitespace-nowrap flex-shrink-0">
