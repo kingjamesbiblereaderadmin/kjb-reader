@@ -120,7 +120,6 @@ export default function AppLayout() {
       }
       
       const installed = dmStandalone || dmMinimal || dmOverlay || iOSStandalone || localStorageInstalled || installedApps;
-      console.log('[AppLayout] Install check | dm:', dmStandalone, '| ls:', localStorageInstalled, '| apps:', installedApps, '| result:', installed);
       
       setIsPWAInstalled(installed);
       setIsCheckingInstall(false);
@@ -148,10 +147,7 @@ export default function AppLayout() {
     } catch (e) { return; }
     
     const channel = new BroadcastChannel('kjb-install-status');
-    console.log('[AppLayout] isPWAInstalled:', isPWAInstalled);
-    // Only broadcast if we're actually in the PWA window
     if (isPWAInstalled) {
-      console.log('[AppLayout] ✓ Broadcasting installed=true to browser tabs');
       // Broadcast to other tabs
       channel.postMessage({ type: 'install-status', installed: true });
       // Write to localStorage with timestamp (forces storage event in other tabs)
@@ -303,14 +299,10 @@ export default function AppLayout() {
     // Initialize daily-verse notifications app-wide - check BOTH localStorage AND OS permission
     const notifEnabled = getNotificationsEnabled();
     const osPermission = 'Notification' in window ? Notification.permission : 'unsupported';
-    console.log('[AppLayout] Init | enabled:', notifEnabled, '| OS permission:', osPermission, '| PWA:', isPWAInstalled);
     
     if (notifEnabled && osPermission === 'granted') {
       initNotifications();
     } else if (notifEnabled && osPermission !== 'granted') {
-      console.warn('[AppLayout] Notifications enabled in localStorage but OS permission is', osPermission, '- re-requesting...');
-      // User enabled notifications but OS permission was lost (e.g., cleared site data)
-      // Re-request permission to restore functionality
       requestNotificationPermission().then(result => {
         if (result === 'granted') {
           initNotifications();

@@ -28,10 +28,10 @@ const checkInstalledAsync = async () => {
   const dmMinimal = window.matchMedia('(display-mode: minimal-ui)').matches;
   const dmOverlay = window.matchMedia('(display-mode: window-controls-overlay)').matches;
   
-  console.log('[InstallCheck] display-mode checks | standalone:', dmStandalone, '| minimal-ui:', dmMinimal, '| window-controls-overlay:', dmOverlay);
+
   
   if (dmStandalone || dmMinimal || dmOverlay) {
-    console.log('[InstallCheck] ✓ display-mode → INSTALLED');
+
     localStorage.setItem(INSTALLED_KEY, 'true');
     return true;
   }
@@ -39,23 +39,23 @@ const checkInstalledAsync = async () => {
   // 2. getInstalledRelatedApps() - detects PWA from browser tab (Android Chrome/Samsung)
   // IMPORTANT: This API only works on Android Chrome 94+ and Samsung Internet
   // It does NOT work on iOS Safari or desktop browsers
-  console.log('[InstallCheck] getInstalledRelatedApps available:', !!navigator.getInstalledRelatedApps);
+
   if (navigator.getInstalledRelatedApps) {
     try {
       const apps = await navigator.getInstalledRelatedApps();
-      console.log('[InstallCheck] getInstalledRelatedApps result:', apps, '| count:', apps?.length);
+
       if (apps && apps.length > 0) {
-        console.log('[InstallCheck] getInstalledRelatedApps → installed', apps);
+
         localStorage.setItem(INSTALLED_KEY, 'true');
         return true;
       } else {
-        console.log('[InstallCheck] getInstalledRelatedApps returned empty array - PWA not detected via this method');
+
       }
     } catch (err) {
-      console.error('[InstallCheck] getInstalledRelatedApps error:', err.message);
+  
     }
   } else {
-    console.log('[InstallCheck] getInstalledRelatedApps NOT available on this browser - install detection only works inside PWA window');
+
   }
   
   // 3. iOS fallback: navigator.standalone
@@ -63,7 +63,7 @@ const checkInstalledAsync = async () => {
     try {
       const iOSStandalone = window.navigator.standalone === true;
       if (iOSStandalone) {
-        console.log('[InstallCheck] iOS navigator.standalone → installed');
+
         localStorage.setItem(INSTALLED_KEY, 'true');
         return true;
       }
@@ -72,7 +72,7 @@ const checkInstalledAsync = async () => {
   
   // Not installed - clear flag
   localStorage.removeItem(INSTALLED_KEY);
-  console.log('[InstallCheck] ✗ Not installed');
+
   return false;
 };
 
@@ -119,7 +119,7 @@ if (typeof window !== 'undefined') {
     deferredPrompt = e;
     window.kjbDeferredPrompt = e;
     promptEverOffered = true;
-    console.log('[InstallPrompt] beforeinstallprompt captured - native prompt ready');
+
     window.dispatchEvent(new Event('kjb-install-change'));
   });
   window.addEventListener('pwa-installable', () => {
@@ -159,19 +159,12 @@ export function useInstallPrompt() {
     check();
     
     const sync = (fromBroadcast = false) => {
-      // Always check window.kjbDeferredPrompt first (set by index.html event listener)
       if (!deferredPrompt && window.kjbDeferredPrompt) {
         deferredPrompt = window.kjbDeferredPrompt;
-        console.log('[useInstallPrompt] ✓ Synced deferredPrompt from window');
       }
-      // Use deferredPrompt OR PWA criteria check (for Edge desktop on first load)
       const installable = !!deferredPrompt || isPwaInstallable();
-      console.log('[useInstallPrompt] isInstallable:', installable, '| deferredPrompt:', !!deferredPrompt, '| window.kjbDeferredPrompt:', !!window.kjbDeferredPrompt);
       setIsInstallable(installable);
-      // Re-check installed state - this calls checkInstalledAsync which checks display-mode + getInstalledRelatedApps + localStorage
-      console.log('[useInstallPrompt] sync: calling checkInstalledAsync...');
       checkInstalledAsync().then(installed => {
-        console.log('[useInstallPrompt] sync → checkInstalledAsync returned:', installed, '| setting state');
         if (!cancelled) {
           setIsInstalled(installed);
           // Broadcast to other tabs
@@ -187,7 +180,6 @@ export function useInstallPrompt() {
     // Listen for broadcast messages from PWA window
     if (installChannel) {
       installChannel.onmessage = (event) => {
-        console.log('[useInstallPrompt] 📩 Received broadcast:', event.data);
         if (event.data?.type === 'install-status') {
           setIsInstalled(event.data.installed);
           if (event.data.installed) {
@@ -207,14 +199,10 @@ export function useInstallPrompt() {
         const stored = localStorage.getItem(INSTALLED_KEY);
         const timestamp = localStorage.getItem('kjb-install-timestamp');
         const shouldBeInstalled = stored === 'true';
-        console.log('[useInstallPrompt] Poll | localStorage:', stored, '| timestamp:', timestamp, '| checking if should update...');
         if (shouldBeInstalled) {
-          console.log('[useInstallPrompt] Poll → Setting installed=true');
           setIsInstalled(true);
           window.dispatchEvent(new Event('kjb-install-change'));
         } else if (timestamp && Date.now() - parseInt(timestamp) < 5000) {
-          // Timestamp written in last 5 seconds = fresh install, trust it
-          console.log('[useInstallPrompt] Poll → Fresh timestamp, setting installed=true');
           setIsInstalled(true);
         }
       }, 2000);
@@ -223,7 +211,6 @@ export function useInstallPrompt() {
     // Listen for storage events (when PWA writes to localStorage)
     const handleStorageEvent = (e) => {
       if (e.key === 'kjb-is-installed' || e.key === 'kjb-install-timestamp') {
-        console.log('[useInstallPrompt] Storage event | key:', e.key, '| newValue:', e.newValue);
         if (e.newValue === 'true') {
           setIsInstalled(true);
         }
@@ -235,8 +222,6 @@ export function useInstallPrompt() {
     window.addEventListener('focus', sync);
     window.addEventListener('storage', handleStorageEvent);
     window.addEventListener('visibilitychange', sync);
-    // Check on mount
-    console.log('[useInstallPrompt] Initial sync on mount');
     sync();
     startPolling();
     return () => {
@@ -252,17 +237,14 @@ export function useInstallPrompt() {
     // Always check window.kjbDeferredPrompt first (set by index.html event listener)
     if (!deferredPrompt && window.kjbDeferredPrompt) {
       deferredPrompt = window.kjbDeferredPrompt;
-      console.log('[InstallPrompt] Synced deferredPrompt from window.kjbDeferredPrompt');
     }
     
     // If we have a deferred prompt, use it (standard Chrome/Edge/Samsung flow)
     if (deferredPrompt) {
       try {
         promptEverOffered = true;
-        console.log('[InstallPrompt] Firing native prompt...');
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        console.log('[InstallPrompt] User choice:', outcome);
         deferredPrompt = null;
         window.kjbDeferredPrompt = null;
         setIsInstallable(false);
@@ -277,7 +259,6 @@ export function useInstallPrompt() {
     // If so, the prompt may have been lost (e.g., after page reload) - return false to show manual guide
     // Edge Desktop: if PWA is installable but no prompt, user needs to reload or use browser menu
     if (isPwaInstallable()) {
-      console.log('[InstallPrompt] PWA installable but no deferred prompt - user may need to reload or use browser menu');
       return false;
     }
     

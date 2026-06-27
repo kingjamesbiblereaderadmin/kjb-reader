@@ -14,7 +14,6 @@ import OfflineHtmlSection from '@/components/bible/OfflineHtmlSection';
 import ThemeColorPicker from '@/components/bible/ThemeColorPicker';
 import { Switch } from '@/components/ui/switch';
 import InstallAppSection from '@/components/settings/InstallAppSection';
-import InstallDebugPanel from '@/components/settings/InstallDebugPanel';
 import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
 import { useTheme, COLOUR_PALETTES } from '@/lib/themeContext';
@@ -60,7 +59,7 @@ const isBookmarkBrowser = () => {
 };
 
 const LAST_REVISED = 'June 27th, 2026';
-const WORKER_VERSION = 'v20260627_2900';
+const WORKER_VERSION = 'v20260627_3400';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -1419,27 +1418,6 @@ export default function SettingsPage() {
       </div>
         </div>
         )}
-      </div>
-
-      {/* PWA Debug Panel - Always visible at top */}
-      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
-        <div className="w-full flex items-center justify-between px-5 py-3.5 text-left">
-          <div className="flex flex-col gap-1">
-            <h2 className="font-serif text-lg font-semibold text-foreground">PWA Debug</h2>
-            <p className="font-sans text-xs text-muted-foreground">Real-time install status</p>
-          </div>
-          <button
-            onClick={() => {
-              window.location.href = window.location.pathname + '?refresh=' + Date.now();
-            }}
-            className="px-3 py-1.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-          >
-            Hard Refresh
-          </button>
-        </div>
-        <div className="px-5 pb-5 pt-2">
-          <InstallDebugPanel />
-        </div>
       </div>
 
       {/* Advanced */}

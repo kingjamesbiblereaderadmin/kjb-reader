@@ -38,18 +38,12 @@ export default function InstallAppSection({ expanded, isIncognito }) {
       } 
     } catch { return; }
     
-    // Use hook's authoritative check (includes display-mode + localStorage sync)
-    console.log('[InstallAppSection] hookIsInstalled:', hookIsInstalled);
     setIsInstalled(hookIsInstalled);
   }, [hookIsInstalled]);
 
   const handleInstall = async () => {
-    const ua = navigator.userAgent;
-    console.log('[InstallApp] Install clicked | UA:', ua.substring(0, 100));
-    console.log('[InstallApp] isInstallable:', isInstallable, '| window.kjbDeferredPrompt:', !!window.kjbDeferredPrompt);
-    
     promptInstall().then((result) => {
-      console.log('[InstallApp] promptInstall result:', result, '| isIOS:', /iphone|ipad|ipod/i.test(ua));
+      const ua = navigator.userAgent;
       const isIOS = /iphone|ipad|ipod/i.test(ua);
       const isFirefox = /firefox/i.test(ua);
       const isMacSafari = !/chrome|android|crios|edg/i.test(ua) && /safari/i.test(ua) && /Macintosh|Mac OS X/i.test(ua);
@@ -83,14 +77,7 @@ export default function InstallAppSection({ expanded, isIncognito }) {
           Add the KJB Reader to your home screen for quick access and offline reading.
         </p>
         
-        {/* Debug info - shows detection state */}
-        <div className="rounded-xl bg-secondary/30 border border-border p-3 font-sans text-xs">
-          <p className="font-medium text-foreground mb-1">Debug Info:</p>
-          <p className="text-muted-foreground">hookIsInstalled: <span className={hookIsInstalled ? 'text-green-600' : 'text-red-500'}>{hookIsInstalled ? 'true' : 'false'}</span></p>
-          <p className="text-muted-foreground">local isInstalled: <span className={isInstalled ? 'text-green-600' : 'text-red-500'}>{isInstalled ? 'true' : 'false'}</span></p>
-          <p className="text-muted-foreground">localStorage kjb-is-installed: <span className="text-amber-600">{typeof window !== 'undefined' ? localStorage.getItem('kjb-is-installed') : 'N/A'}</span></p>
-          <p className="text-muted-foreground mt-2">Check browser console for [InstallCheck] and [useInstallPrompt] logs</p>
-        </div>
+
         {isInstalled ? (
           <div className="space-y-3">
             <div className="rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-900/40 p-4">
