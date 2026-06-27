@@ -1029,6 +1029,24 @@ export default function SettingsPage() {
               Already uninstalled it? Click here to reset
             </button>
           </div>
+        ) : inIframe() ? (
+          <div className="space-y-3">
+            <div className="rounded-xl bg-blue-50 dark:bg-blue-900/15 border border-blue-200 dark:border-blue-900/40 p-4">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-sans text-sm font-bold text-blue-800 dark:text-blue-300 mb-1">Preview Mode Detected</h3>
+                  <p className="font-sans text-xs text-blue-700 dark:text-blue-400 leading-relaxed">
+                    You're viewing this inside a preview window. PWA installation is blocked in iframes. Please open the app in a new browser tab to install it.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="font-sans text-xs text-muted-foreground space-y-1.5 bg-secondary/50 rounded-xl p-4">
+              <p>• <strong>Desktop:</strong> Click the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Open in new tab</span> button in your preview toolbar.</p>
+              <p>• <strong>Mobile:</strong> Use the share menu to open in your browser.</p>
+            </div>
+          </div>
         ) : (
           <div className="space-y-3">
             {bookmarkBrowser ? (
