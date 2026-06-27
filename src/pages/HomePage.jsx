@@ -310,14 +310,26 @@ export default function HomePage() {
     // Save daily verse as last reading position, plus the previous chapter so
     // Clear returns to the prior reading session.
     try {
-      const currentPos = JSON.parse(localStorage.getItem('kjb-position') || '{}');
+      // Read from kjb-prev-reading-session (BibleReader's continuous save) first,
+      // fall back to kjb-position if not available
+      let currentPos = null;
+      try {
+        const prevSession = localStorage.getItem('kjb-prev-reading-session');
+        if (prevSession) currentPos = JSON.parse(prevSession);
+      } catch {}
+      if (!currentPos || !currentPos.abbr || !currentPos.chapter) {
+        try {
+          currentPos = JSON.parse(localStorage.getItem('kjb-position') || '{}');
+        } catch {}
+      }
       localStorage.setItem('kjb-last-reading', JSON.stringify({
         abbr: abbr,
         chapter: verse.chapter,
         verse: verse.verse,
         fromDailyVerse: true,
-        prevAbbr: currentPos.abbr || null,
-        prevChapter: currentPos.chapter || null,
+        prevAbbr: currentPos?.abbr || null,
+        prevChapter: currentPos?.chapter || null,
+        prevScrollY: currentPos?.scrollY || 0,
       }));
     } catch {}
     const savedData = { abbr: abbr, chapter: verse.chapter, verse: verse.verse };
@@ -345,13 +357,25 @@ export default function HomePage() {
     // Save the DESTINATION random chapter (so the reader shows the "Random Chapter"
     // indicator) plus the PREVIOUS chapter (so Clear can return to it).
     try {
-      const currentPos = JSON.parse(localStorage.getItem('kjb-position') || '{}');
+      // Read from kjb-prev-reading-session (BibleReader's continuous save) first,
+      // fall back to kjb-position if not available
+      let currentPos = null;
+      try {
+        const prevSession = localStorage.getItem('kjb-prev-reading-session');
+        if (prevSession) currentPos = JSON.parse(prevSession);
+      } catch {}
+      if (!currentPos || !currentPos.abbr || !currentPos.chapter) {
+        try {
+          currentPos = JSON.parse(localStorage.getItem('kjb-position') || '{}');
+        } catch {}
+      }
       localStorage.setItem('kjb-last-reading', JSON.stringify({
         abbr: randomBook.abbr,
         chapter: randomChapter,
         fromRandom: true,
-        prevAbbr: currentPos.abbr || null,
-        prevChapter: currentPos.chapter || null,
+        prevAbbr: currentPos?.abbr || null,
+        prevChapter: currentPos?.chapter || null,
+        prevScrollY: currentPos?.scrollY || 0,
       }));
     } catch {}
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr: randomBook.abbr, chapter: randomChapter, verse: null })); } catch {}
