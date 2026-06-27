@@ -168,6 +168,7 @@ export async function showLocalNotification(title, body, imageUrl = null, target
           silent: false,
           requireInteraction: false,
           color: '#8b5cf6',
+          colorized: true,
           data: {
             body,
             url: targetUrl ? (window.location.origin ? (window.location.origin + targetUrl) : targetUrl) : (window.location.origin ? (window.location.origin + '/') : '/')
@@ -200,6 +201,7 @@ export async function showLocalNotification(title, body, imageUrl = null, target
         silent: false,
         requireInteraction: false,
         color: '#8b5cf6',
+        colorized: true,
         data: {
           body,
           url: targetUrl ? (window.location.origin ? (window.location.origin + targetUrl) : targetUrl) : (window.location.origin ? (window.location.origin + '/') : '/')
