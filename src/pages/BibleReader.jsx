@@ -1007,7 +1007,12 @@ export default function BibleReader() {
       lastReadingClearedRef.current = false;
       const scroller = document.getElementById('kjb-scroll');
       const scrollY = scroller ? scroller.scrollTop : window.scrollY;
-      const lastPos = { abbr: pos.abbr, chapter: pos.chapter, fromDailyVerse, fromRandom, scrollY };
+      // Save current position as previous session, then set daily/random as lastReadingPos
+      const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY };
+      try { localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession)); } catch {}
+      setPrevReadingSession(prevSession);
+      // lastReadingPos now points to the daily/random verse location (where we're going)
+      const lastPos = { abbr: newAbbr, chapter: newChapter, fromDailyVerse, fromRandom, scrollY: 0, prevAbbr: pos.abbr, prevChapter: pos.chapter };
       try { localStorage.setItem('kjb-last-reading', JSON.stringify(lastPos)); } catch {}
       setLastReadingPos(lastPos);
     } else {
@@ -1380,14 +1385,17 @@ export default function BibleReader() {
                       }
                       return;
                     }
-                    if (lastReadingPos && lastReadingPos.abbr && lastReadingPos.chapter && !lastReadingPos.cleared) {
-                      const abbr = lastReadingPos.prevAbbr || lastReadingPos.abbr;
-                      const chapter = lastReadingPos.prevChapter || lastReadingPos.chapter;
+                    if (lastReadingPos && (lastReadingPos.fromDailyVerse || lastReadingPos.fromRandom)) {
+                      // Clearing daily/random verse - return to previous reading session
+                      const abbr = lastReadingPos.prevAbbr || (prevReadingSession && prevReadingSession.abbr);
+                      const chapter = lastReadingPos.prevChapter || (prevReadingSession && prevReadingSession.chapter);
+                      const scrollY = typeof lastReadingPos.scrollY === 'number' ? lastReadingPos.scrollY : (prevReadingSession && prevReadingSession.scrollY);
                       lastReadingClearedRef.current = true; searchClearedRef.current = true;
                       setLastReadingPos(null);
                       try { localStorage.removeItem('kjb-last-reading'); } catch {}
-                      // Return to the chapter you were reading before daily/random
-                      returnToChapter(abbr, chapter, typeof lastReadingPos.scrollY === 'number' ? lastReadingPos.scrollY : undefined);
+                      if (abbr && chapter) {
+                        returnToChapter(abbr, chapter, scrollY);
+                      }
                     } else {
                       // Clear filter/highlight and return to previous reading session
                       setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
