@@ -577,6 +577,12 @@ export default function BibleReader() {
       } else {
         // For search results, use filterMode for "Show Full Chapter" option
         setHighlightVerse(verseNum || null);
+        if (verseNum && isFromSearch) {
+          const single = new Set([verseNum]);
+          setSelectedVerses(single);
+          setHighlightedVerses(single);
+          setFilterMode(true);
+        }
       }
       setPos({ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum });
       // Force scroll-to-top so the subsequent scroll-to-verse works reliably
@@ -919,18 +925,19 @@ export default function BibleReader() {
     const section = r.section || null;
     const targetVerse = section ? null : (r.verse || null);
     setHighlightSection(section);
+    // Always use filter mode for search results to show the full toolbar (copy, share, print, full chapter)
     const useFilter = resultViewRef.current !== 'full';
     if (!section && r.verse && r.verseEnd && parseInt(r.verseEnd, 10) > parseInt(r.verse, 10)) {
       const start = parseInt(r.verse, 10); const end = parseInt(r.verseEnd, 10);
       const range = new Set(); for (let v = start; v <= end; v++) range.add(v);
-      rangeHighlightRef.current = true; setHighlightedVerses(range); setSelectedVerses(range); setFilterMode(useFilter);
+      rangeHighlightRef.current = true; setHighlightedVerses(range); setSelectedVerses(range); setFilterMode(true);
       try {
         const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: start, verseEnd: end }));
       } catch {}
     } else if (!section && targetVerse) {
       const parsedTarget = parseInt(targetVerse, 10); const single = new Set([parsedTarget]);
-      rangeHighlightRef.current = true; setHighlightedVerses(single); setSelectedVerses(single); setFilterMode(useFilter);
+      rangeHighlightRef.current = true; setHighlightedVerses(single); setSelectedVerses(single); setFilterMode(true);
       try {
         const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: parsedTarget, verseEnd: null }));
@@ -1324,6 +1331,11 @@ export default function BibleReader() {
                     if (r) { setSearchIndex(nextIndex); setSearchResultIndex(nextIndex); stepToResult(r); }
                   }}
                   onClear={() => {
+                    if (searchTerm) {
+                      // Clear search context and return to previous chapter
+                      clearSearchContext();
+                      return;
+                    }
                     if (gospelMode) {
                       clearGospelNav(); setGospelMode(false);
                       // Return to where the user was reading before the gospel jump
@@ -1340,9 +1352,7 @@ export default function BibleReader() {
                       }
                       return;
                     }
-                    if (searchTerm) {
-                      clearSearchContext();
-                    } else if (lastReadingPos && lastReadingPos.abbr && lastReadingPos.chapter && !lastReadingPos.cleared) {
+                    if (lastReadingPos && lastReadingPos.abbr && lastReadingPos.chapter && !lastReadingPos.cleared) {
                       const abbr = lastReadingPos.prevAbbr || lastReadingPos.abbr;
                       const chapter = lastReadingPos.prevChapter || lastReadingPos.chapter;
                       lastReadingClearedRef.current = true; searchClearedRef.current = true;
