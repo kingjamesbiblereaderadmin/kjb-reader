@@ -296,6 +296,16 @@ export default function SettingsPage() {
       return;
     }
 
+    // Check current permission status first
+    const currentPermission = Notification.permission;
+    console.log('[Settings] Current notification permission:', currentPermission);
+    
+    if (currentPermission === 'denied') {
+      // Permission was previously denied - Chrome won't show prompt again
+      alert('Notifications are blocked in your browser settings.\n\nTo enable:\n1. Tap the lock icon (🔒) in the address bar\n2. Select "Site settings" or "Permissions"\n3. Find "Notifications" and change to "Allow"\n4. Return and toggle the switch again');
+      return;
+    }
+
     try {
       const permission = await Notification.requestPermission();
       setNotifPermission(permission);
@@ -309,7 +319,7 @@ export default function SettingsPage() {
         showLocalNotification('KJB — Reminders On', `"${cleanForNotification(v.text)}" — ${v.ref} (KJB)`, null, '/');
         window.dispatchEvent(new Event('storage'));
       } else if (permission === 'denied') {
-        alert('Notifications are blocked. Please allow notifications in your browser/app settings for this site.');
+        alert('Notifications blocked. To enable:\n1. Tap the lock icon (🔒) in the address bar\n2. Select "Site settings" or "Permissions"\n3. Find "Notifications" and change to "Allow"');
       }
     } catch (err) {
       console.error('Notification permission error:', err);

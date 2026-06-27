@@ -190,6 +190,17 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
       alert('Notifications are not supported in this browser. Please install the app for notification support.');
       return;
     }
+    
+    // Check current permission status first
+    const currentPermission = Notification.permission;
+    console.log('[FirstLoadPrompt] Current notification permission:', currentPermission);
+    
+    if (currentPermission === 'denied') {
+      // Permission was previously denied - Chrome won't show prompt again
+      alert('Notifications are blocked in your browser settings.\n\nTo enable:\n1. Tap the lock icon (🔒) in the address bar\n2. Select "Site settings" or "Permissions"\n3. Find "Notifications" and change to "Allow"\n4. Return and tap "Enable Daily Notifications" again');
+      return;
+    }
+    
     try {
       console.log('[FirstLoadPrompt] Requesting notification permission...');
       const permission = await Notification.requestPermission();
@@ -199,14 +210,12 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
         setNotifDone(true);
         setNotifFailed(false);
         console.log('[FirstLoadPrompt] Notifications enabled successfully');
-      } else {
-        // Permission denied - don't permanently fail, let user retry after manually enabling
-        setNotifFailed(false);
-        alert('Notifications blocked. Please enable notifications in your browser settings: Menu → Settings → Site permissions → Notifications.');
+      } else if (permission === 'denied') {
+        // User just denied - show guidance to manually re-enable
+        alert('Notifications blocked. To enable:\n1. Tap the lock icon (🔒) in the address bar\n2. Select "Site settings" or "Permissions"\n3. Find "Notifications" and change to "Allow"');
       }
     } catch (err) {
       console.error('Notif permission error:', err);
-      setNotifFailed(false);
       alert('Failed to request permission. Please enable notifications manually in your browser settings.');
     }
   };
