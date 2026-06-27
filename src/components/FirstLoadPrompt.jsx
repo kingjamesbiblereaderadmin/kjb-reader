@@ -473,25 +473,29 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
           </div>
 
           {!isIncognito && (
-          <button
-            type="button"
-            disabled={notifDone}
+          <div
+            role="button"
+            tabIndex={notifDone ? -1 : 0}
+            aria-disabled={notifDone}
             onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              handleNotifClick(e);
+              if (!notifDone) {
+                e.stopPropagation();
+                handleNotifClick(e);
+              }
             }}
             onTouchEnd={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              handleNotifClick(e);
+              if (!notifDone) {
+                e.stopPropagation();
+                e.preventDefault();
+                handleNotifClick(e);
+              }
             }}
             className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-left touch-manipulation transition-all duration-200 ${
               notifDone
                 ? 'bg-secondary/40 border-border text-foreground cursor-not-allowed opacity-80' 
                 : 'bg-primary/10 border-primary/20 text-primary cursor-pointer hover:bg-primary/20 active:bg-primary/25 active:scale-[0.98] font-medium'
             }`}
-            style={{ WebkitTapHighlightColor: 'transparent', WebkitAppearance: 'none' }}
+            style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             <Bell className="w-4 h-4 shrink-0" />
             <span className="flex-1 text-left leading-tight">
@@ -502,7 +506,7 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
                 {notifDone ? 'You will receive the daily verse every morning' : 'Get the daily verse every morning'}
               </span>
             </span>
-          </button>
+          </div>
           )}
           </div>
       </div>
