@@ -111,15 +111,15 @@ export default function CurrentlyReadingIndicator({
   const showNavigation = !isDaily && !isRandom && (effectiveSearchTerm || gospelMode) && totalResults > 1 && onPrevResult && onNextResult;
 
   return (
-    <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-yellow-500 text-black font-sans text-xs font-medium h-11 whitespace-nowrap flex-shrink-0">
+    <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-yellow-500 text-black font-sans text-xs font-medium h-11 min-w-0 flex-shrink-0">
       <div className="flex flex-col leading-tight min-w-0">
         {typeLabel ? (
           <>
-            <span className="font-semibold text-[10px] uppercase tracking-wide opacity-75">{typeLabel}</span>
-            <span className="font-bold text-xs">{reference}</span>
+            <span className="font-semibold text-[10px] uppercase tracking-wide opacity-75 truncate max-w-full block">{typeLabel}</span>
+            <span className="font-bold text-xs truncate max-w-full block">{reference}</span>
           </>
         ) : (
-          <span className="font-bold text-xs">{reference}</span>
+          <span className="font-bold text-xs truncate max-w-full block">{reference}</span>
         )}
       </div>
       {showNavigation && (
