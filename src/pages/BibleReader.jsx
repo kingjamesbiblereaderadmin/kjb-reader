@@ -571,16 +571,13 @@ export default function BibleReader() {
             setLastReadingPos(dailyPos);
           }
         } catch {}
-        // For daily/random, set as a single-verse selection so the highlight shows
-        if (verseNum) {
-          const single = new Set([verseNum]);
-          setSelectedVerses(single);
-          setHighlightedVerses(single);
-          setFilterMode(true);
-        }
+        // For daily/random, just set the highlight - NOT filterMode (that's for search results)
+        setHighlightVerse(verseNum || null);
+        setHighlightedVerses(verseNum ? new Set([verseNum]) : new Set());
+      } else {
+        // For search results, use filterMode for "Show Full Chapter" option
+        setHighlightVerse(verseNum || null);
       }
-      // Set highlight BEFORE loading the chapter so it applies on render
-      setHighlightVerse(verseNum || null);
       setPos({ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum });
       // Force scroll-to-top so the subsequent scroll-to-verse works reliably
       (document.getElementById('kjb-scroll') || window).scrollTo({ top: 0 });
@@ -625,17 +622,15 @@ export default function BibleReader() {
           stepToResult(cur); return;
         }
       }
-      // Restore daily/random highlight position from localStorage
+      // Restore daily/random highlight position from localStorage (no filterMode - that's for search)
       const lastReading = localStorage.getItem('kjb-last-reading');
       if (lastReading) {
         try {
           const parsed = JSON.parse(lastReading);
           if (parsed && parsed.abbr === p.abbr && parsed.chapter === p.chapter && parsed.verse) {
             setHighlightVerse(parsed.verse);
-            const single = new Set([parsed.verse]);
-            setSelectedVerses(single);
-            setHighlightedVerses(single);
-            setFilterMode(true);
+            setHighlightedVerses(new Set([parsed.verse]));
+            setFilterMode(false); // Daily verse is NOT filter mode
           }
         } catch {}
       }
