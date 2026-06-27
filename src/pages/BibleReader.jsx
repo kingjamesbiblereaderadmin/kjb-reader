@@ -866,21 +866,36 @@ export default function BibleReader() {
     const flush = () => {
       if (raf) { cancelAnimationFrame(raf); raf = null; }
       try { localStorage.setItem(key, String(Math.round(getY()))); } catch {}
-      // ALSO save current reading session continuously (for Home → daily → clear flow)
-      try {
-        const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY: Math.round(getY()) };
-        localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession));
-      } catch {}
+      // ONLY save prev-reading-session for normal reading (not daily/random/search/gospel)
+      const urlParams = new URLSearchParams(window.location.search);
+      const isFromDaily = urlParams.get('from') === 'daily';
+      const isFromRandom = urlParams.get('from') === 'random';
+      const isFromSearch = urlParams.get('from') === 'search';
+      const isFromGospel = urlParams.get('from') === 'gospel';
+      if (!isFromDaily && !isFromRandom && !isFromSearch && !isFromGospel) {
+        try {
+          const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY: Math.round(getY()) };
+          localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession));
+        } catch {}
+      }
     };
     const onScroll = () => {
       if (raf) return;
       raf = requestAnimationFrame(() => {
         raf = null;
         try { localStorage.setItem(key, String(Math.round(getY()))); } catch {}
-        try {
-          const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY: Math.round(getY()) };
-          localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession));
-        } catch {}
+        // ONLY save prev-reading-session for normal reading (not daily/random/search/gospel)
+        const urlParams = new URLSearchParams(window.location.search);
+        const isFromDaily = urlParams.get('from') === 'daily';
+        const isFromRandom = urlParams.get('from') === 'random';
+        const isFromSearch = urlParams.get('from') === 'search';
+        const isFromGospel = urlParams.get('from') === 'gospel';
+        if (!isFromDaily && !isFromRandom && !isFromSearch && !isFromGospel) {
+          try {
+            const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY: Math.round(getY()) };
+            localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession));
+          } catch {}
+        }
       });
     };
     // Flush the latest position whenever the page is hidden/closed. pagehide +
@@ -889,12 +904,19 @@ export default function BibleReader() {
     const onHide = () => {
       flush();
       // Also save prev-reading-session explicitly on close (for notification → clear flow)
-      try {
-        const scroller = document.getElementById('kjb-scroll');
-        const scrollY = scroller ? scroller.scrollTop : window.scrollY;
-        const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY: Math.round(scrollY) };
-        localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession));
-      } catch {}
+      const urlParams = new URLSearchParams(window.location.search);
+      const isFromDaily = urlParams.get('from') === 'daily';
+      const isFromRandom = urlParams.get('from') === 'random';
+      const isFromSearch = urlParams.get('from') === 'search';
+      const isFromGospel = urlParams.get('from') === 'gospel';
+      if (!isFromDaily && !isFromRandom && !isFromSearch && !isFromGospel) {
+        try {
+          const scroller = document.getElementById('kjb-scroll');
+          const scrollY = scroller ? scroller.scrollTop : window.scrollY;
+          const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY: Math.round(scrollY) };
+          localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession));
+        } catch {}
+      }
     };
     target.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('pagehide', onHide);
@@ -1010,11 +1032,22 @@ export default function BibleReader() {
   const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isAutoAdvance = false, section = null, preserveSearchContext = false) => {
     const sameChapter = newAbbr === pos.abbr && newChapter === pos.chapter;
     
-    // ALWAYS save current position as previous reading session before any navigation
+    // ALWAYS save current position as previous reading session before any navigation (for daily/random/search/gospel)
     const scroller = document.getElementById('kjb-scroll');
     const scrollY = scroller ? scroller.scrollTop : window.scrollY;
     const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY };
-    try { localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession)); } catch {}
+    try { 
+      const existing = localStorage.getItem('kjb-prev-reading-session');
+      // Only overwrite if we have valid data OR if there's nothing saved
+      if (existing) {
+        const parsed = JSON.parse(existing);
+        if (!parsed || !parsed.abbr || !parsed.chapter) {
+          localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession));
+        }
+      } else {
+        localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession));
+      }
+    } catch {}
     setPrevReadingSession(prevSession);
     
     // Clear search/gospel context for daily/random or when moving to different chapter
@@ -1413,19 +1446,8 @@ export default function BibleReader() {
                     try { localStorage.removeItem('kjb-last-reading'); } catch {}
                     
                     if (prevAbbr && prevChapter) {
-                      // Navigate directly using the navigate function
-                      navigate(prevAbbr, prevChapter, null, false, false, false, null, false);
-                      // Manually restore scroll position after a short delay
-                      setTimeout(() => {
-                        if (typeof prevScrollY === 'number' && prevScrollY > 0) {
-                          const scroller = document.getElementById('kjb-scroll');
-                          if (scroller) {
-                            scroller.scrollTo({ top: prevScrollY, behavior: 'auto' });
-                          } else {
-                            window.scrollTo({ top: prevScrollY, behavior: 'auto' });
-                          }
-                        }
-                      }, 150);
+                      // Use returnToChapter which is designed for returning to previous positions
+                      returnToChapter(prevAbbr, prevChapter, prevScrollY);
                     } else {
                       try { window.history.replaceState({}, '', '/read'); } catch {}
                     }
