@@ -170,7 +170,7 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
     promptedRef.current = true;
     try { window.kjbPromptedThisSession = true; } catch {}
     
-    // Always try native prompt first on mobile (Edge/Chrome/Samsung)
+    // Always try native prompt first (Edge desktop/mobile, Chrome, Samsung)
     if (onInstall) {
       try {
         const accepted = await onInstall();
@@ -178,11 +178,16 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
           setInstallDone(true);
           return;
         }
+        // Prompt was cancelled by user - still show manual guide
+        setShowIOSHint(true);
+        return;
       } catch (err) {
         console.error('Install prompt failed:', err);
+        setShowIOSHint(true);
+        return;
       }
     }
-    // Native prompt was cancelled or not available, show manual guide
+    // No native prompt available, show manual guide
     setShowIOSHint(true);
   };
 
