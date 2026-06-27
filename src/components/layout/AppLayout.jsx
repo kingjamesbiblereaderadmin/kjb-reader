@@ -266,18 +266,14 @@ export default function AppLayout() {
     initPeriodicCacheRefresh();
 
     // Initialize daily-verse notifications app-wide - check BOTH localStorage AND OS permission
+    // IMPORTANT: Don't auto-request permission on mount - only initialize if user has already granted both
     const notifEnabled = getNotificationsEnabled();
     const osPermission = 'Notification' in window ? Notification.permission : 'unsupported';
     
     if (notifEnabled && osPermission === 'granted') {
       initNotifications();
-    } else if (notifEnabled && osPermission !== 'granted') {
-      requestNotificationPermission().then(result => {
-        if (result === 'granted') {
-          initNotifications();
-        }
-      });
     }
+    // If permission not granted yet, wait for user to explicitly enable in FirstLoadPrompt or Settings
 
     // Show prompt once per session — use ONLY the authoritative isPWAInstalled from display-mode detection
     const notifGranted = 'Notification' in window && Notification.permission === 'granted';
