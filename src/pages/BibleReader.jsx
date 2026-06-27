@@ -982,7 +982,17 @@ export default function BibleReader() {
   const { navigate: baseNavigate, returnToChapter: baseReturnToChapter, preSearchPosRef, rangeHighlightRef, freshNavRef } = useReaderNavigation(pos, loadChapter, routerNavigate, routerLocation);
   
   const returnToChapter = (abbr, chapter, exactY) => {
-    baseReturnToChapter(abbr, chapter, exactY, setFilterMode, setSelectMode, setSelectedVerses, setHighlightedVerses, setHighlightVerse, setHighlightSection, setShowFilterOverlay, loadChapter);
+    if (!abbr || !chapter) return;
+    setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
+    setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
+    setShowFilterOverlay(false);
+    if (typeof exactY === 'number' && exactY > 0) {
+      try { localStorage.setItem(`kjb-scroll-${abbr}-${chapter}`, String(Math.round(exactY))); } catch {}
+    }
+    try { window.history.replaceState({}, '', '/read'); } catch {}
+    freshNavRef.current = false;
+    // Force reload by calling loadChapter directly - this will restore scroll from localStorage
+    loadChapter(abbr, chapter, null);
   };
   
   const { stepToResult, clearSearchContext } = useSearchAndGospelResults(
@@ -1384,25 +1394,38 @@ export default function BibleReader() {
                       return;
                     }
                     // For ALL other cases (daily/random/search/filter/highlight), read from kjb-prev-reading-session
-                    let abbr, chapter, scrollY;
+                    let prevAbbr, prevChapter, prevScrollY;
                     try {
                       const prevRaw = localStorage.getItem('kjb-prev-reading-session');
                       if (prevRaw) {
                         const prev = JSON.parse(prevRaw);
                         if (prev && prev.abbr && prev.chapter) {
-                          abbr = prev.abbr;
-                          chapter = prev.chapter;
-                          scrollY = prev.scrollY;
+                          prevAbbr = prev.abbr;
+                          prevChapter = prev.chapter;
+                          prevScrollY = prev.scrollY;
                         }
                       }
                     } catch {}
-                    // Clear all state
+                    // Clear all state first
                     setLastReadingPos(null); setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
-                    setHighlightVerse(null); setHighlightSection(null); setShowFilterOverlay(false);
-                    setHighlightedVerses(new Set());
+                    setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
+                    setShowFilterOverlay(false);
                     try { localStorage.removeItem('kjb-last-reading'); } catch {}
-                    if (abbr && chapter) {
-                      returnToChapter(abbr, chapter, scrollY);
+                    
+                    if (prevAbbr && prevChapter) {
+                      // Navigate directly using the navigate function
+                      navigate(prevAbbr, prevChapter, null, false, false, false, null, false);
+                      // Manually restore scroll position after a short delay
+                      setTimeout(() => {
+                        if (typeof prevScrollY === 'number' && prevScrollY > 0) {
+                          const scroller = document.getElementById('kjb-scroll');
+                          if (scroller) {
+                            scroller.scrollTo({ top: prevScrollY, behavior: 'auto' });
+                          } else {
+                            window.scrollTo({ top: prevScrollY, behavior: 'auto' });
+                          }
+                        }
+                      }, 150);
                     } else {
                       try { window.history.replaceState({}, '', '/read'); } catch {}
                     }
