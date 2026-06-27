@@ -35,19 +35,25 @@ const checkInstalledAsync = async () => {
   }
   
   // 2. getInstalledRelatedApps() - detects PWA from browser tab (Android Chrome/Samsung)
+  // IMPORTANT: This API only works on Android Chrome 94+ and Samsung Internet
+  // It does NOT work on iOS Safari or desktop browsers
   console.log('[InstallCheck] getInstalledRelatedApps available:', !!navigator.getInstalledRelatedApps);
   if (navigator.getInstalledRelatedApps) {
     try {
       const apps = await navigator.getInstalledRelatedApps();
-      console.log('[InstallCheck] getInstalledRelatedApps result:', apps);
+      console.log('[InstallCheck] getInstalledRelatedApps result:', apps, '| count:', apps?.length);
       if (apps && apps.length > 0) {
         console.log('[InstallCheck] getInstalledRelatedApps → installed', apps);
         localStorage.setItem(INSTALLED_KEY, 'true');
         return true;
+      } else {
+        console.log('[InstallCheck] getInstalledRelatedApps returned empty array - PWA not detected via this method');
       }
     } catch (err) {
-      console.error('[InstallCheck] getInstalledRelatedApps error:', err);
+      console.error('[InstallCheck] getInstalledRelatedApps error:', err.message);
     }
+  } else {
+    console.log('[InstallCheck] getInstalledRelatedApps NOT available on this browser - install detection only works inside PWA window');
   }
   
   // 3. iOS fallback: navigator.standalone
@@ -153,6 +159,7 @@ export function useInstallPrompt() {
       setIsInstallable(installable);
       // Re-check installed state on focus (user may have just installed/uninstalled)
       checkInstalledAsync().then(installed => {
+        console.log('[useInstallPrompt] sync → installed:', installed);
         if (!cancelled) setIsInstalled(installed);
       });
     };
@@ -161,6 +168,7 @@ export function useInstallPrompt() {
     window.addEventListener('kjb-install-change', sync);
     window.addEventListener('focus', sync);
     window.addEventListener('storage', sync);
+    window.addEventListener('visibilitychange', sync);
     // Check on mount
     sync();
     return () => {

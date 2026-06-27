@@ -85,16 +85,33 @@ export default function InstallAppSection({ expanded, isIncognito }) {
         {isInstalled ? (
           <div className="space-y-3">
             <div className="rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-900/40 p-4">
-              <div className="flex items-center gap-3">
-                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                  <CheckCircle2 className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-sans text-sm font-bold text-emerald-800 dark:text-emerald-300">✓ Installed as an app!</p>
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                    <CheckCircle2 className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-sans text-sm font-bold text-emerald-800 dark:text-emerald-300">✓ Installed as an app!</p>
+                    <p className="font-sans text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">Detected via display-mode</p>
+                  </div>
                 </div>
               </div>
             </div>
-
+            <button
+              onClick={() => {
+                if (confirm('Reset installation status? Use this if you uninstalled the app and want to see the install prompt again.')) {
+                  localStorage.removeItem('kjb-is-installed');
+                  localStorage.removeItem('kjb-install-dismissed');
+                  localStorage.removeItem('kjb-prompt-dismissed');
+                  window.dispatchEvent(new Event('storage'));
+                  window.dispatchEvent(new Event('kjb-install-change'));
+                }
+              }}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <Smartphone className="w-4 h-4" />
+              Reset Installation Status
+            </button>
           </div>
         ) : inIframe() ? (
           <div className="space-y-3">
