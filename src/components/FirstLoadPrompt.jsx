@@ -320,6 +320,12 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
                       )}
                     </div>
                   )}
+                  {inIframe() && (
+                    <p className="font-sans text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 font-medium flex items-start gap-1 leading-snug mb-2">
+                      <span className="shrink-0 leading-none mt-0.5">ℹ️</span>
+                      You are viewing this inside the embed preview window, where Chrome/Edge block the PWA install prompt. Please click "Open in New Tab" (top right) to install it!
+                    </p>
+                  )}
                   <p className="font-sans text-[10px] sm:text-xs text-foreground leading-relaxed">
                     <strong>Manual Installation Guide:</strong>
                     <br />
