@@ -168,10 +168,7 @@ export default function BibleReader() {
       const saved = localStorage.getItem('kjb-last-reading');
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Ensure the indicator shows when returning from daily verse or random chapter
-        if (parsed && (parsed.fromDailyVerse || parsed.fromRandom || parsed.prevAbbr)) {
-          return parsed;
-        }
+        return parsed;
       }
       return null;
     } catch { return null; }
@@ -422,7 +419,10 @@ export default function BibleReader() {
     if (initParams.get('from') === 'daily') {
       try {
         const saved = localStorage.getItem('kjb-last-reading');
-        if (saved) setLastReadingPos(JSON.parse(saved));
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          setLastReadingPos(parsed);
+        }
       } catch {}
     }
     if (initParams.get('from') === 'gospel') {
@@ -570,8 +570,10 @@ export default function BibleReader() {
         lastReadingClearedRef.current = false;
         try {
           const saved = localStorage.getItem('kjb-last-reading');
-          if (saved) setLastReadingPos(JSON.parse(saved));
-          else {
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            setLastReadingPos(parsed);
+          } else {
             const dailyPos = { abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum || null, fromDailyVerse: true };
             localStorage.setItem('kjb-last-reading', JSON.stringify(dailyPos));
             setLastReadingPos(dailyPos);
@@ -603,7 +605,10 @@ export default function BibleReader() {
     } catch {}
     try {
       const saved = localStorage.getItem('kjb-last-reading');
-      if (saved) setLastReadingPos(JSON.parse(saved));
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setLastReadingPos(parsed);
+      }
     } catch {}
 
     const applyRequestedPosition = () => {
@@ -776,9 +781,7 @@ export default function BibleReader() {
         const saved = localStorage.getItem('kjb-last-reading');
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (parsed && (parsed.fromDailyVerse || parsed.fromRandom || parsed.prevAbbr)) {
-            setLastReadingPos(parsed);
-          }
+          setLastReadingPos(parsed);
         }
       } catch {}
     };
