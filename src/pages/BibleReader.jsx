@@ -920,6 +920,14 @@ export default function BibleReader() {
           }
         }
       } catch {}
+      // Sync previous reading session
+      try {
+        const prevSaved = localStorage.getItem('kjb-prev-reading-session');
+        if (prevSaved) {
+          const prevParsed = JSON.parse(prevSaved);
+          if (prevParsed) setPrevReadingSession(prevParsed);
+        }
+      } catch {}
     };
     sync();
     window.addEventListener('storage', sync); window.addEventListener('focus', sync); window.addEventListener('kjb-fonts-changed', sync);
@@ -968,6 +976,18 @@ export default function BibleReader() {
     // ALWAYS clear search/gospel context for daily/random navigation (fresh start)
     // For other navigation, clear only when moving to a DIFFERENT chapter.
     const sameChapter = newAbbr === pos.abbr && newChapter === pos.chapter;
+    
+    // Save current position as previous reading session before navigating away
+    // (only if we're not already in a special mode like search/gospel/daily)
+    const hasActiveIndicator = searchTerm || gospelMode || lastReadingPos || (filterMode && selectedVerses.size > 0);
+    if (!hasActiveIndicator && pos.abbr && pos.chapter && !sameChapter) {
+      const scroller = document.getElementById('kjb-scroll');
+      const scrollY = scroller ? scroller.scrollTop : window.scrollY;
+      const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY };
+      try { localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession)); } catch {}
+      setPrevReadingSession(prevSession);
+    }
+    
     if (fromDailyVerse || fromRandom) {
       // Clear all search/gospel context for daily/random
       searchClearedRef.current = true; clearSearchNav(); setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
@@ -988,12 +1008,6 @@ export default function BibleReader() {
       const scroller = document.getElementById('kjb-scroll');
       const scrollY = scroller ? scroller.scrollTop : window.scrollY;
       const lastPos = { abbr: pos.abbr, chapter: pos.chapter, fromDailyVerse, fromRandom, scrollY };
-      // Save current position as previous session before overwriting
-      if (pos.abbr && pos.chapter) {
-        const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY };
-        try { localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession)); } catch {}
-        setPrevReadingSession(prevSession);
-      }
       try { localStorage.setItem('kjb-last-reading', JSON.stringify(lastPos)); } catch {}
       setLastReadingPos(lastPos);
     } else {
