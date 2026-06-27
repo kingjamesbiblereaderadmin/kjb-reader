@@ -1008,13 +1008,29 @@ export default function BibleReader() {
     setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
     setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
     setShowFilterOverlay(false);
+    
+    // Save scroll position for restoration
     if (typeof exactY === 'number' && exactY > 0) {
       try { localStorage.setItem(`kjb-scroll-${abbr}-${chapter}`, String(Math.round(exactY))); } catch {}
     }
+    
     try { window.history.replaceState({}, '', '/read'); } catch {}
     freshNavRef.current = false;
-    // Force reload by calling loadChapter directly - this will restore scroll from localStorage
+    
+    // Force reload by calling loadChapter directly
     loadChapter(abbr, chapter, null);
+    
+    // ALSO manually restore scroll after chapter loads (in case effect doesn't trigger for same chapter)
+    setTimeout(() => {
+      if (typeof exactY === 'number' && exactY > 0) {
+        const scroller = document.getElementById('kjb-scroll');
+        if (scroller) {
+          scroller.scrollTo({ top: exactY, behavior: 'auto' });
+        } else {
+          window.scrollTo({ top: exactY, behavior: 'auto' });
+        }
+      }
+    }, 400);
   };
   
   const { stepToResult, clearSearchContext } = useSearchAndGospelResults(
@@ -1036,19 +1052,29 @@ export default function BibleReader() {
     const scroller = document.getElementById('kjb-scroll');
     const scrollY = scroller ? scroller.scrollTop : window.scrollY;
     const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY };
-    try { 
-      const existing = localStorage.getItem('kjb-prev-reading-session');
-      // Only overwrite if we have valid data OR if there's nothing saved
+    
+    // Save to BOTH storage locations for maximum compatibility
+    try { localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession)); } catch {}
+    setPrevReadingSession(prevSession);
+    
+    // Also save to kjb-last-reading for clear handler compatibility
+    try {
+      const existing = localStorage.getItem('kjb-last-reading');
       if (existing) {
-        const parsed = JSON.parse(existing);
-        if (!parsed || !parsed.abbr || !parsed.chapter) {
-          localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession));
+        const last = JSON.parse(existing);
+        if (last && last.prevAbbr && last.prevChapter) {
+          // Keep existing prev session data
+        } else {
+          localStorage.setItem('kjb-last-reading', JSON.stringify({
+            abbr: newAbbr,
+            chapter: newChapter,
+            prevAbbr: pos.abbr,
+            prevChapter: pos.chapter,
+            prevScrollY: scrollY,
+          }));
         }
-      } else {
-        localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession));
       }
     } catch {}
-    setPrevReadingSession(prevSession);
     
     // Clear search/gospel context for daily/random or when moving to different chapter
     if (fromDailyVerse || fromRandom || (!preserveSearchContext && !sameChapter)) {
@@ -1426,8 +1452,10 @@ export default function BibleReader() {
                       }
                       return;
                     }
-                    // For ALL other cases (daily/random/search/filter/highlight), read from kjb-last-reading (set by HomePage)
+                    // For ALL other cases (daily/random/search/filter/highlight), check both storage locations
                     let prevAbbr, prevChapter, prevScrollY;
+                    
+                    // First try kjb-last-reading (set by HomePage for daily/random)
                     try {
                       const lastRaw = localStorage.getItem('kjb-last-reading');
                       if (lastRaw) {
@@ -1439,6 +1467,22 @@ export default function BibleReader() {
                         }
                       }
                     } catch {}
+                    
+                    // If not found, try kjb-prev-reading-session (set by BibleReader navigate for search/gospel)
+                    if (!prevAbbr || !prevChapter) {
+                      try {
+                        const prevRaw = localStorage.getItem('kjb-prev-reading-session');
+                        if (prevRaw) {
+                          const prev = JSON.parse(prevRaw);
+                          if (prev && prev.abbr && prev.chapter) {
+                            prevAbbr = prev.abbr;
+                            prevChapter = prev.chapter;
+                            prevScrollY = prev.scrollY || 0;
+                          }
+                        }
+                      } catch {}
+                    }
+                    
                     // Clear all state first
                     setLastReadingPos(null); setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
                     setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
