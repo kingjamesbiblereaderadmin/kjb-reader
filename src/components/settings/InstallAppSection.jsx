@@ -92,14 +92,23 @@ export default function InstallAppSection({ expanded, isIncognito }) {
                   </div>
                   <div className="flex-1">
                     <p className="font-sans text-sm font-bold text-emerald-800 dark:text-emerald-300">✓ Installed as an app!</p>
-                    <p className="font-sans text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">Detected via display-mode</p>
+                    <p className="font-sans text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">
+                      {(() => {
+                        try {
+                          const dm = window.matchMedia('(display-mode: standalone)').matches ? 'standalone' :
+                                     window.matchMedia('(display-mode: minimal-ui)').matches ? 'minimal-ui' :
+                                     window.matchMedia('(display-mode: window-controls-overlay)').matches ? 'overlay' : 'unknown';
+                          return `Detected: ${dm}`;
+                        } catch { return 'Detected via display-mode'; }
+                      })()}
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
             <button
               onClick={() => {
-                if (confirm('Reset installation status? Use this if you uninstalled the app and want to see the install prompt again.')) {
+                if (confirm('Reset installation status? This will clear the "Installed" flag so you can see the install prompt again. Use this if you uninstalled the app from your home screen.')) {
                   localStorage.removeItem('kjb-is-installed');
                   localStorage.removeItem('kjb-install-dismissed');
                   localStorage.removeItem('kjb-prompt-dismissed');
@@ -107,10 +116,10 @@ export default function InstallAppSection({ expanded, isIncognito }) {
                   window.dispatchEvent(new Event('kjb-install-change'));
                 }
               }}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive font-sans text-sm font-medium hover:bg-destructive/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               <Smartphone className="w-4 h-4" />
-              Reset Installation Status
+              Reset (I Uninstalled the App)
             </button>
           </div>
         ) : inIframe() ? (

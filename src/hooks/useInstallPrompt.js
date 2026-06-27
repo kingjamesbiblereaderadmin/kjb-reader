@@ -28,8 +28,10 @@ const checkInstalledAsync = async () => {
   const dmMinimal = window.matchMedia('(display-mode: minimal-ui)').matches;
   const dmOverlay = window.matchMedia('(display-mode: window-controls-overlay)').matches;
   
+  console.log('[InstallCheck] display-mode checks | standalone:', dmStandalone, '| minimal-ui:', dmMinimal, '| window-controls-overlay:', dmOverlay);
+  
   if (dmStandalone || dmMinimal || dmOverlay) {
-    console.log('[InstallCheck] display-mode → installed');
+    console.log('[InstallCheck] ✓ display-mode → INSTALLED');
     localStorage.setItem(INSTALLED_KEY, 'true');
     return true;
   }
