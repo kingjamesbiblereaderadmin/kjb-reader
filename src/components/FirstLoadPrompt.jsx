@@ -473,20 +473,16 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
           </div>
 
           {!isIncognito && (
-          <div
-            role="button"
-            tabIndex={notifDone ? -1 : 0}
-            aria-disabled={notifDone}
+          <button
+            type="button"
+            disabled={notifDone}
             onClick={(e) => {
-              if (!notifDone) {
-                e.stopPropagation();
-                handleNotifClick(e);
-              }
+              e.stopPropagation();
+              handleNotifClick(e);
             }}
             onTouchEnd={(e) => {
               if (!notifDone) {
                 e.stopPropagation();
-                e.preventDefault();
                 handleNotifClick(e);
               }
             }}
@@ -506,7 +502,7 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
                 {notifDone ? 'You will receive the daily verse every morning' : 'Get the daily verse every morning'}
               </span>
             </span>
-          </div>
+          </button>
           )}
           </div>
       </div>
