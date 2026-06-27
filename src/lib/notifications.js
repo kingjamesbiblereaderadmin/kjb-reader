@@ -111,7 +111,8 @@ export function disableNotifications() {
 
 
 
-const APP_LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/799704588_Untitled.png';
+// App logo for notifications - Android renders this as a white silhouette in the status bar
+const APP_LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png';
 
 // Clean verse text for plain-text notifications. KEEP pilcrows (¶) and the
 // [italic] brackets. The source stores every apostrophe AND pilcrow as the
