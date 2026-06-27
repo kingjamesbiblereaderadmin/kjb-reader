@@ -8,7 +8,12 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
     try {
       // Only save if we have an ACTIVE search/gospel context (don't save cleared state)
       const hasActiveContext = (searchTerm && !searchClearedRef.current) || gospelMode || selectedVerses.size > 0;
-      if (!hasActiveContext) return;
+      if (!hasActiveContext) {
+        // Clear persisted state when there's no active context
+        localStorage.removeItem('kjb-reader-toolbar-state');
+        console.log('[ToolbarState] Cleared state - no active context');
+        return;
+      }
       
       const state = {
         abbr: pos.abbr,
