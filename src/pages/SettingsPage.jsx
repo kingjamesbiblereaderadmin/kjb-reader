@@ -1406,7 +1406,7 @@ export default function SettingsPage() {
         <div className="px-5 pb-6 pt-2 space-y-2">
           <div className="space-y-2 font-sans text-xs text-muted-foreground">
         <p>• <strong className="text-foreground">App Platform:</strong> Built with <a href="https://base44.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Base44</a></p>
-        <p>• <strong className="text-foreground">Special Thanks:</strong> Elvish Ishaan</p>
+        <p>• <strong className="text-foreground">Special Thanks:</strong> Elvish Ishaan for fixing bugs and issues</p>
         <p>• <strong className="text-foreground">Bible Text:</strong> King James Bible: Pure Cambridge Edition: Wharton Text Format</p>
         <p>• <strong className="text-foreground">Cormorant Garamond:</strong> Google Fonts (SIL Open Font License)</p>
         <p>• <strong className="text-foreground">Inter:</strong> Google Fonts (SIL Open Font License)</p>
