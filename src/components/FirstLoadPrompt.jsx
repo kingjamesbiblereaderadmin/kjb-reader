@@ -5,6 +5,8 @@ import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityF
 import ThemeColorPicker from '@/components/bible/ThemeColorPicker';
 import { useTheme } from '@/lib/themeContext';
 import { detectIncognito } from '@/lib/incognito';
+import { getNotificationsEnabled, requestNotificationPermission, scheduleDailyNotification, showLocalNotification, cleanForNotification } from '@/lib/notifications';
+import { getDailyVerse } from '@/lib/dailyVerse';
 
 const VERSE_FONTS = [
   { value: 'serif', label: 'Serif' },
@@ -113,15 +115,14 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
     if (parentIsInstalled) setInstallDone(true);
   }, [parentIsInstalled]);
 
-  // Sync notif state on focus - only show enabled if user clicked enable in this session AND browser permission is granted
+  // Sync notif state on focus - show enabled if localStorage flag is set AND browser permission is granted
   useEffect(() => {
     const checkNotif = () => {
       try {
-        // Check if user explicitly enabled notifications in THIS session (not just from localStorage)
-        const sessionEnabled = window.kjbNotifEnabledThisSession === true;
+        // Check localStorage (persistent) OR session flag
+        const enabled = localStorage.getItem('kjb-notifications-enabled') === 'true' || window.kjbNotifEnabledThisSession === true;
         const permissionGranted = 'Notification' in window && Notification.permission === 'granted';
-        // Only show as enabled if BOTH: user clicked enable this session AND browser permission is granted
-        if (sessionEnabled && permissionGranted) {
+        if (enabled && permissionGranted) {
           setNotifDone(true);
         }
       } catch {}
@@ -209,9 +210,16 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
       const permission = await Notification.requestPermission();
       console.log('[FirstLoadPrompt] Permission result:', permission);
       if (permission === 'granted') {
+        // Persist to localStorage so Settings toggle stays in sync
+        localStorage.setItem('kjb-notifications-enabled', 'true');
         window.kjbNotifEnabledThisSession = true;
         setNotifDone(true);
         setNotifFailed(false);
+        // Schedule daily notification and show confirmation
+        await requestNotificationPermission();
+        scheduleDailyNotification();
+        const v = getDailyVerse();
+        showLocalNotification('KJB — Reminders On', `"${cleanForNotification(v.text)}" — ${v.ref} (KJB)`, null, '/');
         console.log('[FirstLoadPrompt] Notifications enabled successfully');
       } else if (permission === 'denied') {
         // User just denied or Chrome auto-blocked
