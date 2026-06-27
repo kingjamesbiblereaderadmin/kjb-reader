@@ -205,12 +205,17 @@ export function useInstallPrompt() {
       if (installPollInterval) clearInterval(installPollInterval);
       installPollInterval = setInterval(() => {
         const stored = localStorage.getItem(INSTALLED_KEY);
+        const timestamp = localStorage.getItem('kjb-install-timestamp');
         const shouldBeInstalled = stored === 'true';
-        console.log('[useInstallPrompt] Poll | localStorage:', stored, '| checking if should update...');
+        console.log('[useInstallPrompt] Poll | localStorage:', stored, '| timestamp:', timestamp, '| checking if should update...');
         if (shouldBeInstalled) {
           console.log('[useInstallPrompt] Poll → Setting installed=true');
           setIsInstalled(true);
           window.dispatchEvent(new Event('kjb-install-change'));
+        } else if (timestamp && Date.now() - parseInt(timestamp) < 5000) {
+          // Timestamp written in last 5 seconds = fresh install, trust it
+          console.log('[useInstallPrompt] Poll → Fresh timestamp, setting installed=true');
+          setIsInstalled(true);
         }
       }, 2000);
     };
