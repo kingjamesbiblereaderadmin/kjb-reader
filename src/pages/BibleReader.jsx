@@ -949,6 +949,11 @@ export default function BibleReader() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: r.verse || null, verseEnd: null }));
       } catch {}
     }
+    // For search/gospel result navigation, always ensure selectedVerses is populated so the toolbar shows
+    if ((searchTerm || gospelMode) && targetVerse && !section) {
+      const parsedTarget = parseInt(targetVerse, 10);
+      setSelectedVerses(new Set([parsedTarget]));
+    }
     const sameChapter = !loading && verses.length > 0 && posRef.current.abbr === r.abbr && posRef.current.chapter === r.chapter;
     const sameVerse = sameChapter && posRef.current.verse === targetVerse;
     setPos({ abbr: r.abbr, chapter: r.chapter, verse: targetVerse, occurrence: r.occurrence || 0 });
