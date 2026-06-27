@@ -32,12 +32,6 @@ export default function InstallAppSection({ expanded, isIncognito }) {
     if (typeof window === 'undefined') return;
     try { if (window.self !== window.top) { setIsInstalled(false); return; } } catch { return; }
     
-    let stored = null;
-    try {
-      stored = localStorage.getItem('kjb-is-installed');
-      if (stored === 'true') { setIsInstalled(true); return; }
-    } catch {}
-    
     const result = hookIsInstalled || 
                    window.matchMedia('(display-mode: standalone)').matches ||
                    window.matchMedia('(display-mode: minimal-ui)').matches ||
@@ -49,10 +43,6 @@ export default function InstallAppSection({ expanded, isIncognito }) {
   useEffect(() => {
     const checkInstalled = () => {
       try { if (window.self !== window.top) return; } catch { return; }
-      try {
-        const stored = localStorage.getItem('kjb-is-installed');
-        if (stored === 'true') { setIsInstalled(true); return; }
-      } catch {}
       const result = hookIsInstalled || 
                      window.matchMedia('(display-mode: standalone)').matches ||
                      window.matchMedia('(display-mode: minimal-ui)').matches ||
@@ -61,11 +51,9 @@ export default function InstallAppSection({ expanded, isIncognito }) {
       setIsInstalled(result);
     };
     window.addEventListener('focus', checkInstalled);
-    window.addEventListener('storage', checkInstalled);
     window.addEventListener('pwa-installed', checkInstalled);
     return () => {
       window.removeEventListener('focus', checkInstalled);
-      window.removeEventListener('storage', checkInstalled);
       window.removeEventListener('pwa-installed', checkInstalled);
     };
   }, [hookIsInstalled]);
@@ -121,16 +109,7 @@ export default function InstallAppSection({ expanded, isIncognito }) {
                 </div>
               </div>
             </div>
-            <button
-              onClick={() => {
-                try { localStorage.removeItem('kjb-is-installed'); } catch {}
-                window.dispatchEvent(new Event('pwa-installed'));
-                window.location.reload();
-              }}
-              className="font-sans text-xs text-muted-foreground underline hover:text-accent transition-colors"
-            >
-              Already uninstalled it? Click here to reset
-            </button>
+
           </div>
         ) : inIframe() ? (
           <div className="space-y-3">

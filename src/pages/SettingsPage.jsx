@@ -1362,11 +1362,10 @@ export default function SettingsPage() {
                 <span className="text-foreground font-medium text-right flex items-center gap-1">
                   {(() => {
                     try {
-                      const stored = localStorage.getItem('kjb-is-installed');
-                      const dmStandalone = typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches;
-                      const dmMinimal = typeof window !== 'undefined' && window.matchMedia('(display-mode: minimal-ui)').matches;
-                      const dmOverlay = typeof window !== 'undefined' && window.matchMedia('(display-mode: window-controls-overlay)').matches;
-                      if (stored === 'true' || dmStandalone || dmMinimal || dmOverlay || navigator.standalone === true) {
+                      const dmStandalone = window.matchMedia('(display-mode: standalone)').matches;
+                      const dmMinimal = window.matchMedia('(display-mode: minimal-ui)').matches;
+                      const dmOverlay = window.matchMedia('(display-mode: window-controls-overlay)').matches;
+                      if (dmStandalone || dmMinimal || dmOverlay || navigator.standalone === true) {
                         return <><CheckCircle2 className="w-3.5 h-3.5 text-green-600" /> Installed</>;
                       }
                     } catch {}
