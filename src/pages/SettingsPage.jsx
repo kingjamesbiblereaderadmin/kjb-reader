@@ -1183,8 +1183,7 @@ export default function SettingsPage() {
       </div>
       )}
 
-      {/* Offline Library — hidden in private/incognito windows where caching won't persist */}
-      {!isIncognito && (
+      {/* Offline Library — shows disabled state in private/incognito windows */}
       <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
         <button
           onClick={() => toggleSection('offline')}
@@ -1192,15 +1191,24 @@ export default function SettingsPage() {
         >
           <div className="flex flex-col gap-1">
             <h2 className="font-serif text-lg font-semibold text-foreground">Offline Library</h2>
-            <p className="font-sans text-xs text-muted-foreground">Download for offline reading</p>
+            <p className="font-sans text-xs text-muted-foreground">{isIncognito ? 'Not available in private mode' : 'Download for offline reading'}</p>
           </div>
           <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.offline ? 'rotate-180' : ''}`} />
         </button>
         {expandedSections.offline && (
           <div className="px-5 pb-8 pt-5">
-            <p className="font-sans text-sm text-muted-foreground mb-4">
-              Download all 66 books to your device for offline reading. Once downloaded, the Bible is available without an internet connection.
-            </p>
+            {isIncognito ? (
+              <div className="rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 p-4">
+                <p className="font-sans text-sm text-amber-700 dark:text-amber-400 font-medium leading-relaxed flex items-start gap-2">
+                  <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                  <span>Offline downloads are not available in private/incognito mode. The cache would be deleted when you close the private window. Open this app in a normal window to download the Bible for offline reading.</span>
+                </p>
+              </div>
+            ) : (
+              <>
+                <p className="font-sans text-sm text-muted-foreground mb-4">
+                  Download all 66 books to your device for offline reading. Once downloaded, the Bible is available without an internet connection.
+                </p>
 
             {cached ? (
               <div className="space-y-3">
@@ -1369,36 +1377,11 @@ export default function SettingsPage() {
                 )}
               </div>
             )}
+                </>
+              )}
           </div>
         )}
       </div>
-      )}
-
-      {/* Incognito warning for offline features */}
-      {isIncognito && (
-      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
-        <button
-          onClick={() => toggleSection('offline')}
-          className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
-        >
-          <div className="flex flex-col gap-1">
-            <h2 className="font-serif text-lg font-semibold text-foreground">Offline Library</h2>
-            <p className="font-sans text-xs text-muted-foreground">Not available in private mode</p>
-          </div>
-          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.offline ? 'rotate-180' : ''}`} />
-        </button>
-        {expandedSections.offline && (
-          <div className="px-5 pb-6 pt-3">
-            <div className="rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 p-4">
-              <p className="font-sans text-sm text-amber-700 dark:text-amber-400 font-medium leading-relaxed flex items-start gap-2">
-                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-                <span>Offline downloads are not available in private/incognito mode. The cache would be deleted when you close the private window. Open this app in a normal window to download the Bible for offline reading.</span>
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-      )}
 
       {/* Download Bible as PDF */}
       <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">

@@ -277,7 +277,16 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
               </button>
             </div>
           )}
-          {showInstall && !isBookmarkBrowser() && (
+          {inIframe() && (
+            <div className="bg-secondary/40 border border-border rounded-xl p-2.5 sm:p-3 shrink-0">
+              <p className="font-sans text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 font-medium flex items-start gap-1 leading-snug">
+                <span className="shrink-0 leading-none mt-0.5">ℹ️</span>
+                You are viewing this inside the embed preview window, where browsers block PWA installation. Please open the app in a new tab to install it!
+              </p>
+            </div>
+          )}
+          
+          {showInstall && !isBookmarkBrowser() && !inIframe() && (
             <div className="space-y-2 shrink-0">
               <button
                 type="button"
@@ -293,27 +302,30 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
               
               {showIOSHint && !parentIsInstalled && (
                 <div className="bg-secondary/40 border border-border rounded-xl p-2.5 sm:p-3">
-                  {inIframe() && (
-                    <p className="font-sans text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 font-medium flex items-start gap-1 leading-snug mb-2">
+                  {inIframe() ? (
+                    <p className="font-sans text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 font-medium flex items-start gap-1 leading-snug">
                       <span className="shrink-0 leading-none mt-0.5">ℹ️</span>
-                      You are viewing this inside the embed preview window, where Chrome/Edge block the PWA install prompt. Please click "Open in New Tab" (top right) to install it!
+                      You are viewing this inside the embed preview window, where browsers block PWA installation. Please open the app in a new tab to install it!
                     </p>
+                  ) : (
+                    <>
+                      <p className="font-sans text-[10px] sm:text-xs text-foreground leading-relaxed">
+                        <strong>Manual Installation Guide:</strong>
+                        <br />
+                        {isIOS() ? (
+                          <>Please tap the <strong>Share</strong> icon in your browser menu, then select <strong>"Add to Home Screen"</strong>.</>
+                        ) : isEdgeMobile() ? (
+                          <>Tap the <strong>Menu (⋯)</strong> at the bottom or top, then select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</>
+                        ) : isMobile() ? (
+                          <>Please open your browser's <strong>Menu (⋮ or ⋯)</strong> and select <strong>"Add to phone"</strong>, <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</>
+                        ) : isEdgeDesktop() ? (
+                          <>Click the <strong>Apps</strong> or <strong>Install</strong> icon in your address bar, or go to <strong>Menu (⋯) → Apps → Install this site as an app</strong>. Choose <strong>App</strong> (not Shortcut) for the full experience.</>
+                        ) : (
+                          <>If an <strong>Install</strong> icon appears in your address bar, click it. Otherwise, check your browser's main menu. <span className="italic opacity-80">(Note: Firefox and Safari for Mac do not support desktop installation)</span>.</>
+                        )}
+                      </p>
+                    </>
                   )}
-                  <p className="font-sans text-[10px] sm:text-xs text-foreground leading-relaxed">
-                    <strong>Manual Installation Guide:</strong>
-                    <br />
-                    {isIOS() ? (
-                      <>Please tap the <strong>Share</strong> icon in your browser menu, then select <strong>"Add to Home Screen"</strong>.</>
-                    ) : isEdgeMobile() ? (
-                      <>Tap the <strong>Menu (⋯)</strong> at the bottom or top, then select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</>
-                    ) : isMobile() ? (
-                      <>Please open your browser's <strong>Menu (⋮ or ⋯)</strong> and select <strong>"Add to phone"</strong>, <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</>
-                    ) : isEdgeDesktop() ? (
-                      <>Click the <strong>Apps</strong> or <strong>Install</strong> icon in your address bar, or go to <strong>Menu (⋯) → Apps → Install this site as an app</strong>. Choose <strong>App</strong> (not Shortcut) for the full experience.</>
-                    ) : (
-                      <>If an <strong>Install</strong> icon appears in your address bar, click it. Otherwise, check your browser's main menu. <span className="italic opacity-80">(Note: Firefox and Safari for Mac do not support desktop installation)</span>.</>
-                    )}
-                  </p>
                 </div>
               )}
             </div>
