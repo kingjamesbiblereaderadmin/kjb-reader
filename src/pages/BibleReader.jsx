@@ -1385,7 +1385,7 @@ export default function BibleReader() {
 
           {(selectMode || (filterMode && selectedVerses.size > 0) || (searchTerm && highlightVerse) || (gospelMode && highlightVerse)) && (
             <SelectActionBar
-              selectedCount={selectedVerses.size || (highlightVerse && filterMode ? 1 : 0)} totalVerses={verses.length} copyFeedback={copyFeedback} shareFeedback={shareFeedback} shareLinkFeedback={shareLinkFeedback}
+              selectedCount={selectedVerses.size} totalVerses={verses.length} copyFeedback={copyFeedback} shareFeedback={shareFeedback} shareLinkFeedback={shareLinkFeedback}
               onSelectAll={selectAllVerses} onCancel={() => {
                 if (searchTerm) { clearSearchContext(); return; }
                 if (gospelMode) { clearGospelNav(); setGospelMode(false); setHighlightVerse(null); return; }
@@ -1397,7 +1397,7 @@ export default function BibleReader() {
             />
           )}
 
-          {!selectMode && selectedVerses.size > 0 && (
+          {!selectMode && selectedVerses.size > 0 && !searchTerm && !gospelMode && (
             <ReadingRangeBar
               label={`Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`}
               filterMode={filterMode} copyFeedback={copyFeedback} shareFeedback={shareFeedback} shareLinkFeedback={shareLinkFeedback}
