@@ -864,9 +864,11 @@ export default function BibleReader() {
     return () => { window.removeEventListener('focus', refreshContext); };
   }, []);
 
+  const resultViewRef = useRef('filter');
+
   useToolbarState(pos, loading, verses, filterMode, selectedVerses, searchTerm, searchResultIndex, searchTotalResults, gospelMode, searchClearedRef, setFilterMode, setSelectedVerses, setHighlightedVerses, resultViewRef, setSearchTerm, setSearchResultIndex, setSearchTotalResults);
 
-  const { navigate: baseNavigate, returnToChapter: baseReturnToChapter, preSearchPosRef, rangeHighlightRef, resultViewRef, freshNavRef } = useReaderNavigation(pos, loadChapter, routerNavigate, routerLocation);
+  const { navigate: baseNavigate, returnToChapter: baseReturnToChapter, preSearchPosRef, rangeHighlightRef, freshNavRef } = useReaderNavigation(pos, loadChapter, routerNavigate, routerLocation);
   const { stepToResult, clearSearchContext } = useSearchAndGospelResults(
     posRef, loading, verses, topRef, searchTerm, gospelMode, setGospelMode, setGospelResultIndex, setGospelTotalResults,
     setSearchTerm, setSearchResultIndex, setSearchTotalResults, resultViewRef, setFilterMode, setHighlightedVerses, setSelectedVerses,
