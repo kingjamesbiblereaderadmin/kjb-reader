@@ -854,12 +854,16 @@ export default function BibleReader() {
     let raf = null;
 
     // Immediately capture this chapter as the previous reading session as soon
-    // as it loads in NORMAL reading mode (no highlight/search/gospel/daily/random).
-    // This guarantees Clear has somewhere to return to even if the user never
-    // scrolls before jumping to a daily verse / search / random chapter.
+    // as it loads in NORMAL reading mode. We rely ONLY on the URL params here —
+    // not React state like highlightVerse/lastReadingPos, which are set async and
+    // are still stale/null on the first render of a daily-verse chapter (which
+    // previously caused this to overwrite the real previous session with the
+    // daily verse's own chapter).
     const urlParams = new URLSearchParams(window.location.search);
     const fromSpecial = ['daily', 'random', 'search', 'gospel'].includes(urlParams.get('from'));
-    if (!fromSpecial && !highlightVerse && !searchTerm && !gospelMode && !lastReadingPos && pos.abbr && pos.chapter) {
+    const hasVerseParam = !!urlParams.get('verse');
+    const hasHighlightParam = !!urlParams.get('highlight');
+    if (!fromSpecial && !hasVerseParam && !hasHighlightParam && pos.abbr && pos.chapter) {
       try {
         const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY: Math.round(getY()) };
         localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession));
@@ -883,10 +887,12 @@ export default function BibleReader() {
       raf = requestAnimationFrame(() => {
         raf = null;
         try { localStorage.setItem(key, String(Math.round(getY()))); } catch {}
-        // ALWAYS save prev-reading-session for normal reading
-        // Don't save if we're currently viewing a daily/random/search/gospel highlight
-        const isSpecialView = highlightVerse || searchTerm || gospelMode || lastReadingPos;
-        if (!isSpecialView && pos.abbr && pos.chapter) {
+        // Save prev-reading-session only for NORMAL reading. Use URL params
+        // (reliable/synchronous) plus highlightVerse, so a daily/search/random
+        // chapter never overwrites the real previous session.
+        const sp = new URLSearchParams(window.location.search);
+        const special = ['daily', 'random', 'search', 'gospel'].includes(sp.get('from')) || !!sp.get('verse') || !!sp.get('highlight');
+        if (!special && !highlightVerse && !searchTerm && !gospelMode && !lastReadingPos && pos.abbr && pos.chapter) {
           try {
             const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY: Math.round(getY()) };
             localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession));
