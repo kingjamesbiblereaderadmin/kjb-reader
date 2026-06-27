@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 
 const DISMISSED_KEY = 'kjb-install-dismissed';
 const INSTALLED_KEY = 'kjb-is-installed';
+const INSTALLED_TIMESTAMP_KEY = 'kjb-installed-timestamp';
+const STALE_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes - if PWA hasn't opened in this time, assume uninstalled
 
 // Authoritative install detection.
 // Primary: display-mode media queries (most reliable cross-browser).
@@ -58,18 +60,36 @@ const checkInstalledAsync = async () => {
     }
   }
   
-  // Persist install state to localStorage for cross-tab sync (PWA windows only)
+  // PWA window: set flag + timestamp
   if (isInstalled) {
     try {
       localStorage.setItem(INSTALLED_KEY, 'true');
-      console.log('[InstallCheck] ✓ Detected standalone, persisted to localStorage');
+      localStorage.setItem(INSTALLED_TIMESTAMP_KEY, Date.now().toString());
+      console.log('[InstallCheck] ✓ PWA installed, set flag + timestamp');
       return true;
     } catch {}
   }
   
-  // NOT in standalone mode - we're a browser tab, NOT the installed PWA
-  // Don't trust localStorage - the PWA was uninstalled and can't clear the flag
-  console.log('[InstallCheck] ✗ Not installed (browser tab, not standalone PWA)');
+  // Browser tab: check flag + verify timestamp is fresh (PWA opened recently)
+  try {
+    const stored = localStorage.getItem(INSTALLED_KEY);
+    const timestamp = parseInt(localStorage.getItem(INSTALLED_TIMESTAMP_KEY) || '0', 10);
+    const isFresh = Date.now() - timestamp < STALE_THRESHOLD_MS;
+    
+    if (stored === 'true' && isFresh) {
+      console.log('[InstallCheck] ✓ Fresh timestamp → PWA installed');
+      return true;
+    }
+    
+    // Stale timestamp - PWA hasn't opened recently, assume uninstalled
+    if (stored === 'true' && !isFresh) {
+      console.log('[InstallCheck] ✗ Stale timestamp, clearing flag (assume uninstalled)');
+      localStorage.removeItem(INSTALLED_KEY);
+      localStorage.removeItem(INSTALLED_TIMESTAMP_KEY);
+    }
+  } catch {}
+  
+  console.log('[InstallCheck] ✗ Not installed');
   return false;
 };
 
