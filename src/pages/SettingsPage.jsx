@@ -1470,10 +1470,10 @@ export default function SettingsPage() {
               <div className="flex justify-between items-center font-sans text-sm gap-4">
                 <span className="text-muted-foreground shrink-0">Offline Support</span>
                 <span className="text-foreground font-medium text-right flex items-center gap-1">
-                  {inIframe() ? (
+                  {inIframe() || isIncognito ? (
                     <>
                       <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
-                      Unavailable in Preview
+                      Unavailable
                     </>
                   ) : cached ? (
                     <>
