@@ -1079,7 +1079,7 @@ export default function SettingsPage() {
                 {downloading && (
                   <div className="w-full bg-secondary/70 rounded-full h-2 overflow-hidden">
                     <div
-                      className="bg-gradient-to-r from-primary to-accent h-2 rounded-full transition-all duration-300"
+                      className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full transition-all duration-300"
                       style={{ width: `${dlProgress}%` }}
                     />
                   </div>
@@ -1211,7 +1211,7 @@ export default function SettingsPage() {
                   <div className="space-y-2">
                     <div className="w-full bg-secondary/70 rounded-full h-2 overflow-hidden">
                       <div
-                        className="bg-gradient-to-r from-primary to-accent h-2 rounded-full transition-all duration-300"
+                        className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full transition-all duration-300"
                         style={{ width: `${dlProgress}%` }}
                       />
                     </div>
