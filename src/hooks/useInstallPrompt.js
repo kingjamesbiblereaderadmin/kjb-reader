@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 
 const DISMISSED_KEY = 'kjb-install-dismissed';
 const INSTALLED_KEY = 'kjb-is-installed';
+const INSTALLED_TIMESTAMP_KEY = 'kjb-installed-timestamp';
+const STALE_THRESHOLD_MS = 24 * 60 * 60 * 1000; // 24 hours - if PWA hasn't opened in a day, assume uninstalled
 
 // Authoritative install detection.
 // Primary: display-mode media queries (most reliable cross-browser).
@@ -58,21 +60,30 @@ const checkInstalledAsync = async () => {
     }
   }
   
-  // PWA window: set flag
+  // PWA window: set flag + timestamp
   if (isInstalled) {
     try {
       localStorage.setItem(INSTALLED_KEY, 'true');
-      console.log('[InstallCheck] ✓ PWA installed, set flag');
+      localStorage.setItem(INSTALLED_TIMESTAMP_KEY, Date.now().toString());
+      console.log('[InstallCheck] ✓ PWA installed, set flag + timestamp');
       return true;
     } catch {}
   }
   
-  // Browser tab: trust the flag (set by PWA)
+  // Browser tab: check flag + verify timestamp is fresh (PWA opened within 24h)
   try {
     const stored = localStorage.getItem(INSTALLED_KEY);
-    if (stored === 'true') {
-      console.log('[InstallCheck] ✓ localStorage flag → installed');
-      return true;
+    const timestamp = localStorage.getItem(INSTALLED_TIMESTAMP_KEY);
+    if (stored === 'true' && timestamp) {
+      const age = Date.now() - parseInt(timestamp, 10);
+      if (age < STALE_THRESHOLD_MS) {
+        console.log('[InstallCheck] ✓ Flag fresh (' + Math.round(age/1000/60) + 'min) → installed');
+        return true;
+      }
+      // Stale flag - PWA hasn't opened in a while, assume uninstalled
+      console.log('[InstallCheck] ✗ Flag stale (' + Math.round(age/1000/60/60) + 'h) → cleared');
+      localStorage.removeItem(INSTALLED_KEY);
+      localStorage.removeItem(INSTALLED_TIMESTAMP_KEY);
     }
   } catch {}
   
