@@ -19,7 +19,8 @@ Deno.serve(async () => {
     // IMPORTANT: URL must match the origin exactly for detection to work
     related_applications: [
       { platform: "webapp", url: "https://kingjamesbiblereader.com/manifest.json" },
-      { platform: "webapp", url: "https://base44.app/api/apps/6a05d76723afe58d80c58d80c589e8/functions/manifest" }
+      { platform: "webapp", url: "https://base44.app/api/apps/6a05d76723afe58d80c58d80c589e8/functions/manifest" },
+      { platform: "webapp", url: "https://kingjamesbiblereader.com/manifest" }
     ],
     // Protocol handlers — register as handler for bible: and kjb: URIs
     protocol_handlers: [
