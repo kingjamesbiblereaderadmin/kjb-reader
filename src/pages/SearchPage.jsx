@@ -723,9 +723,19 @@ export default function SearchPage() {
     // between results.
     try {
       if (!localStorage.getItem('kjb-pre-search')) {
-        const cur = JSON.parse(localStorage.getItem('kjb-position') || '{}');
+        // Prefer the accurate last normal-reading chapter (written by the reader)
+        // so Clear returns exactly where the user was — fall back to kjb-position.
+        let cur = null;
+        try {
+          const prev = JSON.parse(localStorage.getItem('kjb-prev-reading-session') || 'null');
+          if (prev && prev.abbr && prev.chapter) cur = prev;
+        } catch {}
+        if (!cur) cur = JSON.parse(localStorage.getItem('kjb-position') || '{}');
         if (cur && cur.abbr && cur.chapter) {
-          localStorage.setItem('kjb-pre-search', JSON.stringify({ abbr: cur.abbr, chapter: cur.chapter }));
+          const stash = { abbr: cur.abbr, chapter: cur.chapter, scrollY: typeof cur.scrollY === 'number' ? cur.scrollY : 0 };
+          localStorage.setItem('kjb-pre-search', JSON.stringify(stash));
+          // Also write the canonical key the reader's Clear handler reads first.
+          localStorage.setItem('kjb-prev-reading-session', JSON.stringify(stash));
         }
       }
     } catch {}
