@@ -167,6 +167,16 @@ export default function BibleReader() {
       return null;
     } catch { return null; }
   });
+  const [prevReadingSession, setPrevReadingSession] = useState(() => {
+    try {
+      const saved = localStorage.getItem('kjb-prev-reading-session');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed;
+      }
+      return null;
+    } catch { return null; }
+  });
 
   const toggleFullscreen = async () => {
     try {
@@ -978,6 +988,12 @@ export default function BibleReader() {
       const scroller = document.getElementById('kjb-scroll');
       const scrollY = scroller ? scroller.scrollTop : window.scrollY;
       const lastPos = { abbr: pos.abbr, chapter: pos.chapter, fromDailyVerse, fromRandom, scrollY };
+      // Save current position as previous session before overwriting
+      if (pos.abbr && pos.chapter) {
+        const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY };
+        try { localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession)); } catch {}
+        setPrevReadingSession(prevSession);
+      }
       try { localStorage.setItem('kjb-last-reading', JSON.stringify(lastPos)); } catch {}
       setLastReadingPos(lastPos);
     } else {
@@ -1359,28 +1375,19 @@ export default function BibleReader() {
                       // Return to the chapter you were reading before daily/random
                       returnToChapter(abbr, chapter, typeof lastReadingPos.scrollY === 'number' ? lastReadingPos.scrollY : undefined);
                     } else if (filterMode && selectedVerses.size > 0) {
-                      // Clear filter and return to the saved scroll position for this chapter
+                      // Clear filter and return to previous reading session
                       setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
                       setHighlightVerse(null); setShowFilterOverlay(false);
-                      // Restore the saved scroll position for the current chapter
-                      const key = `kjb-scroll-${pos.abbr}-${pos.chapter}`;
-                      let savedY = 0;
-                      try { savedY = parseInt(localStorage.getItem(key) || '0', 10); } catch {}
-                      if (savedY > 0) {
-                        const scroller = document.getElementById('kjb-scroll');
-                        if (scroller) scroller.scrollTo({ top: savedY });
-                        else window.scrollTo({ top: savedY });
+                      // Return to previous reading session if available
+                      if (prevReadingSession && prevReadingSession.abbr && prevReadingSession.chapter) {
+                        returnToChapter(prevReadingSession.abbr, prevReadingSession.chapter, prevReadingSession.scrollY);
                       }
                     } else {
-                      // Clear highlight and return to saved scroll position
+                      // Clear highlight and return to previous reading session
                       setHighlightVerse(null); setFilterMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false);
-                      const key = `kjb-scroll-${pos.abbr}-${pos.chapter}`;
-                      let savedY = 0;
-                      try { savedY = parseInt(localStorage.getItem(key) || '0', 10); } catch {}
-                      if (savedY > 0) {
-                        const scroller = document.getElementById('kjb-scroll');
-                        if (scroller) scroller.scrollTo({ top: savedY });
-                        else window.scrollTo({ top: savedY });
+                      // Return to previous reading session if available
+                      if (prevReadingSession && prevReadingSession.abbr && prevReadingSession.chapter) {
+                        returnToChapter(prevReadingSession.abbr, prevReadingSession.chapter, prevReadingSession.scrollY);
                       }
                     }
                   }}
