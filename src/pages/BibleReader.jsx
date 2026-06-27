@@ -547,21 +547,31 @@ export default function BibleReader() {
           setSearchResultIndex(index); setSearchTotalResults(results.length);
         }
         if (results[index]) { stepToResult(results[index]); return; }
-      } else if (!searchClearedRef.current) {
-        // Only clear search context if explicitly cleared (not on normal navigation)
-        // This preserves search state when returning to the reader
+      } else {
+        // Try to restore search/gospel context from localStorage when returning to the same chapter
         const savedState = localStorage.getItem('kjb-reader-toolbar-state');
         if (savedState) {
           try {
             const state = JSON.parse(savedState);
-            if (state.hasSearchContext && state.abbr === urlBookObj?.abbr && state.chapter === chapterNum) {
-              // Restore search context from localStorage
-              const { term, index, results } = getSearchNav();
-              if (term && results.length > 0) {
-                searchClearedRef.current = false;
-                setSearchTerm(term);
-                setSearchResultIndex(index);
-                setSearchTotalResults(results.length);
+            if (state.abbr === urlBookObj?.abbr && state.chapter === chapterNum && Date.now() - state.timestamp < 600000) {
+              // Restore search context
+              if (state.hasSearchContext) {
+                const { term, index, results } = getSearchNav();
+                if (term && results.length > 0) {
+                  searchClearedRef.current = false;
+                  setSearchTerm(term);
+                  setSearchResultIndex(index);
+                  setSearchTotalResults(results.length);
+                }
+              }
+              // Restore gospel context
+              if (state.hasGospelContext) {
+                const g = getGospelNav();
+                if (g.results.length > 0) {
+                  setGospelMode(true);
+                  setGospelResultIndex(g.index);
+                  setGospelTotalResults(g.results.length);
+                }
               }
             }
           } catch {}
