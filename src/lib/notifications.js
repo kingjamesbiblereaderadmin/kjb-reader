@@ -111,12 +111,9 @@ export function disableNotifications() {
 
 
 
-// App logo for notifications - using small icon URL that Android will display
-// Note: Android 10+ shows white silhouette in status bar (all apps including WhatsApp)
-// Full color appears when notification is expanded
+// App logo for notifications
+// Android shows this in expanded notification (full color)
 const APP_LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png';
-// Large icon for expanded view (full color)
-const APP_LOGO_LARGE_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png';
 
 // Clean verse text for plain-text notifications. KEEP pilcrows (¶) and the
 // [italic] brackets. The source stores every apostrophe AND pilcrow as the
@@ -169,14 +166,12 @@ export async function showLocalNotification(title, body, imageUrl = null, target
           renotify: true,
           vibrate: [200, 100, 200],
           silent: false,
-          requireInteraction: true,
+          requireInteraction: false,
           color: '#8b5cf6',
           data: {
             body,
             url: targetUrl ? (window.location.origin ? (window.location.origin + targetUrl) : targetUrl) : (window.location.origin ? (window.location.origin + '/') : '/')
-          },
-          // Android 10+ shows white silhouette in status bar (standard for all apps)
-          // Full color logo shows when expanded
+          }
         });
         console.log('[Notif] ✅ Service worker notification sent successfully');
         return;
@@ -203,7 +198,7 @@ export async function showLocalNotification(title, body, imageUrl = null, target
         renotify: true,
         vibrate: [200, 100, 200],
         silent: false,
-        requireInteraction: true,
+        requireInteraction: false,
         color: '#8b5cf6',
         data: {
           body,
