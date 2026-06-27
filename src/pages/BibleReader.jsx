@@ -598,6 +598,9 @@ export default function BibleReader() {
       }
       
       if (isFromDaily || isFromRandom) {
+        // Clear any existing search context when coming from daily/random
+        searchClearedRef.current = true; setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
+        setGospelMode(false); clearGospelNav();
         lastReadingClearedRef.current = false;
         try {
           const saved = localStorage.getItem('kjb-last-reading');
@@ -955,6 +958,12 @@ export default function BibleReader() {
       setGospelMode(false); clearGospelNav();
     } else if (!preserveSearchContext && !sameChapter) {
       // Clear search context when moving to different chapter
+      searchClearedRef.current = true; clearSearchNav(); setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
+      setGospelMode(false); clearGospelNav();
+    }
+    
+    // Also clear search context when daily verse flag is set (even if same chapter)
+    if (fromDailyVerse && searchTerm) {
       searchClearedRef.current = true; clearSearchNav(); setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
       setGospelMode(false); clearGospelNav();
     }
