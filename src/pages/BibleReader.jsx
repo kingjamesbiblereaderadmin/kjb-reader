@@ -498,6 +498,7 @@ export default function BibleReader() {
     const urlChapter = urlParams.get('chapter');
     const isFromSearch = urlParams.get('from') === 'search';
     const isFromDaily = urlParams.get('from') === 'daily';
+    const isFromRandom = urlParams.get('from') === 'random';
     const isFromGospel = urlParams.get('from') === 'gospel';
     const urlHighlightSection = urlParams.get('highlight');
     setHighlightSection(urlHighlightSection === 'colophon' || urlHighlightSection === 'subscript' ? urlHighlightSection : null);
@@ -557,7 +558,7 @@ export default function BibleReader() {
         return;
       }
       
-      if (isFromDaily) {
+      if (isFromDaily || isFromRandom) {
         lastReadingClearedRef.current = false;
         try {
           const saved = localStorage.getItem('kjb-last-reading');
@@ -565,14 +566,15 @@ export default function BibleReader() {
             const parsed = JSON.parse(saved);
             setLastReadingPos(parsed);
           } else {
-            const dailyPos = { abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum || null, fromDailyVerse: true };
+            const dailyPos = { abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum || null, fromDailyVerse: isFromDaily, fromRandom: isFromRandom };
             localStorage.setItem('kjb-last-reading', JSON.stringify(dailyPos));
             setLastReadingPos(dailyPos);
           }
         } catch {}
       }
-      setPos({ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum });
+      // Set highlight BEFORE loading the chapter so it applies on render
       setHighlightVerse(verseNum || null);
+      setPos({ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum });
       loadChapter(urlBookObj.abbr, chapterNum, verseNum);
       return;
     }
@@ -824,7 +826,6 @@ export default function BibleReader() {
 
     if ((fromDailyVerse || fromRandom) && pos.abbr && pos.chapter) {
       lastReadingClearedRef.current = false;
-      // Capture the exact scroll position so clearing returns there precisely.
       const scroller = document.getElementById('kjb-scroll');
       const scrollY = scroller ? scroller.scrollTop : window.scrollY;
       const lastPos = { abbr: pos.abbr, chapter: pos.chapter, fromDailyVerse, fromRandom, scrollY };
@@ -846,6 +847,9 @@ export default function BibleReader() {
       setSelectedVerses(new Set());
       setHighlightedVerses(new Set());
       setShowFilterOverlay(false);
+    } else {
+      // When jumping to a verse (daily/random), set it as highlighted
+      setHighlightVerse(jumpVerse);
     }
     setHighlightSection(section);
     rangeHighlightRef.current = false; freshNavRef.current = true;
