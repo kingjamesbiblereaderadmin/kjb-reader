@@ -846,37 +846,39 @@ export default function BibleReader() {
     return () => { window.removeEventListener('focus', refreshContext); };
   }, []);
 
-  // Persist toolbar state (filterMode, selectedVerses, search context) to localStorage
+  // Persist toolbar state (filterMode, selectedVerses, view mode) to localStorage with chapter context
   useEffect(() => {
     if (loading) return;
     try {
       const state = {
+        abbr: pos.abbr,
+        chapter: pos.chapter,
         filterMode,
         selectedVerses: [...selectedVerses],
         resultView: resultViewRef.current,
-        searchTerm: searchTerm || null,
-        gospelMode,
         timestamp: Date.now()
       };
       localStorage.setItem('kjb-reader-toolbar-state', JSON.stringify(state));
     } catch {}
-  }, [filterMode, selectedVerses, searchTerm, gospelMode, loading]);
+  }, [filterMode, selectedVerses, pos.abbr, pos.chapter, loading]);
 
-  // Restore toolbar state on mount/focus
+  // Restore toolbar state on mount/focus when returning to the same chapter
   useEffect(() => {
     const restoreToolbarState = () => {
-      if (loading) return;
+      if (loading || verses.length === 0) return;
       try {
         const saved = localStorage.getItem('kjb-reader-toolbar-state');
         if (!saved) return;
         const state = JSON.parse(saved);
-        // Only restore if we're on the same chapter and state is recent (< 5 min)
-        const current = JSON.parse(localStorage.getItem('kjb-position') || '{}');
-        if (state && current.abbr === pos.abbr && current.chapter === pos.chapter && Date.now() - state.timestamp < 300000) {
-          if (state.filterMode !== undefined) setFilterMode(state.filterMode);
+        // Restore if we're on the same chapter (state is recent < 10 min)
+        if (state && state.abbr === pos.abbr && state.chapter === pos.chapter && Date.now() - state.timestamp < 600000) {
+          if (state.filterMode !== undefined && state.filterMode !== filterMode) setFilterMode(state.filterMode);
           if (state.selectedVerses && state.selectedVerses.length > 0) {
-            setSelectedVerses(new Set(state.selectedVerses));
-            setHighlightedVerses(new Set(state.selectedVerses));
+            const newSet = new Set(state.selectedVerses);
+            if (newSet.size !== selectedVerses.size || ![...newSet].every(v => selectedVerses.has(v))) {
+              setSelectedVerses(newSet);
+              setHighlightedVerses(newSet);
+            }
           }
           if (state.resultView) resultViewRef.current = state.resultView;
         }
@@ -885,14 +887,7 @@ export default function BibleReader() {
     restoreToolbarState();
     window.addEventListener('focus', restoreToolbarState);
     return () => window.removeEventListener('focus', restoreToolbarState);
-  }, [loading, pos.abbr, pos.chapter]);
-
-  // Clear toolbar state when leaving search/gospel mode
-  useEffect(() => {
-    if (!searchTerm && !gospelMode && !filterMode) {
-      try { localStorage.removeItem('kjb-reader-toolbar-state'); } catch {}
-    }
-  }, [searchTerm, gospelMode, filterMode]);
+  }, [loading, pos.abbr, pos.chapter, verses.length]);
 
   const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isAutoAdvance = false, section = null, preserveSearchContext = false) => {
     if (newChapter === 0 && newAbbr !== 'GEN' && newAbbr !== 'MAT') return;
@@ -981,16 +976,14 @@ export default function BibleReader() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: parsedTarget, verseEnd: null }));
       } catch {}
     } else {
-      rangeHighlightRef.current = false; setFilterMode(false); setHighlightedVerses(new Set()); setSelectedVerses(new Set());
+      rangeHighlightRef.current = false;
+      if (!searchTerm && !gospelMode) {
+        setFilterMode(false); setHighlightedVerses(new Set()); setSelectedVerses(new Set());
+      }
       try {
         const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: r.verse || null, verseEnd: null }));
       } catch {}
-    }
-    // For search/gospel result navigation, always ensure selectedVerses is populated so the toolbar shows
-    if ((searchTerm || gospelMode) && targetVerse && !section) {
-      const parsedTarget = parseInt(targetVerse, 10);
-      setSelectedVerses(new Set([parsedTarget]));
     }
     const sameChapter = !loading && verses.length > 0 && posRef.current.abbr === r.abbr && posRef.current.chapter === r.chapter;
     const sameVerse = sameChapter && posRef.current.verse === targetVerse;
@@ -1426,8 +1419,8 @@ export default function BibleReader() {
             )}
           </div>
 
-          {/* Single unified toolbar - SelectActionBar for multi-select mode, ReadingRangeBar for search/gospel/daily navigation */}
-          {(selectMode || (filterMode && selectedVerses.size > 0 && !searchTerm && !gospelMode && !lastReadingActive)) && (
+          {/* Single unified toolbar - SelectActionBar for multi-select mode, ReadingRangeBar for search/gospel/daily/navigation */}
+          {selectMode && (
             <SelectActionBar
               selectedCount={selectedVerses.size} totalVerses={verses.length} copyFeedback={copyFeedback} shareFeedback={shareFeedback} shareLinkFeedback={shareLinkFeedback}
               onSelectAll={selectAllVerses} onCancel={() => {
@@ -1441,9 +1434,9 @@ export default function BibleReader() {
             />
           )}
           
-          {!selectMode && selectedVerses.size > 0 && (searchTerm || gospelMode || lastReadingActive) && (
+          {!selectMode && selectedVerses.size > 0 && (
             <ReadingRangeBar
-              label={searchTerm ? `Search: "${searchTerm}"` : gospelMode ? 'Gospel' : `Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`}
+              label={searchTerm ? `Search: "${searchTerm}"` : gospelMode ? 'Gospel' : lastReadingActive ? `Daily Verse` : `Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`}
               filterMode={filterMode} copyFeedback={copyFeedback} shareFeedback={shareFeedback} shareLinkFeedback={shareLinkFeedback}
               onCopy={handleCopySelected} onShareText={handleShareChapter} onShareLink={handleShareLink} onPrintPage={() => window.print()}
               onPrintContents={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode, paragraphMode)}
@@ -1460,6 +1453,7 @@ export default function BibleReader() {
               onClear={() => {
                 if (searchTerm) { clearSearchContext(); return; }
                 if (gospelMode) { clearGospelNav(); setGospelMode(false); setHighlightVerse(null); return; }
+                if (lastReadingActive) { setLastReadingPos(null); try { localStorage.removeItem('kjb-last-reading'); } catch {} return; }
                 rangeHighlightRef.current = false; setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setHighlightedVerses(new Set()); setShowFilterOverlay(false);
               }}
             />
