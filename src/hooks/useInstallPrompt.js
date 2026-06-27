@@ -53,7 +53,8 @@ const checkInstalledAsync = async () => {
     }
   }
   
-  // Persist install state to localStorage so it's visible in normal browser windows too
+  // Persist install state to localStorage for cross-tab sync (but don't read it -
+  // we only trust runtime display-mode detection to avoid false positives after uninstall)
   if (isInstalled) {
     try {
       localStorage.setItem(INSTALLED_KEY, 'true');
@@ -62,17 +63,7 @@ const checkInstalledAsync = async () => {
     return true;
   }
   
-  // Fallback: localStorage flag (persists across browser/PWA windows)
-  try {
-    const stored = localStorage.getItem(INSTALLED_KEY);
-    console.log('[InstallCheck] localStorage flag value:', stored);
-    if (stored === 'true') {
-      console.log('[InstallCheck] ✓ localStorage flag → installed');
-      return true;
-    }
-  } catch {}
-  
-  console.log('[InstallCheck] ✗ Not installed (no standalone mode, no localStorage flag)');
+  console.log('[InstallCheck] ✗ Not installed (no standalone mode)');
   return false;
 };
 
