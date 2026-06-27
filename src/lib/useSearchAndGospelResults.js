@@ -14,17 +14,26 @@ export function useSearchAndGospelResults(
   const preSearchPosRef = useRef(null);
 
   const stepToResult = (r) => {
-    // ALWAYS save current reading position BEFORE jumping to search/gospel result
+    // Capture the user's ORIGINAL reading position ONCE — only if no return
+    // anchor exists yet. stepToResult also runs when stepping between results
+    // (the prev/next arrows), and at that point kjb-position is itself a
+    // search/gospel result. Overwriting the anchors here would make "Clear"
+    // return to a result chapter instead of where the user was actually reading
+    // (the reported bug). The Search/Gospel pages normally set the anchor before
+    // the first jump; this is just a fallback for any path that didn't.
     try {
-      const scroller = document.getElementById('kjb-scroll');
-      const scrollY = scroller ? scroller.scrollTop : window.scrollY;
-      const cur = JSON.parse(localStorage.getItem('kjb-position') || '{}');
-      if (cur && cur.abbr && cur.chapter) {
-        // Save to kjb-prev-reading-session for clear handler
-        localStorage.setItem('kjb-prev-reading-session', JSON.stringify({ abbr: cur.abbr, chapter: cur.chapter, scrollY }));
-        // Also save to kjb-pre-search for preSearchPosRef fallback
-        localStorage.setItem('kjb-pre-search', JSON.stringify({ abbr: cur.abbr, chapter: cur.chapter, scrollY }));
-        preSearchPosRef.current = { abbr: cur.abbr, chapter: cur.chapter, scrollY };
+      const hasAnchor = localStorage.getItem('kjb-pre-search') || localStorage.getItem('kjb-pre-jump');
+      if (!hasAnchor) {
+        const scroller = document.getElementById('kjb-scroll');
+        const scrollY = scroller ? scroller.scrollTop : window.scrollY;
+        const cur = JSON.parse(localStorage.getItem('kjb-position') || '{}');
+        if (cur && cur.abbr && cur.chapter) {
+          // Save to kjb-prev-reading-session for clear handler
+          localStorage.setItem('kjb-prev-reading-session', JSON.stringify({ abbr: cur.abbr, chapter: cur.chapter, scrollY }));
+          // Also save to kjb-pre-search for preSearchPosRef fallback
+          localStorage.setItem('kjb-pre-search', JSON.stringify({ abbr: cur.abbr, chapter: cur.chapter, scrollY }));
+          preSearchPosRef.current = { abbr: cur.abbr, chapter: cur.chapter, scrollY };
+        }
       }
     } catch {}
     
