@@ -194,6 +194,33 @@ export default function InstallAppSection({ expanded, isIncognito }) {
               </div>
             </div>
             
+            <div className="rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/40 p-4">
+              <div className="flex items-start gap-3">
+                <MonitorSmartphone className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-sans text-sm font-bold text-blue-800 dark:text-blue-300 mb-2">After installation:</h3>
+                  <ul className="font-sans text-xs text-blue-700 dark:text-blue-400 space-y-1.5">
+                    <li className="flex items-start gap-1.5">
+                      <span className="font-bold">•</span>
+                      <span><strong>Android:</strong> App drawer or home screen</span>
+                    </li>
+                    <li className="flex items-start gap-1.5">
+                      <span className="font-bold">•</span>
+                      <span><strong>iOS:</strong> Home screen (swipe right to App Library)</span>
+                    </li>
+                    <li className="flex items-start gap-1.5">
+                      <span className="font-bold">•</span>
+                      <span><strong>Desktop:</strong> Taskbar, Start menu, or Applications folder</span>
+                    </li>
+                    <li className="flex items-start gap-1.5">
+                      <span className="font-bold">•</span>
+                      <span><strong>Samsung:</strong> Home screen or app drawer</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
             {showInstallHint && (
               <div className="space-y-2 bg-secondary/50 rounded-xl p-4 mt-3">
                 {!isInstallable && (
