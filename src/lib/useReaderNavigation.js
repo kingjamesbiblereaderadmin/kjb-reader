@@ -42,8 +42,11 @@ export function useReaderNavigation(pos, loadChapter, routerNavigate, routerLoca
     } catch {}
   };
 
-  const returnToChapter = (abbr, chapter, exactY) => {
+  const returnToChapter = (abbr, chapter, exactY, setFilterMode, setSelectMode, setSelectedVerses, setHighlightedVerses, setHighlightVerse, setHighlightSection, setShowFilterOverlay, loadChapter) => {
     if (!abbr || !chapter) return;
+    setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
+    setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
+    setShowFilterOverlay(false);
     if (typeof exactY === 'number' && exactY > 0) {
       try { localStorage.setItem(`kjb-scroll-${abbr}-${chapter}`, String(Math.round(exactY))); } catch {}
     }

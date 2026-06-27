@@ -71,7 +71,11 @@ export function useSearchAndGospelResults(
     preSearchPosRef.current = null;
     try { localStorage.removeItem('kjb-pre-search'); } catch {}
     if (back && back.abbr && back.chapter) {
-      returnToChapter(back.abbr, back.chapter, back.scrollY);
+      returnToChapter(back.abbr, back.chapter, back.scrollY, setFilterMode, setSelectMode, setSelectedVerses, setHighlightedVerses, setHighlightVerse, setHighlightSection, setShowFilterOverlay, loadChapter);
+    } else {
+      setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
+      setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
+      setShowFilterOverlay(false);
     }
   };
 

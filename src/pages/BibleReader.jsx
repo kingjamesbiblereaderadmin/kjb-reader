@@ -866,11 +866,13 @@ export default function BibleReader() {
 
   useToolbarState(pos, loading, verses, filterMode, selectedVerses, searchTerm, searchResultIndex, searchTotalResults, gospelMode, searchClearedRef, setFilterMode, setSelectedVerses, setHighlightedVerses, resultViewRef, setSearchTerm, setSearchResultIndex, setSearchTotalResults);
 
+  const resultViewRef = useRef('filter');
+
   const { navigate: baseNavigate, returnToChapter: baseReturnToChapter, preSearchPosRef, rangeHighlightRef, resultViewRef, freshNavRef } = useReaderNavigation(pos, loadChapter, routerNavigate, routerLocation);
   const { stepToResult, clearSearchContext } = useSearchAndGospelResults(
     posRef, loading, verses, topRef, searchTerm, gospelMode, setGospelMode, setGospelResultIndex, setGospelTotalResults,
     setSearchTerm, setSearchResultIndex, setSearchTotalResults, resultViewRef, setFilterMode, setHighlightedVerses, setSelectedVerses,
-    setHighlightSection, setHighlightVerse, setPos, loadChapter, baseReturnToChapter, clearSearchNav, setGospelNav, setGospelIndex, clearGospelNav
+    setHighlightSection, setHighlightVerse, setPos, loadChapter, returnToChapter, clearSearchNav, setGospelNav, setGospelIndex, clearGospelNav
   );
   
   const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isAutoAdvance = false, section = null, preserveSearchContext = false) => {
@@ -903,18 +905,7 @@ export default function BibleReader() {
   };
   
   const returnToChapter = (abbr, chapter, exactY) => {
-    if (!abbr || !chapter) return;
-    setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
-    setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
-    setShowFilterOverlay(false);
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr, chapter, verse: null, verseEnd: null })); } catch {}
-    if (typeof exactY === 'number' && exactY > 0) {
-      try { localStorage.setItem(`kjb-scroll-${abbr}-${chapter}`, String(Math.round(exactY))); } catch {}
-    }
-    try { window.history.replaceState({}, '', '/read'); } catch {}
-    freshNavRef.current = false;
-    setPos({ abbr, chapter, verse: null });
-    baseReturnToChapter(abbr, chapter, exactY);
+    baseReturnToChapter(abbr, chapter, exactY, setFilterMode, setSelectMode, setSelectedVerses, setHighlightedVerses, setHighlightVerse, setHighlightSection, setShowFilterOverlay, loadChapter);
   };
 
   const goNext = (isAutoAdvance = false) => {
