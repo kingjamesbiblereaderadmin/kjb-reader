@@ -319,12 +319,6 @@ export default function AppLayout() {
 
           {/* Actions - responsive button sizes with visible square touch targets */}
           <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 shrink-0">
-            {/* PWA Installed Badge */}
-            {isPWAInstalled && (
-              <div className="hidden xs:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground border border-primary/30 shadow-sm shadow-primary/20" title="App installed">
-                <span className="font-sans text-[10px] font-bold tracking-wide">INSTALLED</span>
-              </div>
-            )}
             <button 
               className={`w-9 h-9 xs:w-11 xs:h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation ${isOnline ? 'border-border bg-secondary/30 text-green-600 dark:text-green-400 hover:bg-secondary/50' : 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/40'}`}
               onClick={(e) => { 
