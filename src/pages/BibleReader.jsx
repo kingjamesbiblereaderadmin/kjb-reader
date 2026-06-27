@@ -982,7 +982,6 @@ export default function BibleReader() {
     const sameChapter = newAbbr === pos.abbr && newChapter === pos.chapter;
     
     // ALWAYS save current position as previous reading session before any navigation
-    // This ensures we can always return to where the user was reading
     const scroller = document.getElementById('kjb-scroll');
     const scrollY = scroller ? scroller.scrollTop : window.scrollY;
     const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY };
@@ -995,19 +994,15 @@ export default function BibleReader() {
       setGospelMode(false); clearGospelNav();
     }
     
+    // For daily/random: save where we came FROM so clear can return there
     if ((fromDailyVerse || fromRandom) && pos.abbr && pos.chapter) {
       lastReadingClearedRef.current = false;
-      // lastReadingPos tracks the daily/random verse destination + where we came from
       const lastPos = { abbr: newAbbr, chapter: newChapter, fromDailyVerse, fromRandom, prevAbbr: pos.abbr, prevChapter: pos.chapter, prevScrollY: scrollY };
       try { localStorage.setItem('kjb-last-reading', JSON.stringify(lastPos)); } catch {}
       setLastReadingPos(lastPos);
-    } else {
+    } else if (!sameChapter) {
+      // For normal chapter navigation (not daily/random), also save prev session
       lastReadingClearedRef.current = true;
-      try { localStorage.removeItem('kjb-last-reading'); } catch {}
-      setLastReadingPos(null);
-      if (routerLocation.search || window.location.search) {
-        try { window.history.replaceState({}, '', '/read'); } catch {}
-      }
     }
     if (!jumpVerse) {
       setHighlightVerse(null); setFilterMode(false); setSelectMode(false);
