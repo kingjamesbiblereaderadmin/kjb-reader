@@ -115,27 +115,9 @@ export default function BibleReader() {
     }
   }, []);
   
-  const [searchTerm, setSearchTerm] = useState(() => {
-    try {
-      const stored = localStorage.getItem('kjb-search-term');
-      if (stored) return stored;
-    } catch {}
-    return getSearchNav().term || null;
-  });
-  const [searchResultIndex, setSearchResultIndex] = useState(() => {
-    try {
-      const stored = localStorage.getItem('kjb-search-index');
-      if (stored) return parseInt(stored, 10);
-    } catch {}
-    return getSearchNav().index;
-  });
-  const [searchTotalResults, setSearchTotalResults] = useState(() => {
-    try {
-      const stored = localStorage.getItem('kjb-search-results');
-      if (stored) return JSON.parse(stored).length;
-    } catch {}
-    return getSearchNav().results.length;
-  });
+  const [searchTerm, setSearchTerm] = useState(null);
+  const [searchResultIndex, setSearchResultIndex] = useState(0);
+  const [searchTotalResults, setSearchTotalResults] = useState(0);
   const searchClearedRef = useRef(false);
   const lastReadingClearedRef = useRef(false);
   // The reading position saved BEFORE a search jump, so closing the search
@@ -417,42 +399,42 @@ export default function BibleReader() {
 
   useEffect(() => {
     getBibleData().catch(err => console.error('[BibleReader] Cache preload failed:', err));
-    const initParams = new URLSearchParams(window.location.search);
-    if (initParams.get('from') === 'search') {
-      const { term, index, results } = getSearchNav();
-      const urlTerm = initParams.get('q') || term;
-      if (urlTerm) {
-        searchClearedRef.current = false; setSearchTerm(urlTerm);
-        setSearchResultIndex(index); setSearchTotalResults(results.length);
-      }
-    } else {
-      clearSearchNav(); setSearchTerm(null);
-    }
-    if (initParams.get('from') === 'daily') {
-      try {
-        const saved = localStorage.getItem('kjb-last-reading');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          setLastReadingPos(parsed);
+    // ALWAYS restore search/daily/gospel context from localStorage on mount
+    try {
+      const term = localStorage.getItem('kjb-search-term');
+      const resultsRaw = localStorage.getItem('kjb-search-results');
+      const index = localStorage.getItem('kjb-search-index');
+      if (term && resultsRaw) {
+        const results = JSON.parse(resultsRaw);
+        if (results.length > 0) {
+          searchClearedRef.current = false;
+          setSearchTerm(term);
+          setSearchResultIndex(index ? parseInt(index, 10) : 0);
+          setSearchTotalResults(results.length);
         }
-      } catch {}
-    }
-    if (initParams.get('from') === 'gospel') {
-      let g = getGospelNav();
-      if (g.results.length === 0) {
-        const results = getGospelResults();
-        const b = resolveBook(initParams.get('book'));
-        const ch = parseInt(initParams.get('chapter') || '0', 10);
-        const vs = initParams.get('verse') ? parseInt(initParams.get('verse'), 10) : null;
-        const idx = Math.max(0, results.findIndex(r => b && r.abbr === b.abbr && r.chapter === ch && r.verse === vs));
-        setGospelNav(results, idx);
-        g = { results, index: idx };
       }
-      if (g.results.length > 0) {
-        setGospelMode(true); setGospelResultIndex(g.index); setGospelTotalResults(g.results.length);
+    } catch {}
+    try {
+      const saved = localStorage.getItem('kjb-last-reading');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed) setLastReadingPos(parsed);
       }
-    } else { clearGospelNav(); }
+    } catch {}
+    try {
+      const g = localStorage.getItem('kjb-gospel-results');
+      if (g) {
+        const results = JSON.parse(g);
+        const idx = parseInt(localStorage.getItem('kjb-gospel-index') || '0', 10);
+        if (results.length > 0) {
+          setGospelMode(true);
+          setGospelResultIndex(idx);
+          setGospelTotalResults(results.length);
+        }
+      }
+    } catch {}
     
+    const initParams = new URLSearchParams(window.location.search);
     const urlBook = initParams.get('book');
     const urlChapter = initParams.get('chapter');
     const urlVerse = initParams.get('verse');
@@ -463,7 +445,6 @@ export default function BibleReader() {
       loadChapter(abbr, 0, null);
       return;
     }
-    if (initParams.get('from') === 'search' || initParams.get('from') === 'gospel') return;
     
     const urlBookObj = resolveBook(urlBook);
     if (urlBookObj && urlChapter) {
@@ -483,8 +464,6 @@ export default function BibleReader() {
       setHighlightVerse(verseNum || null);
       loadChapter(urlBookObj.abbr, chapterNum, verseNum);
     } else {
-      // No URL params (e.g. Home → Reader): restore the LAST saved position
-      // AND its highlighted verse / range, not the default GEN 1.
       let restored = false;
       try {
         const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
@@ -833,10 +812,13 @@ export default function BibleReader() {
     }
   }, [filterMode, selectedVerses]);
 
-  const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isAutoAdvance = false, section = null) => {
+  const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isAutoAdvance = false, section = null, preserveSearchContext = false) => {
     if (newChapter === 0 && newAbbr !== 'GEN' && newAbbr !== 'MAT') return;
-    searchClearedRef.current = true; clearSearchNav(); setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
-    setGospelMode(false); clearGospelNav();
+    // Only clear search context if explicitly told to (not when stepping through search results)
+    if (!preserveSearchContext) {
+      searchClearedRef.current = true; clearSearchNav(); setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
+      setGospelMode(false); clearGospelNav();
+    }
     
     savePosition(newAbbr, newChapter, jumpVerse);
 
@@ -879,20 +861,10 @@ export default function BibleReader() {
   };
 
   const stepToResult = (r) => {
-    // Remember where the user was reading BEFORE the first search jump, so
-    // closing the search results can return them there. Only capture once per
-    // search session (cleared in clearSearchContext).
     if (!preSearchPosRef.current) {
       try {
-        // Capture the EXACT live scroll position now, so closing the search can
-        // restore the precise pixel offset (the per-chapter saved key gets
-        // overwritten when the result is in the same chapter the user was in).
         const scroller = document.getElementById('kjb-scroll');
         const exactY = scroller ? scroller.scrollTop : window.scrollY;
-        // Prefer the pre-jump position stashed by SearchPage (kjb-pre-search) or
-        // GospelPage (kjb-pre-jump) before they overwrote kjb-position with the
-        // jump target. Fall back to the current position (covers in-reader
-        // stepping where no stash exists yet).
         const stash = JSON.parse(localStorage.getItem('kjb-pre-search') || localStorage.getItem('kjb-pre-jump') || 'null');
         if (stash && stash.abbr && stash.chapter) {
           preSearchPosRef.current = { abbr: stash.abbr, chapter: stash.chapter, scrollY: typeof stash.scrollY === 'number' ? stash.scrollY : exactY };
