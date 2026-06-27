@@ -125,10 +125,12 @@ export default function AppLayout() {
       setIsPWAInstalled(installed);
       setIsCheckingInstall(false);
       
-      // If installed, write to localStorage immediately
+      // If installed, write to localStorage immediately (forces sync to browser tabs)
       if (installed) {
         localStorage.setItem('kjb-is-installed', 'true');
         localStorage.setItem('kjb-install-timestamp', Date.now().toString());
+        window.dispatchEvent(new Event('storage'));
+        window.dispatchEvent(new Event('kjb-install-change'));
       }
     };
     
