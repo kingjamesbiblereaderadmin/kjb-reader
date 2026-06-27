@@ -866,13 +866,9 @@ export default function BibleReader() {
     const flush = () => {
       if (raf) { cancelAnimationFrame(raf); raf = null; }
       try { localStorage.setItem(key, String(Math.round(getY()))); } catch {}
-      // ONLY save prev-reading-session for normal reading (not daily/random/search/gospel)
-      const urlParams = new URLSearchParams(window.location.search);
-      const isFromDaily = urlParams.get('from') === 'daily';
-      const isFromRandom = urlParams.get('from') === 'random';
-      const isFromSearch = urlParams.get('from') === 'search';
-      const isFromGospel = urlParams.get('from') === 'gospel';
-      if (!isFromDaily && !isFromRandom && !isFromSearch && !isFromGospel) {
+      // ONLY save prev-reading-session for normal reading (not search/gospel/daily/random)
+      const isSpecialMode = searchTerm || gospelMode || lastReadingPos;
+      if (!isSpecialMode && pos.abbr && pos.chapter) {
         try {
           const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY: Math.round(getY()) };
           localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession));
@@ -1047,34 +1043,17 @@ export default function BibleReader() {
   
   const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isAutoAdvance = false, section = null, preserveSearchContext = false) => {
     const sameChapter = newAbbr === pos.abbr && newChapter === pos.chapter;
-    
-    // ALWAYS save current position as previous reading session before any navigation (for daily/random/search/gospel)
     const scroller = document.getElementById('kjb-scroll');
     const scrollY = scroller ? scroller.scrollTop : window.scrollY;
-    const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY };
     
-    // Save to BOTH storage locations for maximum compatibility
-    try { localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession)); } catch {}
-    setPrevReadingSession(prevSession);
-    
-    // Also save to kjb-last-reading for clear handler compatibility
-    try {
-      const existing = localStorage.getItem('kjb-last-reading');
-      if (existing) {
-        const last = JSON.parse(existing);
-        if (last && last.prevAbbr && last.prevChapter) {
-          // Keep existing prev session data
-        } else {
-          localStorage.setItem('kjb-last-reading', JSON.stringify({
-            abbr: newAbbr,
-            chapter: newChapter,
-            prevAbbr: pos.abbr,
-            prevChapter: pos.chapter,
-            prevScrollY: scrollY,
-          }));
-        }
-      }
-    } catch {}
+    // ONLY save previous reading session for NORMAL reading (not search/gospel/daily/random)
+    // This ensures we don't overwrite the original reading position with search result positions
+    const isSpecialMode = fromDailyVerse || fromRandom || searchTerm || gospelMode;
+    if (!isSpecialMode && pos.abbr && pos.chapter) {
+      const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY };
+      try { localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession)); } catch {}
+      setPrevReadingSession(prevSession);
+    }
     
     // Clear search/gospel context for daily/random or when moving to different chapter
     if (fromDailyVerse || fromRandom || (!preserveSearchContext && !sameChapter)) {
@@ -1088,8 +1067,8 @@ export default function BibleReader() {
       const lastPos = { abbr: newAbbr, chapter: newChapter, fromDailyVerse, fromRandom, prevAbbr: pos.abbr, prevChapter: pos.chapter, prevScrollY: scrollY };
       try { localStorage.setItem('kjb-last-reading', JSON.stringify(lastPos)); } catch {}
       setLastReadingPos(lastPos);
-    } else if (!sameChapter) {
-      // For normal chapter navigation (not daily/random), also save prev session
+    } else if (!sameChapter && !isSpecialMode) {
+      // For normal chapter navigation (not daily/random/search/gospel), mark as cleared
       lastReadingClearedRef.current = true;
     }
     if (!jumpVerse) {

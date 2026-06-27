@@ -14,6 +14,20 @@ export function useSearchAndGospelResults(
   const preSearchPosRef = useRef(null);
 
   const stepToResult = (r) => {
+    // ALWAYS save current reading position BEFORE jumping to search/gospel result
+    try {
+      const scroller = document.getElementById('kjb-scroll');
+      const scrollY = scroller ? scroller.scrollTop : window.scrollY;
+      const cur = JSON.parse(localStorage.getItem('kjb-position') || '{}');
+      if (cur && cur.abbr && cur.chapter) {
+        // Save to kjb-prev-reading-session for clear handler
+        localStorage.setItem('kjb-prev-reading-session', JSON.stringify({ abbr: cur.abbr, chapter: cur.chapter, scrollY }));
+        // Also save to kjb-pre-search for preSearchPosRef fallback
+        localStorage.setItem('kjb-pre-search', JSON.stringify({ abbr: cur.abbr, chapter: cur.chapter, scrollY }));
+        preSearchPosRef.current = { abbr: cur.abbr, chapter: cur.chapter, scrollY };
+      }
+    } catch {}
+    
     if (!preSearchPosRef.current) {
       try {
         const scroller = document.getElementById('kjb-scroll');
