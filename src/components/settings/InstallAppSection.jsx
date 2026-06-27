@@ -29,14 +29,12 @@ export default function InstallAppSection({ expanded, isIncognito }) {
   }, []);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
     try { 
-      if (window.self !== window.top) { 
-        console.log('[InstallAppSection] In iframe, not installed');
+      if (typeof window !== 'undefined' && window.self !== window.top) { 
         setIsInstalled(false); 
         return; 
       } 
-    } catch { return; }
+    } catch {}
     
     setIsInstalled(hookIsInstalled);
   }, [hookIsInstalled]);

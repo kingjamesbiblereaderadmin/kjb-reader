@@ -76,87 +76,56 @@ export default function AppLayout() {
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
   const isCheckingUpdatesRef = useRef(false);
   
-  // Detect if running as installed PWA (standalone mode)
+  // Detect if running as installed PWA using display-mode (synchronous, no flicker)
   const [isPWAInstalled, setIsPWAInstalled] = useState(false);
   const [isCheckingInstall, setIsCheckingInstall] = useState(true);
 
   useEffect(() => {
-    const checkInstall = async () => {
-      if (typeof window === 'undefined') {
-        setIsCheckingInstall(false);
-        return;
-      }
-      try {
-        if (window.self !== window.top) {
-          setIsPWAInstalled(false);
-          setIsCheckingInstall(false);
-          return;
-        }
-      } catch (e) {
+    if (typeof window === 'undefined') {
+      setIsCheckingInstall(false);
+      return;
+    }
+    try {
+      if (window.self !== window.top) {
         setIsPWAInstalled(false);
         setIsCheckingInstall(false);
         return;
       }
-      
-      // Check display-mode (works inside PWA window)
-      const dmStandalone = window.matchMedia('(display-mode: standalone)').matches;
-      const dmMinimal = window.matchMedia('(display-mode: minimal-ui)').matches;
-      const dmOverlay = window.matchMedia('(display-mode: window-controls-overlay)').matches;
-      const iOSStandalone = navigator.standalone === true;
-      
-      // Check localStorage (synced from PWA)
-      const localStorageInstalled = localStorage.getItem('kjb-is-installed') === 'true';
-      
-      // Check getInstalledRelatedApps (Android Chrome/Samsung only)
-      let installedApps = false;
-      if (navigator.getInstalledRelatedApps) {
-        try {
-          const apps = await navigator.getInstalledRelatedApps();
-          installedApps = apps && apps.length > 0;
-          console.log('[AppLayout] getInstalledRelatedApps:', apps);
-        } catch (err) {
-          console.error('[AppLayout] getInstalledRelatedApps error:', err);
-        }
-      }
-      
-      const installed = dmStandalone || dmMinimal || dmOverlay || iOSStandalone || localStorageInstalled || installedApps;
-      
-      setIsPWAInstalled(installed);
+    } catch (e) {
+      setIsPWAInstalled(false);
       setIsCheckingInstall(false);
-      
-      // If installed, write to localStorage immediately (forces sync to browser tabs)
-      if (installed) {
-        localStorage.setItem('kjb-is-installed', 'true');
-        localStorage.setItem('kjb-install-timestamp', Date.now().toString());
-        window.dispatchEvent(new Event('storage'));
-        window.dispatchEvent(new Event('kjb-install-change'));
-      }
-    };
+      return;
+    }
     
-    checkInstall();
+    // Check display-mode (works inside PWA window, synchronous)
+    const dmStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    const dmMinimal = window.matchMedia('(display-mode: minimal-ui)').matches;
+    const dmOverlay = window.matchMedia('(display-mode: window-controls-overlay)').matches;
+    const iOSStandalone = navigator.standalone === true;
+    const localStorageInstalled = localStorage.getItem('kjb-is-installed') === 'true';
+    
+    const installed = dmStandalone || dmMinimal || dmOverlay || iOSStandalone || localStorageInstalled;
+    
+    setIsPWAInstalled(installed);
+    setIsCheckingInstall(false);
+    
+    if (installed) {
+      localStorage.setItem('kjb-is-installed', 'true');
+      window.dispatchEvent(new Event('storage'));
+    }
   }, []);
 
-  // Broadcast install status to browser tabs
+  // Persist install status to localStorage for cross-tab sync
   useEffect(() => {
     if (typeof window === 'undefined' || isCheckingInstall) return;
     try {
-      if (window.self !== window.top) {
-        console.log('[AppLayout] In iframe, skipping broadcast');
-        return;
-      }
+      if (window.self !== window.top) return;
     } catch (e) { return; }
     
-    const channel = new BroadcastChannel('kjb-install-status');
     if (isPWAInstalled) {
-      // Broadcast to other tabs
-      channel.postMessage({ type: 'install-status', installed: true });
-      // Write to localStorage with timestamp (forces storage event in other tabs)
       localStorage.setItem('kjb-is-installed', 'true');
-      localStorage.setItem('kjb-install-timestamp', Date.now().toString());
       window.dispatchEvent(new Event('storage'));
-      window.dispatchEvent(new Event('kjb-install-change'));
     }
-    return () => channel.close();
   }, [isPWAInstalled, isCheckingInstall]);
 
   useEffect(() => {
