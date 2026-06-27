@@ -210,12 +210,10 @@ export async function showLocalNotification(title, body, imageUrl = null, target
 async function fireNotificationNow() {
   let verse;
   try {
+    // Always get a verse - API when online, deterministic offline when offline
     verse = await getDailyVerseFromBible();
-    // Don't fire the notification if we got the offline fallback message
-    if (verse.ref === "Offline Mode") {
-      return;
-    }
-  } catch {
+  } catch (err) {
+    console.error('[Notif] Failed to get daily verse:', err.message);
     return;
   }
   
@@ -297,18 +295,13 @@ export async function triggerScheduledNotification() {
   console.log('[Notif] Manual trigger called');
   let verse;
   try {
+    // Always get a verse - API when online, deterministic offline when offline
     verse = await getDailyVerseFromBible();
-    if (verse.ref === "Offline Mode") {
-      console.log('[Notif] Bible data not ready, aborting manual test');
-      alert('Please wait for the Bible data to load before testing notifications.');
-      return;
-    }
-  } catch {
-    console.log('[Notif] Bible data not ready, aborting manual test');
-    alert('Please wait for the Bible data to load before testing notifications.');
+  } catch (err) {
+    console.error('[Notif] Failed to get daily verse:', err.message);
+    alert('Failed to get daily verse. Please try again.');
     return;
   }
-  const today = todayString();
   
   await showLocalNotification(
     'KJB — Manual Test',
