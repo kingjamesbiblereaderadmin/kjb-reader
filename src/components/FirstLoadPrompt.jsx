@@ -169,6 +169,7 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
     promptedRef.current = true;
     try { window.kjbPromptedThisSession = true; } catch {}
     
+    // Always try native prompt first on mobile (Edge/Chrome/Samsung)
     if (onInstall) {
       try {
         const accepted = await onInstall();
