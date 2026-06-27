@@ -1000,23 +1000,16 @@ export default function SettingsPage() {
           Add the KJB Reader to your home screen for quick access and offline reading.
         </p>
         {isInstalled ? (
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div className="rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-900/40 p-4">
-              <div className="flex items-start gap-3">
+              <div className="flex items-center gap-3">
                 <div className="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
                   <CheckCircle2 className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-sans text-sm font-bold text-emerald-800 dark:text-emerald-300 mb-1">✓ App Installed</h3>
-                  <p className="font-sans text-xs text-emerald-700 dark:text-emerald-400 leading-relaxed">
-                    The KJB Reader is installed as a PWA on your device. You're currently running it in standalone mode.
-                  </p>
+                  <p className="font-sans text-sm font-bold text-emerald-800 dark:text-emerald-300">✓ Installed as an app!</p>
                 </div>
               </div>
-            </div>
-            <div className="flex items-center gap-2 text-primary">
-              <Bell className="w-4 h-4 shrink-0" />
-              <span className="font-sans text-xs font-medium">Notifications work when the app is open or in background</span>
             </div>
             <button
               onClick={() => {
