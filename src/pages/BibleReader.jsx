@@ -575,13 +575,6 @@ export default function BibleReader() {
       // Set highlight BEFORE loading the chapter so it applies on render
       setHighlightVerse(verseNum || null);
       setPos({ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum });
-      // For daily/random, also set as a single-verse selection so the highlight shows
-      if (verseNum) {
-        const single = new Set([verseNum]);
-        setSelectedVerses(single);
-        setHighlightedVerses(single);
-        setFilterMode(true);
-      }
       // Force scroll-to-top so the subsequent scroll-to-verse works reliably
       (document.getElementById('kjb-scroll') || window).scrollTo({ top: 0 });
       loadChapter(urlBookObj.abbr, chapterNum, verseNum);
@@ -625,11 +618,25 @@ export default function BibleReader() {
           stepToResult(cur); return;
         }
       }
+      // Restore daily/random highlight position from localStorage
+      const lastReading = localStorage.getItem('kjb-last-reading');
+      if (lastReading) {
+        try {
+          const parsed = JSON.parse(lastReading);
+          if (parsed && parsed.abbr === p.abbr && parsed.chapter === p.chapter && parsed.verse) {
+            setHighlightVerse(parsed.verse);
+            const single = new Set([parsed.verse]);
+            setSelectedVerses(single);
+            setHighlightedVerses(single);
+            setFilterMode(true);
+          }
+        } catch {}
+      }
       if (p.verse && p.verseEnd && p.verseEnd > p.verse) {
         const range = new Set();
         for (let v = p.verse; v <= p.verseEnd; v++) range.add(v);
         setSelectedVerses(range); setHighlightedVerses(range); setFilterMode(true);
-      } else {
+      } else if (!lastReading) {
         setFilterMode(false); setSelectedVerses(new Set()); setHighlightedVerses(new Set());
       }
       setPos({ abbr: p.abbr, chapter: p.chapter, verse: p.verse || null });

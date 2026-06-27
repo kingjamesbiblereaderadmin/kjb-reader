@@ -84,7 +84,7 @@ export default function CurrentlyReadingIndicator({
         ? `:${formatVerseRange([...selectedVerses])}`
         : verseNum ? `:${verseNum}${occurrenceLabel || ''}` : '');
     reference = `${book.shortName} ${pos.chapter}${searchVerses}${sectionSuffix}`;
-    clearLabel = selectedVerses && selectedVerses.size > 0 ? 'Show Full Chapter' : 'Clear search';
+    clearLabel = 'Clear search';
   } else if (isFilterMode) {
     typeLabel = 'Reading';
     reference = `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`;
