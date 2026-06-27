@@ -1046,10 +1046,9 @@ export default function BibleReader() {
     const scroller = document.getElementById('kjb-scroll');
     const scrollY = scroller ? scroller.scrollTop : window.scrollY;
     
-    // ALWAYS save current position BEFORE entering special modes (search/gospel/daily/random)
-    // This ensures we can return to it when clearing the indicator
-    const isEnteringSpecialMode = fromDailyVerse || fromRandom || (!sameChapter && (searchTerm || gospelMode));
-    if (pos.abbr && pos.chapter) {
+    // ALWAYS save current reading position before ANY navigation
+    // This is the key fix - we save BEFORE overwriting with special mode positions
+    if (pos.abbr && pos.chapter && !fromDailyVerse && !fromRandom) {
       const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY };
       try { localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession)); } catch {}
       setPrevReadingSession(prevSession);
@@ -1067,9 +1066,6 @@ export default function BibleReader() {
       const lastPos = { abbr: newAbbr, chapter: newChapter, fromDailyVerse, fromRandom, prevAbbr: pos.abbr, prevChapter: pos.chapter, prevScrollY: scrollY };
       try { localStorage.setItem('kjb-last-reading', JSON.stringify(lastPos)); } catch {}
       setLastReadingPos(lastPos);
-    } else if (!sameChapter && !isEnteringSpecialMode) {
-      // For normal chapter navigation (not daily/random/search/gospel), mark as cleared
-      lastReadingClearedRef.current = true;
     }
     if (!jumpVerse) {
       setHighlightVerse(null); setFilterMode(false); setSelectMode(false);
