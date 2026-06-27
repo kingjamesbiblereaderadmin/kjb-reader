@@ -14,6 +14,7 @@ import OfflineHtmlSection from '@/components/bible/OfflineHtmlSection';
 import ThemeColorPicker from '@/components/bible/ThemeColorPicker';
 import { Switch } from '@/components/ui/switch';
 import InstallAppSection from '@/components/settings/InstallAppSection';
+import InstallDebugPanel from '@/components/settings/InstallDebugPanel';
 import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
 import { useTheme, COLOUR_PALETTES } from '@/lib/themeContext';
@@ -81,7 +82,7 @@ export default function SettingsPage() {
     offlineHtml: true,
     info: true,
     credits: true,
-    advanced: false,
+    advanced: true,
     contact: true,
     developer: false,
   });
@@ -1420,6 +1421,27 @@ export default function SettingsPage() {
         )}
       </div>
 
+      {/* PWA Debug Panel - Always visible at top */}
+      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
+        <div className="w-full flex items-center justify-between px-5 py-3.5 text-left">
+          <div className="flex flex-col gap-1">
+            <h2 className="font-serif text-lg font-semibold text-foreground">PWA Debug</h2>
+            <p className="font-sans text-xs text-muted-foreground">Real-time install status</p>
+          </div>
+          <button
+            onClick={() => {
+              window.location.href = window.location.pathname + '?refresh=' + Date.now();
+            }}
+            className="px-3 py-1.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            Hard Refresh
+          </button>
+        </div>
+        <div className="px-5 pb-5 pt-2">
+          <InstallDebugPanel />
+        </div>
+      </div>
+
       {/* Advanced */}
       <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
         <button
@@ -1434,14 +1456,6 @@ export default function SettingsPage() {
         </button>
         {expandedSections.advanced && (
           <div className="px-5 pb-6 pt-2 space-y-3">
-            {/* PWA Debug Panel */}
-            <div className="rounded-xl bg-secondary/30 border border-border p-3 font-sans text-xs">
-              <p className="font-medium text-foreground mb-2">PWA Install Status:</p>
-              <p className="text-muted-foreground">display-mode standalone: <span className={typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches ? 'text-green-600' : 'text-red-500'}>{typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches ? 'true' : 'false'}</span></p>
-              <p className="text-muted-foreground">localStorage kjb-is-installed: <span className="text-amber-600">{typeof window !== 'undefined' ? localStorage.getItem('kjb-is-installed') : 'N/A'}</span></p>
-              <p className="text-muted-foreground">getInstalledRelatedApps: <span className="text-amber-600">{typeof navigator !== 'undefined' && navigator.getInstalledRelatedApps ? 'available' : 'unavailable'}</span></p>
-              <p className="text-muted-foreground mt-2">Check browser console for [InstallCheck] and [useInstallPrompt] logs</p>
-            </div>
             <div className="space-y-2 mb-4 pt-1 border-b border-border pb-4">
               <div className="flex justify-between items-center font-sans text-sm gap-4">
                 <span className="text-muted-foreground shrink-0">Worker Version</span>
