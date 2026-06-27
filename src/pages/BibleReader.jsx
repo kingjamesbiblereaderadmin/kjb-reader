@@ -396,12 +396,33 @@ export default function BibleReader() {
 
   useEffect(() => {
     getBibleData().catch(err => console.error('[BibleReader] Cache preload failed:', err));
-    // ALWAYS restore search/daily/gospel context from localStorage on mount
+    // Restore toolbar state from localStorage on mount (persists across app restarts)
+    try {
+      const savedState = localStorage.getItem('kjb-reader-toolbar-state');
+      if (savedState) {
+        const state = JSON.parse(savedState);
+        if (state && state.hasSearchContext && state.searchTerm) {
+          searchClearedRef.current = false;
+          setSearchTerm(state.searchTerm);
+          setSearchResultIndex(state.searchResultIndex || 0);
+          setSearchTotalResults(state.searchTotalResults || 0);
+        }
+        if (state && state.hasGospelContext) {
+          const g = getGospelNav();
+          if (g.results.length > 0) {
+            setGospelMode(true);
+            setGospelResultIndex(g.index);
+            setGospelTotalResults(g.results.length);
+          }
+        }
+      }
+    } catch {}
+    // ALSO restore legacy search context (fallback)
     try {
       const term = localStorage.getItem('kjb-search-term');
       const resultsRaw = localStorage.getItem('kjb-search-results');
       const index = localStorage.getItem('kjb-search-index');
-      if (term && resultsRaw) {
+      if (term && resultsRaw && !searchTerm) {
         const results = JSON.parse(resultsRaw);
         if (results.length > 0) {
           searchClearedRef.current = false;
