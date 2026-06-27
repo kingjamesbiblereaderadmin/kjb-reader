@@ -882,7 +882,10 @@ export default function BibleReader() {
   );
   
   const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isAutoAdvance = false, section = null, preserveSearchContext = false) => {
-    if (!preserveSearchContext) {
+    // When navigating to a DIFFERENT chapter, clear search context (user moved on).
+    // When staying on the SAME chapter (e.g., jumping to a verse), preserve it.
+    const sameChapter = newAbbr === pos.abbr && newChapter === pos.chapter;
+    if (!preserveSearchContext && !sameChapter) {
       searchClearedRef.current = true; clearSearchNav(); setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
       setGospelMode(false); clearGospelNav();
     }

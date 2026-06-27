@@ -20,8 +20,11 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
         timestamp: Date.now()
       };
       localStorage.setItem('kjb-reader-toolbar-state', JSON.stringify(state));
-    } catch {}
-  }, [filterMode, selectedVerses, searchTerm, gospelMode, searchResultIndex, searchTotalResults, pos.abbr, pos.chapter, loading]);
+      console.log('[ToolbarState] Saved:', state);
+    } catch (err) {
+      console.error('[ToolbarState] Save error:', err);
+    }
+  }, [filterMode, selectedVerses, searchTerm, searchClearedRef.current, gospelMode, searchResultIndex, searchTotalResults, pos.abbr, pos.chapter, loading]);
 
   // Restore toolbar state after chapter loads
   useEffect(() => {
@@ -31,6 +34,7 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
         const saved = localStorage.getItem('kjb-reader-toolbar-state');
         if (!saved) return;
         const state = JSON.parse(saved);
+        // Restore search/gospel context if we're on the SAME chapter where it was saved
         if (state && state.abbr === pos.abbr && state.chapter === pos.chapter && Date.now() - state.timestamp < 600000) {
           if (state.filterMode !== undefined) setFilterMode(state.filterMode);
           if (state.selectedVerses && state.selectedVerses.length > 0) {
@@ -39,7 +43,8 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
             setHighlightedVerses(newSet);
           }
           if (state.resultView) resultViewRef.current = state.resultView;
-          if (state.hasSearchContext && state.searchTerm && !searchTerm) {
+          // Always restore search context if it exists and hasn't been cleared
+          if (state.hasSearchContext && state.searchTerm) {
             searchClearedRef.current = false;
             setSearchTerm(state.searchTerm);
             setSearchResultIndex(state.searchResultIndex || 0);
@@ -55,7 +60,9 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
             }
           }
         }
-      } catch {}
+      } catch (err) {
+        console.error('[ToolbarState] Restore error:', err);
+      }
     };
     restoreToolbarState();
     const timer = setTimeout(restoreToolbarState, 100);
