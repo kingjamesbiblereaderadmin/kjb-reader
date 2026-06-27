@@ -7,7 +7,7 @@ const INSTALLED_KEY = 'kjb-is-installed';
 // Primary: display-mode media queries (most reliable cross-browser).
 // Secondary: navigator.standalone (iOS).
 // Tertiary: getInstalledRelatedApps() (Android Chrome 94+ only).
-// Quaternary: localStorage flag (manual confirmation).
+// Quaternary: localStorage flag (persists across browser/PWA windows).
 const checkInstalledAsync = async () => {
   if (typeof window === 'undefined') return false;
   
@@ -18,42 +18,51 @@ const checkInstalledAsync = async () => {
     return false;
   }
   
+  let isInstalled = false;
+  
   // PRIMARY: display-mode media queries - most reliable signal
   if (window.matchMedia('(display-mode: standalone)').matches) {
     console.log('[InstallCheck] display-mode: standalone → installed');
-    return true;
-  }
-  if (window.matchMedia('(display-mode: minimal-ui)').matches) {
+    isInstalled = true;
+  } else if (window.matchMedia('(display-mode: minimal-ui)').matches) {
     console.log('[InstallCheck] display-mode: minimal-ui → installed');
-    return true;
-  }
-  if (window.matchMedia('(display-mode: window-controls-overlay)').matches) {
+    isInstalled = true;
+  } else if (window.matchMedia('(display-mode: window-controls-overlay)').matches) {
     console.log('[InstallCheck] display-mode: window-controls-overlay → installed');
-    return true;
+    isInstalled = true;
   }
   
   // iOS: use navigator.standalone
-  if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
+  if (!isInstalled && /iphone|ipad|ipod/i.test(navigator.userAgent)) {
     try {
       const isStandalone = window.navigator.standalone === true;
       console.log('[InstallCheck] iOS navigator.standalone:', isStandalone);
-      if (isStandalone) return true;
+      if (isStandalone) isInstalled = true;
     } catch { return false; }
   }
   
   // Android/desktop: try getInstalledRelatedApps() (limited browser support)
-  if (navigator.getInstalledRelatedApps) {
+  if (!isInstalled && navigator.getInstalledRelatedApps) {
     try {
       const apps = await navigator.getInstalledRelatedApps();
       const installed = !!(apps && apps.length > 0);
       console.log('[InstallCheck] getInstalledRelatedApps:', apps, '→ installed:', installed);
-      if (installed) return true;
+      if (installed) isInstalled = true;
     } catch (err) {
       console.error('[InstallCheck] getInstalledRelatedApps failed:', err);
     }
   }
   
-  // Fallback: localStorage flag (set after successful install)
+  // Persist install state to localStorage so it's visible in normal browser windows too
+  if (isInstalled) {
+    try {
+      localStorage.setItem(INSTALLED_KEY, 'true');
+      console.log('[InstallCheck] Persisted install state to localStorage');
+    } catch {}
+    return true;
+  }
+  
+  // Fallback: localStorage flag (persists across browser/PWA windows)
   try {
     const stored = localStorage.getItem(INSTALLED_KEY);
     if (stored === 'true') {
@@ -157,12 +166,15 @@ export function useInstallPrompt() {
     window.addEventListener('kjb-install-change', sync);
     window.addEventListener('focus', sync);
     window.addEventListener('pwa-installed', sync);
+    window.addEventListener('storage', sync);
     // Initial sync on mount
     sync();
     return () => {
       cancelled = true;
       window.removeEventListener('kjb-install-change', sync);
       window.removeEventListener('focus', sync);
+      window.removeEventListener('pwa-installed', sync);
+      window.removeEventListener('storage', sync);
     };
   }, []);
 
