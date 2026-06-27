@@ -1426,16 +1426,16 @@ export default function BibleReader() {
                       }
                       return;
                     }
-                    // For ALL other cases (daily/random/search/filter/highlight), read from kjb-prev-reading-session
+                    // For ALL other cases (daily/random/search/filter/highlight), read from kjb-last-reading (set by HomePage)
                     let prevAbbr, prevChapter, prevScrollY;
                     try {
-                      const prevRaw = localStorage.getItem('kjb-prev-reading-session');
-                      if (prevRaw) {
-                        const prev = JSON.parse(prevRaw);
-                        if (prev && prev.abbr && prev.chapter) {
-                          prevAbbr = prev.abbr;
-                          prevChapter = prev.chapter;
-                          prevScrollY = prev.scrollY;
+                      const lastRaw = localStorage.getItem('kjb-last-reading');
+                      if (lastRaw) {
+                        const last = JSON.parse(lastRaw);
+                        if (last && last.prevAbbr && last.prevChapter) {
+                          prevAbbr = last.prevAbbr;
+                          prevChapter = last.prevChapter;
+                          prevScrollY = last.prevScrollY || 0;
                         }
                       }
                     } catch {}
