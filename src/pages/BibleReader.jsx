@@ -869,6 +869,11 @@ export default function BibleReader() {
   useToolbarState(pos, loading, verses, filterMode, selectedVerses, searchTerm, searchResultIndex, searchTotalResults, gospelMode, searchClearedRef, setFilterMode, setSelectedVerses, setHighlightedVerses, resultViewRef, setSearchTerm, setSearchResultIndex, setSearchTotalResults);
 
   const { navigate: baseNavigate, returnToChapter: baseReturnToChapter, preSearchPosRef, rangeHighlightRef, freshNavRef } = useReaderNavigation(pos, loadChapter, routerNavigate, routerLocation);
+  
+  const returnToChapter = (abbr, chapter, exactY) => {
+    baseReturnToChapter(abbr, chapter, exactY, setFilterMode, setSelectMode, setSelectedVerses, setHighlightedVerses, setHighlightVerse, setHighlightSection, setShowFilterOverlay, loadChapter);
+  };
+  
   const { stepToResult, clearSearchContext } = useSearchAndGospelResults(
     posRef, loading, verses, topRef, searchTerm, gospelMode, setGospelMode, setGospelResultIndex, setGospelTotalResults,
     setSearchTerm, setSearchResultIndex, setSearchTotalResults, resultViewRef, setFilterMode, setHighlightedVerses, setSelectedVerses,
@@ -903,10 +908,6 @@ export default function BibleReader() {
     setHighlightSection(section);
     setPos({ abbr: newAbbr, chapter: newChapter, verse: jumpVerse });
     baseNavigate(newAbbr, newChapter, jumpVerse, fromDailyVerse, fromRandom, isAutoAdvance, section, preserveSearchContext, clearSearchNav, setGospelMode, clearGospelNav);
-  };
-  
-  const returnToChapter = (abbr, chapter, exactY) => {
-    baseReturnToChapter(abbr, chapter, exactY, setFilterMode, setSelectMode, setSelectedVerses, setHighlightedVerses, setHighlightVerse, setHighlightSection, setShowFilterOverlay, loadChapter);
   };
 
   const goNext = (isAutoAdvance = false) => {
