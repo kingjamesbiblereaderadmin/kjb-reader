@@ -62,8 +62,16 @@ const checkInstalledAsync = async () => {
     return true;
   }
   
+  // NOT in standalone mode - clear the localStorage flag (user may have uninstalled)
+  // This allows browser tabs to update their status after uninstall
+  try {
+    localStorage.removeItem(INSTALLED_KEY);
+    console.log('[InstallCheck] ✓ Cleared localStorage flag (not in standalone mode)');
+  } catch {}
+  
   // Fallback: check localStorage flag (set by PWA window when installed)
   // This allows normal browser tabs to show "Installed" when PWA is installed
+  // BUT only if we're currently in a PWA window (otherwise it's stale after uninstall)
   try {
     const stored = localStorage.getItem(INSTALLED_KEY);
     if (stored === 'true') {
