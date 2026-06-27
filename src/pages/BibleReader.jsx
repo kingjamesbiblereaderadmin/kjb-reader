@@ -852,6 +852,20 @@ export default function BibleReader() {
     const target = scroller || window;
     const getY = () => (scroller ? scroller.scrollTop : window.scrollY);
     let raf = null;
+
+    // Immediately capture this chapter as the previous reading session as soon
+    // as it loads in NORMAL reading mode (no highlight/search/gospel/daily/random).
+    // This guarantees Clear has somewhere to return to even if the user never
+    // scrolls before jumping to a daily verse / search / random chapter.
+    const urlParams = new URLSearchParams(window.location.search);
+    const fromSpecial = ['daily', 'random', 'search', 'gospel'].includes(urlParams.get('from'));
+    if (!fromSpecial && !highlightVerse && !searchTerm && !gospelMode && !lastReadingPos && pos.abbr && pos.chapter) {
+      try {
+        const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY: Math.round(getY()) };
+        localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession));
+      } catch {}
+    }
+
     const flush = () => {
       if (raf) { cancelAnimationFrame(raf); raf = null; }
       try { localStorage.setItem(key, String(Math.round(getY()))); } catch {}
@@ -1399,29 +1413,30 @@ export default function BibleReader() {
                     // ALWAYS check for a saved previous reading position FIRST (works for search/gospel/daily/random)
                     let prevAbbr, prevChapter, prevScrollY;
                     
-                    // Try kjb-last-reading first (has explicit prevAbbr/prevChapter fields)
+                    // Prefer kjb-prev-reading-session — it's the most accurate record of
+                    // the chapter the user was actually reading (captured on chapter load + scroll).
                     try {
-                      const lastRaw = localStorage.getItem('kjb-last-reading');
-                      if (lastRaw) {
-                        const last = JSON.parse(lastRaw);
-                        if (last && last.prevAbbr && last.prevChapter) {
-                          prevAbbr = last.prevAbbr;
-                          prevChapter = last.prevChapter;
-                          prevScrollY = typeof last.prevScrollY === 'number' ? last.prevScrollY : last.scrollY;
+                      const prevRaw = localStorage.getItem('kjb-prev-reading-session');
+                      if (prevRaw) {
+                        const prev = JSON.parse(prevRaw);
+                        if (prev && prev.abbr && prev.chapter) {
+                          prevAbbr = prev.abbr;
+                          prevChapter = prev.chapter;
+                          prevScrollY = prev.scrollY;
                         }
                       }
                     } catch {}
                     
-                    // Fall back to kjb-prev-reading-session
+                    // Fall back to the prevAbbr/prevChapter baked into kjb-last-reading
                     if (!prevAbbr || !prevChapter) {
                       try {
-                        const prevRaw = localStorage.getItem('kjb-prev-reading-session');
-                        if (prevRaw) {
-                          const prev = JSON.parse(prevRaw);
-                          if (prev && prev.abbr && prev.chapter) {
-                            prevAbbr = prev.abbr;
-                            prevChapter = prev.chapter;
-                            prevScrollY = prev.scrollY;
+                        const lastRaw = localStorage.getItem('kjb-last-reading');
+                        if (lastRaw) {
+                          const last = JSON.parse(lastRaw);
+                          if (last && last.prevAbbr && last.prevChapter) {
+                            prevAbbr = last.prevAbbr;
+                            prevChapter = last.prevChapter;
+                            prevScrollY = typeof last.prevScrollY === 'number' ? last.prevScrollY : last.scrollY;
                           }
                         }
                       } catch {}
