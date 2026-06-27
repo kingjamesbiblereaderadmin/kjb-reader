@@ -101,10 +101,8 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
   }, []);
 
   // Samsung Internet (older versions) doesn't fire beforeinstallprompt reliably.
-  // Edge Desktop also doesn't support native prompt - show manual guide.
   useEffect(() => {
     if (isSamsung() && !window.kjbDeferredPrompt) setShowIOSHint(true);
-    if (isEdgeDesktop()) setShowIOSHint(true);
   }, []);
 
   // Detect standalone PWA mode on mount and when focus changes
@@ -194,14 +192,7 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
     
     console.log('[FirstLoadPrompt] Install clicked | deferredPrompt:', !!window.kjbDeferredPrompt, '| isInstallable:', isInstallable);
     
-    // Edge desktop: always show manual guide (no native prompt support)
-    if (isEdgeDesktop()) {
-      setPromptCancelled(true);
-      setShowIOSHint(true);
-      return;
-    }
-    
-    // Try native prompt first (Edge mobile, Chrome, Samsung, iOS)
+    // Try native prompt first (all platforms including Edge desktop/mobile)
     if (onInstall) {
       try {
         const accepted = await onInstall();
