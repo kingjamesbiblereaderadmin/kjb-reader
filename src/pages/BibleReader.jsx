@@ -613,13 +613,19 @@ export default function BibleReader() {
         searchClearedRef.current = true; setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
         setGospelMode(false); clearGospelNav();
         lastReadingClearedRef.current = false;
+        // Save current position as previous reading session BEFORE setting daily/random
+        const scroller = document.getElementById('kjb-scroll');
+        const scrollY = scroller ? scroller.scrollTop : window.scrollY;
+        const prevSession = { abbr: posRef.current.abbr, chapter: posRef.current.chapter, scrollY };
+        try { localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession)); } catch {}
+        setPrevReadingSession(prevSession);
         try {
           const saved = localStorage.getItem('kjb-last-reading');
           if (saved) {
             const parsed = JSON.parse(saved);
             setLastReadingPos(parsed);
           } else {
-            const dailyPos = { abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum || null, fromDailyVerse: isFromDaily, fromRandom: isFromRandom };
+            const dailyPos = { abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum || null, fromDailyVerse: isFromDaily, fromRandom: isFromRandom, prevAbbr: posRef.current.abbr, prevChapter: posRef.current.chapter, prevScrollY: scrollY };
             localStorage.setItem('kjb-last-reading', JSON.stringify(dailyPos));
             setLastReadingPos(dailyPos);
           }
